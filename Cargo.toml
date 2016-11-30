@@ -1,0 +1,6 @@
+[package]
+name = "talpid_core"
+version = "0.0.0"
+authors = ["Linus Färnstrand <linus@mullvad.net>"]
+
+[dependencies]
