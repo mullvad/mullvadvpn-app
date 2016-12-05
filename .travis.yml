@@ -6,6 +6,9 @@ rust:
 os:
   - linux
   - osx
+env:
+  global:
+    - RUST_TEST_THREADS=1
 
 before_script:
   - (cargo install rustfmt || true)
