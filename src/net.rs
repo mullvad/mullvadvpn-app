@@ -62,6 +62,12 @@ fn split_at_colon(s: &str) -> Result<(&str, &str), ()> {
     Ok((address, port))
 }
 
+impl fmt::Display for RemoteAddr {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}:{}", self.address, self.port)
+    }
+}
+
 /// Representation of the errors that can happen when parsing a string into a `RemoteAddr`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AddrParseError {
@@ -152,5 +158,12 @@ mod tests {
     fn remote_addr_from_str_empty_port() {
         let err = RemoteAddr::from_str("example.com:");
         assert_eq!(Err(AddrParseError::InvalidPort), err);
+    }
+
+    #[test]
+    fn remote_addr_to_string() {
+        let formatted_remote = "10.98.150.255:1337";
+        let remote_addr = RemoteAddr::from_str(formatted_remote).unwrap();
+        assert_eq!(formatted_remote, remote_addr.to_string());
     }
 }
