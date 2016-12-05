@@ -1,0 +1,18 @@
+language: rust
+cache: cargo
+rust:
+  - stable
+  - nightly
+os:
+  - linux
+  - osx
+
+before_script:
+  - (cargo install rustfmt || true)
+  - export PATH=$HOME/.local/bin:$PATH
+  - export PATH=$HOME/.cargo/bin:$PATH
+
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo fmt -- --write-mode=diff
