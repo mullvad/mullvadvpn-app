@@ -43,7 +43,7 @@ impl OpenVpnBuilder {
     }
 
     fn apply_settings(&self, command: &mut Command) {
-        if let Some(config) = self.config.as_ref() {
+        if let Some(ref config) = self.config {
             command.arg("--config").arg(config);
         }
     }
