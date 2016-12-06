@@ -1,3 +1,5 @@
+use net::RemoteAddr;
+
 use std::ffi::{OsString, OsStr};
 use std::io;
 use std::path::{Path, PathBuf};
@@ -8,6 +10,7 @@ use std::process::{Command, Child, Stdio};
 pub struct OpenVpnBuilder {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
+    remotes: Vec<RemoteAddr>,
 }
 
 impl OpenVpnBuilder {
@@ -17,6 +20,7 @@ impl OpenVpnBuilder {
         OpenVpnBuilder {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
+            remotes: vec![],
         }
     }
 
@@ -26,10 +30,17 @@ impl OpenVpnBuilder {
         self
     }
 
+    /// Sets the addresses that OpenVPN will connect to. See OpenVPN documentation for how multiple
+    /// remotes are handled.
+    pub fn remotes(&mut self, remotes: Vec<RemoteAddr>) -> &mut Self {
+        self.remotes = remotes;
+        self
+    }
+
     /// Executes the OpenVPN process as a child process, returning a handle to it.
     pub fn spawn(&mut self) -> io::Result<Child> {
         let mut command = self.create_command();
-        self.apply_settings(&mut command);
+        command.args(&self.get_arguments());
         command.spawn()
     }
 
@@ -42,9 +53,53 @@ impl OpenVpnBuilder {
         command
     }
 
-    fn apply_settings(&self, command: &mut Command) {
+    /// Returns all arguments that the subprocess would be spawned with.
+    pub fn get_arguments(&self) -> Vec<OsString> {
+        let mut args = vec![];
         if let Some(ref config) = self.config {
-            command.arg("--config").arg(config);
+            args.push(OsString::from("--config"));
+            args.push(OsString::from(config.as_os_str()));
         }
+        for remote in &self.remotes {
+            args.push(OsString::from("--remote"));
+            args.push(OsString::from(remote.address()));
+            args.push(OsString::from(remote.port().to_string()));
+        }
+        args
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use net::RemoteAddr;
+    use std::ffi::OsString;
+    use super::OpenVpnBuilder;
+
+    #[test]
+    fn no_arguments() {
+        let args = OpenVpnBuilder::new("").get_arguments();
+        assert_eq!(0, args.len());
+    }
+
+    #[test]
+    fn passes_one_remote() {
+        let remotes = vec![RemoteAddr::new("example.com", 3333)];
+
+        let args = OpenVpnBuilder::new("").remotes(remotes).get_arguments();
+
+        assert!(args.contains(&OsString::from("example.com")));
+        assert!(args.contains(&OsString::from("3333")));
+    }
+
+    #[test]
+    fn passes_two_remotes() {
+        let remotes = vec![RemoteAddr::new("127.0.0.1", 998), RemoteAddr::new("fe80::1", 1337)];
+
+        let args = OpenVpnBuilder::new("").remotes(remotes).get_arguments();
+
+        assert!(args.contains(&OsString::from("127.0.0.1")));
+        assert!(args.contains(&OsString::from("998")));
+        assert!(args.contains(&OsString::from("fe80::1")));
+        assert!(args.contains(&OsString::from("1337")));
     }
 }

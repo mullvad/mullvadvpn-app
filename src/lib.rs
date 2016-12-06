@@ -5,6 +5,9 @@
 /// Working with processes.
 pub mod process;
 
+/// Network primitives.
+pub mod net;
+
 #[cfg(test)]
 mod tests {
     #[test]
