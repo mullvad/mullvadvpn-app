@@ -45,10 +45,10 @@ impl FromStr for RemoteAddr {
     /// Parse a string into a `RemoteAddr`. Does not work correctly with IPv6, see tests for
     /// defined behavior
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (address_str, port_str) = split_at_colon(s).map_err(|_| AddrParseError::InvalidPort)?;
-        let port = u16::from_str(port_str).map_err(|_| AddrParseError::InvalidPort)?;
+        let (address_str, port_str) = split_at_colon(s).map_err(|_| AddrParseError(()))?;
+        let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
         if address_str.len() == 0 {
-            return Err(AddrParseError::InvalidAddress);
+            return Err(AddrParseError(()));
         }
         Ok(RemoteAddr {
             address: String::from(address_str),
@@ -72,12 +72,7 @@ impl fmt::Display for RemoteAddr {
 
 /// Representation of the errors that can happen when parsing a string into a `RemoteAddr`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AddrParseError {
-    /// When the address is malformed
-    InvalidAddress,
-    /// When no port or an invalid port
-    InvalidPort,
-}
+pub struct AddrParseError(());
 
 impl fmt::Display for AddrParseError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
@@ -87,10 +82,7 @@ impl fmt::Display for AddrParseError {
 
 impl Error for AddrParseError {
     fn description(&self) -> &str {
-        match *self {
-            AddrParseError::InvalidAddress => "Invalid address",
-            AddrParseError::InvalidPort => "Invalid port",
-        }
+        "Invalid remote address format"
     }
 }
 
@@ -154,26 +146,22 @@ mod tests {
 
     #[test]
     fn remote_addr_from_str_no_colon() {
-        let err = RemoteAddr::from_str("example.com");
-        assert_eq!(Err(AddrParseError::InvalidPort), err);
+        assert!(RemoteAddr::from_str("example.com").is_err());
     }
 
     #[test]
     fn remote_addr_from_str_invalid_port_large() {
-        let err = RemoteAddr::from_str("example.com:99999");
-        assert_eq!(Err(AddrParseError::InvalidPort), err);
+        assert!(RemoteAddr::from_str("example.com:99999").is_err());
     }
 
     #[test]
     fn remote_addr_from_str_empty_address() {
-        let err = RemoteAddr::from_str(":100");
-        assert_eq!(Err(AddrParseError::InvalidAddress), err);
+        assert!(RemoteAddr::from_str(":100").is_err());
     }
 
     #[test]
     fn remote_addr_from_str_empty_port() {
-        let err = RemoteAddr::from_str("example.com:");
-        assert_eq!(Err(AddrParseError::InvalidPort), err);
+        assert!(RemoteAddr::from_str("example.com:").is_err());
     }
 
     #[test]
