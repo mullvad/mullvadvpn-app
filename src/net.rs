@@ -1,3 +1,5 @@
+use regex::Regex;
+
 use std::error::Error;
 use std::fmt;
 use std::net::SocketAddr;
@@ -42,26 +44,21 @@ impl From<SocketAddr> for RemoteAddr {
 
 impl FromStr for RemoteAddr {
     type Err = AddrParseError;
-    /// Parse a string into a `RemoteAddr`. Does not work correctly with IPv6, see tests for
-    /// defined behavior
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (address_str, port_str) = split_at_colon(s).map_err(|_| AddrParseError(()))?;
+        let (address, port_str) = split_remote_addr_string(s).map_err(|_| AddrParseError(()))?;
         let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
-        if address_str.len() == 0 {
-            return Err(AddrParseError(()));
-        }
         Ok(RemoteAddr {
-            address: String::from(address_str),
+            address: address.to_owned(),
             port: port,
         })
     }
 }
 
-fn split_at_colon(s: &str) -> Result<(&str, &str), ()> {
-    let mut iter = s.rsplitn(2, ":");
-    let port = iter.next().unwrap();
-    let address = iter.next().ok_or(())?;
-    Ok((address, port))
+fn split_remote_addr_string(s: &str) -> Result<(&str, &str), ()> {
+    let with_brackets = Regex::new(r"^\[([^\]]+)\]:([0-9]+)$").unwrap();
+    let without_brackets = Regex::new(r"^([^:]+):([0-9]+)$").unwrap();
+    let captures = with_brackets.captures(s).or(without_brackets.captures(s));
+    captures.map(|cs| (cs.at(1).unwrap(), cs.at(2).unwrap())).ok_or(())
 }
 
 impl fmt::Display for RemoteAddr {
@@ -116,32 +113,21 @@ mod tests {
         assert_eq!(3333, remote_addr.port());
     }
 
-    // These tests exist to show that the parsing does not work exactly as the standard suggests
-    // https://tools.ietf.org/html/rfc3986#appendix-A
-    mod ipv6_invalid_parsing {
-        use std::str::FromStr;
-        use super::super::*;
+    #[test]
+    fn remote_addr_from_ipv6_str_without_brackets() {
+        assert!(RemoteAddr::from_str("fe80::1:1337").is_err());
+    }
 
-        #[test]
-        fn remote_addr_from_ipv6_str_without_brackets() {
-            let remote_addr = RemoteAddr::from_str("fe80::1:1337").unwrap();
-            assert_eq!("fe80::1", remote_addr.address());
-            assert_eq!(1337, remote_addr.port());
-        }
+    #[test]
+    fn remote_addr_from_ipv6_str_with_brackets() {
+        let remote_addr = RemoteAddr::from_str("[fe80::1]:1337").unwrap();
+        assert_eq!("fe80::1", remote_addr.address());
+        assert_eq!(1337, remote_addr.port());
+    }
 
-        #[test]
-        fn remote_addr_from_ipv6_str_with_brackets() {
-            let remote_addr = RemoteAddr::from_str("[fe80::1]:1337").unwrap();
-            assert_eq!("[fe80::1]", remote_addr.address());
-            assert_eq!(1337, remote_addr.port());
-        }
-
-        #[test]
-        fn remote_addr_from_ipv6_str_without_port() {
-            let remote_addr = RemoteAddr::from_str("fe80::1").unwrap();
-            assert_eq!("fe80:", remote_addr.address());
-            assert_eq!(1, remote_addr.port());
-        }
+    #[test]
+    fn remote_addr_from_ipv6_str_without_port() {
+        assert!(RemoteAddr::from_str("fe80::1").is_err());
     }
 
     #[test]
