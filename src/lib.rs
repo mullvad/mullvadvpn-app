@@ -2,6 +2,8 @@
 
 //! The core components of the talpidaemon VPN client.
 
+extern crate regex;
+
 /// Working with processes.
 pub mod process;
 

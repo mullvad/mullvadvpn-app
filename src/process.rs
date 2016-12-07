@@ -1,6 +1,7 @@
 use net::RemoteAddr;
 
 use std::ffi::{OsString, OsStr};
+use std::fmt;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Child, Stdio};
@@ -67,6 +68,31 @@ impl OpenVpnBuilder {
         }
         args
     }
+}
+
+impl fmt::Display for OpenVpnBuilder {
+    /// Format the program and arguments of an `OpenVpnBuilder` for display. Any non-utf8 data is
+    /// lossily converted using the utf8 replacement character.
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(&self.openvpn_bin.to_string_lossy())?;
+        for arg in self.get_arguments().iter().map(|arg| arg.to_string_lossy()) {
+            write_argument(fmt, &arg)?;
+        }
+        Ok(())
+    }
+}
+
+fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
+    fmt.write_str(" ")?;
+    let quote = arg.contains(char::is_whitespace);
+    if quote {
+        fmt.write_str("\"")?;
+    }
+    fmt.write_str(&arg)?;
+    if quote {
+        fmt.write_str("\"")?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
