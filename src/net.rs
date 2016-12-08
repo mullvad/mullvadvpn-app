@@ -2,8 +2,13 @@ use regex::Regex;
 
 use std::error::Error;
 use std::fmt;
+use std::io;
+use std::iter;
 use std::net::SocketAddr;
+use std::option;
+use std::slice;
 use std::str::FromStr;
+use std::vec;
 
 /// Representation of a TCP or UDP endpoint. The host is represented as a String since it can be
 /// both a hostname/domain as well as an IP.
@@ -83,6 +88,61 @@ impl Error for AddrParseError {
     }
 }
 
+
+/// A trait for objects which can be converted to one or more `RemoteAddr` values.
+pub trait ToRemoteAddrs {
+    /// Returned iterator over remote addresses which this type may correspond
+    /// to.
+    type Iter: Iterator<Item = RemoteAddr>;
+
+    /// Converts this object to an iterator of parsed `RemoteAddr`s.
+    ///
+    /// # Errors
+    ///
+    /// Any errors encountered during parsing will be returned as an `Err`.
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter>;
+}
+
+impl ToRemoteAddrs for RemoteAddr {
+    type Iter = option::IntoIter<RemoteAddr>;
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        Ok(Some(self.clone()).into_iter())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a [RemoteAddr] {
+    type Iter = iter::Cloned<slice::Iter<'a, RemoteAddr>>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        Ok(self.iter().cloned())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a str {
+    type Iter = option::IntoIter<RemoteAddr>;
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        let addr = str_to_remote_addr(self)?;
+        Ok(Some(addr).into_iter())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a [&'a str] {
+    type Iter = vec::IntoIter<RemoteAddr>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        let mut addrs = vec![];
+        for addr in self.iter() {
+            let parsed_addr = str_to_remote_addr(addr)?;
+            addrs.push(parsed_addr);
+        }
+        Ok(addrs.into_iter())
+    }
+}
+
+fn str_to_remote_addr(s: &str) -> io::Result<RemoteAddr> {
+    RemoteAddr::from_str(s)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e.description()))
+}
 
 #[cfg(test)]
 mod tests {

@@ -1,4 +1,4 @@
-use net::RemoteAddr;
+use net::{RemoteAddr, ToRemoteAddrs};
 
 use std::ffi::{OsString, OsStr};
 use std::fmt;
@@ -33,9 +33,9 @@ impl OpenVpnBuilder {
 
     /// Sets the addresses that OpenVPN will connect to. See OpenVPN documentation for how multiple
     /// remotes are handled.
-    pub fn remotes(&mut self, remotes: Vec<RemoteAddr>) -> &mut Self {
-        self.remotes = remotes;
-        self
+    pub fn remotes<A: ToRemoteAddrs>(&mut self, remotes: A) -> io::Result<&mut Self> {
+        self.remotes = remotes.to_remote_addrs()?.collect();
+        Ok(self)
     }
 
     /// Executes the OpenVPN process as a child process, returning a handle to it.
@@ -109,9 +109,9 @@ mod tests {
 
     #[test]
     fn passes_one_remote() {
-        let remotes = vec![RemoteAddr::new("example.com", 3333)];
+        let remotes = RemoteAddr::new("example.com", 3333);
 
-        let args = OpenVpnBuilder::new("").remotes(remotes).get_arguments();
+        let args = OpenVpnBuilder::new("").remotes(remotes).unwrap().get_arguments();
 
         assert!(args.contains(&OsString::from("example.com")));
         assert!(args.contains(&OsString::from("3333")));
@@ -121,11 +121,22 @@ mod tests {
     fn passes_two_remotes() {
         let remotes = vec![RemoteAddr::new("127.0.0.1", 998), RemoteAddr::new("fe80::1", 1337)];
 
-        let args = OpenVpnBuilder::new("").remotes(remotes).get_arguments();
+        let args = OpenVpnBuilder::new("").remotes(&remotes[..]).unwrap().get_arguments();
 
         assert!(args.contains(&OsString::from("127.0.0.1")));
         assert!(args.contains(&OsString::from("998")));
         assert!(args.contains(&OsString::from("fe80::1")));
         assert!(args.contains(&OsString::from("1337")));
+    }
+
+    #[test]
+    fn accepts_str() {
+        assert!(OpenVpnBuilder::new("").remotes("10.0.0.1:1377").is_ok());
+    }
+
+    #[test]
+    fn accepts_slice_of_str() {
+        let remotes = ["10.0.0.1:1377", "127.0.0.1:99"];
+        assert!(OpenVpnBuilder::new("").remotes(&remotes[..]).is_ok());
     }
 }
