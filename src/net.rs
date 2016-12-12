@@ -160,6 +160,8 @@ fn str_to_remote_addr(s: &str) -> io::Result<RemoteAddr> {
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e.description()))
 }
 
+
+
 #[cfg(test)]
 mod remote_addr_tests {
     use std::net::{SocketAddr, SocketAddrV4, SocketAddrV6};
@@ -240,7 +242,6 @@ mod remote_addr_tests {
     }
 
     #[test]
-    #[ignore]
     fn to_string_ipv6() {
         let socket_addr = SocketAddr::V6(SocketAddrV6::from_str("[2001:beef::1]:9876").unwrap());
         let testee = RemoteAddr::from(socket_addr);
