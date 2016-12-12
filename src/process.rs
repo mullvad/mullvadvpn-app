@@ -49,8 +49,8 @@ impl OpenVpnBuilder {
         let mut command = Command::new(&self.openvpn_bin);
         command.env_clear()
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null());
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
         command
     }
 
