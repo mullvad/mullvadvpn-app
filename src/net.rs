@@ -44,7 +44,7 @@ impl RemoteAddr {
     }
 
     fn from_domain_str(s: &str) -> Result<Self, AddrParseError> {
-        let (address, port_str) = Self::split_at_colon(s).map_err(|_| AddrParseError(()))?;
+        let (address, port_str) = Self::split_at_last_colon(s).map_err(|_| AddrParseError(()))?;
         let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
         if address.len() == 0 || address.contains(':') {
             return Err(AddrParseError(()));
@@ -52,7 +52,7 @@ impl RemoteAddr {
         Ok(RemoteAddr::Domain(address.to_owned(), port))
     }
 
-    fn split_at_colon(s: &str) -> Result<(&str, &str), ()> {
+    fn split_at_last_colon(s: &str) -> Result<(&str, &str), ()> {
         let mut iter = s.rsplitn(2, ":");
         let port = iter.next().unwrap();
         let address = iter.next().ok_or(())?;
