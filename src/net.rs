@@ -1,5 +1,3 @@
-use regex::Regex;
-
 use std::error::Error;
 use std::fmt;
 use std::io;
@@ -10,65 +8,82 @@ use std::slice;
 use std::str::FromStr;
 use std::vec;
 
-/// Representation of a TCP or UDP endpoint. The host is represented as a String since it can be
-/// both a hostname/domain as well as an IP.
+/// Representation of a TCP or UDP endpoint. The IP level address is represented by either an IP
+/// directly or a hostname/domain. The IP level address together with a port becomes a socket
+/// address.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct RemoteAddr {
-    address: String,
-    port: u16,
+pub enum RemoteAddr {
+    /// Endpoint represented by an IP and a port.
+    SocketAddr(SocketAddr),
+    /// Endpoint represented by a hostname or domain and a port.
+    Domain(String, u16),
 }
 
 impl RemoteAddr {
-    /// Constructs a new `RemoteAddr` from the given address and port.
+    /// Constructs a new `RemoteAddr` from the given address (hostname or domain) and port. To
+    /// construct a `RemoteAddr` based on IP rather than domain, use the From<SocketAddr> impl.
     pub fn new(address: &str, port: u16) -> Self {
-        RemoteAddr {
-            address: address.to_owned(),
-            port: port,
-        }
+        RemoteAddr::Domain(address.to_owned(), port)
     }
 
-    /// Returns the address associated with this `RemoteAddr`.
-    pub fn address(&self) -> &str {
-        &self.address
+    /// Returns the address associated with this `RemoteAddr`. If it is backed by an IP that will
+    /// be formatted as a string.
+    pub fn address(&self) -> String {
+        match *self {
+            RemoteAddr::SocketAddr(ref addr) => addr.ip().to_string(),
+            RemoteAddr::Domain(ref address, _) => address.to_owned(),
+        }
     }
 
     /// Returns the port associated with this `RemoteAddr`.
     pub fn port(&self) -> u16 {
-        self.port
+        match *self {
+            RemoteAddr::SocketAddr(addr) => addr.port(),
+            RemoteAddr::Domain(_, port) => port,
+        }
+    }
+
+    fn from_domain_str(s: &str) -> Result<Self, AddrParseError> {
+        let (address, port_str) = Self::split_at_colon(s).map_err(|_| AddrParseError(()))?;
+        let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
+        if address.len() == 0 || address.contains(':') {
+            return Err(AddrParseError(()));
+        }
+        Ok(RemoteAddr::Domain(address.to_owned(), port))
+    }
+
+    fn split_at_colon(s: &str) -> Result<(&str, &str), ()> {
+        let mut iter = s.rsplitn(2, ":");
+        let port = iter.next().unwrap();
+        let address = iter.next().ok_or(())?;
+        Ok((address, port))
     }
 }
 
 impl From<SocketAddr> for RemoteAddr {
     fn from(socket_addr: SocketAddr) -> Self {
-        RemoteAddr {
-            address: socket_addr.ip().to_string(),
-            port: socket_addr.port(),
-        }
+        RemoteAddr::SocketAddr(socket_addr)
     }
 }
 
 impl FromStr for RemoteAddr {
     type Err = AddrParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (address, port_str) = split_remote_addr_string(s).map_err(|_| AddrParseError(()))?;
-        let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
-        Ok(RemoteAddr {
-            address: address.to_owned(),
-            port: port,
-        })
+        if let Ok(addr) = SocketAddr::from_str(s) {
+            Ok(RemoteAddr::from(addr))
+        } else {
+            Self::from_domain_str(s)
+        }
     }
 }
 
-fn split_remote_addr_string(s: &str) -> Result<(&str, &str), ()> {
-    let with_brackets = Regex::new(r"^\[([^\]]+)\]:([0-9]+)$").unwrap();
-    let without_brackets = Regex::new(r"^([^:]+):([0-9]+)$").unwrap();
-    let captures = with_brackets.captures(s).or(without_brackets.captures(s));
-    captures.map(|cs| (cs.at(1).unwrap(), cs.at(2).unwrap())).ok_or(())
-}
 
 impl fmt::Display for RemoteAddr {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}:{}", self.address, self.port)
+        match *self {
+            RemoteAddr::SocketAddr(ref addr) => addr.fmt(fmt),
+            RemoteAddr::Domain(ref address, ref port) => write!(fmt, "{}:{}", address, port),
+        }
     }
 }
 
