@@ -2,8 +2,13 @@ use regex::Regex;
 
 use std::error::Error;
 use std::fmt;
+use std::io;
+use std::iter;
 use std::net::SocketAddr;
+use std::option;
+use std::slice;
 use std::str::FromStr;
+use std::vec;
 
 /// Representation of a TCP or UDP endpoint. The host is represented as a String since it can be
 /// both a hostname/domain as well as an IP.
@@ -84,76 +89,146 @@ impl Error for AddrParseError {
 }
 
 
+/// A trait for objects which can be converted to one or more `RemoteAddr` values.
+pub trait ToRemoteAddrs {
+    /// Returned iterator over remote addresses which this type may correspond
+    /// to.
+    type Iter: Iterator<Item = RemoteAddr>;
+
+    /// Converts this object to an iterator of parsed `RemoteAddr`s.
+    ///
+    /// # Errors
+    ///
+    /// Any errors encountered during parsing will be returned as an `Err`.
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter>;
+}
+
+impl ToRemoteAddrs for RemoteAddr {
+    type Iter = option::IntoIter<RemoteAddr>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        Ok(Some(self.clone()).into_iter())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a [RemoteAddr] {
+    type Iter = iter::Cloned<slice::Iter<'a, RemoteAddr>>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        Ok(self.iter().cloned())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a str {
+    type Iter = option::IntoIter<RemoteAddr>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        let parsed_addr = str_to_remote_addr(self)?;
+        Ok(Some(parsed_addr).into_iter())
+    }
+}
+
+impl<'a> ToRemoteAddrs for &'a [&'a str] {
+    type Iter = vec::IntoIter<RemoteAddr>;
+
+    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
+        let mut addrs = Vec::with_capacity(self.len());
+        for addr in self.iter() {
+            addrs.push(str_to_remote_addr(addr)?);
+        }
+        Ok(addrs.into_iter())
+    }
+}
+
+fn str_to_remote_addr(s: &str) -> io::Result<RemoteAddr> {
+    RemoteAddr::from_str(s)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e.description()))
+}
+
 #[cfg(test)]
-mod tests {
-    use std::net::SocketAddr;
+mod remote_addr_tests {
+    use std::net::{SocketAddr, SocketAddrV4, SocketAddrV6};
     use std::str::FromStr;
 
     use super::*;
 
     #[test]
-    fn remote_addr_new_and_getters() {
-        let remote_addr = RemoteAddr::new("a_domain", 543);
-        assert_eq!("a_domain", remote_addr.address());
-        assert_eq!(543, remote_addr.port());
+    fn new_and_getters() {
+        let testee = RemoteAddr::new("a_domain", 543);
+        assert_eq!("a_domain", testee.address());
+        assert_eq!(543, testee.port());
     }
 
     #[test]
-    fn remote_addr_from_socket_addr() {
+    fn from_socket_addr() {
         let socket_addr = SocketAddr::from_str("10.0.1.1:76").unwrap();
-        let remote_addr: RemoteAddr = socket_addr.into();
-        assert_eq!("10.0.1.1", remote_addr.address());
-        assert_eq!(76, remote_addr.port());
+        let testee: RemoteAddr = socket_addr.into();
+        assert_eq!("10.0.1.1", testee.address());
+        assert_eq!(76, testee.port());
     }
 
     #[test]
-    fn remote_addr_from_str() {
-        let remote_addr = RemoteAddr::from_str("example.com:3333").unwrap();
-        assert_eq!("example.com", remote_addr.address());
-        assert_eq!(3333, remote_addr.port());
+    fn from_str() {
+        let testee = RemoteAddr::from_str("example.com:3333").unwrap();
+        assert_eq!("example.com", testee.address());
+        assert_eq!(3333, testee.port());
     }
 
     #[test]
-    fn remote_addr_from_ipv6_str_without_brackets() {
+    fn from_ipv6_str_without_brackets() {
         assert!(RemoteAddr::from_str("fe80::1:1337").is_err());
     }
 
     #[test]
-    fn remote_addr_from_ipv6_str_with_brackets() {
-        let remote_addr = RemoteAddr::from_str("[fe80::1]:1337").unwrap();
-        assert_eq!("fe80::1", remote_addr.address());
-        assert_eq!(1337, remote_addr.port());
+    fn from_ipv6_str_with_brackets() {
+        let testee = RemoteAddr::from_str("[fe80::1]:1337").unwrap();
+        assert_eq!("fe80::1", testee.address());
+        assert_eq!(1337, testee.port());
     }
 
     #[test]
-    fn remote_addr_from_ipv6_str_without_port() {
+    fn from_ipv6_str_without_port() {
         assert!(RemoteAddr::from_str("fe80::1").is_err());
     }
 
     #[test]
-    fn remote_addr_from_str_no_colon() {
+    fn from_str_no_colon() {
         assert!(RemoteAddr::from_str("example.com").is_err());
     }
 
     #[test]
-    fn remote_addr_from_str_invalid_port_large() {
+    fn from_str_invalid_port_large() {
         assert!(RemoteAddr::from_str("example.com:99999").is_err());
     }
 
     #[test]
-    fn remote_addr_from_str_empty_address() {
+    fn from_str_empty_address() {
         assert!(RemoteAddr::from_str(":100").is_err());
     }
 
     #[test]
-    fn remote_addr_from_str_empty_port() {
+    fn from_str_empty_port() {
         assert!(RemoteAddr::from_str("example.com:").is_err());
     }
 
     #[test]
-    fn remote_addr_to_string() {
-        let formatted_remote = "10.98.150.255:1337";
-        let remote_addr = RemoteAddr::from_str(formatted_remote).unwrap();
-        assert_eq!(formatted_remote, remote_addr.to_string());
+    fn to_string_domain() {
+        let testee = RemoteAddr::new("example.com", 3333);
+        assert_eq!("example.com:3333", testee.to_string());
+    }
+
+    #[test]
+    fn to_string_ipv4() {
+        let socket_addr = SocketAddr::V4(SocketAddrV4::from_str("127.1.2.3:1337").unwrap());
+        let testee = RemoteAddr::from(socket_addr);
+        assert_eq!("127.1.2.3:1337", testee.to_string());
+    }
+
+    #[test]
+    #[ignore]
+    fn to_string_ipv6() {
+        let socket_addr = SocketAddr::V6(SocketAddrV6::from_str("[2001:beef::1]:9876").unwrap());
+        let testee = RemoteAddr::from(socket_addr);
+        assert_eq!("[2001:beef::1]:9876", testee.to_string());
     }
 }
