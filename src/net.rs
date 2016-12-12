@@ -225,6 +225,7 @@ mod remote_addr_tests {
     }
 
     #[test]
+    #[ignore]
     fn to_string_ipv6() {
         let socket_addr = SocketAddr::V6(SocketAddrV6::from_str("[2001:beef::1]:9876").unwrap());
         let testee = RemoteAddr::from(socket_addr);
