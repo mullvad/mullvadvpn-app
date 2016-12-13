@@ -3,6 +3,7 @@ use std::fmt;
 use std::io;
 use std::iter;
 use std::net::SocketAddr;
+use std::num::ParseIntError;
 use std::option;
 use std::slice;
 use std::str::FromStr;
@@ -44,18 +45,18 @@ impl RemoteAddr {
     }
 
     fn from_domain_str(s: &str) -> Result<Self, AddrParseError> {
-        let (address, port_str) = Self::split_at_last_colon(s).map_err(|_| AddrParseError(()))?;
-        let port = u16::from_str(port_str).map_err(|_| AddrParseError(()))?;
+        let (address, port_str) = Self::split_at_last_colon(s)?;
+        let port = u16::from_str(port_str)?;
         if address.len() == 0 || address.contains(':') {
             return Err(AddrParseError(()));
         }
         Ok(RemoteAddr::Domain(address.to_owned(), port))
     }
 
-    fn split_at_last_colon(s: &str) -> Result<(&str, &str), ()> {
+    fn split_at_last_colon(s: &str) -> Result<(&str, &str), AddrParseError> {
         let mut iter = s.rsplitn(2, ":");
         let port = iter.next().unwrap();
-        let address = iter.next().ok_or(())?;
+        let address = iter.next().ok_or(AddrParseError(()))?;
         Ok((address, port))
     }
 }
@@ -90,6 +91,12 @@ impl fmt::Display for RemoteAddr {
 /// Representation of the errors that can happen when parsing a string into a `RemoteAddr`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AddrParseError(());
+
+impl From<ParseIntError> for AddrParseError {
+    fn from(_: ParseIntError) -> Self {
+        AddrParseError(())
+    }
+}
 
 impl fmt::Display for AddrParseError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
