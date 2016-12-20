@@ -88,7 +88,7 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
     if quote {
         fmt.write_str("\"")?;
     }
-    fmt.write_str(&arg)?;
+    fmt.write_str(arg)?;
     if quote {
         fmt.write_str("\"")?;
     }
