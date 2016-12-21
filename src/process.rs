@@ -39,13 +39,13 @@ impl OpenVpnBuilder {
     }
 
     /// Executes the OpenVPN process as a child process, returning a handle to it.
-    pub fn spawn(&mut self) -> io::Result<Child> {
+    pub fn spawn(&self) -> io::Result<Child> {
         let mut command = self.create_command();
         command.args(&self.get_arguments());
         command.spawn()
     }
 
-    fn create_command(&mut self) -> Command {
+    fn create_command(&self) -> Command {
         let mut command = Command::new(&self.openvpn_bin);
         command.env_clear()
             .stdin(Stdio::null())
