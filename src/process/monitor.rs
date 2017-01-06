@@ -320,3 +320,179 @@ impl Drop for ChildMonitor {
             .expect("Internal error, not able to send Shutdown");
     }
 }
+
+
+#[cfg(test)]
+mod child_monitor {
+    use std::io;
+    use std::process::{ChildStdout, ChildStderr};
+    use std::sync::{Arc, Mutex};
+    use std::sync::mpsc::{self, Sender, Receiver};
+    use std::thread;
+    use std::time::Duration;
+    use super::*;
+
+    #[derive(Clone)]
+    struct MockChild {
+        died: Arc<Mutex<bool>>,
+    }
+
+    impl MockChild {
+        pub fn instant_exit() -> Self {
+            Self::new(true)
+        }
+
+        pub fn alive_until_kill() -> Self {
+            Self::new(false)
+        }
+
+        fn new(died: bool) -> Self {
+            MockChild { died: Arc::new(Mutex::new(died)) }
+        }
+    }
+
+    impl MonitorChild for MockChild {
+        fn wait(&self) -> io::Result<bool> {
+            loop {
+                if *self.died.lock().unwrap() {
+                    break;
+                }
+                thread::sleep(Duration::new(0, 1_000_000));
+            }
+            Ok(true)
+        }
+
+        fn kill(&self) -> io::Result<()> {
+            *self.died.lock().unwrap() = true;
+            Ok(())
+        }
+
+        fn stdout(&mut self) -> Option<ChildStdout> {
+            None
+        }
+
+        fn stderr(&mut self) -> Option<ChildStderr> {
+            None
+        }
+    }
+
+    struct MockChildSpawner {
+        spawn_result: Option<MockChild>,
+    }
+
+    impl MockChildSpawner {
+        pub fn new(spawn_result: Option<MockChild>) -> Self {
+            MockChildSpawner { spawn_result: spawn_result }
+        }
+    }
+
+    impl ChildSpawner<MockChild> for MockChildSpawner {
+        fn spawn(&mut self) -> io::Result<MockChild> {
+            self.spawn_result
+                .clone()
+                .ok_or(io::Error::new(io::ErrorKind::Other, "Mocking a failed process spawn"))
+        }
+    }
+
+    #[derive(Debug)]
+    enum MockEvent {
+        Start(TransitionResult<(bool, bool)>),
+        Stop(TransitionResult<()>),
+        ChildExited(bool),
+    }
+
+    struct MockListener {
+        tx: Sender<MockEvent>,
+    }
+
+    impl MockListener {
+        pub fn new() -> (Self, Receiver<MockEvent>) {
+            let (tx, rx) = mpsc::channel();
+            let mock_listener = MockListener { tx: tx };
+            (mock_listener, rx)
+        }
+    }
+
+    impl MonitorEventListener for MockListener {
+        fn started(&mut self,
+                   result: TransitionResult<(Option<ChildStdout>, Option<ChildStderr>)>) {
+            let result = result.map(|(a, b)| (a.is_some(), b.is_some()));
+            drop(self.tx.send(MockEvent::Start(result)));
+        }
+
+        fn stopping(&mut self, result: TransitionResult<()>) {
+            drop(self.tx.send(MockEvent::Stop(result)));
+        }
+
+        fn child_exited(&mut self, clean: bool) {
+            drop(self.tx.send(MockEvent::ChildExited(clean)));
+        }
+    }
+
+    /// Tries to recv a message from the given `$rx` for one second and tries to match it with the
+    /// given expected value, `$expected`
+    macro_rules! assert_event {
+        ( $rx:ident, $expected:pat) => {{
+            let result = $rx.recv_timeout(Duration::new(1, 0));
+            if let $expected = result {} else {
+                let msg = stringify!($expected);
+                panic!("Expected {}. Got {:?}", msg, result);
+            }
+        }}
+    }
+
+    #[test]
+    fn normal_start() {
+        let builder = MockChildSpawner::new(Some(MockChild::instant_exit()));
+        let (listener, rx) = MockListener::new();
+        let testee = ChildMonitor::new(builder);
+
+        testee.set_listener(listener);
+        testee.start();
+
+        assert_event!(rx, Ok(MockEvent::Start(Ok(_))));
+        assert_event!(rx, Ok(MockEvent::ChildExited(true)));
+    }
+
+    #[test]
+    fn start_failed() {
+        let builder = MockChildSpawner::new(None);
+        let (listener, rx) = MockListener::new();
+        let testee = ChildMonitor::new(builder);
+
+        testee.set_listener(listener);
+        testee.start();
+
+        assert_event!(rx, Ok(MockEvent::Start(Err(TransitionError::IoError(_)))));
+    }
+
+    #[test]
+    fn notifies_latest_multiple_listeners() {
+        let builder = MockChildSpawner::new(Some(MockChild::instant_exit()));
+        let (listener, rx) = MockListener::new();
+        let (listener2, rx2) = MockListener::new();
+        let testee = ChildMonitor::new(builder);
+
+        testee.set_listener(listener);
+        testee.set_listener(listener2);
+        testee.start();
+
+        assert_event!(rx2, Ok(MockEvent::Start(Ok(_))));
+        assert_event!(rx, Err(mpsc::RecvTimeoutError::Disconnected));
+    }
+
+    #[test]
+    fn normal_stop() {
+        let builder = MockChildSpawner::new(Some(MockChild::alive_until_kill()));
+        let (listener, rx) = MockListener::new();
+        let testee = ChildMonitor::new(builder);
+
+        testee.set_listener(listener);
+        testee.start();
+        testee.stop();
+
+        let _ = rx.recv_timeout(Duration::new(1, 0));
+        assert_event!(rx, Ok(MockEvent::Stop(Ok(()))));
+        assert_event!(rx, Ok(MockEvent::ChildExited(true)));
+    }
+}
