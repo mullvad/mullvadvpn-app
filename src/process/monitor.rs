@@ -84,3 +84,46 @@ impl ChildSpawner<ClonableChild> for OpenVpnBuilder {
         OpenVpnBuilder::spawn(self).map(|child| child.into_clonable())
     }
 }
+
+
+/// Type alias for results of transitions in the `ChildMonitor` state machine.
+pub type TransitionResult<T> = Result<T, TransitionError>;
+
+/// Error type for transitions in the `ChildMonitor` state machine.
+#[derive(Debug)]
+pub enum TransitionError {
+    /// The transition could not be made because the state machine was not in a state that could
+    /// transition to the desired state.
+    InvalidState,
+
+    /// The transition failed because of an `io::Error`.
+    IoError(io::Error),
+}
+
+impl From<io::Error> for TransitionError {
+    fn from(error: io::Error) -> Self {
+        TransitionError::IoError(error)
+    }
+}
+
+impl fmt::Display for TransitionError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(self.description())
+    }
+}
+
+impl Error for TransitionError {
+    fn description(&self) -> &str {
+        match *self {
+            TransitionError::InvalidState => "Invalid state for desired transition",
+            TransitionError::IoError(..) => "Transition failed due to IO error",
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        match *self {
+            TransitionError::IoError(ref e) => Some(e),
+            _ => None,
+        }
+    }
+}
