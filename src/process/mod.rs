@@ -6,6 +6,9 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Child, Stdio};
 
+/// A module for monitoring child processes and get notified of events on them.
+pub mod monitor;
+
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
 pub struct OpenVpnBuilder {
