@@ -278,3 +278,45 @@ impl<C: MonitorChild, B: ChildSpawner<C>> Drop for StateMachine<C, B> {
         drop(self.stop())
     }
 }
+
+/// A child process monitor. Takes care of starting and monitoring a child process and sends
+/// out events about it to a registered lisener.
+pub struct ChildMonitor {
+    state_machine: Sender<MonitorMsg>,
+}
+
+impl ChildMonitor {
+    /// Creates a new `ChildMonitor` that spawn processes with the given `builder`. The new
+    /// `ChildMonitor` will be in the stopped state and not start any process until you call
+    /// `start()`
+    pub fn new<C: MonitorChild, B: ChildSpawner<C>>(builder: B) -> Self {
+        ChildMonitor { state_machine: spawn_state_machine(builder) }
+    }
+
+    /// Set the event listener to `listener`. Note that events might not show up on the new
+    /// listener imediately after this call since the listener change message must be processed by
+    /// the backend first.
+    pub fn set_listener<L>(&self, listener: L)
+        where L: MonitorEventListener
+    {
+        self.state_machine.send(MonitorMsg::AddListener(Box::new(listener))).unwrap();
+    }
+
+    /// Start the process to monitor. This will trigger an `MonitorEventListener::started` event.
+    pub fn start(&self) {
+        self.state_machine.send(MonitorMsg::Start).unwrap();
+    }
+
+    /// Stop the monitored process. This will trigger an `MonitorEventListener::stopped` event.
+    pub fn stop(&self) {
+        self.state_machine.send(MonitorMsg::Stop).unwrap();
+    }
+}
+
+impl Drop for ChildMonitor {
+    fn drop(&mut self) {
+        self.state_machine
+            .send(MonitorMsg::Shutdown)
+            .expect("Internal error, not able to send Shutdown");
+    }
+}
