@@ -432,7 +432,7 @@ mod child_monitor {
     /// Tries to recv a message from the given `$rx` for one second and tries to match it with the
     /// given expected value, `$expected`
     macro_rules! assert_event {
-        ( $rx:ident, $expected:pat) => {{
+        ($rx:ident, $expected:pat) => {{
             let result = $rx.recv_timeout(Duration::new(1, 0));
             if let $expected = result {} else {
                 let msg = stringify!($expected);
