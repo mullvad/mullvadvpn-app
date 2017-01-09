@@ -280,7 +280,7 @@ impl<C: MonitorChild, B: ChildSpawner<C>> Drop for StateMachine<C, B> {
 }
 
 /// A child process monitor. Takes care of starting and monitoring a child process and sends
-/// out events about it to a registered lisener.
+/// out events about it to a registered listener.
 pub struct ChildMonitor {
     state_machine: Sender<MonitorMsg>,
 }
@@ -294,7 +294,7 @@ impl ChildMonitor {
     }
 
     /// Set the event listener to `listener`. Note that events might not show up on the new
-    /// listener imediately after this call since the listener change message must be processed by
+    /// listener immediately after this call since the listener change message must be processed by
     /// the backend first.
     pub fn set_listener<L>(&self, listener: L)
         where L: MonitorEventListener
