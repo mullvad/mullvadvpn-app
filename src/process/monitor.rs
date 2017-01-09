@@ -491,7 +491,7 @@ mod child_monitor {
         testee.start();
         testee.stop();
 
-        let _ = rx.recv_timeout(Duration::new(1, 0));
+        drop(rx.recv_timeout(Duration::new(1, 0)));
         assert_event!(rx, Ok(MockEvent::Stop(Ok(()))));
         assert_event!(rx, Ok(MockEvent::ChildExited(true)));
     }
