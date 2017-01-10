@@ -1,7 +1,3 @@
-use clonablechild::{ClonableChild, ChildExt};
-
-use process::OpenVpnBuilder;
-
 use std::error::Error;
 use std::fmt;
 use std::io;

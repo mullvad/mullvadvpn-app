@@ -4,10 +4,14 @@ use std::ffi::{OsString, OsStr};
 use std::fmt;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Child, Stdio};
+use std::process::{Command, Child, Stdio, ChildStdout, ChildStderr};
 
 /// A module for monitoring child processes and get notified of events on them.
 pub mod monitor;
+
+use clonablechild::{ClonableChild, ChildExt};
+
+use self::monitor::{MonitoredChild, ChildSpawner};
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
