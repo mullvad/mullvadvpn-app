@@ -98,6 +98,32 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
     Ok(())
 }
 
+
+impl MonitoredChild for ClonableChild {
+    fn wait(&self) -> io::Result<bool> {
+        ClonableChild::wait(self).map(|exit_status| exit_status.success())
+    }
+
+    fn kill(&self) -> io::Result<()> {
+        ClonableChild::kill(self)
+    }
+
+    fn stdout(&mut self) -> Option<ChildStdout> {
+        self.stdout()
+    }
+
+    fn stderr(&mut self) -> Option<ChildStderr> {
+        self.stderr()
+    }
+}
+
+impl ChildSpawner<ClonableChild> for OpenVpnBuilder {
+    fn spawn(&mut self) -> io::Result<ClonableChild> {
+        OpenVpnBuilder::spawn(self).map(|child| child.into_clonable())
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use net::RemoteAddr;

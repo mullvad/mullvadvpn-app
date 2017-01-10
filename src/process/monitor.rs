@@ -40,7 +40,7 @@ impl MonitorEventListener for NullListener {}
 
 
 /// Trait for objects that represent child processes that `ChildMonitor` can monitor
-pub trait MonitorChild: Clone + Send + 'static {
+pub trait MonitoredChild: Clone + Send + 'static {
     /// Waits for the child to exit completely, returning if the child exited cleanly or not.
     fn wait(&self) -> io::Result<bool>;
 
@@ -54,35 +54,10 @@ pub trait MonitorChild: Clone + Send + 'static {
     fn stderr(&mut self) -> Option<ChildStderr>;
 }
 
-/// Trait for objects that can spawn any type of child process object implementing `MonitorChild`.
-pub trait ChildSpawner<C: MonitorChild>: Send + 'static {
+/// Trait for objects that can spawn any type of child process object implementing `MonitoredChild`.
+pub trait ChildSpawner<C: MonitoredChild>: Send + 'static {
     /// Spawns the child process, returning a handle to it on success.
     fn spawn(&mut self) -> io::Result<C>;
-}
-
-
-impl MonitorChild for ClonableChild {
-    fn wait(&self) -> io::Result<bool> {
-        ClonableChild::wait(self).map(|exit_status| exit_status.success())
-    }
-
-    fn kill(&self) -> io::Result<()> {
-        ClonableChild::kill(self)
-    }
-
-    fn stdout(&mut self) -> Option<ChildStdout> {
-        self.stdout()
-    }
-
-    fn stderr(&mut self) -> Option<ChildStderr> {
-        self.stderr()
-    }
-}
-
-impl ChildSpawner<ClonableChild> for OpenVpnBuilder {
-    fn spawn(&mut self) -> io::Result<ClonableChild> {
-        OpenVpnBuilder::spawn(self).map(|child| child.into_clonable())
-    }
 }
 
 
@@ -134,17 +109,17 @@ enum Event {
     ChildExited(bool),
 }
 
-enum State<C: MonitorChild> {
+enum State<C: MonitoredChild> {
     Stopped,
     Running(RunningState<C>),
     Stopping(StoppingState<C>),
 }
 
-struct RunningState<C: MonitorChild> {
+struct RunningState<C: MonitoredChild> {
     child: C,
 }
 
-struct StoppingState<C: MonitorChild> {
+struct StoppingState<C: MonitoredChild> {
     child: C,
 }
 
@@ -159,7 +134,7 @@ enum MonitorMsg {
 }
 
 fn spawn_state_machine<C, B>(builder: B) -> Sender<MonitorMsg>
-    where C: MonitorChild,
+    where C: MonitoredChild,
           B: ChildSpawner<C>
 {
     let state_machine = StateMachine::new(builder);
@@ -170,7 +145,7 @@ fn spawn_state_machine<C, B>(builder: B) -> Sender<MonitorMsg>
     tx
 }
 
-struct StateMachine<C: MonitorChild, B: ChildSpawner<C>> {
+struct StateMachine<C: MonitoredChild, B: ChildSpawner<C>> {
     process_builder: B,
     tx: Sender<MonitorMsg>,
     rx: Receiver<MonitorMsg>,
@@ -178,7 +153,7 @@ struct StateMachine<C: MonitorChild, B: ChildSpawner<C>> {
     state: State<C>,
 }
 
-impl<C: MonitorChild, B: ChildSpawner<C>> StateMachine<C, B> {
+impl<C: MonitoredChild, B: ChildSpawner<C>> StateMachine<C, B> {
     pub fn new(process_builder: B) -> Self {
         let (tx, rx) = mpsc::channel();
         let state_machine = StateMachine {
@@ -273,7 +248,7 @@ impl<C: MonitorChild, B: ChildSpawner<C>> StateMachine<C, B> {
     }
 }
 
-impl<C: MonitorChild, B: ChildSpawner<C>> Drop for StateMachine<C, B> {
+impl<C: MonitoredChild, B: ChildSpawner<C>> Drop for StateMachine<C, B> {
     fn drop(&mut self) {
         drop(self.stop())
     }
@@ -289,7 +264,7 @@ impl ChildMonitor {
     /// Creates a new `ChildMonitor` that spawn processes with the given `builder`. The new
     /// `ChildMonitor` will be in the stopped state and not start any process until you call
     /// `start()`
-    pub fn new<C: MonitorChild, B: ChildSpawner<C>>(builder: B) -> Self {
+    pub fn new<C: MonitoredChild, B: ChildSpawner<C>>(builder: B) -> Self {
         ChildMonitor { state_machine: spawn_state_machine(builder) }
     }
 
@@ -351,7 +326,7 @@ mod child_monitor {
         }
     }
 
-    impl MonitorChild for MockChild {
+    impl MonitoredChild for MockChild {
         fn wait(&self) -> io::Result<bool> {
             loop {
                 if *self.died.lock().unwrap() {
