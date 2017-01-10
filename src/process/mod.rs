@@ -15,17 +15,17 @@ use self::monitor::{MonitoredChild, ChildSpawner};
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
-pub struct OpenVpnBuilder {
+pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
 }
 
-impl OpenVpnBuilder {
-    /// Constructs a new `OpenVpnBuilder` for launching OpenVPN processes from the binary at
+impl OpenVpnCommand {
+    /// Constructs a new `OpenVpnCommand` for launching OpenVPN processes from the binary at
     /// `openvpn_bin`.
     pub fn new<P: AsRef<OsStr>>(openvpn_bin: P) -> Self {
-        OpenVpnBuilder {
+        OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remotes: vec![],
@@ -77,8 +77,8 @@ impl OpenVpnBuilder {
     }
 }
 
-impl fmt::Display for OpenVpnBuilder {
-    /// Format the program and arguments of an `OpenVpnBuilder` for display. Any non-utf8 data is
+impl fmt::Display for OpenVpnCommand {
+    /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data is
     /// lossily converted using the utf8 replacement character.
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(&self.openvpn_bin.to_string_lossy())?;
@@ -121,9 +121,9 @@ impl MonitoredChild for ClonableChild {
     }
 }
 
-impl ChildSpawner<ClonableChild> for OpenVpnBuilder {
+impl ChildSpawner<ClonableChild> for OpenVpnCommand {
     fn spawn(&mut self) -> io::Result<ClonableChild> {
-        OpenVpnBuilder::spawn(self).map(|child| child.into_clonable())
+        OpenVpnCommand::spawn(self).map(|child| child.into_clonable())
     }
 }
 
@@ -132,11 +132,11 @@ impl ChildSpawner<ClonableChild> for OpenVpnBuilder {
 mod tests {
     use net::RemoteAddr;
     use std::ffi::OsString;
-    use super::OpenVpnBuilder;
+    use super::OpenVpnCommand;
 
     #[test]
     fn no_arguments() {
-        let testee_args = OpenVpnBuilder::new("").get_arguments();
+        let testee_args = OpenVpnCommand::new("").get_arguments();
         assert_eq!(0, testee_args.len());
     }
 
@@ -144,7 +144,7 @@ mod tests {
     fn passes_one_remote() {
         let remote = RemoteAddr::new("example.com", 3333);
 
-        let testee_args = OpenVpnBuilder::new("").remotes(remote).unwrap().get_arguments();
+        let testee_args = OpenVpnCommand::new("").remotes(remote).unwrap().get_arguments();
 
         assert!(testee_args.contains(&OsString::from("example.com")));
         assert!(testee_args.contains(&OsString::from("3333")));
@@ -154,7 +154,7 @@ mod tests {
     fn passes_two_remotes() {
         let remotes = vec![RemoteAddr::new("127.0.0.1", 998), RemoteAddr::new("fe80::1", 1337)];
 
-        let testee_args = OpenVpnBuilder::new("").remotes(&remotes[..]).unwrap().get_arguments();
+        let testee_args = OpenVpnCommand::new("").remotes(&remotes[..]).unwrap().get_arguments();
 
         assert!(testee_args.contains(&OsString::from("127.0.0.1")));
         assert!(testee_args.contains(&OsString::from("998")));
@@ -164,14 +164,14 @@ mod tests {
 
     #[test]
     fn accepts_str() {
-        assert!(OpenVpnBuilder::new("").remotes("10.0.0.1:1377").is_ok());
+        assert!(OpenVpnCommand::new("").remotes("10.0.0.1:1377").is_ok());
     }
 
     #[test]
     fn accepts_slice_of_str() {
         let remotes = ["10.0.0.1:1337", "127.0.0.1:99"];
 
-        let testee_args = OpenVpnBuilder::new("").remotes(&remotes[..]).unwrap().get_arguments();
+        let testee_args = OpenVpnCommand::new("").remotes(&remotes[..]).unwrap().get_arguments();
 
         assert!(testee_args.contains(&OsString::from("10.0.0.1")));
         assert!(testee_args.contains(&OsString::from("1337")));
