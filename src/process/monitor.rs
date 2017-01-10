@@ -116,7 +116,7 @@ struct RunningState<C: MonitoredChild> {
 }
 
 struct StoppingState<C: MonitoredChild> {
-    child: C,
+    _child: C,
 }
 
 // Messages sent internally between the `ChildMonitor`, `StateMachine` and the thread that monitors
@@ -222,7 +222,7 @@ impl<C: MonitoredChild, B: ChildSpawner<C>> StateMachine<C, B> {
         };
         match result {
             Ok(child) => {
-                self.state = State::Stopping(StoppingState { child: child });
+                self.state = State::Stopping(StoppingState { _child: child });
                 Ok(())
             }
             Err(e) => Err(e),
