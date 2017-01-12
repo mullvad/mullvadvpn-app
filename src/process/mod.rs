@@ -19,7 +19,7 @@ pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
-    forward_standard_streams: bool,
+    pipe_output: bool,
 }
 
 impl OpenVpnCommand {
@@ -30,7 +30,7 @@ impl OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remotes: vec![],
-            forward_standard_streams: true,
+            pipe_output: true,
         }
     }
 
@@ -47,9 +47,11 @@ impl OpenVpnCommand {
         Ok(self)
     }
 
-    /// Invoke this to not create stdout and stderr streams for the subprocess
-    pub fn discard_standard_streams(&mut self) -> &mut Self {
-        self.forward_standard_streams = false;
+    /// If piping the standard streams, stdout and stderr will be available to the parent process.
+    /// This is the default behavior. If you want the equivalence of attaching the child streams to
+    /// /dev/null, invoke this method with false.
+    pub fn pipe_output(&mut self, pipe_output: bool) -> &mut Self {
+        self.pipe_output = pipe_output;
         self
     }
 
@@ -64,13 +66,13 @@ impl OpenVpnCommand {
         let mut command = Command::new(&self.openvpn_bin);
         command.env_clear()
             .stdin(Stdio::null())
-            .stdout(self.get_std_streams_forward_policy())
-            .stderr(self.get_std_streams_forward_policy());
+            .stdout(self.get_output_pipe_policy())
+            .stderr(self.get_output_pipe_policy());
         command
     }
 
-    fn get_std_streams_forward_policy(&self) -> Stdio {
-        if self.forward_standard_streams {
+    fn get_output_pipe_policy(&self) -> Stdio {
+        if self.pipe_output {
             Stdio::piped()
         } else {
             Stdio::null()
