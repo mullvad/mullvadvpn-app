@@ -19,6 +19,7 @@ pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
+    forward_standard_streams: bool,
 }
 
 impl OpenVpnCommand {
@@ -29,6 +30,7 @@ impl OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remotes: vec![],
+            forward_standard_streams: true,
         }
     }
 
@@ -45,6 +47,12 @@ impl OpenVpnCommand {
         Ok(self)
     }
 
+    /// Invoke this to not create stdout and stderr streams for the subprocess
+    pub fn discard_standard_streams(&mut self) -> &mut Self {
+        self.forward_standard_streams = false;
+        self
+    }
+
     /// Executes the OpenVPN process as a child process, returning a handle to it.
     pub fn spawn(&self) -> io::Result<Child> {
         let mut command = self.create_command();
@@ -56,9 +64,17 @@ impl OpenVpnCommand {
         let mut command = Command::new(&self.openvpn_bin);
         command.env_clear()
             .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .stdout(self.get_std_streams_forward_policy())
+            .stderr(self.get_std_streams_forward_policy());
         command
+    }
+
+    fn get_std_streams_forward_policy(&self) -> Stdio {
+        if self.forward_standard_streams {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        }
     }
 
     /// Returns all arguments that the subprocess would be spawned with.
