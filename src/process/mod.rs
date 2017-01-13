@@ -19,6 +19,7 @@ pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
+    pipe_output: bool,
 }
 
 impl OpenVpnCommand {
@@ -29,6 +30,7 @@ impl OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remotes: vec![],
+            pipe_output: true,
         }
     }
 
@@ -45,6 +47,14 @@ impl OpenVpnCommand {
         Ok(self)
     }
 
+    /// If piping the standard streams, stdout and stderr will be available to the parent process.
+    /// This is the default behavior. If you want the equivalence of attaching the child streams to
+    /// /dev/null, invoke this method with false.
+    pub fn pipe_output(&mut self, pipe_output: bool) -> &mut Self {
+        self.pipe_output = pipe_output;
+        self
+    }
+
     /// Executes the OpenVPN process as a child process, returning a handle to it.
     pub fn spawn(&self) -> io::Result<Child> {
         let mut command = self.create_command();
@@ -56,9 +66,17 @@ impl OpenVpnCommand {
         let mut command = Command::new(&self.openvpn_bin);
         command.env_clear()
             .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .stdout(self.get_output_pipe_policy())
+            .stderr(self.get_output_pipe_policy());
         command
+    }
+
+    fn get_output_pipe_policy(&self) -> Stdio {
+        if self.pipe_output {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        }
     }
 
     /// Returns all arguments that the subprocess would be spawned with.
