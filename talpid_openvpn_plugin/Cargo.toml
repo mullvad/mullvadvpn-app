@@ -1,0 +1,9 @@
+[package]
+name = "talpid_openvpn_plugin"
+version = "0.1.0"
+authors = ["Linus Färnstrand <linus@mullvad.net>"]
+
+[lib]
+crate-type = ["dylib"]
+
+[dependencies]
