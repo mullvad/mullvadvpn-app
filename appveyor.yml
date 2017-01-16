@@ -47,5 +47,10 @@ test_script:
       cargo test --target %TARGET% --release && echo "RELEASE TESTING DONE"
     )
 
+# Cache build binaries for faster builds next time
+cache:
+  - C:\Users\appveyor\.cargo\registry
+  - target
+
 # disable automatic builds
 build: false
