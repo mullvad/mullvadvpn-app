@@ -47,9 +47,5 @@ test_script:
       cargo test --target %TARGET% --release && echo "RELEASE TESTING DONE"
     )
 
-notifications:
-  - provider: Email
-    on_build_success: false
-
 # disable automatic builds
 build: false
