@@ -3,11 +3,11 @@
 
 environment:
   global:
-  # TODO This is the Rust channel that build jobs will use by default but can be
+  # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
     RUST_VERSION: stable
 
-  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
     # MinGW
@@ -45,7 +45,7 @@ install:
   - rustc -Vv
   - cargo -V
 
-# TODO This is the "test phase", tweak it as you see fit
+# This is the "test phase", tweak it as you see fit
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
