@@ -7,3 +7,4 @@ authors = ["Linus Färnstrand <linus@mullvad.net>"]
 crate-type = ["dylib"]
 
 [dependencies]
+lazy_static = "0.2"
