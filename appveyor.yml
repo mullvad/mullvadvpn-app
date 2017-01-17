@@ -31,17 +31,9 @@ install:
       } ElseIf ($Env:TARGET -eq 'i686-pc-windows-gnu') {
         $Env:PATH += ';C:\msys64\mingw32\bin'
       }
-  # Download Rust differently for nightly since there are some checksum problems when using rustup
-  - ps: >-
-      If ($Env:RUST_VERSION -eq 'nightly') {
-        Start-FileDownload "https://static.rust-lang.org/dist/rust-${env:RUST_VERSION}-${env:TARGET}.exe"
-        cmd /c rust-%RUST_VERSION%-%TARGET%.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
-        $Env:PATH += ';C:\Program Files (x86)\Rust\bin'
-      } Else {
-        cmd /c curl -sSf -o rustup-init.exe https://win.rustup.rs/
-        cmd /c rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
-        $Env:PATH += ';C:\Users\appveyor\.cargo\bin'
-      }
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
 
