@@ -55,5 +55,6 @@ cache:
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
 
-# disable automatic builds
+# We build in the test stage, so disable Appveyor's build stage. This prevents
+# the "directory does not contain a project or solution file" error.
 build: false
