@@ -19,3 +19,7 @@ script:
   - cargo build --verbose
   - cargo test --verbose
   - cargo fmt -- --write-mode=diff
+notifications:
+  email:
+    on_success: never
+    on_failure: never
