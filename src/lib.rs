@@ -11,8 +11,12 @@ extern crate clonablechild;
 #[macro_use]
 extern crate error_chain;
 
+extern crate zmq;
+
 /// Working with processes.
 pub mod process;
 
 /// Network primitives.
 pub mod net;
+
+mod ipc;
