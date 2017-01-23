@@ -44,7 +44,7 @@ lazy_static! {
 
 /// Returns the name of an OPENVPN_PLUGIN_* constant.
 pub fn plugin_event_name(num: c_int) -> &'static str {
-    PLUGIN_EVENT_NAMES.get(&num).map(|s| *s).unwrap_or("UNKNOWN EVENT")
+    PLUGIN_EVENT_NAMES.get(&num).map(|s| *s).unwrap_or("UNKNOWN")
 }
 
 
@@ -53,3 +53,27 @@ pub fn plugin_event_name(num: c_int) -> &'static str {
 pub const OPENVPN_PLUGIN_FUNC_SUCCESS: c_int = 0;
 pub const OPENVPN_PLUGIN_FUNC_ERROR: c_int = 1;
 pub const OPENVPN_PLUGIN_FUNC_DEFERRED: c_int = 2;
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn plugin_event_name_up() {
+        let name = plugin_event_name(0);
+        assert_eq!("PLUGIN_UP", name);
+    }
+
+    #[test]
+    fn plugin_event_name_n() {
+        let name = plugin_event_name(13);
+        assert_eq!("PLUGIN_N", name);
+    }
+
+    #[test]
+    fn plugin_event_name_not_existing() {
+        let name = plugin_event_name(-15);
+        assert_eq!("UNKNOWN", name);
+    }
+}
