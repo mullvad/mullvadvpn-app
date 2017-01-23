@@ -2,27 +2,27 @@
 /// https://github.com/OpenVPN/openvpn/blob/master/include/openvpn-plugin.h.in
 
 use std::collections::HashMap;
-use std::os::raw::{c_uint, c_int};
+use std::os::raw::c_int;
 
 
 // All types of events that a plugin can receive from OpenVPN.
-pub const OPENVPN_PLUGIN_UP: c_uint = 0;
-pub const OPENVPN_PLUGIN_DOWN: c_uint = 1;
-pub const OPENVPN_PLUGIN_ROUTE_UP: c_uint = 2;
-pub const OPENVPN_PLUGIN_IPCHANGE: c_uint = 3;
-pub const OPENVPN_PLUGIN_TLS_VERIFY: c_uint = 4;
-pub const OPENVPN_PLUGIN_AUTH_USER_PASS_VERIFY: c_uint = 5;
-pub const OPENVPN_PLUGIN_CLIENT_CONNECT: c_uint = 6;
-pub const OPENVPN_PLUGIN_CLIENT_DISCONNECT: c_uint = 7;
-pub const OPENVPN_PLUGIN_LEARN_ADDRESS: c_uint = 8;
-pub const OPENVPN_PLUGIN_CLIENT_CONNECT_V2: c_uint = 9;
-pub const OPENVPN_PLUGIN_TLS_FINAL: c_uint = 10;
-pub const OPENVPN_PLUGIN_ENABLE_PF: c_uint = 11;
-pub const OPENVPN_PLUGIN_ROUTE_PREDOWN: c_uint = 12;
-pub const OPENVPN_PLUGIN_N: c_uint = 13;
+pub const OPENVPN_PLUGIN_UP: c_int = 0;
+pub const OPENVPN_PLUGIN_DOWN: c_int = 1;
+pub const OPENVPN_PLUGIN_ROUTE_UP: c_int = 2;
+pub const OPENVPN_PLUGIN_IPCHANGE: c_int = 3;
+pub const OPENVPN_PLUGIN_TLS_VERIFY: c_int = 4;
+pub const OPENVPN_PLUGIN_AUTH_USER_PASS_VERIFY: c_int = 5;
+pub const OPENVPN_PLUGIN_CLIENT_CONNECT: c_int = 6;
+pub const OPENVPN_PLUGIN_CLIENT_DISCONNECT: c_int = 7;
+pub const OPENVPN_PLUGIN_LEARN_ADDRESS: c_int = 8;
+pub const OPENVPN_PLUGIN_CLIENT_CONNECT_V2: c_int = 9;
+pub const OPENVPN_PLUGIN_TLS_FINAL: c_int = 10;
+pub const OPENVPN_PLUGIN_ENABLE_PF: c_int = 11;
+pub const OPENVPN_PLUGIN_ROUTE_PREDOWN: c_int = 12;
+pub const OPENVPN_PLUGIN_N: c_int = 13;
 
 lazy_static! {
-    pub static ref PLUGIN_EVENT_NAMES: HashMap<c_uint, &'static str> = {
+    pub static ref PLUGIN_EVENT_NAMES: HashMap<c_int, &'static str> = {
         let mut map = HashMap::new();
         map.insert(OPENVPN_PLUGIN_UP, "PLUGIN_UP");
         map.insert(OPENVPN_PLUGIN_DOWN, "PLUGIN_DOWN");
@@ -43,8 +43,8 @@ lazy_static! {
 }
 
 /// Returns the name of an OPENVPN_PLUGIN_* constant.
-pub fn plugin_event_name(num: c_uint) -> Option<&'static str> {
-    PLUGIN_EVENT_NAMES.get(&num).map(|s| *s)
+pub fn plugin_event_name(num: c_int) -> &'static str {
+    PLUGIN_EVENT_NAMES.get(&num).map(|s| *s).unwrap_or("UNKNOWN EVENT")
 }
 
 
