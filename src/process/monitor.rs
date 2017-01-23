@@ -127,8 +127,10 @@ impl<C: MonitoredChild, B: ChildSpawner<C>> ChildMonitor<C, B> {
         let state_mutex = self.state.clone();
         thread::spawn(move || {
             let success = child.wait().unwrap_or(false);
-            let mut state_lock = state_mutex.lock().unwrap();
-            *state_lock = State::Stopped;
+            {
+                let mut state_lock = state_mutex.lock().unwrap();
+                *state_lock = State::Stopped;
+            }
             listener(success);
         })
     }
