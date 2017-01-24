@@ -171,10 +171,10 @@ fn str_to_remote_addr(s: &str) -> io::Result<RemoteAddr> {
 
 #[cfg(test)]
 mod remote_addr_tests {
+    use super::*;
+
     use std::net::{SocketAddr, SocketAddrV4, SocketAddrV6};
     use std::str::FromStr;
-
-    use super::*;
 
     #[test]
     fn new_and_getters() {

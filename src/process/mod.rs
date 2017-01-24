@@ -8,10 +8,9 @@ use std::process::{Command, Child, Stdio, ChildStdout, ChildStderr};
 
 /// A module for monitoring child processes and get notified of events on them.
 pub mod monitor;
+use self::monitor::{MonitoredChild, ChildSpawner};
 
 use clonablechild::{ClonableChild, ChildExt};
-
-use self::monitor::{MonitoredChild, ChildSpawner};
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
@@ -148,9 +147,9 @@ impl ChildSpawner<ClonableChild> for OpenVpnCommand {
 
 #[cfg(test)]
 mod tests {
+    use super::OpenVpnCommand;
     use net::RemoteAddr;
     use std::ffi::OsString;
-    use super::OpenVpnCommand;
 
     #[test]
     fn no_arguments() {
