@@ -64,28 +64,29 @@ pub struct openvpn_plugin_args_func_return {
 /// arbitrary object inside `handle` that will then be passed to all subsequent calls to the
 /// plugin.
 #[no_mangle]
-pub extern "C" fn openvpn_plugin_open_v3(version: c_int,
-                                         _arguments: *const openvpn_plugin_args_open_in,
-                                         _retptr: *const openvpn_plugin_args_open_return)
+pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
+                                         _args: *const openvpn_plugin_args_open_in,
+                                         _retptr: *mut openvpn_plugin_args_open_return)
                                          -> c_int {
-    println!("openvpn_plugin_open_v3(version: {})", version);
+    println!("openvpn_plugin_open_v3()");
     OPENVPN_PLUGIN_FUNC_SUCCESS
 }
 
 /// Called by OpenVPN just before the plugin is unloaded. Should correctly close the plugin and
 /// deallocate any `handle` initialized by the plugin in `openvpn_plugin_open_v3`
 #[no_mangle]
-pub extern "C" fn openvpn_plugin_close_v1(handle: *const c_void) {
-    println!("openvpn_plugin_close_v1(handle: {:p})", handle);
+pub extern "C" fn openvpn_plugin_close_v1(_handle: *const c_void) {
+    println!("openvpn_plugin_close_v1()");
 }
 
 /// Called by OpenVPN for each OPENVPN_PLUGIN_* event that it registered for in
 /// `openvpn_plugin_open_v3`
 #[no_mangle]
-pub extern "C" fn openvpn_plugin_func_v3(version: c_int,
-                                         _arguments: *const openvpn_plugin_args_func_in,
+pub extern "C" fn openvpn_plugin_func_v3(_version: c_int,
+                                         args: *const openvpn_plugin_args_func_in,
                                          _retptr: *const openvpn_plugin_args_func_return)
                                          -> c_int {
-    println!("openvpn_plugin_func_v3(version: {})", version);
+    let event_name = unsafe { consts::plugin_event_name((*args).event_type) };
+    println!("openvpn_plugin_func_v3({})", event_name);
     OPENVPN_PLUGIN_FUNC_SUCCESS
 }
