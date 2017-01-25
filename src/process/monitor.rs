@@ -135,9 +135,7 @@ fn spawn_state_machine<C, B>(builder: B) -> Sender<MonitorMsg>
 {
     let state_machine = StateMachine::new(builder);
     let tx = state_machine.get_handle();
-    thread::spawn(move || {
-        state_machine.run();
-    });
+    thread::spawn(move || { state_machine.run(); });
     tx
 }
 
@@ -295,13 +293,13 @@ impl Drop for ChildMonitor {
 
 #[cfg(test)]
 mod child_monitor {
+    use super::*;
     use std::io;
     use std::process::{ChildStdout, ChildStderr};
     use std::sync::{Arc, Mutex};
     use std::sync::mpsc::{self, Sender, Receiver};
     use std::thread;
     use std::time::Duration;
-    use super::*;
 
     #[derive(Clone)]
     struct MockChild {

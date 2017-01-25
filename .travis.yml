@@ -6,19 +6,17 @@ rust:
 os:
   - linux
   - osx
-env:
-  global:
-    - RUST_TEST_THREADS=1
 
 before_script:
-  - (cargo install rustfmt || true)
-  - export PATH=$HOME/.local/bin:$PATH
-  - export PATH=$HOME/.cargo/bin:$PATH
+  - (cargo install --force rustfmt || true)
+  - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
+  - rustfmt --version
 
 script:
   - cargo build --verbose
   - cargo test --verbose
   - cargo fmt -- --write-mode=diff
+
 notifications:
   email:
     on_success: never
