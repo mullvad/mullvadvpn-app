@@ -89,7 +89,7 @@ pub struct ChildMonitor<C: MonitoredChild, B: ChildSpawner<C>> {
 }
 
 impl<C: MonitoredChild, B: ChildSpawner<C>> ChildMonitor<C, B> {
-    /// Creates a new `ChildMonitor` that spawn processes with the given `builder`. The new
+    /// Creates a new `ChildMonitor` that spawns processes with the given `builder`. The new
     /// `ChildMonitor` will be in the stopped state and not start any process until you call
     /// `start()`.
     pub fn new(builder: B) -> Self {
