@@ -8,7 +8,7 @@ os:
   - osx
 
 before_script:
-  - (cargo install --force rustfmt || true)
+  - (cargo install rustfmt || true)
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
   - rustfmt --version
 
