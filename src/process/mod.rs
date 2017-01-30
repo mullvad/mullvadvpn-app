@@ -138,7 +138,9 @@ impl MonitoredChild for ClonableChild {
     }
 }
 
-impl ChildSpawner<ClonableChild> for OpenVpnCommand {
+impl ChildSpawner for OpenVpnCommand {
+    type Child = ClonableChild;
+
     fn spawn(&mut self) -> io::Result<ClonableChild> {
         OpenVpnCommand::spawn(self).map(|child| child.into_clonable())
     }
