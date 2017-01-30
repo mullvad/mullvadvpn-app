@@ -87,17 +87,17 @@ struct RunningState<C: MonitoredChild> {
 /// A child process monitor. Takes care of starting and monitoring a child process and runs the
 /// listener on child exit.
 pub struct ChildMonitor<B: ChildSpawner> {
-    process_builder: B,
+    spawner: B,
     state: Arc<Mutex<State<B::Child>>>,
 }
 
 impl<B: ChildSpawner> ChildMonitor<B> {
-    /// Creates a new `ChildMonitor` that spawns processes with the given `builder`. The new
+    /// Creates a new `ChildMonitor` that spawns processes with the given `spawner`. The new
     /// `ChildMonitor` will be in the stopped state and not start any process until you call
     /// `start()`.
-    pub fn new(builder: B) -> Self {
+    pub fn new(spawner: B) -> Self {
         ChildMonitor {
-            process_builder: builder,
+            spawner: spawner,
             state: Arc::new(Mutex::new(State::Stopped)),
         }
     }
@@ -111,7 +111,7 @@ impl<B: ChildSpawner> ChildMonitor<B> {
     {
         let mut state_lock = self.state.lock().unwrap();
         if let State::Stopped = *state_lock {
-            let mut child = self.process_builder.spawn()?;
+            let mut child = self.spawner.spawn()?;
             let io = (child.stdout(), child.stderr());
             let thread_handle = self.spawn_monitor(child.clone(), listener);
             *state_lock = State::Running(RunningState {
@@ -256,8 +256,8 @@ mod child_monitor {
 
     #[test]
     fn normal_start() {
-        let builder = MockChildSpawner::new(Some(MockChild::instant_exit()));
-        let mut testee = ChildMonitor::new(builder);
+        let spawner = MockChildSpawner::new(Some(MockChild::instant_exit()));
+        let mut testee = ChildMonitor::new(spawner);
 
         let (tx, rx) = mpsc::channel();
         assert!(testee.start(move |success| tx.send(success).unwrap()).is_ok());
@@ -266,8 +266,8 @@ mod child_monitor {
 
     #[test]
     fn start_failed() {
-        let builder = MockChildSpawner::new(None);
-        let mut testee = ChildMonitor::new(builder);
+        let spawner = MockChildSpawner::new(None);
+        let mut testee = ChildMonitor::new(spawner);
 
         let (tx, rx) = mpsc::channel();
         assert!(testee.start(move |success| tx.send(success).unwrap()).is_err());
@@ -278,8 +278,8 @@ mod child_monitor {
 
     #[test]
     fn normal_stop() {
-        let builder = MockChildSpawner::new(Some(MockChild::alive_until_kill()));
-        let mut testee = ChildMonitor::new(builder);
+        let spawner = MockChildSpawner::new(Some(MockChild::alive_until_kill()));
+        let mut testee = ChildMonitor::new(spawner);
 
         let (tx, rx) = mpsc::channel();
         assert!(testee.start(move |success| tx.send(success).unwrap()).is_ok());
