@@ -86,16 +86,16 @@ struct RunningState<C: MonitoredChild> {
 
 /// A child process monitor. Takes care of starting and monitoring a child process and runs the
 /// listener on child exit.
-pub struct ChildMonitor<B: ChildSpawner> {
-    spawner: B,
-    state: Arc<Mutex<State<B::Child>>>,
+pub struct ChildMonitor<S: ChildSpawner> {
+    spawner: S,
+    state: Arc<Mutex<State<S::Child>>>,
 }
 
-impl<B: ChildSpawner> ChildMonitor<B> {
+impl<S: ChildSpawner> ChildMonitor<S> {
     /// Creates a new `ChildMonitor` that spawns processes with the given `spawner`. The new
     /// `ChildMonitor` will be in the stopped state and not start any process until you call
     /// `start()`.
-    pub fn new(spawner: B) -> Self {
+    pub fn new(spawner: S) -> Self {
         ChildMonitor {
             spawner: spawner,
             state: Arc::new(Mutex::new(State::Stopped)),
@@ -124,7 +124,7 @@ impl<B: ChildSpawner> ChildMonitor<B> {
         }
     }
 
-    fn spawn_monitor<L>(&self, child: B::Child, mut listener: L) -> thread::JoinHandle<()>
+    fn spawn_monitor<L>(&self, child: S::Child, mut listener: L) -> thread::JoinHandle<()>
         where L: FnMut(bool) + Send + 'static
     {
         let state_mutex = self.state.clone();
@@ -150,7 +150,7 @@ impl<B: ChildSpawner> ChildMonitor<B> {
     }
 }
 
-impl<B: ChildSpawner> Drop for ChildMonitor<B> {
+impl<S: ChildSpawner> Drop for ChildMonitor<S> {
     fn drop(&mut self) {
         let thread_handle = {
             let mut state_lock = self.state.lock().unwrap();
