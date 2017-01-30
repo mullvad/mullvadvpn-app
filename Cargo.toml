@@ -5,3 +5,6 @@ authors = ["Linus Färnstrand <linus@mullvad.net>"]
 
 [dependencies]
 clonablechild = "0.1"
+
+[dependencies.talpid_openvpn_plugin]
+path = "talpid_openvpn_plugin"
