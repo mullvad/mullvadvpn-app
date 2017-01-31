@@ -5,7 +5,7 @@ use std::os::raw::c_char;
 error_chain!{
     errors {
         Null {
-            description("Null pointer")
+            description("Input is null pointer")
         }
         NoEqual(s: String) {
             description("No equal sign in string")
