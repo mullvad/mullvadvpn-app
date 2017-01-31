@@ -7,8 +7,9 @@ error_chain!{
         Null {
             description("Null pointer")
         }
-        NoEqual {
+        NoEqual(s: String) {
             description("No equal sign in string")
+            display("No equal sign in \"{}\"", s)
         }
     }
     foreign_links {
@@ -56,7 +57,7 @@ pub unsafe fn env(envptr: *const *const c_char) -> Result<HashMap<String, String
     for string in string_array(envptr)? {
         let mut iter = string.splitn(2, "=");
         let key = iter.next().unwrap();
-        let value = iter.next().ok_or(Error::from(ErrorKind::NoEqual))?;
+        let value = iter.next().ok_or(Error::from(ErrorKind::NoEqual(string.clone())))?;
         map.insert(key.to_owned(), value.to_owned());
     }
     Ok(map)
@@ -127,7 +128,7 @@ mod tests {
         let test_str = "foobar\0";
         let ptr_arr = [test_str as *const _ as *const c_char, ptr::null()];
         let result = unsafe { env(&ptr_arr as *const *const c_char) };
-        assert_pat!(Err(Error(ErrorKind::NoEqual, _)), result);
+        assert_pat!(Err(Error(ErrorKind::NoEqual(_), _)), result);
     }
 
     #[test]
