@@ -1,0 +1,10 @@
+[package]
+name = "talpid_cli"
+version = "0.0.0"
+authors = ["Linus Färnstrand <linus@mullvad.net>"]
+
+[dependencies]
+clap = "2.20"
+
+[dependencies.talpid_core]
+path = "../"
