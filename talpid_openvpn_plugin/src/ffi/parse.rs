@@ -18,14 +18,14 @@ error_chain!{
 }
 
 
-/// Parses a null terminated C string array into a Vec<String> for safe usage.
+/// Parses a null-terminated C string array into a Vec<String> for safe usage.
 ///
 /// Returns an Err if given a null pointer or if a string is not valid utf-8.
 ///
 /// # Segfaults
 ///
 /// Can cause the program to crash if the pointer array starting at `ptr` is not correctly null
-/// terminated. Likewise, if any string pointed to is not properly null terminated it may crash.
+/// terminated. Likewise, if any string pointed to is not properly null-terminated it may crash.
 pub unsafe fn string_array(mut ptr: *const *const c_char) -> Result<Vec<String>> {
     if ptr.is_null() {
         Err(Error::from(ErrorKind::Null))
@@ -41,9 +41,9 @@ pub unsafe fn string_array(mut ptr: *const *const c_char) -> Result<Vec<String>>
 }
 
 
-/// Parses a null terminated array of C strings with "=" delimiters into a key-value map.
+/// Parses a null-terminated array of C strings with "=" delimiters into a key-value map.
 ///
-/// The input environment has to contain null terminated strings containing at least
+/// The input environment has to contain null-terminated strings containing at least
 /// one equal sign ("="). Every string is split at the first equal sign and added to the map with
 /// the first part being the key and the second the value.
 ///
