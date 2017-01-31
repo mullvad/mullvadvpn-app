@@ -39,15 +39,10 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  # we don't run the "test phase" when doing deploys
-  - if [%APPVEYOR_REPO_TAG%]==[false] (
-      cargo build --target %TARGET% && echo "DEBUG BUILD DONE" &&
-      cargo build --target %TARGET% --release && echo "RELEASE BUILD DONE" &&
-      cargo test --target %TARGET% && echo "DEBUG TESTING DONE" &&
-      cargo test --target %TARGET% --release && echo "RELEASE TESTING DONE" &&
-      cd talpid_openvpn_plugin/ && cargo test --target %TARGET%
-      cd ../talpid_cli/ && cargo test --target %TARGET%
-    )
+  - cargo build --target %TARGET%
+  - cargo build --target %TARGET% --release
+  - cargo test --all --target %TARGET%
+  - cargo test --all --target %TARGET% --release
 
 # Cache build binaries for faster builds next time
 cache:

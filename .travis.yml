@@ -14,14 +14,8 @@ before_script:
 
 script:
   - cargo build --verbose
-  - cargo test --verbose
-  - cargo fmt -- --write-mode=diff
-  - cd talpid_openvpn_plugin/
-  - cargo test --verbose
-  - cargo fmt -- --write-mode=diff
-  - cd ../talpid_cli/
-  - cargo test --verbose
-  - cargo fmt -- --write-mode=diff
+  - cargo test --all --verbose
+  - find src/ tests/ benches/ talpid_* -iname "*.rs" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
 
 notifications:
   email:
