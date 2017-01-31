@@ -45,7 +45,8 @@ test_script:
       cargo build --target %TARGET% --release && echo "RELEASE BUILD DONE" &&
       cargo test --target %TARGET% && echo "DEBUG TESTING DONE" &&
       cargo test --target %TARGET% --release && echo "RELEASE TESTING DONE" &&
-      cd talpid_cli/ && cargo test --target %TARGET%
+      cd talpid_openvpn_plugin/ && cargo test --target %TARGET%
+      cd ../talpid_cli/ && cargo test --target %TARGET%
     )
 
 # Cache build binaries for faster builds next time

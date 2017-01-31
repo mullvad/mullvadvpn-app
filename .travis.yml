@@ -16,7 +16,10 @@ script:
   - cargo build --verbose
   - cargo test --verbose
   - cargo fmt -- --write-mode=diff
-  - cd talpid_cli/
+  - cd talpid_openvpn_plugin/
+  - cargo test --verbose
+  - cargo fmt -- --write-mode=diff
+  - cd ../talpid_cli/
   - cargo test --verbose
   - cargo fmt -- --write-mode=diff
 
