@@ -96,11 +96,11 @@ mod tests {
     }
 
     #[test]
-    fn string_array_one_string() {
-        let test_str = "foobar\0";
+    fn string_array_no_space_trim() {
+        let test_str = " foobar \0";
         let ptr_arr = [test_str as *const _ as *const c_char, ptr::null()];
         let result = unsafe { string_array(&ptr_arr as *const *const c_char).unwrap() };
-        assert_eq!(["foobar"], &result[..]);
+        assert_eq!([" foobar "], &result[..]);
     }
 
     #[test]
@@ -132,12 +132,12 @@ mod tests {
     }
 
     #[test]
-    fn env_double_equal_trailing_space() {
-        let test_str = "foo=bar=baz \0";
+    fn env_double_equal() {
+        let test_str = "foo=bar=baz\0";
         let ptr_arr = [test_str as *const _ as *const c_char, ptr::null()];
         let env = unsafe { env(&ptr_arr as *const *const c_char).unwrap() };
         assert_eq!(1, env.len());
-        assert_eq!(Some("bar=baz "), env.get("foo").map(|s| &s[..]));
+        assert_eq!(Some("bar=baz"), env.get("foo").map(|s| &s[..]));
     }
 
     #[test]
