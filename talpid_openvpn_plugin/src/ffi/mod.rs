@@ -9,6 +9,8 @@ use std::os::raw::{c_char, c_int, c_uint, c_void};
 mod consts;
 use self::consts::*;
 
+mod parse;
+
 
 /// Struct sent to `openvpn_plugin_open_v3` containing input values.
 #[repr(C)]
