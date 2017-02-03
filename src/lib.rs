@@ -2,6 +2,7 @@
 
 //! The core components of the talpidaemon VPN client.
 
+#[cfg(test)]
 #[macro_use]
 extern crate assert_matches;
 

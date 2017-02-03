@@ -5,6 +5,8 @@ authors = ["Linus Färnstrand <linus@mullvad.net>"]
 
 [dependencies]
 clonablechild = "0.1"
+
+[dev-dependencies]
 assert_matches = "1.0"
 
 [dependencies.talpid_openvpn_plugin]
