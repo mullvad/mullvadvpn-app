@@ -4,6 +4,9 @@ extern crate lazy_static;
 #[macro_use]
 extern crate error_chain;
 
+#[macro_use]
+extern crate assert_matches;
+
 mod ffi;
 
 /// Publicly export the functions making up the public interface of the plugin. These are the C FFI

@@ -9,3 +9,4 @@ crate-type = ["dylib"]
 [dependencies]
 lazy_static = "0.2"
 error-chain = "0.8"
+assert_matches = "1.0"

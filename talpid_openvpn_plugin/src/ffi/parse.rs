@@ -70,22 +70,10 @@ mod tests {
     use std::os::raw::c_char;
     use std::ptr;
 
-    /// Assert macro that fails if the given pattern does not match the given expression
-    /// TODO(Linus): Very useful macro for asserting on patterns where the type does not implement
-    /// Eq. Thus it should probably be moved to a general place/crate when needed in more places.
-    macro_rules! assert_pat {
-        ($expected:pat, $actual:expr) => {{
-            if let $expected = $actual {} else {
-                let msg = stringify!($expected);
-                panic!("Expected {}. Got {:?}", msg, $actual);
-            }
-        }}
-    }
-
     #[test]
     fn string_array_null() {
         let result = unsafe { string_array(ptr::null()) };
-        assert_pat!(Err(Error(ErrorKind::Null, _)), result);
+        assert_matches!(result, Err(Error(ErrorKind::Null, _)));
     }
 
     #[test]
@@ -128,7 +116,7 @@ mod tests {
         let test_str = "foobar\0";
         let ptr_arr = [test_str as *const _ as *const c_char, ptr::null()];
         let result = unsafe { env(&ptr_arr as *const *const c_char) };
-        assert_pat!(Err(Error(ErrorKind::NoEqual(_), _)), result);
+        assert_matches!(result, Err(Error(ErrorKind::NoEqual(_), _)));
     }
 
     #[test]
