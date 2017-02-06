@@ -1,0 +1,62 @@
+{
+  "name": "electron-react-redux-boilerplate",
+  "version": "0.0.0",
+  "description": "electron-react-redux-boilerplate",
+  "main": "init.js",
+  "author": {
+    "name": "Jordan Schroter",
+    "email": "email@author.com"
+  },
+  "repository": "https://github.com/jschr/electron-react-redux-boilerplate",
+  "license": "MIT",
+  "dependencies": {
+    "babel-runtime": "^6.22.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "react-router": "^3.0.2",
+    "react-router-redux": "^4.0.7",
+    "redux": "^3.0.0",
+    "redux-actions": "^1.2.1",
+    "redux-localstorage": "^0.4.1",
+    "redux-thunk": "^2.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.22.2",
+    "babel-core": "^6.2.1",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-react": "^6.22.0",
+    "babel-preset-stage-0": "^6.1.18",
+    "browser-sync": "^2.9.3",
+    "chai": "^3.4.1",
+    "electron": "^1.5.0",
+    "electron-builder": "^12.3.1",
+    "electron-devtools-installer": "^2.1.0",
+    "eslint": "^3.14.1",
+    "eslint-plugin-react": "^6.9.0",
+    "mocha": "^3.2.0",
+    "npm-run-all": "^4.0.1",
+    "rimraf": "^2.5.4"
+  },
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "develop": "npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
+    "test": "mocha -R spec --compilers js:babel-core/register test/**/*.spec.js",
+    "lint": "eslint --no-ignore scripts app test *.js",
+    "pack": "run-s private:clean private:compile private:build:all",
+    "pack:mac": "run-s private:clean private:compile private:build:mac",
+    "pack:win": "run-s private:clean private:compile private:build:win",
+    "pack:linux": "run-s private:clean private:compile private:build:linux",
+    "private:build:all": "build -mwl",
+    "private:build:mac": "build --mac",
+    "private:build:win": "build --win",
+    "private:build:linux": "build --linux",
+    "private:watch": "npm run private:compile -- --source-maps true --watch --skip-initial-build",
+    "private:serve": "babel-node scripts/serve.js",
+    "private:compile": "babel app/ --copy-files --out-dir build",
+    "private:clean": "rimraf build"
+  }
+}
