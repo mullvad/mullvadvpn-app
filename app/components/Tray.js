@@ -17,8 +17,8 @@ export default class Tray extends Component {
 
     return (
       <TrayMenu tray={this.props.handle}>
-        {<TrayItem label="Log out" click={::this.logout} visible={loggedIn} />}
-        {<TrayItem type="separator" visible={loggedIn} />}
+        {loggedIn && <TrayItem label="Log out" click={::this.logout} />}
+        {loggedIn && <TrayItem type="separator" />}
         <TrayItem label="Privacy Policy" />
         <TrayItem label="Visit homepage" />
       </TrayMenu>

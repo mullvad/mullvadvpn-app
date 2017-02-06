@@ -28,7 +28,7 @@ export class TrayMenu extends Component {
 
   static propTypes = {
     tray: PropTypes.object.isRequired,
-    children: PropTypes.arrayOf(PropTypes.element).isRequired
+    children: PropTypes.arrayOf(PropTypes.node).isRequired
   };
 
   _contextMenu = null;
@@ -80,7 +80,7 @@ export class TraySubmenu extends Component {
   };
 
   static propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element).isRequired
+    children: PropTypes.arrayOf(PropTypes.node).isRequired
   };
 
   _contextMenu = null;
