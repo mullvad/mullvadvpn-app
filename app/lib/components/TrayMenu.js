@@ -92,7 +92,7 @@ class TraySubmenu extends Component {
   render() {
     // create new menu during each rendering
     // see: https://github.com/electron/electron/issues/8598
-    this.contextMenu = new Menu();
+    this._contextMenu = new Menu();
 
     this.context.menu.append(new MenuItem({ ...this.props, submenu: this._contextMenu }));
 
