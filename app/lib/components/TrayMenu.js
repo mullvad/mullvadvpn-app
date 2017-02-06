@@ -20,7 +20,7 @@ const { Menu, MenuItem } = remote;
  *   </TrayMenu>
  * )
  */
-class TrayMenu extends Component {
+export class TrayMenu extends Component {
 
   static childContextTypes = {
     menu: PropTypes.object.isRequired
@@ -69,7 +69,7 @@ class TrayMenu extends Component {
  * </TrayMenu>
  * 
  */
-class TraySubmenu extends Component {
+export class TraySubmenu extends Component {
 
   static contextTypes = {
     menu: PropTypes.object.isRequired
@@ -106,7 +106,7 @@ class TraySubmenu extends Component {
 /**
  * Item component
  */
-class TrayItem extends Component {
+export class TrayItem extends Component {
 
   static contextTypes = {
     menu: PropTypes.object.isRequired
@@ -118,5 +118,3 @@ class TrayItem extends Component {
   }
 
 }
-
-export { TrayMenu, TraySubmenu, TrayItem };
