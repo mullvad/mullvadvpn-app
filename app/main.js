@@ -1,6 +1,7 @@
 import path from 'path';
 import url from 'url';
 import {app, crashReporter, BrowserWindow, Menu} from 'electron';
+import trayMenu from './tray';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 
@@ -50,6 +51,9 @@ app.on('ready', async () => {
     minHeight: 480,
     show: false 
   });
+
+  // initialize tray menu
+  trayMenu.setup();
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
