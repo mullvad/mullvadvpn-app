@@ -247,10 +247,7 @@ mod child_monitor {
     macro_rules! assert_event {
         ($rx:ident, $expected:pat) => {{
             let result = $rx.recv_timeout(Duration::new(1, 0));
-            if let $expected = result {} else {
-                let msg = stringify!($expected);
-                panic!("Expected {}. Got {:?}", msg, result);
-            }
+            assert_matches!(result, $expected);
         }}
     }
 
