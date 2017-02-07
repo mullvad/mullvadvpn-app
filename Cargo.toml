@@ -9,5 +9,5 @@ clonablechild = "0.1"
 [dev-dependencies]
 assert_matches = "1.0"
 
-[dependencies.talpid_openvpn_plugin]
-path = "talpid_openvpn_plugin"
+[workspace]
+members = ["talpid_openvpn_plugin", "talpid_cli"]
