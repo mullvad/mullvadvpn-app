@@ -8,6 +8,9 @@ extern crate assert_matches;
 
 extern crate clonablechild;
 
+#[macro_use]
+extern crate error_chain;
+
 /// Working with processes.
 pub mod process;
 

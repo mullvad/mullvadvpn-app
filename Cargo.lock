@@ -138,6 +138,7 @@ version = "0.0.0"
 dependencies = [
  "assert_matches 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clonablechild 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
