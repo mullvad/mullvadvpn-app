@@ -1,17 +1,26 @@
 extern crate talpid_core;
 #[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate error_chain;
 
 use std::io::{self, Read, Write};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
 
 use talpid_core::process::OpenVpnCommand;
-use talpid_core::process::monitor::{ChildMonitor, TransitionResult, ChildSpawner};
+use talpid_core::process::monitor::{ChildMonitor, ChildSpawner};
 
 mod cli;
 
 use cli::Args;
+
+
+error_chain! {
+    links {
+        Monitor(talpid_core::process::monitor::Error, talpid_core::process::monitor::ErrorKind);
+    }
+}
 
 /// Macro for printing to stderr. Will simply do nothing if the printing fails for some reason.
 macro_rules! eprintln {
@@ -41,7 +50,7 @@ fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
     command
 }
 
-fn main_loop<S>(mut monitor: ChildMonitor<S>) -> TransitionResult<()>
+fn main_loop<S>(mut monitor: ChildMonitor<S>) -> Result<()>
     where S: ChildSpawner
 {
     loop {
@@ -52,16 +61,17 @@ fn main_loop<S>(mut monitor: ChildMonitor<S>) -> TransitionResult<()>
     }
 }
 
-fn start_monitor<S>(monitor: &mut ChildMonitor<S>) -> TransitionResult<Receiver<bool>>
+fn start_monitor<S>(monitor: &mut ChildMonitor<S>) -> Result<Receiver<bool>>
     where S: ChildSpawner
 {
     let (tx, rx) = mpsc::channel();
     let callback = move |clean| tx.send(clean).unwrap();
-    monitor.start(callback).map(|(stdout, stderr)| {
-        stdout.map(|stream| pass_io(stream, io::stdout()));
-        stderr.map(|stream| pass_io(stream, io::stderr()));
-        rx
-    })
+    Ok(monitor.start(callback)
+        .map(|(stdout, stderr)| {
+            stdout.map(|stream| pass_io(stream, io::stdout()));
+            stderr.map(|stream| pass_io(stream, io::stderr()));
+            rx
+        })?)
 }
 
 fn pass_io<I, O>(mut input: I, mut output: O)

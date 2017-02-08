@@ -5,6 +5,7 @@ authors = ["Linus Färnstrand <linus@mullvad.net>"]
 
 [dependencies]
 clap = "2.20"
+error-chain = "0.8"
 
 [dependencies.talpid_core]
 path = "../"
