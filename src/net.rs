@@ -190,7 +190,8 @@ mod remote_addr_tests {
 
     #[test]
     fn from_ipv6_str_without_brackets() {
-        assert!(RemoteAddr::from_str("fe80::1:1337").is_err());
+        let result = RemoteAddr::from_str("fe80::1:1337");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
