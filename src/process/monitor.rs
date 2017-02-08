@@ -1,10 +1,21 @@
-use std::error::Error;
-use std::fmt;
 use std::io;
 use std::process::{ChildStdout, ChildStderr};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+
+error_chain! {
+    errors {
+        /// The transition could not be made because the state machine was not in a state that
+        /// could transition to the desired state.
+        InvalidState {
+            description("Invalid state for desired transition")
+        }
+    }
+    foreign_links {
+        Io(::std::io::Error) #[doc = "The monitor state transition failed because of an IO error"];
+    }
+}
 
 /// Trait for objects that represent child processes that `ChildMonitor` can monitor
 pub trait MonitoredChild: Clone + Send + 'static {
@@ -28,49 +39,6 @@ pub trait ChildSpawner: Send + 'static {
 
     /// Spawns the child process, returning a handle to it on success.
     fn spawn(&mut self) -> io::Result<Self::Child>;
-}
-
-
-/// Type alias for results of transitions in the `ChildMonitor` state machine.
-pub type TransitionResult<T> = Result<T, TransitionError>;
-
-/// Error type for transitions in the `ChildMonitor` state machine.
-#[derive(Debug)]
-pub enum TransitionError {
-    /// The transition could not be made because the state machine was not in a state that could
-    /// transition to the desired state.
-    InvalidState,
-
-    /// The transition failed because of an `io::Error`.
-    IoError(io::Error),
-}
-
-impl From<io::Error> for TransitionError {
-    fn from(error: io::Error) -> Self {
-        TransitionError::IoError(error)
-    }
-}
-
-impl fmt::Display for TransitionError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(self.description())
-    }
-}
-
-impl Error for TransitionError {
-    fn description(&self) -> &str {
-        match *self {
-            TransitionError::InvalidState => "Invalid state for desired transition",
-            TransitionError::IoError(..) => "Transition failed due to IO error",
-        }
-    }
-
-    fn cause(&self) -> Option<&Error> {
-        match *self {
-            TransitionError::IoError(ref e) => Some(e),
-            _ => None,
-        }
-    }
 }
 
 
@@ -104,9 +72,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
 
     /// Starts the child process and begins to monitor it. `listener` will be called as soon as the
     /// child process exits.
-    pub fn start<L>(&mut self,
-                    listener: L)
-                    -> TransitionResult<(Option<ChildStdout>, Option<ChildStderr>)>
+    pub fn start<L>(&mut self, listener: L) -> Result<(Option<ChildStdout>, Option<ChildStderr>)>
         where L: FnMut(bool) + Send + 'static
     {
         let mut state_lock = self.state.lock().unwrap();
@@ -120,7 +86,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
             });
             Ok(io)
         } else {
-            Err(TransitionError::InvalidState)
+            Err(ErrorKind::InvalidState.into())
         }
     }
 
@@ -139,13 +105,13 @@ impl<S: ChildSpawner> ChildMonitor<S> {
     }
 
     /// Sends a kill signal to the child process.
-    pub fn stop(&self) -> TransitionResult<()> {
+    pub fn stop(&self) -> Result<()> {
         let state_lock = self.state.lock().unwrap();
         if let State::Running(ref running_state) = *state_lock {
             running_state.child.kill()?;
             Ok(())
         } else {
-            Err(TransitionError::InvalidState)
+            Err(ErrorKind::InvalidState.into())
         }
     }
 }
