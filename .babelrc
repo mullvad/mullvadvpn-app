@@ -1,8 +1,4 @@
 {
   "presets": ["es2015", "stage-0", "react"],
-  "plugins": ["transform-decorators-legacy", "transform-runtime", [
-    "css-modules-transform", {
-      "extractCss": "./build/assets/stylesheets.css"
-    }
-  ]]
+  "plugins": ["transform-decorators-legacy", "transform-runtime"]
 }
