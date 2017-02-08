@@ -1,3 +1,6 @@
+// `error_chain!` can recurse deeply
+#![recursion_limit = "1024"]
+
 extern crate talpid_core;
 #[macro_use]
 extern crate clap;
@@ -22,22 +25,25 @@ error_chain! {
     }
 }
 
-/// Macro for printing to stderr. Will simply do nothing if the printing fails for some reason.
-macro_rules! eprintln {
-    ($($arg:tt)*) => (
-        use std::io::Write;
-        let _ = writeln!(&mut ::std::io::stderr(), $($arg)* );
-    )
-}
 
 fn main() {
-    let args = cli::parse_args_or_exit();
+    if let Err(ref e) = run() {
+        println!("error: {}", e);
+        for e in e.iter().skip(1) {
+            println!("caused by: {}", e);
+        }
+        if let Some(backtrace) = e.backtrace() {
+            println!("backtrace: {:?}", backtrace);
+        }
+        ::std::process::exit(1);
+    }
+}
 
+fn run() -> Result<()> {
+    let args = cli::parse_args_or_exit();
     let command = create_openvpn_command(&args);
     let monitor = ChildMonitor::new(command);
-    if let Err(e) = main_loop(monitor) {
-        eprintln!("OpenVPN failed: {}", e);
-    }
+    main_loop(monitor)
 }
 
 fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
@@ -54,7 +60,7 @@ fn main_loop<S>(mut monitor: ChildMonitor<S>) -> Result<()>
     where S: ChildSpawner
 {
     loop {
-        let rx = start_monitor(&mut monitor)?;
+        let rx = start_monitor(&mut monitor).chain_err(|| "Unable to start OpenVPN")?;
         let clean_exit = rx.recv().unwrap();
         println!("Monitored process exited. clean: {}", clean_exit);
         std::thread::sleep(std::time::Duration::from_millis(500));
