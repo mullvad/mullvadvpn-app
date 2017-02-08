@@ -11,11 +11,10 @@ use std::vec;
 error_chain! {
     errors {
         /// Error indicating parsing the address failed
-        AddrParseError
-    }
-    foreign_links {
-        AddrParsePortError(::std::num::ParseIntError)
-        #[doc = "The port part of the string did not correspond to a valid network port"];
+        AddrParse(s: String) {
+            description("Invalid address format")
+            display("Unable to parse address. {}", s)
+        }
     }
 }
 
@@ -57,9 +56,12 @@ impl RemoteAddr {
 
     fn from_domain_str(s: &str) -> Result<Self> {
         let (address, port_str) = Self::split_at_last_colon(s)?;
-        let port = u16::from_str(port_str)?;
+        let port = u16::from_str(port_str).chain_err(|| {
+            ErrorKind::AddrParse(format!("Invalid port: \"{}\"", port_str))
+        })?;
         if address.is_empty() || address.contains(':') {
-            return Err(Error::from(ErrorKind::AddrParseError));
+            let msg = format!("Invalid IP or domain: \"{}\"", address);
+            return Err(Error::from(ErrorKind::AddrParse(msg)));
         }
         Ok(RemoteAddr::Domain(address.to_owned(), port))
     }
@@ -67,7 +69,8 @@ impl RemoteAddr {
     fn split_at_last_colon(s: &str) -> Result<(&str, &str)> {
         let mut iter = s.rsplitn(2, ':');
         let port = iter.next().unwrap();
-        let address = iter.next().ok_or_else(|| Error::from(ErrorKind::AddrParseError))?;
+        let address = iter.next()
+            .ok_or_else(|| Error::from(ErrorKind::AddrParse("No colon".to_owned())))?;
         Ok((address, port))
     }
 }

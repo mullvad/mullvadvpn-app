@@ -11,9 +11,14 @@ error_chain! {
         InvalidState {
             description("Invalid state for desired transition")
         }
-    }
-    foreign_links {
-        Io(::std::io::Error) #[doc = "The monitor state transition failed because of an IO error"];
+        /// Error representing a failure in spawning the child process
+        Spawn {
+            description("Unable to spawn child process")
+        }
+        /// Error representing a failure in sending a kill signal to the child process
+        Kill {
+            description("Unable to send kill signal to process")
+        }
     }
 }
 
@@ -77,7 +82,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
     {
         let mut state_lock = self.state.lock().unwrap();
         if let State::Stopped = *state_lock {
-            let mut child = self.spawner.spawn()?;
+            let mut child = self.spawner.spawn().chain_err(|| ErrorKind::Spawn)?;
             let io = (child.stdout(), child.stderr());
             let thread_handle = self.spawn_monitor(child.clone(), listener);
             *state_lock = State::Running(RunningState {
@@ -108,7 +113,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
     pub fn stop(&self) -> Result<()> {
         let state_lock = self.state.lock().unwrap();
         if let State::Running(ref running_state) = *state_lock {
-            running_state.child.kill()?;
+            running_state.child.kill().chain_err(|| ErrorKind::Kill)?;
             Ok(())
         } else {
             Err(ErrorKind::InvalidState.into())
