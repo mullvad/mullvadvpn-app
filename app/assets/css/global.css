@@ -1,5 +1,9 @@
 * { box-sizing: border-box; }
 
+:focus {
+  outline: 0;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   user-select: none;
