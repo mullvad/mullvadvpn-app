@@ -1,5 +1,9 @@
 * { box-sizing: border-box; }
 
+html {
+	-webkit-font-smoothing: antialiased;
+}
+
 body {
   background: #294D73;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
