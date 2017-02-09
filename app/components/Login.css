@@ -85,3 +85,7 @@
   color: #294D73;
   background-color: #FFFFFF;
 }
+
+.login-form__input-field--error {
+  color: #D0021B;
+}
