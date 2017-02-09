@@ -203,27 +203,32 @@ mod remote_addr_tests {
 
     #[test]
     fn from_ipv6_str_without_port() {
-        assert!(RemoteAddr::from_str("fe80::1").is_err());
+        let result = RemoteAddr::from_str("fe80::1");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_no_colon() {
-        assert!(RemoteAddr::from_str("example.com").is_err());
+        let result = RemoteAddr::from_str("example.com");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_invalid_port_large() {
-        assert!(RemoteAddr::from_str("example.com:99999").is_err());
+        let result = RemoteAddr::from_str("example.com:99999");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_empty_address() {
-        assert!(RemoteAddr::from_str(":100").is_err());
+        let result = RemoteAddr::from_str(":100");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_empty_port() {
-        assert!(RemoteAddr::from_str("example.com:").is_err());
+        let result = RemoteAddr::from_str("example.com:");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
