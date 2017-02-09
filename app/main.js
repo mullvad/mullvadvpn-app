@@ -45,10 +45,11 @@ app.on('ready', async () => {
 
   mainWindow = new BrowserWindow({ 
     width: 320, 
-    height: 568,
-    minWidth: 320,
-    minHeight: 568,
-    show: false 
+    height: 568 + 20, // 20pt window chrome
+    show: false,
+    backgroundColor: '#000000',
+    resizable: false,
+    maximizable: false
   });
 
   mainWindow.loadURL(url.format({
