@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: #294D73;
 }
+
 .layout__header {
   flex: 0 0 auto;
 }
