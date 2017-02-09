@@ -9,7 +9,7 @@ import routes from './routes';
 import configureStore from './store';
 import Tray from './containers/Tray';
 
-const iconPath = path.join(__dirname, 'assets/trayicon.png');
+const iconPath = path.join(__dirname, 'assets/images/trayicon.png');
 const tray = new remote.Tray(iconPath);
 
 const initialState = {};

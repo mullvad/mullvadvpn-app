@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import Layout from './Layout';
 
 export default class Login extends Component {
   static propTypes = {
@@ -16,11 +17,23 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div className="login__container">
-        <h2>Login</h2>
-        <input ref="username" type="text" />
-        <button onClick={::this.handleLogin}>Log In</button>
-      </div>
+      <Layout>
+        <div className="login">
+          <div className="login-form">
+            <div className="login-form__alignbox">
+              <div className="login-form__title">Login</div>
+              <div className="login-form__subtitle">Enter your account number</div>
+              <div className="login-form__input-wrap">
+                <input className="login-form__input-field" type="text" placeholder="0000 0000 0000" />
+              </div>
+            </div>
+          </div>
+          <div className="login-footer">
+            <div className="login-footer__prompt">Don't have an account number?</div>
+            <button className="login-footer__button">Create account</button>
+          </div>
+        </div>
+      </Layout>
     );
   }
 }

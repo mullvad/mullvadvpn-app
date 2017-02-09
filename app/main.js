@@ -44,10 +44,10 @@ app.on('ready', async () => {
   }
 
   mainWindow = new BrowserWindow({ 
-    width: 1000, 
-    height: 800,
-    minWidth: 640,
-    minHeight: 480,
+    width: 320, 
+    height: 568,
+    minWidth: 320,
+    minHeight: 568,
     show: false 
   });
 

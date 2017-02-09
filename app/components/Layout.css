@@ -1,0 +1,12 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.layout__header {
+  flex: 0 0 auto;
+}
+
+.layout__container {
+  flex: 1 1 100%;
+}
