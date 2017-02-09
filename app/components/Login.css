@@ -43,9 +43,6 @@
   margin-bottom: 65px;
 }
 
-.login-form__alignbox {
-}
-
 .login-form__title {
   font-family: DINPro;
   font-size: 32px;
@@ -71,6 +68,10 @@
   margin-right: -4px;
 }
 
+.login-form__input-field::-webkit-input-placeholder {
+  color: rgba(41,77,115,0.2);
+}
+
 .login-form__input-field {
   width: 100%;
   border-radius: 8px;
@@ -81,6 +82,6 @@
   font-weight: bold;
   line-height: 40px;
   letter-spacing: 1px;
-  color: rgba(41,77,115,0.2);
+  color: #294D73;
   background-color: #FFFFFF;
 }

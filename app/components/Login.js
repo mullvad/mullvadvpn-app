@@ -8,17 +8,32 @@ export default class Login extends Component {
     onLogin: PropTypes.func.isRequired
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = { account: '' };
+  }
+
   handleLogin() {
     const { onLogin } = this.props;
     const username = this.refs.username.value;
 
     onLogin({ username, loggedIn: true });
-
-    this.props.router.push('/loggedin');
   }
 
   handleCreateAccount() {
     shell.openExternal(constants.createAccountURL);
+  }
+
+  handleInputChange(e) {
+    let val = e.target.value.replace(/[^0-9]/g, '');
+    this.setState({ account: val });
+  }
+
+  handleInputKeyUp(e) {
+    if(e.which === 13) {
+      // enter pressed
+    }
   }
 
   render() {
@@ -26,11 +41,16 @@ export default class Login extends Component {
       <Layout>
         <div className="login">
           <div className="login-form">
-            <div className="login-form__alignbox">
+            <div>
               <div className="login-form__title">Login</div>
               <div className="login-form__subtitle">Enter your account number</div>
               <div className="login-form__input-wrap">
-                <input className="login-form__input-field" type="text" placeholder="0000 0000 0000" />
+                <input className="login-form__input-field" 
+                       type="text" 
+                       placeholder="0000 0000 0000" 
+                       onChange={::this.handleInputChange}
+                       onKeyUp={::this.handleInputKeyUp}
+                       value={this.state.account} />
               </div>
             </div>
           </div>
