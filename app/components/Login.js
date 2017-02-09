@@ -1,5 +1,7 @@
+import { shell } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import Layout from './Layout';
+import constants from '../constants';
 
 export default class Login extends Component {
   static propTypes = {
@@ -13,6 +15,10 @@ export default class Login extends Component {
     onLogin({ username, loggedIn: true });
 
     this.props.router.push('/loggedin');
+  }
+
+  handleCreateAccount() {
+    shell.openExternal(constants.createAccountURL);
   }
 
   render() {
@@ -30,7 +36,7 @@ export default class Login extends Component {
           </div>
           <div className="login-footer">
             <div className="login-footer__prompt">Don't have an account number?</div>
-            <button className="login-footer__button">Create account</button>
+            <button className="login-footer__button" onClick={::this.handleCreateAccount}>Create account</button>
           </div>
         </div>
       </Layout>
