@@ -14,10 +14,7 @@
 }
 
 .headerbar__logo {
-  width: 50px;
   height: 50px;
   display: inline-block;
   vertical-align: middle;
-  background: rgba(255,255,255,0.4);
-  border-radius: 8px;
 }
