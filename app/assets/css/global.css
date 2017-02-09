@@ -1,7 +1,13 @@
 * { box-sizing: border-box; }
 
 html {
-	-webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+img {
+  -webkit-user-drag: none;
 }
 
 body {
