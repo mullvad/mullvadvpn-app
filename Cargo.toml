@@ -5,6 +5,7 @@ authors = ["Linus Färnstrand <linus@mullvad.net>"]
 
 [dependencies]
 clonablechild = "0.1"
+error-chain = "0.8"
 
 [dev-dependencies]
 assert_matches = "1.0"

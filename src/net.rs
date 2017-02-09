@@ -1,13 +1,23 @@
-use std::error::Error;
 use std::fmt;
 use std::io;
 use std::iter;
 use std::net::SocketAddr;
-use std::num::ParseIntError;
 use std::option;
 use std::slice;
 use std::str::FromStr;
 use std::vec;
+
+
+error_chain! {
+    errors {
+        /// Error indicating parsing the address failed
+        AddrParse(s: String) {
+            description("Invalid address format")
+            display("Unable to parse address. {}", s)
+        }
+    }
+}
+
 
 /// Representation of a TCP or UDP endpoint. The IP level address is represented by either an IP
 /// directly or a hostname/domain. The IP level address together with a port becomes a socket
@@ -44,19 +54,23 @@ impl RemoteAddr {
         }
     }
 
-    fn from_domain_str(s: &str) -> Result<Self, AddrParseError> {
+    fn from_domain_str(s: &str) -> Result<Self> {
         let (address, port_str) = Self::split_at_last_colon(s)?;
-        let port = u16::from_str(port_str)?;
+        let port = u16::from_str(port_str).chain_err(|| {
+            ErrorKind::AddrParse(format!("Invalid port: \"{}\"", port_str))
+        })?;
         if address.is_empty() || address.contains(':') {
-            return Err(AddrParseError(()));
+            let msg = format!("Invalid IP or domain: \"{}\"", address);
+            return Err(ErrorKind::AddrParse(msg).into());
         }
         Ok(RemoteAddr::Domain(address.to_owned(), port))
     }
 
-    fn split_at_last_colon(s: &str) -> Result<(&str, &str), AddrParseError> {
+    fn split_at_last_colon(s: &str) -> Result<(&str, &str)> {
         let mut iter = s.rsplitn(2, ':');
         let port = iter.next().unwrap();
-        let address = iter.next().ok_or(AddrParseError(()))?;
+        let address = iter.next()
+            .ok_or_else(|| Error::from(ErrorKind::AddrParse("No colon".to_owned())))?;
         Ok((address, port))
     }
 }
@@ -68,8 +82,8 @@ impl From<SocketAddr> for RemoteAddr {
 }
 
 impl FromStr for RemoteAddr {
-    type Err = AddrParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self> {
         if let Ok(addr) = SocketAddr::from_str(s) {
             Ok(RemoteAddr::from(addr))
         } else {
@@ -77,7 +91,6 @@ impl FromStr for RemoteAddr {
         }
     }
 }
-
 
 impl fmt::Display for RemoteAddr {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
@@ -87,29 +100,6 @@ impl fmt::Display for RemoteAddr {
         }
     }
 }
-
-/// Representation of the errors that can happen when parsing a string into a `RemoteAddr`.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct AddrParseError(());
-
-impl From<ParseIntError> for AddrParseError {
-    fn from(_: ParseIntError) -> Self {
-        AddrParseError(())
-    }
-}
-
-impl fmt::Display for AddrParseError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(self.description())
-    }
-}
-
-impl Error for AddrParseError {
-    fn description(&self) -> &str {
-        "Invalid remote address format"
-    }
-}
-
 
 /// A trait for objects which can be converted to one or more `RemoteAddr` values.
 pub trait ToRemoteAddrs {
@@ -200,7 +190,8 @@ mod remote_addr_tests {
 
     #[test]
     fn from_ipv6_str_without_brackets() {
-        assert!(RemoteAddr::from_str("fe80::1:1337").is_err());
+        let result = RemoteAddr::from_str("fe80::1:1337");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
@@ -212,27 +203,32 @@ mod remote_addr_tests {
 
     #[test]
     fn from_ipv6_str_without_port() {
-        assert!(RemoteAddr::from_str("fe80::1").is_err());
+        let result = RemoteAddr::from_str("fe80::1");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_no_colon() {
-        assert!(RemoteAddr::from_str("example.com").is_err());
+        let result = RemoteAddr::from_str("example.com");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_invalid_port_large() {
-        assert!(RemoteAddr::from_str("example.com:99999").is_err());
+        let result = RemoteAddr::from_str("example.com:99999");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_empty_address() {
-        assert!(RemoteAddr::from_str(":100").is_err());
+        let result = RemoteAddr::from_str(":100");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
     fn from_str_empty_port() {
-        assert!(RemoteAddr::from_str("example.com:").is_err());
+        let result = RemoteAddr::from_str("example.com:");
+        assert_matches!(result, Err(Error(ErrorKind::AddrParse(_), _)));
     }
 
     #[test]
