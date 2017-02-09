@@ -67,6 +67,8 @@
 .login-form__input-wrap {
   border: 4px solid rgba(0,0,0,0.1);
   border-radius: 8px;
+  margin-left: -4px;
+  margin-right: -4px;
 }
 
 .login-form__input-field {
