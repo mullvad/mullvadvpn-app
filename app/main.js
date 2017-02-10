@@ -1,6 +1,6 @@
 import path from 'path';
 import url from 'url';
-import {app, crashReporter, BrowserWindow, Menu} from 'electron';
+import { app, crashReporter, BrowserWindow, Menu } from 'electron';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 
@@ -49,7 +49,8 @@ app.on('ready', async () => {
     show: false,
     backgroundColor: '#000000',
     resizable: false,
-    maximizable: false
+    maximizable: false,
+    fullscreenable: false
   });
 
   mainWindow.loadURL(url.format({
