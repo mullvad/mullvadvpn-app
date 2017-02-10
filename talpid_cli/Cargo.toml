@@ -1,7 +1,8 @@
 [package]
 name = "talpid_cli"
 version = "0.0.0"
-authors = ["Linus Färnstrand <linus@mullvad.net>"]
+authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
+description = "Run Talpid easily from the command line"
 
 [dependencies]
 clap = "2.20"
