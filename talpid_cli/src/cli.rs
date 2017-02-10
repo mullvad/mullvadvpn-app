@@ -3,9 +3,6 @@ use std::path::PathBuf;
 
 use talpid_core::net::RemoteAddr;
 
-static APP_AUTHOR: &'static str = "Mullvad";
-static APP_ABOUT: &'static str = "Run Talpid easily from the command line.";
-
 pub struct Args {
     pub binary: String,
     pub config: PathBuf,
@@ -32,8 +29,8 @@ fn get_matches() -> ArgMatches<'static> {
 fn create_app() -> App<'static, 'static> {
     App::new(crate_name!())
         .version(crate_version!())
-        .author(APP_AUTHOR)
-        .about(APP_ABOUT)
+        .author(crate_authors!())
+        .about(crate_description!())
         .arg(Arg::with_name("openvpn")
             .long("openvpn")
             .help("Specify what OpenVPN binary to run")
