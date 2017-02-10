@@ -15,10 +15,7 @@ export default class Login extends Component {
   }
 
   handleLogin() {
-    const { onLogin } = this.props;
-    const username = this.refs.username.value;
-
-    onLogin({ username, loggedIn: true });
+    this.props.onLogin(this.props.backend, this.state.account);
   }
 
   handleCreateAccount() {
@@ -26,19 +23,17 @@ export default class Login extends Component {
   }
 
   handleInputChange(e) {
-    let val = e.target.value.replace(/[^0-9]/g, '');
+    const val = e.target.value.replace(/[^0-9]/g, '');
     this.setState({ account: val });
   }
 
   handleInputKeyUp(e) {
     if(e.which === 13) {
-      // enter pressed
+      this.handleLogin();
     }
   }
 
-  formattedAccount() {
-    const val = this.state.account;
-
+  formattedAccount(val) {
     // display number altogether when longer than 12
     if(val.length > 12) {
       return val;
@@ -62,7 +57,7 @@ export default class Login extends Component {
                        placeholder="0000 0000 0000" 
                        onChange={::this.handleInputChange}
                        onKeyUp={::this.handleInputKeyUp}
-                       value={this.formattedAccount()} />
+                       value={this.formattedAccount(this.state.account)} />
               </div>
             </div>
           </div>

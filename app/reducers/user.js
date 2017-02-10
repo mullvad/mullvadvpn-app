@@ -3,7 +3,10 @@ import { handleActions } from 'redux-actions';
 import actions from '../actions/user';
 
 export default handleActions({
-  [actions.login]: (state, action) => {
+  [actions.loginSuccess]: (state, action) => {
+    return { ...state, ...action.payload };
+  },
+  [actions.loginFailure]: (state, action) => {
     return { ...state, ...action.payload };
   }
 }, {});
