@@ -68,18 +68,18 @@ export default class Login extends Component {
 
   formTitle(s) {
     switch(s) {
-      case LoginState.connecting: return "Logging in...";
-      case LoginState.failed: return "Login failed";
-      case LoginState.ok: return "Login successful";
-      default: return "Login";
+    case LoginState.connecting: return 'Logging in...';
+    case LoginState.failed: return 'Login failed';
+    case LoginState.ok: return 'Login successful';
+    default: return 'Login';
     }
   }
 
   formSubtitle(s, e) {
     switch(s) {
-      case LoginState.failed: return e.message;
-      case LoginState.connecting: return 'Checking account number';
-      default: return 'Enter your account number';
+    case LoginState.failed: return e.message;
+    case LoginState.connecting: return 'Checking account number';
+    default: return 'Enter your account number';
     }
   }
 
@@ -91,8 +91,8 @@ export default class Login extends Component {
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const isLoggedIn = status === LoginState.ok;
-    const inputClass = ["login-form__input-field", isFailed ? "login-form__input-field--error" : ""].join(' ');
-    const footerClass = ["login-footer", (isConnecting || isLoggedIn) ? "login-footer--invisible" : ""].join(' ');
+    const inputClass = ['login-form__input-field', isFailed ? 'login-form__input-field--error' : ''].join(' ');
+    const footerClass = ['login-footer', (isConnecting || isLoggedIn) ? 'login-footer--invisible' : ''].join(' ');
     
     const autoFocusRef = input => {
       if(isFailed && input) {

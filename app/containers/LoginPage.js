@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return user.loginChange({ account });
     },
     onFirstChangeAfterFailure: () => {
-      return user.loginChange({ status: LoginState.none, error: undefined })
+      return user.loginChange({ status: LoginState.none, error: undefined });
     }
   };
 };

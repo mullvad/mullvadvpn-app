@@ -5,7 +5,7 @@ import actions from '../actions/user';
 import { LoginState } from '../constants';
 
 const initialState = {
-  account: "",
+  account: '',
   status: LoginState.none
 };
 

@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 /**
  * Creates enum object with keys provided as arguments
  */
@@ -17,4 +15,4 @@ export default function Enum() {
   Object.freeze(object);
 
   return object;
-};
+}

@@ -1,12 +1,11 @@
-import assert from 'assert';
 import { createAction } from 'redux-actions';
-import { replace } from 'react-router-redux'
+import { replace } from 'react-router-redux';
 import { LoginState } from '../constants';
 
 const loginChange = createAction('USER_LOGIN_CHANGE');
 
 const login = (backend, account) => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     try {
       dispatch(loginChange({ 
         account: account, 
@@ -28,11 +27,11 @@ const login = (backend, account) => {
 };
 
 const logout = (backend) => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     try {
       await backend.logout();
     } catch(e) {
-      console.log(`Failed to log out: ${e.message}`)
+      console.log(`Failed to log out: ${e.message}`);
     }
 
     // reset login information

@@ -31,7 +31,7 @@ class BackendImpl {
         if(account.startsWith('1111')) {
           resolve(true);
         } else {
-          reject(new Error("Invalid account number."));
+          reject(new Error('Invalid account number.'));
         }
       }, 2000);
     });
@@ -73,4 +73,4 @@ export default class Backend {
     return getImpl(this).logout();
   }
 
-};
+}
