@@ -70,7 +70,7 @@ export default class Login extends Component {
     switch(s) {
       case LoginState.connecting: return "Logging in...";
       case LoginState.failed: return "Login failed";
-      case LoginState.ok: return "Logged in";
+      case LoginState.ok: return "Login successful";
       default: return "Login";
     }
   }
@@ -90,8 +90,9 @@ export default class Login extends Component {
     const displayAccount = this.formattedAccount(account);
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
+    const isLoggedIn = status === LoginState.ok;
     const inputClass = ["login-form__input-field", isFailed ? "login-form__input-field--error" : ""].join(' ');
-    const footerClass = ["login-footer", isConnecting ? "login-footer--invisible" : ""].join(' ');
+    const footerClass = ["login-footer", (isConnecting || isLoggedIn) ? "login-footer--invisible" : ""].join(' ');
     
     const autoFocusRef = input => {
       if(isFailed && input) {
@@ -123,19 +124,31 @@ export default class Login extends Component {
                 </Then>
               </If>
 
+              { /* show tick when logged in */ }
+              <If condition={ isLoggedIn }>
+                <Then>
+                  <div className="login-form__status-icon">
+                    <img src="./assets/images/icon-success.svg" alt="" />
+                  </div>
+                </Then>
+              </If>
+
               <div className="login-form__title">{ title }</div>
-              <div className="login-form__subtitle">{ subtitle }</div>
-              <div className="login-form__input-wrap">
-                <input className={ inputClass } 
-                       type="text" 
-                       placeholder="0000 0000 0000" 
-                       onChange={ ::this.handleInputChange }
-                       onKeyUp={ ::this.handleInputKeyUp }
-                       value={ displayAccount }
-                       disabled={ isConnecting }
-                       autoFocus={ true } 
-                       ref={ autoFocusRef } />
+              <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
+                <div className="login-form__subtitle">{ subtitle }</div>
+                <div className="login-form__input-wrap">
+                  <input className={ inputClass } 
+                        type="text" 
+                        placeholder="0000 0000 0000" 
+                        onChange={ ::this.handleInputChange }
+                        onKeyUp={ ::this.handleInputKeyUp }
+                        value={ displayAccount }
+                        disabled={ isConnecting }
+                        autoFocus={ true } 
+                        ref={ autoFocusRef } />
+                </div>
               </div>
+
             </div>
           </div>
           <div className={footerClass}>

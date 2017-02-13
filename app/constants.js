@@ -1,4 +1,4 @@
-import Enum from 'es6-enum'
+import Enum from './lib/enum';
 
 const LoginState = Enum('none', 'connecting', 'failed', 'ok');
 

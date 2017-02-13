@@ -28,7 +28,11 @@ class BackendImpl {
     return new Promise((resolve, reject) => {
       // @TODO: Add login call
       setTimeout(() => {
-        reject(new Error("Invalid account number."));
+        if(account.startsWith('1111')) {
+          resolve(true);
+        } else {
+          reject(new Error("Invalid account number."));
+        }
       }, 2000);
     });
   }

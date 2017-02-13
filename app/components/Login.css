@@ -17,7 +17,6 @@
 .login-form__status-icon {
   text-align: center;
   margin-bottom: 44px;
-  height: 36px;
 }
 
 .login-footer__prompt {
@@ -80,6 +79,10 @@
 
 .login-form__input-field::-webkit-input-placeholder {
   color: rgba(41,77,115,0.2);
+}
+
+.login-form__fields--invisible {
+  visibility: hidden;
 }
 
 .login-form__input-field {
