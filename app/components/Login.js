@@ -84,14 +84,20 @@ export default class Login extends Component {
   }
 
   render() {
-    console.log(this.props.user);
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
+    const displayAccount = this.formattedAccount(account);
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const inputClass = ["login-form__input-field", isFailed ? "login-form__input-field--error" : ""].join(' ');
     const footerClass = ["login-footer", isConnecting ? "login-footer--invisible" : ""].join(' ');
+    
+    const autoFocusRef = input => {
+      if(isFailed && input) {
+        input.focus();
+      }
+    };
 
     return (
       <Layout>
@@ -125,14 +131,16 @@ export default class Login extends Component {
                        placeholder="0000 0000 0000" 
                        onChange={ ::this.handleInputChange }
                        onKeyUp={ ::this.handleInputKeyUp }
-                       value={ this.formattedAccount(account) }
-                       disabled={ isConnecting } />
+                       value={ displayAccount }
+                       disabled={ isConnecting }
+                       autoFocus={ true } 
+                       ref={ autoFocusRef } />
               </div>
             </div>
           </div>
           <div className={footerClass}>
             <div className="login-footer__prompt">Don't have an account number?</div>
-            <button className="login-footer__button" onClick={::this.handleCreateAccount}>Create account</button>
+            <button className="login-footer__button" onClick={ ::this.handleCreateAccount }>Create account</button>
           </div>
         </div>
       </Layout>
