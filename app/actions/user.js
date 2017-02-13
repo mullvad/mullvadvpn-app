@@ -1,23 +1,25 @@
+import assert from 'assert';
 import { createAction } from 'redux-actions';
+import { LoginState } from '../constants';
 
-const loginSuccess = createAction('user.loginSuccess', (account) => {
-  return { account, loggedIn: true };
-});
+const loginChange = createAction('USER_LOGIN_CHANGE');
 
-const loginFailure = createAction('user.loginFailure', (account, error) => {
-  return { account, error, loggedIn: false };
-});
-
-const login = (backend, account) => {
-  return async (dispatch) => {
+const requestLogin = (backend, account) => {
+  return async (dispatch, getState) => {
     try {
+      dispatch(loginChange({ account: account, status: LoginState.connecting }));
+      
       await backend.login(account);
-      dispatch(loginSuccess(account));
+
+      dispatch(loginChange({ status: LoginState.ok }));
     } catch(e) {
-      dispatch(loginFailure(account, e));
+      dispatch(loginChange({ status: LoginState.failed, error: e }));
     }
   };
 };
 
-export default { login, loginSuccess, loginFailure };
+export default {
+  requestLogin, 
+  loginChange 
+};
 

@@ -10,6 +10,16 @@
   flex: 0 0 auto;
 }
 
+.login-footer--invisible {
+  visibility: hidden;
+}
+
+.login-form__status-icon {
+  text-align: center;
+  margin-bottom: 44px;
+  height: 36px;
+}
+
 .login-footer__prompt {
   font-family: "Open Sans";
   font-size: 15px;
