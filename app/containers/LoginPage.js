@@ -12,13 +12,13 @@ const mapDispatchToProps = (dispatch, props) => {
   const user = bindActionCreators(userActions, dispatch);
   return {
     onLogin: (account) => {
-      return user.requestLogin(props.backend, account);
+      return user.login(props.backend, account);
     },
     onChange: (account) => {
       return user.loginChange({ account });
     },
     onFirstChangeAfterFailure: () => {
-      return user.loginChange({ status: LoginState.none, error: null })
+      return user.loginChange({ status: LoginState.none, error: undefined })
     }
   };
 };

@@ -2,15 +2,17 @@ import React, { Component, PropTypes } from 'react';
 import { TrayMenu, TrayItem } from '../lib/components/TrayMenu';
 import { shell } from 'electron';
 
+import { LoginState } from '../constants';
+
 export default class Tray extends Component {
 
   static propTypes = {
     handle: PropTypes.object.isRequired,
+    backend: PropTypes.object.isRequired
   }
 
   logout() {
-    this.props.login({ username: '', loggedIn: false });
-    this.props.history.push('/');
+    this.props.logout(this.props.backend);
   }
 
   openPrivacyPolicy() {
@@ -22,7 +24,7 @@ export default class Tray extends Component {
   }
   
   render() {
-    const loggedIn = this.props.user && this.props.user.loggedIn;
+    const loggedIn = this.props.user.status === LoginState.ok;
 
     return (
       <TrayMenu tray={ this.props.handle }>

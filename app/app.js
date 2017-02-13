@@ -33,11 +33,11 @@ const createElement = (Component, props) => {
 
 ReactDOM.render(
   <div>
-    <Provider store={store}>
-      <Router history={routerHistory} routes={routes} createElement={createElement} />
+    <Provider store={ store }>
+      <Router history={ routerHistory } routes={ routes } createElement={ createElement } />
     </Provider>
-    <Provider store={store}>
-      <Tray handle={tray} history={routerHistory} />
+    <Provider store={ store }>
+      <Tray handle={ tray } backend={ backend } />
     </Provider>
   </div>,
   rootElement

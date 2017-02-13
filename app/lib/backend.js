@@ -36,6 +36,13 @@ class BackendImpl {
       }, 2000);
     });
   }
+
+  logout() {
+    return new Promise((resolve, reject) => {
+      // @TODO: Add logout call
+      resolve();
+    });
+  }
 }
 
 /**
@@ -60,6 +67,10 @@ export default class Backend {
 
   login(account) {
     return getImpl(this).login(account);
+  }
+
+  logout() {
+    return getImpl(this).logout();
   }
 
 };
