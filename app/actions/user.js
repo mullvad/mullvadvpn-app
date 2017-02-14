@@ -11,7 +11,11 @@ const login = (backend, account) => {
       
       await backend.login(account);
 
+      // report success to login screen
       dispatch(loginChange({ status: LoginState.ok }));
+
+      // show connection screen after delay
+      setTimeout(() => dispatch(replace('/connect')), 4000);
     } catch(e) {
       dispatch(loginChange({ status: LoginState.failed, error: e }));
     }
