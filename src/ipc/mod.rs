@@ -1,4 +1,12 @@
-pub mod zmq;
+#[cfg(windows)]
+#[path = "nop_ipc.rs"]
+mod ipc_impl;
+
+#[cfg(not(windows))]
+#[path = "zmq_ipc.rs"]
+mod ipc_impl;
+
+pub use self::ipc_impl::*;
 
 /// The type signature for functions accepting messages from the server.
 /// If the server fails in delivering the message for any reason it will

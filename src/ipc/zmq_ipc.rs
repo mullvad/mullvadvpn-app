@@ -1,6 +1,7 @@
+extern crate zmq;
+
 use ipc::{IpcServer, OnMessage, ErrorKind, Result, ResultExt};
 use std::thread;
-use zmq;
 
 /// The signature of functions that can be used to parse the incoming data
 /// This is very very similar to `TryFrom` on purpose because I wanted `TryFrom`,
@@ -66,7 +67,7 @@ mod tests {
     use std::result;
     use std::sync::mpsc::{self, Receiver};
     use std::time::Duration;
-    use zmq;
+    extern crate zmq;
 
     const A_VALID_MESSAGE: u8 = 1;
     const AN_INVALID_MESSAGE: u8 = 2;

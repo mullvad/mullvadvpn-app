@@ -7,6 +7,8 @@ description = "Core backend functionality of the Mullvad VPN client"
 [dependencies]
 clonablechild = "0.1"
 error-chain = "0.8"
+
+[target.'cfg(not(windows))'.dependencies]
 zmq = "0.8"
 
 [target.'cfg(not(windows))'.dependencies]
