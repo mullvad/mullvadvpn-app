@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import reducer from '../../app/reducers/user';
+import actions from '../../app/actions/user';
 import { LoginState } from '../../app/constants';
 
 describe('reducers', () => {
@@ -8,7 +9,7 @@ describe('reducers', () => {
     
     it('should handle USER_LOGIN_CHANGE', () => {
       const action = { 
-        type: 'USER_LOGIN_CHANGE',
+        type: actions.loginChange.toString(),
         payload: {
           account: '1111',
           status: LoginState.failed,

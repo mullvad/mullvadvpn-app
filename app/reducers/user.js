@@ -6,7 +6,8 @@ import { LoginState } from '../constants';
 
 const initialState = {
   account: '',
-  status: LoginState.none
+  status: LoginState.none,
+  error: null
 };
 
 export default handleActions({

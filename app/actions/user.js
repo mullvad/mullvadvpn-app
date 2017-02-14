@@ -7,21 +7,13 @@ const loginChange = createAction('USER_LOGIN_CHANGE');
 const login = (backend, account) => {
   return async (dispatch) => {
     try {
-      dispatch(loginChange({
-        status: LoginState.connecting,
-        account
-      }));
+      dispatch(loginChange({ status: LoginState.connecting, account }));
       
       await backend.login(account);
 
-      dispatch(loginChange({ 
-        status: LoginState.ok 
-      }));
+      dispatch(loginChange({ status: LoginState.ok }));
     } catch(e) {
-      dispatch(loginChange({ 
-        status: LoginState.failed, 
-        error: e 
-      }));
+      dispatch(loginChange({ status: LoginState.failed, error: e }));
     }
   };
 };
@@ -35,11 +27,7 @@ const logout = (backend) => {
     }
 
     // reset login information
-    dispatch(loginChange({ 
-      status: LoginState.none, 
-      account: '', 
-      error: undefined 
-    }));
+    dispatch(loginChange({ status: LoginState.none, account: '', error: null }));
 
     // redirect user to /
     dispatch(replace('/'));

@@ -1,21 +1,23 @@
 import { expect } from 'chai';
 import actions from '../../app/actions/user';
+import { LoginState } from '../../app/constants';
 
 describe('actions', () => {
 
   describe('user', () => {
     
-    // it('should log in', () => {
-    //   const action = { 
-    //     type: 'USER_LOGIN', 
-    //     payload: { 
-    //       username: 'John Doe', 
-    //       loggedIn: true 
-    //     }
-    //   };
-    //   const payload = Object.assign({}, action.payload);
-    //   expect(actions.login(payload)).to.deep.equal(action);
-    // });
+    it('should create action for USER_LOGIN_CHANGE', () => {
+      const test = { 
+        type: actions.loginChange.toString(), 
+        payload: { 
+          account: '1111',
+          status: LoginState.failed,
+          error: new Error('Something went wrong')
+        }
+      };
+      const payload = Object.assign({}, test.payload);
+      expect(actions.loginChange(payload)).to.deep.equal(test);
+    });
 
   });
 });
