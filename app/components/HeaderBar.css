@@ -2,6 +2,10 @@
   padding: 12px;
 }
 
+.header--style-error {
+  background-color: #D0021B;
+}
+
 .headerbar__title {
   font-family: DINPro;
   font-size: 24px;
