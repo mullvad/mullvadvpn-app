@@ -1,7 +1,7 @@
 import { shell } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
-import Layout from './Layout';
+import { Layout, Container, Header } from './Layout';
 import { createAccountURL, LoginState } from '../constants';
 
 export default class Login extends Component {
@@ -150,61 +150,64 @@ export default class Login extends Component {
 
     return (
       <Layout>
-        <div className="login">
-          <div className="login-form">
-            <div>
+        <Header />
+        <Container>
+          <div className="login">
+            <div className="login-form">
+              <div>
 
-              { /* show spinner when connecting */ }
-              <If condition={ isConnecting }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-spinner.svg" alt="" />
+                { /* show spinner when connecting */ }
+                <If condition={ isConnecting }>
+                  <Then>
+                    <div className="login-form__status-icon">
+                      <img src="./assets/images/icon-spinner.svg" alt="" />
+                    </div>
+                  </Then>
+                </If>
+
+                { /* show error icon when failed */ }
+                <If condition={ isFailed }>
+                  <Then>
+                    <div className="login-form__status-icon">
+                      <img src="./assets/images/icon-fail.svg" alt="" />
+                    </div>
+                  </Then>
+                </If>
+
+                { /* show tick when logged in */ }
+                <If condition={ isLoggedIn }>
+                  <Then>
+                    <div className="login-form__status-icon">
+                      <img src="./assets/images/icon-success.svg" alt="" />
+                    </div>
+                  </Then>
+                </If>
+
+                <div className="login-form__title">{ title }</div>
+                <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
+                  <div className="login-form__subtitle">{ subtitle }</div>
+                  <div className={ inputWrapClass }>
+                    <input className={ inputClass } 
+                          type="text" 
+                          placeholder="e.g 0000 0000 0000" 
+                          onChange={ ::this.handleInputChange }
+                          onKeyUp={ ::this.handleInputKeyUp }
+                          value={ displayAccount }
+                          disabled={ isConnecting }
+                          autoFocus={ true } 
+                          ref={ autoFocusRef } />
+                      <button className={ submitClass } onClick={ ::this.handleLogin }></button>
                   </div>
-                </Then>
-              </If>
-
-              { /* show error icon when failed */ }
-              <If condition={ isFailed }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-fail.svg" alt="" />
-                  </div>
-                </Then>
-              </If>
-
-              { /* show tick when logged in */ }
-              <If condition={ isLoggedIn }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-success.svg" alt="" />
-                  </div>
-                </Then>
-              </If>
-
-              <div className="login-form__title">{ title }</div>
-              <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
-                <div className="login-form__subtitle">{ subtitle }</div>
-                <div className={ inputWrapClass }>
-                  <input className={ inputClass } 
-                        type="text" 
-                        placeholder="e.g 0000 0000 0000" 
-                        onChange={ ::this.handleInputChange }
-                        onKeyUp={ ::this.handleInputKeyUp }
-                        value={ displayAccount }
-                        disabled={ isConnecting }
-                        autoFocus={ true } 
-                        ref={ autoFocusRef } />
-                    <button className={ submitClass } onClick={ ::this.handleLogin }></button>
                 </div>
-              </div>
 
+              </div>
+            </div>
+            <div className={footerClass}>
+              <div className="login-footer__prompt">Don't have an account number?</div>
+              <button className="login-footer__button" onClick={ ::this.handleCreateAccount }>Create account</button>
             </div>
           </div>
-          <div className={footerClass}>
-            <div className="login-footer__prompt">Don't have an account number?</div>
-            <button className="login-footer__button" onClick={ ::this.handleCreateAccount }>Create account</button>
-          </div>
-        </div>
+        </Container>
       </Layout>
     );
   }

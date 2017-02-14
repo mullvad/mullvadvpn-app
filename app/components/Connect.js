@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import Layout from './Layout';
+import { Layout, Container, Header } from './Layout';
 
 export default class Connect extends Component {
   render() {
     return (
       <Layout>
-        <div className="connect">
-          
-        </div>
+        <Header />
+        <Container>
+          <div className="connect">
+            
+          </div>
+        </Container>
       </Layout>
     );
   }
