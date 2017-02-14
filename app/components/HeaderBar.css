@@ -6,6 +6,10 @@
   background-color: #D0021B;
 }
 
+.header--style-success {
+  background-color: #44AD4D;
+}
+
 .headerbar__title {
   font-family: DINPro;
   font-size: 24px;
