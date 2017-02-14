@@ -2,9 +2,7 @@ language: rust
 cache:
   cargo: true
   directories:
-    - $HOME/Library/Caches/Homebrew
-    - $HOME/build-deps-linux
-    - $HOME/build-deps-osx
+    - $HOME/build-deps
 
 rust:
   - stable
@@ -13,11 +11,9 @@ os:
   - linux
   - osx
 
-sudo: required
-
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $(./build-deps/install-build-deps-ubuntu.sh $HOME/build-deps-linux) ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then $(./build-deps/install-build-deps-osx.sh $HOME/build-deps-osx)      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then mkdir -p $HOME/.local/bin && ln -s /usr/local/bin/greadlink $HOME/.local/bin/readlink ; fi
+  - $(./build-deps/install-build-deps.sh $HOME/build-deps)
   - (cargo install rustfmt || true)
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
   - rustfmt --version
@@ -31,7 +27,7 @@ script:
 
   - cargo build --verbose
   - cargo test --all --verbose
-  - find src/ tests/ benches/ -iname "*.rs" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
+  - find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
 
 notifications:
   email:
