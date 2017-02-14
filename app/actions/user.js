@@ -7,9 +7,9 @@ const loginChange = createAction('USER_LOGIN_CHANGE');
 const login = (backend, account) => {
   return async (dispatch) => {
     try {
-      dispatch(loginChange({ 
-        account: account, 
-        status: LoginState.connecting 
+      dispatch(loginChange({
+        status: LoginState.connecting,
+        account
       }));
       
       await backend.login(account);
