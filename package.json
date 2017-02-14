@@ -33,6 +33,7 @@
     "babel-preset-stage-0": "^6.1.18",
     "browser-sync": "^2.9.3",
     "chai": "^3.4.1",
+    "chai-spies": "^0.7.1",
     "electron": "^1.5.0",
     "electron-builder": "^12.3.1",
     "electron-devtools-installer": "^2.1.0",
