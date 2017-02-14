@@ -13,4 +13,12 @@ describe('enum', () => {
     expect(() => e.ANYWHERE = 'ANYWHERE').to.throw();
   });
 
+  it('should be able to validate enum keys', () => {
+    let e = Enum('NORTH', 'SOUTH', 'WEST', 'EAST');
+    expect(e.isValid('SOUTH')).to.be.true;
+    expect(e.isValid('ANYWHERE')).to.be.false;
+    expect(e.isValid()).to.be.false;
+    expect(e.isValid(null)).to.be.false;
+  })
+
 });
