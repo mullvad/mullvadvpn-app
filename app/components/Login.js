@@ -83,6 +83,51 @@ export default class Login extends Component {
     }
   }
 
+  inputWrapClass(user) {
+    const classes = ['login-form__input-wrap'];
+
+    if(user.status === LoginState.connecting) {
+      classes.push('login-form__input-wrap--inactive');
+    }
+
+    return classes.join(' ');
+  }
+
+  inputClass(user) {
+    const map = {
+      [LoginState.failed]: 'login-form__input-field--error'
+    };
+    const classes = ['login-form__input-field'];
+    const extra = map[user.status];
+
+    return classes.concat(extra ? extra : []).join(' ');
+  }
+
+  footerClass(user) {
+    const map = {
+      [LoginState.ok]: 'login-footer--invisible',
+      [LoginState.connecting]: 'login-footer--invisible'
+    };
+    const classes = ['login-footer'];
+    const extra = map[user.status];
+
+    return classes.concat(extra ? extra : []).join(' ');
+  }
+
+  submitClass(user) {
+    const classes = ['login-form__submit'];
+
+    if(user.account.length > 0) {
+      classes.push('login-form__submit--active');
+    }
+
+    if(user.status === LoginState.connecting) {
+      classes.push('login-form__submit--invisible');
+    }
+
+    return classes.join(' ');
+  }
+
   render() {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
@@ -91,9 +136,12 @@ export default class Login extends Component {
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const isLoggedIn = status === LoginState.ok;
-    const inputClass = ['login-form__input-field', isFailed ? 'login-form__input-field--error' : ''].join(' ');
-    const footerClass = ['login-footer', (isConnecting || isLoggedIn) ? 'login-footer--invisible' : ''].join(' ');
-    
+
+    const inputWrapClass = this.inputWrapClass(this.props.user);
+    const inputClass = this.inputClass(this.props.user);
+    const footerClass = this.footerClass(this.props.user);
+    const submitClass = this.submitClass(this.props.user);
+
     const autoFocusRef = input => {
       if(isFailed && input) {
         input.focus();
@@ -136,16 +184,17 @@ export default class Login extends Component {
               <div className="login-form__title">{ title }</div>
               <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
                 <div className="login-form__subtitle">{ subtitle }</div>
-                <div className="login-form__input-wrap">
+                <div className={ inputWrapClass }>
                   <input className={ inputClass } 
                         type="text" 
-                        placeholder="0000 0000 0000" 
+                        placeholder="e.g 0000 0000 0000" 
                         onChange={ ::this.handleInputChange }
                         onKeyUp={ ::this.handleInputKeyUp }
                         value={ displayAccount }
                         disabled={ isConnecting }
                         autoFocus={ true } 
                         ref={ autoFocusRef } />
+                    <button className={ submitClass } onClick={ ::this.handleLogin }></button>
                 </div>
               </div>
 
