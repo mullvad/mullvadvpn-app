@@ -8,7 +8,7 @@ export class Header extends Component {
   render() {
     return (
       <div className="layout__header">
-        <HeaderBar {...this.props} />
+        <HeaderBar { ...this.props } />
       </div>
     );
   }
@@ -22,7 +22,7 @@ export class Container extends Component {
   render() {
     return (
       <div className="layout__container">
-        {this.props.children}
+        { this.props.children }
       </div>
     );
   }
@@ -30,12 +30,16 @@ export class Container extends Component {
 
 export class Layout extends Component {
   static propTypes = {
-    children: PropTypes.arrayOf(PropTypes.node).isRequired
+    children: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.element),
+      PropTypes.element,
+    ])
   };
+  
   render() {
     return (
       <div className="layout">
-        {this.props.children}
+        { this.props.children }
       </div>
     );
   }

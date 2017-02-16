@@ -7,10 +7,14 @@ export default class Connect extends Component {
     logout: PropTypes.func.isRequired
   }
 
+  onSettings() {
+    this.props.router.push('/settings');
+  }
+
   render() {
     return (
       <Layout>
-        <Header />
+        <Header showSettings={ true } onSettings={ ::this.onSettings } />
         <Container>
           <div className="connect">
             <button style={{ width: '100px', display: 'block', margin: '10px auto' }} onClick={ this.props.logout }>Log out</button>

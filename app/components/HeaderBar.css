@@ -19,6 +19,10 @@
   background-repeat: no-repeat;
 }
 
+.headerbar--hidden { 
+  padding: 12px 0 0 0;
+}
+
 .headerbar--style-error {
   background-color: #D0021B;
 }
@@ -33,6 +37,12 @@
 
 .headerbar--style-success:before {
   background-image: url(../assets/images/app-triangle-success.svg);
+}
+
+.headerbar__container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .headerbar__title {
@@ -50,4 +60,23 @@
   height: 50px;
   display: inline-block;
   vertical-align: middle;
+}
+
+.headerbar__left {
+  flex: 1 1 auto;
+}
+
+.headerbar__right {
+  flex: 0 0 auto;
+}
+
+.headerbar__settings {
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  background-image: url(../assets/images/icon-settings.svg);
 }

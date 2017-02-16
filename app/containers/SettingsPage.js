@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Connect from '../components/Connect';
+import Settings from '../components/Settings';
 import userActions from '../actions/user';
 
 const mapStateToProps = (state) => {
@@ -16,4 +16,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Connect);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);

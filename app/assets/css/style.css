@@ -3,5 +3,6 @@
 @import 'global.css';
 @import '../../components/Login.css';
 @import '../../components/Connect.css';
+@import '../../components/Settings.css';
 @import '../../components/HeaderBar.css';
 @import '../../components/Layout.css';

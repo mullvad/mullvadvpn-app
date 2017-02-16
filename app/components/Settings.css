@@ -1,0 +1,14 @@
+.settings {
+
+}
+
+.settings__close {
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 0 12px;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  background-image: url(../assets/images/icon-close.svg);
+}
