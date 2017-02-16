@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { hashHistory } from 'react-router';
-import { routerMiddleware, routerReducer as routing, push } from 'react-router-redux';
+import { routerMiddleware, routerReducer as routing, push, replace } from 'react-router-redux';
 import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
 
@@ -11,7 +11,8 @@ const router = routerMiddleware(hashHistory);
 
 const actionCreators = {
   ...userActions,
-  push
+  pushRoute: (route) => push(route),
+  replaceRoute: (route) => replace(route),
 };
 
 const reducers = {

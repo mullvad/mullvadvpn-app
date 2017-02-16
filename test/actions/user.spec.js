@@ -27,7 +27,7 @@ describe('actions', () => {
       const account = '1234';
       const getState = () => ({});
       let callCounter = 0;
-      const dispatch = chai.spy((action) => {
+      const dispatch = chai.spy(() => {
         callCounter += 1;
 
         if(callCounter == 2) {
@@ -59,7 +59,7 @@ describe('actions', () => {
       const account = '1234';
       const getState = () => ({});
       let callCounter = 0;
-      const dispatch = chai.spy((action) => {
+      const dispatch = chai.spy(() => {
         callCounter += 1;
 
         if(callCounter == 2) {
@@ -82,6 +82,33 @@ describe('actions', () => {
       };
 
       const action = actions.login(backend, account);
+
+      action(dispatch, getState);
+    });
+
+    it('should log out', (done) => {
+      let callCount = 0;
+      const getState = () => ({ account: '1234', status: LoginState.ok });
+      const dispatch = chai.spy( (u) => {
+        callCount += 1;
+
+        if(callCount === 1) {
+          expect(dispatch).to.have.been.called.with({
+            type: actions.loginChange.toString(),
+            payload: { 
+              account: '', 
+              status: LoginState.none,
+              error: null
+            }
+          });
+
+          done();
+        }
+      });
+      const backend = {
+        logout: () => Promise.resolve()
+      };
+      const action = actions.logout(backend);
 
       action(dispatch, getState);
     });

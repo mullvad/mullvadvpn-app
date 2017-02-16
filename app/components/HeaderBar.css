@@ -1,13 +1,38 @@
 .headerbar {
+  margin-top: 12px;
   padding: 12px;
+  background-color: #294D73;
+  border-radius: 8px 8px 0 0;
+  position: relative;
 }
 
-.header--style-error {
+.headerbar:before {
+  display: block;
+  content: '';
+  width: 30px;
+  height: 13px;
+  margin: -12px 0 0 -15px;
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  background-image: url(../assets/images/app-triangle.svg);
+  background-repeat: no-repeat;
+}
+
+.headerbar--style-error {
   background-color: #D0021B;
 }
 
-.header--style-success {
+.headerbar--style-error:before {
+  background-image: url(../assets/images/app-triangle-error.svg);
+}
+
+.headerbar--style-success {
   background-color: #44AD4D;
+}
+
+.headerbar--style-success:before {
+  background-image: url(../assets/images/app-triangle-success.svg);
 }
 
 .headerbar__title {

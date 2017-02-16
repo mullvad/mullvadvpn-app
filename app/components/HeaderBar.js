@@ -15,7 +15,7 @@ export default class HeaderBar extends Component {
     let containerClass = ['headerbar'];
 
     if(HeaderBar.Style.isValid(style)) {
-      containerClass.push(`header--style-${style}`);
+      containerClass.push(`headerbar--style-${style}`);
     }
 
     return (

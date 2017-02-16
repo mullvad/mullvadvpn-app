@@ -3,21 +3,27 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, hashHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
-import { remote, webFrame } from 'electron';
-import path from 'path';
+import { webFrame } from 'electron';
 import routes from './routes';
 import configureStore from './store';
-import Tray from './containers/Tray';
 import Backend from './lib/backend';
 
 const backend = new Backend();
 
-const iconPath = path.join(__dirname, 'assets/images/trayicon.png');
-const tray = new remote.Tray(iconPath);
-
 const initialState = {};
 const store = configureStore(initialState);
-const routerHistory = syncHistoryWithStore(hashHistory, store);
+
+// desperately trying to fix https://github.com/reactjs/react-router-redux/issues/534
+hashHistory.replace('/');
+
+// see https://github.com/reactjs/react-router-redux/issues/534
+const recentLocation = (store.getState().routing || {}).locationBeforeTransitions;
+const routerHistory = syncHistoryWithStore(hashHistory, store, { adjustUrlOnReplay: true });
+
+if(recentLocation && recentLocation.pathname) {
+  routerHistory.replace(recentLocation.pathname);
+}
+
 const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
 
 // disable smart pinch.
@@ -32,13 +38,8 @@ const createElement = (Component, props) => {
 };
 
 ReactDOM.render(
-  <div>
-    <Provider store={ store }>
-      <Router history={ routerHistory } routes={ routes } createElement={ createElement } />
-    </Provider>
-    <Provider store={ store }>
-      <Tray handle={ tray } backend={ backend } />
-    </Provider>
-  </div>,
+  <Provider store={ store }>
+    <Router history={ routerHistory } routes={ routes } createElement={ createElement } />
+  </Provider>,
   rootElement
 );

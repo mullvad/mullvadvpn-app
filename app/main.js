@@ -1,11 +1,13 @@
 import path from 'path';
-import url from 'url';
-import { app, crashReporter, BrowserWindow, Menu } from 'electron';
+import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 
-let mainWindow = null;
-let forceQuit = false;
+let window = null;
+let tray = null;
+
+// hide dock icon
+app.dock.hide();
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
@@ -14,13 +16,113 @@ const installExtensions = async () => {
     'REDUX_DEVTOOLS'
   ];
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  for (const name of extensions) {
+  for(const name of extensions) {
     try {
       await installer.default(installer[name], forceDownload);
     } catch (e) {
       console.log(`Error installing ${name} extension: ${e.message}`);
     }
   }
+};
+
+const installDevTools = async () => {
+  await installExtensions();
+
+    // show devtools when ctrl clicked
+  tray.on('click', function () {
+    if(!window) { return; }
+
+    if(window.isDevToolsOpened()) {
+      window.devToolsWebContents.focus();
+    } else {
+      window.openDevTools({ mode: 'detach' });
+    }
+  });
+
+  // add inspect element on right click menu
+  window.webContents.on('context-menu', (e, props) => {
+    Menu.buildFromTemplate([{
+      label: 'Inspect element',
+      click() {
+        window.openDevTools({ mode: 'detach' });
+        window.inspectElement(props.x, props.y);
+      }
+    }]).popup(window);
+  });
+};
+
+const getWindowPosition = () => {
+  const windowBounds = window.getBounds();
+  const trayBounds = tray.getBounds();
+
+  // center window horizontally below the tray icon
+  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
+
+  // position window vertically below the tray icon
+  const y = Math.round(trayBounds.y + trayBounds.height);
+
+  return { x, y };
+};
+
+const createWindow = () => {
+  window = new BrowserWindow({
+    width: 320, 
+    height: 568,
+    frame: false,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    transparent: true,
+    show: false,
+    webPreferences: {
+      // prevents renderer process code from not running when window is hidden
+      backgroundThrottling: false
+    }
+  });
+
+  window.loadURL('file://' + path.join(__dirname, 'index.html'));
+
+  // hide the window when it loses focus
+  window.on('blur', () => {
+    if(!window.webContents.isDevToolsOpened()) {
+      window.hide();
+    }
+  });
+
+  window.on('show', () => {
+    tray.setHighlightMode('always');
+  });
+
+  window.on('hide', () => {
+    tray.setHighlightMode('never');
+  });
+
+};
+
+const toggleWindow = () => {
+  if (window.isVisible()) {
+    window.hide();
+  } else {
+    showWindow();
+  }
+};
+
+const showWindow = () => {
+  const position = getWindowPosition();
+  window.setPosition(position.x, position.y, false);
+  window.show();
+  window.focus();
+};
+
+ipcMain.on('show-window', () => {
+  showWindow();
+});
+
+const createTray = () => {
+  tray = new Tray(path.join(__dirname, 'assets/images/trayIconTemplate.png'));
+  tray.on('right-click', toggleWindow);
+  tray.on('double-click', toggleWindow);
+  tray.on('click', toggleWindow);
 };
 
 crashReporter.start({
@@ -31,78 +133,14 @@ crashReporter.start({
 });
 
 app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
-app.on('ready', async () => {
-  if (isDevelopment) {
-    await installExtensions();
-  }
+app.on('ready', () => {
+  createTray();
+  createWindow();
 
-  mainWindow = new BrowserWindow({ 
-    width: 320, 
-    height: 568 + 20, // 20pt window chrome
-    show: false,
-    backgroundColor: '#000000',
-    resizable: false,
-    maximizable: false,
-    fullscreenable: false
-  });
-
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
-
-  // show window once on first load
-  mainWindow.webContents.once('did-finish-load', () => {
-    mainWindow.show();
-  });
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    // Handle window logic properly on macOS:
-    // 1. App should not terminate if window has been closed
-    // 2. Click on icon in dock should re-open the window
-    // 3. ⌘+Q should close the window and quit the app
-    if (process.platform === 'darwin') {
-      mainWindow.on('close', function (e) {
-        if (!forceQuit) {
-          e.preventDefault();
-          mainWindow.hide();
-        }
-      });
-
-      app.on('activate', () => {
-        mainWindow.show();
-      });
-      
-      app.on('before-quit', () => {
-        forceQuit = true;
-      });
-    } else {
-      mainWindow.on('closed', () => {
-        mainWindow = null;
-      });
-    }
-  });
-
-  if (isDevelopment) {
-    // auto-open dev tools
-    mainWindow.webContents.openDevTools();
-
-    // add inspect element on right click menu
-    mainWindow.webContents.on('context-menu', (e, props) => {
-      Menu.buildFromTemplate([{
-        label: 'Inspect element',
-        click() {
-          mainWindow.inspectElement(props.x, props.y);
-        }
-      }]).popup(mainWindow);
-    });
+  if(isDevelopment) {
+    installDevTools();
   }
 });

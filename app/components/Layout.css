@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #294D73;
 }
 
 .layout__header {
@@ -11,4 +10,5 @@
 
 .layout__container {
   flex: 1 1 100%;
+  background: #294D73;
 }

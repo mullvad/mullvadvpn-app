@@ -10,7 +10,7 @@ export class Header extends Component {
       <div className="layout__header">
         <HeaderBar {...this.props} />
       </div>
-    )
+    );
   }
 }
 
@@ -24,7 +24,7 @@ export class Container extends Component {
       <div className="layout__container">
         {this.props.children}
       </div>
-    )
+    );
   }
 }
 

@@ -27,6 +27,8 @@ dmg:
 mac:
   target: dmg
   category: public.app-category.tools
+  extendInfo:
+    LSUIElement: true
 
 win:
   target: nsis
