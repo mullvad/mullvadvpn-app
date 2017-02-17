@@ -145,52 +145,48 @@ export default class Login extends Component {
         <Container>
           <div className="login">
             <div className="login-form">
-              <div>
-
-                { /* show spinner when connecting */ }
-                <If condition={ isConnecting }>
-                  <Then>
-                    <div className="login-form__status-icon">
-                      <img src="./assets/images/icon-spinner.svg" alt="" />
-                    </div>
-                  </Then>
-                </If>
-
-                { /* show error icon when failed */ }
-                <If condition={ isFailed }>
-                  <Then>
-                    <div className="login-form__status-icon">
-                      <img src="./assets/images/icon-fail.svg" alt="" />
-                    </div>
-                  </Then>
-                </If>
-
-                { /* show tick when logged in */ }
-                <If condition={ isLoggedIn }>
-                  <Then>
-                    <div className="login-form__status-icon">
-                      <img src="./assets/images/icon-success.svg" alt="" />
-                    </div>
-                  </Then>
-                </If>
-
-                <div className="login-form__title">{ title }</div>
-                <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
-                  <div className="login-form__subtitle">{ subtitle }</div>
-                  <div className={ inputWrapClass }>
-                    <input className={ inputClass } 
-                          type="text" 
-                          placeholder="e.g 0000 0000 0000" 
-                          onChange={ ::this.handleInputChange }
-                          onKeyUp={ ::this.handleInputKeyUp }
-                          value={ displayAccount }
-                          disabled={ isConnecting }
-                          autoFocus={ true } 
-                          ref={ autoFocusRef } />
-                      <button className={ submitClass } onClick={ ::this.handleLogin }></button>
+              { /* show spinner when connecting */ }
+              <If condition={ isConnecting }>
+                <Then>
+                  <div className="login-form__status-icon">
+                    <img src="./assets/images/icon-spinner.svg" alt="" />
                   </div>
-                </div>
+                </Then>
+              </If>
 
+              { /* show error icon when failed */ }
+              <If condition={ isFailed }>
+                <Then>
+                  <div className="login-form__status-icon">
+                    <img src="./assets/images/icon-fail.svg" alt="" />
+                  </div>
+                </Then>
+              </If>
+
+              { /* show tick when logged in */ }
+              <If condition={ isLoggedIn }>
+                <Then>
+                  <div className="login-form__status-icon">
+                    <img src="./assets/images/icon-success.svg" alt="" />
+                  </div>
+                </Then>
+              </If>
+
+              <div className="login-form__title">{ title }</div>
+              <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
+                <div className="login-form__subtitle">{ subtitle }</div>
+                <div className={ inputWrapClass }>
+                  <input className={ inputClass } 
+                        type="text" 
+                        placeholder="e.g 0000 0000 0000" 
+                        onChange={ ::this.handleInputChange }
+                        onKeyUp={ ::this.handleInputKeyUp }
+                        value={ displayAccount }
+                        disabled={ isConnecting }
+                        autoFocus={ true } 
+                        ref={ autoFocusRef } />
+                    <button className={ submitClass } onClick={ ::this.handleLogin }></button>
+                </div>
               </div>
             </div>
             <div className={footerClass}>
