@@ -101,7 +101,7 @@
 }
 
 .settings__cell-value {
-
+  flex: 0 0 auto;
 }
 
 .settings__cell-footer {

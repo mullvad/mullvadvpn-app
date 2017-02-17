@@ -1,14 +1,21 @@
 import React, { Component, PropTypes } from 'react';
 import { Layout, Container, Header } from './Layout';
+import Switch from './Switch';
 
 export default class Settings extends Component {
 
   static propTypes = {
-    logout: PropTypes.func.isRequired
+    logout: PropTypes.func.isRequired,
+    updateSettings: PropTypes.func.isRequired
   }
 
   onClose() {
     this.props.router.push('/connect');
+  }
+
+  handleAutoSecure(isOn) {
+    console.log('autoSecure: ' + isOn);
+    this.props.updateSettings({ autoSecure: isOn });
   }
 
   render() {
@@ -31,7 +38,7 @@ export default class Settings extends Component {
                   <div className="settings__cell">
                     <div className="settings__cell-label">Auto-secure</div>
                     <div className="settings__cell-value">
-                      <input type="checkbox" className="settings__switch" />
+                      <Switch onChange={ ::this.handleAutoSecure } isOn={ this.props.settings.autoSecure } />
                     </div>
                   </div>
                   <div className="settings__cell-footer">

@@ -5,18 +5,26 @@ import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
 
 import user from './reducers/user';
+import connect from './reducers/connect';
+import settings from './reducers/settings';
 import userActions from './actions/user';
+import connectActions from './actions/connect';
+import settingsActions from './actions/settings';
 
 const router = routerMiddleware(hashHistory);
 
 const actionCreators = {
   ...userActions,
+  ...connectActions,
+  ...settingsActions,
   pushRoute: (route) => push(route),
   replaceRoute: (route) => replace(route),
 };
 
 const reducers = {
   user,
+  connect,
+  settings,
   routing
 };
 
