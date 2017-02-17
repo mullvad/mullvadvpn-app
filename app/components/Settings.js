@@ -44,7 +44,7 @@ export default class Settings extends Component {
                 </div>
               </div>
               <div className="settings__content">
-                <div className="settings__options">
+                <div>
                   <div className="settings__cell">
                     <div className="settings__cell-label">Auto-secure</div>
                     <div className="settings__cell-value">

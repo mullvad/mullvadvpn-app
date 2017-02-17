@@ -30,14 +30,10 @@ export default class HeaderBar extends Component {
       <div className={ containerClass.join(' ') }>
         <If condition={ !this.props.hidden }>
           <div className="headerbar__container">
-            <div className="headerbar__left">
-              <img className="headerbar__logo" src="./assets/images/logo-icon.svg" />
-              <h2 className="headerbar__title">MULLVAD VPN</h2>
-            </div>
+            <img className="headerbar__logo" src="./assets/images/logo-icon.svg" />
+            <h2 className="headerbar__title">MULLVAD VPN</h2>
             <If condition={ !!this.props.showSettings }>
-              <div className="headerbar__right">
                 <button className="headerbar__settings" onClick={ this.props.onSettings } />
-              </div>
             </If>
           </div>
         </If>
