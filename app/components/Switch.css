@@ -3,8 +3,8 @@
   position: relative;
   -webkit-appearance: none;
   border-radius: 16px;
-  width: 50px;
-  height: 30px;
+  width: 52px;
+  height: 32px;
   border: 2px solid white;
   background-color: transparent;
   transition: 300ms ease-in-out all;
@@ -16,8 +16,8 @@
 
 .switch::after {
   position: absolute;
-  left: 1px;
-  top: 1px;
+  left: 2px;
+  top: 2px;
   display: block;
   content: '';
   width: 24px;
@@ -34,11 +34,11 @@
 
 .switch:active:checked::after {
   transform: translate3d(0, 0, 0);
-  left: 17px;
+  left: 18px;
 }
 
 .switch:checked::after {
   background-color: #44AD4D;
   transform: translate3d(0, 0, 0);
-  left: 21px;
+  left: 22px;
 }
