@@ -16,8 +16,7 @@ export default class Switch extends Component {
       isTracking: false,
       ignoreChange: false,
       initialPos: null,
-      startTime: null,
-      target: null
+      startTime: null
     };
   }
 
@@ -33,34 +32,37 @@ export default class Switch extends Component {
   handleMouseMove(e) {
     if(!this.state.isTracking) { return; }
 
-    const { x: startX } = this.state.initialPos;
+    const { x: x0 } = this.state.initialPos;
     const { pageX: x, pageY: y } = e;
-
-    const dx = Math.abs(startX - x);
+    const dx = Math.abs(x0 - x);
 
     if(dx < MOVE_THRESHOLD) { return; }
 
     const isOn = !!this.props.isOn;
     let nextOn = isOn;
 
-    if(x < startX && isOn) {
+    if(x < x0 && isOn) {
       nextOn = false;
-    } else if(x > startX && !isOn) {
+    } else if(x > x0 && !isOn) {
       nextOn = true;
     }
     
     if(isOn !== nextOn) {
-      this.setState({ initialPos: { x, y } });
+      this.setState({ 
+        initialPos: { x, y }, 
+        ignoreChange: true
+      });
       this.refs.input.checked = nextOn;
       this.notify(nextOn);
-      this.setState({ ignoreChange: true });
     }
   }
 
   handleMouseUp() {
     if(this.state.isTracking) {
-      this.setState({ isTracking: false, initialPos: null });
-      console.log('mouseup');
+      this.setState({ 
+        isTracking: false, 
+        initialPos: null 
+      });
     }
   }
 
@@ -68,8 +70,8 @@ export default class Switch extends Component {
     const dt = e.timeStamp - this.state.startTime;
 
     if(this.state.ignoreChange) {
-      e.preventDefault();
       this.setState({ ignoreChange: false });
+      e.preventDefault();
     } else if(dt > CLICK_TIMEOUT) {
       e.preventDefault();
     } else {

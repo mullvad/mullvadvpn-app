@@ -17,7 +17,6 @@ export default class Settings extends Component {
   }
 
   handleAutoSecure(isOn) {
-    console.log('autoSecure: ' + isOn);
     this.props.updateSettings({ autoSecure: isOn });
   }
 
