@@ -1,14 +1,133 @@
 .settings {
+  background: #192E45;
+  height: 100%;
+}
 
+.settings__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.settings__header {
+  flex: 0 0 auto;
+  padding: 40px 24px 24px;
+  position: relative; /* anchor for close button */
+}
+
+.settings__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings__options {
+  flex: 1 1 auto;
+}
+
+.settings__footer {
+  flex: 0 0 auto;
 }
 
 .settings__close {
+  position: absolute;
   display: block;
   border: 0;
   padding: 0;
-  margin: 0 0 0 12px;
+  margin: 0;
   width: 24px;
   height: 24px;
+  top: 24px;
+  left: 12px;
   background-color: transparent;
   background-image: url(../assets/images/icon-close.svg);
+  opacity: 0.6;
+  z-index: 1; /* part of .settings__container convers the button */
+}
+
+.settings__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 40px;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+}
+
+.settings__account {
+  font-family: "Open Sans";
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: rgba(255,255,255,0.8);
+}
+
+.settings__account-label {
+  display: inline-block;
+}
+
+.settings__account-id {
+  display: inline-block;
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+.settings__cell {
+  background-color: #294D73;
+  padding: 15px 16px 15px 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.settings__cell + .settings__cell {
+  margin-top: 1px;
+}
+
+.settings__cell-label {
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #FFFFFF;
+  flex: 1 0 auto;
+}
+
+.settings__cell-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+
+.settings__cell-value {
+
+}
+
+.settings__cell-footer {
+  padding: 8px 24px 24px;
+  font-family: "Open Sans";
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: rgba(255,255,255,0.8);
+}
+
+.settings__footer {
+  margin: 24px;
+}
+
+.settings__logout-button {
+  display: block;
+  width: 100%;
+  padding: 7px 12px 9px;
+  background-color: #D0021B;
+  border-radius: 4px;
+  border: 0;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 26px;
+  color: #FFFFFF;
 }

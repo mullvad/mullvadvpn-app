@@ -23,6 +23,14 @@
   padding: 12px 0 0 0;
 }
 
+.headerbar--style-defaultDark {
+  background-color: #192E45;
+}
+
+.headerbar--style-defaultDark:before {
+  background-image: url(../assets/images/app-triangle-default-dark.svg);
+}
+
 .headerbar--style-error {
   background-color: #D0021B;
 }

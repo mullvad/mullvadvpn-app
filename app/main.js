@@ -67,7 +67,7 @@ const getWindowPosition = () => {
 const createWindow = () => {
   window = new BrowserWindow({
     width: 320, 
-    height: 568,
+    height: 568 + 12, // 12 is the size of transparent area around arrow
     frame: false,
     resizable: false,
     maximizable: false,
