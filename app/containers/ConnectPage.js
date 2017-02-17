@@ -7,13 +7,8 @@ const mapStateToProps = (state) => {
   return state;
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  const user = bindActionCreators(userActions, dispatch);
-  return {
-    logout: () => {
-      return user.logout(props.backend);
-    }
-  };
+const mapDispatchToProps = (dispatch) => {
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Connect);

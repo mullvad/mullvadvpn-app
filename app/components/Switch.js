@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 
+const CLICK_TIMEOUT = 1000;
+const MOVE_THRESHOLD = 10;
+
 export default class Switch extends Component {
 
   static propTypes = {
@@ -28,27 +31,21 @@ export default class Switch extends Component {
   }
   
   handleMouseMove(e) {
-    if(!this.state.isTracking) {
-      return;
-    }
+    if(!this.state.isTracking) { return; }
 
-    const thresholdX = 10, thresholdY = 50;
-    const { x: x0, y: y0 } = this.state.initialPos;
+    const { x: startX } = this.state.initialPos;
     const { pageX: x, pageY: y } = e;
 
-    const dx = Math.abs(x0 - x);
-    const dy = Math.abs(y0 - y);
+    const dx = Math.abs(startX - x);
 
-    if(dx < thresholdX || dy > thresholdY) {
-      return;
-    }
+    if(dx < MOVE_THRESHOLD) { return; }
 
     const isOn = !!this.props.isOn;
     let nextOn = isOn;
 
-    if(x < x0 && isOn) {
+    if(x < startX && isOn) {
       nextOn = false;
-    } else if(x > x0 && !isOn) {
+    } else if(x > startX && !isOn) {
       nextOn = true;
     }
     
@@ -68,14 +65,12 @@ export default class Switch extends Component {
   }
 
   handleChange(e) {
-    console.log('ONCHANGE ' + e.target.checked);
-    const delta = e.timeStamp - this.state.startTime;
-    const threshold = 1000;
+    const dt = e.timeStamp - this.state.startTime;
 
     if(this.state.ignoreChange) {
       e.preventDefault();
       this.setState({ ignoreChange: false });
-    } else if(delta > threshold) {
+    } else if(dt > CLICK_TIMEOUT) {
       e.preventDefault();
     } else {
       this.notify(e.target.checked);

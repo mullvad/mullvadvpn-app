@@ -2,7 +2,8 @@ import { shell } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { createAccountURL, LoginState } from '../constants';
+import { links, LoginState } from '../constants';
+import { formatAccount } from '../lib/formatters';
 
 export default class Login extends Component {
   static propTypes = {
@@ -35,7 +36,7 @@ export default class Login extends Component {
   }
 
   handleCreateAccount() {
-    shell.openExternal(createAccountURL);
+    shell.openExternal(links.createAccount);
   }
 
   handleInputChange(e) {
@@ -54,16 +55,6 @@ export default class Login extends Component {
     if(e.which === 13) {
       this.handleLogin();
     }
-  }
-
-  formattedAccount(val) {
-    // display number altogether when longer than 12
-    if(val.length > 12) {
-      return val;
-    }
-
-    // display quartets
-    return val.replace(/([0-9]{4})/g, '$1 ').trim();
   }
 
   formTitle(s) {
@@ -132,7 +123,7 @@ export default class Login extends Component {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
-    const displayAccount = this.formattedAccount(account);
+    const displayAccount = formatAccount(account);
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const isLoggedIn = status === LoginState.ok;
