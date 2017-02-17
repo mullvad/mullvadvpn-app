@@ -24,7 +24,7 @@
   height: 24px;
   border-radius: 24px;
   background-color: #D0021B;
-  transition: 300ms ease-in-out all;
+  transition: 200ms ease-in-out all;
   transform: translate3d(0, 0, 0);
 }
 
