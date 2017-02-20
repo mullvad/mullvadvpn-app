@@ -11,4 +11,5 @@
 .layout__container {
   flex: 1 1 100%;
   background: #294D73;
+  overflow: hidden; /* needed for flex boxes with overflow: auto to work */
 }

@@ -3,7 +3,7 @@
   position: relative;
 }
 
-.map {
+.connect__map {
   position: absolute;
   top: 0;
   left: 0;
@@ -14,13 +14,13 @@
   background-position: 0 -72px;
 }
 
-.container {
+.connect__container {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.connect-pane {
+.connect__footer {
   display: flex;
   flex-direction: column;
   margin-top: auto;
@@ -28,15 +28,11 @@
   z-index: 1;
 }
 
-.connect-pane__row {
-
-}
-
-.connect-pane__row + .connect-pane__row {
+.connect__row + .connect__row{
   margin-top: 16px;
 }
 
-.connect-pane__server {
+.connect__server {
   padding: 7px 12px 9px;
   background-color: rgba(255,255,255,0.2);
   border-radius: 4px;
@@ -45,7 +41,7 @@
   align-items: center;
 }
 
-.connect-pane__server-label {
+.connect__server-label {
   font-family: "Open Sans";
   font-size: 12px;
   font-weight: 800;
@@ -53,7 +49,7 @@
   color: rgba(255,255,255,0.8);
 }
 
-.connect-pane__server-country {
+.connect__server-country {
   margin-left: auto;
   font-family: DINPro;
   font-size: 20px;
@@ -62,7 +58,7 @@
   color: #FFFFFF;
 }
 
-.connect-pane__secure-button {
+.connect__secure-button {
   display: block;
   width:100%;
   border: 0;

@@ -9,5 +9,11 @@ module.exports = {
     guides: 'https://mullvad.net/guides/',
     supportEmail: 'mailto:support@mullvad.net'
   },
+  servers: [
+    'Canada', 'Canada (Quebec)', 'Denmark', 'Germany', 
+    'Lithuania', 'The Netherlands', 'Norway', 'Romania',
+    'Singapore', 'Spain', 'Sweden', 'Switzerland',
+    'United Kingdom', 'USA'
+  ],
   LoginState
 };

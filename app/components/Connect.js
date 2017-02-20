@@ -7,25 +7,29 @@ export default class Connect extends Component {
     this.props.router.push('/settings');
   }
 
+  openLocationPicker() {
+    this.props.router.push('/select-location');
+  }
+
   render() {
     return (
       <Layout>
         <Header showSettings={ true } onSettings={ ::this.onSettings } />
         <Container>
           <div className="connect">
-            <div className="map"></div>
-            <div className="container">
-              <div className="connect-pane">
+            <div className="connect__map"></div>
+            <div className="connect__container">
+              <div className="connect__footer">
                 
-                <div className="connect-pane__row">
-                  <div className="connect-pane__server">
-                    <div className="connect-pane__server-label">CONNECT TO</div>
-                    <div className="connect-pane__server-country">USA</div>
+                <div className="connect__row">
+                  <div className="connect__server" onClick={ ::this.openLocationPicker }>
+                    <div className="connect__server-label">CONNECT TO</div>
+                    <div className="connect__server-country">USA</div>
                   </div>
                 </div>
 
-                <div className="connect-pane__row">
-                  <button className="connect-pane__secure-button">Secure my connection</button>
+                <div className="connect__row">
+                  <button className="connect__secure-button">Secure my connection</button>
                 </div>
 
               </div>
