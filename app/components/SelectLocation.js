@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { servers } from '../constants';
+import CustomScrollbars from './CustomScrollbars';
 
 export default class SelectLocation extends Component {
 
@@ -78,7 +79,7 @@ export default class SelectLocation extends Component {
                 </div>
               </div>
               
-              <div className="select-location__list">
+              <CustomScrollbars autoHide={ true }>
                 <div>
                   { this.drawCell('Fastest', './assets/images/icon-fastest.svg', ::this.handleFastest) }
                   { this.drawCell('Nearest', './assets/images/icon-nearest.svg', ::this.handleNearest) }
@@ -88,7 +89,7 @@ export default class SelectLocation extends Component {
                   { servers.map((name) => this.drawCell(name, null, this.handleSelection.bind(this, name))) }
 
                 </div>
-              </div>
+              </CustomScrollbars>
             </div>
           </div>
         </Container>

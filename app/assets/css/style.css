@@ -1,6 +1,7 @@
 @import 'reset.css';
 @import 'fonts.css';
 @import 'global.css';
+@import '../../components/CustomScrollbars.css';
 @import '../../components/Login.css';
 @import '../../components/Connect.css';
 @import '../../components/Settings.css';

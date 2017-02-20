@@ -48,10 +48,6 @@
   color: rgba(255,255,255,0.8);
 }
 
-.select-location__list {
-  overflow-y: auto;
-}
-
 .select-location__separator {
   height: 16px;
 }
