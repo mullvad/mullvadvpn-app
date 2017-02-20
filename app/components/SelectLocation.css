@@ -49,7 +49,7 @@
 }
 
 .select-location__list {
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .select-location__separator {
@@ -64,6 +64,10 @@
   align-items: center;
 }
 
+.select-location__cell--selected {
+  background-color: #44AD4D;
+}
+
 .select-location__cell + .select-location__cell {
   margin-top: 1px;
 }
@@ -74,7 +78,6 @@
   font-weight: 900;
   line-height: 26px;
   color: #FFFFFF;
-  flex: 1 0 auto;
 }
 
 .select-location__cell-icon {
@@ -86,6 +89,10 @@
 
 .select-location__cell-value {
   flex: 0 0 auto;
+}
+
+.select-location__cell-accessory {
+  margin-left: auto;
 }
 
 .select-location__cell-footer {

@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { servers } from '../constants';
 
@@ -13,15 +14,53 @@ export default class SelectLocation extends Component {
   }
 
   handleSelection(name) {
-    console.log('Selected: ', name);
+    this.props.updateSettings({ preferredServer: name });
+    this.props.router.push('/connect');
   }
 
   handleFastest() {
-    console.log('Selected: FASTEST');
+    this.props.updateSettings({ preferredServer: 'Fastest' });
+    this.props.router.push('/connect');
   }
 
   handleNearest() {
-    console.log('Selected: NEAREST');
+    this.props.updateSettings({ preferredServer: 'Nearest' });
+    this.props.router.push('/connect');
+  }
+
+  isSelected(key) {
+    return key === this.props.settings.preferredServer;
+  }
+
+  drawCell(name, icon, onClick) {
+    const classes = ['select-location__cell'];
+    const selected = this.isSelected(name);
+
+    if(selected) {
+      classes.push('select-location__cell--selected');
+    }
+
+    const cellClass = classes.join(' ');
+
+    return (
+      <div key={ name } className={ cellClass } onClick={ onClick }>
+
+        <If condition={ !!icon }>
+          <Then>
+            <img className="select-location__cell-icon" src={ icon } />
+          </Then>
+        </If>
+
+        <div className="select-location__cell-label">{ name }</div>
+
+        <If condition={ selected } >
+          <Then>
+            <img className="select-location__cell-accessory" src="./assets/images/icon-tick.svg" />
+          </Then>
+        </If>
+
+      </div>
+    );
   }
 
   render() {
@@ -41,22 +80,12 @@ export default class SelectLocation extends Component {
               
               <div className="select-location__list">
                 <div>
-                  <div className="select-location__cell" onClick={ ::this.handleFastest }>
-                    <img className="select-location__cell-icon" src="./assets/images/icon-fastest.svg" />
-                    <div className="select-location__cell-label">Fastest</div>
-                  </div>
-                  <div className="select-location__cell" onClick={ ::this.handleNearest }>
-                    <img className="select-location__cell-icon" src="./assets/images/icon-nearest.svg" />
-                    <div className="select-location__cell-label">Nearest</div>
-                  </div>
+                  { this.drawCell('Fastest', './assets/images/icon-fastest.svg', ::this.handleFastest) }
+                  { this.drawCell('Nearest', './assets/images/icon-nearest.svg', ::this.handleNearest) }
+
                   <div className="select-location__separator"></div>
                   
-                  {
-                    servers.map((name) => (
-                    <div className="select-location__cell" key={ name } onClick={ this.handleSelection.bind(this, name) }>
-                      <div className="select-location__cell-label">{ name }</div>
-                    </div>))
-                  }
+                  { servers.map((name) => this.drawCell(name, null, this.handleSelection.bind(this, name))) }
 
                 </div>
               </div>
