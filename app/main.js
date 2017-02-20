@@ -1,10 +1,12 @@
 import path from 'path';
 import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+import NSEventMonitor from 'nseventmonitor';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 
 let window = null;
 let tray = null;
+let macEventMonitor = new NSEventMonitor();
 
 // hide dock icon
 app.dock.hide();
@@ -91,10 +93,16 @@ const createWindow = () => {
 
   window.on('show', () => {
     tray.setHighlightMode('always');
+
+    macEventMonitor.start(() => {
+      window.hide();
+    });
   });
 
   window.on('hide', () => {
     tray.setHighlightMode('never');
+
+    macEventMonitor.stop();
   });
 
 };

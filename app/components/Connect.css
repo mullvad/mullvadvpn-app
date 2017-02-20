@@ -1,5 +1,78 @@
 .connect {
   height: 100%;
+  position: relative;
+}
+
+.map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url(../assets/images/map/connecting@2x.png);
+  background-size: cover;
+  background-position: 0 -72px;
+}
+
+.container {
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.connect-pane {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  padding: 24px;
+  z-index: 1;
+}
+
+.connect-pane__row {
+
+}
+
+.connect-pane__row + .connect-pane__row {
+  margin-top: 16px;
+}
+
+.connect-pane__server {
+  padding: 7px 12px 9px;
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.connect-pane__server-label {
+  font-family: "Open Sans";
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 17px;
+  color: rgba(255,255,255,0.8);
+}
+
+.connect-pane__server-country {
+  margin-left: auto;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #FFFFFF;
+}
+
+.connect-pane__secure-button {
+  display: block;
+  width:100%;
+  border: 0;
+  padding: 7px 12px 9px;
+  background-color: #44AD4D;
+  border-radius: 4px;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 26px;
+  color: #FFFFFF;
 }

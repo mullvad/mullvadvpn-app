@@ -10,6 +10,7 @@
   "repository": "https://github.com/jschr/electron-react-redux-boilerplate",
   "license": "MIT",
   "dependencies": {
+    "nseventmonitor": "https://github.com/pronebird/NSEventMonitor.git",
     "babel-runtime": "^6.22.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
