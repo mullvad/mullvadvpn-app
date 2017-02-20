@@ -1,4 +1,4 @@
 {
   "presets": ["es2015", "stage-0", "react"],
-  "plugins": ["transform-decorators-legacy", "transform-runtime"]
+  "plugins": ["transform-decorators-legacy", "transform-runtime", "inline-react-svg"]
 }
