@@ -23,8 +23,8 @@ export default class Connect extends Component {
                 
                 <div className="connect__row">
                   <div className="connect__server" onClick={ ::this.openLocationPicker }>
-                    <div className="connect__server-label">CONNECT TO</div>
-                    <div className="connect__server-country">USA</div>
+                    <div className="connect__server-label">Connect to</div>
+                    <div className="connect__server-country">{ this.props.settings.preferredServer }</div>
                   </div>
                 </div>
 

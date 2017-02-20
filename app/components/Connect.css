@@ -47,15 +47,20 @@
   font-weight: 800;
   line-height: 17px;
   color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  flex: 0 0 auto;
 }
 
 .connect__server-country {
-  margin-left: auto;
+  flex: 1 1 auto;
+  margin-left: 8px;
   font-family: DINPro;
   font-size: 20px;
   font-weight: 900;
   line-height: 26px;
   color: #FFFFFF;
+  text-transform: uppercase;
+  text-align: right;
 }
 
 .connect__secure-button {
