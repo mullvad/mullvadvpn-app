@@ -12,16 +12,16 @@ export default class SelectLocation extends Component {
     this.props.router.push('/connect');
   }
 
-  handleServer(name) {
-
+  handleSelection(name) {
+    console.log('Selected: ', name);
   }
 
   handleFastest() {
-
+    console.log('Selected: FASTEST');
   }
 
   handleNearest() {
-
+    console.log('Selected: NEAREST');
   }
 
   render() {
@@ -53,7 +53,7 @@ export default class SelectLocation extends Component {
                   
                   {
                     servers.map((name) => (
-                    <div className="select-location__cell" key={name}>
+                    <div className="select-location__cell" key={ name } onClick={ this.handleSelection.bind(this, name) }>
                       <div className="select-location__cell-label">{ name }</div>
                     </div>))
                   }
