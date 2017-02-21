@@ -4,4 +4,8 @@ import actions from '../actions/connect';
 
 const initialState = {};
 
-export default handleActions({ test: (state) => { return state; } }, initialState);
+export default handleActions({ 
+  [actions.updateConnectionState]: (state, action) => { 
+    return { ...state, ...action.payload };
+  } 
+}, initialState);

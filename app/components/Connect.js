@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Layout, Container, Header } from './Layout';
+import { servers } from '../constants';
 
 export default class Connect extends Component {
 
@@ -12,6 +13,16 @@ export default class Connect extends Component {
   }
 
   render() {
+    let serverName;
+    const preferredServer = this.props.settings.preferredServer;
+
+    // special types of servers (Fastest, Nearest) 
+    if(preferredServer === 'Fastest' || preferredServer === 'Nearest') {
+      serverName = preferredServer;
+    } else {
+      serverName = (servers[preferredServer] || {}).name;
+    }
+    
     return (
       <Layout>
         <Header showSettings={ true } onSettings={ ::this.onSettings } />
@@ -24,7 +35,7 @@ export default class Connect extends Component {
                 <div className="connect__row">
                   <div className="connect__server" onClick={ ::this.openLocationPicker }>
                     <div className="connect__server-label">Connect to</div>
-                    <div className="connect__server-country">{ this.props.settings.preferredServer }</div>
+                    <div className="connect__server-country">{ serverName }</div>
                   </div>
                 </div>
 

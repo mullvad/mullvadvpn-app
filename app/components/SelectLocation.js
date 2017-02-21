@@ -33,7 +33,7 @@ export default class SelectLocation extends Component {
     return key === this.props.settings.preferredServer;
   }
 
-  drawCell(name, icon, onClick) {
+  drawCell(key, name, icon, onClick) {
     const classes = ['select-location__cell'];
     const selected = this.isSelected(name);
 
@@ -44,7 +44,7 @@ export default class SelectLocation extends Component {
     const cellClass = classes.join(' ');
 
     return (
-      <div key={ name } className={ cellClass } onClick={ onClick }>
+      <div key={ key } className={ cellClass } onClick={ onClick }>
 
         <If condition={ !!icon }>
           <Then>
@@ -81,12 +81,12 @@ export default class SelectLocation extends Component {
               
               <CustomScrollbars autoHide={ true }>
                 <div>
-                  { this.drawCell('Fastest', './assets/images/icon-fastest.svg', ::this.handleFastest) }
-                  { this.drawCell('Nearest', './assets/images/icon-nearest.svg', ::this.handleNearest) }
+                  { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', ::this.handleFastest) }
+                  { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', ::this.handleNearest) }
 
                   <div className="select-location__separator"></div>
                   
-                  { servers.map((name) => this.drawCell(name, null, this.handleSelection.bind(this, name))) }
+                  { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.handleSelection.bind(this, key))) }
 
                 </div>
               </CustomScrollbars>

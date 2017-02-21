@@ -1,37 +1,53 @@
-import privateData from './private';
+import Enum from './enum';
+import { EventEmitter } from 'events';
+
+const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout');
 
 /**
- * Private data
- */
-const { get: getImpl, set: setImpl } = privateData();
-
-/**
- * Remote backend implementation
+ * Backend implementation
  * 
- * @class BackendImpl
+ * @class Backend
  */
-class BackendImpl {
+export default class Backend extends EventEmitter {
+  
+  static EventType = EventType;
+  
   constructor() {
+    super();
     this._account = null;
     this._loggedIn = false;
+    this._serverAddress = null;
   }
 
-  get account() {
-    return this._account;
-  }
+  // Accessors
 
-  get loggedIn() {
-    return this._loggedIn;
-  }
+  get account() { return this._account; }
+  get loggedIn() { return this._loggedIn; }
+  get serverAddress() { return this._serverAddress; }
+
+  // Public methods
 
   login(account) {
     return new Promise((resolve, reject) => {
+      this._account = account;
+
+      // emit: logging in
+      this.emit(EventType.logging, account);
+
       // @TODO: Add login call
       setTimeout(() => {
         if(account.startsWith('1111')) {
+          // emit: login
+          this.emit(EventType.login, account);
+
           resolve(true);
         } else {
-          reject(new Error('Invalid account number.'));
+          const err = new Error('Invalid account number.');
+
+          // emit: login
+          this.emit(EventType.login, account, err);
+
+          reject(err);
         }
       }, 2000);
     });
@@ -39,38 +55,49 @@ class BackendImpl {
 
   logout() {
     return new Promise((resolve, reject) => {
+      this._account = null;
+
+      // emit event
+      this.emit(EventType.logout);
+
       // @TODO: Add logout call
       resolve();
     });
   }
-}
 
-/**
- * Backend implementation
- * 
- * @export
- * @class Backend
- */
-export default class Backend {
+  connect(addr) {
+    return new Promise((resolve, reject) => {
+      this._serverAddress = addr;
+      
+      // @TODO: Add connect call
+      setTimeout(() => {
+        if(/se\d+\.mullvad\.net/.test(addr)) {
 
-  constructor() {
-    setImpl(this, new BackendImpl());
+          // emit: connect
+          this.emit(EventType.connect, addr, err);
+          
+          resolve(true);
+        } else {
+          const err = new Error('Server is unreachable');
+
+          // emit: connect
+          this.emit(EventType.connect, addr, err);
+
+          reject(err);
+        }
+      }, 2000);
+    });
   }
 
-  get account() { 
-    return getImpl(this).account; 
-  }
+  disconnect() {
+    return new Promise((resolve, reject) => {
+      this._serverAddress = null;
 
-  get loggedIn() { 
-    return getImpl(this).loggedIn;
-  }
+      // emit: disconnect
+      this.emit(EventType.disconnect);
 
-  login(account) {
-    return getImpl(this).login(account);
+      // @TODO: Add disconnect call
+      resolve();
+    });
   }
-
-  logout() {
-    return getImpl(this).logout();
-  }
-
 }
