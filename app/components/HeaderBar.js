@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { If } from 'react-if';
+import { If, Then } from 'react-if';
 import Enum from '../lib/enum';
 
 export default class HeaderBar extends Component {
@@ -29,13 +29,17 @@ export default class HeaderBar extends Component {
     return (
       <div className={ containerClass.join(' ') }>
         <If condition={ !this.props.hidden }>
-          <div className="headerbar__container">
-            <img className="headerbar__logo" src="./assets/images/logo-icon.svg" />
-            <h2 className="headerbar__title">MULLVAD VPN</h2>
-            <If condition={ !!this.props.showSettings }>
-                <button className="headerbar__settings" onClick={ this.props.onSettings } />
-            </If>
-          </div>
+          <Then>
+            <div className="headerbar__container">
+              <img className="headerbar__logo" src="./assets/images/logo-icon.svg" />
+              <h2 className="headerbar__title">MULLVAD VPN</h2>
+              <If condition={ !!this.props.showSettings }>
+                <Then>
+                  <button className="headerbar__settings" onClick={ this.props.onSettings } />
+                </Then>
+              </If>
+            </div>
+          </Then>
         </If>
       </div>
     );

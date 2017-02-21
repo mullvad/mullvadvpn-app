@@ -1,6 +1,6 @@
 import { shell } from 'electron';
 import React, { Component, PropTypes } from 'react';
-import { If, Then, Else } from 'react-if';
+import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { links, LoginState } from '../constants';
 import { formatAccount } from '../lib/formatters';

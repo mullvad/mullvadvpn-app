@@ -20,12 +20,12 @@ export default class SelectLocation extends Component {
   }
 
   handleFastest() {
-    this.props.updateSettings({ preferredServer: 'Fastest' });
+    this.props.updateSettings({ preferredServer: 'fastest' });
     this.props.router.push('/connect');
   }
 
   handleNearest() {
-    this.props.updateSettings({ preferredServer: 'Nearest' });
+    this.props.updateSettings({ preferredServer: 'nearest' });
     this.props.router.push('/connect');
   }
 
@@ -35,7 +35,7 @@ export default class SelectLocation extends Component {
 
   drawCell(key, name, icon, onClick) {
     const classes = ['select-location__cell'];
-    const selected = this.isSelected(name);
+    const selected = this.isSelected(key);
 
     if(selected) {
       classes.push('select-location__cell--selected');
@@ -44,7 +44,7 @@ export default class SelectLocation extends Component {
     const cellClass = classes.join(' ');
 
     return (
-      <div key={ key } className={ cellClass } onClick={ onClick }>
+      <div key={ key } className={ cellClass } onClick={ onClick } ref={ (e) => this.onCellRef(key, e) }>
 
         <If condition={ !!icon }>
           <Then>
@@ -62,6 +62,20 @@ export default class SelectLocation extends Component {
 
       </div>
     );
+  }
+  
+  onCellRef(key, element) {
+    // save reference to selected cell 
+    if(this.isSelected(key)) {
+      this._selectedCell = element;
+    }
+  }
+  
+  componentDidMount() {
+    // restore scroll to selected cell
+    if(this._selectedCell) {
+      this._selectedCell.scrollIntoViewIfNeeded(true);
+    }
   }
 
   render() {

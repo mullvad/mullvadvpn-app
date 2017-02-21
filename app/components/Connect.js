@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { servers } from '../constants';
 
@@ -12,16 +13,17 @@ export default class Connect extends Component {
     this.props.router.push('/select-location');
   }
 
-  render() {
-    let serverName;
-    const preferredServer = this.props.settings.preferredServer;
-
-    // special types of servers (Fastest, Nearest) 
-    if(preferredServer === 'Fastest' || preferredServer === 'Nearest') {
-      serverName = preferredServer;
-    } else {
-      serverName = (servers[preferredServer] || {}).name;
+  serverName(key) {
+    switch(key) {
+      case 'fastest': return 'Fastest';
+      case 'nearest': return 'Nearest';
+      default: return (servers[key] || {}).name
     }
+  }
+
+  render() {
+    const preferredServer = this.props.settings.preferredServer;
+    const serverName = this.serverName(preferredServer);
     
     return (
       <Layout>
@@ -34,8 +36,24 @@ export default class Connect extends Component {
                 
                 <div className="connect__row">
                   <div className="connect__server" onClick={ ::this.openLocationPicker }>
-                    <div className="connect__server-label">Connect to</div>
-                    <div className="connect__server-country">{ serverName }</div>
+                    <div className="connect__server-label">Connect to</div>                    
+                    <div className="connect__server-value">
+
+                      <If condition={ preferredServer === 'fastest' }>
+                        <Then>
+                          <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
+                        </Then>
+                      </If>
+                        
+                      <If condition={ preferredServer === 'nearest' }>
+                        <Then>
+                          <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
+                        </Then>
+                      </If>
+
+                      <div className="connect__server-name">{ serverName }</div>
+
+                    </div>
                   </div>
                 </div>
 

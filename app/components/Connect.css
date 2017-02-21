@@ -51,15 +51,26 @@
   flex: 0 0 auto;
 }
 
-.connect__server-country {
+.connect__server-value {
   flex: 1 1 auto;
   margin-left: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.connect__server-name {
   font-family: DINPro;
   font-size: 20px;
   font-weight: 900;
   line-height: 26px;
   color: #FFFFFF;
   text-align: right;
+}
+
+.connect__server-icon + .connect__server-name {
+  margin-left: 8px;
 }
 
 .connect__secure-button {
