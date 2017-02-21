@@ -1,16 +1,30 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { servers } from '../constants';
 
 export default class Connect extends Component {
+  
+  static propTypes = {
+    settings: PropTypes.object.isRequired,
+    onConnect: PropTypes.func.isRequired,
+    onDisconnect: PropTypes.func.isRequired
+  };
 
   onSettings() {
     this.props.router.push('/settings');
   }
 
-  openLocationPicker() {
+  onSelectLocation() {
     this.props.router.push('/select-location');
+  }
+
+  onConnect() {
+    this.props.onConnect();
+  }
+
+  onDisconnect() {
+    this.props.onDisconnect();
   }
 
   serverName(key) {
@@ -35,7 +49,7 @@ export default class Connect extends Component {
               <div className="connect__footer">
                 
                 <div className="connect__row">
-                  <div className="connect__server" onClick={ ::this.openLocationPicker }>
+                  <div className="connect__server" onClick={ ::this.onSelectLocation }>
                     <div className="connect__server-label">Connect to</div>                    
                     <div className="connect__server-value">
 
@@ -58,7 +72,7 @@ export default class Connect extends Component {
                 </div>
 
                 <div className="connect__row">
-                  <button className="connect__secure-button">Secure my connection</button>
+                  <button className="connect__secure-button" onClick={ ::this.onConnect }>Secure my connection</button>
                 </div>
 
               </div>

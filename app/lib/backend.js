@@ -28,76 +28,51 @@ export default class Backend extends EventEmitter {
   // Public methods
 
   login(account) {
-    return new Promise((resolve, reject) => {
-      this._account = account;
+    this._account = account;
 
-      // emit: logging in
-      this.emit(EventType.logging, account);
+    // emit: logging in
+    this.emit(EventType.logging, account);
 
-      // @TODO: Add login call
-      setTimeout(() => {
-        if(account.startsWith('1111')) {
-          // emit: login
-          this.emit(EventType.login, account);
-
-          resolve(true);
-        } else {
-          const err = new Error('Invalid account number.');
-
-          // emit: login
-          this.emit(EventType.login, account, err);
-
-          reject(err);
-        }
-      }, 2000);
-    });
+    // @TODO: Add login call
+    setTimeout(() => {
+      let err;
+      if(!account.startsWith('1111')) {
+        err = new Error('Invalid account number.');
+      }
+      // emit: login
+      this.emit(EventType.login, account, err);
+    }, 2000);
   }
 
   logout() {
-    return new Promise((resolve, reject) => {
-      this._account = null;
+    this._account = null;
 
-      // emit event
-      this.emit(EventType.logout);
+    // emit event
+    this.emit(EventType.logout);
 
-      // @TODO: Add logout call
-      resolve();
-    });
+    // @TODO: Add logout call
   }
 
   connect(addr) {
-    return new Promise((resolve, reject) => {
-      this._serverAddress = addr;
-      
-      // @TODO: Add connect call
-      setTimeout(() => {
-        if(/se\d+\.mullvad\.net/.test(addr)) {
-
-          // emit: connect
-          this.emit(EventType.connect, addr, err);
-          
-          resolve(true);
-        } else {
-          const err = new Error('Server is unreachable');
-
-          // emit: connect
-          this.emit(EventType.connect, addr, err);
-
-          reject(err);
-        }
-      }, 2000);
-    });
+    this._serverAddress = addr;
+    
+    // @TODO: Add connect call
+    setTimeout(() => {
+      let err;
+      if(!/se\d+\.mullvad\.net/.test(addr)) {
+        err = new Error('Server is unreachable');
+      }
+      // emit: connect
+      this.emit(EventType.connect, addr, err);
+    }, 2000);
   }
 
   disconnect() {
-    return new Promise((resolve, reject) => {
-      this._serverAddress = null;
+    this._serverAddress = null;
 
-      // emit: disconnect
-      this.emit(EventType.disconnect);
+    // emit: disconnect
+    this.emit(EventType.disconnect);
 
-      // @TODO: Add disconnect call
-      resolve();
-    });
+    // @TODO: Add disconnect call
   }
 }

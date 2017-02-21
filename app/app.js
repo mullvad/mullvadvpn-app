@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, hashHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
+import { syncHistoryWithStore, replace } from 'react-router-redux';
 import { webFrame } from 'electron';
 import routes from './routes';
 import configureStore from './store';
@@ -67,6 +67,11 @@ backend.on(Backend.EventType.logging, (account) => {
 backend.on(Backend.EventType.login, (account, error) => {
   const status = error ? LoginState.failed : LoginState.ok;
   store.dispatch(userActions.loginChange({ status, error }));
+  
+  // redirect to main screen after delay
+  if(status === LoginState.ok) {
+    setTimeout(() => store.dispatch(replace('/connect')), 1000);
+  }
 });
 
 backend.on(Backend.EventType.logout, () => {
@@ -75,6 +80,9 @@ backend.on(Backend.EventType.logout, () => {
     account: null,
     error: null
   }));
+
+  // return to login screen
+  store.dispatch(replace('/'));
 });
 
 // helper method for router to pass backend down the component tree
