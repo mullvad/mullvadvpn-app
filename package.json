@@ -11,7 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.22.0",
-    "nseventmonitor": "https://github.com/pronebird/NSEventMonitor.git",
     "react": "^15.4.2",
     "react-custom-scrollbars": "^4.0.2",
     "react-dom": "^15.4.2",
@@ -23,6 +22,9 @@
     "redux-actions": "^1.2.1",
     "redux-localstorage": "^0.4.1",
     "redux-thunk": "^2.2.0"
+  },
+  "optionalDependencies": {
+    "nseventmonitor": "git+https://github.com/pronebird/NSEventMonitor.git"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
