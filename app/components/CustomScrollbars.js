@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 export default class CustomScrollbars extends Component {
-  static propTypes: {
+  static propTypes = {
     children: PropTypes.element
   }
 
