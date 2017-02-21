@@ -5,7 +5,7 @@ import actions from '../actions/connect';
 const initialState = {};
 
 export default handleActions({ 
-  [actions.updateConnectionState]: (state, action) => { 
+  [actions.connectionChange]: (state, action) => { 
     return { ...state, ...action.payload };
   } 
 }, initialState);
