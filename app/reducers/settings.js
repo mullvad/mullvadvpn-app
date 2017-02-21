@@ -1,11 +1,6 @@
 import { handleActions } from 'redux-actions';
-
-import { servers } from '../constants';
-
+import { defaultServer } from '../constants';
 import actions from '../actions/settings';
-
-const addrs = Object.keys(servers);
-const defaultServer = addrs.find((k) => servers[k].isDefault) || servers[addrs[0]] || {};
 
 const initialState = {
   autoSecure: false,

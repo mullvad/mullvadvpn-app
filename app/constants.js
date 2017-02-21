@@ -21,10 +21,11 @@ module.exports = {
     'ro.mullvad.net':   { name: 'Romania' },
     'sg.mullvad.net':   { name: 'Singapore' }, 
     'es.mullvad.net':   { name: 'Spain' }, 
-    'se1.mullvad.net':  { name: 'Sweden', isDefault: true }, 
+    'se1.mullvad.net':  { name: 'Sweden' }, 
     'ch.mullvad.net':   { name: 'Switzerland' },
     'uk.mullvad.net':   { name: 'United Kingdom' }, 
     'us1.mullvad.net':  { name: 'USA' }
   },
+  defaultServer: 'nearest', // can be nearest, fastest or any of keys from .servers
   LoginState, ConnectionState
 };
