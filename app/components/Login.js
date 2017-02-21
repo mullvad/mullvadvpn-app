@@ -108,7 +108,7 @@ export default class Login extends Component {
   submitClass(user) {
     const classes = ['login-form__submit'];
 
-    if(user.account.length > 0) {
+    if(typeof(user.account) === 'string' && user.account.length > 0) {
       classes.push('login-form__submit--active');
     }
 
@@ -123,7 +123,7 @@ export default class Login extends Component {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
-    const displayAccount = formatAccount(account);
+    const displayAccount = formatAccount(account || '');
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const isLoggedIn = status === LoginState.ok;

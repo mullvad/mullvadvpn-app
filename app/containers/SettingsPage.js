@@ -9,13 +9,11 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch, props) => {
-  const user = bindActionCreators(userActions, dispatch);
-  const settings = bindActionCreators(settingsActions, dispatch);
+  const { logout } = bindActionCreators(userActions, dispatch);
+  const { updateSettings } = bindActionCreators(settingsActions, dispatch);
   return {
-    logout: () => {
-      return user.logout(props.backend);
-    },
-    updateSettings: settings.updateSettings
+    logout: () => logout(props.backend),
+    updateSettings
   };
 };
 

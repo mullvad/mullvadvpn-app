@@ -9,17 +9,12 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch, props) => {
-  const user = bindActionCreators(userActions, dispatch);
+  const { loginChange, login } = bindActionCreators(userActions, dispatch);
+  const { backend } = props;
   return {
-    onLogin: (account) => {
-      return user.login(props.backend, account);
-    },
-    onChange: (account) => {
-      return user.loginChange({ account });
-    },
-    onFirstChangeAfterFailure: () => {
-      return user.loginChange({ status: LoginState.none, error: null });
-    }
+    onLogin: (account) => login(backend, account),
+    onChange: (account) => loginChange({ account }),
+    onFirstChangeAfterFailure: () => loginChange({ status: LoginState.none, error: null })
   };
 };
 
