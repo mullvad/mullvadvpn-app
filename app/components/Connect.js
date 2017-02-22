@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { servers } from '../constants';
+import { servers, ConnectionState } from '../constants';
 
 export default class Connect extends Component {
   
@@ -20,7 +20,8 @@ export default class Connect extends Component {
   }
 
   onConnect() {
-    this.props.onConnect();
+    const server = this.props.settings.preferredServer;
+    this.props.onConnect(server);
   }
 
   onDisconnect() {
@@ -29,19 +30,27 @@ export default class Connect extends Component {
 
   serverName(key) {
     switch(key) {
-      case 'fastest': return 'Fastest';
-      case 'nearest': return 'Nearest';
-      default: return (servers[key] || {}).name
+    case 'fastest': return 'Fastest';
+    case 'nearest': return 'Nearest';
+    default: return (servers[key] || {}).name;
+    }
+  }
+
+  headerStyle() {
+    const S = Header.Style;
+    switch(this.props.connect.status) {
+    case ConnectionState.disconnected: return S.error;
+    case ConnectionState.connected: return S.success;
+    default: return S.default;
     }
   }
 
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverName = this.serverName(preferredServer);
-    
     return (
       <Layout>
-        <Header showSettings={ true } onSettings={ ::this.onSettings } />
+        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
         <Container>
           <div className="connect">
             <div className="connect__map"></div>

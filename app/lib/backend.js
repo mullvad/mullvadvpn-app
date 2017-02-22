@@ -55,6 +55,9 @@ export default class Backend extends EventEmitter {
 
   connect(addr) {
     this._serverAddress = addr;
+
+    // emit: connecting
+    this.emit(EventType.connecting, addr);
     
     // @TODO: Add connect call
     setTimeout(() => {
