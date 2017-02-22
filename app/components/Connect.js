@@ -94,7 +94,7 @@ export default class Connect extends Component {
                 </If>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
-                <div className="connect__status-location">{ "City" }<br/>{ serverName }</div>
+                <div className="connect__status-location">{ 'City' }<br/>{ serverName }</div>
                 <div className="connect__status-ipaddress">{ this.props.connect.clientIp }</div>
               </div>
 

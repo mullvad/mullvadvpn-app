@@ -1,5 +1,5 @@
 import path from 'path';
-import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import NSEventMonitor from 'nseventmonitor';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
@@ -7,6 +7,14 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 let window = null;
 let tray = null;
 let macEventMonitor = new NSEventMonitor();
+
+ipcMain.on('changeTrayIcon', (event, name) => {
+  const iconPath = path.join(__dirname, './assets/images/tray-icon-' + name + '.png');
+  const image = nativeImage.createFromPath(iconPath);
+  if(image) {
+    tray.setImage(image);
+  }
+});
 
 // hide dock icon
 app.dock.hide();
@@ -130,7 +138,7 @@ ipcMain.on('show-window', () => {
 });
 
 const createTray = () => {
-  tray = new Tray(path.join(__dirname, 'assets/images/trayIconTemplate.png'));
+  tray = new Tray(path.join(__dirname, 'assets/images/tray-icon-default.png'));
   tray.on('right-click', toggleWindow);
   tray.on('double-click', toggleWindow);
   tray.on('click', toggleWindow);

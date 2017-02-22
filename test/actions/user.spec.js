@@ -89,7 +89,7 @@ describe('actions', () => {
     it('should log out', (done) => {
       let callCount = 0;
       const getState = () => ({ account: '1234', status: LoginState.ok });
-      const dispatch = chai.spy( (u) => {
+      const dispatch = chai.spy( () => {
         callCount += 1;
 
         if(callCount === 1) {

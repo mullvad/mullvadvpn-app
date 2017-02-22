@@ -86,7 +86,7 @@ export default class Backend extends EventEmitter {
         this._timer = null;
       }
       this._cancellationHandler = null;
-    }
+    };
   }
 
   disconnect() {

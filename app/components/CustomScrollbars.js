@@ -10,7 +10,7 @@ export default class CustomScrollbars extends Component {
     return (
       <Scrollbars
         { ...this.props }
-        renderThumbVertical={ props => <div className="custom-scrollbars__thumb-vertical"/> }>
+        renderThumbVertical={ () => <div className="custom-scrollbars__thumb-vertical"/> }>
         { this.props.children }
       </Scrollbars>
     );

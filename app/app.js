@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, hashHistory } from 'react-router';
 import { syncHistoryWithStore, replace } from 'react-router-redux';
-import { webFrame } from 'electron';
+import { webFrame, ipcRenderer } from 'electron';
 import routes from './routes';
 import configureStore from './store';
 import userActions from './actions/user';
@@ -30,6 +30,22 @@ const rootElement = document.querySelector(document.currentScript.getAttribute('
 // disable smart pinch.
 webFrame.setVisualZoomLevelLimits(1, 1);
 
+// Tray icon
+const updateTrayIcon = () => {
+  const s = store.getState().connect.status;
+  let iconName;
+
+  if(s === ConnectionState.connected) {
+    iconName = 'connected';
+  } else {
+    iconName = 'default';
+  }
+  
+  ipcRenderer.send('changeTrayIcon', iconName);
+};
+
+updateTrayIcon();
+
 // Create backend
 const backend = new Backend();
 
@@ -37,7 +53,7 @@ const backend = new Backend();
 
 backend.on(Backend.EventType.updatedIp, (clientIp) => {
   store.dispatch(connectActions.connectionChange({ clientIp }));
-})
+});
 
 backend.on(Backend.EventType.connecting, (serverAddress) => {
   store.dispatch(connectActions.connectionChange({ 
@@ -50,6 +66,8 @@ backend.on(Backend.EventType.connecting, (serverAddress) => {
 backend.on(Backend.EventType.connect, (serverAddress, error) => {
   const status = error ? ConnectionState.disconnected : ConnectionState.connected;
   store.dispatch(connectActions.connectionChange({ error, status }));
+
+  updateTrayIcon();
 });
 
 backend.on(Backend.EventType.disconnect, () => {
@@ -58,6 +76,8 @@ backend.on(Backend.EventType.disconnect, () => {
     serverAddress: null, 
     error: null
   }));
+  
+  updateTrayIcon();
 });
 
 backend.on(Backend.EventType.logging, (account) => {
