@@ -108,7 +108,7 @@ export default class Backend extends EventEmitter {
   refreshIp() {
     let ip = [];
     for(let i = 0; i < 4; i++) {
-      ip.push(parseInt(Math.random() * 254));
+      ip.push(parseInt(Math.random() * 253 + 1));
     }
     this.emit(EventType.updatedIp, ip.join('.'));
   }
