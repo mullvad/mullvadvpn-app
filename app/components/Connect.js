@@ -68,6 +68,8 @@ export default class Connect extends Component {
     const preferredServer = this.props.settings.preferredServer;
     const serverName = this.serverName(preferredServer);
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
+    const isConnected = this.props.connect.status === ConnectionState.connected;
+    const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
 
     return (
       <Layout>
@@ -88,40 +90,75 @@ export default class Connect extends Component {
                 </If>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
-                <div className="connect__status-location">Gothenburg<br/>Sweden</div>
-                <div className="connect__status-ipaddress">193.138.219.245</div>
+                <div className="connect__status-location">{ "City" }<br/>{ serverName }</div>
+                <div className="connect__status-ipaddress">{ this.props.connect.clientIp }</div>
               </div>
 
-              <div className="connect__footer">
-                
-                <div className="connect__row">
-                  <div className="connect__server" onClick={ ::this.onSelectLocation }>
-                    <div className="connect__server-label">Connect to</div>                    
-                    <div className="connect__server-value">
+              { /* footer when disconnected */ }
+              <If condition={ isDisconnected }>
+                <Then>
+                  <div className="connect__footer">
+                    <div className="connect__row">
 
-                      <If condition={ preferredServer === 'fastest' }>
-                        <Then>
-                          <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
-                        </Then>
-                      </If>
-                        
-                      <If condition={ preferredServer === 'nearest' }>
-                        <Then>
-                          <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
-                        </Then>
-                      </If>
+                      <div className="connect__server" onClick={ ::this.onSelectLocation }>
+                        <div className="connect__server-label">Connect to</div>                    
+                        <div className="connect__server-value">
 
-                      <div className="connect__server-name">{ serverName }</div>
+                          <If condition={ preferredServer === 'fastest' }>
+                            <Then>
+                              <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
+                            </Then>
+                          </If>
+                            
+                          <If condition={ preferredServer === 'nearest' }>
+                            <Then>
+                              <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
+                            </Then>
+                          </If>
 
+                          <div className="connect__server-name">{ serverName }</div>
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="connect__row">
+                      <button className="connect__footer-button connect__footer-button--connect" onClick={ ::this.onConnect }>Secure my connection</button>
                     </div>
                   </div>
-                </div>
+                </Then>
+              </If>
+              
+              { /* footer when connecting */ }
+              <If condition={ isConnecting }>
+                <Then>
+                  <div className="connect__footer">
+                    <div className="connect__row">
+                      <button className="connect__footer-button connect__footer-button--switch" onClick={ ::this.onSelectLocation }>Switch location</button>
+                    </div>
 
-                <div className="connect__row">
-                  <button className="connect__secure-button" onClick={ ::this.onConnect }>Secure my connection</button>
-                </div>
+                    <div className="connect__row">
+                      <button className="connect__footer-button connect__footer-button--disconnect" onClick={ ::this.onDisconnect }>Cancel</button>
+                    </div>
+                  </div>
+                </Then>
+              </If>
 
-              </div>
+              { /* footer when connected */ }
+              <If condition={ isConnected }>
+                <Then>
+                  <div className="connect__footer">
+                    <div className="connect__row">
+                      <button className="connect__footer-button connect__footer-button--switch" onClick={ ::this.onSelectLocation }>Switch location</button>
+                    </div>
+
+                    <div className="connect__row">
+                      <button className="connect__footer-button connect__footer-button--disconnect" onClick={ ::this.onDisconnect }>Disconnect</button>
+                    </div>
+                  </div>
+                </Then>
+              </If>
+
             </div>
           </div>
         </Container>

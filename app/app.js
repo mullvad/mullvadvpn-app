@@ -35,6 +35,10 @@ const backend = new Backend();
 
 // Setup events
 
+backend.on(Backend.EventType.updatedIp, (clientIp) => {
+  store.dispatch(connectActions.connectionChange({ clientIp }));
+})
+
 backend.on(Backend.EventType.connecting, (serverAddress) => {
   store.dispatch(connectActions.connectionChange({ 
     status: ConnectionState.connecting,

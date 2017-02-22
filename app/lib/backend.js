@@ -1,7 +1,7 @@
 import Enum from './enum';
 import { EventEmitter } from 'events';
 
-const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout');
+const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
 
 /**
  * Backend implementation
@@ -17,6 +17,10 @@ export default class Backend extends EventEmitter {
     this._account = null;
     this._loggedIn = false;
     this._serverAddress = null;
+    this._cancellationHandler = null;
+
+    // update IP in background
+    setTimeout(::this.refreshIp, 0);
   }
 
   // Accessors
@@ -60,22 +64,52 @@ export default class Backend extends EventEmitter {
     this.emit(EventType.connecting, addr);
     
     // @TODO: Add connect call
-    setTimeout(() => {
+    let timer = null;
+
+    timer = setTimeout(() => {
       let err;
       if(!/se\d+\.mullvad\.net/.test(addr)) {
         err = new Error('Server is unreachable');
       }
       // emit: connect
       this.emit(EventType.connect, addr, err);
+      this.refreshIp();
+
+      // reset timer
+      timer = null;
+      this._cancellationHandler  = null;
     }, 5000);
+
+    this._cancellationHandler = () => {
+      if(timer !== null) {
+        clearTimeout(timer);
+        this._timer = null;
+      }
+      this._cancellationHandler = null;
+    }
   }
 
   disconnect() {
     this._serverAddress = null;
 
+    // cancel ongoing connection attempt
+    if(this._cancellationHandler) {
+      this._cancellationHandler();
+    } else {
+      this.refreshIp();
+    }
+
     // emit: disconnect
     this.emit(EventType.disconnect);
 
     // @TODO: Add disconnect call
+  }
+
+  refreshIp() {
+    let ip = [];
+    for(let i = 0; i < 4; i++) {
+      ip.push(parseInt(Math.random() * 254));
+    }
+    this.emit(EventType.updatedIp, ip.join('.'));
   }
 }
