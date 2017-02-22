@@ -64,6 +64,10 @@ export default class Connect extends Component {
     }
   }
 
+  mapClass() {
+    return ['connect__map', 'connect__map--' + this.props.connect.status].join(' ');
+  }
+
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverName = this.serverName(preferredServer);
@@ -76,7 +80,7 @@ export default class Connect extends Component {
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
         <Container>
           <div className="connect">
-            <div className="connect__map"></div>
+            <div className={ this.mapClass() }></div>
             <div className="connect__container">
 
               <div className="connect__status">

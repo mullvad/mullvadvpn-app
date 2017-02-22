@@ -9,9 +9,21 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url(../assets/images/map/connecting@2x.png);
   background-size: cover;
   background-position: 0 -72px;
+  transition: 0.5s all ease-in-out;
+}
+
+.connect__map--connecting {
+  background-image: url(../assets/images/map/connecting@2x.png);
+}
+
+.connect__map--connected {
+  background-image: url(../assets/images/map/connected@2x.png);
+}
+
+.connect__map--disconnected {
+  background-image: url(../assets/images/map/not-connected@2x.png);
 }
 
 .connect__container {
