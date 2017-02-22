@@ -45,9 +45,30 @@ export default class Connect extends Component {
     }
   }
 
+  networkSecurityClass() {
+    let classes = ['connect__status-security'];
+    if(this.props.connect.status === ConnectionState.connected) {
+      classes.push('connect__status-security--secure');
+    } else if(this.props.connect.status === ConnectionState.disconnected) {
+      classes.push('connect__status-security--unsecured');
+    }
+
+    return classes.join(' ');
+  }
+
+  networkSecurityMessage() {
+    switch(this.props.connect.status) {
+    case ConnectionState.connected: return 'Secured connection';
+    case ConnectionState.connecting: return 'Creating secure connection';
+    default: return 'Unsecured connection';
+    }
+  }
+
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverName = this.serverName(preferredServer);
+    const isConnecting = this.props.connect.status === ConnectionState.connecting;
+
     return (
       <Layout>
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
@@ -55,6 +76,22 @@ export default class Connect extends Component {
           <div className="connect">
             <div className="connect__map"></div>
             <div className="connect__container">
+
+              <div className="connect__status">
+                { /* show spinner when connecting */ }
+                <If condition={ isConnecting }>
+                  <Then>
+                    <div className="connect__status-icon">
+                      <img src="./assets/images/icon-spinner.svg" alt="" />
+                    </div>
+                  </Then>
+                </If>
+                
+                <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
+                <div className="connect__status-location">Gothenburg<br/>Sweden</div>
+                <div className="connect__status-ipaddress">193.138.219.245</div>
+              </div>
+
               <div className="connect__footer">
                 
                 <div className="connect__row">

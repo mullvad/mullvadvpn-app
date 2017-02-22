@@ -67,7 +67,7 @@ export default class Backend extends EventEmitter {
       }
       // emit: connect
       this.emit(EventType.connect, addr, err);
-    }, 2000);
+    }, 5000);
   }
 
   disconnect() {
