@@ -1,26 +1,13 @@
 .headerbar {
-  margin-top: 12px;
-  padding: 12px;
+  padding: 24px 12px 12px;
   background-color: #294D73;
-  border-radius: 8px 8px 0 0;
-  position: relative;
-}
-
-.headerbar:before {
-  display: block;
-  content: '';
-  width: 30px;
-  height: 13px;
-  margin: -12px 0 0 -15px;
-  position: absolute;
-  left: 50%;
-  top: 0%;
-  background-image: url(../assets/images/app-triangle.svg);
-  background-repeat: no-repeat;
+  -webkit-mask: 
+    url(../assets/images/app-triangle.svg) 50% 0% no-repeat, 
+    url(../assets/images/app-header-backdrop.svg) no-repeat;
 }
 
 .headerbar--hidden { 
-  padding: 12px 0 0 0;
+  padding: 24px 0 0 0;
 }
 
 .headerbar--style-defaultDark {
