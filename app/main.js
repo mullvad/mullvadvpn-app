@@ -79,6 +79,9 @@ const createWindow = () => {
     webPreferences: {
       // prevents renderer process code from not running when window is hidden
       backgroundThrottling: false
+
+      // Enable experimental features
+      blinkFeatures: ['CSSBackdropFilter'].join(',')
     }
   });
 
