@@ -1,8 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
-import Leaflet from 'leaflet';
 import cheapRuler from 'cheap-ruler';
-import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+import ReactMapboxGl, { Layer, Feature } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
 import { servers, ConnectionState } from '../constants';
 
@@ -18,13 +17,12 @@ export default class Connect extends Component {
     super();
 
     this.state = { 
-      userLocation: [40.706213526877455, -74.0044641494751]
+      userLocation: {
+        coordinate: [40.706213526877455, -74.0044641494751],
+        city: 'New York',
+        country: 'USA'
+      }
     };
-
-    this._markerIcon = Leaflet.icon({
-      iconUrl: './assets/images/icon-tick.svg',
-      iconSize: [28, 20]
-    });
   }
 
   onSettings() {
@@ -94,7 +92,7 @@ export default class Connect extends Component {
 
   displayLocation() {
     if(this.props.connect.status === ConnectionState.disconnected) {
-      return this.state.userLocation;
+      return this.state.userLocation.coordinate;
     }
     
     const preferredServer = this.props.settings.preferredServer;
@@ -106,22 +104,20 @@ export default class Connect extends Component {
   getBounds(center) {
     const ruler = cheapRuler(center[0], 'meters');
     const bbox = ruler.bufferPoint(center, 100000);
-    const p1 = Leaflet.latLng(bbox[0], bbox[1]);
-    const p2 = Leaflet.latLng(bbox[2], bbox[3]);
-
-    return Leaflet.latLngBounds(p1, p2);
+    return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
   }
 
   render() {
-    const tileURL = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}@2x.png';
-
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.serverInfo(preferredServer);
     const displayLocation = this.displayLocation();
+    const markerLocation = [ displayLocation[1], displayLocation[0] ]; // <lng>, <lat>
 
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
+
+    const accessToken = 'pk.eyJ1IjoicHJvbmViaXJkIiwiYSI6ImNpemk5cmk1MDAxd3IzM21paXgzNmI4M3oifQ.kbwLbnjVCvZHXS8RH7y-3w';
 
     return (
       <Layout>
@@ -129,18 +125,16 @@ export default class Connect extends Component {
         <Container>
           <div className="connect">
             <div className="connect__map">
-              <Map zoomControl={ false } 
-                   bounds={ this.getBounds(displayLocation) }
-                   boundsOptions={ { paddingBottomRight: [0, 150]} }
-                   dragging={ false }
-                   useFlyTo={ true }
-                   animate={ true }
-                   fadeAnimation={ false }
-                   style={{ height: '100%', backgroundColor: 'black' }}>
-                <TileLayer url={ tileURL } />
-                <Marker position={ displayLocation } 
-                        keyboard={ false } />
-              </Map>
+              <ReactMapboxGl style="mapbox://styles/mapbox/dark-v9"
+                  accessToken={ accessToken }
+                  containerStyle={{ height: '100%' }} 
+                  interactive={ false }
+                  fitBounds={ this.getBounds(displayLocation) }
+                  fitBoundsOptions={ {offset: [0, -100]} }>
+                <Layer type="symbol" id="marker" layout={{ 'icon-image': 'marker-15' }}>
+                  <Feature coordinates={ markerLocation } />
+                </Layer>
+              </ReactMapboxGl>
             </div>
             <div className="connect__container">
 

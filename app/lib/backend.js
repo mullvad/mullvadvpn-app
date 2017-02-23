@@ -68,9 +68,9 @@ export default class Backend extends EventEmitter {
 
     timer = setTimeout(() => {
       let err;
-      if(!/se\d+\.mullvad\.net/.test(addr)) {
-        err = new Error('Server is unreachable');
-      }
+      // if(!/se\d+\.mullvad\.net/.test(addr)) {
+      //   err = new Error('Server is unreachable');
+      // }
       // emit: connect
       this.emit(EventType.connect, addr, err);
       this.refreshIp();
