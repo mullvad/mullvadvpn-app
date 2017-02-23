@@ -107,10 +107,22 @@ export default class Connect extends Component {
     return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
   }
 
+  componentWillMount() {
+    const loc = this.displayLocation();
+
+    // we need this to override default center
+    // see: https://github.com/alex3165/react-mapbox-gl/issues/134
+    this._initialLocation = [ loc[1], loc[0] ]; // <lng>, <lat>
+  }
+
+  componentWillUnmount() {
+    this._initialLocation = null;
+  }
+
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.serverInfo(preferredServer);
-    const displayLocation = this.displayLocation();
+    const displayLocation = this.displayLocation(); // <lat>, <lng>
     const markerLocation = [ displayLocation[1], displayLocation[0] ]; // <lng>, <lat>
 
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
@@ -126,6 +138,7 @@ export default class Connect extends Component {
           <div className="connect">
             <div className="connect__map">
               <ReactMapboxGl style="mapbox://styles/mapbox/dark-v9"
+                  center={ this._initialLocation }
                   accessToken={ accessToken }
                   containerStyle={{ height: '100%' }} 
                   interactive={ false }
