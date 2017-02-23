@@ -20,14 +20,15 @@ before_script:
   - env
 
 script:
+  - cargo build --verbose
+  - cargo test --all --verbose
+  - find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
+
+before_cache:
     ## zmq-sys caches the location of `libzmq`, if that location ever changes e.g.
     ## if the version changes we will get into trouble. This rm will make us
     ## rebuild it every time instead
   - rm -rf target/debug/build/zmq*
-
-  - cargo build --verbose
-  - cargo test --all --verbose
-  - find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
 
 notifications:
   email:
