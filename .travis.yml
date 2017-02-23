@@ -1,5 +1,9 @@
 language: rust
-cache: cargo
+cache:
+  cargo: true
+  directories:
+    - $HOME/build-deps
+
 rust:
   - stable
   - nightly
@@ -8,14 +12,23 @@ os:
   - osx
 
 before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then mkdir -p $HOME/.local/bin && ln -s /usr/local/bin/greadlink $HOME/.local/bin/readlink ; fi
+  - $(./build-deps/install-build-deps.sh $HOME/build-deps)
   - (cargo install rustfmt || true)
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
   - rustfmt --version
+  - env
 
 script:
   - cargo build --verbose
   - cargo test --all --verbose
-  - find src/ tests/ benches/ talpid_* -iname "*.rs" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
+  - find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
+
+before_cache:
+    ## zmq-sys caches the location of `libzmq`, if that location ever changes e.g.
+    ## if the version changes we will get into trouble. This rm will make us
+    ## rebuild it every time instead
+  - rm -rf target/debug/build/zmq*
 
 notifications:
   email:
