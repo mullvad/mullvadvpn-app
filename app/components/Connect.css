@@ -9,21 +9,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-size: cover;
-  background-position: 0 -72px;
-  transition: 0.5s all ease-in-out;
-}
-
-.connect__map--connecting {
-  background-image: url(../assets/images/map/connecting@2x.png);
-}
-
-.connect__map--connected {
-  background-image: url(../assets/images/map/connected@2x.png);
-}
-
-.connect__map--disconnected {
-  background-image: url(../assets/images/map/not-connected@2x.png);
+  z-index: 0;
 }
 
 .connect__container {
@@ -51,7 +37,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .connect__server-label {
@@ -106,12 +92,12 @@
 
 .connect__footer-button--disconnect {
   background-color: rgba(208,2,27,0.4);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .connect__footer-button--switch {
   background-color: rgba(255,255,255,0.2);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .connect__status {

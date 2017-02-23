@@ -1,6 +1,6 @@
-appId: com.example.app
-copyright: Example co
-productName: Mullvad VPN
+appId: net.mullvad.vpn
+copyright: Amagicom AB
+productName: Mullvad
 
 asar: true
 

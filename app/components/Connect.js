@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
+import Leaflet from 'leaflet';
+import cheapRuler from 'cheap-ruler';
+import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Layout, Container, Header } from './Layout';
 import { servers, ConnectionState } from '../constants';
 
@@ -10,6 +13,19 @@ export default class Connect extends Component {
     onConnect: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired
   };
+
+  constructor() {
+    super();
+
+    this.state = { 
+      userLocation: [40.706213526877455, -74.0044641494751]
+    };
+
+    this._markerIcon = Leaflet.icon({
+      iconUrl: './assets/images/icon-tick.svg',
+      iconSize: [28, 20]
+    });
+  }
 
   onSettings() {
     this.props.router.push('/settings');
@@ -28,11 +44,23 @@ export default class Connect extends Component {
     this.props.onDisconnect();
   }
 
-  serverName(key) {
+  serverInfo(key) {
     switch(key) {
-    case 'fastest': return 'Fastest';
-    case 'nearest': return 'Nearest';
-    default: return (servers[key] || {}).name;
+    case 'fastest': 
+      return {
+        name: 'Fastest',
+        city: 'New York',
+        country: 'USA',
+        location: [40.7127837, -74.0059413]
+      };
+    case 'nearest':
+      return {
+        name: 'Nearest',
+        city: 'New York',
+        country: 'USA',
+        location: [40.7127837, -74.0059413]
+      };
+    default: return servers[key] || {};
     }
   }
 
@@ -64,13 +92,33 @@ export default class Connect extends Component {
     }
   }
 
-  mapClass() {
-    return ['connect__map', 'connect__map--' + this.props.connect.status].join(' ');
+  displayLocation() {
+    if(this.props.connect.status === ConnectionState.disconnected) {
+      return this.state.userLocation;
+    }
+    
+    const preferredServer = this.props.settings.preferredServer;
+    const serverInfo = this.serverInfo(preferredServer);
+
+    return serverInfo.location;
+  }
+
+  getBounds(center) {
+    const ruler = cheapRuler(center[0], 'meters');
+    const bbox = ruler.bufferPoint(center, 100000);
+    const p1 = Leaflet.latLng(bbox[0], bbox[1]);
+    const p2 = Leaflet.latLng(bbox[2], bbox[3]);
+
+    return Leaflet.latLngBounds(p1, p2);
   }
 
   render() {
+    const tileURL = 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}@2x.png';
+
     const preferredServer = this.props.settings.preferredServer;
-    const serverName = this.serverName(preferredServer);
+    const serverInfo = this.serverInfo(preferredServer);
+    const displayLocation = this.displayLocation();
+
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
@@ -80,7 +128,20 @@ export default class Connect extends Component {
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
         <Container>
           <div className="connect">
-            <div className={ this.mapClass() }></div>
+            <div className="connect__map">
+              <Map zoomControl={ false } 
+                   bounds={ this.getBounds(displayLocation) }
+                   boundsOptions={ { paddingBottomRight: [0, 150]} }
+                   dragging={ false }
+                   useFlyTo={ true }
+                   animate={ true }
+                   fadeAnimation={ false }
+                   style={{ height: '100%', backgroundColor: 'black' }}>
+                <TileLayer url={ tileURL } />
+                <Marker position={ displayLocation } 
+                        keyboard={ false } />
+              </Map>
+            </div>
             <div className="connect__container">
 
               <div className="connect__status">
@@ -94,7 +155,7 @@ export default class Connect extends Component {
                 </If>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
-                <div className="connect__status-location">{ 'City' }<br/>{ serverName }</div>
+                <div className="connect__status-location">{ serverInfo.city }<br/>{ serverInfo.country }</div>
                 <div className="connect__status-ipaddress">{ this.props.connect.clientIp }</div>
               </div>
 
@@ -120,7 +181,7 @@ export default class Connect extends Component {
                             </Then>
                           </If>
 
-                          <div className="connect__server-name">{ serverName }</div>
+                          <div className="connect__server-name">{ serverInfo.name }</div>
 
                         </div>
                       </div>

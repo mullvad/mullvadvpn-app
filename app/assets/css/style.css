@@ -1,6 +1,12 @@
+/* global */
 @import 'reset.css';
 @import 'fonts.css';
 @import 'global.css';
+
+/* external */
+@import '../../../node_modules/leaflet/dist/leaflet.css';
+
+/* app */
 @import '../../components/CustomScrollbars.css';
 @import '../../components/Login.css';
 @import '../../components/Connect.css';
