@@ -95,15 +95,6 @@ export default class Connect extends Component {
     return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
   }
 
-  markerImage() {
-    switch(this.props.connect.status) {
-    case ConnectionState.connected:
-      return './assets/images/location-marker-secure.svg';
-    default:
-      return './assets/images/location-marker-unsecure.svg';
-    }
-  }
-
   componentWillMount() {
     const loc = this.displayLocation().location;
 
@@ -119,9 +110,10 @@ export default class Connect extends Component {
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
+
     const displayLocation = this.displayLocation(); // <lat>, <lng>
-    const loc = displayLocation.location;
-    const markerLocation = [ loc[1], loc[0] ]; // <lng>, <lat>
+    const userLocation = this.state.userLocation.location; // <lat>, <lng>
+    const serverLocation = serverInfo.location; // <lat>, <lng>
 
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
@@ -144,13 +136,23 @@ export default class Connect extends Component {
                   interactive={ false }
                   fitBounds={ this.getBounds(displayLocation.location, altitude) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
-                <If condition={ !isConnecting }>
+                <If condition={ isConnected }>
                   <Then>
-                    <Marker coordinates={ markerLocation } offset={ [0, -10] }>
-                      <img src={ this.markerImage() } />
+                    <Marker coordinates={ [ serverLocation[1], serverLocation[0] ] } offset={ [0, -10] }>
+                      <img src='./assets/images/location-marker-secure.svg' />
                     </Marker>
                   </Then>
                 </If>
+
+                { /* user location marker */ }
+                <If condition={ !isConnected }>
+                  <Then>
+                    <Marker coordinates={ [ userLocation[1], userLocation[0] ] } offset={ [0, -10] }>
+                      <img src='./assets/images/location-marker-unsecure.svg' />
+                    </Marker>
+                  </Then>
+                </If>
+
               </ReactMapboxGl>
             </div>
             <div className="connect__container">
