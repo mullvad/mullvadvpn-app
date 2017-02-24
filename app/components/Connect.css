@@ -86,20 +86,6 @@
   color: #FFFFFF;
 }
 
-.connect__footer-button--connect {
-  background-color: #44AD4D;
-}
-
-.connect__footer-button--disconnect {
-  background-color: rgba(208,2,27,0.4);
-  backdrop-filter: blur(4px);
-}
-
-.connect__footer-button--switch {
-  background-color: rgba(255,255,255,0.2);
-  backdrop-filter: blur(4px);
-}
-
 .connect__status {
   padding: 0 24px;
   margin-top: auto;

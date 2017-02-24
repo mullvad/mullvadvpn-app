@@ -109,18 +109,3 @@
 .settings__footer {
   padding: 24px;
 }
-
-.settings__logout-button {
-  display: block;
-  width: 100%;
-  padding: 7px 12px 9px;
-  background-color: #D0021B;
-  border-radius: 4px;
-  border: 0;
-  font-family: DINPro;
-  font-size: 20px;
-  font-weight: 900;
-  text-align: center;
-  line-height: 26px;
-  color: #FFFFFF;
-}

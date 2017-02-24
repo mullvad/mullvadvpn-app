@@ -129,7 +129,7 @@ export default class Connect extends Component {
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
 
-    const accessToken = 'pk.eyJ1IjoicHJvbmViaXJkIiwiYSI6ImNpemk5cmk1MDAxd3IzM21paXgzNmI4M3oifQ.kbwLbnjVCvZHXS8RH7y-3w';
+    const accessToken = 'pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg';
 
     return (
       <Layout>
@@ -137,7 +137,7 @@ export default class Connect extends Component {
         <Container>
           <div className="connect">
             <div className="connect__map">
-              <ReactMapboxGl style="mapbox://styles/mapbox/dark-v9"
+              <ReactMapboxGl style="mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e"
                   center={ this._initialLocation }
                   accessToken={ accessToken }
                   containerStyle={{ height: '100%' }} 
@@ -195,7 +195,7 @@ export default class Connect extends Component {
                     </div>
 
                     <div className="connect__row">
-                      <button className="connect__footer-button connect__footer-button--connect" onClick={ ::this.onConnect }>Secure my connection</button>
+                      <button className="button button--positive" onClick={ ::this.onConnect }>Secure my connection</button>
                     </div>
                   </div>
                 </Then>
@@ -206,11 +206,11 @@ export default class Connect extends Component {
                 <Then>
                   <div className="connect__footer">
                     <div className="connect__row">
-                      <button className="connect__footer-button connect__footer-button--switch" onClick={ ::this.onSelectLocation }>Switch location</button>
+                      <button className="button button--neutral button--blur" onClick={ ::this.onSelectLocation }>Switch location</button>
                     </div>
 
                     <div className="connect__row">
-                      <button className="connect__footer-button connect__footer-button--disconnect" onClick={ ::this.onDisconnect }>Cancel</button>
+                      <button className="button button--negative-light button--blur" onClick={ ::this.onDisconnect }>Cancel</button>
                     </div>
                   </div>
                 </Then>
@@ -221,11 +221,11 @@ export default class Connect extends Component {
                 <Then>
                   <div className="connect__footer">
                     <div className="connect__row">
-                      <button className="connect__footer-button connect__footer-button--switch" onClick={ ::this.onSelectLocation }>Switch location</button>
+                      <button className="button button--neutral button--blur" onClick={ ::this.onSelectLocation }>Switch location</button>
                     </div>
 
                     <div className="connect__row">
-                      <button className="connect__footer-button connect__footer-button--disconnect" onClick={ ::this.onDisconnect }>Disconnect</button>
+                      <button className="button button--negative-light button--blur" onClick={ ::this.onDisconnect }>Disconnect</button>
                     </div>
                   </div>
                 </Then>

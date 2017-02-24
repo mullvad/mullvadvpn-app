@@ -66,7 +66,7 @@ export default class Settings extends Component {
                   </div>
                 </div>
                 <div className="settings__footer">
-                  <button className="settings__logout-button" onClick={ ::this.handleLogout }>Logout</button>
+                  <button className="button button--negative" onClick={ ::this.handleLogout }>Logout</button>
                 </div>
               </div>
             </div>

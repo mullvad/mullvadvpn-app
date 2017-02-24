@@ -1,0 +1,100 @@
+.button {
+  display: block;
+  width: 100%;
+  padding: 7px 12px 9px;
+  border-radius: 4px;
+  border: 0;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 26px;
+}
+
+.button--blur {
+  backdrop-filter: blur(4px);
+}
+
+.button--primary {
+  background-color: rgba(41,71,115,1);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--primary:hover {
+  background: rgba(41,71,115,0.9);
+  color: rgba(255,255,255,1);
+}
+
+.button--primary:active {
+  background: rgba(41,71,115,1);
+}
+
+.button--secondary {
+  background-color: rgba(41,71,115,0.4);
+  color: rgba(255,255,255,0.6);
+}
+
+.button--secondary:hover {
+  background: rgba(41,71,115,0.5);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--secondary:active {
+  background: rgba(41,71,115,0.4);
+}
+
+.button--negative {
+  background-color: rgba(208,2,27,1);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--negative:hover {
+  background-color: rgba(208,2,27,0.95);
+  color: rgba(255,255,255,1);
+}
+
+.button--negative:active {
+  background: rgba(208,2,27,1);
+}
+
+.button--negative-light {
+  background-color: rgba(208,2,27,0.4);
+  color: rgba(255,255,255,0.6);
+}
+
+.button--negative-light:hover {
+  background: rgba(208,2,27,0.45);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--negative-light:active {
+  background: rgba(208,2,27,0.4);
+}
+
+.button--positive {
+  background-color: rgba(63,173,77,1);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--positive:hover {
+  background: rgba(63,173,77,0.9);
+  color: rgba(255,255,255,1);
+}
+
+.button--positive:active {
+  background: rgba(63,173,77,1);
+}
+
+.button--neutral {
+  background-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+}
+
+.button--neutral:hover {
+  background: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,1);
+}
+
+.button--neutral:active {
+  background: rgba(255,255,255,0.2);
+}

@@ -76,33 +76,28 @@ export default class Login extends Component {
 
   inputWrapClass(user) {
     const classes = ['login-form__input-wrap'];
-
-    if(user.status === LoginState.connecting) {
+    switch(user.status) {
+    case LoginState.connecting:
       classes.push('login-form__input-wrap--inactive');
+      break;
+
+    case LoginState.failed:
+      classes.push('login-form__input-wrap--error');
+      break;
     }
 
     return classes.join(' ');
   }
 
-  inputClass(user) {
-    const map = {
-      [LoginState.failed]: 'login-form__input-field--error'
-    };
-    const classes = ['login-form__input-field'];
-    const extra = map[user.status];
-
-    return classes.concat(extra ? extra : []).join(' ');
-  }
-
   footerClass(user) {
-    const map = {
-      [LoginState.ok]: 'login-footer--invisible',
-      [LoginState.connecting]: 'login-footer--invisible'
-    };
     const classes = ['login-footer'];
-    const extra = map[user.status];
-
-    return classes.concat(extra ? extra : []).join(' ');
+    switch(user.status) {
+    case LoginState.ok:
+    case LoginState.connecting:
+      classes.push('login-footer--invisible');
+      break;
+    }
+    return classes.join(' ');
   }
 
   submitClass(user) {
@@ -129,7 +124,6 @@ export default class Login extends Component {
     const isLoggedIn = status === LoginState.ok;
 
     const inputWrapClass = this.inputWrapClass(this.props.user);
-    const inputClass = this.inputClass(this.props.user);
     const footerClass = this.footerClass(this.props.user);
     const submitClass = this.submitClass(this.props.user);
 
@@ -176,7 +170,7 @@ export default class Login extends Component {
               <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
                 <div className="login-form__subtitle">{ subtitle }</div>
                 <div className={ inputWrapClass }>
-                  <input className={ inputClass } 
+                  <input className="login-form__input-field" 
                         type="text" 
                         placeholder="e.g 0000 0000 0000" 
                         onChange={ ::this.handleInputChange }
@@ -191,7 +185,7 @@ export default class Login extends Component {
             </div>
             <div className={footerClass}>
               <div className="login-footer__prompt">Don't have an account number?</div>
-              <button className="login-footer__button" onClick={ ::this.handleCreateAccount }>Create account</button>
+              <button className="button button--primary" onClick={ ::this.handleCreateAccount }>Create account</button>
             </div>
           </div>
         </Container>
