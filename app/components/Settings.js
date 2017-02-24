@@ -54,13 +54,13 @@ export default class Settings extends Component {
                   <div className="settings__cell-footer">
                     When this device connects to the internet it will automatically connect to a secure server
                   </div>
-                  <div className="settings__cell" onClick={ () => this.handleLink('faq') }>
+                  <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('faq') }>
                     <div className="settings__cell-label">FAQs</div>
                   </div>
-                  <div className="settings__cell" onClick={ () => this.handleLink('guides') }>
+                  <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('guides') }>
                     <div className="settings__cell-label">Guides</div>
                   </div>
-                  <div className="settings__cell" onClick={ () => this.handleLink('supportEmail') }>
+                  <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('supportEmail') }>
                     <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
                     <div className="settings__cell-label">Contact support</div>
                   </div>

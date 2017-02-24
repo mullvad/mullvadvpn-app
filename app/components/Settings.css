@@ -66,11 +66,15 @@
 }
 
 .settings__cell {
-  background-color: #294D73;
+  background-color:rgba(41,71,115,1);
   padding: 15px 16px 15px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.settings__cell--active:hover {
+  background-color: rgba(41,71,115,0.9);
 }
 
 .settings__cell + .settings__cell {

@@ -53,14 +53,19 @@
 }
 
 .select-location__cell {
-  background-color: #294D73;
+  background-color: rgba(41,71,115,1);
   padding: 15px 16px 15px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.select-location__cell--selected {
+.select-location__cell:hover {
+  background-color:rgba(41,71,115,0.9);
+}
+
+.select-location__cell--selected,
+.select-location__cell--selected:hover {
   background-color: #44AD4D;
 }
 
