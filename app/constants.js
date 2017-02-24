@@ -65,7 +65,7 @@ module.exports = {
       address: 'ro.mullvad.net',
       name: 'Romania',
       city: 'Bucharest',
-      country: 'Canada',
+      country: 'Romania',
       location: [44.4267674, 26.1025384]
     },
     'sg.mullvad.net':   {
