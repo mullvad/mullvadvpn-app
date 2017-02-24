@@ -111,12 +111,17 @@
 
 .connect__status-location {
   font-family: DINPro;
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 900;
   line-height: 44px;
   letter-spacing: -1px;
   color: #FFFFFF;
   margin-bottom: 4px;
+}
+
+.connect__status-location-icon {
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .connect__status-ipaddress {
@@ -125,6 +130,10 @@
   font-weight: 800;
   line-height: 22px;
   color: #FFFFFF;
+}
+
+.connect__status-ipaddress--invisible {
+  visibility: hidden;
 }
 
 .connect__status-icon {

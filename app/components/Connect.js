@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { If, Then } from 'react-if';
+import { If, Then, Else } from 'react-if';
 import cheapRuler from 'cheap-ruler';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
@@ -72,6 +72,14 @@ export default class Connect extends Component {
     }
   }
 
+  ipAddressClass() {
+    var classes = ['connect__status-ipaddress'];
+    if(this.props.connect.status === ConnectionState.connecting) {
+      classes.push('connect__status-ipaddress--invisible');
+    }
+    return classes.join(' ');
+  }
+
   displayLocation() {
     if(this.props.connect.status === ConnectionState.disconnected) {
       return this.state.userLocation;
@@ -81,9 +89,9 @@ export default class Connect extends Component {
     return this.props.getServerInfo(preferredServer);
   }
 
-  getBounds(center) {
+  getBounds(center, altitude) {
     const ruler = cheapRuler(center[0], 'meters');
-    const bbox = ruler.bufferPoint(center, 100000);
+    const bbox = ruler.bufferPoint(center, altitude);
     return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
   }
 
@@ -119,6 +127,8 @@ export default class Connect extends Component {
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
 
+    const altitude = (isConnecting ? 300 : 100) * 1000;
+
     const accessToken = 'pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg';
 
     return (
@@ -132,7 +142,7 @@ export default class Connect extends Component {
                   accessToken={ accessToken }
                   containerStyle={{ height: '100%' }} 
                   interactive={ false }
-                  fitBounds={ this.getBounds(displayLocation.location) }
+                  fitBounds={ this.getBounds(displayLocation.location, altitude) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
                 <Marker coordinates={ markerLocation } offset={ [0, -10] }>
                   <img src={ this.markerImage() } />
@@ -152,8 +162,33 @@ export default class Connect extends Component {
                 </If>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
-                <div className="connect__status-location">{ displayLocation.city }<br/>{ displayLocation.country }</div>
-                <div className="connect__status-ipaddress">{ this.props.connect.clientIp }</div>
+
+                <If condition={ isConnecting }>
+                  <Then>
+                    <div className="connect__status-location">
+                    <If condition={ preferredServer === 'fastest' }>
+                      <Then>
+                        <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
+                      </Then>
+                    </If>
+                      
+                    <If condition={ preferredServer === 'nearest' }>
+                      <Then>
+                        <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
+                      </Then>
+                    </If>
+
+                    { displayLocation.country }<br/><br/>
+                    </div>
+                  </Then>
+                  <Else>
+                    <div className="connect__status-location">
+                      { displayLocation.city }<br/>{ displayLocation.country }
+                    </div>
+                  </Else>
+                </If>
+
+                <div className={ this.ipAddressClass() }>{ this.props.connect.clientIp }</div>
               </div>
 
               { /* footer when disconnected */ }
