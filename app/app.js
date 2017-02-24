@@ -114,6 +114,9 @@ backend.on(Backend.EventType.logout, () => {
 
   // return to login screen
   store.dispatch(replace('/'));
+
+  // disconnect when user logged out
+  backend.disconnect();
 });
 
 // helper method for router to pass backend down the component tree
