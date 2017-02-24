@@ -1,5 +1,6 @@
 import Enum from './enum';
 import { EventEmitter } from 'events';
+import { servers } from '../constants';
 
 const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
 
@@ -31,6 +32,34 @@ export default class Backend extends EventEmitter {
 
   // Public methods
 
+  serverInfo(key) {
+    switch(key) {
+    case 'fastest': return this.fastestServer();
+    case 'nearest': return this.nearestServer();
+    default: return servers[key] || {};
+    }
+  }
+
+  fastestServer() {
+    return {
+      address: 'uk.mullvad.net', 
+      name: 'Fastest',
+      city: 'London',
+      country: 'United Kingdom',
+      location: [51.5073509, -0.1277583]
+    };
+  }
+
+  nearestServer() {
+    return {
+      address: 'es.mullvad.net', 
+      name: 'Nearest',
+      city: 'Madrid',
+      country: 'Spain',
+      location: [40.4167754, -3.7037902]
+    };
+  }
+
   login(account) {
     this._account = account;
 
@@ -58,6 +87,8 @@ export default class Backend extends EventEmitter {
   }
 
   connect(addr) {
+    this.disconnect();
+    
     this._serverAddress = addr;
 
     // emit: connecting

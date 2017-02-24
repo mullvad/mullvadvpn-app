@@ -10,7 +10,8 @@ export default class Connect extends Component {
   static propTypes = {
     settings: PropTypes.object.isRequired,
     onConnect: PropTypes.func.isRequired,
-    onDisconnect: PropTypes.func.isRequired
+    onDisconnect: PropTypes.func.isRequired,
+    getServerInfo: PropTypes.func.isRequired
   };
 
   constructor() {
@@ -18,7 +19,7 @@ export default class Connect extends Component {
 
     this.state = { 
       userLocation: {
-        coordinate: [40.706213526877455, -74.0044641494751],
+        location: [40.706213526877455, -74.0044641494751],
         city: 'New York',
         country: 'USA'
       }
@@ -35,31 +36,12 @@ export default class Connect extends Component {
 
   onConnect() {
     const server = this.props.settings.preferredServer;
-    this.props.onConnect(server);
+    const serverInfo = this.props.getServerInfo(server);
+    this.props.onConnect(serverInfo.address);
   }
 
   onDisconnect() {
     this.props.onDisconnect();
-  }
-
-  serverInfo(key) {
-    switch(key) {
-    case 'fastest': 
-      return {
-        name: 'Fastest',
-        city: 'New York',
-        country: 'USA',
-        location: [40.7127837, -74.0059413]
-      };
-    case 'nearest':
-      return {
-        name: 'Nearest',
-        city: 'New York',
-        country: 'USA',
-        location: [40.7127837, -74.0059413]
-      };
-    default: return servers[key] || {};
-    }
   }
 
   headerStyle() {
@@ -92,13 +74,11 @@ export default class Connect extends Component {
 
   displayLocation() {
     if(this.props.connect.status === ConnectionState.disconnected) {
-      return this.state.userLocation.coordinate;
+      return this.state.userLocation;
     }
     
     const preferredServer = this.props.settings.preferredServer;
-    const serverInfo = this.serverInfo(preferredServer);
-
-    return serverInfo.location;
+    return this.props.getServerInfo(preferredServer);
   }
 
   getBounds(center) {
@@ -117,7 +97,7 @@ export default class Connect extends Component {
   }
 
   componentWillMount() {
-    const loc = this.displayLocation();
+    const loc = this.displayLocation().location;
 
     // we need this to override default center
     // see: https://github.com/alex3165/react-mapbox-gl/issues/134
@@ -130,9 +110,10 @@ export default class Connect extends Component {
 
   render() {
     const preferredServer = this.props.settings.preferredServer;
-    const serverInfo = this.serverInfo(preferredServer);
+    const serverInfo = this.props.getServerInfo(preferredServer);
     const displayLocation = this.displayLocation(); // <lat>, <lng>
-    const markerLocation = [ displayLocation[1], displayLocation[0] ]; // <lng>, <lat>
+    const loc = displayLocation.location;
+    const markerLocation = [ loc[1], loc[0] ]; // <lng>, <lat>
 
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
@@ -151,7 +132,7 @@ export default class Connect extends Component {
                   accessToken={ accessToken }
                   containerStyle={{ height: '100%' }} 
                   interactive={ false }
-                  fitBounds={ this.getBounds(displayLocation) }
+                  fitBounds={ this.getBounds(displayLocation.location) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
                 <Marker coordinates={ markerLocation } offset={ [0, -10] }>
                   <img src={ this.markerImage() } />
@@ -171,7 +152,7 @@ export default class Connect extends Component {
                 </If>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
-                <div className="connect__status-location">{ serverInfo.city }<br/>{ serverInfo.country }</div>
+                <div className="connect__status-location">{ displayLocation.city }<br/>{ displayLocation.country }</div>
                 <div className="connect__status-ipaddress">{ this.props.connect.clientIp }</div>
               </div>
 

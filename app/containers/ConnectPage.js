@@ -12,7 +12,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   return {
     onConnect: (addr) => connect(backend, addr),
-    onDisconnect: () => disconnect(backend)
+    onDisconnect: () => disconnect(backend),
+    getServerInfo: (key) => backend.serverInfo(key)
   };
 };
 

@@ -53,6 +53,7 @@
   font-weight: 600;
   line-height: 20px;
   color: rgba(255,255,255,0.8);
+  padding: 0 24px;
 }
 
 .settings__account-label {
@@ -63,6 +64,10 @@
   display: inline-block;
   font-weight: 800;
   margin-left: 4px;
+}
+
+.settings__main {
+  margin-bottom: 24px;
 }
 
 .settings__cell {
@@ -113,3 +118,5 @@
 .settings__footer {
   padding: 24px;
 }
+
+.settings__footer .button + .button { margin-top: 16px; }

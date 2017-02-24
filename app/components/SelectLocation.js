@@ -7,7 +7,7 @@ import CustomScrollbars from './CustomScrollbars';
 export default class SelectLocation extends Component {
 
   static propTypes = {
-    updateSettings: PropTypes.func.isRequired
+    onChangeLocation: PropTypes.func.isRequired
   }
 
   onClose() {
@@ -15,17 +15,17 @@ export default class SelectLocation extends Component {
   }
 
   handleSelection(name) {
-    this.props.updateSettings({ preferredServer: name });
+    this.props.onChangeLocation(name);
     this.props.router.push('/connect');
   }
 
   handleFastest() {
-    this.props.updateSettings({ preferredServer: 'fastest' });
+    this.props.onChangeLocation('fastest');
     this.props.router.push('/connect');
   }
 
   handleNearest() {
-    this.props.updateSettings({ preferredServer: 'nearest' });
+    this.props.onChangeLocation('nearest');
     this.props.router.push('/connect');
   }
 
