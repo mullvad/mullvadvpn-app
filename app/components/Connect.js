@@ -3,7 +3,7 @@ import { If, Then } from 'react-if';
 import cheapRuler from 'cheap-ruler';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
-import { servers, ConnectionState } from '../constants';
+import { ConnectionState } from '../constants';
 
 export default class Connect extends Component {
   
@@ -19,9 +19,9 @@ export default class Connect extends Component {
 
     this.state = { 
       userLocation: {
-        location: [40.706213526877455, -74.0044641494751],
-        city: 'New York',
-        country: 'USA'
+        location: [28.358744, -14.053676],
+        city: 'Corralejo',
+        country: 'Fuerteventura'
       }
     };
   }
