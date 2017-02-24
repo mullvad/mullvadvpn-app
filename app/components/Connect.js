@@ -144,9 +144,13 @@ export default class Connect extends Component {
                   interactive={ false }
                   fitBounds={ this.getBounds(displayLocation.location, altitude) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
-                <Marker coordinates={ markerLocation } offset={ [0, -10] }>
-                  <img src={ this.markerImage() } />
-                </Marker>
+                <If condition={ !isConnecting }>
+                  <Then>
+                    <Marker coordinates={ markerLocation } offset={ [0, -10] }>
+                      <img src={ this.markerImage() } />
+                    </Marker>
+                  </Then>
+                </If>
               </ReactMapboxGl>
             </div>
             <div className="connect__container">
