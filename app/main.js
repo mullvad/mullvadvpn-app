@@ -49,7 +49,11 @@ const installDevTools = async () => {
     if(!window) { return; }
 
     if(window.isDevToolsOpened()) {
-      window.devToolsWebContents.focus();
+      // there is a rare bug when isDevToolsOpened() reports true
+      // but dev tools window is not created yet.
+      if(window.devToolsWebContents) {
+        window.devToolsWebContents.focus();
+      }
     } else {
       window.openDevTools({ mode: 'detach' });
     }
