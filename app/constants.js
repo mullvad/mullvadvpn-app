@@ -111,6 +111,6 @@ module.exports = {
       location: [40.7127837, -74.0059413]
     }
   },
-  defaultServer: 'se1.mullvad.net', // can be nearest, fastest or any of keys from .servers
+  defaultServer: 'fastest', // can be nearest, fastest or any of keys from .servers
   LoginState, ConnectionState
 };
