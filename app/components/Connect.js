@@ -1,3 +1,4 @@
+import assert from 'assert';
 import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
 import cheapRuler from 'cheap-ruler';
@@ -21,7 +22,7 @@ export default class Connect extends Component {
       userLocation: {
         location: [28.358744, -14.053676],
         city: 'Corralejo',
-        country: 'Fuerteventura'
+        country: 'Spain'
       }
     };
   }
@@ -91,35 +92,41 @@ export default class Connect extends Component {
 
   getBounds(center, altitude) {
     const ruler = cheapRuler(center[0], 'meters');
-    const bbox = ruler.bufferPoint(center, altitude);
-    return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
+    return ruler.bufferPoint(center, altitude);
   }
 
-  componentWillMount() {
-    const loc = this.displayLocation().location;
-
-    // we need this to override default center
-    // see: https://github.com/alex3165/react-mapbox-gl/issues/134
-    this._initialLocation = [ loc[1], loc[0] ]; // <lng>, <lat>
+  toLngLat(pos) {
+    assert(pos.length === 2); 
+    return [ pos[1], pos[0] ]; 
   }
 
-  componentWillUnmount() {
-    this._initialLocation = null;
+  toLngLatBounds(bounds) {
+    assert(bounds.length % 2 === 0);
+
+    let result = [];
+    for(let i = 0; i < bounds.length; i += 2) {
+      result.push([ bounds[i + 1], bounds[i] ]);
+    }
+    return result;
   }
 
   render() {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
 
-    const displayLocation = this.displayLocation(); // <lat>, <lng>
-    const userLocation = this.state.userLocation.location; // <lat>, <lng>
-    const serverLocation = serverInfo.location; // <lat>, <lng>
-
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
+
+    const displayLocation = this.displayLocation();
+    const bounds = this.getBounds(displayLocation.location, altitude);
+
+    const userLocation = this.toLngLat(this.state.userLocation.location);
+    const serverLocation = this.toLngLat(serverInfo.location);
+    const mapBounds = this.toLngLatBounds(bounds);
+    const mapBoundsOptions = { offset: [0, -100] };
 
     const accessToken = 'pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg';
 
@@ -129,27 +136,23 @@ export default class Connect extends Component {
         <Container>
           <div className="connect">
             <div className="connect__map">
-              <ReactMapboxGl style="mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e"
-                  center={ this._initialLocation }
+              <ReactMapboxGl 
+                  style="mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e"
                   accessToken={ accessToken }
                   containerStyle={{ height: '100%' }} 
                   interactive={ false }
-                  fitBounds={ this.getBounds(displayLocation.location, altitude) }
-                  fitBoundsOptions={ {offset: [0, -100]} }>
-
-                { /* server location marker */ }
+                  fitBounds={ mapBounds }
+                  fitBoundsOptions={ mapBoundsOptions }>
                 <If condition={ isConnected }>
                   <Then>
-                    <Marker coordinates={ [ serverLocation[1], serverLocation[0] ] } offset={ [0, -10] }>
+                    <Marker coordinates={ serverLocation } offset={ [0, -10] }>
                       <img src='./assets/images/location-marker-secure.svg' />
                     </Marker>
                   </Then>
                 </If>
-
-                { /* user location marker */ }
                 <If condition={ !isConnected }>
                   <Then>
-                    <Marker coordinates={ [ userLocation[1], userLocation[0] ] } offset={ [0, -10] }>
+                    <Marker coordinates={ userLocation } offset={ [0, -10] }>
                       <img src='./assets/images/location-marker-unsecure.svg' />
                     </Marker>
                   </Then>
