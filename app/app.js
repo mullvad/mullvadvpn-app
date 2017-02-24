@@ -97,9 +97,10 @@ backend.on(Backend.EventType.login, (account, error) => {
     const preferredServer = store.getState().settings.preferredServer;
     const server = backend.serverInfo(preferredServer);
 
+    // auto-connect
     setTimeout(() => {
-      store.dispatch(replace('/connect'));
       backend.connect(server.address);
+      store.dispatch(replace('/connect'));
     }, 1000);
   }
 });
