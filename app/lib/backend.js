@@ -16,7 +16,6 @@ export default class Backend extends EventEmitter {
   constructor() {
     super();
     this._account = null;
-    this._loggedIn = false;
     this._serverAddress = null;
     this._cancellationHandler = null;
 
@@ -27,7 +26,6 @@ export default class Backend extends EventEmitter {
   // Accessors
 
   get account() { return this._account; }
-  get loggedIn() { return this._loggedIn; }
   get serverAddress() { return this._serverAddress; }
 
   // Public methods

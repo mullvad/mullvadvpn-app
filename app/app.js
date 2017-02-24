@@ -94,7 +94,13 @@ backend.on(Backend.EventType.login, (account, error) => {
   
   // redirect to main screen after delay
   if(status === LoginState.ok) {
-    setTimeout(() => store.dispatch(replace('/connect')), 1000);
+    const preferredServer = store.getState().settings.preferredServer;
+    const server = backend.serverInfo(preferredServer);
+
+    setTimeout(() => {
+      store.dispatch(replace('/connect'));
+      backend.connect(server.address);
+    }, 1000);
   }
 });
 
