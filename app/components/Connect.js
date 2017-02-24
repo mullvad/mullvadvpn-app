@@ -66,7 +66,7 @@ export default class Connect extends Component {
 
   networkSecurityMessage() {
     switch(this.props.connect.status) {
-    case ConnectionState.connected: return 'Secured connection';
+    case ConnectionState.connected: return 'Secure connection';
     case ConnectionState.connecting: return 'Creating secure connection';
     default: return 'Unsecured connection';
     }
@@ -136,6 +136,8 @@ export default class Connect extends Component {
                   interactive={ false }
                   fitBounds={ this.getBounds(displayLocation.location, altitude) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
+
+                { /* server location marker */ }
                 <If condition={ isConnected }>
                   <Then>
                     <Marker coordinates={ [ serverLocation[1], serverLocation[0] ] } offset={ [0, -10] }>
