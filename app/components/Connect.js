@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import cheapRuler from 'cheap-ruler';
-import ReactMapboxGl, { Layer, Feature } from 'react-mapbox-gl';
+import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
 import { servers, ConnectionState } from '../constants';
 
@@ -107,6 +107,15 @@ export default class Connect extends Component {
     return [ bbox[1], bbox[0], bbox[3], bbox[2] ]; // <lng>, <lat>, <lng>, <lat>
   }
 
+  markerImage() {
+    switch(this.props.connect.status) {
+    case ConnectionState.connected:
+      return './assets/images/location-marker-secure.svg';
+    default:
+      return './assets/images/location-marker-unsecure.svg';
+    }
+  }
+
   componentWillMount() {
     const loc = this.displayLocation();
 
@@ -144,9 +153,9 @@ export default class Connect extends Component {
                   interactive={ false }
                   fitBounds={ this.getBounds(displayLocation) }
                   fitBoundsOptions={ {offset: [0, -100]} }>
-                <Layer type="symbol" id="marker" layout={{ 'icon-image': 'marker-15' }}>
-                  <Feature coordinates={ markerLocation } />
-                </Layer>
+                <Marker coordinates={ markerLocation } offset={ [0, -10] }>
+                  <img src={ this.markerImage() } />
+                </Marker>
               </ReactMapboxGl>
             </div>
             <div className="connect__container">
