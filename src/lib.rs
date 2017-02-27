@@ -16,5 +16,3 @@ pub mod process;
 
 /// Network primitives.
 pub mod net;
-
-mod ipc;
