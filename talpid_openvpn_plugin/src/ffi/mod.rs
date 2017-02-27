@@ -13,6 +13,9 @@ mod parse;
 
 error_chain!{
     errors {
+        HandlerInitFailed {
+            description("Unable to initialize EventProcessor")
+        }
         InvalidEventType {
             description("Invalid event type constant")
         }
@@ -87,17 +90,33 @@ pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
                                          retptr: *mut openvpn_plugin_args_open_return)
                                          -> c_int {
     println!("openvpn_plugin_open_v3()");
+    // TODO(linus): Add logging of errors
+    match openvpn_plugin_open_v3_internal(retptr) {
+        Ok(_) => OPENVPN_PLUGIN_FUNC_SUCCESS,
+        Err(_) => OPENVPN_PLUGIN_FUNC_ERROR,
+    }
+}
+
+fn openvpn_plugin_open_v3_internal(retptr: *mut openvpn_plugin_args_open_return) -> Result<()> {
+    let handle = Box::new(::EventProcessor::new().chain_err(|| ErrorKind::HandlerInitFailed)?);
     unsafe {
         (*retptr).type_mask = events_to_bitmask(INTERESTING_EVENTS);
+        // Converting the handle into a raw pointer will make it escape Rust deallocation. See
+        // `openvpn_plugin_close_v1` for deallocation.
+        (*retptr).handle = Box::into_raw(handle) as *const c_void;
     }
-    OPENVPN_PLUGIN_FUNC_SUCCESS
+    Ok(())
 }
+
 
 /// Called by OpenVPN just before the plugin is unloaded. Should correctly close the plugin and
 /// deallocate any `handle` initialized by the plugin in `openvpn_plugin_open_v3`
 #[no_mangle]
-pub extern "C" fn openvpn_plugin_close_v1(_handle: *const c_void) {
+pub extern "C" fn openvpn_plugin_close_v1(handle: *const c_void) {
     println!("openvpn_plugin_close_v1()");
+    // IMPORTANT: Bring the handle object back from a raw pointer. This will cause the handle
+    // object to be properly deallocated right here.
+    let _ = unsafe { Box::from_raw(handle as *mut ::EventProcessor) };
 }
 
 /// Called by OpenVPN for each OPENVPN_PLUGIN_* event that it registered for in
@@ -118,6 +137,12 @@ fn openvpn_plugin_func_v3_internal(args: *const openvpn_plugin_args_func_in) -> 
     let event_type = unsafe { (*args).event_type };
     let event = OpenVpnPluginEvent::from_int(event_type).chain_err(|| ErrorKind::InvalidEventType)?;
     println!("openvpn_plugin_func_v3({:?})", event);
+    let env = unsafe { parse::env((*args).envp) }.chain_err(|| ErrorKind::ParseEnvFailed)?;
+
+    let mut handle = unsafe { Box::from_raw((*args).handle as *mut ::EventProcessor) };
+    handle.process_event(event, env);
+    // Convert the handle back to a raw pointer to not deallocate it when we return.
+    Box::into_raw(handle);
 
     Ok(())
 }
