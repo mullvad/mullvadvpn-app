@@ -6,10 +6,21 @@ use std::os::raw::{c_char, c_int, c_uint, c_void};
 
 
 #[allow(dead_code)]
-mod consts;
+pub mod consts;
 use self::consts::*;
 
 mod parse;
+
+error_chain!{
+    errors {
+        InvalidEventType {
+            description("Invalid event type constant")
+        }
+        ParseEnv {
+            description("Unable to parse environment variables from OpenVPN")
+        }
+    }
+}
 
 
 /// Struct sent to `openvpn_plugin_open_v3` containing input values.
@@ -68,9 +79,12 @@ pub struct openvpn_plugin_args_func_return {
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
                                          _args: *const openvpn_plugin_args_open_in,
-                                         _retptr: *mut openvpn_plugin_args_open_return)
+                                         retptr: *mut openvpn_plugin_args_open_return)
                                          -> c_int {
     println!("openvpn_plugin_open_v3()");
+    unsafe {
+        (*retptr).type_mask = events_to_bitmask(::INTERESTING_EVENTS);
+    }
     OPENVPN_PLUGIN_FUNC_SUCCESS
 }
 
@@ -88,7 +102,58 @@ pub extern "C" fn openvpn_plugin_func_v3(_version: c_int,
                                          args: *const openvpn_plugin_args_func_in,
                                          _retptr: *const openvpn_plugin_args_func_return)
                                          -> c_int {
-    let event_name = unsafe { consts::plugin_event_name((*args).event_type) };
-    println!("openvpn_plugin_func_v3({})", event_name);
-    OPENVPN_PLUGIN_FUNC_SUCCESS
+    // TODO(linus): Add logging of errors
+    match openvpn_plugin_func_v3_internal(args) {
+        Ok(_) => OPENVPN_PLUGIN_FUNC_SUCCESS,
+        Err(_) => OPENVPN_PLUGIN_FUNC_ERROR,
+    }
+}
+
+fn openvpn_plugin_func_v3_internal(args: *const openvpn_plugin_args_func_in) -> Result<()> {
+    let event_type = unsafe { (*args).event_type };
+    let event = OpenVpnPluginEvent::from_int(event_type).chain_err(|| ErrorKind::InvalidEventType)?;
+    println!("openvpn_plugin_func_v3({:?})", event);
+
+    Ok(())
+}
+
+
+/// Translates a collection of `OpenVpnPluginEvent` instances into a bitmask in the format OpenVPN
+/// expects it.
+fn events_to_bitmask(events: &[OpenVpnPluginEvent]) -> c_int {
+    let mut bitmask: c_int = 0;
+    for event in events {
+        bitmask |= 1 << (*event as i32);
+    }
+    bitmask
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn events_to_bitmask_no_events() {
+        let result = events_to_bitmask(&[]);
+        assert_eq!(0, result);
+    }
+
+    #[test]
+    fn events_to_bitmask_one_event() {
+        let result = events_to_bitmask(&[OpenVpnPluginEvent::Up]);
+        assert_eq!(0b1, result);
+    }
+
+    #[test]
+    fn events_to_bitmask_another_event() {
+        let result = events_to_bitmask(&[OpenVpnPluginEvent::RouteUp]);
+        assert_eq!(0b100, result);
+    }
+
+    #[test]
+    fn events_to_bitmask_many_events() {
+        let result = events_to_bitmask(&[OpenVpnPluginEvent::RouteUp, OpenVpnPluginEvent::N]);
+        assert_eq!((1 << 13) + (1 << 2), result);
+    }
 }
