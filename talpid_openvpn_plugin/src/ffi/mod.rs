@@ -78,8 +78,8 @@ pub struct openvpn_plugin_args_func_return {
 
 
 /// Called by OpenVPN when the plugin is first loaded.
-/// Used to register which events the plugin wants to listen to (`type_mask`). Can also return an
-/// arbitrary object inside `handle` that will then be passed to all subsequent calls to the
+/// Used to register which events the plugin wants to listen to (`args.type_mask`). Can also set an
+/// arbitrary object inside `args.handle` that will then be passed to all subsequent calls to the
 /// plugin.
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
