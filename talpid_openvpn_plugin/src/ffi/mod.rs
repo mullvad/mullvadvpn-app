@@ -1,6 +1,6 @@
-/// FFI definitions for OpenVPN. See include/openvpn-plugin.h in the OpenVPN repository for
-/// the original declarations of these structs and functions along with documentation for them:
-/// https://github.com/OpenVPN/openvpn/blob/master/include/openvpn-plugin.h.in
+// FFI definitions for OpenVPN. See include/openvpn-plugin.h in the OpenVPN repository for
+// the original declarations of these structs and functions along with documentation for them:
+// https://github.com/OpenVPN/openvpn/blob/master/include/openvpn-plugin.h.in
 
 use std::os::raw::{c_char, c_int, c_uint, c_void};
 
