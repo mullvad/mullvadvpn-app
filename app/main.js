@@ -143,10 +143,6 @@ const showWindow = () => {
   window.focus();
 };
 
-ipcMain.on('show-window', () => {
-  showWindow();
-});
-
 const createTray = () => {
   tray = new Tray(path.join(__dirname, 'assets/images/tray-icon-default.png'));
   tray.on('right-click', toggleWindow);
