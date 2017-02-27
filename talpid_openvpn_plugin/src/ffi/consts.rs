@@ -20,6 +20,42 @@ pub const OPENVPN_PLUGIN_TLS_FINAL: c_int = 10;
 pub const OPENVPN_PLUGIN_ENABLE_PF: c_int = 11;
 pub const OPENVPN_PLUGIN_ROUTE_PREDOWN: c_int = 12;
 pub const OPENVPN_PLUGIN_N: c_int = 13;
+error_chain!{
+    errors {
+        InvalidEnumVariant {
+            description("Integer does not match any enum variant")
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum OpenVpnPluginEvent {
+    Up = 0,
+    Down = 1,
+    RouteUp = 2,
+    IpChange = 3,
+    TlsVerify = 4,
+    AuthUserPassVerify = 5,
+    ClientConnect = 6,
+    ClientDisconnect = 7,
+    LearnAddress = 8,
+    ClientConnectV2 = 9,
+    TlsFinal = 10,
+    EnablePf = 11,
+    RoutePredown = 12,
+    N = 13,
+}
+
+impl OpenVpnPluginEvent {
+    pub fn from_int(i: c_int) -> Result<OpenVpnPluginEvent> {
+        if i >= OpenVpnPluginEvent::Up as c_int && i <= OpenVpnPluginEvent::N as c_int {
+            Ok(unsafe { ::std::mem::transmute_copy::<c_int, OpenVpnPluginEvent>(&i) })
+        } else {
+            Err(ErrorKind::InvalidEnumVariant.into())
+        }
+    }
+}
+
 
 lazy_static! {
     pub static ref PLUGIN_EVENT_NAMES: HashMap<c_int, &'static str> = {
@@ -60,20 +96,41 @@ mod tests {
     use super::*;
 
     #[test]
-    fn plugin_event_name_up() {
-        let name = plugin_event_name(0);
-        assert_eq!("PLUGIN_UP", name);
+    fn from_int_first() {
+        let result = OpenVpnPluginEvent::from_int(0);
+        assert_matches!(result, Ok(OpenVpnPluginEvent::Up));
     }
 
     #[test]
-    fn plugin_event_name_n() {
-        let name = plugin_event_name(13);
-        assert_eq!("PLUGIN_N", name);
+    fn from_int_last() {
+        let result = OpenVpnPluginEvent::from_int(13);
+        assert_matches!(result, Ok(OpenVpnPluginEvent::N));
     }
 
     #[test]
-    fn plugin_event_name_not_existing() {
-        let name = plugin_event_name(-15);
-        assert_eq!("UNKNOWN", name);
+    fn from_int_all_valid() {
+        for i in 0..13 {
+            if OpenVpnPluginEvent::from_int(0).is_err() {
+                panic!("{} not covered", i);
+            }
+        }
+    }
+
+    #[test]
+    fn from_int_negative() {
+        let result = OpenVpnPluginEvent::from_int(-5);
+        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant, _)));
+    }
+
+    #[test]
+    fn from_int_invalid() {
+        let result = OpenVpnPluginEvent::from_int(14);
+        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant, _)));
+    }
+
+    #[test]
+    fn event_enum_to_str() {
+        let result = format!("{:?}", OpenVpnPluginEvent::Up);
+        assert_eq!("Up", result);
     }
 }
