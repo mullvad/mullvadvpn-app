@@ -4,6 +4,10 @@ const LoginState = Enum('none', 'connecting', 'failed', 'ok');
 const ConnectionState = Enum('disconnected', 'connecting', 'connected', 'failed');
 
 module.exports = {
+  mapbox: {
+    accessToken: 'pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg',
+    styleURL: 'mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e'
+  },
   links: {
     createAccount: 'https://mullvad.net/account/create/',
     purchase: 'https://mullvad.net/account/',

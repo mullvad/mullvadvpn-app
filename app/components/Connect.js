@@ -4,7 +4,7 @@ import { If, Then, Else } from 'react-if';
 import cheapRuler from 'cheap-ruler';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
-import { ConnectionState } from '../constants';
+import { ConnectionState, mapbox as mapboxConfig } from '../constants';
 
 export default class Connect extends Component {
   
@@ -128,8 +128,6 @@ export default class Connect extends Component {
     const mapBounds = this.toLngLatBounds(bounds);
     const mapBoundsOptions = { offset: [0, -100] };
 
-    const accessToken = 'pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg';
-
     return (
       <Layout>
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
@@ -137,8 +135,8 @@ export default class Connect extends Component {
           <div className="connect">
             <div className="connect__map">
               <ReactMapboxGl 
-                  style="mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e"
-                  accessToken={ accessToken }
+                  style={ mapboxConfig.styleURL }
+                  accessToken={ mapboxConfig.accessToken }
                   containerStyle={{ height: '100%' }} 
                   interactive={ false }
                   fitBounds={ mapBounds }
