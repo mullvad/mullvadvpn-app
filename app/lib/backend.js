@@ -103,10 +103,12 @@ export default class Backend extends EventEmitter {
     let timer = null;
 
     timer = setTimeout(() => {
-      // if(!/se\d+\.mullvad\.net/.test(addr)) {
-      //   err = new Error('Server is unreachable');
-      // }
       let err = null;
+
+      // Prototype: Swedish servers will throw error during connect
+      if(/se\d+\.mullvad\.net/.test(addr)) {
+        err = new Error('Server is unreachable');
+      }
 
       this._connStatus = ConnectionState.connected;
 
