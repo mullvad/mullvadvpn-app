@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn from_int_all_valid() {
         for i in 0..13 {
-            if OpenVpnPluginEvent::from_int(0).is_err() {
+            if OpenVpnPluginEvent::from_int(i).is_err() {
                 panic!("{} not covered", i);
             }
         }
