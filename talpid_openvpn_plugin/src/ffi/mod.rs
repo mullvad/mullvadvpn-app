@@ -16,7 +16,7 @@ error_chain!{
         InvalidEventType {
             description("Invalid event type constant")
         }
-        ParseEnv {
+        ParseEnvFailed {
             description("Unable to parse environment variables from OpenVPN")
         }
     }
