@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { Router, createMemoryHistory } from 'react-router';
 import { syncHistoryWithStore, replace } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
-import routes from './routes';
+import makeRoutes from './routes';
 import configureStore from './store';
 import userActions from './actions/user';
 import connectActions from './actions/connect';
@@ -14,6 +14,21 @@ import { LoginState, ConnectionState } from './constants';
 const initialState = {};
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
+const routes = makeRoutes(store);
+
+// reset login state if user quit the app during login
+if([LoginState.connecting, LoginState.failed].includes(store.getState().user.status)) {
+  store.dispatch(userActions.loginChange({ 
+    status: LoginState.none 
+  }));
+}
+
+// reset connection state if user quit the app when connecting
+if([ConnectionState.connecting, ConnectionState.failed].includes(store.getState().connect.status)) {
+  store.dispatch(connectActions.connectionChange({
+    status: ConnectionState.disconnected
+  }));
+}
 
 // desperately trying to fix https://github.com/reactjs/react-router-redux/issues/534
 memoryHistory.replace('/');

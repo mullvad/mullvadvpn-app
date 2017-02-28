@@ -7,11 +7,38 @@ import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 
-export default (
-  <Route path="/" component={ App }>
-    <IndexRoute component={ LoginPage } />
-    <Route path="connect" component={ ConnectPage } />
-    <Route path="settings" component={ SettingsPage } />
-    <Route path="select-location" component={ SelectLocationPage } />
-  </Route>
-);
+import { LoginState } from './constants';
+
+const makeRoutes = (store) => {
+
+  /**
+   * Ensures that user is redirected to /connect if logged in
+   */
+  const ensureConnect = (nextState, replace) => {
+    let { user } = store.getState();
+    if(user.status === LoginState.ok) {
+      replace('/connect');
+    }
+  };
+
+  /**
+   * Ensures that user is redirected to / login if not logged in
+   */
+  const ensureLoggedIn = (nextState, replace) => {
+    let { user } = store.getState();
+    if(user.status !== LoginState.ok) {
+      replace('/');
+    }
+  };
+
+  return (
+    <Route path="/" component={ App }>
+      <IndexRoute component={ LoginPage } onEnter={ ensureConnect } />
+      <Route path="connect" component={ ConnectPage } onEnter={ ensureLoggedIn } />
+      <Route path="settings" component={ SettingsPage } onEnter={ ensureLoggedIn } />
+      <Route path="select-location" component={ SelectLocationPage } onEnter={ ensureLoggedIn } />
+    </Route>
+  );
+};
+
+export default makeRoutes;
