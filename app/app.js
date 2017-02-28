@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, createMemoryHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
+import { syncHistoryWithStore, replace } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
 import makeRoutes from './routes';
 import configureStore from './store';
@@ -86,6 +86,15 @@ syncBackendWithReduxStore(backend, store);
 
 // Setup primary event handlers to translate backend events into redux dispatch
 mapBackendEventsToReduxActions(backend, store);
+
+// redirect user to main screen after login
+backend.on(Backend.EventType.login, (addr, error) => {
+  if(error) { return; }
+  setTimeout(() => store.dispatch(replace('/connect')), 1000);
+});
+
+// redirect user to login page on logout
+backend.on(Backend.EventType.logout, () => store.dispatch(replace('/')));
 
 // Setup events to update tray icon
 backend.on(Backend.EventType.connect, updateTrayIcon);

@@ -48,10 +48,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
       const server = backend.serverInfo(preferredServer);
 
       // auto-connect
-      setTimeout(() => {
-        backend.connect(server.address);
-        store.dispatch(replace('/connect'));
-      }, 1000);
+      setTimeout(() => backend.connect(server.address), 1000);
     }
   };
 
@@ -61,9 +58,6 @@ export default function mapBackendEventsToReduxActions(backend, store) {
       account: null,
       error: null
     }));
-
-    // return to login screen
-    store.dispatch(replace('/'));
   };
 
   backend.on(Backend.EventType.updatedIp, onUpdateIp);
