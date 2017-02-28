@@ -84,6 +84,9 @@ export default class Backend extends EventEmitter {
     // emit event
     this.emit(EventType.logout);
 
+    // disconnect user during logout
+    this.disconnect();
+
     // @TODO: Add logout call
   }
 

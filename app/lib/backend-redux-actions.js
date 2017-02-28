@@ -64,9 +64,6 @@ export default function mapBackendEventsToReduxActions(backend, store) {
 
     // return to login screen
     store.dispatch(replace('/'));
-
-    // disconnect when user logged out
-    backend.disconnect();
   };
 
   backend.on(Backend.EventType.updatedIp, onUpdateIp);
