@@ -30,9 +30,15 @@ const mockState = () => {
 
 const mockBackend = (store) => {
   const backend = new Backend();
+
+  // patch backend
+  backend.syncWithReduxStore(store);
+
+  // map events to redux actions for testing
   mapBackendEventsToReduxActions(backend, store);
+
   return backend;
-}
+};
 
 const filterIpUpdateActions = (actions) => {
   return actions.filter((action) => {
@@ -111,6 +117,91 @@ describe('actions', function() {
     });
     
     store.dispatch(connectActions.connect(backend, '1.2.3.4'));
+  });
+
+  it('should fail to connect to VPN server', (done) => {
+    const expectedActions = [
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: 'se1.mullvad.net', status: 'connecting', error: null } },
+      { type: 'CONNECTION_CHANGE', payload: { status: 'disconnected', error: new Error('Server is unreachable.') } }
+    ];
+
+    let state = Object.assign(mockState(), {
+      user: {
+        account: '1111234567890',
+        status: LoginState.ok
+      }
+    });
+
+    const store = mockStore(state);
+    const backend = mockBackend(store);
+
+    backend.once(Backend.EventType.connect, () => {
+      const storeActions = filterIpUpdateActions(store.getActions());
+
+      expect(storeActions).deep.equal(expectedActions);
+      done();
+    });
+    
+    store.dispatch(connectActions.connect(backend, 'se1.mullvad.net'));
+  });
+
+  it('should disconnect from VPN server', (done) => {
+    const expectedActions = [
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
+    ];
+
+    let state = Object.assign(mockState(), {
+      user: {
+        account: '1111234567890',
+        status: LoginState.ok
+      },
+      connect: {
+        serverAddress: '1.2.3.4',
+        status: ConnectionState.connected
+      }
+    });
+
+    const store = mockStore(state);
+    const backend = mockBackend(store);
+
+    backend.once(Backend.EventType.disconnect, () => {
+      const storeActions = filterIpUpdateActions(store.getActions());
+
+      expect(storeActions).deep.equal(expectedActions);
+      done();
+    });
+    
+    store.dispatch(connectActions.disconnect(backend));
+  });
+
+  it('should disconnect from VPN server on logout', (done) => {
+    const expectedActions = [
+      { type: 'USER_LOGIN_CHANGE', payload: { account: null, status: 'none', error: null } },
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
+    ];
+
+    let state = Object.assign(mockState(), {
+      user: {
+        account: '1111234567890',
+        status: LoginState.ok
+      },
+      connect: {
+        serverAddress: '1.2.3.4',
+        status: ConnectionState.connected
+      }
+    });
+
+    const store = mockStore(state);
+    const backend = mockBackend(store);
+
+    backend.once(Backend.EventType.disconnect, () => {
+      const storeActions = filterIpUpdateActions(store.getActions());
+
+      expect(storeActions).deep.equal(expectedActions);
+      done();
+    });
+    
+    store.dispatch(userActions.logout(backend));
   });
 
 });
