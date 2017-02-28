@@ -12,6 +12,7 @@ error_chain!{
     }
 }
 
+/// Enum whose variants correspond to the OPENVPN_PLUGIN_* event constants.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum OpenVpnPluginEvent {
     Up = 0,
@@ -31,6 +32,7 @@ pub enum OpenVpnPluginEvent {
 }
 
 impl OpenVpnPluginEvent {
+    /// Tries to parse an integer from C into a variant of `OpenVpnPluginEvent`.
     pub fn from_int(i: c_int) -> Result<OpenVpnPluginEvent> {
         if i >= OpenVpnPluginEvent::Up as c_int && i <= OpenVpnPluginEvent::N as c_int {
             Ok(unsafe { ::std::mem::transmute_copy::<c_int, OpenVpnPluginEvent>(&i) })
@@ -47,6 +49,7 @@ pub const OPENVPN_PLUGIN_FUNC_SUCCESS: c_int = 0;
 pub const OPENVPN_PLUGIN_FUNC_ERROR: c_int = 1;
 #[allow(dead_code)]
 pub const OPENVPN_PLUGIN_FUNC_DEFERRED: c_int = 2;
+
 
 
 #[cfg(test)]
