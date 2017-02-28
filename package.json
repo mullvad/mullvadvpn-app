@@ -41,7 +41,7 @@
     "browser-sync": "^2.9.3",
     "chai": "^3.4.1",
     "chai-spies": "^0.7.1",
-    "electron": "^1.6.0",
+    "electron": "^1.6.1",
     "electron-builder": "^14.1.1",
     "electron-devtools-installer": "^2.1.0",
     "eslint": "^3.14.1",
