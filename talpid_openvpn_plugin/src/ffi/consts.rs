@@ -44,6 +44,7 @@ impl OpenVpnPluginEvent {
 // Accept (success) or decline (error) an operation, such as incoming client connection attempt.
 pub const OPENVPN_PLUGIN_FUNC_SUCCESS: c_int = 0;
 pub const OPENVPN_PLUGIN_FUNC_ERROR: c_int = 1;
+#[allow(dead_code)]
 pub const OPENVPN_PLUGIN_FUNC_DEFERRED: c_int = 2;
 
 
