@@ -1,6 +1,6 @@
 import Enum from './enum';
 import { EventEmitter } from 'events';
-import { servers } from '../constants';
+import { ConnectionState as ReduxConnectionState, servers } from '../constants';
 
 const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
 const ConnectionState = Enum('disconnected', 'connecting', 'connected');
@@ -32,6 +32,31 @@ export default class Backend extends EventEmitter {
   get serverAddress() { return this._serverAddress; }
 
   // Public methods
+
+  /**
+   * Patch backend state.
+   * 
+   * Currently backend does not have external state
+   * such as VPN connection status or IP address.
+   * 
+   * So far we store everything in redux and have to
+   * sync redux state with backend.
+   * 
+   * In future this will be the other way around.
+   */
+  syncWithReduxStore(store) {
+    const mapConnStatus = (s) => {
+      const S = ReduxConnectionState;
+      const BS = ConnectionState;
+      switch(s) {
+      case S.connected: return BS.connected;
+      case S.connecting: return BS.connecting;
+      default: return BS.disconnected;
+      }
+    };
+    const { connect } = store.getState();
+    this._connStatus = mapConnStatus(connect.status);
+  }
 
   serverInfo(key) {
     switch(key) {

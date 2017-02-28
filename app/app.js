@@ -53,31 +53,8 @@ const updateTrayIcon = () => {
   ipcRenderer.send('changeTrayIcon', getName(connect.status));
 };
 
-/**
- * Patch backend state.
- * 
- * Currently backend does not have external state
- * such as VPN connection status or IP address.
- * 
- * So far we store everything in redux and have to
- * sync redux state with backend.
- * 
- * In future this will be the other way around.
- */
-const syncBackendWithReduxStore = (backend, store) => {
-  const mapConnStatus = (s) => {
-    const S = ConnectionState;
-    const BS = Backend.ConnectionState;
-    switch(s) {
-    case S.connected: return BS.connected;
-    case S.connecting: return BS.connecting;
-    default: return BS.disconnected;
-    }
-  };
-  const { connect } = store.getState();
-  backend._connStatus = mapConnStatus(connect.status);
-};
-syncBackendWithReduxStore(backend, store);
+// patch backend
+backend.syncWithReduxStore(backend, store);
 
 // Setup primary event handlers to translate backend events into redux dispatch
 mapBackendEventsToReduxActions(backend, store);
