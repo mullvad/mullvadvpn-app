@@ -11,7 +11,7 @@ pub struct NopIpcServer;
 impl IpcServer for NopIpcServer {
     type MessageType = String;
 
-    fn start(self, _port: u16, _on_message: Box<OnMessage<Self::MessageType>>) -> Result<()> {
+    fn start(self, _on_message: Box<OnMessage<Self::MessageType>>) -> Result<()> {
         Err(ErrorKind::CouldNotStartServer.into())
     }
 }

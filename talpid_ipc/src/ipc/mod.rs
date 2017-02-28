@@ -25,7 +25,7 @@ pub trait IpcServer {
     ///
     /// This function is non-blocking and thus spawns a thread where it
     /// listens to messages.
-    fn start(self, port: u16, on_message: Box<OnMessage<Self::MessageType>>) -> Result<()>;
+    fn start(self, on_message: Box<OnMessage<Self::MessageType>>) -> Result<()>;
 }
 
 error_chain!{

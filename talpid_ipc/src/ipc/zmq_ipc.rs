@@ -16,6 +16,7 @@ pub struct ZmqIpcServer<T>
     where T: 'static
 {
     parser: Box<MessageParser<T>>,
+    port: u16,
 }
 
 impl<T> IpcServer for ZmqIpcServer<T>
@@ -23,8 +24,9 @@ impl<T> IpcServer for ZmqIpcServer<T>
 {
     type MessageType = T;
 
-    fn start(self, port: u16, on_message: Box<OnMessage<T>>) -> Result<()> {
-        let socket = Self::start_zmq_server(port).chain_err(|| ErrorKind::CouldNotStartServer)?;
+    fn start(self, on_message: Box<OnMessage<T>>) -> Result<()> {
+        let socket =
+            Self::start_zmq_server(self.port).chain_err(|| ErrorKind::CouldNotStartServer)?;
         let _ = Self::start_receive_loop(socket, on_message, self.parser);
         Ok(())
     }
@@ -76,12 +78,18 @@ mod tests {
     fn gives_error_when_unable_to_start() {
         let port = 1340;
 
-        let ipc_server1 = ZmqIpcServer { parser: Box::new(parse_to_test_enum) };
-        let ipc_server2 = ZmqIpcServer { parser: Box::new(parse_to_test_enum) };
+        let ipc_server1 = ZmqIpcServer {
+            port: port,
+            parser: Box::new(parse_to_test_enum),
+        };
+        let ipc_server2 = ZmqIpcServer {
+            port: port,
+            parser: Box::new(parse_to_test_enum),
+        };
 
-        ipc_server1.start(port, Box::new(|_| {}))
+        ipc_server1.start(Box::new(|_| {}))
             .expect("Unable to start the first server. Results inconclusive");
-        let start_res = ipc_server2.start(port, Box::new(|_| {}));
+        let start_res = ipc_server2.start(Box::new(|_| {}));
 
         assert!(start_res.is_err());
         let err = start_res.unwrap_err();
@@ -111,8 +119,11 @@ mod tests {
     fn connect_and_send(port: u16, message: u8) -> Receiver<Result<TestMessage>> {
         let (tx, rx) = mpsc::channel();
 
-        let ipc_server = ZmqIpcServer { parser: Box::new(parse_to_test_enum) };
-        ipc_server.start(port, Box::new(move |message| { let _ = tx.send(message); }))
+        let ipc_server = ZmqIpcServer {
+            port: port,
+            parser: Box::new(parse_to_test_enum),
+        };
+        ipc_server.start(Box::new(move |message| { let _ = tx.send(message); }))
             .expect("Could not start the server");
 
         let socket = connect_to_server(port).expect("Could not connect to the server");
