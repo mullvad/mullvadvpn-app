@@ -5,8 +5,9 @@ use std::os::raw::c_int;
 
 error_chain!{
     errors {
-        InvalidEnumVariant {
+        InvalidEnumVariant(i: c_int) {
             description("Integer does not match any enum variant")
+            display("{} is not a valid OPENVPN_PLUGIN_* constant", i)
         }
     }
 }
@@ -34,7 +35,7 @@ impl OpenVpnPluginEvent {
         if i >= OpenVpnPluginEvent::Up as c_int && i <= OpenVpnPluginEvent::N as c_int {
             Ok(unsafe { ::std::mem::transmute_copy::<c_int, OpenVpnPluginEvent>(&i) })
         } else {
-            Err(ErrorKind::InvalidEnumVariant.into())
+            Err(ErrorKind::InvalidEnumVariant(i).into())
         }
     }
 }
@@ -76,13 +77,13 @@ mod tests {
     #[test]
     fn from_int_negative() {
         let result = OpenVpnPluginEvent::from_int(-5);
-        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant, _)));
+        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant(-5), _)));
     }
 
     #[test]
     fn from_int_invalid() {
         let result = OpenVpnPluginEvent::from_int(14);
-        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant, _)));
+        assert_matches!(result, Err(Error(ErrorKind::InvalidEnumVariant(14), _)));
     }
 
     #[test]
