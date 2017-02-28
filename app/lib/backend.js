@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import { servers } from '../constants';
 
 const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
+const ConnectionState = Enum('disconnected', 'connecting', 'connected');
 
 /**
  * Backend implementation
@@ -12,11 +13,13 @@ const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging'
 export default class Backend extends EventEmitter {
   
   static EventType = EventType;
+  static ConnectionState = ConnectionState;
   
   constructor() {
     super();
     this._account = null;
     this._serverAddress = null;
+    this._connStatus = ConnectionState.disconnected;
     this._cancellationHandler = null;
 
     // update IP in background
@@ -86,7 +89,8 @@ export default class Backend extends EventEmitter {
 
   connect(addr) {
     this.disconnect();
-    
+
+    this._connStatus = ConnectionState.connecting;
     this._serverAddress = addr;
 
     // emit: connecting
@@ -100,6 +104,9 @@ export default class Backend extends EventEmitter {
       // if(!/se\d+\.mullvad\.net/.test(addr)) {
       //   err = new Error('Server is unreachable');
       // }
+
+      this._connStatus = ConnectionState.connected;
+
       // emit: connect
       this.emit(EventType.connect, addr, err);
       this.refreshIp();
@@ -115,10 +122,14 @@ export default class Backend extends EventEmitter {
         this._timer = null;
       }
       this._cancellationHandler = null;
+      this._connStatus = ConnectionState.disconnected;
     };
   }
 
   disconnect() {
+    if(this._connStatus === ConnectionState.disconnected) { return; }
+
+    this._connStatus = ConnectionState.disconnected;
     this._serverAddress = null;
 
     // cancel ongoing connection attempt

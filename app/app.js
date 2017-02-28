@@ -2,13 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, createMemoryHistory } from 'react-router';
-import { syncHistoryWithStore, replace } from 'react-router-redux';
+import { syncHistoryWithStore } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
 import makeRoutes from './routes';
 import configureStore from './store';
 import userActions from './actions/user';
 import connectActions from './actions/connect';
 import Backend from './lib/backend';
+import mapBackendEventsToReduxActions from './lib/backend-redux';
 import { LoginState, ConnectionState } from './constants';
 
 const initialState = {};
@@ -58,80 +59,43 @@ const updateTrayIcon = () => {
   ipcRenderer.send('changeTrayIcon', iconName);
 };
 
-updateTrayIcon();
-
 // Create backend
 const backend = new Backend();
 
-// Setup events
+/**
+ * Patch backend state.
+ * 
+ * Currently backend does not have external state
+ * such as VPN connection status or IP address.
+ * 
+ * So far we store everything in redux and have to
+ * sync redux state with backend.
+ * 
+ * In future this will be the other way around.
+ */
+const syncBackendWithReduxStore = (backend, store) => {
+  const mapConnStatus = (s) => {
+    const S = ConnectionState;
+    const BS = Backend.ConnectionState;
+    switch(s) {
+    case S.connected: return BS.connected;
+    case S.connecting: return BS.connecting;
+    default: return BS.disconnected;
+    }
+  };
+  backend._connStatus = mapConnStatus(store.getState().connect.status);
+};
+syncBackendWithReduxStore(backend, store);
 
-backend.on(Backend.EventType.updatedIp, (clientIp) => {
-  store.dispatch(connectActions.connectionChange({ clientIp }));
-});
+// Setup primary event handlers to translate backend events into redux dispatch
+mapBackendEventsToReduxActions(backend, store);
 
-backend.on(Backend.EventType.connecting, (serverAddress) => {
-  store.dispatch(connectActions.connectionChange({ 
-    status: ConnectionState.connecting,
-    error: null,
-    serverAddress
-  }));
-});
+// Setup events to update tray icon
+backend.on(Backend.EventType.connect, updateTrayIcon);
+backend.on(Backend.EventType.disconnect, updateTrayIcon);
 
-backend.on(Backend.EventType.connect, (serverAddress, error) => {
-  const status = error ? ConnectionState.disconnected : ConnectionState.connected;
-  store.dispatch(connectActions.connectionChange({ error, status }));
-
-  updateTrayIcon();
-});
-
-backend.on(Backend.EventType.disconnect, () => {
-  store.dispatch(connectActions.connectionChange({
-    status: ConnectionState.disconnected,
-    serverAddress: null, 
-    error: null
-  }));
-  
-  updateTrayIcon();
-});
-
-backend.on(Backend.EventType.logging, (account) => {
-  store.dispatch(userActions.loginChange({ 
-    status: LoginState.connecting, 
-    error: null,
-    account
-  }));
-});
-
-backend.on(Backend.EventType.login, (account, error) => {
-  const status = error ? LoginState.failed : LoginState.ok;
-  store.dispatch(userActions.loginChange({ status, error }));
-  
-  // redirect to main screen after delay
-  if(status === LoginState.ok) {
-    const preferredServer = store.getState().settings.preferredServer;
-    const server = backend.serverInfo(preferredServer);
-
-    // auto-connect
-    setTimeout(() => {
-      backend.connect(server.address);
-      store.dispatch(replace('/connect'));
-    }, 1000);
-  }
-});
-
-backend.on(Backend.EventType.logout, () => {
-  store.dispatch(userActions.loginChange({
-    status: LoginState.none, 
-    account: null,
-    error: null
-  }));
-
-  // return to login screen
-  store.dispatch(replace('/'));
-
-  // disconnect when user logged out
-  backend.disconnect();
-});
+// force update tray
+updateTrayIcon();
 
 // helper method for router to pass backend down the component tree
 const createElement = (Component, props) => {
