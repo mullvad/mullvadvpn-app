@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, hashHistory } from 'react-router';
+import { Router, createMemoryHistory } from 'react-router';
 import { syncHistoryWithStore, replace } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
 import routes from './routes';
@@ -12,15 +12,14 @@ import Backend from './lib/backend';
 import { LoginState, ConnectionState } from './constants';
 
 const initialState = {};
-const store = configureStore(initialState);
+const memoryHistory = createMemoryHistory();
+const store = configureStore(initialState, memoryHistory);
 
 // desperately trying to fix https://github.com/reactjs/react-router-redux/issues/534
-hashHistory.replace('/');
+memoryHistory.replace('/');
 
-// see https://github.com/reactjs/react-router-redux/issues/534
 const recentLocation = (store.getState().routing || {}).locationBeforeTransitions;
-const routerHistory = syncHistoryWithStore(hashHistory, store, { adjustUrlOnReplay: true });
-
+const routerHistory = syncHistoryWithStore(memoryHistory, store, { adjustUrlOnReplay: true });
 if(recentLocation && recentLocation.pathname) {
   routerHistory.replace(recentLocation.pathname);
 }
