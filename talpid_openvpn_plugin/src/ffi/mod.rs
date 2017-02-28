@@ -22,6 +22,11 @@ error_chain!{
     }
 }
 
+/// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
+/// events.
+pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] = &[OpenVpnPluginEvent::Up,
+                                                                 OpenVpnPluginEvent::RoutePredown];
+
 
 /// Struct sent to `openvpn_plugin_open_v3` containing input values.
 #[repr(C)]
@@ -83,7 +88,7 @@ pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
                                          -> c_int {
     println!("openvpn_plugin_open_v3()");
     unsafe {
-        (*retptr).type_mask = events_to_bitmask(::INTERESTING_EVENTS);
+        (*retptr).type_mask = events_to_bitmask(INTERESTING_EVENTS);
     }
     OPENVPN_PLUGIN_FUNC_SUCCESS
 }
