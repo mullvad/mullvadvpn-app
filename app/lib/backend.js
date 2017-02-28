@@ -65,11 +65,11 @@ export default class Backend extends EventEmitter {
     this._account = account;
 
     // emit: logging in
-    this.emit(EventType.logging, account);
+    this.emit(EventType.logging, account, null);
 
     // @TODO: Add login call
     setTimeout(() => {
-      let err;
+      let err = null;
       if(!account.startsWith('1111')) {
         err = new Error('Invalid account number.');
       }
@@ -103,10 +103,10 @@ export default class Backend extends EventEmitter {
     let timer = null;
 
     timer = setTimeout(() => {
-      let err;
       // if(!/se\d+\.mullvad\.net/.test(addr)) {
       //   err = new Error('Server is unreachable');
       // }
+      let err = null;
 
       this._connStatus = ConnectionState.connected;
 
