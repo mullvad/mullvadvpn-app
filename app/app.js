@@ -41,11 +41,6 @@ if(recentLocation && recentLocation.pathname) {
   routerHistory.replace(recentLocation.pathname);
 }
 
-const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
-
-// disable smart pinch.
-webFrame.setVisualZoomLevelLimits(1, 1);
-
 // Tray icon
 const updateTrayIcon = () => {
   const getName = (s) => {
@@ -90,7 +85,7 @@ mapBackendEventsToReduxActions(backend, store);
 // redirect user to main screen after login
 backend.on(Backend.EventType.login, (account, error) => {
   if(error) { return; } // no-op on error
-  
+
   setTimeout(() => {
     const { settings } = store.getState();
     const server = backend.serverInfo(settings.preferredServer);
@@ -116,6 +111,11 @@ const createElement = (Component, props) => {
     <Component {...newProps} />
   );
 };
+
+const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
+
+// disable smart pinch.
+webFrame.setVisualZoomLevelLimits(1, 1);
 
 ReactDOM.render(
   <Provider store={ store }>
