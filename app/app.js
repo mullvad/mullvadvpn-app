@@ -9,13 +9,14 @@ import configureStore from './store';
 import userActions from './actions/user';
 import connectActions from './actions/connect';
 import Backend from './lib/backend';
-import mapBackendEventsToReduxActions from './lib/backend-redux';
+import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import { LoginState, ConnectionState } from './constants';
 
 const initialState = {};
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
 const routes = makeRoutes(store);
+const backend = new Backend();
 
 // reset login state if user quit the app during login
 if([LoginState.connecting, LoginState.failed].includes(store.getState().user.status)) {
@@ -47,20 +48,15 @@ webFrame.setVisualZoomLevelLimits(1, 1);
 
 // Tray icon
 const updateTrayIcon = () => {
-  const s = store.getState().connect.status;
-  let iconName;
-
-  if(s === ConnectionState.connected) {
-    iconName = 'connected';
-  } else {
-    iconName = 'default';
-  }
-  
-  ipcRenderer.send('changeTrayIcon', iconName);
+  const getName = (s) => {
+    switch(s) {
+    case ConnectionState.connected: return 'connected';
+    default: return 'default';
+    }
+  };
+  const { connect } = store.getState();
+  ipcRenderer.send('changeTrayIcon', getName(connect.status));
 };
-
-// Create backend
-const backend = new Backend();
 
 /**
  * Patch backend state.
@@ -83,7 +79,8 @@ const syncBackendWithReduxStore = (backend, store) => {
     default: return BS.disconnected;
     }
   };
-  backend._connStatus = mapConnStatus(store.getState().connect.status);
+  const { connect } = store.getState();
+  backend._connStatus = mapConnStatus(connect.status);
 };
 syncBackendWithReduxStore(backend, store);
 
