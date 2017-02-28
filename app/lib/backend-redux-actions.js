@@ -41,15 +41,6 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   const onLogin = (account, error) => {
     const status = error ? LoginState.failed : LoginState.ok;
     store.dispatch(userActions.loginChange({ status, error }));
-    
-    // redirect to main screen after delay
-    if(status === LoginState.ok) {
-      const preferredServer = store.getState().settings.preferredServer;
-      const server = backend.serverInfo(preferredServer);
-
-      // auto-connect
-      setTimeout(() => backend.connect(server.address), 1000);
-    }
   };
 
   const onLogout = () => {
