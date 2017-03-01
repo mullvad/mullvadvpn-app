@@ -11,6 +11,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const { loginChange, login } = bindActionCreators(userActions, dispatch);
   const { backend } = props;
   return {
+    onSettings: () => props.router.push('/settings'),
     onLogin: (account) => login(backend, account),
     onChange: (account) => loginChange({ account }),
     onFirstChangeAfterFailure: () => loginChange({ status: LoginState.none, error: null }),

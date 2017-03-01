@@ -8,6 +8,7 @@ export default class Login extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     onLogin: PropTypes.func.isRequired,
+    onSettings: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onFirstChangeAfterFailure: PropTypes.func.isRequired,
     onExternalLink: PropTypes.func.isRequired,
@@ -133,7 +134,7 @@ export default class Login extends Component {
 
     return (
       <Layout>
-        <Header />
+        <Header showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
           <div className="login">
             <div className="login-form">
