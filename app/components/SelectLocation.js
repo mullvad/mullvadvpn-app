@@ -7,26 +7,12 @@ import CustomScrollbars from './CustomScrollbars';
 export default class SelectLocation extends Component {
 
   static propTypes = {
-    onChangeLocation: PropTypes.func.isRequired
+    onClose: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired
   }
 
-  onClose() {
-    this.props.router.push('/connect');
-  }
-
-  handleSelection(name) {
-    this.props.onChangeLocation(name);
-    this.props.router.push('/connect');
-  }
-
-  handleFastest() {
-    this.props.onChangeLocation('fastest');
-    this.props.router.push('/connect');
-  }
-
-  handleNearest() {
-    this.props.onChangeLocation('nearest');
-    this.props.router.push('/connect');
+  onSelect(name) {
+    this.props.onSelect(name);
   }
 
   isSelected(key) {
@@ -84,7 +70,7 @@ export default class SelectLocation extends Component {
         <Header hidden={ true } style={ Header.Style.defaultDark } />
         <Container>
           <div className="select-location">
-            <button className="select-location__close" onClick={ ::this.onClose } />
+            <button className="select-location__close" onClick={ this.props.onClose } />
             <div className="select-location__container">
               <div className="select-location__header">
                 <h2 className="select-location__title">Select location</h2>
@@ -95,12 +81,12 @@ export default class SelectLocation extends Component {
               
               <CustomScrollbars autoHide={ true }>
                 <div>
-                  { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', ::this.handleFastest) }
-                  { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', ::this.handleNearest) }
+                  { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', this.onSelect.bind(this, 'fastest')) }
+                  { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', this.onSelect.bind(this, 'nearest')) }
 
                   <div className="select-location__separator"></div>
                   
-                  { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.handleSelection.bind(this, key))) }
+                  { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.onSelect.bind(this, key))) }
 
                 </div>
               </CustomScrollbars>

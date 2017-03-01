@@ -8,10 +8,12 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   const settings = bindActionCreators(settingsActions, dispatch);
   return {
-    onChangeLocation: (preferredServer) => {
+    onClose: () => props.router.push('/connect'),
+    onSelect: (preferredServer) => {
       const server = backend.serverInfo(preferredServer);
       settings.updateSettings({ preferredServer });
       backend.connect(server.address);
+      props.router.push('/connect');
     }
   };
 };
