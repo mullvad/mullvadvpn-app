@@ -1,8 +1,10 @@
 import React, { Component, PropTypes } from 'react';
+import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 import { formatAccount } from '../lib/formatters';
+import { LoginState } from '../enums';
 
 export default class Settings extends Component {
 
@@ -30,6 +32,12 @@ export default class Settings extends Component {
   }
 
   render() {
+    const isLoggedIn = this.props.user.status === LoginState.ok;
+    let formattedAccountId;
+    if(isLoggedIn) {
+      formattedAccountId = formatAccount(this.props.user.account);
+    }
+
     return (
       <Layout>
         <Header hidden={ true } style={ Header.Style.defaultDark } />
@@ -43,15 +51,22 @@ export default class Settings extends Component {
               <CustomScrollbars autoHide={ true }>
                 <div className="settings__content">
                   <div className="settings__main">
-                    <div className="settings__cell">
-                      <div className="settings__cell-label">Auto-secure</div>
-                      <div className="settings__cell-value">
-                        <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+
+                    { /* show account options when logged in */ }
+                    <If condition={ isLoggedIn }>
+                      <div>
+                        <div className="settings__cell">
+                          <div className="settings__cell-label">Auto-secure</div>
+                          <div className="settings__cell-value">
+                            <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+                          </div>
+                        </div>
+                        <div className="settings__cell-footer">
+                          When this device connects to the internet it will automatically connect to a secure server
+                        </div>
                       </div>
-                    </div>
-                    <div className="settings__cell-footer">
-                      When this device connects to the internet it will automatically connect to a secure server
-                    </div>
+                    </If>
+
                     <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
                       <div className="settings__cell-label">FAQs</div>
                     </div>
@@ -63,20 +78,28 @@ export default class Settings extends Component {
                       <div className="settings__cell-label">Contact support</div>
                     </div>
                   </div>
-                  <div className="settings__account">
-                    <div className="settings__account-row">
-                      <div className="settings__account-label">Account ID</div>
-                      <div className="settings__account-id">{ formatAccount(this.props.user.account) }</div>
+
+                  { /* show account details when logged in */ } 
+                  <If condition={ isLoggedIn }>
+                    <div>
+                      <div className="settings__account">
+                        <div className="settings__account-row">
+                          <div className="settings__account-label">Account ID</div>
+                          <div className="settings__account-id">{ formattedAccountId }</div>
+                        </div>
+                        <div className="settings__account-row">
+                          <div className="settings__account-label">Time remaining</div>
+                          <div className="settings__account-id">12 days</div>
+                        </div>
+                      </div>
+
+                      <div className="settings__footer">
+                        <button className="button button--neutral" onClick={ this.onExternalLink.bind(this, 'purchase') }>Buy more time</button>
+                        <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
+                      </div>
                     </div>
-                    <div className="settings__account-row">
-                      <div className="settings__account-label">Time remaining</div>
-                      <div className="settings__account-id">12 days</div>
-                    </div>
-                  </div>
-                  <div className="settings__footer">
-                    <button className="button button--neutral" onClick={ this.onExternalLink.bind(this, 'purchase') }>Buy more time</button>
-                    <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
-                  </div>
+                  </If>
+
                 </div>
               </CustomScrollbars>
             </div>
