@@ -54,7 +54,17 @@ export default class Backend extends EventEmitter {
       default: return BS.disconnected;
       }
     };
-    const { connect } = store.getState();
+    const { user, connect } = store.getState();
+    const server = this.serverInfo(connect.preferredServer);
+
+    if(server) {
+      this._serverAddress = server.address;
+    }
+    
+    if(user.account) {
+      this._account = user.account;
+    }
+
     this._connStatus = mapConnStatus(connect.status);
   }
 
@@ -62,7 +72,7 @@ export default class Backend extends EventEmitter {
     switch(key) {
     case 'fastest': return this.fastestServer();
     case 'nearest': return this.nearestServer();
-    default: return servers[key] || {};
+    default: return servers[key];
     }
   }
 
