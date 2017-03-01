@@ -42,7 +42,7 @@
 
 .select-location__subtitle {
   font-family: "Open Sans";
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 20px;
   color: rgba(255,255,255,0.8);
@@ -99,7 +99,7 @@
 .select-location__cell-footer {
   padding: 8px 24px 24px;
   font-family: "Open Sans";
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 20px;
   color: rgba(255,255,255,0.8);
