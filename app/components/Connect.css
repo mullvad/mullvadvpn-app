@@ -23,7 +23,7 @@
 .connect__footer {
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 42px 24px 24px;
 }
 
 .connect__row + .connect__row{
@@ -113,8 +113,8 @@
   font-family: DINPro;
   font-size: 34px;
   font-weight: 900;
-  line-height: 44px;
-  letter-spacing: -1px;
+  line-height: 1.16em;
+  letter-spacing: -0.9px;
   color: #FFFFFF;
   margin-bottom: 4px;
 }
@@ -128,7 +128,7 @@
   font-family: "Open Sans";
   font-size: 16px;
   font-weight: 800;
-  line-height: 22px;
+  line-height: normal;
   color: #FFFFFF;
 }
 

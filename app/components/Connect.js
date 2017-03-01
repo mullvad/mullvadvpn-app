@@ -116,7 +116,7 @@ export default class Connect extends Component {
     const userLocation = this.toLngLat(this.state.userLocation.location);
     const serverLocation = this.toLngLat(serverInfo.location);
     const mapBounds = this.toLngLatBounds(bounds);
-    const mapBoundsOptions = { offset: [0, -100] };
+    const mapBoundsOptions = { offset: [0, -113] };
 
     return (
       <Layout>
