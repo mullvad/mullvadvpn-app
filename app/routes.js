@@ -35,7 +35,7 @@ const makeRoutes = (store) => {
     <Route path="/" component={ App }>
       <IndexRoute component={ LoginPage } onEnter={ ensureConnect } />
       <Route path="connect" component={ ConnectPage } onEnter={ ensureLoggedIn } />
-      <Route path="settings" component={ SettingsPage } onEnter={ ensureLoggedIn } />
+      <Route path="settings" component={ SettingsPage } />
       <Route path="select-location" component={ SelectLocationPage } onEnter={ ensureLoggedIn } />
     </Route>
   );
