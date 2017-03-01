@@ -1,22 +1,20 @@
-import { shell } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { links } from '../config';
-import { LoginState } from '../enums';
 import { formatAccount } from '../lib/formatters';
+import { LoginState } from '../enums';
 
 export default class Login extends Component {
   static propTypes = {
     user: PropTypes.object.isRequired,
     onLogin: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
-    onFirstChangeAfterFailure: PropTypes.func.isRequired
+    onFirstChangeAfterFailure: PropTypes.func.isRequired,
+    onExternalLink: PropTypes.func.isRequired,
   };
   
   constructor(props) {
     super(props);
-
     this.state = { notifyOnFirstChangeAfterFailure: false };
   }
   
@@ -29,18 +27,18 @@ export default class Login extends Component {
     }
   }
 
-  handleLogin() {
+  onLogin() {
     const { account } = this.props.user;
     if(account.length > 0) {
       this.props.onLogin(account);
     }
   }
 
-  handleCreateAccount() {
-    shell.openExternal(links.createAccount);
+  onCreateAccount() {
+    this.props.onExternalLink('createAccount');
   }
 
-  handleInputChange(e) {
+  onInputChange(e) {
     const val = e.target.value.replace(/[^0-9]/g, '');
 
     // notify delegate on first change after login failure
@@ -52,9 +50,9 @@ export default class Login extends Component {
     this.props.onChange(val);
   }
 
-  handleInputKeyUp(e) {
+  onInputKeyUp(e) {
     if(e.which === 13) {
-      this.handleLogin();
+      this.onLogin();
     }
   }
 
@@ -81,7 +79,6 @@ export default class Login extends Component {
     case LoginState.connecting:
       classes.push('login-form__input-wrap--inactive');
       break;
-
     case LoginState.failed:
       classes.push('login-form__input-wrap--error');
       break;
@@ -174,19 +171,19 @@ export default class Login extends Component {
                   <input className="login-form__input-field" 
                         type="text" 
                         placeholder="e.g 0000 0000 0000" 
-                        onChange={ ::this.handleInputChange }
-                        onKeyUp={ ::this.handleInputKeyUp }
+                        onChange={ ::this.onInputChange }
+                        onKeyUp={ ::this.onInputKeyUp }
                         value={ displayAccount }
                         disabled={ isConnecting }
                         autoFocus={ true } 
                         ref={ autoFocusRef } />
-                    <button className={ submitClass } onClick={ ::this.handleLogin }></button>
+                    <button className={ submitClass } onClick={ ::this.onLogin }></button>
                 </div>
               </div>
             </div>
             <div className={footerClass}>
               <div className="login-footer__prompt">Don't have an account number?</div>
-              <button className="button button--primary" onClick={ ::this.handleCreateAccount }>Create account</button>
+              <button className="button button--primary" onClick={ ::this.onCreateAccount }>Create account</button>
             </div>
           </div>
         </Container>
