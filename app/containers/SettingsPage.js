@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const { updateSettings } = bindActionCreators(settingsActions, dispatch);
   return {
     logout: () => logout(props.backend),
-    buyTime: () => shell.openExternal(links.purchase),
+    openExternalLink: (type) => shell.openExternal(links[type]),
     updateSettings
   };
 };

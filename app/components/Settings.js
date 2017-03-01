@@ -3,14 +3,12 @@ import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 import { formatAccount } from '../lib/formatters';
-import { links } from '../config';
-import { shell } from 'electron';
 
 export default class Settings extends Component {
 
   static propTypes = {
     logout: PropTypes.func.isRequired,
-    buyTime: PropTypes.func.isRequired,
+    openExternalLink: PropTypes.func.isRequired,
     updateSettings: PropTypes.func.isRequired
   }
 
@@ -18,19 +16,15 @@ export default class Settings extends Component {
     this.props.router.push('/connect');
   }
 
-  handleAutoSecure(isOn) {
+  onAutoSecure(isOn) {
     this.props.updateSettings({ autoSecure: isOn });
   }
 
-  handleLink(key) {
-    shell.openExternal(links[key]);
+  onExternalLink(type) {
+    this.props.openExternalLink(type);
   }
 
-  handleBuy() {
-    this.props.buyTime();
-  }
-
-  handleLogout() {
+  onLogout() {
     this.props.logout();
   }
 
@@ -51,19 +45,19 @@ export default class Settings extends Component {
                     <div className="settings__cell">
                       <div className="settings__cell-label">Auto-secure</div>
                       <div className="settings__cell-value">
-                        <Switch onChange={ ::this.handleAutoSecure } isOn={ this.props.settings.autoSecure } />
+                        <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
                       </div>
                     </div>
                     <div className="settings__cell-footer">
                       When this device connects to the internet it will automatically connect to a secure server
                     </div>
-                    <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('faq') }>
+                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
                       <div className="settings__cell-label">FAQs</div>
                     </div>
-                    <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('guides') }>
+                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'guides') }>
                       <div className="settings__cell-label">Guides</div>
                     </div>
-                    <div className="settings__cell settings__cell--active" onClick={ () => this.handleLink('supportEmail') }>
+                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
                       <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
                       <div className="settings__cell-label">Contact support</div>
                     </div>
@@ -79,8 +73,8 @@ export default class Settings extends Component {
                     </div>
                   </div>
                   <div className="settings__footer">
-                    <button className="button button--neutral" onClick={ ::this.handleBuy }>Buy more time</button>
-                    <button className="button button--negative" onClick={ ::this.handleLogout }>Logout</button>
+                    <button className="button button--neutral" onClick={ this.onExternalLink.bind(this, 'purchase') }>Buy more time</button>
+                    <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
                   </div>
                 </div>
               </CustomScrollbars>
