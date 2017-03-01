@@ -1,8 +1,8 @@
 import assert from 'assert';
 import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
-import cheapRuler from 'cheap-ruler';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
+import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
 import { mapbox as mapboxConfig } from '../config';
 import { ConnectionState } from '../enums';
@@ -11,6 +11,7 @@ export default class Connect extends Component {
   
   static propTypes = {
     settings: PropTypes.object.isRequired,
+    onSettings: PropTypes.func.isRequired,
     onConnect: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired,
     getServerInfo: PropTypes.func.isRequired
@@ -28,22 +29,10 @@ export default class Connect extends Component {
     };
   }
 
-  onSettings() {
-    this.props.router.push('/settings');
-  }
-
-  onSelectLocation() {
-    this.props.router.push('/select-location');
-  }
-
   onConnect() {
     const server = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(server);
     this.props.onConnect(serverInfo.address);
-  }
-
-  onDisconnect() {
-    this.props.onDisconnect();
   }
 
   headerStyle() {
@@ -131,7 +120,7 @@ export default class Connect extends Component {
 
     return (
       <Layout>
-        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ ::this.onSettings } />
+        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
           <div className="connect">
             <div className="connect__map">
@@ -207,7 +196,7 @@ export default class Connect extends Component {
                   <div className="connect__footer">
                     <div className="connect__row">
 
-                      <div className="connect__server" onClick={ ::this.onSelectLocation }>
+                      <div className="connect__server" onClick={ this.props.onSelectLocation }>
                         <div className="connect__server-label">Connect to</div>                    
                         <div className="connect__server-value">
 
@@ -241,11 +230,11 @@ export default class Connect extends Component {
                 <Then>
                   <div className="connect__footer">
                     <div className="connect__row">
-                      <button className="button button--neutral button--blur" onClick={ ::this.onSelectLocation }>Switch location</button>
+                      <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
                     </div>
 
                     <div className="connect__row">
-                      <button className="button button--negative-light button--blur" onClick={ ::this.onDisconnect }>Cancel</button>
+                      <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
                     </div>
                   </div>
                 </Then>
@@ -256,11 +245,11 @@ export default class Connect extends Component {
                 <Then>
                   <div className="connect__footer">
                     <div className="connect__row">
-                      <button className="button button--neutral button--blur" onClick={ ::this.onSelectLocation }>Switch location</button>
+                      <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
                     </div>
 
                     <div className="connect__row">
-                      <button className="button button--negative-light button--blur" onClick={ ::this.onDisconnect }>Disconnect</button>
+                      <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
                     </div>
                   </div>
                 </Then>
