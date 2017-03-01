@@ -16,6 +16,9 @@ pub use self::ipc_impl::*;
 /// put the cause in the Err part of the `Result`.
 pub type OnMessage<MessageType> = FnMut(Result<MessageType>) + Send + 'static;
 
+/// An Id created by the Ipc server that the client can use to connect to it
+type IpcServerId = String;
+
 error_chain!{
     errors {
         ReadFailure {
@@ -23,9 +26,6 @@ error_chain!{
         }
         CouldNotStartServer {
             description("Failed to start the IPC server")
-        }
-        InvalidMessage(message: Vec<u8>) {
-            description("The IPC server got a message it did not know how to handle")
         }
     }
 }
