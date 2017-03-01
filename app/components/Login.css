@@ -6,7 +6,7 @@
 
 .login-footer {
   background-color: #192E45;
-  padding: 16px 24px 24px;
+  padding: 18px 24px 24px;
   flex: 0 0 auto;
 }
 
@@ -21,9 +21,9 @@
 
 .login-footer__prompt {
   font-family: "Open Sans";
-  font-size: 15px;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 600;
-  line-height: 20px;
   color: rgba(255,255,255,0.8);
   margin-bottom: 8px;
 }
@@ -32,34 +32,34 @@
   display: flex;
   flex-direction: column;
   padding: 0 24px;
-  margin: auto 0 65px;
+  margin: auto 0 70px;
 }
 
 .login-form__title {
   font-family: DINPro;
   font-size: 32px;
   font-weight: 900;
-  line-height: 40px;
+  line-height: 1.25em;
   color: #FFFFFF;
-  margin-bottom: 9px;
+  margin-bottom: 7px;
 }
 
 .login-form__subtitle {
   font-family: "Open Sans";
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 20px;
+  line-height: normal;
   color: rgba(255,255,255,0.8);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .login-form__input-wrap {
-  border: 4px solid rgba(0,0,0,0.1);
+  border: 2px solid transparent;
   background-color: #FFFFFF;
   background-clip: content-box;
   border-radius: 8px;
-  margin-left: -4px;
-  margin-right: -4px;
+  margin-left: -2px;
+  margin-right: -2px;
   display: flex;
   flex-direction: row;
   overflow: hidden;
@@ -88,7 +88,6 @@
   font-size: 20px;
   font-weight: 900;
   line-height: 26px;
-  letter-spacing: 1px;
   color: #294D73;
   background-color: transparent;
   flex: 1 1 auto;
