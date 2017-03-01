@@ -72,7 +72,7 @@
 
 .settings__cell {
   background-color:rgba(41,71,115,1);
-  padding: 15px 16px 15px 24px;
+  padding: 15px 12px 15px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
