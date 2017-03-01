@@ -11,7 +11,7 @@
 
 .select-location__header {
   flex: 0 0 auto;
-  padding: 41px 24px 24px;
+  padding: 40px 24px 16px;
   position: relative; /* anchor for close button */
 }
 
@@ -35,9 +35,8 @@
   font-family: DINPro;
   font-size: 32px;
   font-weight: 900;
-  line-height: normal;
+  line-height: 1.25em;
   color: #FFFFFF;
-  margin: 0 0 9px 0;
 }
 
 .select-location__subtitle {
@@ -46,15 +45,16 @@
   font-weight: 600;
   line-height: normal;
   color: rgba(255,255,255,0.8);
+  padding: 0 24px 24px;
 }
 
 .select-location__separator {
-  height: 16px;
+  height: 24px;
 }
 
 .select-location__cell {
   background-color: rgba(41,71,115,1);
-  padding: 15px 16px 15px 24px;
+  padding: 15px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;

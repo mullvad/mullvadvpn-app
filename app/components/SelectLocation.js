@@ -74,13 +74,14 @@ export default class SelectLocation extends Component {
             <div className="select-location__container">
               <div className="select-location__header">
                 <h2 className="select-location__title">Select location</h2>
-                <div className="select-location__subtitle">
-                  While connected, your real location is masked with a private and secure location in the selected region
-                </div>
               </div>
               
               <CustomScrollbars autoHide={ true }>
                 <div>
+                  <div className="select-location__subtitle">
+                    While connected, your real location is masked with a private and secure location in the selected region
+                  </div>
+                  
                   { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', this.onSelect.bind(this, 'fastest')) }
                   { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', this.onSelect.bind(this, 'nearest')) }
 
