@@ -15,7 +15,7 @@ const AN_INVALID_MESSAGE: u8 = 2;
 #[test]
 fn returns_connection_string_when_started() {
     let port = 1341;
-    let connection_string = talpid_ipc::Server::new(port, Box::new(|_| Ok(())))
+    let connection_string = talpid_ipc::Server::new(port)
         .start(Box::new(|_| {}))
         .expect("Unable to start server");
 
@@ -29,8 +29,8 @@ fn returns_connection_string_when_started() {
 fn gives_error_when_unable_to_start() {
     let port = 1340;
 
-    let ipc_server1 = talpid_ipc::Server::new(port, Box::new(parse_to_test_enum));
-    let ipc_server2 = talpid_ipc::Server::new(port, Box::new(parse_to_test_enum));
+    let ipc_server1 = talpid_ipc::Server::new(port);
+    let ipc_server2 = talpid_ipc::Server::new(port);
 
     ipc_server1.start(Box::new(|_| {}))
         .expect("Unable to start the first server. Results inconclusive");
@@ -64,9 +64,10 @@ fn does_not_publish_unknown_messages() {
 fn connect_and_send(port: u16, message: u8) -> Receiver<Result<TestMessage>> {
     let (tx, rx) = mpsc::channel();
 
-    let ipc_server = talpid_ipc::Server::new(port, Box::new(parse_to_test_enum));
-    ipc_server.start(Box::new(move |message| { let _ = tx.send(message); }))
-        .expect("Could not start the server");
+    let ipc_server = talpid_ipc::Server::new(port);
+    ipc_server.start(Box::new(move |message| {
+        let _ = tx.send(message.and_then(parse_to_test_enum));
+    })).expect("Could not start the server");
 
     let socket = connect_to_server(port).expect("Could not connect to the server");
     socket.send(&[message], 0).expect("Could not send message");
