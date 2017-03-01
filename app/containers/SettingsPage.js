@@ -4,7 +4,7 @@ import Settings from '../components/Settings';
 import userActions from '../actions/user';
 import settingsActions from '../actions/settings';
 import { shell } from 'electron';
-import { links } from '../constants';
+import { links } from '../config';
 
 const mapStateToProps = (state) => {
   return state;

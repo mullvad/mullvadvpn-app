@@ -1,8 +1,6 @@
 import { handleActions } from 'redux-actions';
-
 import actions from '../actions/user';
-
-import { LoginState } from '../constants';
+import { LoginState } from '../enums';
 
 const initialState = {
   account: null,

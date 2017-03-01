@@ -3,7 +3,7 @@ import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 import { formatAccount } from '../lib/formatters';
-import { links } from '../constants';
+import { links } from '../config';
 import { shell } from 'electron';
 
 export default class Settings extends Component {

@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import userReducer from '../app/reducers/user';
 import connectReducer from '../app/reducers/connect';
 import settingsReducer from '../app/reducers/settings';
-import { LoginState, ConnectionState, defaultServer } from '../app/constants';
+import { defaultServer } from '../app/config';
+import { LoginState, ConnectionState } from '../app/enums';
 
 describe('reducers', () => {
 

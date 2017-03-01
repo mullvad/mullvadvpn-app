@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Login from '../components/Login';
 import userActions from '../actions/user';
-import { LoginState } from '../constants';
+import { LoginState } from '../enums';
 
 const mapStateToProps = (state) => {
   return state;

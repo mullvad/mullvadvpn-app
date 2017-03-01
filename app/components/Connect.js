@@ -4,7 +4,8 @@ import { If, Then, Else } from 'react-if';
 import cheapRuler from 'cheap-ruler';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import { Layout, Container, Header } from './Layout';
-import { ConnectionState, mapbox as mapboxConfig } from '../constants';
+import { mapbox as mapboxConfig } from '../config';
+import { ConnectionState } from '../enums';
 
 export default class Connect extends Component {
   

@@ -5,7 +5,7 @@ import Backend from '../app/lib/backend';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
 import mapBackendEventsToReduxActions from '../app/lib/backend-redux-actions';
-import { LoginState, ConnectionState } from '../app/constants';
+import { LoginState, ConnectionState } from '../app/enums';
 
 describe('actions', function() {
   this.timeout(10000);

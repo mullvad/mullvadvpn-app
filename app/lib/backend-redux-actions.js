@@ -2,7 +2,7 @@ import { replace } from 'react-router-redux';
 import userActions from '../actions/user';
 import connectActions from '../actions/connect';
 import Backend from './backend';
-import { LoginState, ConnectionState } from '../constants';
+import { LoginState, ConnectionState } from '../enums';
 
 export default function mapBackendEventsToReduxActions(backend, store) {
   const onUpdateIp = (clientIp) => {

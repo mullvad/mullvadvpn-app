@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { servers } from '../constants';
+import { servers } from '../config';
 import CustomScrollbars from './CustomScrollbars';
 
 export default class SelectLocation extends Component {

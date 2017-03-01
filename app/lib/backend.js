@@ -1,6 +1,7 @@
 import Enum from './enum';
 import { EventEmitter } from 'events';
-import { ConnectionState as ReduxConnectionState, servers } from '../constants';
+import { servers } from '../config';
+import { ConnectionState as ReduxConnectionState } from '../enums';
 
 const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
 const ConnectionState = Enum('disconnected', 'connecting', 'connected');

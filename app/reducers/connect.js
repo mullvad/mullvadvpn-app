@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { ConnectionState } from '../constants';
+import { ConnectionState } from '../enums';
 import actions from '../actions/connect';
 
 const initialState = {

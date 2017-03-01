@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { defaultServer } from '../constants';
+import { defaultServer } from '../config';
 import actions from '../actions/settings';
 
 const initialState = {

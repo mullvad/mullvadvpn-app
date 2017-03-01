@@ -11,7 +11,7 @@ import connectActions from './actions/connect';
 import Backend from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
-import { LoginState, ConnectionState } from './constants';
+import { LoginState, ConnectionState } from './enums';
 
 const initialState = {};
 const memoryHistory = createMemoryHistory();

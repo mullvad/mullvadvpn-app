@@ -7,7 +7,7 @@ import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 
-import { LoginState } from './constants';
+import { LoginState } from './enums';
 
 const makeRoutes = (store) => {
 

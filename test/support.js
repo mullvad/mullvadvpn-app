@@ -1,7 +1,8 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Backend from '../app/lib/backend';
-import { LoginState, ConnectionState, defaultServer } from '../app/constants';
+import { defaultServer } from '../app/config';
+import { LoginState, ConnectionState } from '../app/enums';
 
 const middlewares = [ thunk ];
 export const mockStore = configureMockStore(middlewares);
