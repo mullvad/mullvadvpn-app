@@ -17,7 +17,5 @@ export default function Enum() {
     value: (e) => keys.includes(e)
   });
 
-  Object.freeze(object);
-
-  return object;
+  return Object.freeze(object);
 }
