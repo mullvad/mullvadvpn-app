@@ -7,25 +7,26 @@ import { formatAccount } from '../lib/formatters';
 export default class Settings extends Component {
 
   static propTypes = {
-    logout: PropTypes.func.isRequired,
-    openExternalLink: PropTypes.func.isRequired,
-    updateSettings: PropTypes.func.isRequired
+    onLogout: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+    onExternalLink: PropTypes.func.isRequired,
+    onUpdateSettings: PropTypes.func.isRequired
   }
 
   onClose() {
-    this.props.router.push('/connect');
+    this.props.onClose();
   }
 
   onAutoSecure(isOn) {
-    this.props.updateSettings({ autoSecure: isOn });
+    this.props.onUpdateSettings({ autoSecure: isOn });
   }
 
   onExternalLink(type) {
-    this.props.openExternalLink(type);
+    this.props.onExternalLink(type);
   }
 
   onLogout() {
-    this.props.logout();
+    this.props.onLogout();
   }
 
   render() {

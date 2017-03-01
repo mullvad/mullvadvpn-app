@@ -14,9 +14,10 @@ const mapDispatchToProps = (dispatch, props) => {
   const { logout } = bindActionCreators(userActions, dispatch);
   const { updateSettings } = bindActionCreators(settingsActions, dispatch);
   return {
-    logout: () => logout(props.backend),
-    openExternalLink: (type) => shell.openExternal(links[type]),
-    updateSettings
+    onLogout: () => logout(props.backend),
+    onClose: () => props.router.push('/connect'),
+    onExternalLink: (type) => shell.openExternal(links[type]),
+    onUpdateSettings: updateSettings
   };
 };
 
