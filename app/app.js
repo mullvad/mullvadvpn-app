@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, createMemoryHistory } from 'react-router';
-import { syncHistoryWithStore, replace } from 'react-router-redux';
+import { syncHistoryWithStore } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
 import makeRoutes from './routes';
 import configureStore from './store';
@@ -10,6 +10,7 @@ import userActions from './actions/user';
 import connectActions from './actions/connect';
 import Backend from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
+import mapBackendEventsToRouter from './lib/backend-routing';
 import { LoginState, ConnectionState } from './constants';
 
 const initialState = {};
@@ -54,25 +55,13 @@ const updateTrayIcon = () => {
 };
 
 // patch backend
-backend.syncWithReduxStore(backend, store);
+backend.syncWithReduxStore(store);
 
 // Setup primary event handlers to translate backend events into redux dispatch
 mapBackendEventsToReduxActions(backend, store);
 
-// redirect user to main screen after login
-backend.on(Backend.EventType.login, (account, error) => {
-  if(error) { return; } // no-op on error
-
-  setTimeout(() => {
-    const { settings } = store.getState();
-    const server = backend.serverInfo(settings.preferredServer);
-    backend.connect(server.address);
-    store.dispatch(replace('/connect'));
-  }, 1000);
-});
-
-// redirect user to login page on logout
-backend.on(Backend.EventType.logout, () => store.dispatch(replace('/')));
+// Setup routing based on backend events
+mapBackendEventsToRouter(backend, store);
 
 // Setup events to update tray icon
 backend.on(Backend.EventType.connect, updateTrayIcon);
