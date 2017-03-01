@@ -1,50 +1,11 @@
 import { expect } from 'chai';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+
+import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './support';
 import Backend from '../app/lib/backend';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
 import mapBackendEventsToReduxActions from '../app/lib/backend-redux-actions';
-import { LoginState, ConnectionState, defaultServer } from '../app/constants';
-
-const middlewares = [ thunk ];
-const mockStore = configureMockStore(middlewares);
-const mockState = () => {
-  return {
-    user: {
-      account: null,
-      status: LoginState.none,
-      error: null
-    },
-    connect: {
-      status: ConnectionState.disconnected,
-      serverAddress: null,
-      clientIp: null
-    },
-    settings: {
-      autoSecure: false,
-      preferredServer: defaultServer
-    }
-  };
-};
-
-const mockBackend = (store) => {
-  const backend = new Backend();
-
-  // patch backend
-  backend.syncWithReduxStore(store);
-
-  // map events to redux actions for testing
-  mapBackendEventsToReduxActions(backend, store);
-
-  return backend;
-};
-
-const filterIpUpdateActions = (actions) => {
-  return actions.filter((action) => {
-    return !(action.type === 'CONNECTION_CHANGE' && action.payload.clientIp);
-  });
-};
+import { LoginState, ConnectionState } from '../app/constants';
 
 describe('actions', function() {
   this.timeout(10000);
@@ -57,6 +18,7 @@ describe('actions', function() {
 
     const store = mockStore(mockState());
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.login, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
@@ -82,6 +44,7 @@ describe('actions', function() {
 
     const store = mockStore(state);
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.logout, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
@@ -108,6 +71,7 @@ describe('actions', function() {
 
     const store = mockStore(state);
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.connect, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
@@ -134,6 +98,7 @@ describe('actions', function() {
 
     const store = mockStore(state);
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.connect, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
@@ -163,6 +128,7 @@ describe('actions', function() {
 
     const store = mockStore(state);
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
@@ -193,6 +159,7 @@ describe('actions', function() {
 
     const store = mockStore(state);
     const backend = mockBackend(store);
+    mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
