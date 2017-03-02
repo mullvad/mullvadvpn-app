@@ -45,3 +45,36 @@ fn start_receive_loop(socket: zmq::Socket,
         on_message(read_res);
     })
 }
+
+pub struct IpcClient {
+    server_address: IpcServerId,
+    socket: Option<zmq::Socket>,
+}
+impl IpcClient {
+    pub fn new(server_id: IpcServerId) -> Self {
+        IpcClient {
+            server_address: server_id,
+            socket: None,
+        }
+    }
+
+    pub fn send(mut self, message: &[u8]) -> Result<()> {
+        if self.socket.is_none() {
+            self.connect().chain_err(|| ErrorKind::SendError)?;
+        }
+
+        let socket = self.socket.unwrap();
+        socket.send(message, 0).chain_err(|| ErrorKind::SendError)
+    }
+
+    fn connect(&mut self) -> Result<()> {
+        let ctx = zmq::Context::new();
+        let socket = ctx.socket(zmq::PUSH)
+            .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
+        socket.connect(&self.server_address)
+            .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
+
+        self.socket = Some(socket);
+        Ok(())
+    }
+}
