@@ -26,7 +26,7 @@ fi
 
 
 echo "If this fails, make sure that you have installed the packages needed to \
-build zmq, for ubuntu and OS X they can be found in\
+build zmq, for ubuntu and OS X they can be found in \
 $WD/install-build-deps-{apt|osx}.sh"
 echo ""
 
