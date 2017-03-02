@@ -10,6 +10,8 @@ crate-type = ["dylib"]
 [dependencies]
 lazy_static = "0.2"
 error-chain = "0.8"
+log = "0.3"
+env_logger = "0.4"
 
 [dev-dependencies]
 assert_matches = "1.0"
