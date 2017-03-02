@@ -1,3 +1,4 @@
+import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -81,7 +82,16 @@ const createElement = (Component, props) => {
 const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
 
 // disable smart pinch.
-webFrame.setVisualZoomLevelLimits(1, 1);
+webFrame.setZoomLevelLimits(1, 1);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(path.join(__dirname, 'tilecache.sw.js'))
+    .then((registration) => {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }).catch((err) => {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+}
 
 ReactDOM.render(
   <Provider store={ store }>
