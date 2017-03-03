@@ -54,17 +54,19 @@ export default class Settings extends Component {
 
                     { /* show account options when logged in */ }
                     <If condition={ isLoggedIn }>
-                      <div>
-                        <div className="settings__cell">
-                          <div className="settings__cell-label">Auto-secure</div>
-                          <div className="settings__cell-value">
-                            <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+                      <Then>
+                        <div>
+                          <div className="settings__cell">
+                            <div className="settings__cell-label">Auto-secure</div>
+                            <div className="settings__cell-value">
+                              <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+                            </div>
+                          </div>
+                          <div className="settings__cell-footer">
+                            When this device connects to the internet it will automatically connect to a secure server
                           </div>
                         </div>
-                        <div className="settings__cell-footer">
-                          When this device connects to the internet it will automatically connect to a secure server
-                        </div>
-                      </div>
+                      </Then>
                     </If>
 
                     <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>

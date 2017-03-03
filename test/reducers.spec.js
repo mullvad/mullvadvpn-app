@@ -15,7 +15,7 @@ describe('reducers', () => {
         status: LoginState.failed,
         error: new Error('Something went wrong')
       }
-    }
+    };
     const test = Object.assign({}, action.payload);
     expect(userReducer({}, action)).to.deep.equal(test);
   });

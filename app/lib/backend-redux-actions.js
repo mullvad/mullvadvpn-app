@@ -1,4 +1,3 @@
-import { replace } from 'react-router-redux';
 import userActions from '../actions/user';
 import connectActions from '../actions/connect';
 import Backend from './backend';
@@ -58,4 +57,4 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   backend.on(Backend.EventType.logging, onLoggingIn);
   backend.on(Backend.EventType.login, onLogin);
   backend.on(Backend.EventType.logout, onLogout);
-};
+}
