@@ -13,7 +13,7 @@ fn start_new_server(_on_message: Box<OnMessage<Vec<u8>>>) -> Result<IpcServerId>
 pub struct IpcClient;
 impl IpcClient {
     pub fn new(server_id: IpcServerId) -> Self {
-        IpcClient;
+        IpcClient
     }
 
     pub fn send(mut self, message: &[u8]) -> Result<()> {
