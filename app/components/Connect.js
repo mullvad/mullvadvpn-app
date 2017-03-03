@@ -20,7 +20,8 @@ export default class Connect extends Component {
   constructor() {
     super();
 
-    this.state = { 
+    this.state = {
+      isFirstPass: true,
       userLocation: {
         location: [28.358744, -14.053676],
         city: 'Corralejo',
@@ -29,75 +30,14 @@ export default class Connect extends Component {
     };
   }
 
-  onConnect() {
-    const server = this.props.settings.preferredServer;
-    const serverInfo = this.props.getServerInfo(server);
-    this.props.onConnect(serverInfo.address);
+  // Component Lifecycle
+
+  componentDidMount() {
+    this.setState({ isFirstPass: false });
   }
 
-  headerStyle() {
-    const S = Header.Style;
-    switch(this.props.connect.status) {
-    case ConnectionState.disconnected: return S.error;
-    case ConnectionState.connected: return S.success;
-    default: return S.default;
-    }
-  }
-
-  networkSecurityClass() {
-    let classes = ['connect__status-security'];
-    if(this.props.connect.status === ConnectionState.connected) {
-      classes.push('connect__status-security--secure');
-    } else if(this.props.connect.status === ConnectionState.disconnected) {
-      classes.push('connect__status-security--unsecured');
-    }
-
-    return classes.join(' ');
-  }
-
-  networkSecurityMessage() {
-    switch(this.props.connect.status) {
-    case ConnectionState.connected: return 'Secure connection';
-    case ConnectionState.connecting: return 'Creating secure connection';
-    default: return 'Unsecured connection';
-    }
-  }
-
-  ipAddressClass() {
-    var classes = ['connect__status-ipaddress'];
-    if(this.props.connect.status === ConnectionState.connecting) {
-      classes.push('connect__status-ipaddress--invisible');
-    }
-    return classes.join(' ');
-  }
-
-  displayLocation() {
-    if(this.props.connect.status === ConnectionState.disconnected) {
-      return this.state.userLocation;
-    }
-    
-    const preferredServer = this.props.settings.preferredServer;
-    return this.props.getServerInfo(preferredServer);
-  }
-
-  getBounds(center, altitude) {
-    const ruler = cheapRuler(center[0], 'meters');
-    return ruler.bufferPoint(center, altitude);
-  }
-
-  toLngLat(pos) {
-    assert(pos.length === 2); 
-    return [ pos[1], pos[0] ]; 
-  }
-
-  toLngLatBounds(bounds) {
-    assert(bounds.length % 2 === 0);
-
-    let result = [];
-    for(let i = 0; i < bounds.length; i += 2) {
-      result.push([ bounds[i + 1], bounds[i] ]);
-    }
-    return result;
+  componentWillUnmount() {
+    this.setState({ isFirstPass: true });
   }
 
   render() {
@@ -116,7 +56,7 @@ export default class Connect extends Component {
     const userLocation = this.toLngLat(this.state.userLocation.location);
     const serverLocation = this.toLngLat(serverInfo.location);
     const mapBounds = this.toLngLatBounds(bounds);
-    const mapBoundsOptions = { offset: [0, -113] };
+    const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
 
     return (
       <Layout>
@@ -260,5 +200,81 @@ export default class Connect extends Component {
         </Container>
       </Layout>
     );
+  }
+
+  // Handlers
+
+  onConnect() {
+    const server = this.props.settings.preferredServer;
+    const serverInfo = this.props.getServerInfo(server);
+    this.props.onConnect(serverInfo.address);
+  }
+
+  // Private
+
+  headerStyle() {
+    const S = Header.Style;
+    switch(this.props.connect.status) {
+    case ConnectionState.disconnected: return S.error;
+    case ConnectionState.connected: return S.success;
+    default: return S.default;
+    }
+  }
+
+  networkSecurityClass() {
+    let classes = ['connect__status-security'];
+    if(this.props.connect.status === ConnectionState.connected) {
+      classes.push('connect__status-security--secure');
+    } else if(this.props.connect.status === ConnectionState.disconnected) {
+      classes.push('connect__status-security--unsecured');
+    }
+
+    return classes.join(' ');
+  }
+
+  networkSecurityMessage() {
+    switch(this.props.connect.status) {
+    case ConnectionState.connected: return 'Secure connection';
+    case ConnectionState.connecting: return 'Creating secure connection';
+    default: return 'Unsecured connection';
+    }
+  }
+
+  ipAddressClass() {
+    var classes = ['connect__status-ipaddress'];
+    if(this.props.connect.status === ConnectionState.connecting) {
+      classes.push('connect__status-ipaddress--invisible');
+    }
+    return classes.join(' ');
+  }
+
+  displayLocation() {
+    if(this.props.connect.status === ConnectionState.disconnected) {
+      return this.state.userLocation;
+    }
+    
+    const preferredServer = this.props.settings.preferredServer;
+    return this.props.getServerInfo(preferredServer);
+  }
+
+  // Geo helpers
+
+  getBounds(center, altitude) {
+    const ruler = cheapRuler(center[0], 'meters');
+    return ruler.bufferPoint(center, altitude);
+  }
+
+  toLngLat(pos) {
+    assert(pos.length === 2); 
+    return [ pos[1], pos[0] ]; 
+  }
+
+  toLngLatBounds(bounds) {
+    assert(bounds.length % 2 === 0);
+    let result = [];
+    for(let i = 0; i < bounds.length; i += 2) {
+      result.push(bounds.slice(i, i + 2).reverse());
+    }
+    return result;
   }
 }
