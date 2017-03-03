@@ -38,7 +38,9 @@ ipcMain.on('changeTrayIcon', (event, name) => {
 });
 
 // hide dock icon
-app.dock.hide();
+if(process.platform === 'darwin') {
+  app.dock.hide();
+}
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
