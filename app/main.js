@@ -1,6 +1,5 @@
 import path from 'path';
 import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
-import NSEventMonitor from 'nseventmonitor';
 
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
@@ -12,7 +11,23 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 
 let window = null;
 let tray = null;
-let macEventMonitor = new NSEventMonitor();
+let macEventMonitor = null;
+
+const startTrayEventMonitor = (win) => {
+  if(process.platform === 'darwin') {
+    if(macEventMonitor === null) {
+      const NSEventMonitor = require('nseventmonitor');
+      macEventMonitor = new NSEventMonitor();
+    }
+    macEventMonitor.start(() => win.hide());
+  }
+};
+
+const stopTrayEventMonitor = () => {
+  if(process.platform === 'darwin') {
+    macEventMonitor.stop();
+  }
+};
 
 ipcMain.on('changeTrayIcon', (event, name) => {
   const iconPath = path.join(__dirname, './assets/images/tray-icon-' + name + '.png');
@@ -114,16 +129,12 @@ const createWindow = () => {
 
   window.on('show', () => {
     tray.setHighlightMode('always');
-
-    macEventMonitor.start(() => {
-      window.hide();
-    });
+    startTrayEventMonitor(window);
   });
 
   window.on('hide', () => {
     tray.setHighlightMode('never');
-
-    macEventMonitor.stop();
+    stopTrayEventMonitor();
   });
 
 };
