@@ -17,7 +17,7 @@ mod zmq_integration_tests {
     fn can_connect_and_send_and_receive_messages() {
         let (connection_string, new_messages_rx) = start_server();
 
-        let ipc_client = IpcClient::new(connection_string);
+        let mut ipc_client = IpcClient::new(connection_string);
         ipc_client.send(&[1, 3, 3, 7]).expect("Could not send message");
 
         let message = new_messages_rx.recv_timeout(Duration::from_millis(1000))

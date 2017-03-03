@@ -58,12 +58,12 @@ impl IpcClient {
         }
     }
 
-    pub fn send(mut self, message: &[u8]) -> Result<()> {
+    pub fn send(&mut self, message: &[u8]) -> Result<()> {
         if self.socket.is_none() {
             self.connect().chain_err(|| ErrorKind::SendError)?;
         }
 
-        let socket = self.socket.unwrap();
+        let socket = self.socket.as_ref().unwrap();
         socket.send(message, 0).chain_err(|| ErrorKind::SendError)
     }
 
