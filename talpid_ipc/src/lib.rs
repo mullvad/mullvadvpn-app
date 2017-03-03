@@ -28,9 +28,6 @@ error_chain!{
             description("Failed to start the IPC server")
         }
 
-        NotConnected {
-            description("The IPC client is not connected to the server")
-        }
         SendError {
             description("Unable to send message")
         }
