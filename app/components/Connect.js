@@ -107,17 +107,30 @@ export default class Connect extends Component {
                     <div className="connect__status-location">
                     <If condition={ preferredServer === 'fastest' }>
                       <Then>
-                        <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
+                        <span>
+                          <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
+                          { 'Fastest' }
+                        </span>
                       </Then>
                     </If>
                       
                     <If condition={ preferredServer === 'nearest' }>
                       <Then>
-                        <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
+                        <span>
+                          <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
+                          { 'Nearest' }
+                        </span>
                       </Then>
                     </If>
 
-                    { displayLocation.country }<br/><br/>
+                    { /* silly but react-if does not have ElseIf */ }
+                    <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
+                      <Then>
+                        <span>{ displayLocation.country }</span>
+                      </Then>
+                    </If>
+                    <br/><br/>
+
                     </div>
                   </Then>
                   <Else>
