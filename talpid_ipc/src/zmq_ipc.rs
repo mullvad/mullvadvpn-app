@@ -70,7 +70,7 @@ impl IpcClient {
     fn connect(&mut self) -> Result<()> {
         let ctx = zmq::Context::new();
         let socket = ctx.socket(zmq::PUSH)
-            .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
+            .chain_err(|| "Could not create ZeroMQ PUSH socket".to_owned())?;
         socket.connect(&self.server_address)
             .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
 
