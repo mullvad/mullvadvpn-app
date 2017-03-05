@@ -17,9 +17,9 @@ pub struct openvpn_plugin_args_open_in {
 #[allow(dead_code)]
 #[repr(C)]
 enum ovpnSSLAPI {
-    SSLAPI_NONE,
-    SSLAPI_OPENSSL,
-    SSLAPI_MBEDTLS,
+    None,
+    OpenSsl,
+    MbedTls,
 }
 
 /// Struct used for returning values from `openvpn_plugin_open_v3` to OpenVPN.
