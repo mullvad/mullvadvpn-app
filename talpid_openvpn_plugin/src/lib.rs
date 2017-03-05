@@ -57,7 +57,7 @@ pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
     match openvpn_plugin_open_v3_internal(retptr) {
         Ok(_) => ffi::OPENVPN_PLUGIN_FUNC_SUCCESS,
         Err(e) => {
-            log_error("Unable to initialize plugin", e);
+            log_error("Unable to initialize plugin", &e);
             ffi::OPENVPN_PLUGIN_FUNC_ERROR
         }
     }
@@ -98,7 +98,7 @@ pub extern "C" fn openvpn_plugin_func_v3(_version: c_int,
     match openvpn_plugin_func_v3_internal(args) {
         Ok(_) => ffi::OPENVPN_PLUGIN_FUNC_SUCCESS,
         Err(e) => {
-            log_error("Error while processing event", e);
+            log_error("Error while processing event", &e);
             ffi::OPENVPN_PLUGIN_FUNC_ERROR
         }
     }
@@ -130,7 +130,7 @@ pub fn init_logger() -> ::std::result::Result<(), ()> {
     })
 }
 
-pub fn log_error(msg: &str, error: Error) {
+pub fn log_error(msg: &str, error: &Error) {
     error!("{}", msg);
     for e in error.iter() {
         error!("caused by: {}", e);
