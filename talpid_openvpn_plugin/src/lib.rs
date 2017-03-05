@@ -85,7 +85,7 @@ pub extern "C" fn openvpn_plugin_close_v1(handle: *const c_void) {
 }
 
 
-/// Called by OpenVPN for each OPENVPN_PLUGIN_* event that it registered for in
+/// Called by OpenVPN for each `OPENVPN_PLUGIN_*` event that it registered for in
 /// `openvpn_plugin_open_v3`
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_func_v3(_version: c_int,
