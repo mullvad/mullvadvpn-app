@@ -130,13 +130,13 @@ pub fn init_logger() -> ::std::result::Result<(), ()> {
     })
 }
 
-pub fn log_error(msg: &str, e: ::Error) {
+pub fn log_error(msg: &str, error: Error) {
     error!("{}", msg);
-    for e in e.iter() {
+    for e in error.iter() {
         error!("caused by: {}", e);
     }
     // When running with RUST_BACKTRACE=1, print backtrace.
-    if let Some(backtrace) = e.backtrace() {
+    if let Some(backtrace) = error.backtrace() {
         error!("backtrace: {:?}", backtrace);
     }
 }
