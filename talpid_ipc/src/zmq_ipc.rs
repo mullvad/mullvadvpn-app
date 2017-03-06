@@ -64,7 +64,7 @@ fn parse_message<T>(message: &[u8]) -> Result<T>
 pub struct IpcClient<T>
     where T: serde::Serialize
 {
-    server_address: IpcServerId,
+    server_id: IpcServerId,
     socket: Option<zmq::Socket>,
     _phantom: ::std::marker::PhantomData<T>,
 }
@@ -74,7 +74,7 @@ impl<T> IpcClient<T>
 {
     pub fn new(server_id: IpcServerId) -> Self {
         IpcClient {
-            server_address: server_id,
+            server_id: server_id,
             socket: None,
             _phantom: ::std::marker::PhantomData,
         }
@@ -102,8 +102,8 @@ impl<T> IpcClient<T>
         let ctx = zmq::Context::new();
         let socket = ctx.socket(zmq::PUSH)
             .chain_err(|| "Could not create ZeroMQ PUSH socket".to_owned())?;
-        socket.connect(&self.server_address)
-            .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
+        socket.connect(&self.server_id)
+            .chain_err(|| format!("Could not connect to {:?}", self.server_id))?;
 
         self.socket = Some(socket);
         Ok(())
