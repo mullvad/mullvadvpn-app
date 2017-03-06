@@ -6,6 +6,8 @@ description = "Constants, enums and structs for interfacing with OpenVPN"
 
 [dependencies]
 error-chain = "0.8"
+serde = "0.9"
+serde_derive = "0.9"
 
 [dev-dependencies]
 assert_matches = "1.0"

@@ -4,9 +4,13 @@
 #[macro_use]
 extern crate error_chain;
 
+#[macro_use]
+extern crate serde_derive;
+
 #[cfg(test)]
 #[macro_use]
 extern crate assert_matches;
+
 
 use std::os::raw::c_int;
 
@@ -33,7 +37,7 @@ pub const OPENVPN_PLUGIN_FUNC_DEFERRED: c_int = 2;
 
 
 /// Enum whose variants correspond to the `OPENVPN_PLUGIN_*` event constants.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum OpenVpnPluginEvent {
     Up = 0,
     Down = 1,
