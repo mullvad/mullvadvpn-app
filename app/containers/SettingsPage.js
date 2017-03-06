@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import Settings from '../components/Settings';
 import userActions from '../actions/user';
 import settingsActions from '../actions/settings';
-import { shell } from 'electron';
+import { remote, shell } from 'electron';
 import { links } from '../config';
 
 const mapStateToProps = (state) => {
@@ -14,8 +14,10 @@ const mapDispatchToProps = (dispatch, props) => {
   const { logout } = bindActionCreators(userActions, dispatch);
   const { updateSettings } = bindActionCreators(settingsActions, dispatch);
   return {
+    onQuit: () => remote.app.quit(),
     onLogout: () => logout(props.backend),
     onClose: () => props.router.push('/connect'),
+    onViewAccount: () => props.router.push('/settings/account'),
     onExternalLink: (type) => shell.openExternal(links[type]),
     onUpdateSettings: updateSettings
   };

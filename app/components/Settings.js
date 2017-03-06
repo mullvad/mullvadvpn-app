@@ -3,14 +3,15 @@ import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
-import { formatAccount } from '../lib/formatters';
 import { LoginState } from '../enums';
 
 export default class Settings extends Component {
 
   static propTypes = {
+    onQuit: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
+    onViewAccount: PropTypes.func.isRequired,
     onExternalLink: PropTypes.func.isRequired,
     onUpdateSettings: PropTypes.func.isRequired
   }
@@ -33,10 +34,6 @@ export default class Settings extends Component {
 
   render() {
     const isLoggedIn = this.props.user.status === LoginState.ok;
-    let formattedAccountId;
-    if(isLoggedIn) {
-      formattedAccountId = formatAccount(this.props.user.account);
-    }
 
     return (
       <Layout>
@@ -56,6 +53,16 @@ export default class Settings extends Component {
                     <If condition={ isLoggedIn }>
                       <Then>
                         <div>
+
+                          <div className="settings__cell settings__cell--disclosure" onClick={ this.props.onViewAccount }>
+                            <div className="settings__cell-label">Account</div>
+                            <div className="settings__cell-value">
+                              <span className="settings__account-paid-until-label">12 DAYS LEFT</span>
+                            </div>
+                            <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
+                          </div>
+                          <div className="settings__cell-spacer"></div>
+
                           <div className="settings__cell">
                             <div className="settings__cell-label">Auto-secure</div>
                             <div className="settings__cell-value">
@@ -81,26 +88,9 @@ export default class Settings extends Component {
                     </div>
                   </div>
 
-                  { /* show account details when logged in */ } 
-                  <If condition={ isLoggedIn }>
-                    <div>
-                      <div className="settings__account">
-                        <div className="settings__account-row">
-                          <div className="settings__account-label">Account ID</div>
-                          <div className="settings__account-id">{ formattedAccountId }</div>
-                        </div>
-                        <div className="settings__account-row">
-                          <div className="settings__account-label">Time remaining</div>
-                          <div className="settings__account-id">12 days</div>
-                        </div>
-                      </div>
-
-                      <div className="settings__footer">
-                        <button className="button button--neutral" onClick={ this.onExternalLink.bind(this, 'purchase') }>Buy more time</button>
-                        <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
-                      </div>
-                    </div>
-                  </If>
+                  <div className="settings__footer">
+                    <button className="button button--negative" onClick={ this.props.onQuit }>Quit app</button>
+                  </div>
 
                 </div>
               </CustomScrollbars>

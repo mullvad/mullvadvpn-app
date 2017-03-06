@@ -5,6 +5,7 @@ import App from './containers/App';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
+import AccountPage from './containers/AccountPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 
 import { LoginState } from './enums';
@@ -35,7 +36,10 @@ const makeRoutes = (store) => {
     <Route path="/" component={ App }>
       <IndexRoute component={ LoginPage } onEnter={ ensureConnect } />
       <Route path="connect" component={ ConnectPage } onEnter={ ensureLoggedIn } />
-      <Route path="settings" component={ SettingsPage } />
+      <Route path="settings">
+        <IndexRoute component={ SettingsPage } />
+        <Route path="account" component={ AccountPage } onEnter={ ensureLoggedIn } />
+      </Route>
       <Route path="select-location" component={ SelectLocationPage } onEnter={ ensureLoggedIn } />
     </Route>
   );

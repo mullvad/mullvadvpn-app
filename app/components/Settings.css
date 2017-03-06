@@ -46,41 +46,21 @@
   color: #FFFFFF;
 }
 
-.settings__account {
-  padding: 0 24px;
-}
-
-.settings__account-label {
-  display: inline-block;
-  vertical-align: baseline;
-  font-family: "Open Sans";
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 20px;
-  color: rgba(255,255,255,0.8);
-}
-
-.settings__account-id {
-  display: inline-block;
-  vertical-align: baseline;
-  font-family: "Open Sans";
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 20px;
-  color: rgba(255,255,255,0.8);
-  margin-left: 8px;
-}
-
-.settings__main {
-  margin-bottom: 24px;
-}
-
 .settings__cell {
   background-color:rgba(41,71,115,1);
   padding: 15px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.settings__cell-disclosure {
+  display: block;
+  margin-left: 8px;
+}
+
+.settings__cell-spacer {
+  height: 24px;
 }
 
 .settings__cell--active:hover {
@@ -109,6 +89,13 @@
 
 .settings__cell-value {
   flex: 0 0 auto;
+}
+
+.settings__account-paid-until-label {
+  font-family: "Open Sans";
+	font-size: 13px;
+	font-weight: 800;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settings__cell-footer {
