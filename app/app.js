@@ -23,7 +23,7 @@ const backend = new Backend();
 // reset login state if user quit the app during login
 if([LoginState.connecting, LoginState.failed].includes(store.getState().user.status)) {
   store.dispatch(userActions.loginChange({ 
-    status: LoginState.none 
+    status: LoginState.none
   }));
 }
 

@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-
 import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './support';
 import Backend from '../app/lib/backend';
 import userActions from '../app/actions/user';
@@ -12,32 +11,31 @@ describe('actions', function() {
 
   it('should login', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, account: '111123456789' } },
-      { type: 'USER_LOGIN_CHANGE', payload: { status: 'ok', error: null } }
+      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, account: '222223456789', paidUntil: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { paidUntil: '2013-01-01T00:00:00.000Z', status: 'ok', error: null } }
     ];
-
     const store = mockStore(mockState());
     const backend = mockBackend(store);
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.login, () => {
       const storeActions = filterIpUpdateActions(store.getActions());
-
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
 
-    store.dispatch(userActions.login(backend, '111123456789'));
+    store.dispatch(userActions.login(backend, '222223456789'));
   });
-
+  
   it('should logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: null, status: 'none', error: null } }
+      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } }
     ];
 
     let state = Object.assign(mockState(), {
       user: {
-        account: '1111234567890',
+        account: '3333234567890',
+        paidUntil: '2038-01-01T00:00:00.000Z',
         status: LoginState.ok
       }
     });
@@ -64,7 +62,8 @@ describe('actions', function() {
 
     let state = Object.assign(mockState(), {
       user: {
-        account: '1111234567890',
+        account: '3333234567890',
+        paidUntil: '2038-01-01T00:00:00.000Z',
         status: LoginState.ok
       }
     });
@@ -91,7 +90,8 @@ describe('actions', function() {
 
     let state = Object.assign(mockState(), {
       user: {
-        account: '1111234567890',
+        account: '3333234567890',
+        paidUntil: '2038-01-01T00:00:00.000Z',
         status: LoginState.ok
       }
     });
@@ -117,7 +117,8 @@ describe('actions', function() {
 
     let state = Object.assign(mockState(), {
       user: {
-        account: '1111234567890',
+        account: '3333234567890',
+        paidUntil: '2038-01-01T00:00:00.000Z',
         status: LoginState.ok
       },
       connect: {
@@ -142,13 +143,14 @@ describe('actions', function() {
 
   it('should disconnect from VPN server on logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: null, status: 'none', error: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } },
       { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
     ];
 
     let state = Object.assign(mockState(), {
       user: {
-        account: '1111234567890',
+        account: '3333234567890',
+        paidUntil: '2038-01-01T00:00:00.000Z',
         status: LoginState.ok
       },
       connect: {

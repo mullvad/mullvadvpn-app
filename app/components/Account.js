@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
-import { LoginState } from '../enums';
 
 export default class Account extends Component {
 
@@ -25,7 +24,6 @@ export default class Account extends Component {
   }
 
   render() {
-    const isLoggedIn = this.props.user.status === LoginState.ok;
     let formattedAccountId = formatAccount(this.props.user.account);
 
     return (

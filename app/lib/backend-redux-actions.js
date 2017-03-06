@@ -29,23 +29,24 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     }));
   };
 
-  const onLoggingIn = (account) => {
-    store.dispatch(userActions.loginChange({ 
+  const onLoggingIn = (info) => {
+    store.dispatch(userActions.loginChange(Object.assign({ 
       status: LoginState.connecting, 
-      error: null,
-      account
-    }));
+      error: null
+    }, info)));
   };
 
-  const onLogin = (account, error) => {
+  const onLogin = (info, error) => {
     const status = error ? LoginState.failed : LoginState.ok;
-    store.dispatch(userActions.loginChange({ status, error }));
+    const paidUntil = info.paidUntil ? info.paidUntil : null;
+    store.dispatch(userActions.loginChange({ paidUntil, status, error }));
   };
 
   const onLogout = () => {
     store.dispatch(userActions.loginChange({
       status: LoginState.none, 
       account: null,
+      paidUntil: null,
       error: null
     }));
   };

@@ -4,6 +4,7 @@ import { LoginState } from '../enums';
 
 const initialState = {
   account: null,
+  paidUntil: null, // ISO8601
   status: LoginState.none,
   error: null
 };

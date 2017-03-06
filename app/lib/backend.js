@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Enum from './enum';
 import { EventEmitter } from 'events';
 import { servers } from '../config';
@@ -19,6 +20,7 @@ export default class Backend extends EventEmitter {
   constructor() {
     super();
     this._account = null;
+    this._paidUntil = null;
     this._serverAddress = null;
     this._connStatus = ConnectionState.disconnected;
     this._cancellationHandler = null;
@@ -30,6 +32,7 @@ export default class Backend extends EventEmitter {
   // Accessors
 
   get account() { return this._account; }
+  get paidUntil() { return this._paidUntil; }
   get serverAddress() { return this._serverAddress; }
 
   // Public methods
@@ -66,6 +69,10 @@ export default class Backend extends EventEmitter {
       this._account = user.account;
     }
 
+    if(user.paidUntil) {
+      this._paidUntil = user.paidUntil;
+    }
+
     this._connStatus = mapConnStatus(connect.status);
   }
 
@@ -99,23 +106,34 @@ export default class Backend extends EventEmitter {
 
   login(account) {
     this._account = account;
+    this._paidUntil = null;
 
     // emit: logging in
-    this.emit(EventType.logging, account, null);
+    this.emit(EventType.logging, { account, paidUntil: this._paidUntil }, null);
 
     // @TODO: Add login call
     setTimeout(() => {
       let err = null;
-      if(!account.startsWith('1111')) {
+      let res = { account };
+      
+      if(account.startsWith('1111')) { // accounts starting with 1111 expire in one month
+        res.paidUntil = moment().add(1, 'month').millisecond(0).toISOString();
+      } else if(account.startsWith('2222')) { // expired in 2013
+        res.paidUntil = moment('2013-01-01').toISOString();
+      } else if(account.startsWith('3333')) { // expire in 2038
+        res.paidUntil = moment('2038-01-01').toISOString();
+      } else {
         err = new Error('Invalid account number.');
       }
+
       // emit: login
-      this.emit(EventType.login, account, err);
+      this.emit(EventType.login, res, err);
     }, 2000);
   }
 
   logout() {
     this._account = null;
+    this._paidUntil = null;
 
     // emit event
     this.emit(EventType.logout);
