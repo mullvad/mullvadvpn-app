@@ -1,4 +1,6 @@
 extern crate zmq;
+extern crate serde_json;
+
 use super::{ErrorKind, Result, ResultExt, IpcServerId};
 
 use serde;
@@ -45,24 +47,49 @@ fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::J
           F: FnMut(Result<T>) + Send + 'static
 {
     thread::spawn(move || loop {
-        let read_res = socket.recv_bytes(0).chain_err(|| ErrorKind::ReadFailure);
+        let read_res = socket.recv_bytes(0)
+            .chain_err(|| ErrorKind::ReadFailure)
+            .and_then(|a| parse_message(&a));
         on_message(read_res);
     })
 }
 
-pub struct IpcClient {
+fn parse_message<T>(message: &[u8]) -> Result<T>
+    where T: serde::Deserialize + 'static
+{
+    serde_json::from_slice(message).chain_err(|| ErrorKind::ParseFailure)
+}
+
+
+pub struct IpcClient<T>
+    where T: serde::Serialize
+{
     server_address: IpcServerId,
     socket: Option<zmq::Socket>,
+    _phantom: ::std::marker::PhantomData<T>,
 }
-impl IpcClient {
+
+impl<T> IpcClient<T>
+    where T: serde::Serialize
+{
     pub fn new(server_id: IpcServerId) -> Self {
         IpcClient {
             server_address: server_id,
             socket: None,
+            _phantom: ::std::marker::PhantomData,
         }
     }
 
-    pub fn send(&mut self, message: &[u8]) -> Result<()> {
+    pub fn send(&mut self, message: &T) -> Result<()> {
+        let bytes = Self::serialize(message)?;
+        self.send_bytes(bytes.as_slice())
+    }
+
+    fn serialize(t: &T) -> Result<Vec<u8>> {
+        serde_json::to_vec(t).chain_err(|| ErrorKind::ParseFailure)
+    }
+
+    fn send_bytes(&mut self, message: &[u8]) -> Result<()> {
         if self.socket.is_none() {
             self.connect().chain_err(|| ErrorKind::SendError)?;
         }
