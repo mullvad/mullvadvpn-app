@@ -4,6 +4,10 @@ import Backend from '../app/lib/backend';
 import { defaultServer } from '../app/config';
 import { LoginState, ConnectionState } from '../app/enums';
 
+// fetch is absent in node environment
+// this will automatically import it into global scope
+import fetch from 'isomorphic-fetch'; // eslint-disable-line no-unused-vars
+
 const middlewares = [ thunk ];
 export const mockStore = configureMockStore(middlewares);
 export const mockState = () => {
@@ -36,6 +40,14 @@ export const mockBackend = (store) => {
 
 export const filterIpUpdateActions = (actions) => {
   return actions.filter((action) => {
-    return !(action.type === 'CONNECTION_CHANGE' && action.payload.clientIp);
+    if(action.type === 'CONNECTION_CHANGE' && action.payload.clientIp) {
+      return false;
+    }
+    
+    if(action.type === 'USER_LOGIN_CHANGE' && action.payload.city) {
+      return false;
+    }
+
+    return true;
   });
 };
