@@ -168,15 +168,15 @@ pub enum OpenVpnEvent {
 /// A struct able to start and monitor OpenVPN procesess.
 pub struct OpenVpnMonitor {
     command: OpenVpnCommand,
-    monitor: Option<ChildMonitor<OpenVpnCommand>>,
+    monitor: ChildMonitor<OpenVpnCommand>,
 }
 
 impl OpenVpnMonitor {
     /// Creates a new `OpenVpnMonitor` based on the given command
     pub fn new(command: OpenVpnCommand) -> Self {
         OpenVpnMonitor {
-            command: command,
-            monitor: None,
+            command: command.clone(),
+            monitor: ChildMonitor::new(command),
         }
     }
 
@@ -212,8 +212,13 @@ impl OpenVpnMonitor {
             (listener.deref_mut())(OpenVpnEvent::Shutdown(clean_exit));
         };
 
-        self.monitor = Some(ChildMonitor::new(self.command.clone()));
-        Ok(self.monitor.as_mut().unwrap().start(callback)?)
+        self.monitor = ChildMonitor::new(self.command.clone());
+        Ok(self.monitor.start(callback)?)
+    }
+
+    /// Forwards a stop call to the underlying `ChildMonitor`.
+    pub fn stop(&self) -> Result<()> {
+        Ok(self.monitor.stop()?)
     }
 }
 
