@@ -1,3 +1,5 @@
+use super::monitor::ChildSpawner;
+
 use clonablechild::{ClonableChild, ChildExt};
 
 use net::{RemoteAddr, ToRemoteAddrs};
@@ -7,8 +9,6 @@ use std::fmt;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Child, Stdio};
-
-use super::monitor::ChildSpawner;
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
