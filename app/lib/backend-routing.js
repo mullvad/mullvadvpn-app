@@ -8,8 +8,13 @@ export default function mapBackendEventsToRouter(backend, store) {
 
     setTimeout(() => {
       const { settings } = store.getState();
-      const server = backend.serverInfo(settings.preferredServer);
-      backend.connect(server.address);
+
+      // auto-connect only if autoSecure is on
+      if(settings.autoSecure) {
+        const server = backend.serverInfo(settings.preferredServer);
+        backend.connect(server.address);
+      }
+
       store.dispatch(replace('/connect'));
     }, 1000);
   });
