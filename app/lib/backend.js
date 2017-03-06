@@ -117,7 +117,7 @@ export default class Backend extends EventEmitter {
       let res = { account };
       
       if(account.startsWith('1111')) { // accounts starting with 1111 expire in one month
-        res.paidUntil = moment().add(1, 'month').millisecond(0).toISOString();
+        res.paidUntil = moment().startOf('day').add(15, 'days').toISOString();
       } else if(account.startsWith('2222')) { // expired in 2013
         res.paidUntil = moment('2013-01-01').toISOString();
       } else if(account.startsWith('3333')) { // expire in 2038
