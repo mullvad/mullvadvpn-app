@@ -213,7 +213,6 @@ export default class Backend extends EventEmitter {
   refreshIp() {
     if(this._connStatus === ConnectionState.disconnected) {
       this._fetchLocation().then((res) => {
-        console.log('Got location data: ', res);
         const data = {
           location: [ res.latitude, res.longitude ], // lat, lng
           city: res.city,
