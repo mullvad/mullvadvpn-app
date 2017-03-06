@@ -27,5 +27,9 @@ error_chain!{
         CouldNotStartServer {
             description("Failed to start the IPC server")
         }
+
+        SendError {
+            description("Unable to send message")
+        }
     }
 }
