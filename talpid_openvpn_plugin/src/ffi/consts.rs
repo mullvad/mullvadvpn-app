@@ -12,7 +12,7 @@ error_chain!{
     }
 }
 
-/// Enum whose variants correspond to the OPENVPN_PLUGIN_* event constants.
+/// Enum whose variants correspond to the `OPENVPN_PLUGIN_*` event constants.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum OpenVpnPluginEvent {
     Up = 0,

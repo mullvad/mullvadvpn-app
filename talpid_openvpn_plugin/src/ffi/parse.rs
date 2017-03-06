@@ -55,9 +55,9 @@ pub unsafe fn string_array(mut ptr: *const *const c_char) -> Result<Vec<String>>
 pub unsafe fn env(envptr: *const *const c_char) -> Result<HashMap<String, String>> {
     let mut map = HashMap::new();
     for string in string_array(envptr)? {
-        let mut iter = string.splitn(2, "=");
+        let mut iter = string.splitn(2, '=');
         let key = iter.next().unwrap();
-        let value = iter.next().ok_or(Error::from(ErrorKind::NoEqual(string.clone())))?;
+        let value = iter.next().ok_or_else(|| Error::from(ErrorKind::NoEqual(string.clone())))?;
         map.insert(key.to_owned(), value.to_owned());
     }
     Ok(map)
