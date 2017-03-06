@@ -4,7 +4,7 @@ import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } f
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
 const applicationSupportPath = app.getPath('appData');
-const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn');
+const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn-103');
 app.setPath('userData', userDataPath);
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
