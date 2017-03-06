@@ -11,7 +11,7 @@ use std::io::{self, Read, Write};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
 
-use talpid_core::process::OpenVpnCommand;
+use talpid_core::process::openvpn::OpenVpnCommand;
 use talpid_core::process::monitor::{ChildMonitor, ChildSpawner};
 
 mod cli;
