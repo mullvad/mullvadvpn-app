@@ -11,8 +11,7 @@ use std::io::{self, Read, Write};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
 
-use talpid_core::process::monitor::{ChildMonitor, ChildSpawner};
-use talpid_core::process::openvpn::OpenVpnCommand;
+use talpid_core::process::openvpn::{OpenVpnCommand, OpenVpnEvent, OpenVpnMonitor};
 
 mod cli;
 
@@ -21,7 +20,7 @@ use cli::Args;
 
 error_chain! {
     links {
-        Monitor(talpid_core::process::monitor::Error, talpid_core::process::monitor::ErrorKind);
+        Monitor(talpid_core::process::openvpn::Error, talpid_core::process::openvpn::ErrorKind);
     }
 }
 
@@ -42,7 +41,7 @@ fn main() {
 fn run() -> Result<()> {
     let args = cli::parse_args_or_exit();
     let command = create_openvpn_command(&args);
-    let monitor = ChildMonitor::new(command);
+    let monitor = OpenVpnMonitor::new(command);
     main_loop(monitor)
 }
 
@@ -56,20 +55,25 @@ fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
     command
 }
 
-fn main_loop<S>(mut monitor: ChildMonitor<S>) -> Result<()>
-    where S: ChildSpawner
-{
+fn main_loop(mut monitor: OpenVpnMonitor) -> Result<()> {
     loop {
         let rx = start_monitor(&mut monitor).chain_err(|| "Unable to start OpenVPN")?;
-        let clean_exit = rx.recv().unwrap();
-        println!("Monitored process exited. clean: {}", clean_exit);
+        while let Ok(msg) = rx.recv() {
+            match msg {
+                OpenVpnEvent::Shutdown(clean) => {
+                    println!("Monitored process exited. clean: {}", clean);
+                    break;
+                }
+                OpenVpnEvent::PluginEvent(env) => {
+                    println!("OpenVPN event with env:\n{:?}", env);
+                }
+            }
+        }
         std::thread::sleep(std::time::Duration::from_millis(500));
     }
 }
 
-fn start_monitor<S>(monitor: &mut ChildMonitor<S>) -> Result<Receiver<bool>>
-    where S: ChildSpawner
-{
+fn start_monitor(monitor: &mut OpenVpnMonitor) -> Result<Receiver<OpenVpnEvent>> {
     let (tx, rx) = mpsc::channel();
     let callback = move |clean| tx.send(clean).unwrap();
     Ok(monitor.start(callback)
