@@ -7,17 +7,14 @@ use serde;
 
 use std::thread;
 
-/// Starts listening to incoming IPC connections on a random port.
-/// Messages are sent to the `on_message` callback. If anything went wrong
-/// when reading the message, the message will be an `Err`.
-/// NOTE that this does not apply to errors regarding whether the server
-/// could start or not, those are returned directly by this function.
+/// Starts the server end of an IPC channel. The returned `IpcServerId` is the unique identifier
+/// allowing an `IpcClient` to connect to this server instance. Returns an error if unable to set
+/// up the server.
 ///
-/// This function is non-blocking and thus spawns a thread where it
-/// listens to messages.
+/// Incoming messages are sent as `Ok` results to the `on_message` callback. IO errors will be sent
+/// as `Err` results to the `on_message` callback.
 ///
-/// The value returned from this function should be used by the clients to
-/// the server.
+/// This function is non-blocking and thus spawns a thread where it listens to messages.
 pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
     where T: serde::Deserialize + 'static,
           F: FnMut(Result<T>) + Send + 'static
