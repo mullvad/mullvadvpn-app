@@ -3,7 +3,7 @@ import { defaultServer } from '../config';
 import actions from '../actions/settings';
 
 const initialState = {
-  autoSecure: false,
+  autoSecure: true,
   preferredServer: defaultServer
 };
 
