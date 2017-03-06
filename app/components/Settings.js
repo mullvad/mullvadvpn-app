@@ -35,9 +35,10 @@ export default class Settings extends Component {
 
   render() {
     const isLoggedIn = this.props.user.status === LoginState.ok;
-    let isOutOfTime, formattedPaidUntil;
+    let isOutOfTime = false, formattedPaidUntil = '';
+    let paidUntilIso = this.props.user.paidUntil;
 
-    if(isLoggedIn) {
+    if(isLoggedIn && paidUntilIso) {
       let paidUntil = moment(this.props.user.paidUntil);
       isOutOfTime = paidUntil.isSameOrBefore(moment());
       formattedPaidUntil = paidUntil.fromNow(true) + ' left';
