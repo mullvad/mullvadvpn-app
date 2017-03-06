@@ -1,4 +1,4 @@
-use super::{OnMessage, ErrorKind, Result, IpcServerId};
+use super::{ErrorKind, Result, IpcServerId};
 
 use serde;
 
