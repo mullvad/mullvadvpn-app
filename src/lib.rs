@@ -11,6 +11,8 @@ extern crate clonablechild;
 #[macro_use]
 extern crate error_chain;
 
+extern crate talpid_ipc;
+
 /// Working with processes.
 pub mod process;
 

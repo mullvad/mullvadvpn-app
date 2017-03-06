@@ -1,14 +1,30 @@
-use super::monitor::ChildSpawner;
+use super::monitor::{ChildSpawner, ChildMonitor};
 
 use clonablechild::{ClonableChild, ChildExt};
 
 use net::{RemoteAddr, ToRemoteAddrs};
 
+use std::collections::HashMap;
 use std::ffi::{OsString, OsStr};
 use std::fmt;
 use std::io;
+use std::ops::DerefMut;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Child, Stdio};
+use std::process::{Command, Child, Stdio, ChildStdout, ChildStderr};
+use std::sync::{Arc, Mutex};
+
+use talpid_ipc;
+
+error_chain!{
+    errors {
+        /// Error while communicating with the OpenVPN plugin
+        PluginCommunicationError
+    }
+    links {
+        ChildMonitorError(::process::monitor::Error, ::process::monitor::ErrorKind)
+        #[doc="Something went wrong in the underlying ChildMonitor"];
+    }
+}
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
@@ -137,6 +153,67 @@ impl ChildSpawner for OpenVpnCommand {
 
     fn spawn(&mut self) -> io::Result<ClonableChild> {
         OpenVpnCommand::spawn(self).map(|child| child.into_clonable())
+    }
+}
+
+
+/// Possible events from OpenVPN
+pub enum OpenVpnEvent {
+    /// An event from the plugin loaded into OpenVPN.
+    PluginEvent(Result<HashMap<String, String>>),
+    /// The OpenVPN process exited. The bool indicate if the process exited cleanly.
+    Shutdown(bool),
+}
+
+/// A struct able to start and monitor OpenVPN procesess.
+pub struct OpenVpnMonitor {
+    command: OpenVpnCommand,
+    monitor: Option<ChildMonitor<OpenVpnCommand>>,
+}
+
+impl OpenVpnMonitor {
+    /// Creates a new `OpenVpnMonitor` based on the given command
+    pub fn new(command: OpenVpnCommand) -> Self {
+        OpenVpnMonitor {
+            command: command,
+            monitor: None,
+        }
+    }
+
+    /// Starts OpenVPN and begins to monitor it.
+    pub fn start<L>(&mut self, listener: L) -> Result<(Option<ChildStdout>, Option<ChildStderr>)>
+        where L: FnMut(OpenVpnEvent) + Send + 'static
+    {
+        let shared_listener = Arc::new(Mutex::new(listener));
+        self.start_plugin_listener(shared_listener.clone())?;
+        self.start_child_monitor(shared_listener)
+    }
+
+    fn start_plugin_listener<L>(&mut self, shared_listener: Arc<Mutex<L>>) -> Result<()>
+        where L: FnMut(OpenVpnEvent) + Send + 'static
+    {
+        let server_id = talpid_ipc::start_new_server(move |msg| {
+                let chained_msg = msg.chain_err(|| ErrorKind::PluginCommunicationError);
+                let mut listener = shared_listener.lock().unwrap();
+                (listener.deref_mut())(OpenVpnEvent::PluginEvent(chained_msg));
+            }).chain_err(|| ErrorKind::PluginCommunicationError)?;
+        self.command.plugin("./target/debug/libtalpid_openvpn_plugin.so",
+                            vec![server_id]);
+        Ok(())
+    }
+
+    fn start_child_monitor<L>(&mut self,
+                              shared_listener: Arc<Mutex<L>>)
+                              -> Result<(Option<ChildStdout>, Option<ChildStderr>)>
+        where L: FnMut(OpenVpnEvent) + Send + 'static
+    {
+        let callback = move |clean_exit| {
+            let mut listener = shared_listener.lock().unwrap();
+            (listener.deref_mut())(OpenVpnEvent::Shutdown(clean_exit));
+        };
+
+        self.monitor = Some(ChildMonitor::new(self.command.clone()));
+        Ok(self.monitor.as_mut().unwrap().start(callback)?)
     }
 }
 
