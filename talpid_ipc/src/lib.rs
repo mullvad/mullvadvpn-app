@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate error_chain;
 
+extern crate serde;
+
 #[cfg(windows)]
 #[path = "nop_ipc.rs"]
 mod ipc_impl;
@@ -27,7 +29,6 @@ error_chain!{
         CouldNotStartServer {
             description("Failed to start the IPC server")
         }
-
         SendError {
             description("Unable to send message")
         }
