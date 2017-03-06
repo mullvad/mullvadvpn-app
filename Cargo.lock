@@ -6,6 +6,7 @@ dependencies = [
  "env_logger 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid_ipc 0.1.0",
 ]
 
 [[package]]

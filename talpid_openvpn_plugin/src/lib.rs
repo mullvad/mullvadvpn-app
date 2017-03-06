@@ -9,6 +9,8 @@ extern crate env_logger;
 #[macro_use]
 extern crate assert_matches;
 
+extern crate talpid_ipc;
+
 use std::os::raw::{c_int, c_void};
 
 mod ffi;
@@ -29,6 +31,12 @@ error_chain!{
         ParseEnvFailed {
             description("Unable to parse environment variables from OpenVPN")
         }
+        ParseArgsFailed {
+            description("Unable to parse arguments from OpenVPN")
+        }
+        EventProcessingFailed {
+            description("Failed to process the event")
+        }
     }
 }
 
@@ -45,13 +53,13 @@ pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] = &[OpenVpnPluginEv
 /// plugin.
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
-                                         _args: *const ffi::openvpn_plugin_args_open_in,
+                                         args: *const ffi::openvpn_plugin_args_open_in,
                                          retptr: *mut ffi::openvpn_plugin_args_open_return)
                                          -> c_int {
     if init_logger().is_err() {
         return ffi::OPENVPN_PLUGIN_FUNC_ERROR;
     }
-    match openvpn_plugin_open_v3_internal(retptr) {
+    match openvpn_plugin_open_v3_internal(args, retptr) {
         Ok(_) => ffi::OPENVPN_PLUGIN_FUNC_SUCCESS,
         Err(e) => {
             log_error("Unable to initialize plugin", &e);
@@ -60,17 +68,29 @@ pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
     }
 }
 
-fn openvpn_plugin_open_v3_internal(retptr: *mut ffi::openvpn_plugin_args_open_return)
+fn openvpn_plugin_open_v3_internal(args: *const ffi::openvpn_plugin_args_open_in,
+                                   retptr: *mut ffi::openvpn_plugin_args_open_return)
                                    -> Result<()> {
     debug!("Initializing plugin");
-    let handle = Box::new(EventProcessor::new().chain_err(|| ErrorKind::InitHandleFailed)?);
+    let core_server_id = parse_args(args)?;
+    let processor = EventProcessor::new(core_server_id).chain_err(|| ErrorKind::InitHandleFailed)?;
     unsafe {
         (*retptr).type_mask = ffi::events_to_bitmask(INTERESTING_EVENTS);
         // Converting the handle into a raw pointer will make it escape Rust deallocation. See
         // `openvpn_plugin_close_v1` for deallocation.
-        (*retptr).handle = Box::into_raw(handle) as *const c_void;
+        (*retptr).handle = Box::into_raw(Box::new(processor)) as *const c_void;
     }
     Ok(())
+}
+
+fn parse_args(args: *const ffi::openvpn_plugin_args_open_in) -> Result<talpid_ipc::IpcServerId> {
+    let mut args_iter = unsafe { ffi::parse::string_array((*args).argv) }
+        .chain_err(|| ErrorKind::ParseArgsFailed)?
+        .into_iter();
+    let _plugin_path = args_iter.next();
+    let core_server_id = args_iter.next()
+        .ok_or(ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
+    Ok(core_server_id)
 }
 
 
@@ -108,7 +128,7 @@ fn openvpn_plugin_func_v3_internal(args: *const ffi::openvpn_plugin_args_func_in
     let env = unsafe { ffi::parse::env((*args).envp) }.chain_err(|| ErrorKind::ParseEnvFailed)?;
 
     let mut handle = unsafe { Box::from_raw((*args).handle as *mut EventProcessor) };
-    handle.process_event(event, env);
+    handle.process_event(event, env).chain_err(|| ErrorKind::EventProcessingFailed)?;
     // Convert the handle back to a raw pointer to not deallocate it when we return.
     Box::into_raw(handle);
 
