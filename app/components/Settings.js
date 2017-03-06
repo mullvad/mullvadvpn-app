@@ -1,5 +1,6 @@
+import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
-import { If, Then } from 'react-if';
+import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
@@ -34,6 +35,13 @@ export default class Settings extends Component {
 
   render() {
     const isLoggedIn = this.props.user.status === LoginState.ok;
+    let isOutOfTime, formattedPaidUntil;
+
+    if(isLoggedIn) {
+      let paidUntil = moment(this.props.user.paidUntil);
+      isOutOfTime = paidUntil.isSameOrBefore(moment());
+      formattedPaidUntil = paidUntil.fromNow(true) + ' left';
+    }
 
     return (
       <Layout>
@@ -57,7 +65,14 @@ export default class Settings extends Component {
                           <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAccount }>
                             <div className="settings__cell-label">Account</div>
                             <div className="settings__cell-value">
-                              <span className="settings__account-paid-until-label">12 DAYS LEFT</span>
+                              <If condition={ isOutOfTime }>
+                                <Then>
+                                  <span className="settings__account-paid-until-label settings__account-paid-until-label--error">OUT OF TIME</span>
+                                </Then>
+                                <Else>
+                                  <span className="settings__account-paid-until-label">{ formattedPaidUntil }</span>
+                                </Else>
+                              </If>
                             </div>
                             <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
                           </div>

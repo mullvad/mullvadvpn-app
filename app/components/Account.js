@@ -1,5 +1,6 @@
+import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
-import { If, Then } from 'react-if';
+import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
 
@@ -24,7 +25,10 @@ export default class Account extends Component {
   }
 
   render() {
+    let paidUntil = moment(this.props.user.paidUntil);
     let formattedAccountId = formatAccount(this.props.user.account);
+    let formattedPaidUntil = paidUntil.format('LLLL');
+    let isOutOfTime = paidUntil.isSameOrBefore(moment());
 
     return (
       <Layout>
@@ -51,7 +55,14 @@ export default class Account extends Component {
 
                   <div className="account__row">
                     <div className="account__row-label">Paid until</div>
-                    <div className="account__row-value">4:20pm, 12 November 2017</div>
+                    <If condition={ isOutOfTime }>
+                      <Then>
+                        <div className="account__row-value account__row-value--error">OUT OF TIME</div>
+                      </Then>
+                      <Else>
+                        <div className="account__row-value">{ formattedPaidUntil }</div>
+                      </Else>
+                    </If>
                   </div>
 
                   <div className="account__footer">

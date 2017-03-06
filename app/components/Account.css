@@ -86,6 +86,10 @@
 	color: rgba(255, 255, 255, 0.8);
 }
 
+.account__row-value--error {
+  color: #d0021b;
+}
+
 .account__footer .button + .button {
   margin-top: 24px;
 }

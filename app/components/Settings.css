@@ -98,6 +98,10 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+.settings__account-paid-until-label--error {
+  color: #d0021b;
+}
+
 .settings__cell-footer {
   padding: 8px 24px 24px;
   font-family: "Open Sans";
