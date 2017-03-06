@@ -15,5 +15,5 @@ env_logger = "0.4"
 [dependencies.talpid_ipc]
 path = "../talpid_ipc"
 
-[dev-dependencies]
-assert_matches = "1.0"
+[dependencies.openvpn_ffi]
+path = "../openvpn_ffi"
