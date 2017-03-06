@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 import { servers } from '../config';
 import { ConnectionState as ReduxConnectionState } from '../enums';
 
-const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp');
+const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation');
 const ConnectionState = Enum('disconnected', 'connecting', 'connected');
 
 /**
@@ -204,11 +204,34 @@ export default class Backend extends EventEmitter {
     // @TODO: Add disconnect call
   }
 
+  _fetchLocation() {
+    return fetch('https://freegeoip.net/json/').then((res) => {
+      return res.json();
+    });
+  }
+
   refreshIp() {
+    if(this._connStatus === ConnectionState.disconnected) {
+      this._fetchLocation().then((res) => {
+        console.log('Got location data: ', res);
+        const data = {
+          location: [ res.latitude, res.longitude ], // lat, lng
+          city: res.city,
+          country: res.country_name
+        };
+        this.emit(EventType.updatedLocation, data);
+        this.emit(EventType.updatedIp, res.ip);
+      }).catch((error) => {
+        console.log('Got error: ', error);
+      });
+      return;
+    }
+
     let ip = [];
     for(let i = 0; i < 4; i++) {
       ip.push(parseInt(Math.random() * 253 + 1));
     }
+
     this.emit(EventType.updatedIp, ip.join('.'));
   }
 }

@@ -8,6 +8,10 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     store.dispatch(connectActions.connectionChange({ clientIp }));
   };
 
+  const onUpdateLocation = (data) => {
+    store.dispatch(userActions.loginChange(data));
+  };
+
   const onConnecting = (serverAddress) => {
     store.dispatch(connectActions.connectionChange({ 
       status: ConnectionState.connecting,
@@ -52,6 +56,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   };
 
   backend.on(Backend.EventType.updatedIp, onUpdateIp);
+  backend.on(Backend.EventType.updatedLocation, onUpdateLocation);
   backend.on(Backend.EventType.connecting, onConnecting);
   backend.on(Backend.EventType.connect, onConnect);
   backend.on(Backend.EventType.disconnect, onDisconnect);

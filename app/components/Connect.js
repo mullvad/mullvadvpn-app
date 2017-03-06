@@ -21,12 +21,7 @@ export default class Connect extends Component {
     super();
 
     this.state = {
-      isFirstPass: true,
-      userLocation: {
-        location: [28.358744, -14.053676],
-        city: 'Corralejo',
-        country: 'Spain'
-      }
+      isFirstPass: true
     };
   }
 
@@ -53,7 +48,7 @@ export default class Connect extends Component {
     const displayLocation = this.displayLocation();
     const bounds = this.getBounds(displayLocation.location, altitude);
 
-    const userLocation = this.toLngLat(this.state.userLocation.location);
+    const userLocation = this.toLngLat(this.props.user.location);
     const serverLocation = this.toLngLat(serverInfo.location);
     const mapBounds = this.toLngLatBounds(bounds);
     const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
@@ -263,7 +258,8 @@ export default class Connect extends Component {
 
   displayLocation() {
     if(this.props.connect.status === ConnectionState.disconnected) {
-      return this.state.userLocation;
+      const { location, country, city } = this.props.user;
+      return { location, country, city };
     }
     
     const preferredServer = this.props.settings.preferredServer;

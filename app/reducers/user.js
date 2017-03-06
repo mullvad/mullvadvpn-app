@@ -5,6 +5,9 @@ import { LoginState } from '../enums';
 const initialState = {
   account: null,
   paidUntil: null, // ISO8601
+  location: [0, 0],
+  country: null,
+  city: null,
   status: LoginState.none,
   error: null
 };

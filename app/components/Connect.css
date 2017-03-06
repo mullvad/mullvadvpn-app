@@ -23,7 +23,7 @@
 .connect__footer {
   display: flex;
   flex-direction: column;
-  padding: 42px 24px 24px;
+  padding: 0px 24px 24px;
 }
 
 .connect__row + .connect__row{
@@ -88,7 +88,8 @@
 
 .connect__status {
   padding: 0 24px;
-  margin-top: auto;
+  margin-top: 188px;
+  margin-bottom: 42px;
 }
 
 .connect__status-security {
