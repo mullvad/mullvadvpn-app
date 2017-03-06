@@ -1,6 +1,8 @@
 extern crate zmq;
+use super::{ErrorKind, Result, ResultExt, IpcServerId};
 
-use super::{OnMessage, ErrorKind, Result, ResultExt, IpcServerId};
+use serde;
+
 use std::thread;
 
 /// Starts listening to incoming IPC connections on a random port.
@@ -14,8 +16,10 @@ use std::thread;
 ///
 /// The value returned from this function should be used by the clients to
 /// the server.
-pub fn start_new_server(on_message: Box<OnMessage<Vec<u8>>>) -> Result<IpcServerId> {
-
+pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
+    where T: serde::Deserialize + 'static,
+          F: FnMut(Result<T>) + Send + 'static
+{
     for port in 5000..5010 {
         let connection_string = format!("tcp://127.0.0.1:{}", port);
         if let Ok(socket) = start_zmq_server(&connection_string) {
@@ -36,10 +40,10 @@ fn start_zmq_server(connection_string: &str) -> zmq::Result<zmq::Socket> {
     Ok(socket)
 }
 
-fn start_receive_loop(socket: zmq::Socket,
-                      mut on_message: Box<OnMessage<Vec<u8>>>)
-                      -> thread::JoinHandle<()> {
-
+fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::JoinHandle<()>
+    where T: serde::Deserialize + 'static,
+          F: FnMut(Result<T>) + Send + 'static
+{
     thread::spawn(move || loop {
         let read_res = socket.recv_bytes(0).chain_err(|| ErrorKind::ReadFailure);
         on_message(read_res);
