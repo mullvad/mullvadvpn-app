@@ -23,9 +23,7 @@ mod zmq_integration_tests {
         let message = new_messages_rx.recv_timeout(Duration::from_millis(1000))
             .expect("Did not receive a message");
 
-        let a = vec![1, 3, 3, 7];
-        assert!(message.is_ok(), "Got error");
-        assert_eq!(message.unwrap(), a, "Got wrong message");
+        assert_eq!(message.unwrap(), vec![1, 3, 3, 7], "Did not read the data that was sent");
     }
 
     fn start_server() -> (String, Receiver<Result<Vec<u8>>>) {
