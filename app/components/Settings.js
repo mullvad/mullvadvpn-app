@@ -54,7 +54,7 @@ export default class Settings extends Component {
                       <Then>
                         <div>
 
-                          <div className="settings__cell settings__cell--disclosure" onClick={ this.props.onViewAccount }>
+                          <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAccount }>
                             <div className="settings__cell-label">Account</div>
                             <div className="settings__cell-value">
                               <span className="settings__account-paid-until-label">12 DAYS LEFT</span>
