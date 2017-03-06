@@ -93,9 +93,10 @@
 
 .settings__account-paid-until-label {
   font-family: "Open Sans";
-	font-size: 13px;
-	font-weight: 800;
+  font-size: 13px;
+  font-weight: 800;
   color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
 }
 
 .settings__account-paid-until-label--error {
