@@ -11,6 +11,9 @@ error-chain = "0.8"
 [dependencies.talpid_ipc]
 path = "talpid_ipc"
 
+[dependencies.openvpn_ffi]
+path = "openvpn_ffi"
+
 [target.'cfg(not(windows))'.dependencies]
 zmq = "0.8"
 

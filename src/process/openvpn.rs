@@ -1,3 +1,5 @@
+extern crate openvpn_ffi;
+
 use super::monitor::{ChildSpawner, ChildMonitor};
 
 use clonablechild::{ClonableChild, ChildExt};
@@ -160,7 +162,7 @@ impl ChildSpawner for OpenVpnCommand {
 /// Possible events from OpenVPN
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
-    PluginEvent(Result<HashMap<String, String>>),
+    PluginEvent(Result<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>),
     /// The OpenVPN process exited. The bool indicates if the process exited cleanly.
     Shutdown(bool),
 }
