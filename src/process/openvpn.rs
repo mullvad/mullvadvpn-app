@@ -12,10 +12,12 @@ use super::monitor::ChildSpawner;
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
+#[derive(Clone)]
 pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
+    plugin: Option<(PathBuf, Vec<String>)>,
     pipe_output: bool,
 }
 
@@ -27,6 +29,7 @@ impl OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remotes: vec![],
+            plugin: None,
             pipe_output: true,
         }
     }
@@ -44,6 +47,12 @@ impl OpenVpnCommand {
         Ok(self)
     }
 
+    /// Sets a plugin and its arguments that OpenVPN will be started with.
+    pub fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self {
+        self.plugin = Some((path.as_ref().to_path_buf(), args));
+        self
+    }
+
     /// If piping the standard streams, stdout and stderr will be available to the parent process.
     /// This is the default behavior. If you want the equivalence of attaching the child streams to
     /// /dev/null, invoke this method with false.
@@ -55,14 +64,14 @@ impl OpenVpnCommand {
     /// Executes the OpenVPN process as a child process, returning a handle to it.
     pub fn spawn(&self) -> io::Result<Child> {
         let mut command = self.create_command();
-        command.args(&self.get_arguments());
+        let args = self.get_arguments();
+        command.args(&args);
         command.spawn()
     }
 
     fn create_command(&self) -> Command {
         let mut command = Command::new(&self.openvpn_bin);
-        command.env_clear()
-            .stdin(Stdio::null())
+        command.stdin(Stdio::null())
             .stdout(self.get_output_pipe_policy())
             .stderr(self.get_output_pipe_policy());
         command
@@ -87,6 +96,11 @@ impl OpenVpnCommand {
             args.push(OsString::from("--remote"));
             args.push(OsString::from(remote.address()));
             args.push(OsString::from(remote.port().to_string()));
+        }
+        if let Some((ref path, ref plugin_args)) = self.plugin {
+            args.push(OsString::from("--plugin"));
+            args.push(OsString::from(path));
+            args.extend(plugin_args.iter().map(|arg| OsString::from(arg)));
         }
         args
     }
