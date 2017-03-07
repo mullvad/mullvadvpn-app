@@ -286,6 +286,7 @@ dependencies = [
  "assert_matches 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clonablechild 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn_ffi 0.1.0",
  "talpid_ipc 0.1.0",
  "zmq 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",

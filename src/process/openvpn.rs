@@ -84,6 +84,7 @@ impl OpenVpnCommand {
         let mut command = self.create_command();
         let args = self.get_arguments();
         command.args(&args);
+        debug!("Spawning: {}", &self);
         command.spawn()
     }
 
