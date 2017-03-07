@@ -4,7 +4,7 @@ use std::os::raw::{c_char, c_int, c_uint, c_void};
 #[repr(C)]
 pub struct openvpn_plugin_args_open_in {
     type_mask: c_int,
-    argv: *const *const c_char,
+    pub argv: *const *const c_char,
     envp: *const *const c_char,
     callbacks: *const c_void,
     ssl_api: ovpnSSLAPI,
