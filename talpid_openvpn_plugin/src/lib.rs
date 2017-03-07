@@ -88,7 +88,7 @@ fn parse_args(args: *const ffi::openvpn_plugin_args_open_in) -> Result<talpid_ip
         .chain_err(|| ErrorKind::ParseArgsFailed)?
         .into_iter();
     let _plugin_path = args_iter.next();
-    let core_server_id = args_iter.next()
+    let core_server_id: String = args_iter.next()
         .ok_or(ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
     Ok(core_server_id)
 }
