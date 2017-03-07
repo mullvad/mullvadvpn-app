@@ -1,8 +1,9 @@
-use ffi::OpenVpnPluginEvent;
+use openvpn_ffi;
 
 use std::collections::HashMap;
 
 use talpid_ipc::{IpcClient, IpcServerId};
+
 
 error_chain! {
     errors {
@@ -15,7 +16,7 @@ error_chain! {
 
 /// Struct processing OpenVPN events and notifies listeners over IPC
 pub struct EventProcessor {
-    ipc_client: IpcClient<HashMap<String, String>>,
+    ipc_client: IpcClient<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>,
 }
 
 impl EventProcessor {
@@ -26,11 +27,11 @@ impl EventProcessor {
     }
 
     pub fn process_event(&mut self,
-                         event: OpenVpnPluginEvent,
+                         event: openvpn_ffi::OpenVpnPluginEvent,
                          env: HashMap<String, String>)
                          -> Result<()> {
         trace!("Processing \"{:?}\" event", event);
-        self.ipc_client.send(&env).chain_err(|| ErrorKind::IpcSendingError)
+        self.ipc_client.send(&(event, env)).chain_err(|| ErrorKind::IpcSendingError)
     }
 }
 

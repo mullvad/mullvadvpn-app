@@ -64,9 +64,10 @@ fn main_loop(mut monitor: OpenVpnMonitor) -> Result<()> {
                     println!("Monitored process exited. clean: {}", clean);
                     break;
                 }
-                OpenVpnEvent::PluginEvent(env) => {
-                    println!("OpenVPN event with env:\n{:?}", env);
+                OpenVpnEvent::PluginEvent(Ok((event, env))) => {
+                    println!("OpenVPN event:\nEvent: {:?}\nENV: {:?}", event, env);
                 }
+                OpenVpnEvent::PluginEvent(Err(e)) => println!("Read error from plugin: {:?}", e),
             }
         }
         std::thread::sleep(std::time::Duration::from_millis(500));

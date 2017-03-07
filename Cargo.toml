@@ -11,6 +11,9 @@ error-chain = "0.8"
 [dependencies.talpid_ipc]
 path = "talpid_ipc"
 
+[dependencies.openvpn_ffi]
+path = "openvpn_ffi"
+
 [target.'cfg(not(windows))'.dependencies]
 zmq = "0.8"
 
@@ -18,4 +21,4 @@ zmq = "0.8"
 assert_matches = "1.0"
 
 [workspace]
-members = ["talpid_openvpn_plugin", "talpid_cli", "talpid_ipc"]
+members = ["talpid_openvpn_plugin", "openvpn_ffi", "talpid_cli", "talpid_ipc"]
