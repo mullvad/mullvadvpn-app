@@ -1,21 +1,24 @@
 extern crate zmq;
+extern crate serde_json;
 
-use super::{OnMessage, ErrorKind, Result, ResultExt, IpcServerId};
+use super::{ErrorKind, Result, ResultExt, IpcServerId};
+
+use serde;
+
 use std::thread;
 
-/// Starts listening to incoming IPC connections on a random port.
-/// Messages are sent to the `on_message` callback. If anything went wrong
-/// when reading the message, the message will be an `Err`.
-/// NOTE that this does not apply to errors regarding whether the server
-/// could start or not, those are returned directly by this function.
+/// Starts the server end of an IPC channel. The returned `IpcServerId` is the unique identifier
+/// allowing an `IpcClient` to connect to this server instance. Returns an error if unable to set
+/// up the server.
 ///
-/// This function is non-blocking and thus spawns a thread where it
-/// listens to messages.
+/// Incoming messages are sent as `Ok` results to the `on_message` callback. IO errors will be sent
+/// as `Err` results to the `on_message` callback.
 ///
-/// The value returned from this function should be used by the clients to
-/// the server.
-pub fn start_new_server(on_message: Box<OnMessage<Vec<u8>>>) -> Result<IpcServerId> {
-
+/// This function is non-blocking and thus spawns a thread where it listens to messages.
+pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
+    where T: serde::Deserialize + 'static,
+          F: FnMut(Result<T>) + Send + 'static
+{
     for port in 5000..5010 {
         let connection_string = format!("tcp://127.0.0.1:{}", port);
         if let Ok(socket) = start_zmq_server(&connection_string) {
@@ -36,29 +39,54 @@ fn start_zmq_server(connection_string: &str) -> zmq::Result<zmq::Socket> {
     Ok(socket)
 }
 
-fn start_receive_loop(socket: zmq::Socket,
-                      mut on_message: Box<OnMessage<Vec<u8>>>)
-                      -> thread::JoinHandle<()> {
-
+fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::JoinHandle<()>
+    where T: serde::Deserialize + 'static,
+          F: FnMut(Result<T>) + Send + 'static
+{
     thread::spawn(move || loop {
-        let read_res = socket.recv_bytes(0).chain_err(|| ErrorKind::ReadFailure);
+        let read_res = socket.recv_bytes(0)
+            .chain_err(|| ErrorKind::ReadFailure)
+            .and_then(|a| parse_message(&a));
         on_message(read_res);
     })
 }
 
-pub struct IpcClient {
-    server_address: IpcServerId,
-    socket: Option<zmq::Socket>,
+fn parse_message<T>(message: &[u8]) -> Result<T>
+    where T: serde::Deserialize + 'static
+{
+    serde_json::from_slice(message).chain_err(|| ErrorKind::ParseFailure)
 }
-impl IpcClient {
+
+
+pub struct IpcClient<T>
+    where T: serde::Serialize
+{
+    server_id: IpcServerId,
+    socket: Option<zmq::Socket>,
+    _phantom: ::std::marker::PhantomData<T>,
+}
+
+impl<T> IpcClient<T>
+    where T: serde::Serialize
+{
     pub fn new(server_id: IpcServerId) -> Self {
         IpcClient {
-            server_address: server_id,
+            server_id: server_id,
             socket: None,
+            _phantom: ::std::marker::PhantomData,
         }
     }
 
-    pub fn send(&mut self, message: &[u8]) -> Result<()> {
+    pub fn send(&mut self, message: &T) -> Result<()> {
+        let bytes = Self::serialize(message)?;
+        self.send_bytes(bytes.as_slice())
+    }
+
+    fn serialize(t: &T) -> Result<Vec<u8>> {
+        serde_json::to_vec(t).chain_err(|| ErrorKind::ParseFailure)
+    }
+
+    fn send_bytes(&mut self, message: &[u8]) -> Result<()> {
         if self.socket.is_none() {
             self.connect().chain_err(|| ErrorKind::SendError)?;
         }
@@ -71,8 +99,8 @@ impl IpcClient {
         let ctx = zmq::Context::new();
         let socket = ctx.socket(zmq::PUSH)
             .chain_err(|| "Could not create ZeroMQ PUSH socket".to_owned())?;
-        socket.connect(&self.server_address)
-            .chain_err(|| format!("Could not connect to {:?}", self.server_address))?;
+        socket.connect(&self.server_id)
+            .chain_err(|| format!("Could not connect to {:?}", self.server_id))?;
 
         self.socket = Some(socket);
         Ok(())

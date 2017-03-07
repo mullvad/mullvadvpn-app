@@ -1,4 +1,6 @@
-use super::{OnMessage, ErrorKind, Result, IpcServerId};
+use super::{ErrorKind, Result, IpcServerId};
+
+use serde;
 
 /// This implementation only exists because we cannot get ZeroMQ to work on
 /// Windows. This is not a valid IPC implementation and us using
@@ -6,17 +8,27 @@ use super::{OnMessage, ErrorKind, Result, IpcServerId};
 ///
 /// We plan on trying with ZMQ again in the future.
 /// Erik, 2017-02-09
-fn start_new_server(_on_message: Box<OnMessage<Vec<u8>>>) -> Result<IpcServerId> {
+pub fn start_new_server<T, F>(_on_message: F) -> Result<IpcServerId>
+    where T: serde::Deserialize + 'static,
+          F: FnMut(Result<T>) + Send + 'static
+{
     Err(ErrorKind::CouldNotStartServer.into())
 }
 
-pub struct IpcClient;
-impl IpcClient {
-    pub fn new(server_id: IpcServerId) -> Self {
-        IpcClient
+pub struct IpcClient<T>
+    where T: serde::Serialize
+{
+    _phantom: ::std::marker::PhantomData<T>,
+}
+
+impl<T> IpcClient<T>
+    where T: serde::Serialize
+{
+    pub fn new(_server_id: IpcServerId) -> Self {
+        IpcClient { _phantom: ::std::marker::PhantomData }
     }
 
-    pub fn send(mut self, message: &[u8]) -> Result<()> {
+    pub fn send(&mut self, _message: &T) -> Result<()> {
         Err(ErrorKind::SendError.into())
     }
 }
