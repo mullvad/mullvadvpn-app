@@ -67,9 +67,7 @@ fn main_loop(mut monitor: OpenVpnMonitor) -> Result<()> {
                 OpenVpnEvent::PluginEvent(Ok((event, env))) => {
                     println!("OpenVPN event:\nEvent: {:?}\nENV: {:?}", event, env);
                 }
-                OpenVpnEvent::PluginEvent(Err(e)) => {
-                    println!("Read error from plugin: {:?}", e)
-                }
+                OpenVpnEvent::PluginEvent(Err(e)) => println!("Read error from plugin: {:?}", e),
             }
         }
         std::thread::sleep(std::time::Duration::from_millis(500));
