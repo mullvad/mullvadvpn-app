@@ -49,7 +49,7 @@ fn run() -> Result<()> {
     init_logger()?;
     let args = cli::parse_args_or_exit();
     let command = create_openvpn_command(&args);
-    let monitor = OpenVpnMonitor::new(command);
+    let monitor = OpenVpnMonitor::new(command, args.plugin_path);
     main_loop(monitor)
 }
 

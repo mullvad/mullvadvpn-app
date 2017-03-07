@@ -171,14 +171,16 @@ pub enum OpenVpnEvent {
 /// A struct able to start and monitor OpenVPN processes.
 pub struct OpenVpnMonitor {
     command: OpenVpnCommand,
+    plugin_path: PathBuf,
     monitor: ChildMonitor<OpenVpnCommand>,
 }
 
 impl OpenVpnMonitor {
     /// Creates a new `OpenVpnMonitor` based on the given command
-    pub fn new(command: OpenVpnCommand) -> Self {
+    pub fn new<P: AsRef<Path>>(command: OpenVpnCommand, plugin_path: P) -> Self {
         OpenVpnMonitor {
             command: command.clone(),
+            plugin_path: plugin_path.as_ref().to_path_buf(),
             monitor: ChildMonitor::new(command),
         }
     }
@@ -200,8 +202,7 @@ impl OpenVpnMonitor {
                 let mut listener = shared_listener.lock().unwrap();
                 (listener.deref_mut())(OpenVpnEvent::PluginEvent(chained_msg));
             }).chain_err(|| ErrorKind::PluginCommunicationError)?;
-        self.command.plugin("./target/debug/libtalpid_openvpn_plugin.so",
-                            vec![server_id]);
+        self.command.plugin(&self.plugin_path, vec![server_id]);
         Ok(())
     }
 
