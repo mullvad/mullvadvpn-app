@@ -6,6 +6,8 @@ extern crate talpid_core;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate log;
+extern crate env_logger;
 
 use std::io::{self, Read, Write};
 use std::sync::mpsc::{self, Receiver};
@@ -19,6 +21,11 @@ use cli::Args;
 
 
 error_chain! {
+    errors {
+        InitLoggingFailed {
+            description("Failed to bootstrap logging system")
+        }
+    }
     links {
         Monitor(talpid_core::process::openvpn::Error, talpid_core::process::openvpn::ErrorKind);
     }
@@ -39,10 +46,15 @@ fn main() {
 }
 
 fn run() -> Result<()> {
+    init_logger()?;
     let args = cli::parse_args_or_exit();
     let command = create_openvpn_command(&args);
     let monitor = OpenVpnMonitor::new(command);
     main_loop(monitor)
+}
+
+pub fn init_logger() -> Result<()> {
+    env_logger::init().chain_err(|| ErrorKind::InitLoggingFailed)
 }
 
 fn create_openvpn_command(args: &Args) -> OpenVpnCommand {

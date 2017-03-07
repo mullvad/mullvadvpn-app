@@ -275,7 +275,9 @@ name = "talpid_cli"
 version = "0.0.0"
 dependencies = [
  "clap 2.20.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid_core 0.0.0",
 ]
 
