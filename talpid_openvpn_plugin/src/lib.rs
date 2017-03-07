@@ -12,6 +12,9 @@ use std::os::raw::{c_int, c_void};
 
 mod processing;
 
+use openvpn_ffi::{openvpn_plugin_args_open_in, openvpn_plugin_args_open_return,
+                  openvpn_plugin_args_func_in, openvpn_plugin_args_func_return,
+                  OPENVPN_PLUGIN_FUNC_SUCCESS, OPENVPN_PLUGIN_FUNC_ERROR, OpenVpnPluginEvent};
 use processing::EventProcessor;
 
 
@@ -38,8 +41,8 @@ error_chain!{
 
 /// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
 /// events.
-pub static INTERESTING_EVENTS: &'static [openvpn_ffi::OpenVpnPluginEvent] =
-    &[openvpn_ffi::OpenVpnPluginEvent::Up, openvpn_ffi::OpenVpnPluginEvent::RoutePredown];
+pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] = &[OpenVpnPluginEvent::Up,
+                                                                 OpenVpnPluginEvent::RoutePredown];
 
 
 /// Called by OpenVPN when the plugin is first loaded.
@@ -48,23 +51,23 @@ pub static INTERESTING_EVENTS: &'static [openvpn_ffi::OpenVpnPluginEvent] =
 /// plugin.
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_open_v3(_version: c_int,
-                                         args: *const openvpn_ffi::openvpn_plugin_args_open_in,
-                                         retptr: *mut openvpn_ffi::openvpn_plugin_args_open_return)
+                                         args: *const openvpn_plugin_args_open_in,
+                                         retptr: *mut openvpn_plugin_args_open_return)
                                          -> c_int {
     if init_logger().is_err() {
-        return openvpn_ffi::OPENVPN_PLUGIN_FUNC_ERROR;
+        return OPENVPN_PLUGIN_FUNC_ERROR;
     }
     match openvpn_plugin_open_v3_internal(args, retptr) {
-        Ok(_) => openvpn_ffi::OPENVPN_PLUGIN_FUNC_SUCCESS,
+        Ok(_) => OPENVPN_PLUGIN_FUNC_SUCCESS,
         Err(e) => {
             log_error("Unable to initialize plugin", &e);
-            openvpn_ffi::OPENVPN_PLUGIN_FUNC_ERROR
+            OPENVPN_PLUGIN_FUNC_ERROR
         }
     }
 }
 
-fn openvpn_plugin_open_v3_internal(args: *const openvpn_ffi::openvpn_plugin_args_open_in,
-                                   retptr: *mut openvpn_ffi::openvpn_plugin_args_open_return)
+fn openvpn_plugin_open_v3_internal(args: *const openvpn_plugin_args_open_in,
+                                   retptr: *mut openvpn_plugin_args_open_return)
                                    -> Result<()> {
     debug!("Initializing plugin");
     let core_server_id = parse_args(args)?;
@@ -78,8 +81,7 @@ fn openvpn_plugin_open_v3_internal(args: *const openvpn_ffi::openvpn_plugin_args
     Ok(())
 }
 
-fn parse_args(args: *const openvpn_ffi::openvpn_plugin_args_open_in)
-              -> Result<talpid_ipc::IpcServerId> {
+fn parse_args(args: *const openvpn_plugin_args_open_in) -> Result<talpid_ipc::IpcServerId> {
     let mut args_iter = unsafe { openvpn_ffi::parse::string_array((*args).argv) }
         .chain_err(|| ErrorKind::ParseArgsFailed)?
         .into_iter();
@@ -105,22 +107,21 @@ pub extern "C" fn openvpn_plugin_close_v1(handle: *const c_void) {
 /// `openvpn_plugin_open_v3`
 #[no_mangle]
 pub extern "C" fn openvpn_plugin_func_v3(_version: c_int,
-                                         args: *const openvpn_ffi::openvpn_plugin_args_func_in,
-                                         _retptr: *const openvpn_ffi::openvpn_plugin_args_func_return)
+                                         args: *const openvpn_plugin_args_func_in,
+                                         _retptr: *const openvpn_plugin_args_func_return)
                                          -> c_int {
     match openvpn_plugin_func_v3_internal(args) {
-        Ok(_) => openvpn_ffi::OPENVPN_PLUGIN_FUNC_SUCCESS,
+        Ok(_) => OPENVPN_PLUGIN_FUNC_SUCCESS,
         Err(e) => {
             log_error("Error while processing event", &e);
-            openvpn_ffi::OPENVPN_PLUGIN_FUNC_ERROR
+            OPENVPN_PLUGIN_FUNC_ERROR
         }
     }
 }
 
-fn openvpn_plugin_func_v3_internal(args: *const openvpn_ffi::openvpn_plugin_args_func_in)
-                                   -> Result<()> {
+fn openvpn_plugin_func_v3_internal(args: *const openvpn_plugin_args_func_in) -> Result<()> {
     let event_type = unsafe { (*args).event_type };
-    let event = openvpn_ffi::OpenVpnPluginEvent::from_int(event_type).chain_err(|| ErrorKind::InvalidEventType)?;
+    let event = OpenVpnPluginEvent::from_int(event_type).chain_err(|| ErrorKind::InvalidEventType)?;
     debug!("Received event: {:?}", event);
     let env =
         unsafe { openvpn_ffi::parse::env((*args).envp) }.chain_err(|| ErrorKind::ParseEnvFailed)?;
