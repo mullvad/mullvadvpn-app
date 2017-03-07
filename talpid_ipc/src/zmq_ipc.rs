@@ -23,6 +23,7 @@ pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
         let connection_string = format!("tcp://127.0.0.1:{}", port);
         if let Ok(socket) = start_zmq_server(&connection_string) {
             let _ = start_receive_loop(socket, on_message);
+            debug!("Listening on {}", connection_string);
             return Ok(connection_string);
         }
     }
@@ -96,6 +97,7 @@ impl<T> IpcClient<T>
     }
 
     fn connect(&mut self) -> Result<()> {
+        debug!("Trying to establish connection to {}", self.server_id);
         let ctx = zmq::Context::new();
         let socket = ctx.socket(zmq::PUSH)
             .chain_err(|| "Could not create ZeroMQ PUSH socket".to_owned())?;

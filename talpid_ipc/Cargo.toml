@@ -8,6 +8,7 @@ description = "IPC client and server for talpid"
 error-chain = "0.8"
 serde = "0.9"
 serde_json = "0.9"
+log = "0.3"
 
 [target.'cfg(not(windows))'.dependencies]
 zmq = "0.8"

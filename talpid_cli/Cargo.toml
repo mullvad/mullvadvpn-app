@@ -7,6 +7,8 @@ description = "Run Talpid easily from the command line"
 [dependencies]
 clap = "2.20"
 error-chain = "0.8"
+log = "0.3"
+env_logger = "0.4"
 
 [dependencies.talpid_core]
 path = "../"
