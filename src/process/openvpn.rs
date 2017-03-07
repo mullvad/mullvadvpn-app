@@ -228,7 +228,7 @@ impl OpenVpnMonitor {
 
 
 #[cfg(test)]
-mod tests {
+mod openvpn_command_tests {
     use super::OpenVpnCommand;
     use net::RemoteAddr;
     use std::ffi::OsString;
@@ -276,5 +276,20 @@ mod tests {
         assert!(testee_args.contains(&OsString::from("1337")));
         assert!(testee_args.contains(&OsString::from("127.0.0.1")));
         assert!(testee_args.contains(&OsString::from("99")));
+    }
+
+    #[test]
+    fn passes_plugin_path() {
+        let path = "./a/path";
+        let testee_args = OpenVpnCommand::new("").plugin(path, vec![]).get_arguments();
+        assert!(testee_args.contains(&OsString::from("./a/path")));
+    }
+
+    #[test]
+    fn passes_plugin_args() {
+        let args = vec!["123".to_owned(), "cde".to_owned()];
+        let testee_args = OpenVpnCommand::new("").plugin("", args).get_arguments();
+        assert!(testee_args.contains(&OsString::from("123")));
+        assert!(testee_args.contains(&OsString::from("cde")));
     }
 }
