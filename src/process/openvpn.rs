@@ -161,11 +161,11 @@ impl ChildSpawner for OpenVpnCommand {
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
     PluginEvent(Result<HashMap<String, String>>),
-    /// The OpenVPN process exited. The bool indicate if the process exited cleanly.
+    /// The OpenVPN process exited. The bool indicates if the process exited cleanly.
     Shutdown(bool),
 }
 
-/// A struct able to start and monitor OpenVPN procesess.
+/// A struct able to start and monitor OpenVPN processes.
 pub struct OpenVpnMonitor {
     command: OpenVpnCommand,
     monitor: ChildMonitor<OpenVpnCommand>,
