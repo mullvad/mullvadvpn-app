@@ -12,6 +12,8 @@ export default class AccountInput extends Component {
   constructor(props) {
     super(props);
 
+    // selection range holds selection converted from DOM selection range to 
+    // internal unformatted representation of account number
     this.state = { value: '', selectionRange: [0,0] };
   }
 
@@ -32,6 +34,43 @@ export default class AccountInput extends Component {
             this.state.selectionRange[1] !== nextState.selectionRange[1]);
   }
 
+  render() {
+    const displayString = formatAccount(this.state.value || '');
+    const props = Object.assign({}, this.props);
+
+    // exclude built-in props
+    for(let key of Object.keys(AccountInput.propTypes)) {
+      if(props.hasOwnProperty(key)) {
+        delete props[key];
+      }
+    }
+    
+    return (
+      <input type="text" 
+        value={ displayString } 
+        onSelect={ ::this.onSelect }
+        onKeyUp={ ::this.onKeyUp } 
+        onKeyDown={ ::this.onKeyDown }
+        onPaste={ ::this.onPaste }
+        ref={ ::this.onRef }
+        { ...props } />
+    );
+  }
+
+  // Private
+  
+  
+
+  /**
+   * Modify original string inserting substring using selection range
+   * 
+   * @param {String} val       original string 
+   * @param {String} insert    insertion string
+   * @param {Array}  selRange  selection range ([x,y])  
+   * @returns Object
+   * 
+   * @memberOf AccountInput
+   */
   insert(val, insert, selRange) {
     const head = val.slice(0, selRange[0]);
     const tail = val.slice(selRange[1], val.length);
@@ -41,6 +80,16 @@ export default class AccountInput extends Component {
     return { value: newVal, selectionRange: [selectionOffset, selectionOffset] };
   }
 
+
+  /**
+   * Modify string by removing single character or range of characters based on selection range.
+   * 
+   * @param {String} val       original string 
+   * @param {Array}  selRange  selection range ([x,y])  
+   * @returns Object
+   * 
+   * @memberOf AccountInput
+   */
   remove(val, selRange) {
     let newVal, selectionOffset;
 
@@ -60,6 +109,16 @@ export default class AccountInput extends Component {
     return { value: newVal, selectionRange: [selectionOffset, selectionOffset] };
   }
 
+
+  /**
+   * Convert DOM selection range to internal selection range
+   * 
+   * @param {String} val      original string
+   * @param {Array} domRange  selection range from DOM
+   * @returns Object
+   * 
+   * @memberOf AccountInput
+   */
   toInternalSelectionRange(val, domRange) {
     const countSpaces = (val) => {
       return (val.match(/\s/g) || []).length;
@@ -68,18 +127,25 @@ export default class AccountInput extends Component {
     const fmt = formatAccount(val || '');
     let start = domRange[0];
     let end = domRange[1];
-    const spacesBefore = countSpaces(fmt.slice(0, start));
-    const spacesWithin = countSpaces(fmt.slice(start, end));
-    const finalStart = start - spacesBefore;
-    const finalEnd = end - (spacesBefore + spacesWithin);
+    const before = countSpaces(fmt.slice(0, start));
+    const within = countSpaces(fmt.slice(start, end));
 
-    console.log('toInternalSelectionRange: spacesBefore: ' + spacesBefore + ', spacesWithin: ' + spacesWithin + 
-      "\n<" + fmt.slice(0, start) + ">\n<" + fmt.slice(start, end) + ">" + "\nfinalStart: " + finalStart + "\nfinalEnd: " + finalEnd);
-    
+    start -= before;
+    end -= (before + within);
 
-    return [ finalStart, finalEnd ];
+    return [ start, end ];
   }
 
+
+  /**
+   * Convert internal selection range to DOM selection range
+   * 
+   * @param {String} val       original string
+   * @param {Array}  selRange  selection range
+   * @returns Object
+   * 
+   * @memberOf AccountInput
+   */
   toDomSelection(val, selRange) {
     const countSpaces = (val, untilIndex) => {
       if(val.length > 12) { return 0; }
@@ -90,8 +156,6 @@ export default class AccountInput extends Component {
     let end = selRange[1];
     const startSpaces = countSpaces(val, start);
     const endSpaces = countSpaces(val, end);
-
-    console.log('toDomSelection: [' + start + ', ' + end + '] startSpaces: ' + startSpaces + ', endSpaces: ' + endSpaces);
     
     start += startSpaces;
     end += startSpaces + (endSpaces - startSpaces);
@@ -99,9 +163,9 @@ export default class AccountInput extends Component {
     return [ start, end ];
   }
 
-  onKeyDown(e) {
-    console.log('Entered ' + e.key);
+  // Events
 
+  onKeyDown(e) {
     const { value, selectionRange } = this.state;
 
     if(e.which === 8) { // backspace
@@ -127,8 +191,6 @@ export default class AccountInput extends Component {
     const ref = e.target;
     let start = ref.selectionStart;
     let end = ref.selectionEnd;
-
-    console.log('onSelect: ' + start + ', ' + end);
 
     const selRange = this.toInternalSelectionRange(this.state.value, [start, end]);
     this.setState({ selectionRange: selRange });
@@ -158,33 +220,8 @@ export default class AccountInput extends Component {
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
 
-    if(ref.selectionStart !== domRange[0] || ref.selectionEnd !== domRange[1]) {
-      ref.selectionStart = domRange[0];
-      ref.selectionEnd = domRange[1];
-    }
-  }
-
-  render() {
-    const displayString = formatAccount(this.state.value || '');
-    const props = Object.assign({}, this.props);
-
-    // exclude built-in props
-    for(let key of Object.keys(AccountInput.propTypes)) {
-      if(props.hasOwnProperty(key)) {
-        delete props[key];
-      }
-    }
-    
-    return (
-      <input type="text" 
-        value={ displayString } 
-        onSelect={ ::this.onSelect }
-        onKeyUp={ ::this.onKeyUp } 
-        onKeyDown={ ::this.onKeyDown }
-        onPaste={ ::this.onPaste }
-        ref={ ::this.onRef }
-        { ...props } />
-    );
+    ref.selectionStart = domRange[0];
+    ref.selectionEnd = domRange[1];
   }
 
 }

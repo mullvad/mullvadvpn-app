@@ -40,7 +40,6 @@ export default class Login extends Component {
   }
 
   onInputChange(val) {
-    console.log('VAL: ' + val);
     // notify delegate on first change after login failure
     if(this.state.notifyOnFirstChangeAfterFailure) {
       this.setState({ notifyOnFirstChangeAfterFailure: false });
