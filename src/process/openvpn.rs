@@ -293,3 +293,18 @@ mod openvpn_command_tests {
         assert!(testee_args.contains(&OsString::from("cde")));
     }
 }
+
+
+#[cfg(test)]
+mod openvpn_monitor_tests {
+    use super::*;
+
+    #[test]
+    fn stop_without_start() {
+        let command = OpenVpnCommand::new("");
+        let testee = OpenVpnMonitor::new(command, "");
+
+        use super::super::monitor::ErrorKind::InvalidState as MInvalidState;
+        assert_matches!(testee.stop(), Err(Error(ErrorKind::ChildMonitorError(MInvalidState), _)));
+    }
+}
