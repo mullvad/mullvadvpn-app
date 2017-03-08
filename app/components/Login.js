@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { formatAccount } from '../lib/formatters';
 import { LoginState } from '../enums';
+import AccountInput from './AccountInput';
 
 export default class Login extends Component {
   static propTypes = {
@@ -39,22 +39,14 @@ export default class Login extends Component {
     this.props.onExternalLink('createAccount');
   }
 
-  onInputChange(e) {
-    const val = e.target.value.replace(/[^0-9]/g, '');
-
+  onInputChange(val) {
+    console.log('VAL: ' + val);
     // notify delegate on first change after login failure
     if(this.state.notifyOnFirstChangeAfterFailure) {
       this.setState({ notifyOnFirstChangeAfterFailure: false });
       this.props.onFirstChangeAfterFailure();
     }
-
     this.props.onChange(val);
-  }
-
-  onInputKeyUp(e) {
-    if(e.which === 13) {
-      this.onLogin();
-    }
   }
 
   formTitle(s) {
@@ -117,7 +109,6 @@ export default class Login extends Component {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
-    const displayAccount = formatAccount(account || '');
     const isConnecting = status === LoginState.connecting;
     const isFailed = status === LoginState.failed;
     const isLoggedIn = status === LoginState.ok;
@@ -169,12 +160,12 @@ export default class Login extends Component {
               <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
                 <div className="login-form__subtitle">{ subtitle }</div>
                 <div className={ inputWrapClass }>
-                  <input className="login-form__input-field" 
+                  <AccountInput className="login-form__input-field" 
                         type="text" 
                         placeholder="e.g 0000 0000 0000" 
                         onChange={ ::this.onInputChange }
-                        onKeyUp={ ::this.onInputKeyUp }
-                        value={ displayAccount }
+                        onEnter={ ::this.onLogin }
+                        value={ account }
                         disabled={ isConnecting }
                         autoFocus={ true } 
                         ref={ autoFocusRef } />
