@@ -140,7 +140,7 @@ impl<S: ChildSpawner> Drop for ChildMonitor<S> {
 
 
 #[cfg(test)]
-mod child_monitor {
+mod child_monitor_tests {
     use super::*;
     use std::io;
     use std::process::{ChildStdout, ChildStderr};
