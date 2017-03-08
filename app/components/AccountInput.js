@@ -45,7 +45,8 @@ export default class AccountInput extends Component {
     let newVal, selectionOffset;
 
     if(selRange[0] === selRange[1]) {
-      const head = val.slice(0, selRange[0] - 1);
+      const oneOff = Math.max(0, selRange[0] - 1);
+      const head = val.slice(0, oneOff);
       const tail = val.slice(selRange[0], val.length);
       newVal = head + tail;
       selectionOffset = head.length;
@@ -102,29 +103,24 @@ export default class AccountInput extends Component {
     console.log('Entered ' + e.key);
 
     const { value, selectionRange } = this.state;
-    let result;
-
-    // arrows.
-    if(e.which >= 37 && e.which <= 40) {
-      return;
-    }
-
-    // prevent native keyboard input management
-    e.preventDefault();
 
     if(e.which === 8) { // backspace
-      result = this.remove(value, selectionRange);
-    } else if(/[0-9]/.test(e.key)) { // digits
-      result = this.insert(value, e.key, selectionRange);
-    } else { // any other keys
-      return;
+      const result = this.remove(value, selectionRange);
+      e.preventDefault();
+      this.setState(result, () => {
+        if(this.props.onChange) {
+          this.props.onChange(result.value);
+        }
+      });
+    } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
+      const result = this.insert(value, e.key, selectionRange);
+      e.preventDefault();
+      this.setState(result, () => {
+        if(this.props.onChange) {
+          this.props.onChange(result.value);
+        }
+      });
     }
-
-    this.setState(result, () => {
-      if(this.props.onChange) {
-        this.props.onChange(result.value);
-      }
-    });
   }
 
   onSelect(e) {
@@ -134,28 +130,38 @@ export default class AccountInput extends Component {
 
     console.log('onSelect: ' + start + ', ' + end);
 
-    const { value, selectionRange: curRange } = this.state;
-    const selRange = this.toInternalSelectionRange(value, [start, end]);
-    // if(selRange[0] !== curRange[0] || selRange[1] !== curRange[1]) {
-      this.setState({ selectionRange: selRange });
-    // }
+    const selRange = this.toInternalSelectionRange(this.state.value, [start, end]);
+    this.setState({ selectionRange: selRange });
   }
 
   onKeyUp(e) {
     if(e.which === 13 && this.props.onEnter) {
       this.props.onEnter();
     }
-    console.log('onKeyUp: ', e);
+  }
+
+  onPaste(e) {
+    const { value, selectionRange } = this.state;
+    const pastedData = e.clipboardData.getData('text');
+    const filteredData = (pastedData || '').replace(/[^0-9]/g, '');
+    const result = this.insert(value, filteredData, selectionRange);
+    e.preventDefault();
+    this.setState(result, () => {
+      if(this.props.onChange) {
+        this.props.onChange(result.value);
+      }
+    });
   }
 
   onRef(ref) {
-
+    if(!ref) { return; }
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
-    // if(ref.selectionStart !== domRange[0] || ref.selectionEnd !== domRange[1]) {
-      ref && ref.setSelectionRange(domRange[0], domRange[1]);
-    // }
 
+    if(ref.selectionStart !== domRange[0] || ref.selectionEnd !== domRange[1]) {
+      ref.selectionStart = domRange[0];
+      ref.selectionEnd = domRange[1];
+    }
   }
 
   render() {
@@ -175,6 +181,7 @@ export default class AccountInput extends Component {
         onSelect={ ::this.onSelect }
         onKeyUp={ ::this.onKeyUp } 
         onKeyDown={ ::this.onKeyDown }
+        onPaste={ ::this.onPaste }
         ref={ ::this.onRef }
         { ...props } />
     );
