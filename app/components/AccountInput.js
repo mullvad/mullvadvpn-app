@@ -128,7 +128,7 @@ export default class AccountInput extends Component {
   }
 
   onSelect(e) {
-    const ref = this._input;
+    const ref = e.target;
     let start = ref.selectionStart;
     let end = ref.selectionEnd;
 
@@ -149,14 +149,13 @@ export default class AccountInput extends Component {
   }
 
   onRef(ref) {
-    this._input = ref;
-    if(ref) {
-      const { value, selectionRange } = this.state;
-      const domRange = this.toDomSelection(value, selectionRange);
-      // if(ref.selectionStart !== domRange[0] || ref.selectionEnd !== domRange[1]) {
-        ref.setSelectionRange(domRange[0], domRange[1]);
-      // }
-    }
+
+    const { value, selectionRange } = this.state;
+    const domRange = this.toDomSelection(value, selectionRange);
+    // if(ref.selectionStart !== domRange[0] || ref.selectionEnd !== domRange[1]) {
+      ref && ref.setSelectionRange(domRange[0], domRange[1]);
+    // }
+
   }
 
   render() {
