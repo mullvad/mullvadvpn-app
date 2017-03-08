@@ -4,11 +4,11 @@ use std::path::PathBuf;
 use talpid_core::net::RemoteAddr;
 
 #[cfg(all(unix, not(target_os="macos")))]
-static DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.so";
+const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.so";
 #[cfg(target_os="macos")]
-static DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dylib";
+const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dylib";
 #[cfg(windows)]
-static DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dll";
+const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dll";
 
 
 pub struct Args {
