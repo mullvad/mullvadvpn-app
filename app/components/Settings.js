@@ -80,7 +80,7 @@ export default class Settings extends Component {
                           <div className="settings__cell-spacer"></div>
 
                           <div className="settings__cell">
-                            <div className="settings__cell-label">Auto-secure</div>
+                            <div className="settings__cell-label">Auto-connect</div>
                             <div className="settings__cell-value">
                               <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
                             </div>

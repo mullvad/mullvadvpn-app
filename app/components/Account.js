@@ -27,7 +27,7 @@ export default class Account extends Component {
   render() {
     let paidUntil = moment(this.props.user.paidUntil);
     let formattedAccountId = formatAccount(this.props.user.account);
-    let formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY');
+    let formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
     let isOutOfTime = paidUntil.isSameOrBefore(moment());
 
     return (
