@@ -52,6 +52,7 @@ export default class AccountInput extends Component {
         onKeyUp={ ::this.onKeyUp } 
         onKeyDown={ ::this.onKeyDown }
         onPaste={ ::this.onPaste }
+        onCut={ ::this.onCut }
         ref={ ::this.onRef }
         { ...props } />
     );
@@ -213,6 +214,27 @@ export default class AccountInput extends Component {
         this.props.onChange(result.value);
       }
     });
+  }
+
+  onCut(e) {
+    const { value, selectionRange } = this.state;
+    
+    e.preventDefault();
+    
+    // range is not empty?
+    if(selectionRange[0] !== selectionRange[1]) {
+      const result = this.remove(value, selectionRange);
+      const domSelectionRange = this.toDomSelection(value, selectionRange);
+      const slice = e.target.value.slice(domSelectionRange[0], domSelectionRange[1]);
+
+      e.clipboardData.setData('text', slice);
+
+      this.setState(result, () => {
+        if(this.props.onChange) {
+          this.props.onChange(result.value);
+        }
+      });
+    }
   }
 
   onRef(ref) {
