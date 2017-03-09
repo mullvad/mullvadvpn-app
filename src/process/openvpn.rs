@@ -287,7 +287,7 @@ mod openvpn_command_tests {
 
     #[test]
     fn passes_plugin_args() {
-        let args = vec!["123".to_owned(), "cde".to_owned()];
+        let args = vec![String::from("123"), String::from("cde")];
         let testee_args = OpenVpnCommand::new("").plugin("", args).get_arguments();
         assert!(testee_args.contains(&OsString::from("123")));
         assert!(testee_args.contains(&OsString::from("cde")));
