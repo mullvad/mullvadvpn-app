@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './support';
+import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './mocks/backend';
 import userActions from '../app/actions/user';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
 import { LoginState } from '../app/enums';

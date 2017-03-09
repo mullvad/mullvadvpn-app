@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './support';
+import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './mocks/backend';
 import Backend from '../app/lib/backend';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';

@@ -47,8 +47,10 @@
     "eslint": "^3.14.1",
     "eslint-plugin-react": "^6.9.0",
     "isomorphic-fetch": "^2.2.1",
+    "jsdom": "^9.11.0",
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.1",
+    "react-addons-test-utils": "^15.4.2",
     "redux-mock-store": "^1.2.2",
     "rimraf": "^2.5.4"
   },
