@@ -14,9 +14,10 @@ export default class AccountInput extends Component {
 
     // selection range holds selection converted from DOM selection range to 
     // internal unformatted representation of account number
+    const val = this.sanitize(props.value);
     this.state = { 
-      value: this.sanitize(props.value), 
-      selectionRange: [0,0]
+      value: val, 
+      selectionRange: [val.length, val.length]
     };
   }
 
@@ -186,6 +187,9 @@ export default class AccountInput extends Component {
     if(e.which === 8) { // backspace
       const result = this.remove(value, selectionRange);
       e.preventDefault();
+
+      this._ignoreSelect = true;
+
       this.setState(result, () => {
         if(this.props.onChange) {
           this.props.onChange(result.value);
@@ -194,6 +198,9 @@ export default class AccountInput extends Component {
     } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
       const result = this.insert(value, e.key, selectionRange);
       e.preventDefault();
+
+      this._ignoreSelect = true;
+
       this.setState(result, () => {
         if(this.props.onChange) {
           this.props.onChange(result.value);
@@ -203,6 +210,8 @@ export default class AccountInput extends Component {
   }
 
   onKeyUp(e) {
+    this._ignoreSelect = false;
+
     if(e.which === 13 && this.props.onEnter) {
       this.props.onEnter();
     }
@@ -210,10 +219,14 @@ export default class AccountInput extends Component {
 
   onSelect(e) {
     const ref = e.target;
-    let start = ref.selectionStart;
-    let end = ref.selectionEnd;
 
-    const selRange = this.toInternalSelectionRange(this.state.value, [start, end]);
+    if(this._ignoreSelect) {
+      return;
+    }
+
+    const start = ref.selectionStart;
+    const end = ref.selectionEnd;
+    const selRange = this.toInternalSelectionRange(this.sanitize(ref.value), [start, end]);
     this.setState({ selectionRange: selRange });
   }
 
@@ -252,12 +265,20 @@ export default class AccountInput extends Component {
   }
 
   onRef(ref) {
+    this._ref = ref;
     if(!ref) { return; }
+
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
 
     ref.selectionStart = domRange[0];
     ref.selectionEnd = domRange[1];
+  }
+
+  focus() {
+    if(this._ref) {
+      this._ref.focus();
+    }
   }
 
 }
