@@ -14,11 +14,14 @@ export default class AccountInput extends Component {
 
     // selection range holds selection converted from DOM selection range to 
     // internal unformatted representation of account number
-    this.state = { value: '', selectionRange: [0,0] };
+    this.state = { 
+      value: this.sanitize(props.value), 
+      selectionRange: [0,0]
+    };
   }
 
   componentWillReceiveProps(nextProps) {
-    const nextVal = (nextProps.value || '').replace(/[^0-9]/g, '');
+    const nextVal = this.sanitize(nextProps.value);
     if(nextVal !== this.state.value) {
       const len = nextVal.length;
       this.setState({ value: nextVal, selectionRange: [len, len] });
@@ -48,6 +51,7 @@ export default class AccountInput extends Component {
     return (
       <input type="text" 
         value={ displayString } 
+        onChange={ () => {} }
         onSelect={ ::this.onSelect }
         onKeyUp={ ::this.onKeyUp } 
         onKeyDown={ ::this.onKeyDown }
@@ -60,7 +64,17 @@ export default class AccountInput extends Component {
 
   // Private
   
-  
+  /**
+   * Modify original string inserting substring using selection range
+   * 
+   * @param {String?} val  string
+   * @returns String
+   * 
+   * @memberOf AccountInput
+   */
+  sanitize(val) {
+    return (val || '').replace(/[^0-9]/g, '');
+  }
 
   /**
    * Modify original string inserting substring using selection range
@@ -188,6 +202,12 @@ export default class AccountInput extends Component {
     }
   }
 
+  onKeyUp(e) {
+    if(e.which === 13 && this.props.onEnter) {
+      this.props.onEnter();
+    }
+  }
+
   onSelect(e) {
     const ref = e.target;
     let start = ref.selectionStart;
@@ -197,16 +217,10 @@ export default class AccountInput extends Component {
     this.setState({ selectionRange: selRange });
   }
 
-  onKeyUp(e) {
-    if(e.which === 13 && this.props.onEnter) {
-      this.props.onEnter();
-    }
-  }
-
   onPaste(e) {
     const { value, selectionRange } = this.state;
     const pastedData = e.clipboardData.getData('text');
-    const filteredData = (pastedData || '').replace(/[^0-9]/g, '');
+    const filteredData = this.sanitize(pastedData);
     const result = this.insert(value, filteredData, selectionRange);
     e.preventDefault();
     this.setState(result, () => {
