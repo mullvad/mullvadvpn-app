@@ -10,7 +10,14 @@ import SelectLocationPage from './containers/SelectLocationPage';
 
 import { LoginState } from './enums';
 
-const makeRoutes = (store) => {
+/**
+ * Create routes
+ * 
+ * @export
+ * @param {Redux.Store} store 
+ * @returns {React.element}
+ */
+export default function makeRoutes(store) {
 
   /**
    * Ensures that user is redirected to /connect if logged in
@@ -43,6 +50,4 @@ const makeRoutes = (store) => {
       <Route path="select-location" component={ SelectLocationPage } onEnter={ ensureLoggedIn } />
     </Route>
   );
-};
-
-export default makeRoutes;
+}

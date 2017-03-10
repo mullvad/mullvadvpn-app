@@ -10,6 +10,14 @@ import userActions from './actions/user';
 import connectActions from './actions/connect';
 import settingsActions from './actions/settings';
 
+/**
+ * Configure redux store
+ * 
+ * @export
+ * @param {Object} initialState 
+ * @param {History} routerHistory 
+ * @returns {Redux.Store}
+ */
 export default function configureStore(initialState, routerHistory) {
   const router = routerMiddleware(routerHistory);
   

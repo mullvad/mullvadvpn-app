@@ -5,7 +5,7 @@ import Enum from '../lib/enum';
 export default class HeaderBar extends Component {
 
   /** Bar style */
-  static Style = Enum('default', 'defaultDark', 'error', 'success');
+  static Style = new Enum('default', 'defaultDark', 'error', 'success');
 
   static propTypes = {
     style: PropTypes.string,

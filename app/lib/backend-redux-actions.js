@@ -3,6 +3,13 @@ import connectActions from '../actions/connect';
 import Backend from './backend';
 import { LoginState, ConnectionState } from '../enums';
 
+/**
+ * Add event listeners to translate backend events to redux dispatch.
+ * 
+ * @export
+ * @param {Backend} backend 
+ * @param {Redux.Store} store
+ */
 export default function mapBackendEventsToReduxActions(backend, store) {
   const onUpdateIp = (clientIp) => {
     store.dispatch(connectActions.connectionChange({ clientIp }));

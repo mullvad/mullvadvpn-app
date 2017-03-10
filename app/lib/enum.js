@@ -1,28 +1,46 @@
 /**
- * Creates enum object with keys provided as arguments
- * 
- * @constructor
- * @type Enum
- * @property {bool} isValid({string}) whether key is valid
- * @param {...string} ...  Enum keys
- * @export
- * @returns Enum
+ * Enum
+ * @exports
+ * @class Enum
  */
-export default function Enum() {
-  let object = Object.create({});
-  const keys = [...arguments];
+export default class Enum {
 
-  for(const key of keys) {
-    Object.defineProperty(object, key, {
-      enumerable: true,
-      value: key,
+  /**
+   * Creates an instance of EnumBase.
+   * 
+   * @param {...string} ... - enum keys
+   * @memberOf Enum
+   */
+  constructor() {
+    const keys = [...arguments];
+
+    for(const key of keys) {
+      Object.defineProperty(this, key, {
+        enumerable: true,
+        value: key,
+        writable: false
+      });
+    }
+
+    Object.defineProperty(this, 'allKeys', {
+      enumerable: false,
+      value: keys,
       writable: false
     });
-  }
-  
-  Object.defineProperty(object, 'isValid', {
-    value: (e) => keys.includes(e)
-  });
 
-  return Object.freeze(object);
+    Object.freeze(this);
+  }
+
+  /**
+   * Check if key is registered in this enum
+   * 
+   * @param {string} key 
+   * @returns {bool}
+   * 
+   * @memberOf Enum
+   */
+  isValid(key) { 
+    return this.allKeys.includes(key); 
+  }
 }
+

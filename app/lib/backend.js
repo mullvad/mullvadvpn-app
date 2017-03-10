@@ -4,8 +4,73 @@ import { EventEmitter } from 'events';
 import { servers } from '../config';
 import { ConnectionState as ReduxConnectionState } from '../enums';
 
-const EventType = Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation');
-const ConnectionState = Enum('disconnected', 'connecting', 'connected');
+/**
+ * Server info
+ * @typedef {object} ServerInfo
+ * @property {string}   address  - server address
+ * @property {string}   name     - server name
+ * @property {string}   city     - location city
+ * @property {string}   country  - location country
+ * @property {number[]} location - geo coordinate [latitude, longitude]
+* 
+ */
+
+/**
+ * Connect event
+ *
+ * @event Backend.EventType.connect
+ * @param {string}     addr  - server address
+ * @param {error|null} error - error
+ */
+
+/**
+ * Connecting event
+ *
+ * @event Backend.EventType.connecting
+ * @param {string} addr - server address
+ */
+
+/**
+ * Disconnect event
+ *
+ * @event Backend.EventType.disconnect
+ * @param {string} addr - server address
+ */
+
+/**
+ * Login event
+ *
+ * @event Backend.EventType.login
+ * @param {object} response
+ * @param {error} error 
+ */
+
+/**
+ * Logging event
+ *
+ * @event Backend.EventType.logging
+ * @param {object} response    
+ */
+
+/**
+ * Logout event
+ *
+ * @event Backend.EventType.logout  
+ */
+
+/**
+ * Updated IP event
+ *
+ * @event Backend.EventType.updatedIp
+ * @param {string} new IP address    
+ */
+
+/**
+ * Updated location event
+ *
+ * @event Backend.EventType.updatedLocation
+ * @param {object} location data    
+ */
 
 /**
  * Backend implementation
@@ -13,26 +78,81 @@ const ConnectionState = Enum('disconnected', 'connecting', 'connected');
  * @class Backend
  */
 export default class Backend extends EventEmitter {
+
+  /**
+   * Event type enum
+   * 
+   * @type {EventType}
+   * @extends {Enum}
+   * @property {string} connect
+   * @property {string} connecting
+   * @property {string} disconnect
+   * @property {string} login
+   * @property {string} logging
+   * @property {string} logout
+   * @property {string} updatedIp
+   * @property {string} updatedLocation
+   */
+  static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation');
+
+  /**
+   * Connection state enum
+   * 
+   * @type {ConnectionState}
+   * @extends {Enum}
+   * @property {string} disconnected  - Initial state (disconnected)
+   * @property {string} connecting    - Connecting
+   * @property {string} connected     - Connected
+   */
+  static ConnectionState = new Enum('disconnected', 'connecting', 'connected');
   
-  static EventType = EventType;
-  static ConnectionState = ConnectionState;
-  
+  /**
+   * Creates an instance of Backend.
+   * 
+   * @memberOf Backend
+   */
   constructor() {
     super();
     this._account = null;
     this._paidUntil = null;
     this._serverAddress = null;
-    this._connStatus = ConnectionState.disconnected;
+    this._connStatus = Backend.ConnectionState.disconnected;
     this._cancellationHandler = null;
 
     // update IP in background
-    setTimeout(::this.refreshIp, 0);
+    setTimeout(::this._refreshIp, 0);
   }
 
   // Accessors
 
+  /**
+   * Account number
+   * 
+   * @type {string}
+   * @readonly
+   * 
+   * @memberOf Backend
+   */
   get account() { return this._account; }
+
+  /**
+   * Until when services are paid for (ISO string)
+   * 
+   * @type {string}
+   * @readonly
+   * 
+   * @memberOf Backend
+   */
   get paidUntil() { return this._paidUntil; }
+
+  /**
+   * Server IP address or domain name
+   * 
+   * @type {string}
+   * @readonly
+   * 
+   * @memberOf Backend
+   */
   get serverAddress() { return this._serverAddress; }
 
   // Public methods
@@ -47,11 +167,15 @@ export default class Backend extends EventEmitter {
    * sync redux state with backend.
    * 
    * In future this will be the other way around.
+   * 
+   * @param {Redux.Store} store - an instance of Redux store
+   * 
+   * @memberOf Backend
    */
   syncWithReduxStore(store) {
     const mapConnStatus = (s) => {
       const S = ReduxConnectionState;
-      const BS = ConnectionState;
+      const BS = Backend.ConnectionState;
       switch(s) {
       case S.connected: return BS.connected;
       case S.connecting: return BS.connecting;
@@ -76,6 +200,15 @@ export default class Backend extends EventEmitter {
     this._connStatus = mapConnStatus(connect.status);
   }
 
+  /**
+   * Get server info by key
+   * 'fastest' or 'nearest' can be used as well
+   * 
+   * @param {string} key 
+   * @returns {ServerInfo}
+   * 
+   * @memberOf Backend
+   */
   serverInfo(key) {
     switch(key) {
     case 'fastest': return this.fastestServer();
@@ -84,6 +217,13 @@ export default class Backend extends EventEmitter {
     }
   }
 
+  /**
+   * Get fastest server
+   * 
+   * @returns {ServerInfo}
+   * 
+   * @memberOf Backend
+   */
   fastestServer() {
     return {
       address: 'uk.mullvad.net', 
@@ -94,6 +234,13 @@ export default class Backend extends EventEmitter {
     };
   }
 
+  /**
+   * Get nearest server info
+   * 
+   * @returns {ServerInfo}
+   * 
+   * @memberOf Backend
+   */
   nearestServer() {
     return {
       address: 'es.mullvad.net', 
@@ -104,12 +251,21 @@ export default class Backend extends EventEmitter {
     };
   }
 
+  /**
+   * Log in with mullvad account
+   * 
+   * @emits Backend.EventType.logging
+   * @emits Backend.EventType.login
+   * @param {string} account 
+   * 
+   * @memberOf Backend
+   */
   login(account) {
     this._account = account;
     this._paidUntil = null;
 
     // emit: logging in
-    this.emit(EventType.logging, { account, paidUntil: this._paidUntil }, null);
+    this.emit(Backend.EventType.logging, { account, paidUntil: this._paidUntil }, null);
 
     // @TODO: Add login call
     setTimeout(() => {
@@ -127,16 +283,22 @@ export default class Backend extends EventEmitter {
       }
 
       // emit: login
-      this.emit(EventType.login, res, err);
+      this.emit(Backend.EventType.login, res, err);
     }, 2000);
   }
 
+  /**
+   * Log out
+   * 
+   * @emits Backend.EventType.logout
+   * @memberOf Backend
+   */
   logout() {
     this._account = null;
     this._paidUntil = null;
 
     // emit event
-    this.emit(EventType.logout);
+    this.emit(Backend.EventType.logout);
 
     // disconnect user during logout
     this.disconnect();
@@ -144,14 +306,23 @@ export default class Backend extends EventEmitter {
     // @TODO: Add logout call
   }
 
+  /**
+   * Connect to VPN server
+   * @emits Backend.EventType.connecting
+   * @emits Backend.EventType.connect
+   * 
+   * @param {string} addr IP address or domain name
+   * 
+   * @memberOf Backend
+   */
   connect(addr) {
     this.disconnect();
 
-    this._connStatus = ConnectionState.connecting;
+    this._connStatus = Backend.ConnectionState.connecting;
     this._serverAddress = addr;
 
     // emit: connecting
-    this.emit(EventType.connecting, addr);
+    this.emit(Backend.EventType.connecting, addr);
     
     // @TODO: Add connect call
     let timer = null;
@@ -164,11 +335,11 @@ export default class Backend extends EventEmitter {
         err = new Error('Server is unreachable');
       }
 
-      this._connStatus = ConnectionState.connected;
+      this._connStatus = Backend.ConnectionState.connected;
 
       // emit: connect
-      this.emit(EventType.connect, addr, err);
-      this.refreshIp();
+      this.emit(Backend.EventType.connect, addr, err);
+      this._refreshIp();
 
       // reset timer
       timer = null;
@@ -181,45 +352,68 @@ export default class Backend extends EventEmitter {
         this._timer = null;
       }
       this._cancellationHandler = null;
-      this._connStatus = ConnectionState.disconnected;
+      this._connStatus = Backend.ConnectionState.disconnected;
     };
   }
 
+  /**
+   * Disconnect from VPN server
+   * 
+   * @emits Backend.EventType.disconnect
+   * @memberOf Backend
+   */
   disconnect() {
-    if(this._connStatus === ConnectionState.disconnected) { return; }
+    if(this._connStatus === Backend.ConnectionState.disconnected) { return; }
 
-    this._connStatus = ConnectionState.disconnected;
+    this._connStatus = Backend.ConnectionState.disconnected;
     this._serverAddress = null;
 
     // cancel ongoing connection attempt
     if(this._cancellationHandler) {
       this._cancellationHandler();
     } else {
-      this.refreshIp();
+      this._refreshIp();
     }
 
     // emit: disconnect
-    this.emit(EventType.disconnect);
+    this.emit(Backend.EventType.disconnect);
 
     // @TODO: Add disconnect call
   }
-
+  
+  /**
+   * Fetch user location
+   * 
+   * @private
+   * @returns {promise}
+   * 
+   * @memberOf Backend
+   */
   _fetchLocation() {
     return fetch('https://freegeoip.net/json/').then((res) => {
       return res.json();
     });
   }
 
-  refreshIp() {
-    if(this._connStatus === ConnectionState.disconnected) {
+  /**
+   * Request updates for user IP
+   * 
+   * @private
+   * @emits Backend.EventType.updatedLocation
+   * @emits Backend.EventType.updatedIp
+   * 
+   * @memberOf Backend
+   */
+  _refreshIp() {
+    if(this._connStatus === Backend.ConnectionState.disconnected) {
       this._fetchLocation().then((res) => {
         const data = {
           location: [ res.latitude, res.longitude ], // lat, lng
           city: res.city,
           country: res.country_name
         };
-        this.emit(EventType.updatedLocation, data);
-        this.emit(EventType.updatedIp, res.ip);
+        this.emit(Backend.EventType.updatedLocation, data);
+        this.emit(Backend.EventType.updatedIp, res.ip);
       }).catch((error) => {
         console.log('Got error: ', error);
       });
@@ -231,6 +425,6 @@ export default class Backend extends EventEmitter {
       ip.push(parseInt(Math.random() * 253 + 1));
     }
 
-    this.emit(EventType.updatedIp, ip.join('.'));
+    this.emit(Backend.EventType.updatedIp, ip.join('.'));
   }
 }

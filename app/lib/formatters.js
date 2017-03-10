@@ -1,5 +1,9 @@
 import assert from 'assert';
 
+/**
+ * Format account number
+ * @param {string} val  account number 
+ */
 export const formatAccount = (val) => {
   assert(typeof(val) === 'string');
   
