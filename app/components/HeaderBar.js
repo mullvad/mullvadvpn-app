@@ -7,7 +7,7 @@ import Enum from '../lib/enum';
  * 
  * @export
  * @class HeaderBar
- * @extends {Component}
+ * @extends {React.Component}
  */
 export default class HeaderBar extends Component {
 

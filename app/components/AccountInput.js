@@ -6,7 +6,7 @@ import { formatAccount } from '../lib/formatters';
  * 
  * @export
  * @class AccountInput
- * @extends {Component}
+ * @extends {React.Component}
  */
 export default class AccountInput extends Component {
 

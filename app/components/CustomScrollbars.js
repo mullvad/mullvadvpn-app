@@ -6,7 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
  * 
  * @export
  * @class CustomScrollbars
- * @extends {Component}
+ * @extends {React.Component}
  */
 export default class CustomScrollbars extends Component {
   /**

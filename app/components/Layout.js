@@ -6,7 +6,7 @@ import HeaderBar from './HeaderBar';
  * 
  * @export
  * @class Header
- * @extends {Component}
+ * @extends {React.Component}
  */
 export class Header extends Component {
 
@@ -34,7 +34,7 @@ export class Header extends Component {
  * 
  * @export
  * @class Container
- * @extends {Component}
+ * @extends {React.Component}
  */
 export class Container extends Component {
 
@@ -64,7 +64,7 @@ export class Container extends Component {
  * 
  * @export
  * @class Layout
- * @extends {Component}
+ * @extends {React.Component}
  */
 export class Layout extends Component {
 
