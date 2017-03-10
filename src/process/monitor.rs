@@ -140,7 +140,7 @@ impl<S: ChildSpawner> Drop for ChildMonitor<S> {
 
 
 #[cfg(test)]
-mod child_monitor {
+mod child_monitor_tests {
     use super::*;
     use std::io;
     use std::process::{ChildStdout, ChildStderr};
@@ -255,5 +255,13 @@ mod child_monitor {
 
         assert!(testee.stop().is_ok());
         assert_event!(rx, Ok(true));
+    }
+
+    #[test]
+    fn stop_without_start() {
+        let spawner = MockChildSpawner::new(Some(MockChild::alive_until_kill()));
+        let testee = ChildMonitor::new(spawner);
+
+        assert_matches!(testee.stop(), Err(Error(ErrorKind::InvalidState, _)));
     }
 }
