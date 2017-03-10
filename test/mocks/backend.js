@@ -1,8 +1,8 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import Backend from '../app/lib/backend';
-import { defaultServer } from '../app/config';
-import { LoginState, ConnectionState } from '../app/enums';
+import Backend from '../../app/lib/backend';
+import { defaultServer } from '../../app/config';
+import { LoginState, ConnectionState } from '../../app/enums';
 
 // fetch is absent in node environment
 // this will automatically import it into global scope
