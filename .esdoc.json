@@ -1,0 +1,15 @@
+{
+  "source": "./app",
+  "destination": "./docs",
+  "experimentalProposal": {
+    "classProperties": true,
+    "objectRestSpread": true,
+    "doExpressions": true,
+    "functionBind": true,
+    "functionSent": true,
+    "asyncGenerators": true,
+    "decorators": true,
+    "exportExtensions": true,
+    "dynamicImport": true
+  }
+}
