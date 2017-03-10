@@ -2,11 +2,34 @@ import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import Enum from '../lib/enum';
 
+/**
+ * Header bar component
+ * 
+ * @export
+ * @class HeaderBar
+ * @extends {Component}
+ */
 export default class HeaderBar extends Component {
 
-  /** Bar style */
+  /**
+   * Bar style
+   * @type {Style}
+   * @property {string} default     - default
+   * @property {string} defaultDark - default dark blue
+   * @property {string} error       - red
+   * @property {string} success     - green
+   * @static
+   * 
+   * @memberOf HeaderBar
+   */
   static Style = new Enum('default', 'defaultDark', 'error', 'success');
 
+  /**
+   * Prop types
+   * @static
+   * 
+   * @memberOf HeaderBar
+   */
   static propTypes = {
     style: PropTypes.string,
     hidden: PropTypes.bool,
@@ -14,6 +37,9 @@ export default class HeaderBar extends Component {
     onSettings: PropTypes.func
   };
 
+  /**
+   * @override
+   */
   render() {
     const style = this.props.style;
     let containerClass = ['headerbar'];

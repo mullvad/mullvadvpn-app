@@ -3,12 +3,24 @@ import { formatAccount } from '../lib/formatters';
 
 export default class AccountInput extends Component {
 
+  /**
+   * Prop types
+   * @static
+   * 
+   * @memberOf AccountInput
+   */
   static propTypes = {
     value: PropTypes.string,
     onEnter: PropTypes.func,
     onChange: PropTypes.func
   }
 
+  /**
+   * Creates an instance of AccountInput.
+   * @param {object} props 
+   * 
+   * @memberOf AccountInput
+   */
   constructor(props) {
     super(props);
 
@@ -21,6 +33,9 @@ export default class AccountInput extends Component {
     };
   }
 
+  /**
+   * @override
+   */
   componentWillReceiveProps(nextProps) {
     const nextVal = this.sanitize(nextProps.value);
     if(nextVal !== this.state.value) {

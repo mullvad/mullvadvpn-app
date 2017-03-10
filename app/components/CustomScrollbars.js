@@ -1,11 +1,26 @@
 import React, { Component, PropTypes } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
+/**
+ * Custom scrollbars component
+ * 
+ * @export
+ * @class CustomScrollbars
+ * @extends {Component}
+ */
 export default class CustomScrollbars extends Component {
+  /**
+   * PropTypes
+   * @static
+   * @memberOf CustomScrollbars
+   */
   static propTypes = {
     children: PropTypes.element
   }
 
+  /**
+   * @override
+   */
   render() {
     return (
       <Scrollbars

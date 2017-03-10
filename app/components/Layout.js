@@ -10,8 +10,16 @@ import HeaderBar from './HeaderBar';
  */
 export class Header extends Component {
 
-  static Style = HeaderBar.Style
+  /**
+   * @type {HeaderBar.Style}
+   * @static
+   * @memberOf Header
+   */
+  static Style = HeaderBar.Style;
 
+  /**
+   * @override
+   */
   render() {
     return (
       <div className="layout__header">
@@ -29,10 +37,19 @@ export class Header extends Component {
  * @extends {Component}
  */
 export class Container extends Component {
+
+  /**
+   * PropTypes
+   * @static
+   * @memberOf Container
+   */
   static propTypes = {
     children: PropTypes.element.isRequired
   };
 
+  /**
+   * @override
+   */
   render() {
     return (
       <div className="layout__container">
@@ -50,6 +67,12 @@ export class Container extends Component {
  * @extends {Component}
  */
 export class Layout extends Component {
+
+  /**
+   * PropTypes
+   * @static
+   * @memberOf Container
+   */
   static propTypes = {
     children: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.element),
@@ -57,6 +80,9 @@ export class Layout extends Component {
     ])
   };
   
+  /**
+   * @override
+   */
   render() {
     return (
       <div className="layout">

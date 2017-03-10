@@ -5,7 +5,7 @@ import React from 'react';
 import ReactTestUtils, { Simulate } from 'react-addons-test-utils';
 import AccountInput from '../../app/components/AccountInput';
 
-describe('components: AccountInput', () => {
+describe('components/AccountInput', () => {
 
   it('should call onEnter', (done) => {
     const onEnter = () => {
