@@ -218,7 +218,7 @@ export default class Backend extends EventEmitter {
   }
 
   /**
-   * Get fastest server
+   * Get fastest server info
    * 
    * @returns {ServerInfo}
    * 
