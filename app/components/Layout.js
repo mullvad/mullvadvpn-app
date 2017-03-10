@@ -1,6 +1,13 @@
 import React, { PropTypes, Component } from 'react';
 import HeaderBar from './HeaderBar';
 
+/**
+ * Layout header
+ * 
+ * @export
+ * @class Header
+ * @extends {Component}
+ */
 export class Header extends Component {
 
   static Style = HeaderBar.Style
@@ -14,6 +21,13 @@ export class Header extends Component {
   }
 }
 
+/**
+ * Content container
+ * 
+ * @export
+ * @class Container
+ * @extends {Component}
+ */
 export class Container extends Component {
   static propTypes = {
     children: PropTypes.element.isRequired
@@ -28,6 +42,13 @@ export class Container extends Component {
   }
 }
 
+/**
+ * Layout container
+ * 
+ * @export
+ * @class Layout
+ * @extends {Component}
+ */
 export class Layout extends Component {
   static propTypes = {
     children: PropTypes.oneOfType([

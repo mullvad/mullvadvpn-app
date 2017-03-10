@@ -1,6 +1,14 @@
 {
+  "title": "Mullvad VPN",
+  "lint": true,
+  "coverage": true,
+  "includeSource": true,
   "source": "./app",
   "destination": "./docs",
+  "test": {
+    "type": "mocha",
+    "source": "./test"
+  },
   "experimentalProposal": {
     "classProperties": true,
     "objectRestSpread": true,
