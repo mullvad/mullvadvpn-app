@@ -1,8 +1,5 @@
 {
   "title": "Mullvad VPN",
-  "lint": true,
-  "coverage": true,
-  "includeSource": true,
   "source": "./app",
   "destination": "./docs",
   "test": {
