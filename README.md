@@ -1,69 +1,30 @@
-# electron-react-redux-boilerplate
+# Mullvad VPN
 
-A minimal boilerplate to get started with [Electron](http://electron.atom.io/), [React](https://facebook.github.io/react/) and [Redux](http://redux.js.org/).
+## Command line tools
 
-Including:
+- `$ npm run develop` - develop app with live-reload enabled
+- `$ npm run lint` - lint code
+- `$ npm run docs` - generate HTML documentation
+- `$ npm run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`, `pack:win`, `pack:linux` to generate package for single target.
+- `$ npm run test` - run tests
 
-* [React Router](https://reacttraining.com/react-router/)
-* [Redux Thunk](https://github.com/gaearon/redux-thunk/)
-* [Redux Actions](https://github.com/acdlite/redux-actions/)
-* [Redux Local Storage](https://github.com/elgerlambert/redux-localstorage/)
-* [Electron Packager](https://github.com/electron-userland/electron-packager)
-* [Electron DevTools Installer](https://github.com/bradstewart/electron-devtools-installer)
-* [Mocha](https://mochajs.org/)
-* [Browsersync](https://browsersync.io/)
+## Structure
 
-## Quick start
-
-Clone the repository
-```bash
-git clone git@github.com:jschr/electron-react-redux-boilerplate.git
-```
-
-Install dependencies
-```bash
-cd electron-react-redux-boilerplate
-npm install
-```
-
-Development
-```bash
-npm run develop
-```
-
-## DevTools
-
-Toggle DevTools:
-
-* OSX: <kbd>Cmd</kbd> <kbd>Alt</kbd> <kbd>I</kbd> or <kbd>F12</kbd>
-* Linux: <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>I</kbd> or <kbd>F12</kbd>
-* Windows: <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>I</kbd> or <kbd>F12</kbd>
-
-## Packaging
-
-Modify [electron-builder.yml](./electron-builder.yml) to edit package info.
-
-For a full list of options see: https://github.com/electron-userland/electron-builder/wiki/Options.
-
-Create a package for OSX, Windows and Linux
-```
-npm run pack
-```
-
-Or target a specific platform
-```
-npm run pack:mac
-npm run pack:win
-npm run pack:linux
-```
-
-## Tests
-
-```
-npm run test
-```
-
-## Maintainers
-
-- [@jschr](https://github.com/jschr)
-- [@pronebird](https://github.com/pronebird)
+- **app/**
+  - **actions/** - redux actions
+  - **reducers/** - redux reducers
+  - **components/** - components
+  - **containers/** - containers that provide a glueing layer between components and redux actions/backend.
+  - **lib/** - shared classes and utilities
+  - **assets/** - graphical assets and stylesheets
+  - **config.js** - static configuration file
+  - **app.js** - entry file for renderer process
+  - **main.js** - entry file for background process
+  - **routes.js** - routes configurator
+  - **store.js** - redux store configurator
+  - **enums.js** - common enums used across components
+  - **tilecache.sw.js** - service worker for caching mapbox requests
+- **test/** - tests
+- **scripts/** - support scripts for development
+- **init.js** - entry file for electron, points to compiled **main.js**
+- **distribution.yml** - distribution configuration
