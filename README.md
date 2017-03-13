@@ -42,11 +42,11 @@ Most of application layouts consist of header bar area and main content area. Th
 </Layout>
 ```
 
-## Redux and Backend communication
+## Backend communication
 
-Redux store keeps data displayed in user interface. Backend is connected with the app via event system.
+Backend is connected with the app via event system.
 
-There are two helpers responsible for events translation:
+Backend events are translated into redux actions. There are two helpers responsible for events translation:
 
 - **app/lib/backend-redux-actions.js** - translates events into redux actions
 - **app/lib/backend-routing.js** - application logic based on received events (i.e managing active route etc..)
