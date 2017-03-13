@@ -21,6 +21,7 @@ export default function makeRoutes(store) {
 
   /**
    * Ensures that user is redirected to /connect if logged in
+   * @private
    */
   const ensureConnect = (nextState, replace) => {
     let { user } = store.getState();
@@ -31,6 +32,7 @@ export default function makeRoutes(store) {
 
   /**
    * Ensures that user is redirected to / login if not logged in
+   * @private
    */
   const ensureLoggedIn = (nextState, replace) => {
     let { user } = store.getState();
