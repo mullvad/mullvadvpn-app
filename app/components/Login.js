@@ -3,6 +3,7 @@ import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { LoginState } from '../enums';
 import AccountInput from './AccountInput';
+import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 export default class Login extends Component {
   static propTypes = {
@@ -174,7 +175,10 @@ export default class Login extends Component {
             </div>
             <div className={footerClass}>
               <div className="login-footer__prompt">Don't have an account number?</div>
-              <button className="button button--primary" onClick={ ::this.onCreateAccount }>Create account</button>
+              <button className="button button--primary" onClick={ ::this.onCreateAccount }>
+                <span className="button-label">Create account</span>
+                <ExternalLinkSVG className="button-icon button-icon--16" />
+              </button>
             </div>
           </div>
         </Container>

@@ -3,6 +3,7 @@ import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
+import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 export default class Account extends Component {
 
@@ -66,7 +67,10 @@ export default class Account extends Component {
                   </div>
 
                   <div className="account__footer">
-                    <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>Buy more time</button>
+                    <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
+                      <span className="button-label">Buy more time</span>
+                      <ExternalLinkSVG className="button-icon button-icon--16" />
+                    </button>
                     <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
                   </div>
 

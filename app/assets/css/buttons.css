@@ -1,5 +1,5 @@
 .button {
-  display: block;
+  display: flex;
   width: 100%;
   padding: 7px 12px 9px;
   border-radius: 4px;
@@ -7,8 +7,18 @@
   font-family: DINPro;
   font-size: 20px;
   font-weight: 900;
-  text-align: center;
   line-height: 26px;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-label {
+  margin: 0 auto;
+}
+
+/* make negative margin to center label within button */
+.button-label + .button-icon--16 {
+  margin-left: -16px;
 }
 
 .button--blur {
@@ -20,13 +30,21 @@
   color: rgba(255,255,255,0.8);
 }
 
+.button--primary .button-icon path {
+  fill: rgba(255,255,255,0.8);
+}
+
 .button--primary:hover {
-  background: rgba(41,71,115,0.9);
+  background-color: rgba(41,71,115,0.9);
   color: rgba(255,255,255,1);
 }
 
+.button--primary:hover .button-icon path {
+  fill: rgba(255,255,255,1);
+}
+
 .button--primary:active {
-  background: rgba(41,71,115,1);
+  background-color: rgba(41,71,115,1);
 }
 
 .button--secondary {
@@ -35,12 +53,12 @@
 }
 
 .button--secondary:hover {
-  background: rgba(41,71,115,0.5);
+  background-color: rgba(41,71,115,0.5);
   color: rgba(255,255,255,0.8);
 }
 
 .button--secondary:active {
-  background: rgba(41,71,115,0.4);
+  background-color: rgba(41,71,115,0.4);
 }
 
 .button--negative {
@@ -54,7 +72,7 @@
 }
 
 .button--negative:active {
-  background: rgba(208,2,27,1);
+  background-color: rgba(208,2,27,1);
 }
 
 .button--negative-light {
@@ -63,12 +81,12 @@
 }
 
 .button--negative-light:hover {
-  background: rgba(208,2,27,0.45);
+  background-color: rgba(208,2,27,0.45);
   color: rgba(255,255,255,0.8);
 }
 
 .button--negative-light:active {
-  background: rgba(208,2,27,0.4);
+  background-color: rgba(208,2,27,0.4);
 }
 
 .button--positive {
@@ -76,13 +94,21 @@
   color: rgba(255,255,255,0.8);
 }
 
+.button--positive .button-icon path {
+  fill: rgba(255,255,255,0.8);
+}
+
 .button--positive:hover {
-  background: rgba(63,173,77,0.9);
+  background-color: rgba(63,173,77,0.9);
   color: rgba(255,255,255,1);
 }
 
+.button--positive:hover .button-icon path {
+  fill: rgba(255,255,255,1);
+}
+
 .button--positive:active {
-  background: rgba(63,173,77,1);
+  background-color: rgba(63,173,77,1);
 }
 
 .button--neutral {
@@ -91,10 +117,10 @@
 }
 
 .button--neutral:hover {
-  background: rgba(255,255,255,0.25);
+  background-color: rgba(255,255,255,0.25);
   color: rgba(255,255,255,1);
 }
 
 .button--neutral:active {
-  background: rgba(255,255,255,0.2);
+  background-color: rgba(255,255,255,0.2);
 }
