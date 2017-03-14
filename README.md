@@ -29,6 +29,10 @@
 - **init.js** - entry file for electron, points to compiled **main.js**
 - **distribution.yml** - distribution configuration
 
+## App diagram
+
+![App diagram](README%20images/app-diagram.png)
+
 ## View layout
 
 Most of application layouts consist of header bar area and main content area. Three of components from `components/Layout` help to assemble each view, i.e:
