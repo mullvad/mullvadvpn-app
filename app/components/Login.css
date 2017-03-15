@@ -67,6 +67,11 @@
   transition-property: background-color, border-color;
   transition-timing-function: ease-in-out;
 }
+
+.login-form__input-wrap--active {
+  border-color: rgb(26, 48, 77);
+}
+
 .login-form__input-wrap--inactive {
   opacity: 0.6;
 }
@@ -118,8 +123,12 @@
 }
 
 .login-form__submit--active {
-  background-color: rgba(40, 77, 115, 0.4);
+  background-color: #44ad4d;
   background-image: url(../assets/images/icon-arrow-active.svg);
+}
+
+.login-form__submit--active:hover {
+  background-color: rgba(68, 173, 76, 0.9);
 }
 
 .login-form__submit--invisible {

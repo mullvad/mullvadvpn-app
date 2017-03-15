@@ -17,7 +17,10 @@ export default class Login extends Component {
   
   constructor(props) {
     super(props);
-    this.state = { notifyOnFirstChangeAfterFailure: false };
+    this.state = { 
+      notifyOnFirstChangeAfterFailure: false,
+      isActive: false
+    };
   }
   
   componentWillReceiveProps(nextProps) {
@@ -38,6 +41,14 @@ export default class Login extends Component {
 
   onCreateAccount() {
     this.props.onExternalLink('createAccount');
+  }
+
+  onFocus() {
+    this.setState({ isActive: true });
+  }
+
+  onBlur() {
+    this.setState({ isActive: false });
   }
 
   onInputChange(val) {
@@ -68,6 +79,11 @@ export default class Login extends Component {
 
   inputWrapClass(user) {
     const classes = ['login-form__input-wrap'];
+
+    if(this.state.isActive) {
+      classes.push('login-form__input-wrap--active');
+    }
+    
     switch(user.status) {
     case LoginState.connecting:
       classes.push('login-form__input-wrap--inactive');
@@ -163,6 +179,8 @@ export default class Login extends Component {
                   <AccountInput className="login-form__input-field" 
                         type="text" 
                         placeholder="e.g 0000 0000 0000" 
+                        onFocus={ ::this.onFocus }
+                        onBlur={ ::this.onBlur }
                         onChange={ ::this.onInputChange }
                         onEnter={ ::this.onLogin }
                         value={ account }
