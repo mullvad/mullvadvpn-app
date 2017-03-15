@@ -86,7 +86,7 @@ export default class Settings extends Component {
                             </div>
                           </div>
                           <div className="settings__cell-footer">
-                            When this device connects to the internet it will automatically connect to a secure server
+                            When this device connects to the internet, Mullvad VPN will automatically secure your connection
                           </div>
                         </div>
                       </Then>
@@ -94,13 +94,15 @@ export default class Settings extends Component {
 
                     <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
                       <div className="settings__cell-label">FAQs</div>
+                      <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
                     </div>
                     <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'guides') }>
                       <div className="settings__cell-label">Guides</div>
+                      <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
                     </div>
                     <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
-                      <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
                       <div className="settings__cell-label">Contact support</div>
+                      <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
                     </div>
                   </div>
 
