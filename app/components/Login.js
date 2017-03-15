@@ -4,6 +4,7 @@ import { Layout, Container, Header } from './Layout';
 import { LoginState } from '../enums';
 import AccountInput from './AccountInput';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+import LoginArrowSVG from '../assets/images/icon-arrow.svg';
 
 export default class Login extends Component {
   static propTypes = {
@@ -83,7 +84,7 @@ export default class Login extends Component {
     if(this.state.isActive) {
       classes.push('login-form__input-wrap--active');
     }
-    
+
     switch(user.status) {
     case LoginState.connecting:
       classes.push('login-form__input-wrap--inactive');
@@ -187,7 +188,9 @@ export default class Login extends Component {
                         disabled={ isConnecting }
                         autoFocus={ true } 
                         ref={ autoFocusRef } />
-                    <button className={ submitClass } onClick={ ::this.onLogin }></button>
+                    <button className={ submitClass } onClick={ ::this.onLogin }>
+                      <LoginArrowSVG className="login-form__submit-icon" />
+                    </button>
                 </div>
               </div>
             </div>

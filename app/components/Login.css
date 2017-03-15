@@ -66,10 +66,14 @@
   transition-duration: 0.3s;
   transition-property: background-color, border-color;
   transition-timing-function: ease-in-out;
+
+  /* this fixes border-radius clipping bug when button animates opacity */
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 .login-form__input-wrap--active {
-  border-color: rgb(26, 48, 77);
+  border-color: rgba(25,46,69,0.4);
 }
 
 .login-form__input-wrap--inactive {
@@ -88,6 +92,7 @@
   width: 100%;
   border-radius: 8px;
   border: 0;
+  overflow: hidden;
   padding: 10px 12px 12px 12px;
   font-family: DINPro;
   font-size: 20px;
@@ -104,7 +109,7 @@
 }
 
 .login-form__input-wrap--error { 
-  border-color: #D0021B;
+  border-color: rgba(208,2,27,0.4);
 }
 
 .login-form__input-wrap--error .login-form__input-field { 
@@ -116,15 +121,27 @@
   border: 0;
   width: 48px;
   background-color: transparent;
-  background-image: url(../assets/images/icon-arrow-inactive.svg);
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: 0.3s all;
+  transition-duration: 0.3s;
+  transition-property: background-color, opacity;
+  transition-timing-function: ease-in-out;
+}
+
+.login-form__submit-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.login-form__submit-icon path {
+  fill: rgba(41,77,115,0.2);
+  transition: fill 0.3s ease-in-out;
 }
 
 .login-form__submit--active {
   background-color: #44ad4d;
-  background-image: url(../assets/images/icon-arrow-active.svg);
+}
+
+.login-form__submit--active .login-form__submit-icon path {
+  fill: #fff;
 }
 
 .login-form__submit--active:hover {
