@@ -11,9 +11,14 @@ const mapDispatchToProps = (dispatch, props) => {
     onClose: () => props.router.push('/connect'),
     onSelect: (preferredServer) => {
       const server = backend.serverInfo(preferredServer);
-      settings.updateSettings({ preferredServer });
-      backend.connect(server.address);
+
       props.router.push('/connect');
+      
+      // add delay to let the map load
+      setTimeout(() => {
+        settings.updateSettings({ preferredServer });
+        backend.connect(server.address);
+      }, 600);
     }
   };
 };
