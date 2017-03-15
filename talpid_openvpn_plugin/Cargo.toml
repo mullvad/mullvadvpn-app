@@ -5,7 +5,7 @@ authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.n
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
 
 [lib]
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 error-chain = "0.8"
