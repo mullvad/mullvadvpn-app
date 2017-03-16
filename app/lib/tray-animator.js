@@ -68,7 +68,7 @@ export class TrayAnimation {
     this._source = images.slice();
     this._nativeImages = images.map((pathOrNativeImage) => {
       if(typeof(pathOrNativeImage) === 'string') {
-        return nativeImage.createFromPath(path);
+        return nativeImage.createFromPath(pathOrNativeImage);
       } else if(typeof(pathOrNativeImage) === 'NativeImage') {
         return pathOrNativeImage;
       }
