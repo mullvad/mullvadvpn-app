@@ -61,7 +61,7 @@ impl OpenVpnPluginEvent {
         if i >= OpenVpnPluginEvent::Up as c_int && i <= OpenVpnPluginEvent::N as c_int {
             Ok(unsafe { ::std::mem::transmute_copy::<c_int, OpenVpnPluginEvent>(&i) })
         } else {
-            Err(ErrorKind::InvalidEnumVariant(i).into())
+            bail!(ErrorKind::InvalidEnumVariant(i))
         }
     }
 }

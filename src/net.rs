@@ -61,7 +61,7 @@ impl RemoteAddr {
         })?;
         if address.is_empty() || address.contains(':') {
             let msg = format!("Invalid IP or domain: \"{}\"", address);
-            return Err(ErrorKind::AddrParse(msg).into());
+            bail!(ErrorKind::AddrParse(msg));
         }
         Ok(RemoteAddr::Domain(address.to_owned(), port))
     }
