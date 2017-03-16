@@ -208,6 +208,16 @@ export class TrayAnimator {
     this._started = false;
     this._timer = null;
   }
+  
+  advanceToStart() {
+    this._animation.advanceToStart();
+    this._updateTrayIcon();
+  }
+
+  advanceToEnd() {
+    this._animation.advanceToEnd();
+    this._updateTrayIcon();
+  }
 
   /**
    * Start animating
