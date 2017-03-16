@@ -12,7 +12,7 @@ import connectActions from './actions/connect';
 import Backend from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
-import { LoginState, ConnectionState } from './enums';
+import { LoginState, ConnectionState, TrayIconType } from './enums';
 
 const initialState = {};
 const memoryHistory = createMemoryHistory();
@@ -45,15 +45,15 @@ if(recentLocation && recentLocation.pathname) {
 
 // Tray icon
 const updateTrayIcon = () => {
-  const getName = (s) => {
+  const getIconType = (s) => {
     switch(s) {
-    case ConnectionState.connected: return 'secured';
-    case ConnectionState.connecting: return 'securing';
-    default: return 'unsecured';
+    case ConnectionState.connected: return TrayIconType.secured;
+    case ConnectionState.connecting: return TrayIconType.securing;
+    default: return TrayIconType.unsecured;
     }
   };
   const { connect } = store.getState();
-  ipcRenderer.send('changeTrayIcon', getName(connect.status));
+  ipcRenderer.send('changeTrayIcon', getIconType(connect.status));
 };
 
 // patch backend

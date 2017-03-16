@@ -1,6 +1,7 @@
 import path from 'path';
-import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
-import { TrayAnimation, TrayAnimator } from './lib/tray-animator';
+import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import TrayIconManager from './lib/tray-icon-manager';
+import TrayIconProvider from './lib/tray-icon-provider';
 
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
@@ -13,6 +14,7 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 let window = null;
 let tray = null;
 let macEventMonitor = null;
+let trayIconManager = null;
 
 const startTrayEventMonitor = (win) => {
   if(process.platform === 'darwin') {
@@ -30,52 +32,8 @@ const stopTrayEventMonitor = () => {
   }
 };
 
-const menubarIcons = {
-  base: path.join(__dirname, 'assets/images/menubar icons'),
-  spinner: {
-    light: 'light ui/spinner/spinner-{s}-light.png',
-    dark: 'dark ui/spinner/spinner-{s}-dark.png'
-  },
-  lock: {
-    light: 'light ui/lock/lock-{s}-light.png',
-    dark: 'dark ui/lock/lock-{s}-dark.png'
-  }
-};
-
-const spinnerPath = path.join(menubarIcons.base, menubarIcons.spinner.light);
-const lockPath = path.join(menubarIcons.base, menubarIcons.lock.light);
-
-let trayAnimator = null;
-
-ipcMain.on('changeTrayIcon', (event, name) => {
-  if(!tray) { return; }
-  
-  trayAnimator && trayAnimator.stop();
-  trayAnimator = null;
-
-  console.log('changeTrayIcon: ' + name);
-
-  if(name === 'securing') {
-    let animation = TrayAnimation.fromFileSequence(spinnerPath, [1, 9]);
-    animation.speed = 100;
-    animation.repeat = true;
-
-    trayAnimator = new TrayAnimator(tray, animation);
-    trayAnimator.start();
-  } else if(name === 'secured') {
-    let animation = TrayAnimation.fromFileSequence(lockPath, [1, 9]);
-    animation.speed = 100;
-
-    trayAnimator = new TrayAnimator(tray, animation);
-    trayAnimator.start();
-  } else if(name === 'unsecured') {
-    let animation = TrayAnimation.fromFileSequence(lockPath, [1, 9]);
-    animation.speed = 100;
-    animation.reverse = true;
-
-    trayAnimator = new TrayAnimator(tray, animation);
-    trayAnimator.start();
-  }
+ipcMain.on('changeTrayIcon', (event, type) => {
+  trayIconManager.iconType = type;
 });
 
 // hide dock icon
@@ -171,12 +129,10 @@ const createWindow = () => {
   });
 
   window.on('show', () => {
-    tray.setHighlightMode('always');
     startTrayEventMonitor(window);
   });
 
   window.on('hide', () => {
-    tray.setHighlightMode('never');
     stopTrayEventMonitor();
   });
 
@@ -198,10 +154,15 @@ const showWindow = () => {
 };
 
 const createTray = () => {
-  tray = new Tray(path.join(__dirname, 'assets/images/tray-icon-default.png'));
+  tray = new Tray(nativeImage.createEmpty());
   tray.on('right-click', toggleWindow);
   tray.on('double-click', toggleWindow);
   tray.on('click', toggleWindow);
+
+  // never highlight menu
+  tray.setHighlightMode('never');
+  
+  trayIconManager = new TrayIconManager(tray, new TrayIconProvider());
 };
 
 crashReporter.start({
