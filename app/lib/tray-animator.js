@@ -89,6 +89,18 @@ export class TrayAnimation {
     return this._nativeImages[this._currentFrame];
   }
 
+  /**
+   * Prepare initial state for animation before running it.
+   * @memberOf TrayAnimation
+   */
+  prepare() {
+    this._currentFrame = this._reverse ? this._numFrames - 1 : 0;
+  }
+
+  /**
+   * Advance animation frame
+   * @memberOf TrayAnimation
+   */
   advanceFrame() {
     // do not advance frame when animation is finished
     if(this._isFinished) { return; }
@@ -117,8 +129,6 @@ export class TrayAnimation {
       }
     }
 
-    console.log('nextFrame: %d', nextFrame);
-
     this._currentFrame = nextFrame;
   }
 
@@ -139,7 +149,6 @@ export class TrayAnimation {
 
 /**
  * Tray icon animator 
- * 
  * @class TrayAnimator
  */
 export class TrayAnimator {
@@ -176,6 +185,9 @@ export class TrayAnimator {
     assert(this._started === false);
     this._timer = this._nextFrame();
     this._started = true;
+
+    // prepare animation
+    this._animation.prepare();
 
     // update from initial frame
     this._updateTrayIcon();
