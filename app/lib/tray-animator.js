@@ -45,7 +45,7 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   start() {
-    if(this._started) { return; };
+    if(this._started) { return; }
 
     this._timer = this._nextFrame();
     this._started = true;
@@ -76,7 +76,7 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   _nextFrame() {
-    return setTimeout(::this._updateAnimationFrame, this._animation.speed)
+    return setTimeout(::this._updateAnimationFrame, this._animation.speed);
   }
 
   /**
