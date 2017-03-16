@@ -12,7 +12,7 @@ import { ConnectionState as ReduxConnectionState } from '../enums';
  * @property {string}   city     - location city
  * @property {string}   country  - location country
  * @property {number[]} location - geo coordinate [latitude, longitude]
-* 
+ * 
  */
 
 /**

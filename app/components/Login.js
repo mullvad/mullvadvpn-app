@@ -194,7 +194,7 @@ export default class Login extends Component {
                 </div>
               </div>
             </div>
-            <div className={footerClass}>
+            <div className={ footerClass }>
               <div className="login-footer__prompt">Don't have an account number?</div>
               <button className="button button--primary" onClick={ ::this.onCreateAccount }>
                 <span className="button-label">Create account</span>
