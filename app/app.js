@@ -47,8 +47,9 @@ if(recentLocation && recentLocation.pathname) {
 const updateTrayIcon = () => {
   const getName = (s) => {
     switch(s) {
-    case ConnectionState.connected: return 'connected';
-    default: return 'default';
+    case ConnectionState.connected: return 'secured';
+    case ConnectionState.connecting: return 'securing';
+    default: return 'unsecured';
     }
   };
   const { connect } = store.getState();
@@ -66,6 +67,7 @@ mapBackendEventsToRouter(backend, store);
 
 // Setup events to update tray icon
 backend.on(Backend.EventType.connect, updateTrayIcon);
+backend.on(Backend.EventType.connecting, updateTrayIcon);
 backend.on(Backend.EventType.disconnect, updateTrayIcon);
 
 // force update tray

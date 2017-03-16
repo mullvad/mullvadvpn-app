@@ -1,5 +1,6 @@
 import path from 'path';
-import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+import { TrayAnimation, TrayAnimator } from './lib/tray-animator';
 
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
@@ -29,11 +30,51 @@ const stopTrayEventMonitor = () => {
   }
 };
 
+const menubarIcons = {
+  base: path.join(__dirname, 'assets/images/menubar icons'),
+  spinner: {
+    light: 'light ui/spinner/spinner-{s}-light.png',
+    dark: 'dark ui/spinner/spinner-{s}-dark.png'
+  },
+  lock: {
+    light: 'light ui/lock/lock-{s}-light.png',
+    dark: 'dark ui/lock/lock-{s}-dark.png'
+  }
+};
+
+const spinnerPath = path.join(menubarIcons.base, menubarIcons.spinner.light);
+const lockPath = path.join(menubarIcons.base, menubarIcons.lock.light);
+
+let trayAnimator = null;
+
 ipcMain.on('changeTrayIcon', (event, name) => {
-  const iconPath = path.join(__dirname, './assets/images/tray-icon-' + name + '.png');
-  const image = nativeImage.createFromPath(iconPath);
-  if(image) {
-    tray.setImage(image);
+  if(!tray) { return; }
+  
+  trayAnimator && trayAnimator.stop();
+  trayAnimator = null;
+
+  console.log('changeTrayIcon: ' + name);
+
+  if(name === 'securing') {
+    let animation = TrayAnimation.fromFileSequence(spinnerPath, [1, 9]);
+    animation.speed = 100;
+    animation.repeat = true;
+
+    trayAnimator = new TrayAnimator(tray, animation);
+    trayAnimator.start();
+  } else if(name === 'secured') {
+    let animation = TrayAnimation.fromFileSequence(lockPath, [1, 9]);
+    animation.speed = 100;
+
+    trayAnimator = new TrayAnimator(tray, animation);
+    trayAnimator.start();
+  } else if(name === 'unsecured') {
+    let animation = TrayAnimation.fromFileSequence(lockPath, [1, 9]);
+    animation.speed = 100;
+    animation.reverse = true;
+
+    trayAnimator = new TrayAnimator(tray, animation);
+    trayAnimator.start();
   }
 });
 

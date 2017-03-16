@@ -182,7 +182,8 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   start() {
-    assert(this._started === false);
+    if(this._started) { return; };
+
     this._timer = this._nextFrame();
     this._started = true;
 
@@ -198,7 +199,7 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   stop() {
-    assert(this._started === true);
+    if(!this._started) { return; }
 
     this._started = false;
     
