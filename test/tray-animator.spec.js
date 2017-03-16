@@ -8,7 +8,7 @@ describe('lib/tray-animator', function() {
   let animation, animator;
 
   beforeEach(() => {
-    const images = (new Array(5)).map(() => nativeImage.createEmpty());
+    const images = [1, 2, 3, 4, 5].map(() => nativeImage.createEmpty());
     animation = new TrayAnimation(images);
     animation.speed = 1;
   });
@@ -26,7 +26,7 @@ describe('lib/tray-animator', function() {
       setImage: () => {
         if(animation.isFinished) {
           expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
-          expect(animation._currentFrame).to.be.equal(0);
+          expect(animation._currentFrame).to.be.equal(4);
           done();
         } else {
           seq.push(animation._currentFrame);
@@ -45,7 +45,7 @@ describe('lib/tray-animator', function() {
       setImage: () => {
         if(animation.isFinished) {
           expect(seq).to.be.deep.equal([4, 3, 2, 1, 0]);
-          expect(animation._currentFrame).to.be.equal(4);
+          expect(animation._currentFrame).to.be.equal(0);
           done();
         } else {
           seq.push(animation._currentFrame);
