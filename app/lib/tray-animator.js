@@ -104,14 +104,14 @@ export class TrayAnimation {
 
         // clamp range
         nextFrame = Math.min(Math.max(0, nextFrame), this._numFrames - 1);
+        
+        // skip corner frame when alternating by advancing frame once again
+        nextFrame = this._nextFrame(nextFrame, this._reverse);
       } else {
         nextFrame = this._reverse ? this._numFrames - 1 : 0;
       }
 
-      if(this._repeat) {
-        // repeat animation: skip corner frame by advancing once again
-        nextFrame = this._nextFrame(nextFrame, this._reverse);
-      } else {
+      if(!this._repeat) {
         // mark animation as finished if it's not marked as repeating
         this._isFinished = true;
       }
