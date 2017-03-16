@@ -66,7 +66,15 @@ export class TrayAnimation {
     assert(images.length > 0);
     
     this._source = images.slice();
-    this._nativeImages = images.map(path => nativeImage.createFromPath(path))
+    this._nativeImages = images.map((pathOrNativeImage) => {
+      if(typeof(pathOrNativeImage) === 'string') {
+        return nativeImage.createFromPath(path);
+      } else if(typeof(pathOrNativeImage) === 'NativeImage') {
+        return pathOrNativeImage;
+      }
+      return nativeImage.createEmpty();
+    });
+    
     this._speed = 200; // ms
     this._repeat = false;
     this._reverse = false;
