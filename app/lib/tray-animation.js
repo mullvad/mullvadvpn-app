@@ -1,6 +1,4 @@
 import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
 import { nativeImage } from 'electron';
 
 /**
@@ -8,13 +6,6 @@ import { nativeImage } from 'electron';
  * 
  * @export
  * @class TrayAnimation
- * @property {number}               speed        - speed per frame
- * @property {bool}                 repeat       - whether to repeat animation
- * @property {bool}                 reverse      - play in reverse
- * @property {bool}                 alternate    - whether to alternate sequence when reached the end of animation
- * @property {string[]}             source       - image source
- * @property {electron.NativeImage} nativeImages - a sequence of native images
- * @property {bool}                 isFinished   - whether animation sequence is finished (repeating animation never finish)
  */
 export class TrayAnimation {
 
@@ -141,7 +132,7 @@ export class TrayAnimation {
     this._nativeImages = images.map((pathOrNativeImage) => {
       if(typeof(pathOrNativeImage) === 'string') {
         return nativeImage.createFromPath(pathOrNativeImage);
-      } else if(typeof(pathOrNativeImage) === 'NativeImage') {
+      } else if((pathOrNativeImage + '') === '[object NativeImage]') {
         return pathOrNativeImage;
       }
       return nativeImage.createEmpty();

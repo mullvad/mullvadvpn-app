@@ -1,7 +1,4 @@
 import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import { nativeImage } from 'electron';
 
 /**
  * Tray icon animator 
