@@ -39,18 +39,18 @@ export class TrayAnimation {
    * Create animation using file sequence
    * 
    * @static
-   * @param {string}   filePattern - file name pattern where {} is replaced with index 
+   * @param {string}   filePattern - file name pattern where {s} is replaced with index 
    * @param {number[]} range       - sequence range [start, end]
    * 
    * @memberOf TrayAnimation
    * @return {TrayAnimation}
    */
-  static animationFromFileSequence(filePattern, range) {
+  static fromFileSequence(filePattern, range) {
     assert(range.length === 2 && range[0] < range[1]);
 
     let images = [];
     for(let i = range[0]; i <= range[1]; i++) {
-      images.push(filePattern.replace('{}', i));
+      images.push(filePattern.replace('{s}', i));
     }
 
     return new TrayAnimation(images);
@@ -93,10 +93,12 @@ export class TrayAnimation {
       // change animation direction if marked for alternation
       if(this._alternate) {
         this._reverse = !this._reverse;
-      }
 
-      // clamp range
-      nextFrame = Math.min(Math.max(0, nextFrame), this._numFrames);
+        // clamp range
+        nextFrame = Math.min(Math.max(0, nextFrame), this._numFrames - 1);
+      } else {
+        nextFrame = this._reverse ? this._numFrames - 1 : 0;
+      }
 
       if(this._repeat) {
         // repeat animation: skip corner frame by advancing once again
@@ -106,6 +108,8 @@ export class TrayAnimation {
         this._isFinished = true;
       }
     }
+
+    console.log('nextFrame: %d', nextFrame);
 
     this._currentFrame = nextFrame;
   }
@@ -147,8 +151,11 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   constructor(tray, animation) {
-    this._tray = null;
-    this._animation = anim;
+    assert(tray);
+    assert(animation);
+
+    this._tray = tray;
+    this._animation = animation;
     this._started = false;
     this._timer = null;
   }
