@@ -27,7 +27,7 @@ pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
             return Ok(connection_string);
         }
     }
-    bail!(ErrorKind::CouldNotStartServer)
+    bail!(ErrorKind::CouldNotStartServer);
 }
 
 fn start_zmq_server(connection_string: &str) -> zmq::Result<zmq::Socket> {
