@@ -94,7 +94,15 @@ export class TrayAnimation {
    * @memberOf TrayAnimation
    */
   prepare() {
-    this._currentFrame = this._reverse ? this._numFrames - 1 : 0;
+    this._currentFrame = this._firstFrame(this._reverse);
+  }
+
+  advanceToStart() {
+    this._currentFrame = this._firstFrame(this._reverse);
+  }
+
+  advanceToEnd() {
+    this._currentFrame = this._lastFrame(this._reverse);
   }
 
   /**
@@ -110,6 +118,12 @@ export class TrayAnimation {
 
     // did reach end?
     if(nextFrame < 0 || nextFrame >= this._numFrames) {
+      // mark animation as finished if it's not marked as repeating
+      if(!this._repeat) {
+        this._isFinished = true;
+        return;
+      }
+
       // change animation direction if marked for alternation
       if(this._alternate) {
         this._reverse = !this._reverse;
@@ -120,15 +134,9 @@ export class TrayAnimation {
         // skip corner frame when alternating by advancing frame once again
         nextFrame = this._nextFrame(nextFrame, this._reverse);
       } else {
-        nextFrame = this._reverse ? this._numFrames - 1 : 0;
-      }
-
-      if(!this._repeat) {
-        // mark animation as finished if it's not marked as repeating
-        this._isFinished = true;
+        nextFrame = this._firstFrame(this._reverse);
       }
     }
-
     this._currentFrame = nextFrame;
   }
 
@@ -137,12 +145,36 @@ export class TrayAnimation {
    * @private
    * @param {number} cur       - current frame
    * @param {bool}   isReverse - reverse sequence direction?
-   * @returns 
+   * @returns {number}
    * 
    * @memberOf TrayAnimation
    */
   _nextFrame(cur, isReverse) {
     return cur + (isReverse ? -1 : 1);
+  }
+
+  /**
+   * Get first frame of animation
+   * 
+   * @param {bool} isReverse reverse animation?
+   * @returns {number}
+   * 
+   * @memberOf TrayAnimation
+   */
+  _firstFrame(isReverse) {
+    return isReverse ? this._numFrames - 1 : 0;
+  }
+
+  /**
+   * Get last frame of animation
+   * 
+   * @param {bool} isReverse reverse animation?
+   * @returns {number}
+   * 
+   * @memberOf TrayAnimation
+   */
+  _lastFrame(isReverse) {
+    return isReverse ? 0 : this._numFrames - 1;
   }
 
 }
@@ -221,10 +253,12 @@ export class TrayAnimator {
    * @memberOf TrayAnimator
    */
   _updateAnimationFrame() {
+    if(!this._started) { return; }
+
     this._animation.advanceFrame();
     this._updateTrayIcon();
 
-    if(!this._animation.isFinished && this._started) {
+    if(!this._animation.isFinished) {
       this._nextFrame();
     }
   }
