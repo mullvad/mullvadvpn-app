@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { TrayAnimator,  } from '../app/lib/tray-animator';
-import { TrayAnimation } from '../app/lib/tray-animation';
+import TrayAnimator from '../app/lib/tray-animator';
+import TrayAnimation from '../app/lib/tray-animation';
 import { nativeImage } from 'electron';
 
 describe('lib/tray-animator', function() {

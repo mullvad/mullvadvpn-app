@@ -10,6 +10,7 @@ const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn-103');
 app.setPath('userData', userDataPath);
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
+
 let window = null;
 let tray = null;
 let macEventMonitor = null;

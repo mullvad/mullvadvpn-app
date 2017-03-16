@@ -7,7 +7,7 @@ import { nativeImage } from 'electron';
  * @export
  * @class TrayAnimation
  */
-export class TrayAnimation {
+export default class TrayAnimation {
 
   /**
    * Set animation pace per frame in ms

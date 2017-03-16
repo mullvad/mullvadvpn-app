@@ -1,6 +1,8 @@
 import path from 'path';
+import { EventEmitter } from 'events';
 import { systemPreferences } from 'electron';
-import { TrayAnimation } from './tray-animation';
+import TrayAnimation from './tray-animation';
+import Enum from './enum';
 
 const menubarIcons = {
   base: path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons'),
@@ -20,7 +22,39 @@ const menubarIcons = {
  * @export
  * @class TrayIconProvider
  */
-export default class TrayIconProvider {
+export default class TrayIconProvider extends EventEmitter {
+  
+  /**
+   * EventType
+   * @type {TrayIconProvider.EventType}
+   * @property {string} themeChanged - event fired when menubar theme is changed
+   */
+  static EventType = new Enum('themeChanged');
+
+  /**
+   * Creates an instance of TrayIconProvider.
+   * 
+   * @memberOf TrayIconProvider
+   */
+  constructor() {
+    super();
+
+    this._themeChangeObserver = systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => {
+      this.emit(TrayIconProvider.EventType.themeChanged);
+    });
+  }
+
+  /**
+   * Destroys TrayIconProvider
+   * 
+   * @memberOf TrayIconProvider
+   */
+  destroy() {
+    if(this._themeChangeObserver) {
+      systemPreferences.unsubscribeNotification(this._themeChangeObserver);
+      this._themeChangeObserver = null;
+    }
+  }
 
   /**
    * Get lock animation

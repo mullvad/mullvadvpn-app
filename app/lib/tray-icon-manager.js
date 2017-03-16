@@ -1,5 +1,6 @@
 import assert from 'assert';
-import { TrayAnimator } from './tray-animator';
+import TrayAnimator from './tray-animator';
+import TrayIconProvider from './tray-icon-provider';
 import { TrayIconType } from '../enums';
 
 /**
@@ -25,6 +26,8 @@ export default class TrayIconManager {
     this._iconProvider = iconProvider;
     this._animator = null;
     this._iconType = null;
+    
+    iconProvider.on(TrayIconProvider.EventType.themeChanged, this._onThemeChange);
   }
 
   /**
@@ -37,6 +40,15 @@ export default class TrayIconManager {
       this._animator = null;
     }
     this._iconType = null;
+    this._iconProvider.removeListener(TrayIconProvider.EventType.themeChanged, this._onThemeChange);
+  }
+
+  /**
+   * Event handler for notification when menubar theme is changed.
+   * @memberOf TrayIconManager
+   */
+  _onThemeChange = () => {
+    this._updateType(this._iconType, true);
   }
 
   /**
@@ -52,24 +64,52 @@ export default class TrayIconManager {
    * @memberOf TrayIconManager
    */
   set iconType(type) {
-    let animator;
-    assert(TrayIconType.isValid(type));
-
     // no-op if same animator requested
     if(this._iconType === type) { return; }
-    
+
+    // do not animate if setting icon for the first time
+    const skipAnimation = this._iconType === null;
+
+    this._updateType(type, skipAnimation);
+  }
+
+  /**
+   * Get animation for iconType
+   * 
+   * @param {TrayIconType} type 
+   * @returns TrayIconAnimator
+   * 
+   * @memberOf TrayIconManager
+   */
+  _animationForType(type) {
+    switch(type) {
+    case TrayIconType.secured: return this._iconProvider.lockAnimation();
+    case TrayIconType.unsecured: return this._iconProvider.unlockAnimation();
+    case TrayIconType.securing: return this._iconProvider.spinnerAnimation();
+    }
+  }
+
+  /**
+   * Update icon animator with new type
+   * 
+   * @param {TrayIconType} type
+   * @param {boolean} [skipAnimation=false] whether animation should be skipped
+   * 
+   * @memberOf TrayIconManager
+   */
+  _updateType(type, skipAnimation = false) {
+    assert(TrayIconType.isValid(type));
+
+    let animator = new TrayAnimator(this._tray, this._animationForType(type));
+
     // destroy existing animator
     if(this._animator) {
       this._animator.stop();
       this._animator = null;
     }
 
-    // do not animate if setting icon for the first time
-    const skipAnimation = this._iconType === null;
-
     switch(type) {
     case TrayIconType.secured:
-      animator = new TrayAnimator(this._tray, this._iconProvider.lockAnimation());
       if(skipAnimation) {
         animator.advanceToEnd();
       } else {
@@ -78,7 +118,6 @@ export default class TrayIconManager {
       break;
 
     case TrayIconType.unsecured:
-      animator = new TrayAnimator(this._tray, this._iconProvider.unlockAnimation());
       if(skipAnimation) {
         animator.advanceToStart();
       } else {
@@ -87,7 +126,6 @@ export default class TrayIconManager {
       break;
 
     case TrayIconType.securing:
-      animator = new TrayAnimator(this._tray, this._iconProvider.spinnerAnimation());
       animator.start();
       break;
     }

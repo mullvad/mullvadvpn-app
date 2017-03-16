@@ -4,7 +4,7 @@ import assert from 'assert';
  * Tray icon animator 
  * @class TrayAnimator
  */
-export class TrayAnimator {
+export default class TrayAnimator {
   
   /**
    * Whether animator has started.
