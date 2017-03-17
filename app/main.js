@@ -6,7 +6,7 @@ import TrayIconProvider from './lib/tray-icon-provider';
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
 const applicationSupportPath = app.getPath('appData');
-const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn-103');
+const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn');
 app.setPath('userData', userDataPath);
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
