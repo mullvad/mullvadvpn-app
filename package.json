@@ -42,7 +42,7 @@
     "browser-sync": "^2.9.3",
     "chai": "^3.4.1",
     "electron": "^1.6.1",
-    "electron-builder": "^15.5.1",
+    "electron-builder": "^15.6.1",
     "electron-devtools-installer": "^2.1.0",
     "electron-mocha": "^3.3.0",
     "esdoc": "^0.5.2",
