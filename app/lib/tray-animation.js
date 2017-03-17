@@ -172,8 +172,7 @@ export default class TrayAnimation {
   }
 
   /**
-   * Advance animation to the start
-   * This method respects animation reversal
+   * Advance animation to the start. This method respects animation reversal
    * 
    * @memberOf TrayAnimation
    */
@@ -182,8 +181,7 @@ export default class TrayAnimation {
   }
 
   /**
-   * Advance animation to the end
-   * This method respects animation reversal
+   * Advance animation to the end. This method respects animation reversal
    * 
    * @memberOf TrayAnimation
    */

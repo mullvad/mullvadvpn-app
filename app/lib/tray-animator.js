@@ -30,11 +30,19 @@ export default class TrayAnimator {
     this._timer = null;
   }
   
+  /**
+   * Advance animation to the start   * 
+   * @memberOf TrayAnimator
+   */
   advanceToStart() {
     this._animation.advanceToStart();
     this._updateTrayIcon();
   }
 
+  /**
+   * Advance animation to the end
+   * @memberOf TrayAnimator
+   */
   advanceToEnd() {
     this._animation.advanceToEnd();
     this._updateTrayIcon();
