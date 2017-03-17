@@ -10,6 +10,40 @@ import { nativeImage } from 'electron';
 export default class TrayAnimation {
 
   /**
+   * Set callback called on each frame update
+   * 
+   * @type {function}
+   * @memberOf TrayAnimation
+   */
+  set onFrame(v) { this._onFrame = v; }
+
+  /**
+   * Get callback called on each frame update
+   * 
+   * @readonly
+   * @type {function}
+   * @memberOf TrayAnimation
+   */
+  get onFrame() { this._onFrame; }
+  
+  /**
+   * Set callback called when animation finished
+   * 
+   * @type {function}
+   * @memberOf TrayAnimation
+   */
+  set onFinish(v) { this._onFinish = v; }
+
+  /**
+   * Get callback called when animation finished
+   * 
+   * @readonly
+   * 
+   * @memberOf TrayAnimation
+   */
+  get onFinish() { this._onFinish; }
+
+  /**
    * Set animation pace per frame in ms
    * 
    * @type {number}
@@ -149,7 +183,10 @@ export default class TrayAnimation {
     
     this._numFrames = images.length;
     this._currentFrame = 0;
+    this._frameRange = [0, this._numFrames];
     this._isFinished = false;
+
+    this._isFirstRun = true;
   }
 
   /**
@@ -165,46 +202,95 @@ export default class TrayAnimation {
 
   /**
    * Prepare initial state for animation before running it.
+   * @param {object} [options = {}] - animation options
+   * @param {number} [options.startFrame] - start frame
+   * @param {number} [options.endFrame] - end frame
+   * @param {bool} [options.beginFromCurrentState] - continue animation from current state
    * @memberOf TrayAnimation
    */
-  prepare() {
-    this._currentFrame = this._firstFrame(this._reverse);
+  play(options = {}) {
+    let {startFrame, endFrame, beginFromCurrentState} = options;
+
+    if(startFrame === undefined && endFrame === undefined) {
+      this._frameRange = [ 0, this._numFrames - 1 ];
+    } else {
+      throw 'not implemented';
+    }
+    
+    if(!beginFromCurrentState || this._isFirstRun) {
+      this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
+    }
+
+    if(this._isFirstRun) {
+      this._isFirstRun = false;
+    }
+
+    this._isFinished = false;
+    
+    this._render();
+    
+    this._unscheduleUpdate();
+    this._scheduleUpdate();
   }
 
-  /**
-   * Advance animation to the start. This method respects animation reversal
-   * 
-   * @memberOf TrayAnimation
-   */
-  advanceToStart() {
-    this._currentFrame = this._firstFrame(this._reverse);
+  stop() {
+    this._unscheduleUpdate();
   }
 
-  /**
-   * Advance animation to the end. This method respects animation reversal
-   * 
-   * @memberOf TrayAnimation
-   */
-  advanceToEnd() {
-    this._currentFrame = this._lastFrame(this._reverse);
+  _unscheduleUpdate() {
+    if(this._timeout) {
+      clearTimeout(this._timeout);
+      this._timeout = null;
+    }
+  }
+
+  _scheduleUpdate() {
+    this._timeout = setTimeout(::this._onUpdateFrame, this._speed);
+  }
+
+  _render() {
+    if(this._onFrame) {
+      this._onFrame(this._nativeImages[this._currentFrame]);
+    }
+  }
+
+  _didFinish() {
+    if(this._onFinish) {
+      this._onFinish();
+    }
+  }
+
+  _onUpdateFrame() {
+    this._advanceFrame();
+
+    if(!this._isFinished) {
+      this._render();
+      this._scheduleUpdate();
+    }
   }
 
   /**
    * Advance animation frame
    * @memberOf TrayAnimation
    */
-  advanceFrame() {
+  _advanceFrame() {
     // do not advance frame when animation is finished
     if(this._isFinished) { return; }
 
     // advance frame
     let nextFrame = this._nextFrame(this._currentFrame, this._reverse);
 
+    // let animation pick up from current state
+    let didReachEnd = (nextFrame < this._frameRange[0] && this._reverse) || // out of bounds but moving into
+                      (nextFrame > this._frameRange[1] && !this._reverse); // out of bounds but moving into
+
     // did reach end?
-    if(nextFrame < 0 || nextFrame >= this._numFrames) {
+    if(didReachEnd) {
       // mark animation as finished if it's not marked as repeating
       if(!this._repeat) {
         this._isFinished = true;
+
+        this._didFinish();
         return;
       }
 
@@ -213,14 +299,15 @@ export default class TrayAnimation {
         this._reverse = !this._reverse;
 
         // clamp range
-        nextFrame = Math.min(Math.max(0, nextFrame), this._numFrames - 1);
+        nextFrame = Math.min(Math.max(this._frameRange[0], nextFrame), this._frameRange[1]);
         
         // skip corner frame when alternating by advancing frame once again
         nextFrame = this._nextFrame(nextFrame, this._reverse);
       } else {
-        nextFrame = this._firstFrame(this._reverse);
+        nextFrame = this._frameRange[this._reverse ? 1 : 0];
       }
     }
+    
     this._currentFrame = nextFrame;
   }
 
@@ -235,30 +322,6 @@ export default class TrayAnimation {
    */
   _nextFrame(cur, isReverse) {
     return cur + (isReverse ? -1 : 1);
-  }
-
-  /**
-   * Get first frame of animation
-   * 
-   * @param {bool} isReverse reverse animation?
-   * @returns {number}
-   * 
-   * @memberOf TrayAnimation
-   */
-  _firstFrame(isReverse) {
-    return isReverse ? this._numFrames - 1 : 0;
-  }
-
-  /**
-   * Get last frame of animation
-   * 
-   * @param {bool} isReverse reverse animation?
-   * @returns {number}
-   * 
-   * @memberOf TrayAnimation
-   */
-  _lastFrame(isReverse) {
-    return isReverse ? 0 : this._numFrames - 1;
   }
 
 }
