@@ -82,13 +82,11 @@ const updateTrayIcon = () => {
 ipcRenderer.on('showWindow', () => {
   isWindowVisible = true;
   updateTrayIcon();
-  console.log('showWindow');
 });
 
 ipcRenderer.on('hideWindow', () => {
   isWindowVisible = false;
   updateTrayIcon();
-  console.log('hideWindow');
 });
 
 // patch backend
