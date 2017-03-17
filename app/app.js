@@ -44,17 +44,52 @@ if(recentLocation && recentLocation.pathname) {
 }
 
 // Tray icon
-const updateTrayIcon = () => {
-  const getIconType = (s) => {
-    switch(s) {
-    case ConnectionState.connected: return TrayIconType.secured;
-    case ConnectionState.connecting: return TrayIconType.securing;
-    default: return TrayIconType.unsecured;
+let isWindowVisible = false;
+
+/**
+ * Get tray icon type based on connection state
+ * @param    {ConnectionState} s - connection state
+ * @return   {Object}
+ * @property {TrayIconType} type    - icon type
+ * @property {bool} [skipAnimation] - skip animation?
+ * 
+ */
+const getChangeIconEventData = (s) => {
+  switch(s) {
+  case ConnectionState.connected: 
+    return { type: TrayIconType.secured };
+
+  case ConnectionState.connecting:
+    // do not display spinner if window is visible
+    if(isWindowVisible) {
+      return { type: TrayIconType.unsecured, skipAnimation: true };
+    } else {
+      return { type: TrayIconType.securing };
     }
-  };
-  const { connect } = store.getState();
-  ipcRenderer.send('changeTrayIcon', getIconType(connect.status));
+
+  default: return { type: TrayIconType.unsecured };
+  }
 };
+
+/**
+ * Update tray icon via IPC call
+ */
+const updateTrayIcon = () => {
+  const { connect } = store.getState();
+  ipcRenderer.send('changeTrayIcon', getChangeIconEventData(connect.status));
+};
+
+ipcRenderer.on('showWindow', () => {
+  isWindowVisible = true;
+  updateTrayIcon();
+  console.log('showWindow');
+});
+
+ipcRenderer.on('hideWindow', () => {
+  isWindowVisible = false;
+  updateTrayIcon();
+  console.log('hideWindow');
+});
 
 // patch backend
 backend.syncWithReduxStore(store);

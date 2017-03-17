@@ -53,6 +53,7 @@ export default class TrayIconManager {
 
   /**
    * Get current icon type
+   * @type {TrayIconType}
    * @memberOf TrayIconManager
    */
   get iconType() { 
@@ -61,16 +62,28 @@ export default class TrayIconManager {
 
   /**
    * Set current icon type
+   * @type {TrayIconType}
    * @memberOf TrayIconManager
    */
   set iconType(type) {
+    this.updateIconType(type, false);
+  }
+
+  /**
+   * Set current icon type with options
+   * 
+   * @param {TrayIconType} type          - new icon type
+   * @param {bool}         skipAnimation - pass true to skip animation to last frame. Has no effect on repeating animations.
+   * @returns 
+   * 
+   * @memberOf TrayIconManager
+   */
+  updateIconType(type, skipAnimation) {
     // no-op if same animator requested
     if(this._iconType === type) { return; }
 
     // do not animate if setting icon for the first time
-    const skipAnimation = this._iconType === null;
-
-    this._updateType(type, skipAnimation);
+    this._updateType(type, this._iconType === null || skipAnimation);
   }
 
   /**

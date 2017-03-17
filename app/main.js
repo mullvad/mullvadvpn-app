@@ -32,9 +32,11 @@ const stopTrayEventMonitor = () => {
   }
 };
 
-ipcMain.on('changeTrayIcon', (event, type) => {
-  trayIconManager.iconType = type;
+ipcMain.on('changeTrayIcon', (event, data) => {
+  trayIconManager.updateIconType(data.type, data.skipAnimation);
 });
+
+ipcMain.emit();
 
 // hide dock icon
 if(process.platform === 'darwin') {
@@ -130,10 +132,12 @@ const createWindow = () => {
 
   window.on('show', () => {
     startTrayEventMonitor(window);
+    window.webContents.send('showWindow');
   });
 
   window.on('hide', () => {
     stopTrayEventMonitor();
+    window.webContents.send('hideWindow');
   });
 
 };

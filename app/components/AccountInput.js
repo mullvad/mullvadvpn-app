@@ -104,7 +104,7 @@ export default class AccountInput extends Component {
    * 
    * @private
    * @param {String?} val  string
-   * @returns String
+   * @returns {String}
    * 
    * @memberOf AccountInput
    */
@@ -119,7 +119,7 @@ export default class AccountInput extends Component {
    * @param {String} val       original string 
    * @param {String} insert    insertion string
    * @param {Array}  selRange  selection range ([x,y])  
-   * @returns Object
+   * @returns {Object}
    * 
    * @memberOf AccountInput
    */
@@ -139,7 +139,7 @@ export default class AccountInput extends Component {
    * @private
    * @param {String} val       original string 
    * @param {Array}  selRange  selection range ([x,y])  
-   * @returns Object
+   * @returns {Object}
    * 
    * @memberOf AccountInput
    */
@@ -169,7 +169,7 @@ export default class AccountInput extends Component {
    * @private
    * @param {String} val      original string
    * @param {Array} domRange  selection range from DOM
-   * @returns Object
+   * @returns {Object}
    * 
    * @memberOf AccountInput
    */
@@ -197,7 +197,7 @@ export default class AccountInput extends Component {
    * @private
    * @param {String} val       original string
    * @param {Array}  selRange  selection range
-   * @returns Object
+   * @returns {Object}
    * 
    * @memberOf AccountInput
    */
