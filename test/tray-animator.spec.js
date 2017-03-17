@@ -20,6 +20,58 @@ describe('lib/tray-animator', function() {
     }
   });
 
+  it('should advance to start', (done) => {
+    const tray = {
+      setImage: () => {
+        expect(animation._currentFrame).to.be.equal(0);
+        done();
+      }
+    };
+
+    animator = new TrayAnimator(tray, animation);
+    animator.advanceToStart();
+  });
+
+  it('should advance to end', (done) => {
+    const tray = {
+      setImage: () => {
+        expect(animation._currentFrame).to.be.equal(4);
+        done();
+      }
+    };
+
+    animator = new TrayAnimator(tray, animation);
+    animator.advanceToEnd();
+  });
+
+  it('should advance to start when in reverse', (done) => {
+    const tray = {
+      setImage: () => {
+        expect(animation._currentFrame).to.be.equal(4);
+        done();
+      }
+    };
+
+    animation.reverse = true;
+
+    animator = new TrayAnimator(tray, animation);
+    animator.advanceToStart();
+  });
+
+  it('should advance to end when in reverse', (done) => {
+    const tray = {
+      setImage: () => {
+        expect(animation._currentFrame).to.be.equal(0);
+        done();
+      }
+    };
+    
+    animation.reverse = true;
+
+    animator = new TrayAnimator(tray, animation);
+    animator.advanceToEnd();
+  });
+  
   it('should play sequence', (done) => {
     let seq = [];
 
