@@ -110,16 +110,9 @@ export default class TrayIconManager {
 
     switch(type) {
     case TrayIconType.secured:
-      if(skipAnimation) {
-        animator.advanceToEnd();
-      } else {
-        animator.start();
-      }
-      break;
-
     case TrayIconType.unsecured:
       if(skipAnimation) {
-        animator.advanceToStart();
+        animator.advanceToEnd();
       } else {
         animator.start();
       }
