@@ -12,6 +12,7 @@ export default class TrayAnimation {
   /**
    * Set animation pace per frame in ms
    * 
+   * @type {number}
    * @memberOf TrayAnimation
    */
   set speed(v) { this._speed = parseInt(v); }
@@ -20,13 +21,15 @@ export default class TrayAnimation {
    * Get animation pace per frame in ms
    * 
    * @readonly
-   * 
+   * @type {number}
    * @memberOf TrayAnimation
    */
   get speed() { return this._speed; }
 
   /**
    * Set animation repetition
+   * @type {bool}
+   * 
    * @memberOf TrayAnimation
    */
   set repeat(v) { this._repeat = !!v; }
@@ -35,13 +38,14 @@ export default class TrayAnimation {
    * Get animation repetition
    * 
    * @readonly
-   * 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   get repeat() { return this._repeat; }
 
   /**
    * Set animation reversal 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   set reverse(v) { this._reverse = !!v; }
@@ -50,14 +54,14 @@ export default class TrayAnimation {
    * Get animation reversal
    * 
    * @readonly
-   * 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   get reverse() { return this._repeat; }
 
   /**
    * Set animation alternation
-   * 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   set alternate(v) { this._alternate = !!v; }
@@ -66,7 +70,7 @@ export default class TrayAnimation {
    * Get animation alternation
    * 
    * @readonly
-   * 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   get alternate() { return this._alternate; }
@@ -75,7 +79,7 @@ export default class TrayAnimation {
    * Source array of images
    * 
    * @readonly
-   * 
+   * @type {array}
    * @memberOf TrayAnimation
    */
   get source() { return this._source.slice(); }
@@ -84,7 +88,7 @@ export default class TrayAnimation {
    * Array of NativeImage instances loaded based on source input
    * 
    * @readonly
-   * 
+   * @type {Electron.NativeImage[]}
    * @memberOf TrayAnimation
    */
   get nativeImages() { return this._nativeImages.slice(); }
@@ -93,7 +97,7 @@ export default class TrayAnimation {
    * Flag that tells whether animation finished
    * 
    * @readonly
-   * 
+   * @type {bool}
    * @memberOf TrayAnimation
    */
   get isFinished() { return this._isFinished; }
@@ -152,7 +156,7 @@ export default class TrayAnimation {
    * Get current sprite
    * 
    * @readonly
-   * 
+   * @type {Electron.NativeImage}
    * @memberOf TrayAnimation
    */
   get currentImage() {

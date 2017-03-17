@@ -13,7 +13,7 @@ export default class TrayIconManager {
   
   /**
    * Creates an instance of TrayIconManager.
-   * @param {electron.Tray} tray 
+   * @param {Electron.Tray} tray 
    * @param {TrayIconProvider} iconProvider 
    * 
    * @memberOf TrayIconManager

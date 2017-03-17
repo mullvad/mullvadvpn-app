@@ -15,7 +15,7 @@ export default class TrayAnimator {
 
   /**
    * Creates an instance of TrayAnimator.
-   * @param {electron.Tray} tray      - an instance of Tray
+   * @param {Electron.Tray} tray      - an instance of Tray
    * @param {TrayAnimation} animation - an instance of TrayAnimation
    * 
    * @memberOf TrayAnimator
