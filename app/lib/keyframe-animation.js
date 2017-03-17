@@ -2,18 +2,18 @@ import assert from 'assert';
 import { nativeImage } from 'electron';
 
 /**
- * Tray animation descriptor
+ * Keyframe animation
  * 
  * @export
- * @class TrayAnimation
+ * @class KeyframeAnimation
  */
-export default class TrayAnimation {
+export default class KeyframeAnimation {
 
   /**
    * Set callback called on each frame update
    * 
    * @type {function}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set onFrame(v) { this._onFrame = v; }
 
@@ -22,7 +22,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {function}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get onFrame() { this._onFrame; }
   
@@ -30,7 +30,7 @@ export default class TrayAnimation {
    * Set callback called when animation finished
    * 
    * @type {function}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set onFinish(v) { this._onFinish = v; }
 
@@ -39,7 +39,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * 
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get onFinish() { this._onFinish; }
 
@@ -47,7 +47,7 @@ export default class TrayAnimation {
    * Set animation pace per frame in ms
    * 
    * @type {number}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set speed(v) { this._speed = parseInt(v); }
 
@@ -56,7 +56,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {number}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get speed() { return this._speed; }
 
@@ -64,7 +64,7 @@ export default class TrayAnimation {
    * Set animation repetition
    * @type {bool}
    * 
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set repeat(v) { this._repeat = !!v; }
 
@@ -73,14 +73,14 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get repeat() { return this._repeat; }
 
   /**
    * Set animation reversal 
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set reverse(v) { this._reverse = !!v; }
 
@@ -89,14 +89,14 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get reverse() { return this._repeat; }
 
   /**
    * Set animation alternation
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   set alternate(v) { this._alternate = !!v; }
 
@@ -105,7 +105,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get alternate() { return this._alternate; }
 
@@ -114,7 +114,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {array}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get source() { return this._source.slice(); }
 
@@ -123,7 +123,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {Electron.NativeImage[]}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get nativeImages() { return this._nativeImages.slice(); }
   
@@ -132,7 +132,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {bool}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get isFinished() { return this._isFinished; }
   
@@ -143,8 +143,8 @@ export default class TrayAnimation {
    * @param {string}   filePattern - file name pattern where {s} is replaced with index 
    * @param {number[]} range       - sequence range [start, end]
    * 
-   * @memberOf TrayAnimation
-   * @return {TrayAnimation}
+   * @memberOf KeyframeAnimation
+   * @return {KeyframeAnimation}
    */
   static fromFileSequence(filePattern, range) {
     assert(range.length === 2 && range[0] < range[1]);
@@ -154,14 +154,14 @@ export default class TrayAnimation {
       images.push(filePattern.replace('{s}', i));
     }
 
-    return new TrayAnimation(images);
+    return new KeyframeAnimation(images);
   }
 
   /**
-   * Creates an instance of TrayAnimation.
+   * Creates an instance of KeyframeAnimation.
    * @param {string[]} images 
    * 
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   constructor(images) {
     assert(images.length > 0);
@@ -194,7 +194,7 @@ export default class TrayAnimation {
    * 
    * @readonly
    * @type {Electron.NativeImage}
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   get currentImage() {
     return this._nativeImages[this._currentFrame];
@@ -202,19 +202,27 @@ export default class TrayAnimation {
 
   /**
    * Prepare initial state for animation before running it.
-   * @param {object} [options = {}] - animation options
-   * @param {number} [options.startFrame] - start frame
-   * @param {number} [options.endFrame] - end frame
+   * @param {object} [options = {}]                - animation options
+   * @param {number} [options.startFrame]          - start frame
+   * @param {number} [options.endFrame]            - end frame
    * @param {bool} [options.beginFromCurrentState] - continue animation from current state
-   * @memberOf TrayAnimation
+   * @param {string} [options.advanceTo]           - resets current frame. (possible values: end)
+   * @memberOf KeyframeAnimation
    */
   play(options = {}) {
-    let {startFrame, endFrame, beginFromCurrentState} = options;
+    let { startFrame, endFrame, beginFromCurrentState, advanceTo } = options;
 
-    if(startFrame === undefined && endFrame === undefined) {
-      this._frameRange = [ 0, this._numFrames - 1 ];
+    if(startFrame !== undefined && endFrame !== undefined) {
+      assert(startFrame >= 0 && startFrame < this._numFrames);
+      assert(endFrame >= 0 && endFrame < this._numFrames);
+      
+      if(startFrame < endFrame) {
+        this._frameRange = [ startFrame, endFrame ];
+      } else {
+        this._frameRange = [ endFrame, startFrame ];
+      }
     } else {
-      throw 'not implemented';
+      this._frameRange = [ 0, this._numFrames - 1 ];
     }
     
     if(!beginFromCurrentState || this._isFirstRun) {
@@ -225,14 +233,22 @@ export default class TrayAnimation {
       this._isFirstRun = false;
     }
 
+    if(advanceTo === 'end') {
+      this._currentFrame = this._frameRange[this._reverse ? 0 : 1];
+    }
+
     this._isFinished = false;
     
-    this._render();
-    
     this._unscheduleUpdate();
+
+    this._render();
     this._scheduleUpdate();
   }
 
+  /**
+   * Stop animation
+   * @memberOf KeyframeAnimation
+   */
   stop() {
     this._unscheduleUpdate();
   }
@@ -271,18 +287,14 @@ export default class TrayAnimation {
 
   /**
    * Advance animation frame
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
   _advanceFrame() {
     // do not advance frame when animation is finished
     if(this._isFinished) { return; }
 
     // advance frame
-    let nextFrame = this._nextFrame(this._currentFrame, this._reverse);
-
-    // let animation pick up from current state
-    let didReachEnd = (nextFrame < this._frameRange[0] && this._reverse) || // out of bounds but moving into
-                      (nextFrame > this._frameRange[1] && !this._reverse); // out of bounds but moving into
+    let didReachEnd = this._currentFrame === this._frameRange[this._reverse ? 0 : 1];
 
     // did reach end?
     if(didReachEnd) {
@@ -297,31 +309,41 @@ export default class TrayAnimation {
       // change animation direction if marked for alternation
       if(this._alternate) {
         this._reverse = !this._reverse;
-
-        // clamp range
-        nextFrame = Math.min(Math.max(this._frameRange[0], nextFrame), this._frameRange[1]);
         
-        // skip corner frame when alternating by advancing frame once again
-        nextFrame = this._nextFrame(nextFrame, this._reverse);
+        this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
       } else {
-        nextFrame = this._frameRange[this._reverse ? 1 : 0];
+        this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
       }
+    } else {
+      this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
     }
-    
-    this._currentFrame = nextFrame;
   }
 
   /**
    * Calculate next frame
    * @private
-   * @param {number} cur       - current frame
-   * @param {bool}   isReverse - reverse sequence direction?
+   * @param {number}   cur        - current frame
+   * @param {number[]} frameRange - frame range
+   * @param {bool}     isReverse  - reverse sequence direction?
    * @returns {number}
    * 
-   * @memberOf TrayAnimation
+   * @memberOf KeyframeAnimation
    */
-  _nextFrame(cur, isReverse) {
-    return cur + (isReverse ? -1 : 1);
+  _nextFrame(cur, frameRange, isReverse) {
+    if(isReverse) {
+      if(cur < frameRange[0]) {
+        return cur + 1;
+      } else if(cur > frameRange[0]) {
+        return cur - 1;
+      }
+    } else {
+      if(cur > frameRange[1]) {
+        return cur - 1;
+      } else if(cur < frameRange[1]) {
+        return cur + 1;
+      }
+    }
+    return cur;
   }
 
 }

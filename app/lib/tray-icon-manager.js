@@ -1,7 +1,7 @@
 import assert from 'assert';
-import TrayAnimator from './tray-animator';
-import TrayIconProvider from './tray-icon-provider';
+import path from 'path';
 import { TrayIconType } from '../enums';
+import KeyframeAnimation from './keyframe-animation';
 
 /**
  * Tray icon manager
@@ -14,17 +14,19 @@ export default class TrayIconManager {
   /**
    * Creates an instance of TrayIconManager.
    * @param {Electron.Tray} tray 
-   * @param {TrayIconProvider} iconProvider 
    * 
    * @memberOf TrayIconManager
    */
-  constructor(tray, iconProvider) {
+  constructor(tray) {
     assert(tray);
-    assert(iconProvider);
 
-    this._tray = tray;
-    this._iconProvider = iconProvider;
-    this._animator = null;
+    const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
+    let filePath = path.join(basePath, 'lock-{s}.png');
+    let animation = KeyframeAnimation.fromFileSequence(filePath, [1, 9]);
+    animation.onFrame = (img) => tray.setImage(img);
+    animation.speed = 100;
+
+    this._animation = animation;
     this._iconType = null;
   }
 
@@ -33,9 +35,9 @@ export default class TrayIconManager {
    * @memberOf TrayIconManager
    */
   destroy() {
-    if(this._animator) {
-      this._animator.stop();
-      this._animator = null;
+    if(this._animation) {
+      this._animation.stop();
+      this._animation = null;
     }
     this._iconType = null;
   }
@@ -67,64 +69,47 @@ export default class TrayIconManager {
    * 
    * @memberOf TrayIconManager
    */
-   _updateIconType(type) {
+  _updateIconType(type) {
     // no-op if same animator requested
     if(this._iconType === type) { return; }
 
-    // skip animation if:
-    // 1. there was no icon set before (which is usually when app starts)
-    // 2. unsecured -> securing
-    // 3. securing -> unsecured
-    const skip = this._iconType === null || 
-                 type === TrayIconType.securing || // unsecured -> securing
-                 (type === TrayIconType.unsecured && this._iconType === TrayIconType.securing); // securing -> unsecured
-
-    // do not animate if setting icon for the first time
-    this._updateType(type, skip);
-  }
-
-  /**
-   * Get animation for iconType
-   * 
-   * @param {TrayIconType} type 
-   * @returns TrayIconAnimator
-   * 
-   * @memberOf TrayIconManager
-   */
-  _animationForType(type) {
-    switch(type) {
-    case TrayIconType.secured: return this._iconProvider.lockAnimation();
-    case TrayIconType.unsecured: return this._iconProvider.unlockAnimation();
-    case TrayIconType.securing: return this._iconProvider.unlockAnimation();
-    }
+    this._updateType(type);
   }
 
   /**
    * Update icon animator with new type
    * 
    * @param {TrayIconType} type
-   * @param {boolean} [skipAnimation=false] whether animation should be skipped
    * 
    * @memberOf TrayIconManager
    */
-  _updateType(type, skipAnimation = false) {
+  _updateType(type) {
     assert(TrayIconType.isValid(type));
 
-    let animator = new TrayAnimator(this._tray, this._animationForType(type));
+    let options = { beginFromCurrentState: true };
 
-    // destroy existing animator
-    if(this._animator) {
-      this._animator.stop();
-      this._animator = null;
+    switch(type) {
+    case TrayIconType.secured:
+      this._animation.reverse = false;
+      break;
+    case TrayIconType.securing:
+    case TrayIconType.unsecured:
+      this._animation.reverse = true;
+      break;
     }
 
-    if(skipAnimation) {
-      animator.advanceToEnd();
-    } else {
-      animator.start();
+    if(this._iconType === null) {
+      options.advanceTo = 'end';
     }
+    
+    this._animation.play(options);
 
-    this._animator = animator;
+    // if(skipAnimation) {
+    //   animator.advanceToEnd();
+    // } else {
+    //   animator.start();
+    // }
+
     this._iconType = type;
   }
 
