@@ -132,11 +132,17 @@ const createWindow = () => {
 
   window.on('show', () => {
     startTrayEventMonitor(window);
+
+    tray.setHighlightMode('always');
+
     window.webContents.send('showWindow');
   });
 
   window.on('hide', () => {
     stopTrayEventMonitor();
+    
+    tray.setHighlightMode('never');
+
     window.webContents.send('hideWindow');
   });
 
@@ -162,9 +168,6 @@ const createTray = () => {
   tray.on('right-click', toggleWindow);
   tray.on('double-click', toggleWindow);
   tray.on('click', toggleWindow);
-
-  // never highlight menu
-  tray.setHighlightMode('never');
   
   trayIconManager = new TrayIconManager(tray, new TrayIconProvider());
 };
