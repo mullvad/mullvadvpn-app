@@ -157,7 +157,7 @@ const showWindow = () => {
 const createTray = () => {
   tray = new Tray(nativeImage.createEmpty());
   tray.on('click', toggleWindow);
-  tray.setHighlightMode('selection');
+  tray.setHighlightMode('never');
   
   trayIconManager = new TrayIconManager(tray);
 };
