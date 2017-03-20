@@ -61,7 +61,7 @@ const installExtensions = async () => {
 const installDevTools = async () => {
   await installExtensions();
 
-    // show devtools when ctrl clicked
+  // show devtools when ctrl clicked
   tray.on('click', function () {
     if(!window) { return; }
 
@@ -74,17 +74,6 @@ const installDevTools = async () => {
     } else {
       window.openDevTools({ mode: 'detach' });
     }
-  });
-
-  // add inspect element on right click menu
-  window.webContents.on('context-menu', (e, props) => {
-    Menu.buildFromTemplate([{
-      label: 'Inspect element',
-      click() {
-        window.openDevTools({ mode: 'detach' });
-        window.inspectElement(props.x, props.y);
-      }
-    }]).popup(window);
   });
 };
 
@@ -136,7 +125,48 @@ const createWindow = () => {
   window.on('hide', () => {
     stopTrayEventMonitor();
   });
+};
 
+const createContextMenu = () => {
+  let menuTemplate = [
+    // Undo/redo has to be fixed in AccountInput
+    // {role: 'undo'},
+    // {role: 'redo'},
+    // {type: 'separator'},
+
+    {role: 'cut'},
+    {role: 'copy'},
+    {role: 'paste'},
+    {type: 'separator'},
+    {role: 'selectall'}
+  ];
+
+  // add inspect element on right click menu
+  window.webContents.on('context-menu', (e, props) => {
+    let inspectTemplate = [{
+      label: 'Inspect element',
+      click() {
+        window.openDevTools({ mode: 'detach' });
+        window.inspectElement(props.x, props.y);
+      }
+    }];
+    
+    if(props.isEditable) {
+      let inputMenu = menuTemplate;
+
+      // mixin "inspect element" into standard menu 
+      // when in development mode
+      if(isDevelopment) {
+        inputMenu = menuTemplate.concat([{type: 'separator'}], inspectTemplate);
+      }
+
+      Menu.buildFromTemplate(inputMenu).popup(window);
+    } else if(isDevelopment) {
+      // display inspect element for all non-editable 
+      // elements when in development mode
+      Menu.buildFromTemplate(inspectTemplate).popup(window);
+    }
+  });
 };
 
 const toggleWindow = () => {
@@ -176,6 +206,7 @@ app.on('window-all-closed', () => {
 app.on('ready', () => {
   createTray();
   createWindow();
+  createContextMenu();
 
   if(isDevelopment) {
     installDevTools();
