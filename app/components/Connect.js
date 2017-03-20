@@ -88,11 +88,17 @@ export default class Connect extends Component {
 
               <div className="connect__status">
                 { /* show spinner when connecting */ }
-                <div className={ ['connect__status-icon', (isConnecting ? '' : 'connect__status-icon--hidden' )].join(' ') }>
+                <div className={ this.spinnerClass() }>
                   <img src="./assets/images/icon-spinner.svg" alt="" />
                 </div>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
+
+                { /*
+                  **********************************
+                  Begin: Location block
+                  **********************************
+                */ }
 
                 { /* location when connecting */ }
                 <If condition={ isConnecting }>
@@ -146,11 +152,24 @@ export default class Connect extends Component {
                   </Then>
                 </If>
 
+                { /*
+                  **********************************
+                  End: Location block
+                  **********************************
+                */ }
+
                 <div className={ this.ipAddressClass() }>{ this.props.connect.clientIp }</div>
               </div>
 
-              { /* footer when disconnected */ }
-              <If condition={ isDisconnected }>
+
+              { /*
+                **********************************
+                Begin: Footer block
+                **********************************
+              */ }
+
+              { /* footer when disconnected or failed */ }
+              <If condition={ isDisconnected || isFailed }>
                 <Then>
                   <div className="connect__footer">
                     <div className="connect__row">
@@ -214,6 +233,12 @@ export default class Connect extends Component {
                 </Then>
               </If>
 
+              { /*
+                **********************************
+                End: Footer block
+                **********************************
+              */ }
+
             </div>
           </div>
         </Container>
@@ -257,6 +282,14 @@ export default class Connect extends Component {
     case ConnectionState.connecting: return 'Creating secure connection';
     default: return 'Unsecured connection';
     }
+  }
+
+  spinnerClass() {
+    var classes = ['connect__status-icon'];
+    if(this.props.connect.status !== ConnectionState.connecting) {
+      classes.push('connect__status-icon--hidden');
+    }
+    return classes.join(' ');
   }
 
   ipAddressClass() {
