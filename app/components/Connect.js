@@ -44,6 +44,38 @@ export default class Connect extends Component {
   }
 
   render() {
+    return (
+      <Layout>
+        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
+        <Container>
+          <If condition={ this.props.connect.status === ConnectionState.failed }>
+            <Then>{ ::this.renderError }</Then>
+            <Else>{ ::this.renderMap }</Else>
+          </If>
+        </Container>
+      </Layout>
+    );
+  }
+
+  renderError() {
+    return (
+      <div className="connect">
+        <div className="connect__status">
+          <div className="connect__status-icon">
+            <img src="./assets/images/icon-fail.svg" alt="" />
+          </div>
+          <div className="connect__error-title">
+            Error
+          </div>
+          <div className="connect__error-message">
+            { this.props.connect.error.message }
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderMap() {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
 
@@ -63,199 +95,194 @@ export default class Connect extends Component {
     const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
 
     return (
-      <Layout>
-        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
-        <Container>
-          <div className="connect">
-            <div className="connect__map">
-              <ReactMapboxGl 
-                  style={ mapboxConfig.styleURL }
-                  accessToken={ mapboxConfig.accessToken }
-                  containerStyle={{ height: '100%' }} 
-                  interactive={ false }
-                  fitBounds={ mapBounds }
-                  fitBoundsOptions={ mapBoundsOptions }>
-                <If condition={ isConnected }>
-                  <Then>
-                    <Marker coordinates={ serverLocation } offset={ [0, -10] }>
-                      <img src='./assets/images/location-marker-secure.svg' />
-                    </Marker>
-                  </Then>
-                </If>
-                <If condition={ !isConnected }>
-                  <Then>
-                    <Marker coordinates={ userLocation } offset={ [0, -10] }>
-                      <img src='./assets/images/location-marker-unsecure.svg' />
-                    </Marker>
-                  </Then>
-                </If>
+      <div className="connect">
+        <div className="connect__map">
+          <ReactMapboxGl 
+              style={ mapboxConfig.styleURL }
+              accessToken={ mapboxConfig.accessToken }
+              containerStyle={{ height: '100%' }} 
+              interactive={ false }
+              fitBounds={ mapBounds }
+              fitBoundsOptions={ mapBoundsOptions }>
+            <If condition={ isConnected }>
+              <Then>
+                <Marker coordinates={ serverLocation } offset={ [0, -10] }>
+                  <img src='./assets/images/location-marker-secure.svg' />
+                </Marker>
+              </Then>
+            </If>
+            <If condition={ !isConnected }>
+              <Then>
+                <Marker coordinates={ userLocation } offset={ [0, -10] }>
+                  <img src='./assets/images/location-marker-unsecure.svg' />
+                </Marker>
+              </Then>
+            </If>
 
-              </ReactMapboxGl>
+          </ReactMapboxGl>
+        </div>
+        <div className="connect__container">
+
+          <div className="connect__status">
+            { /* show spinner when connecting */ }
+            <div className={ this.spinnerClass() }>
+              <img src="./assets/images/icon-spinner.svg" alt="" />
             </div>
-            <div className="connect__container">
+            
+            <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
 
-              <div className="connect__status">
-                { /* show spinner when connecting */ }
-                <div className={ this.spinnerClass() }>
-                  <img src="./assets/images/icon-spinner.svg" alt="" />
+            { /*
+              **********************************
+              Begin: Location block
+              **********************************
+            */ }
+
+            { /* location when connecting */ }
+            <If condition={ isConnecting }>
+              <Then>
+                <div className="connect__status-location">
+
+                  <If condition={ preferredServer === 'fastest' }>
+                    <Then>
+                      <span>
+                        <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
+                        { 'Fastest' }
+                      </span>
+                    </Then>
+                  </If>
+                    
+                  <If condition={ preferredServer === 'nearest' }>
+                    <Then>
+                      <span>
+                        <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
+                        { 'Nearest' }
+                      </span>
+                    </Then>
+                  </If>
+
+                  { /* silly but react-if does not have ElseIf */ }
+                  <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
+                    <Then>
+                      <span>{ displayLocation.country }</span>
+                    </Then>
+                  </If>
+
                 </div>
-                
-                <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
+              </Then>
+            </If>
 
-                { /*
-                  **********************************
-                  Begin: Location block
-                  **********************************
-                */ }
+            { /* location when connected */ }
+            <If condition={ isConnected }>
+              <Then>
+                <div className="connect__status-location">
+                  { displayLocation.city }<br/>{ displayLocation.country }
+                </div>
+              </Then>
+            </If>
 
-                { /* location when connecting */ }
-                <If condition={ isConnecting }>
-                  <Then>
-                    <div className="connect__status-location">
+            { /* location when disconnected or failed */ }
+            <If condition={ isDisconnected || isFailed }>
+              <Then>
+                <div className="connect__status-location">
+                  { displayLocation.country }
+                </div>
+              </Then>
+            </If>
+
+            { /*
+              **********************************
+              End: Location block
+              **********************************
+            */ }
+
+            <div className={ this.ipAddressClass() } onClick={ ::this.onIPAddressClick }>
+              <If condition={ this.state.showCopyIPMessage }>
+                <Then><span>{ 'IP copied to clipboard!' }</span></Then>
+                <Else><span>{ this.props.connect.clientIp }</span></Else>
+              </If>
+            </div>
+          </div>
+
+
+          { /*
+            **********************************
+            Begin: Footer block
+            **********************************
+          */ }
+
+          { /* footer when disconnected or failed */ }
+          <If condition={ isDisconnected || isFailed }>
+            <Then>
+              <div className="connect__footer">
+                <div className="connect__row">
+
+                  <div className="connect__server" onClick={ this.props.onSelectLocation }>
+                    <div className="connect__server-label">Connect to</div>                    
+                    <div className="connect__server-value">
 
                       <If condition={ preferredServer === 'fastest' }>
                         <Then>
-                          <span>
-                            <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
-                            { 'Fastest' }
-                          </span>
+                          <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
                         </Then>
                       </If>
                         
                       <If condition={ preferredServer === 'nearest' }>
                         <Then>
-                          <span>
-                            <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
-                            { 'Nearest' }
-                          </span>
+                          <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
                         </Then>
                       </If>
 
-                      { /* silly but react-if does not have ElseIf */ }
-                      <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
-                        <Then>
-                          <span>{ displayLocation.country }</span>
-                        </Then>
-                      </If>
+                      <div className="connect__server-name">{ serverInfo.name }</div>
 
                     </div>
-                  </Then>
-                </If>
+                  </div>
+                </div>
 
-                { /* location when connected */ }
-                <If condition={ isConnected }>
-                  <Then>
-                    <div className="connect__status-location">
-                      { displayLocation.city }<br/>{ displayLocation.country }
-                    </div>
-                  </Then>
-                </If>
-
-                { /* location when disconnected or failed */ }
-                <If condition={ isDisconnected || isFailed }>
-                  <Then>
-                    <div className="connect__status-location">
-                      { displayLocation.country }
-                    </div>
-                  </Then>
-                </If>
-
-                { /*
-                  **********************************
-                  End: Location block
-                  **********************************
-                */ }
-
-                <div className={ this.ipAddressClass() } onClick={ ::this.onIPAddressClick }>
-                  <If condition={ this.state.showCopyIPMessage }>
-                    <Then><span>{ 'IP copied to clipboard!' }</span></Then>
-                    <Else><span>{ this.props.connect.clientIp }</span></Else>
-                  </If>
+                <div className="connect__row">
+                  <button className="button button--positive" onClick={ ::this.onConnect }>Secure my connection</button>
                 </div>
               </div>
+            </Then>
+          </If>
+          
+          { /* footer when connecting */ }
+          <If condition={ isConnecting }>
+            <Then>
+              <div className="connect__footer">
+                <div className="connect__row">
+                  <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
+                </div>
 
+                <div className="connect__row">
+                  <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
+                </div>
+              </div>
+            </Then>
+          </If>
 
-              { /*
-                **********************************
-                Begin: Footer block
-                **********************************
-              */ }
+          { /* footer when connected */ }
+          <If condition={ isConnected }>
+            <Then>
+              <div className="connect__footer">
+                <div className="connect__row">
+                  <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
+                </div>
 
-              { /* footer when disconnected or failed */ }
-              <If condition={ isDisconnected || isFailed }>
-                <Then>
-                  <div className="connect__footer">
-                    <div className="connect__row">
+                <div className="connect__row">
+                  <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
+                </div>
+              </div>
+            </Then>
+          </If>
 
-                      <div className="connect__server" onClick={ this.props.onSelectLocation }>
-                        <div className="connect__server-label">Connect to</div>                    
-                        <div className="connect__server-value">
+          { /*
+            **********************************
+            End: Footer block
+            **********************************
+          */ }
 
-                          <If condition={ preferredServer === 'fastest' }>
-                            <Then>
-                              <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
-                            </Then>
-                          </If>
-                            
-                          <If condition={ preferredServer === 'nearest' }>
-                            <Then>
-                              <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
-                            </Then>
-                          </If>
-
-                          <div className="connect__server-name">{ serverInfo.name }</div>
-
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="connect__row">
-                      <button className="button button--positive" onClick={ ::this.onConnect }>Secure my connection</button>
-                    </div>
-                  </div>
-                </Then>
-              </If>
-              
-              { /* footer when connecting */ }
-              <If condition={ isConnecting }>
-                <Then>
-                  <div className="connect__footer">
-                    <div className="connect__row">
-                      <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-                    </div>
-
-                    <div className="connect__row">
-                      <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
-                    </div>
-                  </div>
-                </Then>
-              </If>
-
-              { /* footer when connected */ }
-              <If condition={ isConnected }>
-                <Then>
-                  <div className="connect__footer">
-                    <div className="connect__row">
-                      <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-                    </div>
-
-                    <div className="connect__row">
-                      <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
-                    </div>
-                  </div>
-                </Then>
-              </If>
-
-              { /*
-                **********************************
-                End: Footer block
-                **********************************
-              */ }
-
-            </div>
-          </div>
-        </Container>
-      </Layout>
+        </div>
+      </div>
     );
   }
 
@@ -279,7 +306,9 @@ export default class Connect extends Component {
   headerStyle() {
     const S = Header.Style;
     switch(this.props.connect.status) {
-    case ConnectionState.disconnected: return S.error;
+    case ConnectionState.disconnected:
+    case ConnectionState.failed:
+      return S.error;
     case ConnectionState.connected: return S.success;
     default: return S.default;
     }

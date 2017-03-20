@@ -92,6 +92,22 @@
   margin-bottom: auto;
 }
 
+.connect__error-title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.connect__error-message {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
 .connect__status-security {
   font-family: "Open Sans";
   font-size: 16px;
