@@ -72,12 +72,58 @@ import { ConnectionState as ReduxConnectionState } from '../enums';
  * @param {object} location data    
  */
 
+class BackendError extends Error {
+
+  constructor(code) {
+    super('');
+    this.code = code;
+    this.title = BackendError.localizedTitle(code);
+    this.message = BackendError.localizedMessage(code);
+  }
+
+  static localizedTitle(code) {
+    switch(code) {
+      case Backend.ErrorType.noCredit:
+        return 'Out of time';
+      case Backend.ErrorType.noInternetConnection:
+        return 'Offline';
+      default: 
+        return 'Something went wrong';
+    }
+  }
+
+  static localizedMessage(code) {
+    switch(code) {
+      case Backend.ErrorType.noCredit:
+        return 'Buy more time, so you can continue using the internet securely';
+      case Backend.ErrorType.noInternetConnection:
+        return 'Your internet connection will be secured when you get back online';
+      default: 
+        return '';
+    }
+  }
+
+}
+
 /**
  * Backend implementation
  * 
  * @class Backend
  */
 export default class Backend extends EventEmitter {
+
+  /**
+   * Backend error enum
+   * 
+   * @static
+   * 
+   * @memberOf Backend
+   */
+  static ErrorType = new Enum({
+    noCredit: 1,
+    noInternetConnection: 2,
+    invalidAccount: 3
+  });
 
   /**
    * Event type enum
@@ -279,7 +325,7 @@ export default class Backend extends EventEmitter {
       } else if(account.startsWith('3333')) { // expire in 2038
         res.paidUntil = moment('2038-01-01').toISOString();
       } else {
-        err = new Error('Invalid account number.');
+        err = new BackendError(Backend.ErrorType.invalidAccount);
       }
 
       // emit: login
@@ -332,7 +378,11 @@ export default class Backend extends EventEmitter {
 
       // Prototype: Swedish servers will throw error during connect
       if(/se\d+\.mullvad\.net/.test(addr)) {
-        err = new Error('Server is unreachable');
+        err = new BackendError(Backend.ErrorType.noInternetConnection);
+      }
+
+      if(/us\d+\.mullvad\.net/.test(addr)) {
+        err = new BackendError(Backend.ErrorType.noCredit);
       }
 
       this._connStatus = Backend.ConnectionState.connected;

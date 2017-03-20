@@ -5,7 +5,9 @@ import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
 import { mapbox as mapboxConfig } from '../config';
+import Backend from '../lib/Backend';
 import { ConnectionState } from '../enums';
+import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 export default class Connect extends Component {
   
@@ -15,6 +17,7 @@ export default class Connect extends Component {
     onConnect: PropTypes.func.isRequired,
     onCopyIP: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired,
+    onExternalLink: PropTypes.func.isRequired,
     getServerInfo: PropTypes.func.isRequired
   };
 
@@ -65,11 +68,21 @@ export default class Connect extends Component {
             <img src="./assets/images/icon-fail.svg" alt="" />
           </div>
           <div className="connect__error-title">
-            Error
+            { this.props.connect.error.title }
           </div>
           <div className="connect__error-message">
             { this.props.connect.error.message }
           </div>
+          <If condition={ this.props.connect.error.code === Backend.ErrorType.noCredit }>
+            <Then>
+            <div>
+              <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
+                <span className="button-label">Buy more time</span>
+                <ExternalLinkSVG className="button-icon button-icon--16" />
+              </button>
+            </div>
+            </Then>
+          </If>
         </div>
       </div>
     )
@@ -292,6 +305,10 @@ export default class Connect extends Component {
     const server = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(server);
     this.props.onConnect(serverInfo.address);
+  }
+
+  onExternalLink(type) {
+    this.props.onExternalLink(type);
   }
 
   onIPAddressClick() {

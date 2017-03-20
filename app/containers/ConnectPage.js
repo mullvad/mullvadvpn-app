@@ -1,5 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { shell } from 'electron';
+import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../actions/connect';
 
@@ -17,6 +19,7 @@ const mapDispatchToProps = (dispatch, props) => {
     onConnect: (addr) => connect(backend, addr),
     onCopyIP: () => copyIPAddress(),
     onDisconnect: () => disconnect(backend),
+    onExternalLink: (type) => shell.openExternal(links[type]),
     getServerInfo: (key) => backend.serverInfo(key)
   };
 };

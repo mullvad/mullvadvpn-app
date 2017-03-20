@@ -105,7 +105,9 @@
   font-family: "Open Sans";
   font-size: 13px;
   font-weight: 600;
+  line-height: normal;
   color: #fff;
+  margin-bottom: 24px;
 }
 
 .connect__status-security {
