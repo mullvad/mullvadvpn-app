@@ -127,18 +127,39 @@ const createWindow = () => {
   });
 };
 
+const createAppMenu = () => {
+  // Create the Application's main menu
+  const template = [
+    {
+      label: 'Mullvad',
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    }, 
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { type: 'separator' },
+        { role: 'selectall' }
+      ]
+    }
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+};
+
 const createContextMenu = () => {
   let menuTemplate = [
-    // Undo/redo has to be fixed in AccountInput
-    // {role: 'undo'},
-    // {role: 'redo'},
-    // {type: 'separator'},
-
-    {role: 'cut'},
-    {role: 'copy'},
-    {role: 'paste'},
-    {type: 'separator'},
-    {role: 'selectall'}
+    { role: 'cut' },
+    { role: 'copy' },
+    { role: 'paste' },
+    { type: 'separator' },
+    { role: 'selectall' }
   ];
 
   // add inspect element on right click menu
@@ -206,6 +227,7 @@ app.on('window-all-closed', () => {
 app.on('ready', () => {
   createTray();
   createWindow();
+  createAppMenu();
   createContextMenu();
 
   if(isDevelopment) {
