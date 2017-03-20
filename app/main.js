@@ -32,8 +32,8 @@ const stopTrayEventMonitor = () => {
   }
 };
 
-ipcMain.on('changeTrayIcon', (event, data) => {
-  trayIconManager.updateIconType(data.type, data.skipAnimation);
+ipcMain.on('changeTrayIcon', (event, type) => {
+  trayIconManager.iconType = type;
 });
 
 ipcMain.emit();
@@ -132,18 +132,10 @@ const createWindow = () => {
 
   window.on('show', () => {
     startTrayEventMonitor(window);
-
-    tray.setHighlightMode('always');
-
-    window.webContents.send('showWindow');
   });
 
   window.on('hide', () => {
     stopTrayEventMonitor();
-    
-    tray.setHighlightMode('never');
-
-    window.webContents.send('hideWindow');
   });
 
 };
@@ -165,9 +157,8 @@ const showWindow = () => {
 
 const createTray = () => {
   tray = new Tray(nativeImage.createEmpty());
-  tray.on('right-click', toggleWindow);
-  tray.on('double-click', toggleWindow);
   tray.on('click', toggleWindow);
+  tray.setHighlightMode('selection');
   
   trayIconManager = new TrayIconManager(tray, new TrayIconProvider());
 };
