@@ -168,7 +168,7 @@ export default class Connect extends Component {
 
                 <div className={ this.ipAddressClass() } onClick={ ::this.onIPAddressClick }>
                   <If condition={ this.state.showCopyIPMessage }>
-                    <Then><span>{ "IP copied to clipboard!" }</span></Then>
+                    <Then><span>{ 'IP copied to clipboard!' }</span></Then>
                     <Else><span>{ this.props.connect.clientIp }</span></Else>
                   </If>
                 </div>
