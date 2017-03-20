@@ -381,6 +381,7 @@ export default class Backend extends EventEmitter {
         err = new BackendError(Backend.ErrorType.noInternetConnection);
       }
 
+      // Prototype: the US servers will throw error during connect
       if(/us\d+\.mullvad\.net/.test(addr)) {
         err = new BackendError(Backend.ErrorType.noCredit);
       }
