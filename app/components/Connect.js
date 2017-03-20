@@ -42,6 +42,7 @@ export default class Connect extends Component {
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
+    const isFailed = this.props.connect.status === ConnectionState.failed;
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
 
@@ -87,52 +88,62 @@ export default class Connect extends Component {
 
               <div className="connect__status">
                 { /* show spinner when connecting */ }
-                <If condition={ isConnecting }>
-                  <Then>
-                    <div className="connect__status-icon">
-                      <img src="./assets/images/icon-spinner.svg" alt="" />
-                    </div>
-                  </Then>
-                </If>
+                <div className={ ['connect__status-icon', (isConnecting ? '' : 'connect__status-icon--hidden' )].join(' ') }>
+                  <img src="./assets/images/icon-spinner.svg" alt="" />
+                </div>
                 
                 <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
 
+                { /* location when connecting */ }
                 <If condition={ isConnecting }>
                   <Then>
                     <div className="connect__status-location">
-                    <If condition={ preferredServer === 'fastest' }>
-                      <Then>
-                        <span>
-                          <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
-                          { 'Fastest' }
-                        </span>
-                      </Then>
-                    </If>
-                      
-                    <If condition={ preferredServer === 'nearest' }>
-                      <Then>
-                        <span>
-                          <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
-                          { 'Nearest' }
-                        </span>
-                      </Then>
-                    </If>
 
-                    { /* silly but react-if does not have ElseIf */ }
-                    <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
-                      <Then>
-                        <span>{ displayLocation.country }</span>
-                      </Then>
-                    </If>
-                    <br/><br/>
+                      <If condition={ preferredServer === 'fastest' }>
+                        <Then>
+                          <span>
+                            <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
+                            { 'Fastest' }
+                          </span>
+                        </Then>
+                      </If>
+                        
+                      <If condition={ preferredServer === 'nearest' }>
+                        <Then>
+                          <span>
+                            <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
+                            { 'Nearest' }
+                          </span>
+                        </Then>
+                      </If>
+
+                      { /* silly but react-if does not have ElseIf */ }
+                      <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
+                        <Then>
+                          <span>{ displayLocation.country }</span>
+                        </Then>
+                      </If>
 
                     </div>
                   </Then>
-                  <Else>
+                </If>
+
+                { /* location when connected */ }
+                <If condition={ isConnected }>
+                  <Then>
                     <div className="connect__status-location">
                       { displayLocation.city }<br/>{ displayLocation.country }
                     </div>
-                  </Else>
+                  </Then>
+                </If>
+
+                { /* location when disconnected or failed */ }
+                <If condition={ isDisconnected || isFailed }>
+                  <Then>
+                    <div className="connect__status-location">
+                      { displayLocation.country }
+                    </div>
+                  </Then>
                 </If>
 
                 <div className={ this.ipAddressClass() }>{ this.props.connect.clientIp }</div>

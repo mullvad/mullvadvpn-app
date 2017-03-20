@@ -88,7 +88,8 @@
 
 .connect__status {
   padding: 0 24px;
-  margin-top: auto;
+  margin-top: 96px;
+  margin-bottom: auto;
 }
 
 .connect__status-security {
@@ -142,5 +143,9 @@
 
 .connect__status-icon {
   text-align: center;
-  margin-bottom: 44px;
+  margin-bottom: 32px;
+}
+
+.connect__status-icon--hidden {
+  visibility: hidden;
 }
