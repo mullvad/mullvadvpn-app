@@ -115,6 +115,10 @@
   font-size: 38px;
   font-weight: 900;
   line-height: 1.16em;
+  max-height: calc(1.16em * 2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   letter-spacing: -0.9px;
   color: #FFFFFF;
   margin-bottom: 4px;
