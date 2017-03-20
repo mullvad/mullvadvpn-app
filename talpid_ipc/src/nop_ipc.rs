@@ -12,7 +12,7 @@ pub fn start_new_server<T, F>(_on_message: F) -> Result<IpcServerId>
     where T: serde::Deserialize + 'static,
           F: FnMut(Result<T>) + Send + 'static
 {
-    Err(ErrorKind::CouldNotStartServer.into())
+    bail!(ErrorKind::CouldNotStartServer);
 }
 
 pub struct IpcClient<T>
@@ -29,6 +29,6 @@ impl<T> IpcClient<T>
     }
 
     pub fn send(&mut self, _message: &T) -> Result<()> {
-        Err(ErrorKind::SendError.into())
+        bail!(ErrorKind::SendError);
     }
 }

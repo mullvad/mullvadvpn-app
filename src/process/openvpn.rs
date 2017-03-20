@@ -119,7 +119,7 @@ impl OpenVpnCommand {
         if let Some((ref path, ref plugin_args)) = self.plugin {
             args.push(OsString::from("--plugin"));
             args.push(OsString::from(path));
-            args.extend(plugin_args.iter().map(|arg| OsString::from(arg)));
+            args.extend(plugin_args.iter().map(OsString::from));
         }
         args
     }

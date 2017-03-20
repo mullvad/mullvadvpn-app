@@ -28,7 +28,7 @@ error_chain!{
 /// terminated. Likewise, if any string pointed to is not properly null-terminated it may crash.
 pub unsafe fn string_array(mut ptr: *const *const c_char) -> Result<Vec<String>> {
     if ptr.is_null() {
-        Err(ErrorKind::Null.into())
+        bail!(ErrorKind::Null);
     } else {
         let mut strings = Vec::new();
         while !(*ptr).is_null() {

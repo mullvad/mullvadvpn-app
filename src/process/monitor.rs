@@ -91,7 +91,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
             });
             Ok(io)
         } else {
-            Err(ErrorKind::InvalidState.into())
+            bail!(ErrorKind::InvalidState);
         }
     }
 
@@ -116,7 +116,7 @@ impl<S: ChildSpawner> ChildMonitor<S> {
             running_state.child.kill().chain_err(|| ErrorKind::Kill)?;
             Ok(())
         } else {
-            Err(ErrorKind::InvalidState.into())
+            bail!(ErrorKind::InvalidState);
         }
     }
 }
