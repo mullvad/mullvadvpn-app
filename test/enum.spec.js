@@ -25,4 +25,16 @@ describe('enum', () => {
     const e = new Enum(...keys);
     expect(Object.keys(e)).to.be.deep.equal(keys);
   });
+
+  it('should do reverse lookup', () => {
+    const keys = { NORTH: 0, SOUTH: 1, WEST: 2, EAST: 3 };
+    const e = new Enum(keys);
+    expect(e.reverse(2)).to.be.equal('WEST');
+  });
+
+  it('should return undefined on reverse lookup failure', () => {
+    const keys = { NORTH: 0, SOUTH: 1, WEST: 2, EAST: 3 };
+    const e = new Enum(keys);
+    expect(e.reverse(1337)).to.be.undefined;
+  });
 });
