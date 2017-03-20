@@ -13,6 +13,7 @@ export default class Connect extends Component {
     settings: PropTypes.object.isRequired,
     onSettings: PropTypes.func.isRequired,
     onConnect: PropTypes.func.isRequired,
+    onCopyIP: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired,
     getServerInfo: PropTypes.func.isRequired
   };
@@ -20,8 +21,15 @@ export default class Connect extends Component {
   constructor() {
     super();
 
+    // timer used along with `state.showCopyIPMessage`
+    this._copyTimer = null;
+
     this.state = {
-      isFirstPass: true
+      isFirstPass: true,
+
+      // this flag is used together with timer to display
+      // a message that IP address has been copied to clipboard
+      showCopyIPMessage: false
     };
   }
 
@@ -158,7 +166,12 @@ export default class Connect extends Component {
                   **********************************
                 */ }
 
-                <div className={ this.ipAddressClass() }>{ this.props.connect.clientIp }</div>
+                <div className={ this.ipAddressClass() } onClick={ ::this.onIPAddressClick }>
+                  <If condition={ this.state.showCopyIPMessage }>
+                    <Then><span>{ "IP copied to clipboard!" }</span></Then>
+                    <Else><span>{ this.props.connect.clientIp }</span></Else>
+                  </If>
+                </div>
               </div>
 
 
@@ -252,6 +265,13 @@ export default class Connect extends Component {
     const server = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(server);
     this.props.onConnect(serverInfo.address);
+  }
+
+  onIPAddressClick() {
+    this._copyTimer && clearTimeout(this._copyTimer);
+    this._copyTimer = setTimeout(() => this.setState({ showCopyIPMessage: false }), 3000);
+    this.setState({ showCopyIPMessage: true });
+    this.props.onCopyIP();
   }
 
   // Private
