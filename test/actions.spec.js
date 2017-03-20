@@ -85,7 +85,7 @@ describe('actions', function() {
   it('should fail to connect to VPN server', (done) => {
     const expectedActions = [
       { type: 'CONNECTION_CHANGE', payload: { serverAddress: 'se1.mullvad.net', status: 'connecting', error: null } },
-      { type: 'CONNECTION_CHANGE', payload: { status: 'disconnected', error: new Error('Server is unreachable.') } }
+      { type: 'CONNECTION_CHANGE', payload: { status: 'failed', error: new Error('Server is unreachable') } }
     ];
 
     let state = Object.assign(mockState(), {
