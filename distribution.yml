@@ -2,7 +2,7 @@ appId: net.mullvad.vpn
 copyright: Amagicom AB
 productName: MullvadNeue
 
-asar: false
+asar: true
 
 directories:
   buildResources: build-assets/
