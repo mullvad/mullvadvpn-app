@@ -1,7 +1,6 @@
 import path from 'path';
 import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
-import TrayIconProvider from './lib/tray-icon-provider';
 
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
@@ -158,9 +157,9 @@ const showWindow = () => {
 const createTray = () => {
   tray = new Tray(nativeImage.createEmpty());
   tray.on('click', toggleWindow);
-  tray.setHighlightMode('selection');
+  tray.setHighlightMode('never');
   
-  trayIconManager = new TrayIconManager(tray, new TrayIconProvider());
+  trayIconManager = new TrayIconManager(tray);
 };
 
 crashReporter.start({
