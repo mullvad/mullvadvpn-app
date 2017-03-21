@@ -323,11 +323,12 @@ export default class Connect extends Component {
   headerStyle() {
     const S = Header.Style;
     switch(this.props.connect.status) {
+    case ConnectionState.connecting:
     case ConnectionState.disconnected:
     case ConnectionState.failed:
       return S.error;
-    case ConnectionState.connected: return S.success;
-    default: return S.default;
+    case ConnectionState.connected: 
+      return S.success;
     }
   }
 
