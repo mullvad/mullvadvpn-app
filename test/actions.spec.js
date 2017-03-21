@@ -82,34 +82,6 @@ describe('actions', function() {
     store.dispatch(connectActions.connect(backend, '1.2.3.4'));
   });
 
-  it('should fail to connect to VPN server', (done) => {
-    const expectedActions = [
-      { type: 'CONNECTION_CHANGE', payload: { serverAddress: 'se1.mullvad.net', status: 'connecting', error: null } },
-      { type: 'CONNECTION_CHANGE', payload: { status: 'failed', error: new Error('Server is unreachable') } }
-    ];
-
-    let state = Object.assign(mockState(), {
-      user: {
-        account: '3333234567890',
-        paidUntil: '2038-01-01T00:00:00.000Z',
-        status: LoginState.ok
-      }
-    });
-
-    const store = mockStore(state);
-    const backend = mockBackend(store);
-    mapBackendEventsToReduxActions(backend, store);
-
-    backend.once(Backend.EventType.connect, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
-
-      expect(storeActions).deep.equal(expectedActions);
-      done();
-    });
-    
-    store.dispatch(connectActions.connect(backend, 'se1.mullvad.net'));
-  });
-
   it('should disconnect from VPN server', (done) => {
     const expectedActions = [
       { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
