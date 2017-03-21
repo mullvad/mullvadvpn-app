@@ -17,11 +17,11 @@ let trayIconManager = null;
 
 const startTrayEventMonitor = (win) => {
   if(process.platform === 'darwin') {
+    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     if(macEventMonitor === null) {
-      const NSEventMonitor = require('nseventmonitor');
       macEventMonitor = new NSEventMonitor();
     }
-    macEventMonitor.start(() => win.hide());
+    macEventMonitor.start((NSEventMask.leftMouseDown | NSEventMask.rightMouseDown), () => win.hide());
   }
 };
 
