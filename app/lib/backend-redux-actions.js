@@ -27,9 +27,8 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     }));
   };
 
-  const onConnect = (serverAddress, error) => {
-    const status = error ? ConnectionState.failed : ConnectionState.connected;
-    store.dispatch(connectActions.connectionChange({ error, status }));
+  const onConnect = (serverAddress) => {
+    store.dispatch(connectActions.connectionChange({ status: ConnectionState.connected }));
   };
 
   const onDisconnect = () => {

@@ -2,7 +2,7 @@ import moment from 'moment';
 import Enum from './enum';
 import { EventEmitter } from 'events';
 import { servers } from '../config';
-import { ConnectionState as ReduxConnectionState } from '../enums';
+import { ConnectionState } from '../enums';
 
 /**
  * Server info
@@ -157,17 +157,6 @@ export default class Backend extends EventEmitter {
    * @property {string} updatedReachability
    */
   static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
-
-  /**
-   * Connection state enum
-   * 
-   * @type {ConnectionState}
-   * @extends {Enum}
-   * @property {string} disconnected  - Initial state (disconnected)
-   * @property {string} connecting    - Connecting
-   * @property {string} connected     - Connected
-   */
-  static ConnectionState = new Enum('disconnected', 'connecting', 'connected');
   
   /**
    * Creates an instance of Backend.
@@ -179,7 +168,7 @@ export default class Backend extends EventEmitter {
     this._account = null;
     this._paidUntil = null;
     this._serverAddress = null;
-    this._connStatus = Backend.ConnectionState.disconnected;
+    this._connStatus = ConnectionState.disconnected;
     this._cancellationHandler = null;
 
     // update IP in background
@@ -252,15 +241,6 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   syncWithReduxStore(store) {
-    const mapConnStatus = (s) => {
-      const S = ReduxConnectionState;
-      const BS = Backend.ConnectionState;
-      switch(s) {
-      case S.connected: return BS.connected;
-      case S.connecting: return BS.connecting;
-      default: return BS.disconnected;
-      }
-    };
     const { user, connect } = store.getState();
     const server = this.serverInfo(connect.preferredServer);
 
@@ -276,7 +256,7 @@ export default class Backend extends EventEmitter {
       this._paidUntil = user.paidUntil;
     }
 
-    this._connStatus = mapConnStatus(connect.status);
+    this._connStatus = connect.status;
   }
 
   /**
@@ -397,7 +377,12 @@ export default class Backend extends EventEmitter {
   connect(addr) {
     this.disconnect();
 
-    this._connStatus = Backend.ConnectionState.connecting;
+    // do not attempt to connect when no credits available
+    if(!this.hasCredits) {
+      return;
+    }
+
+    this._connStatus = ConnectionState.connecting;
     this._serverAddress = addr;
 
     // emit: connecting
@@ -407,12 +392,10 @@ export default class Backend extends EventEmitter {
     let timer = null;
 
     timer = setTimeout(() => {
-      let err = null;
-      
-      this._connStatus = Backend.ConnectionState.connected;
+      this._connStatus = ConnectionState.connected;
 
       // emit: connect
-      this.emit(Backend.EventType.connect, addr, err);
+      this.emit(Backend.EventType.connect, addr);
       this._refreshIp();
 
       // reset timer
@@ -426,7 +409,7 @@ export default class Backend extends EventEmitter {
         this._timer = null;
       }
       this._cancellationHandler = null;
-      this._connStatus = Backend.ConnectionState.disconnected;
+      this._connStatus = ConnectionState.disconnected;
     };
   }
 
@@ -437,9 +420,9 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   disconnect() {
-    if(this._connStatus === Backend.ConnectionState.disconnected) { return; }
+    if(this._connStatus === ConnectionState.disconnected) { return; }
 
-    this._connStatus = Backend.ConnectionState.disconnected;
+    this._connStatus = ConnectionState.disconnected;
     this._serverAddress = null;
 
     // cancel ongoing connection attempt
@@ -479,7 +462,7 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   _refreshIp() {
-    if(this._connStatus === Backend.ConnectionState.disconnected) {
+    if(this._connStatus === ConnectionState.disconnected) {
       this._fetchLocation().then((res) => {
         const data = {
           location: [ res.latitude, res.longitude ], // lat, lng

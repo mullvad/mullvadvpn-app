@@ -56,11 +56,6 @@ export default class Connect extends Component {
     if(moment(this.props.user.paidUntil).isSameOrBefore(moment())) {
       error = new Backend.Error(Backend.ErrorType.noCredit);
     }
-
-    // Connection error?
-    if(this.props.connect.status === ConnectionState.failed) {
-      error = this.props.connect.error;
-    }
     
     // Offline?
     if(this.props.connect.isOnline === false) {
@@ -115,7 +110,6 @@ export default class Connect extends Component {
     const isConnecting = this.props.connect.status === ConnectionState.connecting;
     const isConnected = this.props.connect.status === ConnectionState.connected;
     const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
-    const isFailed = this.props.connect.status === ConnectionState.failed;
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
 
@@ -213,8 +207,8 @@ export default class Connect extends Component {
               </Then>
             </If>
 
-            { /* location when disconnected or failed */ }
-            <If condition={ isDisconnected || isFailed }>
+            { /* location when disconnected */ }
+            <If condition={ isDisconnected }>
               <Then>
                 <div className="connect__status-location">
                   { displayLocation.country }
@@ -243,8 +237,8 @@ export default class Connect extends Component {
             **********************************
           */ }
 
-          { /* footer when disconnected or failed */ }
-          <If condition={ isDisconnected || isFailed }>
+          { /* footer when disconnected */ }
+          <If condition={ isDisconnected }>
             <Then>
               <div className="connect__footer">
                 <div className="connect__row">
@@ -345,7 +339,6 @@ export default class Connect extends Component {
     switch(this.props.connect.status) {
     case ConnectionState.connecting:
     case ConnectionState.disconnected:
-    case ConnectionState.failed:
       return S.error;
     case ConnectionState.connected: 
       return S.success;

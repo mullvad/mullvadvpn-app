@@ -16,9 +16,8 @@ export const LoginState = new Enum('none', 'connecting', 'failed', 'ok');
  * @property {string} disconnected  Initial state (disconnected)
  * @property {string} connecting    Connecting
  * @property {string} connected     Connected
- * @property {string} failed        Failed to connect
  */
-export const ConnectionState = new Enum('disconnected', 'connecting', 'connected', 'failed');
+export const ConnectionState = new Enum('disconnected', 'connecting', 'connected');
 
 /**
  * Tray icon type

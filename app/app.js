@@ -28,7 +28,7 @@ if([LoginState.connecting, LoginState.failed].includes(store.getState().user.sta
 }
 
 // reset connection state if user quit the app when connecting
-if([ConnectionState.connecting, ConnectionState.failed].includes(store.getState().connect.status)) {
+if(store.getState().connect.status === ConnectionState.connecting) {
   store.dispatch(connectActions.connectionChange({
     status: ConnectionState.disconnected
   }));
