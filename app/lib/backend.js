@@ -192,6 +192,19 @@ export default class Backend extends EventEmitter {
   get paidUntil() { return this._paidUntil; }
 
   /**
+   * Tells whether account has credits
+   * 
+   * @type {bool}
+   * @readonly
+   * 
+   * @memberOf Backend
+   */
+  get hasCredits() { 
+    return this._paidUntil !== null && 
+           moment(this._paidUntil).isAfter(moment()); 
+  }
+
+  /**
    * Server IP address or domain name
    * 
    * @type {string}
