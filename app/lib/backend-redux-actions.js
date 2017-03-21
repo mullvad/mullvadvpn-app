@@ -22,7 +22,6 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   const onConnecting = (serverAddress) => {
     store.dispatch(connectActions.connectionChange({ 
       status: ConnectionState.connecting,
-      error: null,
       serverAddress
     }));
   };
@@ -34,8 +33,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   const onDisconnect = () => {
     store.dispatch(connectActions.connectionChange({
       status: ConnectionState.disconnected,
-      serverAddress: null, 
-      error: null
+      serverAddress: null
     }));
   };
 
