@@ -1,4 +1,5 @@
 import assert from 'assert';
+import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
 import { If, Then, Else } from 'react-if';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
@@ -49,10 +50,19 @@ export default class Connect extends Component {
   render() {
     let error = null;
 
+    // check if user out of time
+    // this is by far the simplest implementation
+    // later on backend will notify us and disconnect VPN etc..
+    if(moment(this.props.user.paidUntil).isSameOrBefore(moment())) {
+      error = new Backend.Error(Backend.ErrorType.noCredit);
+    }
+
+    // Connection error?
     if(this.props.connect.status === ConnectionState.failed) {
       error = this.props.connect.error;
     }
     
+    // Offline?
     if(this.props.connect.isOnline === false) {
       error = new Backend.Error(Backend.ErrorType.noInternetConnection);
     }

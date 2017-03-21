@@ -408,12 +408,7 @@ export default class Backend extends EventEmitter {
 
     timer = setTimeout(() => {
       let err = null;
-
-      // Prototype: the US servers will throw error during connect
-      if(/us\d+\.mullvad\.net/.test(addr)) {
-        err = new BackendError(Backend.ErrorType.noCredit);
-      }
-
+      
       this._connStatus = Backend.ConnectionState.connected;
 
       // emit: connect
