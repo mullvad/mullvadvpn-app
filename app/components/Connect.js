@@ -47,12 +47,22 @@ export default class Connect extends Component {
   }
 
   render() {
+    let error = null;
+
+    if(this.props.connect.status === ConnectionState.failed) {
+      error = this.props.connect.error;
+    }
+    
+    if(this.props.connect.isOnline === false) {
+      error = new Backend.Error(Backend.ErrorType.noInternetConnection);
+    }
+
     return (
       <Layout>
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
-          <If condition={ this.props.connect.status === ConnectionState.failed }>
-            <Then>{ ::this.renderError }</Then>
+          <If condition={ error !== null }>
+            <Then>{ () => this.renderError(error) }</Then>
             <Else>{ ::this.renderMap }</Else>
           </If>
         </Container>
@@ -60,7 +70,7 @@ export default class Connect extends Component {
     );
   }
 
-  renderError() {
+  renderError(error) {
     return (
       <div className="connect">
         <div className="connect__status">
@@ -68,12 +78,12 @@ export default class Connect extends Component {
             <img src="./assets/images/icon-fail.svg" alt="" />
           </div>
           <div className="connect__error-title">
-            { this.props.connect.error.title }
+            { error.title }
           </div>
           <div className="connect__error-message">
-            { this.props.connect.error.message }
+            { error.message }
           </div>
-          <If condition={ this.props.connect.error.code === Backend.ErrorType.noCredit }>
+          <If condition={ error.code === Backend.ErrorType.noCredit }>
             <Then>
             <div>
               <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>

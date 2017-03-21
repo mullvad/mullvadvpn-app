@@ -62,6 +62,10 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     }));
   };
 
+  const onReachability = (isOnline) => {
+    store.dispatch(connectActions.connectionChange({ isOnline }));
+  };
+
   backend.on(Backend.EventType.updatedIp, onUpdateIp);
   backend.on(Backend.EventType.updatedLocation, onUpdateLocation);
   backend.on(Backend.EventType.connecting, onConnecting);
@@ -70,4 +74,5 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   backend.on(Backend.EventType.logging, onLoggingIn);
   backend.on(Backend.EventType.login, onLogin);
   backend.on(Backend.EventType.logout, onLogout);
+  backend.on(Backend.EventType.updatedReachability, onReachability);
 }

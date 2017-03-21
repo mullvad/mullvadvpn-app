@@ -72,6 +72,13 @@ import { ConnectionState as ReduxConnectionState } from '../enums';
  * @param {object} location data    
  */
 
+/**
+ * Updated reachability
+ *
+ * @event Backend.EventType.updatedReachability
+ * @param {bool} true if online, otherwise false
+ */
+
 class BackendError extends Error {
 
   constructor(code) {
@@ -113,6 +120,15 @@ class BackendError extends Error {
 export default class Backend extends EventEmitter {
 
   /**
+   * BackendError type
+   * 
+   * @static
+   * 
+   * @memberOf Backend
+   */
+  static Error = BackendError;
+
+  /**
    * Backend error enum
    * 
    * @static
@@ -138,8 +154,9 @@ export default class Backend extends EventEmitter {
    * @property {string} logout
    * @property {string} updatedIp
    * @property {string} updatedLocation
+   * @property {string} updatedReachability
    */
-  static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation');
+  static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
 
   /**
    * Connection state enum
@@ -167,6 +184,9 @@ export default class Backend extends EventEmitter {
 
     // update IP in background
     setTimeout(::this._refreshIp, 0);
+
+    // check for network reachability
+    this._startReachability();
   }
 
   // Accessors
@@ -332,11 +352,11 @@ export default class Backend extends EventEmitter {
       let res = { account };
       
       if(account.startsWith('1111')) { // accounts starting with 1111 expire in one month
-        res.paidUntil = moment().startOf('day').add(15, 'days').toISOString();
+        this._paidUntil = res.paidUntil = moment().startOf('day').add(15, 'days').toISOString();
       } else if(account.startsWith('2222')) { // expired in 2013
-        res.paidUntil = moment('2013-01-01').toISOString();
+        this._paidUntil = res.paidUntil = moment('2013-01-01').toISOString();
       } else if(account.startsWith('3333')) { // expire in 2038
-        res.paidUntil = moment('2038-01-01').toISOString();
+        this._paidUntil = res.paidUntil = moment('2038-01-01').toISOString();
       } else {
         err = new BackendError(Backend.ErrorType.invalidAccount);
       }
@@ -388,11 +408,6 @@ export default class Backend extends EventEmitter {
 
     timer = setTimeout(() => {
       let err = null;
-
-      // Prototype: Swedish servers will throw error during connect
-      if(/se\d+\.mullvad\.net/.test(addr)) {
-        err = new BackendError(Backend.ErrorType.noInternetConnection);
-      }
 
       // Prototype: the US servers will throw error during connect
       if(/us\d+\.mullvad\.net/.test(addr)) {
@@ -490,5 +505,22 @@ export default class Backend extends EventEmitter {
     }
 
     this.emit(Backend.EventType.updatedIp, ip.join('.'));
+  }
+
+  _startReachability() {
+    // update online status in background
+    setTimeout(() => {
+      this.emit(Backend.EventType.updatedReachability, navigator.onLine);
+    }, 0);
+    
+    window.addEventListener('online', () => {
+      this.emit(Backend.EventType.updatedReachability, true);
+    });
+
+    window.addEventListener('offline', () => {
+      // force disconnect since there is no real connection anyway.
+      this.disconnect();
+      this.emit(Backend.EventType.updatedReachability, false);
+    });
   }
 }

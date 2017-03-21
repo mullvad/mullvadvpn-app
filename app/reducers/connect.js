@@ -4,6 +4,7 @@ import actions from '../actions/connect';
 
 const initialState = {
   status: ConnectionState.disconnected,
+  isOnline: true,
   serverAddress: null,
   clientIp: null
 };
