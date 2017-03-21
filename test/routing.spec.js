@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './mocks/backend';
+import { filterMinorActions, mockBackend, mockState, mockStore } from './mocks/backend';
 import userActions from '../app/actions/user';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
 import { LoginState } from '../app/enums';
@@ -26,7 +26,7 @@ describe('routing', function() {
     
     store.dispatch(userActions.logout(backend));
     
-    const storeActions = filterIpUpdateActions(store.getActions());
+    const storeActions = filterMinorActions(store.getActions());
     expect(storeActions).deep.equal(expectedActions);
   });
 
@@ -46,7 +46,7 @@ describe('routing', function() {
     mapBackendEventsToRouter(backend, store);
     
     store.subscribe(() => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
       expect(storeActions).deep.equal(expectedActions);
       done();
     });

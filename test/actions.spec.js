@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { filterIpUpdateActions, mockBackend, mockState, mockStore } from './mocks/backend';
+import { filterMinorActions, mockBackend, mockState, mockStore } from './mocks/backend';
 import Backend from '../app/lib/backend';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
@@ -19,7 +19,7 @@ describe('actions', function() {
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.login, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
@@ -45,7 +45,7 @@ describe('actions', function() {
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.logout, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
       done();
@@ -56,8 +56,8 @@ describe('actions', function() {
 
   it('should connect to VPN server', (done) => {
     const expectedActions = [
-      { type: 'CONNECTION_CHANGE', payload: { serverAddress: '1.2.3.4', status: 'connecting', error: null } },
-      { type: 'CONNECTION_CHANGE', payload: { status: 'connected', error: null } }
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: '1.2.3.4', status: 'connecting' } },
+      { type: 'CONNECTION_CHANGE', payload: { status: 'connected' } }
     ];
 
     let state = Object.assign(mockState(), {
@@ -73,7 +73,7 @@ describe('actions', function() {
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.connect, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
       done();
@@ -84,7 +84,7 @@ describe('actions', function() {
 
   it('should disconnect from VPN server', (done) => {
     const expectedActions = [
-      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected' } }
     ];
 
     let state = Object.assign(mockState(), {
@@ -104,7 +104,7 @@ describe('actions', function() {
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
       done();
@@ -116,7 +116,7 @@ describe('actions', function() {
   it('should disconnect from VPN server on logout', (done) => {
     const expectedActions = [
       { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } },
-      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected', error: null } }
+      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected' } }
     ];
 
     let state = Object.assign(mockState(), {
@@ -136,7 +136,7 @@ describe('actions', function() {
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
-      const storeActions = filterIpUpdateActions(store.getActions());
+      const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
       done();

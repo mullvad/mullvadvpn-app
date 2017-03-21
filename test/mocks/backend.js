@@ -38,9 +38,13 @@ export const mockBackend = (store) => {
   return backend;
 };
 
-export const filterIpUpdateActions = (actions) => {
+export const filterMinorActions = (actions) => {
   return actions.filter((action) => {
     if(action.type === 'CONNECTION_CHANGE' && action.payload.clientIp) {
+      return false;
+    }
+
+    if(action.type === 'CONNECTION_CHANGE' && action.payload.isOnline) {
       return false;
     }
     
