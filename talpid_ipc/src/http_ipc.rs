@@ -25,12 +25,7 @@ pub fn start_new_server<T, U, F>(on_message: F) -> Result<IpcServerId>
 }
 
 fn start_http_server(addr: &str) -> Result<tiny_http::Server> {
-    tiny_http::Server::http(addr).map_err(|e| chain_boxed_err(e, ErrorKind::CouldNotStartServer))
-}
-
-fn chain_boxed_err(boxed_cause: Box<::std::error::Error>, new_error: ErrorKind) -> super::Error {
-    let cause = super::Error::from_kind(ErrorKind::Msg(boxed_cause.to_string()));
-    super::Error::with_chain(cause, new_error)
+    tiny_http::Server::http(addr).map_err(|e| ErrorKind::Msg(e.to_string()).into())
 }
 
 fn start_receive_loop<T, U, F>(server: tiny_http::Server, mut on_message: F)
