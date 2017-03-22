@@ -56,12 +56,12 @@ fn parse_request<T: serde::Deserialize>(request: &mut tiny_http::Request) -> Res
 
 fn send_response<U: serde::Serialize>(response: &U, request: tiny_http::Request) -> Result<()> {
     serde_json::to_string(response)
-        .chain_err(|| ErrorKind::ReplyFailure)
+        .chain_err(|| ErrorKind::ParseFailure)
         .and_then(|response_as_string| {
 
             debug!("HTTP IPC responding with {:?}", response_as_string);
             request.respond(tiny_http::Response::from_string(response_as_string))
-                .chain_err(|| ErrorKind::ReplyFailure)
+                .chain_err(|| "Failed responding to HTTP request")
         })
 }
 
@@ -96,7 +96,6 @@ impl<T, U> IpcClient<T, U>
             .body(&message_json)
             .send()
             .chain_err(|| ErrorKind::SendError)?;
-
 
         Self::parse_reply(&mut reply)
     }
