@@ -37,15 +37,20 @@ fn start_receive_loop<T, U, F>(server: tiny_http::Server, mut on_message: F)
         let response = on_message(read_res);
         let reply_res = send_response(&response, request);
 
-        if reply_res.is_err() {
-            error!("Failed sending reply to request, {}",
-                   reply_res.unwrap_err());
+        if let Err(e) = reply_res {
+            error!("Failed sending reply to request, {}", e);
         }
     });
 }
 
 fn parse_request<T: serde::Deserialize>(request: &mut tiny_http::Request) -> Result<T> {
-    serde_json::from_reader(request.as_reader()).chain_err(|| ErrorKind::ParseFailure)
+    let reader = request.as_reader();
+    let mut buffer = String::new();
+    reader.read_to_string(&mut buffer).chain_err(|| ErrorKind::ParseFailure)?;
+
+    debug!("Got IPC request: {}", buffer);
+
+    serde_json::from_str(&buffer).chain_err(|| ErrorKind::ParseFailure)
 }
 
 fn send_response<U: serde::Serialize>(response: &U, request: tiny_http::Request) -> Result<()> {
