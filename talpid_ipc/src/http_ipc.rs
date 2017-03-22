@@ -4,7 +4,6 @@ extern crate hyper;
 
 use super::{ErrorKind, Result, ResultExt, IpcServerId};
 use serde;
-use std::io::Read;
 use std::thread;
 
 pub fn start_new_server<T, U, F>(on_message: F) -> Result<IpcServerId>
@@ -46,19 +45,7 @@ fn start_receive_loop<T, U, F>(server: tiny_http::Server, mut on_message: F)
 }
 
 fn parse_request<T: serde::Deserialize>(request: &mut tiny_http::Request) -> Result<T> {
-    read_body_as_string(request)
-            .and_then(|s| serde_json::from_str(&s).chain_err(|| ErrorKind::ParseFailure))
-}
-
-fn read_body_as_string(request: &mut tiny_http::Request) -> Result<String> {
-    let mut buffer = String::new();
-    let res = request.as_reader()
-        .read_to_string(&mut buffer)
-        .chain_err(|| ErrorKind::ReadFailure)
-        .map(|_| buffer);
-
-    debug!("HTTP IPC read body {:?}", res);
-    res
+    serde_json::from_reader(request.as_reader()).chain_err(|| ErrorKind::ParseFailure)
 }
 
 fn send_response<U: serde::Serialize>(response: &U, request: tiny_http::Request) -> Result<()> {
@@ -109,9 +96,6 @@ impl<T, U> IpcClient<T, U>
     }
 
     fn parse_reply(reply: &mut hyper::client::response::Response) -> Result<U> {
-        let mut buffer = String::new();
-        reply.read_to_string(&mut buffer).chain_err(|| ErrorKind::ParseFailure)?;
-
-        serde_json::from_str(&buffer).chain_err(|| ErrorKind::ParseFailure)
+        serde_json::from_reader(reply).chain_err(|| ErrorKind::ParseFailure)
     }
 }
