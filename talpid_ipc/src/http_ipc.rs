@@ -11,15 +11,21 @@ pub fn start_new_server<T, U, F>(on_message: F) -> Result<IpcServerId>
           U: serde::Serialize,
           F: FnMut(Result<T>) -> U + Send + 'static
 {
-    let addr = "127.0.0.1:5000";
+    for port in 5000..5010 {
+        let addr = format!("127.0.0.1:{}", port);
 
-    tiny_http::Server::http(addr)
-        .map_err(|e| chain_boxed_err(e, ErrorKind::CouldNotStartServer))
-        .and_then(|server| {
-            start_receive_loop(server, on_message);
+        if let Ok(server) = start_http_server(&addr) {
+            let _ = start_receive_loop(server, on_message);
             debug!("Started a HTTP IPC server on {}", addr);
-            Ok(format!("http://{}", addr))
-        })
+            return Ok(format!("http://{}", addr));
+        }
+    }
+
+    bail!(ErrorKind::CouldNotStartServer)
+}
+
+fn start_http_server(addr: &str) -> Result<tiny_http::Server> {
+    tiny_http::Server::http(addr).map_err(|e| chain_boxed_err(e, ErrorKind::CouldNotStartServer))
 }
 
 fn chain_boxed_err(boxed_cause: Box<::std::error::Error>, new_error: ErrorKind) -> super::Error {
