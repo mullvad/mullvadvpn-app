@@ -11,16 +11,17 @@ mod http_integration_tests {
 
     #[test]
     fn can_connect_and_send_and_receive_messages() {
-        let (connection_string, new_messages_rx) = start_server::<String>();
+        let (connection_string, server_messages) = start_server::<String>();
 
         let mut ipc_client = http_ipc::IpcClient::new(connection_string);
         let msg = "Hello".to_owned();
-        ipc_client.send(&msg).expect("Could not send message");
+        let response: String = ipc_client.send(&msg).expect("Could not send message");
 
-        let message = new_messages_rx.recv_timeout(Duration::from_millis(1000))
+        let message = server_messages.recv_timeout(Duration::from_millis(1000))
             .expect("Did not receive a message");
 
         assert_eq!(message.unwrap(), "Hello", "Got wrong message");
+        assert_eq!(response, "RESPONSE");
     }
 
     fn start_server<T>() -> (IpcServerId, Receiver<Result<T>>)
@@ -30,6 +31,7 @@ mod http_integration_tests {
 
         let connection_string = http_ipc::start_new_server(move |message: Result<T>| {
                 let _ = tx.send(message);
+                "RESPONSE"
             })
             .expect("Could not start the server");
 

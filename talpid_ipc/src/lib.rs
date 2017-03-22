@@ -35,5 +35,8 @@ error_chain!{
         SendError {
             description("Unable to send message")
         }
+        ReplyFailure {
+            description("The server failed to reply to the request")
+        }
     }
 }
