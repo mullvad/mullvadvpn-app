@@ -5,10 +5,12 @@ authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.n
 description = "IPC client and server for talpid"
 
 [dependencies]
-error-chain = "0.8"
+error-chain = "0.10"
 serde = "0.9"
 serde_json = "0.9"
 log = "0.3"
+tiny_http = "0.5"
+hyper = "0.10"
 
 [target.'cfg(not(windows))'.dependencies]
 zmq = "0.8"
