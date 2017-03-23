@@ -485,6 +485,14 @@ export default class Backend extends EventEmitter {
     this.emit(Backend.EventType.updatedIp, ip.join('.'));
   }
 
+  /**
+   * Start reachability monitoring for online/offline detection
+   * This is currently done via HTML5 APIs but will be replaced later
+   * with proper backend integration.
+   * @private
+   * @memberOf Backend
+   * @emits Backend.EventType.updatedReachability
+   */
   _startReachability() {
     // update online status in background
     setTimeout(() => {
