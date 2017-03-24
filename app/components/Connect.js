@@ -6,7 +6,7 @@ import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
 import { mapbox as mapboxConfig } from '../config';
-import Backend from '../lib/Backend';
+import Backend from '../lib/backend';
 import { ConnectionState } from '../enums';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 

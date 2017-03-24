@@ -1,53 +1,20 @@
 import path from 'path';
-import { app, crashReporter, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 
-// Override appData path to avoid collisions with old client
-// New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
-const applicationSupportPath = app.getPath('appData');
-const userDataPath = path.join(applicationSupportPath, 'mullvad.vpn');
-app.setPath('userData', userDataPath);
-
 const isDevelopment = (process.env.NODE_ENV === 'development');
+const isMacOS = (process.platform === 'darwin');
 
 let window = null;
 let tray = null;
-let macEventMonitor = null;
-let trayIconManager = null;
 
-const startTrayEventMonitor = (win) => {
-  if(process.platform === 'darwin') {
-    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-    if(macEventMonitor === null) {
-      macEventMonitor = new NSEventMonitor();
-    }
-    macEventMonitor.start((NSEventMask.leftMouseDown | NSEventMask.rightMouseDown), () => win.hide());
-  }
-};
+// Override appData path to avoid collisions with old client
+// New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
+app.setPath('userData', path.join(app.getPath('appData'), 'mullvad.vpn'));
 
-const stopTrayEventMonitor = () => {
-  if(process.platform === 'darwin') {
-    macEventMonitor.stop();
-  }
-};
-
-ipcMain.on('changeTrayIcon', (event, type) => {
-  trayIconManager.iconType = type;
-});
-
-ipcMain.emit();
-
-// hide dock icon
-if(process.platform === 'darwin') {
-  app.dock.hide();
-}
-
-const installExtensions = async () => {
+const installDevTools = async () => {
   const installer = require('electron-devtools-installer');
-  const extensions = [
-    'REACT_DEVELOPER_TOOLS',
-    'REDUX_DEVTOOLS'
-  ];
+  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   for(const name of extensions) {
     try {
@@ -58,77 +25,38 @@ const installExtensions = async () => {
   }
 };
 
-const installDevTools = async () => {
-  await installExtensions();
-
-  // show devtools when ctrl clicked
-  tray.on('click', function () {
-    if(!window) { return; }
-
-    if(window.isDevToolsOpened()) {
-      // there is a rare bug when isDevToolsOpened() reports true
-      // but dev tools window is not created yet.
-      if(window.devToolsWebContents) {
-        window.devToolsWebContents.focus();
-      }
-    } else {
-      window.openDevTools({ mode: 'detach' });
-    }
-  });
-};
-
-const getWindowPosition = () => {
-  const windowBounds = window.getBounds();
-  const trayBounds = tray.getBounds();
-
-  // center window horizontally below the tray icon
-  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
-
-  // position window vertically below the tray icon
-  const y = Math.round(trayBounds.y + trayBounds.height);
-
-  return { x, y };
-};
-
 const createWindow = () => {
-  window = new BrowserWindow({
+  const contentHeight = 568;
+  let options = {
     width: 320, 
-    height: 568 + 12, // 12 is the size of transparent area around arrow
-    frame: false,
+    height: contentHeight,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
-    transparent: true,
-    show: false,
+    show: true,
     webPreferences: {
       // prevents renderer process code from not running when window is hidden
       backgroundThrottling: false,
-
       // Enable experimental features
       blinkFeatures: ['CSSBackdropFilter'].join(',')
     }
-  });
+  };
 
+  // setup window flags to mimic popover on macOS
+  if(isMacOS) {
+    options = Object.assign({}, options, {
+      height: contentHeight + 12, // 12 is the size of transparent area around arrow
+      frame: false,
+      transparent: true,
+      show: false
+    });
+  }
+
+  window = new BrowserWindow(options);
   window.loadURL('file://' + path.join(__dirname, 'index.html'));
-
-  // hide the window when it loses focus
-  window.on('blur', () => {
-    if(!window.webContents.isDevToolsOpened()) {
-      window.hide();
-    }
-  });
-
-  window.on('show', () => {
-    startTrayEventMonitor(window);
-  });
-
-  window.on('hide', () => {
-    stopTrayEventMonitor();
-  });
 };
 
 const createAppMenu = () => {
-  // Create the Application's main menu
   const template = [
     {
       label: 'Mullvad',
@@ -175,8 +103,7 @@ const createContextMenu = () => {
     if(props.isEditable) {
       let inputMenu = menuTemplate;
 
-      // mixin "inspect element" into standard menu 
-      // when in development mode
+      // mixin "inspect element" into standard menu when in development mode
       if(isDevelopment) {
         inputMenu = menuTemplate.concat([{type: 'separator'}], inspectTemplate);
       }
@@ -199,38 +126,66 @@ const toggleWindow = () => {
 };
 
 const showWindow = () => {
-  const position = getWindowPosition();
-  window.setPosition(position.x, position.y, false);
+  // position window based on tray icon location
+  if(tray) {
+    const { x, y } = getWindowPosition();
+    window.setPosition(x, y, false);
+  }
+  
   window.show();
   window.focus();
 };
 
-const createTray = () => {
-  tray = new Tray(nativeImage.createEmpty());
-  tray.on('click', toggleWindow);
-  tray.setHighlightMode('never');
-  
-  trayIconManager = new TrayIconManager(tray);
+const getWindowPosition = () => {
+  const windowBounds = window.getBounds();
+  const trayBounds = tray.getBounds();
+
+  // center window horizontally below the tray icon
+  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
+
+  // position window vertically below the tray icon
+  const y = Math.round(trayBounds.y + trayBounds.height);
+
+  return { x, y };
 };
 
-crashReporter.start({
-  productName: 'YourName',
-  companyName: 'YourCompany',
-  submitURL: 'https://your-domain.com/url-to-submit',
-  uploadToServer: false
-});
+const createTray = () => {
+  tray = new Tray(nativeImage.createEmpty());
+  tray.setHighlightMode('never');
+  tray.on('click', toggleWindow);
+  
+  // setup NSEvent monitor to fix inconsistent window.blur
+  // see https://github.com/electron/electron/issues/8689
+  const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
+  const trayIconManager = new TrayIconManager(tray);
+  const macEventMonitor = new NSEventMonitor();
+  const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
 
-app.on('window-all-closed', () => {
+  // add IPC handler to change tray icon from renderer
+  ipcMain.on('changeTrayIcon', (_, type) => trayIconManager.iconType = type);
+  
+  // setup event handlers
+  window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));
+  window.on('hide', () => macEventMonitor.stop());
+  window.on('close', () => window.closeDevTools());
+  window.on('blur', () => !window.isDevToolsOpened() && window.hide());
+};
+
+app.on('window-all-closed', () => {  
   app.quit();
 });
 
-app.on('ready', () => {
-  createTray();
+app.on('ready', async () => {
   createWindow();
+
+  // create tray icon on macOS
+  isMacOS && createTray();
+
   createAppMenu();
   createContextMenu();
 
   if(isDevelopment) {
-    installDevTools();
+    await installDevTools();
+    window.openDevTools({ mode: 'detach' });
   }
 });

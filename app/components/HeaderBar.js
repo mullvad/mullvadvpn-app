@@ -42,7 +42,7 @@ export default class HeaderBar extends Component {
    */
   render() {
     const style = this.props.style;
-    let containerClass = ['headerbar'];
+    let containerClass = ['headerbar', 'headerbar--' + process.platform];
 
     if(HeaderBar.Style.isValid(style)) {
       containerClass.push(`headerbar--style-${style}`);
