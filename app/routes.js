@@ -12,9 +12,9 @@ import { LoginState } from './enums';
 
 /**
  * Create routes
- * 
+ *
  * @export
- * @param {Redux.Store} store 
+ * @param {Redux.Store} store
  * @returns {React.element}
  */
 export default function makeRoutes(store) {

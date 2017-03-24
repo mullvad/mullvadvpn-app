@@ -3,10 +3,10 @@ import Backend from './backend';
 
 /**
  * Add listeners to translate backend events to react router actions
- * 
+ *
  * @export
- * @param {Backend} backend 
- * @param {Redux.Store} store 
+ * @param {Backend} backend
+ * @param {Redux.Store} store
  */
 export default function mapBackendEventsToRouter(backend, store) {
   // redirect user to main screen after login

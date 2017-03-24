@@ -3,7 +3,7 @@ import { nativeImage } from 'electron';
 
 /**
  * Keyframe animation
- * 
+ *
  * @export
  * @class KeyframeAnimation
  */
@@ -11,7 +11,7 @@ export default class KeyframeAnimation {
 
   /**
    * Set callback called on each frame update
-   * 
+   *
    * @type {function}
    * @memberOf KeyframeAnimation
    */
@@ -19,16 +19,16 @@ export default class KeyframeAnimation {
 
   /**
    * Get callback called on each frame update
-   * 
+   *
    * @readonly
    * @type {function}
    * @memberOf KeyframeAnimation
    */
   get onFrame() { this._onFrame; }
-  
+
   /**
    * Set callback called when animation finished
-   * 
+   *
    * @type {function}
    * @memberOf KeyframeAnimation
    */
@@ -36,16 +36,16 @@ export default class KeyframeAnimation {
 
   /**
    * Get callback called when animation finished
-   * 
+   *
    * @readonly
-   * 
+   *
    * @memberOf KeyframeAnimation
    */
   get onFinish() { this._onFinish; }
 
   /**
    * Set animation pace per frame in ms
-   * 
+   *
    * @type {number}
    * @memberOf KeyframeAnimation
    */
@@ -53,7 +53,7 @@ export default class KeyframeAnimation {
 
   /**
    * Get animation pace per frame in ms
-   * 
+   *
    * @readonly
    * @type {number}
    * @memberOf KeyframeAnimation
@@ -63,14 +63,14 @@ export default class KeyframeAnimation {
   /**
    * Set animation repetition
    * @type {bool}
-   * 
+   *
    * @memberOf KeyframeAnimation
    */
   set repeat(v) { this._repeat = !!v; }
 
   /**
    * Get animation repetition
-   * 
+   *
    * @readonly
    * @type {bool}
    * @memberOf KeyframeAnimation
@@ -78,7 +78,7 @@ export default class KeyframeAnimation {
   get repeat() { return this._repeat; }
 
   /**
-   * Set animation reversal 
+   * Set animation reversal
    * @type {bool}
    * @memberOf KeyframeAnimation
    */
@@ -86,7 +86,7 @@ export default class KeyframeAnimation {
 
   /**
    * Get animation reversal
-   * 
+   *
    * @readonly
    * @type {bool}
    * @memberOf KeyframeAnimation
@@ -102,7 +102,7 @@ export default class KeyframeAnimation {
 
   /**
    * Get animation alternation
-   * 
+   *
    * @readonly
    * @type {bool}
    * @memberOf KeyframeAnimation
@@ -111,7 +111,7 @@ export default class KeyframeAnimation {
 
   /**
    * Source array of images
-   * 
+   *
    * @readonly
    * @type {array}
    * @memberOf KeyframeAnimation
@@ -120,29 +120,29 @@ export default class KeyframeAnimation {
 
   /**
    * Array of NativeImage instances loaded based on source input
-   * 
+   *
    * @readonly
    * @type {Electron.NativeImage[]}
    * @memberOf KeyframeAnimation
    */
   get nativeImages() { return this._nativeImages.slice(); }
-  
+
   /**
    * Flag that tells whether animation finished
-   * 
+   *
    * @readonly
    * @type {bool}
    * @memberOf KeyframeAnimation
    */
   get isFinished() { return this._isFinished; }
-  
+
   /**
    * Create animation using file sequence
-   * 
+   *
    * @static
-   * @param {string}   filePattern - file name pattern where {s} is replaced with index 
+   * @param {string}   filePattern - file name pattern where {s} is replaced with index
    * @param {number[]} range       - sequence range [start, end]
-   * 
+   *
    * @memberOf KeyframeAnimation
    * @return {KeyframeAnimation}
    */
@@ -159,13 +159,13 @@ export default class KeyframeAnimation {
 
   /**
    * Creates an instance of KeyframeAnimation.
-   * @param {string[]} images 
-   * 
+   * @param {string[]} images
+   *
    * @memberOf KeyframeAnimation
    */
   constructor(images) {
     assert(images.length > 0);
-    
+
     this._source = images.slice();
     this._nativeImages = images.map((pathOrNativeImage) => {
       if(typeof(pathOrNativeImage) === 'string') {
@@ -175,12 +175,12 @@ export default class KeyframeAnimation {
       }
       return nativeImage.createEmpty();
     });
-    
+
     this._speed = 200; // ms
     this._repeat = false;
     this._reverse = false;
     this._alternate = false;
-    
+
     this._numFrames = images.length;
     this._currentFrame = 0;
     this._frameRange = [0, this._numFrames];
@@ -191,7 +191,7 @@ export default class KeyframeAnimation {
 
   /**
    * Get current sprite
-   * 
+   *
    * @readonly
    * @type {Electron.NativeImage}
    * @memberOf KeyframeAnimation
@@ -215,7 +215,7 @@ export default class KeyframeAnimation {
     if(startFrame !== undefined && endFrame !== undefined) {
       assert(startFrame >= 0 && startFrame < this._numFrames);
       assert(endFrame >= 0 && endFrame < this._numFrames);
-      
+
       if(startFrame < endFrame) {
         this._frameRange = [ startFrame, endFrame ];
       } else {
@@ -224,7 +224,7 @@ export default class KeyframeAnimation {
     } else {
       this._frameRange = [ 0, this._numFrames - 1 ];
     }
-    
+
     if(!beginFromCurrentState || this._isFirstRun) {
       this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
     }
@@ -238,7 +238,7 @@ export default class KeyframeAnimation {
     }
 
     this._isFinished = false;
-    
+
     this._unscheduleUpdate();
 
     this._render();
@@ -309,7 +309,7 @@ export default class KeyframeAnimation {
       // change animation direction if marked for alternation
       if(this._alternate) {
         this._reverse = !this._reverse;
-        
+
         this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
       } else {
         this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
@@ -326,7 +326,7 @@ export default class KeyframeAnimation {
    * @param {number[]} frameRange - frame range
    * @param {bool}     isReverse  - reverse sequence direction?
    * @returns {number}
-   * 
+   *
    * @memberOf KeyframeAnimation
    */
   _nextFrame(cur, frameRange, isReverse) {

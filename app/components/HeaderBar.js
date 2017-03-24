@@ -4,7 +4,7 @@ import Enum from '../lib/enum';
 
 /**
  * Header bar component
- * 
+ *
  * @export
  * @class HeaderBar
  * @extends {React.Component}
@@ -19,7 +19,7 @@ export default class HeaderBar extends Component {
    * @property {string} error       - red
    * @property {string} success     - green
    * @static
-   * 
+   *
    * @memberOf HeaderBar
    */
   static Style = new Enum('default', 'defaultDark', 'error', 'success');
@@ -27,7 +27,7 @@ export default class HeaderBar extends Component {
   /**
    * Prop types
    * @static
-   * 
+   *
    * @memberOf HeaderBar
    */
   static propTypes = {

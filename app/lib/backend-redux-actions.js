@@ -5,9 +5,9 @@ import { LoginState, ConnectionState } from '../enums';
 
 /**
  * Add event listeners to translate backend events to redux dispatch.
- * 
+ *
  * @export
- * @param {Backend} backend 
+ * @param {Backend} backend
  * @param {Redux.Store} store
  */
 export default function mapBackendEventsToReduxActions(backend, store) {
@@ -20,7 +20,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   };
 
   const onConnecting = (serverAddress) => {
-    store.dispatch(connectActions.connectionChange({ 
+    store.dispatch(connectActions.connectionChange({
       status: ConnectionState.connecting,
       serverAddress
     }));
@@ -38,8 +38,8 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   };
 
   const onLoggingIn = (info) => {
-    store.dispatch(userActions.loginChange(Object.assign({ 
-      status: LoginState.connecting, 
+    store.dispatch(userActions.loginChange(Object.assign({
+      status: LoginState.connecting,
       error: null
     }, info)));
   };
@@ -52,7 +52,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
 
   const onLogout = () => {
     store.dispatch(userActions.loginChange({
-      status: LoginState.none, 
+      status: LoginState.none,
       account: null,
       paidUntil: null,
       error: null

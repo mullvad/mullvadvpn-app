@@ -3,7 +3,7 @@ import HeaderBar from './HeaderBar';
 
 /**
  * Layout header
- * 
+ *
  * @export
  * @class Header
  * @extends {React.Component}
@@ -31,7 +31,7 @@ export class Header extends Component {
 
 /**
  * Content container
- * 
+ *
  * @export
  * @class Container
  * @extends {React.Component}
@@ -61,7 +61,7 @@ export class Container extends Component {
 
 /**
  * Layout container
- * 
+ *
  * @export
  * @class Layout
  * @extends {React.Component}
@@ -79,7 +79,7 @@ export class Layout extends Component {
       PropTypes.element,
     ])
   };
-  
+
   /**
    * @override
    */

@@ -41,14 +41,14 @@ export default class Account extends Component {
               <span className="account__close-title">Settings</span>
             </div>
             <div className="account__container">
-            
+
               <div className="account__header">
                 <h2 className="account__title">Account</h2>
-              </div> 
+              </div>
 
               <div className="account__content">
                 <div className="account__main">
-                
+
                   <div className="account__row">
                     <div className="account__row-label">Account ID</div>
                     <div className="account__row-value">{ formattedAccountId }</div>

@@ -9,8 +9,8 @@ const initialState = {
   clientIp: null
 };
 
-export default handleActions({ 
-  [actions.connectionChange]: (state, action) => { 
+export default handleActions({
+  [actions.connectionChange]: (state, action) => {
     return { ...state, ...action.payload };
-  } 
+  }
 }, initialState);

@@ -15,15 +15,15 @@ export default class Login extends Component {
     onFirstChangeAfterFailure: PropTypes.func.isRequired,
     onExternalLink: PropTypes.func.isRequired,
   };
-  
+
   constructor(props) {
     super(props);
-    this.state = { 
+    this.state = {
       notifyOnFirstChangeAfterFailure: false,
       isActive: false
     };
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const prev = this.props.user || {};
     const next = nextProps.user || {};
@@ -177,16 +177,16 @@ export default class Login extends Component {
               <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
                 <div className="login-form__subtitle">{ subtitle }</div>
                 <div className={ inputWrapClass }>
-                  <AccountInput className="login-form__input-field" 
-                        type="text" 
-                        placeholder="e.g 0000 0000 0000" 
+                  <AccountInput className="login-form__input-field"
+                        type="text"
+                        placeholder="e.g 0000 0000 0000"
                         onFocus={ ::this.onFocus }
                         onBlur={ ::this.onBlur }
                         onChange={ ::this.onInputChange }
                         onEnter={ ::this.onLogin }
                         value={ account }
                         disabled={ isConnecting }
-                        autoFocus={ true } 
+                        autoFocus={ true }
                         ref={ autoFocusRef } />
                     <button className={ submitClass } onClick={ ::this.onLogin }>
                       <LoginArrowSVG className="login-form__submit-icon" />

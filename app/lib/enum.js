@@ -7,7 +7,7 @@ export default class Enum {
 
   /**
    * Creates an instance of EnumBase.
-   * 
+   *
    * @param {...string|object} ... - enum keys
    * @memberOf Enum
    */
@@ -45,7 +45,7 @@ export default class Enum {
       value: allKeys,
       writable: false
     });
-    
+
     Object.defineProperty(this, 'reverseMap', {
       enumerable: false,
       value: reverseMap,
@@ -57,22 +57,22 @@ export default class Enum {
 
   /**
    * Check if key is registered in this enum
-   * 
-   * @param {string} key 
+   *
+   * @param {string} key
    * @returns {bool}
-   * 
+   *
    * @memberOf Enum
    */
-  isValid(key) { 
-    return this.allKeys.includes(key); 
+  isValid(key) {
+    return this.allKeys.includes(key);
   }
 
   /**
    * Return key for value
-   * 
+   *
    * @param {any} value
    * @returns {any|undefined} returns undefined if key is not found
-   * 
+   *
    * @memberOf Enum
    */
   reverse(value) {

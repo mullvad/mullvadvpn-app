@@ -12,15 +12,15 @@ import settingsActions from './actions/settings';
 
 /**
  * Configure redux store
- * 
+ *
  * @export
- * @param {Object} initialState 
- * @param {History} routerHistory 
+ * @param {Object} initialState
+ * @param {History} routerHistory
  * @returns {Redux.Store}
  */
 export default function configureStore(initialState, routerHistory) {
   const router = routerMiddleware(routerHistory);
-  
+
   const actionCreators = {
     ...userActions,
     ...connectActions,
@@ -45,6 +45,6 @@ export default function configureStore(initialState, routerHistory) {
 
   const enhancer = composeEnhancers(applyMiddleware(...middlewares), persistState());
   const rootReducer = combineReducers(reducers);
-  
+
   return createStore(rootReducer, initialState, enhancer);
 }

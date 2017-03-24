@@ -3,7 +3,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 /**
  * Custom scrollbars component
- * 
+ *
  * @export
  * @class CustomScrollbars
  * @extends {React.Component}

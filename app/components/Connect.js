@@ -11,7 +11,7 @@ import { ConnectionState } from '../enums';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 export default class Connect extends Component {
-  
+
   static propTypes = {
     settings: PropTypes.object.isRequired,
     onSettings: PropTypes.func.isRequired,
@@ -56,7 +56,7 @@ export default class Connect extends Component {
     if(moment(this.props.user.paidUntil).isSameOrBefore(moment())) {
       error = new Backend.Error(Backend.ErrorType.noCredit);
     }
-    
+
     // Offline?
     if(this.props.connect.isOnline === false) {
       error = new Backend.Error(Backend.ErrorType.noInternetConnection);
@@ -124,10 +124,10 @@ export default class Connect extends Component {
     return (
       <div className="connect">
         <div className="connect__map">
-          <ReactMapboxGl 
+          <ReactMapboxGl
               style={ mapboxConfig.styleURL }
               accessToken={ mapboxConfig.accessToken }
-              containerStyle={{ height: '100%' }} 
+              containerStyle={{ height: '100%' }}
               interactive={ false }
               fitBounds={ mapBounds }
               fitBoundsOptions={ mapBoundsOptions }>
@@ -155,7 +155,7 @@ export default class Connect extends Component {
             <div className={ this.spinnerClass() }>
               <img src="./assets/images/icon-spinner.svg" alt="" />
             </div>
-            
+
             <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
 
             { /*
@@ -177,7 +177,7 @@ export default class Connect extends Component {
                       </span>
                     </Then>
                   </If>
-                    
+
                   <If condition={ preferredServer === 'nearest' }>
                     <Then>
                       <span>
@@ -244,7 +244,7 @@ export default class Connect extends Component {
                 <div className="connect__row">
 
                   <div className="connect__server" onClick={ this.props.onSelectLocation }>
-                    <div className="connect__server-label">Connect to</div>                    
+                    <div className="connect__server-label">Connect to</div>
                     <div className="connect__server-value">
 
                       <If condition={ preferredServer === 'fastest' }>
@@ -252,7 +252,7 @@ export default class Connect extends Component {
                           <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
                         </Then>
                       </If>
-                        
+
                       <If condition={ preferredServer === 'nearest' }>
                         <Then>
                           <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
@@ -271,7 +271,7 @@ export default class Connect extends Component {
               </div>
             </Then>
           </If>
-          
+
           { /* footer when connecting */ }
           <If condition={ isConnecting }>
             <Then>
@@ -340,7 +340,7 @@ export default class Connect extends Component {
     case ConnectionState.connecting:
     case ConnectionState.disconnected:
       return S.error;
-    case ConnectionState.connected: 
+    case ConnectionState.connected:
       return S.success;
     }
   }
@@ -385,7 +385,7 @@ export default class Connect extends Component {
       const { location, country, city } = this.props.user;
       return { location, country, city };
     }
-    
+
     const preferredServer = this.props.settings.preferredServer;
     return this.props.getServerInfo(preferredServer);
   }
@@ -398,8 +398,8 @@ export default class Connect extends Component {
   }
 
   toLngLat(pos) {
-    assert(pos.length === 2); 
-    return [ pos[1], pos[0] ]; 
+    assert(pos.length === 2);
+    return [ pos[1], pos[0] ];
   }
 
   toLngLatBounds(bounds) {

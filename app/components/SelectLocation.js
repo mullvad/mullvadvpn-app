@@ -49,14 +49,14 @@ export default class SelectLocation extends Component {
       </div>
     );
   }
-  
+
   onCellRef(key, element) {
-    // save reference to selected cell 
+    // save reference to selected cell
     if(this.isSelected(key)) {
       this._selectedCell = element;
     }
   }
-  
+
   componentDidMount() {
     // restore scroll to selected cell
     if(this._selectedCell) {
@@ -75,18 +75,18 @@ export default class SelectLocation extends Component {
               <div className="select-location__header">
                 <h2 className="select-location__title">Select location</h2>
               </div>
-              
+
               <CustomScrollbars autoHide={ true }>
                 <div>
                   <div className="select-location__subtitle">
                     While connected, your real location is masked with a private and secure location in the selected region
                   </div>
-                  
+
                   { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', this.onSelect.bind(this, 'fastest')) }
                   { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', this.onSelect.bind(this, 'nearest')) }
 
                   <div className="select-location__separator"></div>
-                  
+
                   { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.onSelect.bind(this, key))) }
 
                 </div>

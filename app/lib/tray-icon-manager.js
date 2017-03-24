@@ -5,16 +5,16 @@ import KeyframeAnimation from './keyframe-animation';
 
 /**
  * Tray icon manager
- * 
+ *
  * @export
  * @class TrayIconManager
  */
 export default class TrayIconManager {
-  
+
   /**
    * Creates an instance of TrayIconManager.
-   * @param {Electron.Tray} tray 
-   * 
+   * @param {Electron.Tray} tray
+   *
    * @memberOf TrayIconManager
    */
   constructor(tray) {
@@ -47,8 +47,8 @@ export default class TrayIconManager {
    * @type {TrayIconType}
    * @memberOf TrayIconManager
    */
-  get iconType() { 
-    return this._iconType; 
+  get iconType() {
+    return this._iconType;
   }
 
   /**
@@ -62,11 +62,11 @@ export default class TrayIconManager {
 
   /**
    * Set current icon type with options
-   * 
+   *
    * @param {TrayIconType} type          - new icon type
    * @param {bool}         skipAnimation - pass true to skip animation to last frame. Has no effect on repeating animations.
-   * @returns 
-   * 
+   * @returns
+   *
    * @memberOf TrayIconManager
    */
   _updateIconType(type) {
@@ -78,9 +78,9 @@ export default class TrayIconManager {
 
   /**
    * Update icon animator with new type
-   * 
+   *
    * @param {TrayIconType} type
-   * 
+   *
    * @memberOf TrayIconManager
    */
   _updateType(type) {
@@ -101,7 +101,7 @@ export default class TrayIconManager {
     if(this._iconType === null) {
       options.advanceTo = 'end';
     }
-    
+
     this._animation.play(options);
 
     // if(skipAnimation) {

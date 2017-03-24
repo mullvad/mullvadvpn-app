@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, props) => {
       const server = backend.serverInfo(preferredServer);
 
       props.router.push('/connect');
-      
+
       // add delay to let the map load
       setTimeout(() => {
         settings.updateSettings({ preferredServer });

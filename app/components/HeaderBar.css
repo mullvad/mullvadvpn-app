@@ -8,11 +8,11 @@
 .headerbar--darwin {
   padding-top: 24px;
   -webkit-mask: 
-    url(../assets/images/app-triangle.svg) 50% 0% no-repeat, 
+    url(../assets/images/app-triangle.svg) 50% 0% no-repeat,
     url(../assets/images/app-header-backdrop.svg) no-repeat;
 }
 
-.headerbar--hidden { 
+.headerbar--hidden {
   padding: 24px 0 0 0;
 }
 

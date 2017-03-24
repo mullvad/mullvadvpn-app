@@ -22,13 +22,13 @@ export default class Switch extends Component {
 
   handleMouseDown(e) {
     const { pageX: x, pageY: y } = e;
-    this.setState({ 
-      isTracking: true, 
-      initialPos: { x, y }, 
-      startTime: e.timeStamp 
+    this.setState({
+      isTracking: true,
+      initialPos: { x, y },
+      startTime: e.timeStamp
     });
   }
-  
+
   handleMouseMove(e) {
     if(!this.state.isTracking) { return; }
 
@@ -46,10 +46,10 @@ export default class Switch extends Component {
     } else if(x > x0 && !isOn) {
       nextOn = true;
     }
-    
+
     if(isOn !== nextOn) {
-      this.setState({ 
-        initialPos: { x, y }, 
+      this.setState({
+        initialPos: { x, y },
         ignoreChange: true
       });
       this.refs.input.checked = nextOn;
@@ -59,9 +59,9 @@ export default class Switch extends Component {
 
   handleMouseUp() {
     if(this.state.isTracking) {
-      this.setState({ 
-        isTracking: false, 
-        initialPos: null 
+      this.setState({
+        isTracking: false,
+        initialPos: null
       });
     }
   }
