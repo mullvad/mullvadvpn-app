@@ -100,7 +100,7 @@ export default class Connect extends Component {
           </If>
         </div>
       </div>
-    )
+    );
   }
 
   renderMap() {

@@ -2,7 +2,7 @@ import moment from 'moment';
 import Enum from './enum';
 import { EventEmitter } from 'events';
 import { servers } from '../config';
-import { ConnectionState } from '../enums';
+import Ipc from './ipc';
 
 /**
  * Server info
@@ -90,23 +90,23 @@ class BackendError extends Error {
 
   static localizedTitle(code) {
     switch(code) {
-      case Backend.ErrorType.noCredit:
-        return 'Out of time';
-      case Backend.ErrorType.noInternetConnection:
-        return 'Offline';
-      default:
-        return 'Something went wrong';
+    case Backend.ErrorType.noCredit:
+      return 'Out of time';
+    case Backend.ErrorType.noInternetConnection:
+      return 'Offline';
+    default:
+      return 'Something went wrong';
     }
   }
 
   static localizedMessage(code) {
     switch(code) {
-      case Backend.ErrorType.noCredit:
-        return 'Buy more time, so you can continue using the internet securely';
-      case Backend.ErrorType.noInternetConnection:
-        return 'Your internet connection will be secured when you get back online';
-      default:
-        return '';
+    case Backend.ErrorType.noCredit:
+      return 'Buy more time, so you can continue using the internet securely';
+    case Backend.ErrorType.noInternetConnection:
+      return 'Your internet connection will be secured when you get back online';
+    default:
+      return '';
     }
   }
 
@@ -163,42 +163,14 @@ export default class Backend extends EventEmitter {
    * 
    * @memberOf Backend
    */
-  constructor() {
+  constructor(ipc) {
     super();
-    this._account = null;
-    this._paidUntil = null;
-    this._serverAddress = null;
-    this._connStatus = ConnectionState.disconnected;
-    this._cancellationHandler = null;
-
-    // update IP in background
-    setTimeout(::this._refreshIp, 0);
+    this._ipc = ipc || new Ipc(undefined);
+    this._registerIpcListeners();
 
     // check for network reachability
     this._startReachability();
   }
-
-  // Accessors
-
-  /**
-   * Account number
-   * 
-   * @type {string}
-   * @readonly
-   * 
-   * @memberOf Backend
-   */
-  get account() { return this._account; }
-
-  /**
-   * Until when services are paid for (ISO string)
-   * 
-   * @type {string}
-   * @readonly
-   * 
-   * @memberOf Backend
-   */
-  get paidUntil() { return this._paidUntil; }
 
   /**
    * Tells whether account has credits
@@ -213,50 +185,31 @@ export default class Backend extends EventEmitter {
            moment(this._paidUntil).isAfter(moment()); 
   }
 
-  /**
-   * Server IP address or domain name
-   * 
-   * @type {string}
-   * @readonly
-   * 
-   * @memberOf Backend
-   */
-  get serverAddress() { return this._serverAddress; }
+  sync() {
+    console.log('Syncing with the backend...');
 
-  // Public methods
+    this._ipc.send('getConnectionInfo')
+      .then( connectionInfo => {
+        console.log('Got connection info', connectionInfo);
+        this.emit(Backend.EventType.updatedIp, connectionInfo.ip);
+      })
+      .catch(e => {
+        console.log('Failed syncing with the backend', e);
+      });
 
-  /**
-   * Patch backend state.
-   * 
-   * Currently backend does not have external state
-   * such as VPN connection status or IP address.
-   * 
-   * So far we store everything in redux and have to
-   * sync redux state with backend.
-   * 
-   * In future this will be the other way around.
-   * 
-   * @param {Redux.Store} store - an instance of Redux store
-   * 
-   * @memberOf Backend
-   */
-  syncWithReduxStore(store) {
-    const { user, connect } = store.getState();
-    const server = this.serverInfo(connect.preferredServer);
-
-    if(server) {
-      this._serverAddress = server.address;
-    }
-    
-    if(user.account) {
-      this._account = user.account;
-    }
-
-    if(user.paidUntil) {
-      this._paidUntil = user.paidUntil;
-    }
-
-    this._connStatus = connect.status;
+    this._ipc.send('getLocation')
+      .then(location => {
+        console.log('Got location', location);
+        const newLocation = {
+          location: location.latlong,
+          country: location.country,
+          city: location.city
+        };
+        this.emit(Backend.EventType.updatedLocation, newLocation, null);
+      })
+      .catch(e => {
+        console.log('Failed getting new location', e);
+      });
   }
 
   /**
@@ -320,30 +273,23 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   login(account) {
-    this._account = account;
+    console.log('Attempting to login with account number', account);
     this._paidUntil = null;
 
     // emit: logging in
-    this.emit(Backend.EventType.logging, { account, paidUntil: this._paidUntil }, null);
+    this.emit(Backend.EventType.logging, { account }, null);
 
-    // @TODO: Add login call
-    setTimeout(() => {
-      let err = null;
-      let res = { account };
-      
-      if(account.startsWith('1111')) { // accounts starting with 1111 expire in one month
-        this._paidUntil = res.paidUntil = moment().startOf('day').add(15, 'days').toISOString();
-      } else if(account.startsWith('2222')) { // expired in 2013
-        this._paidUntil = res.paidUntil = moment('2013-01-01').toISOString();
-      } else if(account.startsWith('3333')) { // expire in 2038
-        this._paidUntil = res.paidUntil = moment('2038-01-01').toISOString();
-      } else {
-        err = new BackendError(Backend.ErrorType.invalidAccount);
-      }
-
-      // emit: login
-      this.emit(Backend.EventType.login, res, err);
-    }, 2000);
+    this._ipc.send('login', {
+      accountNumber: account,
+    }).then(response => {
+      console.log('Successfully logged in', response);
+      this._paidUntil = response.paidUntil;
+      this.emit(Backend.EventType.login, response, undefined);
+    }).catch(e => {
+      console.warn('Failed to log in', e);
+      const err = new BackendError(Backend.ErrorType.invalidAccount);
+      this.emit(Backend.EventType.login, {}, err);
+    });
   }
 
   /**
@@ -353,16 +299,20 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   logout() {
-    this._account = null;
-    this._paidUntil = null;
+    // @TODO: What does it mean for a logout to be successful or failed?
+    this._ipc.send('logout')
+      .then(() => {
+        this._paidUntil = null;
 
-    // emit event
-    this.emit(Backend.EventType.logout);
+        // emit event
+        this.emit(Backend.EventType.logout);
 
-    // disconnect user during logout
-    this.disconnect();
-
-    // @TODO: Add logout call
+        // disconnect user during logout
+        this.disconnect();
+      })
+      .catch(e => {
+        console.log('Failed to logout', e);
+      });
   }
 
   /**
@@ -375,42 +325,23 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   connect(addr) {
-    this.disconnect();
-
     // do not attempt to connect when no credits available
     if(!this.hasCredits) {
       return;
     }
 
-    this._connStatus = ConnectionState.connecting;
-    this._serverAddress = addr;
-
     // emit: connecting
     this.emit(Backend.EventType.connecting, addr);
-    
-    // @TODO: Add connect call
-    let timer = null;
 
-    timer = setTimeout(() => {
-      this._connStatus = ConnectionState.connected;
-
-      // emit: connect
-      this.emit(Backend.EventType.connect, addr);
-      this._refreshIp();
-
-      // reset timer
-      timer = null;
-      this._cancellationHandler  = null;
-    }, 5000);
-
-    this._cancellationHandler = () => {
-      if(timer !== null) {
-        clearTimeout(timer);
-        this._timer = null;
-      }
-      this._cancellationHandler = null;
-      this._connStatus = ConnectionState.disconnected;
-    };
+    this._ipc.send('connect', { address: addr })
+      .then(() => {
+        this.emit(Backend.EventType.connect, addr);
+        this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
+      })
+      .catch(e => {
+        console.log('Failed connecting to', addr, e);
+        this.emit(Backend.EventType.connect, undefined, e);
+      });
   }
 
   /**
@@ -420,69 +351,22 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   disconnect() {
-    if(this._connStatus === ConnectionState.disconnected) { return; }
-
-    this._connStatus = ConnectionState.disconnected;
-    this._serverAddress = null;
-
-    // cancel ongoing connection attempt
-    if(this._cancellationHandler) {
-      this._cancellationHandler();
-    } else {
-      this._refreshIp();
-    }
-
-    // emit: disconnect
-    this.emit(Backend.EventType.disconnect);
-
-    // @TODO: Add disconnect call
-  }
-  
-  /**
-   * Fetch user location
-   * 
-   * @private
-   * @returns {promise}
-   * 
-   * @memberOf Backend
-   */
-  _fetchLocation() {
-    return fetch('https://freegeoip.net/json/').then((res) => {
-      return res.json();
-    });
-  }
-
-  /**
-   * Request updates for user IP
-   * 
-   * @private
-   * @emits Backend.EventType.updatedLocation
-   * @emits Backend.EventType.updatedIp
-   * 
-   * @memberOf Backend
-   */
-  _refreshIp() {
-    if(this._connStatus === ConnectionState.disconnected) {
-      this._fetchLocation().then((res) => {
-        const data = {
-          location: [ res.latitude, res.longitude ], // lat, lng
-          city: res.city,
-          country: res.country_name
-        };
-        this.emit(Backend.EventType.updatedLocation, data);
-        this.emit(Backend.EventType.updatedIp, res.ip);
-      }).catch((error) => {
-        console.log('Got error: ', error);
+    // @TODO: Failure modes
+    this._ipc.send('cancelConnection')
+      .catch(e => {
+        console.log('Failed cancelling connection', e);
       });
-      return;
-    }
 
-    let ip = [];
-    for(let i = 0; i < 4; i++) {
-      ip.push(parseInt(Math.random() * 253 + 1));
-    }
-
-    this.emit(Backend.EventType.updatedIp, ip.join('.'));
+    // @TODO: Failure modes
+    this._ipc.send('disconnect')
+      .then(() => {
+        // emit: disconnect
+        this.emit(Backend.EventType.disconnect);
+        this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
+      })
+      .catch(e => {
+        console.log('Failed to disconnect', e);
+      });
   }
 
   /**
@@ -507,6 +391,13 @@ export default class Backend extends EventEmitter {
       // force disconnect since there is no real connection anyway.
       this.disconnect();
       this.emit(Backend.EventType.updatedReachability, false);
+    });
+  }
+
+
+  _registerIpcListeners() {
+    this._ipc.on('connection-info', (newConnectionInfo) => {
+      console.log('Got new connection info from backend', newConnectionInfo);
     });
   }
 }

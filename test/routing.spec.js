@@ -21,13 +21,15 @@ describe('routing', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend(store);
+    const backend = mockBackend();
     mapBackendEventsToRouter(backend, store);
     
     store.dispatch(userActions.logout(backend));
-    
-    const storeActions = filterMinorActions(store.getActions());
-    expect(storeActions).deep.equal(expectedActions);
+
+    setTimeout(() => {
+      const storeActions = filterMinorActions(store.getActions());
+      expect(storeActions).deep.equal(expectedActions);
+    }, 0);
   });
 
   it('should redirect to connect screen on login', (done) => {
@@ -35,14 +37,12 @@ describe('routing', function() {
       { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'replace', args: [ '/connect' ] } }
     ];
     
-    let state = Object.assign(mockState(), {
-      user: {
-        account: '1111234567890',
-        status: LoginState.none
+    const store = mockStore(mockState());
+    const backend = mockBackend({
+      users: {
+        '1': { status: LoginState.none },
       }
     });
-    const store = mockStore(state);
-    const backend = mockBackend(store);
     mapBackendEventsToRouter(backend, store);
     
     store.subscribe(() => {
@@ -50,7 +50,7 @@ describe('routing', function() {
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
-    store.dispatch(userActions.login(backend, '1111234567890'));
+    store.dispatch(userActions.login(backend, '1'));
   });
 
 });

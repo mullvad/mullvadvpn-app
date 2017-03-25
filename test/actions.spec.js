@@ -11,11 +11,16 @@ describe('actions', function() {
 
   it('should login', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, account: '222223456789', paidUntil: null } },
-      { type: 'USER_LOGIN_CHANGE', payload: { paidUntil: '2013-01-01T00:00:00.000Z', status: 'ok', error: null } }
+      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, account: '1'} },
+      { type: 'USER_LOGIN_CHANGE', payload: { paidUntil: '2013-01-01T00:00:00.000Z', status: 'ok', error: undefined } }
     ];
     const store = mockStore(mockState());
-    const backend = mockBackend(store);
+    const backend = mockBackend({
+      users: {
+        1: {
+          paidUntil: '2013-01-01T00:00:00.000Z',
+        }}
+    });
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.login, () => {
@@ -24,24 +29,16 @@ describe('actions', function() {
       done();
     });
 
-    store.dispatch(userActions.login(backend, '222223456789'));
+    store.dispatch(userActions.login(backend, '1'));
   });
   
   it('should logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } }
+      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } },
     ];
 
-    let state = Object.assign(mockState(), {
-      user: {
-        account: '3333234567890',
-        paidUntil: '2038-01-01T00:00:00.000Z',
-        status: LoginState.ok
-      }
-    });
-
-    const store = mockStore(state);
-    const backend = mockBackend(store);
+    const store = mockStore(mockState());
+    const backend = mockBackend();
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.logout, () => {
@@ -50,7 +47,7 @@ describe('actions', function() {
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
-    
+
     store.dispatch(userActions.logout(backend));
   });
 
@@ -60,31 +57,36 @@ describe('actions', function() {
       { type: 'CONNECTION_CHANGE', payload: { status: 'connected' } }
     ];
 
-    let state = Object.assign(mockState(), {
-      user: {
-        account: '3333234567890',
-        paidUntil: '2038-01-01T00:00:00.000Z',
-        status: LoginState.ok
-      }
-    });
-
-    const store = mockStore(state);
-    const backend = mockBackend(store);
+    const store = mockStore(mockState());
+    const backend = mockBackend({
+      users: {
+        '1': {
+          paidUntil: '2038-01-01T00:00:00.000Z',
+          status: LoginState.ok
+        }
+      }});
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.connect, () => {
-      const storeActions = filterMinorActions(store.getActions());
+
+      const storeActions = filterMinorActions(store.getActions())
+        .filter(action => {
+          return action.type === 'CONNECTION_CHANGE' && action.payload.status !== 'disconnected';
+        });
 
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
     
-    store.dispatch(connectActions.connect(backend, '1.2.3.4'));
+    backend.once(Backend.EventType.login, () => {
+      store.dispatch(connectActions.connect(backend, '1.2.3.4'));
+    });
+    store.dispatch(userActions.login(backend, '1'));
   });
 
   it('should disconnect from VPN server', (done) => {
     const expectedActions = [
-      { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected' } }
+      { type: 'CONNECTION_CHANGE', payload: { status: 'disconnected', serverAddress: null } }
     ];
 
     let state = Object.assign(mockState(), {
@@ -100,7 +102,7 @@ describe('actions', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend(store);
+    const backend = mockBackend();
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
@@ -132,7 +134,7 @@ describe('actions', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend(store);
+    const backend = mockBackend();
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {

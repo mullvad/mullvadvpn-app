@@ -1,6 +1,7 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Backend from '../../app/lib/backend';
+import Ipc from '../../app/lib/ipc';
 import { defaultServer } from '../../app/config';
 import { LoginState, ConnectionState } from '../../app/enums';
 
@@ -29,13 +30,34 @@ export const mockState = () => {
   };
 };
 
-export const mockBackend = (store) => {
-  const backend = new Backend();
+export const mockBackend = (backendData) => {
+  return new Backend(mockIpc(backendData));
+};
 
-  // patch backend
-  backend.syncWithReduxStore(store);
+const mockIpc = (backendData) => {
+  const ipc = new Ipc();
+  ipc.send = (action, data) => {
+    return new Promise((resolve, reject) => {
 
-  return backend;
+      switch (action) {
+      case 'login':
+        return resolve(backendData.users[data.accountNumber]);
+      case 'logout':
+      case 'cancelConnection':
+      case 'connect':
+      case 'disconnect':
+        return resolve();
+
+      case 'getLocation':
+        return resolve({});
+      case 'getConnectionInfo':
+        return resolve({});
+      }
+
+      reject('Unknown action: ' + action);
+    });
+  };
+  return ipc;
 };
 
 export const filterMinorActions = (actions) => {

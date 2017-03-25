@@ -67,8 +67,7 @@ const updateTrayIcon = () => {
   ipcRenderer.send('changeTrayIcon', getIconType(connect.status));
 };
 
-// patch backend
-backend.syncWithReduxStore(store);
+backend.sync();
 
 // Setup primary event handlers to translate backend events into redux dispatch
 mapBackendEventsToReduxActions(backend, store);
