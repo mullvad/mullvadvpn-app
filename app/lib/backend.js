@@ -172,6 +172,13 @@ export default class Backend extends EventEmitter {
     this._startReachability();
   }
 
+  setLocation(loc) {
+    console.log('Got connection info to backend', loc);
+
+    this._ipc = new Ipc(loc);
+    this._registerIpcListeners();
+  }
+
   /**
    * Tells whether account has credits
    * 

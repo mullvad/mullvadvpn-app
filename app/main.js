@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 
@@ -11,6 +12,10 @@ let tray = null;
 // Override appData path to avoid collisions with old client
 // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
 app.setPath('userData', path.join(app.getPath('appData'), 'mullvad.vpn'));
+
+ipcMain.on('on-browser-window-ready', () => {
+  sendBackendInfo();
+});
 
 const installDevTools = async () => {
   const installer = require('electron-devtools-installer');
@@ -103,7 +108,7 @@ const createContextMenu = () => {
     if(props.isEditable) {
       let inputMenu = menuTemplate;
 
-      // mixin "inspect element" into standard menu when in development mode
+      // mixin 'inspect element' into standard menu when in development mode
       if(isDevelopment) {
         inputMenu = menuTemplate.concat([{type: 'separator'}], inspectTemplate);
       }
@@ -189,3 +194,20 @@ app.on('ready', async () => {
     window.openDevTools({ mode: 'detach' });
   }
 });
+
+const sendBackendInfo = () => {
+  const file = './.ipc_connection_info';
+  console.log('reading the ipc connection info from', file);
+
+  fs.readFile(file, 'utf8', function (err,data) {
+    if (err) {
+      return console.log('Could not find backend connection info', err);
+    }
+
+    console.log('Read IPC connection info', data);
+    window.webContents.send('backend-info', {
+      addr: data,
+    });
+  });
+};
+

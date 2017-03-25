@@ -67,14 +67,16 @@ const updateTrayIcon = () => {
   ipcRenderer.send('changeTrayIcon', getIconType(connect.status));
 };
 
-backend.sync();
-
 // Setup primary event handlers to translate backend events into redux dispatch
 mapBackendEventsToReduxActions(backend, store);
 
 // Setup routing based on backend events
 mapBackendEventsToRouter(backend, store);
 
+ipcRenderer.on('backend-info', (event, args) => {
+  backend.setLocation(args.addr);
+  backend.sync();
+});
 // Setup events to update tray icon
 backend.on(Backend.EventType.connect, updateTrayIcon);
 backend.on(Backend.EventType.connecting, updateTrayIcon);
@@ -104,6 +106,8 @@ if ('serviceWorker' in navigator) {
       console.log('ServiceWorker registration failed: ', err);
     });
 }
+
+ipcRenderer.send('on-browser-window-ready');
 
 ReactDOM.render(
   <Provider store={ store }>
