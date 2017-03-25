@@ -12,7 +12,7 @@ import { ConnectionState } from '../enums';
  * @property {string}   city     - location city
  * @property {string}   country  - location country
  * @property {number[]} location - geo coordinate [latitude, longitude]
- * 
+ *
  */
 
 /**
@@ -42,34 +42,34 @@ import { ConnectionState } from '../enums';
  *
  * @event Backend.EventType.login
  * @param {object} response
- * @param {error} error 
+ * @param {error} error
  */
 
 /**
  * Logging event
  *
  * @event Backend.EventType.logging
- * @param {object} response    
+ * @param {object} response
  */
 
 /**
  * Logout event
  *
- * @event Backend.EventType.logout  
+ * @event Backend.EventType.logout
  */
 
 /**
  * Updated IP event
  *
  * @event Backend.EventType.updatedIp
- * @param {string} new IP address    
+ * @param {string} new IP address
  */
 
 /**
  * Updated location event
  *
  * @event Backend.EventType.updatedLocation
- * @param {object} location data    
+ * @param {object} location data
  */
 
 /**
@@ -94,7 +94,7 @@ class BackendError extends Error {
         return 'Out of time';
       case Backend.ErrorType.noInternetConnection:
         return 'Offline';
-      default: 
+      default:
         return 'Something went wrong';
     }
   }
@@ -105,7 +105,7 @@ class BackendError extends Error {
         return 'Buy more time, so you can continue using the internet securely';
       case Backend.ErrorType.noInternetConnection:
         return 'Your internet connection will be secured when you get back online';
-      default: 
+      default:
         return '';
     }
   }
@@ -285,7 +285,7 @@ export default class Backend extends EventEmitter {
    */
   fastestServer() {
     return {
-      address: 'uk.mullvad.net', 
+      address: 'uk.mullvad.net',
       name: 'Fastest',
       city: 'London',
       country: 'United Kingdom',
@@ -302,7 +302,7 @@ export default class Backend extends EventEmitter {
    */
   nearestServer() {
     return {
-      address: 'es.mullvad.net', 
+      address: 'es.mullvad.net',
       name: 'Nearest',
       city: 'Madrid',
       country: 'Spain',
@@ -312,7 +312,7 @@ export default class Backend extends EventEmitter {
 
   /**
    * Log in with mullvad account
-   * 
+   *
    * @emits Backend.EventType.logging
    * @emits Backend.EventType.login
    * @param {string} account 
@@ -348,7 +348,7 @@ export default class Backend extends EventEmitter {
 
   /**
    * Log out
-   * 
+   *
    * @emits Backend.EventType.logout
    * @memberOf Backend
    */
@@ -369,7 +369,7 @@ export default class Backend extends EventEmitter {
    * Connect to VPN server
    * @emits Backend.EventType.connecting
    * @emits Backend.EventType.connect
-   * 
+   *
    * @param {string} addr IP address or domain name
    * 
    * @memberOf Backend
@@ -498,7 +498,7 @@ export default class Backend extends EventEmitter {
     setTimeout(() => {
       this.emit(Backend.EventType.updatedReachability, navigator.onLine);
     }, 0);
-    
+
     window.addEventListener('online', () => {
       this.emit(Backend.EventType.updatedReachability, true);
     });

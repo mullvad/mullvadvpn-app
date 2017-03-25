@@ -22,7 +22,7 @@ const backend = new Backend();
 
 // reset login state if user quit the app during login
 if([LoginState.connecting, LoginState.failed].includes(store.getState().user.status)) {
-  store.dispatch(userActions.loginChange({ 
+  store.dispatch(userActions.loginChange({
     status: LoginState.none
   }));
 }
@@ -49,7 +49,7 @@ if(recentLocation && recentLocation.pathname) {
  * Get tray icon type based on connection state
  * @param    {ConnectionState} s - connection state
  * @return   {TrayIconType}
- * 
+ *
  */
 const getIconType = (s) => {
   switch(s) {

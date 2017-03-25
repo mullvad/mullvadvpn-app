@@ -65,7 +65,7 @@ const createAppMenu = () => {
         { type: 'separator' },
         { role: 'quit' }
       ]
-    }, 
+    },
     {
       label: 'Edit',
       submenu: [
@@ -99,7 +99,7 @@ const createContextMenu = () => {
         window.inspectElement(props.x, props.y);
       }
     }];
-    
+
     if(props.isEditable) {
       let inputMenu = menuTemplate;
 
@@ -110,7 +110,7 @@ const createContextMenu = () => {
 
       Menu.buildFromTemplate(inputMenu).popup(window);
     } else if(isDevelopment) {
-      // display inspect element for all non-editable 
+      // display inspect element for all non-editable
       // elements when in development mode
       Menu.buildFromTemplate(inspectTemplate).popup(window);
     }

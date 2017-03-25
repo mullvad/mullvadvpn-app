@@ -25,14 +25,14 @@ dmg:
       y: 150
 
 mac:
-  target: 
+  target:
     - dmg
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
 
 win:
-  target: 
+  target:
     - nsis
 
 linux:
