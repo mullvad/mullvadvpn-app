@@ -33,7 +33,7 @@ const installDevTools = async () => {
 const createWindow = () => {
   const contentHeight = 568;
   let options = {
-    width: 320, 
+    width: 320,
     height: contentHeight,
     resizable: false,
     maximizable: false,
@@ -136,7 +136,7 @@ const showWindow = () => {
     const { x, y } = getWindowPosition();
     window.setPosition(x, y, false);
   }
-  
+
   window.show();
   window.focus();
 };
@@ -158,7 +158,7 @@ const createTray = () => {
   tray = new Tray(nativeImage.createEmpty());
   tray.setHighlightMode('never');
   tray.on('click', toggleWindow);
-  
+
   // setup NSEvent monitor to fix inconsistent window.blur
   // see https://github.com/electron/electron/issues/8689
   const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
@@ -168,7 +168,7 @@ const createTray = () => {
 
   // add IPC handler to change tray icon from renderer
   ipcMain.on('changeTrayIcon', (_, type) => trayIconManager.iconType = type);
-  
+
   // setup event handlers
   window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));
   window.on('hide', () => macEventMonitor.stop());
@@ -176,7 +176,7 @@ const createTray = () => {
   window.on('blur', () => !window.isDevToolsOpened() && window.hide());
 };
 
-app.on('window-all-closed', () => {  
+app.on('window-all-closed', () => {
   app.quit();
 });
 

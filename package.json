@@ -12,6 +12,7 @@
   "dependencies": {
     "babel-runtime": "^6.22.0",
     "cheap-ruler": "^2.4.1",
+    "jsonrpc-lite": "^1.2.3",
     "moment": "^2.17.1",
     "react": "^15.4.2",
     "react-custom-scrollbars": "^4.0.2",
@@ -24,7 +25,8 @@
     "redux": "^3.0.0",
     "redux-actions": "^2.0.1",
     "redux-localstorage": "^0.4.1",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "uuid": "^3.0.1"
   },
   "optionalDependencies": {
     "nseventmonitor": "git+https://github.com/pronebird/NSEventMonitor.git"

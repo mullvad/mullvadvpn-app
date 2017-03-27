@@ -114,25 +114,25 @@ class BackendError extends Error {
 
 /**
  * Backend implementation
- * 
+ *
  * @class Backend
  */
 export default class Backend extends EventEmitter {
 
   /**
    * BackendError type
-   * 
+   *
    * @static
-   * 
+   *
    * @memberOf Backend
    */
   static Error = BackendError;
 
   /**
    * Backend error enum
-   * 
+   *
    * @static
-   * 
+   *
    * @memberOf Backend
    */
   static ErrorType = new Enum({
@@ -143,7 +143,7 @@ export default class Backend extends EventEmitter {
 
   /**
    * Event type enum
-   * 
+   *
    * @type {EventType}
    * @extends {Enum}
    * @property {string} connect
@@ -157,10 +157,10 @@ export default class Backend extends EventEmitter {
    * @property {string} updatedReachability
    */
   static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
-  
+
   /**
    * Creates an instance of Backend.
-   * 
+   *
    * @memberOf Backend
    */
   constructor(ipc) {
@@ -181,15 +181,15 @@ export default class Backend extends EventEmitter {
 
   /**
    * Tells whether account has credits
-   * 
+   *
    * @type {bool}
    * @readonly
-   * 
+   *
    * @memberOf Backend
    */
-  get hasCredits() { 
-    return this._paidUntil !== null && 
-           moment(this._paidUntil).isAfter(moment()); 
+  get hasCredits() {
+    return this._paidUntil !== null &&
+           moment(this._paidUntil).isAfter(moment());
   }
 
   sync() {
@@ -222,10 +222,10 @@ export default class Backend extends EventEmitter {
   /**
    * Get server info by key
    * 'fastest' or 'nearest' can be used as well
-   * 
-   * @param {string} key 
+   *
+   * @param {string} key
    * @returns {ServerInfo}
-   * 
+   *
    * @memberOf Backend
    */
   serverInfo(key) {
@@ -238,9 +238,9 @@ export default class Backend extends EventEmitter {
 
   /**
    * Get fastest server info
-   * 
+   *
    * @returns {ServerInfo}
-   * 
+   *
    * @memberOf Backend
    */
   fastestServer() {
@@ -255,9 +255,9 @@ export default class Backend extends EventEmitter {
 
   /**
    * Get nearest server info
-   * 
+   *
    * @returns {ServerInfo}
-   * 
+   *
    * @memberOf Backend
    */
   nearestServer() {
@@ -275,8 +275,8 @@ export default class Backend extends EventEmitter {
    *
    * @emits Backend.EventType.logging
    * @emits Backend.EventType.login
-   * @param {string} account 
-   * 
+   * @param {string} account
+   *
    * @memberOf Backend
    */
   login(account) {
@@ -328,7 +328,7 @@ export default class Backend extends EventEmitter {
    * @emits Backend.EventType.connect
    *
    * @param {string} addr IP address or domain name
-   * 
+   *
    * @memberOf Backend
    */
   connect(addr) {
@@ -353,7 +353,7 @@ export default class Backend extends EventEmitter {
 
   /**
    * Disconnect from VPN server
-   * 
+   *
    * @emits Backend.EventType.disconnect
    * @memberOf Backend
    */
