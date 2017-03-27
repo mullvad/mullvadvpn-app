@@ -19,7 +19,7 @@
     "no-console": [ 0 ],
     "no-loop-func": [ 0 ],
     "new-cap": [ 0 ],
-    "no-trailing-spaces": [ 0 ],
+    "no-trailing-spaces": [ 2, { "skipBlankLines": true } ],
     "no-param-reassign": [ 0 ],
     "func-names": [ 0 ],
     "comma-dangle": [ 0 ],
