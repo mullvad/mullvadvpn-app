@@ -15,11 +15,8 @@ path = "talpid_ipc"
 [dependencies.openvpn_ffi]
 path = "openvpn_ffi"
 
-[target.'cfg(not(windows))'.dependencies]
-zmq = "0.8"
-
 [dev-dependencies]
 assert_matches = "1.0"
 
 [workspace]
-members = ["talpid_openvpn_plugin", "openvpn_ffi", "talpid_cli", "talpid_ipc"]
+members = ["talpid_daemon", "talpid_openvpn_plugin", "openvpn_ffi", "talpid_cli", "talpid_ipc"]
