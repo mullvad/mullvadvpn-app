@@ -9,11 +9,11 @@ use std::time::Duration;
 
 pub struct HttpServerHandle {
     pub address: IpcServerId,
-    stop_tx: mpsc::SyncSender<u8>,
+    stop_tx: mpsc::SyncSender<()>,
 }
 impl HttpServerHandle {
     pub fn stop(&self) {
-        let _ = self.stop_tx.send(0);
+        let _ = self.stop_tx.send(());
     }
 }
 impl Drop for HttpServerHandle {
@@ -51,26 +51,21 @@ fn start_http_server(addr: &str) -> Result<tiny_http::Server> {
 
 fn start_receive_loop<T, U, F>(mut on_message: F,
                                http_server: tiny_http::Server,
-                               stop_rx: mpsc::Receiver<u8>)
+                               stop_rx: mpsc::Receiver<()>)
     where T: serde::Deserialize + 'static,
           U: serde::Serialize,
           F: FnMut(Result<T>) -> U + Send + 'static
 {
-    thread::spawn(move || loop {
-        if should_stop(&stop_rx) {
-            debug!("Stopping the server");
-            break;
+    thread::spawn(move || {
+        while !should_stop(&stop_rx) {
+            receive(&mut on_message, &http_server);
         }
-
-        receive(&mut on_message, &http_server);
+        debug!("Stopping the HTTP IPC server");
     });
 }
 
-fn should_stop(stop_rx: &mpsc::Receiver<u8>) -> bool {
-    match stop_rx.try_recv() {
-        Err(mpsc::TryRecvError::Empty) => false,
-        _ => true,
-    }
+fn should_stop(stop_rx: &mpsc::Receiver<()>) -> bool {
+    stop_rx.try_recv() != Err(mpsc::TryRecvError::Empty)
 }
 
 fn receive<T, U, F>(on_message: &mut F, http_server: &tiny_http::Server)
