@@ -67,10 +67,7 @@ fn start_receive_loop<T, U, F>(mut on_message: F,
 }
 
 fn should_stop(stop_rx: &mpsc::Receiver<u8>) -> bool {
-    match stop_rx.try_recv() {
-        Err(mpsc::TryRecvError::Empty) => false,
-        _ => true,
-    }
+    stop_rx.try_recv() != Err(mpsc::TryRecvError::Empty)
 }
 
 fn receive<T, U, F>(on_message: &mut F, http_server: &tiny_http::Server)
