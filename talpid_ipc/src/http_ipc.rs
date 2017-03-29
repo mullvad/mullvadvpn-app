@@ -3,13 +3,13 @@ extern crate serde_json;
 
 use super::{ErrorKind, Result, ResultExt, IpcServerId};
 use serde;
+use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
-use std::sync::mpsc;
 
-pub struct HttpServerHandle{
+pub struct HttpServerHandle {
     pub address: IpcServerId,
-    stop_tx: mpsc::SyncSender<u8>
+    stop_tx: mpsc::SyncSender<u8>,
 }
 impl HttpServerHandle {
     pub fn stop(&self) {
@@ -24,35 +24,37 @@ impl Drop for HttpServerHandle {
 
 pub fn start_server<T, U, F>(on_message: F) -> Result<HttpServerHandle>
     where T: serde::Deserialize + 'static,
-            U: serde::Serialize,
-            F: FnMut(Result<T>) -> U + Send + 'static
+          U: serde::Serialize,
+          F: FnMut(Result<T>) -> U + Send + 'static
 {
-        for port in 5000..5010 {
-            let addr = format!("127.0.0.1:{}", port);
+    for port in 5000..5010 {
+        let addr = format!("127.0.0.1:{}", port);
 
-            if let Ok(server) = start_http_server(&addr) {
-                let (stop_tx, stop_rx) = mpsc::sync_channel(0);
-                let handle = HttpServerHandle {
-                    stop_tx: stop_tx,
-                    address: format!("http://{}", addr),
-                };
+        if let Ok(server) = start_http_server(&addr) {
+            let (stop_tx, stop_rx) = mpsc::sync_channel(0);
+            let handle = HttpServerHandle {
+                stop_tx: stop_tx,
+                address: format!("http://{}", addr),
+            };
 
-                start_receive_loop(on_message, server, stop_rx);
-                debug!("Started a HTTP IPC server on {}", addr);
-                return Ok(handle);
-            }
+            start_receive_loop(on_message, server, stop_rx);
+            debug!("Started a HTTP IPC server on {}", addr);
+            return Ok(handle);
         }
-        bail!(ErrorKind::CouldNotStartServer)
+    }
+    bail!(ErrorKind::CouldNotStartServer)
 }
 
 fn start_http_server(addr: &str) -> Result<tiny_http::Server> {
     tiny_http::Server::http(addr).map_err(|e| ErrorKind::Msg(e.to_string()).into())
 }
 
-fn start_receive_loop<T, U, F>(mut on_message: F, http_server: tiny_http::Server, stop_rx: mpsc::Receiver<u8>)
+fn start_receive_loop<T, U, F>(mut on_message: F,
+                               http_server: tiny_http::Server,
+                               stop_rx: mpsc::Receiver<u8>)
     where T: serde::Deserialize + 'static,
-            U: serde::Serialize,
-            F: FnMut(Result<T>) -> U + Send + 'static
+          U: serde::Serialize,
+          F: FnMut(Result<T>) -> U + Send + 'static
 {
     thread::spawn(move || loop {
         if should_stop(&stop_rx) {
@@ -67,14 +69,14 @@ fn start_receive_loop<T, U, F>(mut on_message: F, http_server: tiny_http::Server
 fn should_stop(stop_rx: &mpsc::Receiver<u8>) -> bool {
     match stop_rx.try_recv() {
         Err(mpsc::TryRecvError::Empty) => false,
-        _ => true
+        _ => true,
     }
 }
 
 fn receive<T, U, F>(on_message: &mut F, http_server: &tiny_http::Server)
     where T: serde::Deserialize + 'static,
-            U: serde::Serialize,
-            F: FnMut(Result<T>) -> U + Send + 'static
+          U: serde::Serialize,
+          F: FnMut(Result<T>) -> U + Send + 'static
 {
     let req_res = http_server.recv_timeout(Duration::from_millis(1000));
     match req_res {

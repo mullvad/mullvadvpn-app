@@ -103,4 +103,3 @@ fn pass_io<I, O>(mut input: I, mut output: O)
 {
     thread::spawn(move || { io::copy(&mut input, &mut output).unwrap(); });
 }
-
