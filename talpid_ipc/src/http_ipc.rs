@@ -56,13 +56,11 @@ fn start_receive_loop<T, U, F>(mut on_message: F,
           U: serde::Serialize,
           F: FnMut(Result<T>) -> U + Send + 'static
 {
-    thread::spawn(move || loop {
-        if should_stop(&stop_rx) {
-            debug!("Stopping the server");
-            break;
+    thread::spawn(move || {
+        while !should_stop(&stop_rx) {
+            receive(&mut on_message, &http_server);
         }
-
-        receive(&mut on_message, &http_server);
+        debug!("Stopping the HTTP IPC server");
     });
 }
 
