@@ -15,6 +15,8 @@ mod ipc_impl;
 
 pub use self::ipc_impl::*;
 
+pub mod http_ipc;
+
 
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
