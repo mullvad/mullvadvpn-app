@@ -9,11 +9,11 @@ use std::time::Duration;
 
 pub struct HttpServerHandle {
     pub address: IpcServerId,
-    stop_tx: mpsc::SyncSender<u8>,
+    stop_tx: mpsc::SyncSender<()>,
 }
 impl HttpServerHandle {
     pub fn stop(&self) {
-        let _ = self.stop_tx.send(0);
+        let _ = self.stop_tx.send(());
     }
 }
 impl Drop for HttpServerHandle {
@@ -51,7 +51,7 @@ fn start_http_server(addr: &str) -> Result<tiny_http::Server> {
 
 fn start_receive_loop<T, U, F>(mut on_message: F,
                                http_server: tiny_http::Server,
-                               stop_rx: mpsc::Receiver<u8>)
+                               stop_rx: mpsc::Receiver<()>)
     where T: serde::Deserialize + 'static,
           U: serde::Serialize,
           F: FnMut(Result<T>) -> U + Send + 'static
@@ -64,7 +64,7 @@ fn start_receive_loop<T, U, F>(mut on_message: F,
     });
 }
 
-fn should_stop(stop_rx: &mpsc::Receiver<u8>) -> bool {
+fn should_stop(stop_rx: &mpsc::Receiver<()>) -> bool {
     stop_rx.try_recv() != Err(mpsc::TryRecvError::Empty)
 }
 
