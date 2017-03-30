@@ -3,6 +3,8 @@
 # Will make sure you have rustfmt at the version in $VERSION, then format all the source code.
 # Run with --only-format as the first argument to skip checking rustfmt version.
 
+set -u
+
 VERSION="0.7.1"
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force $CMD"
@@ -20,7 +22,7 @@ function correct_rustfmt() {
     return 0
 }
 
-if [[ "$1" != "--only-format" ]]; then
+if [[ "${1:-""}" != "--only-format" ]]; then
     if ! correct_rustfmt; then
         echo "Installing $CMD $VERSION"
         $INSTALL_CMD
