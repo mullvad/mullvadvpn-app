@@ -12,17 +12,15 @@ os:
   - osx
 
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then mkdir -p $HOME/.local/bin && ln -s /usr/local/bin/greadlink $HOME/.local/bin/readlink ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mkdir -p $HOME/.local/bin && ln -s /usr/local/bin/greadlink $HOME/.local/bin/readlink ; fi
   - $(./build-deps/install-build-deps.sh $HOME/build-deps)
-  - (cargo install rustfmt || true)
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
-  - rustfmt --version
   - env
 
 script:
   - cargo build --verbose
   - cargo test --all --verbose
-  - find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --write-mode=diff
+  - ./format.sh --write-mode=diff
 
 before_cache:
     ## zmq-sys caches the location of `libzmq`, if that location ever changes e.g.
