@@ -43,6 +43,7 @@ fn add_route<T, U, F>(router: &mut jsonrpc_core::IoHandler, method: &str, handle
 
 #[derive(Deserialize)]
 struct LoginRequest {
+    #[serde(rename = "accountNumber")]
     account_number: String,
 }
 fn mock_login(request: &LoginRequest) -> Result<::std::collections::HashMap<String, String>> {
