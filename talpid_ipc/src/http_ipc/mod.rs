@@ -7,6 +7,18 @@ use std::result::Result as StdResult;
 
 mod connection_info;
 
+error_chain! {
+    errors {
+        FailedToWriteConnectionInfo {
+            description("Unable to write IPC connection info")
+        }
+        UnableToStartServer {
+            description("Failed to start the server")
+        }
+    }
+}
+
+
 pub struct ServerHandle {
     address: String,
     server: Server,
@@ -62,15 +74,4 @@ fn start_server_on_port(port: u16,
                 server: server,
             }
         })
-}
-
-error_chain! {
-    errors {
-        FailedToWriteConnectionInfo {
-            description("Unable to write IPC connection info")
-        }
-        UnableToStartServer {
-            description("Failed to start the server")
-        }
-    }
 }
