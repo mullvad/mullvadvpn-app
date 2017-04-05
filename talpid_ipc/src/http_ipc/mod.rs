@@ -36,14 +36,14 @@ impl ServerHandle {
 
 pub fn start(build_router: fn() -> jsonrpc_core::IoHandler) -> Result<ServerHandle> {
     let server = start_server(build_router).chain_err(|| ErrorKind::UnableToStartServer)?;
-    let write_result = connection_info::write(&server.address)
+    let write_result = connection_info::write(server.address())
         .chain_err(|| ErrorKind::FailedToWriteConnectionInfo);
     if let Err(e) = write_result {
         error!("Could not write the connection info, killing the IPC server");
         server.stop();
         Err(e)
     } else {
-        info!("Started Ipc server on: {:?}", server.address);
+        info!("Started Ipc server on: {}", server.address());
         Ok(server)
     }
 }
