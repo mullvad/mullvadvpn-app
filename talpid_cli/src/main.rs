@@ -10,27 +10,18 @@ extern crate log;
 extern crate env_logger;
 
 use std::io::{self, Read, Write};
+use std::result::Result as StdResult;
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
 
-use talpid_core::process::openvpn::{OpenVpnCommand, OpenVpnEvent, OpenVpnMonitor};
+use talpid_core::process::openvpn::{self, OpenVpnCommand, OpenVpnEvent, OpenVpnMonitor};
 
 mod cli;
 
 use cli::Args;
 
 
-error_chain! {
-    errors {
-        InitLoggingFailed {
-            description("Failed to bootstrap logging system")
-        }
-    }
-    links {
-        Monitor(talpid_core::process::openvpn::Error, talpid_core::process::openvpn::ErrorKind);
-    }
-}
-
+error_chain!{}
 
 quick_main!(run);
 
@@ -43,7 +34,7 @@ fn run() -> Result<()> {
 }
 
 pub fn init_logger() -> Result<()> {
-    env_logger::init().chain_err(|| ErrorKind::InitLoggingFailed)
+    env_logger::init().chain_err(|| "Failed to bootstrap logging system")
 }
 
 fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
@@ -75,15 +66,16 @@ fn main_loop(mut monitor: OpenVpnMonitor) -> Result<()> {
     }
 }
 
-fn start_monitor(monitor: &mut OpenVpnMonitor) -> Result<Receiver<OpenVpnEvent>> {
+fn start_monitor(monitor: &mut OpenVpnMonitor)
+                 -> StdResult<Receiver<OpenVpnEvent>, openvpn::Error> {
     let (tx, rx) = mpsc::channel();
     let callback = move |clean| tx.send(clean).unwrap();
-    Ok(monitor.start(callback)
+    monitor.start(callback)
         .map(|(stdout, stderr)| {
             stdout.map(|stream| pass_io(stream, io::stdout()));
             stderr.map(|stream| pass_io(stream, io::stderr()));
             rx
-        })?)
+        })
 }
 
 fn pass_io<I, O>(mut input: I, mut output: O)
