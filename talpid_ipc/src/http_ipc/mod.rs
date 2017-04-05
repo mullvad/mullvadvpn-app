@@ -8,11 +8,15 @@ use std::result::Result as StdResult;
 mod connection_info;
 
 pub struct ServerHandle {
-    pub address: String,
+    address: String,
     server: Server,
 }
 
 impl ServerHandle {
+    pub fn address(&self) -> &str {
+        &self.address
+    }
+
     pub fn stop(self) {
         self.server.close();
     }
