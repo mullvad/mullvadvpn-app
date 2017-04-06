@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+        <dict>
+                <key>Label</key>
+                <string>net.mullvad.daemon</string>
+
+                <key>ProgramArguments</key>
+                <array>
+                        <string>/Applications/Mullvad VPN.app/Contents/Resources/mullvad-daemon</string>
+                        <string>-v</string>
+                        <string>--log</string>
+                        <string>/var/log/mullvad-daemon/daemon.log</string>
+                        <string>--tunnel-log</string>
+                        <string>/var/log/mullvad-daemon/openvpn.log</string>
+                </array>
+
+                <key>UserName</key>
+                <string>root</string>
+
+                <key>RunAtLoad</key>
+                <true/>
+
+                <key>KeepAlive</key>
+                <true/>
+
+                <key>StandardErrorPath</key>
+                <string>/var/log/mullvad-daemon/stderr.log</string>
+        </dict>
+</plist>
