@@ -1,19 +1,20 @@
 [package]
-name = "talpid_ipc"
+name = "talpid_daemon"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
-description = "IPC client and server for talpid"
+description = "The meat of talpid, the core if you wish"
 
 [dependencies]
 error-chain = "0.8"
 serde = "0.9"
+serde_derive = "0.9"
 serde_json = "0.9"
 log = "0.3"
+env_logger = "0.4"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-http-server = { git = "https://github.com/paritytech/jsonrpc" }
 
-[target.'cfg(not(windows))'.dependencies]
-zmq = "0.8"
+[dependencies.talpid_ipc]
+path = "../talpid_ipc"
 
 [dev-dependencies]
 assert_matches = "1.0"
