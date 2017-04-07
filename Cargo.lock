@@ -366,6 +366,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad_daemon"
+version = "0.1.0"
+dependencies = [
+ "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-core 7.0.0 (git+https://github.com/paritytech/jsonrpc)",
+ "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.9.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 0.9.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 0.9.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid_ipc 0.1.0",
+]
+
+[[package]]
 name = "net2"
 version = "0.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -617,21 +632,6 @@ dependencies = [
  "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn_ffi 0.1.0",
- "talpid_ipc 0.1.0",
-]
-
-[[package]]
-name = "talpid_daemon"
-version = "0.1.0"
-dependencies = [
- "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "env_logger 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "error-chain 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-core 7.0.0 (git+https://github.com/paritytech/jsonrpc)",
- "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.9.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 0.9.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 0.9.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid_ipc 0.1.0",
 ]
 
