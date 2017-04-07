@@ -1,8 +1,8 @@
 [package]
-name = "talpid_daemon"
+name = "mullvad_daemon"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
-description = "The meat of talpid, the core if you wish"
+description = "The meat of Mullvad, the core if you wish"
 
 [dependencies]
 error-chain = "0.8"

@@ -41,8 +41,8 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - cargo build --target %TARGET%
-  - cargo build --target %TARGET% --release
+  - cargo build --all --target %TARGET%
+  - cargo build --all --target %TARGET% --release
   - cargo test --all --target %TARGET%
   - cargo test --all --target %TARGET% --release
 

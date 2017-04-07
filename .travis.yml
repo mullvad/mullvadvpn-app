@@ -18,7 +18,7 @@ before_script:
   - env
 
 script:
-  - cargo build --verbose
+  - cargo build --all --verbose
   - cargo test --all --verbose
   - ./format.sh --write-mode=diff
 
