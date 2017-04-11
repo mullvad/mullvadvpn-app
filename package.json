@@ -56,7 +56,8 @@
     "npm-run-all": "^4.0.1",
     "react-addons-test-utils": "^15.4.2",
     "redux-mock-store": "^1.2.2",
-    "rimraf": "^2.5.4"
+    "rimraf": "^2.5.4",
+    "sudo-prompt": "^7.0.0"
   },
   "scripts": {
     "postinstall": "install-app-deps",

@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import sudo from 'sudo-prompt';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 
@@ -211,3 +212,19 @@ const sendBackendInfo = () => {
   });
 };
 
+const startBackend = () => {
+  const pathToBackend = path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/talpid_daemon');
+  console.log('Starting the mullvad backend at', pathToBackend);
+
+  const options = {
+    name: 'mullvad backend',
+  };
+  sudo.exec(pathToBackend, options, (err) => {
+    if (err) {
+      console.log('Backend exited with error', err);
+    } else {
+      console.log('Backend exited');
+    }
+  });
+};
+if (isDevelopment) startBackend();
