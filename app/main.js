@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import sudo from 'sudo-prompt';
+import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 
@@ -18,6 +19,20 @@ ipcMain.on('on-browser-window-ready', () => {
   sendBackendInfo();
 });
 
+const configureLogger = () => {
+
+  if (isDevelopment) {
+    log.transports.console.level = 'debug';
+
+    // Disable log file in development
+    log.transports.file.level = false;
+  } else {
+    log.transports.console.level = 'info';
+    log.transports.file.level = 'info';
+  }
+};
+configureLogger();
+
 const installDevTools = async () => {
   const installer = require('electron-devtools-installer');
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
@@ -26,7 +41,7 @@ const installDevTools = async () => {
     try {
       await installer.default(installer[name], forceDownload);
     } catch (e) {
-      console.log(`Error installing ${name} extension: ${e.message}`);
+      log.info(`Error installing ${name} extension: ${e.message}`);
     }
   }
 };
@@ -198,14 +213,14 @@ app.on('ready', async () => {
 
 const sendBackendInfo = () => {
   const file = './.ipc_connection_info';
-  console.log('reading the ipc connection info from', file);
+  log.info('reading the ipc connection info from', file);
 
   fs.readFile(file, 'utf8', function (err,data) {
     if (err) {
-      return console.log('Could not find backend connection info', err);
+      return log.info('Could not find backend connection info', err);
     }
 
-    console.log('Read IPC connection info', data);
+    log.info('Read IPC connection info', data);
     window.webContents.send('backend-info', {
       addr: data,
     });
@@ -214,16 +229,16 @@ const sendBackendInfo = () => {
 
 const startBackend = () => {
   const pathToBackend = path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/talpid_daemon');
-  console.log('Starting the mullvad backend at', pathToBackend);
+  log.info('Starting the mullvad backend at', pathToBackend);
 
   const options = {
     name: 'mullvad backend',
   };
   sudo.exec(pathToBackend, options, (err) => {
     if (err) {
-      console.log('Backend exited with error', err);
+      log.info('Backend exited with error', err);
     } else {
-      console.log('Backend exited');
+      log.info('Backend exited');
     }
   });
 };

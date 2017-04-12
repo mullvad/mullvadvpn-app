@@ -1,5 +1,6 @@
 import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
+import log from 'electron-log';
 
 export default class Ipc {
 
@@ -8,7 +9,7 @@ export default class Ipc {
   }
 
   on(event/*, listener*/) {
-    console.log('Adding a listener to', event);
+    log.info('Adding a listener to', event);
   }
 
   send(action, data) {

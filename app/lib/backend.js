@@ -1,4 +1,5 @@
 import moment from 'moment';
+import log from 'electron-log';
 import Enum from './enum';
 import { EventEmitter } from 'events';
 import { servers } from '../config';
@@ -173,7 +174,7 @@ export default class Backend extends EventEmitter {
   }
 
   setLocation(loc) {
-    console.log('Got connection info to backend', loc);
+    log.info('Got connection info to backend', loc);
 
     this._ipc = new Ipc(loc);
     this._registerIpcListeners();
@@ -193,20 +194,20 @@ export default class Backend extends EventEmitter {
   }
 
   sync() {
-    console.log('Syncing with the backend...');
+    log.info('Syncing with the backend...');
 
     this._ipc.send('get_connection')
       .then( connectionInfo => {
-        console.log('Got connection info', connectionInfo);
+        log.info('Got connection info', connectionInfo);
         this.emit(Backend.EventType.updatedIp, connectionInfo.ip);
       })
       .catch(e => {
-        console.log('Failed syncing with the backend', e);
+        log.info('Failed syncing with the backend', e);
       });
 
     this._ipc.send('get_location')
       .then(location => {
-        console.log('Got location', location);
+        log.info('Got location', location);
         const newLocation = {
           location: location.latlong,
           country: location.country,
@@ -215,7 +216,7 @@ export default class Backend extends EventEmitter {
         this.emit(Backend.EventType.updatedLocation, newLocation, null);
       })
       .catch(e => {
-        console.log('Failed getting new location', e);
+        log.info('Failed getting new location', e);
       });
   }
 
@@ -280,7 +281,7 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   login(account) {
-    console.log('Attempting to login with account number', account);
+    log.info('Attempting to login with account number', account);
     this._paidUntil = null;
 
     // emit: logging in
@@ -289,7 +290,7 @@ export default class Backend extends EventEmitter {
     this._ipc.send('login', {
       accountNumber: account,
     }).then(response => {
-      console.log('Successfully logged in', response);
+      log.info('Successfully logged in', response);
       this._paidUntil = response.paidUntil;
       this.emit(Backend.EventType.login, response, undefined);
     }).catch(e => {
@@ -318,7 +319,7 @@ export default class Backend extends EventEmitter {
         this.disconnect();
       })
       .catch(e => {
-        console.log('Failed to logout', e);
+        log.info('Failed to logout', e);
       });
   }
 
@@ -346,7 +347,7 @@ export default class Backend extends EventEmitter {
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
       })
       .catch(e => {
-        console.log('Failed connecting to', addr, e);
+        log.info('Failed connecting to', addr, e);
         this.emit(Backend.EventType.connect, undefined, e);
       });
   }
@@ -361,7 +362,7 @@ export default class Backend extends EventEmitter {
     // @TODO: Failure modes
     this._ipc.send('cancelConnection')
       .catch(e => {
-        console.log('Failed cancelling connection', e);
+        log.info('Failed cancelling connection', e);
       });
 
     // @TODO: Failure modes
@@ -372,7 +373,7 @@ export default class Backend extends EventEmitter {
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
       })
       .catch(e => {
-        console.log('Failed to disconnect', e);
+        log.info('Failed to disconnect', e);
       });
   }
 
@@ -404,7 +405,7 @@ export default class Backend extends EventEmitter {
 
   _registerIpcListeners() {
     this._ipc.on('connection-info', (newConnectionInfo) => {
-      console.log('Got new connection info from backend', newConnectionInfo);
+      log.info('Got new connection info from backend', newConnectionInfo);
     });
   }
 }
