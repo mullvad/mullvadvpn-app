@@ -5,7 +5,7 @@ authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.n
 description = "The meat of Mullvad, the core if you wish"
 
 [dependencies]
-error-chain = "0.8"
+error-chain = "0.10"
 serde = "0.9"
 serde_derive = "0.9"
 serde_json = "0.9"
