@@ -195,7 +195,7 @@ export default class Backend extends EventEmitter {
   sync() {
     console.log('Syncing with the backend...');
 
-    this._ipc.send('getConnectionInfo')
+    this._ipc.send('get_connection')
       .then( connectionInfo => {
         console.log('Got connection info', connectionInfo);
         this.emit(Backend.EventType.updatedIp, connectionInfo.ip);
@@ -204,7 +204,7 @@ export default class Backend extends EventEmitter {
         console.log('Failed syncing with the backend', e);
       });
 
-    this._ipc.send('getLocation')
+    this._ipc.send('get_location')
       .then(location => {
         console.log('Got location', location);
         const newLocation = {
