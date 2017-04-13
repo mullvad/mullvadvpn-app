@@ -5,7 +5,7 @@
 
 set -u
 
-VERSION="0.7.1"
+VERSION="0.8.3"
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force $CMD"
 
