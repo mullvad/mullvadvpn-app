@@ -27,8 +27,9 @@ mod zmq_integration_tests {
     {
         let (tx, rx) = mpsc::channel();
 
+        let callback = move |message: Result<T>| { let _ = tx.send(message); };
         let connection_string =
-            talpid_ipc::start_new_server(move |message: Result<T>| { let _ = tx.send(message); })
+            talpid_ipc::start_new_server(callback)
                 .expect("Could not start the server");
 
         (connection_string, rx)
