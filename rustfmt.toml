@@ -11,6 +11,5 @@ comment_width = 100
 chain_one_line_max = 100
 array_layout = "Block"
 fn_call_style = "Block"
-trailing_comma = "Never"
 
 write_mode = "Overwrite"
