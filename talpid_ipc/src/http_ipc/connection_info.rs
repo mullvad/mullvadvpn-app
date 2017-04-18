@@ -22,11 +22,13 @@ pub fn write(connection_info: &str) -> Result<()> {
     let file_location = PathBuf::from(IPC_CONNECTION_INFO_FILE);
     let mut file = open_file(&file_location)?;
     let res = file.write_all(connection_info.as_bytes())
-        .chain_err(|| ErrorKind::WriteConnectionInfoFailed(file_location.clone()));
+        .chain_err(|| ErrorKind::WriteConnectionInfoFailed(file_location.clone()),);
 
-    debug!("Wrote IPC connection info ({}) to {}",
-           connection_info,
-           file_location.to_string_lossy());
+    debug!(
+        "Wrote IPC connection info ({}) to {}",
+        connection_info,
+        file_location.to_string_lossy()
+    );
 
     res
 }

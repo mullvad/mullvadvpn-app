@@ -1,8 +1,8 @@
 extern crate jsonrpc_core;
 extern crate jsonrpc_http_server;
 
-use self::jsonrpc_http_server::{ServerBuilder, Server};
-use std::net::{SocketAddr, IpAddr, Ipv4Addr};
+use self::jsonrpc_http_server::{Server, ServerBuilder};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::result::Result as StdResult;
 
 mod connection_info;
@@ -36,8 +36,11 @@ impl ServerHandle {
 
 pub fn start(build_router: fn() -> jsonrpc_core::IoHandler) -> Result<ServerHandle> {
     let server = start_server(build_router).chain_err(|| ErrorKind::UnableToStartServer)?;
-    let write_result = connection_info::write(server.address())
-        .chain_err(|| ErrorKind::FailedToWriteConnectionInfo);
+    let write_result = connection_info::write(server.address()).chain_err(
+        || {
+            ErrorKind::FailedToWriteConnectionInfo
+        },
+    );
     if let Err(e) = write_result {
         error!("Could not write the connection info, killing the IPC server");
         server.stop();
@@ -68,10 +71,12 @@ fn start_server_on_port(port: u16,
     ServerBuilder::new(router)
         .allow_only_bind_host()
         .start_http(&listen_addr)
-        .map(|server| {
-            ServerHandle {
-                address: format!("http://{}", listen_addr),
-                server: server,
-            }
-        })
+        .map(
+            |server| {
+                ServerHandle {
+                    address: format!("http://{}", listen_addr),
+                    server: server,
+                }
+            },
+        )
 }

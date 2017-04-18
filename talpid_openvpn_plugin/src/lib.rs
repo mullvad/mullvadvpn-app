@@ -12,9 +12,9 @@ use std::os::raw::{c_int, c_void};
 
 mod processing;
 
-use openvpn_ffi::{openvpn_plugin_args_open_in, openvpn_plugin_args_open_return,
+use openvpn_ffi::{OPENVPN_PLUGIN_FUNC_ERROR, OPENVPN_PLUGIN_FUNC_SUCCESS, OpenVpnPluginEvent,
                   openvpn_plugin_args_func_in, openvpn_plugin_args_func_return,
-                  OPENVPN_PLUGIN_FUNC_SUCCESS, OPENVPN_PLUGIN_FUNC_ERROR, OpenVpnPluginEvent};
+                  openvpn_plugin_args_open_in, openvpn_plugin_args_open_return};
 use processing::EventProcessor;
 
 
@@ -41,8 +41,8 @@ error_chain!{
 
 /// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
 /// events.
-pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] = &[OpenVpnPluginEvent::Up,
-                                                                 OpenVpnPluginEvent::RoutePredown];
+pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] =
+    &[OpenVpnPluginEvent::Up, OpenVpnPluginEvent::RoutePredown];
 
 
 /// Called by OpenVPN when the plugin is first loaded.
@@ -123,8 +123,8 @@ fn openvpn_plugin_func_v3_internal(args: *const openvpn_plugin_args_func_in) -> 
     let event_type = unsafe { (*args).event_type };
     let event = OpenVpnPluginEvent::from_int(event_type).chain_err(|| ErrorKind::InvalidEventType)?;
     debug!("Received event: {:?}", event);
-    let env =
-        unsafe { openvpn_ffi::parse::env((*args).envp) }.chain_err(|| ErrorKind::ParseEnvFailed)?;
+    let env = unsafe { openvpn_ffi::parse::env((*args).envp) }
+        .chain_err(|| ErrorKind::ParseEnvFailed)?;
 
     let mut handle = unsafe { Box::from_raw((*args).handle as *mut EventProcessor) };
     handle.process_event(event, env).chain_err(|| ErrorKind::EventProcessingFailed)?;
@@ -137,13 +137,15 @@ fn openvpn_plugin_func_v3_internal(args: *const openvpn_plugin_args_func_in) -> 
 
 
 pub fn init_logger() -> ::std::result::Result<(), ()> {
-    env_logger::init().or_else(|e| {
-        use std::io::Write;
-        let mut stderr = ::std::io::stderr();
-        writeln!(&mut stderr, "Unable to initialize logging: {}", e)
+    env_logger::init().or_else(
+        |e| {
+            use std::io::Write;
+            let mut stderr = ::std::io::stderr();
+            writeln!(&mut stderr, "Unable to initialize logging: {}", e)
             .expect("Unable to write to stderr");
-        Err(())
-    })
+            Err(())
+        },
+    )
 }
 
 pub fn log_error(msg: &str, error: &Error) {

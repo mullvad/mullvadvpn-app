@@ -1,5 +1,5 @@
 use std::io;
-use std::process::{ChildStdout, ChildStderr};
+use std::process::{ChildStderr, ChildStdout};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -85,10 +85,12 @@ impl<S: ChildSpawner> ChildMonitor<S> {
             let mut child = self.spawner.spawn().chain_err(|| ErrorKind::Spawn)?;
             let io = (child.stdout(), child.stderr());
             let thread_handle = self.spawn_monitor(child.clone(), listener);
-            *state_lock = State::Running(RunningState {
-                child: child,
-                thread_handle: Some(thread_handle),
-            });
+            *state_lock = State::Running(
+                RunningState {
+                    child: child,
+                    thread_handle: Some(thread_handle),
+                },
+            );
             Ok(io)
         } else {
             bail!(ErrorKind::InvalidState);
@@ -99,14 +101,16 @@ impl<S: ChildSpawner> ChildMonitor<S> {
         where L: FnMut(bool) + Send + 'static
     {
         let state_mutex = self.state.clone();
-        thread::spawn(move || {
-            let success = child.wait().unwrap_or(false);
-            {
-                let mut state_lock = state_mutex.lock().unwrap();
-                *state_lock = State::Stopped;
-            }
-            listener(success);
-        })
+        thread::spawn(
+            move || {
+                let success = child.wait().unwrap_or(false);
+                {
+                    let mut state_lock = state_mutex.lock().unwrap();
+                    *state_lock = State::Stopped;
+                }
+                listener(success);
+            },
+        )
     }
 
     /// Sends a kill signal to the child process.
@@ -143,7 +147,7 @@ impl<S: ChildSpawner> Drop for ChildMonitor<S> {
 mod child_monitor_tests {
     use super::*;
     use std::io;
-    use std::process::{ChildStdout, ChildStderr};
+    use std::process::{ChildStderr, ChildStdout};
     use std::sync::{Arc, Mutex};
     use std::sync::mpsc;
     use std::thread;
@@ -209,7 +213,7 @@ mod child_monitor_tests {
         fn spawn(&mut self) -> io::Result<MockChild> {
             self.spawn_result
                 .clone()
-                .ok_or(io::Error::new(io::ErrorKind::Other, "Mocking a failed process spawn"))
+                .ok_or(io::Error::new(io::ErrorKind::Other, "Mocking a failed process spawn"),)
         }
     }
 

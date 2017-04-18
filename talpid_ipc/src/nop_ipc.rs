@@ -1,4 +1,4 @@
-use super::{ErrorKind, Result, IpcServerId};
+use super::{ErrorKind, IpcServerId, Result};
 
 use serde;
 

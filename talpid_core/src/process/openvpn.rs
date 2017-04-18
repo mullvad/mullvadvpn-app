@@ -1,18 +1,18 @@
 extern crate openvpn_ffi;
 
-use super::monitor::{ChildSpawner, ChildMonitor};
+use super::monitor::{ChildMonitor, ChildSpawner};
 
-use clonablechild::{ClonableChild, ChildExt};
+use clonablechild::{ChildExt, ClonableChild};
 
 use net::{RemoteAddr, ToRemoteAddrs};
 
 use std::collections::HashMap;
-use std::ffi::{OsString, OsStr};
+use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::io;
 use std::ops::DerefMut;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Child, Stdio, ChildStdout, ChildStderr};
+use std::process::{Child, ChildStderr, ChildStdout, Command, Stdio};
 use std::sync::{Arc, Mutex};
 
 use talpid_ipc;
@@ -90,7 +90,8 @@ impl OpenVpnCommand {
 
     fn create_command(&self) -> Command {
         let mut command = Command::new(&self.openvpn_bin);
-        command.stdin(Stdio::null())
+        command
+            .stdin(Stdio::null())
             .stdout(self.get_output_pipe_policy())
             .stderr(self.get_output_pipe_policy());
         command
@@ -197,11 +198,14 @@ impl OpenVpnMonitor {
     fn start_plugin_listener<L>(&mut self, shared_listener: Arc<Mutex<L>>) -> Result<()>
         where L: FnMut(OpenVpnEvent) + Send + 'static
     {
-        let server_id = talpid_ipc::start_new_server(move |msg| {
+        let server_id = talpid_ipc::start_new_server(
+            move |msg| {
                 let chained_msg = msg.chain_err(|| ErrorKind::PluginCommunicationError);
                 let mut listener = shared_listener.lock().unwrap();
                 (listener.deref_mut())(OpenVpnEvent::PluginEvent(chained_msg));
-            }).chain_err(|| ErrorKind::PluginCommunicationError)?;
+            },
+        )
+                .chain_err(|| ErrorKind::PluginCommunicationError)?;
         self.command.plugin(&self.plugin_path, vec![server_id]);
         Ok(())
     }
@@ -251,7 +255,10 @@ mod openvpn_command_tests {
 
     #[test]
     fn passes_two_remotes() {
-        let remotes = vec![RemoteAddr::new("127.0.0.1", 998), RemoteAddr::new("fe80::1", 1337)];
+        let remotes = vec![
+            RemoteAddr::new("127.0.0.1", 998),
+            RemoteAddr::new("fe80::1", 1337),
+        ];
 
         let testee_args = OpenVpnCommand::new("").remotes(&remotes[..]).unwrap().get_arguments();
 

@@ -1,7 +1,7 @@
 extern crate zmq;
 extern crate serde_json;
 
-use super::{ErrorKind, Result, ResultExt, IpcServerId};
+use super::{ErrorKind, IpcServerId, Result, ResultExt};
 
 use serde;
 
@@ -43,12 +43,15 @@ fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::J
     where T: serde::Deserialize + 'static,
           F: FnMut(Result<T>) + Send + 'static
 {
-    thread::spawn(move || loop {
-        let read_res = socket.recv_bytes(0)
-            .chain_err(|| ErrorKind::ReadFailure)
-            .and_then(|a| parse_message(&a));
-        on_message(read_res);
-    })
+    thread::spawn(
+        move || loop {
+            let read_res = socket
+                .recv_bytes(0)
+                .chain_err(|| ErrorKind::ReadFailure)
+                .and_then(|a| parse_message(&a));
+            on_message(read_res);
+        },
+    )
 }
 
 fn parse_message<T>(message: &[u8]) -> Result<T>
@@ -100,7 +103,8 @@ impl<T> IpcClient<T>
         let ctx = zmq::Context::new();
         let socket = ctx.socket(zmq::PUSH)
             .chain_err(|| "Could not create ZeroMQ PUSH socket".to_owned())?;
-        socket.connect(&self.server_id)
+        socket
+            .connect(&self.server_id)
             .chain_err(|| format!("Could not connect to {:?}", self.server_id))?;
 
         self.socket = Some(socket);
