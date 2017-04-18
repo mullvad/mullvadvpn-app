@@ -12,6 +12,7 @@
   "dependencies": {
     "babel-runtime": "^6.22.0",
     "cheap-ruler": "^2.4.1",
+    "electron-log": "^2.2.0",
     "jsonrpc-lite": "^1.2.3",
     "moment": "^2.17.1",
     "react": "^15.4.2",
@@ -62,7 +63,7 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "develop": "npm run private:compile -- --source-maps true && npm run private:service-worker && run-p -r private:watch private:serve",
-    "test": "electron-mocha -R spec --compilers js:babel-core/register test/*.spec.js test/**/*.spec.js",
+    "test": "electron-mocha -R spec --compilers js:babel-core/register test/global.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "docs": "esdoc",
     "pack": "run-s private:clean private:compile private:service-worker private:build:all",

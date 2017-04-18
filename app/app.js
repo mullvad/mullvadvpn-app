@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { Router, createMemoryHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { webFrame, ipcRenderer } from 'electron';
+import log from 'electron-log';
 import makeRoutes from './routes';
 import configureStore from './store';
 import userActions from './actions/user';
@@ -101,9 +102,9 @@ webFrame.setZoomLevelLimits(1, 1);
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(path.join(__dirname, 'tilecache.sw.js'))
     .then((registration) => {
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      log.info('ServiceWorker registration successful with scope: ', registration.scope);
     }).catch((err) => {
-      console.log('ServiceWorker registration failed: ', err);
+      log.info('ServiceWorker registration failed: ', err);
     });
 }
 
