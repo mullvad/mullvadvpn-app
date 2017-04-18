@@ -28,15 +28,20 @@ fn add_route<T, U, F>(router: &mut jsonrpc_core::IoHandler, method: &str, handle
         println!("Got rpc request with params {:?}", params);
         let parsed_params: T = params.parse()?;
 
-        let response: U = handler(&parsed_params).map_err(|e| {
-                error!("Failed responding to RPC request: {}", e);
-                jsonrpc_core::Error::internal_error()
-            })?;
+        let response: U = handler(&parsed_params)
+            .map_err(
+                |e| {
+                    error!("Failed responding to RPC request: {}", e);
+                    jsonrpc_core::Error::internal_error()
+                },
+            )?;
 
-        serde_json::to_value(response).map_err(|e| {
-            error!("Unable to serialize response to RPC request: {}", e);
-            jsonrpc_core::Error::internal_error()
-        })
+        serde_json::to_value(response).map_err(
+            |e| {
+                error!("Unable to serialize response to RPC request: {}", e);
+                jsonrpc_core::Error::internal_error()
+            },
+        )
     };
     router.add_method(method, c);
 }
@@ -53,17 +58,23 @@ fn mock_login(request: &LoginRequest) -> Result<::std::collections::HashMap<Stri
 
     if account_number.starts_with("1111") {
         // accounts starting with 1111 expire in one month
-        reply.insert("paidUntil".to_owned(),
-                     "2018-12-31T16:00:00.000Z".to_owned());
+        reply.insert(
+            "paidUntil".to_owned(),
+            "2018-12-31T16:00:00.000Z".to_owned(),
+        );
         // res.paidUntil = moment().startOf('day').add(15, 'days').toISOString();
     } else if account_number.starts_with("2222") {
         // expired in 2013
-        reply.insert("paidUntil".to_owned(),
-                     "2012-12-31T16:00:00.000Z".to_owned());
+        reply.insert(
+            "paidUntil".to_owned(),
+            "2012-12-31T16:00:00.000Z".to_owned(),
+        );
     } else if account_number.starts_with("3333") {
         // expire in 2038
-        reply.insert("paidUntil".to_owned(),
-                     "2037-12-31T16:00:00.000Z".to_owned());
+        reply.insert(
+            "paidUntil".to_owned(),
+            "2037-12-31T16:00:00.000Z".to_owned(),
+        );
     } else {
         bail!("you are not welcome {}!", account_number)
     }

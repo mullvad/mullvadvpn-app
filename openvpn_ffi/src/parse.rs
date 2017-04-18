@@ -95,9 +95,11 @@ mod tests {
     fn string_array_two_strings() {
         let test_str1 = "foobar\0";
         let test_str2 = "barbaz\0";
-        let ptr_arr = [test_str1 as *const _ as *const c_char,
-                       test_str2 as *const _ as *const c_char,
-                       ptr::null()];
+        let ptr_arr = [
+            test_str1 as *const _ as *const c_char,
+            test_str2 as *const _ as *const c_char,
+            ptr::null(),
+        ];
         let result = unsafe { string_array(&ptr_arr as *const *const c_char).unwrap() };
         assert_eq!(["foobar", "barbaz"], &result[..]);
     }
@@ -132,9 +134,11 @@ mod tests {
     fn env_two_same_key() {
         let test_str1 = "foo=123\0";
         let test_str2 = "foo=abc\0";
-        let ptr_arr = [test_str1 as *const _ as *const c_char,
-                       test_str2 as *const _ as *const c_char,
-                       ptr::null()];
+        let ptr_arr = [
+            test_str1 as *const _ as *const c_char,
+            test_str2 as *const _ as *const c_char,
+            ptr::null(),
+        ];
         let env = unsafe { env(&ptr_arr as *const *const c_char).unwrap() };
         assert_eq!(1, env.len());
         assert_eq!(Some("abc"), env.get("foo").map(|s| &s[..]));

@@ -3,7 +3,7 @@ mod zmq_integration_tests {
     extern crate serde;
     extern crate talpid_ipc;
 
-    use self::talpid_ipc::{Result, IpcServerId, IpcClient};
+    use self::talpid_ipc::{IpcClient, IpcServerId, Result};
 
     use std::sync::mpsc::{self, Receiver};
     use std::time::Duration;
@@ -16,7 +16,8 @@ mod zmq_integration_tests {
         let msg = "Hello".to_owned();
         ipc_client.send(&msg).expect("Could not send message");
 
-        let message = new_messages_rx.recv_timeout(Duration::from_millis(1000))
+        let message = new_messages_rx
+            .recv_timeout(Duration::from_millis(1000))
             .expect("Did not receive a message");
 
         assert_eq!(message.unwrap(), "Hello", "Got wrong message");
@@ -27,9 +28,9 @@ mod zmq_integration_tests {
     {
         let (tx, rx) = mpsc::channel();
 
+        let callback = move |message: Result<T>| { let _ = tx.send(message); };
         let connection_string =
-            talpid_ipc::start_new_server(move |message: Result<T>| { let _ = tx.send(message); })
-                .expect("Could not start the server");
+            talpid_ipc::start_new_server(callback).expect("Could not start the server");
 
         (connection_string, rx)
     }

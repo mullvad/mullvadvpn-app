@@ -1,4 +1,16 @@
+# Activation of features, almost objectively better ;)
 reorder_imports = true
+reorder_imported_names = true
+use_try_shorthand = true
+condense_wildcard_suffices = true
+normalize_comments = true
 wrap_comments = true
+
+# Heavily subjective style choices
+comment_width = 100
+chain_one_line_max = 100
+array_layout = "Block"
+fn_call_style = "Block"
+take_source_hints = true
+
 write_mode = "Overwrite"
-ideal_width = 100

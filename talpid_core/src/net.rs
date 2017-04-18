@@ -56,9 +56,9 @@ impl RemoteAddr {
 
     fn from_domain_str(s: &str) -> Result<Self> {
         let (address, port_str) = Self::split_at_last_colon(s)?;
-        let port = u16::from_str(port_str).chain_err(|| {
-            ErrorKind::AddrParse(format!("Invalid port: \"{}\"", port_str))
-        })?;
+        let port =
+            u16::from_str(port_str)
+                .chain_err(|| ErrorKind::AddrParse(format!("Invalid port: \"{}\"", port_str)),)?;
         if address.is_empty() || address.contains(':') {
             let msg = format!("Invalid IP or domain: \"{}\"", address);
             bail!(ErrorKind::AddrParse(msg));

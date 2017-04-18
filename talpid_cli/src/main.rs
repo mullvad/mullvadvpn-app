@@ -39,7 +39,8 @@ pub fn init_logger() -> Result<()> {
 
 fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
     let mut command = OpenVpnCommand::new(&args.binary);
-    command.config(&args.config)
+    command
+        .config(&args.config)
         .remotes(&args.remotes[..])
         .unwrap()
         .pipe_output(args.verbosity > 0);
@@ -70,12 +71,15 @@ fn start_monitor(monitor: &mut OpenVpnMonitor)
                  -> StdResult<Receiver<OpenVpnEvent>, openvpn::Error> {
     let (tx, rx) = mpsc::channel();
     let callback = move |clean| tx.send(clean).unwrap();
-    monitor.start(callback)
-        .map(|(stdout, stderr)| {
-            stdout.map(|stream| pass_io(stream, io::stdout()));
-            stderr.map(|stream| pass_io(stream, io::stderr()));
-            rx
-        })
+    monitor
+        .start(callback)
+        .map(
+            |(stdout, stderr)| {
+                stdout.map(|stream| pass_io(stream, io::stdout()));
+                stderr.map(|stream| pass_io(stream, io::stderr()));
+                rx
+            },
+        )
 }
 
 fn pass_io<I, O>(mut input: I, mut output: O)

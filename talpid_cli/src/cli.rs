@@ -1,4 +1,4 @@
-use clap::{Arg, App, ArgMatches};
+use clap::{App, Arg, ArgMatches};
 use std::path::PathBuf;
 
 use talpid_core::net::RemoteAddr;
@@ -41,30 +41,42 @@ fn create_app() -> App<'static, 'static> {
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
-        .arg(Arg::with_name("openvpn")
-            .long("openvpn")
-            .help("Specify what OpenVPN binary to run")
-            .default_value("/usr/sbin/openvpn"))
-        .arg(Arg::with_name("config")
-            .short("c")
-            .long("config")
-            .help("Specify what config file to start OpenVPN with")
-            .default_value("./openvpn.conf"))
-        .arg(Arg::with_name("remotes")
-            .short("r")
-            .long("remotes")
-            .help("Configure what remote(s) to connect to. Accepts anything OpenVPN can use. \
-                   Format: <address>:<port>")
-            .takes_value(true)
-            .multiple(true)
-            .required(true))
-        .arg(Arg::with_name("plugin")
-            .long("plugin")
-            .help("Path to talpid plugin")
-            .default_value(DEFAULT_PLUGIN_PATH))
-        .arg(Arg::with_name("verbose")
-            .short("v")
-            .long("verbose")
-            .multiple(true)
-            .help("Sets the level of verbosity"))
+        .arg(
+            Arg::with_name("openvpn")
+                .long("openvpn")
+                .help("Specify what OpenVPN binary to run")
+                .default_value("/usr/sbin/openvpn"),
+        )
+        .arg(
+            Arg::with_name("config")
+                .short("c")
+                .long("config")
+                .help("Specify what config file to start OpenVPN with")
+                .default_value("./openvpn.conf"),
+        )
+        .arg(
+            Arg::with_name("remotes")
+                .short("r")
+                .long("remotes")
+                .help(
+                    "Configure what remote(s) to connect to. Accepts anything OpenVPN can use. \
+                   Format: <address>:<port>",
+                )
+                .takes_value(true)
+                .multiple(true)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("plugin")
+                .long("plugin")
+                .help("Path to talpid plugin")
+                .default_value(DEFAULT_PLUGIN_PATH),
+        )
+        .arg(
+            Arg::with_name("verbose")
+                .short("v")
+                .long("verbose")
+                .multiple(true)
+                .help("Sets the level of verbosity"),
+        )
 }
