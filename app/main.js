@@ -235,7 +235,7 @@ const startBackend = () => {
     name: 'mullvad backend',
   };
   sudo.exec(pathToBackend, options, (err) => {
-    if (err) {
+    if (err && err.signal !== 'SIGINT') {
       log.info('Backend exited with error', err);
     } else {
       log.info('Backend exited');
