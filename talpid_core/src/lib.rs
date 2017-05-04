@@ -6,7 +6,7 @@
 #[macro_use]
 extern crate assert_matches;
 
-extern crate clonablechild;
+extern crate duct;
 
 #[macro_use]
 extern crate log;
