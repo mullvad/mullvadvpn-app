@@ -1,8 +1,8 @@
 extern crate openvpn_ffi;
 
-use super::monitor::{ChildMonitor, ChildSpawner};
+use super::monitor::ChildMonitor;
 
-use clonablechild::{ChildExt, ClonableChild};
+use duct;
 
 use net::{RemoteAddr, ToRemoteAddrs};
 
@@ -12,7 +12,7 @@ use std::fmt;
 use std::io;
 use std::ops::DerefMut;
 use std::path::{Path, PathBuf};
-use std::process::{Child, ChildStderr, ChildStdout, Command, Stdio};
+use std::process;
 use std::sync::{Arc, Mutex};
 
 use talpid_ipc;
@@ -20,11 +20,13 @@ use talpid_ipc;
 error_chain!{
     errors {
         /// Error while communicating with the OpenVPN plugin
-        PluginCommunicationError
-    }
-    links {
-        ChildMonitorError(::process::monitor::Error, ::process::monitor::ErrorKind)
-        #[doc="Something went wrong in the underlying ChildMonitor"];
+        PluginCommunicationError {
+            description("Error while communicating with the OpenVPN plugin")
+        }
+        /// Error while trying to spawn OpenVPN process
+        ChildSpawnError {
+            description("Error while trying to spawn OpenVPN process")
+        }
     }
 }
 
@@ -36,7 +38,6 @@ pub struct OpenVpnCommand {
     config: Option<PathBuf>,
     remotes: Vec<RemoteAddr>,
     plugin: Option<(PathBuf, Vec<String>)>,
-    pipe_output: bool,
 }
 
 impl OpenVpnCommand {
@@ -48,7 +49,6 @@ impl OpenVpnCommand {
             config: None,
             remotes: vec![],
             plugin: None,
-            pipe_output: true,
         }
     }
 
@@ -71,38 +71,10 @@ impl OpenVpnCommand {
         self
     }
 
-    /// If piping the standard streams, stdout and stderr will be available to the parent process.
-    /// This is the default behavior. If you want the equivalence of attaching the child streams to
-    /// /dev/null, invoke this method with false.
-    pub fn pipe_output(&mut self, pipe_output: bool) -> &mut Self {
-        self.pipe_output = pipe_output;
-        self
-    }
-
-    /// Executes the OpenVPN process as a child process, returning a handle to it.
-    pub fn spawn(&self) -> io::Result<Child> {
-        let mut command = self.create_command();
-        let args = self.get_arguments();
-        command.args(&args);
-        debug!("Spawning: {}", &self);
-        command.spawn()
-    }
-
-    fn create_command(&self) -> Command {
-        let mut command = Command::new(&self.openvpn_bin);
-        command
-            .stdin(Stdio::null())
-            .stdout(self.get_output_pipe_policy())
-            .stderr(self.get_output_pipe_policy());
-        command
-    }
-
-    fn get_output_pipe_policy(&self) -> Stdio {
-        if self.pipe_output {
-            Stdio::piped()
-        } else {
-            Stdio::null()
-        }
+    /// Build a runnable expression from the current state of the command.
+    pub fn build(&self) -> duct::Expression {
+        debug!("Building expression: {}", &self);
+        duct::cmd(&self.openvpn_bin, self.get_arguments())
     }
 
     /// Returns all arguments that the subprocess would be spawned with.
@@ -152,81 +124,60 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
 }
 
 
-impl ChildSpawner for OpenVpnCommand {
-    type Child = ClonableChild;
-
-    fn spawn(&mut self) -> io::Result<ClonableChild> {
-        OpenVpnCommand::spawn(self).map(|child| child.into_clonable())
-    }
-}
-
-
 /// Possible events from OpenVPN
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
-    PluginEvent(Result<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>),
+    PluginEvent(talpid_ipc::Result<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>),
     /// The OpenVPN process exited. The bool indicates if the process exited cleanly.
-    Shutdown(bool),
+    Shutdown(io::Result<process::ExitStatus>),
 }
 
 /// A struct able to start and monitor OpenVPN processes.
 pub struct OpenVpnMonitor {
-    command: OpenVpnCommand,
-    plugin_path: PathBuf,
-    monitor: ChildMonitor<OpenVpnCommand>,
+    child: ChildMonitor,
 }
 
 impl OpenVpnMonitor {
-    /// Creates a new `OpenVpnMonitor` based on the given command
-    pub fn new<P: AsRef<Path>>(command: OpenVpnCommand, plugin_path: P) -> Self {
-        OpenVpnMonitor {
-            command: command.clone(),
-            plugin_path: plugin_path.as_ref().to_path_buf(),
-            monitor: ChildMonitor::new(command),
-        }
-    }
-
-    /// Starts OpenVPN and begins to monitor it.
-    pub fn start<L>(&mut self, listener: L) -> Result<(Option<ChildStdout>, Option<ChildStderr>)>
-        where L: FnMut(OpenVpnEvent) + Send + 'static
+    /// Spawns a new OpenVPN process and monitors it for exit and events.
+    pub fn start<P, L>(mut cmd: OpenVpnCommand, plugin_path: P, listener: L) -> Result<Self>
+        where P: AsRef<Path>,
+              L: FnMut(OpenVpnEvent) + Send + 'static
     {
         let shared_listener = Arc::new(Mutex::new(listener));
-        self.start_plugin_listener(shared_listener.clone())?;
-        self.start_child_monitor(shared_listener)
+        let server_id = Self::start_plugin_listener(shared_listener.clone())?;
+        cmd.plugin(plugin_path, vec![server_id]);
+        let child = Self::start_child_monitor(&cmd, shared_listener)?;
+        Ok(OpenVpnMonitor { child })
     }
 
-    fn start_plugin_listener<L>(&mut self, shared_listener: Arc<Mutex<L>>) -> Result<()>
+    fn start_plugin_listener<L>(shared_listener: Arc<Mutex<L>>) -> Result<String>
         where L: FnMut(OpenVpnEvent) + Send + 'static
     {
-        let server_id = talpid_ipc::start_new_server(
+        talpid_ipc::start_new_server(
             move |msg| {
-                let chained_msg = msg.chain_err(|| ErrorKind::PluginCommunicationError);
                 let mut listener = shared_listener.lock().unwrap();
-                (listener.deref_mut())(OpenVpnEvent::PluginEvent(chained_msg));
+                (listener.deref_mut())(OpenVpnEvent::PluginEvent(msg));
             },
         )
-                .chain_err(|| ErrorKind::PluginCommunicationError)?;
-        self.command.plugin(&self.plugin_path, vec![server_id]);
-        Ok(())
+                .chain_err(|| ErrorKind::PluginCommunicationError)
     }
 
-    fn start_child_monitor<L>(&mut self,
+    fn start_child_monitor<L>(cmd: &OpenVpnCommand,
                               shared_listener: Arc<Mutex<L>>)
-                              -> Result<(Option<ChildStdout>, Option<ChildStderr>)>
+                              -> Result<ChildMonitor>
         where L: FnMut(OpenVpnEvent) + Send + 'static
     {
-        let callback = move |clean_exit| {
+        let on_exit = move |result: io::Result<&process::Output>| {
+            let status = result.map(|out: &process::Output| out.status.clone());
             let mut listener = shared_listener.lock().unwrap();
-            (listener.deref_mut())(OpenVpnEvent::Shutdown(clean_exit));
+            (listener.deref_mut())(OpenVpnEvent::Shutdown(status));
         };
-
-        self.monitor = ChildMonitor::new(self.command.clone());
-        Ok(self.monitor.start(callback)?)
+        ChildMonitor::start(&cmd.build(), on_exit).chain_err(|| ErrorKind::ChildSpawnError)
     }
 
-    /// Forwards a stop call to the underlying `ChildMonitor`.
-    pub fn stop(&self) -> Result<()> {
-        Ok(self.monitor.stop()?)
+    /// Send a kill signal to the OpenVPN process.
+    pub fn kill(&self) -> io::Result<()> {
+        self.child.kill()
     }
 }
 
@@ -298,20 +249,5 @@ mod openvpn_command_tests {
         let testee_args = OpenVpnCommand::new("").plugin("", args).get_arguments();
         assert!(testee_args.contains(&OsString::from("123")));
         assert!(testee_args.contains(&OsString::from("cde")));
-    }
-}
-
-
-#[cfg(test)]
-mod openvpn_monitor_tests {
-    use super::*;
-
-    #[test]
-    fn stop_without_start() {
-        let command = OpenVpnCommand::new("");
-        let testee = OpenVpnMonitor::new(command, "");
-
-        use super::super::monitor::ErrorKind::InvalidState as MInvalidState;
-        assert_matches!(testee.stop(), Err(Error(ErrorKind::ChildMonitorError(MInvalidState), _)));
     }
 }
