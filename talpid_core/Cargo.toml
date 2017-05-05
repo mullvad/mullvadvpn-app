@@ -5,7 +5,7 @@ authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.n
 description = "Core backend functionality of the Mullvad VPN client"
 
 [dependencies]
-clonablechild = "0.1"
+duct = "0.8"
 error-chain = "0.10"
 log = "0.3"
 
