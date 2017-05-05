@@ -110,10 +110,11 @@ mod child_monitor_tests {
     #[test]
     fn callback_after_kill() {
         let (child, rx) = spawn(&sleep_cmd(100000));
-        // Make sure on_exit is not triggered now.
+        // Make sure on_exit is not triggered within the first second. It should not be called
+        // until we kill the process.
         assert!(rx.recv_timeout(Duration::from_secs(1)).is_err());
 
         child.kill().unwrap();
-        assert!(!rx.recv().unwrap().unwrap().status.success());
+        assert!(!rx.recv_timeout(Duration::from_secs(10)).unwrap().unwrap().status.success());
     }
 }

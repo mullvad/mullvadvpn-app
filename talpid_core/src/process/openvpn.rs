@@ -19,11 +19,11 @@ use talpid_ipc;
 
 error_chain!{
     errors {
-        /// Error while communicating with the OpenVPN plugin
+        /// Error while communicating with the OpenVPN plugin.
         PluginCommunicationError {
             description("Error while communicating with the OpenVPN plugin")
         }
-        /// Error while trying to spawn OpenVPN process
+        /// Error while trying to spawn OpenVPN process.
         ChildSpawnError {
             description("Error while trying to spawn OpenVPN process")
         }
@@ -128,7 +128,7 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
     PluginEvent(talpid_ipc::Result<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>),
-    /// The OpenVPN process exited. The bool indicates if the process exited cleanly.
+    /// The OpenVPN process exited. Containing the result of waiting for the process.
     Shutdown(io::Result<process::ExitStatus>),
 }
 
