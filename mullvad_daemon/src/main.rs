@@ -24,8 +24,8 @@ fn init_logger() -> Result<()> {
     env_logger::init().chain_err(|| "Failed to bootstrap logging system")
 }
 
-fn start_ipc() -> Result<talpid_ipc::http_ipc::ServerHandle> {
-    talpid_ipc::http_ipc::start(frontend_ipc_router::build_router)
+fn start_ipc() -> Result<talpid_ipc::IpcServer> {
+    talpid_ipc::IpcServer::start(frontend_ipc_router::build_router().into(), 0)
         .chain_err(|| "Failed to start IPC server")
 }
 
