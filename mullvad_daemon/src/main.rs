@@ -3,12 +3,21 @@ extern crate log;
 extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
+
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+
 extern crate talpid_ipc;
 
-mod frontend_ipc_router;
+extern crate jsonrpc_core;
+extern crate jsonrpc_pubsub;
+#[macro_use]
+extern crate jsonrpc_macros;
+extern crate jsonrpc_ws_server;
+
+pub mod ipc_api;
+pub mod mock_ipc;
 
 error_chain!{}
 
@@ -16,8 +25,9 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     init_logger()?;
-    let _server = start_ipc()?;
-    main_loop()
+
+    let server = start_ipc()?;
+    main_loop(server)
 }
 
 fn init_logger() -> Result<()> {
@@ -25,12 +35,14 @@ fn init_logger() -> Result<()> {
 }
 
 fn start_ipc() -> Result<talpid_ipc::IpcServer> {
-    talpid_ipc::IpcServer::start(frontend_ipc_router::build_router().into(), 0)
-        .chain_err(|| "Failed to start IPC server")
+    talpid_ipc::IpcServer::start_with_metadata(
+        mock_ipc::build_router(),
+        mock_ipc::meta_extractor,
+        0,
+    )
+            .chain_err(|| "Failed to start IPC server")
 }
 
-fn main_loop() -> Result<()> {
-    let (_tx, rx) = ::std::sync::mpsc::channel::<u8>();
-    let _ = rx.recv();
-    Ok(())
+fn main_loop(server: talpid_ipc::IpcServer) -> Result<()> {
+    server.wait().chain_err(|| "Error while waiting for server to process")
 }
