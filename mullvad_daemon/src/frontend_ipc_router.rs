@@ -20,7 +20,7 @@ pub fn build_router() -> jsonrpc_core::IoHandler {
 }
 
 fn add_route<T, U, F>(router: &mut jsonrpc_core::IoHandler, method: &str, handler: F)
-    where T: serde::Deserialize + 'static,
+    where for<'de> T: serde::Deserialize<'de>,
           U: serde::Serialize + 'static,
           F: Fn(&T) -> Result<U> + Send + Sync + 'static
 {
