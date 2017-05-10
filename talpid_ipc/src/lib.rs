@@ -87,10 +87,12 @@ impl IpcServer {
         &self.address
     }
 
+    /// Consumes the server, stops it and waits for it to finish.
     pub fn stop(self) {
         self.server.close();
     }
 
+    /// Consumes the server and waits for it to finish.
     pub fn wait(self) -> Result<()> {
         self.server.wait().chain_err(|| ErrorKind::IpcServerError)
     }
