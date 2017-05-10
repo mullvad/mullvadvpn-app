@@ -51,6 +51,7 @@ impl IpcServer {
         talpid_ipc::IpcServer::start_with_metadata(io.into(), meta_extractor, port_offset)
     }
 
+    // TODO(linus): This thread will never die. But this is just mock anyway so not important.
     fn spawn_broadcast_thread(active_subscriptions: ActiveSubscriptions) {
         ::std::thread::spawn(
             move || loop {
