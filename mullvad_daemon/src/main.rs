@@ -34,15 +34,10 @@ fn init_logger() -> Result<()> {
     env_logger::init().chain_err(|| "Failed to bootstrap logging system")
 }
 
-fn start_ipc() -> Result<talpid_ipc::IpcServer> {
-    talpid_ipc::IpcServer::start_with_metadata(
-        mock_ipc::build_router(),
-        mock_ipc::meta_extractor,
-        0,
-    )
-            .chain_err(|| "Failed to start IPC server")
+fn start_ipc() -> Result<mock_ipc::IpcServer> {
+    mock_ipc::IpcServer::start().chain_err(|| "Failed to start IPC server")
 }
 
-fn main_loop(server: talpid_ipc::IpcServer) -> Result<()> {
+fn main_loop(server: mock_ipc::IpcServer) -> Result<()> {
     server.wait().chain_err(|| "Error while waiting for server to process")
 }
