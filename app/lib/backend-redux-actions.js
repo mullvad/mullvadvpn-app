@@ -2,6 +2,7 @@ import userActions from '../actions/user';
 import connectActions from '../actions/connect';
 import Backend from './backend';
 import { LoginState, ConnectionState } from '../enums';
+import log from 'electron-log';
 
 /**
  * Add event listeners to translate backend events to redux dispatch.
@@ -28,7 +29,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
 
   const onConnect = (serverAddress, error) => {
     if (error) {
-      console.error('UNABLE TO CONNECT TO', serverAddress, error);
+      log.error('Unable to connect to', serverAddress, error);
     } else {
       store.dispatch(connectActions.connectionChange({ status: ConnectionState.connected }));
     }
