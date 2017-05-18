@@ -21,17 +21,13 @@ pub struct IpcServer {
 impl IpcServer {
     pub fn start() -> talpid_ipc::Result<Self> {
         let active_subscriptions = ActiveSubscriptions::default();
-        let mut last_error = None;
-        for i in 0..10 {
-            match Self::try_start(active_subscriptions.clone(), i) {
-                Ok(server) => {
-                    Self::spawn_broadcast_thread(active_subscriptions);
-                    return Ok(IpcServer { server });
-                }
-                Err(e) => last_error = Some(e),
-            }
-        }
-        bail!(last_error.unwrap());
+        let rpc = MockIpcApi::new(active_subscriptions.clone());
+        let mut io = PubSubHandler::default();
+        io.extend_with(rpc.to_delegate());
+        let server = talpid_ipc::IpcServer::start_with_metadata(io.into(), meta_extractor)?;
+
+        Self::spawn_broadcast_thread(active_subscriptions);
+        Ok(IpcServer { server })
     }
 
     pub fn address(&self) -> &str {
@@ -40,15 +36,6 @@ impl IpcServer {
 
     pub fn wait(self) -> talpid_ipc::Result<()> {
         self.server.wait()
-    }
-
-    fn try_start(active_subscriptions: ActiveSubscriptions,
-                 port_offset: u8)
-                 -> talpid_ipc::Result<talpid_ipc::IpcServer> {
-        let rpc = MockIpcApi::new(active_subscriptions);
-        let mut io = PubSubHandler::default();
-        io.extend_with(rpc.to_delegate());
-        talpid_ipc::IpcServer::start_with_metadata(io.into(), meta_extractor, port_offset)
     }
 
     // TODO(linus): This thread will never die. But this is just mock anyway so not important.
