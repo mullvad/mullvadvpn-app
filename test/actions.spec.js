@@ -34,7 +34,7 @@ describe('actions', function() {
   
   it('should logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { account: '', paidUntil: null, status: 'none', error: null } },
     ];
 
     const store = mockStore(mockState());
@@ -117,7 +117,7 @@ describe('actions', function() {
 
   it('should disconnect from VPN server on logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: null, paidUntil: null, status: 'none', error: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { account: '', paidUntil: null, status: 'none', error: null } },
       { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected' } }
     ];
 
