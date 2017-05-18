@@ -6,8 +6,8 @@ description = "IPC client and server for talpid"
 
 [dependencies]
 error-chain = "0.10"
-serde = "0.9"
-serde_json = "0.9"
+serde = "1.0"
+serde_json = "1.0"
 log = "0.3"
 jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
 jsonrpc-ws-server = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }

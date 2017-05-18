@@ -24,7 +24,7 @@ mod zmq_integration_tests {
     }
 
     fn start_server<T>() -> (IpcServerId, Receiver<Result<T>>)
-        where T: serde::Deserialize + Send + 'static
+        where for<'de> T: serde::Deserialize<'de> + Send + 'static
     {
         let (tx, rx) = mpsc::channel();
 

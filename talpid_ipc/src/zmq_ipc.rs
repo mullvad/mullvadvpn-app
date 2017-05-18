@@ -16,7 +16,7 @@ use std::thread;
 ///
 /// This function is non-blocking and thus spawns a thread where it listens to messages.
 pub fn start_new_server<T, F>(on_message: F) -> Result<IpcServerId>
-    where T: serde::Deserialize + 'static,
+    where for<'de> T: serde::Deserialize<'de> + 'static,
           F: FnMut(Result<T>) + Send + 'static
 {
     for port in 5000..5010 {
@@ -40,7 +40,7 @@ fn start_zmq_server(connection_string: &str) -> zmq::Result<zmq::Socket> {
 }
 
 fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::JoinHandle<()>
-    where T: serde::Deserialize + 'static,
+    where for<'de> T: serde::Deserialize<'de> + 'static,
           F: FnMut(Result<T>) + Send + 'static
 {
     thread::spawn(
@@ -54,8 +54,8 @@ fn start_receive_loop<T, F>(socket: zmq::Socket, mut on_message: F) -> thread::J
     )
 }
 
-fn parse_message<T>(message: &[u8]) -> Result<T>
-    where T: serde::Deserialize + 'static
+fn parse_message<'a, T>(message: &'a [u8]) -> Result<T>
+    where T: serde::Deserialize<'a> + 'static
 {
     serde_json::from_slice(message).chain_err(|| ErrorKind::ParseFailure)
 }
