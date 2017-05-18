@@ -196,10 +196,10 @@ export default class Backend extends EventEmitter {
   sync() {
     log.info('Syncing with the backend...');
 
-    this._ipc.send('get_connection')
-      .then( connectionInfo => {
-        log.info('Got connection info', connectionInfo);
-        this.emit(Backend.EventType.updatedIp, connectionInfo.ip);
+    this._ipc.send('get_ip')
+      .then( ip => {
+        log.info('Got ip', ip);
+        this.emit(Backend.EventType.updatedIp, ip);
       })
       .catch(e => {
         log.info('Failed syncing with the backend', e);
