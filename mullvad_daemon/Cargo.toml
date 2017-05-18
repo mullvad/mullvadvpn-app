@@ -10,10 +10,10 @@ serde = "1.0"
 serde_derive = "1.0"
 log = "0.3"
 env_logger = "0.4"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
+jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
+jsonrpc-pubsub = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
+jsonrpc-ws-server = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
 
 [dependencies.talpid_ipc]
 path = "../talpid_ipc"
