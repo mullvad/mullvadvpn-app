@@ -55,27 +55,22 @@ pub struct IpcServer {
 }
 
 impl IpcServer {
-    pub fn start<M: Metadata>(handler: MetaIoHandler<M>, port_offset: u8) -> Result<Self> {
-        Self::start_with_metadata(handler, NoopExtractor, port_offset)
+    pub fn start<M: Metadata>(handler: MetaIoHandler<M>) -> Result<Self> {
+        Self::start_with_metadata(handler, NoopExtractor)
     }
 
-    pub fn start_with_metadata<M, E>(handler: MetaIoHandler<M>,
-                                     meta_extractor: E,
-                                     port_offset: u8)
-                                     -> Result<Self>
+    pub fn start_with_metadata<M, E>(handler: MetaIoHandler<M>, meta_extractor: E) -> Result<Self>
         where M: Metadata,
               E: MetaExtractor<M>
     {
-        let port = 5000 + port_offset as u16;
-        let ip = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
-        let listen_addr = SocketAddr::new(ip, port);
+        let listen_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
         ServerBuilder::new(handler)
             .session_meta_extractor(meta_extractor)
             .start(&listen_addr)
             .map(
                 |server| {
                     IpcServer {
-                        address: format!("ws://{}", listen_addr),
+                        address: format!("ws://{}", server.addr()),
                         server: server,
                     }
                 },
