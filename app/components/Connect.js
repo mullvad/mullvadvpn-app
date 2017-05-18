@@ -398,12 +398,12 @@ export default class Connect extends Component {
   }
 
   toLngLat(pos) {
-    assert(pos.length === 2);
+    assert(pos.length === 2, 'wrong number of coordinates in position');
     return [ pos[1], pos[0] ];
   }
 
   toLngLatBounds(bounds) {
-    assert(bounds.length % 2 === 0);
+    assert(bounds.length % 2 === 0, 'wrong number of sides in bounds');
     let result = [];
     for(let i = 0; i < bounds.length; i += 2) {
       result.push(bounds.slice(i, i + 2).reverse());
