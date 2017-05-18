@@ -308,7 +308,7 @@ export default class Backend extends EventEmitter {
    */
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    this._ipc.send('logout')
+    this._ipc.send('set_account', '')
       .then(() => {
         this._paidUntil = null;
 
@@ -316,7 +316,7 @@ export default class Backend extends EventEmitter {
         this.emit(Backend.EventType.logout);
 
         // disconnect user during logout
-        this.disconnect();
+        return this.disconnect();
       })
       .catch(e => {
         log.info('Failed to logout', e);
@@ -359,12 +359,6 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   disconnect() {
-    // @TODO: Failure modes
-    this._ipc.send('cancelConnection')
-      .catch(e => {
-        log.info('Failed cancelling connection', e);
-      });
-
     // @TODO: Failure modes
     this._ipc.send('disconnect')
       .then(() => {
