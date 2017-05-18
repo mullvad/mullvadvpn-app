@@ -13,11 +13,18 @@ extern crate log;
 
 #[macro_use]
 extern crate error_chain;
+extern crate jsonrpc_core;
+#[macro_use]
+extern crate jsonrpc_macros;
 
 extern crate talpid_ipc;
+extern crate openvpn_ffi;
 
 /// Working with processes.
 pub mod process;
 
 /// Network primitives.
 pub mod net;
+
+/// Abstracts over different VPN tunnel technologies
+pub mod tunnel;
