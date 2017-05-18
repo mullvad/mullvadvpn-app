@@ -27,6 +27,7 @@ fn run() -> Result<()> {
     init_logger()?;
 
     let server = start_ipc()?;
+    info!("Mullvad daemon listening on {}", server.address());
     main_loop(server)
 }
 
