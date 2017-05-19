@@ -389,8 +389,8 @@ export default class Backend extends EventEmitter {
 
 
   _registerIpcListeners() {
-    this._ipc.on('connection-info', (newConnectionInfo) => {
+    /*this._ipc.on('connection-info', (newConnectionInfo) => {
       log.info('Got new connection info from backend', newConnectionInfo);
-    });
+    });*/
   }
 }
