@@ -3,7 +3,7 @@ use openvpn_ffi::{OpenVpnEnv, OpenVpnPluginEvent};
 
 use talpid_ipc;
 
-/// IPC server for listening on events coming from plugin loaded into OpenVPN
+/// IPC server for listening to events coming from plugin loaded into OpenVPN.
 pub struct OpenVpnEventDispatcher {
     server: talpid_ipc::IpcServer,
 }
