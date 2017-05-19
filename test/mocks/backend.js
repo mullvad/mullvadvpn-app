@@ -40,18 +40,18 @@ const mockIpc = (backendData) => {
     return new Promise((resolve, reject) => {
 
       switch (action) {
-      case 'login':
-        return resolve(backendData.users[data.accountNumber]);
-      case 'logout':
-      case 'cancelConnection':
+      case 'get_account_data': {
+        const accountNumber = data;
+        return resolve(backendData.users[accountNumber]);
+      }
+      case 'set_account':
+      case 'set_country':
       case 'connect':
       case 'disconnect':
         return resolve();
 
-      case 'getLocation':
-        return resolve({});
-      case 'getConnectionInfo':
-        return resolve({});
+      case 'event_subscribe':
+        return resolve();
       }
 
       reject('Unknown action: ' + action);
