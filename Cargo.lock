@@ -218,7 +218,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "jsonrpc-core"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#098cbc458d3f53b0ffa6a044674cf4379ec77ba2"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
 dependencies = [
  "futures 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-macros"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#098cbc458d3f53b0ffa6a044674cf4379ec77ba2"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-pubsub 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
@@ -240,7 +240,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-pubsub"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#098cbc458d3f53b0ffa6a044674cf4379ec77ba2"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -250,7 +250,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-server-utils"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#098cbc458d3f53b0ffa6a044674cf4379ec77ba2"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
 dependencies = [
  "globset 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
@@ -262,7 +262,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-ws-server"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#098cbc458d3f53b0ffa6a044674cf4379ec77ba2"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-server-utils 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
@@ -595,6 +595,8 @@ dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "duct 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
+ "jsonrpc-macros 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn_ffi 0.1.0",
  "talpid_ipc 0.1.0",
@@ -745,7 +747,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "ws"
 version = "0.7.1"
-source = "git+https://github.com/faern/ws-rs?branch=arbitrary-handshake-responses#3a8c5ae37e0ff5aab4c0ad656a160eb0bf78f5c1"
+source = "git+https://github.com/faern/ws-rs?branch=arbitrary-handshake-responses#25fba2181064f987a748ca90d65c604ffcc86dd6"
 dependencies = [
  "byteorder 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
