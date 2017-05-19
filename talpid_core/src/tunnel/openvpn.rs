@@ -1,5 +1,5 @@
 use jsonrpc_core::{Error, IoHandler};
-use openvpn_ffi::{OpenVpnEnv, OpenVpnPluginEvent};
+use openvpn_ffi;
 
 use talpid_ipc;
 
@@ -11,7 +11,8 @@ pub struct OpenVpnEventDispatcher {
 impl OpenVpnEventDispatcher {
     /// Construct and start the IPC server with the given event listener callback.
     pub fn start<L>(on_event: L) -> talpid_ipc::Result<Self>
-        where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+        where L: Fn(openvpn_ffi::OpenVpnPluginEvent, openvpn_ffi::OpenVpnEnv),
+              L: Send + Sync + 'static
     {
         let rpc = OpenVpnEventApiImpl { on_event };
         let mut io = IoHandler::new();
@@ -37,22 +38,28 @@ mod api {
     build_rpc_trait! {
         pub trait OpenVpnEventApi {
             #[rpc(name = "openvpn_event")]
-            fn openvpn_event(&self, OpenVpnPluginEvent, OpenVpnEnv) -> Result<(), Error>;
+            fn openvpn_event(&self,
+                             openvpn_ffi::OpenVpnPluginEvent,
+                             openvpn_ffi::OpenVpnEnv)
+                             -> Result<(), Error>;
         }
     }
 }
 use self::api::*;
 
 struct OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+    where L: Fn(openvpn_ffi::OpenVpnPluginEvent, openvpn_ffi::OpenVpnEnv) + Send + Sync + 'static
 {
     on_event: L,
 }
 
 impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+    where L: Fn(openvpn_ffi::OpenVpnPluginEvent, openvpn_ffi::OpenVpnEnv) + Send + Sync + 'static
 {
-    fn openvpn_event(&self, event: OpenVpnPluginEvent, env: OpenVpnEnv) -> Result<(), Error> {
+    fn openvpn_event(&self,
+                     event: openvpn_ffi::OpenVpnPluginEvent,
+                     env: openvpn_ffi::OpenVpnEnv)
+                     -> Result<(), Error> {
         debug!("OpenVPN event {:?}", event);
         (self.on_event)(event, env);
         Ok(())
