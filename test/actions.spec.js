@@ -18,7 +18,7 @@ describe('actions', function() {
     const backend = mockBackend({
       users: {
         1: {
-          paidUntil: '2013-01-01T00:00:00.000Z',
+          paid_until: '2013-01-01T00:00:00.000Z',
         }}
     });
     mapBackendEventsToReduxActions(backend, store);
@@ -61,7 +61,7 @@ describe('actions', function() {
     const backend = mockBackend({
       users: {
         '1': {
-          paidUntil: '2038-01-01T00:00:00.000Z',
+          paid_until: '2038-01-01T00:00:00.000Z',
           status: LoginState.ok
         }
       }});

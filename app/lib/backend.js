@@ -1,4 +1,3 @@
-import moment from 'moment';
 import log from 'electron-log';
 import Enum from './enum';
 import { EventEmitter } from 'events';
@@ -180,26 +179,13 @@ export default class Backend extends EventEmitter {
     this._registerIpcListeners();
   }
 
-  /**
-   * Tells whether account has credits
-   *
-   * @type {bool}
-   * @readonly
-   *
-   * @memberOf Backend
-   */
-  get hasCredits() {
-    return this._paidUntil !== null &&
-           moment(this._paidUntil).isAfter(moment());
-  }
-
   sync() {
     log.info('Syncing with the backend...');
 
-    this._ipc.send('get_connection')
-      .then( connectionInfo => {
-        log.info('Got connection info', connectionInfo);
-        this.emit(Backend.EventType.updatedIp, connectionInfo.ip);
+    this._ipc.send('get_ip')
+      .then( ip => {
+        log.info('Got ip', ip);
+        this.emit(Backend.EventType.updatedIp, ip);
       })
       .catch(e => {
         log.info('Failed syncing with the backend', e);
@@ -282,22 +268,30 @@ export default class Backend extends EventEmitter {
    */
   login(account) {
     log.info('Attempting to login with account number', account);
-    this._paidUntil = null;
 
     // emit: logging in
     this.emit(Backend.EventType.logging, { account }, null);
 
-    this._ipc.send('login', {
-      accountNumber: account,
-    }).then(response => {
-      log.info('Successfully logged in', response);
-      this._paidUntil = response.paidUntil;
-      this.emit(Backend.EventType.login, response, undefined);
-    }).catch(e => {
-      console.warn('Failed to log in', e);
-      const err = new BackendError(Backend.ErrorType.invalidAccount);
-      this.emit(Backend.EventType.login, {}, err);
-    });
+
+
+    this._ipc.send('get_account_data', account)
+      .then(response => {
+        log.info('Account exists', response);
+
+        return this._ipc.send('set_account', account)
+          .then(() => response );
+      }).then( accountData => {
+        log.info('Log in complete');
+
+        this.emit(Backend.EventType.login, {
+          paidUntil: accountData.paid_until,
+        }, undefined);
+
+      }).catch(e => {
+        log.error('Failed to log in', e);
+        const err = new BackendError(Backend.ErrorType.invalidAccount);
+        this.emit(Backend.EventType.login, {}, err);
+      });
   }
 
   /**
@@ -308,15 +302,13 @@ export default class Backend extends EventEmitter {
    */
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    this._ipc.send('logout')
+    this._ipc.send('set_account', '')
       .then(() => {
-        this._paidUntil = null;
-
         // emit event
         this.emit(Backend.EventType.logout);
 
         // disconnect user during logout
-        this.disconnect();
+        return this.disconnect();
       })
       .catch(e => {
         log.info('Failed to logout', e);
@@ -333,15 +325,14 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   connect(addr) {
-    // do not attempt to connect when no credits available
-    if(!this.hasCredits) {
-      return;
-    }
 
     // emit: connecting
     this.emit(Backend.EventType.connecting, addr);
 
-    this._ipc.send('connect', { address: addr })
+    this._ipc.send('set_country', addr)
+      .then( () => {
+        return this._ipc.send('connect');
+      })
       .then(() => {
         this.emit(Backend.EventType.connect, addr);
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
@@ -359,12 +350,6 @@ export default class Backend extends EventEmitter {
    * @memberOf Backend
    */
   disconnect() {
-    // @TODO: Failure modes
-    this._ipc.send('cancelConnection')
-      .catch(e => {
-        log.info('Failed cancelling connection', e);
-      });
-
     // @TODO: Failure modes
     this._ipc.send('disconnect')
       .then(() => {
