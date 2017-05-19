@@ -52,7 +52,7 @@ pub unsafe fn string_array(mut ptr: *const *const c_char) -> Result<Vec<String>>
 /// # Segfaults
 ///
 /// Uses `string_array` internally and will segfault for the same reasons as that function.
-pub unsafe fn env(envptr: *const *const c_char) -> Result<HashMap<String, String>> {
+pub unsafe fn env(envptr: *const *const c_char) -> Result<::OpenVpnEnv> {
     let mut map = HashMap::new();
     for string in string_array(envptr)? {
         let mut iter = string.splitn(2, '=');

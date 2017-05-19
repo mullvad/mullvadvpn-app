@@ -12,6 +12,7 @@ extern crate serde_derive;
 extern crate assert_matches;
 
 
+use std::collections::HashMap;
 use std::os::raw::c_int;
 
 mod structs;
@@ -27,6 +28,10 @@ error_chain!{
         }
     }
 }
+
+
+/// Type definition for environment variables from OpenVPN
+pub type OpenVpnEnv = HashMap<String, String>;
 
 
 // Return values. Returned from the plugin to OpenVPN to indicate success or failure. Can also

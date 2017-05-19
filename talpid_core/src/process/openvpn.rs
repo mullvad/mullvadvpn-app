@@ -6,7 +6,6 @@ use duct;
 
 use net::{RemoteAddr, ToRemoteAddrs};
 
-use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::io;
@@ -127,7 +126,7 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
 /// Possible events from OpenVPN
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
-    PluginEvent(talpid_ipc::Result<(openvpn_ffi::OpenVpnPluginEvent, HashMap<String, String>)>),
+    PluginEvent(talpid_ipc::Result<(openvpn_ffi::OpenVpnPluginEvent, openvpn_ffi::OpenVpnEnv)>),
     /// The OpenVPN process exited. Containing the result of waiting for the process.
     Shutdown(io::Result<process::ExitStatus>),
 }
