@@ -29,7 +29,9 @@ impl ChildMonitor {
     /// guaranteed to fire before this method returns.
     pub fn wait(&mut self) -> io::Result<&process::Output> {
         if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
+            if let Err(e) = thread.join() {
+                error!("Panic in the on_exit callback in ChildMonitor: {:?}", e);
+            }
         }
         self.child.wait()
     }
@@ -44,7 +46,7 @@ impl ChildMonitor {
 impl Drop for ChildMonitor {
     fn drop(&mut self) {
         let _ = self.kill();
-        let _ = self.wait();
+        let _ = self.child.wait();
     }
 }
 
@@ -56,15 +58,6 @@ mod child_monitor_tests {
 
     use std::sync::mpsc;
     use std::time::Duration;
-
-    /// Tries to recv a message from the given `$rx` for one second and tries to match it with the
-    /// given expected value, `$expected`
-    macro_rules! assert_event {
-        ($rx:ident, $expected:pat) => {{
-            let result = $rx.recv_timeout(Duration::new(1, 0));
-            assert_matches!(result, $expected);
-        }}
-    }
 
     fn echo_cmd(s: &str) -> Expression {
         cmd("echo", &[s]).stdout_capture().unchecked()
