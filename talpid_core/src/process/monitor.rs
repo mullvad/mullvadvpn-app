@@ -29,7 +29,9 @@ impl ChildMonitor {
     /// guaranteed to fire before this method returns.
     pub fn wait(&mut self) -> io::Result<&process::Output> {
         if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
+            if let Err(e) = thread.join() {
+                error!("Panic in the on_exit callback in ChildMonitor: {:?}", e);
+            }
         }
         self.child.wait()
     }
@@ -44,7 +46,7 @@ impl ChildMonitor {
 impl Drop for ChildMonitor {
     fn drop(&mut self) {
         let _ = self.kill();
-        let _ = self.wait();
+        let _ = self.child.wait();
     }
 }
 
