@@ -20,3 +20,4 @@ zmq = "0.8"
 [dev-dependencies]
 assert_matches = "1.0"
 env_logger = "0.4"
+jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }

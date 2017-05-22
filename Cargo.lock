@@ -610,6 +610,7 @@ dependencies = [
  "env_logger 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
+ "jsonrpc-macros 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-ws-server 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
