@@ -64,14 +64,14 @@ impl TunnelMonitor {
     pub fn new<L>(on_event: L) -> Result<Self>
         where L: Fn(TunnelEvent) + Send + Sync + 'static
     {
-        let openvpn_on_event = move |openvpn_event| {
-            if let Some(tunnel_event) = TunnelEvent::from_openvpn_event(&openvpn_event) {
-                on_event(tunnel_event);
-            } else {
-                debug!("Ignoring OpenVpnEvent {:?}", openvpn_event);
+        let on_openvpn_event = move |openvpn_event| {
+            // FIXME: This comment must be here to make rustfmt 0.8.3 not screw up.
+            match TunnelEvent::from_openvpn_event(&openvpn_event) {
+                Some(tunnel_event) => on_event(tunnel_event),
+                None => debug!("Ignoring OpenVpnEvent {:?}", openvpn_event),
             }
         };
-        let monitor = openvpn::OpenVpnMonitor::new(openvpn_on_event, get_plugin_path())
+        let monitor = openvpn::OpenVpnMonitor::new(on_openvpn_event, get_plugin_path())
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor { monitor })
     }
