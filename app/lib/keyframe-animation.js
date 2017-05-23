@@ -147,7 +147,7 @@ export default class KeyframeAnimation {
    * @return {KeyframeAnimation}
    */
   static fromFileSequence(filePattern, range) {
-    assert(range.length === 2 && range[0] < range[1]);
+    assert(range.length === 2 && range[0] < range[1], 'the animation range is invalid');
 
     let images = [];
     for(let i = range[0]; i <= range[1]; i++) {
@@ -164,7 +164,7 @@ export default class KeyframeAnimation {
    * @memberOf KeyframeAnimation
    */
   constructor(images) {
-    assert(images.length > 0);
+    assert(images.length > 0, 'too few images in animation');
 
     this._source = images.slice();
     this._nativeImages = images.map((pathOrNativeImage) => {
@@ -213,8 +213,8 @@ export default class KeyframeAnimation {
     let { startFrame, endFrame, beginFromCurrentState, advanceTo } = options;
 
     if(startFrame !== undefined && endFrame !== undefined) {
-      assert(startFrame >= 0 && startFrame < this._numFrames);
-      assert(endFrame >= 0 && endFrame < this._numFrames);
+      assert(startFrame >= 0 && startFrame < this._numFrames, 'start frame is invalid');
+      assert(endFrame >= 0 && endFrame < this._numFrames, 'end frame is invalid');
 
       if(startFrame < endFrame) {
         this._frameRange = [ startFrame, endFrame ];

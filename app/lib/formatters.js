@@ -5,7 +5,7 @@ import assert from 'assert';
  * @param {string} val  account number
  */
 export const formatAccount = (val) => {
-  assert(typeof(val) === 'string');
+  assert(typeof(val) === 'string', 'account number must be a string');
 
   // display number altogether when longer than 12
   if(val.length > 12) {
