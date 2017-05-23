@@ -3,8 +3,10 @@
 @import 'fonts.css';
 @import 'global.css';
 @import 'buttons.css';
+@import 'transitions.css';
 
 /* app */
+@import '../../components/WindowChrome.css';
 @import '../../components/CustomScrollbars.css';
 @import '../../components/Login.css';
 @import '../../components/Connect.css';

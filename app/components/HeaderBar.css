@@ -4,12 +4,9 @@
   transition: 0.5s background-color ease-in-out;
 }
 
-/* macOS app runs as menubar app so create arrow and add extra padding */
+/* macOS app runs as menubar app so add extra padding */
 .headerbar--darwin {
   padding-top: 24px;
-  -webkit-mask: 
-    url(../assets/images/app-triangle.svg) 50% 0% no-repeat,
-    url(../assets/images/app-header-backdrop.svg) no-repeat;
 }
 
 .headerbar--hidden {
@@ -20,24 +17,12 @@
   background-color: #192E45;
 }
 
-.headerbar--style-defaultDark:before {
-  background-image: url(../assets/images/app-triangle-default-dark.svg);
-}
-
 .headerbar--style-error {
   background-color: #D0021B;
 }
 
-.headerbar--style-error:before {
-  background-image: url(../assets/images/app-triangle-error.svg);
-}
-
 .headerbar--style-success {
   background-color: #44AD4D;
-}
-
-.headerbar--style-success:before {
-  background-image: url(../assets/images/app-triangle-success.svg);
 }
 
 .headerbar__container {

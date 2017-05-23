@@ -1,11 +1,14 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
+import { CSSTransitionGroup } from 'react-transition-group';
+import Chrome from './components/Chrome';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import AccountPage from './containers/AccountPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 import { LoginState } from './enums';
+import { getTransitionProps } from './transitions';
 
 /**
  * Create routes
@@ -84,13 +87,29 @@ export default function makeRoutes(getState, componentProps) {
     );
   };
 
+  // store previous route
+  let previousRoute;
+
   return (
-    <Switch>
-      <LoginRoute exact path="/" component={ LoginPage } />
-      <PrivateRoute exact path="/connect" component={ ConnectPage } />
-      <PublicRoute exact path="/settings" component={ SettingsPage } />
-      <PrivateRoute path="/settings/account" component={ AccountPage } />
-      <PrivateRoute path="/select-location" component={ SelectLocationPage } />
-    </Switch>
+    <Route render={({location}) => {
+      const toRoute = location.pathname;
+      const fromRoute = previousRoute;
+      const transitionProps = getTransitionProps(fromRoute, toRoute);
+      previousRoute = toRoute;
+
+      return (
+        <Chrome>
+          <CSSTransitionGroup component="div" className="transition-container" { ...transitionProps }>
+            <Switch key={ location.key } location={ location }>
+              <LoginRoute exact path="/" component={ LoginPage } />
+              <PrivateRoute exact path="/connect" component={ ConnectPage } />
+              <PublicRoute exact path="/settings" component={ SettingsPage } />
+              <PrivateRoute path="/settings/account" component={ AccountPage } />
+              <PrivateRoute path="/select-location" component={ SelectLocationPage } />
+            </Switch>
+          </CSSTransitionGroup>
+        </Chrome>
+      );
+    }} />
   );
 }
