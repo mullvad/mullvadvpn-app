@@ -18,7 +18,7 @@ export default class TrayIconManager {
    * @memberOf TrayIconManager
    */
   constructor(tray) {
-    assert(tray);
+    assert(tray, 'Tray icon cannot be null');
 
     const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
     let filePath = path.join(basePath, 'lock-{s}.png');
@@ -57,36 +57,17 @@ export default class TrayIconManager {
    * @memberOf TrayIconManager
    */
   set iconType(type) {
-    this._updateIconType(type);
-  }
+    assert(TrayIconType.isValid(type), 'Invalid icon type');
 
-  /**
-   * Set current icon type with options
-   *
-   * @param {TrayIconType} type          - new icon type
-   * @param {bool}         skipAnimation - pass true to skip animation to last frame. Has no effect on repeating animations.
-   * @returns
-   *
-   * @memberOf TrayIconManager
-   */
-  _updateIconType(type) {
-    // no-op if same animator requested
-    if(this._iconType === type) { return; }
-
-    this._updateType(type);
-  }
-
-  /**
-   * Update icon animator with new type
-   *
-   * @param {TrayIconType} type
-   *
-   * @memberOf TrayIconManager
-   */
-  _updateType(type) {
-    assert(TrayIconType.isValid(type));
+    // no-op if the same type
+    if(this._iconType === type) {
+      return;
+    }
 
     let options = { beginFromCurrentState: true };
+    if(this._iconType === null) {
+      options.advanceTo = 'end';
+    }
 
     switch(type) {
     case TrayIconType.secured:
@@ -98,18 +79,7 @@ export default class TrayIconManager {
       break;
     }
 
-    if(this._iconType === null) {
-      options.advanceTo = 'end';
-    }
-
     this._animation.play(options);
-
-    // if(skipAnimation) {
-    //   animator.advanceToEnd();
-    // } else {
-    //   animator.start();
-    // }
-
     this._iconType = type;
   }
 
