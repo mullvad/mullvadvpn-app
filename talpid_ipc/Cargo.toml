@@ -11,7 +11,7 @@ serde_json = "1.0"
 log = "0.3"
 jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
 jsonrpc-ws-server = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
-ws = { git = "https://github.com/faern/ws-rs", branch = "arbitrary-handshake-responses" }
+ws = { git = "https://github.com/tomusdrw/ws-rs" }
 url = "1.4"
 
 [target.'cfg(not(windows))'.dependencies]
