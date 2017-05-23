@@ -68,14 +68,12 @@ fn main_loop(command: &OpenVpnCommand, plugin_path: &Path) -> Result<()> {
 }
 
 fn create_openvpn_monitor(plugin_path: &Path) -> Result<(OpenVpnMonitor, Receiver<OpenVpnEvent>)> {
-    let (tx, rx) = mpsc::channel();
-    let tx_mutex = Mutex::new(tx);
+    let (event_tx, event_rx) = mpsc::channel();
+    let event_tx_mutex = Mutex::new(event_tx);
     let on_event = move |event: OpenVpnEvent| {
-        let tx_lock = tx_mutex.lock().expect("Unable to lock tx_mutex");
-        tx_lock.send(event).expect("Unable to send on tx_lock");
-        println!("talpid_cli on_event fired and DONE")
+        event_tx_mutex.lock().unwrap().send(event).expect("Unable to send on tx_lock");
     };
     let monitor = OpenVpnMonitor::new(on_event, plugin_path)
         .chain_err(|| "Unable to start OpenVPN monitor")?;
-    Ok((monitor, rx))
+    Ok((monitor, event_rx))
 }
