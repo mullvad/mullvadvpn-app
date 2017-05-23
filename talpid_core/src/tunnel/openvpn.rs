@@ -33,6 +33,7 @@ pub use self::errors::*;
 
 
 /// Possible events from OpenVPN
+#[derive(Debug)]
 pub enum OpenVpnEvent {
     /// An event from the plugin loaded into OpenVPN.
     PluginEvent(openvpn_ffi::OpenVpnPluginEvent, openvpn_ffi::OpenVpnEnv),
