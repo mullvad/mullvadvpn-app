@@ -1,6 +1,8 @@
+// @flow
+
 import log from 'electron-log';
 import Enum from './enum';
-import { EventEmitter } from 'events';
+import EventEmitter from 'events';
 import { servers } from '../config';
 import Ipc from './ipc';
 
@@ -80,6 +82,9 @@ import Ipc from './ipc';
  */
 
 class BackendError extends Error {
+  code: number;
+  title: string;
+  message: string;
 
   constructor(code) {
     super('');
@@ -111,6 +116,12 @@ class BackendError extends Error {
   }
 
 }
+
+type Location = {
+  latlong: Array<number>,
+  city: string,
+  country: string,
+};
 
 /**
  * Backend implementation
@@ -158,12 +169,14 @@ export default class Backend extends EventEmitter {
    */
   static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
 
+  _ipc: Ipc;
+
   /**
    * Creates an instance of Backend.
    *
    * @memberOf Backend
    */
-  constructor(ipc) {
+  constructor(ipc: Ipc) {
     super();
     this._ipc = ipc || new Ipc(undefined);
     this._registerIpcListeners();
@@ -172,7 +185,7 @@ export default class Backend extends EventEmitter {
     this._startReachability();
   }
 
-  setLocation(loc) {
+  setLocation(loc: string) {
     log.info('Got connection info to backend', loc);
 
     this._ipc = new Ipc(loc);
@@ -183,7 +196,7 @@ export default class Backend extends EventEmitter {
     log.info('Syncing with the backend...');
 
     this._ipc.send('get_ip')
-      .then( ip => {
+      .then( (ip: string) => {
         log.info('Got ip', ip);
         this.emit(Backend.EventType.updatedIp, ip);
       })
@@ -192,7 +205,7 @@ export default class Backend extends EventEmitter {
       });
 
     this._ipc.send('get_location')
-      .then(location => {
+      .then((location: Location) => {
         log.info('Got location', location);
         const newLocation = {
           location: location.latlong,
@@ -215,7 +228,7 @@ export default class Backend extends EventEmitter {
    *
    * @memberOf Backend
    */
-  serverInfo(key) {
+  serverInfo(key: string) {
     switch(key) {
     case 'fastest': return this.fastestServer();
     case 'nearest': return this.nearestServer();
@@ -266,7 +279,7 @@ export default class Backend extends EventEmitter {
    *
    * @memberOf Backend
    */
-  login(account) {
+  login(account: string) {
     log.info('Attempting to login with account number', account);
 
     // emit: logging in
@@ -324,7 +337,7 @@ export default class Backend extends EventEmitter {
    *
    * @memberOf Backend
    */
-  connect(addr) {
+  connect(addr: string) {
 
     // emit: connecting
     this.emit(Backend.EventType.connecting, addr);
