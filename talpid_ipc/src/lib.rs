@@ -4,9 +4,13 @@ extern crate error_chain;
 extern crate log;
 
 extern crate serde;
+#[macro_use]
+extern crate serde_json;
 
 extern crate jsonrpc_core;
 extern crate jsonrpc_ws_server;
+extern crate ws;
+extern crate url;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ws_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
@@ -24,6 +28,8 @@ mod ipc_impl;
 
 pub use self::ipc_impl::*;
 
+mod client;
+pub use client::*;
 
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;

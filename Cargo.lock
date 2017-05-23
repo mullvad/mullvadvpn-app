@@ -218,7 +218,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "jsonrpc-core"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#863467e499d3c8e0262d1dc211d0525352471d7a"
 dependencies = [
  "futures 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-macros"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#863467e499d3c8e0262d1dc211d0525352471d7a"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-pubsub 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
@@ -240,7 +240,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-pubsub"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#863467e499d3c8e0262d1dc211d0525352471d7a"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -250,7 +250,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-server-utils"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#863467e499d3c8e0262d1dc211d0525352471d7a"
 dependencies = [
  "globset 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
@@ -262,12 +262,12 @@ dependencies = [
 [[package]]
 name = "jsonrpc-ws-server"
 version = "7.0.0"
-source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#6d4061524f7760347dd04fb49e7471eaac26e976"
+source = "git+https://github.com/faern/jsonrpc?branch=bind-zero#863467e499d3c8e0262d1dc211d0525352471d7a"
 dependencies = [
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-server-utils 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "ws 0.7.1 (git+https://github.com/faern/ws-rs?branch=arbitrary-handshake-responses)",
+ "ws 0.7.1 (git+https://github.com/tomusdrw/ws-rs)",
 ]
 
 [[package]]
@@ -607,12 +607,16 @@ name = "talpid_ipc"
 version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
+ "jsonrpc-macros 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "jsonrpc-ws-server 7.0.0 (git+https://github.com/faern/jsonrpc?branch=bind-zero)",
  "log 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ws 0.7.1 (git+https://github.com/tomusdrw/ws-rs)",
  "zmq 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -747,7 +751,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "ws"
 version = "0.7.1"
-source = "git+https://github.com/faern/ws-rs?branch=arbitrary-handshake-responses#25fba2181064f987a748ca90d65c604ffcc86dd6"
+source = "git+https://github.com/tomusdrw/ws-rs#f8306a798b7541d64624299a83a2c934f173beed"
 dependencies = [
  "byteorder 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -875,7 +879,7 @@ dependencies = [
 "checksum void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 "checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
 "checksum winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2d315eee3b34aca4797b2da6b13ed88266e6d612562a0c46390af8299fc699bc"
-"checksum ws 0.7.1 (git+https://github.com/faern/ws-rs?branch=arbitrary-handshake-responses)" = "<none>"
+"checksum ws 0.7.1 (git+https://github.com/tomusdrw/ws-rs)" = "<none>"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 "checksum zmq 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "9623581b345b8a85fb72cae9b2cb67116d73ccb141e6c02f689e311962b74f9c"
 "checksum zmq-sys 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ecf3aafc58984279d9b8f776703ef569d32ae386353192a267cd6e711da70dde"
