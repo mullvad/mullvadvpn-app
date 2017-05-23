@@ -10,9 +10,11 @@ extern crate log;
 extern crate env_logger;
 
 use std::path::Path;
+use std::sync::Mutex;
 use std::sync::mpsc::{self, Receiver};
 
-use talpid_core::process::openvpn::{OpenVpnCommand, OpenVpnEvent, OpenVpnMonitor};
+use talpid_core::process::openvpn::OpenVpnCommand;
+use talpid_core::tunnel::openvpn::{OpenVpnEvent, OpenVpnMonitor};
 
 mod cli;
 
@@ -27,7 +29,7 @@ fn run() -> Result<()> {
     init_logger()?;
     let args = cli::parse_args_or_exit();
     let command = create_openvpn_command(&args);
-    main_loop(command, args.plugin_path.as_path())
+    main_loop(&command, args.plugin_path.as_path())
 }
 
 pub fn init_logger() -> Result<()> {
@@ -43,9 +45,10 @@ fn create_openvpn_command(args: &Args) -> OpenVpnCommand {
     command
 }
 
-fn main_loop(command: OpenVpnCommand, plugin_path: &Path) -> Result<()> {
+fn main_loop(command: &OpenVpnCommand, plugin_path: &Path) -> Result<()> {
+    let (monitor, rx) = create_openvpn_monitor(plugin_path)?;
     loop {
-        let (_monitor, rx) = start_monitor(command.clone(), plugin_path)?;
+        monitor.start(command.clone()).chain_err(|| "Unable to start OpenVPN")?;
         while let Ok(msg) = rx.recv() {
             match msg {
                 OpenVpnEvent::Shutdown(result) => {
@@ -55,22 +58,22 @@ fn main_loop(command: OpenVpnCommand, plugin_path: &Path) -> Result<()> {
                     );
                     break;
                 }
-                OpenVpnEvent::PluginEvent(Ok((event, env))) => {
+                OpenVpnEvent::PluginEvent(event, env) => {
                     println!("OpenVPN event:\nEvent: {:?}\nENV: {:?}", event, env);
                 }
-                OpenVpnEvent::PluginEvent(Err(e)) => println!("Read error from plugin: {:?}", e),
             }
         }
         std::thread::sleep(std::time::Duration::from_millis(500));
     }
 }
 
-fn start_monitor(command: OpenVpnCommand,
-                 plugin_path: &Path)
-                 -> Result<(OpenVpnMonitor, Receiver<OpenVpnEvent>)> {
-    let (tx, rx) = mpsc::channel();
-    let listener = move |event: OpenVpnEvent| tx.send(event).unwrap();
-    OpenVpnMonitor::start(command, plugin_path, listener)
-        .map(|m| (m, rx))
-        .chain_err(|| "Unable to start OpenVPN")
+fn create_openvpn_monitor(plugin_path: &Path) -> Result<(OpenVpnMonitor, Receiver<OpenVpnEvent>)> {
+    let (event_tx, event_rx) = mpsc::channel();
+    let event_tx_mutex = Mutex::new(event_tx);
+    let on_event = move |event: OpenVpnEvent| {
+        event_tx_mutex.lock().unwrap().send(event).expect("Unable to send on tx_lock");
+    };
+    let monitor = OpenVpnMonitor::new(on_event, plugin_path)
+        .chain_err(|| "Unable to start OpenVPN monitor")?;
+    Ok((monitor, event_rx))
 }

@@ -18,16 +18,6 @@ use jsonrpc_ws_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 
-#[cfg(windows)]
-#[path = "nop_ipc.rs"]
-mod ipc_impl;
-
-#[cfg(not(windows))]
-#[path = "zmq_ipc.rs"]
-mod ipc_impl;
-
-pub use self::ipc_impl::*;
-
 mod client;
 pub use client::*;
 

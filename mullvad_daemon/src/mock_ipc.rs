@@ -31,7 +31,7 @@ impl IpcServer {
     }
 
     pub fn address(&self) -> &str {
-        &self.server.address()
+        self.server.address()
     }
 
     pub fn wait(self) -> talpid_ipc::Result<()> {
@@ -81,7 +81,7 @@ fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
 
 /// A mock implementation of the Mullvad frontend API. A very simplified explanation is that for
 /// the real implementation `tunnel_is_up` should be replaced with some kind of handle (or proxy to
-/// a handle) to the jsonrpc client talking with talpid_core.
+/// a handle) to the jsonrpc client talking with `talpid_core`.
 pub struct MockIpcApi {
     next_subscription_id: atomic::AtomicUsize,
     active: ActiveSubscriptions,
