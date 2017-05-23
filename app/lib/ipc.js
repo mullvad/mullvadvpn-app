@@ -8,12 +8,20 @@ export default class Ipc {
     this._connectionString = connectionString;
     this._onConnect = [];
     this._unansweredRequests = {};
+    this._subscriptions = {};
 
     this._reconnect();
   }
 
-  on(event/*, listener*/) {
+  on(event, listener) {
+    // We're currently not actually using the event parameter.
+    // This is because we aren't sure if the backend will use
+    // one subscription per event or one subscription per
+    // event source.
+
     log.info('Adding a listener to', event);
+    this.send('event_subscribe')
+      .then(subscriptionId => this._subscriptions[subscriptionId] = listener);
   }
 
   send(action, ...data) {
@@ -53,15 +61,40 @@ export default class Ipc {
     const json = JSON.parse(message);
     const c = jsonrpc.parseObject(json);
 
-    const id = c.payload.id;
+    if (c.type === 'notification') {
+      this._onNotification(c);
+    } else {
+      this._onReply(c);
+    }
+  }
+
+  _onNotification(message) {
+    const subscriptionId = message.payload.params.subscription;
+    const listener = this._subscriptions[subscriptionId];
+
+    if (listener) {
+      log.debug('Got notification', message.payload.method, message.payload.params.result);
+      listener(message.payload.params.result);
+    } else {
+      log.warn('Got notification for', message.payload.method, 'but no one is listening for it');
+    }
+  }
+
+  _onReply(message) {
+    const id = message.payload.id;
     const request = this._unansweredRequests[id];
     delete this._unansweredRequests[id];
 
-    log.debug('Got answer to', id, c.type);
-    if (c.type === 'error') {
-      request.reject(c.payload.error.message);
+    if (!request) {
+      log.warn('Got reply to', id, 'but no one was waiting for it');
+      return;
+    }
+
+    log.debug('Got answer to', id, message.type);
+    if (message.type === 'error') {
+      request.reject(message.payload.error.message);
     } else {
-      const reply = c.payload.result;
+      const reply = message.payload.result;
       request.resolve(reply);
     }
   }
