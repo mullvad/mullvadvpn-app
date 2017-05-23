@@ -99,8 +99,8 @@ impl OpenVpnMonitor {
     }
 
     fn set_plugin(&self, cmd: &mut OpenVpnCommand) {
-        let arg0 = self.event_dispatcher.address().to_string();
-        cmd.plugin(&self.plugin_path, vec![arg0]);
+        let event_dispatcher_address = self.event_dispatcher.address().to_string();
+        cmd.plugin(&self.plugin_path, vec![event_dispatcher_address]);
     }
 
     /// Tries to kill the OpenVPN process if it is running. If it is already dead, this does
