@@ -34,22 +34,25 @@ pub enum TunnelEvent {
     Shutdown,
 }
 
-impl From<OpenVpnEvent> for TunnelEvent {
-    /// TODO(linus): When we know better which events we need and what data they must carry
-    /// this can be implemented in a better way.
-    fn from(openvpn_event: OpenVpnEvent) -> Self {
-        match openvpn_event {
-            OpenVpnEvent::PluginEvent(event, _) => {
-                match event {
-                    OpenVpnPluginEvent::Up => TunnelEvent::Up,
-                    OpenVpnPluginEvent::RoutePredown => TunnelEvent::Down,
-                    _ => panic!("Unsupported event. This should not happen"),
-                }
-            }
-            OpenVpnEvent::Shutdown(_) => TunnelEvent::Shutdown,
+impl TunnelEvent {
+    /// Converts an `OpenVpnEvent` to a `TunnelEvent`.
+    /// Returns `None` if there is no corresponding `TunnelEvent`.
+    pub fn from_openvpn_event(event: &OpenVpnEvent) -> Option<TunnelEvent> {
+        match *event {
+            OpenVpnEvent::PluginEvent(ref event, _) => Self::from_openvpn_plugin_event(event),
+            OpenVpnEvent::Shutdown(_) => Some(TunnelEvent::Shutdown),
+        }
+    }
+
+    fn from_openvpn_plugin_event(event: &OpenVpnPluginEvent) -> Option<TunnelEvent> {
+        match *event {
+            OpenVpnPluginEvent::Up => Some(TunnelEvent::Up),
+            OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
+            _ => None,
         }
     }
 }
+
 
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
@@ -61,7 +64,13 @@ impl TunnelMonitor {
     pub fn new<L>(on_event: L) -> Result<Self>
         where L: Fn(TunnelEvent) + Send + Sync + 'static
     {
-        let openvpn_on_event = move |openvpn_event| on_event(TunnelEvent::from(openvpn_event));
+        let openvpn_on_event = move |openvpn_event| {
+            if let Some(tunnel_event) = TunnelEvent::from_openvpn_event(&openvpn_event) {
+                on_event(tunnel_event);
+            } else {
+                debug!("Ignoring OpenVpnEvent {:?}", openvpn_event);
+            }
+        };
         let monitor = openvpn::OpenVpnMonitor::new(openvpn_on_event, get_plugin_path())
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor { monitor })
