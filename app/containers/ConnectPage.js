@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 import { shell } from 'electron';
 import { links } from '../config';
 import Connect from '../components/Connect';
@@ -14,8 +15,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
 
   return {
-    onSettings: () => props.router.push('/settings'),
-    onSelectLocation: () => props.router.push('/select-location'),
+    onSettings: () => dispatch(push('/settings')),
+    onSelectLocation: () => dispatch(push('/select-location')),
     onConnect: (addr) => connect(backend, addr),
     onCopyIP: () => copyIPAddress(),
     onDisconnect: () => disconnect(backend),

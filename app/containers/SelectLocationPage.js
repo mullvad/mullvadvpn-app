@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
 import settingsActions from '../actions/settings';
 
@@ -8,11 +9,11 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   const settings = bindActionCreators(settingsActions, dispatch);
   return {
-    onClose: () => props.router.push('/connect'),
+    onClose: () => dispatch(push('/connect')),
     onSelect: (preferredServer) => {
       const server = backend.serverInfo(preferredServer);
 
-      props.router.push('/connect');
+      dispatch(push('/connect'));
 
       // add delay to let the map load
       setTimeout(() => {

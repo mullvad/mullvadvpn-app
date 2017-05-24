@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
-import { routerMiddleware, routerReducer as routing, push, replace } from 'react-router-redux';
+import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
 import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
 
@@ -30,7 +30,7 @@ export default function configureStore(initialState, routerHistory) {
   };
 
   const reducers = {
-    user, connect, settings, routing
+    user, connect, settings, router: routerReducer
   };
 
   const middlewares = [ thunk, router ];
