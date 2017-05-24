@@ -10,6 +10,7 @@ export default class Ipc {
     this._unansweredRequests = {};
     this._subscriptions = {};
 
+    this._backoff = new ReconnectionBackoff();
     this._reconnect();
   }
 
@@ -107,6 +108,8 @@ export default class Ipc {
 
     this._websocket.onopen = () => {
       log.debug('Websocket is connected');
+      this._backoff.successfullyConnected();
+
       while(this._onConnect.length > 0) {
         this._onConnect.pop().resolve();
       }
@@ -117,8 +120,34 @@ export default class Ipc {
     };
 
     this._websocket.onclose = () => {
-      log.warn('The websocket connetion closed, attempting to reconnect it');
-      this._reconnect();
+      const delay = this._backoff.getIncreasedBackoff();
+      log.warn('The websocket connetion closed, attempting to reconnect it in', delay, 'milliseconds');
+      setTimeout(() => this._reconnect(), delay);
     };
+  }
+}
+
+/*
+ * Used to calculate the time to wait before reconnecting
+ * the websocket.
+ *
+ * It uses a linear backoff function that goes from 500ms
+ * to 3000ms
+ */
+class ReconnectionBackoff {
+  constructor() {
+    this._attempt = 0;
+  }
+
+  successfullyConnected() {
+    this._attempt = 0;
+  }
+
+  getIncreasedBackoff() {
+    if (this._attempt < 6) {
+      this._attempt++;
+    }
+
+    return this._attempt * 500;
   }
 }
