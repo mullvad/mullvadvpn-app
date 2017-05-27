@@ -55,7 +55,7 @@ export default class Ipc {
     this._onConnect = [];
     this._unansweredRequests = {};
     this._subscriptions = {};
-    this._websocketFactory = websocketFactory || function(connectionString){return new WebSocket(connectionString);};
+    this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
 
     this._backoff = new ReconnectionBackoff();
     this._reconnect();
