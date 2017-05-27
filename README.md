@@ -3,6 +3,7 @@
 ## Command line tools
 
 - `$ npm run develop` - develop app with live-reload enabled
+- `$ npm run flow` - type-check the code
 - `$ npm run lint` - lint code
 - `$ npm run docs` - generate HTML documentation
 - `$ npm run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`, `pack:win`, `pack:linux` to generate package for single target.
