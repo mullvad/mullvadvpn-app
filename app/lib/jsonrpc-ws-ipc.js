@@ -74,14 +74,14 @@ export default class Ipc {
     this._sendTimeoutMillis = millis;
   }
 
-  on(event: string, listener: (any) => void) {
+  on(event: string, listener: (any) => void): Promise<*> {
     // We're currently not actually using the event parameter.
     // This is because we aren't sure if the backend will use
     // one subscription per event or one subscription per
     // event source.
 
     log.info('Adding a listener to', event);
-    this.send('event_subscribe')
+    return this.send('event_subscribe')
       .then(subscriptionId => this._subscriptions[subscriptionId] = listener);
   }
 
