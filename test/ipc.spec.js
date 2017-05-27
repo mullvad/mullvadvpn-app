@@ -69,6 +69,26 @@ describe('The IPC server', () => {
         expect(e.message).to.contain('timed out');
       });
   });
+
+  it('should route notifications', (done) => {
+    const { ws, ipc } = setupIpc();
+
+    const eventListener = (event) => {
+      try {
+        expect(event).to.equal('an event!');
+        done();
+      } catch (ex) {
+        done(ex);
+      }
+    };
+
+    ws.on('event_subscribe', (msg) => ws.replyOk(msg.id, 1));
+    ipc.on('event', eventListener)
+      .then(() => {
+        ws.reply(jsonrpc.notification('event', {subscription:1, result: 'an event!'}));
+      })
+      .catch((e) => done(e));
+  });
 });
 
 function mockWebsocket() {
