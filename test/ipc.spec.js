@@ -58,6 +58,17 @@ describe('The IPC server', () => {
 
     return Promise.all([message, decoy]);
   });
+
+  it('should timeout if no response is returned', () => {
+    const { ipc } = setupIpc();
+
+    ipc.setSendTimeout(1);
+    return ipc.send('a message')
+      .catch((e) => {
+        expect(e.name).to.equal('TimeOutError');
+        expect(e.message).to.contain('timed out');
+      });
+  });
 });
 
 function mockWebsocket() {
