@@ -2,6 +2,8 @@ import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
 import log from 'electron-log';
 
+const DEFAULT_TIMEOUT_MILLIS = 750;
+
 export default class Ipc {
 
   constructor(connectionString) {
@@ -52,10 +54,27 @@ export default class Ipc {
       const id = uuid.v4();
       const jsonrpcMessage = jsonrpc.request(id, action, data);
 
-      this._unansweredRequests[id] = {resolve: resolve, reject: reject};
+      const timeout = setTimeout(() => this._onTimeout(id), DEFAULT_TIMEOUT_MILLIS);
+      this._unansweredRequests[id] = {
+        resolve: resolve,
+        reject: reject,
+        timeout: timeout,
+      };
       log.debug('Sending message', id, action);
       websocket.send(jsonrpcMessage);
     });
+  }
+
+  _onTimeout(requestId) {
+    const request = this._unansweredRequests[requestId];
+    delete this._unansweredRequests[requestId];
+
+    if (!request) {
+      log.debug(requestId, 'timed out but it seems to already have been answered');
+      return;
+    }
+
+    request.reject('The request timed out');
   }
 
   _onMessage(message) {
@@ -92,6 +111,9 @@ export default class Ipc {
     }
 
     log.debug('Got answer to', id, message.type);
+
+    clearTimeout(request.timeout);
+
     if (message.type === 'error') {
       request.reject(message.payload.error.message);
     } else {
