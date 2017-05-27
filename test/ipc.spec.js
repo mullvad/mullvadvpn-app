@@ -3,6 +3,7 @@
 import Ipc from '../app/lib/jsonrpc-ws-ipc.js';
 import jsonrpc from 'jsonrpc-lite';
 import { expect } from 'chai';
+import assert from 'assert';
 import type { JsonRpcMessage } from '../app/lib/jsonrpc-ws-ipc.js';
 
 describe('The IPC server', () => {
@@ -25,6 +26,37 @@ describe('The IPC server', () => {
     ws.acceptConnection();
 
     return p;
+  });
+
+  it('should reject failed jsonrpc requests', () => {
+    const { ws, ipc } = setupIpc();
+    ws.on('WHAT_IS_THIS', (msg) => {
+      ws.replyFail(msg.id, 'Method not found', -32601);
+    });
+
+    return ipc.send('WHAT_IS_THIS')
+      .catch((e) => {
+        expect(e.code).to.equal(-32601);
+        expect(e.message).to.contain('Method not found');
+      });
+  });
+
+  it('should route reply to correct promise', () => {
+    const { ws, ipc } = setupIpc();
+
+    ws.on('a message', (msg) => ws.replyOk(msg.id, 'a reply'));
+
+    const decoy = ipc.send('a decoy')
+      .then(() => assert(false, 'Should not be called'))
+      .catch(e => {
+        if (e.name !== 'TimeOutError') {
+          throw e;
+        }
+      });
+    const message = ipc.send('a message')
+      .then((reply) => expect(reply).to.equal('a reply'));
+
+    return Promise.all([message, decoy]);
   });
 });
 
