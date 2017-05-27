@@ -1,7 +1,5 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import Backend from '../../app/lib/backend';
-import Ipc from '../../app/lib/ipc';
 import { defaultServer } from '../../app/config';
 import { LoginState, ConnectionState } from '../../app/enums';
 
@@ -28,36 +26,6 @@ export const mockState = () => {
       preferredServer: defaultServer
     }
   };
-};
-
-export const mockBackend = (backendData) => {
-  return new Backend(mockIpc(backendData));
-};
-
-const mockIpc = (backendData) => {
-  const ipc = new Ipc();
-  ipc.send = (action, data) => {
-    return new Promise((resolve, reject) => {
-
-      switch (action) {
-      case 'get_account_data': {
-        const accountNumber = data;
-        return resolve(backendData.users[accountNumber]);
-      }
-      case 'set_account':
-      case 'set_country':
-      case 'connect':
-      case 'disconnect':
-        return resolve();
-
-      case 'event_subscribe':
-        return resolve();
-      }
-
-      reject('Unknown action: ' + action);
-    });
-  };
-  return ipc;
 };
 
 export const filterMinorActions = (actions) => {

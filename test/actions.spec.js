@@ -1,6 +1,9 @@
+// @flow
+
 import { expect } from 'chai';
-import { filterMinorActions, mockBackend, mockState, mockStore } from './mocks/backend';
+import { filterMinorActions, mockState, mockStore } from './mocks/backend';
 import Backend from '../app/lib/backend';
+import { newMockIpc } from './mocks/ipc';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
 import mapBackendEventsToReduxActions from '../app/lib/backend-redux-actions';
@@ -15,12 +18,15 @@ describe('actions', function() {
       { type: 'USER_LOGIN_CHANGE', payload: { paidUntil: '2013-01-01T00:00:00.000Z', status: 'ok', error: undefined } }
     ];
     const store = mockStore(mockState());
-    const backend = mockBackend({
-      users: {
-        1: {
-          paid_until: '2013-01-01T00:00:00.000Z',
-        }}
-    });
+    const mockIpc = newMockIpc();
+    mockIpc.getAccountData = () => {
+      return new Promise(r => r({
+        paid_until: '2013-01-01T00:00:00.000Z',
+      }));
+    };
+
+    const backend = new Backend(mockIpc);
+
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.login, () => {
@@ -38,7 +44,8 @@ describe('actions', function() {
     ];
 
     const store = mockStore(mockState());
-    const backend = mockBackend();
+    const mockIpc = newMockIpc();
+    const backend = new Backend(mockIpc);
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.logout, () => {
@@ -58,13 +65,13 @@ describe('actions', function() {
     ];
 
     const store = mockStore(mockState());
-    const backend = mockBackend({
-      users: {
-        '1': {
-          paid_until: '2038-01-01T00:00:00.000Z',
-          status: LoginState.ok
-        }
-      }});
+    const mockIpc = newMockIpc();
+    const backend = new Backend(mockIpc);
+    mockIpc.getAccountData = () => {
+      return new Promise(r => r({
+        paid_until: '2038-01-01T00:00:00.000Z',
+      }));
+    };
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.connect, () => {
@@ -102,7 +109,7 @@ describe('actions', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend();
+    const backend = new Backend(newMockIpc());
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
@@ -134,7 +141,7 @@ describe('actions', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend();
+    const backend = new Backend(newMockIpc());
     mapBackendEventsToReduxActions(backend, store);
 
     backend.once(Backend.EventType.disconnect, () => {
