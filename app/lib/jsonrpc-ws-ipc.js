@@ -1,12 +1,55 @@
+// @flow
+
 import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
 import log from 'electron-log';
+
+export type UnansweredRequest<T, E> = {
+  resolve: (T) => void,
+  reject: (E) => void,
+  timeout: number,
+}
+
+export type JsonRpcError = {
+  type: 'error',
+  payload: {
+    id: string,
+    error: {
+      message: string,
+    }
+  }
+}
+export type JsonRpcNotification = {
+  type: 'notification',
+  payload: {
+    method: string,
+    params: {
+      subscription: string,
+      result: any,
+    }
+  }
+}
+export type JsonRpcSuccess = {
+  type: 'success',
+  payload: {
+    id: string,
+    result: any,
+  }
+}
+export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
 
 const DEFAULT_TIMEOUT_MILLIS = 750;
 
 export default class Ipc {
 
-  constructor(connectionString) {
+  _connectionString: ?string;
+  _onConnect: Array<{resolve: ()=>void}>;
+  _unansweredRequests: {[string]: UnansweredRequest<any, any>};
+  _subscriptions: {[string]: (any) => void};
+  _websocket: WebSocket;
+  _backoff: ReconnectionBackoff;
+
+  constructor(connectionString: ?string) {
     this._connectionString = connectionString;
     this._onConnect = [];
     this._unansweredRequests = {};
@@ -16,7 +59,7 @@ export default class Ipc {
     this._reconnect();
   }
 
-  on(event, listener) {
+  on(event: string, listener: (any) => void) {
     // We're currently not actually using the event parameter.
     // This is because we aren't sure if the backend will use
     // one subscription per event or one subscription per
@@ -27,7 +70,7 @@ export default class Ipc {
       .then(subscriptionId => this._subscriptions[subscriptionId] = listener);
   }
 
-  send(action, ...data) {
+  send(action: string, ...data: Array<any>): Promise<any> {
     return this._getWebSocket()
       .then(ws => this._send(ws, action, data))
       .catch(e => {
@@ -77,7 +120,7 @@ export default class Ipc {
     request.reject('The request timed out');
   }
 
-  _onMessage(message) {
+  _onMessage(message: string) {
     const json = JSON.parse(message);
     const c = jsonrpc.parseObject(json);
 
@@ -88,7 +131,7 @@ export default class Ipc {
     }
   }
 
-  _onNotification(message) {
+  _onNotification(message: JsonRpcNotification) {
     const subscriptionId = message.payload.params.subscription;
     const listener = this._subscriptions[subscriptionId];
 
@@ -100,7 +143,7 @@ export default class Ipc {
     }
   }
 
-  _onReply(message) {
+  _onReply(message: JsonRpcError | JsonRpcSuccess) {
     const id = message.payload.id;
     const request = this._unansweredRequests[id];
     delete this._unansweredRequests[id];
@@ -123,10 +166,11 @@ export default class Ipc {
   }
 
   _reconnect() {
-    if (!this._connectionString) return;
+    const connectionString = this._connectionString;
+    if (!connectionString) return;
 
-    log.info('Connecting to websocket', this._connectionString);
-    this._websocket = new WebSocket(this._connectionString);
+    log.info('Connecting to websocket', connectionString);
+    this._websocket = new WebSocket(connectionString);
 
     this._websocket.onopen = () => {
       log.debug('Websocket is connected');
@@ -138,7 +182,8 @@ export default class Ipc {
     };
 
     this._websocket.onmessage = (evt) => {
-      this._onMessage(evt.data);
+      const data: string = (evt.data: any);
+      this._onMessage(data);
     };
 
     this._websocket.onclose = () => {
@@ -157,6 +202,8 @@ export default class Ipc {
  * to 3000ms
  */
 class ReconnectionBackoff {
+  _attempt: number;
+
   constructor() {
     this._attempt = 0;
   }
