@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import { filterMinorActions, mockState, mockStore } from './mocks/backend';
+import { filterMinorActions, mockState, mockStore } from './mocks/redux';
 import Backend from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
 import userActions from '../app/actions/user';
