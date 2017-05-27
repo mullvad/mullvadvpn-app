@@ -171,7 +171,7 @@ export default class Backend extends EventEmitter {
    */
   constructor(ipc: IpcFacade) {
     super();
-    this._ipc = ipc || new RealIpc(undefined);
+    this._ipc = ipc || new RealIpc('');
     this._registerIpcListeners();
 
     // check for network reachability
