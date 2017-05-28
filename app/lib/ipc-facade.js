@@ -1,15 +1,23 @@
 // @flow
 
-import JsonRpcWs from './jsonrpc-ws-ipc';
+import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
+import { object, string, number, arrayOf } from 'validated/schema';
+import { validate } from 'validated/json5';
 
 export type AccountData = {paid_until: string};
 export type AccountNumber = string;
 export type Ip = string;
 export type Location = {
-  latlong: Array<Number>,
+  latlong: Array<number>,
   country: string,
   city: string,
 };
+const LocationSchema = object({
+  latlong: arrayOf(number),
+  country: string,
+  city: string,
+});
+
 
 export interface IpcFacade {
   getAccountData(AccountNumber): Promise<AccountData>,
@@ -32,8 +40,11 @@ export class RealIpc implements IpcFacade {
   getAccountData(accountNumber: AccountNumber): Promise<AccountData> {
     return this._ipc.send('get_account_data', accountNumber)
       .then(raw => {
-        // TODO: Validate here
-        return raw;
+        if (typeof raw === 'object' && raw && raw.paid_until) {
+          return raw;
+        } else {
+          throw new InvalidReply(raw);
+        }
       });
   }
 
@@ -56,16 +67,22 @@ export class RealIpc implements IpcFacade {
   getIp(): Promise<Ip> {
     return this._ipc.send('get_ip')
       .then(raw => {
-        // TODO: Validate here
-        return raw;
+        if (typeof raw === 'string' && raw) {
+          return raw;
+        } else {
+          throw new InvalidReply(raw);
+        }
       });
   }
 
   getLocation(): Promise<Location> {
     return this._ipc.send('get_location')
       .then(raw => {
-        // TODO: Validate here
-        return raw;
+        try {
+          return validate(LocationSchema, raw);
+        } catch (e) {
+          throw new InvalidReply(raw, e);
+        }
       });
   }
 }
