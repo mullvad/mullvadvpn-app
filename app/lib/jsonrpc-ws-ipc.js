@@ -38,6 +38,13 @@ export type JsonRpcSuccess = {
 }
 export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
 
+export class TimeOutError extends Error {
+  constructor() {
+    super('Request timed out');
+    this.name = 'TimeOutError';
+  }
+}
+
 const DEFAULT_TIMEOUT_MILLIS = 750;
 
 export default class Ipc {
@@ -119,7 +126,7 @@ export default class Ipc {
       return;
     }
 
-    request.reject('The request timed out');
+    request.reject(new TimeOutError());
   }
 
   _onMessage(message: string) {
@@ -160,7 +167,7 @@ export default class Ipc {
     clearTimeout(request.timeout);
 
     if (message.type === 'error') {
-      request.reject(message.payload.error.message);
+      request.reject(message.payload.error);
     } else {
       const reply = message.payload.result;
       request.resolve(reply);
