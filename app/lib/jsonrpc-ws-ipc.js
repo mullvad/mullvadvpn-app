@@ -56,6 +56,7 @@ export default class Ipc {
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
+  _sendTimeoutMillis: number;
 
   constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
     this._connectionString = connectionString;
@@ -63,9 +64,14 @@ export default class Ipc {
     this._unansweredRequests = {};
     this._subscriptions = {};
     this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
+    this._sendTimeoutMillis = DEFAULT_TIMEOUT_MILLIS;
 
     this._backoff = new ReconnectionBackoff();
     this._reconnect();
+  }
+
+  setSendTimeout(millis: number) {
+    this._sendTimeoutMillis = millis;
   }
 
   on(event: string, listener: (any) => void) {
@@ -106,7 +112,7 @@ export default class Ipc {
       const id = uuid.v4();
       const jsonrpcMessage = jsonrpc.request(id, action, data);
 
-      const timeout = setTimeout(() => this._onTimeout(id), DEFAULT_TIMEOUT_MILLIS);
+      const timeout = setTimeout(() => this._onTimeout(id), this._sendTimeoutMillis);
       this._unansweredRequests[id] = {
         resolve: resolve,
         reject: reject,
