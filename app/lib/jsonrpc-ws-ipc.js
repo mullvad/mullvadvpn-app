@@ -4,9 +4,9 @@ import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
 import log from 'electron-log';
 
-export type UnansweredRequest<T, E> = {
-  resolve: (T) => void,
-  reject: (E) => void,
+export type UnansweredRequest = {
+  resolve: (mixed) => void,
+  reject: (mixed) => void,
   timeout: number,
 }
 
@@ -25,7 +25,7 @@ export type JsonRpcNotification = {
     method: string,
     params: {
       subscription: string,
-      result: any,
+      result: mixed,
     }
   }
 }
@@ -33,7 +33,7 @@ export type JsonRpcSuccess = {
   type: 'success',
   payload: {
     id: string,
-    result: any,
+    result: mixed,
   }
 }
 export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
@@ -61,8 +61,8 @@ export default class Ipc {
 
   _connectionString: ?string;
   _onConnect: Array<{resolve: ()=>void}>;
-  _unansweredRequests: {[string]: UnansweredRequest<any, any>};
-  _subscriptions: {[string]: (any) => void};
+  _unansweredRequests: {[string]: UnansweredRequest};
+  _subscriptions: {[string|number]: (mixed) => void};
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
@@ -84,7 +84,7 @@ export default class Ipc {
     this._sendTimeoutMillis = millis;
   }
 
-  on(event: string, listener: (any) => void): Promise<*> {
+  on(event: string, listener: (mixed) => void): Promise<*> {
     // We're currently not actually using the event parameter.
     // This is because we aren't sure if the backend will use
     // one subscription per event or one subscription per
@@ -92,10 +92,16 @@ export default class Ipc {
 
     log.info('Adding a listener to', event);
     return this.send('event_subscribe')
-      .then(subscriptionId => this._subscriptions[subscriptionId] = listener);
+      .then(subscriptionId => {
+        if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
+          this._subscriptions[subscriptionId] = listener;
+        } else {
+          throw new InvalidReply(subscriptionId);
+        }
+      });
   }
 
-  send(action: string, ...data: Array<any>): Promise<any> {
+  send(action: string, ...data: Array<mixed>): Promise<mixed> {
     return this._getWebSocket()
       .then(ws => this._send(ws, action, data))
       .catch(e => {
@@ -207,8 +213,12 @@ export default class Ipc {
     };
 
     this._websocket.onmessage = (evt) => {
-      const data: string = (evt.data: any);
-      this._onMessage(data);
+      const data = evt.data;
+      if (typeof data === 'string') {
+        this._onMessage(data);
+      } else {
+        log.error('Got invalid reply from the server', evt);
+      }
     };
 
     this._websocket.onclose = () => {
