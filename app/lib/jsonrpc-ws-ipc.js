@@ -48,12 +48,14 @@ export default class Ipc {
   _subscriptions: {[string]: (any) => void};
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
+  _websocketFactory: (string) => WebSocket;
 
-  constructor(connectionString: ?string) {
+  constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
     this._connectionString = connectionString;
     this._onConnect = [];
     this._unansweredRequests = {};
     this._subscriptions = {};
+    this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
 
     this._backoff = new ReconnectionBackoff();
     this._reconnect();
@@ -170,7 +172,7 @@ export default class Ipc {
     if (!connectionString) return;
 
     log.info('Connecting to websocket', connectionString);
-    this._websocket = new WebSocket(connectionString);
+    this._websocket = this._websocketFactory(connectionString);
 
     this._websocket.onopen = () => {
       log.debug('Websocket is connected');

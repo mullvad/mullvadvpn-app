@@ -25,7 +25,7 @@ export class RealIpc implements IpcFacade {
 
   _ipc: JsonRpcWs;
 
-  constructor(connectionString: ?string) {
+  constructor(connectionString: string) {
     this._ipc = new JsonRpcWs(connectionString);
   }
 
