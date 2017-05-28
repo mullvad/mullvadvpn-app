@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 
-import { filterMinorActions, mockBackend, mockState, mockStore } from './mocks/backend';
+import { filterMinorActions, mockState, mockStore } from './mocks/redux';
 import userActions from '../app/actions/user';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
 import { LoginState } from '../app/enums';
+import Backend from '../app/lib/backend';
+import { newMockIpc } from './mocks/ipc';
 
 describe('routing', function() {
   this.timeout(10000);
@@ -21,7 +23,7 @@ describe('routing', function() {
     });
 
     const store = mockStore(state);
-    const backend = mockBackend();
+    const backend = new Backend(newMockIpc());
     mapBackendEventsToRouter(backend, store);
     
     store.dispatch(userActions.logout(backend));
@@ -38,11 +40,7 @@ describe('routing', function() {
     ];
     
     const store = mockStore(mockState());
-    const backend = mockBackend({
-      users: {
-        '1': { status: LoginState.none },
-      }
-    });
+    const backend = new Backend(newMockIpc());
     mapBackendEventsToRouter(backend, store);
     
     store.subscribe(() => {

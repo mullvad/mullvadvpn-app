@@ -4,7 +4,7 @@ import log from 'electron-log';
 import Enum from './enum';
 import EventEmitter from 'events';
 import { servers } from '../config';
-import Ipc from './ipc';
+import { IpcFacade, RealIpc } from './ipc-facade';
 
 /**
  * Server info
@@ -66,7 +66,6 @@ import Ipc from './ipc';
  * @event Backend.EventType.updatedIp
  * @param {string} new IP address
  */
-
 /**
  * Updated location event
  *
@@ -117,12 +116,6 @@ class BackendError extends Error {
 
 }
 
-type Location = {
-  latlong: Array<number>,
-  city: string,
-  country: string,
-};
-
 /**
  * Backend implementation
  *
@@ -169,16 +162,16 @@ export default class Backend extends EventEmitter {
    */
   static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
 
-  _ipc: Ipc;
+  _ipc: IpcFacade;
 
   /**
    * Creates an instance of Backend.
    *
    * @memberOf Backend
    */
-  constructor(ipc: Ipc) {
+  constructor(ipc: IpcFacade) {
     super();
-    this._ipc = ipc || new Ipc(undefined);
+    this._ipc = ipc || new RealIpc(undefined);
     this._registerIpcListeners();
 
     // check for network reachability
@@ -188,15 +181,15 @@ export default class Backend extends EventEmitter {
   setLocation(loc: string) {
     log.info('Got connection info to backend', loc);
 
-    this._ipc = new Ipc(loc);
+    this._ipc = new RealIpc(loc);
     this._registerIpcListeners();
   }
 
   sync() {
     log.info('Syncing with the backend...');
 
-    this._ipc.send('get_ip')
-      .then( (ip: string) => {
+    this._ipc.getIp()
+      .then( ip => {
         log.info('Got ip', ip);
         this.emit(Backend.EventType.updatedIp, ip);
       })
@@ -204,8 +197,8 @@ export default class Backend extends EventEmitter {
         log.info('Failed syncing with the backend', e);
       });
 
-    this._ipc.send('get_location')
-      .then((location: Location) => {
+    this._ipc.getLocation()
+      .then( location => {
         log.info('Got location', location);
         const newLocation = {
           location: location.latlong,
@@ -285,14 +278,13 @@ export default class Backend extends EventEmitter {
     // emit: logging in
     this.emit(Backend.EventType.logging, { account }, null);
 
-
-
-    this._ipc.send('get_account_data', account)
-      .then(response => {
+    this._ipc.getAccountData(account)
+      .then( response => {
         log.info('Account exists', response);
 
-        return this._ipc.send('set_account', account)
-          .then(() => response );
+        return this._ipc.setAccount(account)
+          .then( () => response );
+
       }).then( accountData => {
         log.info('Log in complete');
 
@@ -315,7 +307,7 @@ export default class Backend extends EventEmitter {
    */
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    this._ipc.send('set_account', '')
+    this._ipc.setAccount('')
       .then(() => {
         // emit event
         this.emit(Backend.EventType.logout);
@@ -342,9 +334,9 @@ export default class Backend extends EventEmitter {
     // emit: connecting
     this.emit(Backend.EventType.connecting, addr);
 
-    this._ipc.send('set_country', addr)
+    this._ipc.setCountry(addr)
       .then( () => {
-        return this._ipc.send('connect');
+        return this._ipc.connect();
       })
       .then(() => {
         this.emit(Backend.EventType.connect, addr);
@@ -364,7 +356,7 @@ export default class Backend extends EventEmitter {
    */
   disconnect() {
     // @TODO: Failure modes
-    this._ipc.send('disconnect')
+    this._ipc.disconnect()
       .then(() => {
         // emit: disconnect
         this.emit(Backend.EventType.disconnect);
