@@ -2,8 +2,8 @@ import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, createMemoryHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
+import { ConnectedRouter } from 'react-router-redux';
+import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
 import log from 'electron-log';
 import makeRoutes from './routes';
@@ -18,7 +18,6 @@ import { LoginState, ConnectionState, TrayIconType } from './enums';
 const initialState = {};
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
-const routes = makeRoutes(store);
 const backend = new Backend();
 
 // reset login state if user quit the app during login
@@ -33,15 +32,6 @@ if(store.getState().connect.status === ConnectionState.connecting) {
   store.dispatch(connectActions.connectionChange({
     status: ConnectionState.disconnected
   }));
-}
-
-// desperately trying to fix https://github.com/reactjs/react-router-redux/issues/534
-memoryHistory.replace('/');
-
-const recentLocation = (store.getState().routing || {}).locationBeforeTransitions;
-const routerHistory = syncHistoryWithStore(memoryHistory, store, { adjustUrlOnReplay: true });
-if(recentLocation && recentLocation.pathname) {
-  routerHistory.replace(recentLocation.pathname);
 }
 
 // Tray icon
@@ -86,14 +76,6 @@ backend.on(Backend.EventType.disconnect, updateTrayIcon);
 // force update tray
 updateTrayIcon();
 
-// helper method for router to pass backend down the component tree
-const createElement = (Component, props) => {
-  const newProps = { ...props, backend };
-  return (
-    <Component {...newProps} />
-  );
-};
-
 const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
 
 // disable smart pinch.
@@ -112,7 +94,9 @@ ipcRenderer.send('on-browser-window-ready');
 
 ReactDOM.render(
   <Provider store={ store }>
-    <Router history={ routerHistory } routes={ routes } createElement={ createElement } />
+    <ConnectedRouter history={ memoryHistory }>
+    { makeRoutes(store.getState, { backend }) }
+    </ConnectedRouter>
   </Provider>,
   rootElement
 );

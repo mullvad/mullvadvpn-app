@@ -1,6 +1,7 @@
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 import Login from '../components/Login';
 import userActions from '../actions/user';
 import { LoginState } from '../enums';
@@ -11,7 +12,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const { loginChange, login } = bindActionCreators(userActions, dispatch);
   const { backend } = props;
   return {
-    onSettings: () => props.router.push('/settings'),
+    onSettings: () => dispatch(push('/settings')),
     onLogin: (account) => login(backend, account),
     onChange: (account) => loginChange({ account }),
     onFirstChangeAfterFailure: () => loginChange({ status: LoginState.none, error: null }),

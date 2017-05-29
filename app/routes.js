@@ -1,55 +1,96 @@
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
-
-import App from './containers/App';
+import { Switch, Route, Redirect } from 'react-router';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import AccountPage from './containers/AccountPage';
 import SelectLocationPage from './containers/SelectLocationPage';
-
 import { LoginState } from './enums';
 
 /**
  * Create routes
  *
  * @export
- * @param {Redux.Store} store
+ * @param {function} getState       - function to get redux state
+ * @param {object}   componentProps - extra props to propagate across components
  * @returns {React.element}
  */
-export default function makeRoutes(store) {
+export default function makeRoutes(getState, componentProps) {
 
   /**
-   * Ensures that user is redirected to /connect if logged in
+   * Merge props and render component
+   * @param {React.Component} component - component class
+   * @param {...}             rest      - props
    * @private
    */
-  const ensureConnect = (nextState, replace) => {
-    let { user } = store.getState();
-    if(user.status === LoginState.ok) {
-      replace('/connect');
-    }
+  const renderMergedProps = (component, ...rest) => {
+    const finalProps = Object.assign({}, componentProps, ...rest);
+    return (
+      React.createElement(component, finalProps)
+    );
   };
 
   /**
-   * Ensures that user is redirected to / login if not logged in
+   * Renders public route
+   * Example: <PublicRoute path="/" component={ MyComponent } />
    * @private
    */
-  const ensureLoggedIn = (nextState, replace) => {
-    let { user } = store.getState();
-    if(user.status !== LoginState.ok) {
-      replace('/');
-    }
+  const PublicRoute = ({ component, ...rest }) => {
+    return (
+      <Route {...rest} render={ (routeProps) => {
+        return renderMergedProps(component, routeProps, ...rest);
+      }} />
+    );
+  };
+
+  /**
+   * Renders protected route that requires authentication, otherwise redirects to /
+   * Example: <PrivateRoute path="/protected" component={ MyComponent } />
+   * @private
+   */
+  const PrivateRoute = ({ component, ...rest }) => {
+    return (
+      <Route {...rest} render={ (routeProps) => {
+        const { user } = getState();
+        const isLoggedIn = user.status === LoginState.ok;
+
+        if(isLoggedIn) {
+          return renderMergedProps(component, routeProps, ...rest);
+        } else {
+          return (<Redirect to={ '/' } />);
+        }
+      }} />
+    );
+  };
+
+  /**
+   * Renders login route that is only available to non-authenticated
+   * users. Otherwise this route redirects user to /connect.
+   * Example: <LoginRoute path="/login" component={ MyComponent } />
+   * @private
+   */
+  const LoginRoute = ({ component, ...rest }) => {
+    return (
+      <Route {...rest} render={ (routeProps) => {
+        const { user } = getState();
+        const isLoggedIn = user.status === LoginState.ok;
+
+        if(isLoggedIn) {
+          return (<Redirect to={ '/connect' } />);
+        } else {
+          return renderMergedProps(component, routeProps, ...rest);
+        }
+      }} />
+    );
   };
 
   return (
-    <Route path="/" component={ App }>
-      <IndexRoute component={ LoginPage } onEnter={ ensureConnect } />
-      <Route path="connect" component={ ConnectPage } onEnter={ ensureLoggedIn } />
-      <Route path="settings">
-        <IndexRoute component={ SettingsPage } />
-        <Route path="account" component={ AccountPage } onEnter={ ensureLoggedIn } />
-      </Route>
-      <Route path="select-location" component={ SelectLocationPage } onEnter={ ensureLoggedIn } />
-    </Route>
+    <Switch>
+      <LoginRoute exact path="/" component={ LoginPage } />
+      <PrivateRoute exact path="/connect" component={ ConnectPage } />
+      <PublicRoute exact path="/settings" component={ SettingsPage } />
+      <PrivateRoute path="/settings/account" component={ AccountPage } />
+      <PrivateRoute path="/select-location" component={ SelectLocationPage } />
+    </Switch>
   );
 }

@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 import Settings from '../components/Settings';
 import userActions from '../actions/user';
 import settingsActions from '../actions/settings';
@@ -16,8 +17,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     onQuit: () => remote.app.quit(),
     onLogout: () => logout(props.backend),
-    onClose: () => props.router.push('/connect'),
-    onViewAccount: () => props.router.push('/settings/account'),
+    onClose: () => dispatch(push('/connect')),
+    onViewAccount: () => dispatch(push('/settings/account')),
     onExternalLink: (type) => shell.openExternal(links[type]),
     onUpdateSettings: updateSettings
   };
