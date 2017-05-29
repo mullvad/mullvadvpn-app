@@ -184,6 +184,7 @@ export default class KeyframeAnimation {
     this._numFrames = images.length;
     this._currentFrame = 0;
     this._frameRange = [0, this._numFrames];
+    this._isRunning = false;
     this._isFinished = false;
 
     this._isFirstRun = true;
@@ -237,6 +238,7 @@ export default class KeyframeAnimation {
       this._currentFrame = this._frameRange[this._reverse ? 0 : 1];
     }
 
+    this._isRunning = true;
     this._isFinished = false;
 
     this._unscheduleUpdate();
@@ -250,6 +252,7 @@ export default class KeyframeAnimation {
    * @memberOf KeyframeAnimation
    */
   stop() {
+    this._isRunning = false;
     this._unscheduleUpdate();
   }
 
@@ -271,6 +274,8 @@ export default class KeyframeAnimation {
   }
 
   _didFinish() {
+    this._isFinished = true;
+
     if(this._onFinish) {
       this._onFinish();
     }
@@ -279,9 +284,16 @@ export default class KeyframeAnimation {
   _onUpdateFrame() {
     this._advanceFrame();
 
-    if(!this._isFinished) {
+    if(this._isFinished) {
+      // mark animation as not running when finished
+      this._isRunning = false;
+    } else {
       this._render();
-      this._scheduleUpdate();
+
+      // check once again since onFrame() may stop animation
+      if(this._isRunning) {
+        this._scheduleUpdate();
+      }
     }
   }
 
@@ -298,10 +310,8 @@ export default class KeyframeAnimation {
 
     // did reach end?
     if(didReachEnd) {
-      // mark animation as finished if it's not marked as repeating
+      // mark animation as finished if it's not repeating
       if(!this._repeat) {
-        this._isFinished = true;
-
         this._didFinish();
         return;
       }
