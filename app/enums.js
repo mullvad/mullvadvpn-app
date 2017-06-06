@@ -18,12 +18,3 @@ export const LoginState = new Enum('none', 'connecting', 'failed', 'ok');
  * @property {string} connected     Connected
  */
 export const ConnectionState = new Enum('disconnected', 'connecting', 'connected');
-
-/**
- * Tray icon type
- * @type {TrayIconType}
- * @property {string} unsecured - Initial state (unlocked)
- * @property {string} securing  - Securing network (spinner)
- * @property {string} secured   - Connection is secured (locked)
- */
-export const TrayIconType = new Enum('unsecured', 'securing', 'secured');

@@ -1,85 +1,57 @@
-import assert from 'assert';
+// @flow
 import path from 'path';
-import { TrayIconType } from '../enums';
 import KeyframeAnimation from './keyframe-animation';
 
-/**
- * Tray icon manager
- *
- * @export
- * @class TrayIconManager
- */
+import type { Tray } from 'electron';
+
+export type TrayIconType = 'unsecured' | 'securing' | 'secured';
+
 export default class TrayIconManager {
 
-  /**
-   * Creates an instance of TrayIconManager.
-   * @param {Electron.Tray} tray
-   *
-   * @memberOf TrayIconManager
-   */
-  constructor(tray) {
-    assert(tray, 'Tray icon cannot be null');
+  _animation: ?KeyframeAnimation;
+  _iconType: TrayIconType;
 
-    const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
-    let filePath = path.join(basePath, 'lock-{}.png');
-    let animation = KeyframeAnimation.fromFilePattern(filePath, [1, 9]);
+  constructor(tray: Tray, initialType: TrayIconType) {
+    const animation = this._createAnimation();
     animation.onFrame = (img) => tray.setImage(img);
-    animation.speed = 100;
+    animation.reverse = this._isReverseAnimation(initialType);
+    animation.play({ advanceTo: 'end' });
 
     this._animation = animation;
-    this._iconType = null;
+    this._iconType = initialType;
   }
 
-  /**
-   * Destroy manager
-   * @memberOf TrayIconManager
-   */
   destroy() {
     if(this._animation) {
       this._animation.stop();
       this._animation = null;
     }
-    this._iconType = null;
   }
 
-  /**
-   * Get current icon type
-   * @type {TrayIconType}
-   * @memberOf TrayIconManager
-   */
-  get iconType() {
+  _createAnimation(): KeyframeAnimation {
+    const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
+    const filePath = path.join(basePath, 'lock-{}.png');
+    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 9]);
+    animation.speed = 100;
+    return animation;
+  }
+
+  _isReverseAnimation(type: TrayIconType): bool {
+    // unsecured & securing are treated as one
+    return type !== 'secured';
+  }
+
+  get iconType(): TrayIconType {
     return this._iconType;
   }
 
-  /**
-   * Set current icon type
-   * @type {TrayIconType}
-   * @memberOf TrayIconManager
-   */
-  set iconType(type) {
-    assert(TrayIconType.isValid(type), 'Invalid icon type');
+  set iconType(type: TrayIconType) {
+    if(this._iconType === type || !this._animation) { return; }
 
-    // no-op if the same type
-    if(this._iconType === type) {
-      return;
-    }
+    const animation = this._animation;
+    animation.reverse = this._isReverseAnimation(type);
+    animation.play({ beginFromCurrentState: true });
 
-    let options = { beginFromCurrentState: true };
-    if(this._iconType === null) {
-      options.advanceTo = 'end';
-    }
-
-    switch(type) {
-    case TrayIconType.secured:
-      this._animation.reverse = false;
-      break;
-    case TrayIconType.securing:
-    case TrayIconType.unsecured:
-      this._animation.reverse = true;
-      break;
-    }
-
-    this._animation.play(options);
     this._iconType = type;
   }
 
