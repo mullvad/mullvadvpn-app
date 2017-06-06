@@ -21,8 +21,8 @@ export default class TrayIconManager {
     assert(tray, 'Tray icon cannot be null');
 
     const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
-    let filePath = path.join(basePath, 'lock-{s}.png');
-    let animation = KeyframeAnimation.fromFileSequence(filePath, [1, 9]);
+    let filePath = path.join(basePath, 'lock-{}.png');
+    let animation = KeyframeAnimation.fromFilePattern(filePath, [1, 9]);
     animation.onFrame = (img) => tray.setImage(img);
     animation.speed = 100;
 

@@ -1,0 +1,28 @@
+/**
+ * Flow annotations for Electron
+ * @flow
+ */
+
+declare module 'electron' {
+
+  // common types
+
+  declare type Size = {
+    width: number;
+    height: number;
+  }
+
+  // https://github.com/electron/electron/blob/master/docs/api/native-image.md
+
+  declare class NativeImage {
+    isEmpty(): boolean;
+    getSize(): Size;
+  }
+
+  declare var nativeImage: {
+    createEmpty(): NativeImage,
+    createFromPath(path: string): NativeImage,
+    createFromBuffer(buffer: Buffer, scaleFactor?: number): NativeImage,
+    createFromDataURL(dataURL: string): NativeImage,
+  }
+}
