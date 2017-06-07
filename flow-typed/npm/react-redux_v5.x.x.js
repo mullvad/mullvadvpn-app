@@ -1,5 +1,5 @@
-// flow-typed signature: cfe423889942df70fd53fcaad18ef279
-// flow-typed version: 84d79be776/react-redux_v5.x.x/flow_>=v0.30.x
+// flow-typed signature: 8db7b853f57c51094bf0ab8b2650fd9c
+// flow-typed version: ab8db5f14d/react-redux_v5.x.x/flow_>=v0.30.x
 
 import type { Dispatch, Store } from 'redux'
 
@@ -80,6 +80,13 @@ declare module 'react-redux' {
     mergeProps: Null,
     options?: ConnectOptions
   ): Connector<OP, $Supertype<SP & DP & OP>>;
+
+  declare function connect<S, A, OP, SP, DP, P>(
+    mapStateToProps: MapStateToProps<S, OP, SP>,
+    mapDispatchToProps: Null,
+    mergeProps: MergeProps<SP, DP, OP, P>,
+    options?: ConnectOptions
+  ): Connector<OP, P>;
 
   declare function connect<S, A, OP, SP, DP, P>(
     mapStateToProps: MapStateToProps<S, OP, SP>,
