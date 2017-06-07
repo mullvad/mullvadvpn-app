@@ -45,6 +45,16 @@ export class TimeOutError extends Error {
   }
 }
 
+export class InvalidReply extends Error {
+  reply: mixed;
+
+  constructor(reply: mixed, msg: ?string) {
+    super(msg);
+    this.name = 'InvalidReply';
+    this.reply = reply;
+  }
+}
+
 const DEFAULT_TIMEOUT_MILLIS = 750;
 
 export default class Ipc {
