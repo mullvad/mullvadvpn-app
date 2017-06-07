@@ -53,7 +53,7 @@ export class RealIpc implements IpcFacade {
       .then(this._ignoreResponse);
   }
 
-  _ignoreResponse(response: mixed): void {
+  _ignoreResponse(_response: mixed): void {
     return;
   }
 

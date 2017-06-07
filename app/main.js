@@ -112,7 +112,7 @@ const createContextMenu = () => {
   ];
 
   // add inspect element on right click menu
-  window.webContents.on('context-menu', (e, props) => {
+  window.webContents.on('context-menu', (_e, props) => {
     let inspectTemplate = [{
       label: 'Inspect element',
       click() {
