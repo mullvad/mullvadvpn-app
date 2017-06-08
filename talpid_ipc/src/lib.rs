@@ -26,18 +26,6 @@ pub type IpcServerId = String;
 
 error_chain!{
     errors {
-        ReadFailure {
-            description("Could not read IPC message")
-        }
-        ParseFailure {
-            description("Unable to serialize/deserialize message")
-        }
-        CouldNotStartServer {
-            description("Failed to start the IPC server")
-        }
-        SendError {
-            description("Unable to send message")
-        }
         IpcServerError {
             description("Error in IPC server")
         }
@@ -74,17 +62,28 @@ impl IpcServer {
             .chain_err(|| ErrorKind::IpcServerError)
     }
 
+    /// Returns the localhost address this `IpcServer` is listening on.
     pub fn address(&self) -> &str {
         &self.address
     }
 
-    /// Consumes the server, stops it and waits for it to finish.
-    pub fn stop(self) {
-        self.server.close();
+    /// Creates a handle bound to this `IpcServer` that can be used to shut it down.
+    pub fn close_handle(&self) -> CloseHandle {
+        CloseHandle(self.server.close_handle())
     }
 
-    /// Consumes the server and waits for it to finish.
+    /// Consumes the server and waits for it to finish. Get an `CloseHandle` before calling this
+    /// if you want to be able to shut the server down.
     pub fn wait(self) -> Result<()> {
         self.server.wait().chain_err(|| ErrorKind::IpcServerError)
+    }
+}
+
+#[derive(Clone)]
+pub struct CloseHandle(jsonrpc_ws_server::CloseHandle);
+
+impl CloseHandle {
+    pub fn close(self) {
+        self.0.close();
     }
 }
