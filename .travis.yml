@@ -1,11 +1,14 @@
 sudo: false
+
 language: node_js
+
 node_js:
   - '7'
   - '6'
+
 before_script:
   - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
 script:
-  - npm run lint
-  - npm run flow
-  - npm test
+  - yarn run lint
+  - yarn run flow
+  - yarn test
