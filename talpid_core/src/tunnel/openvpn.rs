@@ -83,7 +83,7 @@ impl OpenVpnMonitor {
                     );
                     Ok(())
                 } else {
-                    error!("OpenVPN died unepectedly with status: {}", exit_status);
+                    error!("OpenVPN died unexpectedly with status: {}", exit_status);
                     Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
                 }
             }
