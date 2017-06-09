@@ -13,7 +13,8 @@ import connectActions from './actions/connect';
 import Backend from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
-import { LoginState, ConnectionState, TrayIconType } from './enums';
+import { LoginState, ConnectionState } from './enums';
+import type { TrayIconType } from './lib/tray-icon-manager';
 
 const initialState = {};
 const memoryHistory = createMemoryHistory();
@@ -38,15 +39,12 @@ if(store.getState().connect.status === ConnectionState.connecting) {
 
 /**
  * Get tray icon type based on connection state
- * @param    {ConnectionState} s - connection state
- * @return   {TrayIconType}
- *
  */
-const getIconType = (s) => {
+const getIconType = (s: string): TrayIconType => {
   switch(s) {
-  case ConnectionState.connected: return TrayIconType.secured;
-  case ConnectionState.connecting: return TrayIconType.securing;
-  default: return TrayIconType.unsecured;
+  case ConnectionState.connected: return 'secured';
+  case ConnectionState.connecting: return 'securing';
+  default: return 'unsecured';
   }
 };
 

@@ -178,7 +178,7 @@ const createTray = () => {
   // setup NSEvent monitor to fix inconsistent window.blur
   // see https://github.com/electron/electron/issues/8689
   const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-  const trayIconManager = new TrayIconManager(tray);
+  const trayIconManager = new TrayIconManager(tray, 'unsecured');
   const macEventMonitor = new NSEventMonitor();
   const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
 

@@ -12,7 +12,14 @@ declare module 'electron' {
     height: number;
   }
 
-  // https://github.com/electron/electron/blob/master/docs/api/native-image.md
+  declare type Rectangle = {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+  }
+
+  // http://electron.atom.io/docs/api/native-image
 
   declare class NativeImage {
     isEmpty(): boolean;
@@ -25,4 +32,20 @@ declare module 'electron' {
     createFromBuffer(buffer: Buffer, scaleFactor?: number): NativeImage,
     createFromDataURL(dataURL: string): NativeImage,
   }
+
+  // http://electron.atom.io/docs/api/tray
+
+  declare type TrayEvent = 'click' | 'double-click'
+  declare class Tray {
+    constructor(image: NativeImage | string): void;
+    getBounds(): Rectangle;
+    setHighlightMode(mode: 'selection' | 'always' | 'never'): void;
+    setImage(image: NativeImage | string): void;
+    setPressedImage(image: NativeImage | string): void;
+
+    on(event: TrayEvent, listener: Function): this;
+    once(event: TrayEvent, listener: Function): this;
+    removeEventListener(event: TrayEvent, listener: Function): this;
+  }
+
 }
