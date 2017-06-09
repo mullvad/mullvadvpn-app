@@ -2,7 +2,7 @@
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
 import { object, string, number, arrayOf } from 'validated/schema';
-import { validate } from 'validated/json5';
+import { validate } from 'validated/object';
 
 export type AccountData = {paid_until: string};
 export type AccountNumber = string;
