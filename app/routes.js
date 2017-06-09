@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import { CSSTransitionGroup } from 'react-transition-group';
-import Chrome from './components/Chrome';
+import WindowChrome from './components/WindowChrome';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
@@ -98,7 +98,7 @@ export default function makeRoutes(getState, componentProps) {
       previousRoute = toRoute;
 
       return (
-        <Chrome>
+        <WindowChrome>
           <CSSTransitionGroup component="div" className="transition-container" { ...transitionProps }>
             <Switch key={ location.key } location={ location }>
               <LoginRoute exact path="/" component={ LoginPage } />
@@ -108,7 +108,7 @@ export default function makeRoutes(getState, componentProps) {
               <PrivateRoute path="/select-location" component={ SelectLocationPage } />
             </Switch>
           </CSSTransitionGroup>
-        </Chrome>
+        </WindowChrome>
       );
     }} />
   );
