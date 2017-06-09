@@ -62,7 +62,7 @@ mapBackendEventsToReduxActions(backend, store);
 // Setup routing based on backend events
 mapBackendEventsToRouter(backend, store);
 
-ipcRenderer.on('backend-info', (event, args) => {
+ipcRenderer.on('backend-info', (_event, args) => {
   backend.setLocation(args.addr);
   backend.sync();
 });

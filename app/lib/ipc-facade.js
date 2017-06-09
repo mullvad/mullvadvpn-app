@@ -49,19 +49,27 @@ export class RealIpc implements IpcFacade {
   }
 
   setAccount(accountNumber: AccountNumber): Promise<void> {
-    return this._ipc.send('set_account', accountNumber);
+    return this._ipc.send('set_account', accountNumber)
+      .then(this._ignoreResponse);
+  }
+
+  _ignoreResponse(_response: mixed): void {
+    return;
   }
 
   setCountry(address: string): Promise<void> {
-    return this._ipc.send('set_country', address);
+    return this._ipc.send('set_country', address)
+      .then(this._ignoreResponse);
   }
 
   connect(): Promise<void> {
-    return this._ipc.send('connect');
+    return this._ipc.send('connect')
+      .then(this._ignoreResponse);
   }
 
   disconnect(): Promise<void> {
-    return this._ipc.send('disconnect');
+    return this._ipc.send('disconnect')
+      .then(this._ignoreResponse);
   }
 
   getIp(): Promise<Ip> {

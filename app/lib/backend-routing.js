@@ -10,7 +10,7 @@ import Backend from './backend';
  */
 export default function mapBackendEventsToRouter(backend, store) {
   // redirect user to main screen after login
-  backend.on(Backend.EventType.login, (account, error) => {
+  backend.on(Backend.EventType.login, (_account, error) => {
     if(error) { return; } // no-op on error
 
     setTimeout(() => {
