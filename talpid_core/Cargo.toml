@@ -8,8 +8,8 @@ description = "Core backend functionality of the Mullvad VPN client"
 duct = "0.8"
 error-chain = "0.10"
 log = "0.3"
-jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
-jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
+jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
+jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
 
 [dependencies.talpid_ipc]
 path = "../talpid_ipc"
