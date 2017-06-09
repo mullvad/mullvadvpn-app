@@ -2,12 +2,12 @@
 
 ## Command line tools
 
-- `$ npm run develop` - develop app with live-reload enabled
-- `$ npm run flow` - type-check the code
-- `$ npm run lint` - lint code
-- `$ npm run docs` - generate HTML documentation
-- `$ npm run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`, `pack:win`, `pack:linux` to generate package for single target.
-- `$ npm run test` - run tests
+- `$ yarn run develop` - develop app with live-reload enabled
+- `$ yarn run flow` - type-check the code
+- `$ yarn run lint` - lint code
+- `$ yarn run docs` - generate HTML documentation
+- `$ yarn run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`, `pack:win`, `pack:linux` to generate package for single target.
+- `$ yarn run test` - run tests
 
 ## Structure
 
