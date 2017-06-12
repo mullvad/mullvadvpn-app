@@ -167,11 +167,6 @@ impl ManagementInterface {
             tx: Mutex::new(tx),
         }
     }
-
-    fn create_id() -> SubscriptionId {
-        let id = uuid::Uuid::new(uuid::UuidVersion::Random).expect("Unable to generate UUID");
-        SubscriptionId::String(id.to_string())
-    }
 }
 
 impl ManagementInterfaceApi for ManagementInterface {
@@ -251,7 +246,7 @@ impl ManagementInterfaceApi for ManagementInterface {
         trace!("new_state_subscribe");
         let mut active_subscriptions = self.active_subscriptions.write().unwrap();
         loop {
-            let id = Self::create_id();
+            let id = SubscriptionId::String(uuid::Uuid::new_v4().to_string());
             if let Entry::Vacant(entry) = active_subscriptions.entry(id.clone()) {
                 if let Ok(sink) = subscriber.assign_id(id.clone()) {
                     debug!("Accepting new subscription with id {:?}", id);
