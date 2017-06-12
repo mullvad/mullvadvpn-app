@@ -9,8 +9,9 @@ use states::{SecurityState, TargetState};
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
-use std::sync::{Arc, Mutex, RwLock, mpsc};
+use std::sync::{Arc, Mutex, RwLock};
 
+use talpid_core::plexmpsc;
 use talpid_ipc;
 use uuid;
 
@@ -109,7 +110,9 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start(tunnel_tx: mpsc::Sender<::DaemonEvent>) -> talpid_ipc::Result<Self> {
+    pub fn start<T>(tunnel_tx: plexmpsc::Sender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
+        where T: From<TunnelCommand> + 'static + Send
+    {
         let rpc = ManagementInterface::new(tunnel_tx);
         let active_subscriptions = rpc.active_subscriptions.clone();
 
@@ -155,13 +158,13 @@ impl EventBroadcaster {
     }
 }
 
-struct ManagementInterface {
+struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     active_subscriptions: ActiveSubscriptions,
-    tx: Mutex<mpsc::Sender<::DaemonEvent>>,
+    tx: Mutex<plexmpsc::Sender<TunnelCommand, T>>,
 }
 
-impl ManagementInterface {
-    pub fn new(tx: mpsc::Sender<::DaemonEvent>) -> Self {
+impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
+    pub fn new(tx: plexmpsc::Sender<TunnelCommand, T>) -> Self {
         ManagementInterface {
             active_subscriptions: Default::default(),
             tx: Mutex::new(tx),
@@ -169,7 +172,7 @@ impl ManagementInterface {
     }
 }
 
-impl ManagementInterfaceApi for ManagementInterface {
+impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
     type Metadata = Meta;
 
     fn get_account_data(&self, _account_token: AccountToken) -> Result<AccountData, Error> {
@@ -202,7 +205,7 @@ impl ManagementInterfaceApi for ManagementInterface {
         self.tx
             .lock()
             .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Secured).into())
+            .send(TunnelCommand::SetTargetState(TargetState::Secured))
             .map_err(|_| Error::internal_error())
     }
 
@@ -211,14 +214,14 @@ impl ManagementInterfaceApi for ManagementInterface {
         self.tx
             .lock()
             .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Unsecured).into())
+            .send(TunnelCommand::SetTargetState(TargetState::Unsecured))
             .map_err(|_| Error::internal_error())
     }
 
     fn get_state(&self) -> BoxFuture<SecurityState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::GetState(state_tx).into()) {
+        match self.tx.lock().unwrap().send(TunnelCommand::GetState(state_tx)) {
             Ok(()) => state_rx.map_err(|_| Error::internal_error()).boxed(),
             Err(_) => future::err(Error::internal_error()).boxed(),
         }
