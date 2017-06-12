@@ -259,7 +259,8 @@ impl ManagementInterfaceApi for ManagementInterface {
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         trace!("new_state_unsubscribe");
-        let result = if self.active_subscriptions.write().unwrap().remove(&id).is_some() {
+        let was_removed = self.active_subscriptions.write().unwrap().remove(&id).is_some();
+        let result = if was_removed {
             debug!("Unsubscribing id {:?}", id);
             future::ok(())
         } else {
