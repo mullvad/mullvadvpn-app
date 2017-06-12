@@ -15,9 +15,10 @@ jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-
 jsonrpc-pubsub = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
 jsonrpc-ws-server = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
 uuid = { version = "0.5", features = ["v4"] }
+lazy_static = "0.2"
 
-[dependencies.talpid_ipc]
-path = "../talpid_ipc"
+talpid_core = { path = "../talpid_core" }
+talpid_ipc = { path = "../talpid_ipc" }
 
 [dev-dependencies]
 assert_matches = "1.0"
