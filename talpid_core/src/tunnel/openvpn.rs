@@ -2,14 +2,14 @@ use duct;
 use jsonrpc_core::{Error, IoHandler};
 use openvpn_ffi::{OpenVpnEnv, OpenVpnPluginEvent};
 use process::openvpn::OpenVpnCommand;
-use std::io;
 
+use std::io;
 use std::path::Path;
-use std::process;
 use std::result::Result as StdResult;
 use std::sync::{Arc, mpsc};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
+use std::time::Duration;
 
 use talpid_ipc;
 
@@ -29,6 +29,11 @@ mod errors {
     }
 }
 pub use self::errors::*;
+
+
+lazy_static!{
+    static ref OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
+}
 
 
 /// Struct for monitoring an OpenVPN process.
@@ -123,7 +128,7 @@ impl OpenVpnMonitor {
             move || {
                 let result = event_dispatcher.wait();
                 dispatcher_tx.send(WaitResult::EventDispatcher(result)).unwrap();
-                let _ = child_kill_handle.kill();
+                let _ = kill_openvpn(child_kill_handle);
             },
         );
 
@@ -143,13 +148,23 @@ impl OpenVpnCloseHandle {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
     pub fn close(&self) -> io::Result<()> {
         self.closed.store(true, Ordering::SeqCst);
-        self.child.kill()
+        kill_openvpn(self.child.clone())
     }
+}
+
+#[cfg(unix)]
+fn kill_openvpn(child: Arc<duct::Handle>) -> io::Result<()> {
+    ::process::unix::nice_kill(child, *OPENVPN_DIE_TIMEOUT)
+}
+
+#[cfg(not(unix))]
+fn kill_openvpn(child: Arc<duct::Handle>) -> io::Result<()> {
+    child.kill()
 }
 
 /// Internal enum to differentiate between if the child process or the event dispatcher died first.
 enum WaitResult {
-    Child(io::Result<process::ExitStatus>),
+    Child(io::Result<::std::process::ExitStatus>),
     EventDispatcher(talpid_ipc::Result<()>),
 }
 
