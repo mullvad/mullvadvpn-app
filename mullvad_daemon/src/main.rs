@@ -22,6 +22,7 @@ extern crate talpid_ipc;
 
 mod management_interface;
 mod states;
+mod rpc_info;
 
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use states::{SecurityState, TargetState};
@@ -151,6 +152,8 @@ impl Daemon {
             "Mullvad management interface listening on {}",
             server.address()
         );
+        rpc_info::write(server.address()).chain_err(|| ErrorKind::ManagementInterfaceError(
+                "Failed to write RPC address to file"))?;
         Ok(server)
     }
 
