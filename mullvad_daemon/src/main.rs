@@ -199,8 +199,8 @@ impl Daemon {
 
     fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
         self.tunnel_close_handle = None;
-        if let Err(e) = result {
-            log_error("Tunnel exited in an unexpected way", e);
+        if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
+            log_error(&e);
         }
         self.set_state(TunnelState::NotRunning);
         self.apply_target_state()
@@ -253,7 +253,12 @@ impl Daemon {
         match (self.target_state, self.state) {
             (TargetState::Secured, TunnelState::NotRunning) => {
                 debug!("Triggering tunnel start");
-                self.start_tunnel()
+                if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
+                    log_error(&e);
+                    self.management_interface_broadcaster.notify_error(&e);
+                    self.target_state = TargetState::Unsecured;
+                }
+                Ok(())
             }
             (TargetState::Unsecured, TunnelState::Down) |
             (TargetState::Unsecured, TunnelState::Up) => {
@@ -316,17 +321,17 @@ impl Daemon {
 
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
-        if let Err(e) = rpc_info::remove() {
-            log_error("Unable to clean up rpc address file", e);
+        if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
+            log_error(&e);
         }
     }
 }
 
 
-fn log_error<E>(msg: &str, error: E)
+fn log_error<E>(error: &E)
     where E: error_chain::ChainedError
 {
-    error!("{}: {}", msg, error);
+    error!("{}", error);
     for e in error.iter().skip(1) {
         error!("Caused by {}", e);
     }
