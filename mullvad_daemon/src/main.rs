@@ -312,6 +312,14 @@ impl Daemon {
     }
 }
 
+impl Drop for Daemon {
+    fn drop(self: &mut Daemon) {
+        if let Err(e) = rpc_info::remove() {
+            log_error("Unable to clean up rpc address file", e);
+        }
+    }
+}
+
 
 fn log_error<E>(msg: &str, error: E)
     where E: error_chain::ChainedError

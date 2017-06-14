@@ -1,4 +1,4 @@
-use std::fs::{File, OpenOptions};
+use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
@@ -7,6 +7,10 @@ error_chain! {
         WriteFailed(path: PathBuf) {
             description("Failed to write RCP address to file")
             display("Failed to write RPC address to {}", path.to_string_lossy())
+        }
+        RemoveFailed(path: PathBuf) {
+            description("Failed to remove file")
+            display("Failed to remove {}", path.to_string_lossy())
         }
     }
 }
@@ -27,6 +31,11 @@ pub fn write(rpc_address: &str) -> Result<()> {
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
     Ok(())
+}
+
+pub fn remove() -> Result<()> {
+    fs::remove_file(*RPC_ADDRESS_FILE_PATH)
+        .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
