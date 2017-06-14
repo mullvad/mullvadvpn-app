@@ -236,8 +236,9 @@ impl Daemon {
                     }
                 }
                 TargetState::Unsecured => {
-                    if let Some(ref close_handle) = self.tunnel_close_handle {
+                    if let Some(close_handle) = self.tunnel_close_handle.take() {
                         debug!("Triggering tunnel stop from management interface event");
+                        // This close operation will block until the tunnel is dead.
                         close_handle
                             .close()
                             .chain_err(|| ErrorKind::TunnelError("Unable to kill tunnel"))?;
