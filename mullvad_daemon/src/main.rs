@@ -194,10 +194,7 @@ impl Daemon {
     fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
         self.tunnel_close_handle = None;
         if let Err(e) = result {
-            error!("Tunnel exited in an unexpected way:");
-            for e in e.iter() {
-                error!("Caused by {}", e);
-            }
+            log_error("Tunnel exited in an unexpected way", e);
         }
         self.set_state(TunnelState::NotRunning);
         if self.target_state == TargetState::Secured {
@@ -296,6 +293,16 @@ impl Daemon {
                 trace!("Tunnel monitor thread exit");
             },
         );
+    }
+}
+
+
+fn log_error<E>(msg: &str, error: E)
+    where E: error_chain::ChainedError
+{
+    error!("{}: {}", msg, error);
+    for e in error.iter().skip(1) {
+        error!("Caused by {}", e);
     }
 }
 
