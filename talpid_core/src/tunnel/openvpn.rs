@@ -110,7 +110,7 @@ impl OpenVpnMonitor {
     /// returned this returns the earliest result.
     fn wait_result(&mut self) -> WaitResult {
         let child_wait_handle = self.child.clone();
-        let child_kill_handle = self.child.clone();
+        let child_close_handle = self.close_handle();
         let event_dispatcher = self.event_dispatcher.take().unwrap();
         let dispatcher_handle = event_dispatcher.close_handle();
 
@@ -128,7 +128,7 @@ impl OpenVpnMonitor {
             move || {
                 let result = event_dispatcher.wait();
                 dispatcher_tx.send(WaitResult::EventDispatcher(result)).unwrap();
-                let _ = kill_openvpn(child_kill_handle);
+                let _ = child_close_handle.close();
             },
         );
 
@@ -146,20 +146,24 @@ pub struct OpenVpnCloseHandle {
 
 impl OpenVpnCloseHandle {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
+    /// Only tries to close the OpenVPN process the first time it's called.
     pub fn close(&self) -> io::Result<()> {
-        self.closed.store(true, Ordering::SeqCst);
-        kill_openvpn(self.child.clone())
+        if !self.closed.swap(true, Ordering::SeqCst) {
+            self.kill_openvpn()
+        } else {
+            Ok(())
+        }
     }
-}
 
-#[cfg(unix)]
-fn kill_openvpn(child: Arc<duct::Handle>) -> io::Result<()> {
-    ::process::unix::nice_kill(child, *OPENVPN_DIE_TIMEOUT)
-}
+    #[cfg(unix)]
+    fn kill_openvpn(&self) -> io::Result<()> {
+        ::process::unix::nice_kill(self.child.clone(), *OPENVPN_DIE_TIMEOUT)
+    }
 
-#[cfg(not(unix))]
-fn kill_openvpn(child: Arc<duct::Handle>) -> io::Result<()> {
-    child.kill()
+    #[cfg(not(unix))]
+    fn kill_openvpn(&self) -> io::Result<()> {
+        self.child.kill()
+    }
 }
 
 /// Internal enum to differentiate between if the child process or the event dispatcher died first.
