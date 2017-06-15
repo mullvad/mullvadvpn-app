@@ -146,8 +146,7 @@ pub struct OpenVpnCloseHandle {
 
 impl OpenVpnCloseHandle {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
-    /// Only tries to close the OpenVPN process the first time it's called.
-    pub fn close(&self) -> io::Result<()> {
+    pub fn close(self) -> io::Result<()> {
         if !self.closed.swap(true, Ordering::SeqCst) {
             self.kill_openvpn()
         } else {
@@ -156,12 +155,12 @@ impl OpenVpnCloseHandle {
     }
 
     #[cfg(unix)]
-    fn kill_openvpn(&self) -> io::Result<()> {
-        ::process::unix::nice_kill(self.child.clone(), *OPENVPN_DIE_TIMEOUT)
+    fn kill_openvpn(self) -> io::Result<()> {
+        ::process::unix::nice_kill(self.child, *OPENVPN_DIE_TIMEOUT)
     }
 
     #[cfg(not(unix))]
-    fn kill_openvpn(&self) -> io::Result<()> {
+    fn kill_openvpn(self) -> io::Result<()> {
         self.child.kill()
     }
 }

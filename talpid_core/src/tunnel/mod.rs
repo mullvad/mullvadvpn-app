@@ -90,7 +90,7 @@ pub struct CloseHandle(OpenVpnCloseHandle);
 
 impl CloseHandle {
     /// Closes the underlying tunnel, making the `TunnelMonitor::wait` method return.
-    pub fn close(&self) -> io::Result<()> {
+    pub fn close(self) -> io::Result<()> {
         self.0.close()
     }
 }
