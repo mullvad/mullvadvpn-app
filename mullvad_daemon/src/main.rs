@@ -79,7 +79,8 @@ impl From<TunnelCommand> for DaemonEvent {
 }
 
 /// Represents the internal state of the actual tunnel.
-#[derive(Debug, Eq, PartialEq)]
+// TODO(linus): Put the tunnel::CloseHandle into this state, so it can't exist when not running.
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum TunnelState {
     /// No tunnel is running.
     NotRunning,
@@ -197,10 +198,7 @@ impl Daemon {
             log_error("Tunnel exited in an unexpected way", e);
         }
         self.set_state(TunnelState::NotRunning);
-        if self.target_state == TargetState::Secured {
-            self.start_tunnel()?;
-        }
-        Ok(())
+        self.apply_target_state()
     }
 
     fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
@@ -223,32 +221,6 @@ impl Daemon {
         }
     }
 
-    /// Set the target state of the client. If it changed trigger the operations needed to progress
-    /// towards that state.
-    fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
-        if new_state != self.target_state {
-            self.target_state = new_state;
-            match self.target_state {
-                TargetState::Secured => {
-                    if self.state == TunnelState::NotRunning {
-                        debug!("Triggering tunnel start from management interface event");
-                        self.start_tunnel()?;
-                    }
-                }
-                TargetState::Unsecured => {
-                    if let Some(close_handle) = self.tunnel_close_handle.take() {
-                        debug!("Triggering tunnel stop from management interface event");
-                        // This close operation will block until the tunnel is dead.
-                        close_handle
-                            .close()
-                            .chain_err(|| ErrorKind::TunnelError("Unable to kill tunnel"))?;
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
     /// Update the state of the client. If it changed, notify the subscribers.
     fn set_state(&mut self, new_state: TunnelState) {
         if new_state != self.state {
@@ -257,6 +229,46 @@ impl Daemon {
             if self.last_broadcasted_state != new_security_state {
                 self.last_broadcasted_state = new_security_state;
                 self.management_interface_subscribers.notify_new_state(new_security_state);
+            }
+        }
+    }
+
+    /// Set the target state of the client. If it changed trigger the operations needed to progress
+    /// towards that state.
+    fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
+        if new_state != self.target_state {
+            self.target_state = new_state;
+            self.apply_target_state()
+        } else {
+            Ok(())
+        }
+    }
+
+    fn apply_target_state(&mut self) -> Result<()> {
+        match (self.target_state, self.state) {
+            (TargetState::Secured, TunnelState::NotRunning) => {
+                debug!("Triggering tunnel start");
+                self.start_tunnel()
+            }
+            (TargetState::Unsecured, TunnelState::Down) |
+            (TargetState::Unsecured, TunnelState::Up) => {
+                if let Some(close_handle) = self.tunnel_close_handle.take() {
+                    debug!("Triggering tunnel stop");
+                    // This close operation will block until the tunnel is dead.
+                    close_handle
+                        .close()
+                        .chain_err(|| ErrorKind::TunnelError("Unable to kill tunnel"))
+                } else {
+                    Ok(())
+                }
+            }
+            (target_state, state) => {
+                trace!(
+                    "apply_target_state does nothing on TargetState::{:?} TunnelState::{:?}",
+                    target_state,
+                    state
+                );
+                Ok(())
             }
         }
     }
