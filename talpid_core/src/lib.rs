@@ -9,6 +9,8 @@ extern crate assert_matches;
 extern crate duct;
 
 #[macro_use]
+extern crate lazy_static;
+#[macro_use]
 extern crate log;
 
 #[macro_use]

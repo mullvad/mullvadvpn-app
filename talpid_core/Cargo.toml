@@ -5,11 +5,15 @@ authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.n
 description = "Core backend functionality of the Mullvad VPN client"
 
 [dependencies]
-duct = "0.8"
+duct = "0.9.1"
 error-chain = "0.10"
 log = "0.3"
-jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
-jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "bind-zero" }
+lazy_static = "0.2"
+jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
+jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.20"
 
 [dependencies.talpid_ipc]
 path = "../talpid_ipc"
