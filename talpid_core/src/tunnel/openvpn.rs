@@ -2,14 +2,14 @@ use duct;
 use jsonrpc_core::{Error, IoHandler};
 use openvpn_ffi::{OpenVpnEnv, OpenVpnPluginEvent};
 use process::openvpn::OpenVpnCommand;
-use std::io;
 
+use std::io;
 use std::path::Path;
-use std::process;
 use std::result::Result as StdResult;
 use std::sync::{Arc, mpsc};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
+use std::time::Duration;
 
 use talpid_ipc;
 
@@ -29,6 +29,11 @@ mod errors {
     }
 }
 pub use self::errors::*;
+
+
+lazy_static!{
+    static ref OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
+}
 
 
 /// Struct for monitoring an OpenVPN process.
@@ -105,7 +110,7 @@ impl OpenVpnMonitor {
     /// returned this returns the earliest result.
     fn wait_result(&mut self) -> WaitResult {
         let child_wait_handle = self.child.clone();
-        let child_kill_handle = self.child.clone();
+        let child_close_handle = self.close_handle();
         let event_dispatcher = self.event_dispatcher.take().unwrap();
         let dispatcher_handle = event_dispatcher.close_handle();
 
@@ -123,7 +128,7 @@ impl OpenVpnMonitor {
             move || {
                 let result = event_dispatcher.wait();
                 dispatcher_tx.send(WaitResult::EventDispatcher(result)).unwrap();
-                let _ = child_kill_handle.kill();
+                let _ = child_close_handle.close();
             },
         );
 
@@ -141,15 +146,28 @@ pub struct OpenVpnCloseHandle {
 
 impl OpenVpnCloseHandle {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
-    pub fn close(&self) -> io::Result<()> {
-        self.closed.store(true, Ordering::SeqCst);
+    pub fn close(self) -> io::Result<()> {
+        if !self.closed.swap(true, Ordering::SeqCst) {
+            self.kill_openvpn()
+        } else {
+            Ok(())
+        }
+    }
+
+    #[cfg(unix)]
+    fn kill_openvpn(self) -> io::Result<()> {
+        ::process::unix::nice_kill(self.child, *OPENVPN_DIE_TIMEOUT)
+    }
+
+    #[cfg(not(unix))]
+    fn kill_openvpn(self) -> io::Result<()> {
         self.child.kill()
     }
 }
 
 /// Internal enum to differentiate between if the child process or the event dispatcher died first.
 enum WaitResult {
-    Child(io::Result<process::ExitStatus>),
+    Child(io::Result<::std::process::ExitStatus>),
     EventDispatcher(talpid_ipc::Result<()>),
 }
 
