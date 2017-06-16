@@ -107,7 +107,7 @@ struct Daemon {
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
     tunnel_close_handle: Option<tunnel::CloseHandle>,
-    management_interface_subscribers: management_interface::EventBroadcaster,
+    management_interface_broadcaster: management_interface::EventBroadcaster,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
@@ -117,7 +117,7 @@ struct Daemon {
 impl Daemon {
     pub fn new() -> Result<Self> {
         let (tx, rx) = mpsc::channel();
-        let management_interface_subscribers = Self::start_management_interface(tx.clone())?;
+        let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
         Ok(
             Daemon {
                 state: TunnelState::NotRunning,
@@ -126,8 +126,8 @@ impl Daemon {
                 rx,
                 tx,
                 tunnel_close_handle: None,
+                management_interface_broadcaster,
                 remote_iter: REMOTES.iter().cloned().cycle(),
-                management_interface_subscribers,
             },
         )
     }
@@ -228,7 +228,7 @@ impl Daemon {
             let new_security_state = self.state.as_security_state();
             if self.last_broadcasted_state != new_security_state {
                 self.last_broadcasted_state = new_security_state;
-                self.management_interface_subscribers.notify_new_state(new_security_state);
+                self.management_interface_broadcaster.notify_new_state(new_security_state);
             }
         }
     }
