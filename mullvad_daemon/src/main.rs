@@ -23,6 +23,7 @@ extern crate talpid_ipc;
 mod management_interface;
 mod states;
 mod rpc_info;
+mod shutdown;
 
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use states::{SecurityState, TargetState};
@@ -61,11 +62,13 @@ lazy_static! {
     ];
 }
 
+
 pub enum DaemonEvent {
     TunnelEvent(TunnelEvent),
     TunnelExit(tunnel::Result<()>),
     ManagementInterfaceEvent(TunnelCommand),
     ManagementInterfaceExit(talpid_ipc::Result<()>),
+    Shutdown,
 }
 
 impl From<TunnelEvent> for DaemonEvent {
@@ -101,6 +104,7 @@ impl TunnelState {
     }
 }
 
+struct Exit(bool);
 
 struct Daemon {
     state: TunnelState,
@@ -170,43 +174,49 @@ impl Daemon {
         );
     }
 
-    /// Consume the `Daemon` and run the main event loop. Blocks until an error happens.
+    /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
+    /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
         while let Ok(event) = self.rx.recv() {
-            self.handle_event(event)?;
+            if let Exit(true) = self.handle_event(event)? {
+                break;
+            }
         }
         Ok(())
     }
 
-    fn handle_event(&mut self, event: DaemonEvent) -> Result<()> {
+    fn handle_event(&mut self, event: DaemonEvent) -> Result<Exit> {
         use DaemonEvent::*;
         match event {
-            TunnelEvent(event) => Ok(self.handle_tunnel_event(event)),
+            TunnelEvent(event) => self.handle_tunnel_event(event),
             TunnelExit(result) => self.handle_tunnel_exit(result),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExit(result) => self.handle_management_interface_exit(result),
+            Shutdown => Ok(Exit(true)),
         }
     }
 
-    fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) {
+    fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<Exit> {
         info!("Tunnel event: {:?}", tunnel_event);
         let new_state = match tunnel_event {
             TunnelEvent::Up => TunnelState::Up,
             TunnelEvent::Down => TunnelState::Down,
         };
         self.set_state(new_state);
+        Ok(Exit(false))
     }
 
-    fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
+    fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<Exit> {
         self.tunnel_close_handle = None;
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             log_error(&e);
         }
         self.set_state(TunnelState::NotRunning);
-        self.apply_target_state()
+        self.apply_target_state()?;
+        Ok(Exit(false))
     }
 
-    fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
+    fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<Exit> {
         match event {
             TunnelCommand::SetTargetState(state) => self.set_target_state(state)?,
             TunnelCommand::GetState(tx) => {
@@ -215,14 +225,14 @@ impl Daemon {
                 }
             }
         }
-        Ok(())
+        Ok(Exit(false))
     }
 
-    fn handle_management_interface_exit(&self, result: talpid_ipc::Result<()>) -> Result<()> {
+    fn handle_management_interface_exit(&self, result: talpid_ipc::Result<()>) -> Result<Exit> {
         let error = ErrorKind::ManagementInterfaceError("Server exited unexpectedly");
         match result {
             Ok(()) => Err(error.into()),
-            e => e.chain_err(|| error),
+            Err(e) => Err(e).chain_err(|| error),
         }
     }
 
@@ -255,7 +265,6 @@ impl Daemon {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     log_error(&e);
-                    self.management_interface_broadcaster.notify_error(&e);
                     self.target_state = TargetState::Unsecured;
                 }
                 Ok(())
@@ -317,6 +326,20 @@ impl Daemon {
             },
         );
     }
+
+    pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
+        DaemonShutdownHandle { tx: self.tx.clone() }
+    }
+}
+
+struct DaemonShutdownHandle {
+    tx: mpsc::Sender<DaemonEvent>,
+}
+
+impl DaemonShutdownHandle {
+    pub fn shutdown(&self) {
+        let _ = self.tx.send(DaemonEvent::Shutdown);
+    }
 }
 
 impl Drop for Daemon {
@@ -344,6 +367,11 @@ fn run() -> Result<()> {
     init_logger()?;
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
+
+    let shutdown_handle = daemon.shutdown_handle();
+    shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
+        .chain_err(|| "Unable to attach shutdown signal handler")?;
+
     daemon.run()?;
 
     debug!("Mullvad daemon is quitting");
