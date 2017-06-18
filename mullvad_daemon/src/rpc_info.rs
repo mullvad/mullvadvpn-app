@@ -17,7 +17,7 @@ error_chain! {
 
 lazy_static! {
     /// The path to the file where we write the RPC address
-    static ref RPC_ADDRESS_FILE_PATH: &'static Path = Path::new("./.rpc_address");
+    static ref RPC_ADDRESS_FILE_PATH: &'static Path = Path::new("./.mullvad_rpc_address");
 }
 
 /// Writes down the RPC address to some API to a file.
