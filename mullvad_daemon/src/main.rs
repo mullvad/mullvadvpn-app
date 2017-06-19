@@ -30,8 +30,8 @@ use states::{SecurityState, TargetState};
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
-use talpid_core::net::RemoteAddr;
 use talpid_core::mpsc::IntoSender;
+use talpid_core::net::RemoteAddr;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
 
 error_chain!{
