@@ -1,7 +1,6 @@
-import assert from 'assert';
+// @flow
 import moment from 'moment';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { If, Then, Else } from 'react-if';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import cheapRuler from 'cheap-ruler';
@@ -10,36 +9,40 @@ import { mapbox as mapboxConfig } from '../config';
 import { BackendError } from '../lib/backend';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
-import type HeaderBarStyle from './HeaderBar';
+import type { Coordinate2d } from '../types';
+import type { ServerInfo } from '../lib/backend';
+import type { HeaderBarStyle } from './HeaderBar';
+import type { UserReduxState } from '../reducers/user';
+import type { ConnectReduxState } from '../reducers/connect';
+import type { SettingsReduxState } from '../reducers/settings';
+
+type DisplayLocation = {
+  location: Coordinate2d;
+  country: ?string;
+  city: ?string;
+};
 
 export default class Connect extends Component {
 
-  static propTypes = {
-    settings: PropTypes.object.isRequired,
-    onSettings: PropTypes.func.isRequired,
-    onConnect: PropTypes.func.isRequired,
-    onCopyIP: PropTypes.func.isRequired,
-    onDisconnect: PropTypes.func.isRequired,
-    onExternalLink: PropTypes.func.isRequired,
-    getServerInfo: PropTypes.func.isRequired
+  props: {
+    user: UserReduxState,
+    connect: ConnectReduxState,
+    settings: SettingsReduxState,
+    onSettings: () => void,
+    onSelectLocation: () => void,
+    onConnect: (address: string) => void,
+    onCopyIP: () => void,
+    onDisconnect: () => void,
+    onExternalLink: (type: string) => void,
+    getServerInfo: (identifier: string) => ?ServerInfo
   };
 
-  constructor() {
-    super();
+  state = {
+    isFirstPass: true,
+    showCopyIPMessage: false
+  };
 
-    // timer used along with `state.showCopyIPMessage`
-    this._copyTimer = null;
-
-    this.state = {
-      isFirstPass: true,
-
-      // this flag is used together with timer to display
-      // a message that IP address has been copied to clipboard
-      showCopyIPMessage: false
-    };
-  }
-
-  // Component Lifecycle
+  _copyTimer: ?number;
 
   componentDidMount() {
     this.setState({ isFirstPass: false });
@@ -49,35 +52,21 @@ export default class Connect extends Component {
     this.setState({ isFirstPass: true });
   }
 
-  render() {
-    let error = null;
-
-    // check if user out of time
-    // this is by far the simplest implementation
-    // later on backend will notify us and disconnect VPN etc..
-    if(moment(this.props.user.paidUntil).isSameOrBefore(moment())) {
-      error = new BackendError('NO_CREDIT');
-    }
-
-    // Offline?
-    if(this.props.connect.isOnline === false) {
-      error = new BackendError('NO_INTERNET');
-    }
+  render(): React.Element<*> {
+    const error = this.displayError();
+    const child = error ? this.renderError(error) : this.renderMap();
 
     return (
       <Layout>
         <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
-          <If condition={ error !== null }>
-            <Then>{ () => this.renderError(error) }</Then>
-            <Else>{ ::this.renderMap }</Else>
-          </If>
+          { child }
         </Container>
       </Layout>
     );
   }
 
-  renderError(error) {
+  renderError(error: BackendError): React.Element<*> {
     return (
       <div className="connect">
         <div className="connect__status">
@@ -90,7 +79,7 @@ export default class Connect extends Component {
           <div className="connect__error-message">
             { error.message }
           </div>
-          <If condition={ error.code === 'NO_CREDIT' }>
+          <If condition={ error.type === 'NO_CREDIT' }>
             <Then>
             <div>
               <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
@@ -105,23 +94,28 @@ export default class Connect extends Component {
     );
   }
 
-  renderMap() {
+  renderMap(): React.Element<*> {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
+    if(!serverInfo) {
+      throw new Error('Server info cannot be null.');
+    }
 
-    const isConnecting = this.props.connect.status === 'connecting';
-    const isConnected = this.props.connect.status === 'connected';
-    const isDisconnected = this.props.connect.status === 'disconnected';
+    let isConnecting = false;
+    let isConnected = false;
+    let isDisconnected = false;
+    switch(this.props.connect.status) {
+    case 'connecting': isConnecting = true; break;
+    case 'connected': isConnected = true; break;
+    case 'disconnected': isDisconnected = true; break;
+    }
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
-
     const displayLocation = this.displayLocation();
-    const bounds = this.getBounds(displayLocation.location, altitude);
-
-    const userLocation = this.toLngLat(this.props.user.location);
-    const serverLocation = this.toLngLat(serverInfo.location);
-    const mapBounds = this.toLngLatBounds(bounds);
+    const mapBounds = this.calculateMapBounds(displayLocation.location, altitude);
     const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
+    const userLocation = this.convertToMapCoordinate(this.props.user.location || [0, 0]);
+    const serverLocation = this.convertToMapCoordinate(serverInfo.location);
 
     return (
       <div className="connect">
@@ -224,7 +218,7 @@ export default class Connect extends Component {
               **********************************
             */ }
 
-            <div className={ this.ipAddressClass() } onClick={ ::this.onIPAddressClick }>
+            <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
               <If condition={ this.state.showCopyIPMessage }>
                 <Then><span>{ 'IP copied to clipboard!' }</span></Then>
                 <Else><span>{ this.props.connect.clientIp }</span></Else>
@@ -268,7 +262,7 @@ export default class Connect extends Component {
                 </div>
 
                 <div className="connect__row">
-                  <button className="button button--positive" onClick={ ::this.onConnect }>Secure my connection</button>
+                  <button className="button button--positive" onClick={ this.onConnect.bind(this) }>Secure my connection</button>
                 </div>
               </div>
             </Then>
@@ -318,12 +312,14 @@ export default class Connect extends Component {
   // Handlers
 
   onConnect() {
-    const server = this.props.settings.preferredServer;
-    const serverInfo = this.props.getServerInfo(server);
-    this.props.onConnect(serverInfo.address);
+    const { preferredServer } = this.props.settings;
+    const serverInfo = this.props.getServerInfo(preferredServer);
+    if(serverInfo) {
+      this.props.onConnect(serverInfo.address);
+    }
   }
 
-  onExternalLink(type) {
+  onExternalLink(type: string) {
     this.props.onExternalLink(type);
   }
 
@@ -344,9 +340,10 @@ export default class Connect extends Component {
     case 'connected':
       return 'success';
     }
+    throw new Error('Invalid ConnectionState');
   }
 
-  networkSecurityClass() {
+  networkSecurityClass(): string {
     let classes = ['connect__status-security'];
     if(this.props.connect.status === 'connected') {
       classes.push('connect__status-security--secure');
@@ -357,7 +354,7 @@ export default class Connect extends Component {
     return classes.join(' ');
   }
 
-  networkSecurityMessage() {
+  networkSecurityMessage(): string {
     switch(this.props.connect.status) {
     case 'connected': return 'Secure connection';
     case 'connecting': return 'Creating secure connection';
@@ -365,7 +362,7 @@ export default class Connect extends Component {
     }
   }
 
-  spinnerClass() {
+  spinnerClass(): string {
     var classes = ['connect__status-icon'];
     if(this.props.connect.status !== 'connecting') {
       classes.push('connect__status-icon--hidden');
@@ -373,7 +370,7 @@ export default class Connect extends Component {
     return classes.join(' ');
   }
 
-  ipAddressClass() {
+  ipAddressClass(): string {
     var classes = ['connect__status-ipaddress'];
     if(this.props.connect.status === 'connecting') {
       classes.push('connect__status-ipaddress--invisible');
@@ -381,34 +378,50 @@ export default class Connect extends Component {
     return classes.join(' ');
   }
 
-  displayLocation() {
+  displayLocation(): DisplayLocation {
+    // return user location when disconnected
     if(this.props.connect.status === 'disconnected') {
-      const { location, country, city } = this.props.user;
-      return { location, country, city };
+      let { location, country, city } = this.props.user;
+      return {
+        location: location || [0, 0],
+        country, city
+      };
+    } else { // otherwise server location
+      const preferredServer = this.props.settings.preferredServer;
+      const serverInfo = this.props.getServerInfo(preferredServer);
+      if(serverInfo) {
+        const { location, country, city } = serverInfo;
+        return { location, country, city };
+      }
+      throw new Error('Server location is not available.');
+    }
+  }
+
+  displayError(): ?BackendError {
+    // Offline?
+    if(!this.props.connect.isOnline) {
+      return new BackendError('NO_INTERNET');
     }
 
-    const preferredServer = this.props.settings.preferredServer;
-    return this.props.getServerInfo(preferredServer);
+    // No credit?
+    const { paidUntil } = this.props.user;
+    if(paidUntil && moment(paidUntil).isSameOrBefore(moment())) {
+      return new BackendError('NO_CREDIT');
+    }
+
+    return null;
   }
 
   // Geo helpers
 
-  getBounds(center, altitude) {
-    const ruler = cheapRuler(center[0], 'meters');
-    return ruler.bufferPoint(center, altitude);
+  calculateMapBounds(center: Coordinate2d, altitude: number): [Coordinate2d, Coordinate2d] {
+    const bounds = cheapRuler(center[0], 'meters').bufferPoint(center, altitude);
+    // convert [lat,lng] bounds to [lng,lat]
+    return [ [bounds[1], bounds[0]], [bounds[3], bounds[2]] ];
   }
 
-  toLngLat(pos) {
-    assert(pos.length === 2, 'wrong number of coordinates in position');
-    return [ pos[1], pos[0] ];
-  }
-
-  toLngLatBounds(bounds) {
-    assert(bounds.length % 2 === 0, 'wrong number of sides in bounds');
-    let result = [];
-    for(let i = 0; i < bounds.length; i += 2) {
-      result.push(bounds.slice(i, i + 2).reverse());
-    }
-    return result;
+  convertToMapCoordinate(pos: Coordinate2d): Coordinate2d {
+    // convert [lat,lng] bounds to [lng,lat]
+    return [pos[1], pos[0]];
   }
 }

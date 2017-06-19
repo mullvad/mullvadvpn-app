@@ -7,6 +7,16 @@ import { IpcFacade, RealIpc } from './ipc-facade';
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
 
+export type ServerInfo = {
+  address: string,
+  name: string,
+  city: string,
+  country: string,
+  location: [number, number]
+};
+
+export type ServerInfoList = { [string]: ServerInfo };
+
 export class BackendError extends Error {
   type: ErrorType;
   title: string;
@@ -93,15 +103,15 @@ export class Backend {
       });
   }
 
-  serverInfo(key: string) {
-    switch(key) {
+  serverInfo(identifier: string): ?ServerInfo {
+    switch(identifier) {
     case 'fastest': return this.fastestServer();
     case 'nearest': return this.nearestServer();
-    default: return servers[key];
+    default: return (servers: ServerInfoList)[identifier];
     }
   }
 
-  fastestServer() {
+  fastestServer(): ServerInfo {
     return {
       address: 'uk.mullvad.net',
       name: 'Fastest',
@@ -111,7 +121,7 @@ export class Backend {
     };
   }
 
-  nearestServer() {
+  nearestServer(): ServerInfo {
     return {
       address: 'es.mullvad.net',
       name: 'Nearest',
