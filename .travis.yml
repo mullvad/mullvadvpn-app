@@ -12,6 +12,19 @@ before_script:
 cache:
     yarn: true
 
+install:
+  - yarn install
+
+  # FIXME: Flow throws error for optional dependencies
+  # missing from node_modules on unsupported platforms
+  # see: https://github.com/facebook/flow/issues/4171
+  - NSEVENTMON_INDEX_JS=node_modules/nseventmonitor/index.js;
+    if [ ! -f $NSEVENTMON_INDEX_JS ]; then
+      echo "Installing a stub for NSEventMonitor..";
+      mkdir -p `dirname $NSEVENTMON_INDEX_JS`;
+      echo "module.exports = {};" > $NSEVENTMON_INDEX_JS;
+    fi
+
 script:
   - yarn run lint
   - yarn run flow
