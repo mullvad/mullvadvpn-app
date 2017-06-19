@@ -1,7 +1,6 @@
+import log from 'electron-log';
 import userActions from '../actions/user';
 import connectActions from '../actions/connect';
-import Backend from './backend';
-import log from 'electron-log';
 
 /**
  * Add event listeners to translate backend events to redux dispatch.
@@ -67,13 +66,13 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     store.dispatch(connectActions.connectionChange({ isOnline }));
   };
 
-  backend.on(Backend.EventType.updatedIp, onUpdateIp);
-  backend.on(Backend.EventType.updatedLocation, onUpdateLocation);
-  backend.on(Backend.EventType.connecting, onConnecting);
-  backend.on(Backend.EventType.connect, onConnect);
-  backend.on(Backend.EventType.disconnect, onDisconnect);
-  backend.on(Backend.EventType.logging, onLoggingIn);
-  backend.on(Backend.EventType.login, onLogin);
-  backend.on(Backend.EventType.logout, onLogout);
-  backend.on(Backend.EventType.updatedReachability, onReachability);
+  backend.on('updatedIp', onUpdateIp);
+  backend.on('updatedLocation', onUpdateLocation);
+  backend.on('connecting', onConnecting);
+  backend.on('connect', onConnect);
+  backend.on('disconnect', onDisconnect);
+  backend.on('logging', onLoggingIn);
+  backend.on('login', onLogin);
+  backend.on('logout', onLogout);
+  backend.on('updatedReachability', onReachability);
 }

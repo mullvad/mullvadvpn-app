@@ -1,114 +1,43 @@
 // @flow
-
 import log from 'electron-log';
-import Enum from './enum';
 import EventEmitter from 'events';
 import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
 
-/**
- * Server info
- * @typedef {object} ServerInfo
- * @property {string}   address  - server address
- * @property {string}   name     - server name
- * @property {string}   city     - location city
- * @property {string}   country  - location country
- * @property {number[]} location - geo coordinate [latitude, longitude]
- *
- */
+export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
+export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
 
-/**
- * Connect event
- *
- * @event Backend.EventType.connect
- * @param {string}     addr  - server address
- * @param {error|null} error - error
- */
-
-/**
- * Connecting event
- *
- * @event Backend.EventType.connecting
- * @param {string} addr - server address
- */
-
-/**
- * Disconnect event
- *
- * @event Backend.EventType.disconnect
- * @param {string} addr - server address
- */
-
-/**
- * Login event
- *
- * @event Backend.EventType.login
- * @param {object} response
- * @param {error} error
- */
-
-/**
- * Logging event
- *
- * @event Backend.EventType.logging
- * @param {object} response
- */
-
-/**
- * Logout event
- *
- * @event Backend.EventType.logout
- */
-
-/**
- * Updated IP event
- *
- * @event Backend.EventType.updatedIp
- * @param {string} new IP address
- */
-/**
- * Updated location event
- *
- * @event Backend.EventType.updatedLocation
- * @param {object} location data
- */
-
-/**
- * Updated reachability
- *
- * @event Backend.EventType.updatedReachability
- * @param {bool} true if online, otherwise false
- */
-
-class BackendError extends Error {
-  code: number;
+export class BackendError extends Error {
+  type: ErrorType;
   title: string;
   message: string;
 
-  constructor(code) {
+  constructor(type: ErrorType) {
     super('');
-    this.code = code;
-    this.title = BackendError.localizedTitle(code);
-    this.message = BackendError.localizedMessage(code);
+    this.type = type;
+    this.title = BackendError.localizedTitle(type);
+    this.message = BackendError.localizedMessage(type);
   }
 
-  static localizedTitle(code) {
-    switch(code) {
-    case Backend.ErrorType.noCredit:
+  static localizedTitle(type: ErrorType): string {
+    switch(type) {
+    case 'NO_CREDIT':
       return 'Out of time';
-    case Backend.ErrorType.noInternetConnection:
+    case 'NO_INTERNET':
       return 'Offline';
     default:
       return 'Something went wrong';
     }
   }
 
-  static localizedMessage(code) {
-    switch(code) {
-    case Backend.ErrorType.noCredit:
+  static localizedMessage(type: ErrorType): string {
+    switch(type) {
+    case 'NO_CREDIT':
       return 'Buy more time, so you can continue using the internet securely';
-    case Backend.ErrorType.noInternetConnection:
+    case 'NO_INTERNET':
       return 'Your internet connection will be secured when you get back online';
+    case 'INVALID_ACCOUNT':
+      return 'Invalid account number';
     default:
       return '';
     }
@@ -118,63 +47,15 @@ class BackendError extends Error {
 
 /**
  * Backend implementation
- *
- * @class Backend
  */
-export default class Backend extends EventEmitter {
-
-  /**
-   * BackendError type
-   *
-   * @static
-   *
-   * @memberOf Backend
-   */
-  static Error = BackendError;
-
-  /**
-   * Backend error enum
-   *
-   * @static
-   *
-   * @memberOf Backend
-   */
-  static ErrorType = new Enum({
-    noCredit: 1,
-    noInternetConnection: 2,
-    invalidAccount: 3
-  });
-
-  /**
-   * Event type enum
-   *
-   * @type {EventType}
-   * @extends {Enum}
-   * @property {string} connect
-   * @property {string} connecting
-   * @property {string} disconnect
-   * @property {string} login
-   * @property {string} logging
-   * @property {string} logout
-   * @property {string} updatedIp
-   * @property {string} updatedLocation
-   * @property {string} updatedReachability
-   */
-  static EventType = new Enum('connect', 'connecting', 'disconnect', 'login', 'logging', 'logout', 'updatedIp', 'updatedLocation', 'updatedReachability');
+export class Backend {
 
   _ipc: IpcFacade;
+  _eventEmitter = new EventEmitter();
 
-  /**
-   * Creates an instance of Backend.
-   *
-   * @memberOf Backend
-   */
-  constructor(ipc: IpcFacade) {
-    super();
+  constructor(ipc: ?IpcFacade) {
     this._ipc = ipc || new RealIpc('');
     this._registerIpcListeners();
-
-    // check for network reachability
     this._startReachability();
   }
 
@@ -191,7 +72,7 @@ export default class Backend extends EventEmitter {
     this._ipc.getIp()
       .then( ip => {
         log.info('Got ip', ip);
-        this.emit(Backend.EventType.updatedIp, ip);
+        this._emit('updatedIp', ip);
       })
       .catch(e => {
         log.info('Failed syncing with the backend', e);
@@ -205,22 +86,13 @@ export default class Backend extends EventEmitter {
           country: location.country,
           city: location.city
         };
-        this.emit(Backend.EventType.updatedLocation, newLocation, null);
+        this._emit('updatedLocation', newLocation, null);
       })
       .catch(e => {
         log.info('Failed getting new location', e);
       });
   }
 
-  /**
-   * Get server info by key
-   * 'fastest' or 'nearest' can be used as well
-   *
-   * @param {string} key
-   * @returns {ServerInfo}
-   *
-   * @memberOf Backend
-   */
   serverInfo(key: string) {
     switch(key) {
     case 'fastest': return this.fastestServer();
@@ -229,13 +101,6 @@ export default class Backend extends EventEmitter {
     }
   }
 
-  /**
-   * Get fastest server info
-   *
-   * @returns {ServerInfo}
-   *
-   * @memberOf Backend
-   */
   fastestServer() {
     return {
       address: 'uk.mullvad.net',
@@ -246,13 +111,6 @@ export default class Backend extends EventEmitter {
     };
   }
 
-  /**
-   * Get nearest server info
-   *
-   * @returns {ServerInfo}
-   *
-   * @memberOf Backend
-   */
   nearestServer() {
     return {
       address: 'es.mullvad.net',
@@ -263,20 +121,11 @@ export default class Backend extends EventEmitter {
     };
   }
 
-  /**
-   * Log in with mullvad account
-   *
-   * @emits Backend.EventType.logging
-   * @emits Backend.EventType.login
-   * @param {string} account
-   *
-   * @memberOf Backend
-   */
   login(account: string) {
     log.info('Attempting to login with account number', account);
 
     // emit: logging in
-    this.emit(Backend.EventType.logging, { account }, null);
+    this._emit('logging', { account }, null);
 
     this._ipc.getAccountData(account)
       .then( response => {
@@ -288,29 +137,23 @@ export default class Backend extends EventEmitter {
       }).then( accountData => {
         log.info('Log in complete');
 
-        this.emit(Backend.EventType.login, {
+        this._emit('login', {
           paidUntil: accountData.paid_until,
         }, undefined);
 
       }).catch(e => {
         log.error('Failed to log in', e);
-        const err = new BackendError(Backend.ErrorType.invalidAccount);
-        this.emit(Backend.EventType.login, {}, err);
+        const err = new BackendError('INVALID_ACCOUNT');
+        this._emit('login', {}, err);
       });
   }
 
-  /**
-   * Log out
-   *
-   * @emits Backend.EventType.logout
-   * @memberOf Backend
-   */
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
     this._ipc.setAccount('')
       .then(() => {
         // emit event
-        this.emit(Backend.EventType.logout);
+        this._emit('logout');
 
         // disconnect user during logout
         return this.disconnect();
@@ -320,46 +163,31 @@ export default class Backend extends EventEmitter {
       });
   }
 
-  /**
-   * Connect to VPN server
-   * @emits Backend.EventType.connecting
-   * @emits Backend.EventType.connect
-   *
-   * @param {string} addr IP address or domain name
-   *
-   * @memberOf Backend
-   */
   connect(addr: string) {
 
     // emit: connecting
-    this.emit(Backend.EventType.connecting, addr);
+    this._emit('connecting', addr);
 
     this._ipc.setCountry(addr)
       .then( () => {
         return this._ipc.connect();
       })
       .then(() => {
-        this.emit(Backend.EventType.connect, addr);
+        this._emit('connect', addr);
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
       })
       .catch(e => {
         log.info('Failed connecting to', addr, e);
-        this.emit(Backend.EventType.connect, undefined, e);
+        this._emit('connect', undefined, e);
       });
   }
 
-  /**
-   * Disconnect from VPN server
-   *
-   * @emits Backend.EventType.disconnect
-   * @memberOf Backend
-   */
   disconnect() {
     // @TODO: Failure modes
     this._ipc.disconnect()
       .then(() => {
         // emit: disconnect
-        this.emit(Backend.EventType.disconnect);
+        this._emit('disconnect');
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
       })
       .catch(e => {
@@ -371,31 +199,38 @@ export default class Backend extends EventEmitter {
    * Start reachability monitoring for online/offline detection
    * This is currently done via HTML5 APIs but will be replaced later
    * with proper backend integration.
-   * @private
-   * @memberOf Backend
-   * @emits Backend.EventType.updatedReachability
    */
   _startReachability() {
-    // update online status in background
-    setTimeout(() => {
-      this.emit(Backend.EventType.updatedReachability, navigator.onLine);
-    }, 0);
-
-    window.addEventListener('online', () => {
-      this.emit(Backend.EventType.updatedReachability, true);
-    });
-
+    window.addEventListener('online', () => this._emit('updatedReachability', true));
     window.addEventListener('offline', () => {
       // force disconnect since there is no real connection anyway.
       this.disconnect();
-      this.emit(Backend.EventType.updatedReachability, false);
+      this._emit('updatedReachability', false);
     });
-  }
 
+    // update online status in background
+    setTimeout(() => this._emit('updatedReachability', navigator.onLine), 0);
+  }
 
   _registerIpcListeners() {
     /*this._ipc.on('connection-info', (newConnectionInfo) => {
       log.info('Got new connection info from backend', newConnectionInfo);
     });*/
+  }
+
+  on(event: EventType, listener: Function) {
+    this._eventEmitter.on(event, listener);
+  }
+
+  once(event: EventType, listener: Function) {
+    this._eventEmitter.once(event, listener);
+  }
+
+  off(event: EventType, listener: Function) {
+    this._eventEmitter.removeListener(event, listener);
+  }
+
+  _emit(event: EventType, ...args:Array<any>): boolean {
+    return this._eventEmitter.emit(event, ...args);
   }
 }

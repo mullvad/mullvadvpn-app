@@ -6,7 +6,7 @@ import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
 import { mapbox as mapboxConfig } from '../config';
-import Backend from '../lib/backend';
+import { BackendError } from '../lib/backend';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 import type HeaderBarStyle from './HeaderBar';
@@ -55,12 +55,12 @@ export default class Connect extends Component {
     // this is by far the simplest implementation
     // later on backend will notify us and disconnect VPN etc..
     if(moment(this.props.user.paidUntil).isSameOrBefore(moment())) {
-      error = new Backend.Error(Backend.ErrorType.noCredit);
+      error = new BackendError('NO_CREDIT');
     }
 
     // Offline?
     if(this.props.connect.isOnline === false) {
-      error = new Backend.Error(Backend.ErrorType.noInternetConnection);
+      error = new BackendError('NO_INTERNET');
     }
 
     return (
@@ -89,7 +89,7 @@ export default class Connect extends Component {
           <div className="connect__error-message">
             { error.message }
           </div>
-          <If condition={ error.code === Backend.ErrorType.noCredit }>
+          <If condition={ error.code === 'NO_CREDIT' }>
             <Then>
             <div>
               <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>

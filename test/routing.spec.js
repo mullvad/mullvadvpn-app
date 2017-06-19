@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { filterMinorActions, mockState, mockStore } from './mocks/redux';
 import userActions from '../app/actions/user';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
-import Backend from '../app/lib/backend';
+import { Backend } from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
 
 describe('routing', function() {
@@ -24,7 +24,7 @@ describe('routing', function() {
     const store = mockStore(state);
     const backend = new Backend(newMockIpc());
     mapBackendEventsToRouter(backend, store);
-    
+
     store.dispatch(userActions.logout(backend));
 
     setTimeout(() => {
@@ -37,11 +37,11 @@ describe('routing', function() {
     const expectedActions = [
       { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'replace', args: [ '/connect' ] } }
     ];
-    
+
     const store = mockStore(mockState());
     const backend = new Backend(newMockIpc());
     mapBackendEventsToRouter(backend, store);
-    
+
     store.subscribe(() => {
       const storeActions = filterMinorActions(store.getActions());
       expect(storeActions).deep.equal(expectedActions);
