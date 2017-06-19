@@ -80,7 +80,7 @@ const rootElement = document.querySelector(document.currentScript.getAttribute('
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
 
-if ('serviceWorker' in navigator) {
+if(navigator.serviceWorker) {
   navigator.serviceWorker.register(path.join(__dirname, 'tilecache.sw.js'))
     .then((registration) => {
       log.info('ServiceWorker registration successful with scope: ', registration.scope);
