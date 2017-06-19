@@ -354,10 +354,12 @@ impl Drop for Daemon {
 fn log_error<E>(error: &E)
     where E: error_chain::ChainedError
 {
-    error!("{}", error);
+    let mut msg = error.to_string();
     for e in error.iter().skip(1) {
-        error!("Caused by {}", e);
+        msg.push_str("\n\tCaused by: ");
+        msg.push_str(&e.to_string()[..]);
     }
+    error!("{}", msg);
 }
 
 
