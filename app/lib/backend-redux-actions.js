@@ -1,7 +1,6 @@
 import userActions from '../actions/user';
 import connectActions from '../actions/connect';
 import Backend from './backend';
-import { LoginState, ConnectionState } from '../enums';
 import log from 'electron-log';
 
 /**
@@ -22,7 +21,7 @@ export default function mapBackendEventsToReduxActions(backend, store) {
 
   const onConnecting = (serverAddress) => {
     store.dispatch(connectActions.connectionChange({
-      status: ConnectionState.connecting,
+      status: 'connecting',
       serverAddress
     }));
   };
@@ -31,33 +30,33 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     if (error) {
       log.error('Unable to connect to', serverAddress, error);
     } else {
-      store.dispatch(connectActions.connectionChange({ status: ConnectionState.connected }));
+      store.dispatch(connectActions.connectionChange({ status: 'connected' }));
     }
   };
 
   const onDisconnect = () => {
     store.dispatch(connectActions.connectionChange({
-      status: ConnectionState.disconnected,
+      status: 'disconnected',
       serverAddress: null
     }));
   };
 
   const onLoggingIn = (info) => {
     store.dispatch(userActions.loginChange(Object.assign({
-      status: LoginState.connecting,
+      status: 'connecting',
       error: null
     }, info)));
   };
 
   const onLogin = (info, error) => {
-    const status = error ? LoginState.failed : LoginState.ok;
+    const status = error ? 'failed' : 'ok';
     const paidUntil = info.paidUntil ? info.paidUntil : null;
     store.dispatch(userActions.loginChange({ paidUntil, status, error }));
   };
 
   const onLogout = () => {
     store.dispatch(userActions.loginChange({
-      status: LoginState.none,
+      status: 'none',
       account: '',
       paidUntil: null,
       error: null

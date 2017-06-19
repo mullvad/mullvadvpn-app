@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Login from '../components/Login';
 import userActions from '../actions/user';
-import { LoginState } from '../enums';
 import { links } from '../config';
 
 const mapStateToProps = (state) => state;
@@ -15,7 +14,7 @@ const mapDispatchToProps = (dispatch, props) => {
     onSettings: () => dispatch(push('/settings')),
     onLogin: (account) => login(backend, account),
     onChange: (account) => loginChange({ account }),
-    onFirstChangeAfterFailure: () => loginChange({ status: LoginState.none, error: null }),
+    onFirstChangeAfterFailure: () => loginChange({ status: 'none', error: null }),
     onExternalLink: (type) => shell.openExternal(links[type])
   };
 };

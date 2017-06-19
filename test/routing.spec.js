@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { filterMinorActions, mockState, mockStore } from './mocks/redux';
 import userActions from '../app/actions/user';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
-import { LoginState } from '../app/enums';
 import Backend from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
 
@@ -18,7 +17,7 @@ describe('routing', function() {
     let state = Object.assign(mockState(), {
       user: {
         account: '1111234567890',
-        status: LoginState.ok
+        status: 'ok'
       }
     });
 

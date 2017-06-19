@@ -13,7 +13,8 @@ import connectActions from './actions/connect';
 import Backend from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
-import { LoginState, ConnectionState } from './enums';
+
+import type { LoginState, ConnectionState } from './enums';
 import type { TrayIconType } from './lib/tray-icon-manager';
 
 const initialState = {};
@@ -22,16 +23,16 @@ const store = configureStore(initialState, memoryHistory);
 const backend = new Backend();
 
 // reset login state if user quit the app during login
-if([LoginState.connecting, LoginState.failed].includes(store.getState().user.status)) {
+if((['connecting', 'failed']: Array<LoginState>).includes(store.getState().user.status)) {
   store.dispatch(userActions.loginChange({
-    status: LoginState.none
+    status: 'none'
   }));
 }
 
 // reset connection state if user quit the app when connecting
-if(store.getState().connect.status === ConnectionState.connecting) {
+if(store.getState().connect.status === 'connecting') {
   store.dispatch(connectActions.connectionChange({
-    status: ConnectionState.disconnected
+    status: 'disconnected'
   }));
 }
 
@@ -40,10 +41,10 @@ if(store.getState().connect.status === ConnectionState.connecting) {
 /**
  * Get tray icon type based on connection state
  */
-const getIconType = (s: string): TrayIconType => {
+const getIconType = (s: ConnectionState): TrayIconType => {
   switch(s) {
-  case ConnectionState.connected: return 'secured';
-  case ConnectionState.connecting: return 'securing';
+  case 'connected': return 'secured';
+  case 'connecting': return 'securing';
   default: return 'unsecured';
   }
 };

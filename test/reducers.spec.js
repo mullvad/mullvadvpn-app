@@ -3,7 +3,6 @@ import userReducer from '../app/reducers/user';
 import connectReducer from '../app/reducers/connect';
 import settingsReducer from '../app/reducers/settings';
 import { defaultServer } from '../app/config';
-import { LoginState, ConnectionState } from '../app/enums';
 
 describe('reducers', () => {
 
@@ -12,7 +11,7 @@ describe('reducers', () => {
       type: 'USER_LOGIN_CHANGE',
       payload: {
         account: '1111',
-        status: LoginState.failed,
+        status: 'failed',
         error: new Error('Something went wrong')
       }
     };
@@ -24,7 +23,7 @@ describe('reducers', () => {
     const action = {
       type: 'CONNECTION_CHANGE',
       payload: {
-        status: ConnectionState.connected,
+        status: 'connected',
         serverAddress: '2.1.1.2',
         clientIp: '2.1.1.1'
       }

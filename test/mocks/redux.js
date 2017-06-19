@@ -1,7 +1,6 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { defaultServer } from '../../app/config';
-import { LoginState, ConnectionState } from '../../app/enums';
 
 // fetch is absent in node environment
 // this will automatically import it into global scope
@@ -13,11 +12,11 @@ export const mockState = () => {
   return {
     user: {
       account: null,
-      status: LoginState.none,
+      status: 'none',
       error: null
     },
     connect: {
-      status: ConnectionState.disconnected,
+      status: 'disconnected',
       serverAddress: null,
       clientIp: null
     },

@@ -7,7 +7,6 @@ import { newMockIpc } from './mocks/ipc';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
 import mapBackendEventsToReduxActions from '../app/lib/backend-redux-actions';
-import { LoginState, ConnectionState } from '../app/enums';
 
 describe('actions', function() {
   this.timeout(10000);
@@ -100,11 +99,11 @@ describe('actions', function() {
       user: {
         account: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
-        status: LoginState.ok
+        status: 'ok'
       },
       connect: {
         serverAddress: '1.2.3.4',
-        status: ConnectionState.connected
+        status: 'connected'
       }
     });
 
@@ -132,11 +131,11 @@ describe('actions', function() {
       user: {
         account: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
-        status: LoginState.ok
+        status: 'ok'
       },
       connect: {
         serverAddress: '1.2.3.4',
-        status: ConnectionState.connected
+        status: 'connected'
       }
     });
 
