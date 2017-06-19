@@ -29,7 +29,7 @@ export type ReduxDispatchFn<T: *> = Dispatch<ReduxAction<T>>;
 export default function configureStore(initialState: ?ReduxState, routerHistory: History): ReduxStore {
   const router = routerMiddleware(routerHistory);
 
-  const actionCreators: { string: Function } = {
+  const actionCreators: { [string]: Function } = {
     ...userActions,
     ...connectActions,
     ...settingsActions,

@@ -1,20 +1,19 @@
 import { clipboard } from 'electron';
 import { createAction } from 'redux-actions';
 
-/** Action for changing connection state */
-const connectionChange = createAction('CONNECTION_CHANGE');
+import type { Backend } from '../lib/backend';
+import type { ConnectReduxState } from '../reducers/connect';
+import type { ReduxAction, ReduxGetStateFn, ReduxDispatchFn } from '../store';
 
-/** Action for connecting to server */
-const connect = (backend, addr) => () => backend.connect(addr);
+export type ConnectionChangeAction = <T: $Shape<ConnectReduxState>>(state: T) => ReduxAction<T>;
 
-/** Action for disconnecting from server */
-const disconnect = (backend) => () => backend.disconnect();
-
-/** Action for copying IP address in memory */
+const connectionChange: ConnectionChangeAction = createAction('CONNECTION_CHANGE');
+const connect = (backend: Backend, addr: string) => () => backend.connect(addr);
+const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = () => {
-  return (_, getState) => {
-    const ip = getState().connect.clientIp;
-    if(typeof(ip) === 'string') {
+  return (_dispatch: ReduxDispatchFn, getState: ReduxGetStateFn) => {
+    const ip: ?string = getState().connect.clientIp;
+    if(ip) {
       clipboard.writeText(ip);
     }
   };
