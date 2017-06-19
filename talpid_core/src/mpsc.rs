@@ -3,12 +3,12 @@ use std::sync::mpsc;
 
 /// Abstraction over an `mpsc::Sender` that first converts the value to another type before sending.
 #[derive(Debug, Clone)]
-pub struct Sender<T, U> {
+pub struct IntoSender<T, U> {
     sender: mpsc::Sender<U>,
     _marker: PhantomData<T>,
 }
 
-impl<T, U> Sender<T, U>
+impl<T, U> IntoSender<T, U>
     where T: Into<U>
 {
     /// Converts the `T` into a `U` and sends it on the channel.
@@ -17,11 +17,11 @@ impl<T, U> Sender<T, U>
     }
 }
 
-impl<T, U> From<mpsc::Sender<U>> for Sender<T, U>
+impl<T, U> From<mpsc::Sender<U>> for IntoSender<T, U>
     where T: Into<U>
 {
     fn from(sender: mpsc::Sender<U>) -> Self {
-        Sender {
+        IntoSender {
             sender: sender,
             _marker: PhantomData,
         }
@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn sender() {
         let (tx, rx) = mpsc::channel::<Outer>();
-        let inner_tx: Sender<Inner, Outer> = tx.clone().into();
+        let inner_tx: IntoSender<Inner, Outer> = tx.clone().into();
 
         tx.send(Outer::Other).unwrap();
         inner_tx.send(Inner::Two).unwrap();
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn send_between_thread() {
         let (tx, rx) = mpsc::channel::<Outer>();
-        let inner_tx: Sender<Inner, Outer> = tx.clone().into();
+        let inner_tx: IntoSender<Inner, Outer> = tx.clone().into();
 
         thread::spawn(move || { inner_tx.send(Inner::One).unwrap(); });
 

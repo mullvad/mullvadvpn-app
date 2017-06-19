@@ -11,7 +11,7 @@ use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
 
-use talpid_core::plexmpsc;
+use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
 
@@ -110,7 +110,7 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: plexmpsc::Sender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
+    pub fn start<T>(tunnel_tx: IntoSender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
         where T: From<TunnelCommand> + 'static + Send
     {
         let rpc = ManagementInterface::new(tunnel_tx);
@@ -160,11 +160,11 @@ impl EventBroadcaster {
 
 struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     active_subscriptions: ActiveSubscriptions,
-    tx: Mutex<plexmpsc::Sender<TunnelCommand, T>>,
+    tx: Mutex<IntoSender<TunnelCommand, T>>,
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: plexmpsc::Sender<TunnelCommand, T>) -> Self {
+    pub fn new(tx: IntoSender<TunnelCommand, T>) -> Self {
         ManagementInterface {
             active_subscriptions: Default::default(),
             tx: Mutex::new(tx),
