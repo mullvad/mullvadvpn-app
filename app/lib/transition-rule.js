@@ -10,65 +10,38 @@ export type TransitionFork = {
   backward: TransitionDescriptor
 };
 
-/**
- * Transition rule
- *
- * @class TransitionRule
- */
+export type TransitionMatch = {
+  direction: 'forward' | 'backward',
+  descriptor: TransitionDescriptor
+};
+
 export default class TransitionRule {
 
-  from: ?string;
-  to: string;
-  fork: TransitionFork;
-  dir: 'forward' | 'backward' = 'forward';
+  _from: ?string;
+  _to: string;
+  _fork: TransitionFork;
 
-  /**
-   * Creates an instance of TransitionRule.
-   * @param {string} from - source route to match against, pass null for any.
-   * @param {string} to - destination route to match against
-   * @param {TransitionFork} fork - transition
-   *
-   * @memberof TransitionRule
-   */
   constructor(from: ?string, to: string, fork: TransitionFork) {
-    this.from = from;
-    this.to = to;
-    this.fork = fork;
+    this._from = from;
+    this._to = to;
+    this._fork = fork;
   }
 
-  /**
-   * Attempts to match the transition between routes A -> B and B -> A
-   *
-   * @param {string} [fromRoute] source route, pass null for any
-   * @param {string} toRoute
-   * @returns {boolean} true if matches, otherwise false
-   *
-   * @memberof TransitionRule
-   */
-  match(fromRoute: ?string, toRoute: string): boolean {
-    if((!this.from || this.from === fromRoute) && this.to === toRoute) {
-      this.dir = 'forward';
-      return true;
+  match(fromRoute: ?string, toRoute: string): ?TransitionMatch {
+    if((!this._from || this._from === fromRoute) && this._to === toRoute) {
+      return {
+        direction: 'forward',
+        descriptor: this._fork['forward']
+      };
     }
 
-    if((!this.from || this.from === toRoute) && this.to === fromRoute) {
-      this.dir = 'backward';
-      return true;
+    if((!this._from || this._from === toRoute) && this._to === fromRoute) {
+      return {
+        direction: 'backward',
+        descriptor: this._fork['backward']
+      };
     }
 
-    return false;
-  }
-
-  /**
-   * Returns transition descriptor.
-   * Make sure you run match() before to obtain the direction
-   * of transition before calling this method
-   *
-   * @returns {TransitionDescriptor} transitionDescriptor
-   *
-   * @memberof TransitionRule
-   */
-  transitionDescriptor(): TransitionDescriptor {
-    return this.fork[this.dir];
+    return null;
   }
 }
