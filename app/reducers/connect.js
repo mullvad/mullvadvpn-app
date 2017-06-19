@@ -1,7 +1,18 @@
+// @flow
 import { handleActions } from 'redux-actions';
 import actions from '../actions/connect';
 
-const initialState = {
+import type { ReduxAction } from '../store';
+import type { ConnectionState } from '../enums';
+
+export type ConnectReduxState = {
+  status: ConnectionState,
+  isOnline: boolean,
+  serverAddress: ?string,
+  clientIp: ?string
+};
+
+const initialState: ConnectReduxState = {
   status: 'disconnected',
   isOnline: true,
   serverAddress: null,
@@ -9,7 +20,7 @@ const initialState = {
 };
 
 export default handleActions({
-  [actions.connectionChange]: (state, action) => {
+  [actions.connectionChange.toString()]: (state: ConnectReduxState, action: ReduxAction<$Shape<ConnectReduxState>>) => {
     return { ...state, ...action.payload };
   }
 }, initialState);

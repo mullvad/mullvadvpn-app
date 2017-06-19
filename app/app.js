@@ -17,7 +17,7 @@ import mapBackendEventsToRouter from './lib/backend-routing';
 import type { LoginState, ConnectionState } from './enums';
 import type { TrayIconType } from './lib/tray-icon-manager';
 
-const initialState = {};
+const initialState = null;
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
 const backend = new Backend();

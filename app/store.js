@@ -1,8 +1,8 @@
+// @flow
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
 import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
-
 import user from './reducers/user';
 import connect from './reducers/connect';
 import settings from './reducers/settings';
@@ -10,18 +10,26 @@ import userActions from './actions/user';
 import connectActions from './actions/connect';
 import settingsActions from './actions/settings';
 
-/**
- * Configure redux store
- *
- * @export
- * @param {Object} initialState
- * @param {History} routerHistory
- * @returns {Redux.Store}
- */
-export default function configureStore(initialState, routerHistory) {
+import type { Store, Dispatch } from 'redux';
+import type { History } from 'history';
+import type { UserReduxState } from './reducers/user';
+import type { ConnectReduxState } from './reducers/connect';
+import type { SettingsReduxState } from './reducers/settings';
+
+export type ReduxState = {
+  user: UserReduxState,
+  connect: ConnectReduxState,
+  settings: SettingsReduxState
+};
+export type ReduxAction<T> = { type: string, payload: T };
+export type ReduxStore = Store<ReduxState, ReduxAction<*>>;
+export type ReduxGetStateFn = () => ReduxState;
+export type ReduxDispatchFn<T: *> = Dispatch<ReduxAction<T>>;
+
+export default function configureStore(initialState: ?ReduxState, routerHistory: History): ReduxStore {
   const router = routerMiddleware(routerHistory);
 
-  const actionCreators = {
+  const actionCreators: { string: Function } = {
     ...userActions,
     ...connectActions,
     ...settingsActions,
@@ -45,6 +53,8 @@ export default function configureStore(initialState, routerHistory) {
 
   const enhancer = composeEnhancers(applyMiddleware(...middlewares), persistState());
   const rootReducer = combineReducers(reducers);
-
-  return createStore(rootReducer, initialState, enhancer);
+  if(initialState) {
+    return createStore(rootReducer, initialState, enhancer);
+  }
+  return createStore(rootReducer, enhancer);
 }
