@@ -2,7 +2,7 @@ use net;
 use openvpn_ffi::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -115,8 +115,7 @@ fn get_plugin_path() -> Result<PathBuf> {
     };
 
     for dir in dirs {
-        let mut path = PathBuf::from(dir);
-        path.push(filename);
+        let path = Path::new(dir).join(filename);
         if path.exists() {
             debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
             return Ok(path);
