@@ -33,7 +33,7 @@ export default class Account extends Component {
 
     return (
       <Layout>
-        <Header hidden={ true } style={ Header.Style.defaultDark } />
+        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="account">
             <div className="account__close" onClick={ ::this.onClose }>

@@ -67,7 +67,7 @@ export default class SelectLocation extends Component {
   render() {
     return (
       <Layout>
-        <Header hidden={ true } style={ Header.Style.defaultDark } />
+        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="select-location">
             <button className="select-location__close" onClick={ this.props.onClose } />

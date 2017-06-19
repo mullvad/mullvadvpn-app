@@ -1,52 +1,27 @@
-import React, { Component, PropTypes } from 'react';
+// @flow
+import React, { Component } from 'react';
 import { If, Then } from 'react-if';
-import Enum from '../lib/enum';
+
+export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
 
 /**
  * Header bar component
- *
- * @export
- * @class HeaderBar
- * @extends {React.Component}
  */
 export default class HeaderBar extends Component {
 
-  /**
-   * Bar style
-   * @type {Style}
-   * @property {string} default     - default
-   * @property {string} defaultDark - default dark blue
-   * @property {string} error       - red
-   * @property {string} success     - green
-   * @static
-   *
-   * @memberOf HeaderBar
-   */
-  static Style = new Enum('default', 'defaultDark', 'error', 'success');
-
-  /**
-   * Prop types
-   * @static
-   *
-   * @memberOf HeaderBar
-   */
-  static propTypes = {
-    style: PropTypes.string,
-    hidden: PropTypes.bool,
-    showSettings: PropTypes.bool,
-    onSettings: PropTypes.func
+  props: {
+    style: HeaderBarStyle,
+    hidden: boolean,
+    showSettings: boolean,
+    onSettings: () => void
   };
 
-  /**
-   * @override
-   */
   render() {
-    const style = this.props.style;
-    let containerClass = ['headerbar', 'headerbar--' + process.platform];
-
-    if(HeaderBar.Style.isValid(style)) {
-      containerClass.push(`headerbar--style-${style}`);
-    }
+    let containerClass = [
+      'headerbar',
+      'headerbar--' + process.platform,
+      'headerbar--style-' + this.props.style
+    ];
 
     if(this.props.hidden) {
       containerClass.push('headerbar--hidden');
