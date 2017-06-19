@@ -29,9 +29,11 @@ export const getTransitionProps = (fromRoute: ?string, toRoute: string): CSSTran
     return noTransitionProps();
   }
 
-  const match = transitionRules.find(e => e.match(fromRoute, toRoute));
-  if(match) {
-    return toCSSTransitionGroupProps(match.transitionDescriptor());
+  for(const rule of transitionRules) {
+    const match = rule.match(fromRoute, toRoute);
+    if(match) {
+      return toCSSTransitionGroupProps(match.descriptor);
+    }
   }
 
   return noTransitionProps();
