@@ -75,8 +75,6 @@ backend.on('disconnect', updateTrayIcon);
 // force update tray
 updateTrayIcon();
 
-const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
-
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
 
@@ -90,6 +88,16 @@ if(navigator.serviceWorker) {
 }
 
 ipcRenderer.send('on-browser-window-ready');
+
+const containerId = document.currentScript.getAttribute('data-container');
+if(!containerId) {
+  throw new Error('Missing data-container attribute.');
+}
+
+const rootElement = document.querySelector(containerId);
+if(!rootElement) {
+  throw new Error('Missing root element.');
+}
 
 ReactDOM.render(
   <Provider store={ store }>
