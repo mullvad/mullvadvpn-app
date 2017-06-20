@@ -212,7 +212,7 @@ app.on('ready', async () => {
 });
 
 const sendBackendInfo = () => {
-  const file = './.ipc_connection_info';
+  const file = './.mullvad_rpc_address';
   log.info('reading the ipc connection info from', file);
 
   fs.readFile(file, 'utf8', function (err,data) {
