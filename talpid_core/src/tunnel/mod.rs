@@ -2,6 +2,7 @@ use net;
 use openvpn_ffi::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 use std::io;
+use std::path::{Path, PathBuf};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -14,6 +15,10 @@ mod errors {
             /// An error indicating there was an error listening for events from the VPN tunnel.
             TunnelMonitoringError {
                 description("Error while setting up or processing events from the VPN tunnel")
+            }
+            /// The OpenVPN plugin was not found.
+            PluginNotFound {
+                description("No OpenVPN plugin found")
             }
         }
     }
@@ -59,7 +64,7 @@ impl TunnelMonitor {
             None => debug!("Ignoring OpenVpnEvent {:?}", event),
         };
         let cmd = Self::create_openvpn_cmd(remote);
-        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, get_plugin_path())
+        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, get_plugin_path()?)
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor { monitor })
     }
@@ -97,16 +102,26 @@ impl CloseHandle {
 
 
 // TODO(linus): Temporary implementation for getting plugin path during development.
-fn get_plugin_path() -> &'static str {
-    if cfg!(all(unix, not(target_os = "macos"))) {
-        "./target/debug/libtalpid_openvpn_plugin.so"
-    } else if cfg!(target_os = "macos") {
-        "./target/debug/libtalpid_openvpn_plugin.dylib"
+fn get_plugin_path() -> Result<PathBuf> {
+    let dirs = &["./target/debug", "."];
+    let filename = if cfg!(target_os = "macos") {
+        "libtalpid_openvpn_plugin.dylib"
+    } else if cfg!(unix) {
+        "libtalpid_openvpn_plugin.so"
     } else if cfg!(windows) {
-        "./target/debug/libtalpid_openvpn_plugin.dll"
+        "libtalpid_openvpn_plugin.dll"
     } else {
-        panic!("Unsupported platform");
+        bail!(ErrorKind::PluginNotFound);
+    };
+
+    for dir in dirs {
+        let path = Path::new(dir).join(filename);
+        if path.exists() {
+            debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
+            return Ok(path);
+        }
     }
+    Err(ErrorKind::PluginNotFound.into())
 }
 
 // TODO(linus): Temporary implementation for getting hold of a config location.
