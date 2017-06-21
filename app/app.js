@@ -10,7 +10,7 @@ import makeRoutes from './routes';
 import configureStore from './store';
 import userActions from './actions/user';
 import connectActions from './actions/connect';
-import Backend from './lib/backend';
+import { Backend } from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
 
@@ -68,9 +68,9 @@ ipcRenderer.on('backend-info', (_event, args) => {
   backend.sync();
 });
 // Setup events to update tray icon
-backend.on(Backend.EventType.connect, updateTrayIcon);
-backend.on(Backend.EventType.connecting, updateTrayIcon);
-backend.on(Backend.EventType.disconnect, updateTrayIcon);
+backend.on('connect', updateTrayIcon);
+backend.on('connecting', updateTrayIcon);
+backend.on('disconnect', updateTrayIcon);
 
 // force update tray
 updateTrayIcon();

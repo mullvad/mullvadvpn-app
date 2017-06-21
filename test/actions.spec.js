@@ -1,8 +1,7 @@
 // @flow
-
 import { expect } from 'chai';
 import { filterMinorActions, mockState, mockStore } from './mocks/redux';
-import Backend from '../app/lib/backend';
+import { Backend } from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
 import userActions from '../app/actions/user';
 import connectActions from '../app/actions/connect';
@@ -28,7 +27,7 @@ describe('actions', function() {
 
     mapBackendEventsToReduxActions(backend, store);
 
-    backend.once(Backend.EventType.login, () => {
+    backend.once('login', () => {
       const storeActions = filterMinorActions(store.getActions());
       expect(storeActions).deep.equal(expectedActions);
       done();
@@ -47,7 +46,7 @@ describe('actions', function() {
     const backend = new Backend(mockIpc);
     mapBackendEventsToReduxActions(backend, store);
 
-    backend.once(Backend.EventType.logout, () => {
+    backend.once('logout', () => {
       const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
@@ -73,7 +72,7 @@ describe('actions', function() {
     };
     mapBackendEventsToReduxActions(backend, store);
 
-    backend.once(Backend.EventType.connect, () => {
+    backend.once('connect', () => {
 
       const storeActions = filterMinorActions(store.getActions())
         .filter(action => {
@@ -83,8 +82,8 @@ describe('actions', function() {
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
-    
-    backend.once(Backend.EventType.login, () => {
+
+    backend.once('login', () => {
       store.dispatch(connectActions.connect(backend, '1.2.3.4'));
     });
     store.dispatch(userActions.login(backend, '1'));
@@ -111,7 +110,7 @@ describe('actions', function() {
     const backend = new Backend(newMockIpc());
     mapBackendEventsToReduxActions(backend, store);
 
-    backend.once(Backend.EventType.disconnect, () => {
+    backend.once('disconnect', () => {
       const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);
@@ -143,7 +142,7 @@ describe('actions', function() {
     const backend = new Backend(newMockIpc());
     mapBackendEventsToReduxActions(backend, store);
 
-    backend.once(Backend.EventType.disconnect, () => {
+    backend.once('disconnect', () => {
       const storeActions = filterMinorActions(store.getActions());
 
       expect(storeActions).deep.equal(expectedActions);

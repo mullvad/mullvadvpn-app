@@ -1,5 +1,4 @@
 import { replace } from 'react-router-redux';
-import Backend from './backend';
 
 /**
  * Add listeners to translate backend events to react router actions
@@ -10,7 +9,7 @@ import Backend from './backend';
  */
 export default function mapBackendEventsToRouter(backend, store) {
   // redirect user to main screen after login
-  backend.on(Backend.EventType.login, (_account, error) => {
+  backend.on('login', (_account, error) => {
     if(error) { return; } // no-op on error
 
     setTimeout(() => {
@@ -27,5 +26,5 @@ export default function mapBackendEventsToRouter(backend, store) {
   });
 
   // redirect user to login page on logout
-  backend.on(Backend.EventType.logout, () => store.dispatch(replace('/')));
+  backend.on('logout', () => store.dispatch(replace('/')));
 }
