@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { LoginState } from '../enums';
 import AccountInput from './AccountInput';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import LoginArrowSVG from '../assets/images/icon-arrow.svg';
@@ -28,7 +27,7 @@ export default class Login extends Component {
     const prev = this.props.user || {};
     const next = nextProps.user || {};
 
-    if(prev.status !== next.status && next.status === LoginState.failed) {
+    if(prev.status !== next.status && next.status === 'failed') {
       this.setState({ notifyOnFirstChangeAfterFailure: true });
     }
   }
@@ -63,17 +62,17 @@ export default class Login extends Component {
 
   formTitle(s) {
     switch(s) {
-    case LoginState.connecting: return 'Logging in...';
-    case LoginState.failed: return 'Login failed';
-    case LoginState.ok: return 'Login successful';
+    case 'connecting': return 'Logging in...';
+    case 'failed': return 'Login failed';
+    case 'ok': return 'Login successful';
     default: return 'Login';
     }
   }
 
   formSubtitle(s, e) {
     switch(s) {
-    case LoginState.failed: return e.message;
-    case LoginState.connecting: return 'Checking account number';
+    case 'failed': return e.message;
+    case 'connecting': return 'Checking account number';
     default: return 'Enter your account number';
     }
   }
@@ -86,10 +85,10 @@ export default class Login extends Component {
     }
 
     switch(user.status) {
-    case LoginState.connecting:
+    case 'connecting':
       classes.push('login-form__input-wrap--inactive');
       break;
-    case LoginState.failed:
+    case 'failed':
       classes.push('login-form__input-wrap--error');
       break;
     }
@@ -100,8 +99,8 @@ export default class Login extends Component {
   footerClass(user) {
     const classes = ['login-footer'];
     switch(user.status) {
-    case LoginState.ok:
-    case LoginState.connecting:
+    case 'ok':
+    case 'connecting':
       classes.push('login-footer--invisible');
       break;
     }
@@ -115,7 +114,7 @@ export default class Login extends Component {
       classes.push('login-form__submit--active');
     }
 
-    if(user.status === LoginState.connecting) {
+    if(user.status === 'connecting') {
       classes.push('login-form__submit--invisible');
     }
 
@@ -126,9 +125,9 @@ export default class Login extends Component {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
-    const isConnecting = status === LoginState.connecting;
-    const isFailed = status === LoginState.failed;
-    const isLoggedIn = status === LoginState.ok;
+    const isConnecting = status === 'connecting';
+    const isFailed = status === 'failed';
+    const isLoggedIn = status === 'ok';
 
     const inputWrapClass = this.inputWrapClass(this.props.user);
     const footerClass = this.footerClass(this.props.user);

@@ -7,7 +7,6 @@ import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import AccountPage from './containers/AccountPage';
 import SelectLocationPage from './containers/SelectLocationPage';
-import { LoginState } from './enums';
 import { getTransitionProps } from './transitions';
 
 /**
@@ -55,7 +54,7 @@ export default function makeRoutes(getState, componentProps) {
     return (
       <Route {...rest} render={ (routeProps) => {
         const { user } = getState();
-        const isLoggedIn = user.status === LoginState.ok;
+        const isLoggedIn = user.status === 'ok';
 
         if(isLoggedIn) {
           return renderMergedProps(component, routeProps, ...rest);
@@ -76,7 +75,7 @@ export default function makeRoutes(getState, componentProps) {
     return (
       <Route {...rest} render={ (routeProps) => {
         const { user } = getState();
-        const isLoggedIn = user.status === LoginState.ok;
+        const isLoggedIn = user.status === 'ok';
 
         if(isLoggedIn) {
           return (<Redirect to={ '/connect' } />);

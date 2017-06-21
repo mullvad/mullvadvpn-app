@@ -1,7 +1,0 @@
-{
-  "search.exclude": {
-    "build/": true,
-    "dist/": true,
-    "docs/": true
-  }
-}

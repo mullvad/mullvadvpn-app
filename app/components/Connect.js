@@ -7,7 +7,6 @@ import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
 import { mapbox as mapboxConfig } from '../config';
 import Backend from '../lib/backend';
-import { ConnectionState } from '../enums';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 import type HeaderBarStyle from './HeaderBar';
@@ -109,9 +108,9 @@ export default class Connect extends Component {
     const preferredServer = this.props.settings.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
 
-    const isConnecting = this.props.connect.status === ConnectionState.connecting;
-    const isConnected = this.props.connect.status === ConnectionState.connected;
-    const isDisconnected = this.props.connect.status === ConnectionState.disconnected;
+    const isConnecting = this.props.connect.status === 'connecting';
+    const isConnected = this.props.connect.status === 'connected';
+    const isDisconnected = this.props.connect.status === 'disconnected';
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
 
@@ -338,19 +337,19 @@ export default class Connect extends Component {
 
   headerStyle(): HeaderBarStyle {
     switch(this.props.connect.status) {
-    case ConnectionState.connecting:
-    case ConnectionState.disconnected:
+    case 'connecting':
+    case 'disconnected':
       return 'error';
-    case ConnectionState.connected:
+    case 'connected':
       return 'success';
     }
   }
 
   networkSecurityClass() {
     let classes = ['connect__status-security'];
-    if(this.props.connect.status === ConnectionState.connected) {
+    if(this.props.connect.status === 'connected') {
       classes.push('connect__status-security--secure');
-    } else if(this.props.connect.status === ConnectionState.disconnected) {
+    } else if(this.props.connect.status === 'disconnected') {
       classes.push('connect__status-security--unsecured');
     }
 
@@ -359,15 +358,15 @@ export default class Connect extends Component {
 
   networkSecurityMessage() {
     switch(this.props.connect.status) {
-    case ConnectionState.connected: return 'Secure connection';
-    case ConnectionState.connecting: return 'Creating secure connection';
+    case 'connected': return 'Secure connection';
+    case 'connecting': return 'Creating secure connection';
     default: return 'Unsecured connection';
     }
   }
 
   spinnerClass() {
     var classes = ['connect__status-icon'];
-    if(this.props.connect.status !== ConnectionState.connecting) {
+    if(this.props.connect.status !== 'connecting') {
       classes.push('connect__status-icon--hidden');
     }
     return classes.join(' ');
@@ -375,14 +374,14 @@ export default class Connect extends Component {
 
   ipAddressClass() {
     var classes = ['connect__status-ipaddress'];
-    if(this.props.connect.status === ConnectionState.connecting) {
+    if(this.props.connect.status === 'connecting') {
       classes.push('connect__status-ipaddress--invisible');
     }
     return classes.join(' ');
   }
 
   displayLocation() {
-    if(this.props.connect.status === ConnectionState.disconnected) {
+    if(this.props.connect.status === 'disconnected') {
       const { location, country, city } = this.props.user;
       return { location, country, city };
     }

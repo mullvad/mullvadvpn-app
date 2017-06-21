@@ -1,9 +1,8 @@
 import { handleActions } from 'redux-actions';
-import { ConnectionState } from '../enums';
 import actions from '../actions/connect';
 
 const initialState = {
-  status: ConnectionState.disconnected,
+  status: 'disconnected',
   isOnline: true,
   serverAddress: null,
   clientIp: null

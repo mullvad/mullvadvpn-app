@@ -4,7 +4,6 @@ import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
-import { LoginState } from '../enums';
 
 export default class Settings extends Component {
 
@@ -34,7 +33,7 @@ export default class Settings extends Component {
   }
 
   render() {
-    const isLoggedIn = this.props.user.status === LoginState.ok;
+    const isLoggedIn = this.props.user.status === 'ok';
     let isOutOfTime = false, formattedPaidUntil = '';
     let paidUntilIso = this.props.user.paidUntil;
 
