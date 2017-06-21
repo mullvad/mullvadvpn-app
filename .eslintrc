@@ -26,7 +26,8 @@
     "no-unused-expressions" : [ 0 ], // until fixed https://github.com/babel/babel-eslint/issues/158
     "no-unused-vars": ["error", {"args": all, "argsIgnorePattern": "_.*"}],
     "block-scoped-var": [ 0 ], // until fixed https://github.com/eslint/eslint/issues/2253
-    "react/prop-types": [ 0 ]
+    "react/prop-types": [ 0 ],
+    "flowtype/define-flow-type": 1
   },
   "env": {
     "es6": true,
