@@ -46,7 +46,7 @@ export default class Settings extends Component {
 
     return (
       <Layout>
-        <Header hidden={ true } style={ Header.Style.defaultDark } />
+        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="settings">
             <button className="settings__close" onClick={ ::this.onClose } />

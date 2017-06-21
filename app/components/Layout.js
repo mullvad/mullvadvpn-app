@@ -11,13 +11,6 @@ import HeaderBar from './HeaderBar';
 export class Header extends Component {
 
   /**
-   * @type {HeaderBar.Style}
-   * @static
-   * @memberOf Header
-   */
-  static Style = HeaderBar.Style;
-
-  /**
    * @override
    */
   render() {

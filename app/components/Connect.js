@@ -10,6 +10,8 @@ import Backend from '../lib/backend';
 import { ConnectionState } from '../enums';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
+import type HeaderBarStyle from './HeaderBar';
+
 export default class Connect extends Component {
 
   static propTypes = {
@@ -334,14 +336,13 @@ export default class Connect extends Component {
 
   // Private
 
-  headerStyle() {
-    const S = Header.Style;
+  headerStyle(): HeaderBarStyle {
     switch(this.props.connect.status) {
     case ConnectionState.connecting:
     case ConnectionState.disconnected:
-      return S.error;
+      return 'error';
     case ConnectionState.connected:
-      return S.success;
+      return 'success';
     }
   }
 
