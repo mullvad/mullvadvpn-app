@@ -1,5 +1,4 @@
 // @flow
-import assert from 'assert';
 import { nativeImage } from 'electron';
 import type { NativeImage } from 'electron';
 
@@ -12,12 +11,6 @@ export type KeyframeAnimationOptions = {
   advanceTo?: 'end'
 };
 
-/**
- * Keyframe animation
- *
- * @export
- * @class KeyframeAnimation
- */
 export default class KeyframeAnimation {
 
   _speed: number = 200; // ms
@@ -39,137 +32,39 @@ export default class KeyframeAnimation {
 
   _timeout = null;
 
-  /**
-   * Set callback called on each frame update
-   *
-   * @type {function}
-   * @memberOf KeyframeAnimation
-   */
   set onFrame(newValue: ?OnFrameFn) { this._onFrame = newValue; }
-
-  /**
-   * Get callback called on each frame update
-   *
-   * @readonly
-   * @type {function}
-   * @memberOf KeyframeAnimation
-   */
   get onFrame(): ?OnFrameFn { this._onFrame; }
 
-  /**
-   * Set callback called when animation finished
-   *
-   * @type {function}
-   * @memberOf KeyframeAnimation
-   */
+  // called when animation finished for non-repeating animations.
   set onFinish(newValue: ?OnFinishFn) { this._onFinish = newValue; }
-
-  /**
-   * Get callback called when animation finished
-   *
-   * @readonly
-   *
-   * @memberOf KeyframeAnimation
-   */
   get onFinish(): ?OnFinishFn { this._onFinish; }
 
-  /**
-   * Set animation pace per frame in ms
-   *
-   * @type {number}
-   * @memberOf KeyframeAnimation
-   */
+  // pace per frame in ms
   set speed(newValue: number) { this._speed = parseInt(newValue); }
-
-  /**
-   * Get animation pace per frame in ms
-   *
-   * @readonly
-   * @type {number}
-   * @memberOf KeyframeAnimation
-   */
   get speed(): number { return this._speed; }
 
-  /**
-   * Set animation repetition
-   * @type {bool}
-   *
-   * @memberOf KeyframeAnimation
-   */
-  set repeat(newValue: boolean) { this._repeat = !!newValue; }
-
-  /**
-   * Get animation repetition
-   *
-   * @readonly
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
+  set repeat(newValue: boolean) { this._repeat = newValue; }
   get repeat(): boolean { return this._repeat; }
 
-  /**
-   * Set animation reversal
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
-  set reverse(newValue: boolean) { this._reverse = !!newValue; }
-
-  /**
-   * Get animation reversal
-   *
-   * @readonly
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
+  set reverse(newValue: boolean) { this._reverse = newValue; }
   get reverse(): boolean { return this._repeat; }
 
-  /**
-   * Set animation alternation
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
+  // alternates the animation direction when it reaches the end
+  // only for repeating animations
   set alternate(newValue: boolean) { this._alternate = !!newValue; }
-
-  /**
-   * Get animation alternation
-   *
-   * @readonly
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
   get alternate(): boolean { return this._alternate; }
 
-  /**
-   * Array of NativeImage instances loaded based on source input
-   *
-   * @readonly
-   * @type {Array<NativeImage>}
-   * @memberOf KeyframeAnimation
-   */
   get nativeImages(): Array<NativeImage> { return this._nativeImages.slice(); }
-
-  /**
-   * Flag that tells whether animation finished
-   *
-   * @readonly
-   * @type {bool}
-   * @memberOf KeyframeAnimation
-   */
   get isFinished(): boolean { return this._isFinished; }
 
-  /**
-   * Create animation from files matching filename pattern
-   *
-   * @static
-   * @param {string}        filePattern - file name pattern where {} is replaced with index
-   * @param {Array<number>} range       - sequence range [start, end]
-   *
-   * @memberOf KeyframeAnimation
-   * @return {KeyframeAnimation}
-   */
+  // create animation from files matching filename pattern. i.e (bubble-frame-{}.png)
   static fromFilePattern(filePattern: string, range: Array<number>): KeyframeAnimation {
-    assert(range.length === 2 && range[0] < range[1], 'the animation range is invalid');
     const images: Array<NativeImage> = [];
+
+    if(range.length !== 2 || range[0] > range[1]) {
+      throw new Error('the animation range is invalid');
+    }
+
     for(let i = range[0]; i <= range[1]; i++) {
       const filePath = filePattern.replace('{}', i.toString());
       const image = nativeImage.createFromPath(filePath);
@@ -178,63 +73,37 @@ export default class KeyframeAnimation {
     return new KeyframeAnimation(images);
   }
 
-  /**
-   * Create animation from file sequence
-   *
-   * @static
-   * @param {Array<string>} files - file paths
-   * @returns {KeyframeAnimation}
-   *
-   * @memberof KeyframeAnimation
-   */
   static fromFileSequence(files: Array<string>): KeyframeAnimation {
     const images: Array<NativeImage> = files.map(filePath => nativeImage.createFromPath(filePath));
     return new KeyframeAnimation(images);
   }
 
-  /**
-   * Create an instance of KeyframeAnimation
-   * @param {Array<NativeImage>} images - an array of instances of NativeImage
-   *
-   * @memberOf KeyframeAnimation
-   */
   constructor(images: Array<NativeImage>) {
     const len = images.length;
-
-    assert(len > 0, 'too few images in animation');
+    if(len < 1) {
+      throw new Error('too few images in animation');
+    }
 
     this._nativeImages = images.slice();
     this._numFrames = len;
     this._frameRange = [0, len];
   }
 
-  /**
-   * Get current sprite
-   *
-   * @readonly
-   * @type {NativeImage}
-   * @memberOf KeyframeAnimation
-   */
   get currentImage(): NativeImage {
     return this._nativeImages[this._currentFrame];
   }
 
-  /**
-   * Start animation
-   *
-   * @param {object} [options = {}]                  - animation options
-   * @param {number} [options.startFrame]            - start frame
-   * @param {number} [options.endFrame]              - end frame
-   * @param {bool}   [options.beginFromCurrentState] - continue animation from current state
-   * @param {string} [options.advanceTo]             - resets current frame. (possible values: end)
-   * @memberOf KeyframeAnimation
-   */
   play(options: KeyframeAnimationOptions = {}) {
     let { startFrame, endFrame, beginFromCurrentState, advanceTo } = options;
 
     if(startFrame !== undefined && endFrame !== undefined) {
-      assert(startFrame >= 0 && startFrame < this._numFrames, 'start frame is invalid');
-      assert(endFrame >= 0 && endFrame < this._numFrames, 'end frame is invalid');
+      if(startFrame < 0 || startFrame >= this._numFrames) {
+        throw new Error('Invalid start frame');
+      }
+
+      if(endFrame < 0 || endFrame >= this._numFrames) {
+        throw new Error('Invalid end frame');
+      }
 
       if(startFrame < endFrame) {
         this._frameRange = [ startFrame, endFrame ];
@@ -266,21 +135,11 @@ export default class KeyframeAnimation {
     this._scheduleUpdate();
   }
 
-  /**
-   * Stop animation
-   * @memberOf KeyframeAnimation
-   */
   stop() {
     this._isRunning = false;
     this._unscheduleUpdate();
   }
 
-  /**
-   * Cancel timer for next animation frame
-   *
-   * @private
-   * @memberof KeyframeAnimation
-   */
   _unscheduleUpdate() {
     if(this._timeout) {
       clearTimeout(this._timeout);
@@ -288,34 +147,16 @@ export default class KeyframeAnimation {
     }
   }
 
-  /**
-   * Schedule timer for next animation frame
-   *
-   * @private
-   * @memberof KeyframeAnimation
-   */
   _scheduleUpdate() {
     this._timeout = setTimeout(() => this._onUpdateFrame(), this._speed);
   }
 
-  /**
-   * Call delegate to render frame
-   *
-   * @private
-   * @memberof KeyframeAnimation
-   */
   _render() {
     if(this._onFrame) {
       this._onFrame(this._nativeImages[this._currentFrame]);
     }
   }
 
-  /**
-   * Mark animation finished and notify delegate.
-   *
-   * @private
-   * @memberof KeyframeAnimation
-   */
   _didFinish() {
     this._isFinished = true;
 
@@ -324,12 +165,6 @@ export default class KeyframeAnimation {
     }
   }
 
-  /**
-   * Animation frame lifecycle.
-   *
-   * @private
-   * @memberof KeyframeAnimation
-   */
   _onUpdateFrame() {
     this._advanceFrame();
 
@@ -346,19 +181,11 @@ export default class KeyframeAnimation {
     }
   }
 
-  /**
-   * Advance animation frame
-   * @memberOf KeyframeAnimation
-   */
   _advanceFrame() {
-    // do not advance frame when animation is finished
     if(this._isFinished) { return; }
 
-    // advance frame
-    let didReachEnd = this._currentFrame === this._frameRange[this._reverse ? 0 : 1];
-
-    // did reach end?
-    if(didReachEnd) {
+    let lastFrame = this._frameRange[this._reverse ? 0 : 1];
+    if(this._currentFrame === lastFrame) {
       // mark animation as finished if it's not repeating
       if(!this._repeat) {
         this._didFinish();
@@ -378,16 +205,6 @@ export default class KeyframeAnimation {
     }
   }
 
-  /**
-   * Calculate next frame
-   * @private
-   * @param {number}        cur        - current frame
-   * @param {Array<number>} frameRange - frame range
-   * @param {bool}          isReverse  - reverse sequence direction?
-   * @returns {number}
-   *
-   * @memberOf KeyframeAnimation
-   */
   _nextFrame(cur: number, frameRange: Array<number>, isReverse: boolean): number {
     if(isReverse) {
       if(cur < frameRange[0]) {
