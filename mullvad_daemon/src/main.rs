@@ -30,6 +30,7 @@ use states::{SecurityState, TargetState};
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
+use talpid_core::mpsc::IntoSender;
 use talpid_core::net::RemoteAddr;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
 
@@ -137,16 +138,17 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(event_tx: mpsc::Sender<DaemonEvent>)
                                   -> Result<management_interface::EventBroadcaster> {
-        let server = Self::start_management_interface_server(event_tx.clone())?;
+        let multiplex_event_tx = IntoSender::from(event_tx.clone());
+        let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
     }
 
-    fn start_management_interface_server(event_tx: mpsc::Sender<DaemonEvent>)
+    fn start_management_interface_server(event_tx: IntoSender<TunnelCommand, DaemonEvent>)
                                          -> Result<ManagementInterfaceServer> {
         let server =
-            ManagementInterfaceServer::start(event_tx.clone())
+            ManagementInterfaceServer::start(event_tx)
                 .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"),)?;
         info!(
             "Mullvad management interface listening on {}",

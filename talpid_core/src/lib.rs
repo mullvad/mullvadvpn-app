@@ -30,3 +30,6 @@ pub mod net;
 
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;
+
+/// Abstractions and extra features on `std::mpsc`
+pub mod mpsc;
