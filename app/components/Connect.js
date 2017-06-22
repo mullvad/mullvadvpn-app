@@ -49,7 +49,15 @@ export default class Connect extends Component {
   }
 
   componentWillUnmount() {
-    this.setState({ isFirstPass: true });
+    if(this._copyTimer) {
+      clearTimeout(this._copyTimer);
+      this._copyTimer = null;
+    }
+
+    this.setState({
+      isFirstPass: true,
+      showCopyIPMessage: false
+    });
   }
 
   render(): React.Element<*> {
