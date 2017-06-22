@@ -75,12 +75,10 @@ backend.on('disconnect', updateTrayIcon);
 // force update tray
 updateTrayIcon();
 
-const rootElement = document.querySelector(document.currentScript.getAttribute('data-container'));
-
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
 
-if ('serviceWorker' in navigator) {
+if(navigator.serviceWorker) {
   navigator.serviceWorker.register(path.join(__dirname, 'tilecache.sw.js'))
     .then((registration) => {
       log.info('ServiceWorker registration successful with scope: ', registration.scope);
@@ -90,6 +88,16 @@ if ('serviceWorker' in navigator) {
 }
 
 ipcRenderer.send('on-browser-window-ready');
+
+const containerId = document.currentScript.getAttribute('data-container');
+if(!containerId) {
+  throw new Error('Missing data-container attribute.');
+}
+
+const rootElement = document.querySelector(containerId);
+if(!rootElement) {
+  throw new Error('Missing root element.');
+}
 
 ReactDOM.render(
   <Provider store={ store }>
