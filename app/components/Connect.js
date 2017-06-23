@@ -1,6 +1,7 @@
 import assert from 'assert';
 import moment from 'moment';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { If, Then, Else } from 'react-if';
 import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
 import cheapRuler from 'cheap-ruler';
