@@ -1,20 +1,14 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import HeaderBar from './HeaderBar';
 
-/**
- * Layout header
- *
- * @export
- * @class Header
- * @extends {React.Component}
- */
-export class Header extends Component {
+import type { HeaderBarProps } from './HeaderBar';
 
-  /**
-   * @override
-   */
-  render() {
+export class Header extends Component {
+  props: HeaderBarProps;
+  static defaultProps = HeaderBar.defaultProps;
+
+  render(): React.Element<*> {
     return (
       <div className="layout__header">
         <HeaderBar { ...this.props } />
@@ -23,28 +17,12 @@ export class Header extends Component {
   }
 }
 
-/**
- * Content container
- *
- * @export
- * @class Container
- * @extends {React.Component}
- */
 export class Container extends Component {
+  props: {
+    children: React.Element<*>
+  }
 
-  /**
-   * PropTypes
-   * @static
-   * @memberOf Container
-   */
-  static propTypes = {
-    children: PropTypes.element.isRequired
-  };
-
-  /**
-   * @override
-   */
-  render() {
+  render(): React.Element<*> {
     return (
       <div className="layout__container">
         { this.props.children }
@@ -53,31 +31,12 @@ export class Container extends Component {
   }
 }
 
-/**
- * Layout container
- *
- * @export
- * @class Layout
- * @extends {React.Component}
- */
 export class Layout extends Component {
+  props: {
+    children: Array<React.Element<*>> | React.Element<*>
+  }
 
-  /**
-   * PropTypes
-   * @static
-   * @memberOf Container
-   */
-  static propTypes = {
-    children: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.element),
-      PropTypes.element,
-    ])
-  };
-
-  /**
-   * @override
-   */
-  render() {
+  render(): React.Element<*> {
     return (
       <div className="layout">
         { this.props.children }

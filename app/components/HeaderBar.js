@@ -3,20 +3,21 @@ import React, { Component } from 'react';
 import { If, Then } from 'react-if';
 
 export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
+export type HeaderBarProps = {
+  style: HeaderBarStyle;
+  hidden: boolean;
+  showSettings: boolean;
+  onSettings: ?(() => void);
+};
 
-/**
- * Header bar component
- */
 export default class HeaderBar extends Component {
-
-  props: {
-    style: HeaderBarStyle,
-    hidden: boolean,
-    showSettings: boolean,
-    onSettings: () => void
+  props: HeaderBarProps;
+  static defaultProps: $Shape<HeaderBarProps> = {
+    hidden: false,
+    showSettings: false
   };
 
-  render() {
+  render(): React.Element<*> {
     let containerClass = [
       'headerbar',
       'headerbar--' + process.platform,
