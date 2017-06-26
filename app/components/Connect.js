@@ -12,9 +12,9 @@ import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import type { Coordinate2d } from '../types';
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
-import type { UserReduxState } from '../reducers/user';
-import type { ConnectReduxState } from '../reducers/connect';
-import type { SettingsReduxState } from '../reducers/settings';
+import type { AccountReduxState } from '../redux/account/reducers';
+import type { ConnectionReduxState } from '../redux/connection/reducers';
+import type { SettingsReduxState } from '../redux/settings/reducers';
 
 type DisplayLocation = {
   location: Coordinate2d;
@@ -23,8 +23,8 @@ type DisplayLocation = {
 };
 
 export type ConnectProps = {
-  user: UserReduxState,
-  connect: ConnectReduxState,
+  account: AccountReduxState,
+  connection: ConnectionReduxState,
   settings: SettingsReduxState,
   onSettings: () => void,
   onSelectLocation: () => void,
@@ -112,7 +112,7 @@ export default class Connect extends Component {
     let isConnecting = false;
     let isConnected = false;
     let isDisconnected = false;
-    switch(this.props.connect.status) {
+    switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
     case 'connected': isConnected = true; break;
     case 'disconnected': isDisconnected = true; break;
@@ -122,7 +122,7 @@ export default class Connect extends Component {
     const displayLocation = this.displayLocation();
     const mapBounds = this.calculateMapBounds(displayLocation.location, altitude);
     const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
-    const userLocation = this.convertToMapCoordinate(this.props.user.location || [0, 0]);
+    const accountLocation = this.convertToMapCoordinate(this.props.account.location || [0, 0]);
     const serverLocation = this.convertToMapCoordinate(serverInfo.location);
 
     return (
@@ -144,7 +144,7 @@ export default class Connect extends Component {
             </If>
             <If condition={ !isConnected }>
               <Then>
-                <Marker coordinates={ userLocation } offset={ [0, -10] }>
+                <Marker coordinates={ accountLocation } offset={ [0, -10] }>
                   <img src='./assets/images/location-marker-unsecure.svg' />
                 </Marker>
               </Then>
@@ -229,7 +229,7 @@ export default class Connect extends Component {
             <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
               <If condition={ this.state.showCopyIPMessage }>
                 <Then><span>{ 'IP copied to clipboard!' }</span></Then>
-                <Else><span>{ this.props.connect.clientIp }</span></Else>
+                <Else><span>{ this.props.connection.clientIp }</span></Else>
               </If>
             </div>
           </div>
@@ -341,7 +341,7 @@ export default class Connect extends Component {
   // Private
 
   headerStyle(): HeaderBarStyle {
-    switch(this.props.connect.status) {
+    switch(this.props.connection.status) {
     case 'connecting':
     case 'disconnected':
       return 'error';
@@ -353,9 +353,9 @@ export default class Connect extends Component {
 
   networkSecurityClass(): string {
     let classes = ['connect__status-security'];
-    if(this.props.connect.status === 'connected') {
+    if(this.props.connection.status === 'connected') {
       classes.push('connect__status-security--secure');
-    } else if(this.props.connect.status === 'disconnected') {
+    } else if(this.props.connection.status === 'disconnected') {
       classes.push('connect__status-security--unsecured');
     }
 
@@ -363,7 +363,7 @@ export default class Connect extends Component {
   }
 
   networkSecurityMessage(): string {
-    switch(this.props.connect.status) {
+    switch(this.props.connection.status) {
     case 'connected': return 'Secure connection';
     case 'connecting': return 'Creating secure connection';
     default: return 'Unsecured connection';
@@ -372,7 +372,7 @@ export default class Connect extends Component {
 
   spinnerClass(): string {
     var classes = ['connect__status-icon'];
-    if(this.props.connect.status !== 'connecting') {
+    if(this.props.connection.status !== 'connecting') {
       classes.push('connect__status-icon--hidden');
     }
     return classes.join(' ');
@@ -380,7 +380,7 @@ export default class Connect extends Component {
 
   ipAddressClass(): string {
     var classes = ['connect__status-ipaddress'];
-    if(this.props.connect.status === 'connecting') {
+    if(this.props.connection.status === 'connecting') {
       classes.push('connect__status-ipaddress--invisible');
     }
     return classes.join(' ');
@@ -388,8 +388,8 @@ export default class Connect extends Component {
 
   displayLocation(): DisplayLocation {
     // return user location when disconnected
-    if(this.props.connect.status === 'disconnected') {
-      let { location, country, city } = this.props.user;
+    if(this.props.connection.status === 'disconnected') {
+      let { location, country, city } = this.props.account;
       return {
         location: location || [0, 0],
         country, city
@@ -407,12 +407,12 @@ export default class Connect extends Component {
 
   displayError(): ?BackendError {
     // Offline?
-    if(!this.props.connect.isOnline) {
+    if(!this.props.connection.isOnline) {
       return new BackendError('NO_INTERNET');
     }
 
     // No credit?
-    const { paidUntil } = this.props.user;
+    const { paidUntil } = this.props.account;
     if(paidUntil && moment(paidUntil).isSameOrBefore(moment())) {
       return new BackendError('NO_CREDIT');
     }

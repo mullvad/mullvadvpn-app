@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
-import settingsActions from '../actions/settings';
+import settingsActions from '../redux/settings/actions';
 
 const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch, props) => {

@@ -1,7 +1,9 @@
+// @flow
+
 import { expect } from 'chai';
-import userReducer from '../app/reducers/user';
-import connectReducer from '../app/reducers/connect';
-import settingsReducer from '../app/reducers/settings';
+import accountReducer from '../app/redux/account/reducers';
+import connectionReducer from '../app/redux/connection/reducers';
+import settingsReducer from '../app/redux/settings/reducers';
 import { defaultServer } from '../app/config';
 
 describe('reducers', () => {
@@ -16,7 +18,7 @@ describe('reducers', () => {
       }
     };
     const test = Object.assign({}, action.payload);
-    expect(userReducer({}, action)).to.deep.equal(test);
+    expect(accountReducer({}, action)).to.deep.equal(test);
   });
 
   it('should handle CONNECTION_CHANGE', () => {
@@ -29,7 +31,7 @@ describe('reducers', () => {
       }
     };
     const test = Object.assign({}, action.payload);
-    expect(connectReducer({}, action)).to.deep.equal(test);
+    expect(connectionReducer({}, action)).to.deep.equal(test);
   });
 
   it('should handle SETTINGS_UPDATE', () => {

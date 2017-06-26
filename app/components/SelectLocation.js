@@ -5,7 +5,7 @@ import { Layout, Container, Header } from './Layout';
 import { servers } from '../config';
 import CustomScrollbars from './CustomScrollbars';
 
-import type { SettingsReduxState } from '../reducers/settings';
+import type { SettingsReduxState } from '../redux/settings/reducers';
 
 export type SelectLocationProps = {
   settings: SettingsReduxState,

@@ -6,10 +6,10 @@ import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
-import type { UserReduxState } from '../reducers/user';
+import type { AccountReduxState } from '../redux/account/reducers';
 
 export type AccountProps = {
-  user: UserReduxState;
+  account: AccountReduxState;
   onLogout: () => void;
   onClose: () => void;
   onExternalLink: (type: string) => void;
@@ -23,9 +23,8 @@ export default class Account extends Component {
   onLogout = () => this.props.onLogout();
 
   render(): React.Element<*> {
-    const user = this.props.user;
-    const paidUntil = moment(user.paidUntil);
-    const formattedAccountId = formatAccount(user.account || '');
+    let paidUntil = moment(this.props.account.paidUntil);
+    let formattedAccountId = formatAccount(this.props.account.account || '');
     const formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = paidUntil.isSameOrBefore(moment());
 

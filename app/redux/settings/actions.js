@@ -1,7 +1,7 @@
 // @flow
 import { createAction } from 'redux-actions';
 
-import type { SettingsReduxState } from '../reducers/settings';
+import type { SettingsReduxState } from './reducers';
 import type { ReduxAction } from '../store';
 
 export type UpdateSettingsAction = <T: $Shape<SettingsReduxState>>(state: T) => ReduxAction<T>;

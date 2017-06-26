@@ -1,10 +1,11 @@
 // @flow
+
 import { expect } from 'chai';
 import { filterMinorActions, mockState, mockStore } from './mocks/redux';
 import { Backend } from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
-import userActions from '../app/actions/user';
-import connectActions from '../app/actions/connect';
+import accountActions from '../app/redux/account/actions';
+import connectionActions from '../app/redux/connection/actions';
 import mapBackendEventsToReduxActions from '../app/lib/backend-redux-actions';
 
 describe('actions', function() {
@@ -33,7 +34,7 @@ describe('actions', function() {
       done();
     });
 
-    store.dispatch(userActions.login(backend, '1'));
+    store.dispatch(accountActions.login(backend, '1'));
   });
   
   it('should logout', (done) => {
@@ -53,7 +54,7 @@ describe('actions', function() {
       done();
     });
 
-    store.dispatch(userActions.logout(backend));
+    store.dispatch(accountActions.logout(backend));
   });
 
   it('should connect to VPN server', (done) => {
@@ -84,9 +85,9 @@ describe('actions', function() {
     });
 
     backend.once('login', () => {
-      store.dispatch(connectActions.connect(backend, '1.2.3.4'));
+      store.dispatch(connectionActions.connect(backend, '1.2.3.4'));
     });
-    store.dispatch(userActions.login(backend, '1'));
+    store.dispatch(accountActions.login(backend, '1'));
   });
 
   it('should disconnect from VPN server', (done) => {
@@ -95,7 +96,7 @@ describe('actions', function() {
     ];
 
     let state = Object.assign(mockState(), {
-      user: {
+      account: {
         account: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
         status: 'ok'
@@ -117,7 +118,7 @@ describe('actions', function() {
       done();
     });
     
-    store.dispatch(connectActions.disconnect(backend));
+    store.dispatch(connectionActions.disconnect(backend));
   });
 
   it('should disconnect from VPN server on logout', (done) => {
@@ -127,7 +128,7 @@ describe('actions', function() {
     ];
 
     let state = Object.assign(mockState(), {
-      user: {
+      account: {
         account: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
         status: 'ok'
@@ -149,7 +150,7 @@ describe('actions', function() {
       done();
     });
     
-    store.dispatch(userActions.logout(backend));
+    store.dispatch(accountActions.logout(backend));
   });
 
 });

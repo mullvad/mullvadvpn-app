@@ -7,14 +7,15 @@ import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
 import log from 'electron-log';
 import makeRoutes from './routes';
-import configureStore from './store';
-import userActions from './actions/user';
-import connectActions from './actions/connect';
+import configureStore from './redux/store';
+import accountActions from './redux/account/actions';
+import connectionActions from './redux/connection/actions';
 import { Backend } from './lib/backend';
 import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
 import mapBackendEventsToRouter from './lib/backend-routing';
 
-import type { LoginState, ConnectionState } from './enums';
+import type { LoginState } from './redux/account/reducers';
+import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './lib/tray-icon-manager';
 
 const initialState = null;
@@ -23,15 +24,15 @@ const store = configureStore(initialState, memoryHistory);
 const backend = new Backend();
 
 // reset login state if user quit the app during login
-if((['connecting', 'failed']: Array<LoginState>).includes(store.getState().user.status)) {
-  store.dispatch(userActions.loginChange({
+if((['connecting', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
+  store.dispatch(accountActions.loginChange({
     status: 'none'
   }));
 }
 
 // reset connection state if user quit the app when connecting
-if(store.getState().connect.status === 'connecting') {
-  store.dispatch(connectActions.connectionChange({
+if(store.getState().connection.status === 'connecting') {
+  store.dispatch(connectionActions.connectionChange({
     status: 'disconnected'
   }));
 }
@@ -53,8 +54,8 @@ const getIconType = (s: ConnectionState): TrayIconType => {
  * Update tray icon via IPC call
  */
 const updateTrayIcon = () => {
-  const { connect } = store.getState();
-  ipcRenderer.send('changeTrayIcon', getIconType(connect.status));
+  const { connection } = store.getState();
+  ipcRenderer.send('changeTrayIcon', getIconType(connection.status));
 };
 
 // Setup primary event handlers to translate backend events into redux dispatch

@@ -1,13 +1,13 @@
 // @flow
 import { handleActions } from 'redux-actions';
-import actions from '../actions/user';
+import actions from './actions.js';
 
-import type { Coordinate2d } from '../types';
+import type { Coordinate2d } from '../../types';
 import type { ReduxAction } from '../store';
-import type { LoginState } from '../enums';
-import type { BackendError } from '../lib/backend';
+import type { BackendError } from '../../lib/backend';
 
-export type UserReduxState = {
+export type LoginState = 'none' | 'connecting' | 'failed' | 'ok';
+export type AccountReduxState = {
   account: ?string,
   paidUntil: ?string, // ISO8601
   location: ?Coordinate2d,
@@ -17,7 +17,7 @@ export type UserReduxState = {
   error: ?BackendError
 };
 
-const initialState: UserReduxState = {
+const initialState: AccountReduxState = {
   account: null,
   paidUntil: null,
   location: null,
@@ -28,7 +28,7 @@ const initialState: UserReduxState = {
 };
 
 export default handleActions({
-  [actions.loginChange.toString()]: (state: UserReduxState, action: ReduxAction<$Shape<UserReduxState>>) => {
+  [actions.loginChange.toString()]: (state: AccountReduxState, action: ReduxAction<$Shape<AccountReduxState>>) => {
     return { ...state, ...action.payload };
   }
 }, initialState);

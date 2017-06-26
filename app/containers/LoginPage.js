@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Login from '../components/Login';
-import userActions from '../actions/user';
+import accountActions from '../redux/account/actions';
 import { links } from '../config';
 
 const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch, props) => {
-  const { loginChange, login } = bindActionCreators(userActions, dispatch);
+  const { loginChange, login } = bindActionCreators(accountActions, dispatch);
   const { backend } = props;
   return {
     onSettings: () => dispatch(push('/settings')),

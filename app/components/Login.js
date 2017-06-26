@@ -6,11 +6,10 @@ import AccountInput from './AccountInput';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import LoginArrowSVG from '../assets/images/icon-arrow.svg';
 
-import type { LoginState } from '../enums';
-import type { UserReduxState } from '../reducers/user';
+import type { AccountReduxState, LoginState } from '../redux/account/reducers';
 
 export type LoginPropTypes = {
-  user: UserReduxState,
+  account: AccountReduxState,
   onLogin: (accountNumber: string) => void,
   onSettings: ?(() => void),
   onChange: (input: string) => void,
@@ -29,7 +28,7 @@ export default class Login extends Component {
   onFocus = () => this.setState({ isActive: true });
   onBlur = () => this.setState({ isActive: false });
   onLogin = () => {
-    const { account } = this.props.user;
+    const { account } = this.props.account;
     if(account && account.length > 0) {
       this.props.onLogin(account);
     }
@@ -106,8 +105,8 @@ export default class Login extends Component {
   }
 
   componentWillReceiveProps(nextProps: LoginPropTypes) {
-    const prev = this.props.user || {};
-    const next = nextProps.user || {};
+    const prev = this.props.account || {};
+    const next = nextProps.account || {};
 
     if(prev.status !== next.status && next.status === 'failed') {
       this.setState({ notifyOnFirstChangeAfterFailure: true });
@@ -115,7 +114,7 @@ export default class Login extends Component {
   }
 
   render(): React.Element<*> {
-    const { account, status, error } = this.props.user;
+    const { account, status, error } = this.props.account;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
 
