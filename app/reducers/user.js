@@ -2,6 +2,7 @@
 import { handleActions } from 'redux-actions';
 import actions from '../actions/user';
 
+import type { Coordinate2d } from '../types';
 import type { ReduxAction } from '../store';
 import type { LoginState } from '../enums';
 import type { BackendError } from '../lib/backend';
@@ -9,7 +10,7 @@ import type { BackendError } from '../lib/backend';
 export type UserReduxState = {
   account: ?string,
   paidUntil: ?string, // ISO8601
-  location: Array<number>,
+  location: ?Coordinate2d,
   country: ?string,
   city: ?string,
   status: LoginState,
@@ -19,7 +20,7 @@ export type UserReduxState = {
 const initialState: UserReduxState = {
   account: null,
   paidUntil: null,
-  location: [0, 0],
+  location: null,
   country: null,
   city: null,
   status: 'none',
