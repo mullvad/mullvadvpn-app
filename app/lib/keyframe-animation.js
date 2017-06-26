@@ -10,6 +10,7 @@ export type KeyframeAnimationOptions = {
   beginFromCurrentState?: boolean,
   advanceTo?: 'end'
 };
+export type KeyframeAnimationRange = [number, number];
 
 export default class KeyframeAnimation {
 
@@ -22,7 +23,7 @@ export default class KeyframeAnimation {
   _onFinish: ?OnFinishFn;
 
   _nativeImages: Array<NativeImage>;
-  _frameRange: Array<number>;
+  _frameRange: KeyframeAnimationRange;
   _numFrames: number;
   _currentFrame: number = 0;
 
@@ -58,7 +59,7 @@ export default class KeyframeAnimation {
   get isFinished(): boolean { return this._isFinished; }
 
   // create animation from files matching filename pattern. i.e (bubble-frame-{}.png)
-  static fromFilePattern(filePattern: string, range: Array<number>): KeyframeAnimation {
+  static fromFilePattern(filePattern: string, range: KeyframeAnimationRange): KeyframeAnimation {
     const images: Array<NativeImage> = [];
 
     if(range.length !== 2 || range[0] > range[1]) {
@@ -205,7 +206,7 @@ export default class KeyframeAnimation {
     }
   }
 
-  _nextFrame(cur: number, frameRange: Array<number>, isReverse: boolean): number {
+  _nextFrame(cur: number, frameRange: KeyframeAnimationRange, isReverse: boolean): number {
     if(isReverse) {
       if(cur < frameRange[0]) {
         return cur + 1;
