@@ -1,27 +1,29 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+
+import type { Point2d } from '../types';
 
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;
 
 export default class Switch extends Component {
-
-  static propTypes = {
-    isOn: PropTypes.bool,
-    onChange: PropTypes.func
+  props: {
+    isOn: boolean;
+    onChange: ?((isOn: boolean) => void);
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isTracking: false,
-      ignoreChange: false,
-      initialPos: null,
-      startTime: null
-    };
+  defaultProps = {
+    isOn: false
   }
 
-  handleMouseDown(e) {
+  state = {
+    isTracking: false,
+    ignoreChange: false,
+    initialPos: (null: ?Point2d),
+    startTime: (null: ?number)
+  }
+
+  handleMouseDown = (e: MouseEvent) => {
     const { pageX: x, pageY: y } = e;
     this.setState({
       isTracking: true,
@@ -30,14 +32,18 @@ export default class Switch extends Component {
     });
   }
 
-  handleMouseMove(e) {
-    if(!this.state.isTracking) { return; }
+  handleMouseMove = (e: MouseEvent) => {
+    if(!this.state.isTracking) {
+      return;
+    }
 
     const { x: x0 } = this.state.initialPos;
     const { pageX: x, pageY: y } = e;
     const dx = Math.abs(x0 - x);
 
-    if(dx < MOVE_THRESHOLD) { return; }
+    if(dx < MOVE_THRESHOLD) {
+      return;
+    }
 
     const isOn = !!this.props.isOn;
     let nextOn = isOn;
@@ -58,7 +64,7 @@ export default class Switch extends Component {
     }
   }
 
-  handleMouseUp() {
+  handleMouseUp = () => {
     if(this.state.isTracking) {
       this.setState({
         isTracking: false,
@@ -67,8 +73,19 @@ export default class Switch extends Component {
     }
   }
 
-  handleChange(e) {
-    const dt = e.timeStamp - this.state.startTime;
+  handleChange = (e: Event) => {
+    const startTime = this.state.startTime;
+    const eventTarget = e.target;
+
+    if(typeof(startTime) !== 'number') {
+      throw new Error('startTime must be a number.');
+    }
+
+    if(!(eventTarget instanceof HTMLInputElement)) {
+      throw new Error('e.target must be an instance of HTMLInputElement.');
+    }
+
+    const dt = e.timeStamp - startTime;
 
     if(this.state.ignoreChange) {
       this.setState({ ignoreChange: false });
@@ -76,30 +93,32 @@ export default class Switch extends Component {
     } else if(dt > CLICK_TIMEOUT) {
       e.preventDefault();
     } else {
-      this.notify(e.target.checked);
+      this.notify(eventTarget.checked);
     }
   }
 
-  notify(isOn) {
-    if(this.props.onChange) {
-      this.props.onChange(isOn);
+  notify(isOn: boolean) {
+    const onChange = this.props.onChange;
+    if(onChange) {
+      onChange(isOn);
     }
   }
 
   componentDidMount() {
-    document.addEventListener('mousemove', ::this.handleMouseMove);
-    document.addEventListener('mouseup', ::this.handleMouseUp);
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('mousemove', ::this.handleMouseMove);
-    document.removeEventListener('mouseup', ::this.handleMouseUp);
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
   }
 
-  render() {
+  render(): React.Element<*> {
     return (
       <input type="checkbox" ref="input" className="switch" checked={ this.props.isOn }
-             onMouseDown={ ::this.handleMouseDown } onChange={ ::this.handleChange } />
+             onMouseDown={ this.handleMouseDown }
+             onChange={ this.handleChange } />
     );
   }
 }
