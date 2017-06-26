@@ -1,56 +1,57 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { formatAccount } from '../lib/formatters';
 
-/**
- * Account input field with automatic formatting
- *
- * @export
- * @class AccountInput
- * @extends {React.Component}
- */
+// @TODO: move it into types.js
+
+// ESLint issue: https://github.com/babel/babel-eslint/issues/445
+/* eslint-disable no-unused-vars */
+declare class ClipboardData {
+  setData(type: string, data: string): void;
+  getData(type: string): string;
+}
+
+declare class ClipboardEvent extends Event {
+  clipboardData: ClipboardData;
+}
+
+type AccountInputProps = {
+  value: string;
+  onEnter: () => void;
+  onChange: (newValue: string) => void;
+};
+
+type AccountInputState = {
+  value: string;
+  selectionRange: SelectionRange;
+};
+
+type SelectionRange = [number, number];
+
 export default class AccountInput extends Component {
+  props: AccountInputProps;
+  state: AccountInputState = {
+    value: '',
+    selectionRange: [0, 0]
+  };
 
-  /**
-   * Prop types
-   * @static
-   *
-   * @memberOf AccountInput
-   */
-  static propTypes = {
-    value: PropTypes.string,
-    onEnter: PropTypes.func,
-    onChange: PropTypes.func
-  }
+  _ref: ?HTMLInputElement;
+  _ignoreSelect = false;
 
-  /**
-   * Creates an instance of AccountInput.
-   * @param {object} props
-   *
-   * @memberOf AccountInput
-   */
-  constructor(props) {
+  constructor(props: AccountInputProps) {
     super(props);
 
     // selection range holds selection converted from DOM selection range to
     // internal unformatted representation of account number
     const val = this.sanitize(props.value);
 
-    /**
-     * @type {object}
-     * @property {string}   value          - raw text value
-     * @property {number[]} selectionRange - raw text mapped selection range [start, end]
-     */
     this.state = {
       value: val,
       selectionRange: [val.length, val.length]
     };
   }
 
-  /**
-   * @override
-   */
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: AccountInputProps) {
     const nextVal = this.sanitize(nextProps.value);
     if(nextVal !== this.state.value) {
       const len = nextVal.length;
@@ -58,10 +59,7 @@ export default class AccountInput extends Component {
     }
   }
 
-  /**
-   * @override
-   */
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: AccountInputProps, nextState: AccountInputState) {
     return (this.props.value !== nextProps.value ||
             this.props.onEnter !== nextProps.onEnter ||
             this.props.onChange !== nextProps.onChange ||
@@ -70,31 +68,20 @@ export default class AccountInput extends Component {
             this.state.selectionRange[1] !== nextState.selectionRange[1]);
   }
 
-  /**
-   * @override
-   */
-  render() {
+  render(): React.Element<*> {
     const displayString = formatAccount(this.state.value || '');
-    const props = Object.assign({}, this.props);
-
-    // exclude built-in props
-    for(let key of Object.keys(AccountInput.propTypes)) {
-      if(props.hasOwnProperty(key)) {
-        delete props[key];
-      }
-    }
-
+    const { value, onChange, onEnter, ...otherProps } = this.props;
     return (
-      <input type="text"
+      <input { ...otherProps }
+        type="text"
         value={ displayString }
         onChange={ () => {} }
-        onSelect={ ::this.onSelect }
-        onKeyUp={ ::this.onKeyUp }
-        onKeyDown={ ::this.onKeyDown }
-        onPaste={ ::this.onPaste }
-        onCut={ ::this.onCut }
-        ref={ ::this.onRef }
-        { ...props } />
+        onSelect={ this.onSelect }
+        onKeyUp={ this.onKeyUp }
+        onKeyDown={ this.onKeyDown }
+        onPaste={ this.onPaste }
+        onCut={ this.onCut }
+        ref={ this.onRef } />
     );
   }
 
@@ -102,14 +89,8 @@ export default class AccountInput extends Component {
 
   /**
    * Modify original string inserting substring using selection range
-   *
-   * @private
-   * @param {String?} val  string
-   * @returns {String}
-   *
-   * @memberOf AccountInput
    */
-  sanitize(val) {
+  sanitize(val: ?string): string {
     return (val || '').replace(/[^0-9]/g, '');
   }
 
@@ -121,10 +102,8 @@ export default class AccountInput extends Component {
    * @param {String} insert    insertion string
    * @param {Array}  selRange  selection range ([x,y])
    * @returns {Object}
-   *
-   * @memberOf AccountInput
    */
-  insert(val, insert, selRange) {
+  insert(val: string, insert: string, selRange: SelectionRange): AccountInputState {
     const head = val.slice(0, selRange[0]);
     const tail = val.slice(selRange[1], val.length);
     const newVal = head + insert + tail;
@@ -144,7 +123,7 @@ export default class AccountInput extends Component {
    *
    * @memberOf AccountInput
    */
-  remove(val, selRange) {
+  remove(val: string, selRange: SelectionRange): AccountInputState {
     let newVal, selectionOffset;
 
     if(selRange[0] === selRange[1]) {
@@ -174,7 +153,7 @@ export default class AccountInput extends Component {
    *
    * @memberOf AccountInput
    */
-  toInternalSelectionRange(val, domRange) {
+  toInternalSelectionRange(val: string, domRange: SelectionRange): SelectionRange {
     const countSpaces = (val) => {
       return (val.match(/\s/g) || []).length;
     };
@@ -202,7 +181,7 @@ export default class AccountInput extends Component {
    *
    * @memberOf AccountInput
    */
-  toDomSelection(val, selRange) {
+  toDomSelection(val: string, selRange: SelectionRange): SelectionRange {
     const countSpaces = (val, untilIndex) => {
       if(val.length > 12) { return 0; }
       return Math.floor(untilIndex / 4); // groups of 4 digits
@@ -221,13 +200,7 @@ export default class AccountInput extends Component {
 
   // Events
 
-  /**
-   * Key down handler
-   * @private
-   * @param {event} e
-   * @memberOf AccountInput
-   */
-  onKeyDown(e) {
+  onKeyDown = (e: KeyboardEvent) => {
     const { value, selectionRange } = this.state;
 
     if(e.which === 8) { // backspace
@@ -255,13 +228,7 @@ export default class AccountInput extends Component {
     }
   }
 
-  /**
-   * Key up handler
-   * @private
-   * @param {event} e
-   * @memberOf AccountInput
-   */
-  onKeyUp(e) {
+  onKeyUp = (e: KeyboardEvent) => {
     this._ignoreSelect = false;
 
     if(e.which === 13 && this.props.onEnter) {
@@ -269,14 +236,11 @@ export default class AccountInput extends Component {
     }
   }
 
-  /**
-   * Select handler
-   * @private
-   * @param {event} e
-   * @memberOf AccountInput
-   */
-  onSelect(e) {
+  onSelect = (e: Event) => {
     const ref = e.target;
+    if(!(ref instanceof HTMLInputElement)) {
+      throw new Error('ref must be an instance of HTMLInputElement');
+    }
 
     if(this._ignoreSelect) {
       return;
@@ -288,13 +252,7 @@ export default class AccountInput extends Component {
     this.setState({ selectionRange: selRange });
   }
 
-  /**
-   * Paste handler
-   * @private
-   * @param {event} e
-   * @memberOf AccountInput
-   */
-  onPaste(e) {
+  onPaste = (e: ClipboardEvent) => {
     const { value, selectionRange } = this.state;
     const pastedData = e.clipboardData.getData('text');
     const filteredData = this.sanitize(pastedData);
@@ -307,13 +265,12 @@ export default class AccountInput extends Component {
     });
   }
 
-  /**
-   * Cut handler
-   * @private
-   * @param {event} e
-   * @memberOf AccountInput
-   */
-  onCut(e) {
+  onCut = (e: ClipboardEvent) => {
+    const target = e.target;
+    if(!(target instanceof HTMLInputElement)) {
+      throw new Error('ref must be an instance of HTMLInputElement');
+    }
+
     const { value, selectionRange } = this.state;
 
     e.preventDefault();
@@ -322,7 +279,7 @@ export default class AccountInput extends Component {
     if(selectionRange[0] !== selectionRange[1]) {
       const result = this.remove(value, selectionRange);
       const domSelectionRange = this.toDomSelection(value, selectionRange);
-      const slice = e.target.value.slice(domSelectionRange[0], domSelectionRange[1]);
+      const slice = target.value.slice(domSelectionRange[0], domSelectionRange[1]);
 
       e.clipboardData.setData('text', slice);
 
@@ -334,13 +291,7 @@ export default class AccountInput extends Component {
     }
   }
 
-  /**
-   * Reference handler
-   * @private
-   * @param {DOMElement} ref
-   * @memberOf AccountInput
-   */
-  onRef(ref) {
+  onRef = (ref: HTMLInputElement) => {
     this._ref = ref;
     if(!ref) { return; }
 
@@ -351,10 +302,6 @@ export default class AccountInput extends Component {
     ref.selectionEnd = domRange[1];
   }
 
-  /**
-   * Focus on text field
-   * @memberOf AccountInput
-   */
   focus() {
     if(this._ref) {
       this._ref.focus();
