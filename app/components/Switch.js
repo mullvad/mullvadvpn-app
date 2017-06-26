@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;

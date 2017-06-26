@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { KeyType, createKeyEvent } from '../mocks/dom';
 
 import React from 'react';
-import ReactTestUtils, { Simulate } from 'react-addons-test-utils';
+import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import AccountInput from '../../app/components/AccountInput';
 
 describe('components/AccountInput', () => {
@@ -28,7 +28,7 @@ describe('components/AccountInput', () => {
     const component = ReactTestUtils.renderIntoDocument(
       <AccountInput onChange={ onChange } />
     );
-    
+
     Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
   });
 
@@ -120,7 +120,7 @@ describe('components/AccountInput', () => {
     const component = ReactTestUtils.renderIntoDocument(
       <AccountInput value="0000" />
     );
-    
+
     component.setState({ selectionRange: [1, 3] }, () => {
       Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
 
@@ -140,7 +140,7 @@ describe('components/AccountInput', () => {
     for(let i = 0; i < 12; i++) {
       Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
     }
-    
+
     component.setState({}, () => {
       expect(component.state.value).to.be.equal('111111111111');
       expect(component.state.selectionRange).to.deep.equal([12, 12]);
@@ -152,10 +152,10 @@ describe('components/AccountInput', () => {
     const component = ReactTestUtils.renderIntoDocument(
       <AccountInput value="0000" />
     );
-    
+
     component.setState({ selectionRange: [1, 1]}, () => {
       Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
-      
+
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('01000');
         expect(component.state.selectionRange).to.deep.equal([2, 2]);
@@ -168,7 +168,7 @@ describe('components/AccountInput', () => {
     const component = ReactTestUtils.renderIntoDocument(
       <AccountInput value="0000" />
     );
-    
+
     component.setState({ selectionRange: [0, 0] }, () => {
       Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
 
