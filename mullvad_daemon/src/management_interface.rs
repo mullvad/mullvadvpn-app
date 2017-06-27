@@ -113,6 +113,8 @@ pub enum TunnelCommand {
     SetTargetState(TargetState),
     /// Request the current state.
     GetState(sync::oneshot::Sender<SecurityState>),
+    /// Set which account token to use for subsequent connection attempts.
+    SetAccount(AccountToken),
 }
 
 #[derive(Default)]
@@ -252,9 +254,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(HashMap::new())
     }
 
-    fn set_account(&self, _account_token: AccountToken) -> Result<(), Error> {
+    fn set_account(&self, account_token: AccountToken) -> Result<(), Error> {
         trace!("set_account");
-        Ok(())
+        self.tx
+            .lock()
+            .unwrap()
+            .send(TunnelCommand::SetAccount(account_token))
+            .map_err(|_| Error::internal_error())
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {

@@ -118,6 +118,8 @@ struct Daemon {
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
     remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
+    // The current account token for now. Should be moved into the settings later.
+    account_token: String,
 }
 
 impl Daemon {
@@ -135,6 +137,7 @@ impl Daemon {
                 tunnel_close_handle: None,
                 management_interface_broadcaster,
                 remote_iter: REMOTES.iter().cloned().cycle(),
+                account_token: "0".to_owned(),
             },
         )
     }
@@ -225,7 +228,8 @@ impl Daemon {
                 if let Err(_) = tx.send(self.last_broadcasted_state) {
                     warn!("Unable to send current state to management interface client",);
                 }
-            }
+            },
+            TunnelCommand::SetAccount(account_token) => self.account_token = account_token,
         }
         Ok(())
     }
