@@ -104,12 +104,12 @@ impl TunnelState {
     }
 }
 
-struct Exit(bool);
 
 struct Daemon {
     state: TunnelState,
     last_broadcasted_state: SecurityState,
     target_state: TargetState,
+    shutdown: bool,
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
     tunnel_close_handle: Option<tunnel::CloseHandle>,
@@ -129,6 +129,7 @@ impl Daemon {
                 state: TunnelState::NotRunning,
                 last_broadcasted_state: SecurityState::Unsecured,
                 target_state: TargetState::Unsecured,
+                shutdown: false,
                 rx,
                 tx,
                 tunnel_close_handle: None,
@@ -178,45 +179,46 @@ impl Daemon {
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
         while let Ok(event) = self.rx.recv() {
-            if let Exit(true) = self.handle_event(event)? {
+            self.handle_event(event)?;
+            if self.shutdown {
                 break;
             }
         }
         Ok(())
     }
 
-    fn handle_event(&mut self, event: DaemonEvent) -> Result<Exit> {
+    fn handle_event(&mut self, event: DaemonEvent) -> Result<()> {
         use DaemonEvent::*;
         match event {
             TunnelEvent(event) => self.handle_tunnel_event(event),
             TunnelExit(result) => self.handle_tunnel_exit(result),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExit(result) => self.handle_management_interface_exit(result),
-            Shutdown => Ok(Exit(true)),
+            Shutdown => self.handle_shutdown_event(),
         }
     }
 
-    fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<Exit> {
+    fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         info!("Tunnel event: {:?}", tunnel_event);
         let new_state = match tunnel_event {
             TunnelEvent::Up => TunnelState::Up,
             TunnelEvent::Down => TunnelState::Down,
         };
         self.set_state(new_state);
-        Ok(Exit(false))
+        Ok(())
     }
 
-    fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<Exit> {
+    fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
         self.tunnel_close_handle = None;
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             log_error(&e);
         }
         self.set_state(TunnelState::NotRunning);
         self.apply_target_state()?;
-        Ok(Exit(false))
+        Ok(())
     }
 
-    fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<Exit> {
+    fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
         match event {
             TunnelCommand::SetTargetState(state) => self.set_target_state(state)?,
             TunnelCommand::GetState(tx) => {
@@ -225,15 +227,20 @@ impl Daemon {
                 }
             }
         }
-        Ok(Exit(false))
+        Ok(())
     }
 
-    fn handle_management_interface_exit(&self, result: talpid_ipc::Result<()>) -> Result<Exit> {
+    fn handle_management_interface_exit(&self, result: talpid_ipc::Result<()>) -> Result<()> {
         let error = ErrorKind::ManagementInterfaceError("Server exited unexpectedly");
         match result {
             Ok(()) => Err(error.into()),
             Err(e) => Err(e).chain_err(|| error),
         }
+    }
+
+    fn handle_shutdown_event(&mut self) -> Result<()> {
+        self.shutdown = true;
+        self.set_target_state(TargetState::Unsecured)
     }
 
     /// Update the state of the client. If it changed, notify the subscribers.
