@@ -20,5 +20,11 @@ lazy_static = "0.2"
 talpid_core = { path = "../talpid_core" }
 talpid_ipc = { path = "../talpid_ipc" }
 
+[target.'cfg(unix)'.dependencies]
+simple-signal = "1.1"
+
+[target.'cfg(windows)'.dependencies]
+ctrlc = "3.0"
+
 [dev-dependencies]
 assert_matches = "1.0"
