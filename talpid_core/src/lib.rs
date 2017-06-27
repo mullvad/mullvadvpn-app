@@ -12,6 +12,7 @@ extern crate duct;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
+extern crate mktemp;
 
 #[macro_use]
 extern crate error_chain;

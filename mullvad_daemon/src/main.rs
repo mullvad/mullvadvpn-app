@@ -228,7 +228,7 @@ impl Daemon {
                 if let Err(_) = tx.send(self.last_broadcasted_state) {
                     warn!("Unable to send current state to management interface client",);
                 }
-            },
+            }
             TunnelCommand::SetAccount(account_token) => self.account_token = account_token,
         }
         Ok(())
@@ -310,7 +310,7 @@ impl Daemon {
             ErrorKind::InvalidState
         );
         let remote = self.remote_iter.next().unwrap();
-        let tunnel_monitor = self.spawn_tunnel_monitor(remote)?;
+        let tunnel_monitor = self.spawn_tunnel_monitor(remote, self.account_token.as_str())?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
@@ -318,13 +318,13 @@ impl Daemon {
         Ok(())
     }
 
-    fn spawn_tunnel_monitor(&self, remote: Endpoint) -> Result<TunnelMonitor> {
+    fn spawn_tunnel_monitor(&self, remote: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
             let _ = event_tx.lock().unwrap().send(DaemonEvent::TunnelEvent(event));
         };
-        TunnelMonitor::new(remote, on_tunnel_event)
+        TunnelMonitor::new(remote, account_token, on_tunnel_event)
             .chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
     }
 
