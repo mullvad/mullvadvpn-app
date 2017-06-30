@@ -9,6 +9,25 @@ use std::fmt;
 use std::io;
 use std::path::{Path, PathBuf};
 
+static BASE_ARGUMENTS: &[&[&str]] = &[
+    &["--client"],
+    &["--nobind"],
+    &["--dev", "tun"],
+    &["--ping", "3"],
+    &["--ping-exit", "15"],
+    &["--connect-retry", "0", "0"],
+    &["--connect-retry-max", "1"],
+    &["--comp-lzo"],
+];
+
+static ALLOWED_TLS_CIPHERS: &[&str] = &[
+    "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
+    "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
+    "TLS-DHE-RSA-WITH-CAMELLIA-256-CBC-SHA",
+    "TLS-DHE-RSA-WITH-AES-128-CBC-SHA",
+    "TLS-DHE-RSA-WITH-SEED-CBC-SHA",
+    "TLS-DHE-RSA-WITH-CAMELLIA-128-CBC-SHA",
+];
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
@@ -59,7 +78,8 @@ impl OpenVpnCommand {
 
     /// Returns all arguments that the subprocess would be spawned with.
     pub fn get_arguments(&self) -> Vec<OsString> {
-        let mut args = vec![];
+        let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();
+
         if let Some(ref config) = self.config {
             args.push(OsString::from("--config"));
             args.push(OsString::from(config.as_os_str()));
@@ -74,6 +94,26 @@ impl OpenVpnCommand {
             args.push(OsString::from(path));
             args.extend(plugin_args.iter().map(OsString::from));
         }
+
+        args.extend(Self::security_arguments().iter().map(OsString::from));
+
+        args
+    }
+
+    fn base_arguments() -> Vec<&'static str> {
+        let mut args = vec![];
+        for arglist in BASE_ARGUMENTS.iter() {
+            for arg in arglist.iter() {
+                args.push(*arg);
+            }
+        }
+        args
+    }
+
+    fn security_arguments() -> Vec<String> {
+        let mut args = vec![];
+        args.push("--tls-cipher".to_owned());
+        args.push(ALLOWED_TLS_CIPHERS.join(":"));
         args
     }
 }
@@ -109,12 +149,6 @@ mod tests {
     use super::OpenVpnCommand;
     use net::RemoteAddr;
     use std::ffi::OsString;
-
-    #[test]
-    fn no_arguments() {
-        let testee_args = OpenVpnCommand::new("").get_arguments();
-        assert_eq!(0, testee_args.len());
-    }
 
     #[test]
     fn passes_one_remote() {
