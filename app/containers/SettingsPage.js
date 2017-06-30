@@ -12,11 +12,9 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch, props) => {
-  const { logout } = bindActionCreators(userActions, dispatch);
   const { updateSettings } = bindActionCreators(settingsActions, dispatch);
   return {
     onQuit: () => remote.app.quit(),
-    onLogout: () => logout(props.backend),
     onClose: () => dispatch(push('/connect')),
     onViewAccount: () => dispatch(push('/settings/account')),
     onExternalLink: (type) => shell.openExternal(links[type]),
