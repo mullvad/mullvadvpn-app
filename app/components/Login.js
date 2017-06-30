@@ -28,9 +28,9 @@ export default class Login extends Component {
   onFocus = () => this.setState({ isActive: true });
   onBlur = () => this.setState({ isActive: false });
   onLogin = () => {
-    const { account } = this.props.account;
-    if(account && account.length > 0) {
-      this.props.onLogin(account);
+    const { accountNumber } = this.props.account;
+    if(accountNumber && accountNumber.length > 0) {
+      this.props.onLogin(accountNumber);
     }
   }
 
@@ -90,10 +90,10 @@ export default class Login extends Component {
     return classes.join(' ');
   }
 
-  submitClass(s: LoginState, account: ?string): string {
+  submitClass(s: LoginState, accountNumber: ?string): string {
     const classes = ['login-form__submit'];
 
-    if(account && account.length > 0) {
+    if(accountNumber && accountNumber.length > 0) {
       classes.push('login-form__submit--active');
     }
 
@@ -114,7 +114,7 @@ export default class Login extends Component {
   }
 
   render(): React.Element<*> {
-    const { account, status, error } = this.props.account;
+    const { accountNumber, status, error } = this.props.account;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
 
@@ -129,7 +129,7 @@ export default class Login extends Component {
 
     const inputWrapClass = this.inputWrapClass(status);
     const footerClass = this.footerClass(status);
-    const submitClass = this.submitClass(status, account);
+    const submitClass = this.submitClass(status, accountNumber);
 
     const autoFocusRef = input => {
       if(isFailed && input) {
@@ -181,7 +181,7 @@ export default class Login extends Component {
                     onBlur={ this.onBlur }
                     onChange={ this.onInputChange }
                     onEnter={ this.onLogin }
-                    value={ account || '' }
+                    value={ accountNumber || '' }
                     disabled={ isConnecting }
                     autoFocus={ true }
                     ref={ autoFocusRef } />

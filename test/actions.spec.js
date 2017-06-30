@@ -13,7 +13,7 @@ describe('actions', function() {
 
   it('should login', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, account: '1'} },
+      { type: 'USER_LOGIN_CHANGE', payload: { status: 'connecting', error: null, accountNumber: '1'} },
       { type: 'USER_LOGIN_CHANGE', payload: { paidUntil: '2013-01-01T00:00:00.000Z', status: 'ok', error: undefined } }
     ];
     const store = mockStore(mockState());
@@ -39,7 +39,7 @@ describe('actions', function() {
   
   it('should logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: '', paidUntil: null, status: 'none', error: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { accountNumber: '', paidUntil: null, status: 'none', error: null } },
     ];
 
     const store = mockStore(mockState());
@@ -97,7 +97,7 @@ describe('actions', function() {
 
     let state = Object.assign(mockState(), {
       account: {
-        account: '3333234567890',
+        accountNumber: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
         status: 'ok'
       },
@@ -123,13 +123,13 @@ describe('actions', function() {
 
   it('should disconnect from VPN server on logout', (done) => {
     const expectedActions = [
-      { type: 'USER_LOGIN_CHANGE', payload: { account: '', paidUntil: null, status: 'none', error: null } },
+      { type: 'USER_LOGIN_CHANGE', payload: { accountNumber: '', paidUntil: null, status: 'none', error: null } },
       { type: 'CONNECTION_CHANGE', payload: { serverAddress: null, status: 'disconnected' } }
     ];
 
     let state = Object.assign(mockState(), {
       account: {
-        account: '3333234567890',
+        accountNumber: '3333234567890',
         paidUntil: '2038-01-01T00:00:00.000Z',
         status: 'ok'
       },

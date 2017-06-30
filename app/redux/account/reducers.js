@@ -8,7 +8,7 @@ import type { BackendError } from '../../lib/backend';
 
 export type LoginState = 'none' | 'connecting' | 'failed' | 'ok';
 export type AccountReduxState = {
-  account: ?string,
+  accountNumber: ?string,
   paidUntil: ?string, // ISO8601
   location: ?Coordinate2d,
   country: ?string,
@@ -18,7 +18,7 @@ export type AccountReduxState = {
 };
 
 const initialState: AccountReduxState = {
-  account: null,
+  accountNumber: null,
   paidUntil: null,
   location: null,
   country: null,

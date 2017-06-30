@@ -23,8 +23,8 @@ export default class Account extends Component {
   onLogout = () => this.props.onLogout();
 
   render(): React.Element<*> {
-    let paidUntil = moment(this.props.account.paidUntil);
-    let formattedAccountId = formatAccount(this.props.account.account || '');
+    const paidUntil = moment(this.props.account.paidUntil);
+    const formattedAccountId = formatAccount(this.props.account.accountNumber || '');
     const formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = paidUntil.isSameOrBefore(moment());
 

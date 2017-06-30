@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     onSettings: () => dispatch(push('/settings')),
     onLogin: (account) => login(backend, account),
-    onChange: (account) => loginChange({ account }),
+    onChange: (accountNumber) => loginChange({ accountNumber }),
     onFirstChangeAfterFailure: () => loginChange({ status: 'none', error: null }),
     onExternalLink: (type) => shell.openExternal(links[type])
   };

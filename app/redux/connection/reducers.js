@@ -1,6 +1,6 @@
 // @flow
 import { handleActions } from 'redux-actions';
-import actions from './actions.js';
+import actions from './actions';
 
 import type { ReduxAction } from '../store';
 

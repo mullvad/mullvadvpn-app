@@ -61,7 +61,7 @@ export default function mapBackendEventsToReduxActions(backend: Backend, store: 
   const onLogout = () => {
     store.dispatch(accountActions.loginChange({
       status: 'none',
-      account: '',
+      accountNumber: '',
       paidUntil: null,
       error: null
     }));

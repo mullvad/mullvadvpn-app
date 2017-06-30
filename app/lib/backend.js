@@ -135,7 +135,7 @@ export class Backend {
     log.info('Attempting to login with account number', account);
 
     // emit: logging in
-    this._emit('logging', { account }, null);
+    this._emit('logging', { accountNumber: account }, null);
 
     this._ipc.getAccountData(account)
       .then( response => {
