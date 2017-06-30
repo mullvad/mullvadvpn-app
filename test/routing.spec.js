@@ -34,22 +34,4 @@ describe('routing', function() {
       expect(storeActions).deep.equal(expectedActions);
     }, 0);
   });
-
-  it('should redirect to connect screen on login', (done) => {
-    const expectedActions = [
-      { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'replace', args: [ '/connect' ] } }
-    ];
-
-    const store = mockStore(mockState());
-    const backend = new Backend(newMockIpc());
-    mapBackendEventsToRouter(backend, store);
-
-    store.subscribe(() => {
-      const storeActions = filterMinorActions(store.getActions());
-      expect(storeActions).deep.equal(expectedActions);
-      done();
-    });
-    store.dispatch(accountActions.login(backend, '1'));
-  });
-
 });
