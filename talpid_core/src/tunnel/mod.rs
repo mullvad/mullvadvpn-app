@@ -33,7 +33,7 @@ pub use self::errors::*;
 
 
 /// Possible events from the VPN tunnel and the child process managing it.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
     /// Sent when the tunnel comes up and is ready for traffic.
     Up,

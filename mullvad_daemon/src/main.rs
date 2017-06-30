@@ -27,6 +27,7 @@ mod shutdown;
 
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use states::{SecurityState, TargetState};
+use std::io;
 
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
@@ -70,6 +71,7 @@ lazy_static! {
 pub enum DaemonEvent {
     TunnelEvent(TunnelEvent),
     TunnelExit(tunnel::Result<()>),
+    TunnelKill(io::Result<()>),
     ManagementInterfaceEvent(TunnelCommand),
     ManagementInterfaceExit(talpid_ipc::Result<()>),
     Shutdown,
@@ -94,15 +96,18 @@ pub enum TunnelState {
     /// No tunnel is running.
     NotRunning,
     /// The tunnel has been started, but it is not established/functional.
-    Down,
+    Connecting,
     /// The tunnel is up and working.
-    Up,
+    Connected,
+    /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
+    /// operation (TunnelExit) returned.
+    Exiting,
 }
 
 impl TunnelState {
     pub fn as_security_state(&self) -> SecurityState {
         match *self {
-            TunnelState::Up => SecurityState::Secured,
+            TunnelState::Connected => SecurityState::Secured,
             _ => SecurityState::Unsecured,
         }
     }
@@ -199,6 +204,7 @@ impl Daemon {
         match event {
             TunnelEvent(event) => self.handle_tunnel_event(event),
             TunnelExit(result) => self.handle_tunnel_exit(result),
+            TunnelKill(result) => self.handle_tunnel_kill(result),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExit(result) => self.handle_management_interface_exit(result),
             Shutdown => self.handle_shutdown_event(),
@@ -207,12 +213,13 @@ impl Daemon {
 
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         info!("Tunnel event: {:?}", tunnel_event);
-        let new_state = match tunnel_event {
-            TunnelEvent::Up => TunnelState::Up,
-            TunnelEvent::Down => TunnelState::Down,
-        };
-        self.set_state(new_state);
-        Ok(())
+        if self.state == TunnelState::Connecting && tunnel_event == TunnelEvent::Up {
+            self.set_state(TunnelState::Connected)
+        } else if self.state == TunnelState::Connected && tunnel_event == TunnelEvent::Down {
+            self.kill_tunnel()
+        } else {
+            Ok(())
+        }
     }
 
     fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
@@ -220,21 +227,28 @@ impl Daemon {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             log_error(&e);
         }
-        self.set_state(TunnelState::NotRunning);
-        self.apply_target_state()?;
-        Ok(())
+        self.set_state(TunnelState::NotRunning)
+    }
+
+    fn handle_tunnel_kill(&mut self, result: io::Result<()>) -> Result<()> {
+        result.chain_err(|| "Error while trying to close tunnel")
     }
 
     fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
+        use TunnelCommand::*;
         match event {
-            TunnelCommand::SetTargetState(state) => self.set_target_state(state)?,
-            TunnelCommand::GetState(tx) => {
+            SetTargetState(state) => {
+                if !self.shutdown {
+                    self.set_target_state(state)?;
+                }
+            }
+            GetState(tx) => {
                 if let Err(_) = tx.send(self.last_broadcasted_state) {
                     warn!("Unable to send current state to management interface client",);
                 }
             }
-            TunnelCommand::SetAccount(account_token) => self.account_token = account_token,
-            TunnelCommand::GetAccount(tx) => {
+            SetAccount(account_token) => self.account_token = account_token,
+            GetAccount(tx) => {
                 if let Err(_) = tx.send(self.account_token.clone()) {
                     warn!("Unable to send current account to management interface client");
                 }
@@ -256,15 +270,20 @@ impl Daemon {
         self.set_target_state(TargetState::Unsecured)
     }
 
-    /// Update the state of the client. If it changed, notify the subscribers.
-    fn set_state(&mut self, new_state: TunnelState) {
+    /// Update the state of the client. If it changed, notify the subscribers and trigger
+    /// appropriate actions.
+    fn set_state(&mut self, new_state: TunnelState) -> Result<()> {
         if new_state != self.state {
+            debug!("State {:?} => {:?}", self.state, new_state);
             self.state = new_state;
             let new_security_state = self.state.as_security_state();
             if self.last_broadcasted_state != new_security_state {
                 self.last_broadcasted_state = new_security_state;
                 self.management_interface_broadcaster.notify_new_state(new_security_state);
             }
+            self.apply_target_state()
+        } else {
+            Ok(())
         }
     }
 
@@ -272,6 +291,7 @@ impl Daemon {
     /// towards that state.
     fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
         if new_state != self.target_state {
+            debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             self.apply_target_state()
         } else {
@@ -286,30 +306,13 @@ impl Daemon {
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     log_error(&e);
                     self.management_interface_broadcaster.notify_error(&e);
-                    self.target_state = TargetState::Unsecured;
+                    self.set_target_state(TargetState::Unsecured)?;
                 }
                 Ok(())
             }
-            (TargetState::Unsecured, TunnelState::Down) |
-            (TargetState::Unsecured, TunnelState::Up) => {
-                if let Some(close_handle) = self.tunnel_close_handle.take() {
-                    debug!("Triggering tunnel stop");
-                    // This close operation will block until the tunnel is dead.
-                    close_handle
-                        .close()
-                        .chain_err(|| ErrorKind::TunnelError("Unable to kill tunnel"))
-                } else {
-                    Ok(())
-                }
-            }
-            (target_state, state) => {
-                trace!(
-                    "apply_target_state does nothing on TargetState::{:?} TunnelState::{:?}",
-                    target_state,
-                    state
-                );
-                Ok(())
-            }
+            (TargetState::Unsecured, TunnelState::Connecting) |
+            (TargetState::Unsecured, TunnelState::Connected) => self.kill_tunnel(),
+            (..) => Ok(()),
         }
     }
 
@@ -326,9 +329,7 @@ impl Daemon {
         let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
-
-        self.set_state(TunnelState::Down);
-        Ok(())
+        self.set_state(TunnelState::Connecting)
     }
 
     fn spawn_tunnel_monitor(&self, remote: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
@@ -350,6 +351,24 @@ impl Daemon {
                 trace!("Tunnel monitor thread exit");
             },
         );
+    }
+
+    fn kill_tunnel(&mut self) -> Result<()> {
+        ensure!(
+            self.state == TunnelState::Connecting || self.state == TunnelState::Connected,
+            ErrorKind::InvalidState
+        );
+        self.set_state(TunnelState::Exiting)?;
+        let close_handle = self.tunnel_close_handle.take().unwrap();
+        let result_tx = self.tx.clone();
+        thread::spawn(
+            move || {
+                let result = close_handle.close();
+                let _ = result_tx.send(DaemonEvent::TunnelKill(result));
+                trace!("Tunnel kill thread exit");
+            },
+        );
+        Ok(())
     }
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
