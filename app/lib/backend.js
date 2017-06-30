@@ -149,7 +149,7 @@ export class Backend {
 
     this._store.dispatch(accountActions.loginChange({
       accountNumber: accountNumber,
-      status: 'connecting',
+      status: 'logging in',
       error: null,
     }));
 

@@ -6,7 +6,7 @@ import type { Coordinate2d } from '../../types';
 import type { ReduxAction } from '../store';
 import type { BackendError } from '../../lib/backend';
 
-export type LoginState = 'none' | 'connecting' | 'failed' | 'ok';
+export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
 export type AccountReduxState = {
   accountNumber: ?string,
   paidUntil: ?string, // ISO8601
