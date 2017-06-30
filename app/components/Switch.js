@@ -125,8 +125,8 @@ export default class Switch extends Component {
   render(): React.Element<*> {
     return (
       <input type="checkbox" ref={ this.onRef } className="switch" checked={ this.props.isOn }
-             onMouseDown={ this.handleMouseDown }
-             onChange={ this.handleChange } />
+        onMouseDown={ this.handleMouseDown }
+        onChange={ this.handleChange } />
     );
   }
 }

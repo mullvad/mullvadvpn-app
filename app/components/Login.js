@@ -176,24 +176,24 @@ export default class Login extends Component {
                 <div className="login-form__subtitle">{ subtitle }</div>
                 <div className={ inputWrapClass }>
                   <AccountInput className="login-form__input-field"
-                        type="text"
-                        placeholder="e.g 0000 0000 0000"
-                        onFocus={ this.onFocus }
-                        onBlur={ this.onBlur }
-                        onChange={ this.onInputChange }
-                        onEnter={ this.onLogin }
-                        value={ account || '' }
-                        disabled={ isConnecting }
-                        autoFocus={ true }
-                        ref={ autoFocusRef } />
-                    <button className={ submitClass } onClick={ this.onLogin }>
-                      <LoginArrowSVG className="login-form__submit-icon" />
-                    </button>
+                    type="text"
+                    placeholder="e.g 0000 0000 0000"
+                    onFocus={ this.onFocus }
+                    onBlur={ this.onBlur }
+                    onChange={ this.onInputChange }
+                    onEnter={ this.onLogin }
+                    value={ account || '' }
+                    disabled={ isConnecting }
+                    autoFocus={ true }
+                    ref={ autoFocusRef } />
+                  <button className={ submitClass } onClick={ this.onLogin }>
+                    <LoginArrowSVG className="login-form__submit-icon" />
+                  </button>
                 </div>
               </div>
             </div>
             <div className={ footerClass }>
-              <div className="login-footer__prompt">Don't have an account number?</div>
+              <div className="login-footer__prompt">{ 'Don\'t have an account number?' }</div>
               <button className="button button--primary" onClick={ this.onCreateAccount }>
                 <span className="button-label">Create account</span>
                 <ExternalLinkSVG className="button-icon button-icon--16" />

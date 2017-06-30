@@ -102,7 +102,7 @@ if(!rootElement) {
 ReactDOM.render(
   <Provider store={ store }>
     <ConnectedRouter history={ memoryHistory }>
-    { makeRoutes(store.getState, { backend }) }
+      { makeRoutes(store.getState, { backend }) }
     </ConnectedRouter>
   </Provider>,
   rootElement
