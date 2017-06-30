@@ -2,11 +2,10 @@ extern crate openvpn_ffi;
 
 use duct;
 
-use net::{RemoteAddr, ToRemoteAddrs};
+use net;
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
-use std::io;
 use std::path::{Path, PathBuf};
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -35,7 +34,7 @@ static ALLOWED_TLS_CIPHERS: &[&str] = &[
 pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
-    remotes: Vec<RemoteAddr>,
+    remote: Option<net::Endpoint>,
     plugin: Option<(PathBuf, Vec<String>)>,
 }
 
@@ -46,7 +45,7 @@ impl OpenVpnCommand {
         OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
-            remotes: vec![],
+            remote: None,
             plugin: None,
         }
     }
@@ -57,11 +56,10 @@ impl OpenVpnCommand {
         self
     }
 
-    /// Sets the addresses that OpenVPN will connect to. See OpenVPN documentation for how multiple
-    /// remotes are handled.
-    pub fn remotes<A: ToRemoteAddrs>(&mut self, remotes: A) -> io::Result<&mut Self> {
-        self.remotes = remotes.to_remote_addrs()?.collect();
-        Ok(self)
+    /// Sets the address and protocol that OpenVPN will connect to.
+    pub fn remote(&mut self, remote: net::Endpoint) -> &mut Self {
+        self.remote = Some(remote);
+        self
     }
 
     /// Sets a plugin and its arguments that OpenVPN will be started with.
@@ -84,11 +82,9 @@ impl OpenVpnCommand {
             args.push(OsString::from("--config"));
             args.push(OsString::from(config.as_os_str()));
         }
-        for remote in &self.remotes {
-            args.push(OsString::from("--remote"));
-            args.push(OsString::from(remote.address()));
-            args.push(OsString::from(remote.port().to_string()));
-        }
+
+        args.extend(self.remote_arguments().iter().map(OsString::from));
+
         if let Some((ref path, ref plugin_args)) = self.plugin {
             args.push(OsString::from("--plugin"));
             args.push(OsString::from(path));
@@ -114,6 +110,23 @@ impl OpenVpnCommand {
         let mut args = vec![];
         args.push("--tls-cipher".to_owned());
         args.push(ALLOWED_TLS_CIPHERS.join(":"));
+        args
+    }
+
+    fn remote_arguments(&self) -> Vec<String> {
+        let mut args: Vec<String> = vec![];
+        if let Some(ref endpoint) = self.remote {
+            args.push("--proto".to_owned());
+            args.push(
+                match endpoint.protocol {
+                    net::TransportProtocol::Udp => "udp".to_owned(),
+                    net::TransportProtocol::Tcp => "tcp-client".to_owned(),
+                },
+            );
+            args.push("--remote".to_owned());
+            args.push(endpoint.address.address());
+            args.push(endpoint.address.port().to_string());
+        }
         args
     }
 }
@@ -147,49 +160,18 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
 #[cfg(test)]
 mod tests {
     use super::OpenVpnCommand;
-    use net::RemoteAddr;
+    use net::{Endpoint, TransportProtocol};
     use std::ffi::OsString;
 
     #[test]
     fn passes_one_remote() {
-        let remote = RemoteAddr::new("example.com", 3333);
+        let remote = Endpoint::new("example.com", 3333, TransportProtocol::Udp);
 
-        let testee_args = OpenVpnCommand::new("").remotes(remote).unwrap().get_arguments();
+        let testee_args = OpenVpnCommand::new("").remote(remote).get_arguments();
 
+        assert!(testee_args.contains(&OsString::from("udp")));
         assert!(testee_args.contains(&OsString::from("example.com")));
         assert!(testee_args.contains(&OsString::from("3333")));
-    }
-
-    #[test]
-    fn passes_two_remotes() {
-        let remotes = vec![
-            RemoteAddr::new("127.0.0.1", 998),
-            RemoteAddr::new("fe80::1", 1337),
-        ];
-
-        let testee_args = OpenVpnCommand::new("").remotes(&remotes[..]).unwrap().get_arguments();
-
-        assert!(testee_args.contains(&OsString::from("127.0.0.1")));
-        assert!(testee_args.contains(&OsString::from("998")));
-        assert!(testee_args.contains(&OsString::from("fe80::1")));
-        assert!(testee_args.contains(&OsString::from("1337")));
-    }
-
-    #[test]
-    fn accepts_str() {
-        assert!(OpenVpnCommand::new("").remotes("10.0.0.1:1377").is_ok());
-    }
-
-    #[test]
-    fn accepts_slice_of_str() {
-        let remotes = ["10.0.0.1:1337", "127.0.0.1:99"];
-
-        let testee_args = OpenVpnCommand::new("").remotes(&remotes[..]).unwrap().get_arguments();
-
-        assert!(testee_args.contains(&OsString::from("10.0.0.1")));
-        assert!(testee_args.contains(&OsString::from("1337")));
-        assert!(testee_args.contains(&OsString::from("127.0.0.1")));
-        assert!(testee_args.contains(&OsString::from("99")));
     }
 
     #[test]

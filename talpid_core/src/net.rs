@@ -1,11 +1,6 @@
 use std::fmt;
-use std::io;
-use std::iter;
 use std::net::SocketAddr;
-use std::option;
-use std::slice;
 use std::str::FromStr;
-use std::vec;
 
 
 error_chain! {
@@ -18,6 +13,34 @@ error_chain! {
     }
 }
 
+
+/// Represents a network layer IP address together with the transport layer protocol and port.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Endpoint {
+    /// The address part of this endpoint, contains the IP and port.
+    pub address: RemoteAddr,
+    /// The protocol part of this endpoint.
+    pub protocol: TransportProtocol,
+}
+
+impl Endpoint {
+    /// Constructs a new `Endpoint` from the given parameters.
+    pub fn new(address: &str, port: u16, protocol: TransportProtocol) -> Self {
+        Endpoint {
+            address: RemoteAddr::new(address, port),
+            protocol: protocol,
+        }
+    }
+}
+
+/// Representation of a transport protocol, either UDP or TCP.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TransportProtocol {
+    /// Represents the UDP transport protocol.
+    Udp,
+    /// Represents the TCP transport protocol.
+    Tcp,
+}
 
 /// Representation of a TCP or UDP endpoint. The IP level address is represented by either an IP
 /// directly or a hostname/domain. The IP level address together with a port becomes a socket
@@ -100,63 +123,6 @@ impl fmt::Display for RemoteAddr {
         }
     }
 }
-
-/// A trait for objects which can be converted to one or more `RemoteAddr` values.
-pub trait ToRemoteAddrs {
-    /// Returned iterator over remote addresses which this type may correspond
-    /// to.
-    type Iter: Iterator<Item = RemoteAddr>;
-
-    /// Converts this object to an iterator of parsed `RemoteAddr`s.
-    ///
-    /// # Errors
-    ///
-    /// Any errors encountered during parsing will be returned as an `Err`.
-    fn to_remote_addrs(&self) -> io::Result<Self::Iter>;
-}
-
-impl ToRemoteAddrs for RemoteAddr {
-    type Iter = option::IntoIter<RemoteAddr>;
-
-    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
-        Ok(Some(self.clone()).into_iter())
-    }
-}
-
-impl<'a> ToRemoteAddrs for &'a [RemoteAddr] {
-    type Iter = iter::Cloned<slice::Iter<'a, RemoteAddr>>;
-
-    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
-        Ok(self.iter().cloned())
-    }
-}
-
-impl<'a> ToRemoteAddrs for &'a str {
-    type Iter = option::IntoIter<RemoteAddr>;
-
-    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
-        let parsed_addr = str_to_remote_addr(self)?;
-        Ok(Some(parsed_addr).into_iter())
-    }
-}
-
-impl<'a> ToRemoteAddrs for &'a [&'a str] {
-    type Iter = vec::IntoIter<RemoteAddr>;
-
-    fn to_remote_addrs(&self) -> io::Result<Self::Iter> {
-        let mut addrs = Vec::with_capacity(self.len());
-        for addr in self.iter() {
-            addrs.push(str_to_remote_addr(addr)?);
-        }
-        Ok(addrs.into_iter())
-    }
-}
-
-fn str_to_remote_addr(s: &str) -> io::Result<RemoteAddr> {
-    RemoteAddr::from_str(s)
-        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e.description()))
-}
-
 
 
 #[cfg(test)]

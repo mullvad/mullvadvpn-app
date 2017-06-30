@@ -56,7 +56,7 @@ pub struct TunnelMonitor {
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
-    pub fn new<L>(remote: net::RemoteAddr, on_event: L) -> Result<Self>
+    pub fn new<L>(remote: net::Endpoint, on_event: L) -> Result<Self>
         where L: Fn(TunnelEvent) + Send + Sync + 'static
     {
         let on_openvpn_event = move |event, _env| match TunnelEvent::from_openvpn_event(&event) {
@@ -69,11 +69,9 @@ impl TunnelMonitor {
         Ok(TunnelMonitor { monitor })
     }
 
-    fn create_openvpn_cmd(remote: net::RemoteAddr) -> OpenVpnCommand {
+    fn create_openvpn_cmd(remote: net::Endpoint) -> OpenVpnCommand {
         let mut cmd = OpenVpnCommand::new("openvpn");
-        cmd.config(get_config_path())
-            .remotes(remote)
-            .unwrap();
+        cmd.config(get_config_path()).remote(remote);
         cmd
     }
 

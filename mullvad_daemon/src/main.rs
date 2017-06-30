@@ -32,7 +32,7 @@ use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
 use talpid_core::mpsc::IntoSender;
-use talpid_core::net::RemoteAddr;
+use talpid_core::net::{Endpoint, TransportProtocol};
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
 
 error_chain!{
@@ -55,10 +55,10 @@ error_chain!{
 
 lazy_static! {
     // Temporary store of hardcoded remotes.
-    static ref REMOTES: [RemoteAddr; 3] = [
-        RemoteAddr::new("se5.mullvad.net", 1300),
-        RemoteAddr::new("se6.mullvad.net", 1300),
-        RemoteAddr::new("se7.mullvad.net", 1300),
+    static ref REMOTES: [Endpoint; 3] = [
+        Endpoint::new("se5.mullvad.net", 1300, TransportProtocol::Udp),
+        Endpoint::new("se6.mullvad.net", 1300, TransportProtocol::Udp),
+        Endpoint::new("se7.mullvad.net", 1300, TransportProtocol::Udp),
     ];
 }
 
@@ -117,7 +117,7 @@ struct Daemon {
 
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
-    remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, RemoteAddr>>>,
+    remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
 }
 
 impl Daemon {
@@ -314,7 +314,7 @@ impl Daemon {
         Ok(())
     }
 
-    fn spawn_tunnel_monitor(&self, remote: RemoteAddr) -> Result<TunnelMonitor> {
+    fn spawn_tunnel_monitor(&self, remote: Endpoint) -> Result<TunnelMonitor> {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
