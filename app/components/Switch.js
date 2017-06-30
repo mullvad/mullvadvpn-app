@@ -16,6 +16,9 @@ export default class Switch extends Component {
     isOn: false
   }
 
+  ref: ?HTMLInputElement;
+  onRef = (e: HTMLInputElement) => this.ref = e;
+
   state = {
     isTracking: false,
     ignoreChange: false,
@@ -37,6 +40,7 @@ export default class Switch extends Component {
       return;
     }
 
+    const inputElement = this.ref;
     const { x: x0 } = this.state.initialPos;
     const { pageX: x, pageY: y } = e;
     const dx = Math.abs(x0 - x);
@@ -59,7 +63,11 @@ export default class Switch extends Component {
         initialPos: { x, y },
         ignoreChange: true
       });
-      this.refs.input.checked = nextOn;
+
+      if(inputElement) {
+        inputElement.checked = nextOn;
+      }
+
       this.notify(nextOn);
     }
   }
@@ -116,7 +124,7 @@ export default class Switch extends Component {
 
   render(): React.Element<*> {
     return (
-      <input type="checkbox" ref="input" className="switch" checked={ this.props.isOn }
+      <input type="checkbox" ref={ this.onRef } className="switch" checked={ this.props.isOn }
              onMouseDown={ this.handleMouseDown }
              onChange={ this.handleChange } />
     );
