@@ -57,7 +57,7 @@
     "eslint": "^3.14.1",
     "eslint-plugin-flowtype": "^2.34.0",
     "eslint-plugin-react": "^6.9.0",
-    "flow-bin": "^0.48.0",
+    "flow-bin": "^0.49.1",
     "flow-typed": "^2.1.2",
     "isomorphic-fetch": "^2.2.1",
     "jsdom": "^9.11.0",
