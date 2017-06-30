@@ -125,7 +125,7 @@ export default class Ipc {
 
   _getWebSocket() {
     return new Promise(resolve => {
-      if (this._websocket.readyState === 1) { // Connected
+      if (this._websocket && this._websocket.readyState === 1) { // Connected
         resolve(this._websocket);
       } else {
         log.debug('Waiting for websocket to connect');
