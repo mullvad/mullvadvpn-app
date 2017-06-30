@@ -21,7 +21,7 @@ import type { TrayIconType } from './lib/tray-icon-manager';
 const initialState = null;
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
-const backend = new Backend();
+const backend = new Backend(store);
 
 // reset login state if user quit the app during login
 if((['connecting', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {

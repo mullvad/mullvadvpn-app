@@ -24,7 +24,7 @@ describe('routing', function() {
     });
 
     const store = mockStore(state);
-    const backend = new Backend(newMockIpc());
+    const backend = new Backend(store, newMockIpc());
     mapBackendEventsToRouter(backend, store);
 
     store.dispatch(accountActions.logout(backend));
