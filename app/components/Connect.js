@@ -22,21 +22,21 @@ type DisplayLocation = {
   city: ?string;
 };
 
+export type ConnectProps = {
+  user: UserReduxState,
+  connect: ConnectReduxState,
+  settings: SettingsReduxState,
+  onSettings: () => void,
+  onSelectLocation: () => void,
+  onConnect: (address: string) => void,
+  onCopyIP: () => void,
+  onDisconnect: () => void,
+  onExternalLink: (type: string) => void,
+  getServerInfo: (identifier: string) => ?ServerInfo
+};
+
 export default class Connect extends Component {
-
-  props: {
-    user: UserReduxState,
-    connect: ConnectReduxState,
-    settings: SettingsReduxState,
-    onSettings: () => void,
-    onSelectLocation: () => void,
-    onConnect: (address: string) => void,
-    onCopyIP: () => void,
-    onDisconnect: () => void,
-    onExternalLink: (type: string) => void,
-    getServerInfo: (identifier: string) => ?ServerInfo
-  };
-
+  props: ConnectProps;
   state = {
     isFirstPass: true,
     showCopyIPMessage: false
