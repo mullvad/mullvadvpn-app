@@ -1,26 +1,31 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { servers } from '../config';
 import CustomScrollbars from './CustomScrollbars';
 
+import type { SettingsReduxState } from '../reducers/settings';
+
+export type SelectLocationProps = {
+  settings: SettingsReduxState,
+  onClose: () => void;
+  onSelect: (server: string) => void;
+};
+
 export default class SelectLocation extends Component {
+  props: SelectLocationProps;
+  _selectedCell: ?HTMLElement;
 
-  static propTypes = {
-    onClose: PropTypes.func.isRequired,
-    onSelect: PropTypes.func.isRequired
-  }
-
-  onSelect(name) {
+  onSelect(name: string) {
     this.props.onSelect(name);
   }
 
-  isSelected(key) {
-    return key === this.props.settings.preferredServer;
+  isSelected(server: string) {
+    return server === this.props.settings.preferredServer;
   }
 
-  drawCell(key, name, icon, onClick) {
+  drawCell(key: string, name: string, icon: ?string, onClick: (e: Event) => void): React.Element<*> {
     const classes = ['select-location__cell'];
     const selected = this.isSelected(key);
 
@@ -51,7 +56,7 @@ export default class SelectLocation extends Component {
     );
   }
 
-  onCellRef(key, element) {
+  onCellRef(key: string, element: HTMLElement) {
     // save reference to selected cell
     if(this.isSelected(key)) {
       this._selectedCell = element;
@@ -60,12 +65,18 @@ export default class SelectLocation extends Component {
 
   componentDidMount() {
     // restore scroll to selected cell
-    if(this._selectedCell) {
-      this._selectedCell.scrollIntoViewIfNeeded(true);
+    const cell = this._selectedCell;
+    if(cell) {
+      // this is non-standard webkit method but it works great!
+      if(typeof(cell.scrollIntoViewIfNeeded) !== 'function') {
+        console.warn('HTMLElement.scrollIntoViewIfNeeded() is not available anymore! Please replace it with viable alternative.');
+        return;
+      }
+      cell.scrollIntoViewIfNeeded(true);
     }
   }
 
-  render() {
+  render(): React.Element<*> {
     return (
       <Layout>
         <Header hidden={ true } style={ 'defaultDark' } />
