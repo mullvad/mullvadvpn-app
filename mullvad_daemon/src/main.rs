@@ -230,6 +230,11 @@ impl Daemon {
                 }
             }
             TunnelCommand::SetAccount(account_token) => self.account_token = account_token,
+            TunnelCommand::GetAccount(tx) => {
+                if let Err(_) = tx.send(self.account_token.clone()) {
+                    warn!("Unable to send current account to management interface client");
+                }
+            }
         }
         Ok(())
     }
