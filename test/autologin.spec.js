@@ -1,0 +1,110 @@
+// @flow
+
+import { expect } from 'chai';
+import { setupBackendAndStore, setupBackendAndMockStore, getLocation } from './helpers/ipc-helpers';
+import { IpcChain } from './helpers/IpcChain';
+
+describe('autologin', () => {
+
+  it('should send get_account then get_account_data if an account is set', (done) => {
+    const { mockIpc, backend } = setupBackendAndStore();
+
+    const randomAccountNumber = '12345';
+
+    const chain = new IpcChain(mockIpc, done);
+    chain.addRequiredStep('getAccount')
+      .withReturnValue(randomAccountNumber)
+      .done();
+
+    chain.addRequiredStep('getAccountData')
+      .withInputValidation((num) => {
+        expect(num).to.equal(randomAccountNumber);
+      })
+      .done();
+
+    backend.autologin();
+  });
+
+  it('should redirect to the login page if no account is set', () => {
+    const { store, backend, mockIpc } = setupBackendAndMockStore();
+
+    mockIpc.getAccount = () => new Promise((_, reject) => reject('NO_ACCOUNT'));
+
+    return backend.autologin()
+      .then( () => {
+        expect(getLocation(store)).to.equal('/');
+      });
+  });
+
+  it('should redirect to the login page for non-existing accounts', () => {
+    const { store, backend, mockIpc } = setupBackendAndMockStore();
+
+    mockIpc.getAccount = () => new Promise(r => r('123'));
+    mockIpc.getAccountData = () => new Promise((_, reject) => reject('NO ACCOUNT'));
+
+    return backend.autologin()
+      .then( () => {
+        expect(getLocation(store)).to.equal('/');
+      });
+  });
+
+  it('should mark the state as not logged in if no account is set', () => {
+    const { store, backend, mockIpc } = setupBackendAndStore();
+
+    mockIpc.getAccount = () => new Promise(r => r(null));
+
+    return backend.autologin()
+      .then( () => {
+        const state = store.getState().account;
+
+        expect(state.status).to.equal('none');
+        expect(state.accountNumber).to.be.null;
+        expect(state.error).not.to.be.null;
+      });
+  });
+
+  it('should mark the state as not logged in for non-existing accounts', () => {
+    const { store, backend, mockIpc } = setupBackendAndStore();
+
+    mockIpc.getAccount = () => new Promise(r => r('123'));
+    mockIpc.getAccountData = () => new Promise((_, reject) => reject('NO ACCOUNT'));
+
+    return backend.autologin()
+      .then( () => {
+        const state = store.getState().account;
+
+        expect(state.status).to.equal('none');
+        expect(state.error).not.to.be.null;
+      });
+  });
+
+  it('should put the account data in the state for existing accounts', () => {
+    const { store, backend, mockIpc } = setupBackendAndStore();
+    mockIpc.getAccount = () => new Promise(r => r('123'));
+    mockIpc.getAccountData = () => new Promise(r => r({
+      paid_until: '2001-01-01T00:00:00',
+    }));
+
+    return backend.autologin()
+      .then( () => {
+        const state = store.getState().account;
+        expect(state.status).to.equal('ok');
+        expect(state.accountNumber).to.equal('123');
+        expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
+      });
+  });
+
+  it('should redirect to /connect for existing accounts', () => {
+    const { store, backend, mockIpc } = setupBackendAndMockStore();
+
+    mockIpc.getAccount = () => new Promise(r => r('123'));
+    mockIpc.getAccountData = () => new Promise(r => r({
+      paid_until: '2001-01-01T00:00:00',
+    }));
+
+    return backend.autologin()
+      .then( () => {
+        expect(getLocation(store)).to.equal('/connect');
+      });
+  });
+});

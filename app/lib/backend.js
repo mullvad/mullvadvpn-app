@@ -186,6 +186,52 @@ export class Backend {
       });
   }
 
+  autologin() {
+    log.info('Attempting to log in automatically');
+
+    this._store.dispatch(accountActions.loginChange({
+      accountNumber: null,
+      status: 'logging in',
+      error: null,
+    }));
+
+    return this._ipc.getAccount()
+      .then( accountNumber => {
+        if (!accountNumber) {
+          throw new Error('No account set in the backend, failing autologin');
+        }
+        log.debug('The backend had an account number stored:', accountNumber);
+
+        this._store.dispatch(accountActions.loginChange({
+          accountNumber: accountNumber,
+          status: 'logging in',
+          error: null,
+        }));
+
+        return this._ipc.getAccountData(accountNumber);
+      })
+      .then( accountData => {
+        log.info('The stored account number still exists', accountData);
+
+        this._store.dispatch(accountActions.loginChange({
+          status: 'ok',
+          paidUntil: accountData.paid_until,
+          error: null,
+        }));
+
+        this._store.dispatch(push('/connect'));
+      })
+      .catch( e => {
+        log.warn('Unable to autologin', e);
+
+        this._store.dispatch(accountActions.loginChange({
+          status: 'none',
+          error: new BackendError('INVALID_ACCOUNT'),
+        }));
+
+        this._store.dispatch(push('/'));
+      });
+  }
 
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?

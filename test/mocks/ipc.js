@@ -5,6 +5,7 @@ interface MockIpc {
   sendNewState: (BackendState) => void;
   -getAccountData: *;
   -connect: *;
+  -getAccount: *;
 }
 
 export function newMockIpc() {
@@ -17,6 +18,9 @@ export function newMockIpc() {
       return new Promise(r => r({
         paid_until: '',
       }));
+    },
+    getAccount: () => {
+      return new Promise(r => r('1111'));
     },
     setAccount: () => {
       return new Promise(r => r());
