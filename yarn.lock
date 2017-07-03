@@ -2986,11 +2986,11 @@ ice-cap@0.0.4:
     cheerio "0.20.0"
     color-logger "0.0.3"
 
-iconv-lite@0.4.13, iconv-lite@~0.4.13:
+iconv-lite@0.4.13:
   version "0.4.13"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.13.tgz#1f88aba4ab0b1508e8312acc39345f36e992e2f2"
 
-iconv-lite@^0.4.17:
+iconv-lite@^0.4.17, iconv-lite@~0.4.13:
   version "0.4.18"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.18.tgz#23d8656b16aae6742ac29732ea8f0336a4789cf2"
 
@@ -4438,9 +4438,9 @@ react-dom@^15.6.1:
     object-assign "^4.1.0"
     prop-types "^15.5.10"
 
-react-if@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/react-if/-/react-if-2.1.0.tgz#f9ff6286e9561de17c481e81fb2b56b431a60a00"
+react-if@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-if/-/react-if-2.2.1.tgz#b6a2a3a15d6f80fa4db43ed6d18ece6e9d12a11c"
 
 react-mapbox-gl@^1.3.0:
   version "1.12.0"
