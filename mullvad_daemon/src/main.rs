@@ -249,6 +249,8 @@ impl Daemon {
             SetTargetState(state) => {
                 if !self.shutdown {
                     self.set_target_state(state)?;
+                } else {
+                    warn!("Ignoring target state change request due to shutdown");
                 }
             }
             GetState(tx) => {
