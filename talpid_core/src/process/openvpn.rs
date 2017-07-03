@@ -35,6 +35,7 @@ pub struct OpenVpnCommand {
     openvpn_bin: OsString,
     config: Option<PathBuf>,
     remote: Option<net::Endpoint>,
+    user_pass_path: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
 }
 
@@ -46,6 +47,7 @@ impl OpenVpnCommand {
             openvpn_bin: OsString::from(openvpn_bin.as_ref()),
             config: None,
             remote: None,
+            user_pass_path: None,
             plugin: None,
         }
     }
@@ -59,6 +61,13 @@ impl OpenVpnCommand {
     /// Sets the address and protocol that OpenVPN will connect to.
     pub fn remote(&mut self, remote: net::Endpoint) -> &mut Self {
         self.remote = Some(remote);
+        self
+    }
+
+    /// Sets the path to the file where the username and password for user-pass authentication is
+    /// stored. See the `--auth-user-pass` OpenVPN documentation for details.
+    pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.user_pass_path = Some(path.as_ref().to_path_buf());
         self
     }
 
@@ -84,6 +93,7 @@ impl OpenVpnCommand {
         }
 
         args.extend(self.remote_arguments().iter().map(OsString::from));
+        args.extend(self.authentication_arguments());
 
         if let Some((ref path, ref plugin_args)) = self.plugin {
             args.push(OsString::from("--plugin"));
@@ -126,6 +136,15 @@ impl OpenVpnCommand {
             args.push("--remote".to_owned());
             args.push(endpoint.address.address());
             args.push(endpoint.address.port().to_string());
+        }
+        args
+    }
+
+    fn authentication_arguments(&self) -> Vec<OsString> {
+        let mut args = vec![];
+        if let Some(ref user_pass_path) = self.user_pass_path {
+            args.push(OsString::from("--auth-user-pass"));
+            args.push(OsString::from(user_pass_path));
         }
         args
     }

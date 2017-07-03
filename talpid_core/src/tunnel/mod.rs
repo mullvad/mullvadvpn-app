@@ -1,7 +1,9 @@
+use mktemp;
 use net;
 use openvpn_ffi::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
-use std::io;
+use std::fs;
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 /// A module for all OpenVPN related tunnel management.
@@ -19,6 +21,10 @@ mod errors {
             /// The OpenVPN plugin was not found.
             PluginNotFound {
                 description("No OpenVPN plugin found")
+            }
+            /// There was an error when writing authentication credentials to temporary file.
+            CredentialsWriteError {
+                description("Error while writing credentials to temporary file")
             }
         }
     }
@@ -51,28 +57,60 @@ impl TunnelEvent {
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
     monitor: OpenVpnMonitor,
+    _user_pass_file: mktemp::Temp,
 }
 
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
-    pub fn new<L>(remote: net::Endpoint, on_event: L) -> Result<Self>
+    pub fn new<L>(remote: net::Endpoint, account_token: &str, on_event: L) -> Result<Self>
         where L: Fn(TunnelEvent) + Send + Sync + 'static
     {
         let on_openvpn_event = move |event, _env| match TunnelEvent::from_openvpn_event(&event) {
             Some(tunnel_event) => on_event(tunnel_event),
             None => debug!("Ignoring OpenVpnEvent {:?}", event),
         };
-        let cmd = Self::create_openvpn_cmd(remote);
+        let user_pass_file = Self::create_user_pass_file(account_token)
+            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+        let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref());
         let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, get_plugin_path()?)
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
-        Ok(TunnelMonitor { monitor })
+        Ok(
+            TunnelMonitor {
+                monitor,
+                _user_pass_file: user_pass_file,
+            },
+        )
     }
 
-    fn create_openvpn_cmd(remote: net::Endpoint) -> OpenVpnCommand {
+    fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
         let mut cmd = OpenVpnCommand::new("openvpn");
-        cmd.config(get_config_path()).remote(remote);
+        cmd.config(get_config_path()).remote(remote).user_pass(user_pass_file);
         cmd
+    }
+
+    fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::Temp> {
+        let path = mktemp::Temp::new_file()?;
+        debug!(
+            "Writing user-pass credentials to {}",
+            path.as_ref().to_string_lossy()
+        );
+        let mut file = fs::File::create(&path)?;
+        Self::set_user_pass_file_permissions(&file)?;
+        write!(file, "{}\n-\n", account_token)?;
+        Ok(path)
+    }
+
+    #[cfg(unix)]
+    fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(PermissionsExt::from_mode(0o400))
+    }
+
+    #[cfg(windows)]
+    fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
+        // TODO(linus): Lock permissions correctly on Windows.
+        Ok(())
     }
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other thread

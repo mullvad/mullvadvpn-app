@@ -48,9 +48,13 @@ build_rpc_trait! {
         #[rpc(name = "get_countries")]
         fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error>;
 
-        /// Set which account to connect with
+        /// Set which account to connect with.
         #[rpc(name = "set_account")]
-        fn set_account(&self, AccountToken) -> Result<(), Error>;
+        fn set_account(&self, Option<AccountToken>) -> Result<(), Error>;
+
+        /// Get which account is configured.
+        #[rpc(async, name = "get_account")]
+        fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error>;
 
         /// Set which country to connect to
         #[rpc(name = "set_country")]
@@ -113,6 +117,10 @@ pub enum TunnelCommand {
     SetTargetState(TargetState),
     /// Request the current state.
     GetState(sync::oneshot::Sender<SecurityState>),
+    /// Set which account token to use for subsequent connection attempts.
+    SetAccount(Option<AccountToken>),
+    /// Request the current account token being used.
+    GetAccount(sync::oneshot::Sender<Option<AccountToken>>),
 }
 
 #[derive(Default)]
@@ -252,9 +260,22 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(HashMap::new())
     }
 
-    fn set_account(&self, _account_token: AccountToken) -> Result<(), Error> {
+    fn set_account(&self, account_token: Option<AccountToken>) -> Result<(), Error> {
         trace!("set_account");
-        Ok(())
+        self.tx
+            .lock()
+            .unwrap()
+            .send(TunnelCommand::SetAccount(account_token))
+            .map_err(|_| Error::internal_error())
+    }
+
+    fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
+        trace!("get_account");
+        let (tx, rx) = sync::oneshot::channel();
+        match self.tx.lock().unwrap().send(TunnelCommand::GetAccount(tx)) {
+            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
+            Err(_) => future::err(Error::internal_error()).boxed(),
+        }
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {

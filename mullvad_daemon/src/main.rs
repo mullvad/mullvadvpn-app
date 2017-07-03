@@ -50,6 +50,10 @@ error_chain!{
             description("Error in the management interface")
             display("Management interface error: {}", msg)
         }
+        InvalidSettings(msg: &'static str) {
+            description("Invalid settings")
+            display("Invalid Settings: {}", msg)
+        }
     }
 }
 
@@ -118,6 +122,8 @@ struct Daemon {
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
     remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
+    // The current account token for now. Should be moved into the settings later.
+    account_token: Option<String>,
 }
 
 impl Daemon {
@@ -135,6 +141,7 @@ impl Daemon {
                 tunnel_close_handle: None,
                 management_interface_broadcaster,
                 remote_iter: REMOTES.iter().cloned().cycle(),
+                account_token: None,
             },
         )
     }
@@ -226,6 +233,12 @@ impl Daemon {
                     warn!("Unable to send current state to management interface client",);
                 }
             }
+            TunnelCommand::SetAccount(account_token) => self.account_token = account_token,
+            TunnelCommand::GetAccount(tx) => {
+                if let Err(_) = tx.send(self.account_token.clone()) {
+                    warn!("Unable to send current account to management interface client");
+                }
+            }
         }
         Ok(())
     }
@@ -306,7 +319,11 @@ impl Daemon {
             ErrorKind::InvalidState
         );
         let remote = self.remote_iter.next().unwrap();
-        let tunnel_monitor = self.spawn_tunnel_monitor(remote)?;
+        let account_token = self.account_token
+            .as_ref()
+            .ok_or(ErrorKind::InvalidSettings("No account token"))?
+            .clone();
+        let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
@@ -314,13 +331,13 @@ impl Daemon {
         Ok(())
     }
 
-    fn spawn_tunnel_monitor(&self, remote: Endpoint) -> Result<TunnelMonitor> {
+    fn spawn_tunnel_monitor(&self, remote: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
             let _ = event_tx.lock().unwrap().send(DaemonEvent::TunnelEvent(event));
         };
-        TunnelMonitor::new(remote, on_tunnel_event)
+        TunnelMonitor::new(remote, account_token, on_tunnel_event)
             .chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
     }
 
