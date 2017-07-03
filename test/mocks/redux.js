@@ -10,12 +10,12 @@ const middlewares = [ thunk ];
 export const mockStore = configureMockStore(middlewares);
 export const mockState = () => {
   return {
-    user: {
-      account: null,
+    account: {
+      accountNumber: null,
       status: 'none',
       error: null
     },
-    connect: {
+    connection: {
       status: 'disconnected',
       serverAddress: null,
       clientIp: null

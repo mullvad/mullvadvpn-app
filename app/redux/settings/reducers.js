@@ -1,7 +1,8 @@
 // @flow
 import { handleActions } from 'redux-actions';
-import { defaultServer } from '../config';
-import actions from '../actions/settings';
+import actions from './actions';
+
+import { defaultServer } from '../../config';
 
 import type { ReduxAction } from '../store';
 

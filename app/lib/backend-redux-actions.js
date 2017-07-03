@@ -1,6 +1,10 @@
+// @flow
+
 import log from 'electron-log';
-import userActions from '../actions/user';
-import connectActions from '../actions/connect';
+import accountActions from '../redux/account/actions.js';
+import connectionActions from '../redux/connection/actions.js';
+import { Backend } from './backend.js';
+import type { ReduxStore } from '../redux/store.js';
 
 /**
  * Add event listeners to translate backend events to redux dispatch.
@@ -9,17 +13,18 @@ import connectActions from '../actions/connect';
  * @param {Backend} backend
  * @param {Redux.Store} store
  */
-export default function mapBackendEventsToReduxActions(backend, store) {
+export default function mapBackendEventsToReduxActions(backend: Backend, store: ReduxStore) {
+
   const onUpdateIp = (clientIp) => {
-    store.dispatch(connectActions.connectionChange({ clientIp }));
+    store.dispatch(connectionActions.connectionChange({ clientIp }));
   };
 
   const onUpdateLocation = (data) => {
-    store.dispatch(userActions.loginChange(data));
+    store.dispatch(accountActions.loginChange(data));
   };
 
   const onConnecting = (serverAddress) => {
-    store.dispatch(connectActions.connectionChange({
+    store.dispatch(connectionActions.connectionChange({
       status: 'connecting',
       serverAddress
     }));
@@ -29,19 +34,19 @@ export default function mapBackendEventsToReduxActions(backend, store) {
     if (error) {
       log.error('Unable to connect to', serverAddress, error);
     } else {
-      store.dispatch(connectActions.connectionChange({ status: 'connected' }));
+      store.dispatch(connectionActions.connectionChange({ status: 'connected' }));
     }
   };
 
   const onDisconnect = () => {
-    store.dispatch(connectActions.connectionChange({
+    store.dispatch(connectionActions.connectionChange({
       status: 'disconnected',
       serverAddress: null
     }));
   };
 
   const onLoggingIn = (info) => {
-    store.dispatch(userActions.loginChange(Object.assign({
+    store.dispatch(accountActions.loginChange(Object.assign({
       status: 'connecting',
       error: null
     }, info)));
@@ -50,20 +55,20 @@ export default function mapBackendEventsToReduxActions(backend, store) {
   const onLogin = (info, error) => {
     const status = error ? 'failed' : 'ok';
     const paidUntil = info.paidUntil ? info.paidUntil : null;
-    store.dispatch(userActions.loginChange({ paidUntil, status, error }));
+    store.dispatch(accountActions.loginChange({ paidUntil, status, error }));
   };
 
   const onLogout = () => {
-    store.dispatch(userActions.loginChange({
+    store.dispatch(accountActions.loginChange({
       status: 'none',
-      account: '',
+      accountNumber: '',
       paidUntil: null,
       error: null
     }));
   };
 
   const onReachability = (isOnline) => {
-    store.dispatch(connectActions.connectionChange({ isOnline }));
+    store.dispatch(connectionActions.connectionChange({ isOnline }));
   };
 
   backend.on('updatedIp', onUpdateIp);

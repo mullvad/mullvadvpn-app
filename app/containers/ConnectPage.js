@@ -4,7 +4,7 @@ import { push } from 'react-router-redux';
 import { shell } from 'electron';
 import { links } from '../config';
 import Connect from '../components/Connect';
-import connectActions from '../actions/connect';
+import connectActions from '../redux/connection/actions';
 
 const mapStateToProps = (state) => {
   return state;

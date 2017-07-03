@@ -6,11 +6,11 @@ import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 
-import type { UserReduxState } from '../reducers/user';
-import type { SettingsReduxState } from '../reducers/settings';
+import type { AccountReduxState } from '../redux/account/reducers';
+import type { SettingsReduxState } from '../redux/settings/reducers';
 
 export type SettingsProps = {
-  user: UserReduxState,
+  account: AccountReduxState,
   settings: SettingsReduxState,
   onQuit: () => void,
   onClose: () => void,
@@ -31,12 +31,12 @@ export default class Settings extends Component {
   }
 
   render(): React.Element<*> {
-    const isLoggedIn = this.props.user.status === 'ok';
+    const isLoggedIn = this.props.account.status === 'ok';
     let isOutOfTime = false, formattedPaidUntil = '';
-    let paidUntilIso = this.props.user.paidUntil;
+    let paidUntilIso = this.props.account.paidUntil;
 
     if(isLoggedIn && paidUntilIso) {
-      let paidUntil = moment(this.props.user.paidUntil);
+      let paidUntil = moment(this.props.account.paidUntil);
       isOutOfTime = paidUntil.isSameOrBefore(moment());
       formattedPaidUntil = paidUntil.fromNow(true) + ' left';
     }

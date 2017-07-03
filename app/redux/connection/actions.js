@@ -2,10 +2,10 @@ import { clipboard } from 'electron';
 import { createAction } from 'redux-actions';
 
 import type { Backend } from '../lib/backend';
-import type { ConnectReduxState } from '../reducers/connect';
+import type { ConnectionReduxState } from './reducers.js';
 import type { ReduxAction, ReduxGetStateFn, ReduxDispatchFn } from '../store';
 
-export type ConnectionChangeAction = <T: $Shape<ConnectReduxState>>(state: T) => ReduxAction<T>;
+export type ConnectionChangeAction = <T: $Shape<ConnectionReduxState>>(state: T) => ReduxAction<T>;
 
 const connectionChange: ConnectionChangeAction = createAction('CONNECTION_CHANGE');
 const connect = (backend: Backend, addr: string) => () => backend.connect(addr);

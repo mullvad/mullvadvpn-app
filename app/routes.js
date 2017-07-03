@@ -53,8 +53,8 @@ export default function makeRoutes(getState, componentProps) {
   const PrivateRoute = ({ component, ...rest }) => {
     return (
       <Route {...rest} render={ (routeProps) => {
-        const { user } = getState();
-        const isLoggedIn = user.status === 'ok';
+        const { account } = getState();
+        const isLoggedIn = account.status === 'ok';
 
         if(isLoggedIn) {
           return renderMergedProps(component, routeProps, ...rest);
@@ -74,8 +74,8 @@ export default function makeRoutes(getState, componentProps) {
   const LoginRoute = ({ component, ...rest }) => {
     return (
       <Route {...rest} render={ (routeProps) => {
-        const { user } = getState();
-        const isLoggedIn = user.status === 'ok';
+        const { account } = getState();
+        const isLoggedIn = account.status === 'ok';
 
         if(isLoggedIn) {
           return (<Redirect to={ '/connect' } />);

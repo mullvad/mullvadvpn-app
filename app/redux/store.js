@@ -3,22 +3,23 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
 import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
-import user from './reducers/user';
-import connect from './reducers/connect';
-import settings from './reducers/settings';
-import userActions from './actions/user';
-import connectActions from './actions/connect';
-import settingsActions from './actions/settings';
+
+import account from './account/reducers.js';
+import accountActions from './account/actions.js';
+import connection from './connection/reducers.js';
+import connectionActions from './connection/actions.js';
+import settings from './settings/reducers.js';
+import settingsActions from './settings/actions.js';
 
 import type { Store, Dispatch } from 'redux';
 import type { History } from 'history';
-import type { UserReduxState } from './reducers/user';
-import type { ConnectReduxState } from './reducers/connect';
-import type { SettingsReduxState } from './reducers/settings';
+import type { AccountReduxState } from './account/reducers.js';
+import type { ConnectionReduxState } from './connection/reducers.js';
+import type { SettingsReduxState } from './settings/reducers.js';
 
 export type ReduxState = {
-  user: UserReduxState,
-  connect: ConnectReduxState,
+  account: AccountReduxState,
+  connection: ConnectionReduxState,
   settings: SettingsReduxState
 };
 export type ReduxAction<T> = { type: string, payload: T };
@@ -30,15 +31,15 @@ export default function configureStore(initialState: ?ReduxState, routerHistory:
   const router = routerMiddleware(routerHistory);
 
   const actionCreators: { [string]: Function } = {
-    ...userActions,
-    ...connectActions,
+    ...accountActions,
+    ...connectionActions,
     ...settingsActions,
     pushRoute: (route) => push(route),
     replaceRoute: (route) => replace(route),
   };
 
   const reducers = {
-    user, connect, settings, router: routerReducer
+    account, connection, settings, router: routerReducer
   };
 
   const middlewares = [ thunk, router ];

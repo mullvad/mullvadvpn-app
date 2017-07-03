@@ -1,7 +1,9 @@
+// @flow
+
 import { expect } from 'chai';
 
 import { filterMinorActions, mockState, mockStore } from './mocks/redux';
-import userActions from '../app/actions/user';
+import accountActions from '../app/redux/account/actions';
 import mapBackendEventsToRouter from '../app/lib/backend-routing';
 import { Backend } from '../app/lib/backend';
 import { newMockIpc } from './mocks/ipc';
@@ -15,7 +17,7 @@ describe('routing', function() {
     ];
 
     let state = Object.assign(mockState(), {
-      user: {
+      account: {
         account: '1111234567890',
         status: 'ok'
       }
@@ -25,7 +27,7 @@ describe('routing', function() {
     const backend = new Backend(newMockIpc());
     mapBackendEventsToRouter(backend, store);
 
-    store.dispatch(userActions.logout(backend));
+    store.dispatch(accountActions.logout(backend));
 
     setTimeout(() => {
       const storeActions = filterMinorActions(store.getActions());
@@ -47,7 +49,7 @@ describe('routing', function() {
       expect(storeActions).deep.equal(expectedActions);
       done();
     });
-    store.dispatch(userActions.login(backend, '1'));
+    store.dispatch(accountActions.login(backend, '1'));
   });
 
 });
