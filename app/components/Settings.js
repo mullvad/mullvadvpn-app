@@ -1,39 +1,36 @@
+// @flow
 import moment from 'moment';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 
+import type { UserReduxState } from '../reducers/user';
+import type { SettingsReduxState } from '../reducers/settings';
+
+export type SettingsProps = {
+  user: UserReduxState,
+  settings: SettingsReduxState,
+  onQuit: () => void,
+  onClose: () => void,
+  onViewAccount: () => void,
+  onExternalLink: (type: string) => void,
+  onUpdateSettings: (update: $Shape<SettingsReduxState>) => void
+};
+
 export default class Settings extends Component {
 
-  static propTypes = {
-    onQuit: PropTypes.func.isRequired,
-    onLogout: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onViewAccount: PropTypes.func.isRequired,
-    onExternalLink: PropTypes.func.isRequired,
-    onUpdateSettings: PropTypes.func.isRequired
-  }
+  props: SettingsProps;
 
-  onClose() {
-    this.props.onClose();
-  }
+  onClose = () => this.props.onClose();
+  onAutoSecure = (autoSecure: boolean) => this.props.onUpdateSettings({ autoSecure });
 
-  onAutoSecure(isOn) {
-    this.props.onUpdateSettings({ autoSecure: isOn });
-  }
-
-  onExternalLink(type) {
+  onExternalLink(type: string) {
     this.props.onExternalLink(type);
   }
 
-  onLogout() {
-    this.props.onLogout();
-  }
-
-  render() {
+  render(): React.Element<*> {
     const isLoggedIn = this.props.user.status === 'ok';
     let isOutOfTime = false, formattedPaidUntil = '';
     let paidUntilIso = this.props.user.paidUntil;
@@ -49,7 +46,7 @@ export default class Settings extends Component {
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="settings">
-            <button className="settings__close" onClick={ ::this.onClose } />
+            <button className="settings__close" onClick={ this.onClose } />
             <div className="settings__container">
               <div className="settings__header">
                 <h2 className="settings__title">Settings</h2>
@@ -82,7 +79,7 @@ export default class Settings extends Component {
                           <div className="settings__cell">
                             <div className="settings__cell-label">Auto-connect</div>
                             <div className="settings__cell-value">
-                              <Switch onChange={ ::this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+                              <Switch onChange={ this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
                             </div>
                           </div>
                           <div className="settings__cell-footer">

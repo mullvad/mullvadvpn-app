@@ -22,21 +22,21 @@ type DisplayLocation = {
   city: ?string;
 };
 
+export type ConnectProps = {
+  user: UserReduxState,
+  connect: ConnectReduxState,
+  settings: SettingsReduxState,
+  onSettings: () => void,
+  onSelectLocation: () => void,
+  onConnect: (address: string) => void,
+  onCopyIP: () => void,
+  onDisconnect: () => void,
+  onExternalLink: (type: string) => void,
+  getServerInfo: (identifier: string) => ?ServerInfo
+};
+
 export default class Connect extends Component {
-
-  props: {
-    user: UserReduxState,
-    connect: ConnectReduxState,
-    settings: SettingsReduxState,
-    onSettings: () => void,
-    onSelectLocation: () => void,
-    onConnect: (address: string) => void,
-    onCopyIP: () => void,
-    onDisconnect: () => void,
-    onExternalLink: (type: string) => void,
-    getServerInfo: (identifier: string) => ?ServerInfo
-  };
-
+  props: ConnectProps;
   state = {
     isFirstPass: true,
     showCopyIPMessage: false
@@ -89,12 +89,12 @@ export default class Connect extends Component {
           </div>
           <If condition={ error.type === 'NO_CREDIT' }>
             <Then>
-            <div>
-              <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
-                <span className="button-label">Buy more time</span>
-                <ExternalLinkSVG className="button-icon button-icon--16" />
-              </button>
-            </div>
+              <div>
+                <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
+                  <span className="button-label">Buy more time</span>
+                  <ExternalLinkSVG className="button-icon button-icon--16" />
+                </button>
+              </div>
             </Then>
           </If>
         </div>
@@ -129,12 +129,12 @@ export default class Connect extends Component {
       <div className="connect">
         <div className="connect__map">
           <ReactMapboxGl
-              style={ mapboxConfig.styleURL }
-              accessToken={ mapboxConfig.accessToken }
-              containerStyle={{ height: '100%' }}
-              interactive={ false }
-              fitBounds={ mapBounds }
-              fitBoundsOptions={ mapBoundsOptions }>
+            style={ mapboxConfig.styleURL }
+            accessToken={ mapboxConfig.accessToken }
+            containerStyle={{ height: '100%' }}
+            interactive={ false }
+            fitBounds={ mapBounds }
+            fitBoundsOptions={ mapBoundsOptions }>
             <If condition={ isConnected }>
               <Then>
                 <Marker coordinates={ serverLocation } offset={ [0, -10] }>

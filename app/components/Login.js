@@ -1,58 +1,41 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import LoginArrowSVG from '../assets/images/icon-arrow.svg';
 
+import type { LoginState } from '../enums';
+import type { UserReduxState } from '../reducers/user';
+
+export type LoginPropTypes = {
+  user: UserReduxState,
+  onLogin: (accountNumber: string) => void,
+  onSettings: ?(() => void),
+  onChange: (input: string) => void,
+  onFirstChangeAfterFailure: () => void,
+  onExternalLink: (type: string) => void,
+};
+
 export default class Login extends Component {
-  static propTypes = {
-    user: PropTypes.object.isRequired,
-    onLogin: PropTypes.func.isRequired,
-    onSettings: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onFirstChangeAfterFailure: PropTypes.func.isRequired,
-    onExternalLink: PropTypes.func.isRequired,
-  };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      notifyOnFirstChangeAfterFailure: false,
-      isActive: false
-    };
+  props: LoginPropTypes;
+  state = {
+    notifyOnFirstChangeAfterFailure: false,
+    isActive: false
   }
 
-  componentWillReceiveProps(nextProps) {
-    const prev = this.props.user || {};
-    const next = nextProps.user || {};
-
-    if(prev.status !== next.status && next.status === 'failed') {
-      this.setState({ notifyOnFirstChangeAfterFailure: true });
-    }
-  }
-
-  onLogin() {
+  onCreateAccount = () => this.props.onExternalLink('createAccount');
+  onFocus = () => this.setState({ isActive: true });
+  onBlur = () => this.setState({ isActive: false });
+  onLogin = () => {
     const { account } = this.props.user;
-    if(account.length > 0) {
+    if(account && account.length > 0) {
       this.props.onLogin(account);
     }
   }
 
-  onCreateAccount() {
-    this.props.onExternalLink('createAccount');
-  }
-
-  onFocus() {
-    this.setState({ isActive: true });
-  }
-
-  onBlur() {
-    this.setState({ isActive: false });
-  }
-
-  onInputChange(val) {
+  onInputChange = (val: string) => {
     // notify delegate on first change after login failure
     if(this.state.notifyOnFirstChangeAfterFailure) {
       this.setState({ notifyOnFirstChangeAfterFailure: false });
@@ -61,7 +44,7 @@ export default class Login extends Component {
     this.props.onChange(val);
   }
 
-  formTitle(s) {
+  formTitle(s: LoginState): string {
     switch(s) {
     case 'connecting': return 'Logging in...';
     case 'failed': return 'Login failed';
@@ -70,22 +53,22 @@ export default class Login extends Component {
     }
   }
 
-  formSubtitle(s, e) {
+  formSubtitle(s: LoginState, e: ?Error): string {
     switch(s) {
-    case 'failed': return e.message;
+    case 'failed':  return (e && e.message) || 'Unknown error';
     case 'connecting': return 'Checking account number';
     default: return 'Enter your account number';
     }
   }
 
-  inputWrapClass(user) {
+  inputWrapClass(s: LoginState): string {
     const classes = ['login-form__input-wrap'];
 
     if(this.state.isActive) {
       classes.push('login-form__input-wrap--active');
     }
 
-    switch(user.status) {
+    switch(s) {
     case 'connecting':
       classes.push('login-form__input-wrap--inactive');
       break;
@@ -97,9 +80,9 @@ export default class Login extends Component {
     return classes.join(' ');
   }
 
-  footerClass(user) {
+  footerClass(s: LoginState): string {
     const classes = ['login-footer'];
-    switch(user.status) {
+    switch(s) {
     case 'ok':
     case 'connecting':
       classes.push('login-footer--invisible');
@@ -108,31 +91,46 @@ export default class Login extends Component {
     return classes.join(' ');
   }
 
-  submitClass(user) {
+  submitClass(s: LoginState, account: ?string): string {
     const classes = ['login-form__submit'];
 
-    if(typeof(user.account) === 'string' && user.account.length > 0) {
+    if(account && account.length > 0) {
       classes.push('login-form__submit--active');
     }
 
-    if(user.status === 'connecting') {
+    if(s === 'connecting') {
       classes.push('login-form__submit--invisible');
     }
 
     return classes.join(' ');
   }
 
-  render() {
+  componentWillReceiveProps(nextProps: LoginPropTypes) {
+    const prev = this.props.user || {};
+    const next = nextProps.user || {};
+
+    if(prev.status !== next.status && next.status === 'failed') {
+      this.setState({ notifyOnFirstChangeAfterFailure: true });
+    }
+  }
+
+  render(): React.Element<*> {
     const { account, status, error } = this.props.user;
     const title = this.formTitle(status);
     const subtitle = this.formSubtitle(status, error);
-    const isConnecting = status === 'connecting';
-    const isFailed = status === 'failed';
-    const isLoggedIn = status === 'ok';
 
-    const inputWrapClass = this.inputWrapClass(this.props.user);
-    const footerClass = this.footerClass(this.props.user);
-    const submitClass = this.submitClass(this.props.user);
+    let isConnecting = false;
+    let isFailed = false;
+    let isLoggedIn = false;
+    switch(status) {
+    case 'connecting': isConnecting = true; break;
+    case 'failed': isFailed = true; break;
+    case 'ok': isLoggedIn = true; break;
+    }
+
+    const inputWrapClass = this.inputWrapClass(status);
+    const footerClass = this.footerClass(status);
+    const submitClass = this.submitClass(status, account);
 
     const autoFocusRef = input => {
       if(isFailed && input) {
@@ -178,25 +176,25 @@ export default class Login extends Component {
                 <div className="login-form__subtitle">{ subtitle }</div>
                 <div className={ inputWrapClass }>
                   <AccountInput className="login-form__input-field"
-                        type="text"
-                        placeholder="e.g 0000 0000 0000"
-                        onFocus={ ::this.onFocus }
-                        onBlur={ ::this.onBlur }
-                        onChange={ ::this.onInputChange }
-                        onEnter={ ::this.onLogin }
-                        value={ account }
-                        disabled={ isConnecting }
-                        autoFocus={ true }
-                        ref={ autoFocusRef } />
-                    <button className={ submitClass } onClick={ ::this.onLogin }>
-                      <LoginArrowSVG className="login-form__submit-icon" />
-                    </button>
+                    type="text"
+                    placeholder="e.g 0000 0000 0000"
+                    onFocus={ this.onFocus }
+                    onBlur={ this.onBlur }
+                    onChange={ this.onInputChange }
+                    onEnter={ this.onLogin }
+                    value={ account || '' }
+                    disabled={ isConnecting }
+                    autoFocus={ true }
+                    ref={ autoFocusRef } />
+                  <button className={ submitClass } onClick={ this.onLogin }>
+                    <LoginArrowSVG className="login-form__submit-icon" />
+                  </button>
                 </div>
               </div>
             </div>
             <div className={ footerClass }>
-              <div className="login-footer__prompt">Don't have an account number?</div>
-              <button className="button button--primary" onClick={ ::this.onCreateAccount }>
+              <div className="login-footer__prompt">{ 'Don\'t have an account number?' }</div>
+              <button className="button button--primary" onClick={ this.onCreateAccount }>
                 <span className="button-label">Create account</span>
                 <ExternalLinkSVG className="button-icon button-icon--16" />
               </button>

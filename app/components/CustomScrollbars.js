@@ -1,28 +1,13 @@
+// @flow
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-/**
- * Custom scrollbars component
- *
- * @export
- * @class CustomScrollbars
- * @extends {React.Component}
- */
 export default class CustomScrollbars extends Component {
-  /**
-   * PropTypes
-   * @static
-   * @memberOf CustomScrollbars
-   */
-  static propTypes = {
-    children: PropTypes.element
+  props: {
+    children: ?React.Element<*>
   }
 
-  /**
-   * @override
-   */
-  render() {
+  render(): React.Element<*> {
     return (
       <Scrollbars
         { ...this.props }

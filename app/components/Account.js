@@ -1,43 +1,40 @@
+// @flow
 import moment from 'moment';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
+import type { UserReduxState } from '../reducers/user';
+
+export type AccountProps = {
+  user: UserReduxState;
+  onLogout: () => void;
+  onClose: () => void;
+  onExternalLink: (type: string) => void;
+};
+
 export default class Account extends Component {
+  props: AccountProps;
 
-  static propTypes = {
-    onLogout: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onExternalLink: PropTypes.func.isRequired
-  }
+  onBuyMore = () => this.props.onExternalLink('purchase');
+  onClose = () => this.props.onClose();
+  onLogout = () => this.props.onLogout();
 
-  onClose() {
-    this.props.onClose();
-  }
-
-  onExternalLink(type) {
-    this.props.onExternalLink(type);
-  }
-
-  onLogout() {
-    this.props.onLogout();
-  }
-
-  render() {
-    let paidUntil = moment(this.props.user.paidUntil);
-    let formattedAccountId = formatAccount(this.props.user.account);
-    let formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
-    let isOutOfTime = paidUntil.isSameOrBefore(moment());
+  render(): React.Element<*> {
+    const user = this.props.user;
+    const paidUntil = moment(user.paidUntil);
+    const formattedAccountId = formatAccount(user.account || '');
+    const formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
+    const isOutOfTime = paidUntil.isSameOrBefore(moment());
 
     return (
       <Layout>
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="account">
-            <div className="account__close" onClick={ ::this.onClose }>
+            <div className="account__close" onClick={ this.onClose }>
               <img className="account__close-icon" src="./assets/images/icon-back.svg" />
               <span className="account__close-title">Settings</span>
             </div>
@@ -68,11 +65,11 @@ export default class Account extends Component {
                   </div>
 
                   <div className="account__footer">
-                    <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
+                    <button className="button button--positive" onClick={ this.onBuyMore }>
                       <span className="button-label">Buy more time</span>
                       <ExternalLinkSVG className="button-icon button-icon--16" />
                     </button>
-                    <button className="button button--negative" onClick={ ::this.onLogout }>Logout</button>
+                    <button className="button button--negative" onClick={ this.onLogout }>Logout</button>
                   </div>
 
                 </div>
