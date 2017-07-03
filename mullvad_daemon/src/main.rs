@@ -50,6 +50,10 @@ error_chain!{
             description("Error in the management interface")
             display("Management interface error: {}", msg)
         }
+        InvalidSettings(msg: &'static str) {
+            description("Invalid settings")
+            display("Invalid Settings: {}", msg)
+        }
     }
 }
 
@@ -119,7 +123,7 @@ struct Daemon {
     // picking a new one for each retry.
     remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
     // The current account token for now. Should be moved into the settings later.
-    account_token: String,
+    account_token: Option<String>,
 }
 
 impl Daemon {
@@ -137,7 +141,7 @@ impl Daemon {
                 tunnel_close_handle: None,
                 management_interface_broadcaster,
                 remote_iter: REMOTES.iter().cloned().cycle(),
-                account_token: "0".to_owned(),
+                account_token: None,
             },
         )
     }
@@ -315,7 +319,11 @@ impl Daemon {
             ErrorKind::InvalidState
         );
         let remote = self.remote_iter.next().unwrap();
-        let tunnel_monitor = self.spawn_tunnel_monitor(remote, self.account_token.as_str())?;
+        let account_token = self.account_token
+            .as_ref()
+            .ok_or(ErrorKind::InvalidSettings("No account token"))?
+            .clone();
+        let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
