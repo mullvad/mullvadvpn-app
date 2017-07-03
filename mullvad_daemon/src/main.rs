@@ -231,10 +231,10 @@ impl Daemon {
     }
 
     fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
-        self.tunnel_close_handle = None;
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             log_error(&e);
         }
+        self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
     }
 
@@ -289,12 +289,28 @@ impl Daemon {
                 self.last_broadcasted_state = new_security_state;
                 self.management_interface_broadcaster.notify_new_state(new_security_state);
             }
+            self.verify_state_consistency()?;
             self.apply_target_state()
         } else {
             // Calling set_state with the same state we already have is an error. Should try to
             // mitigate this possibility completely with a better state machine later.
             Err(ErrorKind::InvalidState.into())
         }
+    }
+
+    // Check that the current state is valid and consistent.
+    fn verify_state_consistency(&self) -> Result<()> {
+        use TunnelState::*;
+        ensure!(
+            match self.state {
+                NotRunning => self.tunnel_close_handle.is_none(),
+                Connecting => self.tunnel_close_handle.is_some(),
+                Connected => self.tunnel_close_handle.is_some(),
+                Exiting => self.tunnel_close_handle.is_none(),
+            },
+            ErrorKind::InvalidState
+        );
+        Ok(())
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to progress
@@ -368,8 +384,8 @@ impl Daemon {
             self.state == TunnelState::Connecting || self.state == TunnelState::Connected,
             ErrorKind::InvalidState
         );
-        self.set_state(TunnelState::Exiting)?;
         let close_handle = self.tunnel_close_handle.take().unwrap();
+        self.set_state(TunnelState::Exiting)?;
         let result_tx = self.tx.clone();
         thread::spawn(
             move || {
