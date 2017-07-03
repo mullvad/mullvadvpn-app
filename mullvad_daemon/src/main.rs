@@ -283,7 +283,9 @@ impl Daemon {
             }
             self.apply_target_state()
         } else {
-            Ok(())
+            // Calling set_state with the same state we already have is an error. Should try to
+            // mitigate this possibility completely with a better state machine later.
+            Err(ErrorKind::InvalidState.into())
         }
     }
 
