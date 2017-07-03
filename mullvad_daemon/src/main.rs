@@ -193,7 +193,7 @@ impl Daemon {
     pub fn run(mut self) -> Result<()> {
         while let Ok(event) = self.rx.recv() {
             self.handle_event(event)?;
-            if self.shutdown {
+            if self.shutdown && self.state == TunnelState::NotRunning {
                 break;
             }
         }
