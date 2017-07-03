@@ -3,6 +3,9 @@ import log from 'electron-log';
 import EventEmitter from 'events';
 import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
+import accountActions from '../redux/account/actions';
+import type { ReduxStore } from '../redux/store';
+import { push } from 'react-router-redux';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
@@ -61,9 +64,11 @@ export class BackendError extends Error {
 export class Backend {
 
   _ipc: IpcFacade;
+  _store: ReduxStore;
   _eventEmitter = new EventEmitter();
 
-  constructor(ipc: ?IpcFacade) {
+  constructor(store: ReduxStore, ipc: ?IpcFacade) {
+    this._store = store;
     this._ipc = ipc || new RealIpc('');
     this._registerIpcListeners();
     this._startReachability();
@@ -131,17 +136,24 @@ export class Backend {
     };
   }
 
-  login(account: string) {
-    log.info('Attempting to login with account number', account);
+
+  login(accountNumber: string) {
+    log.info('Attempting to login with account number', accountNumber);
 
     // emit: logging in
-    this._emit('logging', { accountNumber: account }, null);
+    this._emit('logging', { accountNumber: accountNumber }, null);
 
-    this._ipc.getAccountData(account)
+    this._store.dispatch(accountActions.loginChange({
+      accountNumber: accountNumber,
+      status: 'connecting',
+      error: null,
+    }));
+
+    this._ipc.getAccountData(accountNumber)
       .then( response => {
         log.info('Account exists', response);
 
-        return this._ipc.setAccount(account)
+        return this._ipc.setAccount(accountNumber)
           .then( () => response );
 
       }).then( accountData => {
@@ -151,12 +163,27 @@ export class Backend {
           paidUntil: accountData.paid_until,
         }, undefined);
 
+        this._store.dispatch(accountActions.loginChange({
+          status: 'ok',
+          paidUntil: accountData.paid_until,
+          error: null,
+        }));
+
+        this._store.dispatch(push('/connect'));
       }).catch(e => {
         log.error('Failed to log in', e);
+
+        // TODO: This is not true. If there is a communication link failure the promise will be rejected too
         const err = new BackendError('INVALID_ACCOUNT');
+        this._store.dispatch(accountActions.loginChange({
+          status: 'failed',
+          error: err,
+        }));
+
         this._emit('login', {}, err);
       });
   }
+
 
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
