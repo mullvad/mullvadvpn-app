@@ -116,12 +116,13 @@ impl TunnelState {
 
 struct Daemon {
     state: TunnelState,
+    // The tunnel_close_handle must only exist in the Connecting and Connected states!
+    tunnel_close_handle: Option<tunnel::CloseHandle>,
     last_broadcasted_state: SecurityState,
     target_state: TargetState,
     shutdown: bool,
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
-    tunnel_close_handle: Option<tunnel::CloseHandle>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
@@ -138,12 +139,12 @@ impl Daemon {
         Ok(
             Daemon {
                 state: TunnelState::NotRunning,
+                tunnel_close_handle: None,
                 last_broadcasted_state: SecurityState::Unsecured,
                 target_state: TargetState::Unsecured,
                 shutdown: false,
                 rx,
                 tx,
-                tunnel_close_handle: None,
                 management_interface_broadcaster,
                 remote_iter: REMOTES.iter().cloned().cycle(),
                 account_token: None,
