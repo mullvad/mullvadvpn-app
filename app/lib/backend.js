@@ -9,6 +9,9 @@ import connectionActions from '../redux/connection/actions';
 import type { ReduxStore } from '../redux/store';
 import { push } from 'react-router-redux';
 
+import type { BackendState } from './ipc-facade';
+import type { ConnectionState } from '../redux/connection/reducers';
+
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
 
@@ -280,9 +283,26 @@ export class Backend {
   }
 
   _registerIpcListeners() {
-    /*this._ipc.on('connection-info', (newConnectionInfo) => {
-      log.info('Got new connection info from backend', newConnectionInfo);
-    });*/
+    this._ipc.registerStateListener(newState => {
+      log.info('Got new state from backend', newState);
+
+      const newStatus = this._backendStateToConnectionState(newState);
+      this._store.dispatch(connectionActions.connectionChange({
+        status: newStatus,
+      }));
+    });
+  }
+
+  _backendStateToConnectionState(backendState: BackendState): ConnectionState {
+    switch(backendState) {
+    case 'unsecured':
+      return 'disconnected';
+    case 'secured':
+      return 'connected';
+
+    default:
+      throw new Error('Unknown backend state: ' + backendState);
+    }
   }
 
   on(event: EventType, listener: Function) {
