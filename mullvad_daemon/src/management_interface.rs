@@ -7,7 +7,7 @@ use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
 
 use serde;
-use states::{SecurityState, TargetState};
+use states::{DaemonState, TargetState};
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
@@ -73,10 +73,10 @@ build_rpc_trait! {
         #[rpc(name = "disconnect")]
         fn disconnect(&self) -> Result<(), Error>;
 
-        /// Returns the current security state of the Mullvad client. Changes to this state will
-        /// be announced to subscribers of `event`.
+        /// Returns the current state of the Mullvad client. Changes to this state will
+        /// be announced to subscribers of `new_state`.
         #[rpc(async, name = "get_state")]
-        fn get_state(&self) -> BoxFuture<SecurityState, Error>;
+        fn get_state(&self) -> BoxFuture<DaemonState, Error>;
 
         /// Returns the current public IP of this computer.
         #[rpc(name = "get_ip")]
@@ -90,7 +90,7 @@ build_rpc_trait! {
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
             #[rpc(name = "new_state_subscribe")]
-            fn new_state_subscribe(&self, Self::Metadata, pubsub::Subscriber<SecurityState>);
+            fn new_state_subscribe(&self, Self::Metadata, pubsub::Subscriber<DaemonState>);
 
             /// Unsubscribes from the `new_state` event notifications.
             #[rpc(name = "new_state_unsubscribe")]
@@ -116,7 +116,7 @@ pub enum TunnelCommand {
     /// Change target state.
     SetTargetState(TargetState),
     /// Request the current state.
-    GetState(sync::oneshot::Sender<SecurityState>),
+    GetState(sync::oneshot::Sender<DaemonState>),
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(Option<AccountToken>),
     /// Request the current account token being used.
@@ -125,7 +125,7 @@ pub enum TunnelCommand {
 
 #[derive(Default)]
 struct ActiveSubscriptions {
-    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<SecurityState>>>,
+    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonState>>>,
     error_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<Vec<String>>>>,
 }
 
@@ -175,7 +175,7 @@ pub struct EventBroadcaster {
 
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
-    pub fn notify_new_state(&self, new_state: SecurityState) {
+    pub fn notify_new_state(&self, new_state: DaemonState) {
         self.notify(&self.subscriptions.new_state_subscriptions, new_state);
     }
 
@@ -306,7 +306,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             .map_err(|_| Error::internal_error())
     }
 
-    fn get_state(&self) -> BoxFuture<SecurityState, Error> {
+    fn get_state(&self) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         match self.tx.lock().unwrap().send(TunnelCommand::GetState(state_tx)) {
@@ -333,7 +333,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn new_state_subscribe(&self,
                            _meta: Self::Metadata,
-                           subscriber: pubsub::Subscriber<SecurityState>) {
+                           subscriber: pubsub::Subscriber<DaemonState>) {
         trace!("new_state_subscribe");
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
