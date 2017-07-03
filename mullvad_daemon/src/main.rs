@@ -73,15 +73,16 @@ pub enum DaemonEvent {
     /// An event coming from the tunnel software to indicate a change in state.
     TunnelEvent(TunnelEvent),
     /// Triggered by the thread waiting for the tunnel process. Means the tunnel process exited.
-    TunnelExit(tunnel::Result<()>),
-    /// Triggered by the thread waiting for a tunnel close operation to complete.
-    TunnelKill(io::Result<()>),
+    TunnelExited(tunnel::Result<()>),
+    /// Triggered by the thread waiting for a tunnel close operation to complete. Contains the
+    /// result of trying to kill the tunnel.
+    TunnelKillResult(io::Result<()>),
     /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(TunnelCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
-    ManagementInterfaceExit(talpid_ipc::Result<()>),
+    ManagementInterfaceExited(talpid_ipc::Result<()>),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
-    Shutdown,
+    TriggerShutdown,
 }
 
 impl From<TunnelEvent> for DaemonEvent {
@@ -190,7 +191,7 @@ impl Daemon {
             move || {
                 let result = server.wait();
                 debug!("Mullvad management interface shut down");
-                let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExit(result));
+                let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
             },
         );
     }
@@ -211,11 +212,11 @@ impl Daemon {
         use DaemonEvent::*;
         match event {
             TunnelEvent(event) => self.handle_tunnel_event(event),
-            TunnelExit(result) => self.handle_tunnel_exit(result),
-            TunnelKill(result) => self.handle_tunnel_kill(result),
+            TunnelExited(result) => self.handle_tunnel_exited(result),
+            TunnelKillResult(result) => self.handle_tunnel_kill_result(result),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
-            ManagementInterfaceExit(result) => self.handle_management_interface_exit(result),
-            Shutdown => self.handle_shutdown_event(),
+            ManagementInterfaceExited(result) => self.handle_management_interface_exited(result),
+            TriggerShutdown => self.handle_trigger_shutdown_event(),
         }
     }
 
@@ -230,7 +231,7 @@ impl Daemon {
         }
     }
 
-    fn handle_tunnel_exit(&mut self, result: tunnel::Result<()>) -> Result<()> {
+    fn handle_tunnel_exited(&mut self, result: tunnel::Result<()>) -> Result<()> {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             log_error(&e);
         }
@@ -238,7 +239,7 @@ impl Daemon {
         self.set_state(TunnelState::NotRunning)
     }
 
-    fn handle_tunnel_kill(&mut self, result: io::Result<()>) -> Result<()> {
+    fn handle_tunnel_kill_result(&mut self, result: io::Result<()>) -> Result<()> {
         result.chain_err(|| "Error while trying to close tunnel")
     }
 
@@ -265,7 +266,7 @@ impl Daemon {
         Ok(())
     }
 
-    fn handle_management_interface_exit(&self, result: talpid_ipc::Result<()>) -> Result<()> {
+    fn handle_management_interface_exited(&self, result: talpid_ipc::Result<()>) -> Result<()> {
         let error = ErrorKind::ManagementInterfaceError("Server exited unexpectedly");
         match result {
             Ok(()) => Err(error.into()),
@@ -273,7 +274,7 @@ impl Daemon {
         }
     }
 
-    fn handle_shutdown_event(&mut self) -> Result<()> {
+    fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
         self.shutdown = true;
         self.set_target_state(TargetState::Unsecured)
     }
@@ -373,7 +374,7 @@ impl Daemon {
         thread::spawn(
             move || {
                 let result = tunnel_monitor.wait();
-                let _ = error_tx.send(DaemonEvent::TunnelExit(result));
+                let _ = error_tx.send(DaemonEvent::TunnelExited(result));
                 trace!("Tunnel monitor thread exit");
             },
         );
@@ -390,7 +391,7 @@ impl Daemon {
         thread::spawn(
             move || {
                 let result = close_handle.close();
-                let _ = result_tx.send(DaemonEvent::TunnelKill(result));
+                let _ = result_tx.send(DaemonEvent::TunnelKillResult(result));
                 trace!("Tunnel kill thread exit");
             },
         );
@@ -408,7 +409,7 @@ struct DaemonShutdownHandle {
 
 impl DaemonShutdownHandle {
     pub fn shutdown(&self) {
-        let _ = self.tx.send(DaemonEvent::Shutdown);
+        let _ = self.tx.send(DaemonEvent::TriggerShutdown);
     }
 }
 
