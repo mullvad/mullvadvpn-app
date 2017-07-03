@@ -1,3 +1,5 @@
+// @flow
+
 import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -90,15 +92,25 @@ if(navigator.serviceWorker) {
 
 ipcRenderer.send('on-browser-window-ready');
 
-const containerId = document.currentScript.getAttribute('data-container');
-if(!containerId) {
-  throw new Error('Missing data-container attribute.');
+function getRootElement() {
+  const currentScript = document.currentScript;
+  if (!currentScript) {
+    throw new Error('Missing document.currentScript');
+  }
+
+  const containerId = currentScript.getAttribute('data-container');
+  if(!containerId) {
+    throw new Error('Missing data-container attribute.');
+  }
+
+  const rootElement = document.querySelector(containerId);
+  if(!rootElement) {
+    throw new Error('Missing root element.');
+  }
+
+  return rootElement;
 }
 
-const rootElement = document.querySelector(containerId);
-if(!rootElement) {
-  throw new Error('Missing root element.');
-}
 
 ReactDOM.render(
   <Provider store={ store }>
@@ -106,5 +118,5 @@ ReactDOM.render(
       { makeRoutes(store.getState, { backend }) }
     </ConnectedRouter>
   </Provider>,
-  rootElement
+  getRootElement()
 );
