@@ -68,12 +68,19 @@ lazy_static! {
 }
 
 
+/// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub enum DaemonEvent {
+    /// An event coming from the tunnel software to indicate a change in state.
     TunnelEvent(TunnelEvent),
+    /// Triggered by the thread waiting for the tunnel process. Means the tunnel process exited.
     TunnelExit(tunnel::Result<()>),
+    /// Triggered by the thread waiting for a tunnel close operation to complete.
     TunnelKill(io::Result<()>),
+    /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(TunnelCommand),
+    /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
     ManagementInterfaceExit(talpid_ipc::Result<()>),
+    /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     Shutdown,
 }
 
