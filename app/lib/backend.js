@@ -1,4 +1,5 @@
 // @flow
+
 import log from 'electron-log';
 import EventEmitter from 'events';
 import { servers } from '../config';
@@ -169,7 +170,11 @@ export class Backend {
           error: null,
         }));
 
-        this._store.dispatch(push('/connect'));
+        // Redirect the user after some time to allow for
+        // the 'Login Successful' screen to be visible
+        setTimeout(() => {
+          this._store.dispatch(push('/connect'));
+        }, 1000);
       }).catch(e => {
         log.error('Failed to log in', e);
 

@@ -4,6 +4,7 @@ import { Backend } from '../../app/lib/backend';
 import { newMockIpc } from '../mocks/ipc';
 import configureStore from '../../app/redux/store';
 import { createMemoryHistory } from 'history';
+import { mockState, mockStore } from '../mocks/redux';
 
 type DoneCallback = (?mixed) => void;
 type Check = () => void;
@@ -17,11 +18,18 @@ export function setupBackendAndStore() {
 
   const memoryHistory = createMemoryHistory();
   const store = configureStore(null, memoryHistory);
-  
+
   const mockIpc = newMockIpc();
 
   const backend = new Backend(store, mockIpc);
 
+  return { store, mockIpc, backend };
+}
+
+export function setupBackendAndMockStore() {
+  const store = mockStore(mockState());
+  const mockIpc = newMockIpc();
+  const backend = new Backend(store, mockIpc);
   return { store, mockIpc, backend };
 }
 
@@ -37,6 +45,16 @@ export function check(fn: Check, done: DoneCallback) {
   }
 }
 
+// Sometimes with redux we cannot know when all reducers have
+// finished running. This function puts the check at the end
+// of the execution queue, hopefully resulting in the check being
+// run after the reducers are finished
+export function checkNextTick(fn: Check, done: DoneCallback) {
+  setTimeout(() => {
+    check(fn, done);
+  }, 1);
+}
+
 
 // In async tests where we want to test a chain of IPC messages
 // we can only invoke `done` for the last message. This function
@@ -47,5 +65,20 @@ export function failFast(fn: Check, done: DoneCallback) {
   } catch(e) {
     done(e);
   }
+}
+
+type MockStore = {
+  getActions: () => Array<{type: string, payload: Object}>,
+}
+// Parses the action log to find out which URL we most recently navigated to
+// Note that this cannot be done with the real redux store, but rather must be
+// done with the mock store.
+export function getLocation(store: MockStore): ?string {
+  const navigations = store.getActions().filter(action => action.type === '@@router/CALL_HISTORY_METHOD');
+  if (navigations.length === 0) {
+    return null;
+  }
+
+  return navigations[navigations.length - 1].payload.args[0];
 }
 
