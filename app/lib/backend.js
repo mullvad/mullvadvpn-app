@@ -232,6 +232,9 @@ export class Backend {
       .catch(e => {
         log.info('Failed connecting to', addr, e);
         this._emit('connect', undefined, e);
+        this._store.dispatch(connectionActions.connectionChange({
+          status: 'disconnected',
+        }));
       });
   }
 

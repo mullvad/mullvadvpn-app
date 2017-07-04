@@ -35,5 +35,25 @@ describe('connect', () => {
       expect(state.serverAddress).to.equal('example.com');
     }, done);
   });
+
+  it('should set the connection state to \'disconnected\' on failed attempts', (done) => {
+    const { store, mockIpc, backend } = setupBackendAndStore();
+
+    mockIpc.connect = () => new Promise((_, reject) => reject('Some error'));
+
+    store.dispatch(connectionActions.connectionChange({
+      status: 'connected',
+    }));
+
+
+    expect(store.getState().connection.status).not.to.equal('disconnected');
+
+    store.dispatch(connectionActions.connect(backend, 'example.com'));
+
+
+    checkNextTick(() => {
+      expect(store.getState().connection.status).to.equal('disconnected');
+    }, done);
+  });
 });
 
