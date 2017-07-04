@@ -234,15 +234,6 @@ export class Backend {
       .then( () => {
         return this._ipc.connect();
       })
-      .then(() => {
-        this._emit('connect', addr);
-        this._store.dispatch(connectionActions.connectionChange({
-          status: 'connected',
-          serverAddress: addr,
-        }));
-
-        this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
-      })
       .catch(e => {
         log.info('Failed connecting to', addr, e);
         this._emit('connect', undefined, e);
@@ -255,11 +246,6 @@ export class Backend {
   disconnect(): Promise<void> {
     // @TODO: Failure modes
     return this._ipc.disconnect()
-      .then(() => {
-        // emit: disconnect
-        this._emit('disconnect');
-        this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
-      })
       .catch(e => {
         log.info('Failed to disconnect', e);
       });
@@ -290,6 +276,8 @@ export class Backend {
       this._store.dispatch(connectionActions.connectionChange({
         status: newStatus,
       }));
+
+      this.sync();
     });
   }
 
