@@ -29,10 +29,6 @@ const appDelegate = {
       log.transports.file.level = 'info';
     }
 
-    if (isDevelopment) {
-      appDelegate._startBackend();
-    }
-
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
   },
@@ -60,24 +56,6 @@ const appDelegate = {
 
   onAllWindowsClosed: () => {
     app.quit();
-  },
-
-  _startBackend: () => {
-    const sudo = require('sudo-prompt');
-    const pathToBackend = path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/talpid_daemon');
-    log.info('Starting the mullvad backend at', pathToBackend);
-
-    const options = {
-      name: 'mullvad backend',
-    };
-
-    sudo.exec(pathToBackend, options, (err) => {
-      if (err && err.signal !== 'SIGINT') {
-        log.info('Backend exited with error', err);
-      } else {
-        log.info('Backend exited');
-      }
-    });
   },
 
   _sendBackendInfo: (window: BrowserWindow) => {
