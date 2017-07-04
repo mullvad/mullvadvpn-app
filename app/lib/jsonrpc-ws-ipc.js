@@ -40,9 +40,12 @@ export type JsonRpcSuccess = {
 export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
 
 export class TimeOutError extends Error {
-  constructor() {
+  jsonRpcMessage: Object;
+
+  constructor(jsonRpcMessage: Object) {
     super('Request timed out');
     this.name = 'TimeOutError';
+    this.jsonRpcMessage = jsonRpcMessage;
   }
 }
 
@@ -53,6 +56,11 @@ export class InvalidReply extends Error {
     super(msg);
     this.name = 'InvalidReply';
     this.reply = reply;
+
+    if(msg) {
+      this.message = msg + ' - ';
+    }
+    this.message += JSON.stringify(reply);
   }
 }
 
@@ -93,8 +101,11 @@ export default class Ipc {
         if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
           this._subscriptions[subscriptionId] = listener;
         } else {
-          throw new InvalidReply(subscriptionId);
+          throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
         }
+      })
+      .catch(e => {
+        log.error('Failed adding listener to', event, ':', e);
       });
   }
 
