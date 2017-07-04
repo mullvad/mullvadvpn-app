@@ -1,3 +1,9 @@
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize)]
+pub struct DaemonState {
+    pub state: SecurityState,
+    pub target_state: TargetState,
+}
+
 /// Security state of the computer.
 /// TODO(linus): There is a difference between lockdown(firewall) and tunnel functionality. The
 /// firewall can be set to prevent any leaks but the tunnel is not connected. Then we are secured,
@@ -14,7 +20,8 @@ pub enum SecurityState {
 /// Represents the state the client strives towards.
 /// When in `Secured`, the client should keep the computer from leaking and try to
 /// establish a VPN tunnel if it is not up.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TargetState {
     Unsecured,
     Secured,

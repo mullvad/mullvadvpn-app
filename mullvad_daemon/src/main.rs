@@ -26,7 +26,7 @@ mod rpc_info;
 mod shutdown;
 
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
-use states::{SecurityState, TargetState};
+use states::{DaemonState, SecurityState, TargetState};
 use std::io;
 
 use std::sync::{Arc, Mutex, mpsc};
@@ -126,7 +126,7 @@ struct Daemon {
     state: TunnelState,
     // The tunnel_close_handle must only exist in the Connecting and Connected states!
     tunnel_close_handle: Option<tunnel::CloseHandle>,
-    last_broadcasted_state: SecurityState,
+    last_broadcasted_state: DaemonState,
     target_state: TargetState,
     shutdown: bool,
     rx: mpsc::Receiver<DaemonEvent>,
@@ -144,12 +144,17 @@ impl Daemon {
     pub fn new() -> Result<Self> {
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
+        let state = TunnelState::NotRunning;
+        let target_state = TargetState::Unsecured;
         Ok(
             Daemon {
-                state: TunnelState::NotRunning,
+                state,
                 tunnel_close_handle: None,
-                last_broadcasted_state: SecurityState::Unsecured,
-                target_state: TargetState::Unsecured,
+                target_state,
+                last_broadcasted_state: DaemonState {
+                    state: state.as_security_state(),
+                    target_state,
+                },
                 shutdown: false,
                 rx,
                 tx,
@@ -287,17 +292,24 @@ impl Daemon {
         if new_state != self.state {
             debug!("State {:?} => {:?}", self.state, new_state);
             self.state = new_state;
-            let new_security_state = self.state.as_security_state();
-            if self.last_broadcasted_state != new_security_state {
-                self.last_broadcasted_state = new_security_state;
-                self.management_interface_broadcaster.notify_new_state(new_security_state);
-            }
+            self.broadcast_state();
             self.verify_state_consistency()?;
             self.apply_target_state()
         } else {
             // Calling set_state with the same state we already have is an error. Should try to
             // mitigate this possibility completely with a better state machine later.
             Err(ErrorKind::InvalidState.into())
+        }
+    }
+
+    fn broadcast_state(&mut self) {
+        let new_daemon_state = DaemonState {
+            state: self.state.as_security_state(),
+            target_state: self.target_state,
+        };
+        if self.last_broadcasted_state != new_daemon_state {
+            self.last_broadcasted_state = new_daemon_state;
+            self.management_interface_broadcaster.notify_new_state(new_daemon_state);
         }
     }
 
@@ -322,6 +334,7 @@ impl Daemon {
         if new_state != self.target_state {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
+            self.broadcast_state();
             self.apply_target_state()
         } else {
             Ok(())
