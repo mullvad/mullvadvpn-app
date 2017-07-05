@@ -45,7 +45,10 @@ export function newMockIpc() {
       }));
     },
     getState: () => {
-      return new Promise(r => r('unsecured'));
+      return new Promise(r => r({
+        state: 'unsecured',
+        target_state:'unsecured',
+      }));
     },
     registerStateListener: (listener: (BackendState) => void) => {
       stateListeners.push(listener);
