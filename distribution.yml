@@ -30,12 +30,27 @@ mac:
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
+  extraResources:
+    - from: ../talpid_core/target/release/mullvad_daemon
+      to: mullvad_daemon
+    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dylib
+      to: libtalpid_openvpn_plugin.dylib
 
 win:
   target:
     - nsis
+  extraResources:
+    - from: ../talpid_core/target/release/mullvad_daemon.exe
+      to: mullvad_daemon.exe
+    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dll
+      to: libtalpid_openvpn_plugin.dll
 
 linux:
   target:
     - deb
     - AppImage
+  extraResources:
+    - from: ../talpid_core/target/release/mullvad_daemon
+      to: mullvad_daemon
+    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.so
+      to: libtalpid_openvpn_plugin.so
