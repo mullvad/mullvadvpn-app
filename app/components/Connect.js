@@ -125,32 +125,35 @@ export default class Connect extends Component {
     const accountLocation = this.convertToMapCoordinate(this.props.account.location || [0, 0]);
     const serverLocation = this.convertToMapCoordinate(serverInfo.location);
 
+    const map = process.platform === 'darwin'
+      ? <ReactMapboxGl
+        style={ mapboxConfig.styleURL }
+        accessToken={ mapboxConfig.accessToken }
+        containerStyle={{ height: '100%' }}
+        interactive={ false }
+        fitBounds={ mapBounds }
+        fitBoundsOptions={ mapBoundsOptions }>
+        <If condition={ isConnected }>
+          <Then>
+            <Marker coordinates={ serverLocation } offset={ [0, -10] }>
+              <img src='./assets/images/location-marker-secure.svg' />
+            </Marker>
+          </Then>
+        </If>
+        <If condition={ !isConnected }>
+          <Then>
+            <Marker coordinates={ accountLocation } offset={ [0, -10] }>
+              <img src='./assets/images/location-marker-unsecure.svg' />
+            </Marker>
+          </Then>
+        </If>
+      </ReactMapboxGl>
+      : undefined;
+
     return (
       <div className="connect">
         <div className="connect__map">
-          <ReactMapboxGl
-            style={ mapboxConfig.styleURL }
-            accessToken={ mapboxConfig.accessToken }
-            containerStyle={{ height: '100%' }}
-            interactive={ false }
-            fitBounds={ mapBounds }
-            fitBoundsOptions={ mapBoundsOptions }>
-            <If condition={ isConnected }>
-              <Then>
-                <Marker coordinates={ serverLocation } offset={ [0, -10] }>
-                  <img src='./assets/images/location-marker-secure.svg' />
-                </Marker>
-              </Then>
-            </If>
-            <If condition={ !isConnected }>
-              <Then>
-                <Marker coordinates={ accountLocation } offset={ [0, -10] }>
-                  <img src='./assets/images/location-marker-unsecure.svg' />
-                </Marker>
-              </Then>
-            </If>
-
-          </ReactMapboxGl>
+          { map }
         </div>
         <div className="connect__container">
 
