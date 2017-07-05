@@ -198,8 +198,17 @@ export class Backend {
         // emit event
         this._emit('logout');
 
+        this._store.dispatch(accountActions.loginChange({
+          status: 'none',
+          accountNumber: null,
+          paidUntil: null,
+        }));
+
         // disconnect user during logout
-        return this.disconnect();
+        return this.disconnect()
+          .then( () => {
+            this._store.dispatch(push('/'));
+          });
       })
       .catch(e => {
         log.info('Failed to logout', e);
@@ -238,9 +247,9 @@ export class Backend {
       });
   }
 
-  disconnect() {
+  disconnect(): Promise<void> {
     // @TODO: Failure modes
-    this._ipc.disconnect()
+    return this._ipc.disconnect()
       .then(() => {
         // emit: disconnect
         this._emit('disconnect');

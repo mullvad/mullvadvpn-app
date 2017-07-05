@@ -66,6 +66,11 @@ export function failFast(fn: Check, done: DoneCallback) {
     done(e);
   }
 }
+export function failFastNextTick(fn: Check, done: DoneCallback) {
+  setTimeout(() => {
+    failFast(fn, done);
+  }, 1);
+}
 
 type MockStore = {
   getActions: () => Array<{type: string, payload: Object}>,
