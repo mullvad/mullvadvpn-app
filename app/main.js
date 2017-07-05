@@ -1,7 +1,6 @@
 // @flow
 import path from 'path';
 import fs from 'fs';
-import sudo from 'sudo-prompt';
 import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
@@ -64,6 +63,7 @@ const appDelegate = {
   },
 
   _startBackend: () => {
+    const sudo = require('sudo-prompt');
     const pathToBackend = path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/talpid_daemon');
     log.info('Starting the mullvad backend at', pathToBackend);
 
