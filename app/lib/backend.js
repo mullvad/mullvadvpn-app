@@ -5,6 +5,7 @@ import EventEmitter from 'events';
 import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
 import accountActions from '../redux/account/actions';
+import connectionActions from '../redux/connection/actions';
 import type { ReduxStore } from '../redux/store';
 import { push } from 'react-router-redux';
 
@@ -209,6 +210,11 @@ export class Backend {
 
     // emit: connecting
     this._emit('connecting', addr);
+    this._store.dispatch(connectionActions.connectionChange({
+      status: 'connecting',
+      serverAddress: addr,
+    }));
+
 
     this._ipc.setCountry(addr)
       .then( () => {
@@ -216,11 +222,19 @@ export class Backend {
       })
       .then(() => {
         this._emit('connect', addr);
+        this._store.dispatch(connectionActions.connectionChange({
+          status: 'connected',
+          serverAddress: addr,
+        }));
+
         this.sync(); // TODO: This is a pooooooor way of updating the location and the IP and stuff
       })
       .catch(e => {
         log.info('Failed connecting to', addr, e);
         this._emit('connect', undefined, e);
+        this._store.dispatch(connectionActions.connectionChange({
+          status: 'disconnected',
+        }));
       });
   }
 
