@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "The meat of Mullvad, the core if you wish"
 
+[[bin]]
+name = "mullvadd"
+
 [dependencies]
 error-chain = "0.10"
 serde = "1.0"
