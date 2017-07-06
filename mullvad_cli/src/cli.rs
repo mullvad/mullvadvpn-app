@@ -1,4 +1,4 @@
-use clap::{App, Arg, ArgMatches, SubCommand, AppSettings};
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 pub fn get_matches() -> ArgMatches<'static> {
     let app = create_app();
