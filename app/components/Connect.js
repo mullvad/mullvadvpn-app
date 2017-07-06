@@ -35,6 +35,12 @@ export type ConnectProps = {
   getServerInfo: (identifier: string) => ?ServerInfo
 };
 
+const ReactMap = ReactMapboxGl({
+  accessToken: mapboxConfig.accessToken,
+  attributionControl: false,
+  interactive: false
+});
+
 export default class Connect extends Component {
   props: ConnectProps;
   state = {
@@ -126,11 +132,9 @@ export default class Connect extends Component {
     const serverLocation = this.convertToMapCoordinate(serverInfo.location);
 
     const map = process.platform === 'darwin'
-      ? <ReactMapboxGl
+      ? <ReactMap
         style={ mapboxConfig.styleURL }
-        accessToken={ mapboxConfig.accessToken }
         containerStyle={{ height: '100%' }}
-        interactive={ false }
         fitBounds={ mapBounds }
         fitBoundsOptions={ mapBoundsOptions }>
         <If condition={ isConnected }>
@@ -147,7 +151,7 @@ export default class Connect extends Component {
             </Marker>
           </Then>
         </If>
-      </ReactMapboxGl>
+      </ReactMap>
       : undefined;
 
     return (
