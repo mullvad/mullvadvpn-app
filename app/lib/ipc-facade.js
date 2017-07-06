@@ -43,7 +43,7 @@ export class RealIpc implements IpcFacade {
         if (typeof raw === 'object' && raw && raw.paid_until) {
           return raw;
         } else {
-          throw new InvalidReply(raw);
+          throw new InvalidReply(raw, 'Expected an object with paid_until');
         }
       });
   }
@@ -78,7 +78,7 @@ export class RealIpc implements IpcFacade {
         if (typeof raw === 'string' && raw) {
           return raw;
         } else {
-          throw new InvalidReply(raw);
+          throw new InvalidReply(raw, 'Expected a string');
         }
       });
   }

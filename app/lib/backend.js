@@ -71,9 +71,11 @@ export class Backend {
 
   constructor(store: ReduxStore, ipc: ?IpcFacade) {
     this._store = store;
-    this._ipc = ipc || new RealIpc('');
-    this._registerIpcListeners();
-    this._startReachability();
+    if(ipc) {
+      this._ipc = ipc;
+      this._registerIpcListeners();
+      this._startReachability();
+    }
   }
 
   setLocation(loc: string) {

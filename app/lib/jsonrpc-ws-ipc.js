@@ -7,7 +7,8 @@ import log from 'electron-log';
 export type UnansweredRequest = {
   resolve: (mixed) => void,
   reject: (mixed) => void,
-  timeout: number,
+  timerId: number,
+  message: Object,
 }
 
 export type JsonRpcError = {
@@ -39,9 +40,12 @@ export type JsonRpcSuccess = {
 export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
 
 export class TimeOutError extends Error {
-  constructor() {
+  jsonRpcMessage: Object;
+
+  constructor(jsonRpcMessage: Object) {
     super('Request timed out');
     this.name = 'TimeOutError';
+    this.jsonRpcMessage = jsonRpcMessage;
   }
 }
 
@@ -52,6 +56,11 @@ export class InvalidReply extends Error {
     super(msg);
     this.name = 'InvalidReply';
     this.reply = reply;
+
+    if(msg) {
+      this.message = msg + ' - ';
+    }
+    this.message += JSON.stringify(reply);
   }
 }
 
@@ -85,34 +94,49 @@ export default class Ipc {
   }
 
   on(event: string, listener: (mixed) => void): Promise<*> {
-    // We're currently not actually using the event parameter.
-    // This is because we aren't sure if the backend will use
-    // one subscription per event or one subscription per
-    // event source.
 
     log.info('Adding a listener to', event);
-    return this.send('event_subscribe')
+    return this.send(event + '_subscribe')
       .then(subscriptionId => {
         if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
           this._subscriptions[subscriptionId] = listener;
         } else {
-          throw new InvalidReply(subscriptionId);
+          throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
         }
+      })
+      .catch(e => {
+        log.error('Failed adding listener to', event, ':', e);
       });
   }
 
   send(action: string, ...data: Array<mixed>): Promise<mixed> {
-    return this._getWebSocket()
-      .then(ws => this._send(ws, action, data))
-      .catch(e => {
-        log.error('Failed sending RPC message "' + action + '":', e);
-        throw e;
-      });
+    return new Promise((resolve, reject) => {
+      const id = uuid.v4();
+
+      const timerId = setTimeout(() => this._onTimeout(id), this._sendTimeoutMillis);
+      const jsonrpcMessage = jsonrpc.request(id, action, data);
+      this._unansweredRequests[id] = {
+        resolve: resolve,
+        reject: reject,
+        timerId: timerId,
+        message: jsonrpcMessage,
+      };
+
+      this._getWebSocket()
+        .then(ws => {
+          log.debug('Sending message', id, action);
+          ws.send(jsonrpcMessage);
+        })
+        .catch(e => {
+          log.error('Failed sending RPC message "' + action + '":', e);
+          reject(e);
+        });
+    });
   }
 
   _getWebSocket() {
     return new Promise(resolve => {
-      if (this._websocket.readyState === 1) { // Connected
+      if (this._websocket && this._websocket.readyState === 1) { // Connected
         resolve(this._websocket);
       } else {
         log.debug('Waiting for websocket to connect');
@@ -120,22 +144,6 @@ export default class Ipc {
           resolve: () => resolve(this._websocket),
         });
       }
-    });
-  }
-
-  _send(websocket, action, data) {
-    return new Promise((resolve, reject) => {
-      const id = uuid.v4();
-      const jsonrpcMessage = jsonrpc.request(id, action, data);
-
-      const timeout = setTimeout(() => this._onTimeout(id), this._sendTimeoutMillis);
-      this._unansweredRequests[id] = {
-        resolve: resolve,
-        reject: reject,
-        timeout: timeout,
-      };
-      log.debug('Sending message', id, action);
-      websocket.send(jsonrpcMessage);
     });
   }
 
@@ -148,7 +156,8 @@ export default class Ipc {
       return;
     }
 
-    request.reject(new TimeOutError());
+    log.debug(request.message, 'timed out');
+    request.reject(new TimeOutError(request.message));
   }
 
   _onMessage(message: string) {
@@ -186,7 +195,7 @@ export default class Ipc {
 
     log.debug('Got answer to', id, message.type);
 
-    clearTimeout(request.timeout);
+    clearTimeout(request.timerId);
 
     if (message.type === 'error') {
       request.reject(message.payload.error);
