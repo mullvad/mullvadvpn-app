@@ -10,8 +10,8 @@ error-chain = "0.10"
 log = "0.3"
 lazy_static = "0.2"
 mktemp = "0.3"
-jsonrpc-core = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
-jsonrpc-macros = { git = "https://github.com/faern/jsonrpc", branch = "ws-close-handle" }
+jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.20"
