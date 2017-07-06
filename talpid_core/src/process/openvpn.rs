@@ -36,6 +36,7 @@ pub struct OpenVpnCommand {
     config: Option<PathBuf>,
     remote: Option<net::Endpoint>,
     user_pass_path: Option<PathBuf>,
+    ca: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
 }
 
@@ -48,6 +49,7 @@ impl OpenVpnCommand {
             config: None,
             remote: None,
             user_pass_path: None,
+            ca: None,
             plugin: None,
         }
     }
@@ -68,6 +70,12 @@ impl OpenVpnCommand {
     /// stored. See the `--auth-user-pass` OpenVPN documentation for details.
     pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
+        self
+    }
+
+    /// Sets the path to the CA certificate file.
+    pub fn ca<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.ca = Some(path.as_ref().to_path_buf());
         self
     }
 
@@ -94,6 +102,11 @@ impl OpenVpnCommand {
 
         args.extend(self.remote_arguments().iter().map(OsString::from));
         args.extend(self.authentication_arguments());
+
+        if let Some(ref ca) = self.ca {
+            args.push(OsString::from("--ca"));
+            args.push(OsString::from(ca.as_os_str()));
+        }
 
         if let Some((ref path, ref plugin_args)) = self.plugin {
             args.push(OsString::from("--plugin"));
