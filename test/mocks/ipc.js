@@ -37,7 +37,7 @@ export function newMockIpc() {
       return new Promise(r => r({
         city: '',
         country: '',
-        latlong: [],
+        latlong: [0, 0],
       }));
     },
     getState: () => {

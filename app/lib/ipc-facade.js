@@ -1,14 +1,16 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, number, arrayOf } from 'validated/schema';
+import { object, string, arrayOf, number } from 'validated/schema';
 import { validate } from 'validated/object';
+
+import type { Coordinate2d } from '../types';
 
 export type AccountData = {paid_until: string};
 export type AccountNumber = string;
 export type Ip = string;
 export type Location = {
-  latlong: Array<number>,
+  latlong: Coordinate2d,
   country: string,
   city: string,
 };
@@ -90,7 +92,8 @@ export class RealIpc implements IpcFacade {
     return this._ipc.send('get_location')
       .then(raw => {
         try {
-          return validate(LocationSchema, raw);
+          const validated: any = validate(LocationSchema, raw);
+          return (validated: Location);
         } catch (e) {
           throw new InvalidReply(raw, e);
         }
