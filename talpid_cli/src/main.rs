@@ -1,19 +1,19 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
-extern crate talpid_core;
+extern crate talpid_ipc;
 #[macro_use]
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
 extern crate log;
 extern crate env_logger;
+extern crate serde;
+extern crate serde_json;
 
-use std::sync::Mutex;
-use std::sync::mpsc::{self, Receiver};
-use talpid_core::net::RemoteAddr;
-
-use talpid_core::tunnel::{TunnelEvent, TunnelMonitor};
+use std::fs::File;
+use std::io::Read;
 
 mod cli;
 
@@ -23,40 +23,53 @@ error_chain!{}
 quick_main!(run);
 
 fn run() -> Result<()> {
-    init_logger()?;
-    let args = cli::parse_args_or_exit();
-    main_loop(&args.remotes)
-}
+    env_logger::init().chain_err(|| "Failed to bootstrap logging system")?;
 
-pub fn init_logger() -> Result<()> {
-    env_logger::init().chain_err(|| "Failed to bootstrap logging system")
-}
-
-fn main_loop(remotes: &[RemoteAddr]) -> Result<()> {
-    let mut remotes_iter = remotes.iter().cloned().cycle();
-    let (monitor, rx) = create_tunnel_monitor()?;
-    loop {
-        monitor.start(remotes_iter.next().unwrap()).chain_err(|| "Unable to start OpenVPN")?;
-        while let Ok(msg) = rx.recv() {
-            match msg {
-                TunnelEvent::Shutdown => {
-                    println!("Monitored process exited");
-                    break;
-                }
-                TunnelEvent::Up => println!("Tunnel UP"),
-                TunnelEvent::Down => println!("Tunnel DOWN"),
-            }
-        }
-        std::thread::sleep(std::time::Duration::from_millis(500));
+    let matches = cli::get_matches();
+    if let Some(matches) = matches.subcommand_matches("account") {
+        cmd_account(matches)
+    } else {
+        unreachable!("No subcommand matches.")
     }
 }
 
-fn create_tunnel_monitor() -> Result<(TunnelMonitor, Receiver<TunnelEvent>)> {
-    let (event_tx, event_rx) = mpsc::channel();
-    let event_tx_mutex = Mutex::new(event_tx);
-    let on_event = move |event: TunnelEvent| {
-        event_tx_mutex.lock().unwrap().send(event).expect("Unable to send on tx_lock");
-    };
-    let monitor = TunnelMonitor::new(on_event).chain_err(|| "Unable to start OpenVPN monitor")?;
-    Ok((monitor, event_rx))
+fn cmd_account(matches: &clap::ArgMatches) -> Result<()> {
+    if let Some(matches) = matches.subcommand_matches("set") {
+        let token = matches.value_of("token").unwrap();
+        call_rpc("set_account", &[token]).map(
+            |_| {
+                println!("Mullvad account {} set", token);
+            },
+        )
+    } else if let Some(_matches) = matches.subcommand_matches("get") {
+        match call_rpc("get_account", &[] as &[u8; 0])? {
+            serde_json::Value::String(token) => println!("Mullvad account: {:?}", token),
+            serde_json::Value::Null => println!("No account configured"),
+            _ => bail!("Unable to fetch account token"),
+        }
+        Ok(())
+    } else {
+        unreachable!("No account command given");
+    }
+}
+
+fn call_rpc<T>(method: &str, args: &T) -> Result<serde_json::Value>
+    where T: serde::Serialize
+{
+    let address = read_rpc_address()?;
+    info!("Using RPC address {}", address);
+    let mut rpc_client = talpid_ipc::WsIpcClient::new(address)
+        .chain_err(|| "Unable to create RPC client")?;
+    rpc_client.call(method, args).chain_err(|| "Unable to call RPC method")
+}
+
+fn read_rpc_address() -> Result<String> {
+    for path in &["./.mullvad_rpc_address", "../.mullvad_rpc_address"] {
+        debug!("Trying to read RPC address at {}", path);
+        let mut address = String::new();
+        if let Ok(_) = File::open(path).and_then(|mut file| file.read_to_string(&mut address)) {
+            return Ok(address);
+        }
+    }
+    bail!("Unable to read RPC address");
 }

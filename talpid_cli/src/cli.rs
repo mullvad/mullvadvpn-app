@@ -1,37 +1,6 @@
-use clap::{App, Arg, ArgMatches};
-use std::path::PathBuf;
+use clap::{App, Arg, ArgMatches, SubCommand, AppSettings};
 
-use talpid_core::net::RemoteAddr;
-
-#[cfg(all(unix, not(target_os="macos")))]
-const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.so";
-#[cfg(target_os="macos")]
-const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dylib";
-#[cfg(windows)]
-const DEFAULT_PLUGIN_PATH: &'static str = "./target/debug/libtalpid_openvpn_plugin.dll";
-
-
-pub struct Args {
-    pub binary: String,
-    pub plugin_path: PathBuf,
-    pub config: PathBuf,
-    pub remotes: Vec<RemoteAddr>,
-    pub verbosity: u64,
-}
-
-pub fn parse_args_or_exit() -> Args {
-    let matches = get_matches();
-    let remotes = values_t!(matches.values_of("remotes"), RemoteAddr).unwrap_or_else(|e| e.exit());
-    Args {
-        binary: matches.value_of("openvpn").unwrap().to_owned(),
-        plugin_path: PathBuf::from(matches.value_of("plugin").unwrap()),
-        config: PathBuf::from(matches.value_of("config").unwrap()),
-        remotes: remotes,
-        verbosity: matches.occurrences_of("verbose"),
-    }
-}
-
-fn get_matches() -> ArgMatches<'static> {
+pub fn get_matches() -> ArgMatches<'static> {
     let app = create_app();
     app.clone().get_matches()
 }
@@ -41,42 +10,15 @@ fn create_app() -> App<'static, 'static> {
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
-        .arg(
-            Arg::with_name("openvpn")
-                .long("openvpn")
-                .help("Specify what OpenVPN binary to run")
-                .default_value("/usr/sbin/openvpn"),
-        )
-        .arg(
-            Arg::with_name("config")
-                .short("c")
-                .long("config")
-                .help("Specify what config file to start OpenVPN with")
-                .default_value("./openvpn.conf"),
-        )
-        .arg(
-            Arg::with_name("remotes")
-                .short("r")
-                .long("remotes")
-                .help(
-                    "Configure what remote(s) to connect to. Accepts anything OpenVPN can use. \
-                   Format: <address>:<port>",
-                )
-                .takes_value(true)
-                .multiple(true)
-                .required(true),
-        )
-        .arg(
-            Arg::with_name("plugin")
-                .long("plugin")
-                .help("Path to talpid plugin")
-                .default_value(DEFAULT_PLUGIN_PATH),
-        )
-        .arg(
-            Arg::with_name("verbose")
-                .short("v")
-                .long("verbose")
-                .multiple(true)
-                .help("Sets the level of verbosity"),
-        )
+        .setting(AppSettings::SubcommandRequired)
+        .subcommand(SubCommand::with_name("account")
+            .about("Control and display information about the configured Mullvad account")
+            .setting(AppSettings::SubcommandRequired)
+            .subcommand(SubCommand::with_name("set")
+                .about("Change the Mullvad account")
+                .arg(Arg::with_name("token")
+                    .help("The Mullvad account token to configure the daemon with")
+                    .required(true)))
+            .subcommand(SubCommand::with_name("get")
+                .about("Display information about the currently configured account")))
 }
