@@ -85,7 +85,10 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
         let mut cmd = OpenVpnCommand::new("openvpn");
-        cmd.config(get_config_path()).remote(remote).user_pass(user_pass_file);
+        if let Some(config) = get_config_path() {
+            cmd.config(config);
+        }
+        cmd.remote(remote).user_pass(user_pass_file).ca("ca.crt");
         cmd
     }
 
@@ -162,6 +165,7 @@ fn get_plugin_path() -> Result<PathBuf> {
 
 // TODO(linus): Temporary implementation for getting hold of a config location.
 // Manually place a working config here or change this string in order to test
-fn get_config_path() -> &'static str {
-    "./openvpn.conf"
+fn get_config_path() -> Option<&'static Path> {
+    let path = Path::new("./openvpn.conf");
+    if path.exists() { Some(path) } else { None }
 }
