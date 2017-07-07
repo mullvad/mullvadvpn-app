@@ -18,6 +18,7 @@ const LocationSchema = object({
   city: string,
 });
 
+export type BackendState = 'secured' | 'unsecured';
 
 export interface IpcFacade {
   getAccountData(AccountNumber): Promise<AccountData>,
@@ -27,6 +28,8 @@ export interface IpcFacade {
   disconnect(): Promise<void>,
   getIp(): Promise<Ip>,
   getLocation(): Promise<Location>,
+  getState(): Promise<BackendState>,
+  registerStateListener((BackendState) => void): void,
 }
 
 export class RealIpc implements IpcFacade {
@@ -92,5 +95,28 @@ export class RealIpc implements IpcFacade {
           throw new InvalidReply(raw, e);
         }
       });
+  }
+
+  getState(): Promise<BackendState> {
+    return this._ipc.send('get_state')
+      .then(raw => {
+        return this._parseBackendState(raw);
+      });
+  }
+
+  _parseBackendState(raw: mixed): BackendState {
+    if (raw === 'secured' || raw === 'unsecured') {
+      return raw;
+    } else {
+      throw new InvalidReply(raw);
+    }
+  }
+
+  registerStateListener(listener: (BackendState) => void) {
+    this._ipc.on('new_state', (rawEvent) => {
+      const parsedEvent : BackendState = this._parseBackendState(rawEvent);
+
+      listener(parsedEvent);
+    });
   }
 }

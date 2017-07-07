@@ -23,19 +23,6 @@ describe('connect', () => {
     store.dispatch(connectionActions.connect(backend, 'example.com'));
   });
 
-  it('should update the state with the connection info once connection is established', (done) => {
-    const { store, backend } = setupBackendAndStore();
-
-    store.dispatch(connectionActions.connect(backend, 'example.com'));
-
-    checkNextTick( () => {
-      const state = store.getState().connection;
-
-      expect(state.status).to.equal('connected');
-      expect(state.serverAddress).to.equal('example.com');
-    }, done);
-  });
-
   it('should set the connection state to \'disconnected\' on failed attempts', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
@@ -54,6 +41,27 @@ describe('connect', () => {
     checkNextTick(() => {
       expect(store.getState().connection.status).to.equal('disconnected');
     }, done);
+  });
+
+  it('should update the store on \'secured\' state from the backend', () => {
+    const { store, mockIpc } = setupBackendAndStore();
+
+    expect(store.getState().connection.status).not.to.equal('connected');
+    mockIpc.sendNewState('secured');
+    expect(store.getState().connection.status).to.equal('connected');
+
+  });
+
+  it('should update the store on \'unsecured\' state from the backend', () => {
+    const { store, mockIpc } = setupBackendAndStore();
+    store.dispatch(connectionActions.connectionChange({
+      status: 'connected',
+    }));
+
+    expect(store.getState().connection.status).not.to.equal('disconnected');
+    mockIpc.sendNewState('unsecured');
+    expect(store.getState().connection.status).to.equal('disconnected');
+
   });
 });
 
