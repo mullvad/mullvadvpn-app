@@ -1,7 +1,6 @@
 // @flow
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
-import persistState from 'redux-localstorage';
 import thunk from 'redux-thunk';
 
 import account from './account/reducers.js';
@@ -52,7 +51,7 @@ export default function configureStore(initialState: ?ReduxState, routerHistory:
     return compose;
   })();
 
-  const enhancer = composeEnhancers(applyMiddleware(...middlewares), persistState());
+  const enhancer = composeEnhancers(applyMiddleware(...middlewares));
   const rootReducer = combineReducers(reducers);
   if(initialState) {
     return createStore(rootReducer, initialState, enhancer);

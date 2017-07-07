@@ -4708,10 +4708,6 @@ redux-actions@^2.0.1:
     lodash-es "^4.17.4"
     reduce-reducers "^0.1.0"
 
-redux-localstorage@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/redux-localstorage/-/redux-localstorage-0.4.1.tgz#faf6d719c581397294d811473ffcedee065c933c"
-
 redux-mock-store@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/redux-mock-store/-/redux-mock-store-1.2.3.tgz#1b3ad299da91cb41ba30d68e3b6f024475fb9e1b"
