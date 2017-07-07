@@ -10,13 +10,13 @@ mod errors {
 pub use self::errors::*;
 
 
-struct Factory {
+struct Factory<O: for<'de> serde::Deserialize<'de>> {
     request: String,
-    result_tx: mpsc::Sender<Result<serde_json::Value>>,
+    result_tx: mpsc::Sender<Result<O>>,
 }
 
-impl ws::Factory for Factory {
-    type Handler = Handler;
+impl<O: for<'de> serde::Deserialize<'de>> ws::Factory for Factory<O> {
+    type Handler = Handler<O>;
 
     fn connection_made(&mut self, sender: ws::Sender) -> Self::Handler {
         debug!("Sending: {}", self.request);
@@ -32,39 +32,42 @@ impl ws::Factory for Factory {
 }
 
 
-struct Handler {
+struct Handler<O: for<'de> serde::Deserialize<'de>> {
     sender: ws::Sender,
-    result_tx: mpsc::Sender<Result<serde_json::Value>>,
+    result_tx: mpsc::Sender<Result<O>>,
 }
 
-impl Handler {
-    fn validate_reply(&self, msg: ws::Message) -> ws::Result<serde_json::Value> {
-        let json: serde_json::Value = match msg {
-                ws::Message::Text(s) => serde_json::from_str(&s),
-                ws::Message::Binary(b) => serde_json::from_slice(&b),
-            }
-            .map_err(|e| ws::Error::from(Box::new(e)))?;
-        debug!("JSON response: {}", json);
-        let result =
-            match json {
-                    serde_json::Value::Object(mut map) => map.remove("result"),
-                    _ => None,
+impl<O: for<'de> serde::Deserialize<'de>> Handler<O> {
+    fn parse_reply(&self, msg: ws::Message) -> Result<O> {
+        let json: serde_json::Value =
+            match msg {
+                    ws::Message::Text(s) => serde_json::from_str(&s),
+                    ws::Message::Binary(b) => serde_json::from_slice(&b),
                 }
-                .ok_or(ws::Error::new(ws::ErrorKind::Protocol, "Invalid reply, no 'result'"),)?;
-        // TODO(linus): Properly validate reply
-        Ok(result)
+                .chain_err(|| "Unable to deserialize ws message as JSON")?;
+        let result: Option<serde_json::Value> = match json {
+            serde_json::Value::Object(mut map) => map.remove("result"),
+            _ => None,
+        };
+        match result {
+            Some(result) => {
+                serde_json::from_value(result)
+                    .chain_err(|| "Unable to deserialize result into derisred type")
+            }
+            None => bail!("Invalid reply, no 'result' field"),
+        }
     }
 }
 
-impl ws::Handler for Handler {
+impl<O: for<'de> serde::Deserialize<'de>> ws::Handler for Handler<O> {
     fn on_message(&mut self, msg: ws::Message) -> ws::Result<()> {
         debug!("WsIpcClient incoming message: {:?}", msg);
-        let reply = self.validate_reply(msg)?;
+        let reply_result = self.parse_reply(msg);
         let close_result = self.sender.close(ws::CloseCode::Normal);
         if let Err(e) = close_result.chain_err(|| "Unable to close WebSocket") {
             self.result_tx.send(Err(e)).unwrap();
         }
-        self.result_tx.send(Ok(reply)).unwrap();
+        self.result_tx.send(reply_result).unwrap();
         Ok(())
     }
 }
@@ -81,8 +84,9 @@ impl WsIpcClient {
         Ok(WsIpcClient { url, next_id: 1 })
     }
 
-    pub fn call<T>(&mut self, method: &str, params: &T) -> Result<serde_json::Value>
-        where T: serde::Serialize
+    pub fn call<T, O>(&mut self, method: &str, params: &T) -> Result<O>
+        where T: serde::Serialize,
+              O: for<'de> serde::Deserialize<'de>
     {
         let (result_tx, result_rx) = mpsc::channel();
         let factory = Factory {
