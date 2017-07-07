@@ -21,23 +21,22 @@ import type { TrayIconType } from './lib/tray-icon-manager';
 const initialState = null;
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
+
+//////////////////////////////////////////////////////////////////////////
+// Backend
+//////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
 
-// reset login state if user quit the app during login
-if((['logging in', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
-  store.dispatch(accountActions.loginChange({
-    status: 'none'
-  }));
-}
+ipcRenderer.on('backend-info', (_event, args) => {
+  backend.setLocation(args.addr);
+  backend.sync();
+});
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-// reset connection state if user quit the app when logging in
-if(store.getState().connection.status === 'logging in') {
-  store.dispatch(connectionActions.connectionChange({
-    status: 'disconnected'
-  }));
-}
-
+//////////////////////////////////////////////////////////////////////////
 // Tray icon
+//////////////////////////////////////////////////////////////////////////
 
 /**
  * Get tray icon type based on connection state
@@ -60,13 +59,25 @@ const updateTrayIcon = () => {
 };
 store.subscribe(updateTrayIcon);
 
-ipcRenderer.on('backend-info', (_event, args) => {
-  backend.setLocation(args.addr);
-  backend.sync();
-});
-
 // force update tray
 updateTrayIcon();
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// reset login state if user quit the app during login
+if((['logging in', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
+  store.dispatch(accountActions.loginChange({
+    status: 'none'
+  }));
+}
+
+// reset connection state if user quit the app when logging in
+if(store.getState().connection.status === 'logging in') {
+  store.dispatch(connectionActions.connectionChange({
+    status: 'disconnected'
+  }));
+}
+
 
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
