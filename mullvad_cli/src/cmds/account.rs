@@ -2,7 +2,6 @@ use Command;
 use Result;
 use clap;
 use rpc;
-use serde_json;
 
 pub struct Account;
 
@@ -39,17 +38,17 @@ impl Command for Account {
 impl Account {
     fn set(&self, token: &str) -> Result<()> {
         rpc::call("set_account", &[token]).map(
-            |_| {
-                println!("Mullvad account {} set", token);
+            |_: Option<()>| {
+                println!("Mullvad account \"{}\" set", token);
             },
         )
     }
 
     fn get(&self) -> Result<()> {
-        match rpc::call("get_account", &[] as &[u8; 0])? {
-            serde_json::Value::String(token) => println!("Mullvad account: {:?}", token),
-            serde_json::Value::Null => println!("No account configured"),
-            _ => bail!("Unable to fetch account token"),
+        let token: Option<String> = rpc::call("get_account", &[] as &[u8; 0])?;
+        match token {
+            Some(token) => println!("Mullvad account: {:?}", token),
+            None => println!("No account configured"),
         }
         Ok(())
     }
