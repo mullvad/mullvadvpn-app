@@ -17,16 +17,16 @@ extern crate uuid;
 #[macro_use]
 extern crate lazy_static;
 
+extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
 
 mod management_interface;
-mod states;
 mod rpc_info;
 mod shutdown;
 
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
-use states::{DaemonState, SecurityState, TargetState};
+use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 
 use std::sync::{Arc, Mutex, mpsc};
