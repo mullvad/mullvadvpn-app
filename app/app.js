@@ -13,8 +13,6 @@ import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import { Backend } from './lib/backend';
-import mapBackendEventsToReduxActions from './lib/backend-redux-actions';
-import mapBackendEventsToRouter from './lib/backend-routing';
 
 import type { LoginState } from './redux/account/reducers';
 import type { ConnectionState } from './redux/connection/reducers';
@@ -57,23 +55,15 @@ const getIconType = (s: ConnectionState): TrayIconType => {
  */
 const updateTrayIcon = () => {
   const { connection } = store.getState();
+  // TODO: Only update the tray icon if the connection status changed
   ipcRenderer.send('changeTrayIcon', getIconType(connection.status));
 };
-
-// Setup primary event handlers to translate backend events into redux dispatch
-mapBackendEventsToReduxActions(backend, store);
-
-// Setup routing based on backend events
-mapBackendEventsToRouter(backend, store);
+store.subscribe(updateTrayIcon);
 
 ipcRenderer.on('backend-info', (_event, args) => {
   backend.setLocation(args.addr);
   backend.sync();
 });
-// Setup events to update tray icon
-backend.on('connect', updateTrayIcon);
-backend.on('connecting', updateTrayIcon);
-backend.on('disconnect', updateTrayIcon);
 
 // force update tray
 updateTrayIcon();

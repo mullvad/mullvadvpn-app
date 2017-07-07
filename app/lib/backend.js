@@ -94,7 +94,7 @@ export class Backend {
     this._ipc.getIp()
       .then( ip => {
         log.info('Got ip', ip);
-        this._emit('updatedIp', ip);
+        this._store.dispatch(connectionActions.connectionChange({ clientIp: ip }));
       })
       .catch(e => {
         log.info('Failed syncing with the backend', e);
@@ -108,7 +108,7 @@ export class Backend {
           country: location.country,
           city: location.city
         };
-        this._emit('updatedLocation', newLocation, null);
+        this._store.dispatch(accountActions.loginChange(newLocation));
       })
       .catch(e => {
         log.info('Failed getting new location', e);
@@ -147,9 +147,6 @@ export class Backend {
   login(accountNumber: string) {
     log.info('Attempting to login with account number', accountNumber);
 
-    // emit: logging in
-    this._emit('logging', { accountNumber: accountNumber }, null);
-
     this._store.dispatch(accountActions.loginChange({
       accountNumber: accountNumber,
       status: 'connecting',
@@ -165,10 +162,6 @@ export class Backend {
 
       }).then( accountData => {
         log.info('Log in complete');
-
-        this._emit('login', {
-          paidUntil: accountData.paid_until,
-        }, undefined);
 
         this._store.dispatch(accountActions.loginChange({
           status: 'ok',
@@ -190,8 +183,6 @@ export class Backend {
           status: 'failed',
           error: err,
         }));
-
-        this._emit('login', {}, err);
       });
   }
 
@@ -200,8 +191,6 @@ export class Backend {
     // @TODO: What does it mean for a logout to be successful or failed?
     this._ipc.setAccount('')
       .then(() => {
-        // emit event
-        this._emit('logout');
 
         this._store.dispatch(accountActions.loginChange({
           status: 'none',
@@ -222,8 +211,6 @@ export class Backend {
 
   connect(addr: string) {
 
-    // emit: connecting
-    this._emit('connecting', addr);
     this._store.dispatch(connectionActions.connectionChange({
       status: 'connecting',
       serverAddress: addr,
@@ -236,7 +223,6 @@ export class Backend {
       })
       .catch(e => {
         log.info('Failed connecting to', addr, e);
-        this._emit('connect', undefined, e);
         this._store.dispatch(connectionActions.connectionChange({
           status: 'disconnected',
         }));
@@ -257,15 +243,19 @@ export class Backend {
    * with proper backend integration.
    */
   _startReachability() {
-    window.addEventListener('online', () => this._emit('updatedReachability', true));
+    window.addEventListener('online', () => {
+      this._store.dispatch(connectionActions.connectionChange({ isOnline: true }));
+    });
     window.addEventListener('offline', () => {
       // force disconnect since there is no real connection anyway.
       this.disconnect();
-      this._emit('updatedReachability', false);
+      this._store.dispatch(connectionActions.connectionChange({ isOnline: false }));
     });
 
     // update online status in background
-    setTimeout(() => this._emit('updatedReachability', navigator.onLine), 0);
+    setTimeout(() => {
+      this._store.dispatch(connectionActions.connectionChange({ isOnline: navigator.onLine }));
+    }, 0);
   }
 
   _registerIpcListeners() {
@@ -291,21 +281,5 @@ export class Backend {
     default:
       throw new Error('Unknown backend state: ' + backendState);
     }
-  }
-
-  on(event: EventType, listener: Function) {
-    this._eventEmitter.on(event, listener);
-  }
-
-  once(event: EventType, listener: Function) {
-    this._eventEmitter.once(event, listener);
-  }
-
-  off(event: EventType, listener: Function) {
-    this._eventEmitter.removeListener(event, listener);
-  }
-
-  _emit(event: EventType, ...args:Array<any>): boolean {
-    return this._eventEmitter.emit(event, ...args);
   }
 }
