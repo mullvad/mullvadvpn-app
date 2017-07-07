@@ -45,7 +45,7 @@ export default class Login extends Component {
 
   formTitle(s: LoginState): string {
     switch(s) {
-    case 'connecting': return 'Logging in...';
+    case 'logging in': return 'Logging in...';
     case 'failed': return 'Login failed';
     case 'ok': return 'Login successful';
     default: return 'Login';
@@ -55,7 +55,7 @@ export default class Login extends Component {
   formSubtitle(s: LoginState, e: ?Error): string {
     switch(s) {
     case 'failed':  return (e && e.message) || 'Unknown error';
-    case 'connecting': return 'Checking account number';
+    case 'logging in': return 'Checking account number';
     default: return 'Enter your account number';
     }
   }
@@ -68,7 +68,7 @@ export default class Login extends Component {
     }
 
     switch(s) {
-    case 'connecting':
+    case 'logging in':
       classes.push('login-form__input-wrap--inactive');
       break;
     case 'failed':
@@ -83,7 +83,7 @@ export default class Login extends Component {
     const classes = ['login-footer'];
     switch(s) {
     case 'ok':
-    case 'connecting':
+    case 'logging in':
       classes.push('login-footer--invisible');
       break;
     }
@@ -97,7 +97,7 @@ export default class Login extends Component {
       classes.push('login-form__submit--active');
     }
 
-    if(s === 'connecting') {
+    if(s === 'logging in') {
       classes.push('login-form__submit--invisible');
     }
 
@@ -122,7 +122,7 @@ export default class Login extends Component {
     let isFailed = false;
     let isLoggedIn = false;
     switch(status) {
-    case 'connecting': isConnecting = true; break;
+    case 'logging in': isConnecting = true; break;
     case 'failed': isFailed = true; break;
     case 'ok': isLoggedIn = true; break;
     }
@@ -143,7 +143,7 @@ export default class Login extends Component {
         <Container>
           <div className="login">
             <div className="login-form">
-              { /* show spinner when connecting */ }
+              { /* show spinner when logging in */ }
               <If condition={ isConnecting }>
                 <Then>
                   <div className="login-form__status-icon">

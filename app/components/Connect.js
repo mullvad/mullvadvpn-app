@@ -1,4 +1,5 @@
 // @flow
+
 import moment from 'moment';
 import React, { Component } from 'react';
 import { If, Then, Else } from 'react-if';
@@ -128,7 +129,7 @@ export default class Connect extends Component {
     const displayLocation = this.displayLocation();
     const mapBounds = this.calculateMapBounds(displayLocation.location, altitude);
     const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
-    const accountLocation = this.convertToMapCoordinate(this.props.account.location || [0, 0]);
+    const accountLocation = this.convertToMapCoordinate(this.props.connection.location || [0, 0]);
     const serverLocation = this.convertToMapCoordinate(serverInfo.location);
 
     const map = process.platform === 'darwin'
@@ -396,7 +397,7 @@ export default class Connect extends Component {
   displayLocation(): DisplayLocation {
     // return user location when disconnected
     if(this.props.connection.status === 'disconnected') {
-      let { location, country, city } = this.props.account;
+      let { location, country, city } = this.props.connection;
       return {
         location: location || [0, 0],
         country, city

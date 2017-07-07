@@ -108,7 +108,7 @@ export class Backend {
           country: location.country,
           city: location.city
         };
-        this._store.dispatch(accountActions.loginChange(newLocation));
+        this._store.dispatch(connectionActions.connectionChange(newLocation));
       })
       .catch(e => {
         log.info('Failed getting new location', e);
@@ -149,7 +149,7 @@ export class Backend {
 
     this._store.dispatch(accountActions.loginChange({
       accountNumber: accountNumber,
-      status: 'connecting',
+      status: 'logging in',
       error: null,
     }));
 

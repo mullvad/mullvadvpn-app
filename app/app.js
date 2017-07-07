@@ -24,14 +24,14 @@ const store = configureStore(initialState, memoryHistory);
 const backend = new Backend(store);
 
 // reset login state if user quit the app during login
-if((['connecting', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
+if((['logging in', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
   store.dispatch(accountActions.loginChange({
     status: 'none'
   }));
 }
 
-// reset connection state if user quit the app when connecting
-if(store.getState().connection.status === 'connecting') {
+// reset connection state if user quit the app when logging in
+if(store.getState().connection.status === 'logging in') {
   store.dispatch(connectionActions.connectionChange({
     status: 'disconnected'
   }));
