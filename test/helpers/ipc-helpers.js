@@ -9,11 +9,6 @@ import { mockState, mockStore } from '../mocks/redux';
 type DoneCallback = (?mixed) => void;
 type Check = () => void;
 
-// Mock localStorage because redux-localstorage has no test helpers
-// We use redux-localstorage when we setup the redux store to have the
-// store persist when the application is shut down.
-global.localStorage = {getItem: ()=>'{}', setItem: ()=>{}};
-
 export function setupBackendAndStore() {
 
   const memoryHistory = createMemoryHistory();

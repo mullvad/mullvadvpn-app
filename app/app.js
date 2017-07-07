@@ -10,11 +10,8 @@ import { webFrame, ipcRenderer } from 'electron';
 import log from 'electron-log';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
-import accountActions from './redux/account/actions';
-import connectionActions from './redux/connection/actions';
 import { Backend } from './lib/backend';
 
-import type { LoginState } from './redux/account/reducers';
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './lib/tray-icon-manager';
 
@@ -63,21 +60,6 @@ store.subscribe(updateTrayIcon);
 updateTrayIcon();
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-
-// reset login state if user quit the app during login
-if((['logging in', 'failed']: Array<LoginState>).includes(store.getState().account.status)) {
-  store.dispatch(accountActions.loginChange({
-    status: 'none'
-  }));
-}
-
-// reset connection state if user quit the app when logging in
-if(store.getState().connection.status === 'logging in') {
-  store.dispatch(connectionActions.connectionChange({
-    status: 'disconnected'
-  }));
-}
-
 
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
