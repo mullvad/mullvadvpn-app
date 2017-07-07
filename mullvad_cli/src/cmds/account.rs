@@ -26,7 +26,8 @@ impl Command for Account {
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
-            self.set(set_matches)
+            let token = value_t_or_exit!(set_matches.value_of("token"), String);
+            self.set(&token)
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get()
         } else {
@@ -36,9 +37,8 @@ impl Command for Account {
 }
 
 impl Account {
-    fn set(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let token = value_t_or_exit!(matches.value_of("token"), String);
-        rpc::call("set_account", &[&token]).map(
+    fn set(&self, token: &str) -> Result<()> {
+        rpc::call("set_account", &[token]).map(
             |_| {
                 println!("Mullvad account {} set", token);
             },
