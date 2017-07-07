@@ -10,15 +10,17 @@ describe('connect', () => {
   it('should invoke set_country and then connect in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
-    const chain = new IpcChain(mockIpc, done);
-    chain.addRequiredStep('setCountry')
+    const chain = new IpcChain(mockIpc);
+    chain.require('setCountry')
       .withInputValidation(
         (country) => expect(country).to.equal('example.com')
       )
       .done();
 
-    chain.addRequiredStep('connect')
+    chain.require('connect')
       .done();
+
+    chain.onSuccessOrFailure(done);
 
     store.dispatch(connectionActions.connect(backend, 'example.com'));
   });

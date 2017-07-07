@@ -9,14 +9,13 @@ export class IpcChain {
   _mockIpc: {};
   _done: (*) => void;
 
-  constructor(mockIpc: {}, done: (*) => void) {
+  constructor(mockIpc: {}) {
     this._expectedCalls = [];
     this._recordedCalls = [];
     this._mockIpc = mockIpc;
-    this._done = done;
   }
 
-  addRequiredStep(ipcCall: string): StepBuilder {
+  require(ipcCall: string): StepBuilder {
     this._expectedCalls.push(ipcCall);
     return new StepBuilder(ipcCall, this._addStep.bind(this));
   }
@@ -54,6 +53,10 @@ export class IpcChain {
 
   _registerCall(ipcCall: string) {
     this._recordedCalls.push(ipcCall);
+  }
+
+  onSuccessOrFailure(done: (*) => void) {
+    this._done = done;
   }
 }
 
