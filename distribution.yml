@@ -4,6 +4,12 @@ productName: MullvadNeue
 
 asar: true
 
+# assets bundled on all platforms
+extraResources:
+  # master.mullvad.net certificate used by mullvadd
+  - from: build-assets/ca.crt
+    to: .
+
 directories:
   buildResources: build-assets/
   output: dist/
@@ -31,26 +37,32 @@ mac:
   extendInfo:
     LSUIElement: true
   extraResources:
-    - from: ../talpid_core/target/release/mullvad_daemon
-      to: mullvad_daemon
+    - from: ../talpid_core/target/release/mullvad
+      to: .
+    - from: ../talpid_core/target/release/mullvadd
+      to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dylib
-      to: libtalpid_openvpn_plugin.dylib
+      to: .
 
 win:
   target:
     - nsis
   extraResources:
-    - from: ../talpid_core/target/release/mullvad_daemon.exe
-      to: mullvad_daemon.exe
+    - from: ../talpid_core/target/release/mullvad.exe
+      to: .
+    - from: ../talpid_core/target/release/mullvadd.exe
+      to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dll
-      to: libtalpid_openvpn_plugin.dll
+      to: .
 
 linux:
   target:
     - deb
     - AppImage
   extraResources:
-    - from: ../talpid_core/target/release/mullvad_daemon
-      to: mullvad_daemon
+    - from: ../talpid_core/target/release/mullvad
+      to: .
+    - from: ../talpid_core/target/release/mullvadd
+      to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.so
-      to: libtalpid_openvpn_plugin.so
+      to: .
