@@ -121,23 +121,3 @@ impl WsIpcClient {
         id
     }
 }
-
-
-#[cfg(test)]
-mod tests {
-    extern crate env_logger;
-    use super::*;
-
-    // TODO(linus): This is not a test. Just an ugly way to quickly test the client implementation
-    #[test]
-    #[ignore]
-    fn ws_ipc_client_tester() {
-        env_logger::init().unwrap();
-
-        let mut ws = WsIpcClient::new("ws://127.0.0.1:INSERT_PORT".to_owned()).unwrap();
-        let event = serde_json::Value::String("Up".to_owned());
-        let env = serde_json::Value::Object(serde_json::Map::new());
-        let params = serde_json::Value::Array(vec![event, env]);
-        println!("CALL RESULT: {:?}", ws.call("openvpn_event", &params));
-    }
-}
