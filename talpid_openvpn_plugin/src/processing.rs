@@ -30,6 +30,7 @@ impl EventProcessor {
         trace!("Processing \"{:?}\" event", event);
         self.ipc_client
             .call("openvpn_event", &(event, env))
+            .map(|_| ())
             .chain_err(|| ErrorKind::IpcSendingError)
     }
 }

@@ -1,14 +1,17 @@
 [package]
-name = "talpid_cli"
+name = "mullvad_cli"
 version = "0.0.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "Run Talpid easily from the command line"
+
+[[bin]]
+name = "mullvad"
 
 [dependencies]
 clap = "2.20"
 error-chain = "0.10"
 log = "0.3"
 env_logger = "0.4"
-
-[dependencies.talpid_core]
-path = "../talpid_core"
+talpid_ipc = { path = "../talpid_ipc" }
+serde = "1.0"
+serde_json = "1.0"

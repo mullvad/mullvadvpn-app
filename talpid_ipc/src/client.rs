@@ -12,7 +12,7 @@ pub use self::errors::*;
 
 struct Factory {
     request: String,
-    result_tx: mpsc::Sender<Result<()>>,
+    result_tx: mpsc::Sender<Result<serde_json::Value>>,
 }
 
 impl ws::Factory for Factory {
@@ -34,30 +34,37 @@ impl ws::Factory for Factory {
 
 struct Handler {
     sender: ws::Sender,
-    result_tx: mpsc::Sender<Result<()>>,
+    result_tx: mpsc::Sender<Result<serde_json::Value>>,
 }
 
 impl Handler {
-    fn validate_reply(&self, msg: ws::Message) -> ws::Result<()> {
+    fn validate_reply(&self, msg: ws::Message) -> ws::Result<serde_json::Value> {
         let json: serde_json::Value = match msg {
                 ws::Message::Text(s) => serde_json::from_str(&s),
                 ws::Message::Binary(b) => serde_json::from_slice(&b),
             }
             .map_err(|e| ws::Error::from(Box::new(e)))?;
         debug!("JSON response: {}", json);
+        let result =
+            match json {
+                    serde_json::Value::Object(mut map) => map.remove("result"),
+                    _ => None,
+                }
+                .ok_or(ws::Error::new(ws::ErrorKind::Protocol, "Invalid reply, no 'result'"),)?;
         // TODO(linus): Properly validate reply
-        Ok(())
+        Ok(result)
     }
 }
 
 impl ws::Handler for Handler {
     fn on_message(&mut self, msg: ws::Message) -> ws::Result<()> {
-        self.validate_reply(msg)?;
+        debug!("WsIpcClient incoming message: {:?}", msg);
+        let reply = self.validate_reply(msg)?;
         let close_result = self.sender.close(ws::CloseCode::Normal);
         if let Err(e) = close_result.chain_err(|| "Unable to close WebSocket") {
             self.result_tx.send(Err(e)).unwrap();
         }
-        self.result_tx.send(Ok(())).unwrap();
+        self.result_tx.send(Ok(reply)).unwrap();
         Ok(())
     }
 }
@@ -74,7 +81,7 @@ impl WsIpcClient {
         Ok(WsIpcClient { url, next_id: 1 })
     }
 
-    pub fn call<T>(&mut self, method: &str, params: &T) -> Result<()>
+    pub fn call<T>(&mut self, method: &str, params: &T) -> Result<serde_json::Value>
         where T: serde::Serialize
     {
         let (result_tx, result_rx) = mpsc::channel();
