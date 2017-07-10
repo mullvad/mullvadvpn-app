@@ -360,7 +360,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad_cli"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "clap 2.25.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -390,7 +390,7 @@ dependencies = [
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "simple-signal 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "talpid_core 0.0.0",
+ "talpid_core 0.1.0",
  "talpid_ipc 0.1.0",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -635,7 +635,7 @@ dependencies = [
 
 [[package]]
 name = "talpid_core"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "duct 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
