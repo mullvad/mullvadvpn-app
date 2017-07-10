@@ -4,6 +4,7 @@ members = [
     "mullvad_cli",
     "mullvad_types",
     "talpid_openvpn_plugin",
+    "talpid_core",
+    "talpid_ipc",
     "openvpn_ffi",
-    "talpid_ipc"
 ]
