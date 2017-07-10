@@ -24,6 +24,7 @@ export type BackendState = 'secured' | 'unsecured';
 
 export interface IpcFacade {
   getAccountData(AccountNumber): Promise<AccountData>,
+  getAccount(): Promise<?AccountNumber>,
   setAccount(accountNumber: AccountNumber): Promise<void>,
   setCountry(address: string): Promise<void>,
   connect(): Promise<void>,
@@ -49,6 +50,17 @@ export class RealIpc implements IpcFacade {
           return raw;
         } else {
           throw new InvalidReply(raw, 'Expected an object with paid_until');
+        }
+      });
+  }
+
+  getAccount(): Promise<?AccountNumber> {
+    return this._ipc.send('get_account')
+      .then( raw => {
+        if (raw === undefined || raw === null || typeof raw === 'string') {
+          return raw;
+        } else {
+          throw new InvalidReply(raw);
         }
       });
   }
