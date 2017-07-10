@@ -36,7 +36,7 @@ fn ipc_client_server() {
     let server_id = server.address().to_owned();
     let mut client = create_client(server_id);
 
-    client.call("foo", &[97]).unwrap();
+    let _result: () = client.call("foo", &[97]).unwrap();
     assert_eq!(Ok(97), rx.recv_timeout(Duration::from_millis(500)));
 }
 
@@ -49,7 +49,8 @@ fn ipc_client_invalid_url() {
 #[test]
 fn ipc_client_invalid_method() {
     let mut client = create_client("ws://127.0.0.1:9876".to_owned());
-    assert_matches!(client.call("invalid_method", &[0]), Err(_));
+    let result: Result<(), _> = client.call("invalid_method", &[0]);
+    assert_matches!(result, Err(_));
 }
 
 fn create_server() -> (talpid_ipc::IpcServer, mpsc::Receiver<i64>) {

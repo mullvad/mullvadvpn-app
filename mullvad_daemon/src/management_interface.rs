@@ -5,9 +5,9 @@ use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
+use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
-use states::{DaemonState, TargetState};
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;

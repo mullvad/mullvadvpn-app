@@ -1,6 +1,7 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
+extern crate mullvad_types;
 extern crate talpid_ipc;
 #[macro_use]
 extern crate clap;

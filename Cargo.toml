@@ -1,2 +1,10 @@
 [workspace]
-members = ["mullvad_daemon", "mullvad_cli", "talpid_openvpn_plugin", "openvpn_ffi", "talpid_ipc"]
+members = [
+    "mullvad_daemon",
+    "mullvad_cli",
+    "mullvad_types",
+    "talpid_openvpn_plugin",
+    "talpid_core",
+    "talpid_ipc",
+    "openvpn_ffi",
+]

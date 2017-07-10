@@ -12,6 +12,8 @@ clap = "2.20"
 error-chain = "0.10"
 log = "0.3"
 env_logger = "0.4"
-talpid_ipc = { path = "../talpid_ipc" }
 serde = "1.0"
 serde_json = "1.0"
+
+mullvad_types = { path = "../mullvad_types" }
+talpid_ipc = { path = "../talpid_ipc" }

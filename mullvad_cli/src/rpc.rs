@@ -2,19 +2,26 @@
 
 use {Result, ResultExt};
 use serde;
-use serde_json;
 use std::fs::File;
 use std::io::Read;
 use talpid_ipc::WsIpcClient;
 
-pub fn call<T>(method: &str, args: &T) -> Result<serde_json::Value>
-    where T: serde::Serialize
+pub fn call<T, O>(method: &str, args: &T) -> Result<O>
+    where T: serde::Serialize,
+          O: for<'de> serde::Deserialize<'de>
+{
+    call_internal(method, args).chain_err(|| "Unable to call backend over RPC")
+}
+
+pub fn call_internal<T, O>(method: &str, args: &T) -> Result<O>
+    where T: serde::Serialize,
+          O: for<'de> serde::Deserialize<'de>
 {
     let address = read_rpc_address()?;
     info!("Using RPC address {}", address);
     let mut rpc_client = WsIpcClient::new(address)
         .chain_err(|| "Unable to create RPC client")?;
-    rpc_client.call(method, args).chain_err(|| "Unable to call RPC method")
+    rpc_client.call(method, args).chain_err(|| format!("Unable to call RPC method {}", method))
 }
 
 fn read_rpc_address() -> Result<String> {
