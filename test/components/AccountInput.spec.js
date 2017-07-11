@@ -1,6 +1,6 @@
+// @flow
 import { expect } from 'chai';
-import { KeyType, createKeyEvent } from '../mocks/dom';
-
+import { createKeyEvent } from '../helpers/dom-events';
 import React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import AccountInput from '../../app/components/AccountInput';
@@ -16,7 +16,7 @@ describe('components/AccountInput', () => {
       <AccountInput onEnter={ onEnter } />
     );
 
-    Simulate.keyUp(component._ref, createKeyEvent(KeyType.Enter));
+    Simulate.keyUp(component._ref, createKeyEvent('Enter'));
   });
 
   it('should call onChange', (done) => {
@@ -29,7 +29,7 @@ describe('components/AccountInput', () => {
       <AccountInput onChange={ onChange } />
     );
 
-    Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
+    Simulate.keyDown(component._ref, createKeyEvent('1'));
   });
 
   it('should format input properly', () => {
@@ -68,7 +68,7 @@ describe('components/AccountInput', () => {
       <AccountInput value="1234" onChange={ onChange } />
     );
 
-    Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
+    Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
   });
 
   it('should remove first character', (done) => {
@@ -82,7 +82,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [1, 1] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
+      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
     });
   });
 
@@ -97,7 +97,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [0, 8] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
+      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
     });
   });
 
@@ -112,7 +112,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [4, 8] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
+      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
     });
   });
 
@@ -122,7 +122,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [1, 3] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
+      Simulate.keyDown(component._ref, createKeyEvent('1'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('010');
@@ -138,7 +138,7 @@ describe('components/AccountInput', () => {
     );
 
     for(let i = 0; i < 12; i++) {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
+      Simulate.keyDown(component._ref, createKeyEvent('1'));
     }
 
     component.setState({}, () => {
@@ -154,7 +154,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [1, 1]}, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType._1));
+      Simulate.keyDown(component._ref, createKeyEvent('1'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('01000');
@@ -170,7 +170,7 @@ describe('components/AccountInput', () => {
     );
 
     component.setState({ selectionRange: [0, 0] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent(KeyType.Backspace));
+      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('0000');
