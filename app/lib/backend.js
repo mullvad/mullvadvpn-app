@@ -308,7 +308,7 @@ export class Backend {
     this._ipc.registerStateListener(newState => {
       log.info('Got new state from backend', newState);
 
-      const newStatus = this._backendStateToConnectionState(newState);
+      const newStatus = this._securityStateToConnectionState(newState);
       this._store.dispatch(connectionActions.connectionChange({
         status: newStatus,
       }));
@@ -317,15 +317,14 @@ export class Backend {
     });
   }
 
-  _backendStateToConnectionState(backendState: BackendState): ConnectionState {
-    switch(backendState) {
-    case 'unsecured':
-      return 'disconnected';
-    case 'secured':
+  _securityStateToConnectionState(backendState: BackendState): ConnectionState {
+    if (backendState.state === 'unsecured' && backendState.target_state === 'secured') {
+      return 'connecting';
+    } else if (backendState.state === 'secured' && backendState.target_state === 'secured') {
       return 'connected';
-
-    default:
-      throw new Error('Unknown backend state: ' + backendState);
+    } else if (backendState.target_state === 'unsecured') {
+      return 'disconnected';
     }
+    throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
   }
 }

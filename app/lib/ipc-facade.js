@@ -20,7 +20,11 @@ const LocationSchema = object({
   city: string,
 });
 
-export type BackendState = 'secured' | 'unsecured';
+export type SecurityState = 'secured' | 'unsecured';
+export type BackendState = {
+  state: SecurityState,
+  target_state: SecurityState,
+};
 
 export interface IpcFacade {
   getAccountData(AccountNumber): Promise<AccountData>,
@@ -120,8 +124,19 @@ export class RealIpc implements IpcFacade {
   }
 
   _parseBackendState(raw: mixed): BackendState {
-    if (raw === 'secured' || raw === 'unsecured') {
-      return raw;
+    if (raw && raw.state && raw.target_state) {
+
+      const uncheckedRaw: any = raw;
+
+      const states: Array<SecurityState> = ['secured', 'unsecured'];
+      const correctState = states.includes(uncheckedRaw.state);
+      const correctTargetState = states.includes(uncheckedRaw.target_state);
+
+      if (!correctState || !correctTargetState) {
+        throw new InvalidReply(raw);
+      }
+
+      return (uncheckedRaw: BackendState);
     } else {
       throw new InvalidReply(raw);
     }

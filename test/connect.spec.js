@@ -43,25 +43,31 @@ describe('connect', () => {
     }, done);
   });
 
-  it('should update the store on \'secured\' state from the backend', () => {
+  it('should correctly deduce \'connected\' from backend states', () => {
     const { store, mockIpc } = setupBackendAndStore();
 
     expect(store.getState().connection.status).not.to.equal('connected');
-    mockIpc.sendNewState('secured');
+    mockIpc.sendNewState({ state: 'secured', target_state: 'secured' });
     expect(store.getState().connection.status).to.equal('connected');
-
   });
 
-  it('should update the store on \'unsecured\' state from the backend', () => {
+  it('should correctly deduce \'connecting\' from backend states', () => {
+    const { store, mockIpc } = setupBackendAndStore();
+
+    expect(store.getState().connection.status).not.to.equal('connecting');
+    mockIpc.sendNewState({ state: 'unsecured', target_state: 'secured' });
+    expect(store.getState().connection.status).to.equal('connecting');
+  });
+
+  it('should correctly deduce \'disconnected\' from backend states', () => {
     const { store, mockIpc } = setupBackendAndStore();
     store.dispatch(connectionActions.connectionChange({
       status: 'connected',
     }));
 
     expect(store.getState().connection.status).not.to.equal('disconnected');
-    mockIpc.sendNewState('unsecured');
+    mockIpc.sendNewState({ state: 'unsecured', target_state: 'unsecured' });
     expect(store.getState().connection.status).to.equal('disconnected');
-
   });
 });
 
