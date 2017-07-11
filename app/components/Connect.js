@@ -3,25 +3,16 @@
 import moment from 'moment';
 import React, { Component } from 'react';
 import { If, Then, Else } from 'react-if';
-import ReactMapboxGl, { Marker } from 'react-mapbox-gl';
-import cheapRuler from 'cheap-ruler';
 import { Layout, Container, Header } from './Layout';
-import { mapbox as mapboxConfig } from '../config';
 import { BackendError } from '../lib/backend';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+import { Map } from './Map';
 
-import type { Coordinate2d } from '../types';
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { AccountReduxState } from '../redux/account/reducers';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { SettingsReduxState } from '../redux/settings/reducers';
-
-type DisplayLocation = {
-  location: Coordinate2d;
-  country: ?string;
-  city: ?string;
-};
 
 export type ConnectProps = {
   account: AccountReduxState,
@@ -36,11 +27,6 @@ export type ConnectProps = {
   getServerInfo: (identifier: string) => ?ServerInfo
 };
 
-const ReactMap = ReactMapboxGl({
-  accessToken: mapboxConfig.accessToken,
-  attributionControl: false,
-  interactive: false
-});
 
 export default class Connect extends Component {
   props: ConnectProps;
@@ -126,33 +112,15 @@ export default class Connect extends Component {
     }
 
     const altitude = (isConnecting ? 300 : 100) * 1000;
-    const displayLocation = this.displayLocation();
-    const mapBounds = this.calculateMapBounds(displayLocation.location, altitude);
-    const mapBoundsOptions = { offset: [0, -113], animate: !this.state.isFirstPass };
-    const accountLocation = this.convertToMapCoordinate(this.props.connection.location || [0, 0]);
-    const serverLocation = this.convertToMapCoordinate(serverInfo.location);
+    const { location, city, country } = this.props.connection;
 
     const map = process.platform === 'darwin'
-      ? <ReactMap
-        style={ mapboxConfig.styleURL }
-        containerStyle={{ height: '100%' }}
-        fitBounds={ mapBounds }
-        fitBoundsOptions={ mapBoundsOptions }>
-        <If condition={ isConnected }>
-          <Then>
-            <Marker coordinates={ serverLocation } offset={ [0, -10] }>
-              <img src='./assets/images/location-marker-secure.svg' />
-            </Marker>
-          </Then>
-        </If>
-        <If condition={ !isConnected }>
-          <Then>
-            <Marker coordinates={ accountLocation } offset={ [0, -10] }>
-              <img src='./assets/images/location-marker-unsecure.svg' />
-            </Marker>
-          </Then>
-        </If>
-      </ReactMap>
+      ? <Map animate={ !this.state.isFirstPass }
+        location={ location || [0, 0] }
+        altitude= { altitude }
+        markerImagePath= { isConnected
+          ? './assets/images/location-marker-secure.svg'
+          : './assets/images/location-marker-unsecure.svg' } />
       : undefined;
 
     return (
@@ -202,7 +170,7 @@ export default class Connect extends Component {
                   { /* silly but react-if does not have ElseIf */ }
                   <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
                     <Then>
-                      <span>{ displayLocation.country }</span>
+                      <span>{ country }</span>
                     </Then>
                   </If>
 
@@ -214,7 +182,7 @@ export default class Connect extends Component {
             <If condition={ isConnected }>
               <Then>
                 <div className="connect__status-location">
-                  { displayLocation.city }<br/>{ displayLocation.country }
+                  { city }<br/>{ country }
                 </div>
               </Then>
             </If>
@@ -223,7 +191,7 @@ export default class Connect extends Component {
             <If condition={ isDisconnected }>
               <Then>
                 <div className="connect__status-location">
-                  { displayLocation.country }
+                  { country }
                 </div>
               </Then>
             </If>
@@ -394,25 +362,6 @@ export default class Connect extends Component {
     return classes.join(' ');
   }
 
-  displayLocation(): DisplayLocation {
-    // return user location when disconnected
-    if(this.props.connection.status === 'disconnected') {
-      let { location, country, city } = this.props.connection;
-      return {
-        location: location || [0, 0],
-        country, city
-      };
-    } else { // otherwise server location
-      const preferredServer = this.props.settings.preferredServer;
-      const serverInfo = this.props.getServerInfo(preferredServer);
-      if(serverInfo) {
-        const { location, country, city } = serverInfo;
-        return { location, country, city };
-      }
-      throw new Error('Server location is not available.');
-    }
-  }
-
   displayError(): ?BackendError {
     // Offline?
     if(!this.props.connection.isOnline) {
@@ -426,18 +375,5 @@ export default class Connect extends Component {
     }
 
     return null;
-  }
-
-  // Geo helpers
-
-  calculateMapBounds(center: Coordinate2d, altitude: number): [Coordinate2d, Coordinate2d] {
-    const bounds = cheapRuler(center[0], 'meters').bufferPoint(center, altitude);
-    // convert [lat,lng] bounds to [lng,lat]
-    return [ [bounds[1], bounds[0]], [bounds[3], bounds[2]] ];
-  }
-
-  convertToMapCoordinate(pos: Coordinate2d): Coordinate2d {
-    // convert [lat,lng] bounds to [lng,lat]
-    return [pos[1], pos[0]];
   }
 }
