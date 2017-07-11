@@ -1,6 +1,6 @@
 {
-  "name": "mullvad",
-  "version": "1.0.11",
+  "name": "MullvadNeue",
+  "version": "0.1.0",
   "description": "Mullvad",
   "main": "init.js",
   "author": {
