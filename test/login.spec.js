@@ -10,18 +10,20 @@ describe('Logging in', () => {
   it('should validate the account number and then set it in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
-    const chain = new IpcChain(mockIpc, done);
-    chain.addRequiredStep('getAccountData')
+    const chain = new IpcChain(mockIpc);
+    chain.require('getAccountData')
       .withInputValidation((an) => {
         expect(an).to.equal('123');
       })
       .done();
 
-    chain.addRequiredStep('setAccount')
+    chain.require('setAccount')
       .withInputValidation((an) => {
         expect(an).to.equal('123');
       })
       .done();
+
+    chain.onSuccessOrFailure(done);
 
     const action: any = accountActions.login(backend, '123');
     store.dispatch(action);

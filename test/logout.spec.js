@@ -10,14 +10,15 @@ describe('logging out', () => {
   it('should set the account to the empty string and then disconnect', (done) => {
     const { mockIpc, backend } = setupBackendAndStore();
 
-    const chain = new IpcChain(mockIpc, done);
-    chain.addRequiredStep('setAccount')
+    const chain = new IpcChain(mockIpc);
+    chain.require('setAccount')
       .withInputValidation((num) => {
         expect(num).to.equal('');
       })
       .done();
-    chain.addRequiredStep('disconnect')
+    chain.require('disconnect')
       .done();
+    chain.onSuccessOrFailure(done);
 
     backend.logout();
   });

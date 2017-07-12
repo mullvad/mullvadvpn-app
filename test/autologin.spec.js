@@ -11,16 +11,18 @@ describe('autologin', () => {
 
     const randomAccountNumber = '12345';
 
-    const chain = new IpcChain(mockIpc, done);
-    chain.addRequiredStep('getAccount')
+    const chain = new IpcChain(mockIpc);
+    chain.require('getAccount')
       .withReturnValue(randomAccountNumber)
       .done();
 
-    chain.addRequiredStep('getAccountData')
+    chain.require('getAccountData')
       .withInputValidation((num) => {
         expect(num).to.equal(randomAccountNumber);
       })
       .done();
+
+    chain.onSuccessOrFailure(done);
 
     backend.autologin();
   });
