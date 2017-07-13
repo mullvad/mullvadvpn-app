@@ -1,8 +1,9 @@
+extern crate chrono;
 #[macro_use]
 extern crate log;
-extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
+extern crate fern;
 
 extern crate serde;
 #[macro_use]
@@ -467,5 +468,18 @@ fn run() -> Result<()> {
 }
 
 fn init_logger() -> Result<()> {
-    env_logger::init().chain_err(|| "Failed to bootstrap logging system")
+    let log_filename = "mullvadd.log";
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!("{}[{}][{}] {}",
+                chrono::Local::now()
+                    .format("[%Y-%m-%d %H:%M:%S]"),
+                record.target(),
+                record.level(),
+                message))
+        })
+        .level(log::LogLevelFilter::Debug)
+        .chain(std::io::stdout())
+        .chain(fern::log_file(log_filename).chain_err(|| "Failed to open log file for writing")?)
+        .apply().chain_err(|| "Failed to bootstrap logging system")
 }
