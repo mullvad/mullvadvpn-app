@@ -89,6 +89,10 @@ export default class Ipc {
     this._reconnect();
   }
 
+  setConnectionString(str: string) {
+    this._connectionString = str;
+  }
+
   setSendTimeout(millis: number) {
     this._sendTimeoutMillis = millis;
   }

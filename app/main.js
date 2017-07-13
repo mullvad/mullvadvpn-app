@@ -4,15 +4,22 @@ import fs from 'fs';
 import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
+import ElectronSudo from 'electron-sudo';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 const isMacOS = (process.platform === 'darwin');
+const isLinux = (process.platform === 'linux');
+const isWindows = (process.platform === 'win32');
+
+const rpcAddressFile = path.join(app.getPath('temp'), '.mullvad_rpc_address');
+let browserWindowReady = false;
 
 const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
+  connectionFilePollInterval: (null: ?number),
 
   setup: () => {
     // Override appData path to avoid collisions with old client
@@ -29,6 +36,8 @@ const appDelegate = {
       log.transports.file.level = 'info';
     }
 
+    appDelegate._startBackend();
+
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
   },
@@ -36,7 +45,7 @@ const appDelegate = {
   onReady: async () => {
     const window = appDelegate._window = appDelegate._createWindow();
 
-    ipcMain.on('on-browser-window-ready', () => appDelegate._sendBackendInfo(window));
+    ipcMain.on('on-browser-window-ready', () => browserWindowReady = true);
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
 
@@ -58,13 +67,108 @@ const appDelegate = {
     app.quit();
   },
 
-  _sendBackendInfo: (window: BrowserWindow) => {
-    const file = path.join(app.getPath('temp'), '.mullvad_rpc_address');
-    log.info('reading the ipc connection info from', file);
+  _startBackend: () => {
 
-    fs.readFile(file, 'utf8', function (err,data) {
+    const backendIsRunning = appDelegate._rpcAddressFileExists();
+    if (backendIsRunning) {
+      log.info('Not starting the backend as it appears to already be running');
+      return;
+    }
+
+    const pathToBackend = appDelegate._findPathToBackend();
+    log.info('Starting the mullvad backend at', pathToBackend);
+
+    const options = {
+      name: 'Mullvad',
+    };
+    const sudo = new ElectronSudo(options);
+    sudo.spawn( pathToBackend )
+      .then( p => {
+        appDelegate._setupBackendProcessListeners(p);
+        return p;
+      })
+      .then( p => {
+        appDelegate._pollForConnectionInfoFile();
+        return p;
+      });
+  },
+  _rpcAddressFileExists: () => {
+    return fs.existsSync(rpcAddressFile);
+  },
+  _findPathToBackend: () => {
+    if (isDevelopment) {
+      return path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/mullvadd');
+
+    } else if (isMacOS) {
+      return path.join(process.resourcesPath, 'mullvadd');
+
+    } else if (isLinux) {
+      // TODO: Decide
+      return '';
+
+    } else if (isWindows) {
+      // TODO: Decide
+      return '';
+    }
+  },
+  _setupBackendProcessListeners: (p) => {
+    // electron-sudo writes all output to some buffers in memory.
+    // For long-running processes such as this one that would
+    // cause a memory leak.
+    p.stdout.removeAllListeners('data');
+    p.stderr.removeAllListeners('data');
+
+    p.stdout.on('data', (data) => {
+      log.info('BACKEND stdout:', data.toString());
+    });
+    p.stderr.on('data', (data) => {
+      log.warn('BACKEND stderr:', data.toString());
+    });
+
+    p.on('error', (err) => {
+      log.error('Failed to start or kill the backend', err);
+    });
+
+    p.on('exit', (code) => {
+      const timeoutMs = 500;
+      log.info('The backend exited with code', code + '. Attempting to restart it in', timeoutMs, 'milliseconds...');
+      setTimeout( () => appDelegate._startBackend(), timeoutMs);
+    });
+  },
+  _pollForConnectionInfoFile: () => {
+
+    if (appDelegate.connectionFilePollInterval) {
+      log.warn('Attempted to start polling for the RPC connection info file while another polling was already running');
+      return;
+    }
+
+    const pollIntervalMs = 200;
+    appDelegate.connectionFilePollInterval = setInterval(() => {
+
+      if (browserWindowReady && appDelegate._rpcAddressFileExists()) {
+
+        if (appDelegate.connectionFilePollInterval) {
+          clearInterval(appDelegate.connectionFilePollInterval);
+          appDelegate.connectionFilePollInterval = null;
+        }
+
+        appDelegate._sendBackendInfo();
+      }
+
+    }, pollIntervalMs);
+  },
+  _sendBackendInfo: () => {
+    const window = appDelegate._window;
+    if (!window) {
+      log.error('Attempted to send backend rpc address before the window was ready');
+      return;
+    }
+
+    log.debug('Reading the ipc connection info from', rpcAddressFile);
+
+    fs.readFile(rpcAddressFile, 'utf8', function (err,data) {
       if (err) {
-        return log.info('Could not find backend connection info', err);
+        return log.error('Could not find backend connection info', err);
       }
 
       log.info('Read IPC connection info', data);

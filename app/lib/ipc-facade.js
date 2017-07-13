@@ -27,6 +27,7 @@ export type BackendState = {
 };
 
 export interface IpcFacade {
+  setConnectionString(string): void,
   getAccountData(AccountNumber): Promise<AccountData>,
   getAccount(): Promise<?AccountNumber>,
   setAccount(accountNumber: AccountNumber): Promise<void>,
@@ -45,6 +46,10 @@ export class RealIpc implements IpcFacade {
 
   constructor(connectionString: string) {
     this._ipc = new JsonRpcWs(connectionString);
+  }
+
+  setConnectionString(str: string) {
+    this._ipc.setConnectionString(str);
   }
 
   getAccountData(accountNumber: AccountNumber): Promise<AccountData> {
