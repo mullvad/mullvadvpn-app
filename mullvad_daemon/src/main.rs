@@ -33,7 +33,7 @@ use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 
-use std::path::Path;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
@@ -460,7 +460,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let config = cli::get_config();
-    init_logger(config.log_level, config.log_file.as_path())?;
+    init_logger(config.log_level, config.log_file.as_ref())?;
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
 
@@ -474,7 +474,7 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn init_logger(log_level: log::LogLevelFilter, log_file: &Path) -> Result<()> {
+fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Result<()> {
     let silenced_crates = [
         "jsonrpc_core",
         "tokio_core",
@@ -491,11 +491,14 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: &Path) -> Result<()> {
                 record.level(),
                 message))
         })
-        .level(log_level);
+        .level(log_level)
+        .chain(std::io::stdout());
     for silenced_crate in &silenced_crates {
         config = config.level_for(*silenced_crate, log::LogLevelFilter::Warn);
     }
-    config.chain(std::io::stdout())
-        .chain(fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?)
-        .apply().chain_err(|| "Failed to bootstrap logging system")
+    if let Some(ref log_file) = log_file {
+        let f = fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?;
+        config = config.chain(f);
+    }
+    config.apply().chain_err(|| "Failed to bootstrap logging system")
 }
