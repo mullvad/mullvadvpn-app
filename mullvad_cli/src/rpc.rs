@@ -25,12 +25,12 @@ pub fn call_internal<T, O>(method: &str, args: &T) -> Result<O>
 }
 
 fn read_rpc_address() -> Result<String> {
-    for path in &["./.mullvad_rpc_address", "../.mullvad_rpc_address"] {
-        debug!("Trying to read RPC address at {}", path);
-        let mut address = String::new();
-        if let Ok(_) = File::open(path).and_then(|mut file| file.read_to_string(&mut address)) {
-            return Ok(address);
-        }
+    let path = ::std::env::temp_dir().join(".mullvad_rpc_address");
+
+    debug!("Trying to read RPC address at {}", path.to_string_lossy());
+    let mut address = String::new();
+    if let Ok(_) = File::open(path).and_then(|mut file| file.read_to_string(&mut address)) {
+        return Ok(address);
     }
     bail!("Unable to read RPC address");
 }

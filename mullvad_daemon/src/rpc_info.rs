@@ -17,12 +17,12 @@ error_chain! {
 
 lazy_static! {
     /// The path to the file where we write the RPC address
-    static ref RPC_ADDRESS_FILE_PATH: &'static Path = Path::new("./.mullvad_rpc_address");
+    static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
 }
 
 /// Writes down the RPC address to some API to a file.
 pub fn write(rpc_address: &str) -> Result<()> {
-    open_file(*RPC_ADDRESS_FILE_PATH)
+    open_file(RPC_ADDRESS_FILE_PATH.as_path())
         .and_then(|mut file| file.write_all(rpc_address.as_bytes()))
         .chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))?;
 
@@ -34,7 +34,7 @@ pub fn write(rpc_address: &str) -> Result<()> {
 }
 
 pub fn remove() -> Result<()> {
-    fs::remove_file(*RPC_ADDRESS_FILE_PATH)
+    fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path())
         .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
 }
 
