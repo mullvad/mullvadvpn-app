@@ -72,6 +72,8 @@ lazy_static! {
     ];
 }
 
+static CRATE_NAME: &str = "mullvadd";
+
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub enum DaemonEvent {
@@ -473,7 +475,14 @@ fn run() -> Result<()> {
 }
 
 fn init_logger(log_level: log::LogLevelFilter, log_file: &Path) -> Result<()> {
-    fern::Dispatch::new()
+    let silenced_crates = [
+        "jsonrpc_core",
+        "tokio_core",
+        "jsonrpc_ws_server",
+        "ws",
+        "mio",
+    ];
+    let mut config = fern::Dispatch::new()
         .format(|out, message, record| {
             out.finish(format_args!("{}[{}][{}] {}",
                 chrono::Local::now()
@@ -482,8 +491,11 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: &Path) -> Result<()> {
                 record.level(),
                 message))
         })
-        .level(log_level)
-        .chain(std::io::stdout())
+        .level(log_level);
+    for silenced_crate in &silenced_crates {
+        config = config.level_for(*silenced_crate, log::LogLevelFilter::Warn);
+    }
+    config.chain(std::io::stdout())
         .chain(fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?)
         .apply().chain_err(|| "Failed to bootstrap logging system")
 }
