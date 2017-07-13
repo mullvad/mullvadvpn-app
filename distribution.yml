@@ -58,7 +58,7 @@ win:
 linux:
   target:
     - deb
-    - AppImage
+  artifactName: ${productName}_${version}_${arch}.${ext}
   extraResources:
     - from: ../talpid_core/target/release/mullvad
       to: .
