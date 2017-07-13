@@ -59,7 +59,7 @@ const appDelegate = {
   },
 
   _sendBackendInfo: (window: BrowserWindow) => {
-    const file = './.mullvad_rpc_address';
+    const file = path.join(app.getPath('temp'), '.mullvad_rpc_address');
     log.info('reading the ipc connection info from', file);
 
     fs.readFile(file, 'utf8', function (err,data) {
