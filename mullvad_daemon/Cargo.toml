@@ -2,13 +2,14 @@
 name = "mullvad_daemon"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
-description = "The meat of Mullvad, the core if you wish"
+description = "Mullvad VPN backend daemon. Runs and controls the VPN tunnels."
 
 [[bin]]
 name = "mullvadd"
 
 [dependencies]
 chrono = "0.4"
+clap = "2.25"
 error-chain = "0.10"
 fern = "0.4"
 serde = "1.0"

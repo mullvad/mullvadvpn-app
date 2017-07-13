@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate clap;
 extern crate chrono;
 #[macro_use]
 extern crate log;
@@ -22,6 +24,7 @@ extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
 
+mod cli;
 mod management_interface;
 mod rpc_info;
 mod shutdown;
@@ -453,7 +456,8 @@ fn log_error<E>(error: &E)
 quick_main!(run);
 
 fn run() -> Result<()> {
-    init_logger()?;
+    let config = cli::get_config();
+    init_logger(config.log_level)?;
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
 
@@ -467,7 +471,7 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn init_logger() -> Result<()> {
+fn init_logger(log_level: log::LogLevelFilter) -> Result<()> {
     let log_filename = "mullvadd.log";
     fern::Dispatch::new()
         .format(|out, message, record| {
@@ -478,7 +482,7 @@ fn init_logger() -> Result<()> {
                 record.level(),
                 message))
         })
-        .level(log::LogLevelFilter::Debug)
+        .level(log_level)
         .chain(std::io::stdout())
         .chain(fern::log_file(log_filename).chain_err(|| "Failed to open log file for writing")?)
         .apply().chain_err(|| "Failed to bootstrap logging system")
