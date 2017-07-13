@@ -5,31 +5,40 @@ import React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import AccountInput from '../../app/components/AccountInput';
 
+import type { AccountInputProps } from '../../app/components/AccountInput';
+
 describe('components/AccountInput', () => {
+  const getInputRef = (component: AccountInput): HTMLInputElement => {
+    return ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
+  };
+
+  const render = (mergeProps: $Shape<AccountInputProps>) => {
+    const defaultProps: AccountInputProps = {
+      value: '',
+      onEnter: null,
+      onChange: null
+    };
+    const props = Object.assign({}, defaultProps, mergeProps);
+    return ReactTestUtils.renderIntoDocument(
+      <AccountInput { ...props } />
+    );
+  };
 
   it('should call onEnter', (done) => {
-    const onEnter = () => {
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput onEnter={ onEnter } />
-    );
-
-    Simulate.keyUp(component._ref, createKeyEvent('Enter'));
+    const component = render({
+      onEnter: () => done()
+    });
+    Simulate.keyUp(getInputRef(component), createKeyEvent('Enter'));
   });
 
   it('should call onChange', (done) => {
-    const onChange = (val) => {
-      expect(val).to.be.equal('1');
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput onChange={ onChange } />
-    );
-
-    Simulate.keyDown(component._ref, createKeyEvent('1'));
+    const component = render({
+      onChange: (val) => {
+        expect(val).to.be.equal('1');
+        done();
+      }
+    });
+    Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
   });
 
   it('should format input properly', () => {
@@ -50,79 +59,69 @@ describe('components/AccountInput', () => {
       ''
     ];
 
-    for(const val of cases) {
-      const component = ReactTestUtils.renderIntoDocument(
-        <AccountInput value={ val } />
-      );
-      expect(component._ref.value).to.be.equal(val);
+    for(const value of cases) {
+      const component = render({ value });
+      expect(getInputRef(component).value).to.be.equal(value);
     }
   });
 
   it('should remove last character', (done) => {
-    const onChange = (val) => {
-      expect(val).to.be.equal('123');
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="1234" onChange={ onChange } />
-    );
-
-    Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
+    const component = render({
+      value: '1234',
+      onChange: (val) => {
+        expect(val).to.be.equal('123');
+        done();
+      }
+    });
+    Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
   });
 
   it('should remove first character', (done) => {
-    const onChange = (val) => {
-      expect(val).to.be.equal('234');
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="1234" onChange={ onChange } />
-    );
-
+    const component = render({
+      value: '1234',
+      onChange: (val) => {
+        expect(val).to.be.equal('234');
+        done();
+      }
+    });
     component.setState({ selectionRange: [1, 1] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
   it('should remove all characters', (done) => {
-    const onChange = (val) => {
-      expect(val).to.be.empty;
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="12345678" onChange={ onChange } />
-    );
-
+    const component = render({
+      value: '12345678',
+      onChange: (val) => {
+        expect(val).to.be.empty;
+        done();
+      }
+    });
     component.setState({ selectionRange: [0, 8] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
   it('should remove selection', (done) => {
-    const onChange = (val) => {
-      expect(val).to.be.equal('12349999');
-      done();
-    };
-
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="1234 5678 9999" onChange={ onChange } />
-    );
-
+    const component = render({
+      value: '1234 5678 9999',
+      onChange: (val) => {
+        expect(val).to.be.equal('12349999');
+        done();
+      }
+    });
     component.setState({ selectionRange: [4, 8] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
   it('should replace selection', (done) => {
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="0000" />
-    );
+    const component = render({
+      value: '0000'
+    });
 
     component.setState({ selectionRange: [1, 3] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('1'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('010');
@@ -133,12 +132,10 @@ describe('components/AccountInput', () => {
   });
 
   it('should keep selection in the back', (done) => {
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput />
-    );
+    const component = render({ value: '' });
 
     for(let i = 0; i < 12; i++) {
-      Simulate.keyDown(component._ref, createKeyEvent('1'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
     }
 
     component.setState({}, () => {
@@ -149,12 +146,11 @@ describe('components/AccountInput', () => {
   });
 
   it('should advance selection on insertion', (done) => {
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="0000" />
-    );
-
+    const component = render({
+      value: '0000'
+    });
     component.setState({ selectionRange: [1, 1]}, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('1'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('01000');
@@ -165,12 +161,11 @@ describe('components/AccountInput', () => {
   });
 
   it('should not do anything when nothing to remove', (done) => {
-    const component = ReactTestUtils.renderIntoDocument(
-      <AccountInput value="0000" />
-    );
-
+    const component = render({
+      value: '0000'
+    });
     component.setState({ selectionRange: [0, 0] }, () => {
-      Simulate.keyDown(component._ref, createKeyEvent('Backspace'));
+      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
 
       component.setState({}, () => {
         expect(component.state.value).to.be.equal('0000');
