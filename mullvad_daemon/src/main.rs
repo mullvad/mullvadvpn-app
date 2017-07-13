@@ -33,6 +33,7 @@ use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 
+use std::path::Path;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
@@ -457,7 +458,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let config = cli::get_config();
-    init_logger(config.log_level)?;
+    init_logger(config.log_level, config.log_file.as_path())?;
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
 
@@ -471,8 +472,7 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn init_logger(log_level: log::LogLevelFilter) -> Result<()> {
-    let log_filename = "mullvadd.log";
+fn init_logger(log_level: log::LogLevelFilter, log_file: &Path) -> Result<()> {
     fern::Dispatch::new()
         .format(|out, message, record| {
             out.finish(format_args!("{}[{}][{}] {}",
@@ -484,6 +484,6 @@ fn init_logger(log_level: log::LogLevelFilter) -> Result<()> {
         })
         .level(log_level)
         .chain(std::io::stdout())
-        .chain(fern::log_file(log_filename).chain_err(|| "Failed to open log file for writing")?)
+        .chain(fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?)
         .apply().chain_err(|| "Failed to bootstrap logging system")
 }
