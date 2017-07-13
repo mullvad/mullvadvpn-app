@@ -6,7 +6,7 @@ import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
-import { Map } from './Map';
+import Map from './Map';
 
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';

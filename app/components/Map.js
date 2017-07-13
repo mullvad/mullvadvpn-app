@@ -13,7 +13,7 @@ const ReactMap = ReactMapboxGl({
   interactive: false,
 });
 
-export class Map extends Component {
+export default class Map extends Component {
   props: {
     animate: boolean,
     location: Coordinate2d,
