@@ -11,7 +11,7 @@ pub struct Config {
 pub fn get_config() -> Config {
     let app = create_app();
     let matches = app.get_matches();
-    
+
     let log_level = match matches.occurrences_of("v") {
         0 => log::LogLevelFilter::Info,
         1 => log::LogLevelFilter::Debug,
@@ -30,12 +30,16 @@ fn create_app() -> App<'static, 'static> {
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
-        .arg(Arg::with_name("v")
-            .short("v")
-            .multiple(true)
-            .help("Sets the level of verbosity."))
-        .arg(Arg::with_name("log_file")
-            .long("log")
-            .takes_value(true)
-            .help("Activates file logging to the given path"))
+        .arg(
+            Arg::with_name("v")
+                .short("v")
+                .multiple(true)
+                .help("Sets the level of verbosity."),
+        )
+        .arg(
+            Arg::with_name("log_file")
+                .long("log")
+                .takes_value(true)
+                .help("Activates file logging to the given path"),
+        )
 }

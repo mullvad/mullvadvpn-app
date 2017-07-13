@@ -483,14 +483,19 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
         "mio",
     ];
     let mut config = fern::Dispatch::new()
-        .format(|out, message, record| {
-            out.finish(format_args!("{}[{}][{}] {}",
-                chrono::Local::now()
-                    .format("[%Y-%m-%d %H:%M:%S]"),
-                record.target(),
-                record.level(),
-                message))
-        })
+        .format(
+            |out, message, record| {
+                out.finish(
+                    format_args!(
+                        "{}[{}][{}] {}",
+                        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S]"),
+                        record.target(),
+                        record.level(),
+                        message
+                    ),
+                )
+            },
+        )
         .level(log_level)
         .chain(std::io::stdout());
     for silenced_crate in &silenced_crates {
