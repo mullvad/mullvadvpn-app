@@ -12,15 +12,11 @@ export type AccountProps = {
   account: AccountReduxState;
   onLogout: () => void;
   onClose: () => void;
-  onExternalLink: (type: string) => void;
+  onBuyMore: () => void;
 };
 
 export default class Account extends Component {
   props: AccountProps;
-
-  onBuyMore = () => this.props.onExternalLink('purchase');
-  onClose = () => this.props.onClose();
-  onLogout = () => this.props.onLogout();
 
   render(): React.Element<*> {
     const paidUntil = moment(this.props.account.paidUntil);
@@ -33,7 +29,7 @@ export default class Account extends Component {
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="account">
-            <div className="account__close" onClick={ this.onClose }>
+            <div className="account__close" onClick={ this.props.onClose }>
               <img className="account__close-icon" src="./assets/images/icon-back.svg" />
               <span className="account__close-title">Settings</span>
             </div>
@@ -55,7 +51,7 @@ export default class Account extends Component {
                     <div className="account__row-label">Paid until</div>
                     <If condition={ isOutOfTime }>
                       <Then>
-                        <div className="account__row-value account__row-value--error">OUT OF TIME</div>
+                        <div className="account__out-of-time account__row-value account__row-value--error">OUT OF TIME</div>
                       </Then>
                       <Else>
                         <div className="account__row-value">{ formattedPaidUntil }</div>
@@ -64,11 +60,11 @@ export default class Account extends Component {
                   </div>
 
                   <div className="account__footer">
-                    <button className="button button--positive" onClick={ this.onBuyMore }>
+                    <button className="account__buymore button button--positive" onClick={ this.props.onBuyMore }>
                       <span className="button-label">Buy more time</span>
                       <ExternalLinkSVG className="button-icon button-icon--16" />
                     </button>
-                    <button className="button button--negative" onClick={ this.onLogout }>Logout</button>
+                    <button className="account__logout button button--negative" onClick={ this.props.onLogout }>Logout</button>
                   </div>
 
                 </div>

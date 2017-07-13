@@ -15,21 +15,28 @@ declare class ClipboardEvent extends Event {
   clipboardData: ClipboardData;
 }
 
-type AccountInputProps = {
+export type AccountInputProps = {
   value: string;
-  onEnter: () => void;
-  onChange: (newValue: string) => void;
+  onEnter: ?(() => void);
+  onChange: ?((newValue: string) => void);
 };
 
-type AccountInputState = {
+export type AccountInputState = {
   value: string;
   selectionRange: SelectionRange;
 };
 
-type SelectionRange = [number, number];
+export type SelectionRange = [number, number];
 
 export default class AccountInput extends Component {
   props: AccountInputProps;
+
+  static defaultProps: AccountInputProps = {
+    value: '',
+    onEnter: null,
+    onChange: null
+  };
+
   state: AccountInputState = {
     value: '',
     selectionRange: [0, 0]
