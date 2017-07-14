@@ -1,8 +1,11 @@
 #[macro_use]
+extern crate clap;
+extern crate chrono;
+#[macro_use]
 extern crate log;
-extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
+extern crate fern;
 
 extern crate serde;
 #[macro_use]
@@ -21,6 +24,7 @@ extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
 
+mod cli;
 mod management_interface;
 mod rpc_info;
 mod shutdown;
@@ -29,6 +33,7 @@ use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
@@ -66,6 +71,8 @@ lazy_static! {
         Endpoint::new("se7.mullvad.net", 1300, TransportProtocol::Udp),
     ];
 }
+
+static CRATE_NAME: &str = "mullvadd";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -452,7 +459,8 @@ fn log_error<E>(error: &E)
 quick_main!(run);
 
 fn run() -> Result<()> {
-    init_logger()?;
+    let config = cli::get_config();
+    init_logger(config.log_level, config.log_file.as_ref())?;
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
 
@@ -466,6 +474,36 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn init_logger() -> Result<()> {
-    env_logger::init().chain_err(|| "Failed to bootstrap logging system")
+fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Result<()> {
+    let silenced_crates = [
+        "jsonrpc_core",
+        "tokio_core",
+        "jsonrpc_ws_server",
+        "ws",
+        "mio",
+    ];
+    let mut config = fern::Dispatch::new()
+        .format(
+            |out, message, record| {
+                out.finish(
+                    format_args!(
+                        "{}[{}][{}] {}",
+                        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S]"),
+                        record.target(),
+                        record.level(),
+                        message
+                    ),
+                )
+            },
+        )
+        .level(log_level)
+        .chain(std::io::stdout());
+    for silenced_crate in &silenced_crates {
+        config = config.level_for(*silenced_crate, log::LogLevelFilter::Warn);
+    }
+    if let Some(ref log_file) = log_file {
+        let f = fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?;
+        config = config.chain(f);
+    }
+    config.apply().chain_err(|| "Failed to bootstrap logging system")
 }
