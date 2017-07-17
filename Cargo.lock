@@ -1,12 +1,12 @@
 [root]
-name = "talpid_openvpn_plugin"
+name = "talpid-openvpn-plugin"
 version = "0.1.0"
 dependencies = [
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn_ffi 0.1.0",
- "talpid_ipc 0.1.0",
+ "openvpn-ffi 0.1.0",
+ "talpid-ipc 0.1.0",
 ]
 
 [[package]]
@@ -376,21 +376,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "mullvad_cli"
+name = "mullvad-cli"
 version = "0.1.0"
 dependencies = [
  "clap 2.25.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mullvad_types 0.1.0",
+ "mullvad-types 0.1.0",
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "talpid_ipc 0.1.0",
+ "talpid-ipc 0.1.0",
 ]
 
 [[package]]
-name = "mullvad_daemon"
+name = "mullvad-daemon"
 version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -405,17 +405,17 @@ dependencies = [
  "jsonrpc-ws-server 7.0.1 (git+https://github.com/paritytech/jsonrpc)",
  "lazy_static 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mullvad_types 0.1.0",
+ "mullvad-types 0.1.0",
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "simple-signal 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "talpid_core 0.1.0",
- "talpid_ipc 0.1.0",
+ "talpid-core 0.1.0",
+ "talpid-ipc 0.1.0",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
-name = "mullvad_types"
+name = "mullvad-types"
 version = "0.1.0"
 dependencies = [
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -478,7 +478,7 @@ version = "0.1.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "openvpn_ffi"
+name = "openvpn-ffi"
 version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -680,7 +680,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "talpid_core"
+name = "talpid-core"
 version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -692,12 +692,12 @@ dependencies = [
  "libc 0.2.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mktemp 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn_ffi 0.1.0",
- "talpid_ipc 0.1.0",
+ "openvpn-ffi 0.1.0",
+ "talpid-ipc 0.1.0",
 ]
 
 [[package]]
-name = "talpid_ipc"
+name = "talpid-ipc"
 version = "0.1.0"
 dependencies = [
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,5 +1,5 @@
 [package]
-name = "talpid_openvpn_plugin"
+name = "talpid-openvpn-plugin"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
@@ -12,8 +12,5 @@ error-chain = "0.10"
 log = "0.3"
 env_logger = "0.4"
 
-[dependencies.talpid_ipc]
-path = "../talpid_ipc"
-
-[dependencies.openvpn_ffi]
-path = "../openvpn_ffi"
+talpid-ipc = { path = "../talpid-ipc" }
+openvpn-ffi = { path = "../openvpn-ffi" }

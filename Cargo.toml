@@ -1,10 +1,10 @@
 [workspace]
 members = [
-    "mullvad_daemon",
-    "mullvad_cli",
-    "mullvad_types",
-    "talpid_openvpn_plugin",
-    "talpid_core",
-    "talpid_ipc",
-    "openvpn_ffi",
+    "mullvad-daemon",
+    "mullvad-cli",
+    "mullvad-types",
+    "talpid-openvpn-plugin",
+    "talpid-core",
+    "talpid-ipc",
+    "openvpn-ffi",
 ]

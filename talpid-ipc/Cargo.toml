@@ -1,5 +1,5 @@
 [package]
-name = "talpid_ipc"
+name = "talpid-ipc"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "IPC client and server for talpid"
