@@ -84,7 +84,11 @@ export class Backend {
   setLocation(loc: string) {
     log.info('Got connection info to backend', loc);
 
-    this._ipc = new RealIpc(loc);
+    if (this._ipc) {
+      this._ipc.setConnectionString(loc);
+    } else {
+      this._ipc = new RealIpc(loc);
+    }
     this._registerIpcListeners();
   }
 

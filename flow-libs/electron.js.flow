@@ -2,6 +2,15 @@
 
 import EventEmitter from 'events';
 
+declare var process: Process & {
+  resourcesPath: string;
+  type: "browser" | "renderer";
+  versions: {
+    electron: string;
+    chrome: string;
+  };
+};
+
 declare module 'electron' {
 
   // common types
