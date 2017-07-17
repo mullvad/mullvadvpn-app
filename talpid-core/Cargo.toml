@@ -1,5 +1,5 @@
 [package]
-name = "talpid_core"
+name = "talpid-core"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "Core backend functionality of the Mullvad VPN client"
@@ -7,20 +7,17 @@ description = "Core backend functionality of the Mullvad VPN client"
 [dependencies]
 duct = "0.9.1"
 error-chain = "0.10"
-log = "0.3"
-lazy_static = "0.2"
-mktemp = "0.3"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
+lazy_static = "0.2"
+log = "0.3"
+mktemp = "0.3"
+
+openvpn-ffi = { path = "../openvpn-ffi" }
+talpid-ipc = { path = "../talpid-ipc" }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.20"
-
-[dependencies.talpid_ipc]
-path = "../talpid_ipc"
-
-[dependencies.openvpn_ffi]
-path = "../openvpn_ffi"
 
 [dev-dependencies]
 assert_matches = "1.0"

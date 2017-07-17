@@ -1,5 +1,5 @@
 [package]
-name = "mullvad_daemon"
+name = "mullvad-daemon"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "Mullvad VPN backend daemon. Runs and controls the VPN tunnels."
@@ -22,9 +22,9 @@ jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
 uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
 
-mullvad_types = { path = "../mullvad_types" }
-talpid_core = { path = "../talpid_core" }
-talpid_ipc = { path = "../talpid_ipc" }
+mullvad-types = { path = "../mullvad-types" }
+talpid-core = { path = "../talpid-core" }
+talpid-ipc = { path = "../talpid-ipc" }
 
 [target.'cfg(unix)'.dependencies]
 simple-signal = "1.1"

@@ -1,5 +1,5 @@
 [package]
-name = "openvpn_ffi"
+name = "openvpn-ffi"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "Constants, enums and structs for interfacing with OpenVPN"

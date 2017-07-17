@@ -1,5 +1,5 @@
 [package]
-name = "mullvad_types"
+name = "mullvad-types"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>"]
 
