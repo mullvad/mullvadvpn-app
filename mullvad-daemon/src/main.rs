@@ -27,6 +27,7 @@ extern crate talpid_ipc;
 mod cli;
 mod management_interface;
 mod rpc_info;
+mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
@@ -73,7 +74,7 @@ lazy_static! {
     ];
 }
 
-static CRATE_NAME: &str = "mullvadd";
+const CRATE_NAME: &str = "mullvadd";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -140,12 +141,11 @@ struct Daemon {
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
+    settings: settings::Settings,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
     remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
-    // The current account token for now. Should be moved into the settings later.
-    account_token: Option<String>,
 }
 
 impl Daemon {
@@ -167,8 +167,8 @@ impl Daemon {
                 rx,
                 tx,
                 management_interface_broadcaster,
+                settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
                 remote_iter: REMOTES.iter().cloned().cycle(),
-                account_token: None,
             },
         )
     }
@@ -271,9 +271,17 @@ impl Daemon {
                     warn!("Unable to send current state to management interface client",);
                 }
             }
-            SetAccount(account_token) => self.account_token = account_token,
+            SetAccount(account_token) => {
+                info!(
+                    "Changing account token from {} to {}",
+                    self.settings.account_token.as_ref().unwrap_or(&"[nothing]".to_owned()),
+                    account_token.as_ref().unwrap_or(&"[nothing]".to_owned())
+                );
+                self.settings.account_token = account_token;
+                self.save_settings();
+            }
             GetAccount(tx) => {
-                if let Err(_) = tx.send(self.account_token.clone()) {
+                if let Err(_) = tx.send(self.settings.account_token.clone()) {
                     warn!("Unable to send current account to management interface client");
                 }
             }
@@ -292,6 +300,12 @@ impl Daemon {
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
         self.shutdown = true;
         self.set_target_state(TargetState::Unsecured)
+    }
+
+    fn save_settings(&self) {
+        if let Err(e) = self.settings.save().chain_err(|| "Unable to save settings") {
+            error!("{}", e.display());
+        }
     }
 
     /// Update the state of the client. If it changed, notify the subscribers and trigger
@@ -372,7 +386,8 @@ impl Daemon {
             ErrorKind::InvalidState
         );
         let remote = self.remote_iter.next().unwrap();
-        let account_token = self.account_token
+        let account_token = self.settings
+            .account_token
             .as_ref()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?
             .clone();
