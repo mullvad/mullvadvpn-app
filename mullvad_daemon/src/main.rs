@@ -29,6 +29,7 @@ mod management_interface;
 mod rpc_info;
 mod shutdown;
 
+use error_chain::ChainedError;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
@@ -245,7 +246,7 @@ impl Daemon {
 
     fn handle_tunnel_exited(&mut self, result: tunnel::Result<()>) -> Result<()> {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
-            log_error(&e);
+            error!("{}", e.display());
         }
         self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
@@ -353,7 +354,7 @@ impl Daemon {
             (TargetState::Secured, TunnelState::NotRunning) => {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
-                    log_error(&e);
+                    error!("{}", e.display());
                     self.management_interface_broadcaster.notify_error(&e);
                     self.set_target_state(TargetState::Unsecured)?;
                 }
@@ -438,21 +439,9 @@ impl DaemonShutdownHandle {
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
         if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
-            log_error(&e);
+            error!("{}", e.display());
         }
     }
-}
-
-
-fn log_error<E>(error: &E)
-    where E: error_chain::ChainedError
-{
-    let mut msg = error.to_string();
-    for e in error.iter().skip(1) {
-        msg.push_str("\n\tCaused by: ");
-        msg.push_str(&e.to_string()[..]);
-    }
-    error!("{}", msg);
 }
 
 
