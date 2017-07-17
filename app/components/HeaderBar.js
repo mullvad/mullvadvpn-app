@@ -13,8 +13,10 @@ export type HeaderBarProps = {
 export default class HeaderBar extends Component {
   props: HeaderBarProps;
   static defaultProps: $Shape<HeaderBarProps> = {
+    style: 'default',
     hidden: false,
-    showSettings: false
+    showSettings: false,
+    onSettings: null
   };
 
   render(): React.Element<*> {
