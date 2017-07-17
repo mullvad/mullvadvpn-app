@@ -272,16 +272,11 @@ impl Daemon {
                 }
             }
             SetAccount(account_token) => {
-                info!(
-                    "Changing account token from {} to {}",
-                    self.settings.account_token.as_ref().unwrap_or(&"[nothing]".to_owned()),
-                    account_token.as_ref().unwrap_or(&"[nothing]".to_owned())
-                );
-                self.settings.account_token = account_token;
+                self.settings.set_account_token(account_token);
                 self.save_settings();
             }
             GetAccount(tx) => {
-                if let Err(_) = tx.send(self.settings.account_token.clone()) {
+                if let Err(_) = tx.send(self.settings.get_account_token()) {
                     warn!("Unable to send current account to management interface client");
                 }
             }
@@ -387,10 +382,8 @@ impl Daemon {
         );
         let remote = self.remote_iter.next().unwrap();
         let account_token = self.settings
-            .account_token
-            .as_ref()
-            .ok_or(ErrorKind::InvalidSettings("No account token"))?
-            .clone();
+            .get_account_token()
+            .ok_or(ErrorKind::InvalidSettings("No account token"))?;
         let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);

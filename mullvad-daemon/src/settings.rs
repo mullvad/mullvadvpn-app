@@ -35,7 +35,7 @@ static SETTINGS_FILE: &str = "settings.toml";
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Settings {
-    pub account_token: Option<String>,
+    account_token: Option<String>,
 }
 
 impl Settings {
@@ -70,6 +70,11 @@ impl Settings {
         Ok(())
     }
 
+    fn get_settings_path() -> Result<PathBuf> {
+        let dir = app_dirs::app_root(AppDataType::UserConfig, &APP_INFO)
+            .chain_err(|| ErrorKind::DirectoryError)?;
+        Ok(dir.join(SETTINGS_FILE))
+    }
 
     fn read_settings(file: &mut File, path: PathBuf) -> Result<Settings> {
         let mut data = Vec::new();
@@ -77,9 +82,25 @@ impl Settings {
         toml::from_slice(&data).chain_err(|| ErrorKind::ParseError)
     }
 
-    fn get_settings_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(AppDataType::UserConfig, &APP_INFO)
-            .chain_err(|| ErrorKind::DirectoryError)?;
-        Ok(dir.join(SETTINGS_FILE))
+    pub fn get_account_token(&self) -> Option<String> {
+        self.account_token.clone()
+    }
+
+    pub fn set_account_token(&mut self, account_token: Option<String>) {
+        if account_token != self.account_token {
+            info!(
+                "Changing account token from {} to {}",
+                Self::format_account_token(&self.account_token),
+                Self::format_account_token(&account_token),
+            );
+            self.account_token = account_token;
+        }
+    }
+
+    fn format_account_token(account_token: &Option<String>) -> String {
+        match *account_token {
+            Some(ref account_token) => format!("\"{}\"", account_token),
+            None => "[none]".to_owned(),
+        }
     }
 }
