@@ -6,14 +6,16 @@ import type { Point2d } from '../types';
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;
 
-export default class Switch extends Component {
-  props: {
-    isOn: boolean;
-    onChange: ?((isOn: boolean) => void);
-  }
+export type SwitchProps = {
+  isOn: boolean;
+  onChange: ?((isOn: boolean) => void);
+};
 
-  defaultProps = {
-    isOn: false
+export default class Switch extends Component {
+  props: SwitchProps;
+  static defaultProps: SwitchProps = {
+    isOn: false,
+    onChange: null
   }
 
   ref: ?HTMLInputElement;
