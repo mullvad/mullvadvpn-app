@@ -49,7 +49,7 @@ describe('Logging in', () => {
   it('should indicate failure for non-existing accounts', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
-    mockIpc.getAccountData = (_num) => new Promise((_,reject) => {
+    mockIpc.getAccountData = (_num) => new Promise((_, reject) => {
       reject('NO SUCH ACCOUNT');
     });
 
