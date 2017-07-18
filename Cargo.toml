@@ -6,5 +6,4 @@ members = [
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-ipc",
-    "openvpn-ffi",
 ]
