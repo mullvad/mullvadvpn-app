@@ -272,8 +272,8 @@ impl Daemon {
                 }
             }
             SetAccount(account_token) => {
-                self.settings.set_account_token(account_token);
-                self.save_settings();
+                let save_result = self.settings.set_account_token(account_token);
+                self.handle_settings_save(save_result);
             }
             GetAccount(tx) => {
                 if let Err(_) = tx.send(self.settings.get_account_token()) {
@@ -297,8 +297,8 @@ impl Daemon {
         self.set_target_state(TargetState::Unsecured)
     }
 
-    fn save_settings(&self) {
-        if let Err(e) = self.settings.save().chain_err(|| "Unable to save settings") {
+    fn handle_settings_save(&self, save_result: settings::Result<()>) {
+        if let Err(e) = save_result.chain_err(|| "Unable to save settings") {
             error!("{}", e.display());
         }
     }

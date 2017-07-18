@@ -61,7 +61,7 @@ impl Settings {
     }
 
     /// Serializes the settings and saves them to the file it was loaded from.
-    pub fn save(&self) -> Result<()> {
+    fn save(&self) -> Result<()> {
         let settings_path = Self::get_settings_path()?;
         let data = toml::to_string(self).chain_err(|| ErrorKind::ParseError)?;
 
@@ -88,7 +88,8 @@ impl Settings {
         self.account_token.clone()
     }
 
-    pub fn set_account_token(&mut self, account_token: Option<String>) {
+    /// Changes account number to the one given. Also saves the new settings to disk.
+    pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<()> {
         if account_token != self.account_token {
             info!(
                 "Changing account token from {} to {}",
@@ -96,6 +97,9 @@ impl Settings {
                 Self::format_account_token(&account_token),
             );
             self.account_token = account_token;
+            self.save()
+        } else {
+            Ok(())
         }
     }
 
