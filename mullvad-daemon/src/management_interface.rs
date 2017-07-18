@@ -5,6 +5,8 @@ use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
+use mullvad_types::account::{AccountData, AccountToken};
+use mullvad_types::location::{CountryCode, Location};
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
@@ -17,22 +19,6 @@ use std::sync::{Arc, Mutex, RwLock};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
-
-
-pub type AccountToken = String;
-pub type CountryCode = String;
-
-#[derive(Serialize)]
-pub struct AccountData {
-    pub paid_until: String,
-}
-
-#[derive(Serialize)]
-pub struct Location {
-    pub latlong: [f64; 2],
-    pub country: String,
-    pub city: String,
-}
 
 
 build_rpc_trait! {
@@ -252,7 +238,12 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn get_account_data(&self, _account_token: AccountToken) -> Result<AccountData, Error> {
         trace!("get_account_data");
-        Ok(AccountData { paid_until: "2018-12-31T16:00:00.000Z".to_owned() },)
+        // Just mock implementation, so locally importing temporarily.
+        use chrono::DateTime;
+        use chrono::offset::Utc;
+        use std::str::FromStr;
+        let expiry: DateTime<Utc> = DateTime::from_str("2018-12-31T16:00:00.000Z").unwrap();
+        Ok(AccountData { expiry })
     }
 
     fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {
