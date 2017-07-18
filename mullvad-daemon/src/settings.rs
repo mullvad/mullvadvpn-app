@@ -33,10 +33,12 @@ static APP_INFO: AppInfo = AppInfo {
 
 static SETTINGS_FILE: &str = "settings.toml";
 
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Settings {
     account_token: Option<String>,
 }
+
+const DEFAULT_SETTINGS: Settings = Settings { account_token: None };
 
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
@@ -52,7 +54,7 @@ impl Settings {
                     "No settings file at {}, using defaults",
                     settings_path.to_string_lossy()
                 );
-                Ok(Settings::default())
+                Ok(DEFAULT_SETTINGS)
             }
             Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(settings_path)),
         }
