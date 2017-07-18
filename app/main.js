@@ -16,15 +16,27 @@ const isWindows = (process.platform === 'win32');
 const rpcAddressFile = path.join(app.getPath('temp'), '.mullvad_rpc_address');
 let browserWindowReady = false;
 
+
 const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
+  _logFileLocation: '',
   connectionFilePollInterval: (null: ?number),
 
   setup: () => {
     // Override appData path to avoid collisions with old client
     // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
     app.setPath('userData', path.join(app.getPath('appData'), 'mullvad.vpn'));
+
+    appDelegate._logFileLocation = app.getPath('userData');
+    appDelegate._initLogging();
+
+    appDelegate._startBackend();
+
+    app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
+    app.on('ready', () => appDelegate.onReady());
+  },
+  _initLogging: () => {
 
     if (isDevelopment) {
       log.transports.console.level = 'debug';
@@ -34,12 +46,9 @@ const appDelegate = {
     } else {
       log.transports.console.level = 'info';
       log.transports.file.level = 'info';
+      log.transports.file.file = path.join(appDelegate._logFileLocation, 'frontend.log');
     }
 
-    appDelegate._startBackend();
-
-    app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
-    app.on('ready', () => appDelegate.onReady());
   },
 
   onReady: async () => {
@@ -82,7 +91,7 @@ const appDelegate = {
       name: 'Mullvad',
     };
     const sudo = new ElectronSudo(options);
-    sudo.spawn( pathToBackend )
+    sudo.spawn( pathToBackend, ['-vv --log ' + path.join(appDelegate._logFileLocation, 'backend.log')] )
       .then( p => {
         appDelegate._setupBackendProcessListeners(p);
         return p;
@@ -119,10 +128,10 @@ const appDelegate = {
     p.stderr.removeAllListeners('data');
 
     p.stdout.on('data', (data) => {
-      log.info('BACKEND stdout:', data.toString());
+      console.log('BACKEND stdout:', data.toString());
     });
     p.stderr.on('data', (data) => {
-      log.warn('BACKEND stderr:', data.toString());
+      console.warn('BACKEND stderr:', data.toString());
     });
 
     p.on('error', (err) => {
