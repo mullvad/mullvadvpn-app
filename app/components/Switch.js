@@ -29,7 +29,7 @@ export default class Switch extends Component {
   }
 
   handleMouseDown = (e: MouseEvent) => {
-    const { pageX: x, pageY: y } = e;
+    const { clientX: x, clientY: y } = e;
     this.setState({
       isTracking: true,
       initialPos: { x, y },
@@ -44,7 +44,7 @@ export default class Switch extends Component {
 
     const inputElement = this.ref;
     const { x: x0 } = this.state.initialPos;
-    const { pageX: x, pageY: y } = e;
+    const { clientX: x, clientY: y } = e;
     const dx = Math.abs(x0 - x);
 
     if(dx < MOVE_THRESHOLD) {
