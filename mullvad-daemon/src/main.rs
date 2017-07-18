@@ -271,9 +271,14 @@ impl Daemon {
                     warn!("Unable to send current state to management interface client",);
                 }
             }
-            SetAccount(account_token) => {
+            SetAccount(tx, account_token) => {
                 let save_result = self.settings.set_account_token(account_token);
-                self.handle_settings_save(save_result);
+                match save_result.chain_err(|| "Unable to save settings") {
+                    Ok(()) => if let Err(_) = tx.send(()) {
+                        warn!("Unable to send response to management interface client");
+                    },
+                    Err(e) => error!("{}", e.display()),
+                }
             }
             GetAccount(tx) => {
                 if let Err(_) = tx.send(self.settings.get_account_token()) {
@@ -295,12 +300,6 @@ impl Daemon {
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
         self.shutdown = true;
         self.set_target_state(TargetState::Unsecured)
-    }
-
-    fn handle_settings_save(&self, save_result: settings::Result<()>) {
-        if let Err(e) = save_result.chain_err(|| "Unable to save settings") {
-            error!("{}", e.display());
-        }
     }
 
     /// Update the state of the client. If it changed, notify the subscribers and trigger

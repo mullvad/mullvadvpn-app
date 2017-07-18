@@ -49,8 +49,8 @@ build_rpc_trait! {
         fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error>;
 
         /// Set which account to connect with.
-        #[rpc(name = "set_account")]
-        fn set_account(&self, Option<AccountToken>) -> Result<(), Error>;
+        #[rpc(async, name = "set_account")]
+        fn set_account(&self, Option<AccountToken>) -> BoxFuture<(), Error>;
 
         /// Get which account is configured.
         #[rpc(async, name = "get_account")]
@@ -118,7 +118,7 @@ pub enum TunnelCommand {
     /// Request the current state.
     GetState(sync::oneshot::Sender<DaemonState>),
     /// Set which account token to use for subsequent connection attempts.
-    SetAccount(Option<AccountToken>),
+    SetAccount(sync::oneshot::Sender<()>, Option<AccountToken>),
     /// Request the current account token being used.
     GetAccount(sync::oneshot::Sender<Option<AccountToken>>),
 }
@@ -260,13 +260,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(HashMap::new())
     }
 
-    fn set_account(&self, account_token: Option<AccountToken>) -> Result<(), Error> {
+    fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
         trace!("set_account");
-        self.tx
-            .lock()
-            .unwrap()
-            .send(TunnelCommand::SetAccount(account_token))
-            .map_err(|_| Error::internal_error())
+        let (tx, rx) = sync::oneshot::channel();
+        match self.tx.lock().unwrap().send(TunnelCommand::SetAccount(tx, account_token)) {
+            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
+            Err(_) => future::err(Error::internal_error()).boxed(),
+        }
     }
 
     fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
