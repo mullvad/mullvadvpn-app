@@ -5,7 +5,7 @@ dependencies = [
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-ffi 0.1.0",
+ "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
 ]
 
@@ -500,11 +500,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "openvpn-ffi"
-version = "0.1.0"
+name = "openvpn-plugin"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -723,7 +723,7 @@ dependencies = [
  "libc 0.2.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mktemp 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-ffi 0.1.0",
+ "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
 ]
 
@@ -998,6 +998,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum num-iter 0.1.33 (registry+https://github.com/rust-lang/crates.io-index)" = "f7d1891bd7b936f12349b7d1403761c8a0b85a18b148e9da4429d5d102c1a41e"
 "checksum num-traits 0.1.39 (registry+https://github.com/rust-lang/crates.io-index)" = "1708c0628602a98b52fad936cf3edb9a107af06e52e49fdf0707e884456a6af6"
 "checksum ole32-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5d2c49021782e5233cd243168edfa8037574afed4eba4bbaf538b3d8d1789d8c"
+"checksum openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "99c05a2229a24799412627dd22730729796aca97405dedc297a622536f37fb3b"
 "checksum os_pipe 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "998bfbb3042e715190fe2a41abfa047d7e8cb81374d2977d7f100eacd8619cb1"
 "checksum owning_ref 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "cdf84f41639e037b484f93433aa3897863b561ed65c6e59c7073d7c561710f37"
 "checksum parking_lot 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "37f364e2ce5efa24c7d0b6646d5bb61145551a0112f107ffd7499f1a3e322fbd"
