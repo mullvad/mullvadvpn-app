@@ -8,6 +8,7 @@ description = "Mullvad VPN backend daemon. Runs and controls the VPN tunnels."
 name = "mullvadd"
 
 [dependencies]
+app_dirs = "1.1"
 chrono = "0.4"
 clap = "2.25"
 error-chain = "0.10"
@@ -21,6 +22,7 @@ jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc" }
 jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
 uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
+toml = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
 talpid-core = { path = "../talpid-core" }
