@@ -551,9 +551,11 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
     let silenced_crates = [
         "jsonrpc_core",
         "tokio_core",
+        "tokio_proto",
         "jsonrpc_ws_server",
         "ws",
         "mio",
+        "hyper",
     ];
     let mut config = fern::Dispatch::new()
         .format(
