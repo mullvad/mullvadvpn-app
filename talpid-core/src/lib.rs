@@ -21,7 +21,7 @@ extern crate jsonrpc_core;
 extern crate jsonrpc_macros;
 
 extern crate talpid_ipc;
-extern crate openvpn_ffi;
+extern crate openvpn_plugin;
 
 /// Working with processes.
 pub mod process;

@@ -1,6 +1,6 @@
 use mktemp;
 use net;
-use openvpn_ffi::OpenVpnPluginEvent;
+use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 use std::fs;
 use std::io::{self, Write};

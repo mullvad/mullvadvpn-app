@@ -1,5 +1,3 @@
-extern crate openvpn_ffi;
-
 use duct;
 
 use net;
