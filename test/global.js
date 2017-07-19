@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import jsdom from 'jsdom';
+import { JSDOM } from 'jsdom';
 
 before(() => {
   log.transports.console.level = false;
@@ -7,9 +7,12 @@ before(() => {
 });
 
 beforeEach(() => {
-  global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-  global.window = document.defaultView;
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  const window = dom.window;
+  global.window = window;
+  global.document = window.document;
   global.navigator = window.navigator;
   global.HTMLInputElement = window.HTMLInputElement;
+  global.Event = window.Event;
   global.MouseEvent = window.MouseEvent;
 });
