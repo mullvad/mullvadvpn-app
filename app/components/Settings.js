@@ -58,9 +58,9 @@ export default class Settings extends Component {
                     { /* show account options when logged in */ }
                     <If condition={ isLoggedIn }>
                       <Then>
-                        <div>
+                        <div className="settings__account">
 
-                          <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAccount }>
+                          <div className="settings__view-account settings__cell settings__cell--active" onClick={ this.props.onViewAccount }>
                             <div className="settings__cell-label">Account</div>
                             <div className="settings__cell-value">
                               <If condition={ isOutOfTime }>
@@ -79,7 +79,7 @@ export default class Settings extends Component {
                           <div className="settings__cell">
                             <div className="settings__cell-label">Auto-connect</div>
                             <div className="settings__cell-value">
-                              <Switch onChange={ this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
+                              <Switch className="settings__autosecure" onChange={ this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
                             </div>
                           </div>
                           <div className="settings__cell-footer">
@@ -89,22 +89,24 @@ export default class Settings extends Component {
                       </Then>
                     </If>
 
-                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
-                      <div className="settings__cell-label">FAQs</div>
-                      <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
-                    </div>
-                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'guides') }>
-                      <div className="settings__cell-label">Guides</div>
-                      <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
-                    </div>
-                    <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
-                      <div className="settings__cell-label">Contact support</div>
-                      <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
+                    <div className="settings__external">
+                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
+                        <div className="settings__cell-label">FAQs</div>
+                        <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
+                      </div>
+                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'guides') }>
+                        <div className="settings__cell-label">Guides</div>
+                        <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
+                      </div>
+                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
+                        <div className="settings__cell-label">Contact support</div>
+                        <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
+                      </div>
                     </div>
                   </div>
 
                   <div className="settings__footer">
-                    <button className="button button--negative" onClick={ this.props.onQuit }>Quit app</button>
+                    <button className="settings__quit button button--negative" onClick={ this.props.onQuit }>Quit app</button>
                   </div>
 
                 </div>
