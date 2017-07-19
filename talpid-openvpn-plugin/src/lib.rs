@@ -8,7 +8,7 @@ extern crate env_logger;
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
 
-use openvpn_plugin::types::{OpenVpnPluginEvent, SuccessType};
+use openvpn_plugin::types::{EventResult, OpenVpnPluginEvent};
 use std::collections::HashMap;
 use std::ffi::CString;
 
@@ -81,12 +81,12 @@ fn openvpn_event(event: OpenVpnPluginEvent,
                  _args: &[CString],
                  env: &HashMap<CString, CString>,
                  handle: &mut EventProcessor)
-                 -> Result<SuccessType> {
+                 -> Result<EventResult> {
     debug!("Received event: {:?}", event);
 
     let parsed_env = openvpn_plugin::ffi::parse::env_utf8(env)
         .chain_err(|| ErrorKind::ParseEnvFailed)?;
 
     handle.process_event(event, parsed_env).chain_err(|| ErrorKind::EventProcessingFailed)?;
-    Ok(SuccessType::Success)
+    Ok(EventResult::Success)
 }
