@@ -76,14 +76,10 @@ export default class Switch extends Component {
 
   handleChange = (e: Event) => {
     const startTime = this.state.startTime;
-    const eventTarget = e.target;
+    const eventTarget: Object = e.target;
 
     if(typeof(startTime) !== 'number') {
       throw new Error('startTime must be a number.');
-    }
-
-    if(!(eventTarget instanceof HTMLInputElement)) {
-      throw new Error('e.target must be an instance of HTMLInputElement.');
     }
 
     const dt = e.timeStamp - startTime;

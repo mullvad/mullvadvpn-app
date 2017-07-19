@@ -19,9 +19,7 @@ describe('components/Switch', () => {
 
     Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
     Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
-
-    domNode.checked = true;
-    Simulate.change(domNode);
+    Simulate.change(domNode, { target: { checked: true } });
   });
 
   it('should switch off', (done) => {
@@ -36,9 +34,7 @@ describe('components/Switch', () => {
 
     Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
     Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
-
-    domNode.checked = false;
-    Simulate.change(domNode);
+    Simulate.change(domNode, { target: { checked: false } });
   });
 
   it('should handle left to right swipe', (done) => {
