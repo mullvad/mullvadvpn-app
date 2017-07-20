@@ -2,6 +2,7 @@ use mktemp;
 use net;
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
+use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
@@ -85,33 +86,46 @@ impl TunnelMonitor {
     }
 
     fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
-        let openvpn_binary = Self::find_path_to_openvpn_binary();
-
-        let mut cmd = OpenVpnCommand::new(openvpn_binary);
+        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin());
         if let Some(config) = get_config_path() {
             cmd.config(config);
         }
-        cmd.remote(remote).user_pass(user_pass_file).ca("ca.crt");
+        cmd.remote(remote).user_pass(user_pass_file).ca(Self::get_ca_path());
         cmd
     }
 
-    fn find_path_to_openvpn_binary() -> OsString {
-        match ::std::env::current_exe() {
+    fn get_openvpn_bin() -> OsString {
+        let bin = OsStr::new("openvpn");
+        let bundled_path = Self::get_install_dir()
+            .unwrap_or(PathBuf::from("."))
+            .join("openvpn-binaries")
+            .join(bin);
+
+        if bundled_path.exists() {
+            bundled_path.into_os_string()
+        } else {
+            warn!("Did not find a bundled version of OpenVPN, will rely on the PATH instead");
+            bin.to_os_string()
+        }
+    }
+
+    fn get_ca_path() -> PathBuf {
+        Self::get_install_dir()
+            .unwrap_or(PathBuf::from("."))
+            .join("ca.crt")
+    }
+
+    fn get_install_dir() -> Option<PathBuf> {
+        match env::current_exe() {
             Ok(mut path) => {
                 path.pop();
-
-                path.push("openvpn-binaries");
-
-                let openvpn_binary = path.join("openvpn");
-                if openvpn_binary.exists() {
-                    return openvpn_binary.into_os_string();
-                }
+                Some(path)
             }
-            Err(e) => warn!("Failed finding the directory of the executable, {}", e),
+            Err(e) => {
+                error!("Failed finding the directory of the executable: {}", e);
+                None
+            }
         }
-
-        debug!("Did not find a bundled version of OpenVPN, will rely on the PATH instead");
-        OsStr::new("openvpn").to_os_string()
     }
 
     fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::Temp> {
