@@ -28,6 +28,10 @@ mod errors {
             CredentialsWriteError {
                 description("Error while writing credentials to temporary file")
             }
+            /// Running on an operating system which is not supported yet.
+            UnsupportedPlatform {
+                description("Running on an unsupported operating system")
+            }
         }
     }
 }
@@ -75,7 +79,7 @@ impl TunnelMonitor {
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref());
-        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, get_plugin_path()?)
+        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(
             TunnelMonitor {
@@ -87,7 +91,7 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin());
-        if let Some(config) = get_config_path() {
+        if let Some(config) = Self::get_config_path() {
             cmd.config(config);
         }
         cmd.remote(remote).user_pass(user_pass_file).ca(Self::get_ca_path());
@@ -113,6 +117,44 @@ impl TunnelMonitor {
         Self::get_install_dir()
             .unwrap_or(PathBuf::from("."))
             .join("ca.crt")
+    }
+
+    fn get_plugin_path() -> Result<PathBuf> {
+        let lib_ext = Self::get_library_extension()
+            .chain_err(|| ErrorKind::PluginNotFound)?;
+
+        let path = Self::get_install_dir()
+            .unwrap_or(PathBuf::from("."))
+            .join(format!("libtalpid_openvpn_plugin.{}", lib_ext));
+
+        if path.exists() {
+            debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
+            Ok(path)
+        } else {
+            Err(ErrorKind::PluginNotFound.into())
+        }
+    }
+
+    fn get_library_extension() -> Result<String> {
+        let ext = if cfg!(target_os = "macos") {
+            "dylib"
+        } else if cfg!(unix) {
+            "so"
+        } else if cfg!(windows) {
+            "dll"
+        } else {
+            bail!(ErrorKind::UnsupportedPlatform);
+        };
+
+        Ok(ext.to_owned())
+    }
+
+    fn get_config_path() -> Option<PathBuf> {
+        let path = Self::get_install_dir()
+            .unwrap_or(PathBuf::from("."))
+            .join("openvpn.conf");
+
+        if path.exists() { Some(path) } else { None }
     }
 
     fn get_install_dir() -> Option<PathBuf> {
@@ -173,35 +215,4 @@ impl CloseHandle {
     pub fn close(self) -> io::Result<()> {
         self.0.close()
     }
-}
-
-
-// TODO(linus): Temporary implementation for getting plugin path during development.
-fn get_plugin_path() -> Result<PathBuf> {
-    let dirs = &["./target/debug", "."];
-    let filename = if cfg!(target_os = "macos") {
-        "libtalpid_openvpn_plugin.dylib"
-    } else if cfg!(unix) {
-        "libtalpid_openvpn_plugin.so"
-    } else if cfg!(windows) {
-        "libtalpid_openvpn_plugin.dll"
-    } else {
-        bail!(ErrorKind::PluginNotFound);
-    };
-
-    for dir in dirs {
-        let path = Path::new(dir).join(filename);
-        if path.exists() {
-            debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
-            return Ok(path);
-        }
-    }
-    Err(ErrorKind::PluginNotFound.into())
-}
-
-// TODO(linus): Temporary implementation for getting hold of a config location.
-// Manually place a working config here or change this string in order to test
-fn get_config_path() -> Option<&'static Path> {
-    let path = Path::new("./openvpn.conf");
-    if path.exists() { Some(path) } else { None }
 }
