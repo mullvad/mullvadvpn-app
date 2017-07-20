@@ -9,7 +9,7 @@ import { defaultServer } from '../../app/config';
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
 import type { SelectLocationProps } from '../../app/components/SelectLocation';
 
-describe('components/Account', () => {
+describe('components/SelectLocation', () => {
   const state: SettingsReduxState = {
     autoSecure: true,
     preferredServer: defaultServer
