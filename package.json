@@ -60,7 +60,7 @@
     "flow-bin": "^0.49.1",
     "flow-typed": "^2.1.2",
     "isomorphic-fetch": "^2.2.1",
-    "jsdom": "^9.11.0",
+    "jsdom": "^11.1.0",
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.1",
     "redux-mock-store": "^1.2.2",
