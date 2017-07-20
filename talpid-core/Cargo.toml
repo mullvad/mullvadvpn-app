@@ -13,7 +13,7 @@ lazy_static = "0.2"
 log = "0.3"
 mktemp = "0.3"
 
-openvpn-ffi = { path = "../openvpn-ffi" }
+openvpn-plugin = { version = "0.2", features = ["serialize"] }
 talpid-ipc = { path = "../talpid-ipc" }
 
 [target.'cfg(unix)'.dependencies]

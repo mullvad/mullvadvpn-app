@@ -1,8 +1,9 @@
 use duct;
 use jsonrpc_core::{Error, IoHandler};
-use openvpn_ffi::{OpenVpnEnv, OpenVpnPluginEvent};
+use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
+use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 use std::result::Result as StdResult;
@@ -47,7 +48,7 @@ impl OpenVpnMonitor {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
     pub fn new<L, P>(mut cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
-        where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static,
+        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
               P: AsRef<Path>
     {
         let event_dispatcher = OpenVpnEventDispatcher::start(on_event)
@@ -180,7 +181,7 @@ pub struct OpenVpnEventDispatcher {
 impl OpenVpnEventDispatcher {
     /// Construct and start the IPC server with the given event listener callback.
     pub fn start<L>(on_event: L) -> talpid_ipc::Result<Self>
-        where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
     {
         let rpc = OpenVpnEventApiImpl { on_event };
         let mut io = IoHandler::new();
@@ -215,7 +216,7 @@ mod api {
             #[rpc(name = "openvpn_event")]
             fn openvpn_event(&self,
                              OpenVpnPluginEvent,
-                             OpenVpnEnv)
+                             HashMap<String, String>)
                              -> StdResult<(), Error>;
         }
     }
@@ -223,15 +224,18 @@ mod api {
 use self::api::*;
 
 struct OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+    where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
 {
     on_event: L,
 }
 
 impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, OpenVpnEnv) + Send + Sync + 'static
+    where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
 {
-    fn openvpn_event(&self, event: OpenVpnPluginEvent, env: OpenVpnEnv) -> StdResult<(), Error> {
+    fn openvpn_event(&self,
+                     event: OpenVpnPluginEvent,
+                     env: HashMap<String, String>)
+                     -> StdResult<(), Error> {
         debug!("OpenVPN event {:?}", event);
         (self.on_event)(event, env);
         Ok(())
