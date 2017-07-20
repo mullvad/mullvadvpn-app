@@ -2,6 +2,7 @@ use mktemp;
 use net;
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
@@ -84,12 +85,33 @@ impl TunnelMonitor {
     }
 
     fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
-        let mut cmd = OpenVpnCommand::new("openvpn");
+        let openvpn_binary = Self::find_path_to_openvpn_binary();
+
+        let mut cmd = OpenVpnCommand::new(openvpn_binary);
         if let Some(config) = get_config_path() {
             cmd.config(config);
         }
         cmd.remote(remote).user_pass(user_pass_file).ca("ca.crt");
         cmd
+    }
+
+    fn find_path_to_openvpn_binary() -> OsString {
+        match ::std::env::current_exe() {
+            Ok(mut path) => {
+                path.pop();
+
+                path.push("openvpn-binaries");
+
+                let openvpn_binary = path.join("openvpn");
+                if openvpn_binary.exists() {
+                    return openvpn_binary.into_os_string();
+                }
+            }
+            Err(e) => warn!("Failed finding the directory of the executable, {}", e),
+        }
+
+        debug!("Did not find a bundled version of OpenVPN, will rely on the PATH instead");
+        OsStr::new("openvpn").to_os_string()
     }
 
     fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::Temp> {
