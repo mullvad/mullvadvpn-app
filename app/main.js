@@ -175,7 +175,7 @@ const appDelegate = {
 
     log.debug('Reading the ipc connection info from', rpcAddressFile);
 
-    fs.readFile(rpcAddressFile, 'utf8', function (err,data) {
+    fs.readFile(rpcAddressFile, 'utf8', function (err, data) {
       if (err) {
         return log.error('Could not find backend connection info', err);
       }
