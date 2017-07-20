@@ -5,8 +5,7 @@ import { formatAccount } from '../lib/formatters';
 // @TODO: move it into types.js
 
 // ESLint issue: https://github.com/babel/babel-eslint/issues/445
-/* eslint-disable no-unused-vars */
-declare class ClipboardData {
+declare class ClipboardData { // eslint-disable-line no-unused-vars
   setData(type: string, data: string): void;
   getData(type: string): string;
 }
@@ -77,7 +76,7 @@ export default class AccountInput extends Component {
 
   render(): React.Element<*> {
     const displayString = formatAccount(this.state.value || '');
-    const { value, onChange, onEnter, ...otherProps } = this.props;
+    const { value, onChange, onEnter, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
     return (
       <input { ...otherProps }
         type="text"
