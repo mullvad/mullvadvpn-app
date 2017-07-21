@@ -6,6 +6,7 @@ description = "Run Talpid easily from the command line"
 
 [[bin]]
 name = "mullvad"
+path = "src/main.rs"
 
 [dependencies]
 clap = "2.20"
