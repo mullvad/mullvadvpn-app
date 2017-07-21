@@ -6,6 +6,7 @@ description = "Mullvad VPN backend daemon. Runs and controls the VPN tunnels."
 
 [[bin]]
 name = "mullvadd"
+path = "src/main.rs"
 
 [dependencies]
 app_dirs = "1.1"
