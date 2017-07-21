@@ -135,18 +135,16 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_library_extension() -> Result<String> {
-        let ext = if cfg!(target_os = "macos") {
-            "dylib"
+    fn get_library_extension() -> Result<&'static str> {
+        if cfg!(target_os = "macos") {
+            Ok("dylib")
         } else if cfg!(unix) {
-            "so"
+            Ok("so")
         } else if cfg!(windows) {
-            "dll"
+            Ok("dll")
         } else {
             bail!(ErrorKind::UnsupportedPlatform);
-        };
-
-        Ok(ext.to_owned())
+        }
     }
 
     fn get_config_path() -> Option<PathBuf> {
