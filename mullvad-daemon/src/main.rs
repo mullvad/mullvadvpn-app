@@ -262,7 +262,7 @@ impl Daemon {
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
-            SetAccount(tx, account_token) => Ok(self.on_set_account(tx, account_token)),
+            SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
         }
     }
@@ -282,15 +282,29 @@ impl Daemon {
         }
     }
 
-    fn on_set_account(&mut self, tx: sync::oneshot::Sender<()>, account_token: Option<String>) {
-        let save_result = self.settings.set_account_token(account_token.clone());
+    fn on_set_account(&mut self,
+                      tx: sync::oneshot::Sender<()>,
+                      account_token: Option<String>)
+                      -> Result<()> {
+
+        let save_result = self.settings.set_account_token(account_token);
 
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(()) => if let Err(_) = tx.send(()) {
-                warn!("Unable to send response to management interface client");
-            },
+            Ok(account_changed) => {
+                if let Err(_) = tx.send(()) {
+                    warn!("Unable to send response to management interface client");
+                }
+
+                let tunnel_needs_restart = self.state == TunnelState::Connecting ||
+                                           self.state == TunnelState::Connected;
+                if account_changed && tunnel_needs_restart {
+                    info!("Initiating tunnel restart because the account token changed");
+                    self.kill_tunnel()?;
+                }
+            }
             Err(e) => error!("{}", e.display()),
         }
+        Ok(())
     }
 
     fn on_get_account(&self, tx: sync::oneshot::Sender<Option<String>>) {
