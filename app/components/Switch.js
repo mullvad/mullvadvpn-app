@@ -120,8 +120,14 @@ export default class Switch extends Component {
   }
 
   render(): React.Element<*> {
+    const { isOn, onChange, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
+    let className = ('switch' + ' ' + (otherProps.className || '')).trim();
     return (
-      <input type="checkbox" ref={ this.onRef } className="switch" checked={ this.props.isOn }
+      <input { ...otherProps }
+        type="checkbox"
+        ref={ this.onRef }
+        className={ className }
+        checked={ isOn }
         onMouseDown={ this.handleMouseDown }
         onChange={ this.handleChange } />
     );
