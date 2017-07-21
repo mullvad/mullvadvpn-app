@@ -91,7 +91,7 @@ const appDelegate = {
       name: 'Mullvad',
     };
     const sudo = new ElectronSudo(options);
-    sudo.spawn( pathToBackend, ['-vv --log ' + path.join(appDelegate._logFileLocation, 'backend.log')] )
+    sudo.spawn( pathToBackend, ['-vv --log "' + path.join(appDelegate._logFileLocation, 'backend.log"')] )
       .then( p => {
         appDelegate._setupBackendProcessListeners(p);
         return p;

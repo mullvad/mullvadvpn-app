@@ -2095,7 +2095,7 @@ electron-publish@19.12.0:
 
 "electron-sudo@https://github.com/eriklarko/electron-sudo.git":
   version "4.0.12"
-  resolved "https://github.com/eriklarko/electron-sudo.git#d351ea8c9ce13f7e69955168d00acfdf66c1ead2"
+  resolved "https://github.com/eriklarko/electron-sudo.git#f71134f86541b15359f4813715d721818fb2b1f4"
   dependencies:
     babel-runtime "^6.18.0"
     bluebird "^3.4.6"
@@ -4091,11 +4091,7 @@ number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
 
-"nwmatcher@>= 1.3.7 < 2.0.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/nwmatcher/-/nwmatcher-1.4.0.tgz#b4389362170e7ef9798c3c7716d80ebc0106fccf"
-
-nwmatcher@^1.4.1:
+"nwmatcher@>= 1.3.7 < 2.0.0", nwmatcher@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/nwmatcher/-/nwmatcher-1.4.1.tgz#7ae9b07b0ea804db7e25f05cb5fe4097d4e4949f"
 
