@@ -31,6 +31,7 @@ mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
+use jsonrpc_core::futures::sync;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
@@ -259,34 +260,43 @@ impl Daemon {
     fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
         use TunnelCommand::*;
         match event {
-            SetTargetState(state) => {
-                if !self.shutdown {
-                    self.set_target_state(state)?;
-                } else {
-                    warn!("Ignoring target state change request due to shutdown");
-                }
-            }
-            GetState(tx) => {
-                if let Err(_) = tx.send(self.last_broadcasted_state) {
-                    warn!("Unable to send current state to management interface client",);
-                }
-            }
-            SetAccount(tx, account_token) => {
-                let save_result = self.settings.set_account_token(account_token);
-                match save_result.chain_err(|| "Unable to save settings") {
-                    Ok(()) => if let Err(_) = tx.send(()) {
-                        warn!("Unable to send response to management interface client");
-                    },
-                    Err(e) => error!("{}", e.display()),
-                }
-            }
-            GetAccount(tx) => {
-                if let Err(_) = tx.send(self.settings.get_account_token()) {
-                    warn!("Unable to send current account to management interface client");
-                }
-            }
+            SetTargetState(state) => self.on_set_target_state(state),
+            GetState(tx) => Ok(self.on_get_state(tx)),
+            SetAccount(tx, account_token) => Ok(self.on_set_account(tx, account_token)),
+            GetAccount(tx) => Ok(self.on_get_account(tx)),
         }
-        Ok(())
+    }
+
+    fn on_set_target_state(&mut self, new_target_state: TargetState) -> Result<()> {
+        if !self.shutdown {
+            self.set_target_state(new_target_state)
+        } else {
+            warn!("Ignoring target state change request due to shutdown");
+            Ok(())
+        }
+    }
+
+    fn on_get_state(&self, tx: sync::oneshot::Sender<DaemonState>) {
+        if let Err(_) = tx.send(self.last_broadcasted_state) {
+            warn!("Unable to send current state to management interface client",);
+        }
+    }
+
+    fn on_set_account(&mut self, tx: sync::oneshot::Sender<()>, account_token: Option<String>) {
+        let save_result = self.settings.set_account_token(account_token.clone());
+
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(()) => if let Err(_) = tx.send(()) {
+                warn!("Unable to send response to management interface client");
+            },
+            Err(e) => error!("{}", e.display()),
+        }
+    }
+
+    fn on_get_account(&self, tx: sync::oneshot::Sender<Option<String>>) {
+        if let Err(_) = tx.send(self.settings.get_account_token()) {
+            warn!("Unable to send current account to management interface client");
+        }
     }
 
     fn handle_management_interface_exited(&self, result: talpid_ipc::Result<()>) -> Result<()> {
