@@ -54,7 +54,10 @@ const appDelegate = {
   onReady: async () => {
     const window = appDelegate._window = appDelegate._createWindow();
 
-    ipcMain.on('on-browser-window-ready', () => browserWindowReady = true);
+    ipcMain.on('on-browser-window-ready', () => {
+      browserWindowReady = true;
+      appDelegate._pollForConnectionInfoFile();
+    });
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
 
@@ -94,10 +97,6 @@ const appDelegate = {
     sudo.spawn( pathToBackend, ['-vv --log "' + path.join(appDelegate._logFileLocation, 'backend.log"')] )
       .then( p => {
         appDelegate._setupBackendProcessListeners(p);
-        return p;
-      })
-      .then( p => {
-        appDelegate._pollForConnectionInfoFile();
         return p;
       });
   },
