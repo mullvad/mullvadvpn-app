@@ -78,7 +78,7 @@
     "private:build:mac": "npm run private:build -- --mac",
     "private:build:win": "npm run private:build -- --win",
     "private:build:linux": "npm run private:build -- --linux",
-    "private:build": "build --config distribution.yml",
+    "private:build": "electron-builder",
     "private:watch": "npm run private:compile -- --source-maps true --watch --skip-initial-build",
     "private:serve": "babel-node scripts/serve.js",
     "private:compile": "babel app/ --copy-files --ignore *.sw.js --out-dir build",

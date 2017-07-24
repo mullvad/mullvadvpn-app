@@ -28,7 +28,7 @@
 - **test/** - tests
 - **scripts/** - support scripts for development
 - **init.js** - entry file for electron, points to compiled **main.js**
-- **distribution.yml** - distribution configuration
+- **electron-builder.yml** - distribution configuration
 
 ## App diagram
 
