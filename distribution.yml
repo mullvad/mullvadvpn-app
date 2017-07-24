@@ -7,11 +7,11 @@ asar: true
 # assets bundled on all platforms
 extraResources:
   # master.mullvad.net certificate used by mullvadd
-  - from: build-assets/ca.crt
+  - from: dist-assets/ca.crt
     to: .
 
 directories:
-  buildResources: build-assets/
+  buildResources: dist-assets/
   output: dist/
 
 files:
