@@ -119,6 +119,13 @@ export default class Switch extends Component {
     this.isCapturingMouseEvents = false;
   }
 
+  componentWillUnmount() {
+    // guard from abrupt programmatic unmount
+    if(this.isCapturingMouseEvents) {
+      this.stopCapturingMouseEvents();
+    }
+  }
+
   render(): React.Element<*> {
     const { isOn, onChange, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
     let className = ('switch' + ' ' + (otherProps.className || '')).trim();
