@@ -112,7 +112,7 @@ export class Backend {
           country: location.country,
           city: location.city
         };
-        this._store.dispatch(connectionActions.connectionChange(newLocation));
+        this._store.dispatch(connectionActions.newLocation(newLocation));
       })
       .catch(e => {
         log.info('Failed getting new location', e);

@@ -5,6 +5,7 @@ import { clipboard } from 'electron';
 import type { Backend } from '../../lib/backend';
 import type { ConnectionReduxState } from './reducers.js';
 import type { ReduxGetState, ReduxDispatch } from '../store';
+import type { Coordinate2d } from '../../types';
 
 
 const connect = (backend: Backend, addr: string) => () => backend.connect(addr);
@@ -24,11 +25,24 @@ type ConnectionChangeAction = {
   type: 'CONNECTION_CHANGE',
   newData: $Shape<ConnectionReduxState>,
 };
+
 type NewPublicIpAction = {
   type: 'NEW_PUBLIC_IP',
   ip: string,
 };
-export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction;
+
+type Location = {
+  location: Coordinate2d,
+  country: string,
+  city: string,
+};
+
+type NewLocationAction = {
+  type: 'NEW_LOCATION',
+  newLocation: Location,
+};
+
+export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction;
 
 function connectionChange(newData: $Shape<ConnectionReduxState>): ConnectionChangeAction {
   return {
@@ -44,6 +58,12 @@ function newPublicIp(ip: string): NewPublicIpAction {
   };
 }
 
+function newLocation(newLoc: Location): NewLocationAction {
+  return {
+    type: 'NEW_LOCATION',
+    newLocation: newLoc,
+  };
+}
 
 
-export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp };
+export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation };
