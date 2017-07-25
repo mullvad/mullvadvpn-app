@@ -20,8 +20,15 @@ const initialState: AccountReduxState = {
 
 export default function(state: AccountReduxState = initialState, action: ReduxAction): AccountReduxState {
 
-  if (action.type === 'LOGIN_CHANGE') {
+  switch (action.type) {
+  case 'LOGIN_CHANGE':
     return { ...state, ...action.newData };
+  case 'START_LOGIN':
+    return { ...state, ...{
+      status: 'logging in',
+      accountNumber: action.accountNumber,
+      error: null,
+    }};
   }
 
   return state;

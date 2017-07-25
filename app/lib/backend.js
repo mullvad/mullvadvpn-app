@@ -148,16 +148,12 @@ export class Backend {
   }
 
 
-  login(accountNumber: string) {
+  login(accountNumber: string): Promise<void> {
     log.info('Attempting to login with account number', accountNumber);
 
-    this._store.dispatch(accountActions.loginChange({
-      accountNumber: accountNumber,
-      status: 'logging in',
-      error: null,
-    }));
+    this._store.dispatch(accountActions.startLogin(accountNumber));
 
-    this._ipc.getAccountData(accountNumber)
+    return this._ipc.getAccountData(accountNumber)
       .then( response => {
         log.info('Account exists', response);
 
@@ -169,6 +165,7 @@ export class Backend {
 
         this._store.dispatch(accountActions.loginChange({
           status: 'ok',
+          accountNumber: accountNumber,
           paidUntil: accountData.paid_until,
           error: null,
         }));
