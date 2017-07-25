@@ -12,39 +12,39 @@ describe('reducers', () => {
 
   it('should handle USER_LOGIN_CHANGE', () => {
     const action = {
-      type: 'USER_LOGIN_CHANGE',
-      payload: {
+      type: 'LOGIN_CHANGE',
+      newData: {
         accountNumber: '1111',
         status: 'failed',
         error: new BackendError('INVALID_ACCOUNT')
       }
     };
-    const test = Object.assign({}, action.payload);
+    const test = Object.assign({}, action.newData);
     expect(accountReducer(previousState, action)).to.deep.equal(test);
   });
 
   it('should handle CONNECTION_CHANGE', () => {
     const action = {
       type: 'CONNECTION_CHANGE',
-      payload: {
+      newData: {
         status: 'connected',
         serverAddress: '2.1.1.2',
         clientIp: '2.1.1.1'
       }
     };
-    const test = Object.assign({}, action.payload);
+    const test = Object.assign({}, action.newData);
     expect(connectionReducer(previousState, action)).to.deep.equal(test);
   });
 
   it('should handle SETTINGS_UPDATE', () => {
     const action = {
-      type: 'SETTINGS_UPDATE',
-      payload: {
+      type: 'UPDATE_SETTINGS',
+      newSettings: {
         autoSecure: true,
         preferredServer: defaultServer
       }
     };
-    const test = Object.assign({}, action.payload);
+    const test = Object.assign({}, action.newSettings);
     expect(settingsReducer(previousState, action)).to.deep.equal(test);
   });
 

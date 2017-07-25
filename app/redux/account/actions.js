@@ -1,13 +1,20 @@
 // @flow
-import { createAction } from 'redux-actions';
 
 import type { Backend } from '../../lib/backend';
 import type { AccountReduxState } from './reducers.js';
-import type { ReduxAction } from '../store';
 
-export type LoginChangeAction = <T: $Shape<AccountReduxState>>(state: T) => ReduxAction<T>;
+export type LoginChangeAction = {
+  type:'LOGIN_CHANGE',
+  newData: $Shape<AccountReduxState>,
+};
 
-const loginChange: LoginChangeAction = createAction('USER_LOGIN_CHANGE');
+function loginChange(data: $Shape<AccountReduxState>): LoginChangeAction {
+  return {
+    type: 'LOGIN_CHANGE',
+    newData: data,
+  };
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 

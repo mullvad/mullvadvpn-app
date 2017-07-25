@@ -1,6 +1,4 @@
 // @flow
-import { handleActions } from 'redux-actions';
-import actions from './actions';
 
 import type { ReduxAction } from '../store';
 import type { Coordinate2d } from '../../types';
@@ -26,8 +24,12 @@ const initialState: ConnectionReduxState = {
   city: null,
 };
 
-export default handleActions({
-  [actions.connectionChange.toString()]: (state: ConnectionReduxState, action: ReduxAction<$Shape<ConnectionReduxState>>) => {
-    return { ...state, ...action.payload };
+
+export default function(state: ConnectionReduxState = initialState, action: ReduxAction): ConnectionReduxState {
+
+  if (action.type === 'CONNECTION_CHANGE') {
+    return { ...state, ...action.newData };
   }
-}, initialState);
+
+  return state;
+}
