@@ -5,20 +5,22 @@ import accountReducer from '../app/redux/account/reducers';
 import connectionReducer from '../app/redux/connection/reducers';
 import settingsReducer from '../app/redux/settings/reducers';
 import { defaultServer } from '../app/config';
+import { BackendError } from '../app/lib/backend';
 
 describe('reducers', () => {
+  const previousState: any = {};
 
   it('should handle USER_LOGIN_CHANGE', () => {
     const action = {
       type: 'USER_LOGIN_CHANGE',
       payload: {
-        account: '1111',
+        accountNumber: '1111',
         status: 'failed',
-        error: new Error('Something went wrong')
+        error: new BackendError('INVALID_ACCOUNT')
       }
     };
     const test = Object.assign({}, action.payload);
-    expect(accountReducer({}, action)).to.deep.equal(test);
+    expect(accountReducer(previousState, action)).to.deep.equal(test);
   });
 
   it('should handle CONNECTION_CHANGE', () => {
@@ -31,7 +33,7 @@ describe('reducers', () => {
       }
     };
     const test = Object.assign({}, action.payload);
-    expect(connectionReducer({}, action)).to.deep.equal(test);
+    expect(connectionReducer(previousState, action)).to.deep.equal(test);
   });
 
   it('should handle SETTINGS_UPDATE', () => {
@@ -43,7 +45,7 @@ describe('reducers', () => {
       }
     };
     const test = Object.assign({}, action.payload);
-    expect(settingsReducer({}, action)).to.deep.equal(test);
+    expect(settingsReducer(previousState, action)).to.deep.equal(test);
   });
 
 });
