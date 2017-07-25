@@ -16,7 +16,7 @@ import type { AccountReduxState } from './account/reducers.js';
 import type { ConnectionReduxState } from './connection/reducers.js';
 import type { SettingsReduxState } from './settings/reducers.js';
 
-import type { ConnectionChangeAction } from './connection/actions.js';
+import type { ConnectionAction } from './connection/actions.js';
 import type { LoginChangeAction } from './account/actions.js';
 import type { UpdateSettingsAction } from './settings/actions.js';
 
@@ -28,7 +28,8 @@ export type ReduxState = {
 
 export type ReduxAction = LoginChangeAction
                           | UpdateSettingsAction
-                          | ConnectionChangeAction;
+                          | ConnectionAction;
+
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
 export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;

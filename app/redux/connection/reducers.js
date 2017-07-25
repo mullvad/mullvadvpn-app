@@ -27,9 +27,12 @@ const initialState: ConnectionReduxState = {
 
 export default function(state: ConnectionReduxState = initialState, action: ReduxAction): ConnectionReduxState {
 
-  if (action.type === 'CONNECTION_CHANGE') {
+  switch (action.type) {
+  case 'CONNECTION_CHANGE':
     return { ...state, ...action.newData };
+  case 'NEW_PUBLIC_IP':
+    return { ...state, ...{ clientIp: action.ip }};
+  default:
+    return state;
   }
-
-  return state;
 }

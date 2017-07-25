@@ -19,10 +19,16 @@ const copyIPAddress = () => {
 };
 
 
-export type ConnectionChangeAction = {
+
+type ConnectionChangeAction = {
   type: 'CONNECTION_CHANGE',
   newData: $Shape<ConnectionReduxState>,
 };
+type NewPublicIpAction = {
+  type: 'NEW_PUBLIC_IP',
+  ip: string,
+};
+export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction;
 
 function connectionChange(newData: $Shape<ConnectionReduxState>): ConnectionChangeAction {
   return {
@@ -31,5 +37,13 @@ function connectionChange(newData: $Shape<ConnectionReduxState>): ConnectionChan
   };
 }
 
+function newPublicIp(ip: string): NewPublicIpAction {
+  return {
+    type: 'NEW_PUBLIC_IP',
+    ip: ip,
+  };
+}
 
-export default { connect, disconnect, copyIPAddress, connectionChange };
+
+
+export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp };
