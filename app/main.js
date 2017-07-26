@@ -1,6 +1,7 @@
 // @flow
 import path from 'path';
 import fs from 'fs';
+import mkdirp from 'mkdirp';
 import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
@@ -47,6 +48,9 @@ const appDelegate = {
       log.transports.console.level = 'info';
       log.transports.file.level = 'info';
       log.transports.file.file = path.join(appDelegate._logFileLocation, 'frontend.log');
+
+      // create log folder
+      mkdirp.sync(appDelegate._logFileLocation);
     }
 
   },

@@ -17,6 +17,7 @@
     "history": "^4.6.1",
     "jsonrpc-lite": "^1.2.3",
     "mapbox-gl": "^0.37.0",
+    "mkdirp": "^0.5.1",
     "moment": "^2.17.1",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
