@@ -1,5 +1,5 @@
-// flow-typed signature: 7f1a115f75043c44385071ea3f33c586
-// flow-typed version: 358375125e/redux_v3.x.x/flow_>=v0.33.x
+// flow-typed signature: 76c3dfb5a40ce169d5c08fe80dbd029a
+// flow-typed version: 37b1c6d953/redux_v3.x.x/flow_>=v0.33.x
 
 declare module 'redux' {
 
@@ -53,6 +53,55 @@ declare module 'redux' {
 
   declare function combineReducers<O: Object, A>(reducers: O): CombinedReducer<$ObjMap<O, <S>(r: Reducer<S, any>) => S>, A>;
 
-  declare function compose<S, A>(...fns: Array<StoreEnhancer<S, A>>): Function;
+  declare function compose<A, B>(ab: (a: A) => B): (a: A) => B
+  declare function compose<A, B, C>(
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => C
+  declare function compose<A, B, C, D>(
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => D
+  declare function compose<A, B, C, D, E>(
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => E
+  declare function compose<A, B, C, D, E, F>(
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => F
+  declare function compose<A, B, C, D, E, F, G>(
+    fg: (f: F) => G,
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => G
+  declare function compose<A, B, C, D, E, F, G, H>(
+    gh: (g: G) => H,
+    fg: (f: F) => G,
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => H
+  declare function compose<A, B, C, D, E, F, G, H, I>(
+    hi: (h: H) => I,
+    gh: (g: G) => H,
+    fg: (f: F) => G,
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B
+  ): (a: A) => I
 
 }
