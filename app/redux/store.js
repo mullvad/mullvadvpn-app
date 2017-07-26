@@ -10,7 +10,7 @@ import connectionActions from './connection/actions.js';
 import settings from './settings/reducers.js';
 import settingsActions from './settings/actions.js';
 
-import type { Store, Dispatch } from 'redux';
+import type { Store } from 'redux';
 import type { History } from 'history';
 import type { AccountReduxState } from './account/reducers.js';
 import type { ConnectionReduxState } from './connection/reducers.js';
@@ -25,14 +25,14 @@ export type ReduxState = {
   connection: ConnectionReduxState,
   settings: SettingsReduxState
 };
-export type ReduxAction = Function
-                              | LoginChangeAction
-                              | UpdateSettingsAction
-                              | ConnectionChangeAction;
 
-export type ReduxStore = Store<ReduxState, ReduxAction>;
-export type ReduxGetStateFn = () => ReduxState;
-export type ReduxDispatchFn = Dispatch<ReduxAction>;
+export type ReduxAction = LoginChangeAction
+                          | UpdateSettingsAction
+                          | ConnectionChangeAction;
+export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
+export type ReduxGetState = () => ReduxState;
+export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;
+export type ReduxThunk = (dispatch: ReduxDispatch, getState: ReduxGetState) => any;
 
 export default function configureStore(initialState: ?ReduxState, routerHistory: History): ReduxStore {
   const router = routerMiddleware(routerHistory);

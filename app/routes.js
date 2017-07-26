@@ -11,7 +11,7 @@ import AccountPage from './containers/AccountPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 import { getTransitionProps } from './transitions';
 
-import type { ReduxGetStateFn } from './redux/store';
+import type { ReduxGetState } from './redux/store';
 import type { Backend } from './lib/backend';
 
 export type SharedRouteProps = {
@@ -22,7 +22,7 @@ type CustomRouteProps = {
   component: ReactClass<*>
 };
 
-export default function makeRoutes(getState: ReduxGetStateFn, componentProps: SharedRouteProps): React.Element<*> {
+export default function makeRoutes(getState: ReduxGetState, componentProps: SharedRouteProps): React.Element<*> {
 
   // Merge props and render component
   const renderMergedProps = (ComponentClass: ReactClass<*>, ...rest: Array<Object>): React.Element<*> => {
