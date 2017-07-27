@@ -1,6 +1,6 @@
 // @flow
 
-import type { Backend } from '../../lib/backend';
+import type { Backend, BackendError } from '../../lib/backend';
 import type { AccountReduxState } from './reducers.js';
 
 type StartLoginAction = {
@@ -11,13 +11,20 @@ type LoginSuccessfulAction = {
   type: 'LOGIN_SUCCESSFUL',
   paidUntil: string,
 };
+type LoginFailedAction = {
+  type: 'LOGIN_FAILED',
+  error: BackendError,
+};
 
 type LoginChangeAction = {
   type:'LOGIN_CHANGE',
   newData: $Shape<AccountReduxState>,
 };
 
-export type AccountAction = StartLoginAction | LoginSuccessfulAction | LoginChangeAction;
+export type AccountAction = StartLoginAction
+                            | LoginSuccessfulAction
+                            | LoginFailedAction
+                            | LoginChangeAction;
 
 function startLogin(accountNumber: string): StartLoginAction {
   return {
@@ -33,6 +40,13 @@ function loginSuccessful(paidUntil: string): LoginSuccessfulAction {
   };
 }
 
+function loginFailed(error: BackendError): LoginFailedAction {
+  return {
+    type: 'LOGIN_FAILED',
+    error: error,
+  };
+}
+
 function loginChange(data: $Shape<AccountReduxState>): LoginChangeAction {
   return {
     type: 'LOGIN_CHANGE',
@@ -43,4 +57,4 @@ function loginChange(data: $Shape<AccountReduxState>): LoginChangeAction {
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
-export default { login, logout, loginChange, startLogin, loginSuccessful };
+export default { login, logout, loginChange, startLogin, loginSuccessful, loginFailed };

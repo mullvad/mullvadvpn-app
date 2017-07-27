@@ -175,10 +175,7 @@ export class Backend {
 
         // TODO: This is not true. If there is a communication link failure the promise will be rejected too
         const err = new BackendError('INVALID_ACCOUNT');
-        this._store.dispatch(accountActions.loginChange({
-          status: 'failed',
-          error: err,
-        }));
+        this._store.dispatch(accountActions.loginFailed(err));
       });
   }
 
