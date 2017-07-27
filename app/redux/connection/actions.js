@@ -24,6 +24,9 @@ type ConnectingAction = {
   type: 'CONNECTING',
   serverAddress: string,
 };
+type DisconnectedAction = {
+  type: 'DISCONNECTED',
+};
 
 type ConnectionChangeAction = {
   type: 'CONNECTION_CHANGE',
@@ -46,12 +49,18 @@ type NewLocationAction = {
   newLocation: Location,
 };
 
-export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction | ConnectingAction;
+export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction | ConnectingAction | DisconnectedAction;
 
 function connectingTo(serverAddress: string): ConnectingAction {
   return {
     type: 'CONNECTING',
     serverAddress: serverAddress,
+  };
+}
+
+function disconnected(): DisconnectedAction {
+  return {
+    type: 'DISCONNECTED',
   };
 }
 
@@ -77,4 +86,5 @@ function newLocation(newLoc: Location): NewLocationAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo };
+export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo, disconnected };
+

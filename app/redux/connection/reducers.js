@@ -39,6 +39,8 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
       status: 'connecting',
       serverAddress: action.serverAddress,
     }};
+  case 'DISCONNECTED':
+    return { ...state, ...{ status: 'disconnected' }};
   default:
     return state;
   }
