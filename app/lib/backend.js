@@ -227,15 +227,12 @@ export class Backend {
       });
   }
 
-  connect(addr: string) {
+  connect(addr: string): Promise<void> {
 
-    this._store.dispatch(connectionActions.connectionChange({
-      status: 'connecting',
-      serverAddress: addr,
-    }));
+    this._store.dispatch(connectionActions.connectingTo(addr));
 
 
-    this._ipc.setCountry(addr)
+    return this._ipc.setCountry(addr)
       .then( () => {
         return this._ipc.connect();
       })

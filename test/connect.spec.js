@@ -45,6 +45,18 @@ describe('connect', () => {
     }, done);
   });
 
+  it('should update the state with the server address', () => {
+    const { store, backend } = setupBackendAndStore();
+    const arbitraryString = 'www.example.com';
+
+    return backend.connect(arbitraryString)
+      .then( () => {
+        const state = store.getState().connection;
+        expect(state.status).to.equal('connecting');
+        expect(state.serverAddress).to.equal(arbitraryString);
+      });
+  });
+
   it('should correctly deduce \'connected\' from backend states', () => {
     const { store, mockIpc } = setupBackendAndStore();
 

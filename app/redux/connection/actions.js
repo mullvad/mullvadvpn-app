@@ -20,6 +20,10 @@ const copyIPAddress = () => {
 };
 
 
+type ConnectingAction = {
+  type: 'CONNECTING',
+  serverAddress: string,
+};
 
 type ConnectionChangeAction = {
   type: 'CONNECTION_CHANGE',
@@ -42,7 +46,14 @@ type NewLocationAction = {
   newLocation: Location,
 };
 
-export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction;
+export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction | ConnectingAction;
+
+function connectingTo(serverAddress: string): ConnectingAction {
+  return {
+    type: 'CONNECTING',
+    serverAddress: serverAddress,
+  };
+}
 
 function connectionChange(newData: $Shape<ConnectionReduxState>): ConnectionChangeAction {
   return {
@@ -66,4 +77,4 @@ function newLocation(newLoc: Location): NewLocationAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation };
+export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo };
