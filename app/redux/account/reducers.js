@@ -29,6 +29,12 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
       accountNumber: action.accountNumber,
       error: null,
     }};
+  case 'LOGIN_SUCCESSFUL':
+    return { ...state, ...{
+      status: 'ok',
+      error: null,
+      paidUntil: action.paidUntil,
+    }};
   }
 
   return state;

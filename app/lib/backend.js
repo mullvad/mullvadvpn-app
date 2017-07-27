@@ -163,12 +163,7 @@ export class Backend {
       }).then( accountData => {
         log.info('Log in complete');
 
-        this._store.dispatch(accountActions.loginChange({
-          status: 'ok',
-          accountNumber: accountNumber,
-          paidUntil: accountData.paid_until,
-          error: null,
-        }));
+        this._store.dispatch(accountActions.loginSuccessful(accountData.paid_until));
 
         // Redirect the user after some time to allow for
         // the 'Login Successful' screen to be visible
