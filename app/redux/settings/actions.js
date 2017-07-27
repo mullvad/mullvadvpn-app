@@ -1,11 +1,17 @@
 // @flow
-import { createAction } from 'redux-actions';
 
 import type { SettingsReduxState } from './reducers';
-import type { ReduxAction } from '../store';
 
-export type UpdateSettingsAction = <T: $Shape<SettingsReduxState>>(state: T) => ReduxAction<T>;
+export type UpdateSettingsAction = {
+  type: 'UPDATE_SETTINGS',
+  newSettings: $Shape<SettingsReduxState>,
+};
 
-const updateSettings: UpdateSettingsAction = createAction('SETTINGS_UPDATE');
+function updateSettings(newSettings: $Shape<SettingsReduxState>): UpdateSettingsAction {
+  return {
+    type: 'UPDATE_SETTINGS',
+    newSettings: newSettings,
+  };
+}
 
 export default { updateSettings };

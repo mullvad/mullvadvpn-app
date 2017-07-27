@@ -1,6 +1,4 @@
 // @flow
-import { handleActions } from 'redux-actions';
-import actions from './actions.js';
 
 import type { ReduxAction } from '../store';
 import type { BackendError } from '../../lib/backend';
@@ -20,8 +18,11 @@ const initialState: AccountReduxState = {
   error: null
 };
 
-export default handleActions({
-  [actions.loginChange.toString()]: (state: AccountReduxState, action: ReduxAction<$Shape<AccountReduxState>>) => {
-    return { ...state, ...action.payload };
+export default function(state: AccountReduxState = initialState, action: ReduxAction): AccountReduxState {
+
+  if (action.type === 'LOGIN_CHANGE') {
+    return { ...state, ...action.newData };
   }
-}, initialState);
+
+  return state;
+}

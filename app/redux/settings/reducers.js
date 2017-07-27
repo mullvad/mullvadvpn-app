@@ -1,6 +1,4 @@
 // @flow
-import { handleActions } from 'redux-actions';
-import actions from './actions';
 
 import { defaultServer } from '../../config';
 
@@ -16,8 +14,11 @@ const initialState: SettingsReduxState = {
   preferredServer: defaultServer
 };
 
-export default handleActions({
-  [actions.updateSettings.toString()]: (state: SettingsReduxState, action: ReduxAction<$Shape<SettingsReduxState>>) => {
-    return { ...state, ...action.payload };
+export default function(state: SettingsReduxState = initialState, action: ReduxAction): SettingsReduxState {
+
+  if (action.type === 'UPDATE_SETTINGS') {
+    return { ...state, ...action.newSettings };
   }
-}, initialState);
+
+  return state;
+}

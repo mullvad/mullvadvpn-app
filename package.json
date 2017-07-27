@@ -30,7 +30,6 @@
     "react-router-redux": "5.0.0-alpha.6",
     "react-transition-group": "^1.2.0",
     "redux": "^3.0.0",
-    "redux-actions": "^2.0.1",
     "redux-thunk": "^2.2.0",
     "uuid": "^3.0.1",
     "validated": "^1.1.0"

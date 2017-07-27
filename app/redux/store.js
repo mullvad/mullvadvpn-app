@@ -16,15 +16,23 @@ import type { AccountReduxState } from './account/reducers.js';
 import type { ConnectionReduxState } from './connection/reducers.js';
 import type { SettingsReduxState } from './settings/reducers.js';
 
+import type { ConnectionChangeAction } from './connection/actions.js';
+import type { LoginChangeAction } from './account/actions.js';
+import type { UpdateSettingsAction } from './settings/actions.js';
+
 export type ReduxState = {
   account: AccountReduxState,
   connection: ConnectionReduxState,
   settings: SettingsReduxState
 };
-export type ReduxAction<T> = { type: string, payload: T } | Function;
-export type ReduxStore = Store<ReduxState, ReduxAction<Object>>;
+export type ReduxAction = Function
+                              | LoginChangeAction
+                              | UpdateSettingsAction
+                              | ConnectionChangeAction;
+
+export type ReduxStore = Store<ReduxState, ReduxAction>;
 export type ReduxGetStateFn = () => ReduxState;
-export type ReduxDispatchFn<T: *> = Dispatch<ReduxAction<T>>;
+export type ReduxDispatchFn = Dispatch<ReduxAction>;
 
 export default function configureStore(initialState: ?ReduxState, routerHistory: History): ReduxStore {
   const router = routerMiddleware(routerHistory);
