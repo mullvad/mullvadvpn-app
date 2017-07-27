@@ -16,6 +16,10 @@ type LoginFailedAction = {
   error: BackendError,
 };
 
+type LoggedOutAction = {
+  type: 'LOGGED_OUT',
+};
+
 type LoginChangeAction = {
   type:'LOGIN_CHANGE',
   newData: $Shape<AccountReduxState>,
@@ -24,7 +28,8 @@ type LoginChangeAction = {
 export type AccountAction = StartLoginAction
                             | LoginSuccessfulAction
                             | LoginFailedAction
-                            | LoginChangeAction;
+                            | LoginChangeAction
+                            | LoggedOutAction;
 
 function startLogin(accountNumber?: string): StartLoginAction {
   return {
@@ -54,7 +59,13 @@ function loginChange(data: $Shape<AccountReduxState>): LoginChangeAction {
   };
 }
 
+function loggedOut(): LoggedOutAction {
+  return {
+    type: 'LOGGED_OUT',
+  };
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
-export default { login, logout, loginChange, startLogin, loginSuccessful, loginFailed };
+export default { login, logout, loginChange, startLogin, loginSuccessful, loginFailed, loggedOut };
