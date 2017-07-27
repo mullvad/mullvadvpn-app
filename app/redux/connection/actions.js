@@ -4,13 +4,13 @@ import { clipboard } from 'electron';
 
 import type { Backend } from '../../lib/backend';
 import type { ConnectionReduxState } from './reducers.js';
-import type { ReduxGetStateFn, ReduxDispatchFn } from '../store';
+import type { ReduxGetState, ReduxDispatch } from '../store';
 
 
 const connect = (backend: Backend, addr: string) => () => backend.connect(addr);
 const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = () => {
-  return (_dispatch: ReduxDispatchFn, getState: ReduxGetStateFn) => {
+  return (_dispatch: ReduxDispatch, getState: ReduxGetState) => {
     const ip: ?string = getState().connection.clientIp;
     if(ip) {
       clipboard.writeText(ip);
