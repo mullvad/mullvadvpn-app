@@ -2,17 +2,43 @@
 
 import { expect } from 'chai';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Switch from '../../app/components/Switch';
 
 describe('components/Switch', () => {
+
+  let container: ?HTMLElement;
+
+  function renderIntoDocument(instance: React.Element<*>): React.Component<*, *, *> {
+    if(container) {
+      throw new Error('Unmount previously rendered component first.');
+    }
+
+    container = document.createElement('div');
+    if(!document.documentElement) {
+      throw new Error('document.documentElement cannot be null.');
+    }
+
+    document.documentElement.appendChild(container);
+
+    return ReactDOM.render(instance, container);
+  }
+
+  // unmount container and clean up DOM
+  afterEach(() => {
+    if(container) {
+      ReactDOM.unmountComponentAtNode(container);
+      container = null;
+    }
+  });
 
   it('should switch on', (done) => {
     const onChange = (isOn) => {
       expect(isOn).to.be.true;
       done();
     };
-    const component = ReactTestUtils.renderIntoDocument(
+    const component = renderIntoDocument(
       <Switch isOn={ false } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
@@ -27,7 +53,7 @@ describe('components/Switch', () => {
       expect(isOn).to.be.false;
       done();
     };
-    const component = ReactTestUtils.renderIntoDocument(
+    const component = renderIntoDocument(
       <Switch isOn={ true } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
@@ -42,7 +68,7 @@ describe('components/Switch', () => {
       expect(isOn).to.be.true;
       done();
     };
-    const component = ReactTestUtils.renderIntoDocument(
+    const component = renderIntoDocument(
       <Switch isOn={ false } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
@@ -59,7 +85,7 @@ describe('components/Switch', () => {
       expect(isOn).to.be.false;
       done();
     };
-    const component = ReactTestUtils.renderIntoDocument(
+    const component = renderIntoDocument(
       <Switch isOn={ true } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
@@ -76,7 +102,7 @@ describe('components/Switch', () => {
       throw new Error('onChange should not be called on timeout.');
     };
 
-    const component = ReactTestUtils.renderIntoDocument(
+    const component = renderIntoDocument(
       <Switch isOn={ false } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');

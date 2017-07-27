@@ -59,7 +59,6 @@
     "flow-bin": "^0.50.0",
     "flow-typed": "^2.1.5",
     "isomorphic-fetch": "^2.2.1",
-    "jsdom": "^11.1.0",
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.1",
     "redux-mock-store": "^1.2.2",
@@ -68,7 +67,7 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "develop": "npm run private:compile -- --source-maps true && npm run private:service-worker && run-p -r private:watch private:serve",
-    "test": "electron-mocha -R spec --compilers js:babel-core/register test/global.js test/*.spec.js test/**/*.spec.js",
+    "test": "electron-mocha --renderer -R spec --compilers js:babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "flow": "flow",
     "pack": "run-s private:clean private:compile private:service-worker private:build:all",
