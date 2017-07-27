@@ -38,6 +38,7 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
   case 'LOGIN_FAILED':
     return { ...state, ...{
       status: 'failed',
+      accountNumber: null,
       error: action.error,
     }};
   }

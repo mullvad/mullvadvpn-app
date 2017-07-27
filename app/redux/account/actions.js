@@ -5,7 +5,7 @@ import type { AccountReduxState } from './reducers.js';
 
 type StartLoginAction = {
   type: 'START_LOGIN',
-  accountNumber: string,
+  accountNumber?: string,
 };
 type LoginSuccessfulAction = {
   type: 'LOGIN_SUCCESSFUL',
@@ -26,7 +26,7 @@ export type AccountAction = StartLoginAction
                             | LoginFailedAction
                             | LoginChangeAction;
 
-function startLogin(accountNumber: string): StartLoginAction {
+function startLogin(accountNumber?: string): StartLoginAction {
   return {
     type: 'START_LOGIN',
     accountNumber: accountNumber,

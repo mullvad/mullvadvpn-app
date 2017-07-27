@@ -182,11 +182,7 @@ export class Backend {
   autologin() {
     log.info('Attempting to log in automatically');
 
-    this._store.dispatch(accountActions.loginChange({
-      accountNumber: null,
-      status: 'logging in',
-      error: null,
-    }));
+    this._store.dispatch(accountActions.startLogin());
 
     return this._ipc.getAccount()
       .then( accountNumber => {
@@ -194,34 +190,21 @@ export class Backend {
           throw new Error('No account set in the backend, failing autologin');
         }
         log.debug('The backend had an account number stored:', accountNumber);
-
-        this._store.dispatch(accountActions.loginChange({
-          accountNumber: accountNumber,
-          status: 'logging in',
-          error: null,
-        }));
+        this._store.dispatch(accountActions.startLogin(accountNumber));
 
         return this._ipc.getAccountData(accountNumber);
       })
       .then( accountData => {
         log.info('The stored account number still exists', accountData);
 
-        this._store.dispatch(accountActions.loginChange({
-          status: 'ok',
-          paidUntil: accountData.paid_until,
-          error: null,
-        }));
+        this._store.dispatch(accountActions.loginSuccessful(accountData.paid_until));
 
         this._store.dispatch(push('/connect'));
       })
       .catch( e => {
         log.warn('Unable to autologin', e);
 
-        this._store.dispatch(accountActions.loginChange({
-          status: 'none',
-          error: new BackendError('INVALID_ACCOUNT'),
-        }));
-
+        this._store.dispatch(accountActions.loginFailed(new BackendError('INVALID_ACCOUNT')));
         this._store.dispatch(push('/'));
       });
   }

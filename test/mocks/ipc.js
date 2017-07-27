@@ -15,8 +15,9 @@ export function newMockIpc() {
   const mockIpc: IpcFacade & MockIpc = {
 
     setConnectionString: (_str: string) => {},
-    getAccountData: () => {
+    getAccountData: (accountNumber) => {
       return new Promise(r => r({
+        accountNumber: accountNumber,
         paid_until: '',
       }));
     },
