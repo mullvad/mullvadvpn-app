@@ -21,7 +21,7 @@ export type ReduxState = {
   connection: ConnectionReduxState,
   settings: SettingsReduxState
 };
-export type ReduxAction<T> = { type: string, payload: T };
+export type ReduxAction<T> = { type: string, payload: T } | Function;
 export type ReduxStore = Store<ReduxState, ReduxAction<Object>>;
 export type ReduxGetStateFn = () => ReduxState;
 export type ReduxDispatchFn<T: *> = Dispatch<ReduxAction<T>>;
