@@ -22,7 +22,10 @@ const copyIPAddress = () => {
 
 type ConnectingAction = {
   type: 'CONNECTING',
-  serverAddress: string,
+  serverAddress?: string,
+};
+type ConnectedAction = {
+  type: 'CONNECTED',
 };
 type DisconnectedAction = {
   type: 'DISCONNECTED',
@@ -49,12 +52,29 @@ type NewLocationAction = {
   newLocation: Location,
 };
 
-export type ConnectionAction = ConnectionChangeAction | NewPublicIpAction | NewLocationAction | ConnectingAction | DisconnectedAction;
+export type ConnectionAction = ConnectionChangeAction
+                                | NewPublicIpAction
+                                | NewLocationAction
+                                | ConnectingAction
+                                | ConnectedAction
+                                | DisconnectedAction;
 
 function connectingTo(serverAddress: string): ConnectingAction {
   return {
     type: 'CONNECTING',
     serverAddress: serverAddress,
+  };
+}
+
+function connecting(): ConnectingAction {
+  return {
+    type: 'CONNECTING',
+  };
+}
+
+function connected(): ConnectedAction {
+  return {
+    type: 'CONNECTED',
   };
 }
 
@@ -86,5 +106,5 @@ function newLocation(newLoc: Location): NewLocationAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo, disconnected };
+export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo, connecting, connected, disconnected };
 
