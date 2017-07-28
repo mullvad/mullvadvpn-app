@@ -30,9 +30,7 @@ describe('connect', () => {
 
     mockIpc.connect = () => new Promise((_, reject) => reject('Some error'));
 
-    store.dispatch(connectionActions.connectionChange({
-      status: 'connected',
-    }));
+    store.dispatch(connectionActions.connected());
 
 
     expect(store.getState().connection.status).not.to.equal('disconnected');
@@ -75,9 +73,7 @@ describe('connect', () => {
 
   it('should correctly deduce \'disconnected\' from backend states', () => {
     const { store, mockIpc } = setupBackendAndStore();
-    store.dispatch(connectionActions.connectionChange({
-      status: 'connected',
-    }));
+    store.dispatch(connectionActions.connected());
 
     expect(store.getState().connection.status).not.to.equal('disconnected');
     mockIpc.sendNewState({ state: 'unsecured', target_state: 'unsecured' });
