@@ -25,25 +25,22 @@ describe('Logging in', () => {
 
     chain.onSuccessOrFailure(done);
 
-    const action: any = accountActions.login(backend, '123');
-    store.dispatch(action);
+    store.dispatch(accountActions.login(backend, '123'));
   });
 
-  it('should put the account data in the state', (done) => {
+  it('should put the account data in the state', () => {
     const { store, backend, mockIpc } = setupBackendAndStore();
     mockIpc.getAccountData = () => new Promise(r => r({
       paid_until: '2001-01-01T00:00:00',
     }));
 
-    const action: any = accountActions.login(backend, '123');
-    store.dispatch(action);
-
-    checkNextTick( () => {
-      const state = store.getState().account;
-      expect(state.status).to.equal('ok');
-      expect(state.accountNumber).to.equal('123');
-      expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
-    }, done);
+    return backend.login('123')
+      .then( () => {
+        const state = store.getState().account;
+        expect(state.status).to.equal('ok');
+        expect(state.accountNumber).to.equal('123');
+        expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
+      });
   });
 
   it('should indicate failure for non-existing accounts', (done) => {
@@ -54,9 +51,7 @@ describe('Logging in', () => {
     });
 
 
-    const action: any = accountActions.login(backend, '123');
-    store.dispatch(action);
-
+    store.dispatch(accountActions.login(backend, '123'));
 
     checkNextTick(() => {
       const state = store.getState().account;
@@ -68,9 +63,7 @@ describe('Logging in', () => {
   it('should redirect to /connect after 1s after successful login', (done) => {
     const { store, backend } = setupBackendAndMockStore();
 
-    const action: any = accountActions.login(backend, '123');
-    store.dispatch(action);
-
+    store.dispatch(accountActions.login(backend, '123'));
 
     setTimeout(() => {
 

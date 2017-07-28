@@ -148,16 +148,12 @@ export class Backend {
   }
 
 
-  login(accountNumber: string) {
+  login(accountNumber: string): Promise<void> {
     log.info('Attempting to login with account number', accountNumber);
 
-    this._store.dispatch(accountActions.loginChange({
-      accountNumber: accountNumber,
-      status: 'logging in',
-      error: null,
-    }));
+    this._store.dispatch(accountActions.startLogin(accountNumber));
 
-    this._ipc.getAccountData(accountNumber)
+    return this._ipc.getAccountData(accountNumber)
       .then( response => {
         log.info('Account exists', response);
 
@@ -167,11 +163,7 @@ export class Backend {
       }).then( accountData => {
         log.info('Log in complete');
 
-        this._store.dispatch(accountActions.loginChange({
-          status: 'ok',
-          paidUntil: accountData.paid_until,
-          error: null,
-        }));
+        this._store.dispatch(accountActions.loginSuccessful(accountData.paid_until));
 
         // Redirect the user after some time to allow for
         // the 'Login Successful' screen to be visible
@@ -183,10 +175,7 @@ export class Backend {
 
         // TODO: This is not true. If there is a communication link failure the promise will be rejected too
         const err = new BackendError('INVALID_ACCOUNT');
-        this._store.dispatch(accountActions.loginChange({
-          status: 'failed',
-          error: err,
-        }));
+        this._store.dispatch(accountActions.loginFailed(err));
       });
   }
 
