@@ -3,7 +3,6 @@
 import { clipboard } from 'electron';
 
 import type { Backend } from '../../lib/backend';
-import type { ConnectionReduxState } from './reducers.js';
 import type { ReduxGetState, ReduxDispatch } from '../store';
 import type { Coordinate2d } from '../../types';
 
@@ -31,11 +30,6 @@ type DisconnectedAction = {
   type: 'DISCONNECTED',
 };
 
-type ConnectionChangeAction = {
-  type: 'CONNECTION_CHANGE',
-  newData: $Shape<ConnectionReduxState>,
-};
-
 type NewPublicIpAction = {
   type: 'NEW_PUBLIC_IP',
   ip: string,
@@ -52,12 +46,21 @@ type NewLocationAction = {
   newLocation: Location,
 };
 
-export type ConnectionAction = ConnectionChangeAction
-                                | NewPublicIpAction
+type OnlineAction = {
+  type: 'ONLINE',
+};
+
+type OfflineAction = {
+  type: 'OFFLINE',
+};
+
+export type ConnectionAction = NewPublicIpAction
                                 | NewLocationAction
                                 | ConnectingAction
                                 | ConnectedAction
-                                | DisconnectedAction;
+                                | DisconnectedAction
+                                | OnlineAction
+                                | OfflineAction;
 
 function connectingTo(serverAddress: string): ConnectingAction {
   return {
@@ -84,13 +87,6 @@ function disconnected(): DisconnectedAction {
   };
 }
 
-function connectionChange(newData: $Shape<ConnectionReduxState>): ConnectionChangeAction {
-  return {
-    type: 'CONNECTION_CHANGE',
-    newData: newData,
-  };
-}
-
 function newPublicIp(ip: string): NewPublicIpAction {
   return {
     type: 'NEW_PUBLIC_IP',
@@ -105,6 +101,18 @@ function newLocation(newLoc: Location): NewLocationAction {
   };
 }
 
+function online(): OnlineAction {
+  return {
+    type: 'ONLINE',
+  };
+}
 
-export default { connect, disconnect, copyIPAddress, connectionChange, newPublicIp, newLocation, connectingTo, connecting, connected, disconnected };
+function offline(): OfflineAction {
+  return {
+    type: 'OFFLINE',
+  };
+}
+
+
+export default { connect, disconnect, copyIPAddress, newPublicIp, newLocation, connectingTo, connecting, connected, disconnected, online, offline };
 

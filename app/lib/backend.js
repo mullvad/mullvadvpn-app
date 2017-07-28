@@ -257,17 +257,21 @@ export class Backend {
    */
   _startReachability() {
     window.addEventListener('online', () => {
-      this._store.dispatch(connectionActions.connectionChange({ isOnline: true }));
+      this._store.dispatch(connectionActions.online());
     });
     window.addEventListener('offline', () => {
       // force disconnect since there is no real connection anyway.
       this.disconnect();
-      this._store.dispatch(connectionActions.connectionChange({ isOnline: false }));
+      this._store.dispatch(connectionActions.offline());
     });
 
     // update online status in background
     setTimeout(() => {
-      this._store.dispatch(connectionActions.connectionChange({ isOnline: navigator.onLine }));
+      const action = navigator.onLine
+        ? connectionActions.online()
+        : connectionActions.offline();
+
+      this._store.dispatch(action);
     }, 0);
   }
 
