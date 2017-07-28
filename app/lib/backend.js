@@ -98,7 +98,7 @@ export class Backend {
     this._ipc.getIp()
       .then( ip => {
         log.info('Got ip', ip);
-        this._store.dispatch(connectionActions.connectionChange({ clientIp: ip }));
+        this._store.dispatch(connectionActions.newPublicIp(ip));
       })
       .catch(e => {
         log.info('Failed syncing with the backend', e);
