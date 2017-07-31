@@ -3653,7 +3653,7 @@ mkdirp@0.5.0:
   dependencies:
     minimist "0.0.8"
 
-mocha@^3.0.0, mocha@^3.2.0:
+mocha@^3.0.0:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.4.2.tgz#d0ef4d332126dbf18d0d640c9b382dd48be97594"
   dependencies:
