@@ -57,7 +57,6 @@
     "eslint-plugin-react": "^7.1.0",
     "flow-bin": "^0.50.0",
     "flow-typed": "^2.1.5",
-    "isomorphic-fetch": "^2.2.1",
     "npm-run-all": "^4.0.1",
     "redux-mock-store": "^1.2.2",
     "rimraf": "^2.5.4"
