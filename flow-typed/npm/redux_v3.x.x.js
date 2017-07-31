@@ -1,6 +1,5 @@
-// This is a custom implementation of redux flow annotations.
-// Please do not overwrite without consideration.
-// PR: https://github.com/flowtype/flow-typed/pull/1071
+// flow-typed signature: 86993bd000012d3e1ef10d757d16952d
+// flow-typed version: a165222d28/redux_v3.x.x/flow_>=v0.33.x
 
 declare module 'redux' {
 
@@ -12,7 +11,8 @@ declare module 'redux' {
 
   */
 
-  declare type Dispatch<A: { type: $Subtype<string> }> = (action: A) => A;
+  declare type DispatchAPI<A> = (action: A) => A;
+  declare type Dispatch<A: { type: $Subtype<string> }> = DispatchAPI<A>;
 
   declare type MiddlewareAPI<S, A, D = Dispatch<A>> = {
     dispatch: D;
@@ -50,8 +50,8 @@ declare module 'redux' {
   declare type ActionCreator<A, B> = (...args: Array<B>) => A;
   declare type ActionCreators<K, A> = { [key: K]: ActionCreator<A, any> };
 
-  declare function bindActionCreators<A, C: ActionCreator<A, any>, D>(actionCreator: C, dispatch: D): C;
-  declare function bindActionCreators<A, K, C: ActionCreators<K, A>, D>(actionCreators: C, dispatch: D): C;
+  declare function bindActionCreators<A, C: ActionCreator<A, any>, D: DispatchAPI<A>>(actionCreator: C, dispatch: D): C;
+  declare function bindActionCreators<A, K, C: ActionCreators<K, A>, D: DispatchAPI<A>>(actionCreators: C, dispatch: D): C;
 
   declare function combineReducers<O: Object, A>(reducers: O): CombinedReducer<$ObjMap<O, <S>(r: Reducer<S, any>) => S>, A>;
 
