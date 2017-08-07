@@ -59,7 +59,7 @@ describe('autologin', () => {
       .then( () => {
         const state = store.getState().account;
 
-        expect(state.status).to.equal('none');
+        expect(state.status).to.equal('failed');
         expect(state.accountNumber).to.be.null;
         expect(state.error).not.to.be.null;
       });
@@ -75,7 +75,7 @@ describe('autologin', () => {
       .then( () => {
         const state = store.getState().account;
 
-        expect(state.status).to.equal('none');
+        expect(state.status).to.equal('failed');
         expect(state.error).not.to.be.null;
       });
   });
