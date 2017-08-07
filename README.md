@@ -1,5 +1,48 @@
 # Mullvad VPN
 
+## Developing
+
+First you need to install all the javascript dependencies by running
+```bash
+yarn install
+```
+then you can start the program using
+```bash
+yarn run develop
+```
+
+If you change any javascript file while the development mode is running it will automatically transpile and reload the file so that the changes are visible almost immediately.
+
+The app will attempt to start the backend automatically. The exact binary being run can be customized with the `MULLVAD_BACKEND` environment variable.
+
+If the `/tmp/.mullvad_rpc_address` file exists the app will not start the backend, so if you want to run a specific version of the backend you can just start it yourself and the app will pick up on it and behave accordingly.
+
+
+## Packaging
+
+By running
+```bash
+yarn run pack
+```
+you create installation packages for windows, linux and MacOS. Note that you have to have run `yarn install` at least once to download the javascript dependencies.
+
+If you only want to build for a specific OS you run
+```bash
+yarn run pack:OS
+```
+as in `yarn run pack:linux`.
+
+The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
+
+### Build dependencies
+
+#### Linux
+
+```bash
+sudo apt install icnsutils graphicsmagick
+```
+
+
 ## Command line tools
 
 - `$ yarn run develop` - develop app with live-reload enabled
@@ -11,8 +54,7 @@
 ## Structure
 
 - **app/**
-  - **actions/** - redux actions
-  - **reducers/** - redux reducers
+  - **redux/** - state management
   - **components/** - components
   - **containers/** - containers that provide a glueing layer between components and redux actions/backend.
   - **lib/** - shared classes and utilities
@@ -27,7 +69,6 @@
 - **test/** - tests
 - **scripts/** - support scripts for development
 - **init.js** - entry file for electron, points to compiled **main.js**
-- **electron-builder.yml** - distribution configuration
 
 ## App diagram
 
@@ -45,12 +86,3 @@ Most of application layouts consist of header bar area and main content area. Th
   </Container>
 </Layout>
 ```
-
-## Backend communication
-
-Backend is connected with the app via event system.
-
-Backend events are translated into redux actions. There are two helpers responsible for events translation:
-
-- **app/lib/backend-redux-actions.js** - translates events into redux actions
-- **app/lib/backend-routing.js** - application logic based on received events (i.e managing active route etc..)
