@@ -5,7 +5,6 @@
 - `$ yarn run develop` - develop app with live-reload enabled
 - `$ yarn run flow` - type-check the code
 - `$ yarn run lint` - lint code
-- `$ yarn run docs` - generate HTML documentation
 - `$ yarn run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`, `pack:win`, `pack:linux` to generate package for single target.
 - `$ yarn run test` - run tests
 
