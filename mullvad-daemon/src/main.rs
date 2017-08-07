@@ -35,6 +35,7 @@ use jsonrpc_core::futures::sync;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
+use std::net::Ipv4Addr;
 
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
@@ -69,9 +70,12 @@ error_chain!{
 lazy_static! {
     // Temporary store of hardcoded remotes.
     static ref REMOTES: [Endpoint; 3] = [
-        Endpoint::new("se5.mullvad.net", 1300, TransportProtocol::Udp),
-        Endpoint::new("se6.mullvad.net", 1300, TransportProtocol::Udp),
-        Endpoint::new("se7.mullvad.net", 1300, TransportProtocol::Udp),
+        // se5.mullvad.net
+        Endpoint::new(Ipv4Addr::new(193, 138, 219, 240), 1300, TransportProtocol::Udp),
+        // se6.mullvad.net
+        Endpoint::new(Ipv4Addr::new(193, 138, 219, 241), 1300, TransportProtocol::Udp),
+        // se7.mullvad.net
+        Endpoint::new(Ipv4Addr::new(185, 65, 132, 104), 1300, TransportProtocol::Udp),
     ];
 }
 
