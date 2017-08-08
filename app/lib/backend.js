@@ -276,9 +276,17 @@ export class Backend {
       log.info('Got new state from backend', newState);
 
       const newStatus = this._securityStateToConnectionState(newState);
-      this._store.dispatch(connectionActions.connectionChange({
-        status: newStatus,
-      }));
+      switch(newStatus) {
+      case 'connecting':
+        this._store.dispatch(connectionActions.connecting());
+        break;
+      case 'connected':
+        this._store.dispatch(connectionActions.connected());
+        break;
+      case 'disconnected':
+        this._store.dispatch(connectionActions.disconnected());
+        break;
+      }
 
       this.sync();
     });

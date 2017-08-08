@@ -30,18 +30,34 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
   switch (action.type) {
   case 'CONNECTION_CHANGE':
     return { ...state, ...action.newData };
+
   case 'NEW_PUBLIC_IP':
     return { ...state, ...{ clientIp: action.ip }};
+
   case 'NEW_LOCATION':
     return { ...state, ...action.newLocation };
+
   case 'CONNECTING':
-    return { ...state, ...{
-      status: 'connecting',
-      serverAddress: action.serverAddress,
-    }};
+    return onConnecting(state, action);
+
+  case 'CONNECTED':
+    return { ...state, ...{ status: 'connected' }};
+
   case 'DISCONNECTED':
     return { ...state, ...{ status: 'disconnected' }};
+
   default:
     return state;
   }
+}
+
+function onConnecting(state, action) {
+  const newState: $Shape<ConnectionReduxState> = {
+    status: 'connecting',
+  };
+
+  if (action.serverAddress) {
+    newState.serverAddress = action.serverAddress;
+  }
+  return { ...state, ...newState};
 }
