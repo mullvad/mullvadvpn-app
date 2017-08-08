@@ -112,7 +112,7 @@ export class Backend {
           country: location.country,
           city: location.city
         };
-        this._store.dispatch(connectionActions.connectionChange(newLocation));
+        this._store.dispatch(connectionActions.newLocation(newLocation));
       })
       .catch(e => {
         log.info('Failed getting new location', e);
@@ -227,23 +227,18 @@ export class Backend {
       });
   }
 
-  connect(addr: string) {
+  connect(addr: string): Promise<void> {
 
-    this._store.dispatch(connectionActions.connectionChange({
-      status: 'connecting',
-      serverAddress: addr,
-    }));
+    this._store.dispatch(connectionActions.connectingTo(addr));
 
 
-    this._ipc.setCountry(addr)
+    return this._ipc.setCountry(addr)
       .then( () => {
         return this._ipc.connect();
       })
       .catch(e => {
         log.info('Failed connecting to', addr, e);
-        this._store.dispatch(connectionActions.connectionChange({
-          status: 'disconnected',
-        }));
+        this._store.dispatch(connectionActions.disconnected());
       });
   }
 

@@ -32,6 +32,15 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
     return { ...state, ...action.newData };
   case 'NEW_PUBLIC_IP':
     return { ...state, ...{ clientIp: action.ip }};
+  case 'NEW_LOCATION':
+    return { ...state, ...action.newLocation };
+  case 'CONNECTING':
+    return { ...state, ...{
+      status: 'connecting',
+      serverAddress: action.serverAddress,
+    }};
+  case 'DISCONNECTED':
+    return { ...state, ...{ status: 'disconnected' }};
   default:
     return state;
   }
