@@ -41,6 +41,13 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
       accountNumber: null,
       error: action.error,
     }};
+  case 'LOGGED_OUT':
+    return { ...state, ...{
+      status: 'none',
+      accountNumber: null,
+      paidUntil: null,
+      error: null,
+    }};
   }
 
   return state;

@@ -214,11 +214,7 @@ export class Backend {
     this._ipc.setAccount('')
       .then(() => {
 
-        this._store.dispatch(accountActions.loginChange({
-          status: 'none',
-          accountNumber: null,
-          paidUntil: null,
-        }));
+        this._store.dispatch(accountActions.loggedOut());
 
         // disconnect user during logout
         return this.disconnect()
