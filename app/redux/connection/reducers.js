@@ -46,6 +46,12 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
   case 'DISCONNECTED':
     return { ...state, ...{ status: 'disconnected' }};
 
+  case 'ONLINE':
+    return { ...state, ...{ isOnline: true }};
+
+  case 'OFFLINE':
+    return { ...state, ...{ isOnline: false }};
+
   default:
     return state;
   }
