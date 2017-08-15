@@ -41,6 +41,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
+use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::net::{Endpoint, TransportProtocol};
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
@@ -59,6 +60,9 @@ error_chain!{
         ManagementInterfaceError(msg: &'static str) {
             description("Error in the management interface")
             display("Management interface error: {}", msg)
+        }
+        FirewallError {
+            description("Firewall error")
         }
         InvalidSettings(msg: &'static str) {
             description("Invalid settings")
@@ -147,6 +151,8 @@ struct Daemon {
     tx: mpsc::Sender<DaemonEvent>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
+    firewall: FirewallProxy,
+    remote_endpoint: Option<Endpoint>,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
     // picking a new one for each retry.
@@ -172,7 +178,10 @@ impl Daemon {
                 rx,
                 tx,
                 management_interface_broadcaster,
+                firewall: FirewallProxy::new()
+                    .chain_err(|| ErrorKind::FirewallError)?,
                 settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+                remote_endpoint: None,
                 remote_iter: REMOTES.iter().cloned().cycle(),
             },
         )
@@ -241,6 +250,9 @@ impl Daemon {
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         info!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting && tunnel_event == TunnelEvent::Up {
+            let remote = self.remote_endpoint.unwrap();
+            let tunnel_interface = "utun1".to_owned();
+            self.set_security_policy(SecurityPolicy::Connected(remote, tunnel_interface))?;
             self.set_state(TunnelState::Connected)
         } else if self.state == TunnelState::Connected && tunnel_event == TunnelEvent::Down {
             self.kill_tunnel()
@@ -253,6 +265,8 @@ impl Daemon {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             error!("{}", e.display());
         }
+        self.remote_endpoint = None;
+        self.reset_security_policy()?;
         self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
     }
@@ -411,10 +425,13 @@ impl Daemon {
         let account_token = self.settings
             .get_account_token()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
+        self.set_security_policy(SecurityPolicy::Connecting(remote))?;
         let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
-        self.set_state(TunnelState::Connecting)
+        self.set_state(TunnelState::Connecting)?;
+        self.remote_endpoint = Some(remote);
+        Ok(())
     }
 
     fn spawn_tunnel_monitor(&self, remote: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
@@ -458,6 +475,16 @@ impl Daemon {
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
         DaemonShutdownHandle { tx: self.tx.clone() }
+    }
+
+    fn set_security_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
+        debug!("Set security policy: {:?}", policy);
+        self.firewall.apply_policy(policy).chain_err(|| ErrorKind::FirewallError)
+    }
+
+    fn reset_security_policy(&mut self) -> Result<()> {
+        debug!("Reset security policy");
+        self.firewall.reset_policy().chain_err(|| ErrorKind::FirewallError)
     }
 }
 
