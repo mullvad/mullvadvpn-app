@@ -204,7 +204,7 @@ export class Backend {
       .catch( e => {
         log.warn('Unable to autologin', e);
 
-        this._store.dispatch(accountActions.loginFailed(new BackendError('INVALID_ACCOUNT')));
+        this._store.dispatch(accountActions.autoLoginFailed());
         this._store.dispatch(push('/'));
       });
   }
