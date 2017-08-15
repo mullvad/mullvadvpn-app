@@ -23,6 +23,9 @@ extern crate jsonrpc_macros;
 extern crate talpid_ipc;
 extern crate openvpn_plugin;
 
+#[cfg(target_os = "macos")]
+extern crate pfctl;
+
 /// Working with processes.
 pub mod process;
 
