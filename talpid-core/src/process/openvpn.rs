@@ -145,7 +145,7 @@ impl OpenVpnCommand {
                 },
             );
             args.push("--remote".to_owned());
-            args.push(endpoint.address.address());
+            args.push(endpoint.address.ip().to_string());
             args.push(endpoint.address.port().to_string());
         }
         args
@@ -192,15 +192,16 @@ mod tests {
     use super::OpenVpnCommand;
     use net::{Endpoint, TransportProtocol};
     use std::ffi::OsString;
+    use std::net::Ipv4Addr;
 
     #[test]
     fn passes_one_remote() {
-        let remote = Endpoint::new("example.com", 3333, TransportProtocol::Udp);
+        let remote = Endpoint::new(Ipv4Addr::new(127, 0, 0, 1), 3333, TransportProtocol::Udp);
 
         let testee_args = OpenVpnCommand::new("").remote(remote).get_arguments();
 
         assert!(testee_args.contains(&OsString::from("udp")));
-        assert!(testee_args.contains(&OsString::from("example.com")));
+        assert!(testee_args.contains(&OsString::from("127.0.0.1")));
         assert!(testee_args.contains(&OsString::from("3333")));
     }
 
