@@ -34,3 +34,6 @@ pub mod tunnel;
 
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
+
+/// Abstractions over different firewalls
+pub mod firewall;
