@@ -1,7 +1,7 @@
 use std::net::{IpAddr, SocketAddr};
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Endpoint {
     /// The address part of this endpoint, contains the IP and port.
     pub address: SocketAddr,
