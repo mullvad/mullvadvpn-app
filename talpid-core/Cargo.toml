@@ -19,5 +19,8 @@ talpid-ipc = { path = "../talpid-ipc" }
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.20"
 
+[target.'cfg(target_os = "macos")'.dependencies]
+pfctl = { git = "ssh://git@github.com/mullvad/pfctl-rs.git" }
+
 [dev-dependencies]
 assert_matches = "1.0"
