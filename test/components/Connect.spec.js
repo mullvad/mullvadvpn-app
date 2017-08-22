@@ -7,10 +7,12 @@ import { mount } from 'enzyme';
 import Connect from '../../app/components/Connect';
 import Header from '../../app/components/HeaderBar';
 
+import type { ReactWrapper } from 'enzyme';
+
 describe('components/Connect', () => {
 
   it('shows unsecured hints when not connected', () => {
-    const component = mount( <Connect {...defaultProps} /> );
+    const component = renderNotConnected();
 
     const header = component.find(Header);
     const securityMessage = component.find('.connect__status-security--unsecured');
@@ -22,16 +24,51 @@ describe('components/Connect', () => {
   });
 
   it('invokes the onConnect prop', (done) => {
-    const props = Object.assign({}, defaultProps, {
+    const component = renderNotConnected({
       onConnect: done,
     });
-
-    const component = mount( <Connect {...props} /> );
     const connectButton = component.find('.button .button--positive');
 
     connectButton.simulate('click');
   });
+
+  it('shows the connection location information when connected', () => {
+    const component = renderConnected({}, {
+      country: 'sweden',
+      city: 'gothenburg',
+      clientIp: '1.2.3.4',
+    });
+    const countryAndCity = component.find('.connect__status-location');
+    const ipAddr = component.find('.connect__status-ipaddress');
+
+    expect(countryAndCity.text()).to.contain('sweden');
+    expect(countryAndCity.text()).to.contain('gothenburg');
+    expect(ipAddr.text()).to.contain('1.2.3.4');
+  });
 });
+
+function renderNotConnected(customProps, customConnectionProps) {
+  const connection = Object.assign({}, defaultConnection, {
+    status: 'disconnected',
+  }, customConnectionProps);
+
+  const props = Object.assign({}, customProps, {connection});
+  return renderWithProps(props);
+}
+
+function renderConnected(customProps, customConnectionProps) {
+  const connection = Object.assign({}, defaultConnection, {
+    status: 'connected',
+  }, customConnectionProps);
+
+  const props = Object.assign({}, customProps, {connection});
+  return renderWithProps(props);
+}
+
+function renderWithProps(customProps): ReactWrapper {
+  const props = Object.assign({}, defaultProps, customProps);
+  return mount( <Connect { ...props } /> );
+}
 
 const noop = () => {};
 const defaultServer = {
