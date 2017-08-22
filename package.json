@@ -61,7 +61,8 @@
     "npm-run-all": "^4.0.1",
     "react-test-renderer": "^15.6.1",
     "redux-mock-store": "^1.2.2",
-    "rimraf": "^2.5.4"
+    "rimraf": "^2.5.4",
+    "sinon": "^3.2.1"
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",

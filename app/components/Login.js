@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
@@ -12,7 +11,6 @@ export type LoginPropTypes = {
   account: AccountReduxState,
   onLogin: (accountNumber: string) => void,
   onSettings: ?(() => void),
-  onChange: (input: string) => void,
   onFirstChangeAfterFailure: () => void,
   onExternalLink: (type: string) => void,
 };
@@ -21,16 +19,20 @@ export default class Login extends Component {
   props: LoginPropTypes;
   state = {
     notifyOnFirstChangeAfterFailure: false,
-    isActive: false
-  }
+    isActive: false,
+    unsubmittedAccountNumber: '',
+  };
 
   onCreateAccount = () => this.props.onExternalLink('createAccount');
   onFocus = () => this.setState({ isActive: true });
   onBlur = () => this.setState({ isActive: false });
   onLogin = () => {
-    const { accountNumber } = this.props.account;
+    const accountNumber = this.state.unsubmittedAccountNumber;
     if(accountNumber && accountNumber.length > 0) {
       this.props.onLogin(accountNumber);
+      this.setState({
+        unsubmittedAccountNumber: '',
+      });
     }
   }
 
@@ -40,7 +42,9 @@ export default class Login extends Component {
       this.setState({ notifyOnFirstChangeAfterFailure: false });
       this.props.onFirstChangeAfterFailure();
     }
-    this.props.onChange(val);
+    this.setState({
+      unsubmittedAccountNumber: val,
+    });
   }
 
   formTitle(s: LoginState): string {
@@ -79,17 +83,6 @@ export default class Login extends Component {
     return classes.join(' ');
   }
 
-  footerClass(s: LoginState): string {
-    const classes = ['login-footer'];
-    switch(s) {
-    case 'ok':
-    case 'logging in':
-      classes.push('login-footer--invisible');
-      break;
-    }
-    return classes.join(' ');
-  }
-
   submitClass(s: LoginState, accountNumber: ?string): string {
     const classes = ['login-form__submit'];
 
@@ -114,28 +107,19 @@ export default class Login extends Component {
   }
 
   render(): React.Element<*> {
-    const { accountNumber, status, error } = this.props.account;
+    const { status } = this.props.account;
     const title = this.formTitle(status);
-    const subtitle = this.formSubtitle(status, error);
 
-    let isConnecting = false;
-    let isFailed = false;
-    let isLoggedIn = false;
-    switch(status) {
-    case 'logging in': isConnecting = true; break;
-    case 'failed': isFailed = true; break;
-    case 'ok': isLoggedIn = true; break;
-    }
+    const shouldShowLoginForm = status !== 'ok';
+    const shouldShowFooter = status === 'none' || status === 'failed';
 
-    const inputWrapClass = this.inputWrapClass(status);
-    const footerClass = this.footerClass(status);
-    const submitClass = this.submitClass(status, accountNumber);
+    const statusIcon = this._getStatusIcon();
 
-    const autoFocusRef = input => {
-      if(isFailed && input) {
-        input.focus();
-      }
-    };
+    const loginFormClass = shouldShowLoginForm ? '' : 'login-form__fields--invisible';
+    const loginForm = this._createLoginForm();
+
+    const footerClass = shouldShowFooter ? '' : 'login-footer--invisible';
+    const footer = this._createFooter();
 
     return (
       <Layout>
@@ -143,64 +127,93 @@ export default class Login extends Component {
         <Container>
           <div className="login">
             <div className="login-form">
-              { /* show spinner when logging in */ }
-              <If condition={ isConnecting }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-spinner.svg" alt="" />
-                  </div>
-                </Then>
-              </If>
-
-              { /* show error icon when failed */ }
-              <If condition={ isFailed }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-fail.svg" alt="" />
-                  </div>
-                </Then>
-              </If>
-
-              { /* show tick when logged in */ }
-              <If condition={ isLoggedIn }>
-                <Then>
-                  <div className="login-form__status-icon">
-                    <img src="./assets/images/icon-success.svg" alt="" />
-                  </div>
-                </Then>
-              </If>
+              { statusIcon }
 
               <div className="login-form__title">{ title }</div>
-              <div className={ 'login-form__fields' + (isLoggedIn ? ' login-form__fields--invisible' : '') }>
-                <div className="login-form__subtitle">{ subtitle }</div>
-                <div className={ inputWrapClass }>
-                  <AccountInput className="login-form__input-field"
-                    type="text"
-                    placeholder="e.g 0000 0000 0000"
-                    onFocus={ this.onFocus }
-                    onBlur={ this.onBlur }
-                    onChange={ this.onInputChange }
-                    onEnter={ this.onLogin }
-                    value={ accountNumber || '' }
-                    disabled={ isConnecting }
-                    autoFocus={ true }
-                    ref={ autoFocusRef } />
-                  <button className={ submitClass } onClick={ this.onLogin }>
-                    <LoginArrowSVG className="login-form__submit-icon" />
-                  </button>
-                </div>
+
+              <div className={ 'login-form__fields ' + loginFormClass }>
+                { loginForm }
               </div>
             </div>
-            <div className={ footerClass }>
-              <div className="login-footer__prompt">{ 'Don\'t have an account number?' }</div>
-              <button className="button button--primary" onClick={ this.onCreateAccount }>
-                <span className="button-label">Create account</span>
-                <ExternalLinkSVG className="button-icon button-icon--16" />
-              </button>
+
+            <div className={ 'login-footer ' + footerClass }>
+              { footer }
             </div>
           </div>
         </Container>
       </Layout>
     );
   }
+
+  _getStatusIcon(): React.Element<*> {
+    const statusIconPath = this._getStatusIconPath();
+
+    return <div className="login-form__status-icon">
+      <img src={ statusIconPath } alt="" />
+    </div>;
+  }
+
+  _getStatusIconPath(): ?string {
+    switch(this.props.account.status) {
+    case 'logging in':
+      return './assets/images/icon-spinner.svg';
+    case 'failed':
+      return './assets/images/icon-fail.svg';
+    case 'ok':
+      return './assets/images/icon-success.svg';
+    default:
+      return undefined;
+    }
+  }
+
+  _createLoginForm(): React.Element<*> {
+    const { status, error } = this.props.account;
+    const accountNumber = status === 'logging in'
+      ? this.props.account.accountNumber
+      : this.state.unsubmittedAccountNumber;
+
+    const inputDisabled = status === 'logging in';
+
+    const subtitle = this.formSubtitle(status, error);
+
+    const inputWrapClass = this.inputWrapClass(status);
+    const submitClass = this.submitClass(status, accountNumber);
+
+    const autoFocusRef = input => {
+      if(status === 'failed' && input) {
+        input.focus();
+      }
+    };
+
+    return <div>
+      <div className="login-form__subtitle">{ subtitle }</div>
+      <div className={ inputWrapClass }>
+        <AccountInput className="login-form__input-field"
+          type="text"
+          placeholder="e.g 0000 0000 0000"
+          onFocus={ this.onFocus }
+          onBlur={ this.onBlur }
+          onChange={ this.onInputChange }
+          onEnter={ this.onLogin }
+          value={ accountNumber || '' }
+          disabled={ inputDisabled }
+          autoFocus={ true }
+          ref={ autoFocusRef } />
+        <button className={ submitClass } onClick={ this.onLogin }>
+          <LoginArrowSVG className="login-form__submit-icon" />
+        </button>
+      </div>
+    </div>;
+  }
+
+  _createFooter(): React.Element<*> {
+    return <div>
+      <div className="login-footer__prompt">{ 'Don\'t have an account number?' }</div>
+      <button className="button button--primary" onClick={ this.onCreateAccount }>
+        <span className="button-label">Create account</span>
+        <ExternalLinkSVG className="button-icon button-icon--16" />
+      </button>
+    </div>;
+  }
 }
+
