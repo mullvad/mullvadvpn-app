@@ -7,7 +7,11 @@ import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
 
 const mapStateToProps = (state) => {
-  return state;
+  return {
+    accountPaidUntil: state.account.paidUntil,
+    connection: state.connection,
+    preferredServer: state.settings.preferredServer,
+  };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
