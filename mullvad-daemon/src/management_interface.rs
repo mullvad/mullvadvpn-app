@@ -2,6 +2,7 @@ use error_chain;
 
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
+use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
@@ -102,11 +103,11 @@ pub enum TunnelCommand {
     /// Change target state.
     SetTargetState(TargetState),
     /// Request the current state.
-    GetState(sync::oneshot::Sender<DaemonState>),
+    GetState(OneshotSender<DaemonState>),
     /// Set which account token to use for subsequent connection attempts.
-    SetAccount(sync::oneshot::Sender<()>, Option<AccountToken>),
+    SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
-    GetAccount(sync::oneshot::Sender<Option<AccountToken>>),
+    GetAccount(OneshotSender<Option<AccountToken>>),
 }
 
 #[derive(Default)]

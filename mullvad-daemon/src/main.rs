@@ -31,7 +31,7 @@ mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
-use jsonrpc_core::futures::sync;
+use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
@@ -294,14 +294,14 @@ impl Daemon {
         }
     }
 
-    fn on_get_state(&self, tx: sync::oneshot::Sender<DaemonState>) {
+    fn on_get_state(&self, tx: OneshotSender<DaemonState>) {
         if let Err(_) = tx.send(self.last_broadcasted_state) {
             warn!("Unable to send current state to management interface client",);
         }
     }
 
     fn on_set_account(&mut self,
-                      tx: sync::oneshot::Sender<()>,
+                      tx: OneshotSender<()>,
                       account_token: Option<String>)
                       -> Result<()> {
 
@@ -325,7 +325,7 @@ impl Daemon {
         Ok(())
     }
 
-    fn on_get_account(&self, tx: sync::oneshot::Sender<Option<String>>) {
+    fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
         if let Err(_) = tx.send(self.settings.get_account_token()) {
             warn!("Unable to send current account to management interface client");
         }
