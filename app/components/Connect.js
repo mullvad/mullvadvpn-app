@@ -10,14 +10,12 @@ import Map from './Map';
 
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
-import type { AccountReduxState } from '../redux/account/reducers';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
-import type { SettingsReduxState } from '../redux/settings/reducers';
 
 export type ConnectProps = {
-  account: AccountReduxState,
+  accountPaidUntil: string,
   connection: ConnectionReduxState,
-  settings: SettingsReduxState,
+  preferredServer: string,
   onSettings: () => void,
   onSelectLocation: () => void,
   onConnect: (address: string) => void,
@@ -96,7 +94,7 @@ export default class Connect extends Component {
   }
 
   renderMap(): React.Element<*> {
-    const preferredServer = this.props.settings.preferredServer;
+    const preferredServer = this.props.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
     if(!serverInfo) {
       throw new Error('Server info cannot be null.');
@@ -296,7 +294,7 @@ export default class Connect extends Component {
   // Handlers
 
   onConnect() {
-    const { preferredServer } = this.props.settings;
+    const preferredServer = this.props.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
     if(serverInfo) {
       this.props.onConnect(serverInfo.address);
@@ -369,7 +367,7 @@ export default class Connect extends Component {
     }
 
     // No credit?
-    const { paidUntil } = this.props.account;
+    const paidUntil = this.props.accountPaidUntil;
     if(paidUntil && moment(paidUntil).isSameOrBefore(moment())) {
       return new BackendError('NO_CREDIT');
     }
