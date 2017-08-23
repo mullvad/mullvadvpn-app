@@ -23,13 +23,16 @@ describe('components/Connect', () => {
     expect(connectButton.text()).to.equal('Secure my connection');
   });
 
-  it('invokes the onConnect prop', (done) => {
-    const component = renderNotConnected({
-      onConnect: done,
-    });
-    const connectButton = component.find('.button .button--positive');
+  it('shows secured hints when connected', () => {
+    const component = renderConnected();
 
-    connectButton.simulate('click');
+    const header = component.find(Header);
+    const securityMessage = component.find('.connect__status-security--secure');
+    const disconnectButton = component.find('.button .button--negative-light');
+
+    expect(header.prop('style')).to.equal('success');
+    expect(securityMessage.text().toLowerCase()).to.contain('secure');
+    expect(disconnectButton.text()).to.equal('Disconnect');
   });
 
   it('shows the connection location information when connected', () => {
@@ -44,6 +47,58 @@ describe('components/Connect', () => {
     expect(countryAndCity.text()).to.contain('sweden');
     expect(countryAndCity.text()).to.contain('gothenburg');
     expect(ipAddr.text()).to.contain('1.2.3.4');
+  });
+
+  it('shows the connection location information when disconnected', () => {
+    const component = renderNotConnected({}, {
+      country: 'sweden',
+      city: 'gothenburg',
+      clientIp: '1.2.3.4',
+    });
+    const countryAndCity = component.find('.connect__status-location');
+    const ipAddr = component.find('.connect__status-ipaddress');
+
+    expect(countryAndCity.text()).to.contain('sweden');
+    expect(countryAndCity.text()).to.not.contain('gothenburg');
+    expect(ipAddr.text()).to.contain('1.2.3.4');
+  });
+
+  it('shows the country name or fastest/nearest in the location switcher', () => {
+    const servers = {
+      'fastest': { name: 'Fastest' },
+      'nearest': { name: 'Nearest' },
+      'se1.mullvad.net': { name: 'Sweden' },
+    };
+    const getServerInfo = (key) => servers[key] || defaultServer;
+    const component = renderNotConnected({
+      getServerInfo: getServerInfo,
+    });
+    const locationSwitcher = component.find('.connect__server');
+
+
+    component.setProps({
+      preferredServer: 'fastest',
+    });
+    expect(locationSwitcher.text()).to.contain(servers['fastest'].name);
+
+    component.setProps({
+      preferredServer: 'nearest',
+    });
+    expect(locationSwitcher.text()).to.contain(servers['nearest'].name);
+
+    component.setProps({
+      preferredServer: 'se1.mullvad.net',
+    });
+    expect(locationSwitcher.text()).to.contain(servers['se1.mullvad.net'].name);
+  });
+
+  it('invokes the onConnect prop', (done) => {
+    const component = renderNotConnected({
+      onConnect: done,
+    });
+    const connectButton = component.find('.button .button--positive');
+
+    connectButton.simulate('click');
   });
 });
 
