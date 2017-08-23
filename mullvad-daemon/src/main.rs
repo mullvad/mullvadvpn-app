@@ -295,9 +295,7 @@ impl Daemon {
     }
 
     fn on_get_state(&self, tx: OneshotSender<DaemonState>) {
-        if let Err(_) = tx.send(self.last_broadcasted_state) {
-            warn!("Unable to send current state to management interface client",);
-        }
+        Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
 
     fn on_set_account(&mut self,
@@ -309,10 +307,7 @@ impl Daemon {
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
-                if let Err(_) = tx.send(()) {
-                    warn!("Unable to send response to management interface client");
-                }
-
+                Self::oneshot_send(tx, (), "set_account response");
                 let tunnel_needs_restart = self.state == TunnelState::Connecting ||
                                            self.state == TunnelState::Connected;
                 if account_changed && tunnel_needs_restart {
@@ -326,8 +321,12 @@ impl Daemon {
     }
 
     fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
-        if let Err(_) = tx.send(self.settings.get_account_token()) {
-            warn!("Unable to send current account to management interface client");
+        Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
+    }
+
+    fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
+        if let Err(_) = tx.send(t) {
+            warn!("Unable to send {} to management interface client", msg);
         }
     }
 
