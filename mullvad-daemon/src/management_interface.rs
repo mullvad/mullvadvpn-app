@@ -232,6 +232,16 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
         };
         result.boxed()
     }
+
+    /// Sends a command to the daemon and maps a successful send into the future `item`.
+    fn send_command_to_daemon<R, F>(&self, command: TunnelCommand, item: F) -> BoxFuture<R, Error>
+        where F: Future<Item = R, Error = Error> + Send + 'static
+    {
+        future::result(self.tx.lock().unwrap().send(command))
+            .map_err(|_| Error::internal_error())
+            .and_then(|_| item)
+            .boxed()
+    }
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
@@ -255,19 +265,19 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
         trace!("set_account");
         let (tx, rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::SetAccount(tx, account_token)) {
-            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(
+            TunnelCommand::SetAccount(tx, account_token),
+            rx.map_err(|_| Error::internal_error()),
+        )
     }
 
     fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
         let (tx, rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::GetAccount(tx)) {
-            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(
+            TunnelCommand::GetAccount(tx),
+            rx.map_err(|_| Error::internal_error()),
+        )
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {
@@ -301,10 +311,10 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_state(&self) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::GetState(state_tx)) {
-            Ok(()) => state_rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(
+            TunnelCommand::GetState(state_tx),
+            state_rx.map_err(|_| Error::internal_error()),
+        )
     }
 
     fn get_ip(&self) -> Result<IpAddr, Error> {
