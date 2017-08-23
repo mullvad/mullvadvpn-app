@@ -51,7 +51,11 @@ function loggedOut(): LoggedOutAction {
   };
 }
 
+function autoLoginFailed(): LoggedOutAction {
+  return loggedOut();
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
-export default { login, logout, startLogin, loginSuccessful, loginFailed, loggedOut };
+export default { login, logout, startLogin, loginSuccessful, loginFailed, loggedOut, autoLoginFailed };
