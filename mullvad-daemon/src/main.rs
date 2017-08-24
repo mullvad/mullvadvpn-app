@@ -31,7 +31,7 @@ mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
-use jsonrpc_core::futures::sync;
+use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
@@ -294,14 +294,12 @@ impl Daemon {
         }
     }
 
-    fn on_get_state(&self, tx: sync::oneshot::Sender<DaemonState>) {
-        if let Err(_) = tx.send(self.last_broadcasted_state) {
-            warn!("Unable to send current state to management interface client",);
-        }
+    fn on_get_state(&self, tx: OneshotSender<DaemonState>) {
+        Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
 
     fn on_set_account(&mut self,
-                      tx: sync::oneshot::Sender<()>,
+                      tx: OneshotSender<()>,
                       account_token: Option<String>)
                       -> Result<()> {
 
@@ -309,10 +307,7 @@ impl Daemon {
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
-                if let Err(_) = tx.send(()) {
-                    warn!("Unable to send response to management interface client");
-                }
-
+                Self::oneshot_send(tx, (), "set_account response");
                 let tunnel_needs_restart = self.state == TunnelState::Connecting ||
                                            self.state == TunnelState::Connected;
                 if account_changed && tunnel_needs_restart {
@@ -325,9 +320,13 @@ impl Daemon {
         Ok(())
     }
 
-    fn on_get_account(&self, tx: sync::oneshot::Sender<Option<String>>) {
-        if let Err(_) = tx.send(self.settings.get_account_token()) {
-            warn!("Unable to send current account to management interface client");
+    fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
+        Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
+    }
+
+    fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
+        if let Err(_) = tx.send(t) {
+            warn!("Unable to send {} to management interface client", msg);
         }
     }
 

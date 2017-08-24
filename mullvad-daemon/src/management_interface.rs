@@ -2,9 +2,12 @@ use error_chain;
 
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
+use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
+use mullvad_types::account::{AccountData, AccountToken};
+use mullvad_types::location::{CountryCode, Location};
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
@@ -17,22 +20,6 @@ use std::sync::{Arc, Mutex, RwLock};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
-
-
-pub type AccountToken = String;
-pub type CountryCode = String;
-
-#[derive(Serialize)]
-pub struct AccountData {
-    pub paid_until: String,
-}
-
-#[derive(Serialize)]
-pub struct Location {
-    pub latlong: [f64; 2],
-    pub country: String,
-    pub city: String,
-}
 
 
 build_rpc_trait! {
@@ -65,13 +52,13 @@ build_rpc_trait! {
         fn set_autoconnect(&self, bool) -> Result<(), Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
-        #[rpc(name = "connect")]
-        fn connect(&self) -> Result<(), Error>;
+        #[rpc(async, name = "connect")]
+        fn connect(&self) -> BoxFuture<(), Error>;
 
         /// Disconnect the VPN tunnel if it is connecting/connected. Does nothing if already
         /// disconnected.
-        #[rpc(name = "disconnect")]
-        fn disconnect(&self) -> Result<(), Error>;
+        #[rpc(async, name = "disconnect")]
+        fn disconnect(&self) -> BoxFuture<(), Error>;
 
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
@@ -116,11 +103,11 @@ pub enum TunnelCommand {
     /// Change target state.
     SetTargetState(TargetState),
     /// Request the current state.
-    GetState(sync::oneshot::Sender<DaemonState>),
+    GetState(OneshotSender<DaemonState>),
     /// Set which account token to use for subsequent connection attempts.
-    SetAccount(sync::oneshot::Sender<()>, Option<AccountToken>),
+    SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
-    GetAccount(sync::oneshot::Sender<Option<AccountToken>>),
+    GetAccount(OneshotSender<Option<AccountToken>>),
 }
 
 #[derive(Default)]
@@ -245,6 +232,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
         };
         result.boxed()
     }
+
+    /// Sends a command to the daemon and maps the error to an RPC error.
+    fn send_command_to_daemon(&self, command: TunnelCommand) -> BoxFuture<(), Error> {
+        future::result(self.tx.lock().unwrap().send(command))
+            .map_err(|_| Error::internal_error())
+            .boxed()
+    }
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
@@ -252,7 +246,12 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn get_account_data(&self, _account_token: AccountToken) -> Result<AccountData, Error> {
         trace!("get_account_data");
-        Ok(AccountData { paid_until: "2018-12-31T16:00:00.000Z".to_owned() },)
+        // Just mock implementation, so locally importing temporarily.
+        use chrono::DateTime;
+        use chrono::offset::Utc;
+        use std::str::FromStr;
+        let expiry: DateTime<Utc> = DateTime::from_str("2018-12-31T16:00:00.000Z").unwrap();
+        Ok(AccountData { expiry })
     }
 
     fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {
@@ -263,19 +262,17 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
         trace!("set_account");
         let (tx, rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::SetAccount(tx, account_token)) {
-            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .boxed()
     }
 
     fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
         let (tx, rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::GetAccount(tx)) {
-            Ok(()) => rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .boxed()
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {
@@ -288,31 +285,22 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(())
     }
 
-    fn connect(&self) -> Result<(), Error> {
+    fn connect(&self) -> BoxFuture<(), Error> {
         trace!("connect");
-        self.tx
-            .lock()
-            .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Secured))
-            .map_err(|_| Error::internal_error())
+        self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Secured))
     }
 
-    fn disconnect(&self) -> Result<(), Error> {
+    fn disconnect(&self) -> BoxFuture<(), Error> {
         trace!("disconnect");
-        self.tx
-            .lock()
-            .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Unsecured))
-            .map_err(|_| Error::internal_error())
+        self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Unsecured))
     }
 
     fn get_state(&self) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
-        match self.tx.lock().unwrap().send(TunnelCommand::GetState(state_tx)) {
-            Ok(()) => state_rx.map_err(|_| Error::internal_error()).boxed(),
-            Err(_) => future::err(Error::internal_error()).boxed(),
-        }
+        self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
+            .and_then(|_| state_rx.map_err(|_| Error::internal_error()))
+            .boxed()
     }
 
     fn get_ip(&self) -> Result<IpAddr, Error> {
