@@ -6,6 +6,7 @@ extern crate log;
 #[macro_use]
 extern crate error_chain;
 extern crate fern;
+extern crate futures;
 
 extern crate serde;
 #[macro_use]
@@ -29,17 +30,22 @@ extern crate talpid_ipc;
 
 mod cli;
 mod management_interface;
+mod master;
 mod rpc_info;
 mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
+use futures::{BoxFuture, Future};
+use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
+use master::AccountsProxy;
+use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
+
 use std::io;
 use std::net::Ipv4Addr;
-
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
@@ -154,6 +160,7 @@ struct Daemon {
     tx: mpsc::Sender<DaemonEvent>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
+    accounts_proxy: AccountsProxy<HttpError, HttpHandle>,
     firewall: FirewallProxy,
     remote_endpoint: Option<Endpoint>,
 
@@ -182,6 +189,8 @@ impl Daemon {
                 tx,
                 management_interface_broadcaster,
                 settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+                accounts_proxy: master::create_account_proxy()
+                    .chain_err(|| "Unable to connect to master")?,
                 firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
                 remote_endpoint: None,
                 remote_iter: REMOTES.iter().cloned().cycle(),
@@ -282,6 +291,7 @@ impl Daemon {
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
+            GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
         }
@@ -299,6 +309,17 @@ impl Daemon {
     fn on_get_state(&self, tx: OneshotSender<DaemonState>) {
         Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
+
+    fn on_get_account_data(&mut self,
+                           tx: OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
+                           account_token: AccountToken) {
+        let rpc_call = self.accounts_proxy
+            .get_expiry(account_token)
+            .map(|expiry| AccountData { expiry })
+            .boxed();
+        Self::oneshot_send(tx, rpc_call, "account data")
+    }
+
 
     fn on_set_account(&mut self,
                       tx: OneshotSender<()>,

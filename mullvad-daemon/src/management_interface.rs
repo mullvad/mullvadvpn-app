@@ -1,5 +1,6 @@
 use error_chain;
 
+use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
@@ -28,8 +29,8 @@ build_rpc_trait! {
 
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
-        #[rpc(name = "get_account_data")]
-        fn get_account_data(&self, AccountToken) -> Result<AccountData, Error>;
+        #[rpc(async, name = "get_account_data")]
+        fn get_account_data(&self, AccountToken) -> BoxFuture<AccountData, Error>;
 
         /// Returns available countries.
         #[rpc(name = "get_countries")]
@@ -98,12 +99,13 @@ build_rpc_trait! {
 
 
 /// Enum representing commands coming in on the management interface.
-#[derive(Debug)]
 pub enum TunnelCommand {
     /// Change target state.
     SetTargetState(TargetState),
     /// Request the current state.
     GetState(OneshotSender<DaemonState>),
+    /// Request the metadata for an account.
+    GetAccountData(OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>, AccountToken),
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
@@ -244,14 +246,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
     type Metadata = Meta;
 
-    fn get_account_data(&self, _account_token: AccountToken) -> Result<AccountData, Error> {
+    fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
-        // Just mock implementation, so locally importing temporarily.
-        use chrono::DateTime;
-        use chrono::offset::Utc;
-        use std::str::FromStr;
-        let expiry: DateTime<Utc> = DateTime::from_str("2018-12-31T16:00:00.000Z").unwrap();
-        Ok(AccountData { expiry })
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()))
+            .boxed()
     }
 
     fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {

@@ -14,6 +14,7 @@ chrono = { version = "0.4", features = ["serde"] }
 clap = "2.25"
 error-chain = "0.10"
 fern = "0.4"
+futures = "0.1"
 serde = "1.0"
 serde_derive = "1.0"
 log = "0.3"
