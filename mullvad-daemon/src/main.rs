@@ -11,6 +11,9 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+extern crate jsonrpc_client_core;
+extern crate jsonrpc_client_http;
 extern crate jsonrpc_core;
 extern crate jsonrpc_pubsub;
 #[macro_use]

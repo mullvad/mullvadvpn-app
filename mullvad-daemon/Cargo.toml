@@ -10,7 +10,7 @@ path = "src/main.rs"
 
 [dependencies]
 app_dirs = "1.1"
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 clap = "2.25"
 error-chain = "0.10"
 fern = "0.4"
@@ -21,6 +21,8 @@ jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
 jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc" }
 jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "rewrite-to-async" }
+jsonrpc-client-http = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "rewrite-to-async" }
 uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
 toml = "0.4"
