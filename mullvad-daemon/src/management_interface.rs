@@ -52,13 +52,13 @@ build_rpc_trait! {
         fn set_autoconnect(&self, bool) -> Result<(), Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
-        #[rpc(name = "connect")]
-        fn connect(&self) -> Result<(), Error>;
+        #[rpc(async, name = "connect")]
+        fn connect(&self) -> BoxFuture<(), Error>;
 
         /// Disconnect the VPN tunnel if it is connecting/connected. Does nothing if already
         /// disconnected.
-        #[rpc(name = "disconnect")]
-        fn disconnect(&self) -> Result<(), Error>;
+        #[rpc(async, name = "disconnect")]
+        fn disconnect(&self) -> BoxFuture<(), Error>;
 
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
@@ -285,22 +285,14 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(())
     }
 
-    fn connect(&self) -> Result<(), Error> {
+    fn connect(&self) -> BoxFuture<(), Error> {
         trace!("connect");
-        self.tx
-            .lock()
-            .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Secured))
-            .map_err(|_| Error::internal_error())
+        self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Secured))
     }
 
-    fn disconnect(&self) -> Result<(), Error> {
+    fn disconnect(&self) -> BoxFuture<(), Error> {
         trace!("disconnect");
-        self.tx
-            .lock()
-            .unwrap()
-            .send(TunnelCommand::SetTargetState(TargetState::Unsecured))
-            .map_err(|_| Error::internal_error())
+        self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Unsecured))
     }
 
     fn get_state(&self) -> BoxFuture<DaemonState, Error> {
