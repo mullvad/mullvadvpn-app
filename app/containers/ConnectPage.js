@@ -8,7 +8,7 @@ import connectActions from '../redux/connection/actions';
 
 const mapStateToProps = (state) => {
   return {
-    accountPaidUntil: state.account.paidUntil,
+    accountExpiry: state.account.expiry,
     connection: state.connection,
     preferredServer: state.settings.preferredServer,
   };

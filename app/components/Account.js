@@ -19,10 +19,10 @@ export default class Account extends Component {
   props: AccountProps;
 
   render(): React.Element<*> {
-    const paidUntil = moment(this.props.account.paidUntil);
+    const expiry = moment(this.props.account.expiry);
     const formattedAccountId = formatAccount(this.props.account.accountNumber || '');
-    const formattedPaidUntil = paidUntil.format('hA, D MMMM YYYY').toUpperCase();
-    const isOutOfTime = paidUntil.isSameOrBefore(moment());
+    const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
+    const isOutOfTime = expiry.isSameOrBefore(moment());
 
     return (
       <Layout>
@@ -54,7 +54,7 @@ export default class Account extends Component {
                         <div className="account__out-of-time account__row-value account__row-value--error">OUT OF TIME</div>
                       </Then>
                       <Else>
-                        <div className="account__row-value">{ formattedPaidUntil }</div>
+                        <div className="account__row-value">{ formattedExpiry }</div>
                       </Else>
                     </If>
                   </div>

@@ -13,7 +13,7 @@ import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 
 export type ConnectProps = {
-  accountPaidUntil: string,
+  accountExpiry: string,
   connection: ConnectionReduxState,
   preferredServer: string,
   onSettings: () => void,
@@ -367,8 +367,8 @@ export default class Connect extends Component {
     }
 
     // No credit?
-    const paidUntil = this.props.accountPaidUntil;
-    if(paidUntil && moment(paidUntil).isSameOrBefore(moment())) {
+    const expiry = this.props.accountExpiry;
+    if(expiry && moment(expiry).isSameOrBefore(moment())) {
       return new BackendError('NO_CREDIT');
     }
 

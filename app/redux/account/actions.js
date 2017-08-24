@@ -8,7 +8,7 @@ type StartLoginAction = {
 };
 type LoginSuccessfulAction = {
   type: 'LOGIN_SUCCESSFUL',
-  paidUntil: string,
+  expiry: string,
 };
 type LoginFailedAction = {
   type: 'LOGIN_FAILED',
@@ -31,10 +31,10 @@ function startLogin(accountNumber?: string): StartLoginAction {
   };
 }
 
-function loginSuccessful(paidUntil: string): LoginSuccessfulAction {
+function loginSuccessful(expiry: string): LoginSuccessfulAction {
   return {
     type: 'LOGIN_SUCCESSFUL',
-    paidUntil: paidUntil,
+    expiry: expiry,
   };
 }
 

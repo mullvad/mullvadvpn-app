@@ -6,14 +6,14 @@ import type { BackendError } from '../../lib/backend';
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
 export type AccountReduxState = {
   accountNumber: ?string,
-  paidUntil: ?string, // ISO8601
+  expiry: ?string, // ISO8601
   status: LoginState,
   error: ?BackendError
 };
 
 const initialState: AccountReduxState = {
   accountNumber: null,
-  paidUntil: null,
+  expiry: null,
   status: 'none',
   error: null
 };
@@ -33,7 +33,7 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
     return { ...state, ...{
       status: 'ok',
       error: null,
-      paidUntil: action.paidUntil,
+      expiry: action.expiry,
     }};
   case 'LOGIN_FAILED':
     return { ...state, ...{
@@ -45,7 +45,7 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
     return { ...state, ...{
       status: 'none',
       accountNumber: null,
-      paidUntil: null,
+      expiry: null,
       error: null,
     }};
   }

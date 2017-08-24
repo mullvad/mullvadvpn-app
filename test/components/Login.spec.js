@@ -85,7 +85,7 @@ describe('components/Login', () => {
 
 const defaultAccount = {
   accountNumber: null,
-  paidUntil: null,
+  expiry: null,
   status: 'none',
   error: null,
 };

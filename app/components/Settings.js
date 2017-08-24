@@ -32,13 +32,13 @@ export default class Settings extends Component {
 
   render(): React.Element<*> {
     const isLoggedIn = this.props.account.status === 'ok';
-    let isOutOfTime = false, formattedPaidUntil = '';
-    let paidUntilIso = this.props.account.paidUntil;
+    let isOutOfTime = false, formattedExpiry = '';
+    let expiryIso = this.props.account.expiry;
 
-    if(isLoggedIn && paidUntilIso) {
-      let paidUntil = moment(this.props.account.paidUntil);
-      isOutOfTime = paidUntil.isSameOrBefore(moment());
-      formattedPaidUntil = paidUntil.fromNow(true) + ' left';
+    if(isLoggedIn && expiryIso) {
+      let expiry = moment(this.props.account.expiry);
+      isOutOfTime = expiry.isSameOrBefore(moment());
+      formattedExpiry = expiry.fromNow(true) + ' left';
     }
 
     return (
@@ -68,7 +68,7 @@ export default class Settings extends Component {
                                   <span className="settings__account-paid-until-label settings__account-paid-until-label--error">OUT OF TIME</span>
                                 </Then>
                                 <Else>
-                                  <span className="settings__account-paid-until-label">{ formattedPaidUntil }</span>
+                                  <span className="settings__account-paid-until-label">{ formattedExpiry }</span>
                                 </Else>
                               </If>
                             </div>
