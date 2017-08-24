@@ -92,7 +92,7 @@ describe('autologin', () => {
         const state = store.getState().account;
         expect(state.status).to.equal('ok');
         expect(state.accountNumber).to.equal('123');
-        expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
+        expect(state.expiry).to.equal('2001-01-01T00:00:00Z');
       });
   });
 
