@@ -233,7 +233,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
         result.boxed()
     }
 
-    /// Sends a command to the daemon and maps a successful send into the future `item`.
+    /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: TunnelCommand) -> BoxFuture<(), Error> {
         future::result(self.tx.lock().unwrap().send(command))
             .map_err(|_| Error::internal_error())
