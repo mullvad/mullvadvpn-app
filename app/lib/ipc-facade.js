@@ -6,7 +6,7 @@ import { validate } from 'validated/object';
 
 import type { Coordinate2d } from '../types';
 
-export type AccountData = {paid_until: string};
+export type AccountData = {expiry: string};
 export type AccountNumber = string;
 export type Ip = string;
 export type Location = {
@@ -55,10 +55,10 @@ export class RealIpc implements IpcFacade {
   getAccountData(accountNumber: AccountNumber): Promise<AccountData> {
     return this._ipc.send('get_account_data', accountNumber)
       .then(raw => {
-        if (typeof raw === 'object' && raw && raw.paid_until) {
+        if (typeof raw === 'object' && raw && raw.expiry) {
           return raw;
         } else {
-          throw new InvalidReply(raw, 'Expected an object with paid_until');
+          throw new InvalidReply(raw, 'Expected an object with expiry');
         }
       });
   }

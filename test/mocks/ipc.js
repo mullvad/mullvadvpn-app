@@ -18,7 +18,7 @@ export function newMockIpc() {
     getAccountData: (accountNumber) => {
       return new Promise(r => r({
         accountNumber: accountNumber,
-        paid_until: '',
+        expiry: '',
       }));
     },
     getAccount: () => {

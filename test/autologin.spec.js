@@ -84,7 +84,7 @@ describe('autologin', () => {
     const { store, backend, mockIpc } = setupBackendAndStore();
     mockIpc.getAccount = () => new Promise(r => r('123'));
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00Z',
     }));
 
     return backend.autologin()
@@ -101,7 +101,7 @@ describe('autologin', () => {
 
     mockIpc.getAccount = () => new Promise(r => r('123'));
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00Z',
     }));
 
     return backend.autologin()
