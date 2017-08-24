@@ -28,7 +28,7 @@ describe('logging out', () => {
 
     const { store, backend, mockIpc } = setupBackendAndStore();
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00.000Z',
     }));
     const action: any = accountActions.login(backend, '123');
     store.dispatch(action);
@@ -36,7 +36,7 @@ describe('logging out', () => {
     const expectedLogoutState = {
       status: 'none',
       accountNumber: null,
-      paidUntil: null,
+      expiry: null,
       error: null,
     };
 

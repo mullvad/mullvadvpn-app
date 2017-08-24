@@ -13,21 +13,21 @@ import type { SettingsProps } from '../../app/components/Settings';
 describe('components/Settings', () => {
   const loggedOutAccountState: AccountReduxState = {
     accountNumber: null,
-    paidUntil: null,
+    expiry: null,
     status: 'none',
     error: null
   };
 
   const loggedInAccountState: AccountReduxState = {
     accountNumber: '1234',
-    paidUntil: (new Date('2038-01-01')).toISOString(),
+    expiry: (new Date('2038-01-01')).toISOString(),
     status: 'ok',
     error: null
   };
 
   const unpaidAccountState: AccountReduxState = {
     accountNumber: '1234',
-    paidUntil: (new Date('2001-01-01')).toISOString(),
+    expiry: (new Date('2001-01-01')).toISOString(),
     status: 'ok',
     error: null
   };

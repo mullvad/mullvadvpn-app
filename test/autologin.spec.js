@@ -84,7 +84,7 @@ describe('autologin', () => {
     const { store, backend, mockIpc } = setupBackendAndStore();
     mockIpc.getAccount = () => new Promise(r => r('123'));
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00Z',
     }));
 
     return backend.autologin()
@@ -92,7 +92,7 @@ describe('autologin', () => {
         const state = store.getState().account;
         expect(state.status).to.equal('ok');
         expect(state.accountNumber).to.equal('123');
-        expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
+        expect(state.expiry).to.equal('2001-01-01T00:00:00Z');
       });
   });
 
@@ -101,7 +101,7 @@ describe('autologin', () => {
 
     mockIpc.getAccount = () => new Promise(r => r('123'));
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00Z',
     }));
 
     return backend.autologin()

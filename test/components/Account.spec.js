@@ -11,7 +11,7 @@ import type { AccountProps } from '../../app/components/Account';
 describe('components/Account', () => {
   const state: AccountReduxState = {
     accountNumber: '1234',
-    paidUntil: (new Date('2038-01-01')).toISOString(),
+    expiry: (new Date('2038-01-01')).toISOString(),
     status: 'none',
     error: null
   };
@@ -59,7 +59,7 @@ describe('components/Account', () => {
   it('should display "out of time" message when account expired', () => {
     const expiredState: AccountReduxState = {
       accountNumber: '1234',
-      paidUntil: (new Date('2001-01-01')).toISOString(),
+      expiry: (new Date('2001-01-01')).toISOString(),
       status: 'none',
       error: null
     };

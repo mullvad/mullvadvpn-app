@@ -49,8 +49,7 @@ const defaultProps = {
   onExternalLink: noop,
   getServerInfo: (_) => { return defaultServer; },
 
-  accountPaidUntil: '',
+  accountExpiry: '',
   preferredServer: '',
   connection: defaultConnection,
 };
-

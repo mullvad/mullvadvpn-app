@@ -31,7 +31,7 @@ describe('Logging in', () => {
   it('should put the account data in the state', () => {
     const { store, backend, mockIpc } = setupBackendAndStore();
     mockIpc.getAccountData = () => new Promise(r => r({
-      paid_until: '2001-01-01T00:00:00',
+      expiry: '2001-01-01T00:00:00Z',
     }));
 
     return backend.login('123')
@@ -39,7 +39,7 @@ describe('Logging in', () => {
         const state = store.getState().account;
         expect(state.status).to.equal('ok');
         expect(state.accountNumber).to.equal('123');
-        expect(state.paidUntil).to.equal('2001-01-01T00:00:00');
+        expect(state.expiry).to.equal('2001-01-01T00:00:00Z');
       });
   });
 

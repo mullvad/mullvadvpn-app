@@ -163,7 +163,7 @@ export class Backend {
       }).then( accountData => {
         log.info('Log in complete');
 
-        this._store.dispatch(accountActions.loginSuccessful(accountData.paid_until));
+        this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
         // Redirect the user after some time to allow for
         // the 'Login Successful' screen to be visible
@@ -197,7 +197,7 @@ export class Backend {
       .then( accountData => {
         log.info('The stored account number still exists', accountData);
 
-        this._store.dispatch(accountActions.loginSuccessful(accountData.paid_until));
+        this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
         this._store.dispatch(push('/connect'));
       })
