@@ -181,9 +181,8 @@ impl Daemon {
                 rx,
                 tx,
                 management_interface_broadcaster,
-                firewall: FirewallProxy::new()
-                    .chain_err(|| ErrorKind::FirewallError)?,
                 settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+                firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
                 remote_endpoint: None,
                 remote_iter: REMOTES.iter().cloned().cycle(),
             },
