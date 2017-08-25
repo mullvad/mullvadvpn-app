@@ -429,6 +429,7 @@ impl Daemon {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     error!("{}", e.display());
+                    self.remote_endpoint = None;
                     self.reset_security_policy()?;
                     self.management_interface_broadcaster.notify_error(&e);
                     self.set_target_state(TargetState::Unsecured)?;
