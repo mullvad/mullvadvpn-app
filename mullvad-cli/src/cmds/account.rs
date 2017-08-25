@@ -1,6 +1,8 @@
 use Command;
 use Result;
 use clap;
+
+use mullvad_types::account::{AccountData, AccountToken};
 use rpc;
 
 pub struct Account;
@@ -45,10 +47,13 @@ impl Account {
     }
 
     fn get(&self) -> Result<()> {
-        let token: Option<String> = rpc::call("get_account", &[] as &[u8; 0])?;
-        match token {
-            Some(token) => println!("Mullvad account: {:?}", token),
-            None => println!("No account configured"),
+        let account_token: Option<AccountToken> = rpc::call("get_account", &[] as &[u8; 0])?;
+        if let Some(account_token) = account_token {
+            let expiry: AccountData = rpc::call("get_account_data", &[&account_token])?;
+            println!("Mullvad account: {}", account_token);
+            println!("Expires at     : {}", expiry.expiry);
+        } else {
+            println!("No account configured");
         }
         Ok(())
     }
