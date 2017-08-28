@@ -71,6 +71,7 @@ impl PacketFilter {
             .quick(true)
             .to(pfctl::Port::One(53, pfctl::PortUnaryModifier::Equal))
             .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
             .build()?;
         let mut new_rules = self.get_loopback_rules()?;
 
@@ -97,6 +98,7 @@ impl PacketFilter {
             .to(relay_endpoint)
             .proto(relay_endpoint)
             .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()
     }
@@ -106,6 +108,7 @@ impl PacketFilter {
             .action(pfctl::RuleAction::Pass)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()
     }
@@ -115,9 +118,17 @@ impl PacketFilter {
             .action(pfctl::RuleAction::Pass)
             .interface("lo0")
             .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()?;
         Ok(vec![lo0_rule])
+    }
+
+    fn get_tcp_flags() -> pfctl::TcpFlags {
+        pfctl::TcpFlags::new(
+            &[pfctl::TcpFlag::Syn],
+            &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
+        )
     }
 
     fn remove_rules(&mut self) -> Result<()> {
