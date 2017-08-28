@@ -53,7 +53,10 @@ export class RealIpc implements IpcFacade {
   }
 
   getAccountData(accountNumber: AccountNumber): Promise<AccountData> {
-    return this._ipc.send('get_account_data', accountNumber)
+    // send the IPC with 30s timeout since the backend will wait
+    // for a HTTP request before replying
+
+    return this._ipc.send('get_account_data', accountNumber, 30000)
       .then(raw => {
         if (typeof raw === 'object' && raw && raw.expiry) {
           return raw;
