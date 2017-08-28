@@ -20,6 +20,17 @@ describe('components/Connect', () => {
     expect(securityMessage.text().toLowerCase()).to.contain('unsecured');
     expect(connectButton.text()).to.equal('Secure my connection');
   });
+
+  it('invokes the onConnect prop', (done) => {
+    const props = Object.assign({}, defaultProps, {
+      onConnect: done,
+    });
+
+    const component = mount( <Connect {...props} /> );
+    const connectButton = component.find('.button .button--positive');
+
+    connectButton.simulate('click');
+  });
 });
 
 const noop = () => {};
