@@ -62,8 +62,7 @@ describe('The IPC server', () => {
   it('should timeout if no response is returned', () => {
     const { ipc } = setupIpc();
 
-    ipc.setSendTimeout(1);
-    return ipc.send('a message')
+    return ipc.send('a message', [], 1)
       .catch((e) => {
         expect(e.name).to.equal('TimeOutError');
         expect(e.message).to.contain('timed out');

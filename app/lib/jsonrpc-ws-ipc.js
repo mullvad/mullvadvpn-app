@@ -75,7 +75,6 @@ export default class Ipc {
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
-  _sendTimeoutMillis: number;
 
   constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
     this._connectionString = connectionString;
@@ -83,7 +82,6 @@ export default class Ipc {
     this._unansweredRequests = {};
     this._subscriptions = {};
     this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
-    this._sendTimeoutMillis = DEFAULT_TIMEOUT_MILLIS;
 
     this._backoff = new ReconnectionBackoff();
     this._reconnect();
@@ -91,10 +89,6 @@ export default class Ipc {
 
   setConnectionString(str: string) {
     this._connectionString = str;
-  }
-
-  setSendTimeout(millis: number) {
-    this._sendTimeoutMillis = millis;
   }
 
   on(event: string, listener: (mixed) => void): Promise<*> {
@@ -113,12 +107,13 @@ export default class Ipc {
       });
   }
 
-  send(action: string, ...data: Array<mixed>): Promise<mixed> {
+  send(action: string, data: mixed, timeout: number = DEFAULT_TIMEOUT_MILLIS): Promise<mixed> {
     return new Promise((resolve, reject) => {
       const id = uuid.v4();
 
-      const timerId = setTimeout(() => this._onTimeout(id), this._sendTimeoutMillis);
-      const jsonrpcMessage = jsonrpc.request(id, action, data);
+      const params  = this._prepareParams(data);
+      const timerId = setTimeout(() => this._onTimeout(id), timeout);
+      const jsonrpcMessage = jsonrpc.request(id, action, params);
       this._unansweredRequests[id] = {
         resolve: resolve,
         reject: reject,
@@ -136,6 +131,20 @@ export default class Ipc {
           reject(e);
         });
     });
+  }
+
+  _prepareParams(data: mixed): Array<mixed>|Object {
+    // JSONRPC only accepts arrays and objects as params, but
+    // this isn't very nice to use, so this method wraps other
+    // types in an array. The choice of array is based on try-and-error
+
+    if(data === undefined || data === null) {
+      return [];
+    } else if (Array.isArray(data) || typeof(data) === 'object') {
+      return data;
+    } else {
+      return [data];
+    }
   }
 
   _getWebSocket() {
