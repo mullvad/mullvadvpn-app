@@ -8,12 +8,12 @@ import { links } from '../config';
 
 const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch, props) => {
-  const { loginChange, login } = bindActionCreators(accountActions, dispatch);
+  const { login } = bindActionCreators(accountActions, dispatch);
   const { backend } = props;
   return {
     onSettings: () => dispatch(push('/settings')),
     onLogin: (account) => login(backend, account),
-    onFirstChangeAfterFailure: () => loginChange({ status: 'none', error: null }),
+    onFirstChangeAfterFailure: () => dispatch(accountActions.resetLoginError()),
     onExternalLink: (type) => shell.openExternal(links[type])
   };
 };
