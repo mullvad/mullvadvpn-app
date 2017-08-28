@@ -48,6 +48,11 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
       expiry: null,
       error: null,
     }};
+  case 'RESET_LOGIN_ERROR':
+    return { ...state, ...{
+      status: 'none',
+      error: null,
+    }};
   }
 
   return state;

@@ -19,10 +19,15 @@ type LoggedOutAction = {
   type: 'LOGGED_OUT',
 };
 
+type ResetLoginErrorAction = {
+  type: 'RESET_LOGIN_ERROR',
+};
+
 export type AccountAction = StartLoginAction
                             | LoginSuccessfulAction
                             | LoginFailedAction
-                            | LoggedOutAction;
+                            | LoggedOutAction
+                            | ResetLoginErrorAction;
 
 function startLogin(accountNumber?: string): StartLoginAction {
   return {
@@ -55,7 +60,13 @@ function autoLoginFailed(): LoggedOutAction {
   return loggedOut();
 }
 
+function resetLoginError(): ResetLoginErrorAction {
+  return {
+    type: 'RESET_LOGIN_ERROR',
+  };
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
-export default { login, logout, startLogin, loginSuccessful, loginFailed, loggedOut, autoLoginFailed };
+export default { login, logout, startLogin, loginSuccessful, loginFailed, loggedOut, autoLoginFailed, resetLoginError };
