@@ -6,6 +6,7 @@ use process::openvpn::OpenVpnCommand;
 use std::collections::HashMap;
 use std::io;
 use std::path::Path;
+use std::process::ExitStatus;
 use std::result::Result as StdResult;
 use std::sync::{Arc, mpsc};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -38,16 +39,25 @@ lazy_static!{
 
 
 /// Struct for monitoring an OpenVPN process.
-pub struct OpenVpnMonitor {
-    child: Arc<duct::Handle>,
+pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
+    child: Arc<C::ProcessHandle>,
     event_dispatcher: Option<OpenVpnEventDispatcher>,
     closed: Arc<AtomicBool>,
 }
 
-impl OpenVpnMonitor {
+impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
-    pub fn new<L, P>(mut cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
+    pub fn new<L, P>(cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
+        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
+              P: AsRef<Path>
+    {
+        Self::new_internal(cmd, on_event, plugin_path)
+    }
+}
+
+impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
+    fn new_internal<L, P>(mut cmd: C, on_event: L, plugin_path: P) -> Result<OpenVpnMonitor<C>>
         where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
               P: AsRef<Path>
     {
@@ -55,9 +65,7 @@ impl OpenVpnMonitor {
             .chain_err(|| ErrorKind::EventDispatcherError)?;
 
         cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
-        let child = cmd.build()
-            .start()
-            .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
+        let child = cmd.start().chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
 
         Ok(
             OpenVpnMonitor {
@@ -70,7 +78,7 @@ impl OpenVpnMonitor {
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other thread
     /// is blocked in `wait`.
-    pub fn close_handle(&self) -> OpenVpnCloseHandle {
+    pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
             child: self.child.clone(),
             closed: self.closed.clone(),
@@ -81,8 +89,8 @@ impl OpenVpnMonitor {
     /// for the process or in the event dispatcher.
     pub fn wait(mut self) -> Result<()> {
         match self.wait_result() {
-            WaitResult::Child(Ok(exit_status)) => {
-                if exit_status.success() || self.closed.load(Ordering::SeqCst) {
+            WaitResult::Child(Ok(exit_status), closed) => {
+                if exit_status.success() || closed {
                     debug!(
                         "OpenVPN exited, as expected, with exit status: {}",
                         exit_status
@@ -93,7 +101,7 @@ impl OpenVpnMonitor {
                     Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
                 }
             }
-            WaitResult::Child(Err(e)) => {
+            WaitResult::Child(Err(e), _) => {
                 error!("OpenVPN process wait error: {}", e);
                 Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
             }
@@ -111,6 +119,7 @@ impl OpenVpnMonitor {
     /// returned this returns the earliest result.
     fn wait_result(&mut self) -> WaitResult {
         let child_wait_handle = self.child.clone();
+        let closed_handle = self.closed.clone();
         let child_close_handle = self.close_handle();
         let event_dispatcher = self.event_dispatcher.take().unwrap();
         let dispatcher_handle = event_dispatcher.close_handle();
@@ -120,8 +129,9 @@ impl OpenVpnMonitor {
 
         thread::spawn(
             move || {
-                let result = child_wait_handle.wait().map(|output| output.status);
-                child_tx.send(WaitResult::Child(result)).unwrap();
+                let result = child_wait_handle.wait();
+                let closed = closed_handle.load(Ordering::SeqCst);
+                child_tx.send(WaitResult::Child(result, closed)).unwrap();
                 dispatcher_handle.close();
             },
         );
@@ -140,36 +150,76 @@ impl OpenVpnMonitor {
 }
 
 /// A handle to an `OpenVpnMonitor` for closing it.
-pub struct OpenVpnCloseHandle {
-    child: Arc<duct::Handle>,
+pub struct OpenVpnCloseHandle<H: ProcessHandle = duct::Handle> {
+    child: Arc<H>,
     closed: Arc<AtomicBool>,
 }
 
-impl OpenVpnCloseHandle {
+impl<H: ProcessHandle> OpenVpnCloseHandle<H> {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
     pub fn close(self) -> io::Result<()> {
         if !self.closed.swap(true, Ordering::SeqCst) {
-            self.kill_openvpn()
+            self.child.kill()
         } else {
             Ok(())
         }
-    }
-
-    #[cfg(unix)]
-    fn kill_openvpn(self) -> io::Result<()> {
-        ::process::unix::nice_kill(self.child, *OPENVPN_DIE_TIMEOUT)
-    }
-
-    #[cfg(not(unix))]
-    fn kill_openvpn(self) -> io::Result<()> {
-        self.child.kill()
     }
 }
 
 /// Internal enum to differentiate between if the child process or the event dispatcher died first.
 enum WaitResult {
-    Child(io::Result<::std::process::ExitStatus>),
+    Child(io::Result<ExitStatus>, bool),
     EventDispatcher(talpid_ipc::Result<()>),
+}
+
+/// Trait for types acting as OpenVPN process starters for `OpenVpnMonitor`.
+pub trait OpenVpnBuilder {
+    /// The type of handles to subprocesses this builder produces.
+    type ProcessHandle: ProcessHandle;
+
+    /// Set the OpenVPN plugin to the given values.
+    fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self;
+
+    /// Spawn the subprocess and return a handle.
+    fn start(&self) -> io::Result<Self::ProcessHandle>;
+}
+
+/// Trait for types acting as handles to subprocesses for `OpenVpnMonitor`
+pub trait ProcessHandle: Send + Sync + 'static {
+    /// Block until the subprocess exits or there is an error in the wait syscall.
+    fn wait(&self) -> io::Result<ExitStatus>;
+
+    /// Kill the subprocess.
+    fn kill(&self) -> io::Result<()>;
+}
+
+impl OpenVpnBuilder for OpenVpnCommand {
+    type ProcessHandle = duct::Handle;
+
+    fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self {
+        self.plugin(path, args)
+    }
+
+    fn start(&self) -> io::Result<duct::Handle> {
+        self.build().start()
+    }
+}
+
+impl ProcessHandle for duct::Handle {
+    fn wait(&self) -> io::Result<ExitStatus> {
+        self.wait().map(|output| output.status)
+    }
+
+    #[cfg(unix)]
+    fn kill(&self) -> io::Result<()> {
+        use process::unix::HandleKillExt;
+        self.nice_kill(*OPENVPN_DIE_TIMEOUT)
+    }
+
+    #[cfg(not(unix))]
+    fn kill(&self) -> io::Result<()> {
+        duct::Handle::kill(self)
+    }
 }
 
 
@@ -246,17 +296,81 @@ impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::{Path, PathBuf};
+
+    use std::sync::{Arc, Mutex};
+
+    #[derive(Default, Clone)]
+    struct TestOpenVpnBuilder {
+        pub plugin: Arc<Mutex<Option<PathBuf>>>,
+        pub exit_status: i32,
+    }
+
+    impl OpenVpnBuilder for TestOpenVpnBuilder {
+        type ProcessHandle = TestProcessHandle;
+
+        fn plugin<P: AsRef<Path>>(&mut self, path: P, _args: Vec<String>) -> &mut Self {
+            *self.plugin.lock().unwrap() = Some(path.as_ref().to_path_buf());
+            self
+        }
+
+        fn start(&self) -> io::Result<Self::ProcessHandle> {
+            Ok(TestProcessHandle(self.exit_status))
+        }
+    }
+
+    struct TestProcessHandle(i32);
+
+    impl ProcessHandle for TestProcessHandle {
+        #[cfg(unix)]
+        fn wait(&self) -> io::Result<ExitStatus> {
+            use std::os::unix::process::ExitStatusExt;
+            Ok(ExitStatus::from_raw(self.0))
+        }
+
+        #[cfg(windows)]
+        fn wait(&self) -> io::Result<ExitStatus> {
+            use std::os::windows::process::ExitStatusExt;
+            Ok(ExitStatus::from_raw(self.0 as u32))
+        }
+
+        fn kill(&self) -> io::Result<()> {
+            Ok(())
+        }
+    }
 
     #[test]
-    #[ignore]
-    fn openvpn_event_dispatcher_server() {
-        let server = OpenVpnEventDispatcher::start(
-            |event, env| {
-                println!("event: {:?}. env: {:?}", event, env);
-            },
-        )
-                .unwrap();
-        println!("plugin server listening on {}", server.address());
-        server.wait().unwrap();
+    fn plugin() {
+        let builder = TestOpenVpnBuilder::default();
+        OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin").unwrap();
+        assert_eq!(
+            Some(PathBuf::from("./my_test_plugin")),
+            *builder.plugin.lock().unwrap()
+        );
+    }
+
+    #[test]
+    fn exit_successfully() {
+        let mut builder = TestOpenVpnBuilder::default();
+        builder.exit_status = 0;
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        assert!(testee.wait().is_ok());
+    }
+
+    #[test]
+    fn exit_error() {
+        let mut builder = TestOpenVpnBuilder::default();
+        builder.exit_status = 1;
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        assert!(testee.wait().is_err());
+    }
+
+    #[test]
+    fn wait_closed() {
+        let mut builder = TestOpenVpnBuilder::default();
+        builder.exit_status = 1;
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        testee.close_handle().close().unwrap();
+        assert!(testee.wait().is_ok());
     }
 }
