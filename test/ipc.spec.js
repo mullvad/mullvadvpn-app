@@ -46,14 +46,14 @@ describe('The IPC server', () => {
 
     ws.on('a message', (msg) => ws.replyOk(msg.id, 'a reply'));
 
-    const decoy = ipc.send('a decoy')
+    const decoy = ipc.send('a decoy', [], 1)
       .then(() => assert(false, 'Should not be called'))
       .catch(e => {
         if (e.name !== 'TimeOutError') {
           throw e;
         }
       });
-    const message = ipc.send('a message')
+    const message = ipc.send('a message', [], 1)
       .then((reply) => expect(reply).to.equal('a reply'));
 
     return Promise.all([message, decoy]);
@@ -62,8 +62,7 @@ describe('The IPC server', () => {
   it('should timeout if no response is returned', () => {
     const { ipc } = setupIpc();
 
-    ipc.setSendTimeout(1);
-    return ipc.send('a message')
+    return ipc.send('a message', [], 1)
       .catch((e) => {
         expect(e.name).to.equal('TimeOutError');
         expect(e.message).to.contain('timed out');
