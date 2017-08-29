@@ -64,7 +64,7 @@ export class InvalidReply extends Error {
   }
 }
 
-const DEFAULT_TIMEOUT_MILLIS = 750;
+const DEFAULT_TIMEOUT_MILLIS = 5000;
 
 export default class Ipc {
 

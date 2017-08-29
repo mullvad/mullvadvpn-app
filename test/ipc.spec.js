@@ -46,14 +46,14 @@ describe('The IPC server', () => {
 
     ws.on('a message', (msg) => ws.replyOk(msg.id, 'a reply'));
 
-    const decoy = ipc.send('a decoy')
+    const decoy = ipc.send('a decoy', [], 1)
       .then(() => assert(false, 'Should not be called'))
       .catch(e => {
         if (e.name !== 'TimeOutError') {
           throw e;
         }
       });
-    const message = ipc.send('a message')
+    const message = ipc.send('a message', [], 1)
       .then((reply) => expect(reply).to.equal('a reply'));
 
     return Promise.all([message, decoy]);
