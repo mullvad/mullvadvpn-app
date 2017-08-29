@@ -347,7 +347,7 @@ mod tests {
     #[test]
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
-        OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin").unwrap_err();
+        let _ = OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin");
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
             *builder.plugin.lock().unwrap()
@@ -377,5 +377,15 @@ mod tests {
         let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
+    }
+
+    #[test]
+    fn failed_process_start() {
+        let builder = TestOpenVpnBuilder::default();
+        let error = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap_err();
+        match error.kind() {
+            &ErrorKind::ChildProcessError(_) => (),
+            _ => panic!("Wrong error"),
+        }
     }
 }
