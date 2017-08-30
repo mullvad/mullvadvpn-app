@@ -18,10 +18,10 @@ futures = "0.1"
 serde = "1.0"
 serde_derive = "1.0"
 log = "0.3"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
+jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
+jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
+jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "rewrite-to-async" }
 jsonrpc-client-http = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "rewrite-to-async" }
 uuid = { version = "0.5", features = ["v4"] }

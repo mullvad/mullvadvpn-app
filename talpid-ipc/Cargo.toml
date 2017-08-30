@@ -9,12 +9,12 @@ error-chain = "0.10"
 serde = "1.0"
 serde_json = "1.0"
 log = "0.3"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc" }
-jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
+jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
 ws = { git = "https://github.com/tomusdrw/ws-rs" }
 url = "1.4"
 
 [dev-dependencies]
 assert_matches = "1.0"
 env_logger = "0.4"
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc" }
+jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.0" }
