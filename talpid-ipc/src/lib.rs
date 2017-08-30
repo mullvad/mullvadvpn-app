@@ -15,6 +15,7 @@ extern crate url;
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ws_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
 
+use std::fmt;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 
@@ -78,6 +79,17 @@ impl IpcServer {
         self.server.wait().chain_err(|| ErrorKind::IpcServerError)
     }
 }
+
+// FIXME: This custom impl is because `Server` does not implement `Debug` yet:
+// https://github.com/paritytech/jsonrpc/pull/195
+impl fmt::Debug for IpcServer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("IpcServer")
+            .field("address", &self.address)
+            .finish()
+    }
+}
+
 
 #[derive(Clone)]
 pub struct CloseHandle(jsonrpc_ws_server::CloseHandle);
