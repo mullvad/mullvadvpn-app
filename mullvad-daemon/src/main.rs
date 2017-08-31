@@ -37,7 +37,7 @@ mod shutdown;
 
 use error_chain::ChainedError;
 use futures::{BoxFuture, Future};
-use jsonrpc_client_http::{Error as HttpError, HttpHandle};
+use jsonrpc_client_http::HttpHandle;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{ManagementInterfaceServer, TunnelCommand};
 use master::AccountsProxy;
@@ -160,7 +160,7 @@ struct Daemon {
     tx: mpsc::Sender<DaemonEvent>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
-    accounts_proxy: AccountsProxy<HttpError, HttpHandle>,
+    accounts_proxy: AccountsProxy<HttpHandle>,
     firewall: FirewallProxy,
     remote_endpoint: Option<Endpoint>,
     tunnel_interface: Option<String>,
@@ -191,7 +191,7 @@ impl Daemon {
                 management_interface_broadcaster,
                 settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
                 accounts_proxy: master::create_account_proxy()
-                    .chain_err(|| "Unable to connect to master")?,
+                    .chain_err(|| "Unable to bootstrap RPC client")?,
                 firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
                 remote_endpoint: None,
                 tunnel_interface: None,

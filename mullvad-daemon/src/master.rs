@@ -1,14 +1,13 @@
 use chrono::DateTime;
 use chrono::offset::Utc;
-use jsonrpc_client_http::{Error as HttpError, HttpCore, HttpHandle};
+use jsonrpc_client_http::{Error as HttpError, HttpHandle, HttpTransport};
 
 use mullvad_types::account::AccountToken;
 
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
-pub fn create_account_proxy() -> Result<AccountsProxy<HttpError, HttpHandle>, HttpError> {
-    let core = HttpCore::standalone()?;
-    let transport = core.handle(MASTER_API_URI)?;
+pub fn create_account_proxy() -> Result<AccountsProxy<HttpHandle>, HttpError> {
+    let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
     Ok(AccountsProxy::new(transport))
 }
 
