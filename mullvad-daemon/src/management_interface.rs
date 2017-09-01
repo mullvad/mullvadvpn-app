@@ -2,7 +2,7 @@ use error_chain;
 
 use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
-use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
+use jsonrpc_core::futures::{Future, future, sync};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
@@ -22,6 +22,10 @@ use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
 
+/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
+/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
+/// Remove this and use the one in jsonrpc_core when that is released.
+pub type BoxFuture<T, E> = Box<Future<Item = T, Error = E> + Send>;
 
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
