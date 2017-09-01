@@ -317,9 +317,8 @@ impl Daemon {
                            account_token: AccountToken) {
         let rpc_call = self.accounts_proxy
             .get_expiry(account_token)
-            .map(|expiry| AccountData { expiry })
-            .boxed();
-        Self::oneshot_send(tx, rpc_call, "account data")
+            .map(|expiry| AccountData { expiry });
+        Self::oneshot_send(tx, Box::new(rpc_call), "account data")
     }
 
 

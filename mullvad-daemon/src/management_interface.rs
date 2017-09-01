@@ -232,14 +232,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
                 },
             )
         };
-        result.boxed()
+        Box::new(result)
     }
 
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: TunnelCommand) -> BoxFuture<(), Error> {
-        future::result(self.tx.lock().unwrap().send(command))
-            .map_err(|_| Error::internal_error())
-            .boxed()
+        Box::new(
+            future::result(self.tx.lock().unwrap().send(command))
+                .map_err(|_| Error::internal_error())
+        )
     }
 }
 
@@ -249,10 +250,10 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
+        let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()))
-            .boxed()
+            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {
@@ -263,17 +264,17 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
         trace!("set_account");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {
@@ -299,9 +300,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_state(&self) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
-            .and_then(|_| state_rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
+            .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_ip(&self) -> Result<IpAddr, Error> {
