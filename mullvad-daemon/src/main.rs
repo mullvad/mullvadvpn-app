@@ -36,10 +36,10 @@ mod settings;
 mod shutdown;
 
 use error_chain::ChainedError;
-use futures::{BoxFuture, Future};
+use futures::Future;
 use jsonrpc_client_http::HttpHandle;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
-use management_interface::{ManagementInterfaceServer, TunnelCommand};
+use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use master::AccountsProxy;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
@@ -317,9 +317,8 @@ impl Daemon {
                            account_token: AccountToken) {
         let rpc_call = self.accounts_proxy
             .get_expiry(account_token)
-            .map(|expiry| AccountData { expiry })
-            .boxed();
-        Self::oneshot_send(tx, rpc_call, "account data")
+            .map(|expiry| AccountData { expiry });
+        Self::oneshot_send(tx, Box::new(rpc_call), "account data")
     }
 
 

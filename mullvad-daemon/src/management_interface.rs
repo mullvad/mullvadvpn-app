@@ -2,7 +2,7 @@ use error_chain;
 
 use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
-use jsonrpc_core::futures::{BoxFuture, Future, future, sync};
+use jsonrpc_core::futures::{Future, future, sync};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
@@ -22,6 +22,10 @@ use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
 
+/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
+/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
+/// Remove this and use the one in jsonrpc_core when that is released.
+pub type BoxFuture<T, E> = Box<Future<Item = T, Error = E> + Send>;
 
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
@@ -232,14 +236,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
                 },
             )
         };
-        result.boxed()
+        Box::new(result)
     }
 
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: TunnelCommand) -> BoxFuture<(), Error> {
-        future::result(self.tx.lock().unwrap().send(command))
-            .map_err(|_| Error::internal_error())
-            .boxed()
+        Box::new(
+            future::result(self.tx.lock().unwrap().send(command))
+                .map_err(|_| Error::internal_error())
+        )
     }
 }
 
@@ -249,10 +254,10 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
+        let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()))
-            .boxed()
+            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {
@@ -263,17 +268,17 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
         trace!("set_account");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {
@@ -299,9 +304,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_state(&self) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
-            .and_then(|_| state_rx.map_err(|_| Error::internal_error()))
-            .boxed()
+        let future = self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
+            .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn get_ip(&self) -> Result<IpAddr, Error> {
