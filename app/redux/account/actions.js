@@ -4,7 +4,7 @@ import type { Backend, BackendError } from '../../lib/backend';
 
 type StartLoginAction = {
   type: 'START_LOGIN',
-  accountNumber?: string,
+  accountToken?: string,
 };
 type LoginSuccessfulAction = {
   type: 'LOGIN_SUCCESSFUL',
@@ -29,10 +29,10 @@ export type AccountAction = StartLoginAction
                             | LoggedOutAction
                             | ResetLoginErrorAction;
 
-function startLogin(accountNumber?: string): StartLoginAction {
+function startLogin(accountToken?: string): StartLoginAction {
   return {
     type: 'START_LOGIN',
-    accountNumber: accountNumber,
+    accountToken: accountToken,
   };
 }
 

@@ -84,7 +84,7 @@ describe('components/Login', () => {
 });
 
 const defaultAccount = {
-  accountNumber: null,
+  accountToken: null,
   expiry: null,
   status: 'none',
   error: null,

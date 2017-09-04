@@ -9,16 +9,16 @@ describe('autologin', () => {
   it('should send get_account then get_account_data if an account is set', (done) => {
     const { mockIpc, backend } = setupBackendAndStore();
 
-    const randomAccountNumber = '12345';
+    const randomAccountToken = '12345';
 
     const chain = new IpcChain(mockIpc);
     chain.require('getAccount')
-      .withReturnValue(randomAccountNumber)
+      .withReturnValue(randomAccountToken)
       .done();
 
     chain.require('getAccountData')
       .withInputValidation((num) => {
-        expect(num).to.equal(randomAccountNumber);
+        expect(num).to.equal(randomAccountToken);
       })
       .done();
 
@@ -60,7 +60,7 @@ describe('autologin', () => {
         const state = store.getState().account;
 
         expect(state.status).to.equal('none');
-        expect(state.accountNumber).to.be.null;
+        expect(state.accountToken).to.be.null;
         expect(state.error).to.be.null;
       });
   });
@@ -91,7 +91,7 @@ describe('autologin', () => {
       .then( () => {
         const state = store.getState().account;
         expect(state.status).to.equal('ok');
-        expect(state.accountNumber).to.equal('123');
+        expect(state.accountToken).to.equal('123');
         expect(state.expiry).to.equal('2001-01-01T00:00:00Z');
       });
   });
