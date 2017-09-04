@@ -14,7 +14,10 @@ const isMacOS = (process.platform === 'darwin');
 const isLinux = (process.platform === 'linux');
 const isWindows = (process.platform === 'win32');
 
-const rpcAddressFile = path.join(app.getPath('temp'), '.mullvad_rpc_address');
+const rpcAddressFile = isMacOS || isLinux
+  ? path.join('/tmp', '.mullvad_rpc_address')
+  : path.join(app.getPath('temp'), '.mullvad_rpc_address');
+
 let browserWindowReady = false;
 
 
