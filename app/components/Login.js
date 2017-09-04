@@ -9,7 +9,7 @@ import type { AccountReduxState, LoginState } from '../redux/account/reducers';
 
 export type LoginPropTypes = {
   account: AccountReduxState,
-  onLogin: (accountNumber: string) => void,
+  onLogin: (accountToken: string) => void,
   onSettings: ?(() => void),
   onFirstChangeAfterFailure: () => void,
   onExternalLink: (type: string) => void,
@@ -20,18 +20,18 @@ export default class Login extends Component {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: false,
-    unsubmittedAccountNumber: '',
+    unsubmittedAccountToken: '',
   };
 
   onCreateAccount = () => this.props.onExternalLink('createAccount');
   onFocus = () => this.setState({ isActive: true });
   onBlur = () => this.setState({ isActive: false });
   onLogin = () => {
-    const accountNumber = this.state.unsubmittedAccountNumber;
-    if(accountNumber && accountNumber.length > 0) {
-      this.props.onLogin(accountNumber);
+    const accountToken = this.state.unsubmittedAccountToken;
+    if(accountToken && accountToken.length > 0) {
+      this.props.onLogin(accountToken);
       this.setState({
-        unsubmittedAccountNumber: '',
+        unsubmittedAccountToken: '',
       });
     }
   }
@@ -43,7 +43,7 @@ export default class Login extends Component {
       this.props.onFirstChangeAfterFailure();
     }
     this.setState({
-      unsubmittedAccountNumber: val,
+      unsubmittedAccountToken: val,
     });
   }
 
@@ -83,10 +83,10 @@ export default class Login extends Component {
     return classes.join(' ');
   }
 
-  submitClass(s: LoginState, accountNumber: ?string): string {
+  submitClass(s: LoginState, accountToken: ?string): string {
     const classes = ['login-form__submit'];
 
-    if(accountNumber && accountNumber.length > 0) {
+    if(accountToken && accountToken.length > 0) {
       classes.push('login-form__submit--active');
     }
 
@@ -168,16 +168,16 @@ export default class Login extends Component {
 
   _createLoginForm(): React.Element<*> {
     const { status, error } = this.props.account;
-    const accountNumber = status === 'logging in'
-      ? this.props.account.accountNumber
-      : this.state.unsubmittedAccountNumber;
+    const accountToken = status === 'logging in'
+      ? this.props.account.accountToken
+      : this.state.unsubmittedAccountToken;
 
     const inputDisabled = status === 'logging in';
 
     const subtitle = this.formSubtitle(status, error);
 
     const inputWrapClass = this.inputWrapClass(status);
-    const submitClass = this.submitClass(status, accountNumber);
+    const submitClass = this.submitClass(status, accountToken);
 
     const autoFocusRef = input => {
       if(status === 'failed' && input) {
@@ -195,7 +195,7 @@ export default class Login extends Component {
           onBlur={ this.onBlur }
           onChange={ this.onInputChange }
           onEnter={ this.onLogin }
-          value={ accountNumber || '' }
+          value={ accountToken || '' }
           disabled={ inputDisabled }
           autoFocus={ true }
           ref={ autoFocusRef } />

@@ -35,7 +35,7 @@ describe('logging out', () => {
 
     const expectedLogoutState = {
       status: 'none',
-      accountNumber: null,
+      accountToken: null,
       expiry: null,
       error: null,
     };

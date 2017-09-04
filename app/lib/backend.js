@@ -148,16 +148,16 @@ export class Backend {
   }
 
 
-  login(accountNumber: string): Promise<void> {
-    log.info('Attempting to login with account number', accountNumber);
+  login(accountToken: string): Promise<void> {
+    log.info('Attempting to login with account number', accountToken);
 
-    this._store.dispatch(accountActions.startLogin(accountNumber));
+    this._store.dispatch(accountActions.startLogin(accountToken));
 
-    return this._ipc.getAccountData(accountNumber)
+    return this._ipc.getAccountData(accountToken)
       .then( response => {
         log.info('Account exists', response);
 
-        return this._ipc.setAccount(accountNumber)
+        return this._ipc.setAccount(accountToken)
           .then( () => response );
 
       }).then( accountData => {
@@ -185,14 +185,14 @@ export class Backend {
     this._store.dispatch(accountActions.startLogin());
 
     return this._ipc.getAccount()
-      .then( accountNumber => {
-        if (!accountNumber) {
+      .then( accountToken => {
+        if (!accountToken) {
           throw new Error('No account set in the backend, failing autologin');
         }
-        log.debug('The backend had an account number stored:', accountNumber);
-        this._store.dispatch(accountActions.startLogin(accountNumber));
+        log.debug('The backend had an account number stored:', accountToken);
+        this._store.dispatch(accountActions.startLogin(accountToken));
 
-        return this._ipc.getAccountData(accountNumber);
+        return this._ipc.getAccountData(accountToken);
       })
       .then( accountData => {
         log.info('The stored account number still exists', accountData);

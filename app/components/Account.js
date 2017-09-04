@@ -20,7 +20,7 @@ export default class Account extends Component {
 
   render(): React.Element<*> {
     const expiry = moment(this.props.account.expiry);
-    const formattedAccountId = formatAccount(this.props.account.accountNumber || '');
+    const formattedAccountToken = formatAccount(this.props.account.accountToken || '');
     const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = expiry.isSameOrBefore(moment());
 
@@ -44,7 +44,7 @@ export default class Account extends Component {
 
                   <div className="account__row">
                     <div className="account__row-label">Account ID</div>
-                    <div className="account__row-value">{ formattedAccountId }</div>
+                    <div className="account__row-value">{ formattedAccountToken }</div>
                   </div>
 
                   <div className="account__row">

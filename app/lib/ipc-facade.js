@@ -7,7 +7,7 @@ import { validate } from 'validated/object';
 import type { Coordinate2d } from '../types';
 
 export type AccountData = {expiry: string};
-export type AccountNumber = string;
+export type AccountToken = string;
 export type Ip = string;
 export type Location = {
   latlong: Coordinate2d,
@@ -28,9 +28,9 @@ export type BackendState = {
 
 export interface IpcFacade {
   setConnectionString(string): void,
-  getAccountData(AccountNumber): Promise<AccountData>,
-  getAccount(): Promise<?AccountNumber>,
-  setAccount(accountNumber: AccountNumber): Promise<void>,
+  getAccountData(AccountToken): Promise<AccountData>,
+  getAccount(): Promise<?AccountToken>,
+  setAccount(accountToken: AccountToken): Promise<void>,
   setCountry(address: string): Promise<void>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
@@ -52,11 +52,11 @@ export class RealIpc implements IpcFacade {
     this._ipc.setConnectionString(str);
   }
 
-  getAccountData(accountNumber: AccountNumber): Promise<AccountData> {
+  getAccountData(accountToken: AccountToken): Promise<AccountData> {
     // send the IPC with 30s timeout since the backend will wait
     // for a HTTP request before replying
 
-    return this._ipc.send('get_account_data', accountNumber, 30000)
+    return this._ipc.send('get_account_data', accountToken, 30000)
       .then(raw => {
         if (typeof raw === 'object' && raw && raw.expiry) {
           return raw;
@@ -66,7 +66,7 @@ export class RealIpc implements IpcFacade {
       });
   }
 
-  getAccount(): Promise<?AccountNumber> {
+  getAccount(): Promise<?AccountToken> {
     return this._ipc.send('get_account')
       .then( raw => {
         if (raw === undefined || raw === null || typeof raw === 'string') {
@@ -77,8 +77,8 @@ export class RealIpc implements IpcFacade {
       });
   }
 
-  setAccount(accountNumber: AccountNumber): Promise<void> {
-    return this._ipc.send('set_account', accountNumber)
+  setAccount(accountToken: AccountToken): Promise<void> {
+    return this._ipc.send('set_account', accountToken)
       .then(this._ignoreResponse);
   }
 

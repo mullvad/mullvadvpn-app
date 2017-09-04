@@ -7,7 +7,7 @@ export const mockStore = configureMockStore(middlewares);
 export const mockState = () => {
   return {
     account: {
-      accountNumber: null,
+      accountToken: null,
       status: 'none',
       error: null
     },
