@@ -118,7 +118,6 @@ impl PacketFilter {
             .action(pfctl::RuleAction::Pass)
             .interface("lo0")
             .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()?;
         Ok(vec![lo0_rule])
