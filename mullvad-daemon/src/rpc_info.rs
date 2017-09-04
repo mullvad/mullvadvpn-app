@@ -15,10 +15,18 @@ error_chain! {
     }
 }
 
+#[cfg(unix)]
+lazy_static! {
+    /// The path to the file where we write the RPC address
+    static ref RPC_ADDRESS_FILE_PATH: PathBuf = Path::new("/tmp").join(".mullvad_rpc_address");
+}
+
+#[cfg(not(unix))]
 lazy_static! {
     /// The path to the file where we write the RPC address
     static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
 }
+
 
 /// Writes down the RPC address to some API to a file.
 pub fn write(rpc_address: &str) -> Result<()> {

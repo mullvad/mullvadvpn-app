@@ -11,6 +11,7 @@ path = "src/main.rs"
 [dependencies]
 clap = "2.20"
 error-chain = "0.10"
+lazy_static = "0.2"
 log = "0.3"
 env_logger = "0.4"
 serde = "1.0"
