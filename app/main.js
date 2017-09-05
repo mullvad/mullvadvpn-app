@@ -114,12 +114,8 @@ const appDelegate = {
     if (isDevelopment) {
       return path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/mullvadd');
 
-    } else if (isMacOS) {
+    } else if (isMacOS || isLinux) {
       return path.join(process.resourcesPath, 'mullvadd');
-
-    } else if (isLinux) {
-      // TODO: Decide
-      return '';
 
     } else if (isWindows) {
       // TODO: Decide
