@@ -12,13 +12,13 @@ extern crate duct;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate mktemp;
 
 #[macro_use]
 extern crate error_chain;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+extern crate uuid;
 
 extern crate talpid_ipc;
 extern crate openvpn_plugin;
@@ -40,3 +40,5 @@ pub mod mpsc;
 
 /// Abstractions over different firewalls
 pub mod firewall;
+
+mod mktemp;
