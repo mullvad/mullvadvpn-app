@@ -1,5 +1,6 @@
 use std::env;
 use std::path::{Path, PathBuf};
+use std::io;
 use std::fs;
 
 use uuid::Uuid;
@@ -31,7 +32,9 @@ impl AsRef<Path> for TempFile {
 impl Drop for TempFile {
     fn drop(&mut self) {
         if let Err(e) = fs::remove_file(&self.path) {
-            error!("Unable to remove TempFile {}: {:?}", self.path.to_string_lossy(), e);
+            if e.kind() != io::ErrorKind::NotFound {
+                error!("Unable to remove temp file {}: {:?}", self.path.to_string_lossy(), e);
+            }
         }
     }
 }
