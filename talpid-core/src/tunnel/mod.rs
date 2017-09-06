@@ -1,7 +1,10 @@
 use mktemp;
 use net;
+
 use openvpn_plugin::types::OpenVpnPluginEvent;
+
 use process::openvpn::OpenVpnCommand;
+
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -63,7 +66,8 @@ impl TunnelEvent {
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
     monitor: OpenVpnMonitor,
-    _user_pass_file: mktemp::Temp,
+    /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
+    _user_pass_file: mktemp::TempFile,
 }
 
 impl TunnelMonitor {
@@ -72,13 +76,22 @@ impl TunnelMonitor {
     pub fn new<L>(remote: net::Endpoint, account_token: &str, on_event: L) -> Result<Self>
         where L: Fn(TunnelEvent) + Send + Sync + 'static
     {
-        let on_openvpn_event = move |event, _env| match TunnelEvent::from_openvpn_event(&event) {
-            Some(tunnel_event) => on_event(tunnel_event),
-            None => debug!("Ignoring OpenVpnEvent {:?}", event),
-        };
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref());
+        let user_pass_file_path = user_pass_file.to_path_buf();
+
+        let on_openvpn_event = move |event, _env| {
+            if event == OpenVpnPluginEvent::Up {
+                // The user-pass file has been read. Try to delete it early.
+                let _ = fs::remove_file(&user_pass_file_path);
+            }
+            match TunnelEvent::from_openvpn_event(&event) {
+                Some(tunnel_event) => on_event(tunnel_event),
+                None => debug!("Ignoring OpenVpnEvent {:?}", event),
+            }
+        };
+
         let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(
@@ -168,16 +181,16 @@ impl TunnelMonitor {
         }
     }
 
-    fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::Temp> {
-        let path = mktemp::Temp::new_file()?;
+    fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::TempFile> {
+        let temp_file = mktemp::TempFile::new();
         debug!(
             "Writing user-pass credentials to {}",
-            path.as_ref().to_string_lossy()
+            temp_file.as_ref().to_string_lossy()
         );
-        let mut file = fs::File::create(&path)?;
+        let mut file = fs::File::create(&temp_file)?;
         Self::set_user_pass_file_permissions(&file)?;
         write!(file, "{}\n-\n", account_token)?;
-        Ok(path)
+        Ok(temp_file)
     }
 
     #[cfg(unix)]
