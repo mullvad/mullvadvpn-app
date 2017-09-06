@@ -12,7 +12,7 @@
   "dependencies": {
     "babel-runtime": "^6.22.0",
     "cheap-ruler": "^2.4.1",
-    "electron-log": "^2.2.0",
+    "electron-log": "^2.2.8",
     "electron-sudo": "https://github.com/eriklarko/electron-sudo.git",
     "history": "^4.6.1",
     "jsonrpc-lite": "^1.2.3",

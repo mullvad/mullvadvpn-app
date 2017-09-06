@@ -42,6 +42,9 @@ const appDelegate = {
   },
   _initLogging: () => {
 
+    const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
+    log.transports.console.format = format;
+    log.transports.file.format = format;
     if (isDevelopment) {
       log.transports.console.level = 'debug';
 
