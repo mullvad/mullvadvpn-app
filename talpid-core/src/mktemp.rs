@@ -1,7 +1,7 @@
 use std::env;
-use std::path::{Path, PathBuf};
-use std::io;
 use std::fs;
+use std::io;
+use std::path::{Path, PathBuf};
 
 use uuid::Uuid;
 
@@ -13,9 +13,7 @@ pub struct TempFile {
 impl TempFile {
     /// Create a new unique `TempFile`. The file will not exist after this.
     pub fn new() -> Self {
-        TempFile {
-            path: generate_path(),
-        }
+        TempFile { path: generate_path() }
     }
 
     pub fn to_path_buf(&self) -> PathBuf {
@@ -33,7 +31,11 @@ impl Drop for TempFile {
     fn drop(&mut self) {
         if let Err(e) = fs::remove_file(&self.path) {
             if e.kind() != io::ErrorKind::NotFound {
-                error!("Unable to remove temp file {}: {:?}", self.path.to_string_lossy(), e);
+                error!(
+                    "Unable to remove temp file {}: {:?}",
+                    self.path.to_string_lossy(),
+                    e
+                );
             }
         }
     }
