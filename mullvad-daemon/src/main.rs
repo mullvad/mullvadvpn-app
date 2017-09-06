@@ -571,7 +571,7 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
                 out.finish(
                     format_args!(
                         "{}[{}][{}] {}",
-                        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S]"),
+                        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
                         record.target(),
                         record.level(),
                         message
