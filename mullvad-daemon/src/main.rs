@@ -275,7 +275,7 @@ impl Daemon {
 
     fn handle_tunnel_exited(&mut self, result: tunnel::Result<()>) -> Result<()> {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
-            error!("{}", e.display());
+            error!("{}", e.display_chain());
         }
         self.remote_endpoint = None;
         self.tunnel_interface = None;
@@ -339,7 +339,7 @@ impl Daemon {
                     self.kill_tunnel()?;
                 }
             }
-            Err(e) => error!("{}", e.display()),
+            Err(e) => error!("{}", e.display_chain()),
         }
         Ok(())
     }
@@ -427,7 +427,7 @@ impl Daemon {
             (TargetState::Secured, TunnelState::NotRunning) => {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
-                    error!("{}", e.display());
+                    error!("{}", e.display_chain());
                     self.remote_endpoint = None;
                     self.reset_security_policy()?;
                     self.management_interface_broadcaster.notify_error(&e);
@@ -531,7 +531,7 @@ impl DaemonShutdownHandle {
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
         if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
-            error!("{}", e.display());
+            error!("{}", e.display_chain());
         }
     }
 }
