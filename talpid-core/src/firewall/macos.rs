@@ -1,6 +1,7 @@
 use super::{Firewall, SecurityPolicy};
 use net;
 use pfctl;
+use std::net::Ipv4Addr;
 
 // alias used to instantiate firewall implementation
 pub type ConcreteFirewall = PacketFilter;
@@ -77,6 +78,7 @@ impl PacketFilter {
         };
 
         new_rules.push(allow_dns_rule);
+        new_rules.append(&mut Self::get_dhcp_rules()?);
         new_rules.push(drop_all_rule);
 
         self.pf.set_rules(ANCHOR_NAME, &new_rules)
@@ -112,6 +114,29 @@ impl PacketFilter {
             .quick(true)
             .build()?;
         Ok(vec![lo0_rule])
+    }
+
+    fn get_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {
+        let broadcast_address = Ipv4Addr::new(255, 255, 255, 255);
+        let server_port = pfctl::Port::from(67);
+        let client_port = pfctl::Port::from(68);
+        let mut dhcp_rule_builder = pfctl::FilterRuleBuilder::default();
+        dhcp_rule_builder
+            .action(pfctl::FilterRuleAction::Pass)
+            .proto(pfctl::Proto::Udp)
+            .quick(true)
+            .keep_state(pfctl::StatePolicy::Keep);
+        let allow_outgoing_dhcp = dhcp_rule_builder
+            .direction(pfctl::Direction::Out)
+            .from(client_port)
+            .to(pfctl::Endpoint::new(broadcast_address, server_port))
+            .build()?;
+        let allow_incoming_dhcp = dhcp_rule_builder
+            .direction(pfctl::Direction::In)
+            .from(server_port)
+            .to(client_port)
+            .build()?;
+        Ok(vec![allow_outgoing_dhcp, allow_incoming_dhcp])
     }
 
     fn get_tcp_flags() -> pfctl::TcpFlags {
