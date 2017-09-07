@@ -369,10 +369,11 @@ impl Daemon {
 
     fn on_set_custom_relay(&mut self,
                            tx: OneshotSender<()>,
-                           relay_endpoint: RelayEndpoint)
+                           relay_endpoint: Option<RelayEndpoint>)
                            -> Result<()> {
 
-        let save_result = self.settings.set_custom_relay(Some(relay_endpoint));
+        let save_result = self.settings.set_custom_relay(relay_endpoint);
+
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(servers_changed) => {
                 Self::oneshot_send(tx, (), "set_custom_relay response");

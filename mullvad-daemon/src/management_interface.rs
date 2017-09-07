@@ -54,6 +54,10 @@ build_rpc_trait! {
         #[rpc(async, name = "set_custom_relay")]
         fn set_custom_relay(&self, RelayEndpoint) -> BoxFuture<(), Error>;
 
+        /// Unset the custom relay, reverting to the default relay listing
+        #[rpc(async, name = "remove_custom_relay")]
+        fn remove_custom_relay(&self) -> BoxFuture<(), Error>;
+
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(name = "set_autoconnect")]
         fn set_autoconnect(&self, bool) -> Result<(), Error>;
@@ -117,7 +121,7 @@ pub enum TunnelCommand {
     /// Request the current account token being used.
     GetAccount(OneshotSender<Option<AccountToken>>),
     /// Set a custom relay instead of the default list of relays
-    SetCustomRelay(OneshotSender<()>, RelayEndpoint),
+    SetCustomRelay(OneshotSender<()>, Option<RelayEndpoint>),
 }
 
 #[derive(Default)]
@@ -318,7 +322,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_custom_relay(&self, custom_relay: RelayEndpoint) -> BoxFuture<(), Error> {
         trace!("set_custom_relay");
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, custom_relay))
+        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, Some(custom_relay)),)
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn remove_custom_relay(&self) -> BoxFuture<(), Error> {
+        trace!("remove_custom_relay");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, None))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
