@@ -1967,9 +1967,9 @@ electron-download@^3.0.1:
     semver "^5.3.0"
     sumchecker "^1.2.0"
 
-electron-log@^2.2.0:
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-2.2.6.tgz#ccfa3e09b39f321468c90a642701380a34079f1a"
+electron-log@^2.2.8:
+  version "2.2.8"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-2.2.8.tgz#2296cccd8da046268a199c1a302dcb8cb16f2b72"
 
 electron-mocha@^3.3.0:
   version "3.4.0"
