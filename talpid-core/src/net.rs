@@ -1,4 +1,5 @@
 use std::net::{IpAddr, SocketAddr};
+use std::str::FromStr;
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -26,4 +27,16 @@ pub enum TransportProtocol {
     Udp,
     /// Represents the TCP transport protocol.
     Tcp,
+}
+
+impl FromStr for TransportProtocol {
+    type Err = ();
+
+    fn from_str(s: &str) -> ::std::result::Result<TransportProtocol, Self::Err> {
+        match s {
+            "udp" => Ok(TransportProtocol::Udp),
+            "tcp" => Ok(TransportProtocol::Tcp),
+            _ => Err(()),
+        }
+    }
 }

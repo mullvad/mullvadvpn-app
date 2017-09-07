@@ -14,3 +14,4 @@ extern crate serde;
 pub mod account;
 pub mod location;
 pub mod states;
+pub mod relay_endpoint;

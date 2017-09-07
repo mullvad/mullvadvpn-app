@@ -10,6 +10,7 @@ use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::{CountryCode, Location};
+use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
@@ -49,9 +50,9 @@ build_rpc_trait! {
         #[rpc(async, name = "get_account")]
         fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error>;
 
-        /// Set which country to connect to
-        #[rpc(name = "set_country")]
-        fn set_country(&self, CountryCode) -> Result<(), Error>;
+        /// Set which relay to connect to
+        #[rpc(async, name = "set_custom_relay")]
+        fn set_custom_relay(&self, RelayEndpoint) -> BoxFuture<(), Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(name = "set_autoconnect")]
@@ -115,6 +116,8 @@ pub enum TunnelCommand {
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
     GetAccount(OneshotSender<Option<AccountToken>>),
+    /// Set a custom relay instead of the default list of relays
+    SetCustomRelay(OneshotSender<()>, RelayEndpoint),
 }
 
 #[derive(Default)]
@@ -312,9 +315,12 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn set_country(&self, _country_code: CountryCode) -> Result<(), Error> {
-        trace!("set_country");
-        Ok(())
+    fn set_custom_relay(&self, custom_relay: RelayEndpoint) -> BoxFuture<(), Error> {
+        trace!("set_custom_relay");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, custom_relay))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn set_autoconnect(&self, _autoconnect: bool) -> Result<(), Error> {
