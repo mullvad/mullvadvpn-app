@@ -5,6 +5,7 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 
 use process::openvpn::OpenVpnCommand;
 
+use std::collections::HashMap;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
@@ -42,10 +43,13 @@ pub use self::errors::*;
 
 
 /// Possible events from the VPN tunnel and the child process managing it.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
     /// Sent when the tunnel comes up and is ready for traffic.
-    Up,
+    Up {
+        /// The name of the device which the tunnel is running on.
+        tunnel_interface: String,
+    },
     /// Sent when the tunnel goes down.
     Down,
 }
@@ -53,9 +57,15 @@ pub enum TunnelEvent {
 impl TunnelEvent {
     /// Converts an `OpenVpnPluginEvent` to a `TunnelEvent`.
     /// Returns `None` if there is no corresponding `TunnelEvent`.
-    fn from_openvpn_event(event: &OpenVpnPluginEvent) -> Option<TunnelEvent> {
+    fn from_openvpn_event(event: &OpenVpnPluginEvent,
+                          env: &HashMap<String, String>)
+                          -> Option<TunnelEvent> {
         match *event {
-            OpenVpnPluginEvent::Up => Some(TunnelEvent::Up),
+            OpenVpnPluginEvent::Up => {
+                let tunnel_interface =
+                    env.get("dev").expect("No \"dev\" in tunnel up event").to_owned();
+                Some(TunnelEvent::Up { tunnel_interface })
+            }
             OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
             _ => None,
         }
@@ -81,12 +91,12 @@ impl TunnelMonitor {
         let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref());
         let user_pass_file_path = user_pass_file.to_path_buf();
 
-        let on_openvpn_event = move |event, _env| {
+        let on_openvpn_event = move |event, env| {
             if event == OpenVpnPluginEvent::Up {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
             }
-            match TunnelEvent::from_openvpn_event(&event) {
+            match TunnelEvent::from_openvpn_event(&event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
                 None => debug!("Ignoring OpenVpnEvent {:?}", event),
             }
