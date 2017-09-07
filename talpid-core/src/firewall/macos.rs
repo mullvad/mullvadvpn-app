@@ -8,18 +8,9 @@ pub use pfctl::{Error, ErrorKind, Result};
 
 const ANCHOR_NAME: &'static str = "talpid_core";
 
-impl From<net::Endpoint> for pfctl::Endpoint {
-    fn from(endpoint: net::Endpoint) -> Self {
-        pfctl::Endpoint(
-            pfctl::Ip::from(endpoint.address.ip()),
-            pfctl::Port::from(endpoint.address.port()),
-        )
-    }
-}
-
-impl From<net::Endpoint> for pfctl::Proto {
-    fn from(endpoint: net::Endpoint) -> Self {
-        match endpoint.protocol {
+impl From<net::TransportProtocol> for pfctl::Proto {
+    fn from(protocol: net::TransportProtocol) -> Self {
+        match protocol {
             net::TransportProtocol::Udp => pfctl::Proto::Udp,
             net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
         }
@@ -62,11 +53,11 @@ impl Firewall<Error> for PacketFilter {
 impl PacketFilter {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
         let drop_all_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::RuleAction::Drop)
+            .action(pfctl::FilterRuleAction::Drop)
             .quick(true)
             .build()?;
         let allow_dns_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::RuleAction::Pass)
+            .action(pfctl::FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
             .quick(true)
             .to(pfctl::Port::One(53, pfctl::PortUnaryModifier::Equal))
@@ -93,10 +84,10 @@ impl PacketFilter {
 
     fn get_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         pfctl::FilterRuleBuilder::default()
-            .action(pfctl::RuleAction::Pass)
+            .action(pfctl::FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
-            .to(relay_endpoint)
-            .proto(relay_endpoint)
+            .to(relay_endpoint.address)
+            .proto(relay_endpoint.protocol)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
@@ -105,7 +96,7 @@ impl PacketFilter {
 
     fn get_tunnel_rule(tunnel_interface: String) -> Result<pfctl::FilterRule> {
         pfctl::FilterRuleBuilder::default()
-            .action(pfctl::RuleAction::Pass)
+            .action(pfctl::FilterRuleAction::Pass)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
@@ -115,7 +106,7 @@ impl PacketFilter {
 
     fn get_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let lo0_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::RuleAction::Pass)
+            .action(pfctl::FilterRuleAction::Pass)
             .interface("lo0")
             .keep_state(pfctl::StatePolicy::Keep)
             .quick(true)

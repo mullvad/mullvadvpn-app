@@ -872,12 +872,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "pfctl"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/pfctl-rs.git#7d4c6ec799e3b6c256f1db84a0daec3bb0cd180a"
+source = "git+https://github.com/mullvad/pfctl-rs.git#17c90bca15244ae0a28fa54339c074ff306206d0"
 dependencies = [
  "bindgen 0.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_builder 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "errno 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ioctl-sys 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.12.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.29 (registry+https://github.com/rust-lang/crates.io-index)",
