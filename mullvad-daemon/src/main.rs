@@ -263,8 +263,8 @@ impl Daemon {
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         debug!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting {
-            if let TunnelEvent::Up { dev } = tunnel_event {
-                self.tunnel_interface = Some(dev);
+            if let TunnelEvent::Up { tunnel_interface } = tunnel_event {
+                self.tunnel_interface = Some(tunnel_interface);
                 self.set_security_policy()?;
                 self.set_state(TunnelState::Connected)
             } else {

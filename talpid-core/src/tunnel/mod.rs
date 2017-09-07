@@ -48,7 +48,7 @@ pub enum TunnelEvent {
     /// Sent when the tunnel comes up and is ready for traffic.
     Up {
         /// The name of the device which the tunnel is running on.
-        dev: String,
+        tunnel_interface: String,
     },
     /// Sent when the tunnel goes down.
     Down,
@@ -62,8 +62,9 @@ impl TunnelEvent {
                           -> Option<TunnelEvent> {
         match *event {
             OpenVpnPluginEvent::Up => {
-                let dev = env.get("dev").expect("No \"dev\" in tunnel up event").to_owned();
-                Some(TunnelEvent::Up { dev })
+                let tunnel_interface =
+                    env.get("dev").expect("No \"dev\" in tunnel up event").to_owned();
+                Some(TunnelEvent::Up { tunnel_interface })
             }
             OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
             _ => None,
