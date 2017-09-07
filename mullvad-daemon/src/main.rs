@@ -35,6 +35,7 @@ extern crate lazy_static;
 extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
+extern crate talpid_types;
 
 mod cli;
 mod management_interface;
@@ -57,14 +58,13 @@ use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 use std::net::{Ipv4Addr, SocketAddr, ToSocketAddrs};
 use std::path::PathBuf;
-use std::str::FromStr;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
-use talpid_core::net::{Endpoint, TransportProtocol};
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
+use talpid_types::net::{Endpoint, TransportProtocol};
 
 error_chain!{
     errors {
@@ -544,17 +544,13 @@ impl Daemon {
                 )
             }
 
-            let protocol = TransportProtocol::from_str(&relay_endpoint.protocol)
-                .map_err(
-                    |_| {
-                        format!(
-                            "Invalid custom server protocol: {}",
-                            relay_endpoint.protocol
-                        )
-                    },
-                )?;
-
-            Ok(Endpoint::new(socket_addr.ip(), socket_addr.port(), protocol),)
+            Ok(
+                Endpoint::new(
+                    socket_addr.ip(),
+                    socket_addr.port(),
+                    relay_endpoint.protocol,
+                ),
+            )
         }
     }
 

@@ -1,4 +1,4 @@
-use net::Endpoint;
+use talpid_types::net::Endpoint;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]

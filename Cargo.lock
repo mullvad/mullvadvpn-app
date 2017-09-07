@@ -1,12 +1,9 @@
 [root]
-name = "talpid-openvpn-plugin"
+name = "talpid-types"
 version = "0.1.0"
 dependencies = [
- "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "talpid-ipc 0.1.0",
+ "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -673,6 +670,7 @@ dependencies = [
  "simple-signal 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-core 0.1.0",
  "talpid-ipc 0.1.0",
+ "talpid-types 0.1.0",
  "toml 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -684,6 +682,7 @@ dependencies = [
  "chrono 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid-types 0.1.0",
 ]
 
 [[package]]
@@ -1184,6 +1183,7 @@ dependencies = [
  "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs.git)",
  "talpid-ipc 0.1.0",
+ "talpid-types 0.1.0",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1202,6 +1202,17 @@ dependencies = [
  "serde_json 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ws 0.7.1 (git+https://github.com/tomusdrw/ws-rs)",
+]
+
+[[package]]
+name = "talpid-openvpn-plugin"
+version = "0.1.0"
+dependencies = [
+ "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid-ipc 0.1.0",
 ]
 
 [[package]]

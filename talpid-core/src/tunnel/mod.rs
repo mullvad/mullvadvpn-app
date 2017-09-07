@@ -1,5 +1,4 @@
 use mktemp;
-use net;
 
 use openvpn_plugin::types::OpenVpnPluginEvent;
 
@@ -11,6 +10,7 @@ use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use talpid_types::net;
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;

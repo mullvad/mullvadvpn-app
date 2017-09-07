@@ -30,6 +30,7 @@ extern crate jsonrpc_macros;
 extern crate uuid;
 
 extern crate talpid_ipc;
+extern crate talpid_types;
 extern crate openvpn_plugin;
 
 #[cfg(target_os = "macos")]
@@ -37,9 +38,6 @@ extern crate pfctl;
 
 /// Working with processes.
 pub mod process;
-
-/// Network primitives.
-pub mod net;
 
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;

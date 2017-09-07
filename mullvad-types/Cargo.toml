@@ -8,3 +8,5 @@ license = "GPL-3.0"
 chrono = { version = "0.4", features = ["serde"] }
 serde_derive = "1.0"
 serde = "1.0"
+
+talpid-types = { path = "../talpid-types" }

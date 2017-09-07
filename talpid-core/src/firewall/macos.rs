@@ -1,22 +1,13 @@
 use super::{Firewall, SecurityPolicy};
-use net;
 use pfctl;
 use std::net::Ipv4Addr;
+use talpid_types::net;
 
 // alias used to instantiate firewall implementation
 pub type ConcreteFirewall = PacketFilter;
 pub use pfctl::{Error, ErrorKind, Result};
 
 const ANCHOR_NAME: &'static str = "talpid_core";
-
-impl From<net::TransportProtocol> for pfctl::Proto {
-    fn from(protocol: net::TransportProtocol) -> Self {
-        match protocol {
-            net::TransportProtocol::Udp => pfctl::Proto::Udp,
-            net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
-        }
-    }
-}
 
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
@@ -85,11 +76,14 @@ impl PacketFilter {
     }
 
     fn get_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
+        let pfctl_endpoint = as_pfctl_endpoint(relay_endpoint);
+        let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
+
         pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
-            .to(relay_endpoint.address)
-            .proto(relay_endpoint.protocol)
+            .to(pfctl_endpoint)
+            .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
@@ -174,3 +168,18 @@ impl PacketFilter {
         self.pf.try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
     }
 }
+
+fn as_pfctl_endpoint(relay_endpoint: net::Endpoint) -> pfctl::Endpoint {
+    pfctl::Endpoint::new(
+        pfctl::Ip::from(relay_endpoint.address.ip()),
+        pfctl::Port::from(relay_endpoint.address.port())
+    )
+}
+
+fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
+    match protocol {
+        net::TransportProtocol::Udp => pfctl::Proto::Udp,
+        net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
+    }
+}
+
