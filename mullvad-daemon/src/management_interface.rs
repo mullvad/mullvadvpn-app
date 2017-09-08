@@ -1,5 +1,6 @@
 use error_chain;
 
+use error_chain::ChainedError;
 use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{Future, future, sync};
@@ -254,9 +255,28 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()));
+        let future =
+            self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()))
+                .and_then(
+                    |rpc_future| {
+                        rpc_future.map_err(|e: jsonrpc_client_core::Error| {
+                            error!("Unable to get account data from master: {}", e.display_chain());
+                            match e.kind() {
+                                &jsonrpc_client_core::ErrorKind::JsonRpcError(ref rpc_error) => {
+                                    // We have to manually copy the error since we have different
+                                    // versions of the jsonrpc_core library at the moment.
+                                    Error {
+                                        code: ErrorCode::from(rpc_error.code.code()),
+                                        message: rpc_error.message.clone(),
+                                        data: rpc_error.data.clone(),
+                                    }
+                                }
+                                _ => Error::internal_error(),
+                            }
+                        })
+                    },
+                );
         Box::new(future)
     }
 
