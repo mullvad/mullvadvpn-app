@@ -1,8 +1,9 @@
 [package]
 name = "talpid-openvpn-plugin"
 version = "0.1.0"
-authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
+authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
+license = "GPL-3.0"
 
 [lib]
 crate-type = ["cdylib"]

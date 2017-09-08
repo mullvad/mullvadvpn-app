@@ -1,8 +1,9 @@
 [package]
 name = "talpid-ipc"
 version = "0.1.0"
-authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
+authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "IPC client and server for talpid"
+license = "GPL-3.0"
 
 [dependencies]
 error-chain = "0.11"
