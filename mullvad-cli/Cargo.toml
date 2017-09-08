@@ -3,6 +3,7 @@ name = "mullvad-cli"
 version = "0.1.0"
 authors = ["Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>"]
 description = "Run Talpid easily from the command line"
+license = "GPL-3.0"
 
 [[bin]]
 name = "mullvad"
