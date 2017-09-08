@@ -16,7 +16,7 @@ impl Command for CustomRelay {
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
-            .about("Set a custom remote relay to connect to")
+            .about("Set or remove custom remote relay")
             .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(clap::SubCommand::with_name("set")
                 .about("Set a custom remote relay")
@@ -30,6 +30,8 @@ impl Command for CustomRelay {
                      .help("The transport protocol. UDP is recommended as it usually results in higher throughput that TCP")
                      .possible_values(&["udp", "tcp"])
                      .default_value("udp")))
+            .subcommand(clap::SubCommand::with_name("remove")
+                .about("Remove the custom remote server and use the default remotes instead"))
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
@@ -39,6 +41,8 @@ impl Command for CustomRelay {
             let protocol = value_t_or_exit!(set_matches.value_of("protocol"), TransportProtocol);
 
             self.set(host, port, protocol)
+        } else if let Some(_) = matches.subcommand_matches("remove") {
+            self.remove()
         } else {
             unreachable!("No sub command given");
         }
@@ -58,5 +62,13 @@ impl CustomRelay {
             &[relay_endpoint],
         )
                 .map(|_: Option<()>| println!("Custom remote relay set"))
+    }
+
+    fn remove(&self) -> Result<()> {
+        rpc::call(
+            "remove_custom_relay",
+            &[] as &[u8; 0],
+        )
+                .map(|_: Option<()>| println!("Custom relay removed"))
     }
 }
