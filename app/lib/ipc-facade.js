@@ -31,7 +31,7 @@ export interface IpcFacade {
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: AccountToken): Promise<void>,
-  setCountry(address: string): Promise<void>,
+  setCustomRelay(host: string, port: number, protocol: 'udp' | 'tcp'): Promise<void>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   getIp(): Promise<Ip>,
@@ -86,8 +86,12 @@ export class RealIpc implements IpcFacade {
     return;
   }
 
-  setCountry(address: string): Promise<void> {
-    return this._ipc.send('set_country', address)
+  setCustomRelay(host: string, port: number, protocol: 'udp' | 'tcp'): Promise<void> {
+    return this._ipc.send('set_custom_relay', {
+      host,
+      port,
+      protocol,
+    })
       .then(this._ignoreResponse);
   }
 

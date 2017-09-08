@@ -7,13 +7,13 @@ import { IpcChain } from './helpers/IpcChain';
 
 describe('connect', () => {
 
-  it('should invoke set_country and then connect in the backend', (done) => {
+  it('should invoke set_custom_relay and then connect in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('setCountry')
+    chain.require('setCustomRelay')
       .withInputValidation(
-        (country) => expect(country).to.equal('example.com')
+        (relayHostName) => expect(relayHostName).to.equal('example.com')
       )
       .done();
 

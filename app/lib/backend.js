@@ -231,8 +231,8 @@ export class Backend {
 
     this._store.dispatch(connectionActions.connectingTo(addr));
 
-
-    return this._ipc.setCountry(addr)
+    // TODO: Don't hardcode these values
+    return this._ipc.setCustomRelay(addr, 1300, 'udp')
       .then( () => {
         return this._ipc.connect();
       })

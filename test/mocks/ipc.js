@@ -27,7 +27,7 @@ export function newMockIpc() {
     setAccount: () => {
       return new Promise(r => r());
     },
-    setCountry: () => {
+    setCustomRelay: () => {
       return new Promise(r => r());
     },
     connect: () => {
