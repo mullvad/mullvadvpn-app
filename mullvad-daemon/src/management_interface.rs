@@ -322,7 +322,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn set_custom_relay(&self, custom_relay: RelayEndpoint) -> BoxFuture<(), Error> {
         trace!("set_custom_relay");
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, Some(custom_relay)),)
+
+        let message = TunnelCommand::SetCustomRelay(tx, Some(custom_relay));
+        let future = self.send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

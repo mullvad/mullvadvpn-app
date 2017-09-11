@@ -26,7 +26,8 @@ impl Command for CustomRelay {
                      .help("The port of the relay")
                      .required(true))
                 .arg(clap::Arg::with_name("protocol")
-                     .help("The transport protocol. UDP is recommended as it usually results in higher throughput than TCP")
+                     .help("The transport protocol. UDP is recommended as it usually results in
+                           higher throughput than TCP")
                      .possible_values(&["udp", "tcp"])
                      .default_value("udp")))
             .subcommand(clap::SubCommand::with_name("remove")
