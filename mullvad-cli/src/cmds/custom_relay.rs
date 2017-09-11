@@ -1,7 +1,6 @@
 pub struct CustomRelay;
 
-use Command;
-use Result;
+use {Command, Result};
 use clap;
 use mullvad_types::relay_endpoint::RelayEndpoint;
 
@@ -16,22 +15,22 @@ impl Command for CustomRelay {
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
-            .about("Set or remove custom remote relay")
+            .about("Set or remove custom relay")
             .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(clap::SubCommand::with_name("set")
-                .about("Set a custom remote relay")
+                .about("Set a custom relay")
                 .arg(clap::Arg::with_name("host")
-                     .help("The host name or IP of the remote relay")
+                     .help("The host name or IP of the relay")
                      .required(true))
                 .arg(clap::Arg::with_name("port")
-                     .help("The port of the remote relay")
+                     .help("The port of the relay")
                      .required(true))
                 .arg(clap::Arg::with_name("protocol")
-                     .help("The transport protocol. UDP is recommended as it usually results in higher throughput that TCP")
+                     .help("The transport protocol. UDP is recommended as it usually results in higher throughput than TCP")
                      .possible_values(&["udp", "tcp"])
                      .default_value("udp")))
             .subcommand(clap::SubCommand::with_name("remove")
-                .about("Remove the custom remote server and use the default remotes instead"))
+                .about("Remove the custom relay and use the default relays instead"))
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
@@ -61,7 +60,7 @@ impl CustomRelay {
             "set_custom_relay",
             &[relay_endpoint],
         )
-                .map(|_: Option<()>| println!("Custom remote relay set"))
+                .map(|_: Option<()>| println!("Custom relay set"))
     }
 
     fn remove(&self) -> Result<()> {

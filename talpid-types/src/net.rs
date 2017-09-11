@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
@@ -30,13 +32,37 @@ pub enum TransportProtocol {
 }
 
 impl FromStr for TransportProtocol {
-    type Err = ();
+    type Err = TransportProtocolParseError;
 
     fn from_str(s: &str) -> ::std::result::Result<TransportProtocol, Self::Err> {
         match s {
             "udp" => Ok(TransportProtocol::Udp),
             "tcp" => Ok(TransportProtocol::Tcp),
-            _ => Err(()),
+            _ => Err(TransportProtocolParseError),
         }
+    }
+}
+
+impl fmt::Display for TransportProtocol {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            TransportProtocol::Udp => "UDP".fmt(fmt),
+            TransportProtocol::Tcp => "TCP".fmt(fmt),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransportProtocolParseError;
+
+impl fmt::Display for TransportProtocolParseError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(self.description())
+    }
+}
+
+impl Error for TransportProtocolParseError {
+    fn description(&self) -> &str {
+        "Not a valid transport protocol"
     }
 }

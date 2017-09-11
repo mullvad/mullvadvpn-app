@@ -123,9 +123,7 @@ impl Settings {
     }
 
     pub fn set_custom_relay(&mut self, relay_endpoint: Option<RelayEndpoint>) -> Result<bool> {
-        let has_changed = self.custom_relay != relay_endpoint;
-
-        if has_changed {
+        if self.custom_relay != relay_endpoint {
             match &relay_endpoint {
                 &Some(ref data) => info!("Setting a custom relay: {}", data),
                 &None => info!("Removing the custom relay"),

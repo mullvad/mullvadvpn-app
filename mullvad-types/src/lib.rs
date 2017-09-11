@@ -13,6 +13,12 @@ extern crate serde;
 
 extern crate talpid_types;
 
+#[macro_use]
+extern crate log;
+
+#[macro_use]
+extern crate error_chain;
+
 pub mod account;
 pub mod location;
 pub mod states;

@@ -56,7 +56,7 @@ use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use std::io;
-use std::net::{Ipv4Addr, SocketAddr, ToSocketAddrs};
+use std::net::Ipv4Addr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
@@ -375,13 +375,13 @@ impl Daemon {
         let save_result = self.settings.set_custom_relay(relay_endpoint);
 
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(servers_changed) => {
+            Ok(relays_changed) => {
                 Self::oneshot_send(tx, (), "set_custom_relay response");
 
                 let tunnel_needs_restart = self.state == TunnelState::Connecting ||
                                            self.state == TunnelState::Connected;
 
-                if servers_changed && tunnel_needs_restart {
+                if relays_changed && tunnel_needs_restart {
                     info!("Initiating tunnel restart because a custom relay was selected");
                     self.kill_tunnel()?;
                 }
@@ -511,47 +511,11 @@ impl Daemon {
 
     fn get_relay(&mut self) -> Result<Endpoint> {
         if let Some(relay_endpoint) = self.settings.get_custom_relay() {
-            self.parse_custom_relay(&relay_endpoint)
+            relay_endpoint
+                .to_endpoint()
+                .chain_err(|| "Invalid custom relay")
         } else {
             Ok(self.relay_iter.next().unwrap())
-        }
-    }
-
-    fn parse_custom_relay(&self, relay_endpoint: &RelayEndpoint) -> Result<Endpoint> {
-        let socket_addrs: Vec<SocketAddr> =
-            format!("{}:{}", &relay_endpoint.host, relay_endpoint.port)
-                .to_socket_addrs()
-                .chain_err(
-                    || {
-                        format!(
-                            "Invalid custom server host identifier: {}",
-                            relay_endpoint.host
-                        )
-                    },
-                )?
-                .collect();
-
-        if socket_addrs.len() == 0 {
-            bail!("Unable to resolve {}", relay_endpoint.host)
-        } else {
-
-            let socket_addr = socket_addrs[0];
-
-            if socket_addrs.len() > 1 {
-                info!(
-                    "{} resolved to more than one IP, ignoring all but {}",
-                    relay_endpoint.host,
-                    socket_addr.ip()
-                )
-            }
-
-            Ok(
-                Endpoint::new(
-                    socket_addr.ip(),
-                    socket_addr.port(),
-                    relay_endpoint.protocol,
-                ),
-            )
         }
     }
 
