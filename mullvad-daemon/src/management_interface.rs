@@ -1,5 +1,6 @@
 use error_chain;
 
+use error_chain::ChainedError;
 use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{Future, future, sync};
@@ -246,6 +247,24 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
                 .map_err(|_| Error::internal_error())
         )
     }
+
+    /// Converts the given error to an error that can be given to the caller of the API.
+    /// Will let any actual RPC error through as is, any other error is changed to an internal
+    /// error.
+    fn map_rpc_error(error: jsonrpc_client_core::Error) -> Error {
+        match error.kind() {
+            &jsonrpc_client_core::ErrorKind::JsonRpcError(ref rpc_error) => {
+                // We have to manually copy the error since we have different
+                // versions of the jsonrpc_core library at the moment.
+                Error {
+                    code: ErrorCode::from(rpc_error.code.code()),
+                    message: rpc_error.message.clone(),
+                    data: rpc_error.data.clone(),
+                }
+            }
+            _ => Error::internal_error(),
+        }
+    }
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
@@ -256,7 +275,19 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|rpc_future| rpc_future.map_err(|_| Error::internal_error()));
+            .and_then(
+                |rpc_future| {
+                    rpc_future.map_err(
+                        |error: jsonrpc_client_core::Error| {
+                            error!(
+                                "Unable to get account data from master: {}",
+                                error.display_chain()
+                            );
+                            Self::map_rpc_error(error)
+                        },
+                    )
+                },
+            );
         Box::new(future)
     }
 
