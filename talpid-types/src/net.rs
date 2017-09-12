@@ -24,7 +24,7 @@ impl Endpoint {
 
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,
