@@ -25,13 +25,19 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
+export type RelayEndpoint = {
+  host: string,
+  port: number,
+  protocol: 'tcp' | 'udp',
+};
+
 
 export interface IpcFacade {
   setConnectionString(string): void,
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: AccountToken): Promise<void>,
-  setCustomRelay(host: string, port: number, protocol: 'udp' | 'tcp'): Promise<void>,
+  setCustomRelay(RelayEndpoint): Promise<void>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   getIp(): Promise<Ip>,
@@ -86,12 +92,8 @@ export class RealIpc implements IpcFacade {
     return;
   }
 
-  setCustomRelay(host: string, port: number, protocol: 'udp' | 'tcp'): Promise<void> {
-    return this._ipc.send('set_custom_relay', {
-      host,
-      port,
-      protocol,
-    })
+  setCustomRelay(relayEndpoint: RelayEndpoint): Promise<void> {
+    return this._ipc.send('set_custom_relay', [relayEndpoint])
       .then(this._ignoreResponse);
   }
 

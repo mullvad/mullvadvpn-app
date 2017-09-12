@@ -18,7 +18,13 @@ const mapDispatchToProps = (dispatch, props) => {
       // add delay to let the map load
       setTimeout(() => {
         settings.updateSettings({ preferredServer });
-        backend.connect(server.address);
+
+        // TODO: Don't use these hardcoded values
+        backend.connect({
+          host: server.address,
+          port: 1300,
+          protocol: 'udp',
+        });
       }, 600);
     }
   };

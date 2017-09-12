@@ -94,7 +94,7 @@ describe('components/Connect', () => {
 
   it('invokes the onConnect prop', (done) => {
     const component = renderNotConnected({
-      onConnect: done,
+      onConnect: () => done(),
     });
     const connectButton = component.find('.button .button--positive');
 

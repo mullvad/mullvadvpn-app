@@ -10,6 +10,7 @@ import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
+import type { RelayEndpoint } from '../lib/ipc-facade';
 
 export type ConnectProps = {
   accountExpiry: string,
@@ -17,7 +18,7 @@ export type ConnectProps = {
   preferredServer: string,
   onSettings: () => void,
   onSelectLocation: () => void,
-  onConnect: (address: string) => void,
+  onConnect: (relayEndpoint: RelayEndpoint) => void,
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
@@ -301,7 +302,12 @@ export default class Connect extends Component {
     const preferredServer = this.props.preferredServer;
     const serverInfo = this.props.getServerInfo(preferredServer);
     if(serverInfo) {
-      this.props.onConnect(serverInfo.address);
+      // TODO: Don't use these hardcoded values
+      this.props.onConnect({
+        host: serverInfo.address,
+        port: 1300,
+        protocol: 'udp',
+      });
     }
   }
 
