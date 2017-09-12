@@ -130,7 +130,7 @@ export class Backend {
 
   fastestServer(): ServerInfo {
     return {
-      address: 'uk.mullvad.net',
+      address: 'gb.mullvad.net',
       name: 'Fastest',
       city: 'London',
       country: 'United Kingdom',
