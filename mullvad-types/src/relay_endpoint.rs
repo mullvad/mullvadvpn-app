@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::fmt;
 use std::net::{SocketAddr, ToSocketAddrs};
 use talpid_types;
@@ -22,13 +21,13 @@ pub struct RelayEndpoint {
 impl RelayEndpoint {
     pub fn to_endpoint(&self) -> Result<talpid_types::net::Endpoint> {
 
-        let mut socket_addrs = to_socket_addrs(self.host.as_str(), self.port)?;
+        let socket_addrs = to_socket_addrs(self.host.as_str(), self.port)?;
         ensure!(
             socket_addrs.len() > 0,
             ErrorKind::InvalidHost(self.host.clone())
         );
 
-        let socket_addr = choose_ip(&mut socket_addrs);
+        let socket_addr = choose_ip(&socket_addrs).unwrap();
 
         if socket_addrs.len() > 1 {
             info!(
@@ -52,20 +51,17 @@ fn to_socket_addrs(host: &str, port: u16) -> Result<Vec<SocketAddr>> {
     )
 }
 
-fn choose_ip(socket_addrs: &mut Vec<SocketAddr>) -> SocketAddr {
+fn choose_ip(socket_addrs: &Vec<SocketAddr>) -> Option<SocketAddr> {
+    // We prefer IPv4 addresses, so we split the addresses into
+    // IPv4 ad IPv6s and take form the IPv4 pile if any.
 
-    // We want to prefer IPv4 addresses so we sort the addresses putting
-    // the IPv4 addresses at the start of the vector.
-    socket_addrs.sort_by(
-        |a, _| if a.is_ipv4() {
-            Ordering::Less
-        } else {
-            Ordering::Equal
-        },
-    );
+    let (mut ipv4, mut ipv6): (Vec<SocketAddr>, Vec<SocketAddr>) =
+        socket_addrs
+            .into_iter()
+            .partition(|addr| addr.is_ipv4());
 
     // If there are many IP:s, we simply ignore the rest
-    socket_addrs[0]
+    ipv4.pop().or(ipv6.pop())
 }
 
 impl fmt::Display for RelayEndpoint {
