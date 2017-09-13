@@ -3,6 +3,8 @@ extern crate toml;
 
 use self::app_dirs::{AppDataType, AppInfo};
 
+use mullvad_types::relay_endpoint::RelayEndpoint;
+
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::PathBuf;
@@ -36,9 +38,13 @@ static SETTINGS_FILE: &str = "settings.toml";
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Settings {
     account_token: Option<String>,
+    custom_relay: Option<RelayEndpoint>,
 }
 
-const DEFAULT_SETTINGS: Settings = Settings { account_token: None };
+const DEFAULT_SETTINGS: Settings = Settings {
+    account_token: None,
+    custom_relay: None,
+};
 
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
@@ -109,6 +115,26 @@ impl Settings {
         match *account_token {
             Some(ref account_token) => format!("\"{}\"", account_token),
             None => "[none]".to_owned(),
+        }
+    }
+
+    pub fn get_custom_relay(&self) -> Option<RelayEndpoint> {
+        self.custom_relay.clone()
+    }
+
+    pub fn set_custom_relay(&mut self, relay_endpoint: Option<RelayEndpoint>) -> Result<bool> {
+        if self.custom_relay != relay_endpoint {
+            match &relay_endpoint {
+                &Some(ref data) => info!("Setting a custom relay: {}", data),
+                &None => info!("Removing the custom relay"),
+            }
+
+            self.custom_relay = relay_endpoint;
+
+            self.save()
+                .map(|_| true)
+        } else {
+            Ok(false)
         }
     }
 }

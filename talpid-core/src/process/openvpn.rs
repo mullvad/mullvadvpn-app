@@ -1,10 +1,10 @@
 use duct;
 
-use net;
-
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
+
+use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
@@ -190,9 +190,9 @@ fn write_argument(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
 #[cfg(test)]
 mod tests {
     use super::OpenVpnCommand;
-    use net::{Endpoint, TransportProtocol};
     use std::ffi::OsString;
     use std::net::Ipv4Addr;
+    use talpid_types::net::{Endpoint, TransportProtocol};
 
     #[test]
     fn passes_one_remote() {

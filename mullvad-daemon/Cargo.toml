@@ -32,6 +32,7 @@ toml = "0.4"
 mullvad-types = { path = "../mullvad-types" }
 talpid-core = { path = "../talpid-core" }
 talpid-ipc = { path = "../talpid-ipc" }
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(unix)'.dependencies]
 simple-signal = "1.1"

@@ -1,5 +1,4 @@
-use Command;
-use Result;
+use {Command, Result};
 use clap;
 
 use mullvad_types::account::{AccountData, AccountToken};

@@ -16,6 +16,7 @@ uuid = { version = "0.5", features = ["v4"] }
 
 openvpn-plugin = { version = "0.2", features = ["serialize"] }
 talpid-ipc = { path = "../talpid-ipc" }
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.20"

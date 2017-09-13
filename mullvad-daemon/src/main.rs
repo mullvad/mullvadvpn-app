@@ -35,6 +35,7 @@ extern crate lazy_static;
 extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
+extern crate talpid_types;
 
 mod cli;
 mod management_interface;
@@ -43,6 +44,7 @@ mod rpc_info;
 mod settings;
 mod shutdown;
 
+
 use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_client_http::HttpHandle;
@@ -50,6 +52,7 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use master::AccountsProxy;
 use mullvad_types::account::{AccountData, AccountToken};
+use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use std::io;
@@ -60,8 +63,8 @@ use std::thread;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
-use talpid_core::net::{Endpoint, TransportProtocol};
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
+use talpid_types::net::{Endpoint, TransportProtocol};
 
 error_chain!{
     errors {
@@ -85,12 +88,15 @@ error_chain!{
             description("Invalid settings")
             display("Invalid Settings: {}", msg)
         }
+        NoRelay {
+            description("Found no valid relays to connect to")
+        }
     }
 }
 
 lazy_static! {
-    // Temporary store of hardcoded remotes.
-    static ref REMOTES: [Endpoint; 3] = [
+    // Temporary store of hardcoded relays.
+    static ref RELAYS: [Endpoint; 3] = [
         // se5.mullvad.net
         Endpoint::new(Ipv4Addr::new(193, 138, 219, 240), 1300, TransportProtocol::Udp),
         // se6.mullvad.net
@@ -170,12 +176,12 @@ struct Daemon {
     settings: settings::Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
     firewall: FirewallProxy,
-    remote_endpoint: Option<Endpoint>,
+    relay_endpoint: Option<Endpoint>,
     tunnel_interface: Option<String>,
 
-    // Just for testing. A cyclic iterator iterating over the hardcoded remotes,
+    // Just for testing. A cyclic iterator iterating over the hardcoded relays,
     // picking a new one for each retry.
-    remote_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
+    relay_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
 }
 
 impl Daemon {
@@ -201,9 +207,9 @@ impl Daemon {
                 accounts_proxy: master::create_account_proxy()
                     .chain_err(|| "Unable to bootstrap RPC client")?,
                 firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
-                remote_endpoint: None,
+                relay_endpoint: None,
                 tunnel_interface: None,
-                remote_iter: REMOTES.iter().cloned().cycle(),
+                relay_iter: RELAYS.iter().cloned().cycle(),
             },
         )
     }
@@ -289,7 +295,7 @@ impl Daemon {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             error!("{}", e.display_chain());
         }
-        self.remote_endpoint = None;
+        self.relay_endpoint = None;
         self.tunnel_interface = None;
         self.reset_security_policy()?;
         self.tunnel_close_handle = None;
@@ -308,6 +314,7 @@ impl Daemon {
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
+            SetCustomRelay(tx, relay_endpoint) => self.on_set_custom_relay(tx, relay_endpoint),
         }
     }
 
@@ -358,6 +365,31 @@ impl Daemon {
 
     fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
         Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
+    }
+
+    fn on_set_custom_relay(&mut self,
+                           tx: OneshotSender<()>,
+                           relay_endpoint: Option<RelayEndpoint>)
+                           -> Result<()> {
+
+        let save_result = self.settings.set_custom_relay(relay_endpoint);
+
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(relays_changed) => {
+                Self::oneshot_send(tx, (), "set_custom_relay response");
+
+                let tunnel_needs_restart = self.state == TunnelState::Connecting ||
+                                           self.state == TunnelState::Connected;
+
+                if relays_changed && tunnel_needs_restart {
+                    info!("Initiating tunnel restart because a custom relay was selected");
+                    self.kill_tunnel()?;
+                }
+            }
+            Err(e) => error!("{}", e.display_chain()),
+        }
+
+        Ok(())
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -440,7 +472,7 @@ impl Daemon {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     error!("{}", e.display_chain());
-                    self.remote_endpoint = None;
+                    self.relay_endpoint = None;
                     self.reset_security_policy()?;
                     self.management_interface_broadcaster.notify_error(&e);
                     self.set_target_state(TargetState::Unsecured)?;
@@ -458,26 +490,42 @@ impl Daemon {
             self.state == TunnelState::NotRunning,
             ErrorKind::InvalidState
         );
-        let remote = self.remote_iter.next().unwrap();
+
+        let relay = self.get_relay()
+            .chain_err(|| ErrorKind::NoRelay)?;
+
         let account_token = self.settings
             .get_account_token()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
-        self.remote_endpoint = Some(remote);
+
+        self.relay_endpoint = Some(relay);
         self.set_security_policy()?;
-        let tunnel_monitor = self.spawn_tunnel_monitor(remote, &account_token)?;
+
+        let tunnel_monitor = self.spawn_tunnel_monitor(relay, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
+
         self.set_state(TunnelState::Connecting)?;
         Ok(())
     }
 
-    fn spawn_tunnel_monitor(&self, remote: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
+    fn get_relay(&mut self) -> Result<Endpoint> {
+        if let Some(relay_endpoint) = self.settings.get_custom_relay() {
+            relay_endpoint
+                .to_endpoint()
+                .chain_err(|| "Invalid custom relay")
+        } else {
+            Ok(self.relay_iter.next().unwrap())
+        }
+    }
+
+    fn spawn_tunnel_monitor(&self, relay: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
             let _ = event_tx.lock().unwrap().send(DaemonEvent::TunnelEvent(event));
         };
-        TunnelMonitor::new(remote, account_token, on_tunnel_event)
+        TunnelMonitor::new(relay, account_token, on_tunnel_event)
             .chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
     }
 
@@ -515,9 +563,9 @@ impl Daemon {
     }
 
     fn set_security_policy(&mut self) -> Result<()> {
-        let policy = match (self.remote_endpoint, self.tunnel_interface.as_ref()) {
-            (Some(remote), None) => SecurityPolicy::Connecting(remote),
-            (Some(remote), Some(interface)) => SecurityPolicy::Connected(remote, interface.clone()),
+        let policy = match (self.relay_endpoint, self.tunnel_interface.as_ref()) {
+            (Some(relay), None) => SecurityPolicy::Connecting(relay),
+            (Some(relay), Some(interface)) => SecurityPolicy::Connected(relay, interface.clone()),
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);
