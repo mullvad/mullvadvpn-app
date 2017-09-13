@@ -7,13 +7,15 @@ import { IpcChain } from './helpers/IpcChain';
 
 describe('connect', () => {
 
-  it('should invoke set_country and then connect in the backend', (done) => {
+  it('should invoke set_custom_relay and then connect in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('setCountry')
+    chain.require('setCustomRelay')
       .withInputValidation(
-        (country) => expect(country).to.equal('example.com')
+        (relayEndpoint) => {
+          expect(relayEndpoint).to.equal(arbitraryRelay);
+        },
       )
       .done();
 
@@ -22,7 +24,7 @@ describe('connect', () => {
 
     chain.onSuccessOrFailure(done);
 
-    store.dispatch(connectionActions.connect(backend, 'example.com'));
+    store.dispatch(connectionActions.connect(backend, arbitraryRelay));
   });
 
   it('should set the connection state to \'disconnected\' on failed attempts', (done) => {
@@ -35,7 +37,7 @@ describe('connect', () => {
 
     expect(store.getState().connection.status).not.to.equal('disconnected');
 
-    store.dispatch(connectionActions.connect(backend, 'example.com'));
+    store.dispatch(connectionActions.connect(backend, arbitraryRelay));
 
 
     checkNextTick(() => {
@@ -45,13 +47,17 @@ describe('connect', () => {
 
   it('should update the state with the server address', () => {
     const { store, backend } = setupBackendAndStore();
-    const arbitraryString = 'www.example.com';
+    const relay = {
+      host: 'www.example.com',
+      port: 1,
+      protocol: 'udp',
+    };
 
-    return backend.connect(arbitraryString)
+    return backend.connect(relay)
       .then( () => {
         const state = store.getState().connection;
         expect(state.status).to.equal('connecting');
-        expect(state.serverAddress).to.equal(arbitraryString);
+        expect(state.serverAddress).to.equal('www.example.com');
       });
   });
 
@@ -81,3 +87,8 @@ describe('connect', () => {
   });
 });
 
+const arbitraryRelay = {
+  host: 'www.example.com',
+  port: 1,
+  protocol: 'udp',
+};

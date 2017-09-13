@@ -11,6 +11,7 @@ import { push } from 'react-router-redux';
 
 import type { BackendState } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
+import type { RelayEndpoint } from './ipc-facade';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
@@ -129,7 +130,7 @@ export class Backend {
 
   fastestServer(): ServerInfo {
     return {
-      address: 'uk.mullvad.net',
+      address: 'gb.mullvad.net',
       name: 'Fastest',
       city: 'London',
       country: 'United Kingdom',
@@ -227,17 +228,16 @@ export class Backend {
       });
   }
 
-  connect(addr: string): Promise<void> {
+  connect(relayEndpoint: RelayEndpoint): Promise<void> {
 
-    this._store.dispatch(connectionActions.connectingTo(addr));
+    this._store.dispatch(connectionActions.connectingTo(relayEndpoint));
 
-
-    return this._ipc.setCountry(addr)
+    return this._ipc.setCustomRelay(relayEndpoint)
       .then( () => {
         return this._ipc.connect();
       })
       .catch(e => {
-        log.info('Failed connecting to', addr, e);
+        log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
         this._store.dispatch(connectionActions.disconnected());
       });
   }

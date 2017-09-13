@@ -21,7 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     onSettings: () => dispatch(push('/settings')),
     onSelectLocation: () => dispatch(push('/select-location')),
-    onConnect: (addr) => connect(backend, addr),
+    onConnect: (relayEndpoint) => connect(backend, relayEndpoint),
     onCopyIP: () => copyIPAddress(),
     onDisconnect: () => disconnect(backend),
     onExternalLink: (type) => shell.openExternal(links[type]),
