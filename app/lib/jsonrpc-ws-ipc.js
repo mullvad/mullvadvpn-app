@@ -70,8 +70,8 @@ export default class Ipc {
 
   _connectionString: ?string;
   _onConnect: Array<{resolve: ()=>void}>;
-  _unansweredRequests: {[string]: UnansweredRequest};
-  _subscriptions: {[string|number]: (mixed) => void};
+  _unansweredRequests: Map<string, UnansweredRequest>;
+  _subscriptions: Map<string|number, (mixed) => void>;
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
@@ -79,8 +79,8 @@ export default class Ipc {
   constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
     this._connectionString = connectionString;
     this._onConnect = [];
-    this._unansweredRequests = {};
-    this._subscriptions = {};
+    this._unansweredRequests = new Map();
+    this._subscriptions = new Map();
     this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
 
     this._backoff = new ReconnectionBackoff();
@@ -97,7 +97,7 @@ export default class Ipc {
     return this.send(event + '_subscribe')
       .then(subscriptionId => {
         if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
-          this._subscriptions[subscriptionId] = listener;
+          this._subscriptions.set(subscriptionId, listener);
         } else {
           throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
         }
@@ -114,12 +114,12 @@ export default class Ipc {
       const params  = this._prepareParams(data);
       const timerId = setTimeout(() => this._onTimeout(id), timeout);
       const jsonrpcMessage = jsonrpc.request(id, action, params);
-      this._unansweredRequests[id] = {
+      this._unansweredRequests.set(id, {
         resolve: resolve,
         reject: reject,
         timerId: timerId,
         message: jsonrpcMessage,
-      };
+      });
 
       this._getWebSocket()
         .then(ws => {
@@ -161,8 +161,8 @@ export default class Ipc {
   }
 
   _onTimeout(requestId) {
-    const request = this._unansweredRequests[requestId];
-    delete this._unansweredRequests[requestId];
+    const request = this._unansweredRequests.get(requestId);
+    this._unansweredRequests.delete(requestId);
 
     if (!request) {
       log.debug(requestId, 'timed out but it seems to already have been answered');
@@ -186,7 +186,7 @@ export default class Ipc {
 
   _onNotification(message: JsonRpcNotification) {
     const subscriptionId = message.payload.params.subscription;
-    const listener = this._subscriptions[subscriptionId];
+    const listener = this._subscriptions.get(subscriptionId);
 
     if (listener) {
       log.debug('Got notification', message.payload.method, message.payload.params.result);
@@ -198,8 +198,8 @@ export default class Ipc {
 
   _onReply(message: JsonRpcError | JsonRpcSuccess) {
     const id = message.payload.id;
-    const request = this._unansweredRequests[id];
-    delete this._unansweredRequests[id];
+    const request = this._unansweredRequests.get(id);
+    this._unansweredRequests.delete(id);
 
     if (!request) {
       log.warn('Got reply to', id, 'but no one was waiting for it');
