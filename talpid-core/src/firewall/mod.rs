@@ -38,7 +38,9 @@ pub enum SecurityPolicy {
 /// Abstract firewall interaction trait
 pub trait Firewall<E: ::std::error::Error> {
     /// Create new instance of Firewall
-    fn new() -> ::std::result::Result<Self, E> where Self: Sized;
+    fn new() -> ::std::result::Result<Self, E>
+    where
+        Self: Sized;
 
     /// Enable firewall and set firewall rules based on SecurityPolicy
     fn apply_policy(&mut self, policy: SecurityPolicy) -> ::std::result::Result<(), E>;
@@ -58,10 +60,14 @@ impl Firewall<Error> for FirewallProxy {
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
-        self.0.apply_policy(policy).chain_err(|| ErrorKind::FirewallConfigurationError)
+        self.0
+            .apply_policy(policy)
+            .chain_err(|| ErrorKind::FirewallConfigurationError)
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        self.0.reset_policy().chain_err(|| ErrorKind::FirewallConfigurationError)
+        self.0
+            .reset_policy()
+            .chain_err(|| ErrorKind::FirewallConfigurationError)
     }
 }

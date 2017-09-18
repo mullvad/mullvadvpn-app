@@ -9,7 +9,8 @@ pub struct IntoSender<T, U> {
 }
 
 impl<T, U> IntoSender<T, U>
-    where T: Into<U>
+where
+    T: Into<U>,
 {
     /// Converts the `T` into a `U` and sends it on the channel.
     pub fn send(&self, t: T) -> Result<(), mpsc::SendError<U>> {
@@ -18,7 +19,8 @@ impl<T, U> IntoSender<T, U>
 }
 
 impl<T, U> From<mpsc::Sender<U>> for IntoSender<T, U>
-    where T: Into<U>
+where
+    T: Into<U>,
 {
     fn from(sender: mpsc::Sender<U>) -> Self {
         IntoSender {
@@ -69,7 +71,9 @@ mod tests {
         let (tx, rx) = mpsc::channel::<Outer>();
         let inner_tx: IntoSender<Inner, Outer> = tx.clone().into();
 
-        thread::spawn(move || { inner_tx.send(Inner::One).unwrap(); });
+        thread::spawn(move || {
+            inner_tx.send(Inner::One).unwrap();
+        });
 
         assert_eq!(Outer::Inner(Inner::One), rx.recv().unwrap());
     }

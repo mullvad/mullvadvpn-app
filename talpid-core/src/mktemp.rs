@@ -13,7 +13,9 @@ pub struct TempFile {
 impl TempFile {
     /// Create a new unique `TempFile`. The file will not exist after this.
     pub fn new() -> Self {
-        TempFile { path: generate_path() }
+        TempFile {
+            path: generate_path(),
+        }
     }
 
     pub fn to_path_buf(&self) -> PathBuf {

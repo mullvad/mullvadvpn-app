@@ -6,15 +6,15 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-#[macro_use]
-extern crate clap;
 extern crate chrono;
 #[macro_use]
-extern crate log;
+extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate fern;
 extern crate futures;
+#[macro_use]
+extern crate log;
 
 extern crate serde;
 #[macro_use]
@@ -24,13 +24,13 @@ extern crate serde_derive;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 extern crate jsonrpc_core;
-extern crate jsonrpc_pubsub;
 #[macro_use]
 extern crate jsonrpc_macros;
+extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
-extern crate uuid;
 #[macro_use]
 extern crate lazy_static;
+extern crate uuid;
 
 extern crate mullvad_types;
 extern crate talpid_core;
@@ -58,7 +58,7 @@ use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use std::io;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
@@ -190,34 +190,33 @@ impl Daemon {
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
-        Ok(
-            Daemon {
-                state,
-                tunnel_close_handle: None,
+        Ok(Daemon {
+            state,
+            tunnel_close_handle: None,
+            target_state,
+            last_broadcasted_state: DaemonState {
+                state: state.as_security_state(),
                 target_state,
-                last_broadcasted_state: DaemonState {
-                    state: state.as_security_state(),
-                    target_state,
-                },
-                shutdown: false,
-                rx,
-                tx,
-                management_interface_broadcaster,
-                settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
-                accounts_proxy: master::create_account_proxy()
-                    .chain_err(|| "Unable to bootstrap RPC client")?,
-                firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
-                relay_endpoint: None,
-                tunnel_interface: None,
-                relay_iter: RELAYS.iter().cloned().cycle(),
             },
-        )
+            shutdown: false,
+            rx,
+            tx,
+            management_interface_broadcaster,
+            settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+            accounts_proxy: master::create_account_proxy()
+                .chain_err(|| "Unable to bootstrap RPC client")?,
+            firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
+            relay_endpoint: None,
+            tunnel_interface: None,
+            relay_iter: RELAYS.iter().cloned().cycle(),
+        })
     }
 
     // Starts the management interface and spawns a thread that will process it.
     // Returns a handle that allows notifying all subscribers on events.
-    fn start_management_interface(event_tx: mpsc::Sender<DaemonEvent>)
-                                  -> Result<management_interface::EventBroadcaster> {
+    fn start_management_interface(
+        event_tx: mpsc::Sender<DaemonEvent>,
+    ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
@@ -225,29 +224,31 @@ impl Daemon {
         Ok(event_broadcaster)
     }
 
-    fn start_management_interface_server(event_tx: IntoSender<TunnelCommand, DaemonEvent>)
-                                         -> Result<ManagementInterfaceServer> {
-        let server =
-            ManagementInterfaceServer::start(event_tx)
-                .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"),)?;
+    fn start_management_interface_server(
+        event_tx: IntoSender<TunnelCommand, DaemonEvent>,
+    ) -> Result<ManagementInterfaceServer> {
+        let server = ManagementInterfaceServer::start(event_tx).chain_err(|| {
+            ErrorKind::ManagementInterfaceError("Failed to start server")
+        })?;
         info!(
             "Mullvad management interface listening on {}",
             server.address()
         );
-        rpc_info::write(server.address()).chain_err(|| ErrorKind::ManagementInterfaceError(
-                "Failed to write RPC address to file"))?;
+        rpc_info::write(server.address()).chain_err(|| {
+            ErrorKind::ManagementInterfaceError("Failed to write RPC address to file")
+        })?;
         Ok(server)
     }
 
-    fn spawn_management_interface_wait_thread(server: ManagementInterfaceServer,
-                                              exit_tx: mpsc::Sender<DaemonEvent>) {
-        thread::spawn(
-            move || {
-                let result = server.wait();
-                debug!("Mullvad management interface shut down");
-                let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
-            },
-        );
+    fn spawn_management_interface_wait_thread(
+        server: ManagementInterfaceServer,
+        exit_tx: mpsc::Sender<DaemonEvent>,
+    ) {
+        thread::spawn(move || {
+            let result = server.wait();
+            debug!("Mullvad management interface shut down");
+            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
+        });
     }
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
@@ -331,9 +332,11 @@ impl Daemon {
         Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
 
-    fn on_get_account_data(&mut self,
-                           tx: OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
-                           account_token: AccountToken) {
+    fn on_get_account_data(
+        &mut self,
+        tx: OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
+        account_token: AccountToken,
+    ) {
         let rpc_call = self.accounts_proxy
             .get_expiry(account_token)
             .map(|expiry| AccountData { expiry });
@@ -341,18 +344,18 @@ impl Daemon {
     }
 
 
-    fn on_set_account(&mut self,
-                      tx: OneshotSender<()>,
-                      account_token: Option<String>)
-                      -> Result<()> {
-
+    fn on_set_account(
+        &mut self,
+        tx: OneshotSender<()>,
+        account_token: Option<String>,
+    ) -> Result<()> {
         let save_result = self.settings.set_account_token(account_token);
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
                 Self::oneshot_send(tx, (), "set_account response");
-                let tunnel_needs_restart = self.state == TunnelState::Connecting ||
-                                           self.state == TunnelState::Connected;
+                let tunnel_needs_restart =
+                    self.state == TunnelState::Connecting || self.state == TunnelState::Connected;
                 if account_changed && tunnel_needs_restart {
                     info!("Initiating tunnel restart because the account token changed");
                     self.kill_tunnel()?;
@@ -367,19 +370,19 @@ impl Daemon {
         Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
     }
 
-    fn on_set_custom_relay(&mut self,
-                           tx: OneshotSender<()>,
-                           relay_endpoint: Option<RelayEndpoint>)
-                           -> Result<()> {
-
+    fn on_set_custom_relay(
+        &mut self,
+        tx: OneshotSender<()>,
+        relay_endpoint: Option<RelayEndpoint>,
+    ) -> Result<()> {
         let save_result = self.settings.set_custom_relay(relay_endpoint);
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(relays_changed) => {
                 Self::oneshot_send(tx, (), "set_custom_relay response");
 
-                let tunnel_needs_restart = self.state == TunnelState::Connecting ||
-                                           self.state == TunnelState::Connected;
+                let tunnel_needs_restart =
+                    self.state == TunnelState::Connecting || self.state == TunnelState::Connected;
 
                 if relays_changed && tunnel_needs_restart {
                     info!("Initiating tunnel restart because a custom relay was selected");
@@ -434,7 +437,8 @@ impl Daemon {
         };
         if self.last_broadcasted_state != new_daemon_state {
             self.last_broadcasted_state = new_daemon_state;
-            self.management_interface_broadcaster.notify_new_state(new_daemon_state);
+            self.management_interface_broadcaster
+                .notify_new_state(new_daemon_state);
         }
     }
 
@@ -453,7 +457,8 @@ impl Daemon {
         Ok(())
     }
 
-    /// Set the target state of the client. If it changed trigger the operations needed to progress
+    /// Set the target state of the client. If it changed trigger the operations needed to
+    /// progress
     /// towards that state.
     fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
         if new_state != self.target_state {
@@ -491,8 +496,7 @@ impl Daemon {
             ErrorKind::InvalidState
         );
 
-        let relay = self.get_relay()
-            .chain_err(|| ErrorKind::NoRelay)?;
+        let relay = self.get_relay().chain_err(|| ErrorKind::NoRelay)?;
 
         let account_token = self.settings
             .get_account_token()
@@ -523,7 +527,10 @@ impl Daemon {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
-            let _ = event_tx.lock().unwrap().send(DaemonEvent::TunnelEvent(event));
+            let _ = event_tx
+                .lock()
+                .unwrap()
+                .send(DaemonEvent::TunnelEvent(event));
         };
         TunnelMonitor::new(relay, account_token, on_tunnel_event)
             .chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
@@ -531,13 +538,11 @@ impl Daemon {
 
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {
         let error_tx = self.tx.clone();
-        thread::spawn(
-            move || {
-                let result = tunnel_monitor.wait();
-                let _ = error_tx.send(DaemonEvent::TunnelExited(result));
-                trace!("Tunnel monitor thread exit");
-            },
-        );
+        thread::spawn(move || {
+            let result = tunnel_monitor.wait();
+            let _ = error_tx.send(DaemonEvent::TunnelExited(result));
+            trace!("Tunnel monitor thread exit");
+        });
     }
 
     fn kill_tunnel(&mut self) -> Result<()> {
@@ -548,18 +553,18 @@ impl Daemon {
         let close_handle = self.tunnel_close_handle.take().unwrap();
         self.set_state(TunnelState::Exiting)?;
         let result_tx = self.tx.clone();
-        thread::spawn(
-            move || {
-                let result = close_handle.close();
-                let _ = result_tx.send(DaemonEvent::TunnelKillResult(result));
-                trace!("Tunnel kill thread exit");
-            },
-        );
+        thread::spawn(move || {
+            let result = close_handle.close();
+            let _ = result_tx.send(DaemonEvent::TunnelKillResult(result));
+            trace!("Tunnel kill thread exit");
+        });
         Ok(())
     }
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
-        DaemonShutdownHandle { tx: self.tx.clone() }
+        DaemonShutdownHandle {
+            tx: self.tx.clone(),
+        }
     }
 
     fn set_security_policy(&mut self) -> Result<()> {
@@ -569,12 +574,16 @@ impl Daemon {
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);
-        self.firewall.apply_policy(policy).chain_err(|| ErrorKind::FirewallError)
+        self.firewall
+            .apply_policy(policy)
+            .chain_err(|| ErrorKind::FirewallError)
     }
 
     fn reset_security_policy(&mut self) -> Result<()> {
         debug!("Reset security policy");
-        self.firewall.reset_policy().chain_err(|| ErrorKind::FirewallError)
+        self.firewall
+            .reset_policy()
+            .chain_err(|| ErrorKind::FirewallError)
     }
 }
 
@@ -626,19 +635,15 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
         "hyper",
     ];
     let mut config = fern::Dispatch::new()
-        .format(
-            |out, message, record| {
-                out.finish(
-                    format_args!(
-                        "{}[{}][{}] {}",
-                        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
-                        record.target(),
-                        record.level(),
-                        message
-                    ),
-                )
-            },
-        )
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
+                record.target(),
+                record.level(),
+                message
+            ))
+        })
         .level(log_level)
         .chain(std::io::stdout());
     for silenced_crate in &silenced_crates {
@@ -648,5 +653,7 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
         let f = fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?;
         config = config.chain(f);
     }
-    config.apply().chain_err(|| "Failed to bootstrap logging system")
+    config
+        .apply()
+        .chain_err(|| "Failed to bootstrap logging system")
 }

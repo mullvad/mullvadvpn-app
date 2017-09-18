@@ -9,20 +9,20 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
-extern crate mullvad_types;
-extern crate talpid_types;
-extern crate talpid_ipc;
 #[macro_use]
 extern crate clap;
+extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate env_logger;
+extern crate mullvad_types;
 extern crate serde;
 extern crate serde_json;
+extern crate talpid_ipc;
+extern crate talpid_types;
 
 mod rpc;
 mod cmds;

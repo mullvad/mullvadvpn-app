@@ -29,9 +29,9 @@ extern crate jsonrpc_core;
 extern crate jsonrpc_macros;
 extern crate uuid;
 
+extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
-extern crate openvpn_plugin;
 
 #[cfg(target_os = "macos")]
 extern crate pfctl;

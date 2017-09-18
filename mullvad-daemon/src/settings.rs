@@ -74,7 +74,8 @@ impl Settings {
         debug!("Writing settings to {}", settings_path.to_string_lossy());
         let mut file = File::create(&settings_path)
             .chain_err(|| ErrorKind::WriteError(settings_path.clone()))?;
-        file.write_all(data.as_bytes()).chain_err(|| ErrorKind::WriteError(settings_path))?;
+        file.write_all(data.as_bytes())
+            .chain_err(|| ErrorKind::WriteError(settings_path))?;
         Ok(())
     }
 
@@ -86,7 +87,8 @@ impl Settings {
 
     fn read_settings(file: &mut File, path: PathBuf) -> Result<Settings> {
         let mut data = Vec::new();
-        file.read_to_end(&mut data).chain_err(|| ErrorKind::ReadError(path))?;
+        file.read_to_end(&mut data)
+            .chain_err(|| ErrorKind::ReadError(path))?;
         toml::from_slice(&data).chain_err(|| ErrorKind::ParseError)
     }
 
@@ -104,8 +106,7 @@ impl Settings {
                 Self::format_account_token(&account_token),
             );
             self.account_token = account_token;
-            self.save()
-                .map(|_| true)
+            self.save().map(|_| true)
         } else {
             Ok(false)
         }
@@ -131,8 +132,7 @@ impl Settings {
 
             self.custom_relay = relay_endpoint;
 
-            self.save()
-                .map(|_| true)
+            self.save().map(|_| true)
         } else {
             Ok(false)
         }

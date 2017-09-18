@@ -17,21 +17,33 @@ impl Command for CustomRelay {
         clap::SubCommand::with_name(self.name())
             .about("Set or remove custom relay")
             .setting(clap::AppSettings::SubcommandRequired)
-            .subcommand(clap::SubCommand::with_name("set")
-                .about("Set a custom relay")
-                .arg(clap::Arg::with_name("host")
-                     .help("The host name or IP of the relay")
-                     .required(true))
-                .arg(clap::Arg::with_name("port")
-                     .help("The port of the relay")
-                     .required(true))
-                .arg(clap::Arg::with_name("protocol")
-                     .help("The transport protocol. UDP is recommended as it usually results in
-                           higher throughput than TCP")
-                     .possible_values(&["udp", "tcp"])
-                     .default_value("udp")))
-            .subcommand(clap::SubCommand::with_name("remove")
-                .about("Remove the custom relay and use the default relays instead"))
+            .subcommand(
+                clap::SubCommand::with_name("set")
+                    .about("Set a custom relay")
+                    .arg(
+                        clap::Arg::with_name("host")
+                            .help("The host name or IP of the relay")
+                            .required(true),
+                    )
+                    .arg(
+                        clap::Arg::with_name("port")
+                            .help("The port of the relay")
+                            .required(true),
+                    )
+                    .arg(
+                        clap::Arg::with_name("protocol")
+                            .help(
+                                "The transport protocol. UDP is recommended as it usually results in
+                           higher throughput than TCP",
+                            )
+                            .possible_values(&["udp", "tcp"])
+                            .default_value("udp"),
+                    ),
+            )
+            .subcommand(
+                clap::SubCommand::with_name("remove")
+                    .about("Remove the custom relay and use the default relays instead"),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
@@ -57,18 +69,12 @@ impl CustomRelay {
             protocol,
         };
 
-        rpc::call(
-            "set_custom_relay",
-            &[relay_endpoint],
-        )
-                .map(|_: Option<()>| println!("Custom relay set"))
+        rpc::call("set_custom_relay", &[relay_endpoint])
+            .map(|_: Option<()>| println!("Custom relay set"))
     }
 
     fn remove(&self) -> Result<()> {
-        rpc::call(
-            "remove_custom_relay",
-            &[] as &[u8; 0],
-        )
-                .map(|_: Option<()>| println!("Custom relay removed"))
+        rpc::call("remove_custom_relay", &[] as &[u8; 0])
+            .map(|_: Option<()>| println!("Custom relay removed"))
     }
 }

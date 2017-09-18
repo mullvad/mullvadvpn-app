@@ -64,7 +64,8 @@ impl OpenVpnCommand {
         self
     }
 
-    /// Sets the path to the file where the username and password for user-pass authentication is
+    /// Sets the path to the file where the username and password for user-pass authentication
+    /// is
     /// stored. See the `--auth-user-pass` OpenVPN documentation for details.
     pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
@@ -138,12 +139,10 @@ impl OpenVpnCommand {
         let mut args: Vec<String> = vec![];
         if let Some(ref endpoint) = self.remote {
             args.push("--proto".to_owned());
-            args.push(
-                match endpoint.protocol {
-                    net::TransportProtocol::Udp => "udp".to_owned(),
-                    net::TransportProtocol::Tcp => "tcp-client".to_owned(),
-                },
-            );
+            args.push(match endpoint.protocol {
+                net::TransportProtocol::Udp => "udp".to_owned(),
+                net::TransportProtocol::Tcp => "tcp-client".to_owned(),
+            });
             args.push("--remote".to_owned());
             args.push(endpoint.address.ip().to_string());
             args.push(endpoint.address.port().to_string());
@@ -162,7 +161,8 @@ impl OpenVpnCommand {
 }
 
 impl fmt::Display for OpenVpnCommand {
-    /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data is
+    /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data
+    /// is
     /// lossily converted using the utf8 replacement character.
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(&self.openvpn_bin.to_string_lossy())?;

@@ -57,13 +57,15 @@ pub enum TunnelEvent {
 impl TunnelEvent {
     /// Converts an `OpenVpnPluginEvent` to a `TunnelEvent`.
     /// Returns `None` if there is no corresponding `TunnelEvent`.
-    fn from_openvpn_event(event: &OpenVpnPluginEvent,
-                          env: &HashMap<String, String>)
-                          -> Option<TunnelEvent> {
+    fn from_openvpn_event(
+        event: &OpenVpnPluginEvent,
+        env: &HashMap<String, String>,
+    ) -> Option<TunnelEvent> {
         match *event {
             OpenVpnPluginEvent::Up => {
-                let tunnel_interface =
-                    env.get("dev").expect("No \"dev\" in tunnel up event").to_owned();
+                let tunnel_interface = env.get("dev")
+                    .expect("No \"dev\" in tunnel up event")
+                    .to_owned();
                 Some(TunnelEvent::Up { tunnel_interface })
             }
             OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
@@ -84,7 +86,8 @@ impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
     pub fn new<L>(remote: net::Endpoint, account_token: &str, on_event: L) -> Result<Self>
-        where L: Fn(TunnelEvent) + Send + Sync + 'static
+    where
+        L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
@@ -104,12 +107,10 @@ impl TunnelMonitor {
 
         let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
             .chain_err(|| ErrorKind::TunnelMonitoringError)?;
-        Ok(
-            TunnelMonitor {
-                monitor,
-                _user_pass_file: user_pass_file,
-            },
-        )
+        Ok(TunnelMonitor {
+            monitor,
+            _user_pass_file: user_pass_file,
+        })
     }
 
     fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
@@ -117,7 +118,9 @@ impl TunnelMonitor {
         if let Some(config) = Self::get_config_path() {
             cmd.config(config);
         }
-        cmd.remote(remote).user_pass(user_pass_file).ca(Self::get_ca_path());
+        cmd.remote(remote)
+            .user_pass(user_pass_file)
+            .ca(Self::get_ca_path());
         cmd
     }
 
@@ -143,8 +146,7 @@ impl TunnelMonitor {
     }
 
     fn get_plugin_path() -> Result<PathBuf> {
-        let lib_ext = Self::get_library_extension()
-            .chain_err(|| ErrorKind::PluginNotFound)?;
+        let lib_ext = Self::get_library_extension().chain_err(|| ErrorKind::PluginNotFound)?;
 
         let path = Self::get_install_dir()
             .unwrap_or(PathBuf::from("."))
@@ -175,7 +177,11 @@ impl TunnelMonitor {
             .unwrap_or(PathBuf::from("."))
             .join("openvpn.conf");
 
-        if path.exists() { Some(path) } else { None }
+        if path.exists() {
+            Some(path)
+        } else {
+            None
+        }
     }
 
     fn get_install_dir() -> Option<PathBuf> {
@@ -215,7 +221,8 @@ impl TunnelMonitor {
         Ok(())
     }
 
-    /// Creates a handle to this monitor, allowing the tunnel to be closed while some other thread
+    /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
+    /// thread
     /// is blocked in `wait`.
     pub fn close_handle(&self) -> CloseHandle {
         CloseHandle(self.monitor.close_handle())
@@ -223,7 +230,9 @@ impl TunnelMonitor {
 
     /// Consumes the monitor and block until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
-        self.monitor.wait().chain_err(|| ErrorKind::TunnelMonitoringError)
+        self.monitor
+            .wait()
+            .chain_err(|| ErrorKind::TunnelMonitoringError)
     }
 }
 

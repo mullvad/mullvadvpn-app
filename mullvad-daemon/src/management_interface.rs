@@ -3,7 +3,7 @@ use error_chain;
 use error_chain::ChainedError;
 use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
-use jsonrpc_core::futures::{Future, future, sync};
+use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
@@ -115,7 +115,10 @@ pub enum TunnelCommand {
     /// Request the current state.
     GetState(OneshotSender<DaemonState>),
     /// Request the metadata for an account.
-    GetAccountData(OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>, AccountToken),
+    GetAccountData(
+        OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
+        AccountToken,
+    ),
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
@@ -137,7 +140,8 @@ pub struct ManagementInterfaceServer {
 
 impl ManagementInterfaceServer {
     pub fn start<T>(tunnel_tx: IntoSender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
-        where T: From<TunnelCommand> + 'static + Send
+    where
+        T: From<TunnelCommand> + 'static + Send,
     {
         let rpc = ManagementInterface::new(tunnel_tx);
         let subscriptions = rpc.subscriptions.clone();
@@ -145,12 +149,10 @@ impl ManagementInterfaceServer {
         let mut io = PubSubHandler::default();
         io.extend_with(rpc.to_delegate());
         let server = talpid_ipc::IpcServer::start_with_metadata(io.into(), meta_extractor)?;
-        Ok(
-            ManagementInterfaceServer {
-                server,
-                subscriptions,
-            },
-        )
+        Ok(ManagementInterfaceServer {
+            server,
+            subscriptions,
+        })
     }
 
     pub fn address(&self) -> &str {
@@ -158,7 +160,9 @@ impl ManagementInterfaceServer {
     }
 
     pub fn event_broadcaster(&self) -> EventBroadcaster {
-        EventBroadcaster { subscriptions: self.subscriptions.clone() }
+        EventBroadcaster {
+            subscriptions: self.subscriptions.clone(),
+        }
     }
 
     /// Consumes the server and waits for it to finish. Returns an error if the server exited
@@ -182,16 +186,19 @@ impl EventBroadcaster {
 
     /// Sends an error to all `error` subscribers of the management interface.
     pub fn notify_error<E>(&self, error: &E)
-        where E: error_chain::ChainedError
+    where
+        E: error_chain::ChainedError,
     {
         let error_strings = error.iter().map(|e| e.to_string()).collect();
         self.notify(&self.subscriptions.error_subscriptions, error_strings);
     }
 
-    fn notify<T>(&self,
-                 subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<T>>>,
-                 value: T)
-        where T: serde::Serialize + Clone
+    fn notify<T>(
+        &self,
+        subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<T>>>,
+        value: T,
+    ) where
+        T: serde::Serialize + Clone,
     {
         let subscriptions = subscriptions_lock.read().unwrap();
         for sink in subscriptions.values() {
@@ -213,8 +220,10 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
         }
     }
 
-    fn subscribe<V>(subscriber: pubsub::Subscriber<V>,
-                    subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<V>>>) {
+    fn subscribe<V>(
+        subscriber: pubsub::Subscriber<V>,
+        subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<V>>>,
+    ) {
         let mut subscriptions = subscriptions_lock.write().unwrap();
         loop {
             let id = SubscriptionId::String(uuid::Uuid::new_v4().to_string());
@@ -228,21 +237,20 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
         }
     }
 
-    fn unsubscribe<V>(id: SubscriptionId,
-                      subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<V>>>)
-                      -> BoxFuture<(), Error> {
+    fn unsubscribe<V>(
+        id: SubscriptionId,
+        subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<V>>>,
+    ) -> BoxFuture<(), Error> {
         let was_removed = subscriptions_lock.write().unwrap().remove(&id).is_some();
         let result = if was_removed {
             debug!("Unsubscribing id {:?}", id);
             future::ok(())
         } else {
-            future::err(
-                Error {
-                    code: ErrorCode::InvalidParams,
-                    message: "Invalid subscription".to_owned(),
-                    data: None,
-                },
-            )
+            future::err(Error {
+                code: ErrorCode::InvalidParams,
+                message: "Invalid subscription".to_owned(),
+                data: None,
+            })
         };
         Box::new(result)
     }
@@ -251,7 +259,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     fn send_command_to_daemon(&self, command: TunnelCommand) -> BoxFuture<(), Error> {
         Box::new(
             future::result(self.tx.lock().unwrap().send(command))
-                .map_err(|_| Error::internal_error())
+                .map_err(|_| Error::internal_error()),
         )
     }
 
@@ -282,19 +290,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(
-                |rpc_future| {
-                    rpc_future.map_err(
-                        |error: jsonrpc_client_core::Error| {
-                            error!(
-                                "Unable to get account data from master: {}",
-                                error.display_chain()
-                            );
-                            Self::map_rpc_error(error)
-                        },
-                    )
-                },
-            );
+            .and_then(|rpc_future| {
+                rpc_future.map_err(|error: jsonrpc_client_core::Error| {
+                    error!(
+                        "Unable to get account data from master: {}",
+                        error.display_chain()
+                    );
+                    Self::map_rpc_error(error)
+                })
+            });
         Box::new(future)
     }
 
@@ -367,18 +371,18 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn get_location(&self) -> Result<Location, Error> {
         trace!("get_location");
-        Ok(
-            Location {
-                latlong: [1.0, 2.0],
-                country: "narnia".to_owned(),
-                city: "Le city".to_owned(),
-            },
-        )
+        Ok(Location {
+            latlong: [1.0, 2.0],
+            country: "narnia".to_owned(),
+            city: "Le city".to_owned(),
+        })
     }
 
-    fn new_state_subscribe(&self,
-                           _meta: Self::Metadata,
-                           subscriber: pubsub::Subscriber<DaemonState>) {
+    fn new_state_subscribe(
+        &self,
+        _meta: Self::Metadata,
+        subscriber: pubsub::Subscriber<DaemonState>,
+    ) {
         trace!("new_state_subscribe");
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
@@ -420,5 +424,7 @@ impl PubSubMetadata for Meta {
 
 /// Metadata extractor function for `Meta`.
 fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
-    Meta { session: Some(Arc::new(Session::new(context.sender()))) }
+    Meta {
+        session: Some(Arc::new(Session::new(context.sender()))),
+    }
 }
