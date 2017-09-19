@@ -6,4 +6,5 @@ members = [
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-ipc",
+    "socket-relay",
 ]
