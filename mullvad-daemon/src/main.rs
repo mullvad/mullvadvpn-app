@@ -458,8 +458,7 @@ impl Daemon {
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
-    /// progress
-    /// towards that state.
+    /// progress towards that state.
     fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
         if new_state != self.target_state {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);

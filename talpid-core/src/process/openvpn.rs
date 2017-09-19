@@ -65,8 +65,7 @@ impl OpenVpnCommand {
     }
 
     /// Sets the path to the file where the username and password for user-pass authentication
-    /// is
-    /// stored. See the `--auth-user-pass` OpenVPN documentation for details.
+    /// is stored. See the `--auth-user-pass` OpenVPN documentation for details.
     pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
         self
@@ -162,8 +161,7 @@ impl OpenVpnCommand {
 
 impl fmt::Display for OpenVpnCommand {
     /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data
-    /// is
-    /// lossily converted using the utf8 replacement character.
+    /// is lossily converted using the utf8 replacement character.
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.write_str(&self.openvpn_bin.to_string_lossy())?;
         for arg in self.get_arguments().iter().map(|arg| arg.to_string_lossy()) {
