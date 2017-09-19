@@ -5,7 +5,7 @@ extern crate tokio_core;
 
 extern crate socket_relay;
 
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::env;
 use std::thread;
 use std::time::Duration;
 
@@ -17,21 +17,26 @@ quick_main!(run);
 fn run() -> Result<()> {
     env_logger::init().chain_err(|| "Failed to init logging")?;
 
-    let listen_ip = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
-    let listen_port = 53;
-    let listen_addr = SocketAddr::new(listen_ip, listen_port);
-
-    let forward_bind_ip = IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0));
-
-    let forward_ip = IpAddr::V4(Ipv4Addr::new(8, 8, 8, 8));
-    let forward_port = 53;
-    let forward_addr = SocketAddr::new(forward_ip, forward_port);
-
+    let listen_addr = env::args()
+        .nth(1)
+        .expect("Listen address as first argument")
+        .parse()
+        .expect("Invalid listen address format");
+    let destination = env::args()
+        .nth(2)
+        .expect("Relay destination address as second argument")
+        .parse()
+        .expect("Invalid destination address format");
+    let forward_bind_ip = env::args()
+        .nth(3)
+        .unwrap_or(String::from("0.0.0.0"))
+        .parse()
+        .unwrap();
 
     let mut core = Core::new().chain_err(|| "Unable to create Tokio core")?;
     let handle = core.handle();
 
-    let relay = socket_relay::udp::Relay::new(listen_addr, forward_bind_ip, forward_addr, handle)
+    let relay = socket_relay::udp::Relay::new(listen_addr, forward_bind_ip, destination, handle)
         .chain_err(|| "Unable to init forwarder")?;
     println!("Forwarder listening on {}", relay.listen_addr());
 
