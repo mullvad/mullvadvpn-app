@@ -8,14 +8,13 @@ mod platform {
     use super::Result;
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
-        where F: Fn() + 'static + Send
+    where
+        F: Fn() + 'static + Send,
     {
-        simple_signal::set_handler(
-            &[Signal::Term, Signal::Int], move |s| {
-                debug!("Process received signal: {:?}", s);
-                f();
-            }
-        );
+        simple_signal::set_handler(&[Signal::Term, Signal::Int], move |s| {
+            debug!("Process received signal: {:?}", s);
+            f();
+        });
         Ok(())
     }
 }
@@ -27,15 +26,13 @@ mod platform {
     use super::{Result, ResultExt};
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
-        where F: Fn() + 'static + Send
+    where
+        F: Fn() + 'static + Send,
     {
-        ctrlc::set_handler(
-            move || {
-                debug!("Process received Ctrl-c");
-                f();
-            },
-        )
-                .chain_err(|| "Unable to attach ctrl-c handler")
+        ctrlc::set_handler(move || {
+            debug!("Process received Ctrl-c");
+            f();
+        }).chain_err(|| "Unable to attach ctrl-c handler")
     }
 }
 

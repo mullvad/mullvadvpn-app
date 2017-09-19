@@ -1,13 +1,13 @@
-extern crate talpid_ipc;
+#[macro_use]
+extern crate assert_matches;
+extern crate env_logger;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
-extern crate env_logger;
-#[macro_use]
-extern crate assert_matches;
+extern crate talpid_ipc;
 
 use jsonrpc_core::{Error, IoHandler};
-use std::sync::{Mutex, mpsc};
+use std::sync::{mpsc, Mutex};
 use std::time::Duration;
 
 build_rpc_trait! {

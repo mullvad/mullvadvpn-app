@@ -23,10 +23,11 @@ impl EventProcessor {
         Ok(EventProcessor { ipc_client })
     }
 
-    pub fn process_event(&mut self,
-                         event: openvpn_plugin::types::OpenVpnPluginEvent,
-                         env: HashMap<String, String>)
-                         -> Result<()> {
+    pub fn process_event(
+        &mut self,
+        event: openvpn_plugin::types::OpenVpnPluginEvent,
+        env: HashMap<String, String>,
+    ) -> Result<()> {
         trace!("Processing \"{:?}\" event", event);
         self.ipc_client
             .call("openvpn_event", &(event, env))

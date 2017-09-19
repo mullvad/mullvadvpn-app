@@ -6,11 +6,11 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
-extern crate env_logger;
 
 #[macro_use]
 extern crate openvpn_plugin;
@@ -57,9 +57,10 @@ openvpn_plugin!(
     ::EventProcessor
 );
 
-fn openvpn_open(args: &[CString],
-                _env: &HashMap<CString, CString>)
-                -> Result<(Vec<OpenVpnPluginEvent>, EventProcessor)> {
+fn openvpn_open(
+    args: &[CString],
+    _env: &HashMap<CString, CString>,
+) -> Result<(Vec<OpenVpnPluginEvent>, EventProcessor)> {
     env_logger::init().chain_err(|| "Failed to bootstrap logging system")?;
     debug!("Initializing plugin");
 
@@ -75,8 +76,9 @@ fn parse_args(args: &[CString]) -> Result<talpid_ipc::IpcServerId> {
         .chain_err(|| ErrorKind::ParseArgsFailed)?
         .into_iter();
     let _plugin_path = args_iter.next();
-    let core_server_id: talpid_ipc::IpcServerId = args_iter.next()
-        .ok_or_else(|| ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
+    let core_server_id: talpid_ipc::IpcServerId = args_iter.next().ok_or_else(|| {
+        ErrorKind::Msg("No core server id given as first argument".to_owned())
+    })?;
     Ok(core_server_id)
 }
 
@@ -85,16 +87,19 @@ fn openvpn_close(_handle: EventProcessor) {
     debug!("Unloading plugin");
 }
 
-fn openvpn_event(event: OpenVpnPluginEvent,
-                 _args: &[CString],
-                 env: &HashMap<CString, CString>,
-                 handle: &mut EventProcessor)
-                 -> Result<EventResult> {
+fn openvpn_event(
+    event: OpenVpnPluginEvent,
+    _args: &[CString],
+    env: &HashMap<CString, CString>,
+    handle: &mut EventProcessor,
+) -> Result<EventResult> {
     debug!("Received event: {:?}", event);
 
-    let parsed_env = openvpn_plugin::ffi::parse::env_utf8(env)
-        .chain_err(|| ErrorKind::ParseEnvFailed)?;
+    let parsed_env =
+        openvpn_plugin::ffi::parse::env_utf8(env).chain_err(|| ErrorKind::ParseEnvFailed)?;
 
-    handle.process_event(event, parsed_env).chain_err(|| ErrorKind::EventProcessingFailed)?;
+    handle
+        .process_event(event, parsed_env)
+        .chain_err(|| ErrorKind::EventProcessingFailed)?;
     Ok(EventResult::Success)
 }

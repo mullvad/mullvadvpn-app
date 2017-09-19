@@ -5,16 +5,16 @@
 
 set -u
 
-VERSION="0.8.3"
+VERSION="0.2.6"
 CMD="rustfmt"
-INSTALL_CMD="cargo install --vers $VERSION --force $CMD"
+INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
 function correct_rustfmt() {
     if ! which $CMD; then
         echo "$CMD is not installed" >&2
         return 1
     fi
-    local installed_version=$($CMD --version | cut -d' ' -f1)
+    local installed_version=$($CMD --version | cut -d'-' -f1)
     if [[ "$installed_version" != "$VERSION" ]]; then
         echo "Wrong version of $CMD installed. Expected $VERSION, got $installed_version" >&2
         return 1
@@ -31,4 +31,4 @@ else
     shift
 fi
 
-find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt "$@"
+find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --skip-children "$@"

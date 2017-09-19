@@ -16,12 +16,10 @@ pub struct PacketFilter {
 
 impl Firewall<Error> for PacketFilter {
     fn new() -> Result<Self> {
-        Ok(
-            PacketFilter {
-                pf: pfctl::PfCtl::new()?,
-                pf_was_enabled: None,
-            },
-        )
+        Ok(PacketFilter {
+            pf: pfctl::PfCtl::new()?,
+            pf_was_enabled: None,
+        })
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
@@ -35,10 +33,9 @@ impl Firewall<Error> for PacketFilter {
             self.remove_rules(),
             self.remove_anchor(),
             self.restore_state(),
-        ]
-                .into_iter()
-                .collect::<Result<Vec<_>>>()
-                .map(|_| ())
+        ].into_iter()
+            .collect::<Result<Vec<_>>>()
+            .map(|_| ())
     }
 }
 
@@ -160,11 +157,13 @@ impl PacketFilter {
     }
 
     fn add_anchor(&mut self) -> Result<()> {
-        self.pf.try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
+        self.pf
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
     }
 
     fn remove_anchor(&mut self) -> Result<()> {
-        self.pf.try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
+        self.pf
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
     }
 }
 

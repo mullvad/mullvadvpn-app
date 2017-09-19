@@ -20,7 +20,6 @@ pub struct RelayEndpoint {
 
 impl RelayEndpoint {
     pub fn to_endpoint(&self) -> Result<talpid_types::net::Endpoint> {
-
         let socket_addrs = to_socket_addrs(self.host.as_str(), self.port)?;
         ensure!(
             socket_addrs.len() > 0,
@@ -37,7 +36,11 @@ impl RelayEndpoint {
             )
         }
 
-        Ok(talpid_types::net::Endpoint::new(socket_addr.ip(), socket_addr.port(), self.protocol),)
+        Ok(talpid_types::net::Endpoint::new(
+            socket_addr.ip(),
+            socket_addr.port(),
+            self.protocol,
+        ))
     }
 }
 
@@ -56,9 +59,7 @@ fn choose_ip(socket_addrs: &Vec<SocketAddr>) -> Option<SocketAddr> {
     // IPv4 ad IPv6s and take form the IPv4 pile if any.
 
     let (mut ipv4, mut ipv6): (Vec<SocketAddr>, Vec<SocketAddr>) =
-        socket_addrs
-            .into_iter()
-            .partition(|addr| addr.is_ipv4());
+        socket_addrs.into_iter().partition(|addr| addr.is_ipv4());
 
     // If there are many IP:s, we simply ignore the rest
     ipv4.pop().or(ipv6.pop())

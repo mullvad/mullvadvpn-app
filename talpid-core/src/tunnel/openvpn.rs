@@ -8,7 +8,7 @@ use std::io;
 use std::path::Path;
 use std::process::ExitStatus;
 use std::result::Result as StdResult;
-use std::sync::{Arc, mpsc};
+use std::sync::{mpsc, Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::time::Duration;
@@ -50,8 +50,9 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
     pub fn new<L, P>(cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
-        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
-              P: AsRef<Path>
+    where
+        L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
+        P: AsRef<Path>,
     {
         Self::new_internal(cmd, on_event, plugin_path)
     }
@@ -59,25 +60,26 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
 impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     fn new_internal<L, P>(mut cmd: C, on_event: L, plugin_path: P) -> Result<OpenVpnMonitor<C>>
-        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
-              P: AsRef<Path>
+    where
+        L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
+        P: AsRef<Path>,
     {
-        let event_dispatcher = OpenVpnEventDispatcher::start(on_event)
-            .chain_err(|| ErrorKind::EventDispatcherError)?;
+        let event_dispatcher =
+            OpenVpnEventDispatcher::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
         cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
-        let child = cmd.start().chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
+        let child = cmd.start()
+            .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
 
-        Ok(
-            OpenVpnMonitor {
-                child: Arc::new(child),
-                event_dispatcher: Some(event_dispatcher),
-                closed: Arc::new(AtomicBool::new(false)),
-            },
-        )
+        Ok(OpenVpnMonitor {
+            child: Arc::new(child),
+            event_dispatcher: Some(event_dispatcher),
+            closed: Arc::new(AtomicBool::new(false)),
+        })
     }
 
-    /// Creates a handle to this monitor, allowing the tunnel to be closed while some other thread
+    /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
+    /// thread
     /// is blocked in `wait`.
     pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
@@ -86,22 +88,21 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         }
     }
 
-    /// Consumes the monitor and blocks until OpenVPN exits or there is an error in either waiting
+    /// Consumes the monitor and blocks until OpenVPN exits or there is an error in either
+    /// waiting
     /// for the process or in the event dispatcher.
     pub fn wait(mut self) -> Result<()> {
         match self.wait_result() {
-            WaitResult::Child(Ok(exit_status), closed) => {
-                if exit_status.success() || closed {
-                    debug!(
-                        "OpenVPN exited, as expected, with exit status: {}",
-                        exit_status
-                    );
-                    Ok(())
-                } else {
-                    error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                    Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
-                }
-            }
+            WaitResult::Child(Ok(exit_status), closed) => if exit_status.success() || closed {
+                debug!(
+                    "OpenVPN exited, as expected, with exit status: {}",
+                    exit_status
+                );
+                Ok(())
+            } else {
+                error!("OpenVPN died unexpectedly with status: {}", exit_status);
+                Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
+            },
             WaitResult::Child(Err(e), _) => {
                 error!("OpenVPN process wait error: {}", e);
                 Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
@@ -128,21 +129,19 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         let (child_tx, rx) = mpsc::channel();
         let dispatcher_tx = child_tx.clone();
 
-        thread::spawn(
-            move || {
-                let result = child_wait_handle.wait();
-                let closed = closed_handle.load(Ordering::SeqCst);
-                child_tx.send(WaitResult::Child(result, closed)).unwrap();
-                dispatcher_handle.close();
-            },
-        );
-        thread::spawn(
-            move || {
-                let result = event_dispatcher.wait();
-                dispatcher_tx.send(WaitResult::EventDispatcher(result)).unwrap();
-                let _ = child_close_handle.close();
-            },
-        );
+        thread::spawn(move || {
+            let result = child_wait_handle.wait();
+            let closed = closed_handle.load(Ordering::SeqCst);
+            child_tx.send(WaitResult::Child(result, closed)).unwrap();
+            dispatcher_handle.close();
+        });
+        thread::spawn(move || {
+            let result = event_dispatcher.wait();
+            dispatcher_tx
+                .send(WaitResult::EventDispatcher(result))
+                .unwrap();
+            let _ = child_close_handle.close();
+        });
 
         let result = rx.recv().unwrap();
         let _ = rx.recv().unwrap();
@@ -235,7 +234,8 @@ pub struct OpenVpnEventDispatcher {
 impl OpenVpnEventDispatcher {
     /// Construct and start the IPC server with the given event listener callback.
     pub fn start<L>(on_event: L) -> talpid_ipc::Result<Self>
-        where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
+    where
+        L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
         let rpc = OpenVpnEventApiImpl { on_event };
         let mut io = IoHandler::new();
@@ -249,7 +249,8 @@ impl OpenVpnEventDispatcher {
         self.server.address()
     }
 
-    /// Creates a handle to this event dispatcher, allowing the listening server to be closed while
+    /// Creates a handle to this event dispatcher, allowing the listening server to be closed
+    /// while
     /// some other thread is blocked in `wait`.
     pub fn close_handle(&self) -> talpid_ipc::CloseHandle {
         self.server.close_handle()
@@ -278,18 +279,21 @@ mod api {
 use self::api::*;
 
 struct OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
+where
+    L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
 {
     on_event: L,
 }
 
 impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
-    where L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static
+where
+    L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
 {
-    fn openvpn_event(&self,
-                     event: OpenVpnPluginEvent,
-                     env: HashMap<String, String>)
-                     -> StdResult<(), Error> {
+    fn openvpn_event(
+        &self,
+        event: OpenVpnPluginEvent,
+        env: HashMap<String, String>,
+    ) -> StdResult<(), Error> {
         debug!("OpenVPN event {:?}", event);
         (self.on_event)(event, env);
         Ok(())
@@ -319,7 +323,8 @@ mod tests {
         }
 
         fn start(&self) -> io::Result<Self::ProcessHandle> {
-            self.process_handle.ok_or(io::Error::new(io::ErrorKind::Other, "failed to start"))
+            self.process_handle
+                .ok_or(io::Error::new(io::ErrorKind::Other, "failed to start"))
         }
     }
 

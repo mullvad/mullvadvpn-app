@@ -17,8 +17,8 @@ extern crate serde_json;
 
 extern crate jsonrpc_core;
 extern crate jsonrpc_ws_server;
-extern crate ws;
 extern crate url;
+extern crate ws;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ws_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
@@ -53,21 +53,20 @@ impl IpcServer {
     }
 
     pub fn start_with_metadata<M, E>(handler: MetaIoHandler<M>, meta_extractor: E) -> Result<Self>
-        where M: Metadata,
-              E: MetaExtractor<M>
+    where
+        M: Metadata,
+        E: MetaExtractor<M>,
     {
         let listen_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
         ServerBuilder::new(handler)
             .session_meta_extractor(meta_extractor)
             .start(&listen_addr)
-            .map(
-                |server| {
-                    IpcServer {
-                        address: format!("ws://{}", server.addr()),
-                        server: server,
-                    }
-                },
-            )
+            .map(|server| {
+                IpcServer {
+                    address: format!("ws://{}", server.addr()),
+                    server: server,
+                }
+            })
             .chain_err(|| ErrorKind::IpcServerError)
     }
 
