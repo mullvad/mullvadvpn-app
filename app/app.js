@@ -30,6 +30,10 @@ ipcRenderer.on('backend-info', (_event, args) => {
     backend.autologin();
   }
 });
+ipcRenderer.on('disconnect', () => {
+  log.info('Been told by the node process to disconnect');
+  backend.disconnect();
+});
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
