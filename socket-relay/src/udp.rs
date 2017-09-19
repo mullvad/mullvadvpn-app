@@ -11,9 +11,10 @@ use std::result::Result as StdResult;
 use std::time::Duration;
 
 use tokio_core::net::{UdpCodec, UdpSocket};
-use tokio_core::reactor::{Handle, Timeout};
+use tokio_core::reactor::Handle;
+use tokio_timer::Timer;
 
-/// The amount of time the forwarding socket is open for replies.
+/// The amount of idle (no replies) time needed for the forwarding socket to close.
 pub static FORWARD_TIMEOUT_MS: u64 = 60000;
 
 /// Number of slots in internal channel transfering responses back to clients.
@@ -96,24 +97,23 @@ impl Relay {
             error!("Error while forwarding to destination addr: {}", e);
         });
 
-        let recv_future = forward_stream
-            .filter_map(move |(addr, data)| if addr == destination {
-                Some(data)
-            } else {
-                None
-            })
-            .map_err(|e| {
-                error!("Error reading datagrams from forward socket: {}", e)
-            })
+        let recv_future = Timer::default()
+            .timeout_stream(
+                forward_stream
+                    .filter_map(move |(addr, data)| if addr == destination {
+                        Some(data)
+                    } else {
+                        None
+                    })
+                    .map_err(|e| {
+                        error!("Error reading datagrams from forward socket: {}", e)
+                    }),
+                Duration::from_millis(FORWARD_TIMEOUT_MS),
+            )
             .forward(response_sink)
             .map(|_| ());
 
-        let network_future = send_future.and_then(|_| recv_future);
-
-        let timeout =
-            Timeout::new(Duration::from_millis(FORWARD_TIMEOUT_MS), &handle)?.map_err(|_| ());
-
-        handle.spawn(network_future.select(timeout).map(|_| ()).map_err(|_| ()));
+        handle.spawn(send_future.and_then(|_| recv_future));
         Ok(())
     }
 
