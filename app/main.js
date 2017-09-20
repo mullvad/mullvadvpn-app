@@ -182,6 +182,17 @@ const appDelegate = {
       return;
     }
 
+    const isSecureEnough = isOwnedAndOnlyWritableByRoot(rpcAddressFile);
+    if (!isSecureEnough) {
+      log.error('Not trusting the contents of', rpcAddressFile, 'as it was not owned and only writable by root.');
+      return;
+    }
+
+    // There is a race condition here where the owner and permissions of
+    // the file can change in the time between we validate the owner and
+    // permissions and read the contents of the file. We deem the chance
+    // of that to be small enough to ignore.
+
     log.debug('Reading the ipc connection info from', rpcAddressFile);
 
     fs.readFile(rpcAddressFile, 'utf8', function (err, data) {
@@ -356,3 +367,15 @@ const appDelegate = {
 };
 
 appDelegate.setup();
+
+function isOwnedAndOnlyWritableByRoot(path) {
+  const stat = fs.statSync(path);
+  const isOwnedByRoot = stat.uid === 0;
+
+  // Taken from gagle's comment at https://github.com/nodejs/node-v0.x-archive/issues/3045#issuecomment-4865547
+  const modeAsOctalString = (stat.mode & parseInt('777', 8)).toString(8);
+  const isOnlyWritableByOwner = modeAsOctalString === '604';
+
+  log.debug(path, 'is owned by', stat.uid, 'and has permsissions', modeAsOctalString);
+  return isOwnedByRoot && isOnlyWritableByOwner;
+}
