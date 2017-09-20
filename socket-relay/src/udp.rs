@@ -106,6 +106,11 @@ impl Relay {
                 );
                 Some((client_addr, data))
             } else {
+                trace!(
+                    "Discarding data from {}, expecting data from {}",
+                    addr,
+                    destination
+                );
                 None
             })
             .map_err(|e| {
