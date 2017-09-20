@@ -59,9 +59,9 @@ impl PacketFilter {
             SecurityPolicy::Connecting(relay_endpoint) => {
                 new_rules.push(Self::get_relay_rule(relay_endpoint)?);
             }
-            SecurityPolicy::Connected(relay_endpoint, tunnel_interface) => {
+            SecurityPolicy::Connected(relay_endpoint, tunnel_metadata) => {
                 new_rules.push(Self::get_relay_rule(relay_endpoint)?);
-                new_rules.push(Self::get_tunnel_rule(tunnel_interface)?);
+                new_rules.push(Self::get_tunnel_rule(tunnel_metadata.interface)?);
             }
         };
 

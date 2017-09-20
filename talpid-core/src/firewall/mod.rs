@@ -32,7 +32,7 @@ pub enum SecurityPolicy {
     Connecting(Endpoint),
 
     /// Allow traffic only to relay server and over tunnel interface
-    Connected(Endpoint, String),
+    Connected(Endpoint, ::tunnel::TunnelMetadata),
 }
 
 /// Abstract firewall interaction trait

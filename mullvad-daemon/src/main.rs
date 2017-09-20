@@ -63,7 +63,7 @@ use std::thread;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor};
+use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor, TunnelMetadata};
 use talpid_types::net::{Endpoint, TransportProtocol};
 
 error_chain!{
@@ -177,7 +177,7 @@ struct Daemon {
     accounts_proxy: AccountsProxy<HttpHandle>,
     firewall: FirewallProxy,
     relay_endpoint: Option<Endpoint>,
-    tunnel_interface: Option<String>,
+    tunnel_metadata: Option<TunnelMetadata>,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded relays,
     // picking a new one for each retry.
@@ -207,7 +207,7 @@ impl Daemon {
                 .chain_err(|| "Unable to bootstrap RPC client")?,
             firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
             relay_endpoint: None,
-            tunnel_interface: None,
+            tunnel_metadata: None,
             relay_iter: RELAYS.iter().cloned().cycle(),
         })
     }
@@ -278,8 +278,8 @@ impl Daemon {
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         debug!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting {
-            if let TunnelEvent::Up { tunnel_interface } = tunnel_event {
-                self.tunnel_interface = Some(tunnel_interface);
+            if let TunnelEvent::Up(metadata) = tunnel_event {
+                self.tunnel_metadata = Some(metadata);
                 self.set_security_policy()?;
                 self.set_state(TunnelState::Connected)
             } else {
@@ -297,7 +297,7 @@ impl Daemon {
             error!("{}", e.display_chain());
         }
         self.relay_endpoint = None;
-        self.tunnel_interface = None;
+        self.tunnel_metadata = None;
         self.reset_security_policy()?;
         self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
@@ -567,9 +567,9 @@ impl Daemon {
     }
 
     fn set_security_policy(&mut self) -> Result<()> {
-        let policy = match (self.relay_endpoint, self.tunnel_interface.as_ref()) {
+        let policy = match (self.relay_endpoint, self.tunnel_metadata.as_ref()) {
             (Some(relay), None) => SecurityPolicy::Connecting(relay),
-            (Some(relay), Some(interface)) => SecurityPolicy::Connected(relay, interface.clone()),
+            (Some(relay), Some(tunnel_metadata)) => SecurityPolicy::Connected(relay, tunnel_metadata.clone()),
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);

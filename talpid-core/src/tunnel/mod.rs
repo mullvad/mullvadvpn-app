@@ -10,6 +10,8 @@ use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use std::net::Ipv4Addr;
+
 use talpid_types::net;
 
 /// A module for all OpenVPN related tunnel management.
@@ -46,12 +48,20 @@ pub use self::errors::*;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
     /// Sent when the tunnel comes up and is ready for traffic.
-    Up {
-        /// The name of the device which the tunnel is running on.
-        tunnel_interface: String,
-    },
+    Up(TunnelMetadata),
     /// Sent when the tunnel goes down.
     Down,
+}
+
+/// Information about a VPN tunnel.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct TunnelMetadata {
+    /// The name of the device which the tunnel is running on.
+    pub interface: String,
+    /// The local IP on the tunnel interface.
+    pub ip: Ipv4Addr,
+    /// The IP to the default gateway on the tunnel interface.
+    pub gateway: Ipv4Addr,
 }
 
 impl TunnelEvent {
@@ -63,10 +73,22 @@ impl TunnelEvent {
     ) -> Option<TunnelEvent> {
         match *event {
             OpenVpnPluginEvent::Up => {
-                let tunnel_interface = env.get("dev")
+                let interface = env.get("dev")
                     .expect("No \"dev\" in tunnel up event")
                     .to_owned();
-                Some(TunnelEvent::Up { tunnel_interface })
+                let ip = env.get("ifconfig_local")
+                    .expect("No \"ifconfig_local\" in tunnel up event")
+                    .parse()
+                    .expect("Tunnel IP not in valid format");
+                let gateway = env.get("route_vpn_gateway")
+                    .expect("No \"route_vpn_gateway\" in tunnel up event")
+                    .parse()
+                    .expect("Tunnel gateway IP not in valid format");
+                Some(TunnelEvent::Up(TunnelMetadata {
+                    interface,
+                    ip,
+                    gateway,
+                }))
             }
             OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
             _ => None,
