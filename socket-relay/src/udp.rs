@@ -47,9 +47,7 @@ impl Relay {
         let client_sink_channel = create_client_sink_channel(client_sink, &handle);
 
         let forwarding_future = closable_client_stream.for_each(move |(client_addr, data)| {
-            let response_sink = client_sink_channel
-                .clone()
-                .sink_map_err(|_| ());
+            let response_sink = client_sink_channel.clone().sink_map_err(|_| ());
 
             if let Err(e) = Self::forward(
                 client_addr,
@@ -98,29 +96,28 @@ impl Relay {
             error!("Error while forwarding to destination addr: {}", e);
         });
 
-        let recv_future = Timer::default()
-            .timeout_stream(
-                forward_stream
-                    .filter_map(move |(addr, data)| if addr == destination {
-                        trace!(
-                            "Returning {} byte response from {} to {}",
-                            data.len(),
-                            addr,
-                            client_addr
-                        );
-                        Some((client_addr, data))
-                    } else {
-                        None
-                    })
-                    .map_err(|e| {
-                        error!("Error reading datagrams from forward socket: {}", e)
-                    }),
-                Duration::from_millis(FORWARD_TIMEOUT_MS),
-            )
+        let recv_stream = forward_stream
+            .filter_map(move |(addr, data)| if addr == destination {
+                trace!(
+                    "Returning {} byte response from {} to {}",
+                    data.len(),
+                    addr,
+                    client_addr
+                );
+                Some((client_addr, data))
+            } else {
+                None
+            })
+            .map_err(|e| {
+                error!("Error reading datagrams from forward socket: {}", e)
+            });
+
+        let timeout_recv_future = Timer::default()
+            .timeout_stream(recv_stream, Duration::from_millis(FORWARD_TIMEOUT_MS))
             .forward(response_sink)
             .map(|_| ());
 
-        handle.spawn(send_future.and_then(|_| recv_future));
+        handle.spawn(send_future.and_then(|_| timeout_recv_future));
         Ok(())
     }
 
