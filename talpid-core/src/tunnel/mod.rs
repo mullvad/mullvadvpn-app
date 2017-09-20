@@ -9,8 +9,8 @@ use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
-use std::path::{Path, PathBuf};
 use std::net::Ipv4Addr;
+use std::path::{Path, PathBuf};
 
 use talpid_types::net;
 

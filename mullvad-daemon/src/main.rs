@@ -63,7 +63,7 @@ use std::thread;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel::{self, TunnelEvent, TunnelMonitor, TunnelMetadata};
+use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{Endpoint, TransportProtocol};
 
 error_chain!{
@@ -569,7 +569,9 @@ impl Daemon {
     fn set_security_policy(&mut self) -> Result<()> {
         let policy = match (self.relay_endpoint, self.tunnel_metadata.as_ref()) {
             (Some(relay), None) => SecurityPolicy::Connecting(relay),
-            (Some(relay), Some(tunnel_metadata)) => SecurityPolicy::Connected(relay, tunnel_metadata.clone()),
+            (Some(relay), Some(tunnel_metadata)) => {
+                SecurityPolicy::Connected(relay, tunnel_metadata.clone())
+            }
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);

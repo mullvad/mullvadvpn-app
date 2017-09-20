@@ -866,7 +866,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "pfctl"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/pfctl-rs.git#17c90bca15244ae0a28fa54339c074ff306206d0"
+source = "git+ssh://git@github.com/mullvad/pfctl-rs.git#35ca17308409ffab07e3a2a7c9c9ba3c81f8ee5e"
 dependencies = [
  "bindgen 0.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_builder 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1196,9 +1196,11 @@ dependencies = [
  "libc 0.2.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs.git)",
+ "pfctl 0.1.0 (git+ssh://git@github.com/mullvad/pfctl-rs.git)",
+ "socket-relay 0.1.0",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
+ "tokio-core 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1587,7 +1589,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum parking_lot_core 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "0ad2c4d148942b3560034785bf19df586ebba53351e8c78f84984147d5795eef"
 "checksum peeking_take_while 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
 "checksum percent-encoding 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "de154f638187706bde41d9b4738748933d64e6b37bdbffc0b47a97d16a6ae356"
-"checksum pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs.git)" = "<none>"
+"checksum pfctl 0.1.0 (git+ssh://git@github.com/mullvad/pfctl-rs.git)" = "<none>"
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
 "checksum quasi 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "18c45c4854d6d1cf5d531db97c75880feb91c958b0720f4ec1057135fec358b3"
 "checksum quasi_codegen 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "51b9e25fa23c044c1803f43ca59c98dac608976dd04ce799411edd58ece776d4"
