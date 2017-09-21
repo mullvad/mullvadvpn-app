@@ -70,6 +70,10 @@ const appDelegate = {
     });
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
+    window.on('close', () => {
+      log.debug('The browser window is closing, disconnecting the tunnel...');
+      window.webContents.send('disconnect');
+    });
 
     // create tray icon on macOS
     if(isMacOS) {
