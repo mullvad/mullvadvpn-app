@@ -15,7 +15,7 @@ use tokio_core::reactor::Handle;
 use tokio_timer::Timer;
 
 /// The amount of idle (no replies) time needed for the forwarding socket to close.
-pub static FORWARD_TIMEOUT_MS: u64 = 60000;
+pub static FORWARD_TIMEOUT_MS: u64 = 8000;
 
 /// Number of slots in internal channel transfering responses back to clients.
 pub static CLIENT_SINK_CHANNEL_SIZE: usize = 10;
