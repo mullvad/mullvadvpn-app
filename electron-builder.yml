@@ -1,6 +1,7 @@
 appId: net.mullvad.vpn
 copyright: Amagicom AB
 productName: MullvadVPN
+buildVersion: "2017.1-alpha4"
 
 asar: true
 
@@ -33,6 +34,7 @@ dmg:
 mac:
   target:
     - dmg
+  artifactName: ${productName}-${buildVersion}.${ext}
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
@@ -49,6 +51,7 @@ mac:
 win:
   target:
     - nsis
+  artifactName: ${productName}-${buildVersion}.${ext}
   extraResources:
     - from: ../talpid_core/target/release/mullvad.exe
       to: .
@@ -60,7 +63,7 @@ win:
 linux:
   target:
     - deb
-  artifactName: ${productName}_${version}_${arch}.${ext}
+  artifactName: ${productName}_${buildVersion}_${arch}.${ext}
   extraResources:
     - from: ../talpid_core/target/release/mullvad
       to: .
