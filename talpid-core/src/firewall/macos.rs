@@ -1,17 +1,27 @@
+extern crate socket_relay;
+extern crate tokio_core;
+
 use super::{Firewall, SecurityPolicy};
 use pfctl;
-use std::net::Ipv4Addr;
+
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::sync::mpsc;
+use std::thread;
+
+use self::socket_relay::udp::{Relay, RelayCloseHandle};
 use talpid_types::net;
+use tunnel::TunnelMetadata;
 
 // alias used to instantiate firewall implementation
 pub type ConcreteFirewall = PacketFilter;
-pub use pfctl::{Error, ErrorKind, Result};
+pub use pfctl::{Error, ErrorKind, Result, ResultExt};
 
 const ANCHOR_NAME: &'static str = "talpid_core";
 
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
+    dns_proxy_close_handle: Option<RelayCloseHandle>,
 }
 
 impl Firewall<Error> for PacketFilter {
@@ -19,6 +29,7 @@ impl Firewall<Error> for PacketFilter {
         Ok(PacketFilter {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
+            dns_proxy_close_handle: None,
         })
     }
 
@@ -29,6 +40,7 @@ impl Firewall<Error> for PacketFilter {
     }
 
     fn reset_policy(&mut self) -> Result<()> {
+        self.stop_dns_proxy();
         vec![
             self.remove_rules(),
             self.remove_anchor(),
@@ -41,35 +53,71 @@ impl Firewall<Error> for PacketFilter {
 
 impl PacketFilter {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
+        let mut new_filter_rules = self.get_loopback_rules()?;
+        let mut new_redirect_rules = vec![];
+
+        match policy {
+            SecurityPolicy::Connecting(relay_endpoint) => {
+                self.stop_dns_proxy();
+                new_filter_rules.push(Self::get_relay_rule(relay_endpoint)?);
+            }
+            SecurityPolicy::Connected(relay_endpoint, tunnel) => {
+                let dns_proxy_listen_addr = self.start_dns_proxy(&tunnel)?;
+
+                let allow_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
+                    .action(pfctl::FilterRuleAction::Pass)
+                    .direction(pfctl::Direction::Out)
+                    .quick(true)
+                    .interface(&tunnel.interface)
+                    .proto(pfctl::Proto::Udp)
+                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .build()?;
+                let reroute_dns_rule = pfctl::FilterRuleBuilder::default()
+                    .action(pfctl::FilterRuleAction::Pass)
+                    .direction(pfctl::Direction::Out)
+                    .quick(true)
+                    .route(pfctl::Route::route_to(pfctl::Interface::from("lo0")))
+                    .proto(pfctl::Proto::Udp)
+                    .to(pfctl::Port::from(53))
+                    .build()?;
+                let block_all_other_dns_rule = pfctl::FilterRuleBuilder::default()
+                    .action(pfctl::FilterRuleAction::Drop)
+                    .direction(pfctl::Direction::Out)
+                    .quick(true)
+                    .proto(pfctl::Proto::Tcp)
+                    .to(pfctl::Port::from(53))
+                    .build()?;
+
+                new_filter_rules.push(allow_dns_to_relay_rule);
+                new_filter_rules.push(reroute_dns_rule);
+                new_filter_rules.push(block_all_other_dns_rule);
+
+                let dns_redirect_rule = pfctl::RedirectRuleBuilder::default()
+                    .action(pfctl::RedirectRuleAction::Redirect)
+                    .interface("lo0")
+                    .proto(pfctl::Proto::Udp)
+                    .to(pfctl::Port::from(53))
+                    .redirect_to(dns_proxy_listen_addr)
+                    .build()?;
+                new_redirect_rules.push(dns_redirect_rule);
+
+                new_filter_rules.push(Self::get_relay_rule(relay_endpoint)?);
+                new_filter_rules.push(Self::get_tunnel_rule(tunnel.interface.as_str())?);
+            }
+        };
+
+        new_filter_rules.append(&mut Self::get_dhcp_rules()?);
+
         let drop_all_rule = pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Drop)
             .quick(true)
             .build()?;
-        let allow_dns_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Pass)
-            .direction(pfctl::Direction::Out)
-            .quick(true)
-            .to(pfctl::Port::One(53, pfctl::PortUnaryModifier::Equal))
-            .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
-            .build()?;
-        let mut new_rules = self.get_loopback_rules()?;
+        new_filter_rules.push(drop_all_rule);
 
-        match policy {
-            SecurityPolicy::Connecting(relay_endpoint) => {
-                new_rules.push(Self::get_relay_rule(relay_endpoint)?);
-            }
-            SecurityPolicy::Connected(relay_endpoint, tunnel_interface) => {
-                new_rules.push(Self::get_relay_rule(relay_endpoint)?);
-                new_rules.push(Self::get_tunnel_rule(tunnel_interface)?);
-            }
-        };
-
-        new_rules.push(allow_dns_rule);
-        new_rules.append(&mut Self::get_dhcp_rules()?);
-        new_rules.push(drop_all_rule);
-
-        self.pf.set_rules(ANCHOR_NAME, &new_rules)
+        let mut anchor_change = pfctl::AnchorChange::new();
+        anchor_change.set_filter_rules(new_filter_rules);
+        anchor_change.set_redirect_rules(new_redirect_rules);
+        self.pf.set_rules(ANCHOR_NAME, anchor_change)
     }
 
     fn get_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
@@ -86,7 +134,7 @@ impl PacketFilter {
             .build()
     }
 
-    fn get_tunnel_rule(tunnel_interface: String) -> Result<pfctl::FilterRule> {
+    fn get_tunnel_rule(tunnel_interface: &str) -> Result<pfctl::FilterRule> {
         pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .interface(tunnel_interface)
@@ -158,12 +206,29 @@ impl PacketFilter {
 
     fn add_anchor(&mut self) -> Result<()> {
         self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
+        self.pf
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)
     }
 
     fn remove_anchor(&mut self) -> Result<()> {
         self.pf
-            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
+        self.pf
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)
+    }
+
+    fn start_dns_proxy(&mut self, tunnel: &TunnelMetadata) -> Result<SocketAddr> {
+        self.stop_dns_proxy();
+        let (listen_addr, close_handle) = spawn_dns_proxy(tunnel.ip, tunnel.gateway)?;
+        self.dns_proxy_close_handle = Some(close_handle);
+        Ok(listen_addr)
+    }
+
+    fn stop_dns_proxy(&mut self) {
+        if let Some(close_handle) = self.dns_proxy_close_handle.take() {
+            close_handle.close();
+        }
     }
 }
 
@@ -172,4 +237,44 @@ fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
         net::TransportProtocol::Udp => pfctl::Proto::Udp,
         net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
     }
+}
+
+fn spawn_dns_proxy(
+    tunnel_ip: Ipv4Addr,
+    tunnel_gateway: Ipv4Addr,
+) -> Result<(SocketAddr, RelayCloseHandle)> {
+    let (tx, rx) = mpsc::channel();
+    thread::spawn(move || {
+        match spawn_dns_proxy_helper(tunnel_ip, tunnel_gateway) {
+            Ok((mut core, relay)) => {
+                tx.send(Ok((relay.listen_addr(), relay.close_handle())))
+                    .unwrap();
+                match core.run(relay) {
+                    Err(e) => error!("DNS proxy died with an error: {}", e),
+                    Ok(_) => info!("DNS proxy exiting"),
+                }
+            }
+            Err(e) => {
+                tx.send(Err(e)).unwrap();
+            }
+        }
+    });
+    rx.recv().unwrap()
+}
+
+fn spawn_dns_proxy_helper(
+    tunnel_ip: Ipv4Addr,
+    tunnel_gateway: Ipv4Addr,
+) -> Result<(tokio_core::reactor::Core, Relay)> {
+    let core = tokio_core::reactor::Core::new().chain_err(|| "Unable to init Tokio event loop")?;
+
+    let relay = Relay::new(
+        "127.0.0.1:0".parse().unwrap(),
+        IpAddr::V4(tunnel_ip),
+        SocketAddr::from((tunnel_gateway, 53)),
+        core.handle(),
+    ).chain_err(|| "Unable to create DNS proxy socket relay")?;
+    info!("DNS proxy listening on {}", relay.listen_addr());
+
+    Ok((core, relay))
 }
