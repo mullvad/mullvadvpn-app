@@ -20,7 +20,6 @@ extern crate lazy_static;
 extern crate log;
 extern crate mullvad_types;
 extern crate serde;
-extern crate serde_json;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
