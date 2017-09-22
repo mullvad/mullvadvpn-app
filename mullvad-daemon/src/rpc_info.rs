@@ -47,9 +47,23 @@ pub fn remove() -> Result<()> {
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
-    OpenOptions::new()
+    let file = OpenOptions::new()
         .write(true)
         .truncate(true)
         .create(true)
-        .open(path)
+        .open(path)?;
+    set_rpc_file_permissions(&file)?;
+    Ok(file)
+}
+
+#[cfg(unix)]
+fn set_rpc_file_permissions(file: &File) -> io::Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+    file.set_permissions(PermissionsExt::from_mode(0o644))
+}
+
+#[cfg(windows)]
+fn set_rpc_file_permissions(_file: &File) -> io::Result<()> {
+    // TODO(linus): Lock permissions correctly on Windows.
+    Ok(())
 }

@@ -238,7 +238,7 @@ impl TunnelMonitor {
     }
 
     #[cfg(windows)]
-    fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
+    fn set_user_pass_file_permissions(_file: &fs::File) -> io::Result<()> {
         // TODO(linus): Lock permissions correctly on Windows.
         Ok(())
     }
