@@ -184,6 +184,17 @@ const appDelegate = {
 
     log.debug('Reading the ipc connection info from', rpcAddressFile);
 
+    const isSecureEnough = isOwnedAndOnlyWritableByRoot(rpcAddressFile);
+    if (!isSecureEnough) {
+      log.error('Not trusting the contents of', rpcAddressFile, 'as it was not owned and only writable by root.');
+      return;
+    }
+
+    // There is a race condition here where the owner and permissions of
+    // the file can change in the time between we validate the owner and
+    // permissions and read the contents of the file. We deem the chance
+    // of that to be small enough to ignore.
+
     fs.readFile(rpcAddressFile, 'utf8', function (err, data) {
       if (err) {
         return log.error('Could not find backend connection info', err);
@@ -356,3 +367,11 @@ const appDelegate = {
 };
 
 appDelegate.setup();
+
+function isOwnedAndOnlyWritableByRoot(path) {
+  const stat = fs.statSync(path);
+  const isOwnedByRoot = stat.uid === 0;
+  const isOnlyWritableByOwner = (stat.mode & parseInt('022', 8)) === 0;
+
+  return isOwnedByRoot && isOnlyWritableByOwner;
+}
