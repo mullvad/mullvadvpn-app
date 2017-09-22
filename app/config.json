@@ -12,15 +12,45 @@
   },
   "defaultServer": "fastest",
   "servers": {
+    "au.mullvad.net": {
+      "address": "au.mullvad.net",
+      "name": "Australia",
+      "city": "Sydney",
+      "country": "Australia"
+    },
+    "at.mullvad.net": {
+      "address": "at.mullvad.net",
+      "name": "Austria",
+      "city": "Wien",
+      "country": "Austria"
+    },
+    "be.mullvad.net": {
+      "address": "be.mullvad.net",
+      "name": "Belgium",
+      "city": "Brussels",
+      "country": "Belgium"
+    },
+    "bg.mullvad.net": {
+      "address": "bg.mullvad.net",
+      "name": "Bulgaria",
+      "city": "Sofia",
+      "country": "Bulgaria"
+    },
     "ca.mullvad.net": {
       "address": "ca.mullvad.net",
       "name": "Canada",
-      "city": "Ottawa",
+      "city": "Toronto",
       "country": "Canada",
       "location": [
         45.42153,
         -75.697193
       ]
+    },
+    "cz.mullvad.net": {
+      "address": "cz.mullvad.net",
+      "name": "Czech Republic",
+      "city": "Prague",
+      "country": "Czech Republic"
     },
     "dk.mullvad.net": {
       "address": "dk.mullvad.net",
@@ -32,6 +62,18 @@
         12.5683371
       ]
     },
+    "fi.mullvad.net": {
+      "address": "fi.mullvad.net",
+      "name": "Finland",
+      "city": "Helsinki",
+      "country": "Finland"
+    },
+    "fr.mullvad.net": {
+      "address": "fr.mullvad.net",
+      "name": "France",
+      "city": "Paris",
+      "country": "France"
+    },
     "de.mullvad.net": {
       "address": "de.mullvad.net",
       "name": "Germany",
@@ -41,6 +83,36 @@
         52.52000659999999,
         13.404954
       ]
+    },
+    "hk.mullvad.net": {
+      "address": "hk.mullvad.net",
+      "name": "Hong Kong",
+      "city": "Hong Kong",
+      "country": "Hong Kong"
+    },
+    "hu.mullvad.net": {
+      "address": "hu.mullvad.net",
+      "name": "Hungary",
+      "city": "Budapest",
+      "country": "Hungary"
+    },
+    "il.mullvad.net": {
+      "address": "il.mullvad.net",
+      "name": "Israel",
+      "city": "Petach-Tikva",
+      "country": "Israel"
+    },
+    "it.mullvad.net": {
+      "address": "it.mullvad.net",
+      "name": "Italy",
+      "city": "Milan",
+      "country": "Italy"
+    },
+    "jp.mullvad.net": {
+      "address": "jp.mullvad.net",
+      "name": "Japan",
+      "city": "Tokyo",
+      "country": "Japan"
     },
     "nl.mullvad.net": {
       "address": "nl.mullvad.net",
@@ -61,6 +133,12 @@
         59.9138688,
         10.7522454
       ]
+    },
+    "pl.mullvad.net": {
+      "address": "pl.mullvad.net",
+      "name": "Poland",
+      "city": "Warsaw",
+      "country": "Poland"
     },
     "ro.mullvad.net": {
       "address": "ro.mullvad.net",
@@ -98,7 +176,7 @@
       "city": "Stockholm",
       "country": "Sweden",
       "location": [
-        59.32932349999999,
+        59.3293234,
         18.0685808
       ]
     },
