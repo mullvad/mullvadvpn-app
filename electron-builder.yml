@@ -1,7 +1,7 @@
 appId: net.mullvad.vpn
 copyright: Amagicom AB
 productName: MullvadVPN
-buildVersion: "2017.1-alpha4"
+buildVersion: "2017.1-alpha5"
 
 asar: true
 compression: maximum
