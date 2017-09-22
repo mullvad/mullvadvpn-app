@@ -12,8 +12,8 @@
   },
   "defaultServer": "fastest",
   "servers": {
-    "ca1.mullvad.net": {
-      "address": "ca1.mullvad.net",
+    "ca.mullvad.net": {
+      "address": "ca.mullvad.net",
       "name": "Canada",
       "city": "Ottawa",
       "country": "Canada",
@@ -22,20 +22,10 @@
         -75.697193
       ]
     },
-    "ca2.mullvad.net": {
-      "address": "ca2.mullvad.net",
-      "name": "Canada (Quebec)",
-      "city": "Quebec",
-      "country": "Canada",
-      "location": [
-        46.810811,
-        -71.215439
-      ]
-    },
-    "da.mullvad.net": {
-      "address": "da.mullvad.net",
+    "dk.mullvad.net": {
+      "address": "dk.mullvad.net",
       "name": "Denmark",
-      "city": "\u200eCopenhagen",
+      "city": "Copenhagen",
       "country": "Denmark",
       "location": [
         55.6760968,
@@ -112,8 +102,8 @@
         -3.7037902
       ]
     },
-    "se1.mullvad.net": {
-      "address": "se1.mullvad.net",
+    "se.mullvad.net": {
+      "address": "se.mullvad.net",
       "name": "Sweden",
       "city": "Stockholm",
       "country": "Sweden",
@@ -142,8 +132,8 @@
         -0.1277583
       ]
     },
-    "us1.mullvad.net": {
-      "address": "us1.mullvad.net",
+    "us.mullvad.net": {
+      "address": "us.mullvad.net",
       "name": "USA",
       "city": "New York",
       "country": "USA",
