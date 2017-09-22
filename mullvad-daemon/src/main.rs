@@ -612,6 +612,7 @@ quick_main!(run);
 fn run() -> Result<()> {
     let config = cli::get_config();
     init_logger(config.log_level, config.log_file.as_ref())?;
+    log_version();
 
     let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
 
@@ -657,4 +658,13 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
     config
         .apply()
         .chain_err(|| "Failed to bootstrap logging system")
+}
+
+fn log_version() {
+    info!(
+        "Starting {} v{} {}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
+        include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
+    )
 }
