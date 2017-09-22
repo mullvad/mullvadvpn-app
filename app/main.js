@@ -51,8 +51,8 @@ const appDelegate = {
       // Disable log file in development
       log.transports.file.level = false;
     } else {
-      log.transports.console.level = 'info';
-      log.transports.file.level = 'info';
+      log.transports.console.level = 'debug';
+      log.transports.file.level = 'debug';
       log.transports.file.file = path.join(appDelegate._logFileLocation, 'frontend.log');
 
       // create log folder
