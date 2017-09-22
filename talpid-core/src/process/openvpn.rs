@@ -15,6 +15,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--connect-retry", "0", "0"],
     &["--connect-retry-max", "1"],
     &["--comp-lzo"],
+    &["--remote-cert-tls", "server"],
 ];
 
 static ALLOWED_TLS_CIPHERS: &[&str] = &[
