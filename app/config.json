@@ -42,16 +42,6 @@
         13.404954
       ]
     },
-    "lt.mullvad.net": {
-      "address": "lt.mullvad.net",
-      "name": "Lithuania",
-      "city": "Vilnius",
-      "country": "Lithuania",
-      "location": [
-        54.6871555,
-        25.2796514
-      ]
-    },
     "nl.mullvad.net": {
       "address": "nl.mullvad.net",
       "name": "The Netherlands",
