@@ -53,13 +53,37 @@ impl Firewall<Error> for PacketFilter {
 
 impl PacketFilter {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
-        let mut new_filter_rules = self.get_loopback_rules()?;
+        let mut new_filter_rules = vec![];
         let mut new_redirect_rules = vec![];
 
+        new_filter_rules.append(&mut Self::get_allow_loopback_rules()?);
+        new_filter_rules.append(&mut Self::get_allow_dhcp_rules()?);
+
+        let (mut policy_filter_rules, mut policy_redirect_rules) =
+            self.get_policy_specific_rules(policy)?;
+        new_filter_rules.append(&mut policy_filter_rules);
+        new_redirect_rules.append(&mut policy_redirect_rules);
+
+        let drop_all_rule = pfctl::FilterRuleBuilder::default()
+            .action(pfctl::FilterRuleAction::Drop)
+            .quick(true)
+            .build()?;
+        new_filter_rules.push(drop_all_rule);
+
+        let mut anchor_change = pfctl::AnchorChange::new();
+        anchor_change.set_filter_rules(new_filter_rules);
+        anchor_change.set_redirect_rules(new_redirect_rules);
+        self.pf.set_rules(ANCHOR_NAME, anchor_change)
+    }
+
+    fn get_policy_specific_rules(
+        &mut self,
+        policy: SecurityPolicy,
+    ) -> Result<(Vec<pfctl::FilterRule>, Vec<pfctl::RedirectRule>)> {
         match policy {
             SecurityPolicy::Connecting(relay_endpoint) => {
                 self.stop_dns_proxy();
-                new_filter_rules.push(Self::get_relay_rule(relay_endpoint)?);
+                Ok((vec![Self::get_allow_relay_rule(relay_endpoint)?], vec![]))
             }
             SecurityPolicy::Connected(relay_endpoint, tunnel) => {
                 let dns_proxy_listen_addr = self.start_dns_proxy(&tunnel)?;
@@ -88,10 +112,6 @@ impl PacketFilter {
                     .to(pfctl::Port::from(53))
                     .build()?;
 
-                new_filter_rules.push(allow_dns_to_relay_rule);
-                new_filter_rules.push(reroute_dns_rule);
-                new_filter_rules.push(block_all_other_dns_rule);
-
                 let dns_redirect_rule = pfctl::RedirectRuleBuilder::default()
                     .action(pfctl::RedirectRuleAction::Redirect)
                     .interface("lo0")
@@ -99,28 +119,22 @@ impl PacketFilter {
                     .to(pfctl::Port::from(53))
                     .redirect_to(dns_proxy_listen_addr)
                     .build()?;
-                new_redirect_rules.push(dns_redirect_rule);
 
-                new_filter_rules.push(Self::get_relay_rule(relay_endpoint)?);
-                new_filter_rules.push(Self::get_tunnel_rule(tunnel.interface.as_str())?);
+                Ok((
+                    vec![
+                        allow_dns_to_relay_rule,
+                        reroute_dns_rule,
+                        block_all_other_dns_rule,
+                        Self::get_allow_relay_rule(relay_endpoint)?,
+                        Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
+                    ],
+                    vec![dns_redirect_rule],
+                ))
             }
-        };
-
-        new_filter_rules.append(&mut Self::get_dhcp_rules()?);
-
-        let drop_all_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Drop)
-            .quick(true)
-            .build()?;
-        new_filter_rules.push(drop_all_rule);
-
-        let mut anchor_change = pfctl::AnchorChange::new();
-        anchor_change.set_filter_rules(new_filter_rules);
-        anchor_change.set_redirect_rules(new_redirect_rules);
-        self.pf.set_rules(ANCHOR_NAME, anchor_change)
+        }
     }
 
-    fn get_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
+    fn get_allow_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
         pfctl::FilterRuleBuilder::default()
@@ -134,7 +148,7 @@ impl PacketFilter {
             .build()
     }
 
-    fn get_tunnel_rule(tunnel_interface: &str) -> Result<pfctl::FilterRule> {
+    fn get_allow_tunnel_rule(tunnel_interface: &str) -> Result<pfctl::FilterRule> {
         pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .interface(tunnel_interface)
@@ -144,7 +158,7 @@ impl PacketFilter {
             .build()
     }
 
-    fn get_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
+    fn get_allow_loopback_rules() -> Result<Vec<pfctl::FilterRule>> {
         let lo0_rule = pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .interface("lo0")
@@ -154,7 +168,7 @@ impl PacketFilter {
         Ok(vec![lo0_rule])
     }
 
-    fn get_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {
+    fn get_allow_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {
         let broadcast_address = Ipv4Addr::new(255, 255, 255, 255);
         let server_port = pfctl::Port::from(67);
         let client_port = pfctl::Port::from(68);
