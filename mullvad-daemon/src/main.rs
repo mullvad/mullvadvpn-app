@@ -491,7 +491,7 @@ impl Daemon {
 
     fn start_tunnel(&mut self) -> Result<()> {
         ensure!(
-            self.state == TunnelState::NotRunning,
+            self.target_state == TargetState::Secured && self.state == TunnelState::NotRunning,
             ErrorKind::InvalidState
         );
 
