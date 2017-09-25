@@ -36,9 +36,15 @@ describe('components/Connect', () => {
   });
 
   it('shows the connection location information when connected', () => {
-    const component = renderConnected({}, {
-      country: 'sweden',
-      city: 'gothenburg',
+    const component = renderConnected({
+      getServerInfo: (_s) => ({
+        address: '',
+        name: '',
+        location: [0, 0],
+        country: 'sweden',
+        city: 'gothenburg',
+      }),
+    }, {
       clientIp: '1.2.3.4',
     });
     const countryAndCity = component.find('.connect__status-location');
@@ -50,9 +56,15 @@ describe('components/Connect', () => {
   });
 
   it('shows the connection location information when disconnected', () => {
-    const component = renderNotConnected({}, {
-      country: 'sweden',
-      city: 'gothenburg',
+    const component = renderNotConnected({
+      getServerInfo: (_s) => ({
+        address: '',
+        name: '',
+        location: [0, 0],
+        country: 'sweden',
+        city: 'gothenburg',
+      }),
+    }, {
       clientIp: '1.2.3.4',
     });
     const countryAndCity = component.find('.connect__status-location');

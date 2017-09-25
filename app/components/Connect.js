@@ -109,7 +109,7 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    const { city, country } = this.props.connection;
+    const { city, country } = serverInfo;
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
