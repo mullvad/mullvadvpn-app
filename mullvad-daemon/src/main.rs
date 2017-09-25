@@ -298,7 +298,6 @@ impl Daemon {
         }
         self.relay_endpoint = None;
         self.tunnel_metadata = None;
-        self.reset_security_policy()?;
         self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
     }
@@ -477,12 +476,12 @@ impl Daemon {
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     error!("{}", e.display_chain());
                     self.relay_endpoint = None;
-                    self.reset_security_policy()?;
                     self.management_interface_broadcaster.notify_error(&e);
                     self.set_target_state(TargetState::Unsecured)?;
                 }
                 Ok(())
             }
+            (TargetState::Unsecured, TunnelState::NotRunning) => self.reset_security_policy(),
             (TargetState::Unsecured, TunnelState::Connecting) |
             (TargetState::Unsecured, TunnelState::Connected) => self.kill_tunnel(),
             (..) => Ok(()),
@@ -491,7 +490,7 @@ impl Daemon {
 
     fn start_tunnel(&mut self) -> Result<()> {
         ensure!(
-            self.state == TunnelState::NotRunning,
+            self.target_state == TargetState::Secured && self.state == TunnelState::NotRunning,
             ErrorKind::InvalidState
         );
 
