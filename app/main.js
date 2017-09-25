@@ -14,6 +14,10 @@ const isMacOS = (process.platform === 'darwin');
 const isLinux = (process.platform === 'linux');
 const isWindows = (process.platform === 'win32');
 
+// The name for application directory used for
+// scoping logs and user data in platform special folders
+const appDirectoryName = 'MullvadVPN';
+
 const rpcAddressFile = isMacOS || isLinux
   ? path.join('/tmp', '.mullvad_rpc_address')
   : path.join(app.getPath('temp'), '.mullvad_rpc_address');
@@ -28,11 +32,10 @@ const appDelegate = {
   connectionFilePollInterval: (null: ?number),
 
   setup: () => {
-    // Override appData path to avoid collisions with old client
-    // New userData path, i.e on macOS: ~/Library/Application Support/mullvad.vpn
-    app.setPath('userData', path.join(app.getPath('appData'), 'mullvad.vpn'));
+    // Override userData path, i.e on macOS: ~/Library/Application Support/MullvadVPN
+    app.setPath('userData', path.join(app.getPath('appData'), appDirectoryName));
 
-    appDelegate._logFileLocation = app.getPath('userData');
+    appDelegate._logFileLocation = appDelegate._getLogsDirectory();
     appDelegate._initLogging();
 
     appDelegate._startBackend();
@@ -40,6 +43,7 @@ const appDelegate = {
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
   },
+
   _initLogging: () => {
 
     const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
@@ -59,6 +63,20 @@ const appDelegate = {
       mkdirp.sync(appDelegate._logFileLocation);
     }
 
+  },
+
+  // Returns platform specific logs folder for application
+  // See open issue and PR on Github:
+  // 1. https://github.com/electron/electron/issues/10118
+  // 2. https://github.com/electron/electron/pull/10191
+  _getLogsDirectory: () => {
+    // macOS: ~/Library/Logs/{appname}
+    if(isMacOS) {
+      return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
+    }
+    // Linux: ~/.config/{appname}/logs
+    // Windows: ~\AppData\Roaming\{appname}\logs
+    return path.join(app.getPath('userData'), 'logs');
   },
 
   onReady: async () => {
