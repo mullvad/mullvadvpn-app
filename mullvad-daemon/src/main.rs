@@ -178,6 +178,7 @@ struct Daemon {
     firewall: FirewallProxy,
     relay_endpoint: Option<Endpoint>,
     tunnel_metadata: Option<TunnelMetadata>,
+    tunnel_log: Option<PathBuf>,
 
     // Just for testing. A cyclic iterator iterating over the hardcoded relays,
     // picking a new one for each retry.
@@ -185,7 +186,7 @@ struct Daemon {
 }
 
 impl Daemon {
-    pub fn new() -> Result<Self> {
+    pub fn new(tunnel_log: Option<PathBuf>) -> Result<Self> {
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
         let state = TunnelState::NotRunning;
@@ -208,6 +209,7 @@ impl Daemon {
             firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
             relay_endpoint: None,
             tunnel_metadata: None,
+            tunnel_log: tunnel_log,
             relay_iter: RELAYS.iter().cloned().cycle(),
         })
     }
@@ -530,8 +532,12 @@ impl Daemon {
                 .unwrap()
                 .send(DaemonEvent::TunnelEvent(event));
         };
-        TunnelMonitor::new(relay, account_token, on_tunnel_event)
-            .chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
+        TunnelMonitor::new(
+            relay,
+            account_token,
+            self.tunnel_log.as_ref().map(PathBuf::as_path),
+            on_tunnel_event,
+        ).chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
     }
 
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {
@@ -613,7 +619,7 @@ fn run() -> Result<()> {
     init_logger(config.log_level, config.log_file.as_ref())?;
     log_version();
 
-    let daemon = Daemon::new().chain_err(|| "Unable to initialize daemon")?;
+    let daemon = Daemon::new(config.tunnel_log_file).chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
