@@ -130,21 +130,21 @@ export class Backend {
 
   fastestServer(): ServerInfo {
     return {
-      address: 'se.mullvad.net',
+      address: '193.138.219.226',
       name: 'Fastest',
-      city: 'Lund',
+      city: 'Malmö',
       country: 'Sweden',
-      location: [51.5073509, -0.1277583]
+      location: [0.0, 0.0]
     };
   }
 
   nearestServer(): ServerInfo {
     return {
-      address: 'es.mullvad.net',
+      address: '185.65.132.108',
       name: 'Nearest',
-      city: 'Madrid',
-      country: 'Spain',
-      location: [40.4167754, -3.7037902]
+      city: 'Helsingborg',
+      country: 'Sweden',
+      location: [0.0, 0.0]
     };
   }
 

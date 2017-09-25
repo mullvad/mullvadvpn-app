@@ -12,18 +12,48 @@
   },
   "defaultServer": "fastest",
   "servers": {
-    "ca.mullvad.net": {
-      "address": "ca.mullvad.net",
+    "168.1.6.5": {
+      "address": "168.1.6.5",
+      "name": "Australia",
+      "city": "Sydney",
+      "country": "Australia"
+    },
+    "217.64.127.138": {
+      "address": "217.64.127.138",
+      "name": "Austria",
+      "city": "Wien",
+      "country": "Austria"
+    },
+    "185.104.186.202": {
+      "address": "185.104.186.202",
+      "name": "Belgium",
+      "city": "Brussels",
+      "country": "Belgium"
+    },
+    "185.94.192.42": {
+      "address": "185.94.192.42",
+      "name": "Bulgaria",
+      "city": "Sofia",
+      "country": "Bulgaria"
+    },
+    "162.219.176.250": {
+      "address": "162.219.176.250",
       "name": "Canada",
-      "city": "Ottawa",
+      "city": "Toronto",
       "country": "Canada",
       "location": [
         45.42153,
         -75.697193
       ]
     },
-    "dk.mullvad.net": {
-      "address": "dk.mullvad.net",
+    "185.156.174.146": {
+      "address": "185.156.174.146",
+      "name": "Czech Republic",
+      "city": "Prague",
+      "country": "Czech Republic"
+    },
+    "82.103.140.213": {
+      "address": "82.103.140.213",
       "name": "Denmark",
       "city": "Copenhagen",
       "country": "Denmark",
@@ -32,8 +62,20 @@
         12.5683371
       ]
     },
-    "de.mullvad.net": {
-      "address": "de.mullvad.net",
+    "185.103.110.69": {
+      "address": "185.103.110.69",
+      "name": "Finland",
+      "city": "Helsinki",
+      "country": "Finland"
+    },
+    "185.156.173.218": {
+      "address": "185.156.173.218",
+      "name": "France",
+      "city": "Paris",
+      "country": "France"
+    },
+    "185.104.184.178": {
+      "address": "185.104.184.178",
       "name": "Germany",
       "city": "Berlin",
       "country": "Germany",
@@ -42,18 +84,38 @@
         13.404954
       ]
     },
-    "lt.mullvad.net": {
-      "address": "lt.mullvad.net",
-      "name": "Lithuania",
-      "city": "Vilnius",
-      "country": "Lithuania",
-      "location": [
-        54.6871555,
-        25.2796514
-      ]
+    "161.202.48.245": {
+      "address": "161.202.48.245",
+      "name": "Hong Kong",
+      "city": "Hong Kong",
+      "country": "Hong Kong"
     },
-    "nl.mullvad.net": {
-      "address": "nl.mullvad.net",
+    "185.189.114.10": {
+      "address": "185.189.114.10",
+      "name": "Hungary",
+      "city": "Budapest",
+      "country": "Hungary"
+    },
+    "213.184.122.34": {
+      "address": "213.184.122.34",
+      "name": "Israel",
+      "city": "Petach-Tikva",
+      "country": "Israel"
+    },
+    "217.64.113.180": {
+      "address": "217.64.113.180",
+      "name": "Italy",
+      "city": "Milan",
+      "country": "Italy"
+    },
+    "161.202.144.203": {
+      "address": "161.202.144.203",
+      "name": "Japan",
+      "city": "Tokyo",
+      "country": "Japan"
+    },
+    "185.65.134.140": {
+      "address": "185.65.134.140",
       "name": "The Netherlands",
       "city": "Amsterdam",
       "country": "The Netherlands",
@@ -62,8 +124,8 @@
         4.895167900000001
       ]
     },
-    "no.mullvad.net": {
-      "address": "no.mullvad.net",
+    "31.169.51.154": {
+      "address": "31.169.51.154",
       "name": "Norway",
       "city": "Oslo",
       "country": "Norway",
@@ -72,8 +134,14 @@
         10.7522454
       ]
     },
-    "ro.mullvad.net": {
-      "address": "ro.mullvad.net",
+    "212.7.217.30": {
+      "address": "212.7.217.30",
+      "name": "Poland",
+      "city": "Warsaw",
+      "country": "Poland"
+    },
+    "185.45.13.10": {
+      "address": "185.45.13.10",
       "name": "Romania",
       "city": "Bucharest",
       "country": "Romania",
@@ -82,8 +150,8 @@
         26.1025384
       ]
     },
-    "sg.mullvad.net": {
-      "address": "sg.mullvad.net",
+    "103.57.72.30": {
+      "address": "103.57.72.30",
       "name": "Singapore",
       "city": "Singapore",
       "country": "Singapore",
@@ -92,8 +160,8 @@
         103.819836
       ]
     },
-    "es.mullvad.net": {
-      "address": "es.mullvad.net",
+    "89.238.178.34": {
+      "address": "89.238.178.34",
       "name": "Spain",
       "city": "Madrid",
       "country": "Spain",
@@ -102,28 +170,32 @@
         -3.7037902
       ]
     },
-    "se.mullvad.net": {
-      "address": "se.mullvad.net",
+    "185.65.135.73": {
+      "address": "185.65.135.73",
       "name": "Sweden",
       "city": "Stockholm",
-      "country": "Sweden",
-      "location": [
-        59.32932349999999,
-        18.0685808
-      ]
+      "country": "Sweden"
     },
-    "ch.mullvad.net": {
-      "address": "ch.mullvad.net",
+    "193.138.219.226": {
+      "address": "193.138.219.226",
+      "name": "Sweden",
+      "city": "Malmö",
+      "country": "Sweden"
+    },
+    "185.65.132.108": {
+      "address": "185.65.132.108",
+      "name": "Sweden",
+      "city": "Helsingborg",
+      "country": "Sweden"
+    },
+    "179.43.128.170": {
+      "address": "179.43.128.170",
       "name": "Switzerland",
       "city": "Zürich",
-      "country": "Switzerland",
-      "location": [
-        47.3768866,
-        8.541694
-      ]
+      "country": "Switzerland"
     },
-    "gb.mullvad.net": {
-      "address": "gb.mullvad.net",
+    "185.16.85.170": {
+      "address": "185.16.85.170",
       "name": "United Kingdom",
       "city": "London",
       "country": "United Kingdom",
@@ -132,15 +204,17 @@
         -0.1277583
       ]
     },
-    "us.mullvad.net": {
-      "address": "us.mullvad.net",
-      "name": "USA",
+    "38.132.107.138": {
+      "address": "38.132.107.138",
+      "name": "USA (NY)",
       "city": "New York",
-      "country": "USA",
-      "location": [
-        40.7127837,
-        -74.0059413
-      ]
+      "country": "USA (NY)"
+    },
+    "173.199.80.130": {
+      "address": "173.199.80.130",
+      "name": "USA (LA)",
+      "city": "Los Angeles",
+      "country": "USA (LA)"
     }
   }
 }
