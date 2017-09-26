@@ -37,6 +37,7 @@ pub struct OpenVpnCommand {
     user_pass_path: Option<PathBuf>,
     ca: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
+    log: Option<PathBuf>,
 }
 
 impl OpenVpnCommand {
@@ -50,6 +51,7 @@ impl OpenVpnCommand {
             user_pass_path: None,
             ca: None,
             plugin: None,
+            log: None,
         }
     }
 
@@ -84,6 +86,12 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Sets a log file path.
+    pub fn log<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.log = Some(path.as_ref().to_path_buf());
+        self
+    }
+
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
@@ -111,6 +119,11 @@ impl OpenVpnCommand {
             args.push(OsString::from("--plugin"));
             args.push(OsString::from(path));
             args.extend(plugin_args.iter().map(OsString::from));
+        }
+
+        if let Some(ref path) = self.log {
+            args.push(OsString::from("--log"));
+            args.push(OsString::from(path))
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));

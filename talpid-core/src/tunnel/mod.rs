@@ -107,13 +107,18 @@ pub struct TunnelMonitor {
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
-    pub fn new<L>(remote: net::Endpoint, account_token: &str, on_event: L) -> Result<Self>
+    pub fn new<L>(
+        remote: net::Endpoint,
+        account_token: &str,
+        log: Option<&Path>,
+        on_event: L,
+    ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
-        let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref());
+        let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref(), log);
         let user_pass_file_path = user_pass_file.to_path_buf();
 
         let on_openvpn_event = move |event, env| {
@@ -135,7 +140,11 @@ impl TunnelMonitor {
         })
     }
 
-    fn create_openvpn_cmd(remote: net::Endpoint, user_pass_file: &Path) -> OpenVpnCommand {
+    fn create_openvpn_cmd(
+        remote: net::Endpoint,
+        user_pass_file: &Path,
+        log: Option<&Path>,
+    ) -> OpenVpnCommand {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin());
         if let Some(config) = Self::get_config_path() {
             cmd.config(config);
@@ -143,6 +152,9 @@ impl TunnelMonitor {
         cmd.remote(remote)
             .user_pass(user_pass_file)
             .ca(Self::get_ca_path());
+        if let Some(log) = log {
+            cmd.log(log);
+        }
         cmd
     }
 
