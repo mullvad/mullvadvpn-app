@@ -28,12 +28,18 @@ impl Command for Account {
                 clap::SubCommand::with_name("get")
                     .about("Display information about the currently configured account"),
             )
+            .subcommand(
+                clap::SubCommand::with_name("unset")
+                    .about("Removes the account number from the settings"),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let token = value_t_or_exit!(set_matches.value_of("token"), String);
-            self.set(&token)
+            self.set(Some(&token))
+        } else if let Some(_matches) = matches.subcommand_matches("unset") {
+            self.set(None)
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get()
         } else {
@@ -43,9 +49,11 @@ impl Command for Account {
 }
 
 impl Account {
-    fn set(&self, token: &str) -> Result<()> {
-        rpc::call("set_account", &[token]).map(|_: Option<()>| {
+    fn set(&self, token: Option<&str>) -> Result<()> {
+        rpc::call("set_account", &[token]).map(|_: Option<()>| if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
+        } else {
+            println!("Mullvad account removed");
         })
     }
 
