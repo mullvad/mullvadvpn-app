@@ -138,8 +138,10 @@ export default class Ipc {
     // this isn't very nice to use, so this method wraps other
     // types in an array. The choice of array is based on try-and-error
 
-    if(data === undefined || data === null) {
+    if(data === undefined) {
       return [];
+    } else if (data === null) {
+      return [null];
     } else if (Array.isArray(data) || typeof(data) === 'object') {
       return data;
     } else {
