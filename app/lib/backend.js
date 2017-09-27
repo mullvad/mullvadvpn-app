@@ -102,7 +102,7 @@ export class Backend {
         this._store.dispatch(connectionActions.newPublicIp(ip));
       })
       .catch(e => {
-        log.info('Failed syncing with the backend', e);
+        log.info('Failed syncing with the backend,', e.message);
       });
 
     this._ipc.getLocation()
@@ -116,7 +116,7 @@ export class Backend {
         this._store.dispatch(connectionActions.newLocation(newLocation));
       })
       .catch(e => {
-        log.info('Failed getting new location', e);
+        log.info('Failed getting new location,', e.message);
       });
   }
 
@@ -172,7 +172,7 @@ export class Backend {
           this._store.dispatch(push('/connect'));
         }, 1000);
       }).catch(e => {
-        log.error('Failed to log in', e);
+        log.error('Failed to log in,', e.message);
 
         // TODO: This is not true. If there is a communication link failure the promise will be rejected too
         const err = new BackendError('INVALID_ACCOUNT');
@@ -203,7 +203,7 @@ export class Backend {
         this._store.dispatch(push('/connect'));
       })
       .catch( e => {
-        log.warn('Unable to autologin', e);
+        log.warn('Unable to autologin,', e.message);
 
         this._store.dispatch(accountActions.autoLoginFailed());
         this._store.dispatch(push('/'));
@@ -224,7 +224,7 @@ export class Backend {
           });
       })
       .catch(e => {
-        log.info('Failed to logout', e);
+        log.info('Failed to logout,', e.message);
       });
   }
 
@@ -255,7 +255,7 @@ export class Backend {
     // @TODO: Failure modes
     return this._ipc.disconnect()
       .catch(e => {
-        log.info('Failed to disconnect', e);
+        log.info('Failed to disconnect,', e.message);
       });
   }
 
