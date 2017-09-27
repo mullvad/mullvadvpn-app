@@ -212,7 +212,7 @@ export class Backend {
 
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    this._ipc.setAccount('')
+    this._ipc.setAccount(null)
       .then(() => {
 
         this._store.dispatch(accountActions.loggedOut());

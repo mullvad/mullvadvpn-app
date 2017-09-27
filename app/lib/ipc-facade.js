@@ -36,7 +36,7 @@ export interface IpcFacade {
   setConnectionString(string): void,
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
-  setAccount(accountToken: AccountToken): Promise<void>,
+  setAccount(accountToken: ?AccountToken): Promise<void>,
   setCustomRelay(RelayEndpoint): Promise<void>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
@@ -83,7 +83,7 @@ export class RealIpc implements IpcFacade {
       });
   }
 
-  setAccount(accountToken: AccountToken): Promise<void> {
+  setAccount(accountToken: ?AccountToken): Promise<void> {
     return this._ipc.send('set_account', accountToken)
       .then(this._ignoreResponse);
   }

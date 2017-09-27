@@ -7,13 +7,13 @@ import accountActions from '../app/redux/account/actions';
 
 describe('logging out', () => {
 
-  it('should set the account to the empty string and then disconnect', (done) => {
+  it('should set the account to null and then disconnect', (done) => {
     const { mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
     chain.require('setAccount')
       .withInputValidation((num) => {
-        expect(num).to.equal('');
+        expect(num).to.be.null;
       })
       .done();
     chain.require('disconnect')
