@@ -207,6 +207,8 @@ export class Backend {
 
         this._store.dispatch(accountActions.autoLoginFailed());
         this._store.dispatch(push('/'));
+
+        throw e;
       });
   }
 

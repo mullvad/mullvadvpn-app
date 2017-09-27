@@ -35,6 +35,11 @@ describe('autologin', () => {
     return backend.autologin()
       .then( () => {
         expect(getLocation(store)).to.equal('/');
+      })
+      .catch( (e) => {
+        if (e !== 'NO_ACCOUNT') {
+          throw e;
+        }
       });
   });
 
@@ -42,11 +47,16 @@ describe('autologin', () => {
     const { store, backend, mockIpc } = setupBackendAndMockStore();
 
     mockIpc.getAccount = () => new Promise(r => r('123'));
-    mockIpc.getAccountData = () => new Promise((_, reject) => reject('NO ACCOUNT'));
+    mockIpc.getAccountData = () => new Promise((_, reject) => reject('NO_ACCOUNT'));
 
     return backend.autologin()
       .then( () => {
         expect(getLocation(store)).to.equal('/');
+      })
+      .catch( (e) => {
+        if (e !== 'NO_ACCOUNT') {
+          throw e;
+        }
       });
   });
 
@@ -56,6 +66,7 @@ describe('autologin', () => {
     mockIpc.getAccount = () => new Promise(r => r(null));
 
     return backend.autologin()
+      .catch( () => {}) // ignore errors
       .then( () => {
         const state = store.getState().account;
 
@@ -72,6 +83,7 @@ describe('autologin', () => {
     mockIpc.getAccountData = () => new Promise((_, reject) => reject('NO ACCOUNT'));
 
     return backend.autologin()
+      .catch( () => {}) // ignore errors
       .then( () => {
         const state = store.getState().account;
 
