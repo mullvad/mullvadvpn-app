@@ -18,7 +18,9 @@ export default class SelectLocation extends Component {
   _selectedCell: ?HTMLElement;
 
   onSelect(name: string) {
-    this.props.onSelect(name);
+    if (!this.isSelected(name)) {
+      this.props.onSelect(name);
+    }
   }
 
   isSelected(server: string) {

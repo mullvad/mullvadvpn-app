@@ -43,8 +43,8 @@ describe('components/SelectLocation', () => {
       onSelect: (_server) => done()
     });
     const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__cell');
-    expect(elements).to.have.length.greaterThan(0);
-    Simulate.click(elements[0]);
+    expect(elements).to.have.length.greaterThan(1);
+    Simulate.click(elements[1]);
   });
 
 });
