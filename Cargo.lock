@@ -1186,7 +1186,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "talpid-core"
 version = "0.1.0"
 dependencies = [
- "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "duct 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",

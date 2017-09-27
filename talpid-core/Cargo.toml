@@ -26,5 +26,3 @@ pfctl = { git = "ssh://git@github.com/mullvad/pfctl-rs.git" }
 socket-relay = { path = "../socket-relay" }
 tokio-core = "0.1"
 
-[dev-dependencies]
-assert_matches = "1.0"

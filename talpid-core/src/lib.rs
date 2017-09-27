@@ -10,11 +10,6 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-
-#[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
-
 extern crate duct;
 
 #[macro_use]

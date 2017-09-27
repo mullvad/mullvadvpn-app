@@ -1,5 +1,4 @@
 use duct;
-use jsonrpc_core::{Error, IoHandler};
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
@@ -7,7 +6,6 @@ use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 use std::process::ExitStatus;
-use std::result::Result as StdResult;
 use std::sync::{mpsc, Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
@@ -42,7 +40,7 @@ lazy_static!{
 #[derive(Debug)]
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
-    event_dispatcher: Option<OpenVpnEventDispatcher>,
+    event_dispatcher: Option<talpid_ipc::IpcServer>,
     closed: Arc<AtomicBool>,
 }
 
@@ -65,7 +63,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         P: AsRef<Path>,
     {
         let event_dispatcher =
-            OpenVpnEventDispatcher::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
+            event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
         cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
         let child = cmd.start()
@@ -108,7 +106,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
                 Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
             }
             WaitResult::EventDispatcher(result) => {
-                error!("OpenVpnEventDispatcher exited unexpectedly: {:?}", result);
+                error!("OpenVPN Event server exited unexpectedly: {:?}", result);
                 match result {
                     Ok(()) => Err(ErrorKind::EventDispatcherError.into()),
                     Err(e) => Err(e).chain_err(|| ErrorKind::EventDispatcherError),
@@ -225,78 +223,49 @@ impl ProcessHandle for duct::Handle {
 }
 
 
-/// IPC server for listening to events coming from plugin loaded into OpenVPN.
-#[derive(Debug)]
-pub struct OpenVpnEventDispatcher {
-    server: talpid_ipc::IpcServer,
-}
 
-impl OpenVpnEventDispatcher {
+mod event_server {
+    use super::OpenVpnPluginEvent;
+    use jsonrpc_core::{Error, IoHandler};
+    use std::collections::HashMap;
+    use talpid_ipc;
+
     /// Construct and start the IPC server with the given event listener callback.
-    pub fn start<L>(on_event: L) -> talpid_ipc::Result<Self>
+    pub fn start<L>(on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
         let rpc = OpenVpnEventApiImpl { on_event };
         let mut io = IoHandler::new();
         io.extend_with(rpc.to_delegate());
-        let server = talpid_ipc::IpcServer::start(io.into())?;
-        Ok(OpenVpnEventDispatcher { server })
+        talpid_ipc::IpcServer::start(io.into())
     }
 
-    /// Returns the local address this server is listening on.
-    pub fn address(&self) -> &str {
-        self.server.address()
-    }
-
-    /// Creates a handle to this event dispatcher, allowing the listening server to be closed
-    /// while
-    /// some other thread is blocked in `wait`.
-    pub fn close_handle(&self) -> talpid_ipc::CloseHandle {
-        self.server.close_handle()
-    }
-
-    /// Consumes the server and waits for it to finish. Returns an error if the server exited
-    /// due to an error.
-    pub fn wait(self) -> talpid_ipc::Result<()> {
-        self.server.wait()
-    }
-}
-
-
-mod api {
-    use super::*;
     build_rpc_trait! {
         pub trait OpenVpnEventApi {
             #[rpc(name = "openvpn_event")]
-            fn openvpn_event(&self,
-                             OpenVpnPluginEvent,
-                             HashMap<String, String>)
-                             -> StdResult<(), Error>;
+            fn openvpn_event(&self, OpenVpnPluginEvent, HashMap<String, String>)
+                -> Result<(), Error>;
         }
     }
-}
-use self::api::*;
 
-struct OpenVpnEventApiImpl<L>
-where
-    L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
-{
-    on_event: L,
-}
+    struct OpenVpnEventApiImpl<L> {
+        on_event: L,
+    }
 
-impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
-where
-    L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
-{
-    fn openvpn_event(
-        &self,
-        event: OpenVpnPluginEvent,
-        env: HashMap<String, String>,
-    ) -> StdResult<(), Error> {
-        debug!("OpenVPN event {:?}", event);
-        (self.on_event)(event, env);
-        Ok(())
+    impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
+    where
+        L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
+    {
+        fn openvpn_event(
+            &self,
+            event: OpenVpnPluginEvent,
+            env: HashMap<String, String>,
+        ) -> Result<(), Error> {
+            debug!("OpenVPN event {:?}", event);
+            (self.on_event)(event, env);
+            Ok(())
+        }
     }
 }
 
