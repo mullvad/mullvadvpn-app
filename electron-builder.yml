@@ -38,7 +38,6 @@ mac:
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
-  identity: null # disable code signing
   extraResources:
     - from: ../talpid_core/target/release/mullvad
       to: .
