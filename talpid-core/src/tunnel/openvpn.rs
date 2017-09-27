@@ -235,7 +235,7 @@ mod event_server {
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
-        let rpc = OpenVpnEventApiImpl(on_event);
+        let rpc = OpenVpnEventApiImpl { on_event };
         let mut io = IoHandler::new();
         io.extend_with(rpc.to_delegate());
         talpid_ipc::IpcServer::start(io.into())
@@ -249,9 +249,9 @@ mod event_server {
         }
     }
 
-    struct OpenVpnEventApiImpl<L>(L)
-    where
-        L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static;
+    struct OpenVpnEventApiImpl<L> {
+        on_event: L,
+    }
 
     impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
     where
@@ -263,7 +263,7 @@ mod event_server {
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
             debug!("OpenVPN event {:?}", event);
-            (self.0)(event, env);
+            (self.on_event)(event, env);
             Ok(())
         }
     }
