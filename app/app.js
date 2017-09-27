@@ -26,9 +26,13 @@ const backend = new Backend(store);
 ipcRenderer.on('backend-info', (_event, args) => {
   backend.setLocation(args.addr);
   backend.sync();
-  if(store.getState().settings.autoSecure) {
-    backend.autologin();
-  }
+  backend.autologin()
+    .then( () => {
+      if(store.getState().settings.autoSecure) {
+        log.info('Autoconnecting...');
+        backend.connect();
+      }
+    });
 });
 ipcRenderer.on('disconnect', () => {
   log.info('Been told by the node process to disconnect');

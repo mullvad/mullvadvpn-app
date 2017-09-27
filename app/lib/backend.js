@@ -228,18 +228,27 @@ export class Backend {
       });
   }
 
-  connect(relayEndpoint: RelayEndpoint): Promise<void> {
+  connect(aRelayEndpoint?: RelayEndpoint): Promise<void> {
 
-    this._store.dispatch(connectionActions.connectingTo(relayEndpoint));
+    const relayEndpoint = aRelayEndpoint;
+    if (relayEndpoint) {
+      this._store.dispatch(connectionActions.connectingTo(relayEndpoint));
 
-    return this._ipc.setCustomRelay(relayEndpoint)
-      .then( () => {
-        return this._ipc.connect();
-      })
-      .catch(e => {
-        log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
-        this._store.dispatch(connectionActions.disconnected());
-      });
+      return this._ipc.setCustomRelay(relayEndpoint)
+        .then( () => {
+          return this._ipc.connect();
+        })
+        .catch(e => {
+          log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
+          this._store.dispatch(connectionActions.disconnected());
+        });
+    } else {
+      return this._ipc.connect()
+        .catch(e => {
+          log.info('Failed connecting to the relay set in the backend, ', e.message);
+          this._store.dispatch(connectionActions.disconnected());
+        });
+    }
   }
 
   disconnect(): Promise<void> {
