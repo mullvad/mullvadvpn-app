@@ -70,8 +70,8 @@ describe('components/Connect', () => {
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
-    expect(countryAndCity.text()).to.contain('sweden');
-    expect(countryAndCity.text()).to.not.contain('gothenburg');
+    expect(countryAndCity.text()).to.contain('\u2002');
+    expect(countryAndCity.text()).to.not.contain('\u2003');
     expect(ipAddr.text()).to.contain('1.2.3.4');
   });
 
