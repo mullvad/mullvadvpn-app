@@ -98,7 +98,11 @@ impl Settings {
 
     /// Changes account number to the one given. Also saves the new settings to disk.
     /// The boolean in the Result indicates if the account token changed or not
-    pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<bool> {
+    pub fn set_account_token(&mut self, mut account_token: Option<String>) -> Result<bool> {
+        if account_token.as_ref().map(String::len) == Some(0) {
+            debug!("Setting empty account token is treated as unsetting it");
+            account_token = None;
+        }
         if account_token != self.account_token {
             info!(
                 "Changing account token from {} to {}",
