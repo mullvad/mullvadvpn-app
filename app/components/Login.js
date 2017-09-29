@@ -13,26 +13,23 @@ export type LoginPropTypes = {
   onSettings: ?(() => void),
   onFirstChangeAfterFailure: () => void,
   onExternalLink: (type: string) => void,
+  onAccountTokenChange: (string) => void,
 };
 
 export default class Login extends Component {
   props: LoginPropTypes;
-  state = {
-    notifyOnFirstChangeAfterFailure: false,
-    isActive: false,
-    unsubmittedAccountToken: '',
+  state: {
+    notifyOnFirstChangeAfterFailure: boolean,
+    isActive: boolean,
   };
 
   onCreateAccount = () => this.props.onExternalLink('createAccount');
   onFocus = () => this.setState({ isActive: true });
   onBlur = () => this.setState({ isActive: false });
   onLogin = () => {
-    const accountToken = this.state.unsubmittedAccountToken;
+    const accountToken = this.props.account.accountToken;
     if(accountToken && accountToken.length > 0) {
       this.props.onLogin(accountToken);
-      this.setState({
-        unsubmittedAccountToken: '',
-      });
     }
   }
 
@@ -42,9 +39,15 @@ export default class Login extends Component {
       this.setState({ notifyOnFirstChangeAfterFailure: false });
       this.props.onFirstChangeAfterFailure();
     }
-    this.setState({
-      unsubmittedAccountToken: val,
-    });
+    this.props.onAccountTokenChange(val);
+  }
+
+  constructor(props: LoginPropTypes) {
+    super(props);
+    this.state = {
+      notifyOnFirstChangeAfterFailure: false,
+      isActive: false,
+    };
   }
 
   formTitle(s: LoginState): string {
@@ -168,9 +171,7 @@ export default class Login extends Component {
 
   _createLoginForm(): React.Element<*> {
     const { status, error } = this.props.account;
-    const accountToken = status === 'logging in'
-      ? this.props.account.accountToken
-      : this.state.unsubmittedAccountToken;
+    const accountToken = this.props.account.accountToken;
 
     const inputDisabled = status === 'logging in';
 

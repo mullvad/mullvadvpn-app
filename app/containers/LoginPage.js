@@ -14,7 +14,8 @@ const mapDispatchToProps = (dispatch, props) => {
     onSettings: () => dispatch(push('/settings')),
     onLogin: (account) => login(backend, account),
     onFirstChangeAfterFailure: () => dispatch(accountActions.resetLoginError()),
-    onExternalLink: (type) => shell.openExternal(links[type])
+    onExternalLink: (type) => shell.openExternal(links[type]),
+    onAccountTokenChange: (token) => dispatch(accountActions.updateAccountToken(token)),
   };
 };
 

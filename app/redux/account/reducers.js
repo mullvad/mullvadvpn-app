@@ -53,6 +53,10 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
       status: 'none',
       error: null,
     }};
+  case 'UPDATE_ACCOUNT_TOKEN':
+    return { ...state, ...{
+      accountToken: action.token,
+    }};
   }
 
   return state;
