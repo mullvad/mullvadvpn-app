@@ -21,11 +21,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Support for removing the account number from the CLI.
 
 ### Changed
-- Improved logging in frontend in case of backend communication failure.
+- Improved logging in the frontend in case of backend communication failure.
 
 ### Fixed
 - Fix logout bug not removing the account number correctly.
-- Don't show city and country in frontend when tunnel is not connected.
+- Don't show city and country in the frontend when tunnel is not connected.
 - Don't try to automatically establish a tunnel from the frontend if the login failed.
 
 
