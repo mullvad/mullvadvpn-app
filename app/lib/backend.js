@@ -123,33 +123,8 @@ export class Backend {
   }
 
   serverInfo(identifier: string): ?ServerInfo {
-    switch(identifier) {
-    case 'fastest': return this.fastestServer();
-    case 'nearest': return this.nearestServer();
-    default: return (servers: ServerInfoList)[identifier];
-    }
+    return (servers: ServerInfoList)[identifier];
   }
-
-  fastestServer(): ServerInfo {
-    return {
-      address: '193.138.219.226',
-      name: 'Fastest',
-      city: 'Malmö',
-      country: 'Sweden',
-      location: [0.0, 0.0]
-    };
-  }
-
-  nearestServer(): ServerInfo {
-    return {
-      address: '185.65.132.108',
-      name: 'Nearest',
-      city: 'Helsingborg',
-      country: 'Sweden',
-      location: [0.0, 0.0]
-    };
-  }
-
 
   login(accountToken: string): Promise<void> {
     log.info('Attempting to login with account number', accountToken);

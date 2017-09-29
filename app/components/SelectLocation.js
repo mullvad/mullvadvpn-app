@@ -96,9 +96,6 @@ export default class SelectLocation extends Component {
                     While connected, your real location is masked with a private and secure location in the selected region
                   </div>
 
-                  { this.drawCell('fastest', 'Fastest', './assets/images/icon-fastest.svg', this.onSelect.bind(this, 'fastest')) }
-                  { this.drawCell('nearest', 'Nearest', './assets/images/icon-nearest.svg', this.onSelect.bind(this, 'nearest')) }
-
                   <div className="select-location__separator"></div>
 
                   { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.onSelect.bind(this, key))) }
