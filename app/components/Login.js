@@ -18,9 +18,9 @@ export type LoginPropTypes = {
 
 export default class Login extends Component {
   props: LoginPropTypes;
-  state: {
-    notifyOnFirstChangeAfterFailure: boolean,
-    isActive: boolean,
+  state = {
+    notifyOnFirstChangeAfterFailure: false,
+    isActive: false,
   };
 
   onCreateAccount = () => this.props.onExternalLink('createAccount');
@@ -40,14 +40,6 @@ export default class Login extends Component {
       this.props.onFirstChangeAfterFailure();
     }
     this.props.onAccountTokenChange(val);
-  }
-
-  constructor(props: LoginPropTypes) {
-    super(props);
-    this.state = {
-      notifyOnFirstChangeAfterFailure: false,
-      isActive: false,
-    };
   }
 
   formTitle(s: LoginState): string {
