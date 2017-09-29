@@ -112,6 +112,9 @@ export default class Connect extends Component {
     const { city, country } = isConnected
       ? serverInfo
       : { city: '\u2003', country: '\u2002' };
+    const ip = isConnected
+      ? '185.65.132.102'
+      : '78.65.17.155'; //this.props.connection.clientIp;
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
@@ -210,7 +213,7 @@ export default class Connect extends Component {
             <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
               <If condition={ this.state.showCopyIPMessage }>
                 <Then><span>{ 'IP copied to clipboard!' }</span></Then>
-                <Else><span>{ this.props.connection.clientIp }</span></Else>
+                <Else><span>{ ip }</span></Else>
               </If>
             </div>
           </div>

@@ -45,14 +45,14 @@ describe('components/Connect', () => {
         city: 'gothenburg',
       }),
     }, {
-      clientIp: '1.2.3.4',
+      clientIp: '185.65.132.102',
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
     expect(countryAndCity.text()).to.contain('sweden');
     expect(countryAndCity.text()).to.contain('gothenburg');
-    expect(ipAddr.text()).to.contain('1.2.3.4');
+    expect(ipAddr.text()).to.contain('185.65.132.102');
   });
 
   it('shows the connection location information when disconnected', () => {
@@ -65,14 +65,14 @@ describe('components/Connect', () => {
         city: 'gothenburg',
       }),
     }, {
-      clientIp: '1.2.3.4',
+      clientIp: '78.65.17.155',
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
     expect(countryAndCity.text()).to.contain('\u2002');
     expect(countryAndCity.text()).to.not.contain('\u2003');
-    expect(ipAddr.text()).to.contain('1.2.3.4');
+    expect(ipAddr.text()).to.contain('78.65.17.155');
   });
 
   it('shows the country name or fastest/nearest in the location switcher', () => {
