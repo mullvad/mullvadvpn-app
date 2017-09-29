@@ -32,6 +32,13 @@ ipcRenderer.on('backend-info', (_event, args) => {
         log.info('Autoconnecting...');
         backend.connect();
       }
+    })
+    .catch( e => {
+      const noUserSetInTheBackend = e.type === 'NO_ACCOUNT';
+      if (noUserSetInTheBackend) {
+        log.debug('No user set in the backend, showing window');
+        ipcRenderer.send('show-window');
+      }
     });
 });
 ipcRenderer.on('disconnect', () => {

@@ -14,7 +14,7 @@ import type { ConnectionState } from '../redux/connection/reducers';
 import type { RelayEndpoint } from './ipc-facade';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
-export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT';
+export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
 
 export type ServerInfo = {
   address: string,
@@ -57,6 +57,8 @@ export class BackendError extends Error {
       return 'Your internet connection will be secured when you get back online';
     case 'INVALID_ACCOUNT':
       return 'Invalid account number';
+    case 'NO_ACCOUNT':
+      return 'No account was set';
     default:
       return '';
     }
@@ -188,7 +190,7 @@ export class Backend {
     return this._ipc.getAccount()
       .then( accountToken => {
         if (!accountToken) {
-          throw new Error('No account set in the backend, failing autologin');
+          throw new BackendError('NO_ACCOUNT');
         }
         log.debug('The backend had an account number stored:', accountToken);
         this._store.dispatch(accountActions.startLogin(accountToken));
