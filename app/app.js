@@ -34,8 +34,7 @@ ipcRenderer.on('backend-info', (_event, args) => {
       }
     })
     .catch( e => {
-      const noUserSetInTheBackend = e.type === 'NO_ACCOUNT';
-      if (noUserSetInTheBackend) {
+      if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');
         ipcRenderer.send('show-window');
       }
