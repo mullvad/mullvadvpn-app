@@ -179,6 +179,7 @@ export class Backend {
         this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
         this._store.dispatch(push('/connect'));
+        this.connect();
       })
       .catch( e => {
         log.warn('Unable to autologin,', e.message);
