@@ -67,6 +67,9 @@ describe('components/Login', () => {
   it('logs in with the entered account number when clicking the login icon', (done) => {
     const component = renderNotLoggedIn();
     component.setProps({
+      account: {
+        accountToken: '12345',
+      },
       onLogin: (an) => {
         try {
           expect(an).to.equal('12345');
@@ -76,8 +79,6 @@ describe('components/Login', () => {
         }
       },
     });
-    const accountInput = component.find(AccountInput);
-    setInputText(accountInput, '12345');
 
     component.find('.login-form__submit').simulate('click');
   });
@@ -97,6 +98,7 @@ const defaultProps = {
   onChange: () => {},
   onFirstChangeAfterFailure: () => {},
   onExternalLink: () => {},
+  onAccountTokenChange: () => {},
 };
 
 function renderLoggedIn() {

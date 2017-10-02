@@ -23,6 +23,11 @@ type ResetLoginErrorAction = {
   type: 'RESET_LOGIN_ERROR',
 };
 
+type UpdateAccountTokenAction = {
+  type: 'UPDATE_ACCOUNT_TOKEN',
+  token: string,
+};
+
 export type AccountAction = StartLoginAction
                             | LoginSuccessfulAction
                             | LoginFailedAction
@@ -66,7 +71,24 @@ function resetLoginError(): ResetLoginErrorAction {
   };
 }
 
+function updateAccountToken(token: string): UpdateAccountTokenAction {
+  return {
+    type: 'UPDATE_ACCOUNT_TOKEN',
+    token: token,
+  };
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
-export default { login, logout, startLogin, loginSuccessful, loginFailed, loggedOut, autoLoginFailed, resetLoginError };
+export default {
+  login,
+  logout,
+  startLogin,
+  loginSuccessful,
+  loginFailed,
+  loggedOut,
+  autoLoginFailed,
+  resetLoginError,
+  updateAccountToken,
+};
