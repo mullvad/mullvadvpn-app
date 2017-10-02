@@ -75,10 +75,8 @@ describe('components/Connect', () => {
     expect(ipAddr.text()).to.contain('78.65.17.155');
   });
 
-  it('shows the country name or fastest/nearest in the location switcher', () => {
+  it('shows the country name in the location switcher', () => {
     const servers = {
-      'fastest': { name: 'Fastest' },
-      'nearest': { name: 'Nearest' },
       'se1.mullvad.net': { name: 'Sweden' },
     };
     const getServerInfo = (key) => servers[key] || defaultServer;
@@ -86,17 +84,6 @@ describe('components/Connect', () => {
       getServerInfo: getServerInfo,
     });
     const locationSwitcher = component.find('.connect__server');
-
-
-    component.setProps({
-      preferredServer: 'fastest',
-    });
-    expect(locationSwitcher.text()).to.contain(servers['fastest'].name);
-
-    component.setProps({
-      preferredServer: 'nearest',
-    });
-    expect(locationSwitcher.text()).to.contain(servers['nearest'].name);
 
     component.setProps({
       preferredServer: 'se1.mullvad.net',

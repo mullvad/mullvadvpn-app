@@ -10,7 +10,7 @@
     "guides": "https://mullvad.net/guides/",
     "supportEmail": "mailto:support@mullvad.net"
   },
-  "defaultServer": "fastest",
+  "defaultServer": "193.138.219.226",
   "servers": {
     "168.1.6.5": {
       "address": "168.1.6.5",

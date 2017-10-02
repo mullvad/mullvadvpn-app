@@ -156,32 +156,7 @@ export default class Connect extends Component {
             <If condition={ isConnecting }>
               <Then>
                 <div className="connect__status-location">
-
-                  <If condition={ preferredServer === 'fastest' }>
-                    <Then>
-                      <span>
-                        <img className="connect__status-location-icon" src="./assets/images/icon-fastest.svg" />
-                        { 'Fastest' }
-                      </span>
-                    </Then>
-                  </If>
-
-                  <If condition={ preferredServer === 'nearest' }>
-                    <Then>
-                      <span>
-                        <img className="connect__status-location-icon" src="./assets/images/icon-nearest.svg" />
-                        { 'Nearest' }
-                      </span>
-                    </Then>
-                  </If>
-
-                  { /* silly but react-if does not have ElseIf */ }
-                  <If condition={ preferredServer !== 'fastest' && preferredServer !== 'nearest' }>
-                    <Then>
-                      <span>{ country }</span>
-                    </Then>
-                  </If>
-
+                  <span>{ country }</span>
                 </div>
               </Then>
             </If>
@@ -234,18 +209,6 @@ export default class Connect extends Component {
                   <div className="connect__server" onClick={ this.props.onSelectLocation }>
                     <div className="connect__server-label">Connect to</div>
                     <div className="connect__server-value">
-
-                      <If condition={ preferredServer === 'fastest' }>
-                        <Then>
-                          <img className="connect__server-icon" src="./assets/images/icon-fastest.svg" />
-                        </Then>
-                      </If>
-
-                      <If condition={ preferredServer === 'nearest' }>
-                        <Then>
-                          <img className="connect__server-icon" src="./assets/images/icon-nearest.svg" />
-                        </Then>
-                      </If>
 
                       <div className="connect__server-name">{ serverInfo.name }</div>
 
