@@ -116,9 +116,9 @@
     },
     "185.65.134.140": {
       "address": "185.65.134.140",
-      "name": "The Netherlands",
+      "name": "Netherlands",
       "city": "Amsterdam",
-      "country": "The Netherlands",
+      "country": "Netherlands",
       "location": [
         52.3702157,
         4.895167900000001
@@ -172,19 +172,19 @@
     },
     "185.65.135.73": {
       "address": "185.65.135.73",
-      "name": "Sweden",
+      "name": "Sweden - Stockholm",
       "city": "Stockholm",
       "country": "Sweden"
     },
     "193.138.219.226": {
       "address": "193.138.219.226",
-      "name": "Sweden",
+      "name": "Sweden - Malmö",
       "city": "Malmö",
       "country": "Sweden"
     },
     "185.65.132.108": {
       "address": "185.65.132.108",
-      "name": "Sweden",
+      "name": "Sweden - Helsingborg",
       "city": "Helsingborg",
       "country": "Sweden"
     },
