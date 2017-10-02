@@ -86,6 +86,9 @@ const appDelegate = {
       browserWindowReady = true;
       appDelegate._pollForConnectionInfoFile();
     });
+    ipcMain.on('show-window', () => {
+      appDelegate._showWindow(window, appDelegate._tray);
+    });
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
     window.on('close', () => {
