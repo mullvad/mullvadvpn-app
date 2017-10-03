@@ -35,7 +35,27 @@ describe('components/Connect', () => {
     expect(disconnectButton.text()).to.equal('Disconnect');
   });
 
-  it('shows the connection location information when connected', () => {
+  it('shows the connection location when connecting', () => {
+    const component = renderConnecting({
+      getServerInfo: (_s) => ({
+        address: '',
+        name: '',
+        location: [0, 0],
+        country: 'norway',
+        city: 'oslo',
+      }),
+    }, {
+      clientIp: '185.65.132.102',
+    });
+    const countryAndCity = component.find('.connect__status-location');
+    const ipAddr = component.find('.connect__status-ipaddress');
+
+    expect(countryAndCity.text()).to.contain('norway');
+    expect(countryAndCity.text()).not.to.contain('oslo');
+    expect(ipAddr.text()).to.be.empty;
+  });
+
+  it('shows the connection location when connected', () => {
     const component = renderConnected({
       getServerInfo: (_s) => ({
         address: '',
@@ -55,7 +75,7 @@ describe('components/Connect', () => {
     expect(ipAddr.text()).to.contain('185.65.132.102');
   });
 
-  it('shows the connection location information when disconnected', () => {
+  it('shows the connection location when disconnected', () => {
     const component = renderNotConnected({
       getServerInfo: (_s) => ({
         address: '',
@@ -104,6 +124,15 @@ describe('components/Connect', () => {
 function renderNotConnected(customProps, customConnectionProps) {
   const connection = Object.assign({}, defaultConnection, {
     status: 'disconnected',
+  }, customConnectionProps);
+
+  const props = Object.assign({}, customProps, {connection});
+  return renderWithProps(props);
+}
+
+function renderConnecting(customProps, customConnectionProps) {
+  const connection = Object.assign({}, defaultConnection, {
+    status: 'connecting',
   }, customConnectionProps);
 
   const props = Object.assign({}, customProps, {connection});
