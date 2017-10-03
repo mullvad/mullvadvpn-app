@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import React, { Component } from 'react';
-import { If, Then, Else } from 'react-if';
+import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
@@ -109,7 +109,7 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    const { city, country } = isConnected
+    const { city, country } = isConnecting || isConnected
       ? serverInfo
       : { city: '\u2003', country: '\u2002' };
     const ip = isConnected
@@ -131,6 +131,14 @@ export default class Connect extends Component {
           : './assets/images/location-marker-unsecure.svg' } />
     */
 
+    let ipComponent = undefined;
+    if (isConnected || isDisconnected) {
+      if (this.state.showCopyIPMessage) {
+        ipComponent = <span>{ 'IP copied to clipboard!' }</span>;
+      } else {
+        ipComponent = <span>{ ip }</span>;
+      }
+    }
     return (
       <div className="connect">
         <div className="connect__map">
@@ -186,10 +194,7 @@ export default class Connect extends Component {
             */ }
 
             <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
-              <If condition={ this.state.showCopyIPMessage }>
-                <Then><span>{ 'IP copied to clipboard!' }</span></Then>
-                <Else><span>{ ip }</span></Else>
-              </If>
+              { ipComponent }
             </div>
           </div>
 
