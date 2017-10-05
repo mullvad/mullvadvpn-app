@@ -3,7 +3,6 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import Switch from './Switch';
 import CustomScrollbars from './CustomScrollbars';
 
 import type { AccountReduxState } from '../redux/account/reducers';
@@ -24,7 +23,6 @@ export default class Settings extends Component {
   props: SettingsProps;
 
   onClose = () => this.props.onClose();
-  onAutoSecure = (autoSecure: boolean) => this.props.onUpdateSettings({ autoSecure });
 
   onExternalLink(type: string) {
     this.props.onExternalLink(type);
@@ -76,15 +74,7 @@ export default class Settings extends Component {
                           </div>
                           <div className="settings__cell-spacer"></div>
 
-                          <div className="settings__cell">
-                            <div className="settings__cell-label">Auto-connect</div>
-                            <div className="settings__cell-value">
-                              <Switch className="settings__autosecure" onChange={ this.onAutoSecure } isOn={ this.props.settings.autoSecure } />
-                            </div>
-                          </div>
-                          <div className="settings__cell-footer">
-                            When this device connects to the internet, Mullvad VPN will automatically secure your connection
-                          </div>
+                          <div className="settings__cell-footer"></div>
                         </div>
                       </Then>
                     </If>
