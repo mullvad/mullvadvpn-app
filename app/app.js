@@ -27,12 +27,6 @@ ipcRenderer.on('backend-info', (_event, args) => {
   backend.setLocation(args.addr);
   backend.sync();
   backend.autologin()
-    .then( () => {
-      if(store.getState().settings.autoSecure) {
-        log.info('Autoconnecting...');
-        backend.connect();
-      }
-    })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');

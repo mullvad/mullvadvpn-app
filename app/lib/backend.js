@@ -147,6 +147,7 @@ export class Backend {
         // the 'Login Successful' screen to be visible
         setTimeout(() => {
           this._store.dispatch(push('/connect'));
+          this.connect();
         }, 1000);
       }).catch(e => {
         log.error('Failed to log in,', e.message);
@@ -178,6 +179,7 @@ export class Backend {
         this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
         this._store.dispatch(push('/connect'));
+        this.connect();
       })
       .catch( e => {
         log.warn('Unable to autologin,', e.message);
