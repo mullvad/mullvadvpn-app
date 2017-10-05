@@ -170,10 +170,10 @@
         -3.7037902
       ]
     },
-    "185.65.135.73": {
-      "address": "185.65.135.73",
-      "name": "Sweden - Stockholm",
-      "city": "Stockholm",
+    "185.65.132.108": {
+      "address": "185.65.132.108",
+      "name": "Sweden - Helsingborg",
+      "city": "Helsingborg",
       "country": "Sweden"
     },
     "193.138.219.226": {
@@ -182,10 +182,10 @@
       "city": "Malmö",
       "country": "Sweden"
     },
-    "185.65.132.108": {
-      "address": "185.65.132.108",
-      "name": "Sweden - Helsingborg",
-      "city": "Helsingborg",
+    "185.65.135.73": {
+      "address": "185.65.135.73",
+      "name": "Sweden - Stockholm",
+      "city": "Stockholm",
       "country": "Sweden"
     },
     "179.43.128.170": {
@@ -204,17 +204,17 @@
         -0.1277583
       ]
     },
-    "38.132.107.138": {
-      "address": "38.132.107.138",
-      "name": "USA (NY)",
-      "city": "New York",
-      "country": "USA (NY)"
-    },
     "173.199.80.130": {
       "address": "173.199.80.130",
-      "name": "USA (LA)",
+      "name": "USA - Los Angeles",
       "city": "Los Angeles",
-      "country": "USA (LA)"
+      "country": "USA"
+    },
+    "38.132.107.138": {
+      "address": "38.132.107.138",
+      "name": "USA - New York",
+      "city": "New York",
+      "country": "USA"
     }
   }
 }
