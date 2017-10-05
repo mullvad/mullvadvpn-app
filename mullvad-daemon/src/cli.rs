@@ -49,8 +49,6 @@ fn create_app() -> App<'static, 'static> {
             Arg::with_name("tunnel_log_file")
                 .long("tunnel-log")
                 .takes_value(true)
-                .help(
-                    "Save log from tunnel implementation process to this file path",
-                ),
+                .help("Save log from tunnel implementation process to this file path"),
         )
 }
