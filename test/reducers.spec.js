@@ -11,7 +11,6 @@ describe('reducers', () => {
     const action = {
       type: 'UPDATE_SETTINGS',
       newSettings: {
-        autoSecure: true,
         preferredServer: defaultServer
       }
     };

@@ -33,7 +33,6 @@ describe('components/Settings', () => {
   };
 
   const settingsState: SettingsReduxState = {
-    autoSecure: true,
     preferredServer: defaultServer
   };
 
@@ -127,25 +126,6 @@ describe('components/Settings', () => {
     });
     const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__view-account');
     Simulate.click(domNode);
-  });
-
-  it('should call update callback', (done) => {
-    const props = makeProps(loggedInAccountState, settingsState, {
-      onUpdateSettings: (update) => {
-        try {
-          expect(update).to.include({ autoSecure: false });
-          done();
-        } catch(e) {
-          done(e);
-        }
-      }
-    });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__autosecure');
-
-    // TODO(Andrej): Add click handler to Switch to avoid calling that horrible chain of events.
-    Simulate.mouseDown(domNode);
-    Simulate.mouseUp(domNode);
-    Simulate.change(domNode, { target: { checked: false } });
   });
 
   it('should call external links callback', () => {
