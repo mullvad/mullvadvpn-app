@@ -34,6 +34,8 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
+        /// Authenticate the client towards this daemon instance. This method must be called once
+        /// before any other call based on the same connection will work.
         #[rpc(meta, name = "auth")]
         fn auth(&self, Self::Metadata, String) -> BoxFuture<(), Error>;
 
