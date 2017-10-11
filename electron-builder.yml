@@ -10,6 +10,8 @@ extraResources:
   # master.mullvad.net certificate used by mullvadd
   - from: dist-assets/ca.crt
     to: .
+  - from: dist-assets/crl.pem
+    to: .
 
 directories:
   buildResources: dist-assets/
