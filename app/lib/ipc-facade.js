@@ -34,6 +34,7 @@ export type RelayEndpoint = {
 
 export interface IpcFacade {
   setConnectionString(string): void,
+  authenticate(string): Promise<void>,
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
@@ -56,6 +57,11 @@ export class RealIpc implements IpcFacade {
 
   setConnectionString(str: string) {
     this._ipc.setConnectionString(str);
+  }
+
+  authenticate(sharedSecret: string): Promise<void> {
+    return this._ipc.send('auth', sharedSecret)
+      .then(this._ignoreResponse);
   }
 
   getAccountData(accountToken: AccountToken): Promise<AccountData> {
