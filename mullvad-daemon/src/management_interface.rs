@@ -315,7 +315,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn auth(&self, mut meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
         meta.authenticated = shared_secret == self.shared_secret;
-        debug!("auth: {}", meta.authenticated);
+        debug!("authenticated: {}", meta.authenticated);
         if meta.authenticated {
             Box::new(future::ok(()))
         } else {

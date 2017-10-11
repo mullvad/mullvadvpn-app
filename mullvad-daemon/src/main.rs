@@ -238,7 +238,7 @@ impl Daemon {
             server.address()
         );
         rpc_info::write(server.address(), &shared_secret).chain_err(|| {
-            ErrorKind::ManagementInterfaceError("Failed to write RPC address to file")
+            ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
         })?;
         Ok(server)
     }
