@@ -28,14 +28,16 @@ ipcRenderer.on('backend-info', (_event, args) => {
   const credentials: IpcCredentials = args.credentials;
 
   backend.setLocation(credentials.connectionString);
-  backend.authenticate(credentials.sharedSecret);
-  backend.sync();
-  backend.autologin()
-    .catch( e => {
-      if (e.type === 'NO_ACCOUNT') {
-        log.debug('No user set in the backend, showing window');
-        ipcRenderer.send('show-window');
-      }
+  backend.authenticate(credentials.sharedSecret)
+    .then(() => {
+      backend.sync();
+      backend.autologin()
+        .catch( e => {
+          if (e.type === 'NO_ACCOUNT') {
+            log.debug('No user set in the backend, showing window');
+            ipcRenderer.send('show-window');
+          }
+        });
     });
 });
 ipcRenderer.on('disconnect', () => {
