@@ -19,6 +19,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
@@ -290,11 +291,11 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if meta.authenticated {
-            debug!("auth success");
+        if meta.authenticated.load(Ordering::SeqCst) {
+            trace!("auth success");
             Ok(())
         } else {
-            debug!("auth failed");
+            trace!("auth failed");
             Err(Error::invalid_request())
         }
     }
@@ -313,10 +314,11 @@ macro_rules! try_future {
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
     type Metadata = Meta;
 
-    fn auth(&self, mut meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
-        meta.authenticated = shared_secret == self.shared_secret;
-        debug!("authenticated: {}", meta.authenticated);
-        if meta.authenticated {
+    fn auth(&self, meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
+        let authenticated = shared_secret == self.shared_secret;
+        meta.authenticated.store(authenticated, Ordering::SeqCst);
+        debug!("authenticated: {}", authenticated);
+        if authenticated {
             Box::new(future::ok(()))
         } else {
             Box::new(future::err(Error::internal_error()))
@@ -469,7 +471,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 #[derive(Clone, Debug, Default)]
 pub struct Meta {
     session: Option<Arc<Session>>,
-    authenticated: bool,
+    authenticated: Arc<AtomicBool>,
 }
 
 /// Make the `Meta` type possible to use as jsonrpc metadata type.
@@ -486,6 +488,6 @@ impl PubSubMetadata for Meta {
 fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
     Meta {
         session: Some(Arc::new(Session::new(context.sender()))),
-        authenticated: false,
+        authenticated: Arc::new(AtomicBool::new(false)),
     }
 }
