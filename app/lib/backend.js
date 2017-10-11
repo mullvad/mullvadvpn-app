@@ -9,9 +9,8 @@ import connectionActions from '../redux/connection/actions';
 import type { ReduxStore } from '../redux/store';
 import { push } from 'react-router-redux';
 
-import type { BackendState } from './ipc-facade';
+import type { BackendState, RelayEndpoint, IpcCredentials } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
-import type { RelayEndpoint } from './ipc-facade';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
@@ -66,22 +65,6 @@ export class BackendError extends Error {
 
 }
 
-export type IpcCredentials = {
-  connectionString: string,
-  sharedSecret: string,
-};
-
-export function parseIpcCredentials(data: string): ?IpcCredentials {
-  const [connectionString, sharedSecret] = data.split('\n', 2);
-  if(connectionString && sharedSecret) {
-    return {
-      connectionString,
-      sharedSecret,
-    };
-  } else {
-    return null;
-  }
-}
 
 /**
  * Backend implementation
@@ -101,26 +84,15 @@ export class Backend {
     }
   }
 
-  setLocation(loc: string) {
-    log.info('Got connection info to backend', loc);
+  setCredentials(credentials: IpcCredentials) {
+    log.info('Got connection info to backend', credentials);
 
     if (this._ipc) {
-      this._ipc.setConnectionString(loc);
+      this._ipc.setCredentials(credentials);
     } else {
-      this._ipc = new RealIpc(loc);
+      this._ipc = new RealIpc(credentials);
     }
     this._registerIpcListeners();
-  }
-
-  authenticate(sharedSecret: string): Promise<void> {
-    return this._ipc.authenticate(sharedSecret)
-      .then(() => {
-        log.info('Authenticated with backend');
-      })
-      .catch((e) => {
-        log.error('Backend authentication failed', e.message);
-        throw e;
-      });
   }
 
   sync() {

@@ -1,5 +1,5 @@
 // @flow
-import type { IpcFacade, BackendState } from '../../app/lib/ipc-facade';
+import type { IpcFacade, BackendState, IpcCredentials } from '../../app/lib/ipc-facade';
 
 interface MockIpc {
   sendNewState: (BackendState) => void;
@@ -14,10 +14,7 @@ export function newMockIpc() {
 
   const mockIpc: IpcFacade & MockIpc = {
 
-    setConnectionString: (_str: string) => {},
-    authenticate: (_sharedSecret) => {
-      return new Promise(r => r());
-    },
+    setCredentials: (_credentials: IpcCredentials) => {},
     getAccountData: (accountToken) => {
       return new Promise(r => r({
         accountToken: accountToken,

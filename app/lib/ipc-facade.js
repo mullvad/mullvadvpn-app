@@ -3,6 +3,7 @@
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
 import { object, string, arrayOf, number } from 'validated/schema';
 import { validate } from 'validated/object';
+import log from 'electron-log';
 
 import type { Coordinate2d } from '../types';
 
@@ -31,10 +32,26 @@ export type RelayEndpoint = {
   protocol: 'tcp' | 'udp',
 };
 
+export type IpcCredentials = {
+  connectionString: string,
+  sharedSecret: string,
+};
+
+export function parseIpcCredentials(data: string): ?IpcCredentials {
+  const [connectionString, sharedSecret] = data.split('\n', 2);
+  if(connectionString && sharedSecret) {
+    return {
+      connectionString,
+      sharedSecret,
+    };
+  } else {
+    return null;
+  }
+}
+
 
 export interface IpcFacade {
-  setConnectionString(string): void,
-  authenticate(string): Promise<void>,
+  setCredentials(IpcCredentials): void,
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
@@ -50,18 +67,22 @@ export interface IpcFacade {
 export class RealIpc implements IpcFacade {
 
   _ipc: JsonRpcWs;
+  _credentials: ?IpcCredentials;
+  _authenticationPromise: ?Promise<void>;
 
-  constructor(connectionString: string) {
-    this._ipc = new JsonRpcWs(connectionString);
+  constructor(credentials: IpcCredentials) {
+    this._credentials = credentials;
+    this._ipc = new JsonRpcWs(credentials.connectionString);
+
+    // force to re-authenticate when connection closed
+    this._ipc.setCloseConnectionHandler(() => {
+      this._authenticationPromise = null;
+    });
   }
 
-  setConnectionString(str: string) {
-    this._ipc.setConnectionString(str);
-  }
-
-  authenticate(sharedSecret: string): Promise<void> {
-    return this._ipc.send('auth', sharedSecret)
-      .then(this._ignoreResponse);
+  setCredentials(credentials: IpcCredentials) {
+    this._credentials = credentials;
+    this._ipc.setConnectionString(credentials.connectionString);
   }
 
   getAccountData(accountToken: AccountToken): Promise<AccountData> {
@@ -79,19 +100,23 @@ export class RealIpc implements IpcFacade {
   }
 
   getAccount(): Promise<?AccountToken> {
-    return this._ipc.send('get_account')
-      .then( raw => {
-        if (raw === undefined || raw === null || typeof raw === 'string') {
-          return raw;
-        } else {
-          throw new InvalidReply(raw);
-        }
-      });
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('get_account')
+        .then( raw => {
+          if (raw === undefined || raw === null || typeof raw === 'string') {
+            return raw;
+          } else {
+            throw new InvalidReply(raw);
+          }
+        });
+    });
   }
 
   setAccount(accountToken: ?AccountToken): Promise<void> {
-    return this._ipc.send('set_account', accountToken)
-      .then(this._ignoreResponse);
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('set_account', accountToken)
+        .then(this._ignoreResponse);
+    });
   }
 
   _ignoreResponse(_response: mixed): void {
@@ -99,48 +124,60 @@ export class RealIpc implements IpcFacade {
   }
 
   setCustomRelay(relayEndpoint: RelayEndpoint): Promise<void> {
-    return this._ipc.send('set_custom_relay', [relayEndpoint])
-      .then(this._ignoreResponse);
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('set_custom_relay', [relayEndpoint])
+        .then(this._ignoreResponse);
+    });
   }
 
   connect(): Promise<void> {
-    return this._ipc.send('connect')
-      .then(this._ignoreResponse);
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('connect')
+        .then(this._ignoreResponse);
+    });
   }
 
   disconnect(): Promise<void> {
-    return this._ipc.send('disconnect')
-      .then(this._ignoreResponse);
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('disconnect')
+        .then(this._ignoreResponse);
+    });
   }
 
   getIp(): Promise<Ip> {
-    return this._ipc.send('get_ip')
-      .then(raw => {
-        if (typeof raw === 'string' && raw) {
-          return raw;
-        } else {
-          throw new InvalidReply(raw, 'Expected a string');
-        }
-      });
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('get_ip')
+        .then(raw => {
+          if (typeof raw === 'string' && raw) {
+            return raw;
+          } else {
+            throw new InvalidReply(raw, 'Expected a string');
+          }
+        });
+    });
   }
 
   getLocation(): Promise<Location> {
-    return this._ipc.send('get_location')
-      .then(raw => {
-        try {
-          const validated: any = validate(LocationSchema, raw);
-          return (validated: Location);
-        } catch (e) {
-          throw new InvalidReply(raw, e);
-        }
-      });
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('get_location')
+        .then(raw => {
+          try {
+            const validated: any = validate(LocationSchema, raw);
+            return (validated: Location);
+          } catch (e) {
+            throw new InvalidReply(raw, e);
+          }
+        });
+    });
   }
 
   getState(): Promise<BackendState> {
-    return this._ipc.send('get_state')
-      .then(raw => {
-        return this._parseBackendState(raw);
-      });
+    return this._ensureAuthenticated().then(() => {
+      return this._ipc.send('get_state')
+        .then(raw => {
+          return this._parseBackendState(raw);
+        });
+    });
   }
 
   _parseBackendState(raw: mixed): BackendState {
@@ -163,10 +200,35 @@ export class RealIpc implements IpcFacade {
   }
 
   registerStateListener(listener: (BackendState) => void) {
-    this._ipc.on('new_state', (rawEvent) => {
-      const parsedEvent : BackendState = this._parseBackendState(rawEvent);
+    this._ensureAuthenticated().then(() => {
+      this._ipc.on('new_state', (rawEvent) => {
+        const parsedEvent : BackendState = this._parseBackendState(rawEvent);
 
-      listener(parsedEvent);
+        listener(parsedEvent);
+      });
     });
+  }
+
+  _ensureAuthenticated(): Promise<void> {
+    if(this._credentials) {
+      const credentials = this._credentials;
+      if(!this._authenticationPromise) {
+        this._authenticationPromise = this._authenticate(credentials.sharedSecret);
+      }
+      return this._authenticationPromise;
+    } else {
+      return Promise.reject(new Error('Missing authentication credentials.'));
+    }
+  }
+
+  _authenticate(sharedSecret: string): Promise<void> {
+    return this._ipc.send('auth', sharedSecret)
+      .then(() => {
+        log.info('Authenticated with backend');
+      })
+      .catch((e) => {
+        log.error('Failed to authenticate with backend: ', e.message);
+        throw e;
+      });
   }
 }

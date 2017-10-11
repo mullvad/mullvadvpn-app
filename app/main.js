@@ -7,7 +7,7 @@ import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';
 import { version } from '../package.json';
-import { parseIpcCredentials } from './lib/backend';
+import { parseIpcCredentials } from './lib/ipc-facade';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
@@ -89,6 +89,7 @@ const appDelegate = {
       browserWindowReady = true;
       appDelegate._pollForConnectionInfoFile();
     });
+
     ipcMain.on('show-window', () => {
       appDelegate._showWindow(window, appDelegate._tray);
     });
@@ -102,6 +103,8 @@ const appDelegate = {
     // create tray icon on macOS
     if(isMacOS) {
       appDelegate._tray = appDelegate._createTray(window);
+    } else {
+      appDelegate._showWindow(window, null);
     }
 
     appDelegate._setAppMenu();
@@ -259,6 +262,7 @@ const appDelegate = {
       resizable: false,
       maximizable: false,
       fullscreenable: false,
+      show: false,
       webPreferences: {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
@@ -272,8 +276,7 @@ const appDelegate = {
       options = Object.assign({}, options, {
         height: contentHeight + 12, // 12 is the size of transparent area around arrow
         frame: false,
-        transparent: true,
-        show: false
+        transparent: true
       });
     }
 
