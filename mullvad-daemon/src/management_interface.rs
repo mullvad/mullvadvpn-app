@@ -38,46 +38,46 @@ build_rpc_trait! {
 
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
-        #[rpc(async, name = "get_account_data")]
-        fn get_account_data(&self, AccountToken) -> BoxFuture<AccountData, Error>;
+        #[rpc(meta, name = "get_account_data")]
+        fn get_account_data(&self, Self::Metadata, AccountToken) -> BoxFuture<AccountData, Error>;
 
         /// Returns available countries.
         #[rpc(name = "get_countries")]
         fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error>;
 
         /// Set which account to connect with.
-        #[rpc(async, name = "set_account")]
-        fn set_account(&self, Option<AccountToken>) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_account")]
+        fn set_account(&self, Self::Metadata, Option<AccountToken>) -> BoxFuture<(), Error>;
 
         /// Get which account is configured.
-        #[rpc(async, name = "get_account")]
-        fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error>;
+        #[rpc(meta, name = "get_account")]
+        fn get_account(&self, Self::Metadata) -> BoxFuture<Option<AccountToken>, Error>;
 
         /// Set which relay to connect to
-        #[rpc(async, name = "set_custom_relay")]
-        fn set_custom_relay(&self, RelayEndpoint) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_custom_relay")]
+        fn set_custom_relay(&self, Self::Metadata, RelayEndpoint) -> BoxFuture<(), Error>;
 
         /// Unset the custom relay, reverting to the default relay listing
-        #[rpc(async, name = "remove_custom_relay")]
-        fn remove_custom_relay(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "remove_custom_relay")]
+        fn remove_custom_relay(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
-        #[rpc(name = "set_autoconnect")]
-        fn set_autoconnect(&self, bool) -> Result<(), Error>;
+        #[rpc(meta, name = "set_autoconnect")]
+        fn set_autoconnect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
-        #[rpc(async, name = "connect")]
-        fn connect(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "connect")]
+        fn connect(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Disconnect the VPN tunnel if it is connecting/connected. Does nothing if already
         /// disconnected.
-        #[rpc(async, name = "disconnect")]
-        fn disconnect(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "disconnect")]
+        fn disconnect(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
-        #[rpc(async, name = "get_state")]
-        fn get_state(&self) -> BoxFuture<DaemonState, Error>;
+        #[rpc(meta, name = "get_state")]
+        fn get_state(&self, Self::Metadata) -> BoxFuture<DaemonState, Error>;
 
         /// Returns the current public IP of this computer.
         #[rpc(name = "get_ip")]
@@ -288,6 +288,26 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
             _ => Error::internal_error(),
         }
     }
+
+    fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
+        if meta.authenticated {
+            debug!("auth success");
+            Ok(())
+        } else {
+            debug!("auth failed");
+            Err(Error::invalid_request())
+        }
+    }
+}
+
+/// Evaluates a Result and early returns an error.
+/// If it is `Ok(val)`, evaluates to `val`.
+/// If it is `Err(e)` it early returns `Box<Future>` where the future will result in `e`.
+macro_rules! try_future {
+    ($result:expr) => (match $result {
+        ::std::result::Result::Ok(val) => val,
+        ::std::result::Result::Err(e) => return Box::new(future::err(e)),
+    });
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
@@ -303,8 +323,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         }
     }
 
-    fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
+    fn get_account_data(
+        &self,
+        meta: Self::Metadata,
+        account_token: AccountToken,
+    ) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
@@ -325,24 +350,35 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(HashMap::new())
     }
 
-    fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
+    fn set_account(
+        &self,
+        meta: Self::Metadata,
+        account_token: Option<AccountToken>,
+    ) -> BoxFuture<(), Error> {
         trace!("set_account");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
+    fn get_account(&self, meta: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn set_custom_relay(&self, custom_relay: RelayEndpoint) -> BoxFuture<(), Error> {
+    fn set_custom_relay(
+        &self,
+        meta: Self::Metadata,
+        custom_relay: RelayEndpoint,
+    ) -> BoxFuture<(), Error> {
         trace!("set_custom_relay");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
 
         let message = TunnelCommand::SetCustomRelay(tx, Some(custom_relay));
@@ -351,31 +387,36 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn remove_custom_relay(&self) -> BoxFuture<(), Error> {
+    fn remove_custom_relay(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("remove_custom_relay");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, None))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn set_autoconnect(&self, _autoconnect: bool) -> Result<(), Error> {
+    fn set_autoconnect(&self, meta: Self::Metadata, _autoconnect: bool) -> BoxFuture<(), Error> {
         trace!("set_autoconnect");
-        Ok(())
+        try_future!(self.check_auth(&meta));
+        Box::new(future::ok(()))
     }
 
-    fn connect(&self) -> BoxFuture<(), Error> {
+    fn connect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("connect");
+        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Secured))
     }
 
-    fn disconnect(&self) -> BoxFuture<(), Error> {
+    fn disconnect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("disconnect");
+        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Unsecured))
     }
 
-    fn get_state(&self) -> BoxFuture<DaemonState, Error> {
+    fn get_state(&self, meta: Self::Metadata) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
+        try_future!(self.check_auth(&meta));
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
             .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
