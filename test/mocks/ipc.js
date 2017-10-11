@@ -15,6 +15,9 @@ export function newMockIpc() {
   const mockIpc: IpcFacade & MockIpc = {
 
     setConnectionString: (_str: string) => {},
+    authenticate: (_sharedSecret) => {
+      return new Promise(r => r());
+    },
     getAccountData: (accountToken) => {
       return new Promise(r => r({
         accountToken: accountToken,

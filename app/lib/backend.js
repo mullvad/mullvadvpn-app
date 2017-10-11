@@ -66,6 +66,23 @@ export class BackendError extends Error {
 
 }
 
+export type IpcCredentials = {
+  connectionString: string,
+  sharedSecret: string,
+};
+
+export function parseIpcCredentials(data: string): ?IpcCredentials {
+  const [connectionString, sharedSecret] = data.split('\n', 2);
+  if(connectionString && sharedSecret) {
+    return {
+      connectionString,
+      sharedSecret,
+    };
+  } else {
+    return null;
+  }
+}
+
 /**
  * Backend implementation
  */
