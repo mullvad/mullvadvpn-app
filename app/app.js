@@ -12,6 +12,7 @@ import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { Backend } from './lib/backend';
 
+import type { IpcCredentials } from './lib/backend';
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './lib/tray-icon-manager';
 
@@ -24,7 +25,10 @@ const store = configureStore(initialState, memoryHistory);
 //////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
 ipcRenderer.on('backend-info', (_event, args) => {
-  backend.setLocation(args.addr);
+  const credentials: IpcCredentials = args.credentials;
+
+  backend.setLocation(credentials.connectionString);
+  backend.authenticate(credentials.sharedSecret);
   backend.sync();
   backend.autologin()
     .catch( e => {

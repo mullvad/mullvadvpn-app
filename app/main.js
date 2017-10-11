@@ -7,6 +7,7 @@ import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';
 import { version } from '../package.json';
+import { parseIpcCredentials } from './lib/backend';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
@@ -227,10 +228,13 @@ const appDelegate = {
         return log.error('Could not find backend connection info', err);
       }
 
-      log.info('Read IPC connection info', data);
-      window.webContents.send('backend-info', {
-        addr: data,
-      });
+      const credentials = parseIpcCredentials(data);
+      if(credentials) {
+        log.info('Read IPC connection info', credentials.connectionString);
+        window.webContents.send('backend-info', { credentials });
+      } else {
+        log.error('Could not parse IPC credentials.');
+      }
     });
   },
 

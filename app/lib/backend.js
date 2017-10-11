@@ -112,6 +112,17 @@ export class Backend {
     this._registerIpcListeners();
   }
 
+  authenticate(sharedSecret: string): Promise<void> {
+    return this._ipc.authenticate(sharedSecret)
+      .then(() => {
+        log.info('Authenticated with backend');
+      })
+      .catch((e) => {
+        log.error('Backend authentication failed', e.message);
+        throw e;
+      });
+  }
+
   sync() {
     log.info('Syncing with the backend...');
 
