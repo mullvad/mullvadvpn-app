@@ -229,14 +229,15 @@ impl Daemon {
     fn start_management_interface_server(
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
     ) -> Result<ManagementInterfaceServer> {
-        let server = ManagementInterfaceServer::start(event_tx).chain_err(|| {
-            ErrorKind::ManagementInterfaceError("Failed to start server")
-        })?;
+        let shared_secret = uuid::Uuid::new_v4().to_string();
+        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone()).chain_err(
+            || ErrorKind::ManagementInterfaceError("Failed to start server"),
+        )?;
         info!(
             "Mullvad management interface listening on {}",
             server.address()
         );
-        rpc_info::write(server.address()).chain_err(|| {
+        rpc_info::write(server.address(), &shared_secret).chain_err(|| {
             ErrorKind::ManagementInterfaceError("Failed to write RPC address to file")
         })?;
         Ok(server)

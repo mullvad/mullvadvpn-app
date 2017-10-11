@@ -33,6 +33,9 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
+        #[rpc(meta, name = "auth")]
+        fn auth(&self, Self::Metadata, String) -> BoxFuture<(), Error>;
+
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
         #[rpc(async, name = "get_account_data")]
@@ -139,11 +142,14 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: IntoSender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
+    pub fn start<T>(
+        tunnel_tx: IntoSender<TunnelCommand, T>,
+        shared_secret: String,
+    ) -> talpid_ipc::Result<Self>
     where
         T: From<TunnelCommand> + 'static + Send,
     {
-        let rpc = ManagementInterface::new(tunnel_tx);
+        let rpc = ManagementInterface::new(tunnel_tx, shared_secret);
         let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
@@ -210,13 +216,15 @@ impl EventBroadcaster {
 struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<TunnelCommand, T>>,
+    shared_secret: String,
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<TunnelCommand, T>) -> Self {
+    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
+            shared_secret,
         }
     }
 
@@ -284,6 +292,16 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
     type Metadata = Meta;
+
+    fn auth(&self, mut meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
+        meta.authenticated = shared_secret == self.shared_secret;
+        debug!("auth: {}", meta.authenticated);
+        if meta.authenticated {
+            Box::new(future::ok(()))
+        } else {
+            Box::new(future::err(Error::internal_error()))
+        }
+    }
 
     fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
@@ -410,6 +428,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 #[derive(Clone, Debug, Default)]
 pub struct Meta {
     session: Option<Arc<Session>>,
+    authenticated: bool,
 }
 
 /// Make the `Meta` type possible to use as jsonrpc metadata type.
@@ -426,5 +445,6 @@ impl PubSubMetadata for Meta {
 fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
     Meta {
         session: Some(Arc::new(Session::new(context.sender()))),
+        authenticated: false,
     }
 }
