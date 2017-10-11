@@ -36,6 +36,7 @@ pub struct OpenVpnCommand {
     remote: Option<net::Endpoint>,
     user_pass_path: Option<PathBuf>,
     ca: Option<PathBuf>,
+    crl: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
 }
@@ -50,6 +51,7 @@ impl OpenVpnCommand {
             remote: None,
             user_pass_path: None,
             ca: None,
+            crl: None,
             plugin: None,
             log: None,
         }
@@ -77,6 +79,12 @@ impl OpenVpnCommand {
     /// Sets the path to the CA certificate file.
     pub fn ca<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.ca = Some(path.as_ref().to_path_buf());
+        self
+    }
+
+    /// Sets the path to the CRL (Certificate revocation list) file.
+    pub fn crl<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.crl = Some(path.as_ref().to_path_buf());
         self
     }
 
@@ -113,6 +121,10 @@ impl OpenVpnCommand {
         if let Some(ref ca) = self.ca {
             args.push(OsString::from("--ca"));
             args.push(OsString::from(ca.as_os_str()));
+        }
+        if let Some(ref crl) = self.crl {
+            args.push(OsString::from("--crl-verify"));
+            args.push(OsString::from(crl.as_os_str()));
         }
 
         if let Some((ref path, ref plugin_args)) = self.plugin {

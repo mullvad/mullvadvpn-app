@@ -151,7 +151,8 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .ca(Self::get_ca_path());
+            .ca(Self::get_ca_path())
+            .crl(Self::get_crl_path());
         if let Some(log) = log {
             cmd.log(log);
         }
@@ -177,6 +178,12 @@ impl TunnelMonitor {
         Self::get_install_dir()
             .unwrap_or(PathBuf::from("."))
             .join("ca.crt")
+    }
+
+    fn get_crl_path() -> PathBuf {
+        Self::get_install_dir()
+            .unwrap_or(PathBuf::from("."))
+            .join("crl.pem")
     }
 
     fn get_plugin_path() -> Result<PathBuf> {
