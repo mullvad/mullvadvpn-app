@@ -441,10 +441,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn new_state_subscribe(
         &self,
-        _meta: Self::Metadata,
+        meta: Self::Metadata,
         subscriber: pubsub::Subscriber<DaemonState>,
     ) {
         trace!("new_state_subscribe");
+        if self.check_auth(&meta).is_err() {
+            return;
+        }
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
 
@@ -453,8 +456,11 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
     }
 
-    fn error_subscribe(&self, _meta: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
+    fn error_subscribe(&self, meta: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
         trace!("error_subscribe");
+        if self.check_auth(&meta).is_err() {
+            return;
+        }
         Self::subscribe(subscriber, &self.subscriptions.error_subscriptions);
     }
 
