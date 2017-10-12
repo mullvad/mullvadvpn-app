@@ -6,6 +6,7 @@ import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';
+import { version } from '../package.json';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
@@ -24,7 +25,6 @@ const rpcAddressFile = isMacOS || isLinux
 
 let browserWindowReady = false;
 
-
 const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
@@ -37,6 +37,8 @@ const appDelegate = {
 
     appDelegate._logFileLocation = appDelegate._getLogsDirectory();
     appDelegate._initLogging();
+
+    log.info('Running version', version);
 
     appDelegate._startBackend();
 
