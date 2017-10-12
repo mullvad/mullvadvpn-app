@@ -29,9 +29,11 @@ lazy_static! {
 
 
 /// Writes down the RPC address to some API to a file.
-pub fn write(rpc_address: &str) -> Result<()> {
+pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     open_file(RPC_ADDRESS_FILE_PATH.as_path())
-        .and_then(|mut file| file.write_all(rpc_address.as_bytes()))
+        .and_then(|mut file| {
+            write!(file, "{}\n{}", rpc_address, shared_secret)
+        })
         .chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))?;
 
     debug!(

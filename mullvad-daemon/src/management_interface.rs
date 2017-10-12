@@ -19,6 +19,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
@@ -33,48 +34,53 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
+        /// Authenticate the client towards this daemon instance. This method must be called once
+        /// before any other call based on the same connection will work.
+        #[rpc(meta, name = "auth")]
+        fn auth(&self, Self::Metadata, String) -> BoxFuture<(), Error>;
+
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
-        #[rpc(async, name = "get_account_data")]
-        fn get_account_data(&self, AccountToken) -> BoxFuture<AccountData, Error>;
+        #[rpc(meta, name = "get_account_data")]
+        fn get_account_data(&self, Self::Metadata, AccountToken) -> BoxFuture<AccountData, Error>;
 
         /// Returns available countries.
         #[rpc(name = "get_countries")]
         fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error>;
 
         /// Set which account to connect with.
-        #[rpc(async, name = "set_account")]
-        fn set_account(&self, Option<AccountToken>) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_account")]
+        fn set_account(&self, Self::Metadata, Option<AccountToken>) -> BoxFuture<(), Error>;
 
         /// Get which account is configured.
-        #[rpc(async, name = "get_account")]
-        fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error>;
+        #[rpc(meta, name = "get_account")]
+        fn get_account(&self, Self::Metadata) -> BoxFuture<Option<AccountToken>, Error>;
 
         /// Set which relay to connect to
-        #[rpc(async, name = "set_custom_relay")]
-        fn set_custom_relay(&self, RelayEndpoint) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_custom_relay")]
+        fn set_custom_relay(&self, Self::Metadata, RelayEndpoint) -> BoxFuture<(), Error>;
 
         /// Unset the custom relay, reverting to the default relay listing
-        #[rpc(async, name = "remove_custom_relay")]
-        fn remove_custom_relay(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "remove_custom_relay")]
+        fn remove_custom_relay(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
-        #[rpc(name = "set_autoconnect")]
-        fn set_autoconnect(&self, bool) -> Result<(), Error>;
+        #[rpc(meta, name = "set_autoconnect")]
+        fn set_autoconnect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
-        #[rpc(async, name = "connect")]
-        fn connect(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "connect")]
+        fn connect(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Disconnect the VPN tunnel if it is connecting/connected. Does nothing if already
         /// disconnected.
-        #[rpc(async, name = "disconnect")]
-        fn disconnect(&self) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "disconnect")]
+        fn disconnect(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
-        #[rpc(async, name = "get_state")]
-        fn get_state(&self) -> BoxFuture<DaemonState, Error>;
+        #[rpc(meta, name = "get_state")]
+        fn get_state(&self, Self::Metadata) -> BoxFuture<DaemonState, Error>;
 
         /// Returns the current public IP of this computer.
         #[rpc(name = "get_ip")]
@@ -139,11 +145,14 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: IntoSender<TunnelCommand, T>) -> talpid_ipc::Result<Self>
+    pub fn start<T>(
+        tunnel_tx: IntoSender<TunnelCommand, T>,
+        shared_secret: String,
+    ) -> talpid_ipc::Result<Self>
     where
         T: From<TunnelCommand> + 'static + Send,
     {
-        let rpc = ManagementInterface::new(tunnel_tx);
+        let rpc = ManagementInterface::new(tunnel_tx, shared_secret);
         let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
@@ -210,13 +219,15 @@ impl EventBroadcaster {
 struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<TunnelCommand, T>>,
+    shared_secret: String,
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<TunnelCommand, T>) -> Self {
+    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
+            shared_secret,
         }
     }
 
@@ -280,13 +291,49 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
             _ => Error::internal_error(),
         }
     }
+
+    fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
+        if meta.authenticated.load(Ordering::SeqCst) {
+            trace!("auth success");
+            Ok(())
+        } else {
+            trace!("auth failed");
+            Err(Error::invalid_request())
+        }
+    }
+}
+
+/// Evaluates a Result and early returns an error.
+/// If it is `Ok(val)`, evaluates to `val`.
+/// If it is `Err(e)` it early returns `Box<Future>` where the future will result in `e`.
+macro_rules! try_future {
+    ($result:expr) => (match $result {
+        ::std::result::Result::Ok(val) => val,
+        ::std::result::Result::Err(e) => return Box::new(future::err(e)),
+    });
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
     type Metadata = Meta;
 
-    fn get_account_data(&self, account_token: AccountToken) -> BoxFuture<AccountData, Error> {
+    fn auth(&self, meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
+        let authenticated = shared_secret == self.shared_secret;
+        meta.authenticated.store(authenticated, Ordering::SeqCst);
+        debug!("authenticated: {}", authenticated);
+        if authenticated {
+            Box::new(future::ok(()))
+        } else {
+            Box::new(future::err(Error::internal_error()))
+        }
+    }
+
+    fn get_account_data(
+        &self,
+        meta: Self::Metadata,
+        account_token: AccountToken,
+    ) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
@@ -307,24 +354,35 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Ok(HashMap::new())
     }
 
-    fn set_account(&self, account_token: Option<AccountToken>) -> BoxFuture<(), Error> {
+    fn set_account(
+        &self,
+        meta: Self::Metadata,
+        account_token: Option<AccountToken>,
+    ) -> BoxFuture<(), Error> {
         trace!("set_account");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn get_account(&self) -> BoxFuture<Option<AccountToken>, Error> {
+    fn get_account(&self, meta: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn set_custom_relay(&self, custom_relay: RelayEndpoint) -> BoxFuture<(), Error> {
+    fn set_custom_relay(
+        &self,
+        meta: Self::Metadata,
+        custom_relay: RelayEndpoint,
+    ) -> BoxFuture<(), Error> {
         trace!("set_custom_relay");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
 
         let message = TunnelCommand::SetCustomRelay(tx, Some(custom_relay));
@@ -333,31 +391,36 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn remove_custom_relay(&self) -> BoxFuture<(), Error> {
+    fn remove_custom_relay(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("remove_custom_relay");
+        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, None))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn set_autoconnect(&self, _autoconnect: bool) -> Result<(), Error> {
+    fn set_autoconnect(&self, meta: Self::Metadata, _autoconnect: bool) -> BoxFuture<(), Error> {
         trace!("set_autoconnect");
-        Ok(())
+        try_future!(self.check_auth(&meta));
+        Box::new(future::ok(()))
     }
 
-    fn connect(&self) -> BoxFuture<(), Error> {
+    fn connect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("connect");
+        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Secured))
     }
 
-    fn disconnect(&self) -> BoxFuture<(), Error> {
+    fn disconnect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("disconnect");
+        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(TunnelCommand::SetTargetState(TargetState::Unsecured))
     }
 
-    fn get_state(&self) -> BoxFuture<DaemonState, Error> {
+    fn get_state(&self, meta: Self::Metadata) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
+        try_future!(self.check_auth(&meta));
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
             .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
@@ -380,10 +443,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
     fn new_state_subscribe(
         &self,
-        _meta: Self::Metadata,
+        meta: Self::Metadata,
         subscriber: pubsub::Subscriber<DaemonState>,
     ) {
         trace!("new_state_subscribe");
+        if self.check_auth(&meta).is_err() {
+            return;
+        }
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
 
@@ -392,8 +458,11 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
     }
 
-    fn error_subscribe(&self, _meta: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
+    fn error_subscribe(&self, meta: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
         trace!("error_subscribe");
+        if self.check_auth(&meta).is_err() {
+            return;
+        }
         Self::subscribe(subscriber, &self.subscriptions.error_subscriptions);
     }
 
@@ -410,6 +479,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 #[derive(Clone, Debug, Default)]
 pub struct Meta {
     session: Option<Arc<Session>>,
+    authenticated: Arc<AtomicBool>,
 }
 
 /// Make the `Meta` type possible to use as jsonrpc metadata type.
@@ -426,5 +496,6 @@ impl PubSubMetadata for Meta {
 fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
     Meta {
         session: Some(Arc::new(Session::new(context.sender()))),
+        authenticated: Arc::new(AtomicBool::new(false)),
     }
 }
