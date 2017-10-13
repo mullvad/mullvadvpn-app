@@ -61,29 +61,35 @@ describe('connect', () => {
       });
   });
 
-  it('should correctly deduce \'connected\' from backend states', () => {
+  it('should correctly deduce \'connected\' from backend states', (done) => {
     const { store, mockIpc } = setupBackendAndStore();
 
-    expect(store.getState().connection.status).not.to.equal('connected');
-    mockIpc.sendNewState({ state: 'secured', target_state: 'secured' });
-    expect(store.getState().connection.status).to.equal('connected');
+    checkNextTick( () => {
+      expect(store.getState().connection.status).not.to.equal('connected');
+      mockIpc.sendNewState({ state: 'secured', target_state: 'secured' });
+      expect(store.getState().connection.status).to.equal('connected');
+    }, done);
   });
 
-  it('should correctly deduce \'connecting\' from backend states', () => {
+  it('should correctly deduce \'connecting\' from backend states', (done) => {
     const { store, mockIpc } = setupBackendAndStore();
 
-    expect(store.getState().connection.status).not.to.equal('connecting');
-    mockIpc.sendNewState({ state: 'unsecured', target_state: 'secured' });
-    expect(store.getState().connection.status).to.equal('connecting');
+    checkNextTick( () => {
+      expect(store.getState().connection.status).not.to.equal('connecting');
+      mockIpc.sendNewState({ state: 'unsecured', target_state: 'secured' });
+      expect(store.getState().connection.status).to.equal('connecting');
+    }, done);
   });
 
-  it('should correctly deduce \'disconnected\' from backend states', () => {
+  it('should correctly deduce \'disconnected\' from backend states', (done) => {
     const { store, mockIpc } = setupBackendAndStore();
     store.dispatch(connectionActions.connected());
 
-    expect(store.getState().connection.status).not.to.equal('disconnected');
-    mockIpc.sendNewState({ state: 'unsecured', target_state: 'unsecured' });
-    expect(store.getState().connection.status).to.equal('disconnected');
+    checkNextTick( () => {
+      expect(store.getState().connection.status).not.to.equal('disconnected');
+      mockIpc.sendNewState({ state: 'unsecured', target_state: 'unsecured' });
+      expect(store.getState().connection.status).to.equal('disconnected');
+    }, done);
   });
 });
 

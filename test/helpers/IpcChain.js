@@ -8,11 +8,13 @@ export class IpcChain {
   _recordedCalls: Array<string>;
   _mockIpc: {};
   _done: (*) => void;
+  _aborted: boolean;
 
   constructor(mockIpc: {}) {
     this._expectedCalls = [];
     this._recordedCalls = [];
     this._mockIpc = mockIpc;
+    this._aborted = false;
   }
 
   require(ipcCall: string): StepBuilder {
@@ -28,10 +30,21 @@ export class IpcChain {
   }
 
   _stepPromiseCallback(step, resolve, args) {
+    if (this._aborted) {
+      return;
+    }
+
     this._registerCall(step.ipcCall);
 
     if (step.inputValidation) {
-      failFast(() => step.inputValidation(...args), this._done);
+      const failedInputValidation = failFast(() => {
+        step.inputValidation(...args);
+      }, this._done);
+
+      if (failedInputValidation) {
+        this._abort();
+        return;
+      }
     }
 
     if (this._isLastCall()) {
@@ -39,6 +52,10 @@ export class IpcChain {
     }
 
     resolve(step.returnValue);
+  }
+
+  _abort() {
+    this._aborted = true;
   }
 
   _isLastCall(): boolean {

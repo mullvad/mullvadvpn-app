@@ -7,7 +7,7 @@ import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';
 import { version } from '../package.json';
-import { parseIpcCredentials } from './lib/ipc-facade';
+import { parseIpcCredentials } from './lib/backend';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 

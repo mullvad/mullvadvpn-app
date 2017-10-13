@@ -1,6 +1,7 @@
 // @flow
 
-import log from 'electron-log';
+//import log from 'electron-log';
+const log = console;
 import EventEmitter from 'events';
 import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
@@ -9,7 +10,7 @@ import connectionActions from '../redux/connection/actions';
 import type { ReduxStore } from '../redux/store';
 import { push } from 'react-router-redux';
 
-import type { BackendState, RelayEndpoint, IpcCredentials } from './ipc-facade';
+import type { BackendState, RelayEndpoint } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
@@ -66,31 +67,65 @@ export class BackendError extends Error {
 }
 
 
+export type IpcCredentials = {
+  connectionString: string,
+  sharedSecret: string,
+};
+export function parseIpcCredentials(data: string): ?IpcCredentials {
+  const [connectionString, sharedSecret] = data.split('\n', 2);
+  if(connectionString && sharedSecret) {
+    return {
+      connectionString,
+      sharedSecret,
+    };
+  } else {
+    return null;
+  }
+}
+
+
 /**
  * Backend implementation
  */
 export class Backend {
 
   _ipc: IpcFacade;
+  _credentials: ?IpcCredentials;
+  _authenticationPromise: ?Promise<void>;
   _store: ReduxStore;
   _eventEmitter = new EventEmitter();
 
-  constructor(store: ReduxStore, ipc: ?IpcFacade) {
+  constructor(store: ReduxStore, credentials?: IpcCredentials, ipc: ?IpcFacade) {
     this._store = store;
+    this._credentials = credentials;
+
+
     if(ipc) {
       this._ipc = ipc;
+
+      // force to re-authenticate when connection closed
+      this._ipc.setCloseConnectionHandler(() => {
+        this._authenticationPromise = null;
+      });
+
       this._registerIpcListeners();
       this._startReachability();
     }
   }
 
   setCredentials(credentials: IpcCredentials) {
-    log.info('Got connection info to backend', credentials);
+    log.info('Got connection info to backend', credentials.connectionString);
+    this._credentials = credentials;
 
     if (this._ipc) {
-      this._ipc.setCredentials(credentials);
+      this._credentials = credentials;
     } else {
-      this._ipc = new RealIpc(credentials);
+      this._ipc = new RealIpc(credentials.connectionString);
+
+      // force to re-authenticate when connection closed
+      this._ipc.setCloseConnectionHandler(() => {
+        this._authenticationPromise = null;
+      });
     }
     this._registerIpcListeners();
   }
@@ -98,27 +133,33 @@ export class Backend {
   sync() {
     log.info('Syncing with the backend...');
 
-    this._ipc.getIp()
-      .then( ip => {
-        log.info('Got ip', ip);
-        this._store.dispatch(connectionActions.newPublicIp(ip));
-      })
-      .catch(e => {
-        log.info('Failed syncing with the backend,', e.message);
+    this._ensureAuthenticated()
+      .then( () => {
+        this._ipc.getIp()
+          .then( ip => {
+            log.info('Got ip', ip);
+            this._store.dispatch(connectionActions.newPublicIp(ip));
+          })
+          .catch(e => {
+            log.info('Failed syncing with the backend,', e.message);
+          });
       });
 
-    this._ipc.getLocation()
-      .then( location => {
-        log.info('Got location', location);
-        const newLocation = {
-          location: location.latlong,
-          country: location.country,
-          city: location.city
-        };
-        this._store.dispatch(connectionActions.newLocation(newLocation));
-      })
-      .catch(e => {
-        log.info('Failed getting new location,', e.message);
+    this._ensureAuthenticated()
+      .then( () => {
+        this._ipc.getLocation()
+          .then( location => {
+            log.info('Got location', location);
+            const newLocation = {
+              location: location.latlong,
+              country: location.country,
+              city: location.city
+            };
+            this._store.dispatch(connectionActions.newLocation(newLocation));
+          })
+          .catch(e => {
+            log.info('Failed getting new location,', e.message);
+          });
       });
   }
 
@@ -131,30 +172,33 @@ export class Backend {
 
     this._store.dispatch(accountActions.startLogin(accountToken));
 
-    return this._ipc.getAccountData(accountToken)
-      .then( response => {
-        log.info('Account exists', response);
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.getAccountData(accountToken)
+          .then( response => {
+            log.info('Account exists', response);
 
-        return this._ipc.setAccount(accountToken)
-          .then( () => response );
+            return this._ipc.setAccount(accountToken)
+              .then( () => response );
 
-      }).then( accountData => {
-        log.info('Log in complete');
+          }).then( accountData => {
+            log.info('Log in complete');
 
-        this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
+            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
-        // Redirect the user after some time to allow for
-        // the 'Login Successful' screen to be visible
-        setTimeout(() => {
-          this._store.dispatch(push('/connect'));
-          this.connect();
-        }, 1000);
-      }).catch(e => {
-        log.error('Failed to log in,', e.message);
+            // Redirect the user after some time to allow for
+            // the 'Login Successful' screen to be visible
+            setTimeout(() => {
+              this._store.dispatch(push('/connect'));
+              this.connect();
+            }, 1000);
+          }).catch(e => {
+            log.error('Failed to log in,', e.message);
 
-        // TODO: This is not true. If there is a communication link failure the promise will be rejected too
-        const err = new BackendError('INVALID_ACCOUNT');
-        this._store.dispatch(accountActions.loginFailed(err));
+            // TODO: This is not true. If there is a communication link failure the promise will be rejected too
+            const err = new BackendError('INVALID_ACCOUNT');
+            this._store.dispatch(accountActions.loginFailed(err));
+          });
       });
   }
 
@@ -163,49 +207,55 @@ export class Backend {
 
     this._store.dispatch(accountActions.startLogin());
 
-    return this._ipc.getAccount()
-      .then( accountToken => {
-        if (!accountToken) {
-          throw new BackendError('NO_ACCOUNT');
-        }
-        log.debug('The backend had an account number stored:', accountToken);
-        this._store.dispatch(accountActions.startLogin(accountToken));
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.getAccount()
+          .then( accountToken => {
+            if (!accountToken) {
+              throw new BackendError('NO_ACCOUNT');
+            }
+            log.debug('The backend had an account number stored:', accountToken);
+            this._store.dispatch(accountActions.startLogin(accountToken));
 
-        return this._ipc.getAccountData(accountToken);
-      })
-      .then( accountData => {
-        log.info('The stored account number still exists', accountData);
+            return this._ipc.getAccountData(accountToken);
+          })
+          .then( accountData => {
+            log.info('The stored account number still exists', accountData);
 
-        this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
+            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
-        this._store.dispatch(push('/connect'));
-        this.connect();
-      })
-      .catch( e => {
-        log.warn('Unable to autologin,', e.message);
+            this._store.dispatch(push('/connect'));
+            this.connect();
+          })
+          .catch( e => {
+            log.warn('Unable to autologin,', e.message);
 
-        this._store.dispatch(accountActions.autoLoginFailed());
-        this._store.dispatch(push('/'));
+            this._store.dispatch(accountActions.autoLoginFailed());
+            this._store.dispatch(push('/'));
 
-        throw e;
+            throw e;
+          });
       });
   }
 
   logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    this._ipc.setAccount(null)
-      .then(() => {
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.setAccount(null)
+          .then(() => {
 
-        this._store.dispatch(accountActions.loggedOut());
+            this._store.dispatch(accountActions.loggedOut());
 
-        // disconnect user during logout
-        return this.disconnect()
-          .then( () => {
-            this._store.dispatch(push('/'));
+            // disconnect user during logout
+            return this.disconnect()
+              .then( () => {
+                this._store.dispatch(push('/'));
+              });
+          })
+          .catch(e => {
+            log.info('Failed to logout,', e.message);
           });
-      })
-      .catch(e => {
-        log.info('Failed to logout,', e.message);
       });
   }
 
@@ -215,28 +265,37 @@ export class Backend {
     if (relayEndpoint) {
       this._store.dispatch(connectionActions.connectingTo(relayEndpoint));
 
-      return this._ipc.setCustomRelay(relayEndpoint)
+      return this._ensureAuthenticated()
         .then( () => {
-          return this._ipc.connect();
-        })
-        .catch(e => {
-          log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
-          this._store.dispatch(connectionActions.disconnected());
+          return this._ipc.setCustomRelay(relayEndpoint)
+            .then( () => {
+              return this._ipc.connect();
+            })
+            .catch(e => {
+              log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
+              this._store.dispatch(connectionActions.disconnected());
+            });
         });
     } else {
-      return this._ipc.connect()
-        .catch(e => {
-          log.info('Failed connecting to the relay set in the backend, ', e.message);
-          this._store.dispatch(connectionActions.disconnected());
+      return this._ensureAuthenticated()
+        .then( () => {
+          return this._ipc.connect()
+            .catch(e => {
+              log.info('Failed connecting to the relay set in the backend, ', e.message);
+              this._store.dispatch(connectionActions.disconnected());
+            });
         });
     }
   }
 
   disconnect(): Promise<void> {
     // @TODO: Failure modes
-    return this._ipc.disconnect()
-      .catch(e => {
-        log.info('Failed to disconnect,', e.message);
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.disconnect()
+          .catch(e => {
+            log.info('Failed to disconnect,', e.message);
+          });
       });
   }
 
@@ -266,24 +325,27 @@ export class Backend {
   }
 
   _registerIpcListeners() {
-    this._ipc.registerStateListener(newState => {
-      log.info('Got new state from backend', newState);
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.registerStateListener(newState => {
+          log.info('Got new state from backend', newState);
 
-      const newStatus = this._securityStateToConnectionState(newState);
-      switch(newStatus) {
-      case 'connecting':
-        this._store.dispatch(connectionActions.connecting());
-        break;
-      case 'connected':
-        this._store.dispatch(connectionActions.connected());
-        break;
-      case 'disconnected':
-        this._store.dispatch(connectionActions.disconnected());
-        break;
-      }
+          const newStatus = this._securityStateToConnectionState(newState);
+          switch(newStatus) {
+          case 'connecting':
+            this._store.dispatch(connectionActions.connecting());
+            break;
+          case 'connected':
+            this._store.dispatch(connectionActions.connected());
+            break;
+          case 'disconnected':
+            this._store.dispatch(connectionActions.disconnected());
+            break;
+          }
 
-      this.sync();
-    });
+          this.sync();
+        });
+      });
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
@@ -295,5 +357,28 @@ export class Backend {
       return 'disconnected';
     }
     throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
+  }
+
+  _ensureAuthenticated(): Promise<void> {
+    const credentials = this._credentials;
+    if(credentials) {
+      if(!this._authenticationPromise) {
+        this._authenticationPromise = this._authenticate(credentials.sharedSecret);
+      }
+      return this._authenticationPromise;
+    } else {
+      return Promise.reject(new Error('Missing authentication credentials.'));
+    }
+  }
+
+  _authenticate(sharedSecret: string): Promise<void> {
+    return this._ipc.auth(sharedSecret)
+      .then(() => {
+        log.info('Authenticated with backend');
+      })
+      .catch((e) => {
+        log.error('Failed to authenticate with backend: ', e.message);
+        throw e;
+      });
   }
 }
