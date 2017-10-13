@@ -10,6 +10,10 @@ build = "build.rs"
 name = "mullvadd"
 path = "src/main.rs"
 
+[[bin]]
+name = "problem-report"
+path = "src/bin/problem-report.rs"
+
 [dependencies]
 app_dirs = "1.1"
 chrono = { version = "0.4", features = ["serde"] }
