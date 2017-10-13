@@ -804,12 +804,11 @@ dependencies = [
 
 [[package]]
 name = "openvpn-plugin"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1016,6 +1015,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "serde"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "serde_derive 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "serde_derive"
@@ -1193,7 +1195,7 @@ dependencies = [
  "lazy_static 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs?rev=35ca17308409ffab07e3a2a7c9c9ba3c81f8ee5e)",
  "socket-relay 0.1.0",
  "talpid-ipc 0.1.0",
@@ -1226,7 +1228,7 @@ dependencies = [
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
 ]
 
@@ -1580,7 +1582,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum ole32-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5d2c49021782e5233cd243168edfa8037574afed4eba4bbaf538b3d8d1789d8c"
 "checksum openssl 0.9.17 (registry+https://github.com/rust-lang/crates.io-index)" = "085aaedcc89a2fac1eb2bc19cd66f29d4ea99fec60f82a5f3a88a6be7dbd90b5"
 "checksum openssl-sys 0.9.17 (registry+https://github.com/rust-lang/crates.io-index)" = "7e3a9845a4c9fdb321931868aae5549e96bb7b979bf9af7de03603d74691b5f3"
-"checksum openvpn-plugin 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "99c05a2229a24799412627dd22730729796aca97405dedc297a622536f37fb3b"
+"checksum openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f01f94fa077e8648fa20c654f6aef90e1a0feae5455a7b5d80c19eadeb97c7e8"
 "checksum os_pipe 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "998bfbb3042e715190fe2a41abfa047d7e8cb81374d2977d7f100eacd8619cb1"
 "checksum owning_ref 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "cdf84f41639e037b484f93433aa3897863b561ed65c6e59c7073d7c561710f37"
 "checksum parking_lot 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "37f364e2ce5efa24c7d0b6646d5bb61145551a0112f107ffd7499f1a3e322fbd"
