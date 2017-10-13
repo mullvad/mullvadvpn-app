@@ -13,8 +13,8 @@ before_script:
   - env
 
 script:
-  - cargo build --all --verbose
-  - cargo test --all --verbose
+  - cargo build --verbose
+  - cargo test --verbose
   # Format only on nightly, since that is where rustfmt-nightly compiles
   - if [ "${TRAVIS_RUST_VERSION}" = "nightly" ] && [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
