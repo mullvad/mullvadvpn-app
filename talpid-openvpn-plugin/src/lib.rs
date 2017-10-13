@@ -58,13 +58,13 @@ openvpn_plugin!(
 );
 
 fn openvpn_open(
-    args: &[CString],
-    _env: &HashMap<CString, CString>,
+    args: Vec<CString>,
+    _env: HashMap<CString, CString>,
 ) -> Result<(Vec<OpenVpnPluginEvent>, EventProcessor)> {
     env_logger::init().chain_err(|| "Failed to bootstrap logging system")?;
     debug!("Initializing plugin");
 
-    let core_server_id = parse_args(args)?;
+    let core_server_id = parse_args(&args)?;
     info!("Connecting back to talpid core at {}", core_server_id);
     let processor = EventProcessor::new(core_server_id).chain_err(|| ErrorKind::InitHandleFailed)?;
 
@@ -89,14 +89,14 @@ fn openvpn_close(_handle: EventProcessor) {
 
 fn openvpn_event(
     event: OpenVpnPluginEvent,
-    _args: &[CString],
-    env: &HashMap<CString, CString>,
+    _args: Vec<CString>,
+    env: HashMap<CString, CString>,
     handle: &mut EventProcessor,
 ) -> Result<EventResult> {
     debug!("Received event: {:?}", event);
 
     let parsed_env =
-        openvpn_plugin::ffi::parse::env_utf8(env).chain_err(|| ErrorKind::ParseEnvFailed)?;
+        openvpn_plugin::ffi::parse::env_utf8(&env).chain_err(|| ErrorKind::ParseEnvFailed)?;
 
     handle
         .process_event(event, parsed_env)

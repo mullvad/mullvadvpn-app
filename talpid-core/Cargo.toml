@@ -14,7 +14,7 @@ lazy_static = "0.2"
 log = "0.3"
 uuid = { version = "0.5", features = ["v4"] }
 
-openvpn-plugin = { version = "0.2", features = ["serialize"] }
+openvpn-plugin = { version = "0.3", features = ["serde"] }
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
