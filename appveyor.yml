@@ -43,8 +43,8 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - cargo build --target %TARGET%
-  - cargo test --target %TARGET%
+  - cargo build
+  - cargo test
 
 # Cache build binaries for faster builds next time
 cache:
