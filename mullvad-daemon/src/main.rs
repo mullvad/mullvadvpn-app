@@ -60,6 +60,7 @@ use std::net::Ipv4Addr;
 use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
+use std::time::{Duration, Instant};
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
@@ -104,6 +105,7 @@ lazy_static! {
         // se7.mullvad.net
         Endpoint::new(Ipv4Addr::new(185, 65, 132, 104), 1300, TransportProtocol::Udp),
     ];
+    static ref MIN_TUNNEL_ALIVE_TIME_MS: Duration = Duration::from_millis(1000);
 }
 
 const CRATE_NAME: &str = "mullvadd";
@@ -544,7 +546,11 @@ impl Daemon {
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {
         let error_tx = self.tx.clone();
         thread::spawn(move || {
+            let start = Instant::now();
             let result = tunnel_monitor.wait();
+            if let Some(sleep_dur) = MIN_TUNNEL_ALIVE_TIME_MS.checked_sub(start.elapsed()) {
+                thread::sleep(sleep_dur);
+            }
             let _ = error_tx.send(DaemonEvent::TunnelExited(result));
             trace!("Tunnel monitor thread exit");
         });
