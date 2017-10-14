@@ -15,7 +15,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     onLogout: () => logout(props.backend),
     onClose: () => dispatch(push('/settings')),
-    onViewAccount: () => dispatch(push('/settings/account')),
     onBuyMore: () => shell.openExternal(links['purchase'])
   };
 };
