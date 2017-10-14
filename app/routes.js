@@ -8,6 +8,7 @@ import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
 import AccountPage from './containers/AccountPage';
+import SupportPage from './containers/SupportPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 import { getTransitionProps } from './transitions';
 
@@ -95,6 +96,7 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
               <PrivateRoute exact path="/connect" component={ ConnectPage } />
               <PublicRoute exact path="/settings" component={ SettingsPage } />
               <PrivateRoute exact path="/settings/account" component={ AccountPage } />
+              <PublicRoute exact path="/settings/support" component={ SupportPage } />
               <PrivateRoute exact path="/select-location" component={ SelectLocationPage } />
             </Switch>
           </CSSTransitionGroup>
