@@ -94,8 +94,8 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
               <LoginRoute exact path="/" component={ LoginPage } />
               <PrivateRoute exact path="/connect" component={ ConnectPage } />
               <PublicRoute exact path="/settings" component={ SettingsPage } />
-              <PrivateRoute path="/settings/account" component={ AccountPage } />
-              <PrivateRoute path="/select-location" component={ SelectLocationPage } />
+              <PrivateRoute exact path="/settings/account" component={ AccountPage } />
+              <PrivateRoute exact path="/select-location" component={ SelectLocationPage } />
             </Switch>
           </CSSTransitionGroup>
         </WindowChrome>
