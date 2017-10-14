@@ -10,6 +10,11 @@
   line-height: 26px;
   justify-content: center;
   align-items: center;
+  transition: 0.25s opacity;
+}
+
+.button:disabled {
+  opacity: 0.5;
 }
 
 .button-label {
