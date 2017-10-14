@@ -14,21 +14,15 @@ export type SettingsProps = {
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
-  onExternalLink: (type: string) => void,
-  onUpdateSettings: (update: $Shape<SettingsReduxState>) => void
+  onViewSupport: () => void,
+  onExternalLink: (type: string) => void
 };
 
 export default class Settings extends Component {
 
   props: SettingsProps;
 
-  onClose = () => this.props.onClose();
-
-  onExternalLink(type: string) {
-    this.props.onExternalLink(type);
-  }
-
-  render(): React.Element<*> {
+  render() {
     const isLoggedIn = this.props.account.status === 'ok';
     let isOutOfTime = false, formattedExpiry = '';
     let expiryIso = this.props.account.expiry;
@@ -44,7 +38,7 @@ export default class Settings extends Component {
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <div className="settings">
-            <button className="settings__close" onClick={ this.onClose } />
+            <button className="settings__close" onClick={ this.props.onClose } />
             <div className="settings__container">
               <div className="settings__header">
                 <h2 className="settings__title">Settings</h2>
@@ -80,15 +74,15 @@ export default class Settings extends Component {
                     </If>
 
                     <div className="settings__external">
-                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'faq') }>
+                      <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'faq') }>
                         <div className="settings__cell-label">FAQs</div>
                         <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
                       </div>
-                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'guides') }>
+                      <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'guides') }>
                         <div className="settings__cell-label">Guides</div>
                         <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
                       </div>
-                      <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
+                      <div className="settings__cell settings__cell--active" onClick={ this.props.onViewSupport }>
                         <div className="settings__cell-label">Contact support</div>
                         <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
                       </div>

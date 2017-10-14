@@ -43,8 +43,8 @@ describe('components/Settings', () => {
       onQuit: () => {},
       onClose: () => {},
       onViewAccount: () => {},
-      onExternalLink: (_type) => {},
-      onUpdateSettings: (_update) => {}
+      onViewSupport: () => {},
+      onExternalLink: (_type) => {}
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
