@@ -90,7 +90,7 @@ export default class Settings extends Component {
                       </div>
                       <div className="settings__cell settings__cell--active" onClick={ this.onExternalLink.bind(this, 'supportEmail') }>
                         <div className="settings__cell-label">Contact support</div>
-                        <img className="settings__cell-icon" src="./assets/images/icon-email.svg" />
+                        <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
                       </div>
                     </div>
                   </div>
