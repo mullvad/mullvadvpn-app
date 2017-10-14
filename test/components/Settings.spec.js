@@ -140,7 +140,7 @@ describe('components/Settings', () => {
       .filter((elm: HTMLElement) => elm.classList.contains('settings__cell'))
       .forEach((elm) => Simulate.click(elm));
 
-    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides', 'supportEmail']);
+    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
 
 });
