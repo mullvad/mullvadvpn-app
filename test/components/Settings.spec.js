@@ -128,6 +128,14 @@ describe('components/Settings', () => {
     Simulate.click(domNode);
   });
 
+  it('should call support callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewSupport: () => done()
+    });
+    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__view-support');
+    Simulate.click(domNode);
+  });
+
   it('should call external links callback', () => {
     let collectedExternalLinkTypes: Array<string> = [];
     const props = makeProps(loggedOutAccountState, settingsState, {
