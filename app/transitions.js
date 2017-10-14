@@ -49,6 +49,7 @@ const transitions: TransitionMap = {
  */
 const transitionRules = [
   r('/settings', '/settings/account', transitions.push),
+  r('/settings', '/settings/support', transitions.push),
   r(null, '/settings', transitions.slide),
   r(null, '/select-location', transitions.slide)
 ];
