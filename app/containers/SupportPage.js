@@ -8,7 +8,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, _props) => {
   return {
-    onClose: () => dispatch(push('/settings'))
+    onClose: () => dispatch(push('/settings')),
+    onViewLogs: () => {},
+    onSend: (_report) => {}
   };
 };
 
