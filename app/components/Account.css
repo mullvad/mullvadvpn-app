@@ -24,8 +24,7 @@
   margin: 0;
   top: 24px;
   left: 12px;
-  z-index: 1; /* part of .account__container convers the button */
-
+  z-index: 1; /* part of .account__container covers the button */
 }
 
 .account__close-icon {
