@@ -95,6 +95,7 @@
   font-family: "Open Sans";
   font-size: 13px;
   font-weight: 800;
+  line-height: 26px; /* matches .cell-label */
   color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 }
