@@ -38,7 +38,7 @@ describe('components/Connect', () => {
   it('shows the connection location when connecting', () => {
     const component = renderConnecting({
       getServerInfo: (_s) => ({
-        address: '',
+        address: '185.65.132.102',
         name: '',
         location: [0, 0],
         country: 'norway',
@@ -58,7 +58,7 @@ describe('components/Connect', () => {
   it('shows the connection location when connected', () => {
     const component = renderConnected({
       getServerInfo: (_s) => ({
-        address: '',
+        address: '185.65.132.102',
         name: '',
         location: [0, 0],
         country: 'sweden',
@@ -78,21 +78,21 @@ describe('components/Connect', () => {
   it('shows the connection location when disconnected', () => {
     const component = renderNotConnected({
       getServerInfo: (_s) => ({
-        address: '',
+        address: '\u2003',
         name: '',
         location: [0, 0],
         country: 'sweden',
         city: 'gothenburg',
       }),
     }, {
-      clientIp: '78.65.17.155',
+      clientIp: '\u2003',
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
     expect(countryAndCity.text()).to.contain('\u2002');
     expect(countryAndCity.text()).to.not.contain('\u2003');
-    expect(ipAddr.text()).to.contain('78.65.17.155');
+    expect(ipAddr.text()).to.contain('\u2003');
   });
 
   it('shows the country name in the location switcher', () => {
