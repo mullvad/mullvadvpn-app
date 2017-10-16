@@ -172,6 +172,6 @@ export class RealIpc implements IpcFacade {
   }
 
   setCloseConnectionHandler(handler: () => void) {
-    console.log('appa', handler);
+    this._ipc.setCloseConnectionHandler(handler);
   }
 }
