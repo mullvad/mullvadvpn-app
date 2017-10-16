@@ -62,7 +62,7 @@ export default class Support extends Component {
                 <h2 className="support__title">Contact support</h2>
                 <div className="support__subtitle">
                   { `To help you more effectively, your app's log file will be attached to this message.
-                  Your data will remain secure and private, as it is encrypted and anonymised before sending.` }
+                  Your data will remain secure and private, as it is encrypted & anonymised before sending.` }
                 </div>
               </div>
 
