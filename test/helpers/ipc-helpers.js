@@ -9,14 +9,24 @@ import { mockState, mockStore } from '../mocks/redux';
 type DoneCallback = (?mixed) => void;
 type Check = () => void;
 
-export function setupBackendAndStore() {
-
+export function setupIpcAndStore() {
   const memoryHistory = createMemoryHistory();
   const store = configureStore(null, memoryHistory);
 
   const mockIpc = newMockIpc();
 
-  const backend = new Backend(store, mockIpc);
+  return { store, mockIpc };
+}
+
+export function setupBackendAndStore() {
+
+  const { store, mockIpc } = setupIpcAndStore();
+
+  const credentials = {
+    sharedSecret: '',
+    connectionString: '',
+  };
+  const backend = new Backend(store, credentials, mockIpc);
 
   return { store, mockIpc, backend };
 }
@@ -24,7 +34,11 @@ export function setupBackendAndStore() {
 export function setupBackendAndMockStore() {
   const store = mockStore(mockState());
   const mockIpc = newMockIpc();
-  const backend = new Backend(store, mockIpc);
+  const credentials = {
+    sharedSecret: '',
+    connectionString: '',
+  };
+  const backend = new Backend(store, credentials, mockIpc);
   return { store, mockIpc, backend };
 }
 
@@ -54,11 +68,13 @@ export function checkNextTick(fn: Check, done: DoneCallback) {
 // In async tests where we want to test a chain of IPC messages
 // we can only invoke `done` for the last message. This function
 // is for the intermediate messages.
-export function failFast(fn: Check, done: DoneCallback) {
+export function failFast(fn: Check, done: DoneCallback): boolean {
   try {
     fn();
+    return false;
   } catch(e) {
     done(e);
+    return true;
   }
 }
 export function failFastNextTick(fn: Check, done: DoneCallback) {

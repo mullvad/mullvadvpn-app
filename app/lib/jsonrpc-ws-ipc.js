@@ -75,6 +75,7 @@ export default class Ipc {
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
+  _closeConnectionHandler: ?() => void;
 
   constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
     this._connectionString = connectionString;
@@ -89,6 +90,10 @@ export default class Ipc {
 
   setConnectionString(str: string) {
     this._connectionString = str;
+  }
+
+  setCloseConnectionHandler(handler: ?() => void) {
+    this._closeConnectionHandler = handler;
   }
 
   on(event: string, listener: (mixed) => void): Promise<*> {
@@ -246,6 +251,10 @@ export default class Ipc {
     };
 
     this._websocket.onclose = () => {
+      if(this._closeConnectionHandler) {
+        this._closeConnectionHandler();
+      }
+
       const delay = this._backoff.getIncreasedBackoff();
       log.warn('The websocket connetion closed, attempting to reconnect it in', delay, 'milliseconds');
       setTimeout(() => this._reconnect(), delay);

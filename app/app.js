@@ -24,7 +24,7 @@ const store = configureStore(initialState, memoryHistory);
 //////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
 ipcRenderer.on('backend-info', (_event, args) => {
-  backend.setLocation(args.addr);
+  backend.setCredentials(args.credentials);
   backend.sync();
   backend.autologin()
     .catch( e => {

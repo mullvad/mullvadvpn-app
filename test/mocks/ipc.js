@@ -3,14 +3,17 @@ import type { IpcFacade, BackendState } from '../../app/lib/ipc-facade';
 
 interface MockIpc {
   sendNewState: (BackendState) => void;
+  killWebSocket: () => void;
   -getAccountData: *;
   -connect: *;
   -getAccount: *;
+  -authenticate: *;
 }
 
 export function newMockIpc() {
 
   const stateListeners = [];
+  const connectionCloseListeners = [];
 
   const mockIpc: IpcFacade & MockIpc = {
 
@@ -60,6 +63,15 @@ export function newMockIpc() {
         l(state);
       }
     },
+    authenticate: (_secret: string) => Promise.resolve(),
+    setCloseConnectionHandler: (listener: () => void) => {
+      connectionCloseListeners.push(listener);
+    },
+    killWebSocket: () => {
+      for(const l of connectionCloseListeners) {
+        l();
+      }
+    }
   };
 
   return mockIpc;

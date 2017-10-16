@@ -44,6 +44,8 @@ export interface IpcFacade {
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
   registerStateListener((BackendState) => void): void,
+  setCloseConnectionHandler(() => void): void,
+  authenticate(sharedSecret: string): Promise<void>,
 }
 
 export class RealIpc implements IpcFacade {
@@ -162,5 +164,14 @@ export class RealIpc implements IpcFacade {
 
       listener(parsedEvent);
     });
+  }
+
+  authenticate(sharedSecret: string): Promise<void> {
+    return this._ipc.send('auth', sharedSecret)
+      .then(this._ignoreResponse);
+  }
+
+  setCloseConnectionHandler(handler: () => void) {
+    console.log('appa', handler);
   }
 }
