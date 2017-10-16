@@ -61,11 +61,10 @@ const appDelegate = {
       log.transports.console.level = 'debug';
       log.transports.file.level = 'debug';
       log.transports.file.file = path.join(appDelegate._logFileLocation, 'frontend.log');
-
-      // create log folder
-      mkdirp.sync(appDelegate._logFileLocation);
     }
 
+    // create log folder
+    mkdirp.sync(appDelegate._logFileLocation);
   },
 
   // Returns platform specific logs folder for application
