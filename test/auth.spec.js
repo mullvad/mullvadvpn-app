@@ -16,7 +16,7 @@ describe('authentication', () => {
 
 
     const chain = new IpcChain(mockIpc);
-    chain.require('auth')
+    chain.require('authenticate')
       .withInputValidation( secret => {
         expect(secret).to.equal(credentials.sharedSecret);
       })
@@ -36,7 +36,7 @@ describe('authentication', () => {
     const { mockIpc, backend } = setupBackendAndStore();
 
     let authCount = 0;
-    mockIpc.auth = () => {
+    mockIpc.authenticate = () => {
       authCount++;
       return Promise.resolve();
     };

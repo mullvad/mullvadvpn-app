@@ -372,7 +372,7 @@ export class Backend {
   }
 
   _authenticate(sharedSecret: string): Promise<void> {
-    return this._ipc.auth(sharedSecret)
+    return this._ipc.authenticate(sharedSecret)
       .then(() => {
         log.info('Authenticated with backend');
       })

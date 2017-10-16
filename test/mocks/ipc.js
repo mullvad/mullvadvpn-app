@@ -7,7 +7,7 @@ interface MockIpc {
   -getAccountData: *;
   -connect: *;
   -getAccount: *;
-  -auth: *;
+  -authenticate: *;
 }
 
 export function newMockIpc() {
@@ -63,7 +63,7 @@ export function newMockIpc() {
         l(state);
       }
     },
-    auth: (_secret: string) => Promise.resolve(),
+    authenticate: (_secret: string) => Promise.resolve(),
     setCloseConnectionHandler: (listener: () => void) => {
       connectionCloseListeners.push(listener);
     },

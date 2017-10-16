@@ -45,7 +45,7 @@ export interface IpcFacade {
   getState(): Promise<BackendState>,
   registerStateListener((BackendState) => void): void,
   setCloseConnectionHandler(() => void): void,
-  auth(sharedSecret: string): Promise<void>,
+  authenticate(sharedSecret: string): Promise<void>,
 }
 
 export class RealIpc implements IpcFacade {
@@ -166,7 +166,7 @@ export class RealIpc implements IpcFacade {
     });
   }
 
-  auth(sharedSecret: string): Promise<void> {
+  authenticate(sharedSecret: string): Promise<void> {
     return this._ipc.send('auth', sharedSecret)
       .then(this._ignoreResponse);
   }
