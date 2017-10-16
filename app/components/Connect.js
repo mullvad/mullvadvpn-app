@@ -113,8 +113,8 @@ export default class Connect extends Component {
       ? serverInfo
       : { city: '\u2003', country: '\u2002' };
     const ip = isConnected
-      ? '185.65.132.102'
-      : '78.65.17.155'; //this.props.connection.clientIp;
+      ? serverInfo.address
+      : '\u2003'; //this.props.connection.clientIp;
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
