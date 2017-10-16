@@ -135,7 +135,7 @@ const appDelegate = {
     };
     const sudo = new ElectronSudo(options);
     sudo.spawn( pathToBackend, [
-      '-vv' +
+      '-v' +
       ' --log "' + path.join(appDelegate._logFileLocation, 'backend.log"') +
       ' --tunnel-log "' + path.join(appDelegate._logFileLocation, 'openvpn.log"')
     ])
