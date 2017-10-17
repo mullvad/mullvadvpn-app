@@ -27,6 +27,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Authenticate RPC clients
 - Reject revoked server certificates
 
+## [2017.1-beta4] - 2017-10-05
+Nothing of interest
+
+## [2017.1-beta3] - 2017-10-05
+### Changed
+- Upgrade JSON-RPC library for more stable communication to our account server
+
 ## [2017.1-beta2] - 2017-09-27
 ### Added
 - Support for removing the account number from the CLI.
