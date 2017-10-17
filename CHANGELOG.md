@@ -18,6 +18,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Possibility to shut down the daemon via an RPC call.
 
 
+## [2017.1-beta5] - 2017-10-17
+### Changed
+- Upgrade the OpenVPN plugin to reduce risk of panics
+- Reduce reconnection frequency to ease the load on the computer
+
+### Security
+- Authenticate RPC clients
+- Reject revoked server certificates
+
 ## [2017.1-beta2] - 2017-09-27
 ### Added
 - Support for removing the account number from the CLI.
