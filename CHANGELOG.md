@@ -21,13 +21,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [2017.1-beta5] - 2017-10-17
 ### Changed
 - Upgrade the OpenVPN plugin to reduce risk of panics
-- Reduce reconnection frequency to ease the load on the computer
 
 ### Fixed
 - Change log level to reduce log file size
+- Introduce minimum delay between failed VPN tunnel connections, to reduce load on the computer in special cases
 
 ### Security
-- Authenticate RPC clients
+- Authenticate RPC connections towards the backend
 - Reject revoked server certificates
 
 ## [2017.1-beta4] - 2017-10-05
