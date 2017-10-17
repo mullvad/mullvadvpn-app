@@ -23,6 +23,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Upgrade the OpenVPN plugin to reduce risk of panics
 - Reduce reconnection frequency to ease the load on the computer
 
+### Fixed
+- Change log level to reduce log file size
+
 ### Security
 - Authenticate RPC clients
 - Reject revoked server certificates
@@ -31,8 +34,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 Nothing of interest
 
 ## [2017.1-beta3] - 2017-10-05
+### Added
+- Automatically secure connection on login
+
 ### Changed
 - Upgrade JSON-RPC library for more stable communication to our account server
+- Remove the auto-secure setting
+- Show the destination country while securing the connection
+- Clean up the server list
+
+### Fixed
+- No longer clear the account token input field when navigating to and from the settings
+- Show the main UI window on start when the user is not logged in
 
 ## [2017.1-beta2] - 2017-09-27
 ### Added
