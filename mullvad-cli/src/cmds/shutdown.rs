@@ -1,7 +1,6 @@
 use {Command, Result};
 use clap;
 
-use mullvad_types::account::{AccountData, AccountToken};
 use rpc;
 
 pub struct Shutdown;

@@ -2,7 +2,7 @@ use {Result, ResultExt};
 use serde;
 
 use std::fs::{File, Metadata};
-use std::io::{self, Read};
+use std::io::{self, BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 use talpid_ipc::WsIpcClient;
@@ -46,16 +46,14 @@ fn read_rpc_address() -> io::Result<(String, String)> {
         "Trying to read RPC address at {}",
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
-    let mut file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
+    let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
     if is_rpc_file_trusted(file.metadata()?) {
-        let mut content = String::new();
-        file.read_to_string(&mut content)?;
-        let mut iter = content.split("\n");
-        let address = iter.next().unwrap();
-        let shared_secret = iter.next().ok_or_else(|| {
-            io::Error::new(io::ErrorKind::Other, "No RPC shared secret")
-        })?;
-        Ok((address.to_owned(), shared_secret.to_owned()))
+        let mut buf_file = BufReader::new(file);
+        let mut address = String::new();
+        buf_file.read_line(&mut address)?;
+        let mut shared_secret = String::new();
+        buf_file.read_line(&mut shared_secret)?;
+        Ok((address, shared_secret))
     } else {
         Err(io::Error::new(
             io::ErrorKind::Other,
