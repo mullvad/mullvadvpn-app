@@ -16,6 +16,9 @@ pub use self::disconnect::Disconnect;
 mod custom_relay;
 pub use self::custom_relay::CustomRelay;
 
+mod shutdown;
+pub use self::shutdown::Shutdown;
+
 /// Returns a map of all available subcommands with their name as key.
 pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
     let commands: Vec<Box<Command>> = vec![
@@ -24,6 +27,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
         Box::new(Connect),
         Box::new(Disconnect),
         Box::new(CustomRelay),
+        Box::new(Shutdown),
     ];
     let mut map = HashMap::new();
     for cmd in commands {

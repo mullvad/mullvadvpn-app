@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 error_chain! {
     errors {
         WriteFailed(path: PathBuf) {
-            description("Failed to write RCP address to file")
-            display("Failed to write RPC address to {}", path.to_string_lossy())
+            description("Failed to write RCP connection info to file")
+            display("Failed to write RPC connection info to {}", path.to_string_lossy())
         }
         RemoveFailed(path: PathBuf) {
             description("Failed to remove file")
@@ -17,18 +17,18 @@ error_chain! {
 
 #[cfg(unix)]
 lazy_static! {
-    /// The path to the file where we write the RPC address
+    /// The path to the file where we write the RPC connection info
     static ref RPC_ADDRESS_FILE_PATH: PathBuf = Path::new("/tmp").join(".mullvad_rpc_address");
 }
 
 #[cfg(not(unix))]
 lazy_static! {
-    /// The path to the file where we write the RPC address
+    /// The path to the file where we write the RPC connection info
     static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
 }
 
 
-/// Writes down the RPC address to some API to a file.
+/// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     open_file(RPC_ADDRESS_FILE_PATH.as_path())
         .and_then(|mut file| {
@@ -37,7 +37,7 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
         .chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))?;
 
     debug!(
-        "Wrote RPC address to {}",
+        "Wrote RPC connection info to {}",
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
     Ok(())

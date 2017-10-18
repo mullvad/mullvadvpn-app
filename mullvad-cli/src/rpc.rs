@@ -2,7 +2,7 @@ use {Result, ResultExt};
 use serde;
 
 use std::fs::{File, Metadata};
-use std::io::{self, Read};
+use std::io::{self, BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 use talpid_ipc::WsIpcClient;
@@ -20,7 +20,7 @@ where
     T: serde::Serialize,
     O: for<'de> serde::Deserialize<'de>,
 {
-    let address = read_rpc_address().chain_err(|| "Unable to read RPC address")?;
+    let (address, _shared_secret) = read_rpc_address().chain_err(|| "Unable to read RPC address")?;
     info!("Using RPC address {}", address);
     let mut rpc_client = WsIpcClient::new(address).chain_err(|| "Unable to create RPC client")?;
     rpc_client
@@ -41,16 +41,19 @@ lazy_static! {
     static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
 }
 
-fn read_rpc_address() -> io::Result<String> {
+fn read_rpc_address() -> io::Result<(String, String)> {
     debug!(
         "Trying to read RPC address at {}",
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
-    let mut file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
+    let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
     if is_rpc_file_trusted(file.metadata()?) {
+        let mut buf_file = BufReader::new(file);
         let mut address = String::new();
-        file.read_to_string(&mut address)?;
-        Ok(address)
+        buf_file.read_line(&mut address)?;
+        let mut shared_secret = String::new();
+        buf_file.read_line(&mut shared_secret)?;
+        Ok((address, shared_secret))
     } else {
         Err(io::Error::new(
             io::ErrorKind::Other,

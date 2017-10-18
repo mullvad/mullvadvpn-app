@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+### Added
+- Possibility to shut down the daemon via an RPC call.
 
 
 ## [2017.1-beta2] - 2017-09-27

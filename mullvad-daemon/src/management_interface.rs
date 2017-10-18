@@ -91,6 +91,10 @@ build_rpc_trait! {
         #[rpc(name = "get_location")]
         fn get_location(&self) -> Result<Location, Error>;
 
+        /// Makes the daemon exit its main loop and quit.
+        #[rpc(meta, name = "shutdown")]
+        fn shutdown(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
             #[rpc(name = "new_state_subscribe")]
@@ -131,6 +135,8 @@ pub enum TunnelCommand {
     GetAccount(OneshotSender<Option<AccountToken>>),
     /// Set a custom relay instead of the default list of relays
     SetCustomRelay(OneshotSender<()>, Option<RelayEndpoint>),
+    /// Makes the daemon exit the main loop and quit.
+    Shutdown,
 }
 
 #[derive(Default)]
@@ -439,6 +445,12 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             country: "narnia".to_owned(),
             city: "Le city".to_owned(),
         })
+    }
+
+    fn shutdown(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
+        trace!("shutdown");
+        try_future!(self.check_auth(&meta));
+        self.send_command_to_daemon(TunnelCommand::Shutdown)
     }
 
     fn new_state_subscribe(
