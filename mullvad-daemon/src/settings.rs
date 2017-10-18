@@ -72,11 +72,9 @@ impl Settings {
         let data = toml::to_string(self).chain_err(|| ErrorKind::ParseError)?;
 
         debug!("Writing settings to {}", settings_path.to_string_lossy());
-        let mut file = File::create(&settings_path)
-            .chain_err(|| ErrorKind::WriteError(settings_path.clone()))?;
-        file.write_all(data.as_bytes())
-            .chain_err(|| ErrorKind::WriteError(settings_path))?;
-        Ok(())
+        File::create(&settings_path)
+            .and_then(|mut file| file.write_all(data.as_bytes()))
+            .chain_err(|| ErrorKind::WriteError(settings_path))
     }
 
     fn get_settings_path() -> Result<PathBuf> {
