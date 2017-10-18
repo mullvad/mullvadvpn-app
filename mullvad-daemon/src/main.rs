@@ -320,6 +320,7 @@ impl Daemon {
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
             SetCustomRelay(tx, relay_endpoint) => self.on_set_custom_relay(tx, relay_endpoint),
+            Shutdown => self.handle_trigger_shutdown_event(),
         }
     }
 
@@ -635,6 +636,7 @@ fn run() -> Result<()> {
     daemon.run()?;
 
     debug!("Mullvad daemon is quitting");
+    thread::sleep(Duration::from_millis(500));
     Ok(())
 }
 
