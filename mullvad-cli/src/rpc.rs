@@ -20,7 +20,7 @@ where
     T: serde::Serialize,
     O: for<'de> serde::Deserialize<'de>,
 {
-    let address = read_rpc_address().chain_err(|| "Unable to read RPC address")?;
+    let (address, _shared_secret) = read_rpc_address().chain_err(|| "Unable to read RPC address")?;
     info!("Using RPC address {}", address);
     let mut rpc_client = WsIpcClient::new(address).chain_err(|| "Unable to create RPC client")?;
     rpc_client
@@ -41,16 +41,21 @@ lazy_static! {
     static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
 }
 
-fn read_rpc_address() -> io::Result<String> {
+fn read_rpc_address() -> io::Result<(String, String)> {
     debug!(
         "Trying to read RPC address at {}",
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
     let mut file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
     if is_rpc_file_trusted(file.metadata()?) {
-        let mut address = String::new();
-        file.read_to_string(&mut address)?;
-        Ok(address)
+        let mut content = String::new();
+        file.read_to_string(&mut content)?;
+        let mut iter = content.split("\n");
+        let address = iter.next().unwrap();
+        let shared_secret = iter.next().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "No RPC shared secret")
+        })?;
+        Ok((address.to_owned(), shared_secret.to_owned()))
     } else {
         Err(io::Error::new(
             io::ErrorKind::Other,
