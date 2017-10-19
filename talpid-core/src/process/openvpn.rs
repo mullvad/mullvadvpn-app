@@ -4,6 +4,7 @@ use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+use shell_escape;
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -189,22 +190,13 @@ impl fmt::Display for OpenVpnCommand {
     /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data
     /// is lossily converted using the utf8 replacement character.
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        shell_escape(fmt, &self.openvpn_bin.to_string_lossy())?;
+        fmt.write_str(&shell_escape::escape(self.openvpn_bin.to_string_lossy()))?;
         for arg in &self.get_arguments() {
             fmt.write_str(" ")?;
-            shell_escape(fmt, &arg.to_string_lossy())?;
+            fmt.write_str(&shell_escape::escape(arg.to_string_lossy()))?;
         }
         Ok(())
     }
-}
-
-fn shell_escape(fmt: &mut fmt::Formatter, arg: &str) -> fmt::Result {
-    let quote = if arg.contains(char::is_whitespace) {
-        "\""
-    } else {
-        ""
-    };
-    write!(fmt, "{}{}{}", quote, arg, quote)
 }
 
 

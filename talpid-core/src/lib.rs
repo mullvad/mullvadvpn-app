@@ -22,6 +22,7 @@ extern crate error_chain;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+extern crate shell_escape;
 extern crate uuid;
 
 extern crate openvpn_plugin;
