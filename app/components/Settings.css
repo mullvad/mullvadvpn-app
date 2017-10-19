@@ -35,7 +35,7 @@
   background-color: transparent;
   background-image: url(../assets/images/icon-close.svg);
   opacity: 0.6;
-  z-index: 1; /* part of .settings__container convers the button */
+  z-index: 1; /* part of .settings__container covers the button */
 }
 
 .settings__title {
@@ -95,6 +95,7 @@
   font-family: "Open Sans";
   font-size: 13px;
   font-weight: 800;
+  line-height: 26px; /* matches .cell-label */
   color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 }

@@ -13,6 +13,7 @@ const mapDispatchToProps = (dispatch, _props) => {
     onQuit: () => remote.app.quit(),
     onClose: () => dispatch(push('/connect')),
     onViewAccount: () => dispatch(push('/settings/account')),
+    onViewSupport: () => dispatch(push('/settings/support')),
     onExternalLink: (type) => shell.openExternal(links[type]),
   };
 };

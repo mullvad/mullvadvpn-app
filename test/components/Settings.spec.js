@@ -43,8 +43,8 @@ describe('components/Settings', () => {
       onQuit: () => {},
       onClose: () => {},
       onViewAccount: () => {},
-      onExternalLink: (_type) => {},
-      onUpdateSettings: (_update) => {}
+      onViewSupport: () => {},
+      onExternalLink: (_type) => {}
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
@@ -128,6 +128,14 @@ describe('components/Settings', () => {
     Simulate.click(domNode);
   });
 
+  it('should call support callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewSupport: () => done()
+    });
+    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__view-support');
+    Simulate.click(domNode);
+  });
+
   it('should call external links callback', () => {
     let collectedExternalLinkTypes: Array<string> = [];
     const props = makeProps(loggedOutAccountState, settingsState, {
@@ -140,7 +148,7 @@ describe('components/Settings', () => {
       .filter((elm: HTMLElement) => elm.classList.contains('settings__cell'))
       .forEach((elm) => Simulate.click(elm));
 
-    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides', 'supportEmail']);
+    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
 
 });

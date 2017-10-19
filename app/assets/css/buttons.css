@@ -10,6 +10,11 @@
   line-height: 26px;
   justify-content: center;
   align-items: center;
+  transition: 0.25s opacity;
+}
+
+.button:disabled {
+  opacity: 0.5;
 }
 
 .button-label {
@@ -34,12 +39,12 @@
   fill: rgba(255,255,255,0.8);
 }
 
-.button--primary:hover {
+.button--primary:not(:disabled):hover {
   background-color: rgba(41,71,115,0.9);
   color: rgba(255,255,255,1);
 }
 
-.button--primary:hover .button-icon path {
+.button--primary:not(:disabled):hover .button-icon path {
   fill: rgba(255,255,255,1);
 }
 
@@ -52,7 +57,7 @@
   color: rgba(255,255,255,0.6);
 }
 
-.button--secondary:hover {
+.button--secondary:not(:disabled):hover {
   background-color: rgba(41,71,115,0.5);
   color: rgba(255,255,255,0.8);
 }
@@ -66,7 +71,7 @@
   color: rgba(255,255,255,0.8);
 }
 
-.button--negative:hover {
+.button--negative:not(:disabled):hover {
   background-color: rgba(208,2,27,0.95);
   color: rgba(255,255,255,1);
 }
@@ -80,7 +85,7 @@
   color: rgba(255,255,255,0.6);
 }
 
-.button--negative-light:hover {
+.button--negative-light:not(:disabled):hover {
   background-color: rgba(208,2,27,0.45);
   color: rgba(255,255,255,0.8);
 }
@@ -98,12 +103,12 @@
   fill: rgba(255,255,255,0.8);
 }
 
-.button--positive:hover {
+.button--positive:not(:disabled):hover {
   background-color: rgba(63,173,77,0.9);
   color: rgba(255,255,255,1);
 }
 
-.button--positive:hover .button-icon path {
+.button--positive:not(:disabled):hover .button-icon path {
   fill: rgba(255,255,255,1);
 }
 
@@ -116,7 +121,7 @@
   color: rgba(255,255,255,0.8);
 }
 
-.button--neutral:hover {
+.button--neutral:not(:disabled):hover {
   background-color: rgba(255,255,255,0.25);
   color: rgba(255,255,255,1);
 }

@@ -1,0 +1,134 @@
+.support {
+  background: #192E45;
+  height: 100%;
+}
+
+.support__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.support__header {
+  flex: 0 0 auto;
+  padding: 40px 24px 24px;
+  position: relative; /* anchor for close button */
+}
+
+.support__close {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  top: 24px;
+  left: 12px;
+  z-index: 1; /* part of .support__container covers the button */
+}
+
+.support__close-icon {
+  opacity: 0.6;
+  margin-right: 8px;
+}
+
+.support__close-title {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.support__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 40px;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+}
+
+.support__subtitle {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  color: rgba(255,255,255,0.8);
+}
+
+.support__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.support__form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.support__form-row {
+  padding: 0 24px;
+}
+
+.support__form-row + .support__form-row {
+  margin-top: 8px;
+}
+
+.support__form-row--description {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.support__form-email {
+  width: 100%;
+  border-radius: 4px;
+  border: 0;
+  overflow: hidden;
+  padding: 10px 12px 12px 12px;
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 26px;
+  color: #294D73;
+  background-color: #fff;
+}
+
+.support__form-email::-webkit-input-placeholder {
+  color: rgba(41,77,115,0.4);
+}
+
+.support__form-description-scroll-wrap {
+  width: 100%;
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.support__form-description {
+  width: 100%;
+  border: 0;
+  overflow-y: scroll;
+  resize: none;
+  padding: 10px 12px 12px 12px;
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4em;
+  color: #294D73;
+  background-color: #fff;
+}
+
+.support__form-description::-webkit-input-placeholder {
+  color: rgba(41,77,115,0.4);
+}
+
+.support__footer {
+  padding: 16px 24px 24px;
+}
+
+.support__footer .button + .button {
+  margin-top: 16px;
+}
