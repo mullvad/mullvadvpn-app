@@ -31,6 +31,7 @@
     "react-transition-group": "^1.2.0",
     "redux": "^3.0.0",
     "redux-thunk": "^2.2.0",
+    "shell-escape": "^0.2.0",
     "uuid": "^3.0.1",
     "validated": "^1.1.0"
   },
