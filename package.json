@@ -50,7 +50,7 @@
     "browser-sync": "^2.9.3",
     "chai": "^4.1.0",
     "electron": "^1.7.9",
-    "electron-builder": "^19.30.2",
+    "electron-builder": "^19.37.2",
     "electron-devtools-installer": "^2.1.0",
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.9.1",
