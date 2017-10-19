@@ -6,6 +6,7 @@ import log from 'electron-log';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';
+import shellescape from 'shell-escape';
 import { version } from '../package.json';
 import { parseIpcCredentials } from './lib/backend';
 
@@ -120,7 +121,6 @@ const appDelegate = {
   },
 
   _startBackend: () => {
-
     const backendIsRunning = appDelegate._rpcAddressFileExists();
     if (backendIsRunning) {
       log.info('Not starting the backend as it appears to already be running');
@@ -134,11 +134,12 @@ const appDelegate = {
       name: 'Mullvad',
     };
     const sudo = new ElectronSudo(options);
-    sudo.spawn( pathToBackend, [
-      '-v' +
-      ' --log "' + path.join(appDelegate._logFileLocation, 'backend.log"') +
-      ' --tunnel-log "' + path.join(appDelegate._logFileLocation, 'openvpn.log"')
-    ])
+    const backendCommand = shellescape([
+      pathToBackend, '-v',
+      '--log', path.join(appDelegate._logFileLocation, 'backend.log'),
+      '--tunnel-log', path.join(appDelegate._logFileLocation, 'openvpn.log')
+    ]);
+    sudo.spawn(backendCommand, [])
       .then( p => {
         appDelegate._setupBackendProcessListeners(p);
         return p;

@@ -31,6 +31,7 @@
     "react-transition-group": "^1.2.0",
     "redux": "^3.0.0",
     "redux-thunk": "^2.2.0",
+    "shell-escape": "^0.2.0",
     "uuid": "^3.0.1",
     "validated": "^1.1.0"
   },
@@ -49,7 +50,7 @@
     "browser-sync": "^2.9.3",
     "chai": "^4.1.0",
     "electron": "^1.7.9",
-    "electron-builder": "^19.30.2",
+    "electron-builder": "^19.37.2",
     "electron-devtools-installer": "^2.1.0",
     "electron-mocha": "^3.3.0",
     "enzyme": "^2.9.1",
