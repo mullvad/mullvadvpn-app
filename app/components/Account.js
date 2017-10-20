@@ -44,7 +44,7 @@ export default class Account extends Component {
 
                   <div className="account__row">
                     <div className="account__row-label">Account ID</div>
-                    <div className="account__row-value">{ formattedAccountToken }</div>
+                    <div className="account__row-value account__id">{ formattedAccountToken }</div>
                   </div>
 
                   <div className="account__row">
