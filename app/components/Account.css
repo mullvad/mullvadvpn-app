@@ -92,3 +92,7 @@
 .account__footer .button + .button {
   margin-top: 24px;
 }
+
+.account__id {
+  user-select: text;
+}
