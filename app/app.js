@@ -34,9 +34,12 @@ ipcRenderer.on('backend-info', (_event, args) => {
       }
     });
 });
-ipcRenderer.on('disconnect', () => {
-  log.info('Been told by the node process to disconnect');
-  backend.disconnect();
+ipcRenderer.on('shutdown', () => {
+  log.info('Been told by the node process to shutdown');
+  backend.shutdown()
+    .catch( e => {
+      log.warn('Unable to shut down the backend', e.message);
+    });
 });
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

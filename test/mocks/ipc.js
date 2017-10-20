@@ -39,6 +39,7 @@ export function newMockIpc() {
     disconnect: () => {
       return new Promise(r => r());
     },
+    shutdown: Promise.resolve,
     getIp: () => {
       return new Promise(r => r('1.2.3.4'));
     },

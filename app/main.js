@@ -96,8 +96,8 @@ const appDelegate = {
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
     window.on('close', () => {
-      log.debug('The browser window is closing, disconnecting the tunnel...');
-      window.webContents.send('disconnect');
+      log.debug('The browser window is closing, shutting down the tunnel...');
+      window.webContents.send('shutdown');
     });
 
     // create tray icon on macOS

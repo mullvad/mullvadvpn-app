@@ -299,6 +299,13 @@ export class Backend {
       });
   }
 
+  shutdown(): Promise<void> {
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.shutdown();
+      });
+  }
+
   /**
    * Start reachability monitoring for online/offline detection
    * This is currently done via HTML5 APIs but will be replaced later
