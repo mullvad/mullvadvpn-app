@@ -13,6 +13,7 @@ jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1"
 lazy_static = "0.2"
 log = "0.3"
 uuid = { version = "0.5", features = ["v4"] }
+shell-escape = "0.1"
 
 openvpn-plugin = { version = "0.3", features = ["serde"] }
 talpid-ipc = { path = "../talpid-ipc" }
