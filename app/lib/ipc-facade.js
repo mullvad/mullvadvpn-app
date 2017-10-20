@@ -40,6 +40,7 @@ export interface IpcFacade {
   setCustomRelay(RelayEndpoint): Promise<void>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
+  shutdown(): Promise<void>,
   getIp(): Promise<Ip>,
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
@@ -106,6 +107,11 @@ export class RealIpc implements IpcFacade {
 
   disconnect(): Promise<void> {
     return this._ipc.send('disconnect')
+      .then(this._ignoreResponse);
+  }
+
+  shutdown(): Promise<void> {
+    return this._ipc.send('shutdown')
       .then(this._ignoreResponse);
   }
 
