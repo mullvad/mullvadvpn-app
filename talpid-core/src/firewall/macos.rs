@@ -16,7 +16,7 @@ use tunnel::TunnelMetadata;
 pub type ConcreteFirewall = PacketFilter;
 pub use pfctl::{Error, ErrorKind, Result, ResultExt};
 
-const ANCHOR_NAME: &'static str = "talpid_core";
+const ANCHOR_NAME: &'static str = "mullvad";
 
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
