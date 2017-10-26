@@ -116,8 +116,8 @@ fn run() -> Result<()> {
 
 fn collect_report(log_paths: Vec<PathBuf>, save_path: PathBuf) -> Result<()> {
     let mut problem_report = ProblemReport::default();
-    for log_path in log_paths.into_iter() {
-        problem_report.add_file_log(log_path);
+    for log_path in &log_paths {
+        problem_report.add_log(log_path);
     }
     write_problem_report(&save_path, problem_report)
         .chain_err(|| ErrorKind::WriteReportError(save_path.clone()))
@@ -147,31 +147,21 @@ struct ProblemReport {
 }
 
 impl ProblemReport {
-    /// Attach file log to this report
-    /// Unlike `try_add_file_log` this method uses the error description
-    /// instead of log contents if error occurred when reading log file.
-    fn add_file_log(&mut self, path: PathBuf) {
-        if let Err(e) = self.try_add_file_log(&path)
-            .chain_err(|| ErrorKind::ReadLogError(path.clone()))
-        {
-            self.logs.push((
-                path.to_string_lossy().into_owned(),
-                e.display_chain().to_string(),
-            ));
-        }
-    }
-
-    /// Try reading log from file source and attach it to this report
-    fn try_add_file_log(&mut self, path: &Path) -> io::Result<()> {
-        Ok(self.logs.push((
+    /// Attach file log to this report. This method uses the error chain instead of log contents if
+    /// error occurred when reading log file.
+    fn add_log(&mut self, path: &Path) {
+        let content = Self::read_file_lossy(path, LOG_MAX_READ_BYTES)
+            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+            .unwrap_or_else(|e| e.display_chain().to_string());
+        self.logs.push((
             path.to_string_lossy().into_owned(),
-            Self::read_log_file(path, LOG_MAX_READ_BYTES)?,
-        )))
+            content,
+        ));
     }
 
     /// Private helper to safely read the given number of bytes off the tail of UTF-8 log file
     /// and return it as a string
-    fn read_log_file(path: &Path, max_bytes: usize) -> io::Result<String> {
+    fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
         let mut file = File::open(path)?;
         let file_size = file.metadata()?.len();
 
