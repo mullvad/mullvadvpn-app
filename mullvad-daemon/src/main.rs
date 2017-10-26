@@ -20,9 +20,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-#[macro_use]
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_http;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
@@ -32,6 +29,7 @@ extern crate jsonrpc_ws_server;
 extern crate lazy_static;
 extern crate uuid;
 
+extern crate mullvad_rpc;
 extern crate mullvad_types;
 extern crate talpid_core;
 extern crate talpid_ipc;
@@ -39,7 +37,6 @@ extern crate talpid_types;
 
 mod cli;
 mod management_interface;
-mod master;
 mod rpc_info;
 mod settings;
 mod shutdown;
@@ -47,10 +44,9 @@ mod shutdown;
 
 use error_chain::ChainedError;
 use futures::Future;
-use jsonrpc_client_http::HttpHandle;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
-use master::AccountsProxy;
+use mullvad_rpc::{AccountsProxy, HttpHandle};
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
@@ -206,8 +202,7 @@ impl Daemon {
             tx,
             management_interface_broadcaster,
             settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
-            accounts_proxy: master::create_account_proxy()
-                .chain_err(|| "Unable to bootstrap RPC client")?,
+            accounts_proxy: AccountsProxy::connect().chain_err(|| "Unable to connect RPC client")?,
             firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
             relay_endpoint: None,
             tunnel_metadata: None,
@@ -339,7 +334,7 @@ impl Daemon {
 
     fn on_get_account_data(
         &mut self,
-        tx: OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
+        tx: OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         account_token: AccountToken,
     ) {
         let rpc_call = self.accounts_proxy

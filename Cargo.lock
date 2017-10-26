@@ -673,14 +673,13 @@ dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fern 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-client-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-client-http 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "jsonrpc-macros 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "jsonrpc-pubsub 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "jsonrpc-ws-server 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "lazy_static 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "serde 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -690,6 +689,16 @@ dependencies = [
  "talpid-types 0.1.0",
  "toml 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "mullvad-rpc"
+version = "0.1.0"
+dependencies = [
+ "chrono 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-client-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-client-http 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-types 0.1.0",
 ]
 
 [[package]]

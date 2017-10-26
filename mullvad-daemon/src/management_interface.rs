@@ -1,13 +1,13 @@
 use error_chain;
 
 use error_chain::ChainedError;
-use jsonrpc_client_core;
 use jsonrpc_core::{Error, ErrorCode, Metadata};
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
+use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::{CountryCode, Location};
 use mullvad_types::relay_endpoint::RelayEndpoint;
@@ -126,7 +126,7 @@ pub enum TunnelCommand {
     GetState(OneshotSender<DaemonState>),
     /// Request the metadata for an account.
     GetAccountData(
-        OneshotSender<BoxFuture<AccountData, jsonrpc_client_core::Error>>,
+        OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         AccountToken,
     ),
     /// Set which account token to use for subsequent connection attempts.
@@ -283,9 +283,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     /// Converts the given error to an error that can be given to the caller of the API.
     /// Will let any actual RPC error through as is, any other error is changed to an internal
     /// error.
-    fn map_rpc_error(error: jsonrpc_client_core::Error) -> Error {
+    fn map_rpc_error(error: mullvad_rpc::Error) -> Error {
         match error.kind() {
-            &jsonrpc_client_core::ErrorKind::JsonRpcError(ref rpc_error) => {
+            &mullvad_rpc::ErrorKind::JsonRpcError(ref rpc_error) => {
                 // We have to manually copy the error since we have different
                 // versions of the jsonrpc_core library at the moment.
                 Error {
@@ -344,7 +344,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
-                rpc_future.map_err(|error: jsonrpc_client_core::Error| {
+                rpc_future.map_err(|error: mullvad_rpc::Error| {
                     error!(
                         "Unable to get account data from master: {}",
                         error.display_chain()
