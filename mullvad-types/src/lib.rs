@@ -7,6 +7,7 @@
 //! the License, or (at your option) any later version.
 
 extern crate chrono;
+extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
@@ -22,3 +23,4 @@ pub mod account;
 pub mod location;
 pub mod states;
 pub mod relay_endpoint;
+pub mod relay_constraints;
