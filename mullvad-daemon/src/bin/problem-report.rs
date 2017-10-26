@@ -104,13 +104,12 @@ fn run() -> Result<()> {
     let matches = app.get_matches();
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
-        let log_paths = values_t!(collect_matches.values_of("logs"), String)
-            .unwrap_or(Vec::new())
-            .iter()
-            .map(PathBuf::from)
-            .collect();
-        let output_path = value_t_or_exit!(collect_matches.value_of("output"), String);
-        collect_report(log_paths, PathBuf::from(output_path))
+        let log_paths = collect_matches
+            .values_of_os("logs")
+            .map(|os_values| os_values.map(Path::new).collect())
+            .unwrap_or(Vec::new());
+        let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
+        collect_report(&log_paths, output_path)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -121,13 +120,13 @@ fn run() -> Result<()> {
     }
 }
 
-fn collect_report(log_paths: Vec<PathBuf>, save_path: PathBuf) -> Result<()> {
+fn collect_report(log_paths: &[&Path], output_path: &Path) -> Result<()> {
     let mut problem_report = ProblemReport::default();
-    for log_path in &log_paths {
+    for log_path in log_paths {
         problem_report.add_log(log_path);
     }
-    write_problem_report(&save_path, problem_report)
-        .chain_err(|| ErrorKind::WriteReportError(save_path.clone()))
+    write_problem_report(&output_path, problem_report)
+        .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
