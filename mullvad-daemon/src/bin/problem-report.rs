@@ -180,7 +180,7 @@ impl fmt::Display for ProblemReport {
 }
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
-/// only the last `max_bytes` of the file is read.
+/// only the last `max_bytes` bytes of the file are read.
 fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
     let mut file = File::open(path)?;
     let file_size = file.metadata()?.len();
