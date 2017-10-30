@@ -27,15 +27,15 @@ fn main() {
 // Implementation borrowed from rustfmt. Returns a string containing commit hash and commit date
 // if it was able to obtain it, otherwise an empty string.
 fn commit_info() -> String {
-    match (commit_hash(), commit_date()) {
+    match (commit_description(), commit_date()) {
         (Some(hash), Some(date)) => format!("({} {})", hash.trim(), date),
         _ => String::new(),
     }
 }
 
-fn commit_hash() -> Option<String> {
+fn commit_description() -> Option<String> {
     Command::new("git")
-        .args(&["rev-parse", "--short", "HEAD"])
+        .args(&["describe", "--dirty"])
         .output()
         .ok()
         .and_then(|out| String::from_utf8(out.stdout).ok())

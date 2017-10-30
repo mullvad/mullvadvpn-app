@@ -19,6 +19,7 @@ use std::fmt;
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 /// Maximum number of bytes to read from each log file
 const LOG_MAX_READ_BYTES: usize = 5 * 1024 * 1024;
@@ -48,10 +49,10 @@ error_chain!{
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let app = clap::App::new(crate_name!())
+    let app = clap::App::new("problem-report")
         .version(crate_version!())
         .author(crate_authors!())
-        .about(crate_description!())
+        .about("Mullvad VPN problem report tool. Collects logs and send them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(
             clap::SubCommand::with_name("collect")
@@ -121,7 +122,7 @@ fn run() -> Result<()> {
 }
 
 fn collect_report(log_paths: &[&Path], output_path: &Path) -> Result<()> {
-    let mut problem_report = ProblemReport::default();
+    let mut problem_report = ProblemReport::new();
     for log_path in log_paths {
         problem_report.add_log(log_path);
     }
@@ -149,15 +150,31 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
     Ok(())
 }
 
-#[derive(Debug, Default)]
+
+#[derive(Debug)]
 struct ProblemReport {
+    system_info: Vec<String>,
     logs: Vec<(String, String)>,
 }
 
 impl ProblemReport {
+    pub fn new() -> Self {
+        ProblemReport {
+            system_info: Self::collect_system_info(),
+            logs: Vec::new(),
+        }
+    }
+
+    fn collect_system_info() -> Vec<String> {
+        vec![
+            format!("Mullvad daemon: {}", daemon_version()),
+            format!("OS: {}", os_version()),
+        ]
+    }
+
     /// Attach file log to this report. This method uses the error chain instead of log
     /// contents if error occurred when reading log file.
-    fn add_log(&mut self, path: &Path) {
+    pub fn add_log(&mut self, path: &Path) {
         let content = read_file_lossy(path, LOG_MAX_READ_BYTES)
             .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
             .unwrap_or_else(|e| e.display_chain().to_string());
@@ -168,6 +185,11 @@ impl ProblemReport {
 
 impl fmt::Display for ProblemReport {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(fmt, "System information:")?;
+        for system_info in &self.system_info {
+            writeln!(fmt, "{}", system_info)?;
+        }
+        writeln!(fmt, "")?;
         for &(ref label, ref content) in &self.logs {
             writeln!(fmt, "{}", LOG_DELIMITER)?;
             writeln!(fmt, "Log: {}", label)?;
@@ -193,4 +215,46 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
     let mut buffer = Vec::with_capacity(capacity);
     file.take(max_bytes as u64).read_to_end(&mut buffer)?;
     Ok(String::from_utf8_lossy(&buffer).into_owned())
+}
+
+fn daemon_version() -> String {
+    format!(
+        "v{} {}",
+        env!("CARGO_PKG_VERSION"),
+        include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
+    )
+}
+
+#[cfg(target_os = "linux")]
+fn os_version() -> String {
+    format!(
+        "Linux, {}",
+        command_stdout_lossy("lsb_release", &["-ds"])
+            .unwrap_or(String::from("[Failed to get LSB release]"))
+    )
+}
+
+#[cfg(target_os = "macos")]
+fn os_version() -> String {
+    format!(
+        "macOS {}",
+        command_stdout_lossy("sw_vers", &["-productVersion"])
+            .unwrap_or(String::from("[Failed to detect version]"))
+    )
+}
+
+#[cfg(windows)]
+fn os_version() -> String {
+    String::from("Windows")
+}
+
+/// Helper for getting stdout of some command as a String. Ignores the exit code of the command.
+fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
+    Command::new(cmd)
+        .args(args)
+        .output()
+        .map(|output| {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        })
+        .ok()
 }

@@ -41,11 +41,10 @@ struct Handler<O: for<'de> serde::Deserialize<'de>> {
 
 impl<O: for<'de> serde::Deserialize<'de>> Handler<O> {
     fn parse_reply(&self, msg: ws::Message) -> Result<O> {
-        let json: serde_json::Value =
-            match msg {
-                ws::Message::Text(s) => serde_json::from_str(&s),
-                ws::Message::Binary(b) => serde_json::from_slice(&b),
-            }.chain_err(|| "Unable to deserialize ws message as JSON")?;
+        let json: serde_json::Value = match msg {
+            ws::Message::Text(s) => serde_json::from_str(&s),
+            ws::Message::Binary(b) => serde_json::from_slice(&b),
+        }.chain_err(|| "Unable to deserialize ws message as JSON")?;
         let result: Option<serde_json::Value> = match json {
             serde_json::Value::Object(mut map) => map.remove("result"),
             _ => None,
