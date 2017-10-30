@@ -31,7 +31,6 @@ jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1
 uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
 toml = "0.4"
-sys-info = "0.5"
 
 mullvad-types = { path = "../mullvad-types" }
 mullvad-rpc = { path = "../mullvad-rpc" }

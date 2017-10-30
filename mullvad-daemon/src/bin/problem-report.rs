@@ -10,7 +10,6 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
-extern crate sys_info;
 
 extern crate mullvad_rpc;
 
@@ -170,7 +169,6 @@ impl ProblemReport {
         vec![
             format!("Mullvad daemon: {}", daemon_version()),
             format!("OS: {}", os_version()),
-            format!("Kernel: {}", kernel_version()),
         ]
     }
 
@@ -225,10 +223,6 @@ fn daemon_version() -> String {
         env!("CARGO_PKG_VERSION"),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
     )
-}
-
-fn kernel_version() -> String {
-    sys_info::os_release().unwrap_or(String::from("Unknown"))
 }
 
 #[cfg(target_os = "linux")]
