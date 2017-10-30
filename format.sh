@@ -5,7 +5,7 @@
 
 set -u
 
-VERSION="0.2.9"
+VERSION="0.2.13"
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
