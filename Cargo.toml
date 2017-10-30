@@ -3,6 +3,7 @@ members = [
     "mullvad-daemon",
     "mullvad-cli",
     "mullvad-types",
+    "mullvad-rpc",
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-ipc",

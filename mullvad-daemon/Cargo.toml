@@ -28,13 +28,12 @@ jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
-jsonrpc-client-core = "0.2.1"
-jsonrpc-client-http = "0.2.1"
 uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
 toml = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
+mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }

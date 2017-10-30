@@ -11,6 +11,8 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 
+extern crate mullvad_rpc;
+
 use error_chain::ChainedError;
 use std::cmp::min;
 use std::fmt;
@@ -20,6 +22,9 @@ use std::path::{Path, PathBuf};
 
 /// Maximum number of bytes to read from each log file
 const LOG_MAX_READ_BYTES: usize = 5 * 1024 * 1024;
+/// Maximum number of bytes allowed in a report.
+const REPORT_MAX_SIZE: usize = 4 * LOG_MAX_READ_BYTES;
+
 
 /// Field delimeter in generated problem report
 const LOG_DELIMITER: &'static str = "====================";
@@ -33,6 +38,9 @@ error_chain!{
         ReadLogError(path: PathBuf) {
             description("Error reading the contents of log file")
             display("Error reading the contents of log file: {}", path.to_string_lossy())
+        }
+        RpcError {
+            description("Error during RPC call")
         }
     }
 }
@@ -96,40 +104,40 @@ fn run() -> Result<()> {
     let matches = app.get_matches();
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
-        let log_paths = values_t!(collect_matches.values_of("logs"), String)
-            .unwrap_or(Vec::new())
-            .iter()
-            .map(PathBuf::from)
-            .collect();
-        let output_path = value_t_or_exit!(collect_matches.value_of("output"), String);
-        collect_report(log_paths, PathBuf::from(output_path))
+        let log_paths = collect_matches
+            .values_of_os("logs")
+            .map(|os_values| os_values.map(Path::new).collect())
+            .unwrap_or(Vec::new());
+        let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
+        collect_report(&log_paths, output_path)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
-        let report_path = value_t_or_exit!(send_matches.value_of("report"), String);
-        let user_email = value_t!(send_matches.value_of("email"), String).unwrap_or(String::new());
-        let user_message =
-            value_t!(send_matches.value_of("message"), String).unwrap_or(String::new());
-        send_problem_report(user_email, user_message, PathBuf::from(report_path))
+        let report_path = Path::new(send_matches.value_of_os("report").unwrap());
+        let user_email = send_matches.value_of("email").unwrap_or("");
+        let user_message = send_matches.value_of("message").unwrap_or("");
+        send_problem_report(user_email, user_message, report_path)
     } else {
         unreachable!("No sub command given");
     }
 }
 
-fn collect_report(log_paths: Vec<PathBuf>, save_path: PathBuf) -> Result<()> {
+fn collect_report(log_paths: &[&Path], output_path: &Path) -> Result<()> {
     let mut problem_report = ProblemReport::default();
-    for log_path in log_paths.into_iter() {
-        problem_report.add_file_log(log_path);
+    for log_path in log_paths {
+        problem_report.add_log(log_path);
     }
-    write_problem_report(&save_path, problem_report)
-        .chain_err(|| ErrorKind::WriteReportError(save_path.clone()))
+    write_problem_report(&output_path, problem_report)
+        .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
 }
 
-fn send_problem_report(
-    _user_email: String,
-    _user_message: String,
-    _report_path: PathBuf,
-) -> Result<()> {
-    // TODO: Implement submission to master
-    Ok(())
+fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
+    let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
+        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
+    let mut rpc_client =
+        mullvad_rpc::ProblemReportProxy::connect().chain_err(|| ErrorKind::RpcError)?;
+    rpc_client
+        .problem_report(user_email, user_message, &report_content)
+        .call()
+        .chain_err(|| ErrorKind::RpcError)
 }
 
 fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Result<()> {
@@ -147,42 +155,14 @@ struct ProblemReport {
 }
 
 impl ProblemReport {
-    /// Attach file log to this report
-    /// Unlike `try_add_file_log` this method uses the error description
-    /// instead of log contents if error occurred when reading log file.
-    fn add_file_log(&mut self, path: PathBuf) {
-        if let Err(e) = self.try_add_file_log(&path)
-            .chain_err(|| ErrorKind::ReadLogError(path.clone()))
-        {
-            self.logs.push((
-                path.to_string_lossy().into_owned(),
-                e.display_chain().to_string(),
-            ));
-        }
-    }
-
-    /// Try reading log from file source and attach it to this report
-    fn try_add_file_log(&mut self, path: &Path) -> io::Result<()> {
-        Ok(self.logs.push((
-            path.to_string_lossy().into_owned(),
-            Self::read_log_file(path, LOG_MAX_READ_BYTES)?,
-        )))
-    }
-
-    /// Private helper to safely read the given number of bytes off the tail of UTF-8 log file
-    /// and return it as a string
-    fn read_log_file(path: &Path, max_bytes: usize) -> io::Result<String> {
-        let mut file = File::open(path)?;
-        let file_size = file.metadata()?.len();
-
-        if file_size > max_bytes as u64 {
-            file.seek(SeekFrom::Start(file_size - max_bytes as u64))?;
-        }
-
-        let capacity = min(file_size, max_bytes as u64) as usize;
-        let mut buffer = Vec::with_capacity(capacity);
-        file.take(max_bytes as u64).read_to_end(&mut buffer)?;
-        Ok(String::from_utf8_lossy(&buffer).into_owned())
+    /// Attach file log to this report. This method uses the error chain instead of log
+    /// contents if error occurred when reading log file.
+    fn add_log(&mut self, path: &Path) {
+        let content = read_file_lossy(path, LOG_MAX_READ_BYTES)
+            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+            .unwrap_or_else(|e| e.display_chain().to_string());
+        self.logs
+            .push((path.to_string_lossy().into_owned(), content));
     }
 }
 
@@ -197,4 +177,20 @@ impl fmt::Display for ProblemReport {
         }
         Ok(())
     }
+}
+
+/// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
+/// only the last `max_bytes` bytes of the file are read.
+fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
+    let mut file = File::open(path)?;
+    let file_size = file.metadata()?.len();
+
+    if file_size > max_bytes as u64 {
+        file.seek(SeekFrom::Start(file_size - max_bytes as u64))?;
+    }
+
+    let capacity = min(file_size, max_bytes as u64) as usize;
+    let mut buffer = Vec::with_capacity(capacity);
+    file.take(max_bytes as u64).read_to_end(&mut buffer)?;
+    Ok(String::from_utf8_lossy(&buffer).into_owned())
 }

@@ -1,0 +1,13 @@
+[package]
+name = "mullvad-rpc"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
+description = "Mullvad VPN RPC clients. Providing an interface to query our infrastructure for information."
+license = "GPL-3.0"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+jsonrpc-client-core = "0.2.1"
+jsonrpc-client-http = "0.2.1"
+
+mullvad-types = { path = "../mullvad-types" }
