@@ -1,61 +1,50 @@
 use std::str::FromStr;
 use talpid_types::net::TransportProtocol;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
 pub struct RelayConstraints {
     pub host: Option<String>,
     pub tunnel: TunnelConstraints,
 }
 
 impl RelayConstraints {
-    pub fn update(&mut self, update: RelayConstraintsUpdate) -> bool {
-        let mut updated = false;
+    pub fn merge(&mut self, update: RelayConstraintsUpdate) -> Self {
 
-        if let Some(new_host) = update.host {
-            self.host = new_host;
-            updated = true;
+        RelayConstraints {
+            host: update.host.unwrap_or_else(|| self.host.clone()),
+            tunnel: self.tunnel.merge(update.tunnel),
         }
-
-        updated || self.tunnel.update(update.tunnel)
     }
 }
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
 pub enum TunnelConstraints {
     OpenVpn(OpenVpnConstraints),
 }
 
 impl TunnelConstraints {
-    pub fn update(&mut self, update: TunnelConstraintsUpdate) -> bool {
+    pub fn merge(&mut self, update: TunnelConstraintsUpdate) -> Self {
         match *self {
             TunnelConstraints::OpenVpn(ref mut current) => match update {
-                TunnelConstraintsUpdate::OpenVpn(openvpn_update) => current.update(openvpn_update),
+                TunnelConstraintsUpdate::OpenVpn(openvpn_update) => TunnelConstraints::OpenVpn(current.merge(openvpn_update)),
             },
         }
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
 pub struct OpenVpnConstraints {
     pub port: Port,
     pub protocol: TransportProtocol,
 }
 
 impl OpenVpnConstraints {
-    pub fn update(&mut self, update: OpenVpnConstraintsUpdate) -> bool {
-        let mut updated = false;
-
-        if let Some(new_port) = update.port {
-            self.port = new_port;
-            updated = true;
+    pub fn merge(&mut self, update: OpenVpnConstraintsUpdate) -> Self {
+        OpenVpnConstraints {
+            port: update.port.unwrap_or(self.port),
+            protocol: update.protocol.unwrap_or(self.protocol),
         }
-        if let Some(new_protocol) = update.protocol {
-            self.protocol = new_protocol;
-            updated = true;
-        }
-
-        updated
     }
 }
 

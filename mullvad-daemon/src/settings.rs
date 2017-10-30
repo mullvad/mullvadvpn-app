@@ -137,15 +137,16 @@ impl Settings {
     }
 
     pub fn update_relay_constraints(&mut self, update: RelayConstraintsUpdate) -> Result<bool> {
-        let new_constraints = self.relay_constraints.update(update);
+        let new_constraints = self.relay_constraints.merge(update);
+        if self.relay_constraints != new_constraints {
 
-        if new_constraints {
             debug!(
-                "changed relay constraints from {:?} to {:?}",
+                "changing relay constraints from {:?} to {:?}",
                 self.relay_constraints,
                 new_constraints
             );
 
+            self.relay_constraints = new_constraints;
             self.save().map(|_| true)
         } else {
             Ok(false)

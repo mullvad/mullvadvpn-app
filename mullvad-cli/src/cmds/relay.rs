@@ -80,6 +80,6 @@ impl Command for Relay {
 impl Relay {
     fn update_constraints(&self, constraints_update: RelayConstraintsUpdate) -> Result<()> {
         rpc::call("update_relay_constraints", &[constraints_update])
-            .map(|_: Option<()>| println!("relay constraints updated"))
+            .map(|_: Option<()>| println!("Relay constraints updated"))
     }
 }
