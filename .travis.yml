@@ -8,6 +8,10 @@ os:
   - linux
   - osx
 
+env:
+  global:
+    - MACOSX_DEPLOYMENT_TARGET="10.7"
+
 before_script:
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
   - env
