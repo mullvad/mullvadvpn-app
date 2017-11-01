@@ -1,9 +1,27 @@
+use std::fmt;
 use talpid_types::net::TransportProtocol;
 
-#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
+    Any,
+    Only(T),
+}
+
+impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
+    fn default() -> Self {
+        Constraint::Any
+    }
+}
+
+impl<T: Copy + fmt::Debug + Clone + Eq + PartialEq> Copy for Constraint<T> {}
+
+
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct RelayConstraints {
-    pub host: HostConstraint,
+    pub host: Constraint<String>,
     pub tunnel: TunnelConstraints,
 }
 
@@ -17,10 +35,16 @@ impl RelayConstraints {
 }
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TunnelConstraints {
     #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraints),
+}
+
+impl Default for TunnelConstraints {
+    fn default() -> Self {
+        TunnelConstraints::OpenVpn(OpenVpnConstraints::default())
+    }
 }
 
 impl TunnelConstraints {
@@ -35,18 +59,18 @@ impl TunnelConstraints {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct OpenVpnConstraints {
-    pub port: PortConstraint,
-    pub protocol: ProtocolConstraint,
+    pub port: Constraint<u16>,
+    pub protocol: Constraint<TransportProtocol>,
 }
 
 impl OpenVpnConstraints {
     pub fn merge(&mut self, update: OpenVpnConstraintsUpdate) -> Self {
         OpenVpnConstraints {
             port: update.port.unwrap_or_else(|| self.port.clone()),
-            protocol: update.protocol.unwrap_or_else(|| self.protocol.clone()),
+            protocol: update.protocol.unwrap_or(self.protocol),
         }
     }
 }
@@ -55,7 +79,7 @@ impl OpenVpnConstraints {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct RelayConstraintsUpdate {
-    pub host: Option<HostConstraint>,
+    pub host: Option<Constraint<String>>,
     pub tunnel: TunnelConstraintsUpdate,
 }
 
@@ -65,31 +89,9 @@ pub enum TunnelConstraintsUpdate {
     #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraintsUpdate),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct OpenVpnConstraintsUpdate {
-    pub port: Option<PortConstraint>,
-    pub protocol: Option<ProtocolConstraint>,
-}
-
-
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum HostConstraint {
-    Any,
-    Host(String),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum PortConstraint {
-    Any,
-    Port(u16),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum ProtocolConstraint {
-    Any,
-    Protocol(TransportProtocol),
+    pub port: Option<Constraint<u16>>,
+    pub protocol: Option<Constraint<TransportProtocol>>,
 }
