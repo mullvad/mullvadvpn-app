@@ -7,6 +7,7 @@ import WindowChrome from './components/WindowChrome';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
+import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
 import AccountPage from './containers/AccountPage';
 import SupportPage from './containers/SupportPage';
 import SelectLocationPage from './containers/SelectLocationPage';
@@ -97,6 +98,7 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
               <PublicRoute exact path="/settings" component={ SettingsPage } />
               <PrivateRoute exact path="/settings/account" component={ AccountPage } />
               <PublicRoute exact path="/settings/support" component={ SupportPage } />
+              <PublicRoute exact path="/settings/advanced" component={ AdvancedSettingsPage } />
               <PrivateRoute exact path="/select-location" component={ SelectLocationPage } />
             </Switch>
           </CSSTransitionGroup>

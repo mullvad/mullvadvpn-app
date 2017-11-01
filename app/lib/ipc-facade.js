@@ -1,7 +1,7 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, arrayOf, number } from 'validated/schema';
+import { object, string, arrayOf, number, enumeration, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
 
 import type { Coordinate2d } from '../types';
@@ -25,11 +25,36 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
-export type RelayEndpoint = {
-  host: string,
-  port: number,
-  protocol: 'tcp' | 'udp',
+export type RelayConstraints = {
+  host: 'any' | { only: string },
+  tunnel: {
+    openvpn: {
+      port: 'any' | { only: number },
+      protocol: 'any' | { only: 'tcp' | 'udp' },
+    },
+  },
 };
+export type RelayConstraintsUpdate = {
+  host?: 'any' | { only: string },
+  tunnel: {
+    openvpn: {
+      port?: 'any' | { only: number },
+      protocol?: 'any' | { only: 'tcp' | 'udp' },
+    },
+  },
+};
+const Constraint = (v) => oneOf(string, object({
+  only: v,
+}));
+const RelayConstraintsSchema = object({
+  host: Constraint(string),
+  tunnel: object({
+    openvpn: object({
+      port: Constraint(number),
+      protocol: Constraint(enumeration('udp', 'tcp')),
+    }),
+  }),
+});
 
 
 export interface IpcFacade {
@@ -37,7 +62,8 @@ export interface IpcFacade {
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
-  setCustomRelay(RelayEndpoint): Promise<void>,
+  updateRelayConstraints(RelayConstraintsUpdate): Promise<void>,
+  getRelayContraints(): Promise<RelayConstraints>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
@@ -95,9 +121,21 @@ export class RealIpc implements IpcFacade {
     return;
   }
 
-  setCustomRelay(relayEndpoint: RelayEndpoint): Promise<void> {
-    return this._ipc.send('set_custom_relay', [relayEndpoint])
+  updateRelayConstraints(relayConstraints: RelayConstraintsUpdate): Promise<void> {
+    return this._ipc.send('update_relay_constraints', [relayConstraints])
       .then(this._ignoreResponse);
+  }
+
+  getRelayContraints(): Promise<RelayConstraints> {
+    return this._ipc.send('get_relay_constraints')
+      .then( raw => {
+        try {
+          const validated: any = validate(RelayConstraintsSchema, raw);
+          return (validated: RelayConstraints);
+        } catch (e) {
+          throw new InvalidReply(raw, e);
+        }
+      });
   }
 
   connect(): Promise<void> {

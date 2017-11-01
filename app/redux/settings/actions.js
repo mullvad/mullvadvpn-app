@@ -1,17 +1,19 @@
 // @flow
 
-import type { SettingsReduxState } from './reducers';
+import type { RelayConstraints } from '../../lib/ipc-facade';
 
-export type UpdateSettingsAction = {
-  type: 'UPDATE_SETTINGS',
-  newSettings: $Shape<SettingsReduxState>,
+export type UpdateRelayAction = {
+  type: 'UPDATE_RELAY',
+  relay: RelayConstraints,
 };
 
-function updateSettings(newSettings: $Shape<SettingsReduxState>): UpdateSettingsAction {
+export type SettingsAction = UpdateRelayAction;
+
+function updateRelay(relay: RelayConstraints): UpdateRelayAction {
   return {
-    type: 'UPDATE_SETTINGS',
-    newSettings: newSettings,
+    type: 'UPDATE_RELAY',
+    relay: relay,
   };
 }
 
-export default { updateSettings };
+export default { updateRelay };

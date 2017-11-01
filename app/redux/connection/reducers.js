@@ -62,8 +62,8 @@ function onConnecting(state, action) {
     status: 'connecting',
   };
 
-  if (action.relayEndpoint) {
-    newState.serverAddress = action.relayEndpoint.host;
+  if (action.host) {
+    newState.serverAddress = action.host;
   }
   return { ...state, ...newState};
 }

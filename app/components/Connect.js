@@ -10,15 +10,15 @@ import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
-import type { RelayEndpoint } from '../lib/ipc-facade';
+import type { SettingsReduxState } from '../redux/settings/reducers';
 
 export type ConnectProps = {
   accountExpiry: string,
   connection: ConnectionReduxState,
-  preferredServer: string,
+  settings: SettingsReduxState,
   onSettings: () => void,
   onSelectLocation: () => void,
-  onConnect: (relayEndpoint: RelayEndpoint) => void,
+  onConnect: (host: string) => void,
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
@@ -93,9 +93,23 @@ export default class Connect extends Component {
     );
   }
 
+  _getServerInfo() {
+    const { relayConstraints } = this.props.settings;
+    if (relayConstraints.host === 'any') {
+      return {
+        name: 'Automatic',
+        country: 'Automatic',
+        city: 'Automatic',
+        address: '',
+      };
+    }
+
+    return this.props.getServerInfo(relayConstraints.host.only);
+
+  }
+
   renderMap(): React.Element<*> {
-    const preferredServer = this.props.preferredServer;
-    const serverInfo = this.props.getServerInfo(preferredServer);
+    const serverInfo = this._getServerInfo();
     if(!serverInfo) {
       throw new Error('Server info cannot be null.');
     }
@@ -272,16 +286,12 @@ export default class Connect extends Component {
   // Handlers
 
   onConnect() {
-    const preferredServer = this.props.preferredServer;
-    const serverInfo = this.props.getServerInfo(preferredServer);
-    if(serverInfo) {
-      // TODO: Don't use these hardcoded values
-      this.props.onConnect({
-        host: serverInfo.address,
-        port: 1300,
-        protocol: 'udp',
-      });
+    const serverInfo = this._getServerInfo();
+    if(!serverInfo) {
+      return;
     }
+
+    this.props.onConnect(serverInfo.address);
   }
 
   onExternalLink(type: string) {

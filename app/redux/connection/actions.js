@@ -3,12 +3,11 @@
 import { clipboard } from 'electron';
 
 import type { Backend } from '../../lib/backend';
-import type { RelayEndpoint } from '../../lib/ipc-facade';
 import type { ReduxGetState, ReduxDispatch } from '../store';
 import type { Coordinate2d } from '../../types';
 
 
-const connect = (backend: Backend, relay: RelayEndpoint) => () => backend.connect(relay);
+const connect = (backend: Backend, relay: string) => () => backend.connect(relay);
 const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = () => {
   return (_dispatch: ReduxDispatch, getState: ReduxGetState) => {
@@ -22,7 +21,7 @@ const copyIPAddress = () => {
 
 type ConnectingAction = {
   type: 'CONNECTING',
-  relayEndpoint?: RelayEndpoint,
+  host?: string,
 };
 type ConnectedAction = {
   type: 'CONNECTED',
@@ -63,10 +62,10 @@ export type ConnectionAction = NewPublicIpAction
                                 | OnlineAction
                                 | OfflineAction;
 
-function connectingTo(relayEndpoint: RelayEndpoint): ConnectingAction {
+function connectingTo(host: string): ConnectingAction {
   return {
     type: 'CONNECTING',
-    relayEndpoint: relayEndpoint,
+    host: host,
   };
 }
 

@@ -14,6 +14,7 @@ const mapDispatchToProps = (dispatch, _props) => {
     onClose: () => dispatch(push('/connect')),
     onViewAccount: () => dispatch(push('/settings/account')),
     onViewSupport: () => dispatch(push('/settings/support')),
+    onViewAdvancedSettings: () => dispatch(push('/settings/advanced')),
     onExternalLink: (type) => shell.openExternal(links[type]),
   };
 };

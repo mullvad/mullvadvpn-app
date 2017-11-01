@@ -1,16 +1,17 @@
 // @flow
 
-//import log from 'electron-log';
-const log = console;
+import log from 'electron-log';
 import EventEmitter from 'events';
 import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
-import type { ReduxStore } from '../redux/store';
+import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
+import { defaultServer } from '../config';
 
-import type { BackendState, RelayEndpoint } from './ipc-facade';
+import type { ReduxStore } from '../redux/store';
+import type { BackendState, RelayConstraintsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
@@ -114,7 +115,7 @@ export class Backend {
   }
 
   setCredentials(credentials: IpcCredentials) {
-    log.info('Got connection info to backend', credentials.connectionString);
+    log.debug('Got connection info to backend', credentials.connectionString);
     this._credentials = credentials;
 
     if (this._ipc) {
@@ -168,7 +169,7 @@ export class Backend {
   }
 
   login(accountToken: string): Promise<void> {
-    log.info('Attempting to login with account number', accountToken);
+    log.debug('Attempting to login with account number', accountToken);
 
     this._store.dispatch(accountActions.startLogin(accountToken));
 
@@ -176,7 +177,7 @@ export class Backend {
       .then( () => {
         return this._ipc.getAccountData(accountToken)
           .then( response => {
-            log.info('Account exists', response);
+            log.debug('Account exists', response);
 
             return this._ipc.setAccount(accountToken)
               .then( () => response );
@@ -203,7 +204,7 @@ export class Backend {
   }
 
   autologin() {
-    log.info('Attempting to log in automatically');
+    log.debug('Attempting to log in automatically');
 
     this._store.dispatch(accountActions.startLogin());
 
@@ -220,7 +221,7 @@ export class Backend {
             return this._ipc.getAccountData(accountToken);
           })
           .then( accountData => {
-            log.info('The stored account number still exists', accountData);
+            log.debug('The stored account number still exists', accountData);
 
             this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
 
@@ -259,33 +260,26 @@ export class Backend {
       });
   }
 
-  connect(aRelayEndpoint?: RelayEndpoint): Promise<void> {
+  connect(aHost?: string): Promise<void> {
+    const host = aHost;
 
-    const relayEndpoint = aRelayEndpoint;
-    if (relayEndpoint) {
-      this._store.dispatch(connectionActions.connectingTo(relayEndpoint));
-
-      return this._ensureAuthenticated()
-        .then( () => {
-          return this._ipc.setCustomRelay(relayEndpoint)
-            .then( () => {
-              return this._ipc.connect();
-            })
-            .catch(e => {
-              log.info('Failed connecting to', relayEndpoint.host, '-', e.message);
-              this._store.dispatch(connectionActions.disconnected());
-            });
-        });
-    } else {
-      return this._ensureAuthenticated()
-        .then( () => {
-          return this._ipc.connect()
-            .catch(e => {
-              log.info('Failed connecting to the relay set in the backend, ', e.message);
-              this._store.dispatch(connectionActions.disconnected());
-            });
-        });
+    let setHostPromise = () => Promise.resolve();
+    if (host) {
+      this._store.dispatch(connectionActions.connectingTo(host || 'unknown'));
+      setHostPromise = () => this._ipc.updateRelayConstraints({
+        host: { only: host },
+        tunnel: { openvpn: {
+        }},
+      });
     }
+
+    return this._ensureAuthenticated()
+      .then( setHostPromise )
+      .then( () => this._ipc.connect() )
+      .catch(e => {
+        log.info('Failed connecting to the relay set in the backend, ', e.message);
+        this._store.dispatch(connectionActions.disconnected());
+      });
   }
 
   disconnect(): Promise<void> {
@@ -303,6 +297,35 @@ export class Backend {
     return this._ensureAuthenticated()
       .then( () => {
         return this._ipc.shutdown();
+      });
+  }
+
+  updateRelayConstraints(relayConstraints: RelayConstraintsUpdate): Promise<void> {
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.updateRelayConstraints(relayConstraints);
+      });
+  }
+
+  syncRelayConstraints(): Promise<void> {
+    return this._ensureAuthenticated()
+      .then( () => {
+        return this._ipc.getRelayContraints();
+      })
+      .then( constraints => {
+        log.debug('Got constraints from backend', constraints);
+
+        const host = constraints.host === 'any'
+          ? defaultServer
+          : constraints.host || defaultServer;
+
+        this._store.dispatch(settingsActions.updateRelay({
+          host: host,
+          tunnel: constraints.tunnel,
+        }));
+      })
+      .catch( e => {
+        log.error('Failed getting relay constraints', e);
       });
   }
 
@@ -335,7 +358,7 @@ export class Backend {
     return this._ensureAuthenticated()
       .then( () => {
         return this._ipc.registerStateListener(newState => {
-          log.info('Got new state from backend', newState);
+          log.debug('Got new state from backend', newState);
 
           const newStatus = this._securityStateToConnectionState(newState);
           switch(newStatus) {

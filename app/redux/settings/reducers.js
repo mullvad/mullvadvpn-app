@@ -3,19 +3,31 @@
 import { defaultServer } from '../../config';
 
 import type { ReduxAction } from '../store';
+import type { RelayConstraints } from '../../lib/ipc-facade';
 
 export type SettingsReduxState = {
-  preferredServer: string
+  relayConstraints: RelayConstraints,
 };
 
 const initialState: SettingsReduxState = {
-  preferredServer: defaultServer
+  relayConstraints: {
+    host: { only: defaultServer },
+    tunnel: { openvpn: {
+      port: 'any',
+      protocol: 'any',
+    }},
+  },
 };
 
 export default function(state: SettingsReduxState = initialState, action: ReduxAction): SettingsReduxState {
 
-  if (action.type === 'UPDATE_SETTINGS') {
-    return { ...state, ...action.newSettings };
+  if (action.type === 'UPDATE_RELAY') {
+    return { ...state,
+      relayConstraints: {
+        ...state.relayConstraints,
+        ...action.relay,
+      },
+    };
   }
 
   return state;

@@ -18,7 +18,7 @@ import type { SettingsReduxState } from './settings/reducers.js';
 
 import type { ConnectionAction } from './connection/actions.js';
 import type { AccountAction } from './account/actions.js';
-import type { UpdateSettingsAction } from './settings/actions.js';
+import type { SettingsAction } from './settings/actions.js';
 
 export type ReduxState = {
   account: AccountReduxState,
@@ -27,7 +27,7 @@ export type ReduxState = {
 };
 
 export type ReduxAction = AccountAction
-                          | UpdateSettingsAction
+                          | SettingsAction
                           | ConnectionAction;
 
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;

@@ -63,6 +63,11 @@
   height: 24px;
 }
 
+.settings__cell--selected,
+.settings__cell--selected:hover {
+  background-color: #44AD4D;
+}
+
 .settings__cell--active:hover {
   background-color: rgba(41,71,115,0.9);
 }
@@ -89,6 +94,21 @@
 
 .settings__cell-value {
   flex: 0 0 auto;
+}
+
+.settings__sub-cell {
+    background-color: rgb(36, 57, 84);
+}
+.settings__sub-cell:hover {
+  background-color: rgba(41,71,115,0.9);
+}
+
+.settings__sub-cell--label {
+    padding-left: 15px;
+}
+
+.settings__sub-cell--label img {
+    padding-right: 8px;
 }
 
 .settings__account-paid-until-label {

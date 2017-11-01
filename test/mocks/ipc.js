@@ -28,7 +28,15 @@ export function newMockIpc() {
 
     setAccount: () => Promise.resolve(),
 
-    setCustomRelay: () => Promise.resolve(),
+    updateRelayConstraints: () => Promise.resolve(),
+
+    getRelayContraints: () => Promise.resolve({
+      host: { only: 'www.example.com' },
+      tunnel: { openvpn: {
+        port: 'any',
+        protocol: 'any',
+      }},
+    }),
 
     connect: () => Promise.resolve(),
 

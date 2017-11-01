@@ -106,7 +106,11 @@ describe('components/Connect', () => {
     const locationSwitcher = component.find('.connect__server');
 
     component.setProps({
-      preferredServer: 'se1.mullvad.net',
+      settings: {
+        relayConstraints: {
+          host: { only: 'se1.mullvad.net' },
+        },
+      },
     });
     expect(locationSwitcher.text()).to.contain(servers['se1.mullvad.net'].name);
   });
@@ -181,6 +185,14 @@ const defaultProps = {
   getServerInfo: (_) => { return defaultServer; },
 
   accountExpiry: '',
-  preferredServer: '',
+  settings: {
+    relayConstraints: {
+      host: { only: 'www.example.com' },
+      tunnel: { openvpn: {
+        port: 'any',
+        protocol: 'any',
+      }},
+    },
+  },
   connection: defaultConnection,
 };
