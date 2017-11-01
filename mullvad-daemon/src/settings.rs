@@ -3,9 +3,7 @@ extern crate serde_json;
 
 use self::app_dirs::{AppDataType, AppInfo};
 
-use talpid_types::net::TransportProtocol;
-
-use mullvad_types::relay_constraints::{OpenVpnConstraints, Port, RelayConstraints,
+use mullvad_types::relay_constraints::{OpenVpnConstraints, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
 use std::fs::File;
 use std::io;
@@ -55,8 +53,8 @@ const DEFAULT_SETTINGS: Settings = Settings {
     relay_constraints: RelayConstraints {
         host: None,
         tunnel: TunnelConstraints::OpenVpn(OpenVpnConstraints {
-            port: Port::Any,
-            protocol: TransportProtocol::Udp,
+            port: None,
+            protocol: None,
         }),
     },
 };
@@ -139,7 +137,6 @@ impl Settings {
     pub fn update_relay_constraints(&mut self, update: RelayConstraintsUpdate) -> Result<bool> {
         let new_constraints = self.relay_constraints.merge(update);
         if self.relay_constraints != new_constraints {
-
             debug!(
                 "changing relay constraints from {:?} to {:?}",
                 self.relay_constraints,

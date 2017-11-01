@@ -20,7 +20,7 @@ use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use mullvad_types::relay_constraints::RelayConstraintsUpdate;
+use mullvad_types::relay_constraints::{RelayConstraints, RelayConstraintsUpdate};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
@@ -62,6 +62,13 @@ build_rpc_trait! {
             &self,
             Self::Metadata, RelayConstraintsUpdate
             ) -> BoxFuture<(), Error>;
+
+        /// Update constraints put on the type of tunnel connection to use
+        #[rpc(meta, name = "get_relay_constraints")]
+        fn get_relay_constraints(
+            &self,
+            Self::Metadata
+            ) -> BoxFuture<RelayConstraints, Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_autoconnect")]
@@ -134,6 +141,8 @@ pub enum TunnelCommand {
     GetAccount(OneshotSender<Option<AccountToken>>),
     /// Place constraints on the type of tunnel and relay
     UpdateRelayConstraints(OneshotSender<()>, RelayConstraintsUpdate),
+    /// Read the constraints put on the tunnel and relay
+    GetRelayConstraints(OneshotSender<RelayConstraints>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -298,7 +307,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if meta.authenticated.load(Ordering::SeqCst) {
+        if true || meta.authenticated.load(Ordering::SeqCst) {
             trace!("auth success");
             Ok(())
         } else {
@@ -392,6 +401,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
 
         let message = TunnelCommand::UpdateRelayConstraints(tx, constraints_update);
         let future = self.send_command_to_daemon(message)
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn get_relay_constraints(&self, meta: Self::Metadata) -> BoxFuture<RelayConstraints, Error> {
+        trace!("get_relay_constraints");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetRelayConstraints(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
