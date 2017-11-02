@@ -10,7 +10,8 @@ use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::{CountryCode, Location};
-use mullvad_types::relay_endpoint::RelayEndpoint;
+
+use mullvad_types::relay_constraints::{RelayConstraints, RelayConstraintsUpdate};
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
@@ -20,7 +21,6 @@ use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
-
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
@@ -56,13 +56,19 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_account")]
         fn get_account(&self, Self::Metadata) -> BoxFuture<Option<AccountToken>, Error>;
 
-        /// Set which relay to connect to
-        #[rpc(meta, name = "set_custom_relay")]
-        fn set_custom_relay(&self, Self::Metadata, RelayEndpoint) -> BoxFuture<(), Error>;
+        /// Update constraints put on the type of tunnel connection to use
+        #[rpc(meta, name = "update_relay_constraints")]
+        fn update_relay_constraints(
+            &self,
+            Self::Metadata, RelayConstraintsUpdate
+            ) -> BoxFuture<(), Error>;
 
-        /// Unset the custom relay, reverting to the default relay listing
-        #[rpc(meta, name = "remove_custom_relay")]
-        fn remove_custom_relay(&self, Self::Metadata) -> BoxFuture<(), Error>;
+        /// Update constraints put on the type of tunnel connection to use
+        #[rpc(meta, name = "get_relay_constraints")]
+        fn get_relay_constraints(
+            &self,
+            Self::Metadata
+            ) -> BoxFuture<RelayConstraints, Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_autoconnect")]
@@ -133,8 +139,10 @@ pub enum TunnelCommand {
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
     GetAccount(OneshotSender<Option<AccountToken>>),
-    /// Set a custom relay instead of the default list of relays
-    SetCustomRelay(OneshotSender<()>, Option<RelayEndpoint>),
+    /// Place constraints on the type of tunnel and relay
+    UpdateRelayConstraints(OneshotSender<()>, RelayConstraintsUpdate),
+    /// Read the constraints put on the tunnel and relay
+    GetRelayConstraints(OneshotSender<RelayConstraints>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -382,26 +390,26 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn set_custom_relay(
+    fn update_relay_constraints(
         &self,
         meta: Self::Metadata,
-        custom_relay: RelayEndpoint,
+        constraints_update: RelayConstraintsUpdate,
     ) -> BoxFuture<(), Error> {
-        trace!("set_custom_relay");
+        trace!("update_relay_constraints");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
 
-        let message = TunnelCommand::SetCustomRelay(tx, Some(custom_relay));
+        let message = TunnelCommand::UpdateRelayConstraints(tx, constraints_update);
         let future = self.send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn remove_custom_relay(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
-        trace!("remove_custom_relay");
+    fn get_relay_constraints(&self, meta: Self::Metadata) -> BoxFuture<RelayConstraints, Error> {
+        trace!("get_relay_constraints");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetCustomRelay(tx, None))
+        let future = self.send_command_to_daemon(TunnelCommand::GetRelayConstraints(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

@@ -13,8 +13,8 @@ pub use self::connect::Connect;
 mod disconnect;
 pub use self::disconnect::Disconnect;
 
-mod custom_relay;
-pub use self::custom_relay::CustomRelay;
+mod relay;
+pub use self::relay::Relay;
 
 mod shutdown;
 pub use self::shutdown::Shutdown;
@@ -26,8 +26,8 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
         Box::new(Status),
         Box::new(Connect),
         Box::new(Disconnect),
-        Box::new(CustomRelay),
         Box::new(Shutdown),
+        Box::new(Relay),
     ];
     let mut map = HashMap::new();
     for cmd in commands {

@@ -27,6 +27,7 @@ extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
 #[macro_use]
 extern crate lazy_static;
+extern crate rand;
 extern crate uuid;
 
 extern crate mullvad_rpc;
@@ -48,9 +49,13 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
 use mullvad_types::account::{AccountData, AccountToken};
+use mullvad_types::relay_constraints::{HostConstraint, OpenVpnConstraints, PortConstraint,
+                                       ProtocolConstraint, RelayConstraints,
+                                       RelayConstraintsUpdate, TunnelConstraints};
 use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
+use rand::Rng;
 use std::io;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
@@ -314,7 +319,10 @@ impl Daemon {
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
-            SetCustomRelay(tx, relay_endpoint) => self.on_set_custom_relay(tx, relay_endpoint),
+            UpdateRelayConstraints(tx, constraints_update) => {
+                self.on_update_relay_constraints(tx, constraints_update)
+            }
+            GetRelayConstraints(tx) => Ok(self.on_get_relay_constraints(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -370,22 +378,22 @@ impl Daemon {
         Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
     }
 
-    fn on_set_custom_relay(
+    fn on_update_relay_constraints(
         &mut self,
         tx: OneshotSender<()>,
-        relay_endpoint: Option<RelayEndpoint>,
+        constraints: RelayConstraintsUpdate,
     ) -> Result<()> {
-        let save_result = self.settings.set_custom_relay(relay_endpoint);
+        let save_result = self.settings.update_relay_constraints(constraints);
 
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(relays_changed) => {
-                Self::oneshot_send(tx, (), "set_custom_relay response");
+            Ok(constraints_changed) => {
+                Self::oneshot_send(tx, (), "update_relay_constraints response");
 
                 let tunnel_needs_restart =
                     self.state == TunnelState::Connecting || self.state == TunnelState::Connected;
 
-                if relays_changed && tunnel_needs_restart {
-                    info!("Initiating tunnel restart because a custom relay was selected");
+                if constraints_changed && tunnel_needs_restart {
+                    info!("Initiating tunnel restart because the relay constraints changed");
                     self.kill_tunnel()?;
                 }
             }
@@ -393,6 +401,14 @@ impl Daemon {
         }
 
         Ok(())
+    }
+
+    fn on_get_relay_constraints(&self, tx: OneshotSender<RelayConstraints>) {
+        Self::oneshot_send(
+            tx,
+            self.settings.get_relay_constraints(),
+            "relay constraints",
+        )
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -513,13 +529,39 @@ impl Daemon {
     }
 
     fn get_relay(&mut self) -> Result<Endpoint> {
-        if let Some(relay_endpoint) = self.settings.get_custom_relay() {
-            relay_endpoint
-                .to_endpoint()
-                .chain_err(|| "Invalid custom relay")
-        } else {
-            Ok(self.relay_iter.next().unwrap())
+        let relay_constraints = self.settings.get_relay_constraints();
+
+        let host = match relay_constraints.host {
+            HostConstraint::Any => format!("{}", self.relay_iter.next().unwrap().address),
+            HostConstraint::Host(host) => host,
+        };
+
+        match relay_constraints.tunnel {
+            TunnelConstraints::OpenVpn(constraints) => self.get_openvpn_relay(host, constraints),
         }
+    }
+
+    fn get_openvpn_relay(
+        &mut self,
+        host: String,
+        constraints: OpenVpnConstraints,
+    ) -> Result<Endpoint> {
+        let protocol = match constraints.protocol {
+            ProtocolConstraint::Any => TransportProtocol::Udp,
+            ProtocolConstraint::Protocol(protocol) => protocol,
+        };
+
+        let port = match constraints.port {
+            PortConstraint::Any => randomize_port(protocol),
+            PortConstraint::Port(port) => port,
+        };
+
+        RelayEndpoint {
+            host,
+            port,
+            protocol,
+        }.to_endpoint()
+            .chain_err(|| "Unable to construct a valid relay")
     }
 
     fn spawn_tunnel_monitor(&self, relay: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
@@ -676,4 +718,16 @@ fn log_version() {
         env!("CARGO_PKG_VERSION"),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
     )
+}
+
+fn randomize_port(protocol: TransportProtocol) -> u16 {
+    let pool: Vec<u16> = if protocol == TransportProtocol::Udp {
+        vec![1194, 1195, 1196, 1197, 1300, 1301, 1302]
+    } else {
+        vec![80, 443]
+    };
+
+    *rand::thread_rng()
+        .choose(&pool)
+        .expect("no ports to randomize from")
 }
