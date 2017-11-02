@@ -10,6 +10,8 @@ use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::{CountryCode, Location};
+
+use mullvad_types::relay_constraints::{RelayConstraints, RelayConstraintsUpdate};
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
@@ -19,8 +21,6 @@ use std::collections::hash_map::Entry;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
-
-use mullvad_types::relay_constraints::{RelayConstraints, RelayConstraintsUpdate};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
@@ -307,7 +307,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if true || meta.authenticated.load(Ordering::SeqCst) {
+        if meta.authenticated.load(Ordering::SeqCst) {
             trace!("auth success");
             Ok(())
         } else {

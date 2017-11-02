@@ -1,11 +1,3 @@
-[root]
-name = "talpid-types"
-version = "0.1.0"
-dependencies = [
- "serde 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
 [[package]]
 name = "advapi32-sys"
 version = "0.2.0"
@@ -1272,6 +1264,14 @@ dependencies = [
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
+]
+
+[[package]]
+name = "talpid-types"
+version = "0.1.0"
+dependencies = [
+ "serde 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

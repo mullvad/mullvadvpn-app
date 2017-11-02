@@ -3,7 +3,8 @@ extern crate serde_json;
 
 use self::app_dirs::{AppDataType, AppInfo};
 
-use mullvad_types::relay_constraints::{OpenVpnConstraints, RelayConstraints,
+use mullvad_types::relay_constraints::{HostConstraint, OpenVpnConstraints, PortConstraint,
+                                       ProtocolConstraint, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
 use std::fs::File;
 use std::io;
@@ -51,10 +52,10 @@ impl Default for Settings {
 const DEFAULT_SETTINGS: Settings = Settings {
     account_token: None,
     relay_constraints: RelayConstraints {
-        host: None,
+        host: HostConstraint::Any,
         tunnel: TunnelConstraints::OpenVpn(OpenVpnConstraints {
-            port: None,
-            protocol: None,
+            port: PortConstraint::Any,
+            protocol: ProtocolConstraint::Any,
         }),
     },
 };

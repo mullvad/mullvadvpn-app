@@ -49,7 +49,8 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::relay_constraints::{RelayConstraints, HostConstraint, OpenVpnConstraints, Port,
+use mullvad_types::relay_constraints::{HostConstraint, OpenVpnConstraints, PortConstraint,
+                                       ProtocolConstraint, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
 use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
@@ -320,7 +321,7 @@ impl Daemon {
             GetAccount(tx) => Ok(self.on_get_account(tx)),
             UpdateRelayConstraints(tx, constraints_update) => {
                 self.on_update_relay_constraints(tx, constraints_update)
-            },
+            }
             GetRelayConstraints(tx) => Ok(self.on_get_relay_constraints(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -403,7 +404,11 @@ impl Daemon {
     }
 
     fn on_get_relay_constraints(&self, tx: OneshotSender<RelayConstraints>) {
-        Self::oneshot_send(tx, self.settings.get_relay_constraints(), "relay constraints")
+        Self::oneshot_send(
+            tx,
+            self.settings.get_relay_constraints(),
+            "relay constraints",
+        )
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -526,7 +531,7 @@ impl Daemon {
     fn get_relay(&mut self) -> Result<Endpoint> {
         let relay_constraints = self.settings.get_relay_constraints();
 
-        let host = match relay_constraints.host.unwrap_or(HostConstraint::Any) {
+        let host = match relay_constraints.host {
             HostConstraint::Any => format!("{}", self.relay_iter.next().unwrap().address),
             HostConstraint::Host(host) => host,
         };
@@ -541,11 +546,14 @@ impl Daemon {
         host: String,
         constraints: OpenVpnConstraints,
     ) -> Result<Endpoint> {
-        let protocol = constraints.protocol.unwrap_or(TransportProtocol::Udp);
+        let protocol = match constraints.protocol {
+            ProtocolConstraint::Any => TransportProtocol::Udp,
+            ProtocolConstraint::Protocol(protocol) => protocol,
+        };
 
-        let port = match constraints.port.unwrap_or(Port::Any) {
-            Port::Any => randomize_port(protocol),
-            Port::Port(port) => port,
+        let port = match constraints.port {
+            PortConstraint::Any => randomize_port(protocol),
+            PortConstraint::Port(port) => port,
         };
 
         RelayEndpoint {
