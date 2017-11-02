@@ -96,7 +96,7 @@ export default class Settings extends Component {
                         <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
                       </div>
                       <div className="settings__view-support settings__cell settings__cell--active" onClick={ this.props.onViewSupport }>
-                        <div className="settings__cell-label">Contact support</div>
+                        <div className="settings__cell-label">Report a problem</div>
                         <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
                       </div>
                     </div>

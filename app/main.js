@@ -9,21 +9,25 @@ import ElectronSudo from 'electron-sudo';
 import shellescape from 'shell-escape';
 import { version } from '../package.json';
 import { parseIpcCredentials } from './lib/backend';
+import { resolveBin } from './lib/proc';
+import { execFile } from 'child_process';
+import uuid from 'uuid';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 const isMacOS = (process.platform === 'darwin');
 const isLinux = (process.platform === 'linux');
-const isWindows = (process.platform === 'win32');
 
 // The name for application directory used for
 // scoping logs and user data in platform special folders
 const appDirectoryName = 'MullvadVPN';
 
-const rpcAddressFile = isMacOS || isLinux
-  ? path.join('/tmp', '.mullvad_rpc_address')
-  : path.join(app.getPath('temp'), '.mullvad_rpc_address');
+const writableDirectory = isMacOS || isLinux
+  ? '/tmp'
+  : app.getPath('temp');
+
+const rpcAddressFile = path.join(writableDirectory, '.mullvad_rpc_address');
 
 let browserWindowReady = false;
 
@@ -127,7 +131,7 @@ const appDelegate = {
       return;
     }
 
-    const pathToBackend = appDelegate._findPathToBackend();
+    const pathToBackend = resolveBin('mullvadd');
     log.info('Starting the mullvad backend at', pathToBackend);
 
     const options = {
@@ -147,18 +151,6 @@ const appDelegate = {
   },
   _rpcAddressFileExists: () => {
     return fs.existsSync(rpcAddressFile);
-  },
-  _findPathToBackend: () => {
-    if (isDevelopment) {
-      return path.resolve(process.env.MULLVAD_BACKEND || '../talpid_core/target/debug/mullvadd');
-
-    } else if (isMacOS || isLinux) {
-      return path.join(process.resourcesPath, 'mullvadd');
-
-    } else if (isWindows) {
-      // TODO: Decide
-      return '';
-    }
   },
   _setupBackendProcessListeners: (p) => {
     // electron-sudo writes all output to some buffers in memory.
@@ -389,6 +381,35 @@ const appDelegate = {
 
     // add IPC handler to change tray icon from renderer
     ipcMain.on('changeTrayIcon', (_: Event, type: TrayIconType) => trayIconManager.iconType = type);
+
+    ipcMain.on('collect-logs', (event, id) => {
+      log.info('Collecting logs in', appDelegate._logFileLocation);
+      fs.readdir(appDelegate._logFileLocation, (err, files) => {
+        if (err) {
+          event.sender.send('collect-logs-reply', id, err);
+          return;
+        }
+
+        const logFiles = files.filter(file => file.endsWith('.log')).map(f => path.join(appDelegate._logFileLocation, f));
+        const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
+
+        const binPath = resolveBin('problem-report');
+        const args = [
+          'collect',
+          '--output', reportPath,
+          ...logFiles,
+        ];
+
+        execFile(binPath, args, {windowsHide: true}, (err) => {
+          if (err) {
+            event.sender.send('collect-logs-reply', id, err);
+          } else {
+            log.debug('Report written to', reportPath);
+            event.sender.send('collect-logs-reply', id, null, reportPath);
+          }
+        });
+      });
+    });
 
     // setup event handlers
     window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));

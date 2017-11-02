@@ -210,12 +210,12 @@ export class RealIpc implements IpcFacade {
     });
   }
 
+  setCloseConnectionHandler(handler: () => void) {
+    this._ipc.setCloseConnectionHandler(handler);
+  }
+
   authenticate(sharedSecret: string): Promise<void> {
     return this._ipc.send('auth', sharedSecret)
       .then(this._ignoreResponse);
-  }
-
-  setCloseConnectionHandler(handler: () => void) {
-    this._ipc.setCloseConnectionHandler(handler);
   }
 }
