@@ -1,8 +1,8 @@
-use {Command, Result};
+use {Command, Result, ResultExt};
 use clap;
+use std::str::FromStr;
 
-use mullvad_types::relay_constraints::{HostConstraint, OpenVpnConstraintsUpdate, PortConstraint,
-                                       ProtocolConstraint, RelayConstraints,
+use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraintsUpdate, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraintsUpdate};
 
 use rpc;
@@ -38,7 +38,7 @@ impl Command for Relay {
                             .arg(
                                 clap::Arg::with_name("protocol")
                                     .required(true)
-                                    .possible_values(&["udp", "tcp"]),
+                                    .possible_values(&["any", "udp", "tcp"]),
                             ),
                     ),
             )
@@ -67,14 +67,14 @@ impl Relay {
             let host = value_t_or_exit!(host_matches.value_of("host"), String);
 
             self.update_constraints(RelayConstraintsUpdate {
-                host: Some(HostConstraint::Host(host)),
+                host: Some(Constraint::Only(host)),
                 tunnel: TunnelConstraintsUpdate::OpenVpn(OpenVpnConstraintsUpdate {
                     port: None,
                     protocol: None,
                 }),
             })
         } else if let Some(port_matches) = matches.subcommand_matches("port") {
-            let port = parse_port(port_matches.value_of("port"))?;
+            let port = parse_port(port_matches.value_of("port").unwrap())?;
 
             self.update_constraints(RelayConstraintsUpdate {
                 host: None,
@@ -84,7 +84,7 @@ impl Relay {
                 }),
             })
         } else if let Some(protocol_matches) = matches.subcommand_matches("protocol") {
-            let protocol = parse_protocol(protocol_matches.value_of("protocol"))?;
+            let protocol = parse_protocol(protocol_matches.value_of("protocol").unwrap());
 
             self.update_constraints(RelayConstraintsUpdate {
                 host: None,
@@ -106,30 +106,23 @@ impl Relay {
     }
 }
 
-fn parse_port(raw_port: Option<&str>) -> Result<PortConstraint> {
-    if let Some(s) = raw_port {
-        let res = u16::from_str_radix(s, 10);
-        match res {
-            Ok(num) => Ok(PortConstraint::Port(num)),
-            Err(_) => if s.to_lowercase() == "any" {
-                Ok(PortConstraint::Any)
-            } else {
-                bail!("not 'any' or a short".to_owned())
-            },
-        }
-    } else {
-        bail!("not 'any' or a short".to_owned())
+
+fn parse_port(raw_port: &str) -> Result<Constraint<u16>> {
+    match raw_port.to_lowercase().as_str() {
+        "any" => Ok(Constraint::Any),
+        port => Ok(Constraint::Only(
+            u16::from_str(port).chain_err(|| "Invalid port")?,
+        )),
     }
 }
 
-fn parse_protocol(raw_protocol: Option<&str>) -> Result<ProtocolConstraint> {
-    if let Some(s) = raw_protocol {
-        if s.to_lowercase() == "any" {
-            return Ok(ProtocolConstraint::Any);
-        } else if ["udp", "tcp"].contains(&s) {
-            return Ok(ProtocolConstraint::Protocol(TransportProtocol::Udp));
-        }
+/// Parses a protocol constraint string. Can be infallible because the possible values are limited
+/// with clap.
+fn parse_protocol(raw_protocol: &str) -> Constraint<TransportProtocol> {
+    match raw_protocol.to_lowercase().as_str() {
+        "any" => Constraint::Any,
+        "udp" => Constraint::Only(TransportProtocol::Udp),
+        "tcp" => Constraint::Only(TransportProtocol::Tcp),
+        _ => unreachable!(),
     }
-
-    bail!("not 'udp' or 'tcp'".to_owned())
 }

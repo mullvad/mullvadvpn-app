@@ -49,8 +49,7 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::relay_constraints::{HostConstraint, OpenVpnConstraints, PortConstraint,
-                                       ProtocolConstraint, RelayConstraints,
+use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraints, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
 use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
@@ -532,8 +531,8 @@ impl Daemon {
         let relay_constraints = self.settings.get_relay_constraints();
 
         let host = match relay_constraints.host {
-            HostConstraint::Any => format!("{}", self.relay_iter.next().unwrap().address),
-            HostConstraint::Host(host) => host,
+            Constraint::Any => format!("{}", self.relay_iter.next().unwrap().address),
+            Constraint::Only(host) => host,
         };
 
         match relay_constraints.tunnel {
@@ -547,13 +546,12 @@ impl Daemon {
         constraints: OpenVpnConstraints,
     ) -> Result<Endpoint> {
         let protocol = match constraints.protocol {
-            ProtocolConstraint::Any => TransportProtocol::Udp,
-            ProtocolConstraint::Protocol(protocol) => protocol,
+            Constraint::Any => TransportProtocol::Udp,
+            Constraint::Only(protocol) => protocol,
         };
-
         let port = match constraints.port {
-            PortConstraint::Any => randomize_port(protocol),
-            PortConstraint::Port(port) => port,
+            Constraint::Any => randomize_port(protocol),
+            Constraint::Only(port) => port,
         };
 
         RelayEndpoint {
