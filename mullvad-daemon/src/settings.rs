@@ -111,22 +111,17 @@ impl Settings {
             account_token = None;
         }
         if account_token != self.account_token {
-            info!(
-                "Changing account token from {} to {}",
-                Self::format_account_token(&self.account_token),
-                Self::format_account_token(&account_token),
-            );
+            if account_token.is_none() {
+                info!("Unsetting account token");
+            } else if self.account_token.is_none() {
+                info!("Setting account token");
+            } else {
+                info!("Changing account token")
+            }
             self.account_token = account_token;
             self.save().map(|_| true)
         } else {
             Ok(false)
-        }
-    }
-
-    fn format_account_token(account_token: &Option<String>) -> String {
-        match *account_token {
-            Some(ref account_token) => format!("\"{}\"", account_token),
-            None => "[none]".to_owned(),
         }
     }
 
