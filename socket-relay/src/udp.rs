@@ -97,21 +97,23 @@ impl Relay {
         });
 
         let recv_stream = forward_stream
-            .filter_map(move |(addr, data)| if addr == destination {
-                trace!(
-                    "Returning {} byte response from {} to {}",
-                    data.len(),
-                    addr,
-                    client_addr
-                );
-                Some((client_addr, data))
-            } else {
-                trace!(
-                    "Discarding data from {}, expecting data from {}",
-                    addr,
-                    destination
-                );
-                None
+            .filter_map(move |(addr, data)| {
+                if addr == destination {
+                    trace!(
+                        "Returning {} byte response from {} to {}",
+                        data.len(),
+                        addr,
+                        client_addr
+                    );
+                    Some((client_addr, data))
+                } else {
+                    trace!(
+                        "Discarding data from {}, expecting data from {}",
+                        addr,
+                        destination
+                    );
+                    None
+                }
             })
             .map_err(|e| {
                 error!("Error reading datagrams from forward socket: {}", e)

@@ -133,12 +133,8 @@ fn run() -> Result<()> {
     }
 }
 
-fn collect_report(
-    log_paths: &[&Path],
-    output_path: &Path,
-    remove_terms: Vec<String>,
-) -> Result<()> {
-    let mut problem_report = ProblemReport::new(remove_terms);
+fn collect_report(log_paths: &[&Path], output_path: &Path, redacts: Vec<String>) -> Result<()> {
+    let mut problem_report = ProblemReport::new(redacts);
     for log_path in log_paths {
         problem_report.add_log(log_path);
     }
