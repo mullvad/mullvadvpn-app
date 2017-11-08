@@ -50,10 +50,12 @@ impl Command for Account {
 
 impl Account {
     fn set(&self, token: Option<&str>) -> Result<()> {
-        rpc::call("set_account", &[token]).map(|_: Option<()>| if let Some(token) = token {
-            println!("Mullvad account \"{}\" set", token);
-        } else {
-            println!("Mullvad account removed");
+        rpc::call("set_account", &[token]).map(|_: Option<()>| {
+            if let Some(token) = token {
+                println!("Mullvad account \"{}\" set", token);
+            } else {
+                println!("Mullvad account removed");
+            }
         })
     }
 

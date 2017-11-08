@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Possibility to shut down the daemon via an RPC call.
+- Problem reports, for collecting and sending app logs to Mullvad support.
 
 
 ## [2017.1-beta5] - 2017-10-17
