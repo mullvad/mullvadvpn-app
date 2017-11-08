@@ -16,7 +16,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Possibility to shut down the daemon via an RPC call.
-- Problem reports, for collecting and sending app logs to Mullvad support.
+- Problem reports, for collecting and sending app logs to Mullvad support. This is fully opt-in
+  and must be triggered by the user.
+- Possibility to change between UDP and TCP as well as select port for OpenVPN to use.
+- Possibility to copy the account number in the field where it's displayed in the GUI.
+
+### Changed
+- Escape shell arguments better in both backend daemon and GUI.
+- Rename the macOS PF firewall anchor created by the program to "mullvad".
+- Change settings format from toml to json. To enable storing more advanced settings types.
+
+### Fixed
+- Shut down the backend daemon when quitting the app from the GUI. It was previously kept alive.
+- Sign the macOS binaries with SHA1 in addition to SHA256. Enables running on 10.9 and 10.10.
 
 
 ## [2017.1-beta5] - 2017-10-17
@@ -25,7 +37,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Change log level to reduce log file size
-- Introduce minimum delay between failed VPN tunnel connections, to reduce load on the computer in special cases
+- Introduce minimum delay between failed VPN tunnel connections, to reduce load on the computer in
+  special cases
 
 ### Security
 - Authenticate RPC connections towards the backend
