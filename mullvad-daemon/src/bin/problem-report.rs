@@ -14,7 +14,9 @@ extern crate error_chain;
 extern crate mullvad_rpc;
 
 use error_chain::ChainedError;
+
 use std::cmp::min;
+use std::env;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom, Write};
@@ -59,10 +61,10 @@ fn run() -> Result<()> {
                 .about("Collect problem report")
                 .arg(
                     clap::Arg::with_name("output")
+                        .help("The destination path for saving the collected report.")
                         .long("output")
                         .short("o")
                         .takes_value(true)
-                        .help("The destination path for saving the collected report.")
                         .required(true),
                 )
                 .arg(
@@ -71,6 +73,13 @@ fn run() -> Result<()> {
                         .multiple(true)
                         .takes_value(true)
                         .required(false),
+                )
+                .arg(
+                    clap::Arg::with_name("remove")
+                        .help("Words and expressions to remove from the report")
+                        .long("remove")
+                        .multiple(true)
+                        .takes_value(true),
                 ),
         )
         .subcommand(
@@ -105,12 +114,15 @@ fn run() -> Result<()> {
     let matches = app.get_matches();
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
+        let remove_terms = collect_matches
+            .values_of_lossy("remove")
+            .unwrap_or(Vec::new());
         let log_paths = collect_matches
             .values_of_os("logs")
             .map(|os_values| os_values.map(Path::new).collect())
             .unwrap_or(Vec::new());
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
-        collect_report(&log_paths, output_path)
+        collect_report(&log_paths, output_path, remove_terms)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -121,8 +133,12 @@ fn run() -> Result<()> {
     }
 }
 
-fn collect_report(log_paths: &[&Path], output_path: &Path) -> Result<()> {
-    let mut problem_report = ProblemReport::new();
+fn collect_report(
+    log_paths: &[&Path],
+    output_path: &Path,
+    remove_terms: Vec<String>,
+) -> Result<()> {
+    let mut problem_report = ProblemReport::new(remove_terms);
     for log_path in log_paths {
         problem_report.add_log(log_path);
     }
@@ -155,13 +171,15 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 struct ProblemReport {
     system_info: Vec<String>,
     logs: Vec<(String, String)>,
+    remove_terms: Vec<String>,
 }
 
 impl ProblemReport {
-    pub fn new() -> Self {
+    pub fn new(remove_terms: Vec<String>) -> Self {
         ProblemReport {
             system_info: Self::collect_system_info(),
             logs: Vec::new(),
+            remove_terms,
         }
     }
 
@@ -175,11 +193,24 @@ impl ProblemReport {
     /// Attach file log to this report. This method uses the error chain instead of log
     /// contents if error occurred when reading log file.
     pub fn add_log(&mut self, path: &Path) {
-        let content = read_file_lossy(path, LOG_MAX_READ_BYTES)
-            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
-            .unwrap_or_else(|e| e.display_chain().to_string());
-        self.logs
-            .push((path.to_string_lossy().into_owned(), content));
+        let content = self.remove_terms(
+            read_file_lossy(path, LOG_MAX_READ_BYTES)
+                .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+                .unwrap_or_else(|e| e.display_chain().to_string()),
+        );
+        let path = self.remove_terms(path.to_string_lossy().into_owned());
+        self.logs.push((path, content));
+    }
+
+    fn remove_terms(&self, input: String) -> String {
+        let mut out = match env::home_dir() {
+            Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
+            None => input,
+        };
+        for remove_term in &self.remove_terms {
+            out = out.replace(remove_term, "[OMITTED]")
+        }
+        out
     }
 }
 
