@@ -64,6 +64,7 @@ fn run() -> Result<()> {
                         .help("The destination path for saving the collected report.")
                         .long("output")
                         .short("o")
+                        .value_name("PATH")
                         .takes_value(true)
                         .required(true),
                 )
@@ -71,13 +72,15 @@ fn run() -> Result<()> {
                     clap::Arg::with_name("logs")
                         .help("The paths to log files to include in the problem report.")
                         .multiple(true)
+                        .value_name("LOG PATHS")
                         .takes_value(true)
                         .required(false),
                 )
                 .arg(
-                    clap::Arg::with_name("remove")
-                        .help("Words and expressions to remove from the report")
-                        .long("remove")
+                    clap::Arg::with_name("redact")
+                        .help("List of words and expressions to remove from the report")
+                        .long("redact")
+                        .value_name("PHRASE")
                         .multiple(true)
                         .takes_value(true),
                 ),
@@ -114,15 +117,15 @@ fn run() -> Result<()> {
     let matches = app.get_matches();
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
-        let remove_terms = collect_matches
-            .values_of_lossy("remove")
+        let redacts = collect_matches
+            .values_of_lossy("redact")
             .unwrap_or(Vec::new());
         let log_paths = collect_matches
             .values_of_os("logs")
             .map(|os_values| os_values.map(Path::new).collect())
             .unwrap_or(Vec::new());
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
-        collect_report(&log_paths, output_path, remove_terms)
+        collect_report(&log_paths, output_path, redacts)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -167,15 +170,17 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 struct ProblemReport {
     system_info: Vec<String>,
     logs: Vec<(String, String)>,
-    remove_terms: Vec<String>,
+    redacts: Vec<String>,
 }
 
 impl ProblemReport {
-    pub fn new(remove_terms: Vec<String>) -> Self {
+    /// Creates a new problem report with system information. Logs can be added with `add_log`.
+    /// Logs will have all strings in `redacts` removed from them.
+    pub fn new(redacts: Vec<String>) -> Self {
         ProblemReport {
             system_info: Self::collect_system_info(),
             logs: Vec::new(),
-            remove_terms,
+            redacts,
         }
     }
 
@@ -189,22 +194,22 @@ impl ProblemReport {
     /// Attach file log to this report. This method uses the error chain instead of log
     /// contents if error occurred when reading log file.
     pub fn add_log(&mut self, path: &Path) {
-        let content = self.remove_terms(
+        let content = self.redact(
             read_file_lossy(path, LOG_MAX_READ_BYTES)
                 .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
                 .unwrap_or_else(|e| e.display_chain().to_string()),
         );
-        let path = self.remove_terms(path.to_string_lossy().into_owned());
+        let path = self.redact(path.to_string_lossy().into_owned());
         self.logs.push((path, content));
     }
 
-    fn remove_terms(&self, input: String) -> String {
+    fn redact(&self, input: String) -> String {
         let mut out = match env::home_dir() {
             Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
             None => input,
         };
-        for remove_term in &self.remove_terms {
-            out = out.replace(remove_term, "[OMITTED]")
+        for redact in &self.redacts {
+            out = out.replace(redact, "[REDACTED]")
         }
         out
     }
