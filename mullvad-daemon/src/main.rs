@@ -531,7 +531,7 @@ impl Daemon {
         let relay_constraints = self.settings.get_relay_constraints();
 
         let host = match relay_constraints.host {
-            Constraint::Any => format!("{}", self.relay_iter.next().unwrap().address),
+            Constraint::Any => format!("{}", self.relay_iter.next().unwrap().address.ip()),
             Constraint::Only(host) => host,
         };
 
