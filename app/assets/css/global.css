@@ -8,6 +8,8 @@ html {
   -webkit-font-smoothing: antialiased;
   user-select: none;
   cursor: default;
+  height: 100%;
+  width: 100%;
 }
 
 img {
@@ -16,4 +18,13 @@ img {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+#app {
+	height: 100%;
+  	width: 100%;
+  	display: flex;
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Component} from 'reactxp';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { createMemoryHistory } from 'history';
@@ -104,11 +105,14 @@ function getRootElement() {
 }
 
 
-ReactDOM.render(
-  <Provider store={ store }>
-    <ConnectedRouter history={ memoryHistory }>
-      { makeRoutes(store.getState, { backend }) }
-    </ConnectedRouter>
-  </Provider>,
-  getRootElement()
-);
+export default class App extends Component{
+  render() {
+    return (
+      <Provider store={ store }>
+        <ConnectedRouter history={ memoryHistory }>
+          { makeRoutes(store.getState, { backend }) }
+        </ConnectedRouter>
+      </Provider>
+    );
+  }
+}

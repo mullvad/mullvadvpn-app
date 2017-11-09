@@ -8,6 +8,7 @@ import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
+import { defaultServer } from '../config';
 
 import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelayLocation, RelaySettingsUpdate } from './ipc-facade';

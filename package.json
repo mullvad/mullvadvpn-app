@@ -29,6 +29,7 @@
     "react-router": "^4.1.1",
     "react-router-redux": "5.0.0-alpha.6",
     "react-transition-group": "^1.2.0",
+    "reactxp": "^0.46.5",
     "redux": "^3.0.0",
     "redux-thunk": "^2.2.0",
     "shell-escape": "^0.2.0",

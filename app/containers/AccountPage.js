@@ -5,8 +5,8 @@ import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Account from '../components/Account';
 import accountActions from '../redux/account/actions';
-import { shell } from 'electron';
 import { links } from '../config';
+import Linking from '../lib/linking';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onClose: () => {
       pushHistory('/settings');
     },
-    onBuyMore: () => shell.openExternal(links['purchase'])
+    onBuyMore: () => Linking(links['purchase'])
   };
 };
 
