@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 * **Security**: in case of vulnerabilities.
 
 
-## [Unreleased]
+## [2017.1-beta6] - 2017-11-09
 ### Added
 - Possibility to shut down the daemon via an RPC call.
 - Problem reports, for collecting and sending app logs to Mullvad support. This is fully opt-in
