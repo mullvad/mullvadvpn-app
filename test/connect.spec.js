@@ -7,14 +7,18 @@ import { IpcChain } from './helpers/IpcChain';
 
 describe('connect', () => {
 
-  it('should invoke set_custom_relay and then connect in the backend', (done) => {
+  it('should invoke update_relay_constraints and then connect in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('setCustomRelay')
+    chain.require('updateRelayConstraints')
       .withInputValidation(
-        (relayEndpoint) => {
-          expect(relayEndpoint).to.equal(arbitraryRelay);
+        relayEndpoint => {
+          if (relayEndpoint) {
+            expect(relayEndpoint.host.only).to.equal(arbitraryRelay);
+          } else {
+            expect.fail();
+          }
         },
       )
       .done();
@@ -47,13 +51,8 @@ describe('connect', () => {
 
   it('should update the state with the server address', () => {
     const { store, backend } = setupBackendAndStore();
-    const relay = {
-      host: 'www.example.com',
-      port: 1,
-      protocol: 'udp',
-    };
 
-    return backend.connect(relay)
+    return backend.connect('www.example.com')
       .then( () => {
         const state = store.getState().connection;
         expect(state.status).to.equal('connecting');
@@ -93,8 +92,4 @@ describe('connect', () => {
   });
 });
 
-const arbitraryRelay = {
-  host: 'www.example.com',
-  port: 1,
-  protocol: 'udp',
-};
+const arbitraryRelay = 'www.example.com';

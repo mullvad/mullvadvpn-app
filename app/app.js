@@ -27,6 +27,9 @@ ipcRenderer.on('backend-info', (_event, args) => {
   backend.setCredentials(args.credentials);
   backend.sync();
   backend.autologin()
+    .then( () => {
+      return backend.syncRelayConstraints();
+    })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');

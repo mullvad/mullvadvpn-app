@@ -10,7 +10,7 @@ const mapStateToProps = (state) => {
   return {
     accountExpiry: state.account.expiry,
     connection: state.connection,
-    preferredServer: state.settings.preferredServer,
+    settings: state.settings,
   };
 };
 

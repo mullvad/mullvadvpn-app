@@ -1,30 +1,33 @@
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
 import settingsActions from '../redux/settings/actions';
+import log from 'electron-log';
 
 const mapStateToProps = (state) => state;
 const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
-  const settings = bindActionCreators(settingsActions, dispatch);
   return {
     onClose: () => dispatch(push('/connect')),
     onSelect: (preferredServer) => {
-      const server = backend.serverInfo(preferredServer);
 
       dispatch(push('/connect'));
 
       // add delay to let the map load
       setTimeout(() => {
-        settings.updateSettings({ preferredServer });
+        const update = {
+          host: { only: preferredServer },
+          tunnel: { openvpn: {
+          }},
+        };
 
-        // TODO: Don't use these hardcoded values
-        backend.connect({
-          host: server.address,
-          port: 1300,
-          protocol: 'udp',
-        });
+        backend.updateRelayConstraints(update)
+          .then( () => dispatch(settingsActions.updateRelay({
+            host: preferredServer,
+          })))
+          .then( () => backend.connect())
+          .catch( e => log.error('Failed updating relay constraints', e.message));
+
       }, 600);
     }
   };

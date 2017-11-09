@@ -4,15 +4,17 @@ import { expect } from 'chai';
 import React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import SelectLocation from '../../app/components/SelectLocation';
-import { defaultServer } from '../../app/config';
 
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
 import type { SelectLocationProps } from '../../app/components/SelectLocation';
 
 describe('components/SelectLocation', () => {
   const state: SettingsReduxState = {
-    autoSecure: true,
-    preferredServer: defaultServer
+    relayConstraints: {
+      host: 'any',
+      port: 'any',
+      protocol: 'any',
+    },
   };
 
   const makeProps = (state: SettingsReduxState, mergeProps: $Shape<SelectLocationProps>): SelectLocationProps => {

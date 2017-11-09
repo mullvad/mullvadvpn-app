@@ -98,7 +98,7 @@ export default class Ipc {
 
   on(event: string, listener: (mixed) => void): Promise<*> {
 
-    log.info('Adding a listener to', event);
+    log.debug('Adding a listener to', event);
     return this.send(event + '_subscribe')
       .then(subscriptionId => {
         if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {

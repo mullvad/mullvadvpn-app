@@ -24,7 +24,8 @@ export default class SelectLocation extends Component {
   }
 
   isSelected(server: string) {
-    return server === this.props.settings.preferredServer;
+    const { host } = this.props.settings.relayConstraints;
+    return server === host;
   }
 
   drawCell(key: string, name: string, icon: ?string, onClick: (e: Event) => void): React.Element<*> {

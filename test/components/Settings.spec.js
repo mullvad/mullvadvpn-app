@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Settings from '../../app/components/Settings';
-import { defaultServer } from '../../app/config';
 
 import type { AccountReduxState } from '../../app/redux/account/reducers';
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
@@ -33,7 +32,11 @@ describe('components/Settings', () => {
   };
 
   const settingsState: SettingsReduxState = {
-    preferredServer: defaultServer
+    relayConstraints: {
+      host: 'any',
+      port: 'any',
+      protocol: 'any',
+    },
   };
 
   const makeProps = (anAccountState: AccountReduxState, aSettingsState: SettingsReduxState, mergeProps: $Shape<SettingsProps> = {}): SettingsProps => {
@@ -44,6 +47,7 @@ describe('components/Settings', () => {
       onClose: () => {},
       onViewAccount: () => {},
       onViewSupport: () => {},
+      onViewAdvancedSettings: () => {},
       onExternalLink: (_type) => {}
     };
     return Object.assign({}, defaultProps, mergeProps);

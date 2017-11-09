@@ -233,7 +233,7 @@ const appDelegate = {
 
       const credentials = parseIpcCredentials(data);
       if(credentials) {
-        log.info('Read IPC connection info', credentials.connectionString);
+        log.debug('Read IPC connection info', credentials.connectionString);
         window.webContents.send('backend-info', { credentials });
       } else {
         log.error('Could not parse IPC credentials.');
