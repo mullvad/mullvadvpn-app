@@ -35,12 +35,12 @@ const mapDispatchToProps = (dispatch, _props) => {
   return {
     onClose: () => dispatch(push('/settings')),
 
-    onCollectLog: () => {
+    onCollectLog: (toRedact) => {
       return new Promise((resolve, reject) => {
 
         const id = uuid.v4();
         unAnsweredIpcCalls.set(id, { resolve, reject });
-        ipcRenderer.send('collect-logs', id);
+        ipcRenderer.send('collect-logs', id, toRedact);
         setTimeout(() => reapIpcCall(id), 1000);
       })
         .catch((e) => {

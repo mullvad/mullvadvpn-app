@@ -382,7 +382,7 @@ const appDelegate = {
     // add IPC handler to change tray icon from renderer
     ipcMain.on('changeTrayIcon', (_: Event, type: TrayIconType) => trayIconManager.iconType = type);
 
-    ipcMain.on('collect-logs', (event, id) => {
+    ipcMain.on('collect-logs', (event, id, toRedact) => {
       log.info('Collecting logs in', appDelegate._logFileLocation);
       fs.readdir(appDelegate._logFileLocation, (err, files) => {
         if (err) {
@@ -396,11 +396,19 @@ const appDelegate = {
         const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
 
         const binPath = resolveBin('problem-report');
-        const args = [
+        let args = [
           'collect',
           '--output', reportPath,
-          ...logFiles,
         ];
+
+        if (toRedact.length > 0) {
+          args = args.concat([
+            '--redact', ...toRedact,
+            '--',
+          ]);
+        }
+
+        args = args.concat(logFiles);
 
         execFile(binPath, args, {windowsHide: true}, (err) => {
           if (err) {

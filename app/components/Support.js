@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { Layout, Container, Header } from './Layout';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
+import type { AccountReduxState } from '../redux/account/reducers';
+
 export type SupportReport = {
   email: string,
   message: string,
@@ -16,9 +18,10 @@ export type SupportState = {
   sendState: 'INITIAL' | 'LOADING' | 'SUCCESS' | 'FAILED',
 };
 export type SupportProps = {
+  account: AccountReduxState,
   onClose: () => void;
   onViewLog: (string) => void;
-  onCollectLog: () => Promise<string>;
+  onCollectLog: (Array<string>) => Promise<string>;
   onSend: (email: string, message: string, savedReport: string) => void;
 };
 
@@ -60,10 +63,15 @@ export default class Support extends Component {
   }
 
   _getLog() {
+    const toRedact = [];
+    if (this.props.account.accountToken) {
+      toRedact.push(this.props.account.accountToken.toString());
+    }
+
     const { savedReport } = this.state;
     return savedReport ?
       Promise.resolve(savedReport) :
-      this.props.onCollectLog()
+      this.props.onCollectLog(toRedact)
         .then( path => {
           return new Promise(resolve => this.setState({ savedReport: path }, () => resolve(path)));
         });
