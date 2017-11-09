@@ -77,7 +77,7 @@
   margin-top: 8px;
 }
 
-.support__form-row--description {
+.support__form-row-message {
   display: flex;
   flex: 1 1 auto;
 }
@@ -100,14 +100,14 @@
   color: rgba(41,77,115,0.4);
 }
 
-.support__form-description-scroll-wrap {
+.support__form-message-scroll-wrap {
   width: 100%;
   display: flex;
   border-radius: 4px;
   overflow: hidden;
 }
 
-.support__form-description {
+.support__form-message {
   width: 100%;
   border: 0;
   overflow-y: scroll;
@@ -121,7 +121,7 @@
   background-color: #fff;
 }
 
-.support__form-description::-webkit-input-placeholder {
+.support__form-message::-webkit-input-placeholder {
   color: rgba(41,77,115,0.4);
 }
 
@@ -131,4 +131,39 @@
 
 .support__footer .button + .button {
   margin-top: 16px;
+}
+
+.support__sent-email {
+  display: inline;
+  font-weight: 900;
+  color: white;
+}
+
+.support__status-security--secure {
+  font-family: "Open Sans";
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 22px;
+  margin-bottom: 4px;
+  color: #44AD4D;
+  text-transform: uppercase;
+}
+
+.support__send-status {
+  font-family: DINPro;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.16em;
+  max-height: calc(1.16em * 2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  letter-spacing: -0.9px;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.support__status-icon {
+  text-align: center;
+  margin-bottom: 32px;
 }

@@ -41,7 +41,11 @@ declare module 'electron' {
   }
 
   declare class Shell {
+    showItemInFolder(fullPath: string): boolean;
+    openItem(fullPath: string): boolean;
     openExternal(url: string, options?: OpenExternalOptions, callback: (error: Error) => void): boolean;
+    moveItemToTrash(fullPath: string): boolean;
+    beep(): void;
   }
 
   // http://electron.atom.io/docs/api/remote
