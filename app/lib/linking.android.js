@@ -1,3 +1,4 @@
+// @flow
 import { Linking } from 'react-native';
 
 var open = (link) => {

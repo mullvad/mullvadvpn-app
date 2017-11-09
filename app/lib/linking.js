@@ -1,3 +1,4 @@
+// @flow
 import { shell } from 'electron';
 
 var open = (link) => {
