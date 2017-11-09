@@ -34,10 +34,8 @@ describe('components/Settings', () => {
   const settingsState: SettingsReduxState = {
     relayConstraints: {
       host: 'any',
-      tunnel: { openvpn: {
-        port: 'any',
-        protocol: 'any',
-      }},
+      port: 'any',
+      protocol: 'any',
     },
   };
 

@@ -108,7 +108,7 @@ describe('components/Connect', () => {
     component.setProps({
       settings: {
         relayConstraints: {
-          host: { only: 'se1.mullvad.net' },
+          host: 'se1.mullvad.net',
         },
       },
     });
@@ -187,11 +187,9 @@ const defaultProps = {
   accountExpiry: '',
   settings: {
     relayConstraints: {
-      host: { only: 'www.example.com' },
-      tunnel: { openvpn: {
-        port: 'any',
-        protocol: 'any',
-      }},
+      host: 'www.example.com',
+      port: 'any',
+      protocol: 'any',
     },
   },
   connection: defaultConnection,

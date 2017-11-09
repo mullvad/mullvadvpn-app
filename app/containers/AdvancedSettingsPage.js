@@ -5,17 +5,18 @@ import settingsActions from '../redux/settings/actions';
 import log from 'electron-log';
 
 const mapStateToProps = (state) => {
+  const contraints = state.settings.relayConstraints;
   return {
-    protocol: tryOrElse( () => state.settings.relayConstraints.tunnel.openvpn.protocol.only, 'Automatic'),
-    port: tryOrElse( () => state.settings.relayConstraints.tunnel.openvpn.port.only, 'Automatic'),
+    protocol: anyToAuto(contraints.protocol),
+    port: anyToAuto(contraints.port),
   };
 };
 
-function tryOrElse(toTry, orElse) {
-  try {
-    return toTry() || orElse;
-  } catch (e) {
-    return orElse;
+function anyToAuto(constraint) {
+  if (constraint === 'any') {
+    return 'Automatic';
+  } else {
+    return constraint;
   }
 }
 
@@ -42,7 +43,10 @@ const mapDispatchToProps = (dispatch, props) => {
       };
 
       backend.updateRelayConstraints(update)
-        .then( () => dispatch(settingsActions.updateRelay(update)))
+        .then( () => dispatch(settingsActions.updateRelay({
+          port: typeof(portConstraint) === 'object' ? portConstraint.only : portConstraint,
+          protocol: typeof(protConstraint) === 'object' ? protConstraint.only : protConstraint,
+        })))
         .catch( e => log.error('Failed updating relay constraints', e.message));
     },
   };

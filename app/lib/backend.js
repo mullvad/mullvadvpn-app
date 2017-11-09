@@ -317,16 +317,26 @@ export class Backend {
 
         const host = constraints.host === 'any'
           ? defaultServer
-          : constraints.host || defaultServer;
+          : constraints.host.only || defaultServer;
 
+        const openvpn = constraints.tunnel.openvpn;
         this._store.dispatch(settingsActions.updateRelay({
           host: host,
-          tunnel: constraints.tunnel,
+          port: this._apiToReduxConstraints(openvpn.port),
+          protocol: this._apiToReduxConstraints(openvpn.protocol),
         }));
       })
       .catch( e => {
         log.error('Failed getting relay constraints', e);
       });
+  }
+
+  _apiToReduxConstraints(constraint: *): * {
+    if (typeof(constraint) === 'object') {
+      return constraint.only;
+    } else {
+      return constraint;
+    }
   }
 
   /**

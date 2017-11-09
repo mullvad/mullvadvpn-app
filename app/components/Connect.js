@@ -104,8 +104,7 @@ export default class Connect extends Component {
       };
     }
 
-    return this.props.getServerInfo(relayConstraints.host.only);
-
+    return this.props.getServerInfo(relayConstraints.host);
   }
 
   renderMap(): React.Element<*> {

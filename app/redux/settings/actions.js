@@ -1,6 +1,6 @@
 // @flow
 
-import type { RelayConstraints } from '../../lib/ipc-facade';
+import type { RelayConstraints } from './reducers';
 
 export type UpdateRelayAction = {
   type: 'UPDATE_RELAY',

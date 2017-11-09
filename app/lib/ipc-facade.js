@@ -25,7 +25,7 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
-export type RelayConstraints = {
+type RelayConstraints = {
   host: 'any' | { only: string },
   tunnel: {
     openvpn: {

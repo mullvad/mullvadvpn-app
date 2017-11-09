@@ -4,87 +4,112 @@ import React from 'react';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
-type Props = {
-  onClose: () => void,
-  protocol: string,
-  port: string|number,
-  updateConstraints: (string, string|number) => void,
-};
-export function AdvancedSettings(props: Props) {
+export class AdvancedSettings extends React.Component {
 
-  let portSelector = null;
-  let protocol = props.protocol.toUpperCase();
+  props: {
+    onClose: () => void,
+    protocol: string,
+    port: string|number,
+    updateConstraints: (string, string|number) => void,
+  };
 
-  if (protocol === 'AUTOMATIC') {
-    protocol = 'Automatic';
-  } else {
-    portSelector = createPortSelector(props);
+  render() {
+    let portSelector = null;
+    let protocol = this.props.protocol.toUpperCase();
+
+    if (protocol === 'AUTOMATIC') {
+      protocol = 'Automatic';
+    } else {
+      portSelector = this._createPortSelector();
+    }
+
+    return <BaseLayout onClose={ this.props.onClose }>
+
+      <Selector
+        title={ 'Network protocols' }
+        values={ ['Automatic', 'UDP', 'TCP'] }
+        value={ protocol }
+        onSelect={ protocol => {
+          this.props.updateConstraints(protocol, 'Automatic');
+        }}/>
+
+      <div className="settings__cell-spacer"></div>
+
+      { portSelector }
+
+    </BaseLayout>;
   }
 
-  return <BaseLayout onClose={ props.onClose }>
+  _createPortSelector() {
+    const protocol = this.props.protocol.toUpperCase();
+    const ports = protocol === 'TCP'
+      ? ['Automatic', 80, 443]
+      : ['Automatic', 1194, 1195, 1196, 1197, 1300, 1301, 1302];
 
-    <Selector
-      title={ 'Network protocols' }
-      values={ ['Automatic', 'UDP', 'TCP'] }
-      value={ protocol }
-      onSelect={ protocol => {
-        // $FlowFixMe
-        props.updateConstraints(protocol, 'Automatic');
-      }}/>
-
-    <div className="settings__cell-spacer"></div>
-
-    { portSelector }
-
-  </BaseLayout>;
-
+    return <Selector
+      title={ protocol + ' port' }
+      values={ ports }
+      value={ this.props.port }
+      onSelect={ port => {
+        this.props.updateConstraints(protocol, port);
+      }} />;
+  }
 }
 
-function createPortSelector(props) {
-  const protocol = props.protocol.toUpperCase();
-  const ports = protocol === 'TCP'
-    ? ['Automatic', 80, 443]
-    : ['Automatic', 1194, 1195, 1196, 1197, 1300, 1301, 1302];
 
-  return <Selector
-    title={ protocol + ' port' }
-    values={ ports }
-    value={ props.port }
-    onSelect={ port => {
-      props.updateConstraints(protocol, port);
-    }} />;
-}
+class Selector extends React.Component {
 
-function Selector(props) {
-  return <div>
-    <Cell
-      label={ props.title }
-    />
+  props: {
+    title: string,
+    values: Array<*>,
+    value: *,
+    onSelect: (*) => void,
+  }
 
-    { props.values.map(value => renderCell(value)) }
-  </div>;
+  render() {
+    return <div>
+      <div className="settings__cell">
+        <div className="settings__cell-label">{ this.props.title }</div>
+      </div>
 
-  function renderCell(value) {
-    const selected = value === props.value;
-
-    let className = 'settings__sub-cell';
-    let tick = null;
-    if (selected) {
-      className = 'settings__cell--selected';
-      tick = <img src='./assets/images/icon-tick.svg' />;
-    }
-    const label = <div className={ 'settings__sub-cell--label' }>
-      { tick }
-      { value }
+      { this.props.values.map(value => this._renderCell(value)) }
     </div>;
+  }
 
-    const onCellClick = () => props.onSelect(value);
+  _renderCell(value) {
+    const selected = value === this.props.value;
+    if (selected) {
+      return this._renderSelectedCell(value);
+    } else {
+      return this._renderUnselectedCell(value);
+    }
+  }
 
-    return <Cell
+  _renderSelectedCell(value) {
+    const onCellClick = () => this.props.onSelect(value);
+
+    return <div
       key={ value }
-      label={ label }
-      className={ className }
-      onClick={ onCellClick } />;
+      className={ 'settings__cell--selected settings__cell' }
+      onClick={ onCellClick } >
+      <div className="settings__cell-label">
+        <div className={ 'settings__sub-cell--label' }>
+          <img src='./assets/images/icon-tick.svg' />
+          { value }
+        </div>
+      </div>
+    </div>;
+  }
+
+  _renderUnselectedCell(value) {
+    const onCellClick = () => this.props.onSelect(value);
+
+    return <div
+      key={ value }
+      className={ 'settings__cell settings__sub-cell' }
+      onClick={ onCellClick } >
+      <div className="settings__cell-label">{ value }</div>
+    </div>;
   }
 }
 
@@ -113,15 +138,3 @@ function BaseLayout(props) {
   </Layout>;
 }
 
-function Cell(props) {
-
-  const className = props.className || '';
-  return <div
-    className={ className + ' settings__cell' }
-    onClick={ props.onClick || null } >
-    <div className="settings__cell-label">{ props.label }</div>
-    <div className="settings__cell-value">
-      { props.value || null }
-    </div>
-  </div>;
-}

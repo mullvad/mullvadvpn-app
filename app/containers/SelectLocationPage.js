@@ -22,7 +22,9 @@ const mapDispatchToProps = (dispatch, props) => {
         };
 
         backend.updateRelayConstraints(update)
-          .then( () => dispatch(settingsActions.updateRelay(update)))
+          .then( () => dispatch(settingsActions.updateRelay({
+            host: preferredServer,
+          })))
           .then( () => backend.connect())
           .catch( e => log.error('Failed updating relay constraints', e.message));
 
