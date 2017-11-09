@@ -12,6 +12,12 @@ describe('components/Support', () => {
 
   const makeProps = (mergeProps: $Shape<SupportProps> = {}): SupportProps => {
     const defaultProps: SupportProps = {
+      account: {
+        accountToken: null,
+        error: null,
+        expiry: null,
+        status: 'none',
+      },
       onClose: () => {},
       onViewLog: (_path) => {},
       onCollectLog: () => Promise.resolve('/tmp/mullvad_problem_report.log'),
