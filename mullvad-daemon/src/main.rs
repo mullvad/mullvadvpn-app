@@ -65,7 +65,7 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::{Endpoint, TransportProtocol};
+use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint};
 
 error_chain!{
     errors {
@@ -178,7 +178,7 @@ struct Daemon {
     settings: settings::Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
     firewall: FirewallProxy,
-    relay_endpoint: Option<Endpoint>,
+    relay_endpoint: Option<TunnelEndpoint>,
     tunnel_metadata: Option<TunnelMetadata>,
     tunnel_log: Option<PathBuf>,
 
@@ -510,16 +510,16 @@ impl Daemon {
             ErrorKind::InvalidState
         );
 
-        let relay = self.get_relay().chain_err(|| ErrorKind::NoRelay)?;
+        let relay_endpoint = self.get_relay().chain_err(|| ErrorKind::NoRelay)?;
 
         let account_token = self.settings
             .get_account_token()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
 
-        self.relay_endpoint = Some(relay);
+        self.relay_endpoint = Some(relay_endpoint);
         self.set_security_policy()?;
 
-        let tunnel_monitor = self.spawn_tunnel_monitor(relay, &account_token)?;
+        let tunnel_monitor = self.spawn_tunnel_monitor(relay_endpoint, &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
@@ -527,7 +527,7 @@ impl Daemon {
         Ok(())
     }
 
-    fn get_relay(&mut self) -> Result<Endpoint> {
+    fn get_relay(&mut self) -> Result<TunnelEndpoint> {
         let relay_constraints = self.settings.get_relay_constraints();
 
         let host = match relay_constraints.host {
@@ -544,7 +544,7 @@ impl Daemon {
         &mut self,
         host: String,
         constraints: OpenVpnConstraints,
-    ) -> Result<Endpoint> {
+    ) -> Result<TunnelEndpoint> {
         let protocol = match constraints.protocol {
             Constraint::Any => TransportProtocol::Udp,
             Constraint::Only(protocol) => protocol,
@@ -554,15 +554,20 @@ impl Daemon {
             Constraint::Only(port) => port,
         };
 
-        RelayEndpoint {
+        let endpoint = RelayEndpoint {
             host,
             port,
             protocol,
         }.to_endpoint()
-            .chain_err(|| "Unable to construct a valid relay")
+            .chain_err(|| "Unable to construct a valid relay")?;
+        Ok(TunnelEndpoint::OpenVpn(endpoint))
     }
 
-    fn spawn_tunnel_monitor(&self, relay: Endpoint, account_token: &str) -> Result<TunnelMonitor> {
+    fn spawn_tunnel_monitor(
+        &self,
+        tunnel_endpoint: TunnelEndpoint,
+        account_token: &str,
+    ) -> Result<TunnelMonitor> {
         // Must wrap the channel in a Mutex because TunnelMonitor forces the closure to be Sync
         let event_tx = Arc::new(Mutex::new(self.tx.clone()));
         let on_tunnel_event = move |event| {
@@ -572,7 +577,7 @@ impl Daemon {
                 .send(DaemonEvent::TunnelEvent(event));
         };
         TunnelMonitor::new(
-            relay,
+            tunnel_endpoint,
             account_token,
             self.tunnel_log.as_ref().map(PathBuf::as_path),
             on_tunnel_event,
@@ -616,9 +621,9 @@ impl Daemon {
 
     fn set_security_policy(&mut self) -> Result<()> {
         let policy = match (self.relay_endpoint, self.tunnel_metadata.as_ref()) {
-            (Some(relay), None) => SecurityPolicy::Connecting(relay),
+            (Some(relay), None) => SecurityPolicy::Connecting(relay.to_endpoint()),
             (Some(relay), Some(tunnel_metadata)) => {
-                SecurityPolicy::Connected(relay, tunnel_metadata.clone())
+                SecurityPolicy::Connected(relay.to_endpoint(), tunnel_metadata.clone())
             }
             _ => bail!(ErrorKind::InvalidState),
         };
