@@ -98,12 +98,12 @@ error_chain!{
 lazy_static! {
     // Temporary store of hardcoded relays.
     static ref RELAYS: [Endpoint; 3] = [
+        // se2.mullvad.net
+        Endpoint::new(Ipv4Addr::new(185, 213, 152, 132), 1300, TransportProtocol::Udp),
         // se5.mullvad.net
-        Endpoint::new(Ipv4Addr::new(193, 138, 219, 240), 1300, TransportProtocol::Udp),
-        // se6.mullvad.net
-        Endpoint::new(Ipv4Addr::new(193, 138, 219, 241), 1300, TransportProtocol::Udp),
-        // se7.mullvad.net
-        Endpoint::new(Ipv4Addr::new(185, 65, 132, 104), 1300, TransportProtocol::Udp),
+        Endpoint::new(Ipv4Addr::new(193, 138, 218, 135), 1300, TransportProtocol::Udp),
+        // se23.mullvad.net
+        Endpoint::new(Ipv4Addr::new(185, 65, 135, 143), 1300, TransportProtocol::Udp),
     ];
     static ref MIN_TUNNEL_ALIVE_TIME_MS: Duration = Duration::from_millis(1000);
 }
