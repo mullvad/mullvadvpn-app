@@ -109,9 +109,6 @@ export default class Connect extends Component {
 
   renderMap(): React.Element<*> {
     const serverInfo = this._getServerInfo();
-    if(!serverInfo) {
-      throw new Error('Server info cannot be null.');
-    }
 
     let isConnecting = false;
     let isConnected = false;
@@ -122,12 +119,15 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    const { city, country } = isConnecting || isConnected
+    const { city, country } = serverInfo && (isConnecting || isConnected)
       ? serverInfo
       : { city: '\u2003', country: '\u2002' };
-    const ip = isConnected
+    const ip = serverInfo && isConnected
       ? serverInfo.address
       : '\u2003'; //this.props.connection.clientIp;
+    const serverName = serverInfo
+      ? serverInfo.name
+      : '\u2003';
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
@@ -228,7 +228,7 @@ export default class Connect extends Component {
                     <div className="connect__server-label">Connect to</div>
                     <div className="connect__server-value">
 
-                      <div className="connect__server-name">{ serverInfo.name }</div>
+                      <div className="connect__server-name">{ serverName }</div>
 
                     </div>
                   </div>

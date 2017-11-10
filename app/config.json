@@ -10,7 +10,7 @@
     "guides": "https://mullvad.net/guides/",
     "supportEmail": "mailto:support@mullvad.net"
   },
-  "defaultServer": "193.138.219.226",
+  "defaultServer": "193.138.218.135",
   "servers": {
     "168.1.6.5": {
       "address": "168.1.6.5",
@@ -170,20 +170,20 @@
         -3.7037902
       ]
     },
-    "185.65.132.108": {
-      "address": "185.65.132.108",
+    "185.213.152.132": {
+      "address": "185.213.152.132",
       "name": "Sweden - Helsingborg",
       "city": "Helsingborg",
       "country": "Sweden"
     },
-    "193.138.219.226": {
-      "address": "193.138.219.226",
+    "193.138.218.135": {
+      "address": "193.138.218.135",
       "name": "Sweden - Malmö",
       "city": "Malmö",
       "country": "Sweden"
     },
-    "185.65.135.73": {
-      "address": "185.65.135.73",
+    "185.65.135.143": {
+      "address": "185.65.135.143",
       "name": "Sweden - Stockholm",
       "city": "Stockholm",
       "country": "Sweden"
