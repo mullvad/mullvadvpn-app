@@ -108,7 +108,9 @@ class Selector extends React.Component {
       key={ value }
       className={ 'settings__cell settings__sub-cell' }
       onClick={ onCellClick } >
-      <div className="settings__cell-label">{ value }</div>
+      <div className="settings__cell-label">
+        <div className="settings__sub-cell--label">{ value }</div>
+      </div>
     </div>;
   }
 }
@@ -118,10 +120,13 @@ function BaseLayout(props) {
     <Header hidden={ true } style={ 'defaultDark' } />
     <Container>
       <div className="settings">
-        <button className="settings__close" onClick={ props.onClose } />
+        <div className="support__close" onClick={ props.onClose }>
+          <img className="support__close-icon" src="./assets/images/icon-back.svg" />
+          <span className="support__close-title">Settings</span>
+        </div>
         <div className="settings__container">
           <div className="settings__header">
-            <h2 className="settings__title">Advanced Settings</h2>
+            <h2 className="settings__title">Advanced</h2>
           </div>
           <CustomScrollbars autoHide={ true }>
             <div className="settings__content">
