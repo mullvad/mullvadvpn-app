@@ -24,9 +24,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Maximum number of bytes to read from each log file
-const LOG_MAX_READ_BYTES: usize = 5 * 1024 * 1024;
-/// Maximum number of bytes allowed in a report.
-const REPORT_MAX_SIZE: usize = 4 * LOG_MAX_READ_BYTES;
+const LOG_MAX_READ_BYTES: usize = 1 * 1024 * 1024;
+/// Fit two logs plus some system information in the report.
+const REPORT_MAX_SIZE: usize = 2 * LOG_MAX_READ_BYTES + 16 * 1024;
 
 
 /// Field delimeter in generated problem report
