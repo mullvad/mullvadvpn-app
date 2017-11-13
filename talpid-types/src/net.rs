@@ -3,6 +3,28 @@ use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
+/// Represents one tunnel endpoint. Tunnel technology plus address.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TunnelEndpoint {
+    /// An OpenVPN tunnel endpoint.
+    OpenVpn(Endpoint),
+    /// A Wireguard tunnel endpoint.
+    Wireguard(SocketAddr),
+}
+
+impl TunnelEndpoint {
+    /// Returns this tunnel endpoint as an `Endpoint`.
+    pub fn to_endpoint(&self) -> Endpoint {
+        match *self {
+            TunnelEndpoint::OpenVpn(endpoint) => endpoint,
+            TunnelEndpoint::Wireguard(address) => Endpoint {
+                address,
+                protocol: TransportProtocol::Udp,
+            },
+        }
+    }
+}
+
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Endpoint {
