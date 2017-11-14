@@ -66,8 +66,8 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelEndpointData,
-                        OpenVpnEndpoint};
+use talpid_types::net::{Endpoint, OpenVpnEndpoint, TransportProtocol, TunnelEndpoint,
+                        TunnelEndpointData};
 
 error_chain!{
     errors {
@@ -567,10 +567,7 @@ impl Daemon {
             .chain_err(|| "Unable to construct a valid relay")?;
         Ok(TunnelEndpoint {
             address: endpoint.address.ip(),
-            tunnel: TunnelEndpointData::OpenVpn(OpenVpnEndpoint {
-                port,
-                protocol,
-            })
+            tunnel: TunnelEndpointData::OpenVpn(OpenVpnEndpoint { port, protocol }),
         })
     }
 
@@ -755,7 +752,7 @@ fn get_resource_dir() -> PathBuf {
         }
         Err(e) => {
             error!(
-                "Failed finding the directory of the executable. Using working directory: {}",
+                "Failed finding the install directory. Using working directory: {}",
                 e
             );
             PathBuf::from(".")
