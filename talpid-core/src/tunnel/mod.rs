@@ -5,14 +5,13 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
-use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
-use talpid_types::net::{Endpoint, TunnelEndpoint};
+use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelParameters};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -39,8 +38,8 @@ mod errors {
                 description("Running on an unsupported operating system")
             }
             /// This type of VPN tunnel is not supported.
-            UnsupportedTunnelTechnology {
-                description("This tunnel technology is not supported")
+            UnsupportedTunnelProtocol {
+                description("This tunnel protocol is not supported")
             }
         }
     }
@@ -112,23 +111,29 @@ impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
     pub fn new<L>(
-        remote: TunnelEndpoint,
+        tunnel_endpoint: TunnelEndpoint,
         account_token: &str,
         log: Option<&Path>,
+        resource_dir: &Path,
         on_event: L,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let remote = match remote {
-            TunnelEndpoint::OpenVpn(endpoint) => endpoint,
-            _ => bail!(ErrorKind::UnsupportedTunnelTechnology),
-        };
+        match tunnel_endpoint.tunnel {
+            TunnelParameters::OpenVpn(_) => (),
+            TunnelParameters::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+        }
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
-        let cmd = Self::create_openvpn_cmd(remote, user_pass_file.as_ref(), log);
-        let user_pass_file_path = user_pass_file.to_path_buf();
+        let cmd = Self::create_openvpn_cmd(
+            tunnel_endpoint.to_endpoint(),
+            user_pass_file.as_ref(),
+            log,
+            resource_dir,
+        );
 
+        let user_pass_file_path = user_pass_file.to_path_buf();
         let on_openvpn_event = move |event, env| {
             if event == OpenVpnPluginEvent::Up {
                 // The user-pass file has been read. Try to delete it early.
@@ -140,8 +145,11 @@ impl TunnelMonitor {
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
-            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = openvpn::OpenVpnMonitor::new(
+            cmd,
+            on_openvpn_event,
+            Self::get_plugin_path(resource_dir)?,
+        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -152,28 +160,25 @@ impl TunnelMonitor {
         remote: Endpoint,
         user_pass_file: &Path,
         log: Option<&Path>,
+        resource_dir: &Path,
     ) -> OpenVpnCommand {
-        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin());
-        if let Some(config) = Self::get_config_path() {
+        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir));
+        if let Some(config) = Self::get_config_path(resource_dir) {
             cmd.config(config);
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .ca(Self::get_ca_path())
-            .crl(Self::get_crl_path());
+            .ca(resource_dir.join("ca.crt"))
+            .crl(resource_dir.join("crl.pem"));
         if let Some(log) = log {
             cmd.log(log);
         }
         cmd
     }
 
-    fn get_openvpn_bin() -> OsString {
+    fn get_openvpn_bin(resource_dir: &Path) -> OsString {
         let bin = OsStr::new("openvpn");
-        let bundled_path = Self::get_install_dir()
-            .unwrap_or(PathBuf::from("."))
-            .join("openvpn-binaries")
-            .join(bin);
-
+        let bundled_path = resource_dir.join("openvpn-binaries").join(bin);
         if bundled_path.exists() {
             bundled_path.into_os_string()
         } else {
@@ -182,24 +187,9 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_ca_path() -> PathBuf {
-        Self::get_install_dir()
-            .unwrap_or(PathBuf::from("."))
-            .join("ca.crt")
-    }
-
-    fn get_crl_path() -> PathBuf {
-        Self::get_install_dir()
-            .unwrap_or(PathBuf::from("."))
-            .join("crl.pem")
-    }
-
-    fn get_plugin_path() -> Result<PathBuf> {
+    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
         let lib_ext = Self::get_library_extension().chain_err(|| ErrorKind::PluginNotFound)?;
-
-        let path = Self::get_install_dir()
-            .unwrap_or(PathBuf::from("."))
-            .join(format!("libtalpid_openvpn_plugin.{}", lib_ext));
+        let path = resource_dir.join(format!("libtalpid_openvpn_plugin.{}", lib_ext));
 
         if path.exists() {
             debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
@@ -221,28 +211,12 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_config_path() -> Option<PathBuf> {
-        let path = Self::get_install_dir()
-            .unwrap_or(PathBuf::from("."))
-            .join("openvpn.conf");
-
+    fn get_config_path(resource_dir: &Path) -> Option<PathBuf> {
+        let path = resource_dir.join("openvpn.conf");
         if path.exists() {
             Some(path)
         } else {
             None
-        }
-    }
-
-    fn get_install_dir() -> Option<PathBuf> {
-        match env::current_exe() {
-            Ok(mut path) => {
-                path.pop();
-                Some(path)
-            }
-            Err(e) => {
-                error!("Failed finding the directory of the executable: {}", e);
-                None
-            }
         }
     }
 

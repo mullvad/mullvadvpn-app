@@ -3,27 +3,59 @@ use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
-/// Represents one tunnel endpoint. Tunnel technology plus address.
+/// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum TunnelEndpoint {
-    /// An OpenVPN tunnel endpoint.
-    OpenVpn(Endpoint),
-    /// A Wireguard tunnel endpoint.
-    Wireguard(SocketAddr),
+pub struct TunnelEndpoint {
+    pub address: IpAddr,
+    pub tunnel: TunnelParameters,
 }
 
 impl TunnelEndpoint {
     /// Returns this tunnel endpoint as an `Endpoint`.
     pub fn to_endpoint(&self) -> Endpoint {
+        Endpoint::new(
+            self.address,
+            self.tunnel.port(),
+            self.tunnel.transport_protocol(),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub enum TunnelParameters {
+    /// Extra parameters for an OpenVPN tunnel endpoint.
+    OpenVpn(OpenVpnParameters),
+    /// Extra parameters for a Wireguard tunnel endpoint.
+    Wireguard(WireguardParameters),
+}
+
+impl TunnelParameters {
+    pub fn port(&self) -> u16 {
         match *self {
-            TunnelEndpoint::OpenVpn(endpoint) => endpoint,
-            TunnelEndpoint::Wireguard(address) => Endpoint {
-                address,
-                protocol: TransportProtocol::Udp,
-            },
+            TunnelParameters::OpenVpn(metadata) => metadata.port,
+            TunnelParameters::Wireguard(metadata) => metadata.port,
+        }
+    }
+
+    pub fn transport_protocol(&self) -> TransportProtocol {
+        match *self {
+            TunnelParameters::OpenVpn(metadata) => metadata.protocol,
+            TunnelParameters::Wireguard(_) => TransportProtocol::Udp,
         }
     }
 }
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct OpenVpnParameters {
+    pub port: u16,
+    pub protocol: TransportProtocol,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct WireguardParameters {
+    pub port: u16,
+}
+
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
