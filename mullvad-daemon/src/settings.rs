@@ -1,7 +1,6 @@
-extern crate app_dirs;
 extern crate serde_json;
 
-use self::app_dirs::{AppDataType, AppInfo};
+use app_dirs::{self, AppDataType};
 
 use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraints, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
@@ -27,11 +26,6 @@ error_chain! {
         }
     }
 }
-
-static APP_INFO: AppInfo = AppInfo {
-    name: ::CRATE_NAME,
-    author: "Mullvad",
-};
 
 static SETTINGS_FILE: &str = "settings.json";
 
@@ -90,7 +84,7 @@ impl Settings {
     }
 
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(AppDataType::UserConfig, &APP_INFO)
+        let dir = app_dirs::app_root(AppDataType::UserConfig, &::APP_INFO)
             .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }

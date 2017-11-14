@@ -6,6 +6,7 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+extern crate app_dirs;
 extern crate chrono;
 #[macro_use]
 extern crate clap;
@@ -41,8 +42,9 @@ mod management_interface;
 mod rpc_info;
 mod settings;
 mod shutdown;
+mod account_history;
 
-
+use app_dirs::AppInfo;
 use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
@@ -68,6 +70,11 @@ use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{Endpoint, OpenVpnParameters, TransportProtocol, TunnelEndpoint,
                         TunnelParameters};
+
+pub static APP_INFO: AppInfo = AppInfo {
+    name: ::CRATE_NAME,
+    author: "Mullvad",
+};
 
 error_chain!{
     errors {
