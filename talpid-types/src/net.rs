@@ -7,7 +7,7 @@ use std::str::FromStr;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
-    pub tunnel: TunnelEndpointData,
+    pub tunnel: TunnelParameters,
 }
 
 impl TunnelEndpoint {
@@ -22,37 +22,37 @@ impl TunnelEndpoint {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub enum TunnelEndpointData {
+pub enum TunnelParameters {
     /// An OpenVPN tunnel endpoint.
-    OpenVpn(OpenVpnEndpoint),
+    OpenVpn(OpenVpnParameters),
     /// A Wireguard tunnel endpoint.
-    Wireguard(WireguardEndpoint),
+    Wireguard(WireguardParameters),
 }
 
-impl TunnelEndpointData {
+impl TunnelParameters {
     pub fn port(&self) -> u16 {
         match *self {
-            TunnelEndpointData::OpenVpn(metadata) => metadata.port,
-            TunnelEndpointData::Wireguard(metadata) => metadata.port,
+            TunnelParameters::OpenVpn(metadata) => metadata.port,
+            TunnelParameters::Wireguard(metadata) => metadata.port,
         }
     }
 
     pub fn transport_protocol(&self) -> TransportProtocol {
         match *self {
-            TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
-            TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
+            TunnelParameters::OpenVpn(metadata) => metadata.protocol,
+            TunnelParameters::Wireguard(_) => TransportProtocol::Udp,
         }
     }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnEndpoint {
+pub struct OpenVpnParameters {
     pub port: u16,
     pub protocol: TransportProtocol,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct WireguardEndpoint {
+pub struct WireguardParameters {
     pub port: u16,
 }
 

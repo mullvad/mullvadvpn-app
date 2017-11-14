@@ -66,8 +66,8 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::{Endpoint, OpenVpnEndpoint, TransportProtocol, TunnelEndpoint,
-                        TunnelEndpointData};
+use talpid_types::net::{Endpoint, OpenVpnParameters, TransportProtocol, TunnelEndpoint,
+                        TunnelParameters};
 
 error_chain!{
     errors {
@@ -569,7 +569,7 @@ impl Daemon {
             .chain_err(|| "Unable to construct a valid relay")?;
         Ok(TunnelEndpoint {
             address: endpoint.address.ip(),
-            tunnel: TunnelEndpointData::OpenVpn(OpenVpnEndpoint { port, protocol }),
+            tunnel: TunnelParameters::OpenVpn(OpenVpnParameters { port, protocol }),
         })
     }
 
