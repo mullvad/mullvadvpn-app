@@ -49,7 +49,7 @@ export default class HeaderBar extends Component {
           </View> 
         : null}
         
-        {!!this.props.showSettings ? 
+        {this.props.showSettings ? 
           <View style={styles.headerbar__settings}>
             <Button  onPress={ this.props.onSettings }>
               <Img style={ styles.headerbar__settings } source='icon-settings'/>
