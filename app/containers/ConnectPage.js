@@ -6,7 +6,7 @@ import { push } from 'react-router-redux';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
-import Linking from '../lib/linking';
+import { open } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -25,6 +25,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   const { backend } = props;
 
   return {
+<<<<<<< HEAD
     onSettings: () => {
       pushHistory('/settings');
     },
@@ -40,7 +41,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onDisconnect: () => {
       disconnect(backend);
     },
-    onExternalLink: (type) => Linking(links[type]),
+    onExternalLink: (type) => open(links[type]),
     getServerInfo: (relayLocation) => backend.serverInfo(relayLocation),
   };
 };
