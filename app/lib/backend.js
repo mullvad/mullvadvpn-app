@@ -152,9 +152,9 @@ export class Backend {
           .then( location => {
             log.info('Got location', location);
             const newLocation = {
-              location: location.latlong,
               country: location.country,
-              city: location.city
+              city: location.city,
+              location: location.position
             };
             this._store.dispatch(connectionActions.newLocation(newLocation));
           })

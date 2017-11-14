@@ -10,14 +10,14 @@ export type AccountData = {expiry: string};
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
-  latlong: Coordinate2d,
   country: string,
   city: string,
+  position: Coordinate2d,
 };
 const LocationSchema = object({
-  latlong: arrayOf(number),
   country: string,
   city: string,
+  position: arrayOf(number),
 });
 
 export type SecurityState = 'secured' | 'unsecured';
