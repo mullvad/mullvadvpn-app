@@ -3,7 +3,7 @@ use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
-/// Represents one tunnel endpoint. Tunnel technology plus address.
+/// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
@@ -23,9 +23,9 @@ impl TunnelEndpoint {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum TunnelParameters {
-    /// An OpenVPN tunnel endpoint.
+    /// Extra parameters for an OpenVPN tunnel endpoint.
     OpenVpn(OpenVpnParameters),
-    /// A Wireguard tunnel endpoint.
+    /// Extra parameters for a Wireguard tunnel endpoint.
     Wireguard(WireguardParameters),
 }
 
