@@ -55,6 +55,7 @@ use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use rand::Rng;
+use std::env;
 use std::io;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
@@ -185,6 +186,7 @@ struct Daemon {
     // Just for testing. A cyclic iterator iterating over the hardcoded relays,
     // picking a new one for each retry.
     relay_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
+    resource_dir: PathBuf,
 }
 
 impl Daemon {
@@ -193,6 +195,7 @@ impl Daemon {
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
+        let resource_dir = get_resource_dir();
         Ok(Daemon {
             state,
             tunnel_close_handle: None,
@@ -212,6 +215,7 @@ impl Daemon {
             tunnel_metadata: None,
             tunnel_log: tunnel_log,
             relay_iter: RELAYS.iter().cloned().cycle(),
+            resource_dir,
         })
     }
 
@@ -580,6 +584,7 @@ impl Daemon {
             tunnel_endpoint,
             account_token,
             self.tunnel_log.as_ref().map(PathBuf::as_path),
+            &self.resource_dir,
             on_tunnel_event,
         ).chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
     }
@@ -733,4 +738,20 @@ fn randomize_port(protocol: TransportProtocol) -> u16 {
     *rand::thread_rng()
         .choose(&pool)
         .expect("no ports to randomize from")
+}
+
+fn get_resource_dir() -> PathBuf {
+    match env::current_exe() {
+        Ok(mut path) => {
+            path.pop();
+            path
+        }
+        Err(e) => {
+            error!(
+                "Failed finding the directory of the executable. Using working directory: {}",
+                e
+            );
+            PathBuf::from(".")
+        }
+    }
 }
