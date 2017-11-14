@@ -11,7 +11,7 @@ use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
-use talpid_types::net::{Endpoint, TunnelEndpoint};
+use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelEndpointData};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -38,8 +38,8 @@ mod errors {
                 description("Running on an unsupported operating system")
             }
             /// This type of VPN tunnel is not supported.
-            UnsupportedTunnelTechnology {
-                description("This tunnel technology is not supported")
+            UnsupportedTunnelProtocol {
+                description("This tunnel protocol is not supported")
             }
         }
     }
@@ -111,7 +111,7 @@ impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
     pub fn new<L>(
-        remote: TunnelEndpoint,
+        tunnel_endpoint: TunnelEndpoint,
         account_token: &str,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -120,10 +120,10 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let remote = match remote {
-            TunnelEndpoint::OpenVpn(endpoint) => endpoint,
-            _ => bail!(ErrorKind::UnsupportedTunnelTechnology),
-        };
+        match tunnel_endpoint.tunnel {
+            TunnelEndpointData::OpenVpn(_) => (),
+            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+        }
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(

@@ -5,25 +5,57 @@ use std::str::FromStr;
 
 /// Represents one tunnel endpoint. Tunnel technology plus address.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum TunnelEndpoint {
-    /// An OpenVPN tunnel endpoint.
-    OpenVpn(Endpoint),
-    /// A Wireguard tunnel endpoint.
-    Wireguard(SocketAddr),
+pub struct TunnelEndpoint {
+    pub address: IpAddr,
+    pub tunnel: TunnelEndpointData,
 }
 
 impl TunnelEndpoint {
     /// Returns this tunnel endpoint as an `Endpoint`.
     pub fn to_endpoint(&self) -> Endpoint {
+        Endpoint::new(
+            self.address,
+            self.tunnel.port(),
+            self.tunnel.transport_protocol(),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub enum TunnelEndpointData {
+    /// An OpenVPN tunnel endpoint.
+    OpenVpn(OpenVpnEndpoint),
+    /// A Wireguard tunnel endpoint.
+    Wireguard(WireguardEndpoint),
+}
+
+impl TunnelEndpointData {
+    pub fn port(&self) -> u16 {
         match *self {
-            TunnelEndpoint::OpenVpn(endpoint) => endpoint,
-            TunnelEndpoint::Wireguard(address) => Endpoint {
-                address,
-                protocol: TransportProtocol::Udp,
-            },
+            TunnelEndpointData::OpenVpn(metadata) => metadata.port,
+            TunnelEndpointData::Wireguard(metadata) => metadata.port,
+        }
+    }
+
+    pub fn transport_protocol(&self) -> TransportProtocol {
+        match *self {
+            TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
+            TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
         }
     }
 }
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct OpenVpnEndpoint {
+    pub port: u16,
+    pub protocol: TransportProtocol,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct WireguardEndpoint {
+    pub port: u16,
+}
+
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
