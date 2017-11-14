@@ -10,6 +10,7 @@ extern crate chrono;
 #[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
+extern crate serde_json;
 
 extern crate mullvad_types;
 
@@ -21,10 +22,15 @@ pub use jsonrpc_client_core::{Error, ErrorKind};
 pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 
 use mullvad_types::account::AccountToken;
+use mullvad_types::relay_list::RelayList;
 
 
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
+
+pub fn connect() -> Result<HttpHandle, HttpError> {
+    HttpTransport::new()?.handle(MASTER_API_URI)
+}
 
 jsonrpc_client!(pub struct AccountsProxy {
     pub fn get_expiry(&mut self, account_token: AccountToken) -> RpcRequest<DateTime<Utc>>;
@@ -45,5 +51,16 @@ impl ProblemReportProxy<HttpHandle> {
     pub fn connect() -> Result<Self, HttpError> {
         let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
         Ok(ProblemReportProxy::new(transport))
+    }
+}
+
+jsonrpc_client!(pub struct RelayListProxy {
+    pub fn relay_list(&mut self) -> RpcRequest<RelayList>;
+});
+
+impl RelayListProxy<HttpHandle> {
+    pub fn connect() -> Result<Self, HttpError> {
+        let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
+        Ok(RelayListProxy::new(transport))
     }
 }

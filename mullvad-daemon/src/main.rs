@@ -48,10 +48,10 @@ use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
+use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraints, RelayConstraints,
                                        RelayConstraintsUpdate, TunnelConstraints};
-use mullvad_types::relay_endpoint::RelayEndpoint;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use rand::Rng;
@@ -561,16 +561,11 @@ impl Daemon {
             Constraint::Only(port) => port,
         };
 
-        let endpoint = RelayEndpoint {
+        CustomTunnelEndpoint {
             host,
-            port,
-            protocol,
-        }.to_endpoint()
-            .chain_err(|| "Unable to construct a valid relay")?;
-        Ok(TunnelEndpoint {
-            address: endpoint.address.ip(),
             tunnel: TunnelParameters::OpenVpn(OpenVpnParameters { port, protocol }),
-        })
+        }.to_tunnel_endpoint()
+            .chain_err(|| "Unable to construct a valid relay")
     }
 
     fn spawn_tunnel_monitor(

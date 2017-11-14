@@ -449,9 +449,11 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_location(&self) -> Result<Location, Error> {
         trace!("get_location");
         Ok(Location {
-            latlong: [1.0, 2.0],
-            country: "narnia".to_owned(),
-            city: "Le city".to_owned(),
+            country: String::from("narnia"),
+            country_code: String::from("na"),
+            city: String::from("Le city"),
+            city_code: String::from("le"),
+            position: [1.0, 2.0],
         })
     }
 
