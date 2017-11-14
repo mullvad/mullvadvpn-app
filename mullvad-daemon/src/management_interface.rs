@@ -25,6 +25,8 @@ use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
 
+use account_history::AccountHistory;
+
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
 /// Remove this and use the one in jsonrpc_core when that is released.
@@ -100,6 +102,10 @@ build_rpc_trait! {
         /// Makes the daemon exit its main loop and quit.
         #[rpc(meta, name = "shutdown")]
         fn shutdown(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
+        /// Get previously used account tokens
+        #[rpc(meta, name = "get_account_history")]
+        fn get_account_history(&self, Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error>;
 
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
@@ -376,8 +382,21 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("set_account");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        let future = self.send_command_to_daemon(
+            TunnelCommand::SetAccount(tx, account_token.clone()),
+        ).and_then(|_| rx.map_err(|_| Error::internal_error()));
+
+        if let Some(new_account_token) = account_token {
+            if let Err(e) = AccountHistory::load().and_then(|mut account_history| {
+                account_history.add_account_token(new_account_token)
+            }) {
+                error!(
+                    "Unable to add an account into the account history: {}",
+                    e.display_chain()
+                );
+            }
+        }
+
         Box::new(future)
     }
 
@@ -461,6 +480,19 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("shutdown");
         try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(TunnelCommand::Shutdown)
+    }
+
+    fn get_account_history(&self, meta: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
+        trace!("get_account_history");
+        try_future!(self.check_auth(&meta));
+        Box::new(future::result(
+            AccountHistory::load()
+                .map(|account_history| account_history.get_accounts())
+                .map_err(|error| {
+                    error!("Unable to get account history: {}", error.display_chain());
+                    Error::internal_error()
+                }),
+        ))
     }
 
     fn new_state_subscribe(
