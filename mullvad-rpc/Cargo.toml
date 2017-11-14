@@ -9,5 +9,6 @@ license = "GPL-3.0"
 chrono = { version = "0.4", features = ["serde"] }
 jsonrpc-client-core = "0.2.1"
 jsonrpc-client-http = "0.2.1"
+serde_json = "1.0"
 
 mullvad-types = { path = "../mullvad-types" }
