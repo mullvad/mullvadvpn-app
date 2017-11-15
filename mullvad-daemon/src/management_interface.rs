@@ -103,9 +103,13 @@ build_rpc_trait! {
         #[rpc(meta, name = "shutdown")]
         fn shutdown(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
-        /// Get previously used account tokens
+        /// Get previously used account tokens from the account history
         #[rpc(meta, name = "get_account_history")]
         fn get_account_history(&self, Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error>;
+
+        /// Remove given account token from the account history
+        #[rpc(meta, name = "remove_account_from_history")]
+        fn remove_account_from_history(&self, Self::Metadata, AccountToken) -> BoxFuture<(), Error>;
 
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
@@ -490,6 +494,28 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
                 .map(|account_history| account_history.get_accounts())
                 .map_err(|error| {
                     error!("Unable to get account history: {}", error.display_chain());
+                    Error::internal_error()
+                }),
+        ))
+    }
+
+    fn remove_account_from_history(
+        &self,
+        meta: Self::Metadata,
+        account_token: AccountToken,
+    ) -> BoxFuture<(), Error> {
+        trace!("remove_account_from_history");
+        try_future!(self.check_auth(&meta));
+        Box::new(future::result(
+            AccountHistory::load()
+                .and_then(|mut account_history| {
+                    account_history.remove_account_token(account_token)
+                })
+                .map_err(|error| {
+                    error!(
+                        "Unable to remove account from history: {}",
+                        error.display_chain()
+                    );
                     Error::internal_error()
                 }),
         ))
