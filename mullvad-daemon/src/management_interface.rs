@@ -9,16 +9,17 @@ use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::location::{CountryCode, Location};
+use mullvad_types::location::Location;
 
-use mullvad_types::relay_constraints::{RelayConstraints, RelayConstraintsUpdate};
+use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
+use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::{DaemonState, TargetState};
 
 use serde;
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
 use talpid_core::mpsc::IntoSender;
@@ -47,8 +48,8 @@ build_rpc_trait! {
         fn get_account_data(&self, Self::Metadata, AccountToken) -> BoxFuture<AccountData, Error>;
 
         /// Returns available countries.
-        #[rpc(name = "get_countries")]
-        fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error>;
+        #[rpc(meta, name = "get_relay_locations")]
+        fn get_relay_locations(&self, Self::Metadata) -> BoxFuture<RelayList, Error>;
 
         /// Set which account to connect with.
         #[rpc(meta, name = "set_account")]
@@ -59,18 +60,18 @@ build_rpc_trait! {
         fn get_account(&self, Self::Metadata) -> BoxFuture<Option<AccountToken>, Error>;
 
         /// Update constraints put on the type of tunnel connection to use
-        #[rpc(meta, name = "update_relay_constraints")]
-        fn update_relay_constraints(
+        #[rpc(meta, name = "update_relay_settings")]
+        fn update_relay_settings(
             &self,
-            Self::Metadata, RelayConstraintsUpdate
+            Self::Metadata, RelaySettingsUpdate
             ) -> BoxFuture<(), Error>;
 
         /// Update constraints put on the type of tunnel connection to use
-        #[rpc(meta, name = "get_relay_constraints")]
-        fn get_relay_constraints(
+        #[rpc(meta, name = "get_relay_settings")]
+        fn get_relay_settings(
             &self,
             Self::Metadata
-            ) -> BoxFuture<RelayConstraints, Error>;
+            ) -> BoxFuture<RelaySettings, Error>;
 
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_autoconnect")]
@@ -91,13 +92,13 @@ build_rpc_trait! {
         fn get_state(&self, Self::Metadata) -> BoxFuture<DaemonState, Error>;
 
         /// Returns the current public IP of this computer.
-        #[rpc(name = "get_ip")]
-        fn get_ip(&self) -> Result<IpAddr, Error>;
+        #[rpc(meta, name = "get_public_ip")]
+        fn get_public_ip(&self, Self::Metadata) -> BoxFuture<IpAddr, Error>;
 
         /// Performs a geoIP lookup and returns the current location as perceived by the public
         /// internet.
-        #[rpc(name = "get_location")]
-        fn get_location(&self) -> Result<Location, Error>;
+        #[rpc(meta, name = "get_current_location")]
+        fn get_current_location(&self, Self::Metadata) -> BoxFuture<Location, Error>;
 
         /// Makes the daemon exit its main loop and quit.
         #[rpc(meta, name = "shutdown")]
@@ -140,19 +141,25 @@ pub enum TunnelCommand {
     SetTargetState(TargetState),
     /// Request the current state.
     GetState(OneshotSender<DaemonState>),
+    /// Get the current IP as viewed from the internet.
+    GetIp(OneshotSender<IpAddr>),
+    /// Get the current geographical location.
+    GetCurrentLocation(OneshotSender<Location>),
     /// Request the metadata for an account.
     GetAccountData(
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         AccountToken,
     ),
+    /// Get the list of countries and cities where there are relays.
+    GetRelayLocations(OneshotSender<RelayList>),
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Request the current account token being used.
     GetAccount(OneshotSender<Option<AccountToken>>),
     /// Place constraints on the type of tunnel and relay
-    UpdateRelayConstraints(OneshotSender<()>, RelayConstraintsUpdate),
+    UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
     /// Read the constraints put on the tunnel and relay
-    GetRelayConstraints(OneshotSender<RelayConstraints>),
+    GetRelaySettings(OneshotSender<RelaySettings>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -373,9 +380,13 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn get_countries(&self) -> Result<HashMap<CountryCode, String>, Error> {
-        trace!("get_countries");
-        Ok(HashMap::new())
+    fn get_relay_locations(&self, meta: Self::Metadata) -> BoxFuture<RelayList, Error> {
+        trace!("get_relay_locations");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetRelayLocations(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn set_account(
@@ -413,26 +424,26 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn update_relay_constraints(
+    fn update_relay_settings(
         &self,
         meta: Self::Metadata,
-        constraints_update: RelayConstraintsUpdate,
+        constraints_update: RelaySettingsUpdate,
     ) -> BoxFuture<(), Error> {
-        trace!("update_relay_constraints");
+        trace!("update_relay_settings");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
 
-        let message = TunnelCommand::UpdateRelayConstraints(tx, constraints_update);
+        let message = TunnelCommand::UpdateRelaySettings(tx, constraints_update);
         let future = self.send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
-    fn get_relay_constraints(&self, meta: Self::Metadata) -> BoxFuture<RelayConstraints, Error> {
-        trace!("get_relay_constraints");
+    fn get_relay_settings(&self, meta: Self::Metadata) -> BoxFuture<RelaySettings, Error> {
+        trace!("get_relay_settings");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetRelayConstraints(tx))
+        let future = self.send_command_to_daemon(TunnelCommand::GetRelaySettings(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -464,20 +475,22 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn get_ip(&self) -> Result<IpAddr, Error> {
-        trace!("get_ip");
-        Ok(IpAddr::V4(Ipv4Addr::new(1, 2, 3, 4)))
+    fn get_public_ip(&self, meta: Self::Metadata) -> BoxFuture<IpAddr, Error> {
+        trace!("get_public_ip");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetIp(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
-    fn get_location(&self) -> Result<Location, Error> {
-        trace!("get_location");
-        Ok(Location {
-            country: String::from("narnia"),
-            country_code: String::from("na"),
-            city: String::from("Le city"),
-            city_code: String::from("le"),
-            position: [1.0, 2.0],
-        })
+    fn get_current_location(&self, meta: Self::Metadata) -> BoxFuture<Location, Error> {
+        trace!("get_current_location");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetCurrentLocation(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn shutdown(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
