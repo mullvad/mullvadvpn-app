@@ -36,13 +36,6 @@ jsonrpc_client!(pub struct AccountsProxy {
     pub fn get_expiry(&mut self, account_token: AccountToken) -> RpcRequest<DateTime<Utc>>;
 });
 
-impl AccountsProxy<HttpHandle> {
-    pub fn connect() -> Result<Self, HttpError> {
-        let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
-        Ok(AccountsProxy::new(transport))
-    }
-}
-
 jsonrpc_client!(pub struct ProblemReportProxy {
     pub fn problem_report(&mut self, email: &str, message: &str, log: &str) -> RpcRequest<()>;
 });
@@ -57,10 +50,3 @@ impl ProblemReportProxy<HttpHandle> {
 jsonrpc_client!(pub struct RelayListProxy {
     pub fn relay_list(&mut self) -> RpcRequest<RelayList>;
 });
-
-impl RelayListProxy<HttpHandle> {
-    pub fn connect() -> Result<Self, HttpError> {
-        let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
-        Ok(RelayListProxy::new(transport))
-    }
-}
