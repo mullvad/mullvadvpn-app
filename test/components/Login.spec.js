@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import React from 'react';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
+import { mockState } from './../mocks/redux';
 
 import Login from '../../app/components/Login';
 import AccountInput from '../../app/components/AccountInput';
@@ -16,17 +17,14 @@ describe('components/Login', () => {
 
     let callback = sinon.spy();
     const props = {
+      account: Object.assign({}, defaultAccount, {
+        status: 'failed'
+      }),
       onFirstChangeAfterFailure: callback,
     };
 
     const component = renderWithProps( props );
     const accountInput = component.find(AccountInput);
-
-    // Change the props to a failed state
-    component.setProps({ account: {
-      status: 'failed',
-    }});
-
 
     // Write something in the input field
     setInputText(accountInput, 'foo');
@@ -61,15 +59,15 @@ describe('components/Login', () => {
 
     const footer = component.find('.login-footer');
     expect(footer.hasClass('login-footer--invisible')).to.be.true;
-    expect(component.find('.login-form__fields').hasClass('login-form__fields--invisible')).to.be.true;
+    expect(component.find('.login-form__fields')).to.have.length(0);
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
     const component = renderNotLoggedIn();
     component.setProps({
-      account: {
-        accountToken: '12345',
-      },
+      account: Object.assign(mockState().account, {
+        accountToken: '12345'
+      }),
       onLogin: (an) => {
         try {
           expect(an).to.equal('12345');
@@ -80,16 +78,11 @@ describe('components/Login', () => {
       },
     });
 
-    component.find('.login-form__submit').simulate('click');
+    component.find('.login-form__account-input-button').simulate('click');
   });
 });
 
-const defaultAccount = {
-  accountToken: null,
-  expiry: null,
-  status: 'none',
-  error: null,
-};
+const defaultAccount = mockState().account;
 
 const defaultProps = {
   account: defaultAccount,
@@ -98,7 +91,8 @@ const defaultProps = {
   onChange: () => {},
   onFirstChangeAfterFailure: () => {},
   onExternalLink: () => {},
-  onAccountTokenChange: () => {},
+  onAccountTokenChange: (_accountToken) => {},
+  onRemoveAccountTokenFromHistory: (_accountToken) => {},
 };
 
 function renderLoggedIn() {
