@@ -11,10 +11,9 @@ import { push } from 'react-router-redux';
 import { defaultServer } from '../config';
 
 import type { ReduxStore } from '../redux/store';
-import type { BackendState, RelayConstraintsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelayConstraintsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
 
 export type ServerInfo = {
@@ -168,7 +167,7 @@ export class Backend {
     return (servers: ServerInfoList)[identifier];
   }
 
-  login(accountToken: string): Promise<void> {
+  login(accountToken: AccountToken): Promise<void> {
     log.debug('Attempting to login with account number', accountToken);
 
     this._store.dispatch(accountActions.startLogin(accountToken));

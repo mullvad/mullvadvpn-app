@@ -74,7 +74,7 @@ export default class AccountInput extends Component {
             this.state.selectionRange[1] !== nextState.selectionRange[1]);
   }
 
-  render(): React.Element<*> {
+  render() {
     const displayString = formatAccount(this.state.value || '');
     const { value, onChange, onEnter, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
     return (

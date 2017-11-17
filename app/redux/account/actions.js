@@ -1,15 +1,18 @@
 // @flow
 
+import type { AccountToken } from '../../lib/ipc-facade';
 import type { Backend, BackendError } from '../../lib/backend';
 
 type StartLoginAction = {
   type: 'START_LOGIN',
-  accountToken?: string,
+  accountToken?: AccountToken,
 };
+
 type LoginSuccessfulAction = {
   type: 'LOGIN_SUCCESSFUL',
   expiry: string,
 };
+
 type LoginFailedAction = {
   type: 'LOGIN_FAILED',
   error: BackendError,
@@ -25,7 +28,7 @@ type ResetLoginErrorAction = {
 
 type UpdateAccountTokenAction = {
   type: 'UPDATE_ACCOUNT_TOKEN',
-  token: string,
+  token: AccountToken,
 };
 
 export type AccountAction = StartLoginAction
@@ -34,7 +37,7 @@ export type AccountAction = StartLoginAction
                             | LoggedOutAction
                             | ResetLoginErrorAction;
 
-function startLogin(accountToken?: string): StartLoginAction {
+function startLogin(accountToken?: AccountToken): StartLoginAction {
   return {
     type: 'START_LOGIN',
     accountToken: accountToken,
@@ -71,7 +74,7 @@ function resetLoginError(): ResetLoginErrorAction {
   };
 }
 
-function updateAccountToken(token: string): UpdateAccountTokenAction {
+function updateAccountToken(token: AccountToken): UpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
     token: token,
