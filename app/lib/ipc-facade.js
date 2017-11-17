@@ -16,7 +16,9 @@ export type Location = {
 };
 const LocationSchema = object({
   country: string,
+  country_code: string,
   city: string,
+  city_code: string,
   position: arrayOf(number),
 });
 
@@ -167,7 +169,7 @@ export class RealIpc implements IpcFacade {
   }
 
   getLocation(): Promise<Location> {
-    return this._ipc.send('get_location')
+    return this._ipc.send('get_current_location')
       .then(raw => {
         try {
           const validated: any = validate(LocationSchema, raw);

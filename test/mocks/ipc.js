@@ -47,8 +47,10 @@ export function newMockIpc() {
     getPublicIp: () => Promise.resolve('1.2.3.4'),
 
     getLocation: () => Promise.resolve({
-      city: '',
       country: '',
+      country_code: '',
+      city: '',
+      city_code: '',
       position: [0, 0],
     }),
 
