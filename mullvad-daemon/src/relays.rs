@@ -86,7 +86,7 @@ impl RelaySelector {
         &mut self,
         constraints: &RelayConstraints,
     ) -> Result<(Relay, TunnelEndpoint)> {
-        // Highest priority preference. Where we prefer OpenVPN over UDP. But without changing
+        // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
         // any constraints that are explicitly specified.
         let tunnel_constraints1 = match constraints.tunnel {
             Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
