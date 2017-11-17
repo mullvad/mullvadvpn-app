@@ -16,6 +16,7 @@ const mapDispatchToProps = (dispatch, props) => {
     onFirstChangeAfterFailure: () => dispatch(accountActions.resetLoginError()),
     onExternalLink: (type) => shell.openExternal(links[type]),
     onAccountTokenChange: (token) => dispatch(accountActions.updateAccountToken(token)),
+    onRemoveAccountTokenFromHistory: (token) => backend.removeAccountFromHistory(token),
   };
 };
 
