@@ -31,11 +31,18 @@ type UpdateAccountTokenAction = {
   token: AccountToken,
 };
 
+type UpdateAccountHistoryAction = {
+  type: 'UPDATE_ACCOUNT_HISTORY',
+  accountHistory: Array<AccountToken>,
+};
+
 export type AccountAction = StartLoginAction
                             | LoginSuccessfulAction
                             | LoginFailedAction
                             | LoggedOutAction
-                            | ResetLoginErrorAction;
+                            | ResetLoginErrorAction
+                            | UpdateAccountTokenAction
+                            | UpdateAccountHistoryAction;
 
 function startLogin(accountToken?: AccountToken): StartLoginAction {
   return {
@@ -81,6 +88,13 @@ function updateAccountToken(token: AccountToken): UpdateAccountTokenAction {
   };
 }
 
+function updateAccountHistory(accountHistory: Array<AccountToken>): UpdateAccountHistoryAction {
+  return {
+    type: 'UPDATE_ACCOUNT_HISTORY',
+    accountHistory: accountHistory,
+  };
+}
+
 const login = (backend: Backend, account: string) => () => backend.login(account);
 const logout = (backend: Backend) => () => backend.logout();
 
@@ -94,4 +108,5 @@ export default {
   autoLoginFailed,
   resetLoginError,
   updateAccountToken,
+  updateAccountHistory,
 };

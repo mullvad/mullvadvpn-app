@@ -14,6 +14,7 @@ describe('components/Support', () => {
     const defaultProps: SupportProps = {
       account: {
         accountToken: null,
+        accountHistory: [],
         error: null,
         expiry: null,
         status: 'none',

@@ -6,6 +6,7 @@ import type { BackendError } from '../../lib/backend';
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
 export type AccountReduxState = {
   accountToken: ?string,
+  accountHistory: Array<string>,
   expiry: ?string, // ISO8601
   status: LoginState,
   error: ?BackendError
@@ -13,6 +14,7 @@ export type AccountReduxState = {
 
 const initialState: AccountReduxState = {
   accountToken: null,
+  accountHistory: [],
   expiry: null,
   status: 'none',
   error: null
@@ -56,6 +58,10 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
   case 'UPDATE_ACCOUNT_TOKEN':
     return { ...state, ...{
       accountToken: action.token,
+    }};
+  case 'UPDATE_ACCOUNT_HISTORY':
+    return { ...state, ...{
+      accountHistory: action.accountHistory,
     }};
   }
 
