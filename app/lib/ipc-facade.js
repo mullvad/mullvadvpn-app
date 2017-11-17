@@ -67,7 +67,7 @@ export interface IpcFacade {
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
-  getIp(): Promise<Ip>,
+  getPublicIp(): Promise<Ip>,
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
   registerStateListener((BackendState) => void): void,
@@ -155,8 +155,8 @@ export class RealIpc implements IpcFacade {
       .then(this._ignoreResponse);
   }
 
-  getIp(): Promise<Ip> {
-    return this._ipc.send('get_ip')
+  getPublicIp(): Promise<Ip> {
+    return this._ipc.send('get_public_ip')
       .then(raw => {
         if (typeof raw === 'string' && raw) {
           return raw;

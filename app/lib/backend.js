@@ -135,7 +135,7 @@ export class Backend {
 
     this._ensureAuthenticated()
       .then( () => {
-        this._ipc.getIp()
+        this._ipc.getPublicIp()
           .then( ip => {
             log.info('Got ip', ip);
             this._store.dispatch(connectionActions.newPublicIp(ip));
