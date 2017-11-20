@@ -27,36 +27,73 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
+type RelayProtocol = 'tcp' | 'udp';
 type RelaySettings = {
   host: 'any' | { only: string },
   tunnel: {
     openvpn: {
       port: 'any' | { only: number },
-      protocol: 'any' | { only: 'tcp' | 'udp' },
+      protocol: 'any' | { only: RelayProtocol },
     },
   },
 };
 export type RelaySettingsUpdate = {
-  host?: 'any' | { only: string },
-  tunnel: {
-    openvpn: {
-      port?: 'any' | { only: number },
-      protocol?: 'any' | { only: 'tcp' | 'udp' },
+  normal: {
+    location?: 'any' | {
+      only: { city: Array<string> } | { country: string },
     },
+    tunnel: {
+      openvpn: {
+        port?: 'any' | { only: number },
+        protocol?: 'any' | { only: RelayProtocol },
+      },
+    }
   },
+} | {
+  custom_tunnel_endpoint: {
+    host: string,
+    tunnel: {
+      openvpn: {
+        port: number,
+        protocol: RelayProtocol
+      }
+    }
+  }
 };
 const Constraint = (v) => oneOf(string, object({
   only: v,
 }));
-const RelaySettingsSchema = object({
-  host: Constraint(string),
-  tunnel: object({
-    openvpn: object({
-      port: Constraint(number),
-      protocol: Constraint(enumeration('udp', 'tcp')),
-    }),
+const RelaySettingsSchema = oneOf(
+  object({
+    normal: object({
+      location: Constraint(oneOf(
+        object({
+          city: arrayOf(string),
+        }),
+        object({
+          country: string
+        }),
+      )),
+      tunnel: Constraint(object({
+        openvpn: object({
+          port: Constraint(number),
+          protocol: Constraint(enumeration('udp', 'tcp')),
+        }),
+      })),
+    })
   }),
-});
+  object({
+    custom_tunnel_endpoint: object({
+      host: string,
+      tunnel: object({
+        openvpn: object({
+          port: number,
+          protocol: enumeration('udp', 'tcp'),
+        })
+      })
+    })
+  })
+);
 
 
 export interface IpcFacade {
