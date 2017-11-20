@@ -8,7 +8,6 @@ import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
-import { defaultServer } from '../config';
 
 import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
@@ -318,16 +317,19 @@ export class Backend {
       .then( constraints => {
         log.debug('Got constraints from backend', constraints);
 
-        const host = constraints.host === 'any'
-          ? defaultServer
-          : constraints.host.only || defaultServer;
+        const { custom_tunnel_endpoint, normal } = constraints;
 
-        const openvpn = constraints.tunnel.openvpn;
-        this._store.dispatch(settingsActions.updateRelay({
-          host: host,
-          port: this._apiToReduxConstraints(openvpn.port),
-          protocol: this._apiToReduxConstraints(openvpn.protocol),
-        }));
+        if(normal) {
+          // TODO: handle normal constraints
+          log.warn('syncRelaySettings: Normal constraints are not implemented yet.');
+        } else if(custom_tunnel_endpoint) {
+          const { host, tunnel: { openvpn } } = custom_tunnel_endpoint;
+          this._store.dispatch(settingsActions.updateRelay({
+            host: host,
+            port: openvpn.port,
+            protocol: openvpn.protocol,
+          }));
+        }
       })
       .catch( e => {
         log.error('Failed getting relay constraints', e);
