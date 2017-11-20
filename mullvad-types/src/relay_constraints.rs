@@ -154,6 +154,7 @@ pub enum RelaySettingsUpdate {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
     pub tunnel: Option<Constraint<TunnelConstraints>>,
