@@ -9,26 +9,14 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/connect')),
-    onSelect: (preferredServer) => {
-
-      dispatch(push('/connect'));
-
-      // add delay to let the map load
-      setTimeout(() => {
-        const update = {
-          host: { only: preferredServer },
-          tunnel: { openvpn: {
-          }},
-        };
-
-        backend.updateRelaySettings(update)
-          .then( () => dispatch(settingsActions.updateRelay({
-            host: preferredServer,
-          })))
-          .then( () => backend.connect())
-          .catch( e => log.error('Failed updating relay constraints', e.message));
-
-      }, 600);
+    onSelect: async (host) => {
+      try {
+        await backend.connect(host);
+        dispatch(settingsActions.updateRelay({ host: host }));
+        dispatch(push('/connect'));
+      } catch (e) {
+        log.error('Failed to select server: ', e.message);
+      }
     }
   };
 };
