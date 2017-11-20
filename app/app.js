@@ -32,7 +32,7 @@ ipcRenderer.on('backend-info', (_event, args) => {
     })
     .then( () => {
       const { settings } = store.getState();
-      return backend.connect(settings.relayConstraints.host);
+      return backend.connect(settings.relaySettings.host);
     })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {

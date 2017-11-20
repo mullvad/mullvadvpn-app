@@ -186,14 +186,14 @@ export class Backend {
             log.info('Log in complete');
 
             this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this.syncRelayConstraints();
+            return this.syncRelaySettings();
           })
           .then( () => {
 
             // Redirect the user after some time to allow for
             // the 'Login Successful' screen to be visible
             setTimeout(() => {
-              const { host } = this._store.getState().settings.relayConstraints;
+              const { host } = this._store.getState().settings.relaySettings;
               log.debug('Autoconnecting to', host);
 
               this._store.dispatch(push('/connect'));
