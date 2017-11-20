@@ -65,7 +65,7 @@ export interface IpcFacade {
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
   updateRelaySettings(RelaySettingsUpdate): Promise<void>,
-  getRelayContraints(): Promise<RelaySettings>,
+  getRelaySettings(): Promise<RelaySettings>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
@@ -130,7 +130,7 @@ export class RealIpc implements IpcFacade {
       .then(this._ignoreResponse);
   }
 
-  getRelayContraints(): Promise<RelaySettings> {
+  getRelaySettings(): Promise<RelaySettings> {
     return this._ipc.send('get_relay_settings')
       .then( raw => {
         try {
