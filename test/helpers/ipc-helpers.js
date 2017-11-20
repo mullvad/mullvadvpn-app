@@ -4,7 +4,7 @@ import { Backend } from '../../app/lib/backend';
 import { newMockIpc } from '../mocks/ipc';
 import configureStore from '../../app/redux/store';
 import { createMemoryHistory } from 'history';
-import { mockState, mockStore } from '../mocks/redux';
+import { mockStore } from '../mocks/redux';
 
 type DoneCallback = (?mixed) => void;
 type Check = () => void;
@@ -32,7 +32,7 @@ export function setupBackendAndStore() {
 }
 
 export function setupBackendAndMockStore() {
-  const store = mockStore(mockState());
+  const store = mockStore(_initialState());
   const mockIpc = newMockIpc();
   const credentials = {
     sharedSecret: '',
@@ -40,6 +40,11 @@ export function setupBackendAndMockStore() {
   };
   const backend = new Backend(store, credentials, mockIpc);
   return { store, mockIpc, backend };
+}
+
+function _initialState() {
+  const { store } = setupIpcAndStore();
+  return store.getState();
 }
 
 // chai and async aren't the best of friends. To allow us

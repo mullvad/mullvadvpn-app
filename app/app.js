@@ -30,6 +30,10 @@ ipcRenderer.on('backend-info', (_event, args) => {
     .then( () => {
       return backend.syncRelayConstraints();
     })
+    .then( () => {
+      const { settings } = store.getState();
+      return backend.connect(settings.relayConstraints.host);
+    })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');

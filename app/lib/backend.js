@@ -186,12 +186,18 @@ export class Backend {
             log.info('Log in complete');
 
             this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
+            return this.syncRelayConstraints();
+          })
+          .then( () => {
 
             // Redirect the user after some time to allow for
             // the 'Login Successful' screen to be visible
             setTimeout(() => {
+              const { host } = this._store.getState().settings.relayConstraints;
+              log.debug('Autoconnecting to', host);
+
               this._store.dispatch(push('/connect'));
-              this.connect();
+              this.connect(host);
             }, 1000);
           }).catch(e => {
             log.error('Failed to log in,', e.message);
@@ -224,9 +230,7 @@ export class Backend {
             log.debug('The stored account number still exists', accountData);
 
             this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-
-            this._store.dispatch(push('/connect'));
-            this.connect();
+            return this._store.dispatch(push('/connect'));
           })
           .catch( e => {
             log.warn('Unable to autologin,', e.message);
@@ -260,8 +264,7 @@ export class Backend {
       });
   }
 
-  connect(aHost?: string): Promise<void> {
-    const host = aHost;
+  connect(host: string): Promise<void> {
 
     let setHostPromise = () => Promise.resolve();
     if (host) {
