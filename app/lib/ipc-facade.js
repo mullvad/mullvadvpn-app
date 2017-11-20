@@ -29,13 +29,27 @@ export type BackendState = {
 };
 type RelayProtocol = 'tcp' | 'udp';
 type RelaySettings = {
-  host: 'any' | { only: string },
-  tunnel: {
-    openvpn: {
-      port: 'any' | { only: number },
-      protocol: 'any' | { only: RelayProtocol },
+  normal: {
+    location: 'any' | {
+      only: { city: Array<string> } | { country: string },
+    },
+    tunnel: {
+      openvpn: {
+        port: 'any' | { only: number },
+        protocol: 'any' | { only: RelayProtocol },
+      },
     },
   },
+} | {
+  custom_tunnel_endpoint: {
+    host: string,
+    tunnel: {
+      openvpn: {
+        port: number,
+        protocol: RelayProtocol
+      }
+    }
+  }
 };
 export type RelaySettingsUpdate = {
   normal: {
