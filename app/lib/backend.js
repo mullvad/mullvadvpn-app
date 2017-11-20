@@ -264,22 +264,26 @@ export class Backend {
   }
 
   connect(host: string): Promise<void> {
+    const newRelaySettings = {
+      custom_tunnel_endpoint: {
+        host: host,
+        tunnel: {
+          openvpn: {
+            // TODO: protocol and port are temporarily hardcoded
+            protocol: 'udp',
+            port: 1300,
+          }
+        },
+      },
+    };
 
-    let setHostPromise = () => Promise.resolve();
-    if (host) {
-      this._store.dispatch(connectionActions.connectingTo(host || 'unknown'));
-      setHostPromise = () => this._ipc.updateRelaySettings({
-        host: { only: host },
-        tunnel: { openvpn: {
-        }},
-      });
-    }
+    this._store.dispatch(connectionActions.connectingTo(host));
 
     return this._ensureAuthenticated()
-      .then( setHostPromise )
-      .then( () => this._ipc.connect() )
-      .catch(e => {
-        log.info('Failed connecting to the relay set in the backend, ', e.message);
+      .then(this._ipc.updateRelaySettings(newRelaySettings))
+      .then(this._ipc.connect())
+      .catch((e) => {
+        log.error('Backend.connect failed because: ', e.message);
         this._store.dispatch(connectionActions.disconnected());
       });
   }
