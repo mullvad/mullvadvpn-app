@@ -142,7 +142,7 @@ pub enum TunnelCommand {
     /// Request the current state.
     GetState(OneshotSender<DaemonState>),
     /// Get the current IP as viewed from the internet.
-    GetIp(OneshotSender<IpAddr>),
+    GetPublicIp(OneshotSender<IpAddr>),
     /// Get the current geographical location.
     GetCurrentLocation(OneshotSender<Location>),
     /// Request the metadata for an account.
@@ -479,7 +479,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_public_ip");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetIp(tx))
+        let future = self.send_command_to_daemon(TunnelCommand::GetPublicIp(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

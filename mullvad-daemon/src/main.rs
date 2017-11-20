@@ -6,6 +6,7 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+
 extern crate app_dirs;
 extern crate chrono;
 #[macro_use]
@@ -347,7 +348,7 @@ impl Daemon {
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
-            GetIp(tx) => Ok(self.on_get_ip(tx)),
+            GetPublicIp(tx) => Ok(self.on_get_ip(tx)),
             GetCurrentLocation(tx) => Ok(self.on_get_current_location(tx)),
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
             GetRelayLocations(tx) => Ok(self.on_get_relay_locations(tx)),
