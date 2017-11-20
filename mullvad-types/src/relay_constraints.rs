@@ -90,6 +90,7 @@ impl RelayConstraints {
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum LocationConstraint {
     /// A country is represented by its two letter country code.
     Country(CountryCode),
