@@ -28,7 +28,7 @@ ipcRenderer.on('backend-info', (_event, args) => {
   backend.sync();
   backend.autologin()
     .then( () => {
-      return backend.syncRelayConstraints();
+      return backend.syncRelaySettings();
     })
     .then( () => {
       const { settings } = store.getState();

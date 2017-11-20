@@ -5,7 +5,7 @@ import settingsActions from '../redux/settings/actions';
 import log from 'electron-log';
 
 const mapStateToProps = (state) => {
-  const contraints = state.settings.relayConstraints;
+  const contraints = state.settings.relaySettings;
   return {
     protocol: anyToAuto(contraints.protocol),
     port: anyToAuto(contraints.port),
@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
         }},
       };
 
-      backend.updateRelayConstraints(update)
+      backend.updateRelaySettings(update)
         .then( () => dispatch(settingsActions.updateRelay({
           port: typeof(portConstraint) === 'object' ? portConstraint.only : portConstraint,
           protocol: typeof(protConstraint) === 'object' ? protConstraint.only : protConstraint,

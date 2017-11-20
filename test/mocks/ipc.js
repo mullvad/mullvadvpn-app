@@ -28,7 +28,7 @@ export function newMockIpc() {
 
     setAccount: () => Promise.resolve(),
 
-    updateRelayConstraints: () => Promise.resolve(),
+    updateRelaySettings: () => Promise.resolve(),
 
     getRelayContraints: () => Promise.resolve({
       host: { only: 'www.example.com' },

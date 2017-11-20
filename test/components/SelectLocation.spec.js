@@ -10,7 +10,7 @@ import type { SelectLocationProps } from '../../app/components/SelectLocation';
 
 describe('components/SelectLocation', () => {
   const state: SettingsReduxState = {
-    relayConstraints: {
+    relaySettings: {
       host: 'any',
       port: 'any',
       protocol: 'any',

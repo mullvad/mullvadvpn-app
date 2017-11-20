@@ -21,7 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
           }},
         };
 
-        backend.updateRelayConstraints(update)
+        backend.updateRelaySettings(update)
           .then( () => dispatch(settingsActions.updateRelay({
             host: preferredServer,
           })))

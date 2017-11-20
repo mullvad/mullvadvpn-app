@@ -7,11 +7,11 @@ import { IpcChain } from './helpers/IpcChain';
 
 describe('connect', () => {
 
-  it('should invoke update_relay_constraints and then connect in the backend', (done) => {
+  it('should invoke update_relay_settings and then connect in the backend', (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('updateRelayConstraints')
+    chain.require('updateRelaySettings')
       .withInputValidation(
         relayEndpoint => {
           if (relayEndpoint) {

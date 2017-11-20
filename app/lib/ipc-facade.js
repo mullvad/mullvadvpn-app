@@ -27,7 +27,7 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
-type RelayConstraints = {
+type RelaySettings = {
   host: 'any' | { only: string },
   tunnel: {
     openvpn: {
@@ -36,7 +36,7 @@ type RelayConstraints = {
     },
   },
 };
-export type RelayConstraintsUpdate = {
+export type RelaySettingsUpdate = {
   host?: 'any' | { only: string },
   tunnel: {
     openvpn: {
@@ -48,7 +48,7 @@ export type RelayConstraintsUpdate = {
 const Constraint = (v) => oneOf(string, object({
   only: v,
 }));
-const RelayConstraintsSchema = object({
+const RelaySettingsSchema = object({
   host: Constraint(string),
   tunnel: object({
     openvpn: object({
@@ -64,8 +64,8 @@ export interface IpcFacade {
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
-  updateRelayConstraints(RelayConstraintsUpdate): Promise<void>,
-  getRelayContraints(): Promise<RelayConstraints>,
+  updateRelaySettings(RelaySettingsUpdate): Promise<void>,
+  getRelayContraints(): Promise<RelaySettings>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
@@ -125,17 +125,17 @@ export class RealIpc implements IpcFacade {
     return;
   }
 
-  updateRelayConstraints(relayConstraints: RelayConstraintsUpdate): Promise<void> {
-    return this._ipc.send('update_relay_constraints', [relayConstraints])
+  updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    return this._ipc.send('update_relay_settings', [relaySettings])
       .then(this._ignoreResponse);
   }
 
-  getRelayContraints(): Promise<RelayConstraints> {
-    return this._ipc.send('get_relay_constraints')
+  getRelayContraints(): Promise<RelaySettings> {
+    return this._ipc.send('get_relay_settings')
       .then( raw => {
         try {
-          const validated: any = validate(RelayConstraintsSchema, raw);
-          return (validated: RelayConstraints);
+          const validated: any = validate(RelaySettingsSchema, raw);
+          return (validated: RelaySettings);
         } catch (e) {
           throw new InvalidReply(raw, e);
         }

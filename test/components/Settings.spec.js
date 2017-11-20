@@ -35,7 +35,7 @@ describe('components/Settings', () => {
   };
 
   const settingsState: SettingsReduxState = {
-    relayConstraints: {
+    relaySettings: {
       host: 'any',
       port: 'any',
       protocol: 'any',

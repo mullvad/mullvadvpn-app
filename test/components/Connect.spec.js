@@ -107,7 +107,7 @@ describe('components/Connect', () => {
 
     component.setProps({
       settings: {
-        relayConstraints: {
+        relaySettings: {
           host: 'se1.mullvad.net',
         },
       },
@@ -186,7 +186,7 @@ const defaultProps = {
 
   accountExpiry: '',
   settings: {
-    relayConstraints: {
+    relaySettings: {
       host: 'www.example.com',
       port: 'any',
       protocol: 'any',

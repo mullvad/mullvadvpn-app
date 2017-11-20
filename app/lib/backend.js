@@ -11,7 +11,7 @@ import { push } from 'react-router-redux';
 import { defaultServer } from '../config';
 
 import type { ReduxStore } from '../redux/store';
-import type { AccountToken, BackendState, RelayConstraintsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
@@ -269,7 +269,7 @@ export class Backend {
     let setHostPromise = () => Promise.resolve();
     if (host) {
       this._store.dispatch(connectionActions.connectingTo(host || 'unknown'));
-      setHostPromise = () => this._ipc.updateRelayConstraints({
+      setHostPromise = () => this._ipc.updateRelaySettings({
         host: { only: host },
         tunnel: { openvpn: {
         }},
@@ -303,17 +303,17 @@ export class Backend {
       });
   }
 
-  updateRelayConstraints(relayConstraints: RelayConstraintsUpdate): Promise<void> {
+  updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
     return this._ensureAuthenticated()
       .then( () => {
-        return this._ipc.updateRelayConstraints(relayConstraints);
+        return this._ipc.updateRelaySettings(relaySettings);
       });
   }
 
-  syncRelayConstraints(): Promise<void> {
+  syncRelaySettings(): Promise<void> {
     return this._ensureAuthenticated()
       .then( () => {
-        return this._ipc.getRelayContraints();
+        return this._ipc.getRelaySettings();
       })
       .then( constraints => {
         log.debug('Got constraints from backend', constraints);
