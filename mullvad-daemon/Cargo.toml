@@ -37,6 +37,7 @@ uuid = { version = "0.5", features = ["v4"] }
 lazy_static = "0.2"
 rand = "0.3"
 tokio-timer = "0.1"
+regex = "0.2"
 
 mullvad-types = { path = "../mullvad-types" }
 mullvad-rpc = { path = "../mullvad-rpc" }
