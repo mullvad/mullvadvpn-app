@@ -280,8 +280,8 @@ export class Backend {
     this._store.dispatch(connectionActions.connectingTo(host));
 
     return this._ensureAuthenticated()
-      .then(this._ipc.updateRelaySettings(newRelaySettings))
-      .then(this._ipc.connect())
+      .then(() => this._ipc.updateRelaySettings(newRelaySettings))
+      .then(() => this._ipc.connect())
       .catch((e) => {
         log.error('Backend.connect failed because: ', e.message);
         this._store.dispatch(connectionActions.disconnected());
