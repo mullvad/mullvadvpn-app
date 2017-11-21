@@ -317,9 +317,9 @@ export class Backend {
     return this._ensureAuthenticated()
       .then(() => this._ipc.getRelaySettings())
       .then((constraints) => {
-        log.debug('Got constraints from backend', constraints)
+        log.debug('Got constraints from backend', constraints);
+
         if(constraints.normal) {
-          const normal = constraints.normal;
           // TODO: handle normal constraints
           log.warn('syncRelaySettings: Normal constraints are not implemented yet.');
         } else if(constraints.custom_tunnel_endpoint) {
