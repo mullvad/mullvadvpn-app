@@ -27,53 +27,49 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
+
 type RelayProtocol = 'tcp' | 'udp';
+
+type OpenVpnParameters = {
+  port: 'any' | { only: number },
+  protocol: 'any' | { only: RelayProtocol },
+};
+
+type TunnelOptions<TOpenVpnParameters> = {
+  openvpn: TOpenVpnParameters,
+};
+
+type RelaySettingsNormal<TTunnelOptions> = {
+  location: 'any' | {
+    only: { city: Array<string> } | { country: string },
+  },
+  tunnel: 'any' | TTunnelOptions,
+};
+
+type RelaySettingsCustom = {
+  host: string,
+  tunnel: {
+    openvpn: {
+      port: number,
+      protocol: RelayProtocol
+    }
+  }
+};
+
 type RelaySettings = {
-  normal: {
-    location: 'any' | {
-      only: { city: Array<string> } | { country: string },
-    },
-    tunnel: {
-      openvpn: {
-        port: 'any' | { only: number },
-        protocol: 'any' | { only: RelayProtocol },
-      },
-    },
-  },
+  normal: RelaySettingsNormal<TunnelOptions<OpenVpnParameters>>
 } | {
-  custom_tunnel_endpoint: {
-    host: string,
-    tunnel: {
-      openvpn: {
-        port: number,
-        protocol: RelayProtocol
-      }
-    }
-  }
+  custom_tunnel_endpoint: RelaySettingsCustom
 };
+
 export type RelaySettingsUpdate = {
-  normal: {
-    location?: 'any' | {
-      only: { city: Array<string> } | { country: string },
-    },
-    tunnel: {
-      openvpn: {
-        port?: 'any' | { only: number },
-        protocol?: 'any' | { only: RelayProtocol },
-      },
-    }
-  },
+  normal: $Shape<
+    RelaySettingsNormal< TunnelOptions<$Shape<OpenVpnParameters> > >
+  >
 } | {
-  custom_tunnel_endpoint: {
-    host: string,
-    tunnel: {
-      openvpn: {
-        port: number,
-        protocol: RelayProtocol
-      }
-    }
-  }
+  custom_tunnel_endpoint: RelaySettingsCustom
 };
+
 const Constraint = (v) => oneOf(string, object({
   only: v,
 }));
