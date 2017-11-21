@@ -10,32 +10,32 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   }),
-  headerbar__hidden: 
+  headerbar__hidden:
   Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
   }),
-  headerbar__style_defaultDark: 
+  headerbar__style_defaultDark:
   Styles.createViewStyle({
     backgroundColor: '#192E45',
   }),
-  headerbar__style_error: 
+  headerbar__style_error:
   Styles.createViewStyle({
     backgroundColor: '#D0021B',
   }),
-  headerbar__style_success: 
+  headerbar__style_success:
   Styles.createViewStyle({
     backgroundColor: '#44AD4D',
   }),
-  headerbar__container: 
+  headerbar__container:
   Styles.createViewStyle({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   }),
-  headerbar__title: 
+  headerbar__title:
   Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 24,
@@ -45,7 +45,7 @@ const styles = {
     color: 'rgba(255,255,255,0.6)',
     marginLeft: 8,
   }),
-  headerbar__logo: 
+  headerbar__logo:
   Styles.createViewStyle({
     height: 50,
     width: 50,
