@@ -15,7 +15,7 @@ describe('connect', () => {
       .withInputValidation(
         relayEndpoint => {
           if (relayEndpoint) {
-            expect(relayEndpoint.host.only).to.equal(arbitraryRelay);
+            expect(relayEndpoint.custom_tunnel_endpoint.host).to.equal(arbitraryRelay);
           } else {
             expect.fail();
           }
