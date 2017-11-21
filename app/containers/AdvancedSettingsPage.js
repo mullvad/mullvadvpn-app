@@ -5,47 +5,40 @@ import settingsActions from '../redux/settings/actions';
 import log from 'electron-log';
 
 const mapStateToProps = (state) => {
-  const contraints = state.settings.relaySettings;
+  const constraints = state.settings.relaySettings;
+  const { host, protocol, port } = constraints;
   return {
-    protocol: anyToAuto(contraints.protocol),
-    port: anyToAuto(contraints.port),
+    host: host,
+    protocol: protocol === 'any' ? 'Automatic' : protocol,
+    port: port === 'any' ? 'Automatic' : port,
   };
 };
-
-function anyToAuto(constraint) {
-  if (constraint === 'any') {
-    return 'Automatic';
-  } else {
-    return constraint;
-  }
-}
 
 const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/settings')),
 
-    updateConstraints: (protocol, port) => {
-
-      const protConstraint = protocol === 'Automatic'
-        ? 'any'
-        : { only: protocol.toLowerCase() };
-
-      const portConstraint = port === 'Automatic'
-        ? 'any'
-        : { only: port };
-
+    onUpdateConstraints: (host, protocol, port) => {
+      // TODO: udp and 1300 are automatic because we cannot pass `any` when using custom tunnel
+      const protocolConstraint = protocol === 'Automatic' ? 'udp' : protocol.toLowerCase();
+      const portConstraint = port === 'Automatic' ? (protocolConstraint === 'tcp' ? 443 : 1300) : port;
       const update = {
-        tunnel: { openvpn: {
-          protocol: protConstraint,
-          port: portConstraint,
-        }},
+        custom_tunnel_endpoint: {
+          host: host,
+          tunnel: {
+            openvpn: {
+              protocol: protocolConstraint,
+              port: portConstraint,
+            }
+          }
+        },
       };
 
       backend.updateRelaySettings(update)
         .then( () => dispatch(settingsActions.updateRelay({
-          port: typeof(portConstraint) === 'object' ? portConstraint.only : portConstraint,
-          protocol: typeof(protConstraint) === 'object' ? protConstraint.only : protConstraint,
+          protocol: protocolConstraint,
+          port: portConstraint,
         })))
         .catch( e => log.error('Failed updating relay constraints', e.message));
     },
