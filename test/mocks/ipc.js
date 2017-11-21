@@ -31,11 +31,15 @@ export function newMockIpc() {
     updateRelaySettings: () => Promise.resolve(),
 
     getRelaySettings: () => Promise.resolve({
-      host: { only: 'www.example.com' },
-      tunnel: { openvpn: {
-        port: 'any',
-        protocol: 'any',
-      }},
+      custom_tunnel_endpoint: {
+        host: 'www.example.com',
+        tunnel: {
+          openvpn: {
+            port: 1300,
+            protocol: 'udp',
+          }
+        }
+      },
     }),
 
     connect: () => Promise.resolve(),

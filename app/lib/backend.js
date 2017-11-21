@@ -315,18 +315,15 @@ export class Backend {
 
   syncRelaySettings(): Promise<void> {
     return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.getRelaySettings();
-      })
-      .then( constraints => {
-        log.debug('Got constraints from backend', constraints);
-
-        const { custom_tunnel_endpoint, normal } = constraints;
-
-        if(normal) {
+      .then(() => this._ipc.getRelaySettings())
+      .then((constraints) => {
+        log.debug('Got constraints from backend', constraints)
+        if(constraints.normal) {
+          const normal = constraints.normal;
           // TODO: handle normal constraints
           log.warn('syncRelaySettings: Normal constraints are not implemented yet.');
-        } else if(custom_tunnel_endpoint) {
+        } else if(constraints.custom_tunnel_endpoint) {
+          const custom_tunnel_endpoint = constraints.custom_tunnel_endpoint;
           const { host, tunnel: { openvpn } } = custom_tunnel_endpoint;
           this._store.dispatch(settingsActions.updateRelay({
             host: host,
@@ -335,7 +332,7 @@ export class Backend {
           }));
         }
       })
-      .catch( e => {
+      .catch(e => {
         log.error('Failed getting relay constraints', e);
       });
   }
