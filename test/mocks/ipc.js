@@ -67,11 +67,15 @@ export function newMockIpc() {
       }
     },
 
-    authenticate: (_secret: string) => Promise.resolve(),
-
     setCloseConnectionHandler: (listener: () => void) => {
       connectionCloseListeners.push(listener);
     },
+
+    authenticate: (_secret: string) => Promise.resolve(),
+
+    getAccountHistory: () => Promise.resolve([]),
+
+    removeAccountFromHistory: (_accountToken) => Promise.resolve(),
 
     killWebSocket: () => {
       for(const l of connectionCloseListeners) {

@@ -8,15 +8,20 @@
   background-color: #192E45;
   padding: 18px 24px 24px;
   flex: 0 0 auto;
+  transition: transform 0.25s ease-in-out;
 }
 
 .login-footer--invisible {
-  visibility: hidden;
+  transform: translateY(100%);
 }
 
 .login-form__status-icon {
+  flex: 0 0 auto; /* never collapse or grow */
   text-align: center;
   margin-bottom: 44px;
+
+  /* use fixed size to make space and avoid jitter when changing <img> visibility */
+  height: 60px;
 }
 
 .login-footer__prompt {
@@ -32,7 +37,7 @@
   display: flex;
   flex-direction: column;
   padding: 0 24px;
-  margin: auto 0 70px;
+  margin: 83px 0 auto;
 }
 
 .login-form__title {
@@ -53,46 +58,57 @@
   margin-bottom: 8px;
 }
 
-.login-form__input-wrap {
-  border: 2px solid transparent;
-  background-color: #FFFFFF;
-  background-clip: content-box;
-  border-radius: 8px;
+.login-form__account-input-container {
+  /*
+  Provides an anchor for input-container
+  to be properly positioned when it gains absolute
+  position to overlap the footer view.
+   */
+  position: relative;
+
+  /* push border to the outer side of the layout grid */
   margin-left: -2px;
   margin-right: -2px;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-  transition-duration: 0.3s;
-  transition-property: background-color, border-color;
-  transition-timing-function: ease-in-out;
-
-  /* this fixes border-radius clipping bug when button animates opacity */
-  -webkit-backface-visibility: hidden;
-  -webkit-transform: translate3d(0, 0, 0);
 }
 
-.login-form__input-wrap--active {
+.login-form__account-input-group {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: border 0.25s ease-in-out;
+  overflow: hidden;
+}
+
+.login-form__account-input-group--active {
+  position: absolute;
   border-color: rgba(25,46,69,0.4);
 }
 
-.login-form__input-wrap--inactive {
+.login-form__account-input-group--inactive {
   opacity: 0.6;
 }
 
-.login-form__input-field::-webkit-input-placeholder {
+.login-form__account-input-group--error {
+  border-color: rgba(208,2,27,0.4);
+}
+
+.login-form__account-input-group--error .login-form__account-input-textfield {
+  color: #D0021B;
+}
+
+.login-form__account-input-backdrop {
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: row;
+  transition: background-color 0.25s ease-in-out;
+}
+
+.login-form__account-input-textfield::-webkit-input-placeholder {
   color: rgba(41,77,115,0.4);
 }
 
-.login-form__fields--invisible {
-  visibility: hidden;
-}
-
-.login-form__input-field {
+.login-form__account-input-textfield {
   width: 100%;
-  border-radius: 8px;
   border: 0;
-  overflow: hidden;
   padding: 10px 12px 12px 12px;
   font-family: DINPro;
   font-size: 20px;
@@ -104,19 +120,11 @@
   transition: 0.3s color ease-in-out;
 }
 
-.login-form__input-field--inactive {
+.login-form__account-input-textfield--inactive {
   background-color: rgba(255,255,255,0.6);
 }
 
-.login-form__input-wrap--error {
-  border-color: rgba(208,2,27,0.4);
-}
-
-.login-form__input-wrap--error .login-form__input-field {
-  color: #D0021B;
-}
-
-.login-form__submit {
+.login-form__account-input-button {
   flex: 0 0 auto;
   border: 0;
   width: 48px;
@@ -126,29 +134,78 @@
   transition-timing-function: ease-in-out;
 }
 
-.login-form__submit-icon {
+.login-form__account-input-button-icon {
   display: inline-block;
   vertical-align: middle;
 }
 
-.login-form__submit-icon path {
+.login-form__account-input-button-icon path {
   fill: rgba(41,77,115,0.2);
   transition: fill 0.3s ease-in-out;
 }
 
-.login-form__submit--active {
+.login-form__account-input-button--active {
   background-color: #44ad4d;
 }
 
-.login-form__submit--active .login-form__submit-icon path {
+.login-form__account-input-button--active .login-form__account-input-button-icon path {
   fill: #fff;
 }
 
-.login-form__submit--active:hover {
+.login-form__account-input-button--active:hover {
   background-color: rgba(68, 173, 76, 0.9);
 }
 
-.login-form__submit--invisible {
+.login-form__account-input-button--invisible {
   visibility: hidden;
   opacity: 0;
+}
+
+.login-form__account-dropdown-container {
+  overflow: hidden;
+  transition: height 0.25s ease-in-out;
+}
+
+.login-form__account-dropdown__item {
+  display: flex;
+  flex-direction: row;
+  border-top: 1px solid rgba(25,46,69,0.4);
+  background-color: rgba(255,255,255,0.6);
+  background-clip: padding-box;
+  transition: background-color 0.25s ease-in-out;
+}
+
+.login-form__account-dropdown__item:hover {
+  background-color: rgba(255,255,255,0.65);
+}
+
+.login-form__account-dropdown__label {
+  flex: 1 1 auto;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #294D73;
+  border: 0;
+  background: transparent;
+  padding: 10px 12px 12px 12px;
+  text-align: left;
+}
+
+.login-form__account-dropdown__remove {
+  background: transparent;
+  border: 0;
+  padding: 10px 12px 12px 12px;
+
+  /* center SVG within button */
+  display: flex;
+  justify-content: center;
+}
+
+.login-form__account-dropdown__remove path {
+  transition: fill-opacity 0.25s ease-in-out;
+}
+
+.login-form__account-dropdown__remove:hover path {
+  fill-opacity: 1;
 }

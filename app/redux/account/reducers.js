@@ -2,10 +2,12 @@
 
 import type { ReduxAction } from '../store';
 import type { BackendError } from '../../lib/backend';
+import type { AccountToken } from '../../lib/ipc-facade';
 
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
 export type AccountReduxState = {
-  accountToken: ?string,
+  accountToken: ?AccountToken,
+  accountHistory: Array<AccountToken>,
   expiry: ?string, // ISO8601
   status: LoginState,
   error: ?BackendError
@@ -13,6 +15,7 @@ export type AccountReduxState = {
 
 const initialState: AccountReduxState = {
   accountToken: null,
+  accountHistory: [],
   expiry: null,
   status: 'none',
   error: null
@@ -56,6 +59,10 @@ export default function(state: AccountReduxState = initialState, action: ReduxAc
   case 'UPDATE_ACCOUNT_TOKEN':
     return { ...state, ...{
       accountToken: action.token,
+    }};
+  case 'UPDATE_ACCOUNT_HISTORY':
+    return { ...state, ...{
+      accountHistory: action.accountHistory,
     }};
   }
 

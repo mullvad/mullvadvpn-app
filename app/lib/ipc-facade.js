@@ -73,6 +73,8 @@ export interface IpcFacade {
   registerStateListener((BackendState) => void): void,
   setCloseConnectionHandler(() => void): void,
   authenticate(sharedSecret: string): Promise<void>,
+  getAccountHistory(): Promise<Array<AccountToken>>,
+  removeAccountFromHistory(accountToken: AccountToken): Promise<void>,
 }
 
 export class RealIpc implements IpcFacade {
@@ -216,6 +218,23 @@ export class RealIpc implements IpcFacade {
 
   authenticate(sharedSecret: string): Promise<void> {
     return this._ipc.send('auth', sharedSecret)
+      .then(this._ignoreResponse);
+  }
+
+  getAccountHistory(): Promise<Array<AccountToken>> {
+    return this._ipc.send('get_account_history')
+      .then(raw => {
+        if(Array.isArray(raw) && raw.every(i => typeof i === 'string')) {
+          const checked: any = raw;
+          return (checked: Array<AccountToken>);
+        } else {
+          throw new InvalidReply(raw, 'Expected an array of strings');
+        }
+      });
+  }
+
+  removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    return this._ipc.send('remove_account_from_history', accountToken)
       .then(this._ignoreResponse);
   }
 }

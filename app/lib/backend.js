@@ -11,10 +11,9 @@ import { push } from 'react-router-redux';
 import { defaultServer } from '../config';
 
 import type { ReduxStore } from '../redux/store';
-import type { BackendState, RelayConstraintsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelayConstraintsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type EventType = 'connect' | 'connecting' | 'disconnect' | 'login' | 'logging' | 'logout' | 'updatedIp' | 'updatedLocation' | 'updatedReachability';
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
 
 export type ServerInfo = {
@@ -162,13 +161,15 @@ export class Backend {
             log.info('Failed getting new location,', e.message);
           });
       });
+
+    this._updateAccountHistory();
   }
 
   serverInfo(identifier: string): ?ServerInfo {
     return (servers: ServerInfoList)[identifier];
   }
 
-  login(accountToken: string): Promise<void> {
+  login(accountToken: AccountToken): Promise<void> {
     log.debug('Attempting to login with account number', accountToken);
 
     this._store.dispatch(accountActions.startLogin(accountToken));
@@ -205,7 +206,7 @@ export class Backend {
             // TODO: This is not true. If there is a communication link failure the promise will be rejected too
             const err = new BackendError('INVALID_ACCOUNT');
             this._store.dispatch(accountActions.loginFailed(err));
-          });
+          }).then(() => this._updateAccountHistory());
       });
   }
 
@@ -249,7 +250,6 @@ export class Backend {
       .then( () => {
         return this._ipc.setAccount(null)
           .then(() => {
-
             this._store.dispatch(accountActions.loggedOut());
 
             // disconnect user during logout
@@ -332,6 +332,26 @@ export class Backend {
       .catch( e => {
         log.error('Failed getting relay constraints', e);
       });
+  }
+
+  removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    return this._ensureAuthenticated()
+      .then(() => this._ipc.removeAccountFromHistory(accountToken))
+      .then(() => this._updateAccountHistory())
+      .catch(e => {
+        log.error('Failed to remove account token from history', e.message);
+      });
+  }
+
+  _updateAccountHistory(): Promise<void> {
+    return this._ensureAuthenticated()
+      .then(() => this._ipc.getAccountHistory())
+      .then((accountHistory) => {
+        this._store.dispatch(
+          accountActions.updateAccountHistory(accountHistory)
+        );
+      })
+      .catch(e => log.info('Failed to fetch account history,', e.message));
   }
 
   _apiToReduxConstraints(constraint: *): * {

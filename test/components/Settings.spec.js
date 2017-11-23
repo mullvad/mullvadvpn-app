@@ -12,6 +12,7 @@ import type { SettingsProps } from '../../app/components/Settings';
 describe('components/Settings', () => {
   const loggedOutAccountState: AccountReduxState = {
     accountToken: null,
+    accountHistory: [],
     expiry: null,
     status: 'none',
     error: null
@@ -19,6 +20,7 @@ describe('components/Settings', () => {
 
   const loggedInAccountState: AccountReduxState = {
     accountToken: '1234',
+    accountHistory: [],
     expiry: (new Date('2038-01-01')).toISOString(),
     status: 'ok',
     error: null
@@ -26,6 +28,7 @@ describe('components/Settings', () => {
 
   const unpaidAccountState: AccountReduxState = {
     accountToken: '1234',
+    accountHistory: [],
     expiry: (new Date('2001-01-01')).toISOString(),
     status: 'ok',
     error: null

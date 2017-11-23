@@ -8,68 +8,55 @@ import sinon from 'sinon';
 import Login from '../../app/components/Login';
 import AccountInput from '../../app/components/AccountInput';
 
-import type { ShallowWrapper } from 'enzyme';
-
 describe('components/Login', () => {
 
   it('notifies on the first change after failure', () => {
-
-    let callback = sinon.spy();
+    let onFirstChange = sinon.spy();
     const props = {
-      onFirstChangeAfterFailure: callback,
+      account: Object.assign({}, defaultAccount, {
+        status: 'failed'
+      }),
+      onFirstChangeAfterFailure: onFirstChange,
     };
 
     const component = renderWithProps( props );
     const accountInput = component.find(AccountInput);
 
-    // Change the props to a failed state
-    component.setProps({ account: {
-      status: 'failed',
-    }});
+    accountInput.simulate('change', 'foo');
+    expect(onFirstChange.calledOnce).to.be.true;
 
+    onFirstChange.reset();
 
-    // Write something in the input field
-    setInputText(accountInput, 'foo');
-    expect(callback.calledOnce).to.be.true;
-
-
-    // Reset the test state
-    callback.reset();
-
-    // Write some other thing in the input field
-    setInputText(accountInput, 'bar');
-    expect(callback.calledOnce).to.be.false;
+    accountInput.simulate('change', 'bar');
+    expect(onFirstChange.calledOnce).to.be.false;
   });
 
-  it('doesn\'t show the footer when logging in', () => {
+  it('does not show the footer when logging in', () => {
     const component = renderLoggingIn();
-
     const footer = component.find('.login-footer');
     expect(footer.hasClass('login-footer--invisible')).to.be.true;
   });
 
   it('shows the footer and account input when not logged in', () => {
     const component = renderNotLoggedIn();
-
     const footer = component.find('.login-footer');
     expect(footer.hasClass('login-footer--invisible')).to.be.false;
     expect(component.find(AccountInput).exists()).to.be.true;
   });
 
-  it('doesn\'t show the footer nor account input when logged in', () => {
+  it('does not show the footer nor account input when logged in', () => {
     const component = renderLoggedIn();
-
     const footer = component.find('.login-footer');
     expect(footer.hasClass('login-footer--invisible')).to.be.true;
-    expect(component.find('.login-form__fields').hasClass('login-form__fields--invisible')).to.be.true;
+    expect(component.find('.login-form__fields')).to.have.length(0);
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
     const component = renderNotLoggedIn();
     component.setProps({
-      account: {
-        accountToken: '12345',
-      },
+      account: Object.assign({}, defaultAccount, {
+        accountToken: '12345'
+      }),
       onLogin: (an) => {
         try {
           expect(an).to.equal('12345');
@@ -80,15 +67,16 @@ describe('components/Login', () => {
       },
     });
 
-    component.find('.login-form__submit').simulate('click');
+    component.find('.login-form__account-input-button').simulate('click');
   });
 });
 
 const defaultAccount = {
   accountToken: null,
+  accountHistory: [],
   expiry: null,
   status: 'none',
-  error: null,
+  error: null
 };
 
 const defaultProps = {
@@ -98,7 +86,8 @@ const defaultProps = {
   onChange: () => {},
   onFirstChangeAfterFailure: () => {},
   onExternalLink: () => {},
-  onAccountTokenChange: () => {},
+  onAccountTokenChange: (_accountToken) => {},
+  onRemoveAccountTokenFromHistory: (_accountToken) => {},
 };
 
 function renderLoggedIn() {
@@ -125,11 +114,7 @@ function renderNotLoggedIn() {
   });
 }
 
-function renderWithProps(customProps): ShallowWrapper {
+function renderWithProps(customProps) {
   const props = Object.assign({}, defaultProps, customProps);
   return shallow( <Login { ...props } /> );
-}
-
-function setInputText(input: ShallowWrapper, text: string) {
-  input.simulate('change', text);
 }
