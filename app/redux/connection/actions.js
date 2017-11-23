@@ -25,7 +25,6 @@ const copyIPAddress = (): ReduxThunk => {
 
 type ConnectingAction = {
   type: 'CONNECTING',
-  host?: string,
 };
 type ConnectedAction = {
   type: 'CONNECTED',
@@ -65,13 +64,6 @@ export type ConnectionAction = NewPublicIpAction
                                 | DisconnectedAction
                                 | OnlineAction
                                 | OfflineAction;
-
-function connectingTo(host: string): ConnectingAction {
-  return {
-    type: 'CONNECTING',
-    host: host,
-  };
-}
 
 function connecting(): ConnectingAction {
   return {
@@ -118,5 +110,5 @@ function offline(): OfflineAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, newPublicIp, newLocation, connectingTo, connecting, connected, disconnected, online, offline };
+export default { connect, disconnect, copyIPAddress, newPublicIp, newLocation, connecting, connected, disconnected, online, offline };
 

@@ -7,7 +7,6 @@ export type ConnectionState = 'disconnected' | 'connecting' | 'connected';
 export type ConnectionReduxState = {
   status: ConnectionState,
   isOnline: boolean,
-  serverAddress: ?string,
   clientIp: ?string,
   location: ?Coordinate2d,
   country: ?string,
@@ -17,7 +16,6 @@ export type ConnectionReduxState = {
 const initialState: ConnectionReduxState = {
   status: 'disconnected',
   isOnline: true,
-  serverAddress: null,
   clientIp: null,
   location: null,
   country: null,
@@ -38,7 +36,7 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
     return { ...state, ...action.newLocation };
 
   case 'CONNECTING':
-    return { ...state, ...{ status: 'connecting', serverAddress: action.host }};
+    return { ...state, ...{ status: 'connecting' }};
 
   case 'CONNECTED':
     return { ...state, ...{ status: 'connected' }};

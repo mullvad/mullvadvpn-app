@@ -273,7 +273,7 @@ export class Backend {
       },
     };
 
-    this._store.dispatch(connectionActions.connectingTo(host));
+    this._store.dispatch(connectionActions.connecting());
 
     return this._ensureAuthenticated()
       .then(() => this._ipc.updateRelaySettings(newRelaySettings))

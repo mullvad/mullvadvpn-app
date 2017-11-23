@@ -170,7 +170,6 @@ const defaultServer = {
 const defaultConnection = {
   status: 'disconnected',
   isOnline: true,
-  serverAddress: null,
   clientIp: null,
   location: null,
   country: null,

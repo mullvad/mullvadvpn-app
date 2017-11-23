@@ -56,7 +56,6 @@ describe('connect', () => {
       .then( () => {
         const state = store.getState().connection;
         expect(state.status).to.equal('connecting');
-        expect(state.serverAddress).to.equal('www.example.com');
       });
   });
 
