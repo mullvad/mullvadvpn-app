@@ -9,19 +9,14 @@ const mapDispatchToProps = (dispatch, props) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/connect')),
-    onSelect: (host) => {
-      dispatch(async (dispatch, getState) => {
-        try {
-          const { settings: { relaySettings: { protocol, port } } } = getState();
-
-          backend.connect(host, protocol, port);
-
-          dispatch(settingsActions.updateRelay({ host: host }));
-          dispatch(push('/connect'));
-        } catch (e) {
-          log.error('Failed to select server: ', e.message);
-        }
-      });
+    onSelect: async (relayLocation) => {
+      try {
+        await backend.connect(relayLocation);
+        dispatch(settingsActions.updateRelay({ normal: { location: relayLocation } }));
+        dispatch(push('/connect'));
+      } catch (e) {
+        log.error('Failed to select server: ', e.message);
+      }
     }
   };
 };

@@ -1,69 +1,70 @@
 // @flow
 import React, { Component } from 'react';
-import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
-import { servers } from '../config';
 import CustomScrollbars from './CustomScrollbars';
+import { servers } from '../config';
 
 import type { SettingsReduxState } from '../redux/settings/reducers';
+import type { RelayLocation } from '../lib/ipc-facade';
 
 export type SelectLocationProps = {
   settings: SettingsReduxState,
   onClose: () => void;
-  onSelect: (server: string) => void;
+  onSelect: (location: RelayLocation) => void;
 };
 
 export default class SelectLocation extends Component {
   props: SelectLocationProps;
   _selectedCell: ?HTMLElement;
 
-  onSelect(name: string) {
-    if (!this.isSelected(name)) {
-      this.props.onSelect(name);
+  _onSelect(location: RelayLocation) {
+    if (!this._isSelected(location)) {
+      this.props.onSelect(location);
     }
   }
 
-  isSelected(server: string) {
-    const { host } = this.props.settings.relaySettings;
-    return server === host;
+  _isSelected(selectedLocation: RelayLocation) {
+    const { relaySettings } = this.props.settings;
+    if(relaySettings.normal) {
+      const otherLocation = relaySettings.normal.location;
+
+      if(selectedLocation.country && otherLocation.country &&
+        selectedLocation.country === otherLocation.country) {
+        return true;
+      }
+
+      if(Array.isArray(selectedLocation.city) && Array.isArray(otherLocation.city)) {
+        const selectedCity = selectedLocation.city;
+        const otherCity = otherLocation.city;
+
+        return selectedCity.length === otherCity.length &&
+              selectedCity.every((v, i) => v === otherCity[i]);
+      }
+    }
+    return false;
   }
 
-  drawCell(key: string, name: string, icon: ?string, onClick: (e: Event) => void): React.Element<*> {
+  drawCell(key: string, name: string, selected: bool, icon: ?string, onClick: (e: Event) => void): React.Element<*> {
     const classes = ['select-location__cell'];
-    const selected = this.isSelected(key);
-
     if(selected) {
       classes.push('select-location__cell--selected');
     }
-
     const cellClass = classes.join(' ');
+    const onRef = selected ? (element) => {
+      this._selectedCell = element;
+    } : undefined;
 
     return (
-      <div key={ key } className={ cellClass } onClick={ onClick } ref={ (e) => this.onCellRef(key, e) }>
+      <div key={ key } className={ cellClass } onClick={ onClick } ref={ onRef }>
 
-        <If condition={ !!icon }>
-          <Then>
-            <img className="select-location__cell-icon" src={ icon } />
-          </Then>
-        </If>
+        { icon && <img className="select-location__cell-icon" src={ icon } />}
 
         <div className="select-location__cell-label">{ name }</div>
 
-        <If condition={ selected } >
-          <Then>
-            <img className="select-location__cell-accessory" src="./assets/images/icon-tick.svg" />
-          </Then>
-        </If>
+        { selected && <img className="select-location__cell-accessory" src="./assets/images/icon-tick.svg" /> }
 
       </div>
     );
-  }
-
-  onCellRef(key: string, element: HTMLElement) {
-    // save reference to selected cell
-    if(this.isSelected(key)) {
-      this._selectedCell = element;
-    }
   }
 
   componentDidMount() {
@@ -99,7 +100,15 @@ export default class SelectLocation extends Component {
 
                   <div className="select-location__separator"></div>
 
-                  { Object.keys(servers).map((key) => this.drawCell(key, servers[key].name, null, this.onSelect.bind(this, key))) }
+                  { Object.keys(servers).map((key) => {
+                    const { name, country_code, city_code } = servers[key];
+                    const location = {
+                      city: [ country_code, city_code ]
+                    };
+                    const selected = this._isSelected(location);
+                    const clickHandler = () => this._onSelect(location);
+                    return this.drawCell(key, name, selected, null, clickHandler);
+                  }) }
 
                 </div>
               </CustomScrollbars>
