@@ -12,6 +12,8 @@ extraResources:
     to: .
   - from: dist-assets/crl.pem
     to: .
+  - from: dist-assets/relays.json
+    to: .
 
 directories:
   buildResources: dist-assets/

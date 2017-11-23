@@ -16,7 +16,9 @@ export type Location = {
 };
 const LocationSchema = object({
   country: string,
+  country_code: string,
   city: string,
+  city_code: string,
   position: arrayOf(number),
 });
 
@@ -25,36 +27,83 @@ export type BackendState = {
   state: SecurityState,
   target_state: SecurityState,
 };
-type RelayConstraints = {
-  host: 'any' | { only: string },
+
+export type RelayProtocol = 'tcp' | 'udp';
+
+type OpenVpnParameters = {
+  port: 'any' | { only: number },
+  protocol: 'any' | { only: RelayProtocol },
+};
+
+type TunnelOptions<TOpenVpnParameters> = {
+  openvpn: TOpenVpnParameters,
+};
+
+type RelaySettingsNormal<TTunnelOptions> = {
+  location: 'any' | {
+    only: { city: Array<string> } | { country: string },
+  },
+  tunnel: 'any' | TTunnelOptions,
+};
+
+type RelaySettingsCustom = {
+  host: string,
   tunnel: {
     openvpn: {
-      port: 'any' | { only: number },
-      protocol: 'any' | { only: 'tcp' | 'udp' },
-    },
-  },
+      port: number,
+      protocol: RelayProtocol
+    }
+  }
 };
-export type RelayConstraintsUpdate = {
-  host?: 'any' | { only: string },
-  tunnel: {
-    openvpn: {
-      port?: 'any' | { only: number },
-      protocol?: 'any' | { only: 'tcp' | 'udp' },
-    },
-  },
+
+type RelaySettings = {
+  normal: RelaySettingsNormal<TunnelOptions<OpenVpnParameters>>
+} | {
+  custom_tunnel_endpoint: RelaySettingsCustom
 };
+
+export type RelaySettingsUpdate = {
+  normal: $Shape<
+    RelaySettingsNormal< TunnelOptions<$Shape<OpenVpnParameters> > >
+  >
+} | {
+  custom_tunnel_endpoint: RelaySettingsCustom
+};
+
 const Constraint = (v) => oneOf(string, object({
   only: v,
 }));
-const RelayConstraintsSchema = object({
-  host: Constraint(string),
-  tunnel: object({
-    openvpn: object({
-      port: Constraint(number),
-      protocol: Constraint(enumeration('udp', 'tcp')),
-    }),
+const RelaySettingsSchema = oneOf(
+  object({
+    normal: object({
+      location: Constraint(oneOf(
+        object({
+          city: arrayOf(string),
+        }),
+        object({
+          country: string
+        }),
+      )),
+      tunnel: Constraint(object({
+        openvpn: object({
+          port: Constraint(number),
+          protocol: Constraint(enumeration('udp', 'tcp')),
+        }),
+      })),
+    })
   }),
-});
+  object({
+    custom_tunnel_endpoint: object({
+      host: string,
+      tunnel: object({
+        openvpn: object({
+          port: number,
+          protocol: enumeration('udp', 'tcp'),
+        })
+      })
+    })
+  })
+);
 
 
 export interface IpcFacade {
@@ -62,12 +111,12 @@ export interface IpcFacade {
   getAccountData(AccountToken): Promise<AccountData>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
-  updateRelayConstraints(RelayConstraintsUpdate): Promise<void>,
-  getRelayContraints(): Promise<RelayConstraints>,
+  updateRelaySettings(RelaySettingsUpdate): Promise<void>,
+  getRelaySettings(): Promise<RelaySettings>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
-  getIp(): Promise<Ip>,
+  getPublicIp(): Promise<Ip>,
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
   registerStateListener((BackendState) => void): void,
@@ -123,17 +172,17 @@ export class RealIpc implements IpcFacade {
     return;
   }
 
-  updateRelayConstraints(relayConstraints: RelayConstraintsUpdate): Promise<void> {
-    return this._ipc.send('update_relay_constraints', [relayConstraints])
+  updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    return this._ipc.send('update_relay_settings', [relaySettings])
       .then(this._ignoreResponse);
   }
 
-  getRelayContraints(): Promise<RelayConstraints> {
-    return this._ipc.send('get_relay_constraints')
+  getRelaySettings(): Promise<RelaySettings> {
+    return this._ipc.send('get_relay_settings')
       .then( raw => {
         try {
-          const validated: any = validate(RelayConstraintsSchema, raw);
-          return (validated: RelayConstraints);
+          const validated: any = validate(RelaySettingsSchema, raw);
+          return (validated: RelaySettings);
         } catch (e) {
           throw new InvalidReply(raw, e);
         }
@@ -155,8 +204,8 @@ export class RealIpc implements IpcFacade {
       .then(this._ignoreResponse);
   }
 
-  getIp(): Promise<Ip> {
-    return this._ipc.send('get_ip')
+  getPublicIp(): Promise<Ip> {
+    return this._ipc.send('get_public_ip')
       .then(raw => {
         if (typeof raw === 'string' && raw) {
           return raw;
@@ -167,7 +216,7 @@ export class RealIpc implements IpcFacade {
   }
 
   getLocation(): Promise<Location> {
-    return this._ipc.send('get_location')
+    return this._ipc.send('get_current_location')
       .then(raw => {
         try {
           const validated: any = validate(LocationSchema, raw);

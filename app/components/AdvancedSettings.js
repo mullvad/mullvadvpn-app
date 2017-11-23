@@ -7,14 +7,16 @@ import CustomScrollbars from './CustomScrollbars';
 export class AdvancedSettings extends React.Component {
 
   props: {
-    onClose: () => void,
+    host: string,
     protocol: string,
     port: string|number,
-    updateConstraints: (string, string|number) => void,
+    onUpdateConstraints: (host: string, protocol: string, port: string|number) => void,
+    onClose: () => void,
   };
 
   render() {
     let portSelector = null;
+    const host = this.props.host;
     let protocol = this.props.protocol.toUpperCase();
 
     if (protocol === 'AUTOMATIC') {
@@ -30,7 +32,7 @@ export class AdvancedSettings extends React.Component {
         values={ ['Automatic', 'UDP', 'TCP'] }
         value={ protocol }
         onSelect={ protocol => {
-          this.props.updateConstraints(protocol, 'Automatic');
+          this.props.onUpdateConstraints(host, protocol, 'Automatic');
         }}/>
 
       <div className="settings__cell-spacer"></div>
@@ -41,6 +43,7 @@ export class AdvancedSettings extends React.Component {
   }
 
   _createPortSelector() {
+    const host = this.props.host;
     const protocol = this.props.protocol.toUpperCase();
     const ports = protocol === 'TCP'
       ? ['Automatic', 80, 443]
@@ -51,7 +54,7 @@ export class AdvancedSettings extends React.Component {
       values={ ports }
       value={ this.props.port }
       onSelect={ port => {
-        this.props.updateConstraints(protocol, port);
+        this.props.onUpdateConstraints(host, protocol, port);
       }} />;
   }
 }

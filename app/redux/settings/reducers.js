@@ -4,21 +4,21 @@ import { defaultServer } from '../../config';
 
 import type { ReduxAction } from '../store';
 
-export type RelayConstraints = {
+export type RelaySettings = {
     host: string,
-    port: 'any' | number,
-    protocol: 'any' | 'tcp' | 'udp',
+    port: number,
+    protocol: 'tcp' | 'udp',
 };
 
 export type SettingsReduxState = {
-  relayConstraints: RelayConstraints
+  relaySettings: RelaySettings
 };
 
 const initialState: SettingsReduxState = {
-  relayConstraints: {
+  relaySettings: {
     host: defaultServer,
-    port: 'any',
-    protocol: 'any',
+    port: 1301,
+    protocol: 'udp',
   },
 };
 
@@ -26,8 +26,8 @@ export default function(state: SettingsReduxState = initialState, action: ReduxA
 
   if (action.type === 'UPDATE_RELAY') {
     return { ...state,
-      relayConstraints: {
-        ...state.relayConstraints,
+      relaySettings: {
+        ...state.relaySettings,
         ...action.relay,
       },
     };

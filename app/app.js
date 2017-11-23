@@ -28,11 +28,12 @@ ipcRenderer.on('backend-info', (_event, args) => {
   backend.sync();
   backend.autologin()
     .then( () => {
-      return backend.syncRelayConstraints();
+      return backend.syncRelaySettings();
     })
     .then( () => {
-      const { settings } = store.getState();
-      return backend.connect(settings.relayConstraints.host);
+      const { settings: { relaySettings: { host, protocol, port } } } = store.getState();
+
+      return backend.connect(host, protocol, port);
     })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {

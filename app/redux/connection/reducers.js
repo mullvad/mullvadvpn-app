@@ -38,7 +38,7 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
     return { ...state, ...action.newLocation };
 
   case 'CONNECTING':
-    return onConnecting(state, action);
+    return { ...state, ...{ status: 'connecting', serverAddress: action.host }};
 
   case 'CONNECTED':
     return { ...state, ...{ status: 'connected' }};
@@ -55,15 +55,4 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
   default:
     return state;
   }
-}
-
-function onConnecting(state, action) {
-  const newState: $Shape<ConnectionReduxState> = {
-    status: 'connecting',
-  };
-
-  if (action.host) {
-    newState.serverAddress = action.host;
-  }
-  return { ...state, ...newState};
 }

@@ -94,8 +94,8 @@ export default class Connect extends Component {
   }
 
   _getServerInfo() {
-    const { relayConstraints } = this.props.settings;
-    if (relayConstraints.host === 'any') {
+    const { relaySettings } = this.props.settings;
+    if (relaySettings.host === 'any') {
       return {
         name: 'Automatic',
         country: 'Automatic',
@@ -104,7 +104,7 @@ export default class Connect extends Component {
       };
     }
 
-    return this.props.getServerInfo(relayConstraints.host);
+    return this.props.getServerInfo(relaySettings.host);
   }
 
   renderMap(): React.Element<*> {

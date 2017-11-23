@@ -28,14 +28,18 @@ export function newMockIpc() {
 
     setAccount: () => Promise.resolve(),
 
-    updateRelayConstraints: () => Promise.resolve(),
+    updateRelaySettings: () => Promise.resolve(),
 
-    getRelayContraints: () => Promise.resolve({
-      host: { only: 'www.example.com' },
-      tunnel: { openvpn: {
-        port: 'any',
-        protocol: 'any',
-      }},
+    getRelaySettings: () => Promise.resolve({
+      custom_tunnel_endpoint: {
+        host: 'www.example.com',
+        tunnel: {
+          openvpn: {
+            port: 1301,
+            protocol: 'udp',
+          }
+        }
+      },
     }),
 
     connect: () => Promise.resolve(),
@@ -44,11 +48,13 @@ export function newMockIpc() {
 
     shutdown: () => Promise.resolve(),
 
-    getIp: () => Promise.resolve('1.2.3.4'),
+    getPublicIp: () => Promise.resolve('1.2.3.4'),
 
     getLocation: () => Promise.resolve({
-      city: '',
       country: '',
+      country_code: '',
+      city: '',
+      city_code: '',
       position: [0, 0],
     }),
 

@@ -24,7 +24,7 @@ export default class SelectLocation extends Component {
   }
 
   isSelected(server: string) {
-    const { host } = this.props.settings.relayConstraints;
+    const { host } = this.props.settings.relaySettings;
     return server === host;
   }
 
