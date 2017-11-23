@@ -36,9 +36,9 @@ describe('components/Settings', () => {
 
   const settingsState: SettingsReduxState = {
     relaySettings: {
-      host: 'any',
-      port: 'any',
-      protocol: 'any',
+      host: 'example.com',
+      protocol: 'udp',
+      port: 1301,
     },
   };
 

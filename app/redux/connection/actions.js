@@ -3,17 +3,21 @@
 import { clipboard } from 'electron';
 
 import type { Backend } from '../../lib/backend';
-import type { ReduxGetState, ReduxDispatch } from '../store';
+import type { ReduxThunk } from '../store';
 import type { Coordinate2d } from '../../types';
 
-
-const connect = (backend: Backend, relay: string) => () => backend.connect(relay);
+const connect = (backend: Backend, relay: string): ReduxThunk => {
+  return (_, getState) => {
+    const { settings: { relaySettings: { protocol, port } } } = getState();
+    backend.connect(relay, protocol, port);
+  };
+};
 const disconnect = (backend: Backend) => () => backend.disconnect();
-const copyIPAddress = () => {
-  return (_dispatch: ReduxDispatch, getState: ReduxGetState) => {
-    const ip: ?string = getState().connection.clientIp;
-    if(ip) {
-      clipboard.writeText(ip);
+const copyIPAddress = (): ReduxThunk => {
+  return (_, getState) => {
+    const { connection: { clientIp } } = getState();
+    if(clientIp) {
+      clipboard.writeText(clientIp);
     }
   };
 };

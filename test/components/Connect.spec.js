@@ -109,6 +109,8 @@ describe('components/Connect', () => {
       settings: {
         relaySettings: {
           host: 'se1.mullvad.net',
+          protocol: 'udp',
+          port: 1301,
         },
       },
     });
@@ -188,8 +190,8 @@ const defaultProps = {
   settings: {
     relaySettings: {
       host: 'www.example.com',
-      port: 'any',
-      protocol: 'any',
+      protocol: 'udp',
+      port: 1301,
     },
   },
   connection: defaultConnection,

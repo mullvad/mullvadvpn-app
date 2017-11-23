@@ -10,7 +10,7 @@ import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
 
 import type { ReduxStore } from '../redux/store';
-import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelaySettingsUpdate, RelayProtocol } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
@@ -189,15 +189,15 @@ export class Backend {
             return this.syncRelaySettings();
           })
           .then( () => {
-
             // Redirect the user after some time to allow for
             // the 'Login Successful' screen to be visible
             setTimeout(() => {
-              const { host } = this._store.getState().settings.relaySettings;
-              log.debug('Autoconnecting to', host);
+              const { settings: { relaySettings: { host, protocol, port } } } = this._store.getState();
+
+              log.debug(`Autoconnecting to ${host}`);
 
               this._store.dispatch(push('/connect'));
-              this.connect(host);
+              this.connect(host, protocol, port);
             }, 1000);
           }).catch(e => {
             log.error('Failed to log in,', e.message);
@@ -263,16 +263,12 @@ export class Backend {
       });
   }
 
-  connect(host: string): Promise<void> {
+  connect(host: string, protocol: RelayProtocol, port: number): Promise<void> {
     const newRelaySettings = {
       custom_tunnel_endpoint: {
         host: host,
         tunnel: {
-          openvpn: {
-            // TODO: protocol and port are temporarily hardcoded
-            protocol: 'udp',
-            port: 1301,
-          }
+          openvpn: { protocol, port }
         },
       },
     };
@@ -324,12 +320,8 @@ export class Backend {
           log.warn('syncRelaySettings: Normal constraints are not implemented yet.');
         } else if(constraints.custom_tunnel_endpoint) {
           const custom_tunnel_endpoint = constraints.custom_tunnel_endpoint;
-          const { host, tunnel: { openvpn } } = custom_tunnel_endpoint;
-          this._store.dispatch(settingsActions.updateRelay({
-            host: host,
-            port: openvpn.port,
-            protocol: openvpn.protocol,
-          }));
+          const { host, tunnel: { openvpn: { port, protocol } } } = custom_tunnel_endpoint;
+          this._store.dispatch(settingsActions.updateRelay({ host, port, protocol }));
         }
       })
       .catch(e => {

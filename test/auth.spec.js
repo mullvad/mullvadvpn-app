@@ -29,7 +29,7 @@ describe('authentication', () => {
 
 
     const backend = new Backend(store, credentials, mockIpc);
-    backend.connect('example.com');
+    backend.connect('example.com', 'udp', 1301);
   });
 
   it('reauthenticates on reconnect', (done) => {
@@ -48,7 +48,7 @@ describe('authentication', () => {
     }, done);
 
 
-    backend.connect('example.com');
+    backend.connect('example.com', 'udp', 1301);
     checkNextTick(() => {
       expect(authCount).to.equal(1);
     }, done);

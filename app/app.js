@@ -31,8 +31,9 @@ ipcRenderer.on('backend-info', (_event, args) => {
       return backend.syncRelaySettings();
     })
     .then( () => {
-      const { settings } = store.getState();
-      return backend.connect(settings.relaySettings.host);
+      const { settings: { relaySettings: { host, protocol, port } } } = store.getState();
+
+      return backend.connect(host, protocol, port);
     })
     .catch( e => {
       if (e.type === 'NO_ACCOUNT') {

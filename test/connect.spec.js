@@ -52,7 +52,7 @@ describe('connect', () => {
   it('should update the state with the server address', () => {
     const { store, backend } = setupBackendAndStore();
 
-    return backend.connect('www.example.com')
+    return backend.connect('www.example.com', 'udp', 1301)
       .then( () => {
         const state = store.getState().connection;
         expect(state.status).to.equal('connecting');

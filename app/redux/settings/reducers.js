@@ -6,8 +6,8 @@ import type { ReduxAction } from '../store';
 
 export type RelaySettings = {
     host: string,
-    port: 'any' | number,
-    protocol: 'any' | 'tcp' | 'udp',
+    port: number,
+    protocol: 'tcp' | 'udp',
 };
 
 export type SettingsReduxState = {
@@ -17,8 +17,8 @@ export type SettingsReduxState = {
 const initialState: SettingsReduxState = {
   relaySettings: {
     host: defaultServer,
-    port: 'any',
-    protocol: 'any',
+    port: 1301,
+    protocol: 'udp',
   },
 };
 

@@ -28,7 +28,7 @@ export type BackendState = {
   target_state: SecurityState,
 };
 
-type RelayProtocol = 'tcp' | 'udp';
+export type RelayProtocol = 'tcp' | 'udp';
 
 type OpenVpnParameters = {
   port: 'any' | { only: number },
