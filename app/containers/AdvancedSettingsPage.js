@@ -20,9 +20,9 @@ const mapDispatchToProps = (dispatch, props) => {
     onClose: () => dispatch(push('/settings')),
 
     onUpdateConstraints: (host, protocol, port) => {
-      // TODO: udp and 1300 are automatic because we cannot pass `any` when using custom tunnel
+      // TODO: udp and 1301 are automatic because we cannot pass `any` when using custom tunnel
       const protocolConstraint = protocol === 'Automatic' ? 'udp' : protocol.toLowerCase();
-      const portConstraint = port === 'Automatic' ? (protocolConstraint === 'tcp' ? 443 : 1300) : port;
+      const portConstraint = port === 'Automatic' ? (protocolConstraint === 'tcp' ? 443 : 1301) : port;
       const update = {
         custom_tunnel_endpoint: {
           host: host,

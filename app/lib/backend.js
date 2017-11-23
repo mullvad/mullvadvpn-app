@@ -271,7 +271,7 @@ export class Backend {
           openvpn: {
             // TODO: protocol and port are temporarily hardcoded
             protocol: 'udp',
-            port: 1300,
+            port: 1301,
           }
         },
       },

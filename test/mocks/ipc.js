@@ -35,7 +35,7 @@ export function newMockIpc() {
         host: 'www.example.com',
         tunnel: {
           openvpn: {
-            port: 1300,
+            port: 1301,
             protocol: 'udp',
           }
         }
