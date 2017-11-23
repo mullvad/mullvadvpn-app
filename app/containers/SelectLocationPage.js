@@ -1,7 +1,9 @@
+// @flow
+
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
-import settingsActions from '../redux/settings/actions';
+import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import log from 'electron-log';
 
 const mapStateToProps = (state) => state;
@@ -11,8 +13,12 @@ const mapDispatchToProps = (dispatch, props) => {
     onClose: () => dispatch(push('/connect')),
     onSelect: async (relayLocation) => {
       try {
-        await backend.connect(relayLocation);
-        dispatch(settingsActions.updateRelay({ normal: { location: relayLocation } }));
+        const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
+
+        await backend.updateRelaySettings(relayUpdate);
+        await backend.fetchRelaySettings();
+        await backend.connect();
+
         dispatch(push('/connect'));
       } catch (e) {
         log.error('Failed to select server: ', e.message);
