@@ -29,6 +29,7 @@ export type BackendState = {
 };
 
 export type RelayProtocol = 'tcp' | 'udp';
+export type RelayLocation = {| city: [string, string] |} | {| country: string |};
 
 type OpenVpnParameters = {
   port: 'any' | { only: number },
@@ -41,7 +42,7 @@ type TunnelOptions<TOpenVpnParameters> = {
 
 type RelaySettingsNormal<TTunnelOptions> = {
   location: 'any' | {
-    only: { city: Array<string> } | { country: string },
+    only: RelayLocation,
   },
   tunnel: 'any' | TTunnelOptions,
 };
