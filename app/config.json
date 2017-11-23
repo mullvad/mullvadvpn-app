@@ -16,31 +16,41 @@
       "address": "168.1.6.5",
       "name": "Australia",
       "city": "Sydney",
-      "country": "Australia"
+      "country": "Australia",
+      "country_code": "au",
+      "city_code": "syd"
     },
     "217.64.127.138": {
       "address": "217.64.127.138",
       "name": "Austria",
       "city": "Wien",
-      "country": "Austria"
+      "country": "Austria",
+      "country_code": "at",
+      "city_code": "vie"
     },
     "185.104.186.202": {
       "address": "185.104.186.202",
       "name": "Belgium",
       "city": "Brussels",
-      "country": "Belgium"
+      "country": "Belgium",
+      "country_code": "be",
+      "city_code": "bru"
     },
     "185.94.192.42": {
       "address": "185.94.192.42",
       "name": "Bulgaria",
       "city": "Sofia",
-      "country": "Bulgaria"
+      "country": "Bulgaria",
+      "country_code": "bg",
+      "city_code": "sof"
     },
     "162.219.176.250": {
       "address": "162.219.176.250",
       "name": "Canada",
       "city": "Toronto",
       "country": "Canada",
+      "country_code": "ca",
+      "city_code": "tor",
       "location": [
         45.42153,
         -75.697193
@@ -50,13 +60,17 @@
       "address": "185.156.174.146",
       "name": "Czech Republic",
       "city": "Prague",
-      "country": "Czech Republic"
+      "country": "Czech Republic",
+      "country_code": "cz",
+      "city_code": "prg"
     },
     "82.103.140.213": {
       "address": "82.103.140.213",
       "name": "Denmark",
       "city": "Copenhagen",
       "country": "Denmark",
+      "country_code": "dk",
+      "city_code": "cph",
       "location": [
         55.6760968,
         12.5683371
@@ -66,59 +80,77 @@
       "address": "185.103.110.69",
       "name": "Finland",
       "city": "Helsinki",
-      "country": "Finland"
+      "country": "Finland",
+      "country_code": "fi",
+      "city_code": "hel"
     },
     "185.156.173.218": {
       "address": "185.156.173.218",
       "name": "France",
       "city": "Paris",
-      "country": "France"
+      "country": "France",
+      "country_code": "fr",
+      "city_code": "par"
     },
-    "185.104.184.178": {
-      "address": "185.104.184.178",
+    "89.249.64.146": {
+      "address": "89.249.64.146",
       "name": "Germany",
       "city": "Berlin",
       "country": "Germany",
+      "country_code": "de",
+      "city_code": "ber",
       "location": [
-        52.52000659999999,
-        13.404954
+        54.033333,
+        10.45
       ]
     },
     "161.202.48.245": {
       "address": "161.202.48.245",
       "name": "Hong Kong",
       "city": "Hong Kong",
-      "country": "Hong Kong"
+      "country": "Hong Kong",
+      "country_code": "hk",
+      "city_code": "hkg"
     },
     "185.189.114.10": {
       "address": "185.189.114.10",
       "name": "Hungary",
       "city": "Budapest",
-      "country": "Hungary"
+      "country": "Hungary",
+      "country_code": "hu",
+      "city_code": "bud"
     },
     "213.184.122.34": {
       "address": "213.184.122.34",
       "name": "Israel",
       "city": "Petach-Tikva",
-      "country": "Israel"
+      "country": "Israel",
+      "country_code": "il",
+      "city_code": "pet"
     },
     "217.64.113.180": {
       "address": "217.64.113.180",
       "name": "Italy",
       "city": "Milan",
-      "country": "Italy"
+      "country": "Italy",
+      "country_code": "it",
+      "city_code": "mil"
     },
     "161.202.144.203": {
       "address": "161.202.144.203",
       "name": "Japan",
       "city": "Tokyo",
-      "country": "Japan"
+      "country": "Japan",
+      "country_code": "jp",
+      "city_code": "tyo"
     },
     "185.65.134.140": {
       "address": "185.65.134.140",
       "name": "Netherlands",
       "city": "Amsterdam",
       "country": "Netherlands",
+      "country_code": "nl",
+      "city_code": "ams",
       "location": [
         52.3702157,
         4.895167900000001
@@ -129,6 +161,8 @@
       "name": "Norway",
       "city": "Oslo",
       "country": "Norway",
+      "country_code": "no",
+      "city_code": "osl",
       "location": [
         59.9138688,
         10.7522454
@@ -138,13 +172,17 @@
       "address": "212.7.217.30",
       "name": "Poland",
       "city": "Warsaw",
-      "country": "Poland"
+      "country": "Poland",
+      "country_code": "pl",
+      "city_code": "waw"
     },
     "185.45.13.10": {
       "address": "185.45.13.10",
       "name": "Romania",
       "city": "Bucharest",
       "country": "Romania",
+      "country_code": "ro",
+      "city_code": "buh",
       "location": [
         44.4267674,
         26.1025384
@@ -155,6 +193,8 @@
       "name": "Singapore",
       "city": "Singapore",
       "country": "Singapore",
+      "country_code": "sg",
+      "city_code": "sin",
       "location": [
         1.352083,
         103.819836
@@ -165,6 +205,8 @@
       "name": "Spain",
       "city": "Madrid",
       "country": "Spain",
+      "country_code": "es",
+      "city_code": "mad",
       "location": [
         40.4167754,
         -3.7037902
@@ -174,31 +216,41 @@
       "address": "185.213.152.132",
       "name": "Sweden - Helsingborg",
       "city": "Helsingborg",
-      "country": "Sweden"
+      "country": "Sweden",
+      "country_code": "se",
+      "city_code": "hel"
     },
     "193.138.218.135": {
       "address": "193.138.218.135",
       "name": "Sweden - Malmö",
       "city": "Malmö",
-      "country": "Sweden"
+      "country": "Sweden",
+      "country_code": "se",
+      "city_code": "mma"
     },
     "185.65.135.143": {
       "address": "185.65.135.143",
       "name": "Sweden - Stockholm",
       "city": "Stockholm",
-      "country": "Sweden"
+      "country": "Sweden",
+      "country_code": "se",
+      "city_code": "sto"
     },
     "179.43.128.170": {
       "address": "179.43.128.170",
       "name": "Switzerland",
       "city": "Zürich",
-      "country": "Switzerland"
+      "country": "Switzerland",
+      "country_code": "ch",
+      "city_code": "zrh"
     },
     "185.16.85.170": {
       "address": "185.16.85.170",
       "name": "United Kingdom",
       "city": "London",
       "country": "United Kingdom",
+      "country_code": "gb",
+      "city_code": "lon",
       "location": [
         51.5073509,
         -0.1277583
@@ -208,13 +260,17 @@
       "address": "173.199.80.130",
       "name": "USA - Los Angeles",
       "city": "Los Angeles",
-      "country": "USA"
+      "country": "USA",
+      "country_code": "us",
+      "city_code": "lax"
     },
     "38.132.107.138": {
       "address": "38.132.107.138",
       "name": "USA - New York",
       "city": "New York",
-      "country": "USA"
+      "country": "USA",
+      "country_code": "us",
+      "city_code": "nyc"
     }
   }
 }
