@@ -24,8 +24,10 @@ impl TunnelEndpoint {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum TunnelParameters {
     /// Extra parameters for an OpenVPN tunnel endpoint.
+    #[serde(rename = "openvpn")]
     OpenVpn(OpenVpnParameters),
     /// Extra parameters for a Wireguard tunnel endpoint.
+    #[serde(rename = "wireguard")]
     Wireguard(WireguardParameters),
 }
 

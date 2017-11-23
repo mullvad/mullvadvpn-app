@@ -1,9 +1,10 @@
 extern crate serde_json;
 
-use app_dirs::{self, AppDataType};
+use app_dirs;
 
-use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraints, RelayConstraints,
-                                       RelayConstraintsUpdate, TunnelConstraints};
+use mullvad_types::relay_constraints::{Constraint, RelayConstraints, RelaySettings,
+                                       RelaySettingsUpdate};
+
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
@@ -33,7 +34,7 @@ static SETTINGS_FILE: &str = "settings.json";
 #[serde(default)]
 pub struct Settings {
     account_token: Option<String>,
-    relay_constraints: RelayConstraints,
+    relay_settings: RelaySettings,
 }
 
 impl Default for Settings {
@@ -44,13 +45,10 @@ impl Default for Settings {
 
 const DEFAULT_SETTINGS: Settings = Settings {
     account_token: None,
-    relay_constraints: RelayConstraints {
-        host: Constraint::Any,
-        tunnel: TunnelConstraints::OpenVpn(OpenVpnConstraints {
-            port: Constraint::Any,
-            protocol: Constraint::Any,
-        }),
-    },
+    relay_settings: RelaySettings::Normal(RelayConstraints {
+        location: Constraint::Any,
+        tunnel: Constraint::Any,
+    }),
 };
 
 impl Settings {
@@ -84,7 +82,7 @@ impl Settings {
     }
 
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(AppDataType::UserConfig, &::APP_INFO)
+        let dir = app_dirs::app_root(app_dirs::AppDataType::UserConfig, &::APP_INFO)
             .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
@@ -119,20 +117,20 @@ impl Settings {
         }
     }
 
-    pub fn get_relay_constraints(&self) -> RelayConstraints {
-        self.relay_constraints.clone()
+    pub fn get_relay_settings(&self) -> RelaySettings {
+        self.relay_settings.clone()
     }
 
-    pub fn update_relay_constraints(&mut self, update: RelayConstraintsUpdate) -> Result<bool> {
-        let new_constraints = self.relay_constraints.merge(update);
-        if self.relay_constraints != new_constraints {
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool> {
+        let new_settings = self.relay_settings.merge(update);
+        if self.relay_settings != new_settings {
             debug!(
-                "changing relay constraints from {:?} to {:?}",
-                self.relay_constraints,
-                new_constraints
+                "changing relay settings from {:?} to {:?}",
+                self.relay_settings,
+                new_settings
             );
 
-            self.relay_constraints = new_constraints;
+            self.relay_settings = new_settings;
             self.save().map(|_| true)
         } else {
             Ok(false)

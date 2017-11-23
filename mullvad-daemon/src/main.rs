@@ -6,6 +6,7 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+
 extern crate app_dirs;
 extern crate chrono;
 #[macro_use]
@@ -20,6 +21,7 @@ extern crate log;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 
 extern crate jsonrpc_core;
 #[macro_use]
@@ -29,6 +31,7 @@ extern crate jsonrpc_ws_server;
 #[macro_use]
 extern crate lazy_static;
 extern crate rand;
+extern crate tokio_timer;
 extern crate uuid;
 
 extern crate mullvad_rpc;
@@ -39,28 +42,31 @@ extern crate talpid_types;
 
 mod cli;
 mod management_interface;
+mod relays;
 mod rpc_info;
 mod settings;
 mod shutdown;
 mod account_history;
 
+
 use app_dirs::AppInfo;
 use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
+
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
-use mullvad_types::CustomTunnelEndpoint;
+
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::relay_constraints::{Constraint, OpenVpnConstraints, RelayConstraints,
-                                       RelayConstraintsUpdate, TunnelConstraints};
+use mullvad_types::location::Location;
+use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
+use mullvad_types::relay_list::{Relay, RelayList};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
-use rand::Rng;
 use std::env;
 use std::io;
-use std::net::Ipv4Addr;
-use std::path::PathBuf;
+use std::net::{IpAddr, Ipv4Addr};
+use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -68,13 +74,8 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::{Endpoint, OpenVpnParameters, TransportProtocol, TunnelEndpoint,
-                        TunnelParameters};
+use talpid_types::net::TunnelEndpoint;
 
-pub static APP_INFO: AppInfo = AppInfo {
-    name: ::CRATE_NAME,
-    author: "Mullvad",
-};
 
 error_chain!{
     errors {
@@ -105,19 +106,17 @@ error_chain!{
 }
 
 lazy_static! {
-    // Temporary store of hardcoded relays.
-    static ref RELAYS: [Endpoint; 3] = [
-        // se2.mullvad.net
-        Endpoint::new(Ipv4Addr::new(185, 213, 152, 132), 1300, TransportProtocol::Udp),
-        // se5.mullvad.net
-        Endpoint::new(Ipv4Addr::new(193, 138, 218, 135), 1300, TransportProtocol::Udp),
-        // se23.mullvad.net
-        Endpoint::new(Ipv4Addr::new(185, 65, 135, 143), 1300, TransportProtocol::Udp),
-    ];
     static ref MIN_TUNNEL_ALIVE_TIME_MS: Duration = Duration::from_millis(1000);
+    static ref MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
+    static ref RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
 }
 
 const CRATE_NAME: &str = "mullvadd";
+
+static APP_INFO: AppInfo = AppInfo {
+    name: CRATE_NAME,
+    author: "Mullvad",
+};
 
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 
@@ -188,24 +187,26 @@ struct Daemon {
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
+    relay_selector: relays::RelaySelector,
     firewall: FirewallProxy,
-    relay_endpoint: Option<TunnelEndpoint>,
+    current_relay: Option<Relay>,
+    tunnel_endpoint: Option<TunnelEndpoint>,
     tunnel_metadata: Option<TunnelMetadata>,
     tunnel_log: Option<PathBuf>,
-
-    // Just for testing. A cyclic iterator iterating over the hardcoded relays,
-    // picking a new one for each retry.
-    relay_iter: std::iter::Cycle<std::iter::Cloned<std::slice::Iter<'static, Endpoint>>>,
     resource_dir: PathBuf,
 }
 
 impl Daemon {
     pub fn new(tunnel_log: Option<PathBuf>) -> Result<Self> {
+        let resource_dir = get_resource_dir();
+        let rpc_http_handle = mullvad_rpc::connect().chain_err(|| "Unable to connect to RPC API")?;
+
+        let relay_selector = Self::create_relay_selector(rpc_http_handle.clone(), &resource_dir)?;
+
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
-        let resource_dir = get_resource_dir();
         Ok(Daemon {
             state,
             tunnel_close_handle: None,
@@ -219,14 +220,31 @@ impl Daemon {
             tx,
             management_interface_broadcaster,
             settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
-            accounts_proxy: AccountsProxy::connect().chain_err(|| "Unable to connect RPC client")?,
+            accounts_proxy: AccountsProxy::new(rpc_http_handle),
+            relay_selector,
             firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
-            relay_endpoint: None,
+            current_relay: None,
+            tunnel_endpoint: None,
             tunnel_metadata: None,
             tunnel_log: tunnel_log,
-            relay_iter: RELAYS.iter().cloned().cycle(),
             resource_dir,
         })
+    }
+
+    fn create_relay_selector(
+        rpc_http_handle: mullvad_rpc::HttpHandle,
+        resource_dir: &Path,
+    ) -> Result<relays::RelaySelector> {
+        let mut relay_selector = relays::RelaySelector::new(rpc_http_handle, &resource_dir)
+            .chain_err(|| "Unable to initialize relay list cache")?;
+        if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
+            if elapsed > *MAX_RELAY_CACHE_AGE {
+                if let Err(e) = relay_selector.update(*RELAY_CACHE_UPDATE_TIMEOUT) {
+                    error!("Unable to update relay cache: {}", e.display_chain());
+                }
+            }
+        }
+        Ok(relay_selector)
     }
 
     // Starts the management interface and spawns a thread that will process it.
@@ -314,7 +332,8 @@ impl Daemon {
         if let Err(e) = result.chain_err(|| "Tunnel exited in an unexpected way") {
             error!("{}", e.display_chain());
         }
-        self.relay_endpoint = None;
+        self.current_relay = None;
+        self.tunnel_endpoint = None;
         self.tunnel_metadata = None;
         self.tunnel_close_handle = None;
         self.set_state(TunnelState::NotRunning)
@@ -329,13 +348,14 @@ impl Daemon {
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
+            GetPublicIp(tx) => Ok(self.on_get_ip(tx)),
+            GetCurrentLocation(tx) => Ok(self.on_get_current_location(tx)),
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
+            GetRelayLocations(tx) => Ok(self.on_get_relay_locations(tx)),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
-            UpdateRelayConstraints(tx, constraints_update) => {
-                self.on_update_relay_constraints(tx, constraints_update)
-            }
-            GetRelayConstraints(tx) => Ok(self.on_get_relay_constraints(tx)),
+            UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
+            GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -353,6 +373,30 @@ impl Daemon {
         Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
 
+    fn on_get_ip(&self, tx: OneshotSender<IpAddr>) {
+        let ip = if let Some(ref relay) = self.current_relay {
+            IpAddr::V4(relay.ipv4_addr_exit)
+        } else {
+            IpAddr::V4(Ipv4Addr::new(1, 3, 3, 7))
+        };
+        Self::oneshot_send(tx, ip, "current ip");
+    }
+
+    fn on_get_current_location(&self, tx: OneshotSender<Location>) {
+        let location = if let Some(ref relay) = self.current_relay {
+            relay.location.as_ref().cloned().unwrap()
+        } else {
+            Location {
+                country: String::from("Narnia"),
+                country_code: String::from("na"),
+                city: String::from("Le City"),
+                city_code: String::from("le"),
+                position: [13.37, 0.0],
+            }
+        };
+        Self::oneshot_send(tx, location, "current location");
+    }
+
     fn on_get_account_data(
         &mut self,
         tx: OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
@@ -362,6 +406,14 @@ impl Daemon {
             .get_expiry(account_token)
             .map(|expiry| AccountData { expiry });
         Self::oneshot_send(tx, Box::new(rpc_call), "account data")
+    }
+
+    fn on_get_relay_locations(&mut self, tx: OneshotSender<RelayList>) {
+        Self::oneshot_send(
+            tx,
+            self.relay_selector.get_locations().clone(),
+            "relay locations",
+        );
     }
 
 
@@ -391,22 +443,22 @@ impl Daemon {
         Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
     }
 
-    fn on_update_relay_constraints(
+    fn on_update_relay_settings(
         &mut self,
         tx: OneshotSender<()>,
-        constraints: RelayConstraintsUpdate,
+        update: RelaySettingsUpdate,
     ) -> Result<()> {
-        let save_result = self.settings.update_relay_constraints(constraints);
+        let save_result = self.settings.update_relay_settings(update);
 
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(constraints_changed) => {
-                Self::oneshot_send(tx, (), "update_relay_constraints response");
+            Ok(changed) => {
+                Self::oneshot_send(tx, (), "update_relay_settings response");
 
                 let tunnel_needs_restart =
                     self.state == TunnelState::Connecting || self.state == TunnelState::Connected;
 
-                if constraints_changed && tunnel_needs_restart {
-                    info!("Initiating tunnel restart because the relay constraints changed");
+                if changed && tunnel_needs_restart {
+                    info!("Initiating tunnel restart because the relay settings changed");
                     self.kill_tunnel()?;
                 }
             }
@@ -416,12 +468,8 @@ impl Daemon {
         Ok(())
     }
 
-    fn on_get_relay_constraints(&self, tx: OneshotSender<RelayConstraints>) {
-        Self::oneshot_send(
-            tx,
-            self.settings.get_relay_constraints(),
-            "relay constraints",
-        )
+    fn on_get_relay_settings(&self, tx: OneshotSender<RelaySettings>) {
+        Self::oneshot_send(tx, self.settings.get_relay_settings(), "relay settings")
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -505,7 +553,8 @@ impl Daemon {
                 debug!("Triggering tunnel start");
                 if let Err(e) = self.start_tunnel().chain_err(|| "Failed to start tunnel") {
                     error!("{}", e.display_chain());
-                    self.relay_endpoint = None;
+                    self.current_relay = None;
+                    self.tunnel_endpoint = None;
                     self.management_interface_broadcaster.notify_error(&e);
                     self.set_target_state(TargetState::Unsecured)?;
                 }
@@ -524,55 +573,35 @@ impl Daemon {
             ErrorKind::InvalidState
         );
 
-        let relay_endpoint = self.get_relay().chain_err(|| ErrorKind::NoRelay)?;
+        match self.settings.get_relay_settings() {
+            RelaySettings::CustomTunnelEndpoint(custom_relay) => {
+                let tunnel_endpoint = custom_relay
+                    .to_tunnel_endpoint()
+                    .chain_err(|| ErrorKind::NoRelay)?;
+                self.tunnel_endpoint = Some(tunnel_endpoint);
+            }
+            RelaySettings::Normal(constraints) => {
+                let (relay, tunnel_endpoint) = self.relay_selector
+                    .get_tunnel_endpoint(&constraints)
+                    .chain_err(|| ErrorKind::NoRelay)?;
+                self.tunnel_endpoint = Some(tunnel_endpoint);
+                self.current_relay = Some(relay);
+            }
+        }
 
         let account_token = self.settings
             .get_account_token()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
 
-        self.relay_endpoint = Some(relay_endpoint);
         self.set_security_policy()?;
 
-        let tunnel_monitor = self.spawn_tunnel_monitor(relay_endpoint, &account_token)?;
+        let tunnel_monitor =
+            self.spawn_tunnel_monitor(self.tunnel_endpoint.unwrap(), &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
         self.set_state(TunnelState::Connecting)?;
         Ok(())
-    }
-
-    fn get_relay(&mut self) -> Result<TunnelEndpoint> {
-        let relay_constraints = self.settings.get_relay_constraints();
-
-        let host = match relay_constraints.host {
-            Constraint::Any => format!("{}", self.relay_iter.next().unwrap().address.ip()),
-            Constraint::Only(host) => host,
-        };
-
-        match relay_constraints.tunnel {
-            TunnelConstraints::OpenVpn(constraints) => self.get_openvpn_relay(host, constraints),
-        }
-    }
-
-    fn get_openvpn_relay(
-        &mut self,
-        host: String,
-        constraints: OpenVpnConstraints,
-    ) -> Result<TunnelEndpoint> {
-        let protocol = match constraints.protocol {
-            Constraint::Any => TransportProtocol::Udp,
-            Constraint::Only(protocol) => protocol,
-        };
-        let port = match constraints.port {
-            Constraint::Any => randomize_port(protocol),
-            Constraint::Only(port) => port,
-        };
-
-        CustomTunnelEndpoint {
-            host,
-            tunnel: TunnelParameters::OpenVpn(OpenVpnParameters { port, protocol }),
-        }.to_tunnel_endpoint()
-            .chain_err(|| "Unable to construct a valid relay")
     }
 
     fn spawn_tunnel_monitor(
@@ -633,7 +662,7 @@ impl Daemon {
     }
 
     fn set_security_policy(&mut self) -> Result<()> {
-        let policy = match (self.relay_endpoint, self.tunnel_metadata.as_ref()) {
+        let policy = match (self.tunnel_endpoint, self.tunnel_metadata.as_ref()) {
             (Some(relay), None) => SecurityPolicy::Connecting(relay.to_endpoint()),
             (Some(relay), Some(tunnel_metadata)) => {
                 SecurityPolicy::Connected(relay.to_endpoint(), tunnel_metadata.clone())
@@ -734,18 +763,6 @@ fn log_version() {
         env!("CARGO_PKG_VERSION"),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
     )
-}
-
-fn randomize_port(protocol: TransportProtocol) -> u16 {
-    let pool: Vec<u16> = if protocol == TransportProtocol::Udp {
-        vec![1194, 1195, 1196, 1197, 1300, 1301, 1302]
-    } else {
-        vec![80, 443]
-    };
-
-    *rand::thread_rng()
-        .choose(&pool)
-        .expect("no ports to randomize from")
 }
 
 fn get_resource_dir() -> PathBuf {

@@ -1,12 +1,29 @@
-use std::fmt;
-use talpid_types::net::TransportProtocol;
+use CustomTunnelEndpoint;
+use location::{CityCode, CountryCode};
 
+use std::fmt;
+
+use talpid_types::net::{OpenVpnParameters, TransportProtocol, WireguardParameters};
+
+
+pub trait Match<T> {
+    fn matches(&self, other: &T) -> bool;
+}
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Any,
     Only(T),
+}
+
+impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
+    pub fn unwrap_or(self, other: T) -> T {
+        match self {
+            Constraint::Any => other,
+            Constraint::Only(value) => value,
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
@@ -17,19 +34,56 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
 
 impl<T: Copy + fmt::Debug + Clone + Eq + PartialEq> Copy for Constraint<T> {}
 
+impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
+    fn matches(&self, other: &T) -> bool {
+        match *self {
+            Constraint::Any => true,
+            Constraint::Only(ref value) => value == other,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RelaySettings {
+    CustomTunnelEndpoint(CustomTunnelEndpoint),
+    Normal(RelayConstraints),
+}
+
+impl Default for RelaySettings {
+    fn default() -> Self {
+        RelaySettings::Normal(RelayConstraints::default())
+    }
+}
+
+impl RelaySettings {
+    pub fn merge(&mut self, update: RelaySettingsUpdate) -> Self {
+        match update {
+            RelaySettingsUpdate::CustomTunnelEndpoint(relay) => {
+                RelaySettings::CustomTunnelEndpoint(relay)
+            }
+            RelaySettingsUpdate::Normal(constraint_update) => RelaySettings::Normal(match *self {
+                RelaySettings::CustomTunnelEndpoint(_) => {
+                    RelayConstraints::default().merge(constraint_update)
+                }
+                RelaySettings::Normal(ref constraint) => constraint.merge(constraint_update),
+            }),
+        }
+    }
+}
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct RelayConstraints {
-    pub host: Constraint<String>,
-    pub tunnel: TunnelConstraints,
+    pub location: Constraint<LocationConstraint>,
+    pub tunnel: Constraint<TunnelConstraints>,
 }
 
 impl RelayConstraints {
-    pub fn merge(&mut self, update: RelayConstraintsUpdate) -> Self {
+    pub fn merge(&self, update: RelayConstraintsUpdate) -> Self {
         RelayConstraints {
-            host: update.host.unwrap_or_else(|| self.host.clone()),
-            tunnel: self.tunnel.merge(update.tunnel),
+            location: update.location.unwrap_or_else(|| self.location.clone()),
+            tunnel: update.tunnel.unwrap_or_else(|| self.tunnel.clone()),
         }
     }
 }
@@ -37,61 +91,72 @@ impl RelayConstraints {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub enum TunnelConstraints {
-    #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraints),
+pub enum LocationConstraint {
+    /// A country is represented by its two letter country code.
+    Country(CountryCode),
+    /// A city is composed of a country code and a city code.
+    City(CountryCode, CityCode),
 }
 
-impl Default for TunnelConstraints {
-    fn default() -> Self {
-        TunnelConstraints::OpenVpn(OpenVpnConstraints::default())
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub enum TunnelConstraints {
+    #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraints),
+    #[serde(rename = "wireguard")] Wireguard(WireguardConstraints),
+}
+
+impl Match<OpenVpnParameters> for TunnelConstraints {
+    fn matches(&self, endpoint: &OpenVpnParameters) -> bool {
+        match *self {
+            TunnelConstraints::OpenVpn(ref constraints) => constraints.matches(endpoint),
+            _ => false,
+        }
     }
 }
 
-impl TunnelConstraints {
-    pub fn merge(&mut self, update: TunnelConstraintsUpdate) -> Self {
+impl Match<WireguardParameters> for TunnelConstraints {
+    fn matches(&self, endpoint: &WireguardParameters) -> bool {
         match *self {
-            TunnelConstraints::OpenVpn(ref mut current) => match update {
-                TunnelConstraintsUpdate::OpenVpn(openvpn_update) => {
-                    TunnelConstraints::OpenVpn(current.merge(openvpn_update))
-                }
-            },
+            TunnelConstraints::Wireguard(ref constraints) => constraints.matches(endpoint),
+            _ => false,
         }
     }
 }
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
 pub struct OpenVpnConstraints {
     pub port: Constraint<u16>,
     pub protocol: Constraint<TransportProtocol>,
 }
 
-impl OpenVpnConstraints {
-    pub fn merge(&mut self, update: OpenVpnConstraintsUpdate) -> Self {
-        OpenVpnConstraints {
-            port: update.port.unwrap_or_else(|| self.port.clone()),
-            protocol: update.protocol.unwrap_or(self.protocol),
-        }
+impl Match<OpenVpnParameters> for OpenVpnConstraints {
+    fn matches(&self, endpoint: &OpenVpnParameters) -> bool {
+        self.port.matches(&endpoint.port) && self.protocol.matches(&endpoint.protocol)
+    }
+}
+
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct WireguardConstraints {
+    pub port: Constraint<u16>,
+}
+
+impl Match<WireguardParameters> for WireguardConstraints {
+    fn matches(&self, endpoint: &WireguardParameters) -> bool {
+        self.port.matches(&endpoint.port)
     }
 }
 
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct RelayConstraintsUpdate {
-    pub host: Option<Constraint<String>>,
-    pub tunnel: TunnelConstraintsUpdate,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum TunnelConstraintsUpdate {
-    #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraintsUpdate),
+pub enum RelaySettingsUpdate {
+    CustomTunnelEndpoint(CustomTunnelEndpoint),
+    Normal(RelayConstraintsUpdate),
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub struct OpenVpnConstraintsUpdate {
-    pub port: Option<Constraint<u16>>,
-    pub protocol: Option<Constraint<TransportProtocol>>,
+#[serde(default)]
+pub struct RelayConstraintsUpdate {
+    pub location: Option<Constraint<LocationConstraint>>,
+    pub tunnel: Option<Constraint<TunnelConstraints>>,
 }
