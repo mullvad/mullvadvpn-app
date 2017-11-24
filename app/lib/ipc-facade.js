@@ -44,7 +44,9 @@ type RelaySettingsNormal<TTunnelOptions> = {
   location: 'any' | {
     only: RelayLocation,
   },
-  tunnel: 'any' | TTunnelOptions,
+  tunnel: 'any' | {
+    only: TTunnelOptions
+  },
 };
 
 type RelaySettingsCustom = {
