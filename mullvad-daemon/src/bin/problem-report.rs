@@ -215,7 +215,7 @@ impl ProblemReport {
         out = self.redact_mac_addresses(&out);
         out = self.redact_ip_addresses(&out);
 
-        self.redact_list(out)
+        self.redact_custom_strings(out)
     }
 
     fn redact_home_dir(&self, input: String) -> String {
@@ -287,7 +287,7 @@ impl ProblemReport {
         re.replace_all(input, "[REDACTED IPv6]").to_string()
     }
 
-    fn redact_list(&self, input: String) -> String {
+    fn redact_custom_strings(&self, input: String) -> String {
         let mut out = input;
         for redact in &self.redact_custom_strings {
             out = out.replace(redact, "[REDACTED]")
