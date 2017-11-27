@@ -4,7 +4,6 @@ import {
   Component,
   Text,
   Button,
-  Image,
   View
 } from 'reactxp';
 
@@ -47,7 +46,7 @@ export default class HeaderBar extends Component {
             <Img style={ styles.headerbar__logo } source='logo-icon'/>
             <Text style={styles.headerbar__title}>MULLVAD VPN</Text>
           </View>
-        : null}
+          : null}
 
         {this.props.showSettings ?
           <View style={styles.headerbar__settings}>
@@ -55,7 +54,7 @@ export default class HeaderBar extends Component {
               <Img style={ styles.headerbar__settings } source='icon-settings'/>
             </Button>
           </View>
-        : null}
+          : null}
       </View>
     );
   }

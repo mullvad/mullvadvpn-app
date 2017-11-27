@@ -6,7 +6,8 @@ const exit = () => {
   remote.app.quit();
 };
 
-const open = (link) => {
+const open = (link: string) => {
+  // $FlowFixMe
   shell.openExternal(link);
 };
 

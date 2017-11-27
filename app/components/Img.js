@@ -5,7 +5,7 @@ import { View, Component } from 'reactxp';
 export default class Img extends Component {
   render(){
 
-    const url = "./assets/images/" + this.props.source + ".svg";
+    const url = './assets/images/' + this.props.source + '.svg';
 
     const style = this.props.style;
 

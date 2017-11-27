@@ -6,7 +6,7 @@ const exit = () => {
   BackHandler.exitApp();
 };
 
-const open = (link) => {
+const open = (link: string) => {
   Linking.openURL(link);
 };
 

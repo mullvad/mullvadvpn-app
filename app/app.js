@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Component} from 'reactxp';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
@@ -84,25 +83,6 @@ updateTrayIcon();
 webFrame.setZoomLevelLimits(1, 1);
 
 ipcRenderer.send('on-browser-window-ready');
-
-function getRootElement() {
-  const currentScript = document.currentScript;
-  if (!currentScript) {
-    throw new Error('Missing document.currentScript');
-  }
-
-  const containerId = currentScript.getAttribute('data-container');
-  if(!containerId) {
-    throw new Error('Missing data-container attribute.');
-  }
-
-  const rootElement = document.querySelector(containerId);
-  if(!rootElement) {
-    throw new Error('Missing root element.');
-  }
-
-  return rootElement;
-}
 
 
 export default class App extends Component{
