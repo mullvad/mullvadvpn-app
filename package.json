@@ -52,7 +52,7 @@
     "electron": "^1.7.9",
     "electron-builder": "^19.37.2",
     "electron-devtools-installer": "^2.2.1",
-    "electron-mocha": "^3.3.0",
+    "electron-mocha": "^5.0.0",
     "enzyme": "^2.9.1",
     "eslint": "^4.11.0",
     "eslint-plugin-flowtype": "^2.39.1",
@@ -68,7 +68,7 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "develop": "npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
-    "test": "electron-mocha --renderer -R spec --compilers js:babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
+    "test": "electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "flow": "flow",
     "pack": "run-s private:clean private:compile private:build:all",
