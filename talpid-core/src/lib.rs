@@ -29,9 +29,6 @@ extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-#[cfg(target_os = "macos")]
-extern crate pfctl;
-
 /// Working with processes.
 pub mod process;
 

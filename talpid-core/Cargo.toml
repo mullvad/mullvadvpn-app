@@ -24,6 +24,4 @@ libc = "0.2.20"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = { git = "https://github.com/mullvad/pfctl-rs", rev = "dae436f6ee4e3529fc995c5192b314f1cc8dccec" }
-socket-relay = { path = "../socket-relay" }
 tokio-core = "0.1"
-
