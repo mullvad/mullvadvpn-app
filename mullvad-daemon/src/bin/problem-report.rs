@@ -212,8 +212,7 @@ impl ProblemReport {
     fn redact(&self, input: String) -> String {
         let mut out = self.redact_home_dir(input);
 
-        out = self.redact_mac_addresses(&out);
-        out = self.redact_ip_addresses(&out);
+        out = self.redact_network_info(&out);
 
         self.redact_custom_strings(out)
     }
@@ -225,23 +224,27 @@ impl ProblemReport {
         }
     }
 
-    fn redact_mac_addresses(&self, input: &str) -> String {
+    fn redact_network_info(&self, input: &str) -> String {
+        let combined_pattern = format!(
+            "\\b{}|{}|{}\\b",
+            self.build_ipv4_regex(),
+            self.build_ipv6_regex(),
+            self.build_mac_regex()
+        );
+        let re = Regex::new(&combined_pattern).unwrap();
+
+        re.replace_all(input, "[REDACTED]").to_string()
+    }
+
+    fn build_mac_regex(&self) -> String {
         let octet = "[[:xdigit:]]{2}"; // 0 - ff
 
         // five pairs of two hexadecimal chars followed by colon or dash
         // followed by a pair of hexadecimal chars
-        let mac_re = format!("\\b({0}[:-]){{5}}({0})\\b", octet);
-
-        let re = Regex::new(&mac_re).unwrap();
-        re.replace_all(input, "[REDACTED MAC]").to_string()
+        format!("(?:{0}[:-]){{5}}({0})", octet)
     }
 
-    fn redact_ip_addresses(&self, input: &str) -> String {
-        let out = self.redact_ipv4(input);
-        self.redact_ipv6(&out)
-    }
-
-    fn redact_ipv4(&self, input: &str) -> String {
+    fn build_ipv4_regex(&self) -> String {
         // regex adapted from  https://www.regular-expressions.info/ip.html
 
         let above_250 = "25[0-5]";
@@ -265,13 +268,10 @@ impl ProblemReport {
         // matches 0-255
         let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
 
-        let ip_regex = format!("\\b{0}\\.{1}\\.{1}\\.{1}\\b", first_octet, ip_octet);
-        let re = Regex::new(&ip_regex).unwrap();
-
-        re.replace_all(input, "[REDACTED IPv4]").to_string()
+        format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
     }
 
-    fn redact_ipv6(&self, input: &str) -> String {
+    fn build_ipv6_regex(&self) -> String {
         let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
 
         // Matches 1-7 hextets followed by one or two colons
@@ -281,10 +281,14 @@ impl ProblemReport {
         // invalid IPv6 addresses that matches this. E.g.
         // all that has more than one instance of '::', but we
         // don't really care.
-        let ipv6_ish = format!("\\b({0}::?){{1,7}}{0}\\b", hextet);
+        let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
 
-        let re = Regex::new(&ipv6_ish).unwrap();
-        re.replace_all(input, "[REDACTED IPv6]").to_string()
+        // Matches addresses without double colon. This is
+        // a separate regex to make it easier to not match
+        // on time
+        let long = format!("({0}:){{7}}{0}", hextet);
+
+        format!("(?:{})|(?:{})", short, long)
     }
 
     fn redact_custom_strings(&self, input: String) -> String {
@@ -389,7 +393,7 @@ mod tests {
     fn assert_redacts_ipv4(input: &str) {
         let report = ProblemReport::new(vec![]);
         let actual = report.redact(format!("pre {} post", input));
-        assert_eq!("pre [REDACTED IPv4] post", actual);
+        assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
@@ -417,7 +421,7 @@ mod tests {
     fn assert_redacts_ipv6(input: &str) {
         let report = ProblemReport::new(vec![]);
         let actual = report.redact(format!("pre {} post", input));
-        assert_eq!("pre [REDACTED IPv6] post", actual);
+        assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
@@ -425,5 +429,12 @@ mod tests {
         let report = ProblemReport::new(vec![]);
         let res = report.redact("::1".to_owned());
         assert_eq!("::1", res);
+    }
+
+    #[test]
+    fn test_does_not_redact_time() {
+        let report = ProblemReport::new(vec![]);
+        let res = report.redact("09:47:59".to_owned());
+        assert_eq!("09:47:59", res);
     }
 }

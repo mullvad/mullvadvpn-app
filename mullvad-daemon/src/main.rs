@@ -599,8 +599,7 @@ impl Daemon {
 
         if let Some(ref file) = self.tunnel_log {
             let _ = fs::remove_file(file);
-            fs::File::create(file)
-                .chain_err(|| "Unable to create the tunnel log file")?;
+            fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
         }
 
         let tunnel_monitor =
