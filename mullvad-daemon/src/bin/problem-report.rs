@@ -10,10 +10,12 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate regex;
 
 extern crate mullvad_rpc;
 
 use error_chain::ChainedError;
+use regex::Regex;
 
 use std::cmp::min;
 use std::env;
@@ -117,7 +119,7 @@ fn run() -> Result<()> {
     let matches = app.get_matches();
 
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
-        let redacts = collect_matches
+        let redact_custom_strings = collect_matches
             .values_of_lossy("redact")
             .unwrap_or(Vec::new());
         let log_paths = collect_matches
@@ -125,7 +127,7 @@ fn run() -> Result<()> {
             .map(|os_values| os_values.map(Path::new).collect())
             .unwrap_or(Vec::new());
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
-        collect_report(&log_paths, output_path, redacts)
+        collect_report(&log_paths, output_path, redact_custom_strings)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -136,8 +138,12 @@ fn run() -> Result<()> {
     }
 }
 
-fn collect_report(log_paths: &[&Path], output_path: &Path, redacts: Vec<String>) -> Result<()> {
-    let mut problem_report = ProblemReport::new(redacts);
+fn collect_report(
+    log_paths: &[&Path],
+    output_path: &Path,
+    redact_custom_strings: Vec<String>,
+) -> Result<()> {
+    let mut problem_report = ProblemReport::new(redact_custom_strings);
     for log_path in log_paths {
         problem_report.add_log(log_path);
     }
@@ -170,17 +176,17 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 struct ProblemReport {
     system_info: Vec<String>,
     logs: Vec<(String, String)>,
-    redacts: Vec<String>,
+    redact_custom_strings: Vec<String>,
 }
 
 impl ProblemReport {
     /// Creates a new problem report with system information. Logs can be added with `add_log`.
-    /// Logs will have all strings in `redacts` removed from them.
-    pub fn new(redacts: Vec<String>) -> Self {
+    /// Logs will have all strings in `redact_custom_strings` removed from them.
+    pub fn new(redact_custom_strings: Vec<String>) -> Self {
         ProblemReport {
             system_info: Self::collect_system_info(),
             logs: Vec::new(),
-            redacts,
+            redact_custom_strings,
         }
     }
 
@@ -204,11 +210,86 @@ impl ProblemReport {
     }
 
     fn redact(&self, input: String) -> String {
-        let mut out = match env::home_dir() {
+        let mut out = self.redact_home_dir(input);
+
+        out = self.redact_mac_addresses(&out);
+        out = self.redact_ip_addresses(&out);
+
+        self.redact_custom_strings(out)
+    }
+
+    fn redact_home_dir(&self, input: String) -> String {
+        match env::home_dir() {
             Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
             None => input,
-        };
-        for redact in &self.redacts {
+        }
+    }
+
+    fn redact_mac_addresses(&self, input: &str) -> String {
+        let octet = "[[:xdigit:]]{2}"; // 0 - ff
+
+        // five pairs of two hexadecimal chars followed by colon or dash
+        // followed by a pair of hexadecimal chars
+        let mac_re = format!("\\b({0}[:-]){{5}}({0})\\b", octet);
+
+        let re = Regex::new(&mac_re).unwrap();
+        re.replace_all(input, "[REDACTED MAC]").to_string()
+    }
+
+    fn redact_ip_addresses(&self, input: &str) -> String {
+        let out = self.redact_ipv4(input);
+        self.redact_ipv6(&out)
+    }
+
+    fn redact_ipv4(&self, input: &str) -> String {
+        // regex adapted from  https://www.regular-expressions.info/ip.html
+
+        let above_250 = "25[0-5]";
+        let above_200 = "2[0-4][0-9]";
+        let above_100 = "1[0-9][0-9]";
+
+        // 100-119 | 120-126 | 128-129 | 130 - 199
+        let above_100_not_127 = "1(?:[01][0-9]|2[0-6]|2[89]|[3-9][0-9])";
+
+        let above_0 = "0?[0-9][0-9]?";
+
+        // matches 0-255, except 127
+        let first_octet = format!(
+            "(?:{}|{}|{}|{})",
+            above_250,
+            above_200,
+            above_100_not_127,
+            above_0
+        );
+
+        // matches 0-255
+        let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
+
+        let ip_regex = format!("\\b{0}\\.{1}\\.{1}\\.{1}\\b", first_octet, ip_octet);
+        let re = Regex::new(&ip_regex).unwrap();
+
+        re.replace_all(input, "[REDACTED IPv4]").to_string()
+    }
+
+    fn redact_ipv6(&self, input: &str) -> String {
+        let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
+
+        // Matches 1-7 hextets followed by one or two colons
+        // and one last hextet.
+        //
+        // This means that there are many
+        // invalid IPv6 addresses that matches this. E.g.
+        // all that has more than one instance of '::', but we
+        // don't really care.
+        let ipv6_ish = format!("\\b({0}::?){{1,7}}{0}\\b", hextet);
+
+        let re = Regex::new(&ipv6_ish).unwrap();
+        re.replace_all(input, "[REDACTED IPv6]").to_string()
+    }
+
+    fn redact_custom_strings(&self, input: String) -> String {
+        let mut out = input;
+        for redact in &self.redact_custom_strings {
             out = out.replace(redact, "[REDACTED]")
         }
         out
@@ -289,4 +370,60 @@ fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
             String::from_utf8_lossy(&output.stdout).trim().to_string()
         })
         .ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_redacts_ipv4() {
+        assert_redacts_ipv4("1.2.3.4");
+        assert_redacts_ipv4("10.127.0.1");
+        assert_redacts_ipv4("192.168.1.1");
+        assert_redacts_ipv4("10.0.16.1");
+        assert_redacts_ipv4("173.54.12.32");
+        assert_redacts_ipv4("68.4.4.1");
+    }
+
+    fn assert_redacts_ipv4(input: &str) {
+        let report = ProblemReport::new(vec![]);
+        let actual = report.redact(format!("pre {} post", input));
+        assert_eq!("pre [REDACTED IPv4] post", actual);
+    }
+
+    #[test]
+    fn test_does_not_redact_localhost_ipv4() {
+        let report = ProblemReport::new(vec![]);
+        let res = report.redact("127.0.0.1".to_owned());
+        assert_eq!("127.0.0.1", res);
+    }
+
+    #[test]
+    fn test_redacts_ipv6() {
+        assert_redacts_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+        assert_redacts_ipv6("2001:db8:85a3:0:0:8a2e:370:7334");
+        assert_redacts_ipv6("2001:db8:85a3::8a2e:370:7334");
+        assert_redacts_ipv6("2001:db8:0:0:0:0:2:1");
+        assert_redacts_ipv6("2001:db8::2:1");
+        assert_redacts_ipv6("2001:db8:0000:1:1:1:1:1");
+        assert_redacts_ipv6("2001:db8:0:1:1:1:1:1");
+        assert_redacts_ipv6("2001:db8:0:0:1:0:0:1");
+        assert_redacts_ipv6("2001:db8::1:0:0:1");
+        assert_redacts_ipv6("0::0");
+        assert_redacts_ipv6("0:0:0:0::1");
+    }
+
+    fn assert_redacts_ipv6(input: &str) {
+        let report = ProblemReport::new(vec![]);
+        let actual = report.redact(format!("pre {} post", input));
+        assert_eq!("pre [REDACTED IPv6] post", actual);
+    }
+
+    #[test]
+    fn test_does_not_redact_localhost_ipv6() {
+        let report = ProblemReport::new(vec![]);
+        let res = report.redact("::1".to_owned());
+        assert_eq!("::1", res);
+    }
 }

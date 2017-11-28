@@ -76,6 +76,8 @@ use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::TunnelEndpoint;
 
+use std::fs;
+
 
 error_chain!{
     errors {
@@ -594,6 +596,12 @@ impl Daemon {
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
 
         self.set_security_policy()?;
+
+        if let Some(ref file) = self.tunnel_log {
+            let _ = fs::remove_file(file);
+            fs::File::create(file)
+                .chain_err(|| "Unable to create the tunnel log file")?;
+        }
 
         let tunnel_monitor =
             self.spawn_tunnel_monitor(self.tunnel_endpoint.unwrap(), &account_token)?;

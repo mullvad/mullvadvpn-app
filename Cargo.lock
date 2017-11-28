@@ -684,6 +684,7 @@ dependencies = [
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "rand 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
