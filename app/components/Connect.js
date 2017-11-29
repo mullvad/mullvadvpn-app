@@ -110,18 +110,12 @@ export default class Connect extends Component {
   renderMap(): React.Element<*> {
     const serverInfo = this._getServerInfo();
 
-    let isConnecting = false;
-    let isConnected = false;
-    let isDisconnected = false;
+    let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
     case 'connected': isConnected = true; break;
     case 'disconnected': isDisconnected = true; break;
     }
-
-    const { city, country } = (isConnecting || isConnected)
-      ? { city: 'Unknown', country: 'Unknown' }
-      : { city: this.props.connection.city, country: this.props.connection.country };
 
     const serverName = serverInfo
       ? serverInfo.name
@@ -145,9 +139,14 @@ export default class Connect extends Component {
     let ipComponent = undefined;
     if (isConnected || isDisconnected) {
       if (this.state.showCopyIPMessage) {
-        ipComponent = <span>{ 'IP copied to clipboard!' }</span>;
+        ipComponent = (<span>{ 'IP copied to clipboard!' }</span>);
       } else {
-        ipComponent = <span>{ this.props.connection.clientIp }</span>;
+        // TODO: remove empty IP placeholder when implemented in backend.
+        if(isDisconnected) {
+          ipComponent = (<span>{ '\u2003' }</span>);
+        } else {
+          ipComponent = (<span>{ this.props.connection.clientIp }</span>);
+        }
       }
     }
     return (
@@ -171,11 +170,22 @@ export default class Connect extends Component {
               **********************************
             */ }
 
+            { /* location when disconnected.
+            TODO: merge with the isConnecting block below when implemented in backend.
+            */ }
+            <If condition={ isDisconnected }>
+              <Then>
+                <div className="connect__status-location">
+                  <span>{ '\u2002' }</span>
+                </div>
+              </Then>
+            </If>
+
             { /* location when connecting */ }
             <If condition={ isConnecting }>
               <Then>
                 <div className="connect__status-location">
-                  <span>{ country }</span>
+                  <span>{ this.props.connection.country }</span>
                 </div>
               </Then>
             </If>
@@ -184,16 +194,7 @@ export default class Connect extends Component {
             <If condition={ isConnected }>
               <Then>
                 <div className="connect__status-location">
-                  { city }<br/>{ country }
-                </div>
-              </Then>
-            </If>
-
-            { /* location when disconnected */ }
-            <If condition={ isDisconnected }>
-              <Then>
-                <div className="connect__status-location">
-                  { country }
+                  { this.props.connection.city }<br/>{ this.props.connection.country }
                 </div>
               </Then>
             </If>
