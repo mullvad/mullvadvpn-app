@@ -1,16 +1,21 @@
 use talpid_types::net::Endpoint;
 
 #[cfg(target_os = "macos")]
-#[path = "macos.rs"]
-mod imp;
+pub mod macos;
+#[cfg(target_os = "macos")]
+use self::macos as imp;
 
 #[cfg(all(unix, not(target_os = "macos")))]
-#[path = "unix.rs"]
-mod imp;
+pub mod unix;
+#[cfg(all(unix, not(target_os = "macos")))]
+use self::unix as imp;
 
 #[cfg(windows)]
-#[path = "windows.rs"]
-mod imp;
+pub mod windows;
+#[cfg(windows)]
+use self::windows as imp;
+
+
 
 error_chain!{
     errors {

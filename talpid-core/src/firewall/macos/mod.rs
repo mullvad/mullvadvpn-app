@@ -7,16 +7,26 @@ use std::net::Ipv4Addr;
 
 use talpid_types::net;
 
+mod dns;
+
+use self::dns::DnsMonitor;
+
+error_chain! {
+    links {
+        PfCtl(self::pfctl::Error, self::pfctl::ErrorKind);
+        DnsMonitor(self::dns::Error, self::dns::ErrorKind);
+    }
+}
+
 // alias used to instantiate firewall implementation
 pub type ConcreteFirewall = PacketFilter;
-pub use self::pfctl::{Error, ErrorKind, Result, ResultExt};
 
 const ANCHOR_NAME: &'static str = "mullvad";
 
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
-
+    dns_monitor: DnsMonitor,
 }
 
 impl Firewall<Error> for PacketFilter {
@@ -24,6 +34,7 @@ impl Firewall<Error> for PacketFilter {
         Ok(PacketFilter {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
+            dns_monitor: DnsMonitor::new()?,
         })
     }
 
@@ -66,7 +77,7 @@ impl PacketFilter {
         let mut anchor_change = pfctl::AnchorChange::new();
         anchor_change.set_filter_rules(new_filter_rules);
         anchor_change.set_redirect_rules(new_redirect_rules);
-        self.pf.set_rules(ANCHOR_NAME, anchor_change)
+        Ok(self.pf.set_rules(ANCHOR_NAME, anchor_change)?)
     }
 
     fn get_policy_specific_rules(
@@ -119,7 +130,7 @@ impl PacketFilter {
     fn get_allow_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
-        pfctl::FilterRuleBuilder::default()
+        Ok(pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
@@ -127,17 +138,17 @@ impl PacketFilter {
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
-            .build()
+            .build()?)
     }
 
     fn get_allow_tunnel_rule(tunnel_interface: &str) -> Result<pfctl::FilterRule> {
-        pfctl::FilterRuleBuilder::default()
+        Ok(pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Pass)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
-            .build()
+            .build()?)
     }
 
     fn get_allow_loopback_rules() -> Result<Vec<pfctl::FilterRule>> {
@@ -182,20 +193,21 @@ impl PacketFilter {
 
     fn remove_rules(&mut self) -> Result<()> {
         // remove_anchor() does not deactivate active rules
-        self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)
+        Ok(self.pf
+            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?)
     }
 
     fn enable(&mut self) -> Result<()> {
         if self.pf_was_enabled.is_none() {
             self.pf_was_enabled = Some(self.pf.is_enabled()?);
         }
-        self.pf.try_enable()
+        Ok(self.pf.try_enable()?)
     }
 
     fn restore_state(&mut self) -> Result<()> {
         match self.pf_was_enabled.take() {
-            Some(true) => self.pf.try_enable(),
-            Some(false) => self.pf.try_disable(),
+            Some(true) => Ok(self.pf.try_enable()?),
+            Some(false) => Ok(self.pf.try_disable()?),
             None => Ok(()),
         }
     }
@@ -204,14 +216,16 @@ impl PacketFilter {
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
+        Ok(())
     }
 
     fn remove_anchor(&mut self) -> Result<()> {
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         self.pf
-            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
+        Ok(())
     }
 }
 
