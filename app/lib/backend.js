@@ -185,42 +185,44 @@ export class Backend {
     }
   }
 
-  login(accountToken: AccountToken): Promise<void> {
+  async login(accountToken: AccountToken): Promise<void> {
     log.debug('Attempting to login with account number', accountToken);
 
     this._store.dispatch(accountActions.startLogin(accountToken));
 
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.getAccountData(accountToken)
-          .then( response => {
-            log.debug('Account exists', response);
+    try {
+      await this._ensureAuthenticated();
 
-            return this._ipc.setAccount(accountToken)
-              .then( () => response );
+      const accountData = await this._ipc.getAccountData(accountToken);
 
-          }).then( accountData => {
-            log.info('Log in complete');
+      log.debug('Account exists', accountData);
 
-            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this.fetchRelaySettings();
-          })
-          .then( () => {
-            // Redirect the user after some time to allow for
-            // the 'Login Successful' screen to be visible
-            setTimeout(() => {
-              this._store.dispatch(push('/connect'));
-              log.debug('Autoconnecting...');
-              this.connect();
-            }, 1000);
-          }).catch(e => {
-            log.error('Failed to log in,', e.message);
+      await this._ipc.setAccount(accountToken);
 
-            // TODO: This is not true. If there is a communication link failure the promise will be rejected too
-            const err = new BackendError('INVALID_ACCOUNT');
-            this._store.dispatch(accountActions.loginFailed(err));
-          }).then(() => this._updateAccountHistory());
-      });
+      log.info('Log in complete');
+
+      this._store.dispatch(
+        accountActions.loginSuccessful(accountData.expiry)
+      );
+      await this.fetchRelaySettings();
+
+      // Redirect the user after some time to allow for
+      // the 'Login Successful' screen to be visible
+      setTimeout(() => {
+        this._store.dispatch(push('/connect'));
+        log.debug('Autoconnecting...');
+        this.connect();
+      }, 1000);
+
+      await this._updateAccountHistory();
+
+    } catch(e) {
+      log.error('Failed to log in,', e.message);
+
+      // TODO: This is not true. If there is a communication link failure the promise will be rejected too
+      const err = new BackendError('INVALID_ACCOUNT');
+      this._store.dispatch(accountActions.loginFailed(err));
+    }
   }
 
   async autologin() {
