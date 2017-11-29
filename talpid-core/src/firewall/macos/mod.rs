@@ -58,15 +58,12 @@ impl Firewall<Error> for PacketFilter {
 impl PacketFilter {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
-        let mut new_redirect_rules = vec![];
 
         new_filter_rules.append(&mut Self::get_allow_loopback_rules()?);
         new_filter_rules.append(&mut Self::get_allow_dhcp_rules()?);
 
-        let (mut policy_filter_rules, mut policy_redirect_rules) =
-            self.get_policy_specific_rules(policy)?;
+        let mut policy_filter_rules = self.get_policy_specific_rules(policy)?;
         new_filter_rules.append(&mut policy_filter_rules);
-        new_redirect_rules.append(&mut policy_redirect_rules);
 
         let drop_all_rule = pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Drop)
@@ -76,20 +73,27 @@ impl PacketFilter {
 
         let mut anchor_change = pfctl::AnchorChange::new();
         anchor_change.set_filter_rules(new_filter_rules);
-        anchor_change.set_redirect_rules(new_redirect_rules);
         Ok(self.pf.set_rules(ANCHOR_NAME, anchor_change)?)
     }
 
     fn get_policy_specific_rules(
         &mut self,
         policy: SecurityPolicy,
-    ) -> Result<(Vec<pfctl::FilterRule>, Vec<pfctl::RedirectRule>)> {
+    ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
             SecurityPolicy::Connecting(relay_endpoint) => {
-                Ok((vec![Self::get_allow_relay_rule(relay_endpoint)?], vec![]))
+                Ok(vec![Self::get_allow_relay_rule(relay_endpoint)?])
             }
             SecurityPolicy::Connected(relay_endpoint, tunnel) => {
-                let allow_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
+                let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
+                    .action(pfctl::FilterRuleAction::Pass)
+                    .direction(pfctl::Direction::Out)
+                    .quick(true)
+                    .interface(&tunnel.interface)
+                    .proto(pfctl::Proto::Tcp)
+                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .build()?;
+                let allow_udp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
                     .action(pfctl::FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
@@ -97,32 +101,29 @@ impl PacketFilter {
                     .proto(pfctl::Proto::Udp)
                     .to(pfctl::Endpoint::new(tunnel.gateway, 53))
                     .build()?;
-                let reroute_dns_rule = pfctl::FilterRuleBuilder::default()
-                    .action(pfctl::FilterRuleAction::Pass)
-                    .direction(pfctl::Direction::Out)
-                    .quick(true)
-                    .route(pfctl::Route::route_to(pfctl::Interface::from("lo0")))
-                    .proto(pfctl::Proto::Udp)
-                    .to(pfctl::Port::from(53))
-                    .build()?;
-                let block_all_other_dns_rule = pfctl::FilterRuleBuilder::default()
+                let block_tcp_dns_rule = pfctl::FilterRuleBuilder::default()
                     .action(pfctl::FilterRuleAction::Drop)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .proto(pfctl::Proto::Tcp)
                     .to(pfctl::Port::from(53))
                     .build()?;
+                let block_udp_dns_rule = pfctl::FilterRuleBuilder::default()
+                    .action(pfctl::FilterRuleAction::Drop)
+                    .direction(pfctl::Direction::Out)
+                    .quick(true)
+                    .proto(pfctl::Proto::Udp)
+                    .to(pfctl::Port::from(53))
+                    .build()?;
 
-                Ok((
-                    vec![
-                        allow_dns_to_relay_rule,
-                        reroute_dns_rule,
-                        block_all_other_dns_rule,
-                        Self::get_allow_relay_rule(relay_endpoint)?,
-                        Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
-                    ],
-                    vec![],
-                ))
+                Ok(vec![
+                    allow_tcp_dns_to_relay_rule,
+                    allow_udp_dns_to_relay_rule,
+                    block_tcp_dns_rule,
+                    block_udp_dns_rule,
+                    Self::get_allow_relay_rule(relay_endpoint)?,
+                    Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
+                ])
             }
         }
     }
