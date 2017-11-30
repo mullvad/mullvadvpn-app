@@ -273,14 +273,16 @@ export class Backend {
     }
   }
 
-  connect(): Promise<void> {
-    this._store.dispatch(connectionActions.connecting());
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.connect())
-      .catch((e) => {
-        log.error('Backend.connect failed because: ', e.message);
-        this._store.dispatch(connectionActions.disconnected());
-      });
+  async connect(): Promise<void> {
+    try {
+      this._store.dispatch(connectionActions.connecting());
+
+      await this._ensureAuthenticated();
+      await this._ipc.connect();
+    } catch (e) {
+      log.error('Failed to connect: ', e.message);
+      this._store.dispatch(connectionActions.disconnected());
+    }
   }
 
   disconnect(): Promise<void> {
