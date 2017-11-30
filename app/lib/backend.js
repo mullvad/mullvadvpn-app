@@ -223,38 +223,35 @@ export class Backend {
       });
   }
 
-  autologin() {
-    log.debug('Attempting to log in automatically');
+  async autologin() {
+    try {
+      log.debug('Attempting to log in automatically');
 
-    this._store.dispatch(accountActions.startLogin());
+      await this._ensureAuthenticated();
 
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.getAccount()
-          .then( accountToken => {
-            if (!accountToken) {
-              throw new BackendError('NO_ACCOUNT');
-            }
-            log.debug('The backend had an account number stored:', accountToken);
-            this._store.dispatch(accountActions.startLogin(accountToken));
+      this._store.dispatch(accountActions.startLogin());
 
-            return this._ipc.getAccountData(accountToken);
-          })
-          .then( accountData => {
-            log.debug('The stored account number still exists', accountData);
+      const accountToken = await this._ipc.getAccount();
+      if(!accountToken) {
+        throw new BackendError('NO_ACCOUNT');
+      }
 
-            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this._store.dispatch(push('/connect'));
-          })
-          .catch( e => {
-            log.warn('Unable to autologin,', e.message);
+      log.debug('The backend had an account number stored: ', accountToken);
+      this._store.dispatch(accountActions.startLogin(accountToken));
 
-            this._store.dispatch(accountActions.autoLoginFailed());
-            this._store.dispatch(push('/'));
+      const accountData = await this._ipc.getAccountData(accountToken);
+      log.debug('The stored account number still exists', accountData);
 
-            throw e;
-          });
-      });
+      this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
+      this._store.dispatch(push('/connect'));
+    } catch (e) {
+      log.warn('Unable to autologin,', e.message);
+
+      this._store.dispatch(accountActions.autoLoginFailed());
+      this._store.dispatch(push('/'));
+
+      throw e;
+    }
   }
 
   logout() {
