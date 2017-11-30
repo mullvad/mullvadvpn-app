@@ -51,6 +51,7 @@ impl Firewall<Error> for PacketFilter {
             self.remove_rules(),
             self.remove_anchor(),
             self.restore_state(),
+            self.restore_dns(),
         ].into_iter()
             .collect::<Result<Vec<_>>>()
             .map(|_| ())
@@ -87,6 +88,8 @@ impl PacketFilter {
                 Ok(vec![Self::get_allow_relay_rule(relay_endpoint)?])
             }
             SecurityPolicy::Connected(relay_endpoint, tunnel) => {
+                self.dns_monitor.set_dns(vec![tunnel.gateway.to_string()])?;
+
                 let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
                     .action(pfctl::FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
@@ -213,6 +216,10 @@ impl PacketFilter {
             Some(false) => Ok(self.pf.try_disable()?),
             None => Ok(()),
         }
+    }
+
+    fn restore_dns(&self) -> Result<()> {
+        Ok(self.dns_monitor.reset()?)
     }
 
     fn add_anchor(&mut self) -> Result<()> {
