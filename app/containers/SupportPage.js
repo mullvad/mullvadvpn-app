@@ -23,11 +23,12 @@ function reapIpcCall(id) {
 ipcRenderer.on('collect-logs-reply', (_event, id, err, reportId) => {
   const promise = unAnsweredIpcCalls.get(id);
   unAnsweredIpcCalls.delete(id);
-
-  if (err) {
-    promise.reject(err);
-  } else if (promise) {
-    promise.resolve(reportId);
+  if(promise) {
+    if(err) {
+      promise.reject(err);
+    } else {
+      promise.resolve(reportId);
+    }
   }
 });
 
