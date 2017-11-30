@@ -4,6 +4,7 @@ import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import { servers } from '../config';
 
+import type { ServerInfo } from '../lib/backend';
 import type { SettingsReduxState } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/ipc-facade';
 
@@ -100,14 +101,14 @@ export default class SelectLocation extends Component {
 
                   <div className="select-location__separator"></div>
 
-                  { Object.keys(servers).map((key) => {
-                    const { name, country_code, city_code } = servers[key];
-                    const location = {
+                  { (servers: Array<ServerInfo>).map((server) => {
+                    const { address, name, country_code, city_code } = server;
+                    const relayLocation = {
                       city: [ country_code, city_code ]
                     };
-                    const selected = this._isSelected(location);
-                    const clickHandler = () => this._onSelect(location);
-                    return this.drawCell(key, name, selected, null, clickHandler);
+                    const selected = this._isSelected(relayLocation);
+                    const clickHandler = () => this._onSelect(relayLocation);
+                    return this.drawCell(address, name, selected, null, clickHandler);
                   }) }
 
                 </div>
