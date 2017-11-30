@@ -11,6 +11,7 @@ import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { SettingsReduxState } from '../redux/settings/reducers';
+import type { RelayLocation } from '../lib/ipc-facade';
 
 export type ConnectProps = {
   accountExpiry: string,
@@ -22,7 +23,7 @@ export type ConnectProps = {
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
-  getServerInfo: (identifier: string) => ?ServerInfo
+  getServerInfo: (relayLocation: RelayLocation) => ?ServerInfo
 };
 
 
@@ -93,18 +94,40 @@ export default class Connect extends Component {
     );
   }
 
-  _getServerInfo() {
+  _getServerInfo(): ServerInfo {
     const { relaySettings } = this.props.settings;
-    if (relaySettings.host === 'any') {
+    if(relaySettings.normal) {
+      const location = relaySettings.normal.location;
+      if(location === 'any') {
+        return {
+          address: '',
+          name: 'Automatic',
+          country: 'Automatic',
+          city: 'Automatic',
+          country_code: 'any',
+          city_code: 'any',
+          location: [0, 0],
+        };
+      } else {
+        const serverInfo = this.props.getServerInfo(location);
+        if(!serverInfo) {
+          throw new Error('Server info is not available for: ' + JSON.stringify(location));
+        }
+        return serverInfo;
+      }
+    } else if(relaySettings.custom_tunnel_endpoint) {
       return {
-        name: 'Automatic',
-        country: 'Automatic',
-        city: 'Automatic',
-        address: '',
+        address: relaySettings.custom_tunnel_endpoint.host,
+        name: 'Custom',
+        country: 'Custom',
+        city: '',
+        country_code: 'auto',
+        city_code: 'auto',
+        location: [0, 0],
       };
+    } else {
+      throw new Error('Unsupported relay settings.');
     }
-
-    return this.props.getServerInfo(relaySettings.host);
   }
 
   renderMap(): React.Element<*> {

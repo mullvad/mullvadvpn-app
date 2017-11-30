@@ -20,10 +20,10 @@ export type ServerInfo = {
   name: string,
   city: string,
   country: string,
-  location: [number, number]
+  country_code: string,
+  city_code: string,
+  location: [number, number],
 };
-
-export type ServerInfoList = { [string]: ServerInfo };
 
 export class BackendError extends Error {
   type: ErrorType;
@@ -164,8 +164,22 @@ export class Backend {
     this._updateAccountHistory();
   }
 
-  serverInfo(identifier: string): ?ServerInfo {
-    return (servers: ServerInfoList)[identifier];
+  serverInfo(relay: RelayLocation): ?ServerInfo {
+    const list: Array<ServerInfo> = servers;
+    if(relay.country) {
+      const country = relay.country;
+      return list.find((server) => {
+        return server.country_code === country;
+      });
+    } else if(relay.city) {
+      const [country_code, city_code] = relay.city;
+      return list.find((server) => {
+        return server.country_code === country_code &&
+          server.city_code === city_code;
+      });
+    } else {
+      return null;
+    }
   }
 
   login(accountToken: AccountToken): Promise<void> {

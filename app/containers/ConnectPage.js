@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, props) => {
     onCopyIP: () => copyIPAddress(),
     onDisconnect: () => disconnect(backend),
     onExternalLink: (type) => shell.openExternal(links[type]),
-    getServerInfo: (key) => backend.serverInfo(key)
+    getServerInfo: (relayLocation) => backend.serverInfo(relayLocation),
   };
 };
 
