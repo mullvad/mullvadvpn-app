@@ -562,8 +562,8 @@ impl Daemon {
                 Ok(())
             }
             (TargetState::Unsecured, TunnelState::NotRunning) => self.reset_security_policy(),
-            (TargetState::Unsecured, TunnelState::Connecting) |
-            (TargetState::Unsecured, TunnelState::Connected) => self.kill_tunnel(),
+            (TargetState::Unsecured, TunnelState::Connecting)
+            | (TargetState::Unsecured, TunnelState::Connected) => self.kill_tunnel(),
             (..) => Ok(()),
         }
     }

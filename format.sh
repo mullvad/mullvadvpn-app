@@ -5,7 +5,7 @@
 
 set -u
 
-VERSION="0.2.15"
+VERSION="0.2.16"
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
@@ -14,6 +14,7 @@ function correct_rustfmt() {
         echo "$CMD is not installed" >&2
         return 1
     fi
+    export DYLD_LIBRARY_PATH=$(rustc --print sysroot)/lib
     local installed_version=$($CMD --version | cut -d'-' -f1)
     if [[ "$installed_version" != "$VERSION" ]]; then
         echo "Wrong version of $CMD installed. Expected $VERSION, got $installed_version" >&2
