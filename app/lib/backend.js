@@ -285,15 +285,14 @@ export class Backend {
     }
   }
 
-  disconnect(): Promise<void> {
+  async disconnect(): Promise<void> {
     // @TODO: Failure modes
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.disconnect()
-          .catch(e => {
-            log.info('Failed to disconnect,', e.message);
-          });
-      });
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.disconnect();
+    } catch (e) {
+      log.error('Failed to disconnect: ', e.message);
+    }
   }
 
   shutdown(): Promise<void> {
