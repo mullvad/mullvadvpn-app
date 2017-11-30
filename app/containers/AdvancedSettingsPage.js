@@ -6,7 +6,10 @@ import { AdvancedSettings } from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import log from 'electron-log';
 
-const mapStateToProps = (state) => {
+import type { ReduxState, ReduxDispatch } from '../redux/store';
+import type { SharedRouteProps } from '../routes';
+
+const mapStateToProps = (state: ReduxState) => {
   const relaySettings = state.settings.relaySettings;
   if(relaySettings.normal) {
     const { protocol, port } = relaySettings.normal;
@@ -22,7 +25,7 @@ const mapStateToProps = (state) => {
   }
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/settings')),
