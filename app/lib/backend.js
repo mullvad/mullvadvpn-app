@@ -295,11 +295,13 @@ export class Backend {
     }
   }
 
-  shutdown(): Promise<void> {
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.shutdown();
-      });
+  async shutdown(): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.shutdown();
+    } catch (e) {
+      log.error('Failed to shutdown: ', e.message);
+    }
   }
 
   updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
