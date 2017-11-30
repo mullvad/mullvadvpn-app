@@ -129,39 +129,42 @@ export class Backend {
     this._registerIpcListeners();
   }
 
-  sync() {
+  async sync() {
     log.info('Syncing with the backend...');
 
-    this._ensureAuthenticated()
-      .then( () => {
-        this._ipc.getPublicIp()
-          .then( ip => {
-            log.info('Got ip', ip);
-            this._store.dispatch(connectionActions.newPublicIp(ip));
-          })
-          .catch(e => {
-            log.info('Failed syncing with the backend,', e.message);
-          });
-      });
+    await this._ensureAuthenticated();
 
-    this._ensureAuthenticated()
-      .then( () => {
-        this._ipc.getLocation()
-          .then( location => {
-            log.info('Got location', location);
-            const newLocation = {
-              country: location.country,
-              city: location.city,
-              location: location.position
-            };
-            this._store.dispatch(connectionActions.newLocation(newLocation));
-          })
-          .catch(e => {
-            log.info('Failed getting new location,', e.message);
-          });
-      });
+    try {
+      const publicIp = await this._ipc.getPublicIp();
 
-    this._updateAccountHistory();
+      log.info('Got public IP: ', publicIp);
+
+      this._store.dispatch(
+        connectionActions.newPublicIp(publicIp)
+      );
+    } catch (e) {
+      log.info('Cannot fetch public IP: ', e.message);
+    }
+
+    try {
+      const location = await this._ipc.getLocation();
+
+      log.info('Got location: ', location);
+
+      const locationUpdate = {
+        country: location.country,
+        city: location.city,
+        location: location.position
+      };
+
+      this._store.dispatch(
+        connectionActions.newLocation(locationUpdate)
+      );
+    } catch (e) {
+      log.info('Cannot fetch new location: ', e.message);
+    }
+
+    await this._updateAccountHistory();
   }
 
   serverInfo(relay: RelayLocation): ?ServerInfo {
