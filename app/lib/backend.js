@@ -304,9 +304,13 @@ export class Backend {
     }
   }
 
-  updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.updateRelaySettings(relaySettings));
+  async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.updateRelaySettings(relaySettings);
+    } catch (e) {
+      log.error('Failed to update relay settings: ', e.message);
+    }
   }
 
   async fetchRelaySettings(): Promise<void> {
