@@ -191,8 +191,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "core-foundation"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "core-foundation-sys 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "core-foundation-sys"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1170,6 +1187,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "system-configuration"
+version = "0.1.0"
+source = "git+https://github.com/mullvad/system-configuration-rs#cfda5c348acbbc9ca9c9f621c29d2661604b4af9"
+dependencies = [
+ "core-foundation 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "core-foundation-sys 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "system-configuration-sys 0.1.0 (git+https://github.com/mullvad/system-configuration-rs)",
+]
+
+[[package]]
+name = "system-configuration-sys"
+version = "0.1.0"
+source = "git+https://github.com/mullvad/system-configuration-rs#cfda5c348acbbc9ca9c9f621c29d2661604b4af9"
+dependencies = [
+ "bindgen 0.31.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "core-foundation-sys 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "take"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1178,6 +1214,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "talpid-core"
 version = "0.1.0"
 dependencies = [
+ "core-foundation 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "duct 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
@@ -1188,7 +1225,7 @@ dependencies = [
  "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs?rev=dae436f6ee4e3529fc995c5192b314f1cc8dccec)",
  "shell-escape 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "socket-relay 0.1.0",
+ "system-configuration 0.1.0 (git+https://github.com/mullvad/system-configuration-rs)",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
  "tokio-core 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1495,7 +1532,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum clap 2.27.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1b8c532887f1a292d17de05ae858a8fe50a301e196f9ef0ddb7ccd0d1d00f180"
 "checksum conv 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "78ff10625fd0ac447827aa30ea8b861fead473bb60aeb73af6c1c58caf0d1299"
 "checksum core-foundation 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "25bfd746d203017f7d5cbd31ee5d8e17f94b6521c7af77ece6c9e4b2d4b16c67"
+"checksum core-foundation 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "8047f547cd6856d45b1cdd75ef8d2f21f3d0e4bf1dab0a0041b0ae9a5dda9c0e"
 "checksum core-foundation-sys 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "065a5d7ffdcbc8fa145d6f0746f3555025b9097a9e9cda59f7467abae670c78d"
+"checksum core-foundation-sys 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "152195421a2e6497a8179195672e9d4ee8e45ed8c465b626f1606d27a08ebcd5"
 "checksum crypt32-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e34988f7e069e0b2f3bfc064295161e489b2d4e04a2e4248fb94360cdf00b4ec"
 "checksum ctrlc 3.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "df391ea008fca636e41e40863a0b39a850e2ab26b0cdeed0c3657fd05a66d44c"
 "checksum custom_derive 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "ef8ae57c4978a2acd8b869ce6b9ca1dfe817bff704c220209fdef2c0b75a01b9"
@@ -1602,6 +1641,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum strsim 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b4d15c810519a91cf877e7e36e63fe068815c678181439f2f29e2562147c3694"
 "checksum syn 0.11.11 (registry+https://github.com/rust-lang/crates.io-index)" = "d3b891b9015c88c576343b9b3e41c2c11a51c219ef067b264bd9c8aa9b441dad"
 "checksum synom 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "a393066ed9010ebaed60b9eafa373d4b1baac186dd7e008555b0f702b51945b6"
+"checksum system-configuration 0.1.0 (git+https://github.com/mullvad/system-configuration-rs)" = "<none>"
+"checksum system-configuration-sys 0.1.0 (git+https://github.com/mullvad/system-configuration-rs)" = "<none>"
 "checksum take 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b157868d8ac1f56b64604539990685fa7611d8fa9e5476cf0c02cf34d32917c5"
 "checksum tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "87974a6f5c1dfb344d733055601650059a3363de2a6104819293baff662132d6"
 "checksum termion 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "689a3bdfaab439fd92bc87df5c4c78417d3cbe537487274e9b0b2dce76e92096"
