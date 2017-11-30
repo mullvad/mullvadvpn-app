@@ -256,24 +256,21 @@ export class Backend {
     }
   }
 
-  logout() {
+  async logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.setAccount(null)
-          .then(() => {
-            this._store.dispatch(accountActions.loggedOut());
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.setAccount(null);
 
-            // disconnect user during logout
-            return this.disconnect()
-              .then( () => {
-                this._store.dispatch(push('/'));
-              });
-          })
-          .catch(e => {
-            log.info('Failed to logout,', e.message);
-          });
-      });
+      this._store.dispatch(accountActions.loggedOut());
+
+      // disconnect user during logout
+      await this.disconnect();
+
+      this._store.dispatch(push('/'));
+    } catch (e) {
+      log.info('Failed to logout: ', e.message);
+    }
   }
 
   connect(): Promise<void> {
