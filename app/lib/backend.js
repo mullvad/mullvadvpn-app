@@ -450,14 +450,13 @@ export class Backend {
     }
   }
 
-  _authenticate(sharedSecret: string): Promise<void> {
-    return this._ipc.authenticate(sharedSecret)
-      .then(() => {
-        log.info('Authenticated with backend');
-      })
-      .catch((e) => {
-        log.error('Failed to authenticate with backend: ', e.message);
-        throw e;
-      });
+  async _authenticate(sharedSecret: string): Promise<void> {
+    try {
+      await this._ipc.authenticate(sharedSecret);
+      log.info('Authenticated with backend');
+    } catch (e) {
+      log.error('Failed to authenticate with backend: ', e.message);
+      throw e;
+    }
   }
 }
