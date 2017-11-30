@@ -1,15 +1,18 @@
 use talpid_types::net::Endpoint;
 
+/// macOS implementation of the firewall/security policy enforcer.
 #[cfg(target_os = "macos")]
 pub mod macos;
 #[cfg(target_os = "macos")]
 use self::macos as imp;
 
+/// Linux implementation of the firewall/security policy enforcer.
 #[cfg(all(unix, not(target_os = "macos")))]
 pub mod unix;
 #[cfg(all(unix, not(target_os = "macos")))]
 use self::unix as imp;
 
+/// Windows implementation of the firewall/security policy enforcer.
 #[cfg(windows)]
 pub mod windows;
 #[cfg(windows)]

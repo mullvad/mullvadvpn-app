@@ -13,16 +13,18 @@ use self::dns::DnsMonitor;
 
 error_chain! {
     links {
-        PfCtl(self::pfctl::Error, self::pfctl::ErrorKind);
-        DnsMonitor(self::dns::Error, self::dns::ErrorKind);
+        PfCtl(self::pfctl::Error, self::pfctl::ErrorKind) #[doc = "PF error"];
+        DnsMonitor(self::dns::Error, self::dns::ErrorKind) #[doc = "DNS error"];
     }
 }
 
-// alias used to instantiate firewall implementation
+/// alias used to instantiate firewall implementation
 pub type ConcreteFirewall = PacketFilter;
 
 const ANCHOR_NAME: &'static str = "mullvad";
 
+/// The macOS firewall implementation. Acting as converter between the `Firewall` trait API
+/// and actual PF firewall rules and other protective measures to keep the `SecurityPolicy`.
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
