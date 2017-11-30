@@ -391,7 +391,6 @@ const appDelegate = {
         }
 
         const logFiles = files.filter(file => file.endsWith('.log'))
-          .filter(file => !file.startsWith('openvpn'))
           .map(f => path.join(appDelegate._logFileLocation, f));
         const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
 
