@@ -169,9 +169,10 @@ pub enum TunnelState {
 
 impl TunnelState {
     pub fn as_security_state(&self) -> SecurityState {
+        use TunnelState::*;
         match *self {
-            TunnelState::Connected => SecurityState::Secured,
-            _ => SecurityState::Unsecured,
+            NotRunning | Connecting => SecurityState::Unsecured,
+            Connected | Exiting => SecurityState::Secured,
         }
     }
 }
