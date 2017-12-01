@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Hold off notifying the frontend of the 'unsecure' state until the VPN tunnel is actually
   completely disconnected.
 
+### Changed
+- Renamed daemon binary from `mullvadd` to `mullvad-daemon`.
+
 
 ## [2017.1-beta6] - 2017-11-09
 ### Added
