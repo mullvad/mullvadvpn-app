@@ -113,10 +113,8 @@ lazy_static! {
     static ref RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
 }
 
-const CRATE_NAME: &str = "mullvadd";
-
 static APP_INFO: AppInfo = AppInfo {
-    name: CRATE_NAME,
+    name: crate_name!(),
     author: "Mullvad",
 };
 
