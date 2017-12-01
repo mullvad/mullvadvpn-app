@@ -14,6 +14,8 @@ extraResources:
     to: .
   - from: dist-assets/relays.json
     to: .
+  - from: ../talpid_core/CHANGELOG.md
+    to: .
 
 directories:
   buildResources: dist-assets/
