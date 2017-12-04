@@ -10,9 +10,9 @@ CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
 case "$(uname -s)" in
-    Linux*)     export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib;;
-    Darwin*)    export DYLD_LIBRARY_PATH=$(rustc --print sysroot)/lib;;
-    *) exit 1
+    Linux*)     export LD_LIBRARY_PATH=$(rustc +nightly --print sysroot)/lib;;
+    Darwin*)    export DYLD_LIBRARY_PATH=$(rustc +nightly --print sysroot)/lib;;
+    *)          echo "Unsupported platform"; exit 1
 esac
 
 # Allow rustfmt to use "nighly" features. `comment_width` is one of those for example.
@@ -41,4 +41,5 @@ else
     shift
 fi
 
-find . -iname "*.rs" -not -path "*/target/*" -print0 | xargs -0 -n1 rustfmt --skip-children "$@"
+echo "Formatting..."
+cargo +nightly fmt
