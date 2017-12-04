@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Buffer size and fast-io parameters to OpenVPN. Can double the speed on high latency connections.
+
 ### Fixed
 - Hold off notifying the frontend of the 'unsecure' state until the VPN tunnel is actually
   completely disconnected.
