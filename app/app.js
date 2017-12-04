@@ -1,6 +1,5 @@
 // @flow
 
-import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -84,15 +83,6 @@ updateTrayIcon();
 
 // disable smart pinch.
 webFrame.setZoomLevelLimits(1, 1);
-
-if(navigator.serviceWorker) {
-  navigator.serviceWorker.register(path.join(__dirname, 'tilecache.sw.js'))
-    .then((registration) => {
-      log.info('ServiceWorker registration successful with scope: ', registration.scope);
-    }).catch((err) => {
-      log.info('ServiceWorker registration failed: ', err);
-    });
-}
 
 ipcRenderer.send('on-browser-window-ready');
 

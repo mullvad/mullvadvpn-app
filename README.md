@@ -71,7 +71,6 @@ sudo apt install icnsutils graphicsmagick
   - **routes.js** - routes configurator
   - **store.js** - redux store configurator
   - **enums.js** - common enums used across components
-  - **tilecache.sw.js** - service worker for caching mapbox requests
 - **test/** - tests
 - **scripts/** - support scripts for development
 - **init.js** - entry file for electron, points to compiled **main.js**
