@@ -400,28 +400,25 @@ export class Backend {
     }, 0);
   }
 
-  _registerIpcListeners() {
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.registerStateListener(newState => {
-          log.debug('Got new state from backend', newState);
+  async _registerIpcListeners() {
+    await this._ensureAuthenticated();
+    this._ipc.registerStateListener(newState => {
+      log.debug('Got new state from backend', newState);
 
-          const newStatus = this._securityStateToConnectionState(newState);
-          switch(newStatus) {
-          case 'connecting':
-            this._store.dispatch(connectionActions.connecting());
-            break;
-          case 'connected':
-            this._store.dispatch(connectionActions.connected());
-            break;
-          case 'disconnected':
-            this._store.dispatch(connectionActions.disconnected());
-            break;
-          }
-
-          this.sync();
-        });
-      });
+      const newStatus = this._securityStateToConnectionState(newState);
+      switch(newStatus) {
+      case 'connecting':
+        this._store.dispatch(connectionActions.connecting());
+        break;
+      case 'connected':
+        this._store.dispatch(connectionActions.connected());
+        break;
+      case 'disconnected':
+        this._store.dispatch(connectionActions.disconnected());
+        break;
+      }
+      this.sync();
+    });
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
