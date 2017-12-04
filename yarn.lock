@@ -4227,9 +4227,9 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nseventmonitor@git+https://github.com/pronebird/NSEventMonitor.git":
-  version "0.0.3"
-  resolved "git+https://github.com/pronebird/NSEventMonitor.git#2707370d46748c2e4de99f0f762daf6d3b28b431"
+"nseventmonitor@git+https://github.com/pronebird/NSEventMonitor.git#0.0.5":
+  version "0.0.5"
+  resolved "git+https://github.com/pronebird/NSEventMonitor.git#3f6af5c9480f01dbeaa90e3fa3799654431265cb"
   dependencies:
     bindings "^1.2.1"
 
