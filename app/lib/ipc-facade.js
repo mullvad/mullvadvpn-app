@@ -6,7 +6,7 @@ import { validate } from 'validated/object';
 
 import type { Coordinate2d } from '../types';
 
-export type AccountData = {expiry: string};
+export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
@@ -49,7 +49,8 @@ type RelaySettingsNormal<TTunnelOptions> = {
   },
 };
 
-type RelaySettingsCustom = {
+// types describing the structure of RelaySettings
+export type RelaySettingsCustom = {
   host: string,
   tunnel: {
     openvpn: {
@@ -58,20 +59,19 @@ type RelaySettingsCustom = {
     }
   }
 };
-
-type RelaySettings = {
+export type RelaySettings = {|
   normal: RelaySettingsNormal<TunnelOptions<OpenVpnParameters>>
-} | {
+|} | {|
   custom_tunnel_endpoint: RelaySettingsCustom
-};
+|};
 
-export type RelaySettingsUpdate = {
-  normal: $Shape<
-    RelaySettingsNormal< TunnelOptions<$Shape<OpenVpnParameters> > >
-  >
-} | {
+// types describing the partial update of RelaySettings
+export type RelaySettingsNormalUpdate = $Shape< RelaySettingsNormal< TunnelOptions<$Shape<OpenVpnParameters> > > >;
+export type RelaySettingsUpdate = {|
+  normal: RelaySettingsNormalUpdate
+|} | {|
   custom_tunnel_endpoint: RelaySettingsCustom
-};
+|};
 
 const Constraint = (v) => oneOf(string, object({
   only: v,
