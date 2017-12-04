@@ -397,9 +397,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("set_account");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(
-            TunnelCommand::SetAccount(tx, account_token.clone()),
-        ).and_then(|_| rx.map_err(|_| Error::internal_error()));
+        let future =
+            self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token.clone()))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         if let Some(new_account_token) = account_token {
             if let Err(e) = AccountHistory::load().and_then(|mut account_history| {
@@ -521,9 +521,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
             AccountHistory::load()
-                .and_then(|mut account_history| {
-                    account_history.remove_account_token(account_token)
-                })
+                .and_then(|mut account_history| account_history.remove_account_token(account_token))
                 .map_err(|error| {
                     error!(
                         "Unable to remove account from history: {}",

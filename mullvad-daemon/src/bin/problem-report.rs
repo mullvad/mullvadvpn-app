@@ -370,9 +370,7 @@ fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
     Command::new(cmd)
         .args(args)
         .output()
-        .map(|output| {
-            String::from_utf8_lossy(&output.stdout).trim().to_string()
-        })
+        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
         .ok()
 }
 
