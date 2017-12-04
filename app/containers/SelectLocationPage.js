@@ -6,8 +6,10 @@ import SelectLocation from '../components/SelectLocation';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import log from 'electron-log';
 
+import type { ReduxDispatch } from '../redux/store';
+
 const mapStateToProps = (state) => state;
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/connect')),
