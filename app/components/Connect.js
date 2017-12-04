@@ -140,10 +140,6 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    const serverName = serverInfo
-      ? serverInfo.name
-      : 'Unknown';
-
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
     // to just comment it out
@@ -250,7 +246,7 @@ export default class Connect extends Component {
                     <div className="connect__server-label">Connect to</div>
                     <div className="connect__server-value">
 
-                      <div className="connect__server-name">{ serverName }</div>
+                      <div className="connect__server-name">{ serverInfo.name }</div>
 
                     </div>
                   </div>
