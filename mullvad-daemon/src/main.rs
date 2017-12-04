@@ -125,7 +125,8 @@ const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 pub enum DaemonEvent {
     /// An event coming from the tunnel software to indicate a change in state.
     TunnelEvent(TunnelEvent),
-    /// Triggered by the thread waiting for the tunnel process. Means the tunnel process exited.
+    /// Triggered by the thread waiting for the tunnel process. Means the tunnel process
+    /// exited.
     TunnelExited(tunnel::Result<()>),
     /// Triggered by the thread waiting for a tunnel close operation to complete. Contains the
     /// result of trying to kill the tunnel.
@@ -264,9 +265,8 @@ impl Daemon {
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
     ) -> Result<ManagementInterfaceServer> {
         let shared_secret = uuid::Uuid::new_v4().to_string();
-        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone()).chain_err(
-            || ErrorKind::ManagementInterfaceError("Failed to start server"),
-        )?;
+        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone())
+            .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
             server.address()

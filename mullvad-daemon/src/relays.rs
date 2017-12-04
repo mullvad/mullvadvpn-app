@@ -239,9 +239,7 @@ impl RelaySelector {
         self.rng
             .choose(&tunnels.openvpn)
             .cloned()
-            .map(|openvpn_endpoint| {
-                TunnelParameters::OpenVpn(openvpn_endpoint)
-            })
+            .map(|openvpn_endpoint| TunnelParameters::OpenVpn(openvpn_endpoint))
     }
 
     /// Downloads the latest relay list and caches it. This operation is blocking.

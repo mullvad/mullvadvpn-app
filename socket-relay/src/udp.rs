@@ -115,9 +115,7 @@ impl Relay {
                     None
                 }
             })
-            .map_err(|e| {
-                error!("Error reading datagrams from forward socket: {}", e)
-            });
+            .map_err(|e| error!("Error reading datagrams from forward socket: {}", e));
 
         let timeout_recv_future = Timer::default()
             .timeout_stream(recv_stream, Duration::from_millis(FORWARD_TIMEOUT_MS))

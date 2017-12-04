@@ -76,9 +76,9 @@ fn parse_args(args: &[CString]) -> Result<talpid_ipc::IpcServerId> {
         .chain_err(|| ErrorKind::ParseArgsFailed)?
         .into_iter();
     let _plugin_path = args_iter.next();
-    let core_server_id: talpid_ipc::IpcServerId = args_iter.next().ok_or_else(|| {
-        ErrorKind::Msg("No core server id given as first argument".to_owned())
-    })?;
+    let core_server_id: talpid_ipc::IpcServerId = args_iter
+        .next()
+        .ok_or_else(|| ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
     Ok(core_server_id)
 }
 
