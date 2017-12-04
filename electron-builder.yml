@@ -7,7 +7,7 @@ compression: maximum
 
 # assets bundled on all platforms
 extraResources:
-  # master.mullvad.net certificate used by mullvadd
+  # master.mullvad.net certificate used by mullvad-daemon
   - from: dist-assets/ca.crt
     to: .
   - from: dist-assets/crl.pem
@@ -49,7 +49,7 @@ mac:
       to: .
     - from: ../talpid_core/target/release/problem-report
       to: .
-    - from: ../talpid_core/target/release/mullvadd
+    - from: ../talpid_core/target/release/mullvad-daemon
       to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dylib
       to: .
@@ -65,7 +65,7 @@ win:
       to: .
     - from: ../talpid_core/target/release/problem-report.exe
       to: .
-    - from: ../talpid_core/target/release/mullvadd.exe
+    - from: ../talpid_core/target/release/mullvad-daemon.exe
       to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dll
       to: .
@@ -79,7 +79,7 @@ linux:
       to: .
     - from: ../talpid_core/target/release/problem-report
       to: .
-    - from: ../talpid_core/target/release/mullvadd
+    - from: ../talpid_core/target/release/mullvad-daemon
       to: .
     - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.so
       to: .

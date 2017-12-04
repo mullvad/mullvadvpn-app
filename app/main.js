@@ -131,7 +131,7 @@ const appDelegate = {
       return;
     }
 
-    const pathToBackend = resolveBin('mullvadd');
+    const pathToBackend = resolveBin('mullvad-daemon');
     log.info('Starting the mullvad backend at', pathToBackend);
 
     const options = {
