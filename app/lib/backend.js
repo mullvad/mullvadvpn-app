@@ -373,14 +373,6 @@ export class Backend {
       .catch(e => log.info('Failed to fetch account history,', e.message));
   }
 
-  _apiToReduxConstraints(constraint: *): * {
-    if (typeof(constraint) === 'object') {
-      return constraint.only;
-    } else {
-      return constraint;
-    }
-  }
-
   /**
    * Start reachability monitoring for online/offline detection
    * This is currently done via HTML5 APIs but will be replaced later
