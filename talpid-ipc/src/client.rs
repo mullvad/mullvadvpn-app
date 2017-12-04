@@ -19,7 +19,7 @@ impl<O: for<'de> serde::Deserialize<'de>> ws::Factory for Factory<O> {
     type Handler = Handler<O>;
 
     fn connection_made(&mut self, sender: ws::Sender) -> Self::Handler {
-        debug!("Sending: {}", self.request);
+        trace!("Sending: {}", self.request);
         if let Err(e) = sender
             .send(&self.request[..])
             .chain_err(|| "Unable to send jsonrpc request")
@@ -59,7 +59,7 @@ impl<O: for<'de> serde::Deserialize<'de>> Handler<O> {
 
 impl<O: for<'de> serde::Deserialize<'de>> ws::Handler for Handler<O> {
     fn on_message(&mut self, msg: ws::Message) -> ws::Result<()> {
-        debug!("WsIpcClient incoming message: {:?}", msg);
+        trace!("WsIpcClient incoming message: {:?}", msg);
         let reply_result = self.parse_reply(msg);
         let close_result = self.sender.close(ws::CloseCode::Normal);
         if let Err(e) = close_result.chain_err(|| "Unable to close WebSocket") {

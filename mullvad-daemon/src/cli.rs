@@ -29,7 +29,7 @@ pub fn get_config() -> Config {
 }
 
 fn create_app() -> App<'static, 'static> {
-    App::new(::CRATE_NAME)
+    App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
