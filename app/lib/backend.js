@@ -353,24 +353,26 @@ export class Backend {
     }
   }
 
-  removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.removeAccountFromHistory(accountToken))
-      .then(() => this._updateAccountHistory())
-      .catch(e => {
-        log.error('Failed to remove account token from history', e.message);
-      });
+  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.removeAccountFromHistory(accountToken);
+      await this._updateAccountHistory();
+    } catch(e) {
+      log.error('Failed to remove account token from history', e.message);
+    }
   }
 
-  _updateAccountHistory(): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.getAccountHistory())
-      .then((accountHistory) => {
-        this._store.dispatch(
-          accountActions.updateAccountHistory(accountHistory)
-        );
-      })
-      .catch(e => log.info('Failed to fetch account history,', e.message));
+  async _updateAccountHistory(): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      const accountHistory = await this._ipc.getAccountHistory();
+      this._store.dispatch(
+        accountActions.updateAccountHistory(accountHistory)
+      );
+    } catch(e) {
+      log.info('Failed to fetch account history,', e.message);
+    }
   }
 
   /**
