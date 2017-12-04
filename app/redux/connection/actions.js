@@ -6,12 +6,7 @@ import type { Backend } from '../../lib/backend';
 import type { ReduxThunk } from '../store';
 import type { Coordinate2d } from '../../types';
 
-const connect = (backend: Backend, relay: string): ReduxThunk => {
-  return (_, getState) => {
-    const { settings: { relaySettings: { protocol, port } } } = getState();
-    backend.connect(relay, protocol, port);
-  };
-};
+const connect = (backend: Backend): ReduxThunk => () => backend.connect();
 const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = (): ReduxThunk => {
   return (_, getState) => {

@@ -10,7 +10,7 @@ import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
 
 import type { ReduxStore } from '../redux/store';
-import type { AccountToken, BackendState, RelaySettingsUpdate, RelayProtocol } from './ipc-facade';
+import type { AccountToken, BackendState, RelayLocation, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
@@ -186,18 +186,15 @@ export class Backend {
             log.info('Log in complete');
 
             this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this.syncRelaySettings();
+            return this.fetchRelaySettings();
           })
           .then( () => {
             // Redirect the user after some time to allow for
             // the 'Login Successful' screen to be visible
             setTimeout(() => {
-              const { settings: { relaySettings: { host, protocol, port } } } = this._store.getState();
-
-              log.debug(`Autoconnecting to ${host}`);
-
               this._store.dispatch(push('/connect'));
-              this.connect(host, protocol, port);
+              log.debug('Autoconnecting...');
+              this.connect();
             }, 1000);
           }).catch(e => {
             log.error('Failed to log in,', e.message);
@@ -263,20 +260,9 @@ export class Backend {
       });
   }
 
-  connect(host: string, protocol: RelayProtocol, port: number): Promise<void> {
-    const newRelaySettings = {
-      custom_tunnel_endpoint: {
-        host: host,
-        tunnel: {
-          openvpn: { protocol, port }
-        },
-      },
-    };
-
+  connect(): Promise<void> {
     this._store.dispatch(connectionActions.connecting());
-
     return this._ensureAuthenticated()
-      .then(() => this._ipc.updateRelaySettings(newRelaySettings))
       .then(() => this._ipc.connect())
       .catch((e) => {
         log.error('Backend.connect failed because: ', e.message);
@@ -304,29 +290,53 @@ export class Backend {
 
   updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
     return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.updateRelaySettings(relaySettings);
-      });
+      .then(() => this._ipc.updateRelaySettings(relaySettings));
   }
 
-  syncRelaySettings(): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.getRelaySettings())
-      .then((constraints) => {
-        log.debug('Got constraints from backend', constraints);
+  async fetchRelaySettings(): Promise<void> {
+    await this._ensureAuthenticated();
 
-        if(constraints.normal) {
-          // TODO: handle normal constraints
-          log.warn('syncRelaySettings: Normal constraints are not implemented yet.');
-        } else if(constraints.custom_tunnel_endpoint) {
-          const custom_tunnel_endpoint = constraints.custom_tunnel_endpoint;
-          const { host, tunnel: { openvpn: { port, protocol } } } = custom_tunnel_endpoint;
-          this._store.dispatch(settingsActions.updateRelay({ host, port, protocol }));
-        }
-      })
-      .catch(e => {
-        log.error('Failed getting relay constraints', e);
-      });
+    const relaySettings = await this._ipc.getRelaySettings();
+    log.debug('Got relay settings from backend', relaySettings);
+
+    if(relaySettings.normal) {
+      const payload = {};
+      const normal = relaySettings.normal;
+      const tunnel = normal.tunnel;
+      const location = normal.location;
+
+      if(location === 'any') {
+        payload.location = 'any';
+      } else {
+        payload.location = location.only;
+      }
+
+      if(tunnel === 'any') {
+        payload.port = 'any';
+        payload.protocol = 'any';
+      } else {
+        const { port, protocol } = tunnel.only.openvpn;
+        payload.port = port === 'any' ? port : port.only;
+        payload.protocol = protocol === 'any' ? protocol : protocol.only;
+      }
+
+      this._store.dispatch(
+        settingsActions.updateRelay({
+          normal: payload
+        })
+      );
+    } else if(relaySettings.custom_tunnel_endpoint) {
+      const custom_tunnel_endpoint = relaySettings.custom_tunnel_endpoint;
+      const { host, tunnel: { openvpn: { port, protocol } } } = custom_tunnel_endpoint;
+
+      this._store.dispatch(
+        settingsActions.updateRelay({
+          custom_tunnel_endpoint: {
+            host, port, protocol
+          }
+        })
+      );
+    }
   }
 
   removeAccountFromHistory(accountToken: AccountToken): Promise<void> {

@@ -18,7 +18,7 @@ export type ConnectProps = {
   settings: SettingsReduxState,
   onSettings: () => void,
   onSelectLocation: () => void,
-  onConnect: (host: string) => void,
+  onConnect: () => void,
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
@@ -119,15 +119,13 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    const { city, country } = serverInfo && (isConnecting || isConnected)
-      ? serverInfo
-      : { city: '\u2003', country: '\u2002' };
-    const ip = serverInfo && isConnected
-      ? serverInfo.address
-      : '\u2003'; //this.props.connection.clientIp;
+    const { city, country } = (isConnecting || isConnected)
+      ? { city: 'Unknown', country: 'Unknown' }
+      : { city: this.props.connection.city, country: this.props.connection.country };
+
     const serverName = serverInfo
       ? serverInfo.name
-      : '\u2003';
+      : 'Unknown';
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
@@ -149,7 +147,7 @@ export default class Connect extends Component {
       if (this.state.showCopyIPMessage) {
         ipComponent = <span>{ 'IP copied to clipboard!' }</span>;
       } else {
-        ipComponent = <span>{ ip }</span>;
+        ipComponent = <span>{ this.props.connection.clientIp }</span>;
       }
     }
     return (
@@ -235,7 +233,7 @@ export default class Connect extends Component {
                 </div>
 
                 <div className="connect__row">
-                  <button className="button button--positive" onClick={ this.onConnect.bind(this) }>Secure my connection</button>
+                  <button className="button button--positive" onClick={ this.props.onConnect }>Secure my connection</button>
                 </div>
               </div>
             </Then>
@@ -283,15 +281,6 @@ export default class Connect extends Component {
   }
 
   // Handlers
-
-  onConnect() {
-    const serverInfo = this._getServerInfo();
-    if(!serverInfo) {
-      return;
-    }
-
-    this.props.onConnect(serverInfo.address);
-  }
 
   onExternalLink(type: string) {
     this.props.onExternalLink(type);
