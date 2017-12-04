@@ -20,6 +20,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Renamed daemon binary from `mullvadd` to `mullvad-daemon`.
 
+### Security
+- DNS leak found when using redirect firewall rules and a custom DNS forwarder. Replaced all of that
+  with strict DNS blocking firewall rules and SystemConfiguration integration where DNS settings are
+  injected to the operating system settings and constantly monitored for external changes.
+
 
 ## [2017.1-beta6] - 2017-11-09
 ### Added

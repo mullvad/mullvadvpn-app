@@ -1,10 +1,11 @@
 use super::{Firewall, SecurityPolicy};
 
-// alias used to instantiate firewall implementation
+/// alias used to instantiate firewall implementation
 pub type ConcreteFirewall = Netfilter;
 
 error_chain!{}
 
+/// The Linux implementation for the `Firewall` trait.
 pub struct Netfilter;
 impl Firewall<Error> for Netfilter {
     fn new() -> Result<Self> {

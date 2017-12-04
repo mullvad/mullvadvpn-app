@@ -1,10 +1,11 @@
 use super::{Firewall, SecurityPolicy};
 
-// alias used to instantiate firewall implementation
+/// alias used to instantiate firewall implementation
 pub type ConcreteFirewall = WindowsFirewall;
 
 error_chain!{}
 
+/// The Windows implementation for the `Firewall` trait.
 pub struct WindowsFirewall;
 impl Firewall<Error> for WindowsFirewall {
     fn new() -> Result<Self> {
