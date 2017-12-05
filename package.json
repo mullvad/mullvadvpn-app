@@ -67,14 +67,14 @@
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
-    "develop": "npm run private:compile -- --source-maps true && npm run private:service-worker && run-p -r private:watch private:serve",
+    "develop": "npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
     "test": "electron-mocha --renderer -R spec --compilers js:babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "flow": "flow",
-    "pack": "run-s private:clean private:compile private:service-worker private:build:all",
-    "pack:mac": "./pre-mac-sign.sh && run-s private:clean private:compile private:service-worker private:build:mac",
-    "pack:win": "run-s private:clean private:compile private:service-worker private:build:win",
-    "pack:linux": "run-s private:clean private:compile private:service-worker private:build:linux",
+    "pack": "run-s private:clean private:compile private:build:all",
+    "pack:mac": "./pre-mac-sign.sh && run-s private:clean private:compile private:build:mac",
+    "pack:win": "run-s private:clean private:compile private:build:win",
+    "pack:linux": "run-s private:clean private:compile private:build:linux",
     "private:build:all": "npm run private:build -- -mwl",
     "private:build:mac": "npm run private:build -- --mac",
     "private:build:win": "npm run private:build -- --win",
@@ -82,8 +82,7 @@
     "private:build": "electron-builder",
     "private:watch": "npm run private:compile -- --source-maps true --watch --skip-initial-build",
     "private:serve": "babel-node scripts/serve.js",
-    "private:compile": "babel app/ --copy-files --ignore *.sw.js --out-dir build",
-    "private:service-worker": "cp app/*.sw.js build",
+    "private:compile": "babel app/ --copy-files --out-dir build",
     "private:clean": "rimraf build"
   }
 }
