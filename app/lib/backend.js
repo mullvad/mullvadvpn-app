@@ -129,39 +129,42 @@ export class Backend {
     this._registerIpcListeners();
   }
 
-  sync() {
+  async sync() {
     log.info('Syncing with the backend...');
 
-    this._ensureAuthenticated()
-      .then( () => {
-        this._ipc.getPublicIp()
-          .then( ip => {
-            log.info('Got ip', ip);
-            this._store.dispatch(connectionActions.newPublicIp(ip));
-          })
-          .catch(e => {
-            log.info('Failed syncing with the backend,', e.message);
-          });
-      });
+    await this._ensureAuthenticated();
 
-    this._ensureAuthenticated()
-      .then( () => {
-        this._ipc.getLocation()
-          .then( location => {
-            log.info('Got location', location);
-            const newLocation = {
-              country: location.country,
-              city: location.city,
-              location: location.position
-            };
-            this._store.dispatch(connectionActions.newLocation(newLocation));
-          })
-          .catch(e => {
-            log.info('Failed getting new location,', e.message);
-          });
-      });
+    try {
+      const publicIp = await this._ipc.getPublicIp();
 
-    this._updateAccountHistory();
+      log.info('Got public IP: ', publicIp);
+
+      this._store.dispatch(
+        connectionActions.newPublicIp(publicIp)
+      );
+    } catch (e) {
+      log.info('Cannot fetch public IP: ', e.message);
+    }
+
+    try {
+      const location = await this._ipc.getLocation();
+
+      log.info('Got location: ', location);
+
+      const locationUpdate = {
+        country: location.country,
+        city: location.city,
+        location: location.position
+      };
+
+      this._store.dispatch(
+        connectionActions.newLocation(locationUpdate)
+      );
+    } catch (e) {
+      log.info('Cannot fetch new location: ', e.message);
+    }
+
+    await this._updateAccountHistory();
   }
 
   serverInfo(relay: RelayLocation): ?ServerInfo {
@@ -182,129 +185,132 @@ export class Backend {
     }
   }
 
-  login(accountToken: AccountToken): Promise<void> {
+  async login(accountToken: AccountToken): Promise<void> {
     log.debug('Attempting to login with account number', accountToken);
 
     this._store.dispatch(accountActions.startLogin(accountToken));
 
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.getAccountData(accountToken)
-          .then( response => {
-            log.debug('Account exists', response);
+    try {
+      await this._ensureAuthenticated();
 
-            return this._ipc.setAccount(accountToken)
-              .then( () => response );
+      const accountData = await this._ipc.getAccountData(accountToken);
 
-          }).then( accountData => {
-            log.info('Log in complete');
+      log.debug('Account exists', accountData);
 
-            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this.fetchRelaySettings();
-          })
-          .then( () => {
-            // Redirect the user after some time to allow for
-            // the 'Login Successful' screen to be visible
-            setTimeout(() => {
-              this._store.dispatch(push('/connect'));
-              log.debug('Autoconnecting...');
-              this.connect();
-            }, 1000);
-          }).catch(e => {
-            log.error('Failed to log in,', e.message);
+      await this._ipc.setAccount(accountToken);
 
-            // TODO: This is not true. If there is a communication link failure the promise will be rejected too
-            const err = new BackendError('INVALID_ACCOUNT');
-            this._store.dispatch(accountActions.loginFailed(err));
-          }).then(() => this._updateAccountHistory());
-      });
+      log.info('Log in complete');
+
+      this._store.dispatch(
+        accountActions.loginSuccessful(accountData.expiry)
+      );
+      await this.fetchRelaySettings();
+
+      // Redirect the user after some time to allow for
+      // the 'Login Successful' screen to be visible
+      setTimeout(() => {
+        this._store.dispatch(push('/connect'));
+        log.debug('Autoconnecting...');
+        this.connect();
+      }, 1000);
+
+      await this._updateAccountHistory();
+
+    } catch(e) {
+      log.error('Failed to log in,', e.message);
+
+      // TODO: This is not true. If there is a communication link failure the promise will be rejected too
+      const err = new BackendError('INVALID_ACCOUNT');
+      this._store.dispatch(accountActions.loginFailed(err));
+    }
   }
 
-  autologin() {
-    log.debug('Attempting to log in automatically');
+  async autologin() {
+    try {
+      log.debug('Attempting to log in automatically');
 
-    this._store.dispatch(accountActions.startLogin());
+      await this._ensureAuthenticated();
 
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.getAccount()
-          .then( accountToken => {
-            if (!accountToken) {
-              throw new BackendError('NO_ACCOUNT');
-            }
-            log.debug('The backend had an account number stored:', accountToken);
-            this._store.dispatch(accountActions.startLogin(accountToken));
+      this._store.dispatch(accountActions.startLogin());
 
-            return this._ipc.getAccountData(accountToken);
-          })
-          .then( accountData => {
-            log.debug('The stored account number still exists', accountData);
+      const accountToken = await this._ipc.getAccount();
+      if(!accountToken) {
+        throw new BackendError('NO_ACCOUNT');
+      }
 
-            this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-            return this._store.dispatch(push('/connect'));
-          })
-          .catch( e => {
-            log.warn('Unable to autologin,', e.message);
+      log.debug('The backend had an account number stored: ', accountToken);
+      this._store.dispatch(accountActions.startLogin(accountToken));
 
-            this._store.dispatch(accountActions.autoLoginFailed());
-            this._store.dispatch(push('/'));
+      const accountData = await this._ipc.getAccountData(accountToken);
+      log.debug('The stored account number still exists', accountData);
 
-            throw e;
-          });
-      });
+      this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
+      this._store.dispatch(push('/connect'));
+    } catch (e) {
+      log.warn('Unable to autologin,', e.message);
+
+      this._store.dispatch(accountActions.autoLoginFailed());
+      this._store.dispatch(push('/'));
+
+      throw e;
+    }
   }
 
-  logout() {
+  async logout() {
     // @TODO: What does it mean for a logout to be successful or failed?
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.setAccount(null)
-          .then(() => {
-            this._store.dispatch(accountActions.loggedOut());
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.setAccount(null);
 
-            // disconnect user during logout
-            return this.disconnect()
-              .then( () => {
-                this._store.dispatch(push('/'));
-              });
-          })
-          .catch(e => {
-            log.info('Failed to logout,', e.message);
-          });
-      });
+      this._store.dispatch(accountActions.loggedOut());
+
+      // disconnect user during logout
+      await this.disconnect();
+
+      this._store.dispatch(push('/'));
+    } catch (e) {
+      log.info('Failed to logout: ', e.message);
+    }
   }
 
-  connect(): Promise<void> {
-    this._store.dispatch(connectionActions.connecting());
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.connect())
-      .catch((e) => {
-        log.error('Backend.connect failed because: ', e.message);
-        this._store.dispatch(connectionActions.disconnected());
-      });
+  async connect(): Promise<void> {
+    try {
+      this._store.dispatch(connectionActions.connecting());
+
+      await this._ensureAuthenticated();
+      await this._ipc.connect();
+    } catch (e) {
+      log.error('Failed to connect: ', e.message);
+      this._store.dispatch(connectionActions.disconnected());
+    }
   }
 
-  disconnect(): Promise<void> {
+  async disconnect(): Promise<void> {
     // @TODO: Failure modes
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.disconnect()
-          .catch(e => {
-            log.info('Failed to disconnect,', e.message);
-          });
-      });
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.disconnect();
+    } catch (e) {
+      log.error('Failed to disconnect: ', e.message);
+    }
   }
 
-  shutdown(): Promise<void> {
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.shutdown();
-      });
+  async shutdown(): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.shutdown();
+    } catch (e) {
+      log.error('Failed to shutdown: ', e.message);
+    }
   }
 
-  updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.updateRelaySettings(relaySettings));
+  async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.updateRelaySettings(relaySettings);
+    } catch (e) {
+      log.error('Failed to update relay settings: ', e.message);
+    }
   }
 
   async fetchRelaySettings(): Promise<void> {
@@ -353,24 +359,26 @@ export class Backend {
     }
   }
 
-  removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.removeAccountFromHistory(accountToken))
-      .then(() => this._updateAccountHistory())
-      .catch(e => {
-        log.error('Failed to remove account token from history', e.message);
-      });
+  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.removeAccountFromHistory(accountToken);
+      await this._updateAccountHistory();
+    } catch(e) {
+      log.error('Failed to remove account token from history', e.message);
+    }
   }
 
-  _updateAccountHistory(): Promise<void> {
-    return this._ensureAuthenticated()
-      .then(() => this._ipc.getAccountHistory())
-      .then((accountHistory) => {
-        this._store.dispatch(
-          accountActions.updateAccountHistory(accountHistory)
-        );
-      })
-      .catch(e => log.info('Failed to fetch account history,', e.message));
+  async _updateAccountHistory(): Promise<void> {
+    try {
+      await this._ensureAuthenticated();
+      const accountHistory = await this._ipc.getAccountHistory();
+      this._store.dispatch(
+        accountActions.updateAccountHistory(accountHistory)
+      );
+    } catch(e) {
+      log.info('Failed to fetch account history,', e.message);
+    }
   }
 
   /**
@@ -398,28 +406,25 @@ export class Backend {
     }, 0);
   }
 
-  _registerIpcListeners() {
-    return this._ensureAuthenticated()
-      .then( () => {
-        return this._ipc.registerStateListener(newState => {
-          log.debug('Got new state from backend', newState);
+  async _registerIpcListeners() {
+    await this._ensureAuthenticated();
+    this._ipc.registerStateListener(newState => {
+      log.debug('Got new state from backend', newState);
 
-          const newStatus = this._securityStateToConnectionState(newState);
-          switch(newStatus) {
-          case 'connecting':
-            this._store.dispatch(connectionActions.connecting());
-            break;
-          case 'connected':
-            this._store.dispatch(connectionActions.connected());
-            break;
-          case 'disconnected':
-            this._store.dispatch(connectionActions.disconnected());
-            break;
-          }
-
-          this.sync();
-        });
-      });
+      const newStatus = this._securityStateToConnectionState(newState);
+      switch(newStatus) {
+      case 'connecting':
+        this._store.dispatch(connectionActions.connecting());
+        break;
+      case 'connected':
+        this._store.dispatch(connectionActions.connected());
+        break;
+      case 'disconnected':
+        this._store.dispatch(connectionActions.disconnected());
+        break;
+      }
+      this.sync();
+    });
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
@@ -445,14 +450,13 @@ export class Backend {
     }
   }
 
-  _authenticate(sharedSecret: string): Promise<void> {
-    return this._ipc.authenticate(sharedSecret)
-      .then(() => {
-        log.info('Authenticated with backend');
-      })
-      .catch((e) => {
-        log.error('Failed to authenticate with backend: ', e.message);
-        throw e;
-      });
+  async _authenticate(sharedSecret: string): Promise<void> {
+    try {
+      await this._ipc.authenticate(sharedSecret);
+      log.info('Authenticated with backend');
+    } catch (e) {
+      log.error('Failed to authenticate with backend: ', e.message);
+      throw e;
+    }
   }
 }
