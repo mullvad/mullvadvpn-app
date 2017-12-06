@@ -42,7 +42,7 @@ export default class HeaderBar extends Component {
     return (
       <View style={ containerClass }>
         {!this.props.hidden ?
-          <View style={styles.headerbar__container}>
+          <View style={styles.headerbar__container} testName="headerbar__container">
             <Img style={ styles.headerbar__logo } source='logo-icon'/>
             <Text style={styles.headerbar__title}>MULLVAD VPN</Text>
           </View>
@@ -50,7 +50,7 @@ export default class HeaderBar extends Component {
 
         {this.props.showSettings ?
           <View style={styles.headerbar__settings}>
-            <Button  onPress={ this.props.onSettings }>
+            <Button onPress={ this.props.onSettings } testName="headerbar__settings">
               <Img style={ styles.headerbar__settings } source='icon-settings'/>
             </Button>
           </View>
