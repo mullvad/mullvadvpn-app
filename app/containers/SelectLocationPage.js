@@ -1,27 +1,33 @@
 // @flow
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import log from 'electron-log';
 
-import type { ReduxDispatch } from '../redux/store';
+import type { ReduxState, ReduxDispatch } from '../redux/store';
+import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state) => state;
-const mapDispatchToProps = (dispatch: ReduxDispatch, props) => {
+const mapStateToProps = (state: ReduxState) => state;
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   const { backend } = props;
   return {
-    onClose: () => dispatch(push('/connect')),
+    onClose: () => pushHistory('/connect'),
     onSelect: async (relayLocation) => {
       try {
-        const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
+        const relayUpdate = RelaySettingsBuilder.normal()
+          .location
+          .fromRaw(relayLocation)
+          .build();
 
         await backend.updateRelaySettings(relayUpdate);
         await backend.fetchRelaySettings();
         await backend.connect();
 
-        dispatch(push('/connect'));
+        pushHistory('/connect');
       } catch (e) {
         log.error('Failed to select server: ', e.message);
       }

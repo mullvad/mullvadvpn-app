@@ -1,15 +1,19 @@
+// @flow
+
 import log from 'electron-log';
 import { shell, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Support from '../components/Support';
 import { resolveBin } from '../lib/proc';
 import { execFile } from 'child_process';
 import uuid from 'uuid';
 
-const mapStateToProps = (state) => {
-  return state;
-};
+import type { ReduxState, ReduxDispatch } from '../redux/store';
+import type { SharedRouteProps } from '../routes';
+
+const mapStateToProps = (state: ReduxState) => state;
 
 const unAnsweredIpcCalls = new Map();
 function reapIpcCall(id) {
@@ -32,9 +36,11 @@ ipcRenderer.on('collect-logs-reply', (_event, id, err, reportId) => {
   }
 });
 
-const mapDispatchToProps = (dispatch, _props) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
+  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+
   return {
-    onClose: () => dispatch(push('/settings')),
+    onClose: () => pushHistory('/settings'),
 
     onCollectLog: (toRedact) => {
       return new Promise((resolve, reject) => {
