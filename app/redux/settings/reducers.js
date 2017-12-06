@@ -1,24 +1,33 @@
 // @flow
 
-import { defaultServer } from '../../config';
-
 import type { ReduxAction } from '../store';
+import type { RelayProtocol, RelayLocation } from '../../lib/ipc-facade';
 
-export type RelaySettings = {
+export type RelaySettingsRedux = {|
+    normal: {
+      location: 'any' | RelayLocation,
+      port: 'any' | number,
+      protocol: 'any' | RelayProtocol,
+    }
+|} | {|
+  custom_tunnel_endpoint: {
     host: string,
     port: number,
-    protocol: 'tcp' | 'udp',
-};
+    protocol: RelayProtocol,
+  }
+|};
 
 export type SettingsReduxState = {
-  relaySettings: RelaySettings
+  relaySettings: RelaySettingsRedux
 };
 
 const initialState: SettingsReduxState = {
   relaySettings: {
-    host: defaultServer,
-    port: 1301,
-    protocol: 'udp',
+    normal: {
+      location: 'any',
+      port: 'any',
+      protocol: 'any',
+    }
   },
 };
 
@@ -26,10 +35,7 @@ export default function(state: SettingsReduxState = initialState, action: ReduxA
 
   if (action.type === 'UPDATE_RELAY') {
     return { ...state,
-      relaySettings: {
-        ...state.relaySettings,
-        ...action.relay,
-      },
+      relaySettings: action.relay,
     };
   }
 

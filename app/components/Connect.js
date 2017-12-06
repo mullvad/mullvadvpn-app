@@ -11,6 +11,7 @@ import type { ServerInfo } from '../lib/backend';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { SettingsReduxState } from '../redux/settings/reducers';
+import type { RelayLocation } from '../lib/ipc-facade';
 
 export type ConnectProps = {
   accountExpiry: string,
@@ -18,11 +19,11 @@ export type ConnectProps = {
   settings: SettingsReduxState,
   onSettings: () => void,
   onSelectLocation: () => void,
-  onConnect: (host: string) => void,
+  onConnect: () => void,
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
-  getServerInfo: (identifier: string) => ?ServerInfo
+  getServerInfo: (relayLocation: RelayLocation) => ?ServerInfo
 };
 
 
@@ -93,41 +94,51 @@ export default class Connect extends Component {
     );
   }
 
-  _getServerInfo() {
+  _getServerInfo(): ServerInfo {
     const { relaySettings } = this.props.settings;
-    if (relaySettings.host === 'any') {
+    if(relaySettings.normal) {
+      const location = relaySettings.normal.location;
+      if(location === 'any') {
+        return {
+          address: '',
+          name: 'Automatic',
+          country: 'Automatic',
+          city: 'Automatic',
+          country_code: 'any',
+          city_code: 'any',
+          location: [0, 0],
+        };
+      } else {
+        const serverInfo = this.props.getServerInfo(location);
+        if(!serverInfo) {
+          throw new Error('Server info is not available for: ' + JSON.stringify(location));
+        }
+        return serverInfo;
+      }
+    } else if(relaySettings.custom_tunnel_endpoint) {
       return {
-        name: 'Automatic',
-        country: 'Automatic',
-        city: 'Automatic',
-        address: '',
+        address: relaySettings.custom_tunnel_endpoint.host,
+        name: 'Custom',
+        country: 'Custom',
+        city: '',
+        country_code: 'auto',
+        city_code: 'auto',
+        location: [0, 0],
       };
+    } else {
+      throw new Error('Unsupported relay settings.');
     }
-
-    return this.props.getServerInfo(relaySettings.host);
   }
 
   renderMap(): React.Element<*> {
     const serverInfo = this._getServerInfo();
 
-    let isConnecting = false;
-    let isConnected = false;
-    let isDisconnected = false;
+    let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
     case 'connected': isConnected = true; break;
     case 'disconnected': isDisconnected = true; break;
     }
-
-    const { city, country } = serverInfo && (isConnecting || isConnected)
-      ? serverInfo
-      : { city: '\u2003', country: '\u2002' };
-    const ip = serverInfo && isConnected
-      ? serverInfo.address
-      : '\u2003'; //this.props.connection.clientIp;
-    const serverName = serverInfo
-      ? serverInfo.name
-      : '\u2003';
 
     // We decided to not include the map in the first beta release to customers
     // but it MUST be included in the following releases. Therefore we choose
@@ -147,9 +158,14 @@ export default class Connect extends Component {
     let ipComponent = undefined;
     if (isConnected || isDisconnected) {
       if (this.state.showCopyIPMessage) {
-        ipComponent = <span>{ 'IP copied to clipboard!' }</span>;
+        ipComponent = (<span>{ 'IP copied to clipboard!' }</span>);
       } else {
-        ipComponent = <span>{ ip }</span>;
+        // TODO: remove empty IP placeholder when implemented in backend.
+        if(isDisconnected) {
+          ipComponent = (<span>{ '\u2003' }</span>);
+        } else {
+          ipComponent = (<span>{ this.props.connection.clientIp }</span>);
+        }
       }
     }
     return (
@@ -173,11 +189,22 @@ export default class Connect extends Component {
               **********************************
             */ }
 
+            { /* location when disconnected.
+            TODO: merge with the isConnecting block below when implemented in backend.
+            */ }
+            <If condition={ isDisconnected }>
+              <Then>
+                <div className="connect__status-location">
+                  <span>{ '\u2002' }</span>
+                </div>
+              </Then>
+            </If>
+
             { /* location when connecting */ }
             <If condition={ isConnecting }>
               <Then>
                 <div className="connect__status-location">
-                  <span>{ country }</span>
+                  <span>{ this.props.connection.country }</span>
                 </div>
               </Then>
             </If>
@@ -186,16 +213,7 @@ export default class Connect extends Component {
             <If condition={ isConnected }>
               <Then>
                 <div className="connect__status-location">
-                  { city }<br/>{ country }
-                </div>
-              </Then>
-            </If>
-
-            { /* location when disconnected */ }
-            <If condition={ isDisconnected }>
-              <Then>
-                <div className="connect__status-location">
-                  { country }
+                  { this.props.connection.city }<br/>{ this.props.connection.country }
                 </div>
               </Then>
             </If>
@@ -228,14 +246,14 @@ export default class Connect extends Component {
                     <div className="connect__server-label">Connect to</div>
                     <div className="connect__server-value">
 
-                      <div className="connect__server-name">{ serverName }</div>
+                      <div className="connect__server-name">{ serverInfo.name }</div>
 
                     </div>
                   </div>
                 </div>
 
                 <div className="connect__row">
-                  <button className="button button--positive" onClick={ this.onConnect.bind(this) }>Secure my connection</button>
+                  <button className="button button--positive" onClick={ this.props.onConnect }>Secure my connection</button>
                 </div>
               </div>
             </Then>
@@ -283,15 +301,6 @@ export default class Connect extends Component {
   }
 
   // Handlers
-
-  onConnect() {
-    const serverInfo = this._getServerInfo();
-    if(!serverInfo) {
-      return;
-    }
-
-    this.props.onConnect(serverInfo.address);
-  }
 
   onExternalLink(type: string) {
     this.props.onExternalLink(type);

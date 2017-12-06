@@ -1,15 +1,15 @@
 // @flow
 
-import type { RelaySettings } from './reducers';
+import type { RelaySettingsRedux } from './reducers';
 
 export type UpdateRelayAction = {
   type: 'UPDATE_RELAY',
-  relay: RelaySettings,
+  relay: RelaySettingsRedux,
 };
 
 export type SettingsAction = UpdateRelayAction;
 
-function updateRelay(relay: RelaySettings): UpdateRelayAction {
+function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   return {
     type: 'UPDATE_RELAY',
     relay: relay,

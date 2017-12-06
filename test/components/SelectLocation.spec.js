@@ -11,9 +11,11 @@ import type { SelectLocationProps } from '../../app/components/SelectLocation';
 describe('components/SelectLocation', () => {
   const state: SettingsReduxState = {
     relaySettings: {
-      host: 'example.com',
-      protocol: 'udp',
-      port: 1301,
+      normal: {
+        location: 'any',
+        protocol: 'any',
+        port: 'any',
+      }
     },
   };
 

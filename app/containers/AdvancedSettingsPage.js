@@ -1,46 +1,56 @@
+// @flow
+
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { AdvancedSettings } from '../components/AdvancedSettings';
-import settingsActions from '../redux/settings/actions';
+import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import log from 'electron-log';
 
-const mapStateToProps = (state) => {
-  const constraints = state.settings.relaySettings;
-  const { host, protocol, port } = constraints;
-  return {
-    host: host,
-    protocol: protocol === 'any' ? 'Automatic' : protocol,
-    port: port === 'any' ? 'Automatic' : port,
-  };
+import type { ReduxState, ReduxDispatch } from '../redux/store';
+import type { SharedRouteProps } from '../routes';
+
+const mapStateToProps = (state: ReduxState) => {
+  const relaySettings = state.settings.relaySettings;
+  if(relaySettings.normal) {
+    const { protocol, port } = relaySettings.normal;
+    return {
+      protocol: protocol === 'any' ? 'Automatic' : protocol,
+      port: port === 'any' ? 'Automatic' : port,
+    };
+  } else if(relaySettings.custom_tunnel_endpoint) {
+    const { protocol, port } = relaySettings.custom_tunnel_endpoint;
+    return { protocol, port };
+  } else {
+    throw new Error('Unknown type of relay settings.');
+  }
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { backend } = props;
   return {
     onClose: () => dispatch(push('/settings')),
 
-    onUpdateConstraints: (host, protocol, port) => {
-      // TODO: udp and 1301 are automatic because we cannot pass `any` when using custom tunnel
-      const protocolConstraint = protocol === 'Automatic' ? 'udp' : protocol.toLowerCase();
-      const portConstraint = port === 'Automatic' ? (protocolConstraint === 'tcp' ? 443 : 1301) : port;
-      const update = {
-        custom_tunnel_endpoint: {
-          host: host,
-          tunnel: {
-            openvpn: {
-              protocol: protocolConstraint,
-              port: portConstraint,
-            }
+    onUpdate: async (protocol, port) => {
+      const relayUpdate = RelaySettingsBuilder.normal()
+        .tunnel.openvpn((openvpn) => {
+          if(protocol === 'Automatic') {
+            openvpn.protocol.any();
+          } else {
+            openvpn.protocol.exact(protocol.toLowerCase());
           }
-        },
-      };
+          if(port === 'Automatic') {
+            openvpn.port.any();
+          } else {
+            openvpn.port.exact(port);
+          }
+        }).build();
 
-      backend.updateRelaySettings(update)
-        .then( () => dispatch(settingsActions.updateRelay({
-          protocol: protocolConstraint,
-          port: portConstraint,
-        })))
-        .catch( e => log.error('Failed updating relay constraints', e.message));
+      try {
+        await backend.updateRelaySettings(relayUpdate);
+        await backend.fetchRelaySettings();
+      } catch(e) {
+        log.error('Failed to update relay settings', e.message);
+      }
     },
   };
 };

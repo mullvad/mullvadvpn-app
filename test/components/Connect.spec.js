@@ -7,12 +7,17 @@ import { mount } from 'enzyme';
 import Connect from '../../app/components/Connect';
 import Header from '../../app/components/HeaderBar';
 
-import type { ReactWrapper } from 'enzyme';
+import type { ConnectProps } from '../../app/components/Connect';
 
 describe('components/Connect', () => {
 
-  it('shows unsecured hints when not connected', () => {
-    const component = renderNotConnected();
+  it('shows unsecured hints when disconnected', () => {
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'disconnected',
+      }
+    });
 
     const header = component.find(Header);
     const securityMessage = component.find('.connect__status-security--unsecured');
@@ -24,7 +29,12 @@ describe('components/Connect', () => {
   });
 
   it('shows secured hints when connected', () => {
-    const component = renderConnected();
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'connected',
+      }
+    });
 
     const header = component.find(Header);
     const securityMessage = component.find('.connect__status-security--secure');
@@ -36,90 +46,106 @@ describe('components/Connect', () => {
   });
 
   it('shows the connection location when connecting', () => {
-    const component = renderConnecting({
-      getServerInfo: (_s) => ({
-        address: '185.65.132.102',
-        name: '',
-        location: [0, 0],
-        country: 'norway',
-        city: 'oslo',
-      }),
-    }, {
-      clientIp: '185.65.132.102',
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'connecting',
+        country: 'Norway',
+        city: 'Oslo',
+      }
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
-    expect(countryAndCity.text()).to.contain('norway');
-    expect(countryAndCity.text()).not.to.contain('oslo');
+    expect(countryAndCity.text()).to.contain('Norway');
+    expect(countryAndCity.text()).not.to.contain('Oslo');
     expect(ipAddr.text()).to.be.empty;
   });
 
   it('shows the connection location when connected', () => {
-    const component = renderConnected({
-      getServerInfo: (_s) => ({
-        address: '185.65.132.102',
-        name: '',
-        location: [0, 0],
-        country: 'sweden',
-        city: 'gothenburg',
-      }),
-    }, {
-      clientIp: '185.65.132.102',
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'connected',
+        country: 'Norway',
+        city: 'Oslo',
+        clientIp: '4.3.2.1',
+      }
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
-    expect(countryAndCity.text()).to.contain('sweden');
-    expect(countryAndCity.text()).to.contain('gothenburg');
-    expect(ipAddr.text()).to.contain('185.65.132.102');
+    expect(countryAndCity.text()).to.contain('Norway');
+    expect(countryAndCity.text()).to.contain('Oslo');
+    expect(ipAddr.text()).to.contain('4.3.2.1');
   });
 
   it('shows the connection location when disconnected', () => {
-    const component = renderNotConnected({
-      getServerInfo: (_s) => ({
-        address: '\u2003',
-        name: '',
-        location: [0, 0],
-        country: 'sweden',
-        city: 'gothenburg',
-      }),
-    }, {
-      clientIp: '\u2003',
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'disconnected',
+        country: 'Norway',
+        city: 'Oslo',
+        clientIp: '4.3.2.1',
+      }
     });
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
     expect(countryAndCity.text()).to.contain('\u2002');
-    expect(countryAndCity.text()).to.not.contain('\u2003');
+    expect(countryAndCity.text()).to.not.contain('Oslo');
     expect(ipAddr.text()).to.contain('\u2003');
   });
 
   it('shows the country name in the location switcher', () => {
-    const servers = {
-      'se1.mullvad.net': { name: 'Sweden' },
-    };
-    const getServerInfo = (key) => servers[key] || defaultServer;
-    const component = renderNotConnected({
-      getServerInfo: getServerInfo,
-    });
-    const locationSwitcher = component.find('.connect__server');
+    const servers = [{
+      address: '1.2.3.4',
+      name: 'Sweden - Malmö',
+      city: 'Malmö',
+      country: 'Sweden',
+      country_code: 'se',
+      city_code: 'mma',
+      location: [0, 0]
+    }];
 
-    component.setProps({
+    const component = renderWithProps({
+      connection: {
+        ...defaultConnection,
+        status: 'disconnected',
+      },
       settings: {
         relaySettings: {
-          host: 'se1.mullvad.net',
-          protocol: 'udp',
-          port: 1301,
+          normal: {
+            location: { city: ['se', 'mma'] },
+            protocol: 'any',
+            port: 'any',
+          }
         },
       },
+      getServerInfo: (location) => {
+        return servers.find((server) => {
+          if(location.city) {
+            const [country_code, city_code] = location.city;
+            return (server.city_code === city_code &&
+              server.country_code === country_code);
+          }
+          return false;
+        });
+      },
     });
-    expect(locationSwitcher.text()).to.contain(servers['se1.mullvad.net'].name);
+
+    const locationSwitcher = component.find('.connect__server');
+    expect(locationSwitcher.text()).to.contain(servers[0].name);
   });
 
   it('invokes the onConnect prop', (done) => {
-    const component = renderNotConnected({
+    const component = renderWithProps({
       onConnect: () => done(),
+      connection: {
+        ...defaultConnection,
+        status: 'disconnected',
+      }
     });
     const connectButton = component.find('.button .button--positive');
 
@@ -127,72 +153,38 @@ describe('components/Connect', () => {
   });
 });
 
-function renderNotConnected(customProps, customConnectionProps) {
-  const connection = Object.assign({}, defaultConnection, {
-    status: 'disconnected',
-  }, customConnectionProps);
 
-  const props = Object.assign({}, customProps, {connection});
-  return renderWithProps(props);
-}
-
-function renderConnecting(customProps, customConnectionProps) {
-  const connection = Object.assign({}, defaultConnection, {
-    status: 'connecting',
-  }, customConnectionProps);
-
-  const props = Object.assign({}, customProps, {connection});
-  return renderWithProps(props);
-}
-
-function renderConnected(customProps, customConnectionProps) {
-  const connection = Object.assign({}, defaultConnection, {
-    status: 'connected',
-  }, customConnectionProps);
-
-  const props = Object.assign({}, customProps, {connection});
-  return renderWithProps(props);
-}
-
-function renderWithProps(customProps): ReactWrapper {
-  const props = Object.assign({}, defaultProps, customProps);
-  return mount( <Connect { ...props } /> );
-}
-
-const noop = () => {};
-const defaultServer = {
-  address: '',
-  name: '',
-  city: '',
-  country: '',
-  location: [0, 0],
-};
 const defaultConnection = {
   status: 'disconnected',
   isOnline: true,
-  serverAddress: null,
   clientIp: null,
   location: null,
   country: null,
   city: null,
 };
 
-const defaultProps = {
-  onSettings: noop,
-  onSelectLocation: noop,
-  onConnect: noop,
-  onCopyIP: noop,
-  onDisconnect: noop,
-  onExternalLink: noop,
-  getServerInfo: (_) => { return defaultServer; },
-
+const defaultProps: ConnectProps = {
+  onSettings: () => {},
+  onSelectLocation: () => {},
+  onConnect: () => {},
+  onCopyIP: () => {},
+  onDisconnect: () => {},
+  onExternalLink: () => {},
+  getServerInfo: _ => null,
   accountExpiry: '',
   settings: {
     relaySettings: {
-      host: 'www.example.com',
-      protocol: 'udp',
-      port: 1301,
+      normal: {
+        location: 'any',
+        protocol: 'any',
+        port: 'any',
+      }
     },
   },
   connection: defaultConnection,
 };
+
+function renderWithProps(customProps: $Shape<ConnectProps>) {
+  const props = { ...defaultProps, ...customProps };
+  return mount( <Connect { ...props } /> );
+}

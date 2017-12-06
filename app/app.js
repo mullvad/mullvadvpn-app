@@ -9,7 +9,7 @@ import { webFrame, ipcRenderer } from 'electron';
 import log from 'electron-log';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
-import { Backend } from './lib/backend';
+import { Backend, BackendError } from './lib/backend';
 
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './lib/tray-icon-manager';
@@ -22,25 +22,23 @@ const store = configureStore(initialState, memoryHistory);
 // Backend
 //////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
-ipcRenderer.on('backend-info', (_event, args) => {
+ipcRenderer.on('backend-info', async (_event, args) => {
   backend.setCredentials(args.credentials);
   backend.sync();
-  backend.autologin()
-    .then( () => {
-      return backend.syncRelaySettings();
-    })
-    .then( () => {
-      const { settings: { relaySettings: { host, protocol, port } } } = store.getState();
-
-      return backend.connect(host, protocol, port);
-    })
-    .catch( e => {
-      if (e.type === 'NO_ACCOUNT') {
+  try {
+    await backend.autologin();
+    await backend.fetchRelaySettings();
+    await backend.connect();
+  } catch (e) {
+    if(e instanceof BackendError) {
+      if(e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');
         ipcRenderer.send('show-window');
       }
-    });
+    }
+  }
 });
+
 ipcRenderer.on('shutdown', () => {
   log.info('Been told by the node process to shutdown');
   backend.shutdown()
