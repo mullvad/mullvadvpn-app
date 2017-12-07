@@ -7,7 +7,6 @@ const exit = () => {
 };
 
 const open = (link: string) => {
-  // $FlowFixMe
   shell.openExternal(link);
 };
 

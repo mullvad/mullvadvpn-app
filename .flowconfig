@@ -36,6 +36,7 @@
 .*/node_modules/react-native/lib/.*
 .*/node_modules/react-native/jest/.*
 .*/node_modules/react-native/ReactAndroid/src/androidTest/.*
+.*/node_modules/react-native-windows/.*
 
 [include]
 

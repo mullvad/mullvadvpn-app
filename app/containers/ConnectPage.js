@@ -25,7 +25,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   const { backend } = props;
 
   return {
-<<<<<<< HEAD
     onSettings: () => {
       pushHistory('/settings');
     },

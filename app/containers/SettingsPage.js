@@ -1,6 +1,7 @@
 // @flow
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Settings from '../components/Settings';
 import { links } from '../config';
