@@ -12,13 +12,23 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+
 ## [Unreleased]
+
+
+## [2017.1-beta7] - 2017-12-13
 ### Added
 - Buffer size and fast-io parameters to OpenVPN. Can double the speed on high latency connections.
+- Download a list of our current servers on startup, instead of having a bundled list of servers in
+  the app that does not receive updates.
+- Backup account numbers in a file so that they are harder to lose.
+- Include the OpenVPN log in the problem report. IP addresses and MAC addresses are redacted before
+  the logs are sent.
 
 ### Fixed
 - Hold off notifying the frontend of the 'unsecure' state until the VPN tunnel is actually
   completely disconnected.
+- Show the VPN GUI on all macOS workspaces, not only the one where it was started.
 
 ### Changed
 - Renamed daemon binary from `mullvadd` to `mullvad-daemon`.
