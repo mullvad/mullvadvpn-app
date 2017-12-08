@@ -4,7 +4,10 @@ import { Styles } from 'reactxp';
 const styles = {
   headerbar:
   Styles.createViewStyle({
-    padding: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 12,
+    paddingRight: 12,
     backgroundColor: '#294D73',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -12,10 +15,13 @@ const styles = {
   }),
   headerbar__hidden:
   Styles.createViewStyle({
-    paddingTop: 0,
+    paddingTop: 24,
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
+  }),
+  headerbar__darwin: Styles.createViewStyle({
+    paddingTop: 24,
   }),
   headerbar__style_defaultDark:
   Styles.createViewStyle({
