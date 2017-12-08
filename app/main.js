@@ -248,7 +248,7 @@ const appDelegate = {
 
   _createWindow: (): BrowserWindow => {
     const contentHeight = 568;
-    let options = {
+    const options = {
       width: 320,
       height: contentHeight,
       resizable: false,
@@ -265,14 +265,17 @@ const appDelegate = {
 
     // setup window flags to mimic popover on macOS
     if(isMacOS) {
-      options = Object.assign({}, options, {
+      const win = new BrowserWindow({
+        ...options,
         height: contentHeight + 12, // 12 is the size of transparent area around arrow
         frame: false,
         transparent: true
       });
+      win.setVisibleOnAllWorkspaces(true);
+      return win;
+    } else {
+      return new BrowserWindow(options);
     }
-
-    return new BrowserWindow(options);
   },
 
   _setAppMenu: () => {

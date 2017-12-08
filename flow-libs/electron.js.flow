@@ -135,6 +135,8 @@ declare module 'electron' {
     focus(): void;
     setPosition(x: number, y: number, animate?: boolean): void;
     getBounds(): Rectangle;
+    setVisibleOnAllWorkspaces(visible: boolean): void;
+    isVisibleOnAllWorkspaces(): boolean;
     inspectElement(x: number, y: number): void;
     isDevToolsOpened(): boolean;isDevToolsOpened(): boolean;
     openDevTools(options?: OpenDevToolsOptions): void;
