@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { RelayProtocol, RelayLocation } from '../../lib/ipc-facade';
+import type { RelayProtocol, RelayLocation, RelayList } from '../../lib/ipc-facade';
 
 export type RelaySettingsRedux = {|
     normal: {
@@ -17,8 +17,11 @@ export type RelaySettingsRedux = {|
   }
 |};
 
+export type RelayLocationsRedux = RelayList;
+
 export type SettingsReduxState = {
-  relaySettings: RelaySettingsRedux
+  relaySettings: RelaySettingsRedux,
+  relayLocations: RelayLocationsRedux,
 };
 
 const initialState: SettingsReduxState = {
@@ -29,15 +32,25 @@ const initialState: SettingsReduxState = {
       protocol: 'any',
     }
   },
+  relayLocations: {
+    countries: []
+  },
 };
 
 export default function(state: SettingsReduxState = initialState, action: ReduxAction): SettingsReduxState {
 
-  if (action.type === 'UPDATE_RELAY') {
+  switch(action.type) {
+  case 'UPDATE_RELAY':
     return { ...state,
       relaySettings: action.relay,
     };
-  }
 
-  return state;
+  case 'UPDATE_RELAY_LOCATIONS':
+    return { ...state,
+      relayLocations: action.relayLocations,
+    };
+
+  default:
+    return state;
+  }
 }

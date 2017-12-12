@@ -122,6 +122,9 @@ describe('components/Connect', () => {
             port: 'any',
           }
         },
+        relayLocations: {
+          countries: [],
+        },
       },
       getServerInfo: (location) => {
         return servers.find((server) => {
@@ -179,6 +182,9 @@ const defaultProps: ConnectProps = {
         protocol: 'any',
         port: 'any',
       }
+    },
+    relayLocations: {
+      countries: [],
     },
   },
   connection: defaultConnection,

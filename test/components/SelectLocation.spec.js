@@ -17,6 +17,9 @@ describe('components/SelectLocation', () => {
         port: 'any',
       }
     },
+    relayLocations: {
+      countries: [],
+    },
   };
 
   const makeProps = (state: SettingsReduxState, mergeProps: $Shape<SelectLocationProps>): SelectLocationProps => {
