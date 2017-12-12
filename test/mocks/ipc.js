@@ -42,6 +42,10 @@ export function newMockIpc() {
       },
     }),
 
+    getRelayLocations: () => Promise.resolve({
+      countries: [],
+    }),
+
     connect: () => Promise.resolve(),
 
     disconnect: () => Promise.resolve(),
