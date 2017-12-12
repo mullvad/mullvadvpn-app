@@ -135,6 +135,18 @@ export class Backend {
     await this._ensureAuthenticated();
 
     try {
+      const locations = await this._ipc.getRelayLocations();
+
+      log.info('Got relay locations');
+
+      this._store.dispatch(
+        settingsActions.updateRelayLocations(locations)
+      );
+    } catch (e) {
+      log.error('Cannot fetch relay locations', e);
+    }
+
+    try {
       const publicIp = await this._ipc.getPublicIp();
 
       log.info('Got public IP: ', publicIp);
