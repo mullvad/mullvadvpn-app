@@ -18,7 +18,16 @@ describe('components/SelectLocation', () => {
       }
     },
     relayLocations: {
-      countries: [],
+      countries: [{
+        name: 'Sweden',
+        code: 'se',
+        cities: [{
+          name: 'Malmö',
+          code: 'mma',
+          position: [0, 0],
+          has_active_relays: true,
+        }],
+      }],
     },
   };
 
@@ -45,13 +54,37 @@ describe('components/SelectLocation', () => {
     Simulate.click(domNode);
   });
 
-  it('should call select callback', (done) => {
+  it('should call select callback for country', (done) => {
     const props = makeProps(state, {
-      onSelect: (_server) => done()
+      onSelect: (location) => {
+        done(new Error('Fix me! ' + JSON.stringify(location)));
+      }
     });
     const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__cell');
-    expect(elements).to.have.length.greaterThan(1);
-    Simulate.click(elements[1]);
+    expect(elements).to.have.length(1);
+    Simulate.click(elements[0]);
+  });
+
+  it('should call select callback for city', (done) => {
+    const testState = {
+      ...state,
+      relaySettings: {
+        normal: {
+          // should auto-expand Sweden
+          location: { city: ['se', 'mma'] },
+          protocol: 'any',
+          port: 'any',
+        }
+      }
+    };
+    const props = makeProps(testState, {
+      onSelect: (location) => {
+        done(new Error('Fix me! ' + JSON.stringify(location)));
+      }
+    });
+    const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__sub-cell');
+    expect(elements).to.have.length(1);
+    Simulate.click(elements[0]);
   });
 
 });

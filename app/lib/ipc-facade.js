@@ -1,7 +1,7 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, arrayOf, number, enumeration, oneOf } from 'validated/schema';
+import { object, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
 
 import type { Coordinate2d } from '../types';
@@ -121,7 +121,8 @@ export type RelayListCountry = {
 export type RelayListCity = {
   name: string,
   code: string,
-  position: [Number, Number],
+  position: [number, number],
+  has_active_relays: boolean,
 };
 
 const RelayListSchema = object({
@@ -132,6 +133,7 @@ const RelayListSchema = object({
       name: string,
       code: string,
       position: arrayOf(number),
+      has_active_relays: boolean,
     })),
   })),
 });
