@@ -267,6 +267,7 @@ impl RelaySelector {
             let country_name = country.name.clone();
             let country_code = country.code.clone();
             for city in &mut country.cities {
+                city.has_active_relays = !city.relays.is_empty();
                 let city_name = city.name.clone();
                 let city_code = city.code.clone();
                 let position = city.position;
