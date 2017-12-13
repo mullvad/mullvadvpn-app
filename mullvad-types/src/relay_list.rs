@@ -22,6 +22,7 @@ pub struct RelayListCity {
     pub name: String,
     pub code: CityCode,
     pub position: [f64; 2],
+    #[serde(skip_deserializing)] pub has_active_relays: bool,
     #[serde(skip_serializing_if = "Vec::is_empty", default)] pub relays: Vec<Relay>,
 }
 
