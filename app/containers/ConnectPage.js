@@ -41,7 +41,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       disconnect(backend);
     },
     onExternalLink: (type) => open(links[type]),
-    getServerInfo: (relayLocation) => backend.serverInfo(relayLocation),
   };
 };
 

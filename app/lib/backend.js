@@ -2,7 +2,6 @@
 
 import log from 'electron-log';
 import EventEmitter from 'events';
-import { servers } from '../config';
 import { IpcFacade, RealIpc } from './ipc-facade';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
@@ -10,20 +9,10 @@ import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
 
 import type { ReduxStore } from '../redux/store';
-import type { AccountToken, BackendState, RelayLocation, RelaySettingsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
-
-export type ServerInfo = {
-  address: string,
-  name: string,
-  city: string,
-  country: string,
-  country_code: string,
-  city_code: string,
-  location: [number, number],
-};
 
 export class BackendError extends Error {
   type: ErrorType;
@@ -177,24 +166,6 @@ export class Backend {
     }
 
     await this._updateAccountHistory();
-  }
-
-  serverInfo(relay: RelayLocation): ?ServerInfo {
-    const list: Array<ServerInfo> = servers;
-    if(relay.country) {
-      const country = relay.country;
-      return list.find((server) => {
-        return server.country_code === country;
-      });
-    } else if(relay.city) {
-      const [country_code, city_code] = relay.city;
-      return list.find((server) => {
-        return server.country_code === country_code &&
-          server.city_code === city_code;
-      });
-    } else {
-      return null;
-    }
   }
 
   async login(accountToken: AccountToken): Promise<void> {

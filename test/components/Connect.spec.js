@@ -126,16 +126,6 @@ describe('components/Connect', () => {
           countries: [],
         },
       },
-      getServerInfo: (location) => {
-        return servers.find((server) => {
-          if(location.city) {
-            const [country_code, city_code] = location.city;
-            return (server.city_code === city_code &&
-              server.country_code === country_code);
-          }
-          return false;
-        });
-      },
     });
 
     const locationSwitcher = component.find('.connect__server');
@@ -173,7 +163,6 @@ const defaultProps: ConnectProps = {
   onCopyIP: () => {},
   onDisconnect: () => {},
   onExternalLink: () => {},
-  getServerInfo: _ => null,
   accountExpiry: '',
   settings: {
     relaySettings: {
