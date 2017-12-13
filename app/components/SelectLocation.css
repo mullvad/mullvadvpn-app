@@ -115,14 +115,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-top: 1px;
 }
 
 .select-location__sub-cell:hover {
   background-color: rgba(41,71,115,0.9);
-}
-
-.select-location__sub-cell + .select-location__sub-cell {
-  margin-top: 1px;
 }
 
 .select-location__sub-cell--selected,

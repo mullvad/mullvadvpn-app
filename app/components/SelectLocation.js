@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
+import Accordion from './Accordion';
 import ChevronDownSVG from '../assets/images/icon-chevron-down.svg';
 import ChevronUpSVG from '../assets/images/icon-chevron-up.svg';
 import TickSVG from '../assets/images/icon-tick.svg';
@@ -178,10 +179,10 @@ export default class SelectLocation extends Component {
 
         </div>
 
-        { isExpanded && countryHasActiveRelays && relayCountry.cities.length > 0 &&
-          (<div className="select-location__cities">
+        { countryHasActiveRelays && relayCountry.cities.length > 0 &&
+          (<Accordion className="select-location__cities" height={ isExpanded ? 'auto' : 0 }>
             { relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity)) }
-          </div>)
+          </Accordion>)
         }
       </div>
     );
