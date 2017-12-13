@@ -186,7 +186,7 @@ export class Backend {
   }
 
   async login(accountToken: AccountToken): Promise<void> {
-    log.debug('Attempting to login with account number', accountToken);
+    log.debug('Attempting to login');
 
     this._store.dispatch(accountActions.startLogin(accountToken));
 
