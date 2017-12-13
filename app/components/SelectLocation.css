@@ -92,10 +92,7 @@
   align-items: center;
   justify-content: center;
   display: flex;
-}
-
-.select-location__cities {
-  margin-top: 1px;
+  color: #fff;
 }
 
 .select-location__collapse-button {
@@ -108,10 +105,9 @@
   padding: 12px;
 }
 
-.select-location__collapse-icon path {
-  fill: #fff;
+.select-location__collapse-icon {
+  color: #fff;
 }
-
 
 .select-location__sub-cell {
   background-color: rgb(36, 57, 84);

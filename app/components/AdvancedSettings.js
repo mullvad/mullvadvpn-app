@@ -4,6 +4,8 @@ import React from 'react';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
+import TickSVG from '../assets/images/icon-tick.svg';
+
 export class AdvancedSettings extends React.Component {
 
   props: {
@@ -90,11 +92,11 @@ class Selector extends React.Component {
 
     return <div
       key={ value }
-      className={ 'settings__cell--selected settings__cell' }
+      className="settings__cell--selected settings__cell"
       onClick={ onCellClick } >
       <div className="settings__cell-label">
-        <div className={ 'settings__sub-cell--label' }>
-          <img src='./assets/images/icon-tick.svg' />
+        <div className="settings__sub-cell--label">
+          <TickSVG />
           { value }
         </div>
       </div>

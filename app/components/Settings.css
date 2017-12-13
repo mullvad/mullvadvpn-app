@@ -57,6 +57,7 @@
 .settings__cell-disclosure {
   display: block;
   margin-left: 8px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settings__cell-spacer {
@@ -88,8 +89,7 @@
 .settings__cell-icon {
   width: 16px;
   flex: 0 0 auto;
-  margin-right: 8px;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settings__cell-value {

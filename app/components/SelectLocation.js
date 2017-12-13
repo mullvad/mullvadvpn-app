@@ -5,6 +5,7 @@ import CustomScrollbars from './CustomScrollbars';
 
 import ChevronDownSVG from '../assets/images/icon-chevron-down.svg';
 import ChevronUpSVG from '../assets/images/icon-chevron-up.svg';
+import TickSVG from '../assets/images/icon-tick.svg';
 
 import type { SettingsReduxState } from '../redux/settings/reducers';
 import type { RelayLocation, RelayListCity, RelayListCountry } from '../lib/ipc-facade';
@@ -162,7 +163,7 @@ export default class SelectLocation extends Component {
 
             <div className="select-location__cell-icon">
               { isSelected ?
-                <img src="./assets/images/icon-tick.svg" /> :
+                <TickSVG /> :
                 this._relayStatusIndicator(countryHasActiveRelays) }
             </div>
 
@@ -209,7 +210,7 @@ export default class SelectLocation extends Component {
 
         <div className="select-location__cell-icon">
           { isSelected ?
-            <img src="./assets/images/icon-tick.svg" /> :
+            <TickSVG /> :
             this._relayStatusIndicator(relayCity.has_active_relays) }
         </div>
 
