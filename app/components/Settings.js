@@ -1,9 +1,10 @@
 // @flow
 import moment from 'moment';
-import React, { Component } from 'react';
-import { If, Then, Else } from 'react-if';
+import React from 'react';
+import { Component, Text, Image, Button, View } from "reactxp";
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
+import styles from "./SettingsStyles";
 import Img from './Img';
 
 import type { AccountReduxState } from '../redux/account/reducers';
@@ -39,88 +40,83 @@ export default class Settings extends Component {
       <Layout>
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
-          <div className="settings">
-            <button className="settings__close" onClick={ this.props.onClose } />
-            <div className="settings__container">
-              <div className="settings__header">
-                <h2 className="settings__title">Settings</h2>
-              </div>
-              <CustomScrollbars autoHide={ true }>
-                <div className="settings__content">
-                  <div className="settings__main">
+          <View style={styles.settings}>
+            <Button style={styles.settings__close} onPress={ this.props.onClose } testName="settings__close">
+              <Img style={styles.settings__close_icon} source="icon-close" tintColor="currentColor"/>
+            </Button>
 
-                    { /* show account options when logged in */ }
-                    <If condition={ isLoggedIn }>
-                      <Then>
-                        <div className="settings__account">
+            <View style={styles.settings__container}>
+              <View style={styles.settings__header}>
+                <Text style={styles.settings__title}>Settings</Text>
+              </View>
 
-                          <div className="settings__view-account settings__cell settings__cell--active" onClick={ this.props.onViewAccount }>
-                            <div className="settings__cell-label">Account</div>
-                            <div className="settings__cell-value">
-                              <If condition={ isOutOfTime }>
-                                <Then>
-                                  <span className="settings__account-paid-until-label settings__account-paid-until-label--error">OUT OF TIME</span>
-                                </Then>
-                                <Else>
-                                  <span className="settings__account-paid-until-label">{ formattedExpiry }</span>
-                                </Else>
-                              </If>
-                            </div>
-                            <div className="settings__cell-disclosure">
-                              <Img source="icon-chevron" tintColor="currentColor" />
-                            </div>
-                          </div>
-                          <div className="settings__cell-spacer"></div>
-                        </div>
-                      </Then>
-                    </If>
+              <View style={styles.settings__content}>
+                <View style={styles.settings__main}>
+                  {/* show account options when logged in */}
+                  {isLoggedIn ? (
+                    <View style={styles.settings_account} testName="settings__account">
+                      <Button onPress={ this.props.onViewAccount } testName="settings__view_account">
+                        <View style={styles.settings__cell}>
+                          <Text style={styles.settings__cell_label}>Account</Text>
+                          <View style={styles.settings__cell_value}>
+                            {isOutOfTime ? (
+                              <Text style={styles.settings__account_paid_until_label__error} testName="settings__account_paid_until_label">OUT OF TIME</Text>
+                            ) : (
+                              <Text style={styles.settings__account_paid_until_label} testName="settings__account_paid_until_label">{formattedExpiry}</Text>
+                            )}
+                          </View>
+                          <Img style={styles.settings__cell_disclosure} source="icon-chevron" tintColor="currentColor"/>
+                        </View>
+                      </Button>
+                      <View style={styles.settings__cell_spacer} />
+                    </View>
+                  ) : null}
 
-                    <If condition={ isLoggedIn }>
-                      <Then>
-                        <div className="settings__advanced">
-                          <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAdvancedSettings }>
-                            <div className="settings__cell-label">Advanced</div>
-                            <div className="settings__cell-value">
-                              <div className="settings__cell-disclosure">
-                                <Img source="icon-chevron" tintColor="currentColor" />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="settings__cell-spacer"></div>
-                        </div>
-                      </Then>
-                    </If>
+                  {isLoggedIn ? (
+                    <Button onPress={ this.props.onViewAdvancedSettings }>
+                      <View style={styles.settings__cell}>
+                        <Text style={styles.settings__cell_label}>Advanced</Text>
+                        <Img style={styles.settings__cell_disclosure} source="icon-chevron" tintColor="currentColor"/>
+                      </View>
+                      <View style={styles.settings__cell_spacer}></View>
+                    </Button>
+                  ) : null}
 
-                    <div className="settings__external">
-                      <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'faq') }>
-                        <div className="settings__cell-label">FAQs</div>
-                        <div className="settings__cell-icon">
-                          <Img source="icon-extLink" tintColor="currentColor" />
-                        </div>
-                      </div>
-                      <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'guides') }>
-                        <div className="settings__cell-label">Guides</div>
-                        <div className="settings__cell-icon">
-                          <Img source="icon-extLink" tintColor="currentColor" />
-                        </div>
-                      </div>
-                      <div className="settings__view-support settings__cell settings__cell--active" onClick={ this.props.onViewSupport }>
-                        <div className="settings__cell-label">Report a problem</div>
-                        <div className="settings__cell-disclosure">
-                          <Img source="icon-extLink" tintColor="currentColor" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <View style={styles.settings__external} testName="settings__external">
 
-                  <div className="settings__footer">
-                    <button className="settings__quit button button--negative" onClick={ this.props.onQuit }>Quit app</button>
-                  </div>
+                    <Button onPress={ this.props.onExternalLink.bind(this, "faq") } testName="settings__external_link">
+                      <View style={styles.settings__cell}>
+                        <Text style={styles.settings__cell_label}>FAQs</Text>
+                        <Img style={styles.settings__cell_icon} source="icon-extLink" tintColor="currentColor"/>
+                      </View>
+                    </Button>
 
-                </div>
-              </CustomScrollbars>
-            </div>
-          </div>
+                    <Button onPress={ this.props.onExternalLink.bind(this, "guides") } testName="settings__external_link">
+                      <View style={styles.settings__cell}>
+                        <Text style={styles.settings__cell_label}>Guides</Text>
+                        <Img style={styles.settings__cell_icon} source="icon-extLink" tintColor="currentColor"/>
+                      </View>
+                    </Button>
+
+                    <Button onPress={ this.props.onViewSupport }  testName="settings__view_support">
+                      <View style={styles.settings__cell}>
+                        <Text style={styles.settings__cell_label}>Contact support</Text>
+                        <Img style={styles.settings__cell_icon} source="icon-chevron" tintColor="currentColor"/>
+                      </View>
+                    </Button>
+
+                  </View>
+                </View>
+
+                <View style={styles.settings__footer}>
+                  <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName="settings__quit">
+                      <Text style={styles.settings__footer_button_label}>Quit app</Text>
+                  </Button>
+                </View>
+              </View>
+            </View>
+          </View>
+>>>>>>> Settings in reactxp
         </Container>
       </Layout>
     );
