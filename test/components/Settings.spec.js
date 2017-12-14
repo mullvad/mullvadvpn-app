@@ -63,27 +63,32 @@ describe('components/Settings', () => {
 
   it('should show quit button when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    getComponent(render(props), 'settings__quit');
+    const component = getComponent(render(props), 'settings__quit');
+    expect(component).to.have.length(1);
   });
 
   it('should show quit button when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    getComponent(render(props), 'settings__quit');
+    const component = getComponent(render(props), 'settings__quit');
+    expect(component).to.have.length(1);
   });
 
   it('should show external links when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    getComponent(render(props), 'settings__external');
+    const component = getComponent(render(props), 'settings__external');
+    expect(component).to.have.length(1);
   });
 
   it('should show external links when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    getComponent(render(props), 'settings__external');
+    const component = getComponent(render(props), 'settings__external');
+    expect(component).to.have.length(1);
   });
 
   it('should show account section when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    getComponent(render(props), 'settings__account');
+    const component = getComponent(render(props), 'settings__account');
+    expect(component).to.have.length(1);
   });
 
   it('should hide account section when logged out', () => {
