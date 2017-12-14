@@ -50,39 +50,49 @@ export default class Settings extends Component {
                 <Text style={styles.settings__title}>Settings</Text>
               </View>
 
-              <View style={styles.settings__content}>
-                <View style={styles.settings__main}>
-                  {/* show account options when logged in */}
-                  {isLoggedIn ? (
-                    <View style={styles.settings_account} testName="settings__account">
-                      <Button onPress={ this.props.onViewAccount } testName="settings__view_account">
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Account</Text>
-                          <View style={styles.settings__cell_value}>
-                            {isOutOfTime ? (
-                              <Text style={styles.settings__account_paid_until_label__error} testName="settings__account_paid_until_label">OUT OF TIME</Text>
-                            ) : (
-                              <Text style={styles.settings__account_paid_until_label} testName="settings__account_paid_until_label">{formattedExpiry}</Text>
-                            )}
+              <CustomScrollbars autoHide={ true }>
+
+                <View style={styles.settings__content}>
+                  <View style={styles.settings__main}>
+                    {/* show account options when logged in */}
+                    {isLoggedIn ? (
+                      <View style={styles.settings_account} testName="settings__account">
+                        <Button onPress={ this.props.onViewAccount } testName="settings__view_account">
+                          <View style={styles.settings__cell}>
+                            <Text style={styles.settings__cell_label}>Account</Text>
+                            <View style={styles.settings__cell_value}>
+                              {isOutOfTime ? (
+                                <Text style={styles.settings__account_paid_until_label__error} testName="settings__account_paid_until_label">OUT OF TIME</Text>
+                              ) : (
+                                <Text style={styles.settings__account_paid_until_label} testName="settings__account_paid_until_label">{formattedExpiry}</Text>
+                              )}
+                            </View>
+                            <Img style={styles.settings__cell_disclosure} source="icon-chevron"/>
                           </View>
+                        </Button>
+                        <View style={styles.settings__cell_spacer} />
+                      </View>
+                    ) : null}
+
+                    {isLoggedIn ? (
+                      <Button onPress={ this.props.onViewAdvancedSettings }>
+                        <View style={styles.settings__cell}>
+                          <Text style={styles.settings__cell_label}>Advanced</Text>
+                          <Img style={styles.settings__cell_disclosure} source="icon-chevron" tintColor="currentColor" />
+                        </View>
+                        <View style={styles.settings__cell_spacer}></View>
+                      </Button>
+                    ) : null}
+
+                    {isLoggedIn ? (
+                      <Button onPress={ this.props.onViewAdvancedSettings }>
+                        <View style={styles.settings__cell}>
+                          <Text style={styles.settings__cell_label}>Advanced</Text>
                           <Img style={styles.settings__cell_disclosure} source="icon-chevron" tintColor="currentColor"/>
                         </View>
+                        <View style={styles.settings__cell_spacer}></View>
                       </Button>
-                      <View style={styles.settings__cell_spacer} />
-                    </View>
-                  ) : null}
-
-                  {isLoggedIn ? (
-                    <Button onPress={ this.props.onViewAdvancedSettings }>
-                      <View style={styles.settings__cell}>
-                        <Text style={styles.settings__cell_label}>Advanced</Text>
-                        <Img style={styles.settings__cell_disclosure} source="icon-chevron" tintColor="currentColor"/>
-                      </View>
-                      <View style={styles.settings__cell_spacer}></View>
-                    </Button>
-                  ) : null}
-
-                  <View style={styles.settings__external} testName="settings__external">
+                    ) : null}
 
                     <Button onPress={ this.props.onExternalLink.bind(this, "faq") } testName="settings__external_link">
                       <View style={styles.settings__cell}>
@@ -105,18 +115,18 @@ export default class Settings extends Component {
                       </View>
                     </Button>
 
+                    </View>
+                  </View>
+
+                  <View style={styles.settings__footer}>
+                    <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName="settings__quit">
+                        <Text style={styles.settings__footer_button_label}>Quit app</Text>
+                    </Button>
                   </View>
                 </View>
-
-                <View style={styles.settings__footer}>
-                  <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName="settings__quit">
-                      <Text style={styles.settings__footer_button_label}>Quit app</Text>
-                  </Button>
-                </View>
-              </View>
+              </CustomScrollbars>
             </View>
           </View>
->>>>>>> Settings in reactxp
         </Container>
       </Layout>
     );
