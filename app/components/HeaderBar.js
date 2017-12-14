@@ -1,6 +1,15 @@
 // @flow
-import React, { Component } from 'react';
-import { If, Then } from 'react-if';
+import React from 'react';
+import {
+  Component,
+  Text,
+  Button,
+  View
+} from 'reactxp';
+
+import Img from './Img';
+
+import styles from './HeaderBarStyles';
 
 export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
 export type HeaderBarProps = {
@@ -19,33 +28,34 @@ export default class HeaderBar extends Component {
     onSettings: null
   };
 
-  render(): React.Element<*> {
+  render() {
     let containerClass = [
-      'headerbar',
-      'headerbar--' + process.platform,
-      'headerbar--style-' + this.props.style
+      styles['headerbar'],
+      styles['headerbar__' + process.platform],
+      styles['headerbar__style_' + this.props.style]
     ];
 
     if(this.props.hidden) {
-      containerClass.push('headerbar--hidden');
+      containerClass.push(styles['headerbar__hidden']);
     }
 
     return (
-      <div className={ containerClass.join(' ') }>
-        <If condition={ !this.props.hidden }>
-          <Then>
-            <div className="headerbar__container">
-              <img className="headerbar__logo" src="./assets/images/logo-icon.svg" />
-              <h2 className="headerbar__title">MULLVAD VPN</h2>
-              <If condition={ !!this.props.showSettings }>
-                <Then>
-                  <button className="headerbar__settings" onClick={ this.props.onSettings } />
-                </Then>
-              </If>
-            </div>
-          </Then>
-        </If>
-      </div>
+      <View style={ containerClass }>
+        {!this.props.hidden ?
+          <View style={styles.headerbar__container} testName="headerbar__container">
+            <Img style={ styles.headerbar__logo } source='logo-icon'/>
+            <Text style={styles.headerbar__title}>MULLVAD VPN</Text>
+          </View>
+          : null}
+
+        {this.props.showSettings ?
+          <View style={styles.headerbar__settings}>
+            <Button onPress={ this.props.onSettings } testName="headerbar__settings">
+              <Img style={ styles.headerbar__settings } source='icon-settings'/>
+            </Button>
+          </View>
+          : null}
+      </View>
     );
   }
 }

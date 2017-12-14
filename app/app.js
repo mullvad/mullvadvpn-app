@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { Component} from 'reactxp';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { createMemoryHistory } from 'history';
@@ -84,31 +84,15 @@ webFrame.setZoomLevelLimits(1, 1);
 
 ipcRenderer.send('on-browser-window-ready');
 
-function getRootElement() {
-  const currentScript = document.currentScript;
-  if (!currentScript) {
-    throw new Error('Missing document.currentScript');
-  }
 
-  const containerId = currentScript.getAttribute('data-container');
-  if(!containerId) {
-    throw new Error('Missing data-container attribute.');
+export default class App extends Component{
+  render() {
+    return (
+      <Provider store={ store }>
+        <ConnectedRouter history={ memoryHistory }>
+          { makeRoutes(store.getState, { backend }) }
+        </ConnectedRouter>
+      </Provider>
+    );
   }
-
-  const rootElement = document.querySelector(containerId);
-  if(!rootElement) {
-    throw new Error('Missing root element.');
-  }
-
-  return rootElement;
 }
-
-
-ReactDOM.render(
-  <Provider store={ store }>
-    <ConnectedRouter history={ memoryHistory }>
-      { makeRoutes(store.getState, { backend }) }
-    </ConnectedRouter>
-  </Provider>,
-  getRootElement()
-);

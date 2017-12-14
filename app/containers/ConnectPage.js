@@ -3,10 +3,10 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
-import { shell } from 'electron';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
+import { open } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onDisconnect: () => {
       disconnect(backend);
     },
-    onExternalLink: (type) => shell.openExternal(links[type]),
+    onExternalLink: (type) => open(links[type]),
     getServerInfo: (relayLocation) => backend.serverInfo(relayLocation),
   };
 };
