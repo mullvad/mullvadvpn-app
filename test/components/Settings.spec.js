@@ -168,10 +168,6 @@ function getComponent(container, testName) {
   return container.findWhere( n => n.prop('testName') === testName);
 }
 
-function hasChild(container, testName) {
-  return getComponent(container, testName).length > 0;
-}
-
 function click(component) {
   component.prop('onPress')();
 }
