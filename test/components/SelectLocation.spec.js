@@ -57,7 +57,14 @@ describe('components/SelectLocation', () => {
   it('should call select callback for country', (done) => {
     const props = makeProps(state, {
       onSelect: (location) => {
-        done(new Error('Fix me! ' + JSON.stringify(location)));
+        try {
+          expect(location).to.deep.equal({
+            country: 'se'
+          });
+          done();
+        } catch(e) {
+          done(e);
+        }
       }
     });
     const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__cell');
@@ -66,20 +73,16 @@ describe('components/SelectLocation', () => {
   });
 
   it('should call select callback for city', (done) => {
-    const testState = {
-      ...state,
-      relaySettings: {
-        normal: {
-          // should auto-expand Sweden
-          location: { city: ['se', 'mma'] },
-          protocol: 'any',
-          port: 'any',
-        }
-      }
-    };
-    const props = makeProps(testState, {
+    const props = makeProps(state, {
       onSelect: (location) => {
-        done(new Error('Fix me! ' + JSON.stringify(location)));
+        try {
+          expect(location).to.deep.equal({
+            city: ['se', 'mma']
+          });
+          done();
+        } catch(e) {
+          done(e);
+        }
       }
     });
     const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__sub-cell');
