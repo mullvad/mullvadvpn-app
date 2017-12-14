@@ -2,8 +2,10 @@
 
 import { expect } from 'chai';
 import React from 'react';
-import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Settings from '../../app/components/Settings';
+
+import { shallow } from 'enzyme';
+require('../setup/enzyme');
 
 import type { AccountReduxState } from '../../app/redux/account/reducers';
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
@@ -59,91 +61,85 @@ describe('components/Settings', () => {
     return Object.assign({}, defaultProps, mergeProps);
   };
 
-  const render = (props: SettingsProps): Settings => {
-    return ReactTestUtils.renderIntoDocument(
-      <Settings { ...props } />
-    );
-  };
-
   it('should show quit button when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__quit');
+    getComponent(render(props), 'settings__quit');
   });
 
   it('should show quit button when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__quit');
+    getComponent(render(props), 'settings__quit');
   });
 
   it('should show external links when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__external');
+    getComponent(render(props), 'settings__external');
   });
 
   it('should show external links when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__external');
+    getComponent(render(props), 'settings__external');
   });
 
   it('should show account section when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__account');
+    getComponent(render(props), 'settings__account');
   });
 
   it('should hide account section when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'settings__account');
-    expect(elements).to.be.empty;
+    const elements = getComponent(render(props), 'settings__account');
+    expect(elements).to.have.length(0);
   });
 
   it('should hide account link when not logged in', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'settings__view-account');
-    expect(elements).to.be.empty;
+    const elements = getComponent(render(props), 'settings__view_account');
+    expect(elements).to.have.length(0);
   });
 
   it('should show out-of-time message for unpaid account', () => {
     const props = makeProps(unpaidAccountState, settingsState);
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__account-paid-until-label');
-    expect(domNode.textContent).to.contain('OUT OF TIME');
+    const component = getComponent(render(props), 'settings__account_paid_until_label');
+    expect(component.contains('OUT OF TIME')).to.equal(true);
   });
 
   it('should hide out-of-time message for paid account', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__account-paid-until-label');
-    expect(domNode.textContent).to.not.contain('OUT OF TIME');
+    const component = getComponent(render(props), 'settings__account_paid_until_label');
+    expect(component.contains('OUT OF TIME')).to.equal(false);
   });
 
   it('should call close callback', (done) => {
     const props = makeProps(loggedOutAccountState, settingsState, {
       onClose: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__close');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'settings__close');
+    click(component);
   });
 
   it('should call quit callback', (done) => {
     const props = makeProps(loggedOutAccountState, settingsState, {
       onQuit: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__quit');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'settings__quit');
+    click(component);
   });
 
   it('should call account callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
       onViewAccount: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__view-account');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'settings__view_account');
+    click(component);
   });
 
   it('should call support callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
       onViewSupport: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__view-support');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'settings__view_support');
+    click(component);
   });
 
   it('should call external links callback', () => {
@@ -153,12 +149,29 @@ describe('components/Settings', () => {
         collectedExternalLinkTypes.push(type);
       }
     });
-    const container = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__external');
-    Array.from(container.childNodes)
-      .filter((elm: HTMLElement) => elm.classList.contains('settings__cell'))
-      .forEach((elm) => Simulate.click(elm));
+    const container = getComponent(render(props), 'settings__external');
+    container.find({ testName: 'settings__external_link' })
+      .forEach((element) => click(element));
 
     expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
 
 });
+
+function render(props) {
+  return shallow(
+    <Settings {...props} />
+  );
+}
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function hasChild(container, testName) {
+  return getComponent(container, testName).length > 0;
+}
+
+function click(component) {
+  component.prop('onPress')();
+}
