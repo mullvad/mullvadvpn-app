@@ -22,7 +22,7 @@ jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1"
 jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 uuid = { version = "0.5", features = ["v4"] }
-lazy_static = "0.2"
+lazy_static = "1.0"
 rand = "0.3"
 tokio-timer = "0.1"
 regex = "0.2"
