@@ -300,7 +300,7 @@ export class Backend {
     await this._ensureAuthenticated();
 
     const relaySettings = await this._ipc.getRelaySettings();
-    log.debug('Got relay settings from backend', relaySettings);
+    log.debug('Got relay settings from backend', JSON.stringify(relaySettings));
 
     if(relaySettings.normal) {
       const payload = {};
