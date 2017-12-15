@@ -1,4 +1,5 @@
 // @flow
+/* eslint react/no-find-dom-node: off */
 
 import { expect } from 'chai';
 import React from 'react';
