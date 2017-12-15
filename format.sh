@@ -5,7 +5,7 @@
 
 set -u
 
-VERSION="0.2.17"
+VERSION="0.3.2"
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
@@ -14,10 +14,6 @@ case "$(uname -s)" in
     Darwin*)    export DYLD_LIBRARY_PATH=$(rustc +nightly --print sysroot)/lib;;
     *)          echo "Unsupported platform"; exit 1
 esac
-
-# Allow rustfmt to use "nighly" features. `comment_width` is one of those for example.
-# 0.2.17 started enforcing setting this variable to allow using the nighly features.
-export CFG_RELEASE_CHANNEL=nightly
 
 function correct_rustfmt() {
     if ! which $CMD; then
