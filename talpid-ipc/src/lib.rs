@@ -61,11 +61,9 @@ impl IpcServer {
         ServerBuilder::new(handler)
             .session_meta_extractor(meta_extractor)
             .start(&listen_addr)
-            .map(|server| {
-                IpcServer {
-                    address: format!("ws://{}", server.addr()),
-                    server: server,
-                }
+            .map(|server| IpcServer {
+                address: format!("ws://{}", server.addr()),
+                server: server,
             })
             .chain_err(|| ErrorKind::IpcServerError)
     }

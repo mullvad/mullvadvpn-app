@@ -126,8 +126,7 @@ impl Settings {
         if self.relay_settings != new_settings {
             debug!(
                 "changing relay settings from {:?} to {:?}",
-                self.relay_settings,
-                new_settings
+                self.relay_settings, new_settings
             );
 
             self.relay_settings = new_settings;

@@ -223,7 +223,6 @@ impl ProcessHandle for duct::Handle {
 }
 
 
-
 mod event_server {
     use super::OpenVpnPluginEvent;
     use jsonrpc_core::{Error, IoHandler};
