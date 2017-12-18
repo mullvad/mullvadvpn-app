@@ -96,21 +96,6 @@
   flex: 0 0 auto;
 }
 
-.settings__sub-cell {
-  background-color: rgb(36, 57, 84);
-}
-.settings__sub-cell:hover {
-  background-color: rgba(41,71,115,0.9);
-}
-
-.settings__sub-cell--label {
-  padding-left: 15px;
-}
-
-.settings__sub-cell--label img {
-  padding-right: 8px;
-}
-
 .settings__account-paid-until-label {
   font-family: "Open Sans";
   font-size: 13px;
