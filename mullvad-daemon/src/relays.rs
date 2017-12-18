@@ -136,8 +136,7 @@ impl RelaySelector {
             .and_then(|selected_relay| {
                 info!(
                     "Selected relay {} at {}",
-                    selected_relay.hostname,
-                    selected_relay.ipv4_addr_in
+                    selected_relay.hostname, selected_relay.ipv4_addr_in
                 );
                 self.get_random_tunnel(&selected_relay.tunnels)
                     .map(|tunnel_parameters| {

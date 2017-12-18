@@ -10,7 +10,7 @@ duct = "0.9.1"
 error-chain = "0.11"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
-lazy_static = "0.2"
+lazy_static = "1.0"
 log = "0.3"
 uuid = { version = "0.5", features = ["v4"] }
 shell-escape = "0.1"

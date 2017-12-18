@@ -19,7 +19,6 @@ pub mod windows;
 use self::windows as imp;
 
 
-
 error_chain!{
     errors {
         /// Initialization error
