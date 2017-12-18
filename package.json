@@ -21,7 +21,6 @@
     "moment": "^2.17.1",
     "prop-types": "^15.5.10",
     "react": "^16.0.0",
-    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.0.0",
     "react-if": "^2.2.1",
     "react-mapbox-gl": "^2.1.0",
