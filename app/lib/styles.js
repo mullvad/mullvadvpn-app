@@ -6,7 +6,7 @@ export function createViewStyles(styles: { [string]: Object }) {
     viewStyles[style] = Styles.createViewStyle(styles[style]);
   }
   return viewStyles;
-};
+}
 
 export function createTextStyles(styles: { [string]: Object }) {
   const viewStyles = {};
@@ -14,4 +14,4 @@ export function createTextStyles(styles: { [string]: Object }) {
     viewStyles[style] = Styles.createTextStyle(styles[style]);
   }
   return viewStyles;
-};
+}
