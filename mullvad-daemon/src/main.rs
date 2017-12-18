@@ -200,7 +200,10 @@ struct Daemon {
 impl Daemon {
     pub fn new(tunnel_log: Option<PathBuf>) -> Result<Self> {
         let resource_dir = get_resource_dir();
-        let rpc_http_handle = mullvad_rpc::connect().chain_err(|| "Unable to connect to RPC API")?;
+
+        let rpc_http_handle = mullvad_rpc::event_loop::create(|core| {
+            mullvad_rpc::shared(&core.handle())
+        }).chain_err(|| "Unable to initialize network event loop")?;
 
         let relay_selector = Self::create_relay_selector(rpc_http_handle.clone(), &resource_dir)?;
 
