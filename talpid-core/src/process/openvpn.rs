@@ -25,10 +25,6 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
 static ALLOWED_TLS_CIPHERS: &[&str] = &[
     "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
     "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
-    "TLS-DHE-RSA-WITH-CAMELLIA-256-CBC-SHA",
-    "TLS-DHE-RSA-WITH-AES-128-CBC-SHA",
-    "TLS-DHE-RSA-WITH-SEED-CBC-SHA",
-    "TLS-DHE-RSA-WITH-CAMELLIA-128-CBC-SHA",
 ];
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
