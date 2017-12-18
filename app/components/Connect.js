@@ -5,7 +5,9 @@ import React, { Component } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
+
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+import ChevronRightSVG from '../assets/images/icon-chevron.svg';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
@@ -239,15 +241,10 @@ export default class Connect extends Component {
             <Then>
               <div className="connect__footer">
                 <div className="connect__row">
-
-                  <div className="connect__server" onClick={ this.props.onSelectLocation }>
-                    <div className="connect__server-label">Connect to</div>
-                    <div className="connect__server-value">
-
-                      <div className="connect__server-name">{ this._getLocationName() }</div>
-
-                    </div>
-                  </div>
+                  <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
+                    <div className="connect__server-label">{ this._getLocationName() }</div>
+                    <div className="connect__server-chevron"><ChevronRightSVG /></div>
+                  </button>
                 </div>
 
                 <div className="connect__row">

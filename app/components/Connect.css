@@ -30,46 +30,15 @@
   margin-top: 16px;
 }
 
-.connect__server {
-  padding: 7px 12px 9px;
-  background-color: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  backdrop-filter: blur(4px);
-}
-
 .connect__server-label {
-  font-family: "Open Sans";
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 17px;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  flex: 0 0 auto;
-}
-
-.connect__server-value {
   flex: 1 1 auto;
-  margin-left: 8px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
+  text-align: center;
 }
 
-.connect__server-name {
-  font-family: DINPro;
-  font-size: 20px;
-  font-weight: 900;
-  line-height: 26px;
-  color: #FFFFFF;
-  text-align: right;
-}
-
-.connect__server-icon + .connect__server-name {
-  margin-left: 8px;
+.connect__server-chevron {
+  flex: 0 0 auto;
+  width: 7px;
+  margin-left: -7px; /* let .connect__server-label extend to occupy the entire space */
 }
 
 .connect__footer-button {
