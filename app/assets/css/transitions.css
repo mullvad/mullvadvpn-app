@@ -1,0 +1,91 @@
+/**
+ * CSS rules for transitions using React-router and CSSTransitionGroup
+ */
+
+div[class*="-transition-leave"], div[class*="-transition-enter"] {
+  /* keep animated .layout divs pinned to viewport boundaries */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+
+  /* disable UI interaction during transitions */
+  pointer-events: none;
+}
+
+.transition-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* New view slides bottom top */
+
+.slide-up-transition-leave { z-index: 0; }
+.slide-up-transition-enter {
+  transform: translateY(100vh);
+  z-index: 1;
+}
+
+.slide-up-transition-enter.slide-up-transition-enter-active {
+  transform: translateY(0);
+  transition: transform 450ms ease;
+}
+
+/* New view slides top bottom */
+
+.slide-down-transition-enter { z-index: 0; }
+.slide-down-transition-leave {
+  transform: translateY(0);
+  z-index: 1;
+}
+
+.slide-down-transition-leave.slide-down-transition-leave-active {
+  transform: translateY(100vh);
+  transition: transform 450ms ease;
+}
+
+/* New view slids right to left */
+
+.push-transition-leave {
+  transform: translateX(0vw);
+  z-index: 0;
+}
+
+.push-transition-enter {
+  transform: translateX(100vw);
+  z-index: 1;
+}
+
+.push-transition-leave.push-transition-leave-active {
+  transform: translateX(-50vw);
+  transition: transform 450ms ease;
+}
+
+.push-transition-enter.push-transition-enter-active {
+  transform: translateX(0);
+  transition: transform 450ms ease;
+}
+
+/* New view slides left to right */
+
+.pop-transition-enter {
+  transform: translateX(-50vw);
+  z-index: 0;
+}
+
+.pop-transition-leave {
+  transform: translateX(0);
+  z-index: 1;
+}
+
+.pop-transition-enter.pop-transition-enter-active {
+  transform: translateX(0vw);
+  transition: transform 450ms ease;
+}
+
+.pop-transition-leave.pop-transition-leave-active {
+  transform: translateX(100vw);
+  transition: transform 450ms ease;
+}

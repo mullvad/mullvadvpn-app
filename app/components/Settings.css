@@ -1,0 +1,140 @@
+.settings {
+  background: #192E45;
+  height: 100%;
+}
+
+.settings__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.settings__header {
+  flex: 0 0 auto;
+  padding: 40px 24px 24px;
+  position: relative; /* anchor for close button */
+}
+
+.settings__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.settings__close {
+  position: absolute;
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  top: 24px;
+  left: 12px;
+  background-color: transparent;
+  background-image: url(../assets/images/icon-close.svg);
+  opacity: 0.6;
+  z-index: 1; /* part of .settings__container covers the button */
+}
+
+.settings__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 40px;
+  color: #FFFFFF;
+}
+
+.settings__cell {
+  background-color:rgba(41,71,115,1);
+  padding: 15px 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.settings__cell-disclosure {
+  display: block;
+  margin-left: 8px;
+}
+
+.settings__cell-spacer {
+  height: 24px;
+}
+
+.settings__cell--selected,
+.settings__cell--selected:hover {
+  background-color: #44AD4D;
+}
+
+.settings__cell--active:hover {
+  background-color: rgba(41,71,115,0.9);
+}
+
+.settings__cell + .settings__cell {
+  margin-top: 1px;
+}
+
+.settings__cell-label {
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #FFFFFF;
+  flex: 1 0 auto;
+}
+
+.settings__cell-icon {
+  width: 16px;
+  flex: 0 0 auto;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+
+.settings__cell-value {
+  flex: 0 0 auto;
+}
+
+.settings__sub-cell {
+  background-color: rgb(36, 57, 84);
+}
+.settings__sub-cell:hover {
+  background-color: rgba(41,71,115,0.9);
+}
+
+.settings__sub-cell--label {
+  padding-left: 15px;
+}
+
+.settings__sub-cell--label img {
+  padding-right: 8px;
+}
+
+.settings__account-paid-until-label {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 26px; /* matches .cell-label */
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.settings__account-paid-until-label--error {
+  color: #d0021b;
+}
+
+.settings__cell-footer {
+  padding: 8px 24px 24px;
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  color: rgba(255,255,255,0.8);
+}
+
+.settings__footer {
+  padding: 24px;
+}
+
+.settings__footer .button + .button { margin-top: 16px; }

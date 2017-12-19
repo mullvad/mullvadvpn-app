@@ -1,9 +1,18 @@
-language: rust
-cache: cargo
+language:
+  - rust
+  - node_js
+sudo: false
+cache:
+  cargo: true
+  yarn: true
 rust:
   - nightly
   - stable
   - beta
+node_js:
+  - '8'
+  - '7'
+  - '6'
 os:
   - linux
   - osx
@@ -12,11 +21,35 @@ env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
 
+
+install:
+  - yarn install
+
+  # FIXME: Flow throws error for optional dependencies
+  # missing from node_modules on unsupported platforms
+  # see: https://github.com/facebook/flow/issues/4171
+  - NSEVENTMON_INDEX_JS=node_modules/nseventmonitor/index.js;
+    if [ ! -f $NSEVENTMON_INDEX_JS ]; then
+      echo "Installing a stub for NSEventMonitor..";
+      mkdir -p `dirname $NSEVENTMON_INDEX_JS`;
+      echo "module.exports = {};" > $NSEVENTMON_INDEX_JS;
+    fi
+
 before_script:
+  # Frontend
+  - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
+
+  # Backend
   - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
   - env
 
 script:
+  # Frontend
+  - yarn run lint
+  - yarn run flow
+  - yarn test
+
+  # Backend
   - cargo build --verbose
   - cargo test --verbose
   # Format only on nightly, since that is where rustfmt-nightly compiles
