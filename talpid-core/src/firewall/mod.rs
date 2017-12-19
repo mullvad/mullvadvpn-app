@@ -36,10 +36,18 @@ error_chain!{
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum SecurityPolicy {
     /// Allow traffic only to relay server
-    Connecting(Endpoint),
+    Connecting {
+        /// The relay endpoint that should be allowed.
+        relay_endpoint: Endpoint,
+    },
 
     /// Allow traffic only to relay server and over tunnel interface
-    Connected(Endpoint, ::tunnel::TunnelMetadata),
+    Connected {
+        /// The relay endpoint that should be allowed.
+        relay_endpoint: Endpoint,
+        /// Metadata about the tunnel and tunnel interface.
+        tunnel: ::tunnel::TunnelMetadata,
+    },
 }
 
 /// Abstract firewall interaction trait

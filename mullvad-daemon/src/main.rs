@@ -669,10 +669,13 @@ impl Daemon {
 
     fn set_security_policy(&mut self) -> Result<()> {
         let policy = match (self.tunnel_endpoint, self.tunnel_metadata.as_ref()) {
-            (Some(relay), None) => SecurityPolicy::Connecting(relay.to_endpoint()),
-            (Some(relay), Some(tunnel_metadata)) => {
-                SecurityPolicy::Connected(relay.to_endpoint(), tunnel_metadata.clone())
-            }
+            (Some(relay), None) => SecurityPolicy::Connecting {
+                relay_endpoint: relay.to_endpoint(),
+            },
+            (Some(relay), Some(tunnel_metadata)) => SecurityPolicy::Connected {
+                relay_endpoint: relay.to_endpoint(),
+                tunnel: tunnel_metadata.clone(),
+            },
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);
