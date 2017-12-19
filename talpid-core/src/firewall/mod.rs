@@ -18,7 +18,6 @@ pub mod windows;
 #[cfg(windows)]
 use self::windows as imp;
 
-
 error_chain!{
     errors {
         /// Initialization error
@@ -39,6 +38,8 @@ pub enum SecurityPolicy {
     Connecting {
         /// The relay endpoint that should be allowed.
         relay_endpoint: Endpoint,
+        /// Flag setting if communication with LAN networks should be possible.
+        allow_lan: bool,
     },
 
     /// Allow traffic only to relay server and over tunnel interface
@@ -47,6 +48,8 @@ pub enum SecurityPolicy {
         relay_endpoint: Endpoint,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: ::tunnel::TunnelMetadata,
+        /// Flag setting if communication with LAN networks should be possible.
+        allow_lan: bool,
     },
 }
 
