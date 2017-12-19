@@ -86,12 +86,6 @@ export default class SelectLocation extends Component {
     );
   }
 
-  _onSelect(location: RelayLocation) {
-    if (!this._isSelected(location)) {
-      this.props.onSelect(location);
-    }
-  }
-
   _isSelected(selectedLocation: RelayLocation) {
     const { relaySettings } = this.props.settings;
     if(relaySettings.normal) {
@@ -142,7 +136,10 @@ export default class SelectLocation extends Component {
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
 
-    const handleSelect = () => this._onSelect({ country: relayCountry.code });
+    const handleSelect = (countryHasActiveRelays && !isSelected) ? () => {
+      this.props.onSelect({ country: relayCountry.code });
+    } : undefined;
+
     const handleCollapse = (e) => {
       this._toggleCollapse(relayCountry.code);
       e.stopPropagation();
@@ -191,13 +188,16 @@ export default class SelectLocation extends Component {
   _renderCity(countryCode: string, relayCity: RelayListCity) {
     const relayLocation: RelayLocation = { city: [countryCode, relayCity.code] };
 
-    const handleSelect = () => this._onSelect(relayLocation);
-
     const isSelected = this._isSelected(relayLocation);
+    const cityHasActiveRelays = relayCity.has_active_relays;
     const key = countryCode + '_' + relayCity.code;
 
     const cityClass = 'select-location__sub-cell ' +
       (isSelected ? 'select-location__sub-cell--selected' : '');
+
+    const handleSelect = (cityHasActiveRelays && !isSelected) ? () => {
+      this.props.onSelect(relayLocation);
+    } : undefined;
 
     const onRef = isSelected ? (element) => {
       this._selectedCell = element;
@@ -212,7 +212,7 @@ export default class SelectLocation extends Component {
         <div className="select-location__cell-icon">
           { isSelected ?
             <TickSVG /> :
-            this._relayStatusIndicator(relayCity.has_active_relays) }
+            this._relayStatusIndicator(cityHasActiveRelays) }
         </div>
 
         <div className="select-location__cell-label">{ relayCity.name }</div>
