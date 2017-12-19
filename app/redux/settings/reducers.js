@@ -17,8 +17,23 @@ export type RelaySettingsRedux = {|
   }
 |};
 
+export type RelayLocationCityRedux = {
+  name: string,
+  code: string,
+  position: [number, number],
+  hasActiveRelays: boolean,
+};
+
+export type RelayLocationRedux = {
+  name: string,
+  code: string,
+  hasActiveRelays: boolean,
+  cities: Array<RelayLocationCityRedux>,
+};
+
 export type SettingsReduxState = {
-  relaySettings: RelaySettingsRedux
+  relaySettings: RelaySettingsRedux,
+  relayLocations: Array<RelayLocationRedux>,
 };
 
 const initialState: SettingsReduxState = {
@@ -29,15 +44,23 @@ const initialState: SettingsReduxState = {
       protocol: 'any',
     }
   },
+  relayLocations: [],
 };
 
 export default function(state: SettingsReduxState = initialState, action: ReduxAction): SettingsReduxState {
 
-  if (action.type === 'UPDATE_RELAY') {
+  switch(action.type) {
+  case 'UPDATE_RELAY':
     return { ...state,
       relaySettings: action.relay,
     };
-  }
 
-  return state;
+  case 'UPDATE_RELAY_LOCATIONS':
+    return { ...state,
+      relayLocations: action.relayLocations,
+    };
+
+  default:
+    return state;
+  }
 }

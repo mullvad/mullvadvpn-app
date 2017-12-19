@@ -14,7 +14,7 @@ describe('components/Connect', () => {
   it('shows unsecured hints when disconnected', () => {
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'disconnected',
       }
     });
@@ -31,7 +31,7 @@ describe('components/Connect', () => {
   it('shows secured hints when connected', () => {
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'connected',
       }
     });
@@ -48,7 +48,7 @@ describe('components/Connect', () => {
   it('shows the connection location when connecting', () => {
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'connecting',
         country: 'Norway',
         city: 'Oslo',
@@ -65,7 +65,7 @@ describe('components/Connect', () => {
   it('shows the connection location when connected', () => {
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'connected',
         country: 'Norway',
         city: 'Oslo',
@@ -83,7 +83,7 @@ describe('components/Connect', () => {
   it('shows the connection location when disconnected', () => {
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'disconnected',
         country: 'Norway',
         city: 'Oslo',
@@ -99,22 +99,13 @@ describe('components/Connect', () => {
   });
 
   it('shows the country name in the location switcher', () => {
-    const servers = [{
-      address: '1.2.3.4',
-      name: 'Sweden - Malmö',
-      city: 'Malmö',
-      country: 'Sweden',
-      country_code: 'se',
-      city_code: 'mma',
-      location: [0, 0]
-    }];
-
     const component = renderWithProps({
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'disconnected',
       },
       settings: {
+        ...defaultProps.settings,
         relaySettings: {
           normal: {
             location: { city: ['se', 'mma'] },
@@ -123,27 +114,17 @@ describe('components/Connect', () => {
           }
         },
       },
-      getServerInfo: (location) => {
-        return servers.find((server) => {
-          if(location.city) {
-            const [country_code, city_code] = location.city;
-            return (server.city_code === city_code &&
-              server.country_code === country_code);
-          }
-          return false;
-        });
-      },
     });
 
     const locationSwitcher = component.find('.connect__server');
-    expect(locationSwitcher.text()).to.contain(servers[0].name);
+    expect(locationSwitcher.text()).to.contain('Malmö');
   });
 
   it('invokes the onConnect prop', (done) => {
     const component = renderWithProps({
       onConnect: () => done(),
       connection: {
-        ...defaultConnection,
+        ...defaultProps.connection,
         status: 'disconnected',
       }
     });
@@ -153,16 +134,6 @@ describe('components/Connect', () => {
   });
 });
 
-
-const defaultConnection = {
-  status: 'disconnected',
-  isOnline: true,
-  clientIp: null,
-  location: null,
-  country: null,
-  city: null,
-};
-
 const defaultProps: ConnectProps = {
   onSettings: () => {},
   onSelectLocation: () => {},
@@ -170,7 +141,6 @@ const defaultProps: ConnectProps = {
   onCopyIP: () => {},
   onDisconnect: () => {},
   onExternalLink: () => {},
-  getServerInfo: _ => null,
   accountExpiry: '',
   settings: {
     relaySettings: {
@@ -180,8 +150,26 @@ const defaultProps: ConnectProps = {
         port: 'any',
       }
     },
+    relayLocations: [{
+      name: 'Sweden',
+      code: 'se',
+      hasActiveRelays: true,
+      cities: [{
+        name: 'Malmö',
+        code: 'mma',
+        hasActiveRelays: true,
+        position: [0, 0],
+      }]
+    }],
   },
-  connection: defaultConnection,
+  connection: {
+    status: 'disconnected',
+    isOnline: true,
+    clientIp: null,
+    location: null,
+    country: null,
+    city: null,
+  },
 };
 
 function renderWithProps(customProps: $Shape<ConnectProps>) {

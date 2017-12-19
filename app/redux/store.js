@@ -26,10 +26,7 @@ export type ReduxState = {
   settings: SettingsReduxState
 };
 
-export type ReduxAction = AccountAction
-                          | SettingsAction
-                          | ConnectionAction;
-
+export type ReduxAction = AccountAction | SettingsAction | ConnectionAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
 export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;

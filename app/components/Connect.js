@@ -5,9 +5,10 @@ import React, { Component } from 'react';
 import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
-import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
-import type { ServerInfo } from '../lib/backend';
+import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+import ChevronRightSVG from '../assets/images/icon-chevron.svg';
+
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { SettingsReduxState } from '../redux/settings/reducers';
@@ -23,7 +24,6 @@ export type ConnectProps = {
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
-  getServerInfo: (relayLocation: RelayLocation) => ?ServerInfo
 };
 
 
@@ -94,45 +94,45 @@ export default class Connect extends Component {
     );
   }
 
-  _getServerInfo(): ServerInfo {
+  _findRelayName(relay: RelayLocation): ?string {
+    const countries = this.props.settings.relayLocations;
+    const countryPredicate = (countryCode) => (country) => country.code === countryCode;
+
+    if(relay.country) {
+      const country = countries.find(countryPredicate(relay.country));
+      if(country) {
+        return country.name;
+      }
+    } else if(relay.city) {
+      const [countryCode, cityCode] = relay.city;
+      const country = countries.find(countryPredicate(countryCode));
+      if(country) {
+        const city = country.cities.find((city) => city.code === cityCode);
+        if(city) {
+          return city.name;
+        }
+      }
+    }
+    return null;
+  }
+
+  _getLocationName(): string {
     const { relaySettings } = this.props.settings;
     if(relaySettings.normal) {
       const location = relaySettings.normal.location;
       if(location === 'any') {
-        return {
-          address: '',
-          name: 'Automatic',
-          country: 'Automatic',
-          city: 'Automatic',
-          country_code: 'any',
-          city_code: 'any',
-          location: [0, 0],
-        };
+        return 'Automatic';
       } else {
-        const serverInfo = this.props.getServerInfo(location);
-        if(!serverInfo) {
-          throw new Error('Server info is not available for: ' + JSON.stringify(location));
-        }
-        return serverInfo;
+        return this._findRelayName(location) || 'Unknown';
       }
     } else if(relaySettings.custom_tunnel_endpoint) {
-      return {
-        address: relaySettings.custom_tunnel_endpoint.host,
-        name: 'Custom',
-        country: 'Custom',
-        city: '',
-        country_code: 'auto',
-        city_code: 'auto',
-        location: [0, 0],
-      };
+      return 'Custom';
     } else {
       throw new Error('Unsupported relay settings.');
     }
   }
 
   renderMap(): React.Element<*> {
-    const serverInfo = this._getServerInfo();
-
     let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
@@ -241,15 +241,10 @@ export default class Connect extends Component {
             <Then>
               <div className="connect__footer">
                 <div className="connect__row">
-
-                  <div className="connect__server" onClick={ this.props.onSelectLocation }>
-                    <div className="connect__server-label">Connect to</div>
-                    <div className="connect__server-value">
-
-                      <div className="connect__server-name">{ serverInfo.name }</div>
-
-                    </div>
-                  </div>
+                  <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
+                    <div className="connect__server-label">{ this._getLocationName() }</div>
+                    <div className="connect__server-chevron"><ChevronRightSVG /></div>
+                  </button>
                 </div>
 
                 <div className="connect__row">

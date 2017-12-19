@@ -1,7 +1,7 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, arrayOf, number, enumeration, oneOf } from 'validated/schema';
+import { object, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
 
 import type { Coordinate2d } from '../types';
@@ -108,6 +108,36 @@ const RelaySettingsSchema = oneOf(
   })
 );
 
+export type RelayList = {
+  countries: Array<RelayListCountry>,
+};
+
+export type RelayListCountry = {
+  name: string,
+  code: string,
+  cities: Array<RelayListCity>,
+};
+
+export type RelayListCity = {
+  name: string,
+  code: string,
+  position: [number, number],
+  has_active_relays: boolean,
+};
+
+const RelayListSchema = object({
+  countries: arrayOf(object({
+    name: string,
+    code: string,
+    cities: arrayOf(object({
+      name: string,
+      code: string,
+      position: arrayOf(number),
+      has_active_relays: boolean,
+    })),
+  })),
+});
+
 
 export interface IpcFacade {
   setConnectionString(string): void,
@@ -116,6 +146,7 @@ export interface IpcFacade {
   setAccount(accountToken: ?AccountToken): Promise<void>,
   updateRelaySettings(RelaySettingsUpdate): Promise<void>,
   getRelaySettings(): Promise<RelaySettings>,
+  getRelayLocations(): Promise<RelayList>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
@@ -190,6 +221,16 @@ export class RealIpc implements IpcFacade {
           throw new InvalidReply(raw, e);
         }
       });
+  }
+
+  async getRelayLocations(): Promise<RelayList> {
+    const raw = await this._ipc.send('get_relay_locations');
+    try {
+      const validated: any = validate(RelayListSchema, raw);
+      return (validated: RelayList);
+    } catch (e) {
+      throw new InvalidReply(raw, e);
+    }
   }
 
   connect(): Promise<void> {

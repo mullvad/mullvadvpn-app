@@ -57,6 +57,7 @@
 .settings__cell-disclosure {
   display: block;
   margin-left: 8px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settings__cell-spacer {
@@ -88,27 +89,11 @@
 .settings__cell-icon {
   width: 16px;
   flex: 0 0 auto;
-  margin-right: 8px;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .settings__cell-value {
   flex: 0 0 auto;
-}
-
-.settings__sub-cell {
-  background-color: rgb(36, 57, 84);
-}
-.settings__sub-cell:hover {
-  background-color: rgba(41,71,115,0.9);
-}
-
-.settings__sub-cell--label {
-  padding-left: 15px;
-}
-
-.settings__sub-cell--label img {
-  padding-right: 8px;
 }
 
 .settings__account-paid-until-label {

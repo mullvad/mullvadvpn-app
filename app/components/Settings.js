@@ -5,6 +5,9 @@ import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
+import ChevronRightSVG from '../assets/images/icon-chevron.svg';
+import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+
 import type { AccountReduxState } from '../redux/account/reducers';
 import type { SettingsReduxState } from '../redux/settings/reducers';
 
@@ -65,7 +68,7 @@ export default class Settings extends Component {
                                 </Else>
                               </If>
                             </div>
-                            <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
+                            <div className="settings__cell-disclosure"><ChevronRightSVG /></div>
                           </div>
                           <div className="settings__cell-spacer"></div>
                         </div>
@@ -78,7 +81,7 @@ export default class Settings extends Component {
                           <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAdvancedSettings }>
                             <div className="settings__cell-label">Advanced</div>
                             <div className="settings__cell-value">
-                              <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
+                              <div className="settings__cell-disclosure"><ChevronRightSVG /></div>
                             </div>
                           </div>
                           <div className="settings__cell-spacer"></div>
@@ -89,15 +92,15 @@ export default class Settings extends Component {
                     <div className="settings__external">
                       <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'faq') }>
                         <div className="settings__cell-label">FAQs</div>
-                        <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
+                        <div className="settings__cell-icon"><ExternalLinkSVG /></div>
                       </div>
                       <div className="settings__cell settings__cell--active" onClick={ this.props.onExternalLink.bind(this, 'guides') }>
                         <div className="settings__cell-label">Guides</div>
-                        <img className="settings__cell-icon" src="./assets/images/icon-extLink.svg" />
+                        <div className="settings__cell-icon"><ExternalLinkSVG /></div>
                       </div>
                       <div className="settings__view-support settings__cell settings__cell--active" onClick={ this.props.onViewSupport }>
                         <div className="settings__cell-label">Report a problem</div>
-                        <img className="settings__cell-disclosure" src="assets/images/icon-chevron.svg" />
+                        <div className="settings__cell-disclosure"><ChevronRightSVG /></div>
                       </div>
                     </div>
                   </div>

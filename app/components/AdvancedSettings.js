@@ -4,6 +4,8 @@ import React from 'react';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
+import TickSVG from '../assets/images/icon-tick.svg';
+
 export class AdvancedSettings extends React.Component {
 
   props: {
@@ -68,8 +70,8 @@ class Selector extends React.Component {
 
   render() {
     return <div>
-      <div className="settings__cell">
-        <div className="settings__cell-label">{ this.props.title }</div>
+      <div className="advanced-settings__section-title">
+        { this.props.title }
       </div>
 
       { this.props.values.map(value => this._renderCell(value)) }
@@ -86,31 +88,22 @@ class Selector extends React.Component {
   }
 
   _renderSelectedCell(value) {
-    const onCellClick = () => this.props.onSelect(value);
-
     return <div
       key={ value }
-      className={ 'settings__cell--selected settings__cell' }
-      onClick={ onCellClick } >
-      <div className="settings__cell-label">
-        <div className={ 'settings__sub-cell--label' }>
-          <img src='./assets/images/icon-tick.svg' />
-          { value }
-        </div>
-      </div>
+      className="advanced-settings__cell advanced-settings__cell--selected"
+      onClick={ () => this.props.onSelect(value) } >
+      <div className="advanced-settings__cell-icon"><TickSVG /></div>
+      <div className="advanced-settings__cell-label">{ value }</div>
     </div>;
   }
 
   _renderUnselectedCell(value) {
-    const onCellClick = () => this.props.onSelect(value);
-
     return <div
       key={ value }
-      className={ 'settings__cell settings__sub-cell' }
-      onClick={ onCellClick } >
-      <div className="settings__cell-label">
-        <div className="settings__sub-cell--label">{ value }</div>
-      </div>
+      className="advanced-settings__cell advanced-settings__cell--dimmed"
+      onClick={ () => this.props.onSelect(value) }>
+      <div className="advanced-settings__cell-icon"></div>
+      <div className="advanced-settings__cell-label">{ value }</div>
     </div>;
   }
 }
@@ -131,9 +124,7 @@ function BaseLayout(props) {
           <CustomScrollbars autoHide={ true }>
             <div className="settings__content">
               <div className="settings__main">
-                <div className="settings__advanced">
-                  { props.children }
-                </div>
+                { props.children }
               </div>
             </div>
           </CustomScrollbars>
