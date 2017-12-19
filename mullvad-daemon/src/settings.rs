@@ -35,21 +35,22 @@ static SETTINGS_FILE: &str = "settings.json";
 pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
+    /// If the app should allow communication with private (LAN) networks.
+    allow_lan: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        DEFAULT_SETTINGS
+        Settings {
+            account_token: None,
+            relay_settings: RelaySettings::Normal(RelayConstraints {
+                location: Constraint::Any,
+                tunnel: Constraint::Any,
+            }),
+            allow_lan: false,
+        }
     }
 }
-
-const DEFAULT_SETTINGS: Settings = Settings {
-    account_token: None,
-    relay_settings: RelaySettings::Normal(RelayConstraints {
-        location: Constraint::Any,
-        tunnel: Constraint::Any,
-    }),
-};
 
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
@@ -65,7 +66,7 @@ impl Settings {
                     "No settings file at {}, using defaults",
                     settings_path.to_string_lossy()
                 );
-                Ok(DEFAULT_SETTINGS)
+                Ok(Settings::default())
             }
             Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(settings_path)),
         }
@@ -130,6 +131,19 @@ impl Settings {
             );
 
             self.relay_settings = new_settings;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_allow_lan(&self) -> bool {
+        self.allow_lan
+    }
+
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
+        if allow_lan != self.allow_lan {
+            self.allow_lan = allow_lan;
             self.save().map(|_| true)
         } else {
             Ok(false)
