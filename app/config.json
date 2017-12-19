@@ -1,0 +1,220 @@
+{
+  "mapbox": {
+    "accessToken": "pk.eyJ1IjoibWpob21lciIsImEiOiJjaXd3NmdmNHEwMGtvMnlvMGl3b3R5aGcwIn0.SqIPBcCP6-b9yjxCD32CNg",
+    "styleURL": "mapbox://styles/mjhomer/cizjoenga006f2smnm9z52u8e"
+  },
+  "links": {
+    "createAccount": "https://mullvad.net/account/create/",
+    "purchase": "https://mullvad.net/account/",
+    "faq": "https://mullvad.net/faq/",
+    "guides": "https://mullvad.net/guides/",
+    "supportEmail": "mailto:support@mullvad.net"
+  },
+  "defaultServer": "193.138.219.226",
+  "servers": {
+    "168.1.6.5": {
+      "address": "168.1.6.5",
+      "name": "Australia",
+      "city": "Sydney",
+      "country": "Australia"
+    },
+    "217.64.127.138": {
+      "address": "217.64.127.138",
+      "name": "Austria",
+      "city": "Wien",
+      "country": "Austria"
+    },
+    "185.104.186.202": {
+      "address": "185.104.186.202",
+      "name": "Belgium",
+      "city": "Brussels",
+      "country": "Belgium"
+    },
+    "185.94.192.42": {
+      "address": "185.94.192.42",
+      "name": "Bulgaria",
+      "city": "Sofia",
+      "country": "Bulgaria"
+    },
+    "162.219.176.250": {
+      "address": "162.219.176.250",
+      "name": "Canada",
+      "city": "Toronto",
+      "country": "Canada",
+      "location": [
+        45.42153,
+        -75.697193
+      ]
+    },
+    "185.156.174.146": {
+      "address": "185.156.174.146",
+      "name": "Czech Republic",
+      "city": "Prague",
+      "country": "Czech Republic"
+    },
+    "82.103.140.213": {
+      "address": "82.103.140.213",
+      "name": "Denmark",
+      "city": "Copenhagen",
+      "country": "Denmark",
+      "location": [
+        55.6760968,
+        12.5683371
+      ]
+    },
+    "185.103.110.69": {
+      "address": "185.103.110.69",
+      "name": "Finland",
+      "city": "Helsinki",
+      "country": "Finland"
+    },
+    "185.156.173.218": {
+      "address": "185.156.173.218",
+      "name": "France",
+      "city": "Paris",
+      "country": "France"
+    },
+    "185.104.184.178": {
+      "address": "185.104.184.178",
+      "name": "Germany",
+      "city": "Berlin",
+      "country": "Germany",
+      "location": [
+        52.52000659999999,
+        13.404954
+      ]
+    },
+    "161.202.48.245": {
+      "address": "161.202.48.245",
+      "name": "Hong Kong",
+      "city": "Hong Kong",
+      "country": "Hong Kong"
+    },
+    "185.189.114.10": {
+      "address": "185.189.114.10",
+      "name": "Hungary",
+      "city": "Budapest",
+      "country": "Hungary"
+    },
+    "213.184.122.34": {
+      "address": "213.184.122.34",
+      "name": "Israel",
+      "city": "Petach-Tikva",
+      "country": "Israel"
+    },
+    "217.64.113.180": {
+      "address": "217.64.113.180",
+      "name": "Italy",
+      "city": "Milan",
+      "country": "Italy"
+    },
+    "161.202.144.203": {
+      "address": "161.202.144.203",
+      "name": "Japan",
+      "city": "Tokyo",
+      "country": "Japan"
+    },
+    "185.65.134.140": {
+      "address": "185.65.134.140",
+      "name": "Netherlands",
+      "city": "Amsterdam",
+      "country": "Netherlands",
+      "location": [
+        52.3702157,
+        4.895167900000001
+      ]
+    },
+    "31.169.51.154": {
+      "address": "31.169.51.154",
+      "name": "Norway",
+      "city": "Oslo",
+      "country": "Norway",
+      "location": [
+        59.9138688,
+        10.7522454
+      ]
+    },
+    "212.7.217.30": {
+      "address": "212.7.217.30",
+      "name": "Poland",
+      "city": "Warsaw",
+      "country": "Poland"
+    },
+    "185.45.13.10": {
+      "address": "185.45.13.10",
+      "name": "Romania",
+      "city": "Bucharest",
+      "country": "Romania",
+      "location": [
+        44.4267674,
+        26.1025384
+      ]
+    },
+    "103.57.72.30": {
+      "address": "103.57.72.30",
+      "name": "Singapore",
+      "city": "Singapore",
+      "country": "Singapore",
+      "location": [
+        1.352083,
+        103.819836
+      ]
+    },
+    "89.238.178.34": {
+      "address": "89.238.178.34",
+      "name": "Spain",
+      "city": "Madrid",
+      "country": "Spain",
+      "location": [
+        40.4167754,
+        -3.7037902
+      ]
+    },
+    "185.65.132.108": {
+      "address": "185.65.132.108",
+      "name": "Sweden - Helsingborg",
+      "city": "Helsingborg",
+      "country": "Sweden"
+    },
+    "193.138.219.226": {
+      "address": "193.138.219.226",
+      "name": "Sweden - Malmö",
+      "city": "Malmö",
+      "country": "Sweden"
+    },
+    "185.65.135.73": {
+      "address": "185.65.135.73",
+      "name": "Sweden - Stockholm",
+      "city": "Stockholm",
+      "country": "Sweden"
+    },
+    "179.43.128.170": {
+      "address": "179.43.128.170",
+      "name": "Switzerland",
+      "city": "Zürich",
+      "country": "Switzerland"
+    },
+    "185.16.85.170": {
+      "address": "185.16.85.170",
+      "name": "United Kingdom",
+      "city": "London",
+      "country": "United Kingdom",
+      "location": [
+        51.5073509,
+        -0.1277583
+      ]
+    },
+    "173.199.80.130": {
+      "address": "173.199.80.130",
+      "name": "USA - Los Angeles",
+      "city": "Los Angeles",
+      "country": "USA"
+    },
+    "38.132.107.138": {
+      "address": "38.132.107.138",
+      "name": "USA - New York",
+      "city": "New York",
+      "country": "USA"
+    }
+  }
+}
