@@ -145,8 +145,9 @@ export default class SelectLocation extends Component {
       e.stopPropagation();
     };
 
-    const countryClass = 'select-location__cell ' +
-      (isSelected ? 'select-location__cell--selected' : '');
+    const countryClass = 'select-location__cell' +
+      (isSelected ? ' select-location__cell--selected' : '') +
+      (countryHasActiveRelays ? ' select-location__cell--selectable' : '');
 
     const onRef = isSelected ? (element) => {
       this._selectedCell = element;
@@ -192,8 +193,9 @@ export default class SelectLocation extends Component {
     const cityHasActiveRelays = relayCity.has_active_relays;
     const key = countryCode + '_' + relayCity.code;
 
-    const cityClass = 'select-location__sub-cell ' +
-      (isSelected ? 'select-location__sub-cell--selected' : '');
+    const cityClass = 'select-location__sub-cell' +
+      (isSelected ? ' select-location__sub-cell--selected' : '') +
+      (cityHasActiveRelays ? ' select-location__sub-cell--selectable' : '');
 
     const handleSelect = (cityHasActiveRelays && !isSelected) ? () => {
       this.props.onSelect(relayLocation);

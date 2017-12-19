@@ -63,7 +63,7 @@
   align-items: center;
 }
 
-.select-location__cell:hover {
+.select-location__cell--selectable:hover {
   background-color:rgba(41,71,115,0.9);
 }
 
@@ -118,7 +118,7 @@
   margin-top: 1px;
 }
 
-.select-location__sub-cell:hover {
+.select-location__sub-cell--selectable:hover {
   background-color: rgba(41,71,115,0.9);
 }
 
