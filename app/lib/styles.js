@@ -9,9 +9,9 @@ export function createViewStyles(styles: { [string]: Object }) {
 }
 
 export function createTextStyles(styles: { [string]: Object }) {
-  const viewStyles = {};
+  const textStyles = {};
   for (const style of Object.keys(styles)) {
-    viewStyles[style] = Styles.createTextStyle(styles[style]);
+    textStyles[style] = Styles.createTextStyle(styles[style]);
   }
-  return viewStyles;
+  return textStyles;
 }
