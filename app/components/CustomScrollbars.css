@@ -19,4 +19,11 @@
   width: 8px;
   transition: height 0.25s ease-in-out, opacity 0.25s ease-in-out;
   pointer-events: none;
+  opacity: 0;
+}
+
+.custom-scrollbars__thumb--visible {
+  /* thumb appears without animation */
+  transition: height 0.25s ease-in-out;
+  opacity: 1;
 }
