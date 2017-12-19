@@ -84,6 +84,10 @@
   color: #FFFFFF;
 }
 
+.select-location__cell-label--inactive {
+  color: rgba(255, 255, 255, 0.2);
+}
+
 .select-location__cell-icon {
   width: 24px;
   height: 24px;

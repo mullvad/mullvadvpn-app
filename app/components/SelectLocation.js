@@ -166,7 +166,10 @@ export default class SelectLocation extends Component {
                 this._relayStatusIndicator(countryHasActiveRelays) }
             </div>
 
-            <div className="select-location__cell-label">{ relayCountry.name }</div>
+            <div className={ 'select-location__cell-label' +
+              (countryHasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
+              { relayCountry.name }
+            </div>
           </div>
 
           { countryHasActiveRelays && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
@@ -217,7 +220,10 @@ export default class SelectLocation extends Component {
             this._relayStatusIndicator(cityHasActiveRelays) }
         </div>
 
-        <div className="select-location__cell-label">{ relayCity.name }</div>
+        <div className={ 'select-location__cell-label' +
+          (cityHasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
+          { relayCity.name }
+        </div>
       </div>
     );
   }
