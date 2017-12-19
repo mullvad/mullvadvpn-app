@@ -1,6 +1,6 @@
 // @flow
 
-import type { RelaySettingsRedux, RelayLocationsRedux } from './reducers';
+import type { RelaySettingsRedux, RelayLocationRedux } from './reducers';
 
 export type UpdateRelayAction = {
   type: 'UPDATE_RELAY',
@@ -9,7 +9,7 @@ export type UpdateRelayAction = {
 
 export type UpdateRelayLocationsAction = {
   type: 'UPDATE_RELAY_LOCATIONS',
-  relayLocations: RelayLocationsRedux
+  relayLocations: Array<RelayLocationRedux>
 }
 
 export type SettingsAction = UpdateRelayAction | UpdateRelayLocationsAction;
@@ -21,7 +21,7 @@ function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   };
 }
 
-function updateRelayLocations(relayLocations: RelayLocationsRedux): UpdateRelayLocationsAction {
+function updateRelayLocations(relayLocations: Array<RelayLocationRedux>): UpdateRelayLocationsAction {
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
     relayLocations: relayLocations,

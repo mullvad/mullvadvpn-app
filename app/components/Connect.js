@@ -95,7 +95,7 @@ export default class Connect extends Component {
   }
 
   _findRelayName(relay: RelayLocation): ?string {
-    const { countries } = this.props.settings.relayLocations;
+    const countries = this.props.settings.relayLocations;
     const countryPredicate = (countryCode) => (country) => country.code === countryCode;
 
     if(relay.country) {

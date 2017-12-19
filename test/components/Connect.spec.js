@@ -150,18 +150,17 @@ const defaultProps: ConnectProps = {
         port: 'any',
       }
     },
-    relayLocations: {
-      countries: [{
-        name: 'Sweden',
-        code: 'se',
-        cities: [{
-          name: 'Malmö',
-          code: 'mma',
-          has_active_relays: true,
-          position: [0, 0],
-        }]
-      }],
-    },
+    relayLocations: [{
+      name: 'Sweden',
+      code: 'se',
+      hasActiveRelays: true,
+      cities: [{
+        name: 'Malmö',
+        code: 'mma',
+        hasActiveRelays: true,
+        position: [0, 0],
+      }]
+    }],
   },
   connection: {
     status: 'disconnected',

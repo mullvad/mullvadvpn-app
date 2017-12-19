@@ -17,18 +17,17 @@ describe('components/SelectLocation', () => {
         port: 'any',
       }
     },
-    relayLocations: {
-      countries: [{
-        name: 'Sweden',
-        code: 'se',
-        cities: [{
-          name: 'Malmö',
-          code: 'mma',
-          position: [0, 0],
-          has_active_relays: true,
-        }],
+    relayLocations: [{
+      name: 'Sweden',
+      code: 'se',
+      hasActiveRelays: true,
+      cities: [{
+        name: 'Malmö',
+        code: 'mma',
+        position: [0, 0],
+        hasActiveRelays: true,
       }],
-    },
+    }],
   };
 
   const makeProps = (state: SettingsReduxState, mergeProps: $Shape<SelectLocationProps>): SelectLocationProps => {

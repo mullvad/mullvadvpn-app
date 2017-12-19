@@ -8,8 +8,8 @@ import ChevronDownSVG from '../assets/images/icon-chevron-down.svg';
 import ChevronUpSVG from '../assets/images/icon-chevron-up.svg';
 import TickSVG from '../assets/images/icon-tick.svg';
 
-import type { SettingsReduxState } from '../redux/settings/reducers';
-import type { RelayLocation, RelayListCity, RelayListCountry } from '../lib/ipc-facade';
+import type { SettingsReduxState, RelayLocationRedux, RelayLocationCityRedux } from '../redux/settings/reducers';
+import type { RelayLocation } from '../lib/ipc-facade';
 
 export type SelectLocationProps = {
   settings: SettingsReduxState,
@@ -73,7 +73,7 @@ export default class SelectLocation extends Component {
                     While connected, your real location is masked with a private and secure location in the selected region
                   </div>
 
-                  { this.props.settings.relayLocations.countries.map((relayCountry) => {
+                  { this.props.settings.relayLocations.map((relayCountry) => {
                     return this._renderCountry(relayCountry);
                   }) }
 
@@ -126,17 +126,13 @@ export default class SelectLocation extends Component {
     return (<div className={ 'select-location-relay-status ' + statusClass }></div>);
   }
 
-  _renderCountry(relayCountry: RelayListCountry) {
-    const countryHasActiveRelays = relayCountry.cities.some((relayCity) => {
-      return relayCity.has_active_relays;
-    });
-
+  _renderCountry(relayCountry: RelayLocationRedux) {
     const isSelected = this._isSelected({ country: relayCountry.code });
 
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
 
-    const handleSelect = (countryHasActiveRelays && !isSelected) ? () => {
+    const handleSelect = (relayCountry.hasActiveRelays && !isSelected) ? () => {
       this.props.onSelect({ country: relayCountry.code });
     } : undefined;
 
@@ -147,7 +143,7 @@ export default class SelectLocation extends Component {
 
     const countryClass = 'select-location__cell' +
       (isSelected ? ' select-location__cell--selected' : '') +
-      (countryHasActiveRelays ? ' select-location__cell--selectable' : '');
+      (relayCountry.hasActiveRelays ? ' select-location__cell--selectable' : '');
 
     const onRef = isSelected ? (element) => {
       this._selectedCell = element;
@@ -163,16 +159,16 @@ export default class SelectLocation extends Component {
             <div className="select-location__cell-icon">
               { isSelected ?
                 <TickSVG /> :
-                this._relayStatusIndicator(countryHasActiveRelays) }
+                this._relayStatusIndicator(relayCountry.hasActiveRelays) }
             </div>
 
             <div className={ 'select-location__cell-label' +
-              (countryHasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
+              (relayCountry.hasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
               { relayCountry.name }
             </div>
           </div>
 
-          { countryHasActiveRelays && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
+          { relayCountry.hasActiveRelays && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
             { isExpanded ?
               <ChevronUpSVG className="select-location__collapse-icon" /> :
               <ChevronDownSVG className="select-location__collapse-icon" /> }
@@ -180,7 +176,7 @@ export default class SelectLocation extends Component {
 
         </div>
 
-        { countryHasActiveRelays && relayCountry.cities.length > 0 &&
+        { relayCountry.hasActiveRelays && relayCountry.cities.length > 0 &&
           (<Accordion className="select-location__cities" height={ isExpanded ? 'auto' : 0 }>
             { relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity)) }
           </Accordion>)
@@ -189,18 +185,16 @@ export default class SelectLocation extends Component {
     );
   }
 
-  _renderCity(countryCode: string, relayCity: RelayListCity) {
+  _renderCity(countryCode: string, relayCity: RelayLocationCityRedux) {
     const relayLocation: RelayLocation = { city: [countryCode, relayCity.code] };
 
     const isSelected = this._isSelected(relayLocation);
-    const cityHasActiveRelays = relayCity.has_active_relays;
-    const key = countryCode + '_' + relayCity.code;
 
     const cityClass = 'select-location__sub-cell' +
       (isSelected ? ' select-location__sub-cell--selected' : '') +
-      (cityHasActiveRelays ? ' select-location__sub-cell--selectable' : '');
+      (relayCity.hasActiveRelays ? ' select-location__sub-cell--selectable' : '');
 
-    const handleSelect = (cityHasActiveRelays && !isSelected) ? () => {
+    const handleSelect = (relayCity.hasActiveRelays && !isSelected) ? () => {
       this.props.onSelect(relayLocation);
     } : undefined;
 
@@ -209,7 +203,7 @@ export default class SelectLocation extends Component {
     } : undefined;
 
     return (
-      <div key={ key }
+      <div key={ `${countryCode}_${relayCity.code}` }
         className={ cityClass }
         onClick={ handleSelect }
         ref={ onRef }>
@@ -217,11 +211,11 @@ export default class SelectLocation extends Component {
         <div className="select-location__cell-icon">
           { isSelected ?
             <TickSVG /> :
-            this._relayStatusIndicator(cityHasActiveRelays) }
+            this._relayStatusIndicator(relayCity.hasActiveRelays) }
         </div>
 
         <div className={ 'select-location__cell-label' +
-          (cityHasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
+          (relayCity.hasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
           { relayCity.name }
         </div>
       </div>

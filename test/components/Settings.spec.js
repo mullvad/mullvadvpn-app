@@ -42,9 +42,7 @@ describe('components/Settings', () => {
         port: 1301,
       },
     },
-    relayLocations: {
-      countries: [],
-    },
+    relayLocations: [],
   };
 
   const makeProps = (anAccountState: AccountReduxState, aSettingsState: SettingsReduxState, mergeProps: $Shape<SettingsProps> = {}): SettingsProps => {

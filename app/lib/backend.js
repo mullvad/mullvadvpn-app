@@ -121,54 +121,28 @@ export class Backend {
   async sync() {
     log.info('Syncing with the backend...');
 
-    await this._ensureAuthenticated();
-
     try {
-      const locations = await this._ipc.getRelayLocations();
-
-      log.info('Got relay locations');
-
-      this._store.dispatch(
-        settingsActions.updateRelayLocations(locations)
-      );
-    } catch (e) {
-      log.error('Cannot fetch relay locations', e);
+      await this._fetchRelayLocations();
+    } catch(e) {
+      log.error('Failed to fetch the relay locations: ', e.message);
     }
 
     try {
-      const publicIp = await this._ipc.getPublicIp();
-
-      log.info('Got public IP: ', publicIp);
-
-      this._store.dispatch(
-        connectionActions.newPublicIp(publicIp)
-      );
-    } catch (e) {
-      log.info('Cannot fetch public IP: ', e.message);
+      await this._fetchPublicIP();
+    } catch(e) {
+      log.error('Failed to fetch the public IP: ', e.message);
     }
 
     try {
-      const location = await this._ipc.getLocation();
-
-      log.info('Got location: ', location);
-
-      const locationUpdate = {
-        country: location.country,
-        city: location.city,
-        location: location.position
-      };
-
-      this._store.dispatch(
-        connectionActions.newLocation(locationUpdate)
-      );
-    } catch (e) {
-      log.info('Cannot fetch new location: ', e.message);
+      await this._fetchLocation();
+    } catch(e) {
+      log.error('Failed to fetch the location: ', e.message);
     }
 
-    await this._updateAccountHistory();
+    await this._fetchAccountHistory();
   }
 
-  async login(accountToken: AccountToken): Promise<void> {
+  async login(accountToken: AccountToken) {
     log.debug('Attempting to login');
 
     this._store.dispatch(accountActions.startLogin(accountToken));
@@ -197,7 +171,7 @@ export class Backend {
         this.connect();
       }, 1000);
 
-      await this._updateAccountHistory();
+      await this._fetchAccountHistory();
 
     } catch(e) {
       log.error('Failed to log in,', e.message);
@@ -256,7 +230,7 @@ export class Backend {
     }
   }
 
-  async connect(): Promise<void> {
+  async connect() {
     try {
       this._store.dispatch(connectionActions.connecting());
 
@@ -268,7 +242,7 @@ export class Backend {
     }
   }
 
-  async disconnect(): Promise<void> {
+  async disconnect() {
     // @TODO: Failure modes
     try {
       await this._ensureAuthenticated();
@@ -278,7 +252,7 @@ export class Backend {
     }
   }
 
-  async shutdown(): Promise<void> {
+  async shutdown() {
     try {
       await this._ensureAuthenticated();
       await this._ipc.shutdown();
@@ -287,7 +261,7 @@ export class Backend {
     }
   }
 
-  async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+  async updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     try {
       await this._ensureAuthenticated();
       await this._ipc.updateRelaySettings(relaySettings);
@@ -296,7 +270,7 @@ export class Backend {
     }
   }
 
-  async fetchRelaySettings(): Promise<void> {
+  async fetchRelaySettings() {
     await this._ensureAuthenticated();
 
     const relaySettings = await this._ipc.getRelaySettings();
@@ -342,17 +316,17 @@ export class Backend {
     }
   }
 
-  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+  async removeAccountFromHistory(accountToken: AccountToken) {
     try {
       await this._ensureAuthenticated();
       await this._ipc.removeAccountFromHistory(accountToken);
-      await this._updateAccountHistory();
+      await this._fetchAccountHistory();
     } catch(e) {
       log.error('Failed to remove account token from history', e.message);
     }
   }
 
-  async _updateAccountHistory(): Promise<void> {
+  async _fetchAccountHistory() {
     try {
       await this._ensureAuthenticated();
       const accountHistory = await this._ipc.getAccountHistory();
@@ -361,7 +335,64 @@ export class Backend {
       );
     } catch(e) {
       log.info('Failed to fetch account history,', e.message);
+      throw e;
     }
+  }
+
+
+
+  async _fetchRelayLocations() {
+    await this._ensureAuthenticated();
+
+    const locations = await this._ipc.getRelayLocations();
+
+    log.info('Got relay locations');
+
+    const storedLocations = locations.countries.map((country) => ({
+      name: country.name,
+      code: country.code,
+      hasActiveRelays: country.cities.some((city) => city.has_active_relays),
+      cities: country.cities.map((city) => ({
+        name: city.name,
+        code: city.code,
+        position: city.position,
+        hasActiveRelays: city.has_active_relays,
+      }))
+    }));
+
+    this._store.dispatch(
+      settingsActions.updateRelayLocations(storedLocations)
+    );
+  }
+
+  async _fetchPublicIP() {
+    await this._ensureAuthenticated();
+
+    const publicIp = await this._ipc.getPublicIp();
+
+    log.info('Got public IP: ', publicIp);
+
+    this._store.dispatch(
+      connectionActions.newPublicIp(publicIp)
+    );
+  }
+
+  async _fetchLocation() {
+    await this._ensureAuthenticated();
+
+    const location = await this._ipc.getLocation();
+
+    log.info('Got location: ', location);
+
+    const locationUpdate = {
+      country: location.country,
+      city: location.city,
+      location: location.position
+    };
+
+    this._store.dispatch(
+      connectionActions.newLocation(locationUpdate)
+    );
   }
 
   /**
@@ -421,7 +452,7 @@ export class Backend {
     throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
   }
 
-  _ensureAuthenticated(): Promise<void> {
+  _ensureAuthenticated() {
     const credentials = this._credentials;
     if(credentials) {
       if(!this._authenticationPromise) {
@@ -433,7 +464,7 @@ export class Backend {
     }
   }
 
-  async _authenticate(sharedSecret: string): Promise<void> {
+  async _authenticate(sharedSecret: string) {
     try {
       await this._ipc.authenticate(sharedSecret);
       log.info('Authenticated with backend');
