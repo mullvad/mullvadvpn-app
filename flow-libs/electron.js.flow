@@ -1,0 +1,192 @@
+// @flow
+
+import EventEmitter from 'events';
+
+declare var process: Process & {
+  resourcesPath: string;
+  type: "browser" | "renderer";
+  versions: {
+    electron: string;
+    chrome: string;
+  };
+};
+
+declare module 'electron' {
+
+  // common types
+
+  declare type Size = {
+    width: number;
+    height: number;
+  }
+
+  declare type Rectangle = {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+  }
+
+  // http://electron.atom.io/docs/api/app
+
+  declare class App extends EventEmitter {
+    getPath(name: string): string;
+    setPath(name: string, path: string): void;
+    quit(): void;
+  }
+
+  // http://electron.atom.io/docs/api/shell
+  declare type OpenExternalOptions = {
+    activate: boolean;
+  }
+
+  declare class Shell {
+    showItemInFolder(fullPath: string): boolean;
+    openItem(fullPath: string): boolean;
+    openExternal(url: string, options?: OpenExternalOptions, callback: (error: Error) => void): boolean;
+    moveItemToTrash(fullPath: string): boolean;
+    beep(): void;
+  }
+
+  // http://electron.atom.io/docs/api/remote
+
+  declare class Remote {
+    app: App;
+    getCurrentWindow(): BrowserWindow;
+    getCurrentWebContents(): WebContents;
+    getGlobal(name: string): ?mixed;
+  }
+
+  // http://electron.atom.io/docs/api/clipboard
+
+  declare class Clipboard {
+    writeText(text: string, type?: string): void;
+  }
+
+  // http://electron.atom.io/docs/api/native-image
+
+  declare class NativeImage {
+    isEmpty(): boolean;
+    getSize(): Size;
+  }
+
+  // http://electron.atom.io/docs/api/tray
+
+  declare class Tray extends EventEmitter {
+    constructor(image: NativeImage | string): void;
+    getBounds(): Rectangle;
+    setHighlightMode(mode: 'selection' | 'always' | 'never'): void;
+    setImage(image: NativeImage | string): void;
+    setPressedImage(image: NativeImage | string): void;
+  }
+
+  // http://electron.atom.io/docs/api/web-frame
+
+  declare class WebFrame extends EventEmitter {
+    setZoomLevelLimits(minimumLevel: number, maximumLevel: number): void;
+  }
+
+  // http://electron.atom.io/docs/api/ipc-renderer
+
+  declare class IpcRenderer extends EventEmitter {
+    send(channel: string, ...args: Array<mixed>): void;
+  }
+
+  // http://electron.atom.io/docs/api/ipc-main
+
+  declare class IpcMain extends EventEmitter {}
+
+  declare class WebContents extends EventEmitter {}
+
+  // http://electron.atom.io/docs/api/browser-window
+
+  declare type OpenDevToolsOptions = {
+    mode: 'right' | 'bottom' | 'undocked' | 'detach';
+  }
+
+  declare type WebPreferences = {
+    backgroundThrottling?: boolean;
+    scrollBounce?: boolean;
+    blinkFeatures?: string;
+    disableBlinkFeatures?: string;
+  }
+
+  declare type BrowserWindowConstructorOptions = {
+    width?: number;
+    height?: number;
+    resizable?: boolean;
+    maximizable?: boolean;
+    fullscreenable?: boolean;
+    show?: boolean;
+    frame?: boolean;
+    transparent?: boolean;
+    webPreferences?: WebPreferences;
+  }
+
+  declare type LoadURLOptions = {
+    userAgent?: string;
+  }
+
+  declare class BrowserWindow extends EventEmitter {
+    constructor(options: ?BrowserWindowConstructorOptions): this;
+    isVisible(): boolean;
+    show(): void;
+    hide(): void;
+    focus(): void;
+    setPosition(x: number, y: number, animate?: boolean): void;
+    getBounds(): Rectangle;
+    inspectElement(x: number, y: number): void;
+    isDevToolsOpened(): boolean;isDevToolsOpened(): boolean;
+    openDevTools(options?: OpenDevToolsOptions): void;
+    closeDevTools(): void;
+    loadURL(url: string, options?: LoadURLOptions): void;
+    webContents: WebContents;
+  }
+
+  // http://electron.atom.io/docs/api/menu-item
+  declare class MenuItem {}
+
+  // http://electron.atom.io/docs/api/menu
+
+  declare type MenuItemConstructorOptions = {
+    type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio';
+    label?: string;
+    role?: string;
+    click?: (menuItem: MenuItem, browserWindow: BrowserWindow, event: Event) => void;
+  }
+
+  declare type PopupOptions = {
+    x?: number;
+    y?: number;
+  }
+
+  declare class Menu {
+    static buildFromTemplate(template: Array<MenuItemConstructorOptions>): Menu;
+    static setApplicationMenu(menu: Menu): void;
+    popup(browserWindow?: BrowserWindow, options?: PopupOptions): void;
+  }
+
+  // http://electron.atom.io/docs/api/app
+
+  declare class App extends EventEmitter {
+    setPath(name: string, path: string): void;
+    getPath(name: string): string;
+    quit(): void;
+  }
+
+  // MainInterface
+
+  declare var nativeImage: {
+    createEmpty(): NativeImage,
+    createFromPath(path: string): NativeImage,
+    createFromBuffer(buffer: Buffer, scaleFactor?: number): NativeImage,
+    createFromDataURL(dataURL: string): NativeImage
+  };
+  declare var webFrame: WebFrame;
+  declare var app: App;
+  declare var ipcRenderer: IpcRenderer;
+  declare var ipcMain: IpcMain;
+  declare var remote: Remote;
+  declare var shell: Shell;
+  declare var clipboard: Clipboard;
+}

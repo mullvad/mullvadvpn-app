@@ -1,0 +1,6 @@
+/* macOS app runs as menubar; create an app chrome with arrow using mask */
+.window-chrome--darwin {
+  -webkit-mask:
+    url(../assets/images/app-triangle.svg) 50% 0% no-repeat,
+    url(../assets/images/app-header-backdrop.svg) no-repeat;
+}

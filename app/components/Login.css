@@ -1,0 +1,154 @@
+.login {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-footer {
+  background-color: #192E45;
+  padding: 18px 24px 24px;
+  flex: 0 0 auto;
+}
+
+.login-footer--invisible {
+  visibility: hidden;
+}
+
+.login-form__status-icon {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.login-footer__prompt {
+  font-family: "Open Sans";
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 8px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  margin: auto 0 70px;
+}
+
+.login-form__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.25em;
+  color: #FFFFFF;
+  margin-bottom: 7px;
+}
+
+.login-form__subtitle {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 8px;
+}
+
+.login-form__input-wrap {
+  border: 2px solid transparent;
+  background-color: #FFFFFF;
+  background-clip: content-box;
+  border-radius: 8px;
+  margin-left: -2px;
+  margin-right: -2px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  transition-property: background-color, border-color;
+  transition-timing-function: ease-in-out;
+
+  /* this fixes border-radius clipping bug when button animates opacity */
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+.login-form__input-wrap--active {
+  border-color: rgba(25,46,69,0.4);
+}
+
+.login-form__input-wrap--inactive {
+  opacity: 0.6;
+}
+
+.login-form__input-field::-webkit-input-placeholder {
+  color: rgba(41,77,115,0.4);
+}
+
+.login-form__fields--invisible {
+  visibility: hidden;
+}
+
+.login-form__input-field {
+  width: 100%;
+  border-radius: 8px;
+  border: 0;
+  overflow: hidden;
+  padding: 10px 12px 12px 12px;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #294D73;
+  background-color: transparent;
+  flex: 1 1 auto;
+  transition: 0.3s color ease-in-out;
+}
+
+.login-form__input-field--inactive {
+  background-color: rgba(255,255,255,0.6);
+}
+
+.login-form__input-wrap--error {
+  border-color: rgba(208,2,27,0.4);
+}
+
+.login-form__input-wrap--error .login-form__input-field {
+  color: #D0021B;
+}
+
+.login-form__submit {
+  flex: 0 0 auto;
+  border: 0;
+  width: 48px;
+  background-color: transparent;
+  transition-duration: 0.3s;
+  transition-property: background-color, opacity;
+  transition-timing-function: ease-in-out;
+}
+
+.login-form__submit-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.login-form__submit-icon path {
+  fill: rgba(41,77,115,0.2);
+  transition: fill 0.3s ease-in-out;
+}
+
+.login-form__submit--active {
+  background-color: #44ad4d;
+}
+
+.login-form__submit--active .login-form__submit-icon path {
+  fill: #fff;
+}
+
+.login-form__submit--active:hover {
+  background-color: rgba(68, 173, 76, 0.9);
+}
+
+.login-form__submit--invisible {
+  visibility: hidden;
+  opacity: 0;
+}
