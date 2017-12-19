@@ -14,7 +14,7 @@ extraResources:
     to: .
   - from: dist-assets/relays.json
     to: .
-  - from: ../talpid_core/CHANGELOG.md
+  - from: CHANGELOG.md
     to: .
 
 directories:
@@ -45,13 +45,13 @@ mac:
   extendInfo:
     LSUIElement: true
   extraResources:
-    - from: ../talpid_core/target/release/mullvad
+    - from: ./target/release/mullvad
       to: .
-    - from: ../talpid_core/target/release/problem-report
+    - from: ./target/release/problem-report
       to: .
-    - from: ../talpid_core/target/release/mullvad-daemon
+    - from: ./target/release/mullvad-daemon
       to: .
-    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dylib
+    - from: ./target/release/libtalpid_openvpn_plugin.dylib
       to: .
     - from: ../client-binaries/mac/include/openvpn
       to: ./openvpn-binaries/openvpn
@@ -61,13 +61,13 @@ win:
     - nsis
   artifactName: ${productName}-${version}.${ext}
   extraResources:
-    - from: ../talpid_core/target/release/mullvad.exe
+    - from: ./target/release/mullvad.exe
       to: .
-    - from: ../talpid_core/target/release/problem-report.exe
+    - from: ./target/release/problem-report.exe
       to: .
-    - from: ../talpid_core/target/release/mullvad-daemon.exe
+    - from: ./target/release/mullvad-daemon.exe
       to: .
-    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.dll
+    - from: ./target/release/libtalpid_openvpn_plugin.dll
       to: .
 
 linux:
@@ -75,11 +75,11 @@ linux:
     - deb
   artifactName: ${productName}-${version}_${arch}.${ext}
   extraResources:
-    - from: ../talpid_core/target/release/mullvad
+    - from: ./target/release/mullvad
       to: .
-    - from: ../talpid_core/target/release/problem-report
+    - from: ./target/release/problem-report
       to: .
-    - from: ../talpid_core/target/release/mullvad-daemon
+    - from: ./target/release/mullvad-daemon
       to: .
-    - from: ../talpid_core/target/release/libtalpid_openvpn_plugin.so
+    - from: ./target/release/libtalpid_openvpn_plugin.so
       to: .
