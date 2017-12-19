@@ -1,0 +1,169 @@
+.connect {
+  height: 100%;
+  position: relative;
+}
+
+.connect__map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.connect__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative; /* need this for z-index to work to cover map */
+  z-index: 1;
+}
+
+.connect__footer {
+  display: flex;
+  flex-direction: column;
+  padding: 42px 24px 24px;
+}
+
+.connect__row + .connect__row{
+  margin-top: 16px;
+}
+
+.connect__server {
+  padding: 7px 12px 9px;
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+.connect__server-label {
+  font-family: "Open Sans";
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 17px;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  flex: 0 0 auto;
+}
+
+.connect__server-value {
+  flex: 1 1 auto;
+  margin-left: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.connect__server-name {
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  color: #FFFFFF;
+  text-align: right;
+}
+
+.connect__server-icon + .connect__server-name {
+  margin-left: 8px;
+}
+
+.connect__footer-button {
+  display: block;
+  width:100%;
+  border: 0;
+  padding: 7px 12px 9px;
+  border-radius: 4px;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 26px;
+  color: #FFFFFF;
+}
+
+.connect__status {
+  padding: 0 24px;
+  margin-top: 96px;
+  margin-bottom: auto;
+}
+
+.connect__error-title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.connect__error-message {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.connect__status-security {
+  font-family: "Open Sans";
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 22px;
+  margin-bottom: 4px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+}
+
+.connect__status-security--unsecured {
+  color: #D0021B;
+}
+
+.connect__status-security--secure {
+  color: #44AD4D;
+}
+
+.connect__status-location {
+  font-family: DINPro;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.16em;
+  max-height: calc(1.16em * 2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  letter-spacing: -0.9px;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.connect__status-location-icon {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.connect__status-ipaddress {
+  font-family: "Open Sans";
+  font-size: 16px;
+  font-weight: 800;
+  line-height: normal;
+  color: #FFFFFF;
+}
+
+.connect__status-ipaddress--invisible {
+  visibility: hidden;
+}
+
+.connect__status-icon {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.connect__status-icon--hidden {
+  visibility: hidden;
+}

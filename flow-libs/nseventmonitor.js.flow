@@ -1,0 +1,42 @@
+declare module 'nseventmonitor' {
+
+  declare export class NSEventMonitor {
+    start(eventMask: number, handler: () => void): void;
+    stop(): void;
+  }
+
+  declare export var NSEventMask: {
+    leftMouseDown: number;
+    leftMouseUp: number;
+    rightMouseDown: number;
+    rightMouseUp: number;
+    mouseMoved: number;
+    leftMouseDragged: number;
+    rightMouseDragged: number;
+    mouseEntered: number;
+    mouseExited: number;
+    keyDown: number;
+    keyUp: number;
+    flagsChanged: number;
+    appKitDefined: number;
+    applicationDefined: number;
+    periodic: number;
+    cursorUpdate: number;
+    scrollWheel: number;
+    tabletPoint: number;
+    tabletProximity: number;
+    otherMouseDown: number;
+    otherMouseUp: number;
+    otherMouseDragged: number;
+    gesture: number;
+    magnify: number;
+    swipe: number;
+    rotate: number;
+    beginGesture: number;
+    endGesture: number;
+    smartMagnify: number;
+    maskPressure: number;
+    directTouch: number;
+    any: number;
+  }
+}

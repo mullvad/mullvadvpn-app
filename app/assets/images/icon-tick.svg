@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="17px" viewBox="0 0 24 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-tick</title>
+    <desc>Mullvad VPN app</desc>
+    <defs>
+        <path d="M2.92646877,7.29791847 C2.25699855,6.63402718 1.17157288,6.63402718 0.502102661,7.29791847 C-0.167367554,7.96180977 -0.167367554,9.03819023 0.502102661,9.70208153 L7.35924552,16.5020815 C8.02871573,17.1659728 9.11414141,17.1659728 9.78361162,16.5020815 L23.4978973,2.90208153 C24.1673676,2.23819023 24.1673676,1.16180977 23.4978973,0.497918472 C22.8284271,-0.165972824 21.7430014,-0.165972824 21.0735312,0.497918472 L8.57142857,12.8958369 L2.92646877,7.29791847 Z" id="path-1"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="path" fill="#FFFFFF" fill-rule="nonzero" xlink:href="#path-1"></use>
+    </g>
+</svg>

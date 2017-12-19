@@ -1,31 +1,104 @@
-language: rust
-cache: cargo
-rust:
-  - nightly
-  - stable
-  - beta
-os:
-  - linux
-  - osx
-
+sudo: false
 env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
 
-before_script:
-  - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
-  - env
+matrix:
+  include:
+    - language: node_js
+      node_js: '8'
+      cache: yarn
 
-script:
-  - cargo build --verbose
-  - cargo test --verbose
-  # Format only on nightly, since that is where rustfmt-nightly compiles
-  - if [ "${TRAVIS_RUST_VERSION}" = "nightly" ] && [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
-      && ./format.sh --write-mode=diff;
-    else
-      echo "Not checking formatting on this build";
-    fi
+      install: &node_install
+        - yarn install
+
+        # FIXME: Flow throws error for optional dependencies
+        # missing from node_modules on unsupported platforms
+        # see: https://github.com/facebook/flow/issues/4171
+        - NSEVENTMON_INDEX_JS=node_modules/nseventmonitor/index.js;
+          if [ ! -f $NSEVENTMON_INDEX_JS ]; then
+            echo "Installing a stub for NSEventMonitor..";
+            mkdir -p `dirname $NSEVENTMON_INDEX_JS`;
+            echo "module.exports = {};" > $NSEVENTMON_INDEX_JS;
+          fi
+      before_script: &node_before_script
+        - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
+      script: &node_script
+        - yarn run lint
+        - yarn run flow
+        - yarn test
+
+    - language: node_js
+      node_js: '7'
+      cache: yarn
+      install: *node_install
+      before_script: *node_before_script
+      script: *node_script
+
+    - language: node_js
+      node_js: '6'
+      cache: yarn
+      install: *node_install
+      before_script: *node_before_script
+      script: *node_script
+
+
+    # Backend Linux
+    - language: rust
+      rust: nightly
+      os: linux
+      cache: cargo
+
+      before_script: &rust_before_script
+        - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
+        - env
+      script: &rust_script
+        - cargo build --verbose
+        - cargo test --verbose
+        # Format only on nightly, since that is where rustfmt-nightly compiles
+        - if [ "${TRAVIS_RUST_VERSION}" = "nightly" ] && [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+            export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
+            && ./format.sh --write-mode=diff;
+          else
+            echo "Not checking formatting on this build";
+          fi
+
+    - language: rust
+      rust: stable
+      os: linux
+      cache: cargo
+      before_script: *rust_before_script
+      script: *rust_script
+
+    - language: rust
+      rust: beta
+      os: linux
+      cache: cargo
+      before_script: *rust_before_script
+      script: *rust_script
+
+    # Backend macOS
+    - language: rust
+      rust: stable
+      os: osx
+      cache: cargo
+      before_script: *rust_before_script
+      script: *rust_script
+
+    - language: rust
+      rust: beta
+      os: osx
+      cache: cargo
+      before_script: *rust_before_script
+      script: *rust_script
+
+    - language: rust
+      rust: nightly
+      os: osx
+      cache: cargo
+      before_script: *rust_before_script
+      script: *rust_script
+
 
 notifications:
   email:
