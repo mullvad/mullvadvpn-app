@@ -84,10 +84,13 @@ impl PacketFilter {
         policy: SecurityPolicy,
     ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
-            SecurityPolicy::Connecting(relay_endpoint) => {
+            SecurityPolicy::Connecting { relay_endpoint } => {
                 Ok(vec![Self::get_allow_relay_rule(relay_endpoint)?])
             }
-            SecurityPolicy::Connected(relay_endpoint, tunnel) => {
+            SecurityPolicy::Connected {
+                relay_endpoint,
+                tunnel,
+            } => {
                 self.dns_monitor.set_dns(vec![tunnel.gateway.to_string()])?;
 
                 let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
