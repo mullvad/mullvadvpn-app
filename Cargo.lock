@@ -98,6 +98,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "bindgen"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "cexpr 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cfg-if 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clang-sys 0.21.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 2.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "peeking_take_while 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "which 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "bitflags"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -919,9 +937,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "pfctl"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/pfctl-rs?rev=dae436f6ee4e3529fc995c5192b314f1cc8dccec#dae436f6ee4e3529fc995c5192b314f1cc8dccec"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "bindgen 0.31.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bindgen 0.32.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_builder 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "errno 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1206,7 +1224,7 @@ dependencies = [
  "libc 0.2.34 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs?rev=dae436f6ee4e3529fc995c5192b314f1cc8dccec)",
+ "pfctl 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "shell-escape 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "system-configuration 0.1.0 (git+https://github.com/mullvad/system-configuration-rs)",
  "talpid-ipc 0.1.0",
@@ -1508,6 +1526,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum backtrace-sys 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "44585761d6161b0f57afc49482ab6bd067e4edef48c12a152c237eb0203f7661"
 "checksum base64 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7c4a342b450b268e1be8036311e2c613d7f8a7ed31214dff1cc3b60852a3168d"
 "checksum bindgen 0.31.3 (registry+https://github.com/rust-lang/crates.io-index)" = "57253399c086f4f29e57ffd3b5cdbc23a806a00292619351aa4cfa39cb49d4ea"
+"checksum bindgen 0.32.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6e0e57fd015c86d16b28d6409995045124a07665f36b38ca1992b1caf882fde6"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
 "checksum bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b3c30d3802dfb7281680d6285f2ccdaa8c2d8fee41f93805dba5c4cf50dc23cf"
@@ -1594,7 +1613,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum parking_lot_core 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "12d20aac4f67aa75f681aded784bac91f910ba3f2af1812573cdcf687414e122"
 "checksum peeking_take_while 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
-"checksum pfctl 0.1.0 (git+https://github.com/mullvad/pfctl-rs?rev=dae436f6ee4e3529fc995c5192b314f1cc8dccec)" = "<none>"
+"checksum pfctl 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "296453377ce6b698986a6015bdf52341a247fe7db8796677d09030fda9a6252d"
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
 "checksum quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "7a6e920b65c65f10b2ae65c831a81a073a89edd28c7cce89475bff467ab4167a"
 "checksum rand 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)" = "6475140dfd8655aeb72e1fd4b7a1cc1c202be65d71669476e392fe62532b9edd"

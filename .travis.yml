@@ -43,10 +43,10 @@ matrix:
       script: *node_script
 
 
-    # Backend Linux
+    # Backend macOS
     - language: rust
       rust: nightly
-      os: linux
+      os: osx
       cache: cargo
 
       before_script: &rust_before_script
@@ -65,36 +65,36 @@ matrix:
 
     - language: rust
       rust: stable
-      os: linux
+      os: osx
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script
 
     - language: rust
       rust: beta
-      os: linux
+      os: osx
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script
 
-    # Backend macOS
+    # Backend Linux
     - language: rust
       rust: stable
-      os: osx
+      os: linux
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script
 
     - language: rust
       rust: beta
-      os: osx
+      os: linux
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script
 
     - language: rust
       rust: nightly
-      os: osx
+      os: linux
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script

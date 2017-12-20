@@ -1,6 +1,7 @@
 extern crate pfctl;
 extern crate tokio_core;
 
+use self::pfctl::ipnetwork::{IpNetwork, Ipv4Network};
 use super::{Firewall, SecurityPolicy};
 
 use std::net::Ipv4Addr;
@@ -64,9 +65,7 @@ impl PacketFilter {
 
         new_filter_rules.append(&mut Self::get_allow_loopback_rules()?);
         new_filter_rules.append(&mut Self::get_allow_dhcp_rules()?);
-
-        let mut policy_filter_rules = self.get_policy_specific_rules(policy)?;
-        new_filter_rules.append(&mut policy_filter_rules);
+        new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let drop_all_rule = pfctl::FilterRuleBuilder::default()
             .action(pfctl::FilterRuleAction::Drop)
@@ -84,10 +83,21 @@ impl PacketFilter {
         policy: SecurityPolicy,
     ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
-            SecurityPolicy::Connecting(relay_endpoint) => {
-                Ok(vec![Self::get_allow_relay_rule(relay_endpoint)?])
+            SecurityPolicy::Connecting {
+                relay_endpoint,
+                allow_lan,
+            } => {
+                let mut rules = vec![Self::get_allow_relay_rule(relay_endpoint)?];
+                if allow_lan {
+                    rules.append(&mut Self::get_allow_lan_rules()?);
+                }
+                Ok(rules)
             }
-            SecurityPolicy::Connected(relay_endpoint, tunnel) => {
+            SecurityPolicy::Connected {
+                relay_endpoint,
+                tunnel,
+                allow_lan,
+            } => {
                 self.dns_monitor.set_dns(vec![tunnel.gateway.to_string()])?;
 
                 let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
@@ -121,14 +131,19 @@ impl PacketFilter {
                     .to(pfctl::Port::from(53))
                     .build()?;
 
-                Ok(vec![
+                let mut rules = vec![
                     allow_tcp_dns_to_relay_rule,
                     allow_udp_dns_to_relay_rule,
                     block_tcp_dns_rule,
                     block_udp_dns_rule,
                     Self::get_allow_relay_rule(relay_endpoint)?,
                     Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
-                ])
+                ];
+
+                if allow_lan {
+                    rules.append(&mut Self::get_allow_lan_rules()?);
+                }
+                Ok(rules)
             }
         }
     }
@@ -165,6 +180,34 @@ impl PacketFilter {
             .quick(true)
             .build()?;
         Ok(vec![lo0_rule])
+    }
+
+    fn get_allow_lan_rules() -> Result<Vec<pfctl::FilterRule>> {
+        let private_nets = [
+            Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap(),
+            Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
+            Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
+        ];
+        let multicast_net = Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
+        let mut rules = vec![];
+        for net in &private_nets {
+            let mut rule_builder = pfctl::FilterRuleBuilder::default();
+            rule_builder
+                .action(pfctl::FilterRuleAction::Pass)
+                .keep_state(pfctl::StatePolicy::Keep)
+                .quick(true)
+                .af(pfctl::AddrFamily::Ipv4)
+                .from(pfctl::Ip::from(IpNetwork::V4(*net)));
+            let allow_net = rule_builder
+                .to(pfctl::Ip::from(IpNetwork::V4(*net)))
+                .build()?;
+            let allow_multicast = rule_builder
+                .to(pfctl::Ip::from(IpNetwork::V4(multicast_net)))
+                .build()?;
+            rules.push(allow_net);
+            rules.push(allow_multicast);
+        }
+        Ok(rules)
     }
 
     fn get_allow_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {

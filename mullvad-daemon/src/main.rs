@@ -356,6 +356,8 @@ impl Daemon {
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             GetAccount(tx) => Ok(self.on_get_account(tx)),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
+            SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
+            GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -471,6 +473,24 @@ impl Daemon {
 
     fn on_get_relay_settings(&self, tx: OneshotSender<RelaySettings>) {
         Self::oneshot_send(tx, self.settings.get_relay_settings(), "relay settings")
+    }
+
+    fn on_set_allow_lan(&mut self, tx: OneshotSender<()>, allow_lan: bool) -> Result<()> {
+        let save_result = self.settings.set_allow_lan(allow_lan);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(settings_changed) => {
+                if settings_changed && self.target_state == TargetState::Secured {
+                    self.set_security_policy()?;
+                }
+                Self::oneshot_send(tx, (), "set_allow_lan response");
+            }
+            Err(e) => error!("{}", e.display_chain()),
+        }
+        Ok(())
+    }
+
+    fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
+        Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -669,10 +689,15 @@ impl Daemon {
 
     fn set_security_policy(&mut self) -> Result<()> {
         let policy = match (self.tunnel_endpoint, self.tunnel_metadata.as_ref()) {
-            (Some(relay), None) => SecurityPolicy::Connecting(relay.to_endpoint()),
-            (Some(relay), Some(tunnel_metadata)) => {
-                SecurityPolicy::Connected(relay.to_endpoint(), tunnel_metadata.clone())
-            }
+            (Some(relay), None) => SecurityPolicy::Connecting {
+                relay_endpoint: relay.to_endpoint(),
+                allow_lan: self.settings.get_allow_lan(),
+            },
+            (Some(relay), Some(tunnel_metadata)) => SecurityPolicy::Connected {
+                relay_endpoint: relay.to_endpoint(),
+                tunnel: tunnel_metadata.clone(),
+                allow_lan: self.settings.get_allow_lan(),
+            },
             _ => bail!(ErrorKind::InvalidState),
         };
         debug!("Set security policy: {:?}", policy);
