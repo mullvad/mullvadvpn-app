@@ -53,7 +53,7 @@ mac:
       to: .
     - from: ./target/release/libtalpid_openvpn_plugin.dylib
       to: .
-    - from: ../client-binaries/mac/include/openvpn
+    - from: ./client-binaries/mac/include/openvpn
       to: ./openvpn-binaries/openvpn
 
 win:
