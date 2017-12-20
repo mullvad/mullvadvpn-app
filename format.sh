@@ -38,4 +38,4 @@ else
 fi
 
 echo "Formatting..."
-cargo +nightly fmt
+cargo +nightly fmt -- "$@"

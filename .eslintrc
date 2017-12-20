@@ -1,0 +1,44 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
+  },
+  "plugins": [ "react", "flowtype" ],
+  "rules": {
+    "indent": [ "error", 2 ],
+    "quotes": [ "error", "single" ],
+    "linebreak-style": [ "error", "unix" ],
+    "semi": [ 2, "always" ],
+    "no-console": "off",
+    "no-loop-func": "warn",
+    "new-cap": "off",
+    "no-trailing-spaces": [ "error", { "skipBlankLines": true } ],
+    "no-param-reassign": "warn",
+    "func-names": "off",
+    "comma-dangle": "off",
+    "comma-spacing": "warn",
+    "no-unused-expressions" : "off", // until fixed https://github.com/babel/babel-eslint/issues/158
+    "no-unused-vars": ["error", {
+      "args": "all",
+      "argsIgnorePattern": "_.*",
+      "varsIgnorePattern": "_.*"
+    }],
+    "block-scoped-var": "off", // until fixed https://github.com/eslint/eslint/issues/2253
+    "react/prop-types": "off",
+    "flowtype/define-flow-type": "warn",
+    "react/no-render-return-value": "off" // see https://github.com/facebook/react/issues/10266
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true,
+    "mocha": true
+  }
+}

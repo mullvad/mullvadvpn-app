@@ -1,0 +1,24 @@
+// @flow
+
+declare module 'history' {
+
+  declare class History {
+    length: number;
+    action: string;
+    location: string;
+    index: number;
+    entries: Array<string>;
+    createHref(location: string): string;
+    push(path: string): void;
+    replace(path: string): void;
+    go(index: number): void;
+    goBack(): void;
+    goForward(): void;
+    canGo(index: number): boolean;
+    block(prompt?: boolean): void;
+    listen(listener: (location: string, action: string) => void): void;
+  }
+
+  declare function createMemoryHistory(): History;
+
+}
