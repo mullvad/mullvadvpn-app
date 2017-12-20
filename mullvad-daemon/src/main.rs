@@ -357,6 +357,7 @@ impl Daemon {
             GetAccount(tx) => Ok(self.on_get_account(tx)),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
+            GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -486,6 +487,10 @@ impl Daemon {
             Err(e) => error!("{}", e.display_chain()),
         }
         Ok(())
+    }
+
+    fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
+        Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {

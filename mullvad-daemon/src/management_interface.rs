@@ -77,6 +77,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_allow_lan")]
         fn set_allow_lan(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
+        /// Get if the client should allow communication with the LAN while in secured state.
+        #[rpc(meta, name = "get_allow_lan")]
+        fn get_allow_lan(&self, Self::Metadata) -> BoxFuture<bool, Error>;
+
         /// Set if the client should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_autoconnect")]
         fn set_autoconnect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
@@ -166,6 +170,8 @@ pub enum TunnelCommand {
     GetRelaySettings(OneshotSender<RelaySettings>),
     /// Setting if communication with LAN networks should be possible.
     SetAllowLan(OneshotSender<()>, bool),
+    /// Request the current allow LAN setting.
+    GetAllowLan(OneshotSender<bool>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -459,6 +465,15 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetAllowLan(tx, allow_lan))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn get_allow_lan(&self, meta: Self::Metadata) -> BoxFuture<bool, Error> {
+        trace!("get_allow_lan");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetAllowLan(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
