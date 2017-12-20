@@ -188,17 +188,24 @@ impl PacketFilter {
             Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
             Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
         ];
+        let multicast_net = Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
         let mut rules = vec![];
         for net in &private_nets {
-            let rule = pfctl::FilterRuleBuilder::default()
+            let mut rule_builder = pfctl::FilterRuleBuilder::default();
+            rule_builder
                 .action(pfctl::FilterRuleAction::Pass)
                 .keep_state(pfctl::StatePolicy::Keep)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(IpNetwork::V4(*net)))
+                .from(pfctl::Ip::from(IpNetwork::V4(*net)));
+            let allow_net = rule_builder
                 .to(pfctl::Ip::from(IpNetwork::V4(*net)))
                 .build()?;
-            rules.push(rule);
+            let allow_multicast = rule_builder
+                .to(pfctl::Ip::from(IpNetwork::V4(multicast_net)))
+                .build()?;
+            rules.push(allow_net);
+            rules.push(allow_multicast);
         }
         Ok(rules)
     }
