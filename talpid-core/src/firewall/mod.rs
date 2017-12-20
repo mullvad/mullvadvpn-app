@@ -18,7 +18,6 @@ pub mod windows;
 #[cfg(windows)]
 use self::windows as imp;
 
-
 error_chain!{
     errors {
         /// Initialization error

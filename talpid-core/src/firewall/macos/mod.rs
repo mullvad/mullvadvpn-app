@@ -2,10 +2,9 @@ extern crate pfctl;
 extern crate tokio_core;
 
 use super::{Firewall, SecurityPolicy};
-use ipnetwork::IpNetwork;
+use ipnetwork::{IpNetwork, Ipv4Network};
 
 use std::net::Ipv4Addr;
-use std::str::FromStr;
 
 use talpid_types::net;
 
@@ -184,16 +183,20 @@ impl PacketFilter {
     }
 
     fn get_allow_lan_rules() -> Result<Vec<pfctl::FilterRule>> {
+        let private_nets = [
+            Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap(),
+            Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
+            Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
+        ];
         let mut rules = vec![];
-        for net in &["10/8", "192.168/16, 172.16/12"] {
-            let parsed_net = IpNetwork::from_str(net).unwrap();
+        for net in &private_nets {
             let rule = pfctl::FilterRuleBuilder::default()
                 .action(pfctl::FilterRuleAction::Pass)
                 .keep_state(pfctl::StatePolicy::Keep)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(parsed_net))
-                .to(pfctl::Ip::from(parsed_net))
+                .from(pfctl::Ip::from(IpNetwork::V4(*net)))
+                .to(pfctl::Ip::from(IpNetwork::V4(*net)))
                 .build()?;
             rules.push(rule);
         }
