@@ -18,6 +18,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) =
     onClose: () => pushHistory('/connect'),
     onViewAccount: () => pushHistory('/settings/account'),
     onViewSupport: () => pushHistory('/settings/support'),
+    onViewPreferences: () => pushHistory('/settings/preferences'),
     onViewAdvancedSettings: () => pushHistory('/settings/advanced'),
     onExternalLink: (type) => open(links[type]),
   };
