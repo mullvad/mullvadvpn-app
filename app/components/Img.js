@@ -19,6 +19,7 @@ export default class Img extends Component {
           WebkitMaskImage: `url('${url}')`,
           WebkitMaskRepeat: 'no-repeat',
           backgroundColor: tintColor,
+          lineHeight: 0,
         }}>
           <img src={ url } style={{
             visibility: 'hidden',
