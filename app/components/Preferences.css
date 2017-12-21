@@ -1,0 +1,91 @@
+.preferences {
+  background: #192E45;
+  height: 100%;
+}
+
+.preferences__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.preferences__header {
+  flex: 0 0 auto;
+  padding: 40px 24px 24px;
+  position: relative; /* anchor for close button */
+}
+
+.preferences__close {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  top: 24px;
+  left: 12px;
+  z-index: 1; /* part of .preferences__container covers the button */
+}
+
+.preferences__close-icon {
+  opacity: 0.6;
+  margin-right: 8px;
+}
+
+.preferences__close-title {
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.preferences__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 40px;
+  color: #FFFFFF;
+}
+
+.preferences__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.preferences__cell {
+  background-color:rgba(41,71,115,1);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.preferences__cell + .preferences__cell {
+  margin-top: 1px;
+}
+
+.preferences__cell-label {
+  padding: 15px 12px 15px 24px;
+  flex: 1 0 auto;
+  font-family: DINPro;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 26px;
+  letter-spacing: -0.2px;
+  color: #FFFFFF;
+}
+
+.preferences__cell-accessory {
+  flex: 0 0 auto;
+  margin-right: 12px;
+}
+
+.preferences__cell-footer {
+  padding: 8px 24px 24px;
+  font-family: "Open Sans";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+  color: rgba(255,255,255,0.8);
+}
