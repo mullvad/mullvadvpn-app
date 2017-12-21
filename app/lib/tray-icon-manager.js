@@ -31,14 +31,13 @@ export default class TrayIconManager {
   _createAnimation(): KeyframeAnimation {
     const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
     const filePath = path.join(basePath, 'lock-{}.png');
-    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 9]);
+    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 10]);
     animation.speed = 100;
     return animation;
   }
 
   _isReverseAnimation(type: TrayIconType): bool {
-    // unsecured & securing are treated as one
-    return type !== 'secured';
+    return type === 'unsecured';
   }
 
   get iconType(): TrayIconType {
@@ -49,10 +48,15 @@ export default class TrayIconManager {
     if(this._iconType === type || !this._animation) { return; }
 
     const animation = this._animation;
-    animation.reverse = this._isReverseAnimation(type);
-    animation.play({ beginFromCurrentState: true });
+    if (type === 'secured') {
+      animation.reverse = true;
+      animation.play({ beginFromCurrentState: true, startFrame: 8, endFrame: 9 });
+
+    } else {
+      animation.reverse = this._isReverseAnimation(type);
+      animation.play({ beginFromCurrentState: true });
+    }
 
     this._iconType = type;
   }
-
 }
