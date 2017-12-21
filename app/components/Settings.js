@@ -18,6 +18,7 @@ export type SettingsProps = {
   onClose: () => void,
   onViewAccount: () => void,
   onViewSupport: () => void,
+  onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
   onExternalLink: (type: string) => void
 };
@@ -58,6 +59,7 @@ export default class Settings extends Component {
                     {/* show account options when logged in */}
                     {isLoggedIn ? (
                       <View style={styles.settings_account} testName='settings__account'>
+
                         <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
                           <View style={styles.settings__cell}>
                             <Text style={styles.settings__cell_label}>Account</Text>
@@ -72,6 +74,15 @@ export default class Settings extends Component {
                           </View>
                         </Button>
                       </View>
+                    ) : null}
+
+                    {isLoggedIn ? (
+                      <Button onPress={ this.props.onViewPreferences }>
+                        <View style={styles.settings__cell}>
+                          <Text style={styles.settings__cell_label}>Preferences</Text>
+                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
+                        </View>
+                      </Button>
                     ) : null}
 
                     {isLoggedIn ? (
