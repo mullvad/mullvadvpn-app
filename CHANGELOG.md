@@ -15,6 +15,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- The tray icon now indicates wether the app is allowing traffic outside the tunnel or not. If the
+  app blocks traffic because the tunnel is not connected the tray icon will indicate this with a
+  green lock with a red dot.
+- While connecting, a message telling the user that internet accesss is blocked is shown.
+
 
 ## [2017.1-beta7] - 2017-12-13
 ### Added
