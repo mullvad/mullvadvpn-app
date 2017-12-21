@@ -327,9 +327,9 @@ export default class Connect extends Component {
 
   headerStyle(): HeaderBarStyle {
     switch(this.props.connection.status) {
-    case 'connecting':
     case 'disconnected':
       return 'error';
+    case 'connecting':
     case 'connected':
       return 'success';
     }
