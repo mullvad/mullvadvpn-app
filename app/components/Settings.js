@@ -17,6 +17,7 @@ export type SettingsProps = {
   onClose: () => void,
   onViewAccount: () => void,
   onViewSupport: () => void,
+  onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
   onExternalLink: (type: string) => void
 };
@@ -57,6 +58,7 @@ export default class Settings extends Component {
                     {/* show account options when logged in */}
                     {isLoggedIn ? (
                       <View style={styles.settings_account} testName='settings__account'>
+
                         <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
                           <View style={styles.settings__cell}>
                             <Text style={styles.settings__cell_label}>Account</Text>
@@ -67,32 +69,26 @@ export default class Settings extends Component {
                                 <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
                               )}
                             </View>
-                            {/* HERE */}
                             <Img style={styles.settings__cell_disclosure} source='icon-chevron'/>
                           </View>
                         </Button>
+
+                        <Button onPress={ this.props.onViewPreferences }>
+                          <View style={styles.settings__cell}>
+                            <Text style={styles.settings__cell_label}>Preferences</Text>
+                            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
+                          </View>
+                        </Button>
+
+                        <Button onPress={ this.props.onViewAdvancedSettings }>
+                          <View style={styles.settings__cell}>
+                            <Text style={styles.settings__cell_label}>Advanced</Text>
+                            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
+                          </View>
+                        </Button>
+
                         <View style={styles.settings__cell_spacer} />
                       </View>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewAdvancedSettings }>
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Advanced</Text>
-                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
-                        </View>
-                        <View style={styles.settings__cell_spacer}></View>
-                      </Button>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewAdvancedSettings }>
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Advanced</Text>
-                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-                        </View>
-                        <View style={styles.settings__cell_spacer}></View>
-                      </Button>
                     ) : null}
 
                     <Button onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
