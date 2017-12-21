@@ -16,6 +16,7 @@ export type SettingsProps = {
   onClose: () => void,
   onViewAccount: () => void,
   onViewSupport: () => void,
+  onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
   onExternalLink: (type: string) => void
 };
@@ -70,14 +71,14 @@ export default class Settings extends Component {
                               <Img source="icon-chevron" tintColor="currentColor" />
                             </div>
                           </div>
-                          <div className="settings__cell-spacer"></div>
-                        </div>
-                      </Then>
-                    </If>
 
-                    <If condition={ isLoggedIn }>
-                      <Then>
-                        <div className="settings__advanced">
+                          <div className="settings__cell settings__cell--active" onClick={ this.props.onViewPreferences }>
+                            <div className="settings__cell-label">Preferences</div>
+                            <div className="settings__cell-disclosure">
+                              <Img source="icon-chevron" tintColor="currentColor" />
+                            </div>
+                          </div>
+
                           <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAdvancedSettings }>
                             <div className="settings__cell-label">Advanced</div>
                             <div className="settings__cell-value">
@@ -86,7 +87,9 @@ export default class Settings extends Component {
                               </div>
                             </div>
                           </div>
+
                           <div className="settings__cell-spacer"></div>
+
                         </div>
                       </Then>
                     </If>
