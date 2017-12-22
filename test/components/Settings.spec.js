@@ -75,14 +75,14 @@ describe('components/Settings', () => {
 
   it('should show external links when logged out', () => {
     const props = makeProps(loggedOutAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__external');
-    expect(component).to.have.length(1);
+    const component = getComponent(render(props), 'settings__external_link');
+    expect(component.length).to.be.above(0);
   });
 
   it('should show external links when logged in', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__external');
-    expect(component).to.have.length(1);
+    const component = getComponent(render(props), 'settings__external_link');
+    expect(component.length).to.be.above(0);
   });
 
   it('should show account section when logged in', () => {
@@ -154,7 +154,7 @@ describe('components/Settings', () => {
         collectedExternalLinkTypes.push(type);
       }
     });
-    const container = getComponent(render(props), 'settings__external');
+    const container = getComponent(render(props), 'settings__external_link');
     container.find({ testName: 'settings__external_link' })
       .forEach((element) => click(element));
 

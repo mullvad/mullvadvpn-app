@@ -52,7 +52,7 @@ export default Object.assign(createViewStyles({
   },
   settings__cell_disclosure:{
     marginLeft: 8,
-    color: rgba(255, 255, 255, 0.8),
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   settings__cell_spacer:{
     height: 24,
@@ -65,7 +65,7 @@ export default Object.assign(createViewStyles({
     width: 16,
     height: 16,
     flex: 0,
-    color: rgba(255, 255, 255, 0.8),
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   settings__account_paid_until_label__error:{
     color: '#d0021b'
