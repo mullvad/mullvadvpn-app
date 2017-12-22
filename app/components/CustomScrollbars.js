@@ -6,24 +6,43 @@ type ScrollbarUpdateContext = {
   position: boolean,
 };
 
+const AUTOHIDE_TIMEOUT = 1000;
+
 export default class CustomScrollbars extends Component {
   props: {
+    autoHide: boolean,
     thumbInset: { x: number, y: number },
     children: ?React.Element<*>,
   };
 
   static defaultProps = {
+    autoHide: true,
     thumbInset: { x: 2, y: 2 },
+  };
+
+  state = {
+    canScroll: false,
+    showScrollIndicators: true,
   };
 
   _scrollableElement: ?HTMLElement;
   _thumbElement: ?HTMLElement;
+  _autoHideTimer: ?number;
 
   componentDidMount() {
     this._updateScrollbarsHelper({
       position: true,
       size: true
     });
+
+    // show scroll indicators briefly when mounted
+    if(this.props.autoHide) {
+      this._startAutoHide();
+    }
+  }
+
+  componentWillUnmount() {
+    this._stopAutoHide();
   }
 
   componentDidUpdate() {
@@ -34,9 +53,11 @@ export default class CustomScrollbars extends Component {
   }
 
   render() {
+    const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
+    const thumbAnimationClass = showScrollbars ? ' custom-scrollbars__thumb--visible' : '';
     return (
       <div className="custom-scrollbars">
-        <div className="custom-scrollbars__thumb"
+        <div className={ `custom-scrollbars__thumb ${thumbAnimationClass}` }
           style={{ position: 'absolute', top: 0, right: 0 }}
           ref={ this._onThumbRef }></div>
         <div className="custom-scrollbars__scrollable"
@@ -49,7 +70,6 @@ export default class CustomScrollbars extends Component {
     );
   }
 
-
   _onScrollableRef = (ref) => {
     this._scrollableElement = ref;
   }
@@ -60,6 +80,35 @@ export default class CustomScrollbars extends Component {
 
   _onScroll = () => {
     this._updateScrollbarsHelper({ position: true });
+
+    if(this.props.autoHide) {
+      this._startAutoHide();
+    }
+  }
+
+  _startAutoHide() {
+    if(this._autoHideTimer) {
+      clearTimeout(this._autoHideTimer);
+    }
+
+    this._autoHideTimer = setTimeout(() => {
+      this.setState({
+        showScrollIndicators: false,
+      });
+    }, AUTOHIDE_TIMEOUT);
+
+    if(!this.state.showScrollIndicators) {
+      this.setState({
+        showScrollIndicators: true,
+      });
+    }
+  }
+
+  _stopAutoHide() {
+    if(this._autoHideTimer) {
+      clearTimeout(this._autoHideTimer);
+      this._autoHideTimer = null;
+    }
   }
 
   _computeThumbPosition(scrollable: HTMLElement, thumb: HTMLElement) {
@@ -118,10 +167,14 @@ export default class CustomScrollbars extends Component {
       thumb.style.setProperty('height', thumbHeight + 'px');
 
       // hide thumb when there is nothing to scroll
-      if(thumbHeight < scrollable.offsetHeight) {
-        thumb.style.setProperty('opacity', '1');
-      } else {
-        thumb.style.setProperty('opacity', '0');
+      const canScroll = (thumbHeight < scrollable.offsetHeight);
+      if(this.state.canScroll !== canScroll) {
+        this.setState({ canScroll });
+
+        // flash the scroll indicators when the view becomes scrollable
+        if(this.props.autoHide && canScroll) {
+          this._startAutoHide();
+        }
       }
     }
 
