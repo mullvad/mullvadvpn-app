@@ -12,7 +12,7 @@ export default class Img extends Component {
 
   render(){
     const { source, tintColor, style } = this.props;
-    var flattenedStyle = StyleSheet.flatten(style);
+    let flattenedStyle = StyleSheet.flatten(style);
 
     if (tintColor === 'currentColor' && flattenedStyle && flattenedStyle.color) {
       const tint = flattenedStyle.color;
