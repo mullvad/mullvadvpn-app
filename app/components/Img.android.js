@@ -12,13 +12,13 @@ export default class Img extends Component {
 
   render(){
     const { source, tintColor, style } = this.props;
-    var _style = StyleSheet.flatten(style);
+    var flattenedStyle = StyleSheet.flatten(style);
 
-    if (tintColor === 'currentColor' && Object.prototype.hasOwnProperty.call(_style, 'color')) {
-      const tint = _style.color;
-      delete _style.color;
+    if (tintColor === 'currentColor' && flattenedStyle && flattenedStyle.color) {
+      const tint = flattenedStyle.color;
+      delete flattenedStyle.color;
       return(
-        <Image style={[ _style, { tintColor: tint } ]} source={ source }/>
+        <Image style={[ flattenedStyle, { tintColor: tint } ]} source={ source }/>
       );
     } else {
       return(
