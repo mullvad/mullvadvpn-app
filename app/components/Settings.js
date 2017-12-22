@@ -70,6 +70,7 @@ export default class Settings extends Component {
                                 <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
                               )}
                             </View>
+                            {/* HERE */}
                             <Img style={styles.settings__cell_disclosure} source='icon-chevron'/>
                           </View>
                         </Button>
@@ -81,6 +82,7 @@ export default class Settings extends Component {
                       <Button onPress={ this.props.onViewAdvancedSettings }>
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>Advanced</Text>
+                          {/* HERE */}
                           <Img style={styles.settings__cell_disclosure} source='icon-chevron'/>
                         </View>
                         <View style={styles.settings__cell_spacer}></View>
@@ -92,6 +94,7 @@ export default class Settings extends Component {
                       <Button onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>FAQs</Text>
+                           {/* HERE */}
                           <Img style={styles.settings__cell_icon} source='icon-extLink'/>
                         </View>
                       </Button>
@@ -99,6 +102,7 @@ export default class Settings extends Component {
                       <Button onPress={ this.props.onExternalLink.bind(this, 'guides') } testName='settings__external_link'>
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>Guides</Text>
+                           {/* HERE */}
                           <Img style={styles.settings__cell_icon} source='icon-extLink'/>
                         </View>
                       </Button>
@@ -106,6 +110,7 @@ export default class Settings extends Component {
                       <Button onPress={ this.props.onViewSupport }  testName='settings__view_support'>
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>Contact support</Text>
+                           {/* HERE */}
                           <Img style={styles.settings__cell_icon} source='icon-chevron'/>
                         </View>
                       </Button>
