@@ -62,6 +62,11 @@ export default function(state: SettingsReduxState = initialState, action: ReduxA
       relayLocations: action.relayLocations,
     };
 
+  case 'UPDATE_ALLOW_LAN':
+    return { ...state,
+      allowLan: action.allowLan,
+    };
+
   default:
     return state;
   }
