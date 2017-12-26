@@ -161,6 +161,7 @@ const defaultProps: ConnectProps = {
         position: [0, 0],
       }]
     }],
+    allowLan: false,
   },
   connection: {
     status: 'disconnected',
