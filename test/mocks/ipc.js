@@ -24,6 +24,10 @@ export function newMockIpc() {
       expiry: '',
     }),
 
+    getRelayLocations: () => Promise.resolve({
+      countries: [],
+    }),
+
     getAccount: () => Promise.resolve('1111'),
 
     setAccount: () => Promise.resolve(),
@@ -42,9 +46,9 @@ export function newMockIpc() {
       },
     }),
 
-    getRelayLocations: () => Promise.resolve({
-      countries: [],
-    }),
+    setAllowLan: (_allowLan: boolean) => Promise.resolve(),
+
+    getAllowLan: () => Promise.resolve(true),
 
     connect: () => Promise.resolve(),
 
