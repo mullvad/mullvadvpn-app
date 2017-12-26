@@ -77,7 +77,7 @@ export default class Settings extends Component {
                     ) : null}
 
                     {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewPreferences }>
+                      <Button onPress={ this.props.onViewPreferences } testName='settings__preferences'>
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>Preferences</Text>
                           <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
