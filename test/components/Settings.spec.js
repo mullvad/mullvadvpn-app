@@ -139,6 +139,14 @@ describe('components/Settings', () => {
     click(component);
   });
 
+  it('should call advanced settings callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewAdvancedSettings: () => done()
+    });
+    const component = getComponent(render(props), 'settings__advanced');
+    click(component);
+  });
+
   it('should call support callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
       onViewSupport: () => done()
