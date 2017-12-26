@@ -86,7 +86,7 @@ export default class Settings extends Component {
                     ) : null}
 
                     {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewAdvancedSettings }>
+                      <Button onPress={ this.props.onViewAdvancedSettings } testName="settings__advanced">
                         <View style={styles.settings__cell}>
                           <Text style={styles.settings__cell_label}>Advanced</Text>
                           <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
