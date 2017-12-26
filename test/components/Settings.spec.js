@@ -45,6 +45,7 @@ describe('components/Settings', () => {
       },
     },
     relayLocations: [],
+    allowLan: false,
   };
 
   const makeProps = (anAccountState: AccountReduxState, aSettingsState: SettingsReduxState, mergeProps: $Shape<SettingsProps> = {}): SettingsProps => {
@@ -56,6 +57,7 @@ describe('components/Settings', () => {
       onViewAccount: () => {},
       onViewSupport: () => {},
       onViewAdvancedSettings: () => {},
+      onViewPreferences: () => {},
       onExternalLink: (_type) => {}
     };
     return Object.assign({}, defaultProps, mergeProps);
@@ -144,6 +146,14 @@ describe('components/Settings', () => {
       onViewAdvancedSettings: () => done()
     });
     const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__advanced');
+    Simulate.click(domNode);
+  });
+
+  it('should call preferences callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewPreferences: () => done()
+    });
+    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__preferences');
     Simulate.click(domNode);
   });
 
