@@ -139,6 +139,12 @@ export class Backend {
       log.error('Failed to fetch the location: ', e.message);
     }
 
+    try {
+      await this._fetchAllowLan();
+    } catch(e) {
+      log.error('Failed to fetch the LAN sharing policy: ', e.message);
+    }
+
     await this._fetchAccountHistory();
   }
 
@@ -339,8 +345,6 @@ export class Backend {
     }
   }
 
-
-
   async _fetchRelayLocations() {
     await this._ensureAuthenticated();
 
@@ -392,6 +396,28 @@ export class Backend {
 
     this._store.dispatch(
       connectionActions.newLocation(locationUpdate)
+    );
+  }
+
+  async setAllowLan(allowLan: boolean) {
+    try {
+      await this._ensureAuthenticated();
+      await this._ipc.setAllowLan(allowLan);
+
+      this._store.dispatch(
+        settingsActions.updateAllowLan(allowLan)
+      );
+    } catch(e) {
+      log.error('Failed to change the LAN sharing policy: ', e.message);
+    }
+  }
+
+  async _fetchAllowLan() {
+    await this._ensureAuthenticated();
+
+    const allowLan = await this._ipc.getAllowLan();
+    this._store.dispatch(
+      settingsActions.updateAllowLan(allowLan)
     );
   }
 
