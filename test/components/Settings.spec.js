@@ -139,6 +139,14 @@ describe('components/Settings', () => {
     click(component);
   });
 
+  it('should call advanced settings callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewAdvancedSettings: () => done()
+    });
+    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'settings__advanced');
+    Simulate.click(domNode);
+  });
+
   it('should call support callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
       onViewSupport: () => done()
