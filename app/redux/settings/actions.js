@@ -9,10 +9,15 @@ export type UpdateRelayAction = {
 
 export type UpdateRelayLocationsAction = {
   type: 'UPDATE_RELAY_LOCATIONS',
-  relayLocations: Array<RelayLocationRedux>
-}
+  relayLocations: Array<RelayLocationRedux>,
+};
 
-export type SettingsAction = UpdateRelayAction | UpdateRelayLocationsAction;
+export type UpdateAllowLanAction = {
+  type: 'UPDATE_ALLOW_LAN',
+  allowLan: boolean,
+};
+
+export type SettingsAction = UpdateRelayAction | UpdateRelayLocationsAction | UpdateAllowLanAction;
 
 function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   return {
@@ -28,4 +33,11 @@ function updateRelayLocations(relayLocations: Array<RelayLocationRedux>): Update
   };
 }
 
-export default { updateRelay, updateRelayLocations };
+function updateAllowLan(allowLan: boolean): UpdateAllowLanAction {
+  return {
+    type: 'UPDATE_ALLOW_LAN',
+    allowLan: allowLan,
+  };
+}
+
+export default { updateRelay, updateRelayLocations, updateAllowLan };
