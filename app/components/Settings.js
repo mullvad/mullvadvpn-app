@@ -79,7 +79,7 @@ export default class Settings extends Component {
                             </div>
                           </div>
 
-                          <div className="settings__cell settings__cell--active" onClick={ this.props.onViewAdvancedSettings }>
+                          <div className="settings__advanced settings__cell settings__cell--active" onClick={ this.props.onViewAdvancedSettings }>
                             <div className="settings__cell-label">Advanced</div>
                             <div className="settings__cell-value">
                               <div className="settings__cell-disclosure">
