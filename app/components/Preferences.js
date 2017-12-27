@@ -12,7 +12,7 @@ export type onChangeLanSharingProps = {
   onClose: () => void;
 };
 
-export default class c extends Component {
+export default class Preferences extends Component {
   props: onChangeLanSharingProps;
 
   render(): React.Element<*> {
