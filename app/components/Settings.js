@@ -69,7 +69,7 @@ export default class Settings extends Component {
                                 <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
                               )}
                             </View>
-                            <Img style={styles.settings__cell_disclosure} source='icon-chevron'/>
+                            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
                           </View>
                         </Button>
 
