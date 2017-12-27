@@ -90,7 +90,7 @@ export default Object.assign(createViewStyles({
     paddingTop: 24,
     paddingLeft: 24,
     paddingRight: 24,
-    paddingBottom: 24,
+    paddingBottom: 24 * 2, // Not entirely sure why I need to double the padding here :/
   },
 }), createTextStyles({
   settings__title:{
