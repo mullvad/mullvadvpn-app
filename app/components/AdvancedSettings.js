@@ -35,7 +35,7 @@ export class AdvancedSettings extends React.Component {
           this.props.onUpdate(protocol, 'Automatic');
         }}/>
 
-      <div className="settings__cell-spacer"></div>
+      <div className="advanced-settings__cell-spacer"></div>
 
       { portSelector }
 
@@ -112,18 +112,18 @@ function BaseLayout(props) {
   return <Layout>
     <Header hidden={ true } style={ 'defaultDark' } />
     <Container>
-      <div className="settings">
+      <div className="advanced-settings">
         <div className="support__close" onClick={ props.onClose }>
           <img className="support__close-icon" src="./assets/images/icon-back.svg" />
           <span className="support__close-title">Settings</span>
         </div>
-        <div className="settings__container">
-          <div className="settings__header">
-            <h2 className="settings__title">Advanced</h2>
+        <div className="advanced-settings__container">
+          <div className="advanced-settings__header">
+            <h2 className="advanced-settings__title">Advanced</h2>
           </div>
           <CustomScrollbars autoHide={ true }>
-            <div className="settings__content">
-              <div className="settings__main">
+            <div className="advanced-settings__content">
+              <div className="advanced-settings__main">
                 { props.children }
               </div>
             </div>
