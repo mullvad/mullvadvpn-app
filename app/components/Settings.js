@@ -43,7 +43,7 @@ export default class Settings extends Component {
         <Container>
           <View style={styles.settings}>
             <Button style={styles.settings__close} onPress={ this.props.onClose } testName='settings__close'>
-              <Img style={styles.settings__close_icon} source='icon-close' tintColor='currentColor'/>
+              <Img style={styles.settings__close_icon} source='icon-close' />
             </Button>
 
             <View style={styles.settings__container}>
