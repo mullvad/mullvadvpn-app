@@ -20,6 +20,8 @@ export default Object.assign(createViewStyles({
   settings__content:{
     flexDirection: 'column',
     flex: 1,
+    justifyContent: 'space-between',
+    height: '100%',
   },
   settings__close:{
     flexDirection: 'row',
@@ -44,7 +46,7 @@ export default Object.assign(createViewStyles({
     marginLeft: -6, //Because of button.css, when removed remove this
     marginRight: -6, //Because of button.css, when removed remove this
     marginTop: -1, //Because of button.css, when removed remove this
-    marginBottom: 0, //Because of button.css, when removed remove this
+    marginBottom: -3, //Because of button.css, when removed remove this
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,9 +68,10 @@ export default Object.assign(createViewStyles({
     height: 16,
     flex: 0,
     color: 'rgba(255, 255, 255, 0.8)',
+    marginRight: '-6px',
   },
   settings__account_paid_until_label__error:{
-    color: '#d0021b'
+    color: '#d0021b',
   },
   settings__footer_button:{
     backgroundColor: 'rgba(208,2,27,1)',
@@ -112,10 +115,15 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
+  settings__account_paid_until_label_container :{
+    flexGrow: 1,
+    textAlign: 'end',
+  },
   settings__account_paid_until_label:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.8)'
+    color: 'rgba(255, 255, 255, 0.8)',
+    textTransform: 'uppercase',
   },
 }));
