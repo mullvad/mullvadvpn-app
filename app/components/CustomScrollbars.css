@@ -20,6 +20,7 @@
   transition: height 0.25s ease-in-out, opacity 0.25s ease-in-out;
   pointer-events: none;
   opacity: 0;
+  z-index: 99;
 }
 
 .custom-scrollbars__thumb--visible {
