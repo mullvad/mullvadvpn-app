@@ -20,6 +20,8 @@ export default Object.assign(createViewStyles({
   settings__content:{
     flexDirection: 'column',
     flex: 1,
+    justifyContent: 'space-between',
+    height: '100%',
   },
   settings__close:{
     flexDirection: 'row',
@@ -44,7 +46,7 @@ export default Object.assign(createViewStyles({
     marginLeft: -6, //Because of button.css, when removed remove this
     marginRight: -6, //Because of button.css, when removed remove this
     marginTop: -1, //Because of button.css, when removed remove this
-    marginBottom: 0, //Because of button.css, when removed remove this
+    marginBottom: -3, //Because of button.css, when removed remove this
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -64,11 +66,14 @@ export default Object.assign(createViewStyles({
   settings__cell_icon:{
     width: 16,
     height: 16,
-    flex: 0,
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    alignItems: 'flex-end',
     color: 'rgba(255, 255, 255, 0.8)',
   },
   settings__account_paid_until_label__error:{
-    color: '#d0021b'
+    color: '#d0021b',
   },
   settings__footer_button:{
     backgroundColor: 'rgba(208,2,27,1)',
@@ -103,7 +108,10 @@ export default Object.assign(createViewStyles({
     fontSize: 20,
     fontWeight: '900',
     lineHeight: 26,
-    color: '#FFFFFF'
+    color: '#FFFFFF',
+    flexGrow: 1,
+    flexShrink: 0,
+    flexBasis: 'auto',
   },
   settings__footer_button_label:{
     fontFamily: 'DINPro',
@@ -112,10 +120,15 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
+  settings__account_paid_until_label_container :{
+    flexGrow: 0,
+    textAlign: 'end',
+  },
   settings__account_paid_until_label:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.8)'
+    color: 'rgba(255, 255, 255, 0.8)',
+    textTransform: 'uppercase',
   },
 }));
