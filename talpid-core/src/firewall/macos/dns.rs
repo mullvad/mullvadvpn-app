@@ -243,8 +243,7 @@ fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<Vec<DnsSe
     // Backup all "state" DNS, and all corresponding "setup" DNS even if they don't exist
     if let Some(paths) = store.get_keys(STATE_PATH_PATTERN) {
         for path_ptr in paths.as_untyped().iter() {
-            let state_path =
-                unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
+            let state_path = unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
             let state_path_str = state_path.to_string();
             let setup_path_str = state_to_setup_path(&state_path_str).unwrap();
             let setup_path = CFString::new(&setup_path_str);
@@ -255,8 +254,7 @@ fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<Vec<DnsSe
     // Backup all "setup" DNS not already covered
     if let Some(paths) = store.get_keys(SETUP_PATH_PATTERN) {
         for path_ptr in paths.as_untyped().iter() {
-            let setup_path =
-                unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
+            let setup_path = unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
             let setup_path_str = setup_path.to_string();
             if !backup.contains_key(&setup_path_str) {
                 backup.insert(setup_path_str, read_dns(store, setup_path));
@@ -305,8 +303,7 @@ fn parse_cf_string_array(array: CFArray) -> Option<Vec<String>> {
     for string_ptr in array.iter() {
         let cf_type = unsafe { CFType::wrap_under_get_rule(string_ptr) };
         if cf_type.instance_of::<_, CFString>() {
-            let address =
-                unsafe { CFString::wrap_under_get_rule(string_ptr as CFStringRef) };
+            let address = unsafe { CFString::wrap_under_get_rule(string_ptr as CFStringRef) };
             strings.push(address.to_string());
         } else {
             error!("DNS server entry is not a string: {:?}", cf_type);
