@@ -33,8 +33,7 @@ impl Command for Status {
         println!("Location: {}, {}", location.city, location.country);
         println!(
             "Position: {:.5}°N, {:.5}°W",
-            location.position[0],
-            location.position[1]
+            location.position[0], location.position[1]
         );
 
         let ip: IpAddr = rpc::call("get_public_ip", &[] as &[u8; 0])?;

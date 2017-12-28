@@ -259,10 +259,7 @@ impl ProblemReport {
         // matches 0-255, except 127
         let first_octet = format!(
             "(?:{}|{}|{}|{})",
-            above_250,
-            above_200,
-            above_100_not_127,
-            above_0
+            above_250, above_200, above_100_not_127, above_0
         );
 
         // matches 0-255

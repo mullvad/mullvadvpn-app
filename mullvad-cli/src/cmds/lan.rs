@@ -49,7 +49,10 @@ impl Lan {
 
     fn get(&self) -> Result<()> {
         let allow_lan: bool = rpc::call("get_allow_lan", &[] as &[u8; 0])?;
-        println!("Local network sharing setting: {}", if allow_lan { "allow" } else { "block" });
+        println!(
+            "Local network sharing setting: {}",
+            if allow_lan { "allow" } else { "block" }
+        );
         Ok(())
     }
 }
