@@ -56,14 +56,14 @@ const styles = {
     height: 50,
     width: 50,
   }),
+  headerbar__settings_button: {
+    padding: 0
+  },
   headerbar__settings:
   Styles.createViewStyle({
     width: 24,
     height: 24,
-    backgroundColor: 'transparent',
-    marginLeft: -6, //Because of button.css, when removed remove this
-    marginTop: -1, //Because of button.css, when removed remove this
-  })
+  }),
 };
 
 module.exports = styles;
