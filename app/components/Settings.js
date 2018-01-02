@@ -1,7 +1,8 @@
 // @flow
 import moment from 'moment';
 import React from 'react';
-import { Component, Text, Button, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
+import { Button } from './styled';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
