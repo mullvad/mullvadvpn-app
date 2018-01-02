@@ -31,6 +31,7 @@ export default {
       padding: 0,
       margin: 0,
       zIndex: 1, /* part of .preferences__container covers the button */
+      cursor: 'default',
     },
     preferences__close_content: {
       flexDirection: 'row',

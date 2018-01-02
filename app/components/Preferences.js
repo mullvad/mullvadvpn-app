@@ -6,16 +6,14 @@ import Img from './Img';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
 
-import type { SettingsReduxState } from '../redux/settings/reducers';
-
-export type onChangeLanSharingProps = {
-  settings: SettingsReduxState;
-  onChangeLanSharing: (boolean) => void;
+export type PreferencesProps = {
+  allowLan: boolean;
+  onChangeAllowLan: (boolean) => void;
   onClose: () => void;
 };
 
 export default class Preferences extends Component {
-  props: onChangeLanSharingProps;
+  props: PreferencesProps;
 
   render() {
     return (
@@ -23,7 +21,7 @@ export default class Preferences extends Component {
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={ styles.preferences }>
-            <Button style={ styles.preferences__close } cursor='default' onPress={ this.props.onClose }>
+            <Button style={ styles.preferences__close } cursor='default' onPress={ this.props.onClose } testName='closeButton'>
               <View style={ styles.preferences__close_content }>
                 <Img style={ styles.preferences__close_icon } source="icon-back" />
                 <Text style={ styles.preferences__close_title }>Settings</Text>
@@ -41,7 +39,7 @@ export default class Preferences extends Component {
                     <Text style={ styles.preferences__cell_label }>Local network sharing</Text>
                   </View>
                   <View style={ styles.preferences__cell_accessory }>
-                    <Switch isOn={ this.props.settings.allowLan } onChange={ this.props.onChangeLanSharing } />
+                    <Switch isOn={ this.props.allowLan } onChange={ this.props.onChangeAllowLan } />
                   </View>
                 </View>
                 <View style={ styles.preferences__cell_footer }>
