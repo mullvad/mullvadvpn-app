@@ -60,9 +60,6 @@ const styles = {
   Styles.createViewStyle({
     width: 24,
     height: 24,
-    backgroundColor: 'transparent',
-    marginLeft: -6, //Because of button.css, when removed remove this
-    marginTop: -1, //Because of button.css, when removed remove this
   })
 };
 
