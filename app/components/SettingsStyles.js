@@ -43,10 +43,7 @@ export default Object.assign(createViewStyles({
     paddingBottom: 15,
     paddingLeft: 24,
     paddingRight: 24,
-    marginLeft: -6, //Because of button.css, when removed remove this
-    marginRight: -6, //Because of button.css, when removed remove this
-    marginTop: -1, //Because of button.css, when removed remove this
-    marginBottom: -3, //Because of button.css, when removed remove this
+    marginBottom: 1,
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
