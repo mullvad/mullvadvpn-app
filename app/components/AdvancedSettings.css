@@ -1,3 +1,31 @@
+.advanced-settings {
+  background: #192E45;
+  height: 100%;
+}
+
+.advanced-settings__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.advanced-settings__main {
+  margin-bottom: 24px;
+}
+
+.advanced-settings__header {
+  flex: 0 0 auto;
+  padding: 40px 24px 24px;
+  position: relative; /* anchor for close button */
+}
+
+.advanced-settings__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .advanced-settings__section-title {
   background-color:rgb(41, 71, 115);
   padding: 15px 24px;
@@ -6,6 +34,14 @@
   font-weight: 900;
   line-height: 26px;
   color: #fff;
+}
+
+.advanced-settings__title {
+  font-family: DINPro;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 40px;
+  color: #FFFFFF;
 }
 
 .advanced-settings__cell {
@@ -52,4 +88,8 @@
   flex: 0 0 auto;
   margin-right: 8px;
   color: #fff;
+}
+
+.advanced-settings__cell-spacer {
+  height: 24px;
 }

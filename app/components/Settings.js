@@ -1,7 +1,8 @@
 // @flow
 import moment from 'moment';
 import React from 'react';
-import { Component, Text, Button, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
+import { Button } from './styled';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -42,7 +43,7 @@ export default class Settings extends Component {
         <Container>
           <View style={styles.settings}>
             <Button style={styles.settings__close} onPress={ this.props.onClose } testName='settings__close'>
-              <Img style={styles.settings__close_icon} source='icon-close' tintColor='currentColor'/>
+              <Img style={styles.settings__close_icon} source='icon-close'/>
             </Button>
 
             <View style={styles.settings__container}>
@@ -60,29 +61,17 @@ export default class Settings extends Component {
                         <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
                           <View style={styles.settings__cell}>
                             <Text style={styles.settings__cell_label}>Account</Text>
-                            <View style={styles.settings__cell_value}>
+                            <View style={styles.settings__account_paid_until_label_container}>
                               {isOutOfTime ? (
                                 <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
                               ) : (
                                 <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
                               )}
                             </View>
-                            {/* HERE */}
-                            <Img style={styles.settings__cell_disclosure} source='icon-chevron'/>
+                            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
                           </View>
                         </Button>
-                        <View style={styles.settings__cell_spacer} />
                       </View>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewAdvancedSettings }>
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Advanced</Text>
-                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
-                        </View>
-                        <View style={styles.settings__cell_spacer}></View>
-                      </Button>
                     ) : null}
 
                     {isLoggedIn ? (
@@ -112,7 +101,7 @@ export default class Settings extends Component {
                     <Button onPress={ this.props.onViewSupport }  testName='settings__view_support'>
                       <View style={styles.settings__cell}>
                         <Text style={styles.settings__cell_label}>Contact support</Text>
-                        <Img style={styles.settings__cell_icon} source='icon-chevron' tintColor='currentColor'/>
+                        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
                       </View>
                     </Button>
                   </View>
