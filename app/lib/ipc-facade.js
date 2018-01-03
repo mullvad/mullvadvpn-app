@@ -142,11 +142,13 @@ const RelayListSchema = object({
 export interface IpcFacade {
   setConnectionString(string): void,
   getAccountData(AccountToken): Promise<AccountData>,
+  getRelayLocations(): Promise<RelayList>,
   getAccount(): Promise<?AccountToken>,
   setAccount(accountToken: ?AccountToken): Promise<void>,
   updateRelaySettings(RelaySettingsUpdate): Promise<void>,
   getRelaySettings(): Promise<RelaySettings>,
-  getRelayLocations(): Promise<RelayList>,
+  setAllowLan(boolean): Promise<void>,
+  getAllowLan(): Promise<boolean>,
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
@@ -186,6 +188,16 @@ export class RealIpc implements IpcFacade {
       });
   }
 
+  async getRelayLocations(): Promise<RelayList> {
+    const raw = await this._ipc.send('get_relay_locations');
+    try {
+      const validated: any = validate(RelayListSchema, raw);
+      return (validated: RelayList);
+    } catch (e) {
+      throw new InvalidReply(raw, e);
+    }
+  }
+
   getAccount(): Promise<?AccountToken> {
     return this._ipc.send('get_account')
       .then( raw => {
@@ -223,13 +235,17 @@ export class RealIpc implements IpcFacade {
       });
   }
 
-  async getRelayLocations(): Promise<RelayList> {
-    const raw = await this._ipc.send('get_relay_locations');
-    try {
-      const validated: any = validate(RelayListSchema, raw);
-      return (validated: RelayList);
-    } catch (e) {
-      throw new InvalidReply(raw, e);
+  setAllowLan(allowLan: boolean): Promise<void> {
+    return this._ipc.send('set_allow_lan', [allowLan])
+      .then(this._ignoreResponse);
+  }
+
+  async getAllowLan(): Promise<boolean> {
+    const raw = await this._ipc.send('get_allow_lan');
+    if(typeof(raw) === 'boolean') {
+      return raw;
+    } else {
+      throw new InvalidReply(raw, 'Expected a boolean');
     }
   }
 

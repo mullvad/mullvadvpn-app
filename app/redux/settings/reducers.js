@@ -34,6 +34,7 @@ export type RelayLocationRedux = {
 export type SettingsReduxState = {
   relaySettings: RelaySettingsRedux,
   relayLocations: Array<RelayLocationRedux>,
+  allowLan: boolean,
 };
 
 const initialState: SettingsReduxState = {
@@ -45,6 +46,7 @@ const initialState: SettingsReduxState = {
     }
   },
   relayLocations: [],
+  allowLan: false,
 };
 
 export default function(state: SettingsReduxState = initialState, action: ReduxAction): SettingsReduxState {
@@ -58,6 +60,11 @@ export default function(state: SettingsReduxState = initialState, action: ReduxA
   case 'UPDATE_RELAY_LOCATIONS':
     return { ...state,
       relayLocations: action.relayLocations,
+    };
+
+  case 'UPDATE_ALLOW_LAN':
+    return { ...state,
+      allowLan: action.allowLan,
     };
 
   default:

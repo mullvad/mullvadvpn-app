@@ -28,6 +28,7 @@ describe('components/SelectLocation', () => {
         hasActiveRelays: true,
       }],
     }],
+    allowLan: false,
   };
 
   const makeProps = (state: SettingsReduxState, mergeProps: $Shape<SelectLocationProps>): SelectLocationProps => {

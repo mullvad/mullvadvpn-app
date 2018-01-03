@@ -45,6 +45,7 @@ describe('components/Settings', () => {
       },
     },
     relayLocations: [],
+    allowLan: false,
   };
 
   const makeProps = (anAccountState: AccountReduxState, aSettingsState: SettingsReduxState, mergeProps: $Shape<SettingsProps> = {}): SettingsProps => {
@@ -56,6 +57,7 @@ describe('components/Settings', () => {
       onViewAccount: () => {},
       onViewSupport: () => {},
       onViewAdvancedSettings: () => {},
+      onViewPreferences: () => {},
       onExternalLink: (_type) => {}
     };
     return Object.assign({}, defaultProps, mergeProps);
@@ -136,6 +138,22 @@ describe('components/Settings', () => {
       onViewAccount: () => done()
     });
     const component = getComponent(render(props), 'settings__view_account');
+    click(component);
+  });
+
+  it('should call advanced settings callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewAdvancedSettings: () => done()
+    });
+    const component = getComponent(render(props), 'settings__advanced');
+    click(component);
+  });
+
+  it('should call preferences callback', (done) => {
+    const props = makeProps(loggedInAccountState, settingsState, {
+      onViewPreferences: () => done()
+    });
+    const component = getComponent(render(props), 'settings__preferences');
     click(component);
   });
 
