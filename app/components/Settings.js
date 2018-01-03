@@ -91,8 +91,11 @@ export default class Settings extends Component {
                           <Text style={styles.settings__cell_label}>Advanced</Text>
                           <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
                         </View>
-                        <View style={styles.settings__cell_spacer}></View>
                       </Button>
+                    ) : null}
+
+                    {isLoggedIn ? (
+                      <View style={styles.settings__cell_spacer}></View>
                     ) : null}
 
                     <Button onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
