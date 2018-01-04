@@ -29,7 +29,7 @@ matrix:
         - yarn test
 
     - language: node_js
-      node_js: '7'
+      node_js: '9'
       cache: yarn
       install: *node_install
       before_script: *node_before_script
