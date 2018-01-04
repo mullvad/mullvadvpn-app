@@ -194,7 +194,6 @@ impl PacketFilter {
             let mut rule_builder = pfctl::FilterRuleBuilder::default();
             rule_builder
                 .action(pfctl::FilterRuleAction::Pass)
-                .keep_state(pfctl::StatePolicy::Keep)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
                 .from(pfctl::Ip::from(IpNetwork::V4(*net)));
