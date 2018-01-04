@@ -35,13 +35,6 @@ matrix:
       before_script: *node_before_script
       script: *node_script
 
-    - language: node_js
-      node_js: '6'
-      cache: yarn
-      install: *node_install
-      before_script: *node_before_script
-      script: *node_script
-
 
     # Backend macOS
     - language: rust
