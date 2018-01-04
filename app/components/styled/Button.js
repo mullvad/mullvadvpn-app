@@ -11,8 +11,8 @@ export function Button(props: *) {
   const { style, cursor, ...rest } = props;
 
   const stylePropArray = Array.isArray(props.style)
-    ? props.style
-    : [props.style];
+    ? style
+    : [style];
 
   const concreteStyle = ReactXP.Styles.combine([defaultStyle, ...stylePropArray]);
 
