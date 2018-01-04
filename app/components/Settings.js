@@ -72,7 +72,7 @@ export default class Settings extends Component {
     if(isLoggedIn && expiryIso) {
       let expiry = moment(this.props.account.expiry);
       isOutOfTime = expiry.isSameOrBefore(moment());
-      formattedExpiry = expiry.fromNow(true) + ' left';
+      formattedExpiry = (expiry.fromNow(true) + ' left').toUpperCase();
     }
 
     return <View>
