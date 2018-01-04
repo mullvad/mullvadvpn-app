@@ -111,12 +111,10 @@ sudo apt install icnsutils graphicsmagick
     actions/backend.
   - **lib/** - shared classes and utilities
   - **assets/** - graphical assets and stylesheets
-  - **config.js** - static configuration file
+  - **config.json** - static configuration file
   - **app.js** - entry file for renderer process
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
-  - **store.js** - redux store configurator
-  - **enums.js** - common enums used across components
 - **build.sh** - Builds the backend in release mode. Will be extended to take care of more parts
   of the release compiling and packaging.
 - **client-binaries** - Git submodule containing binaries shipped with the client. Most notably
