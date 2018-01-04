@@ -55,6 +55,7 @@ matrix:
           else
             echo "Not checking formatting on this build";
           fi
+        - exit 1
 
     - language: rust
       rust: stable
@@ -91,6 +92,9 @@ matrix:
       cache: cargo
       before_script: *rust_before_script
       script: *rust_script
+
+  allow_failures:
+    rust: nightly
 
 
 notifications:
