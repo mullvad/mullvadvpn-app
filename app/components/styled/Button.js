@@ -10,11 +10,7 @@ const defaultStyle = ReactXP.Styles.createViewStyle({
 export function Button(props: *) {
   const { style, cursor, ...rest } = props;
 
-  const stylePropArray = Array.isArray(props.style)
-    ? props.style
-    : [props.style];
-
-  const concreteStyle = ReactXP.Styles.combine([defaultStyle, ...stylePropArray]);
+  const concreteStyle = ReactXP.Styles.combine([defaultStyle, style]);
 
   // Can be removed when we upgrade to ReactXP 0.51
   const concreteCursor = cursor || concreteStyle.cursor || 'default';
