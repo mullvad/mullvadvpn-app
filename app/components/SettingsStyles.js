@@ -10,25 +10,34 @@ export default Object.assign(createViewStyles({
     height: '100%'
   },
   settings__header:{
-    flex: 0,
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 24,
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    paddingTop: 40,
     paddingRight: 24,
-    position: 'relative' /* anchor for close button */
+    paddingLeft: 24,
+    paddingBottom: 24,
   },
-  settings__content:{
+  settings__content: {
     flexDirection: 'column',
     flex: 1,
     justifyContent: 'space-between',
     height: '100%',
   },
-  settings__close:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginTop: 0,
-    marginLeft: 12,
+  settings__scrollview: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+  },
+  settings__close: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    borderWidth: 0,
+    padding: 0,
+    margin: 0,
+    zIndex: 1, /* part of .settings__close covers the button */
+    cursor: 'default',
   },
   settings__close_icon:{
     width: 24,
@@ -81,16 +90,12 @@ export default Object.assign(createViewStyles({
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
   },
-  settings__footer:{
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  settings__footer: {
     paddingTop: 24,
     paddingLeft: 24,
     paddingRight: 24,
-    paddingBottom: 24 * 2, // Not entirely sure why I need to double the padding here :/
+    paddingBottom: 24,
   },
 }), createTextStyles({
   settings__title:{
