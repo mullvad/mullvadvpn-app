@@ -119,13 +119,12 @@ export default Object.assign(createViewStyles({
   },
   settings__account_paid_until_label_container :{
     flexGrow: 0,
-    textAlign: 'end',
+    textAlign: 'right',
   },
   settings__account_paid_until_label:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.8)',
-    textTransform: 'uppercase',
   },
 }));
