@@ -175,6 +175,7 @@ export default class Connect extends Component {
         </div>
         <div className="connect__container">
 
+          { this._renderIsBlockingInternetMessage() }
           <div className="connect__status">
             { /* show spinner when connecting */ }
             <div className={ this.spinnerClass() }>
@@ -295,6 +296,20 @@ export default class Connect extends Component {
     );
   }
 
+  _renderIsBlockingInternetMessage() {
+    let animationClass = 'hide';
+    if (this.props.connection.status === 'connecting') {
+      animationClass = 'show';
+    }
+
+    return <div className={`connect__blocking-container ${animationClass}`}>
+      <div className="connect__blocking-message">
+        <div className="connect__blocking-icon">&nbsp;</div>
+        blocking internet
+      </div>
+    </div>;
+  }
+
   // Handlers
 
   onExternalLink(type: string) {
@@ -312,9 +327,9 @@ export default class Connect extends Component {
 
   headerStyle(): HeaderBarStyle {
     switch(this.props.connection.status) {
-    case 'connecting':
     case 'disconnected':
       return 'error';
+    case 'connecting':
     case 'connected':
       return 'success';
     }
