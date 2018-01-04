@@ -42,7 +42,7 @@ export default class Settings extends Component {
                 <Text style={styles.settings__title}>Settings</Text>
               </View>
 
-              <CustomScrollbars autoHide={ true }>
+              <CustomScrollbars style={styles.settings__scrollview} autoHide={ true }>
 
                 <View style={styles.settings__content}>
                   <View>

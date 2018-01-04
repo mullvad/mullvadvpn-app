@@ -21,7 +21,6 @@ export default {
       paddingRight: 24,
       paddingLeft: 24,
       paddingBottom: 24,
-      position: 'relative' /* anchor for close button */
     },
     preferences__close: {
       position: 'absolute',
