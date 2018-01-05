@@ -69,6 +69,11 @@ it and behave accordingly.
     ./build.sh
     ```
 
+1.  Install build dependencies if you are on Linux
+    ```bash
+    sudo apt install icnsutils graphicsmagick
+    ```
+
 1. Package the application with:
     ```bash
     yarn run pack
@@ -83,14 +88,6 @@ it and behave accordingly.
     as in `yarn run pack:linux`.
 
     The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
-
-### Build dependencies
-
-#### Linux
-
-```bash
-sudo apt install icnsutils graphicsmagick
-```
 
 
 ## Command line tools for frontend development
@@ -117,11 +114,13 @@ sudo apt install icnsutils graphicsmagick
   - **routes.js** - routes configurator
 - **build.sh** - Builds the backend in release mode. Will be extended to take care of more parts
   of the release compiling and packaging.
-- **client-binaries** - Git submodule containing binaries shipped with the client. Most notably
+- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
+  Rust crates.
+- **client-binaries/** - Git submodule containing binaries shipped with the client. Most notably
   the OpenVPN binaries.
 - **format.sh** - Script that runs rustfmt to format the Rust code
 - **init.js** - entry file for electron, points to compiled **main.js**
-- **mullvad-daemon/** - Main crate building the backend daemon binary
+- **mullvad-daemon/** - Main Rust crate building the backend daemon binary
 - **scripts/** - support scripts for development
 - **test/** - frontend tests
 - **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
@@ -131,7 +130,7 @@ sudo apt install icnsutils graphicsmagick
 
 ![App diagram](README%20images/app-diagram.png)
 
-## View layout
+## Frontend view layout
 
 Most of application layouts consist of header bar area and main content area. Three of components
 from `components/Layout` help to assemble each view, i.e:
