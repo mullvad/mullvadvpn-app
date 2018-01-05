@@ -111,7 +111,7 @@ sudo apt install icnsutils graphicsmagick
     actions/backend.
   - **lib/** - shared classes and utilities
   - **assets/** - graphical assets and stylesheets
-  - **config.json** - static configuration file
+  - **config.json** - links to external components
   - **app.js** - entry file for renderer process
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
@@ -123,7 +123,7 @@ sudo apt install icnsutils graphicsmagick
 - **init.js** - entry file for electron, points to compiled **main.js**
 - **mullvad-daemon/** - Main crate building the backend daemon binary
 - **scripts/** - support scripts for development
-- **test/** - tests
+- **test/** - frontend tests
 - **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
   logs.
 
