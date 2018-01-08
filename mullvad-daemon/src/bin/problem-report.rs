@@ -18,6 +18,7 @@ use error_chain::ChainedError;
 use regex::Regex;
 
 use std::cmp::min;
+use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs::File;
@@ -154,10 +155,11 @@ fn collect_report(
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
     let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
         .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
+    let metadata = collect_metadata();
     let mut rpc_client =
         mullvad_rpc::ProblemReportProxy::connect().chain_err(|| ErrorKind::RpcError)?;
     rpc_client
-        .problem_report(user_email, user_message, &report_content)
+        .problem_report(user_email, user_message, &report_content, &metadata)
         .call()
         .chain_err(|| ErrorKind::RpcError)
 }
@@ -174,7 +176,7 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 
 #[derive(Debug)]
 struct ProblemReport {
-    system_info: Vec<String>,
+    metadata: HashMap<String, String>,
     logs: Vec<(String, String)>,
     redact_custom_strings: Vec<String>,
 }
@@ -184,17 +186,10 @@ impl ProblemReport {
     /// Logs will have all strings in `redact_custom_strings` removed from them.
     pub fn new(redact_custom_strings: Vec<String>) -> Self {
         ProblemReport {
-            system_info: Self::collect_system_info(),
+            metadata: collect_metadata(),
             logs: Vec::new(),
             redact_custom_strings,
         }
-    }
-
-    fn collect_system_info() -> Vec<String> {
-        vec![
-            format!("Mullvad daemon: {}", daemon_version()),
-            format!("OS: {}", os_version()),
-        ]
     }
 
     /// Attach file log to this report. This method uses the error chain instead of log
@@ -300,8 +295,8 @@ impl ProblemReport {
 impl fmt::Display for ProblemReport {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         writeln!(fmt, "System information:")?;
-        for system_info in &self.system_info {
-            writeln!(fmt, "{}", system_info)?;
+        for (key, value) in &self.metadata {
+            writeln!(fmt, "{}: {}", key, value)?;
         }
         writeln!(fmt, "")?;
         for &(ref label, ref content) in &self.logs {
@@ -329,6 +324,13 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
     let mut buffer = Vec::with_capacity(capacity);
     file.take(max_bytes as u64).read_to_end(&mut buffer)?;
     Ok(String::from_utf8_lossy(&buffer).into_owned())
+}
+
+fn collect_metadata() -> HashMap<String, String> {
+    let mut metadata = HashMap::new();
+    metadata.insert(String::from("mullvad-daemon-version"), daemon_version());
+    metadata.insert(String::from("os"), os_version());
+    metadata
 }
 
 fn daemon_version() -> String {
