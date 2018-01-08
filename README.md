@@ -133,10 +133,6 @@ it and behave accordingly.
 - **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
   logs.
 
-## Diagram of frontend architecture
-
-![App diagram](README%20images/app-diagram.png)
-
 
 # License
 
