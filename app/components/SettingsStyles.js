@@ -44,7 +44,6 @@ export default Object.assign(createViewStyles({
     height: 24,
     flex: 0,
     opacity: 0.6,
-    marginRight: 8,
   },
   settings__cell:{
     backgroundColor: 'rgba(41,71,115,1)',
@@ -88,7 +87,6 @@ export default Object.assign(createViewStyles({
     paddingRight: 12,
     paddingBottom: 9,
     borderRadius: 4,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   settings__footer: {
