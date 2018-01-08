@@ -226,7 +226,7 @@ impl ProblemReport {
 
     fn redact_network_info(&self, input: &str) -> String {
         let combined_pattern = format!(
-            "\\b{}|{}|{}\\b",
+            "\\b({}|{}|{})\\b",
             self.build_ipv4_regex(),
             self.build_ipv6_regex(),
             self.build_mac_regex()
@@ -376,7 +376,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_redacts_ipv4() {
+    fn redacts_ipv4() {
         assert_redacts_ipv4("1.2.3.4");
         assert_redacts_ipv4("10.127.0.1");
         assert_redacts_ipv4("192.168.1.1");
@@ -392,14 +392,14 @@ mod tests {
     }
 
     #[test]
-    fn test_does_not_redact_localhost_ipv4() {
+    fn does_not_redact_localhost_ipv4() {
         let report = ProblemReport::new(vec![]);
         let res = report.redact("127.0.0.1".to_owned());
         assert_eq!("127.0.0.1", res);
     }
 
     #[test]
-    fn test_redacts_ipv6() {
+    fn redacts_ipv6() {
         assert_redacts_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
         assert_redacts_ipv6("2001:db8:85a3:0:0:8a2e:370:7334");
         assert_redacts_ipv6("2001:db8:85a3::8a2e:370:7334");
@@ -411,6 +411,13 @@ mod tests {
         assert_redacts_ipv6("2001:db8::1:0:0:1");
         assert_redacts_ipv6("0::0");
         assert_redacts_ipv6("0:0:0:0::1");
+    }
+
+    #[test]
+    fn doesnt_redact_not_ipv6() {
+        let report = ProblemReport::new(vec![]);
+        let actual = report.redact(format!("[talpid_core::firewall]"));
+        assert_eq!("[talpid_core::firewall]", actual);
     }
 
     fn assert_redacts_ipv6(input: &str) {
