@@ -16,10 +16,18 @@ This repository contains a submodule, so clone it recursively:
 git clone --recursive https://github.com/mullvad/mullvadvpn-app.git
 ```
 
-## Building and running the backend (mullvad-daemon)
+## Install toolchains and dependencies
 
 1. Get the latest stable Rust toolchain. This is easy with rustup, follow the instructions on
 [rustup.rs](https://rustup.rs/).
+
+1. Get Node.js (version 8 or 9) and the latest version of yarn. On macOS these can be installed via
+homebrew:
+    ```bash
+    brew install node yarn
+    ```
+
+## Building and running the backend (mullvad-daemon)
 
 1. Build the backend without optimizations (debug mode) with:
     ```
@@ -34,12 +42,6 @@ git clone --recursive https://github.com/mullvad/mullvadvpn-app.git
     etc.
 
 ## Building and running the frontend (electron app)
-
-1. Get Node.js (version 8 or 9) and the latest version of yarn. On macOS these can be installed via
-homebrew:
-    ```bash
-    brew install node yarn
-    ```
 
 1. Install all the JavaScript dependencies by running:
     ```bash
@@ -64,6 +66,8 @@ it and behave accordingly.
 
 ## Packaging the app
 
+1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
+
 1. Build the backend in optimized release mode with:
     ```
     ./build.sh
@@ -74,8 +78,9 @@ it and behave accordingly.
     sudo apt install icnsutils graphicsmagick
     ```
 
-1. Package the application with:
+1. Install all JavaScript dependencies (unless you already have) and package the application with:
     ```bash
+    yarn install
     yarn run pack
     ```
     This will create installation packages for windows, linux and MacOS. Note that you have to have
