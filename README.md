@@ -137,20 +137,6 @@ it and behave accordingly.
 
 ![App diagram](README%20images/app-diagram.png)
 
-## Frontend view layout
-
-Most of application layouts consist of header bar area and main content area. Three of components
-from `components/Layout` help to assemble each view, i.e:
-
-```
-<Layout>
-  <Header />
-  <Container>
-    { /* content goes here */ }
-  </Container>
-</Layout>
-```
-
 
 # License
 
