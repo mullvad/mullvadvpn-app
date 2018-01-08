@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Mullvad</string>
+    <string name="vpn_notification_title">Mullvad VPN</string>
+    <string name="vpn_notification_message">WireGuard service running</string>
+    <string name="vpn_ticker_text">VPN ticker text</string>
+    <string name="vpn_notification_message_secured">Secure connection</string>
+    <string name="vpn_notification_message_insecure">Insecure connection</string>
+    <string name="vpn_ticker_text_secured">Connected to Mullvad VPN</string>
+    <string name="vpn_ticker_text_unsecured">Not connected to Mullvad VPN</string>
+</resources>
