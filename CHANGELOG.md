@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   app blocks traffic because the tunnel is not connected the tray icon will indicate this with a
   green lock with a red dot.
 - While connecting, a message telling the user that internet accesss is blocked is shown.
+- Default to selecting servers in Sweden to increase the likelyhood of a fast and stable connection.
 
 
 ## [2017.1-beta7] - 2017-12-13

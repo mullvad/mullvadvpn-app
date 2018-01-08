@@ -2,8 +2,8 @@ extern crate serde_json;
 
 use app_dirs;
 
-use mullvad_types::relay_constraints::{Constraint, RelayConstraints, RelaySettings,
-                                       RelaySettingsUpdate};
+use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
+                                       RelaySettings, RelaySettingsUpdate};
 
 use std::fs::File;
 use std::io;
@@ -44,7 +44,7 @@ impl Default for Settings {
         Settings {
             account_token: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Any,
+                location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
