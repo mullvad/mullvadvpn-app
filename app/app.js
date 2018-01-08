@@ -28,6 +28,7 @@ ipcRenderer.on('backend-info', async (_event, args) => {
   try {
     await backend.autologin();
     await backend.fetchRelaySettings();
+    await backend.fetchSecurityState();
     await backend.connect();
   } catch (e) {
     if(e instanceof BackendError) {
