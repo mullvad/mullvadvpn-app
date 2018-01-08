@@ -1,0 +1,15 @@
+[package]
+name = "mullvad"
+version = "0.1.0"
+authors = ["anderklander <anderklander@gmail.com>"]
+
+[lib]
+name = "mullvad"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+jni = { version = "0.5.1", optional = true, default-features = false }
+lazy_static = "*"
+
+[features]
+default = ["jni"]
