@@ -17,12 +17,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Added
 - "Allow LAN" setting that configures if the app should allow communication to the LAN (private
   networks: 10/8, 192.168/16 and 172.16/12) while the app is in the secured state.
+- The app can now be used to connect to all our servers rather than a smaller subset. The list
+  of servers is automatically updated when the app starts.
 
 ### Changed
 - The tray icon now indicates wether the app is allowing traffic outside the tunnel or not. If the
   app blocks traffic because the tunnel is not connected the tray icon will indicate this with a
   green lock with a red dot.
 - While connecting, a message telling the user that internet accesss is blocked is shown.
+- Remove the unsafe Camellia and Seed ciphers.
+- The repository is now public on Github.
 
 
 ## [2017.1-beta7] - 2017-12-13
