@@ -80,13 +80,11 @@ export default class Settings extends Component {
         <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
           <View style={styles.settings__cell}>
             <Text style={styles.settings__cell_label}>Account</Text>
-            <View style={styles.settings__account_paid_until_label_container}>
-              {isOutOfTime ? (
-                <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
-              ) : (
-                <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
-              )}
-            </View>
+            {isOutOfTime ? (
+              <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
+            ) : (
+              <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
+            )}
             <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
           </View>
         </Button>
