@@ -6,7 +6,7 @@ import { push } from 'react-router-redux';
 import Account from '../components/Account';
 import accountActions from '../redux/account/actions';
 import { links } from '../config';
-import { open } from '../lib/platform';
+import { openLink } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onClose: () => {
       pushHistory('/settings');
     },
-    onBuyMore: () => open(links['purchase'])
+    onBuyMore: () => openLink(links['purchase'])
   };
 };
 
