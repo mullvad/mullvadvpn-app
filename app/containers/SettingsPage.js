@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Settings from '../components/Settings';
 import { links } from '../config';
-import { open, exit } from '../lib/platform';
+import { openLink, exit } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) =
     onViewSupport: () => pushHistory('/settings/support'),
     onViewPreferences: () => pushHistory('/settings/preferences'),
     onViewAdvancedSettings: () => pushHistory('/settings/advanced'),
-    onExternalLink: (type) => open(links[type]),
+    onExternalLink: (type) => openLink(links[type]),
   };
 };
 
