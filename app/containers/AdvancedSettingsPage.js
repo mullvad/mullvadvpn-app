@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { AdvancedSettings } from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
-import log from 'electron-log';
+import { log } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';

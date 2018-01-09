@@ -1,13 +1,21 @@
 // @flow
-import { BackHandler } from 'react-native';
-import { Linking } from 'react-native';
+import { BackHandler, Linking } from 'react-native';
+
+const log = console.log;
 
 const exit = () => {
   BackHandler.exitApp();
 };
 
-const open = (link: string) => {
+const openLink = (link: string) => {
   Linking.openURL(link);
 };
 
-export {exit, open};
+const openItem = (path: string) => {
+
+};
+
+export { log, exit, openLink, openItem };
+
+
+

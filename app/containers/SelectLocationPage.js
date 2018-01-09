@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import SelectLocation from '../components/SelectLocation';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
-import log from 'electron-log';
+import { log } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
