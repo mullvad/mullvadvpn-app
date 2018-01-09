@@ -2,7 +2,7 @@
 import path from 'path';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
-import log from 'electron-log';
+import { log } from './lib/platform';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
 import ElectronSudo from 'electron-sudo';

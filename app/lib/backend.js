@@ -1,6 +1,6 @@
 // @flow
 
-import log from 'electron-log';
+import { log } from '../lib/platform';
 import EventEmitter from 'events';
 import { IpcFacade, RealIpc } from './ipc-facade';
 import accountActions from '../redux/account/actions';
