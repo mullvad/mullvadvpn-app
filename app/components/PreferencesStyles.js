@@ -5,7 +5,7 @@ import { createViewStyles, createTextStyles } from '../lib/styles';
 export default {
   ...createViewStyles({
     preferences: {
-      background: '#192E45',
+      backgroundColor: '#192E45',
       height: '100%',
     },
     preferences__container: {
@@ -72,20 +72,20 @@ export default {
     preferences__close_title: {
       fontFamily: 'Open Sans',
       fontSize: 13,
-      fontWeight: 600,
+      fontWeight: '600',
       color: 'rgba(255, 255, 255, 0.6)',
     },
     preferences__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
-      fontWeight: 900,
+      fontWeight: '900',
       lineHeight: 40,
       color: '#fff',
     },
     preferences__cell_label: {
       fontFamily: 'DINPro',
       fontSize: 20,
-      fontWeight: 900,
+      fontWeight: '900',
       lineHeight: 26,
       letterSpacing: -0.2,
       color: '#fff',
@@ -93,7 +93,7 @@ export default {
     preferences__cell_footer_label: {
       fontFamily: 'Open Sans',
       fontSize: 13,
-      fontWeight: 600,
+      fontWeight: '600',
       lineHeight: 20,
       letterSpacing: -0.2,
       color: 'rgba(255,255,255,0.8)'
