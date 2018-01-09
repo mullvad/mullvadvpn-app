@@ -18,6 +18,7 @@ use error_chain::ChainedError;
 use regex::Regex;
 
 use std::cmp::min;
+use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs::File;
@@ -154,10 +155,11 @@ fn collect_report(
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
     let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
         .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
+    let metadata = collect_metadata();
     let mut rpc_client =
         mullvad_rpc::ProblemReportProxy::connect().chain_err(|| ErrorKind::RpcError)?;
     rpc_client
-        .problem_report(user_email, user_message, &report_content)
+        .problem_report(user_email, user_message, &report_content, &metadata)
         .call()
         .chain_err(|| ErrorKind::RpcError)
 }
@@ -174,7 +176,7 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 
 #[derive(Debug)]
 struct ProblemReport {
-    system_info: Vec<String>,
+    metadata: HashMap<String, String>,
     logs: Vec<(String, String)>,
     redact_custom_strings: Vec<String>,
 }
@@ -184,17 +186,10 @@ impl ProblemReport {
     /// Logs will have all strings in `redact_custom_strings` removed from them.
     pub fn new(redact_custom_strings: Vec<String>) -> Self {
         ProblemReport {
-            system_info: Self::collect_system_info(),
+            metadata: collect_metadata(),
             logs: Vec::new(),
             redact_custom_strings,
         }
-    }
-
-    fn collect_system_info() -> Vec<String> {
-        vec![
-            format!("Mullvad daemon: {}", daemon_version()),
-            format!("OS: {}", os_version()),
-        ]
     }
 
     /// Attach file log to this report. This method uses the error chain instead of log
@@ -226,7 +221,7 @@ impl ProblemReport {
 
     fn redact_network_info(&self, input: &str) -> String {
         let combined_pattern = format!(
-            "\\b{}|{}|{}\\b",
+            "\\b({}|{}|{})\\b",
             self.build_ipv4_regex(),
             self.build_ipv6_regex(),
             self.build_mac_regex()
@@ -300,8 +295,8 @@ impl ProblemReport {
 impl fmt::Display for ProblemReport {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         writeln!(fmt, "System information:")?;
-        for system_info in &self.system_info {
-            writeln!(fmt, "{}", system_info)?;
+        for (key, value) in &self.metadata {
+            writeln!(fmt, "{}: {}", key, value)?;
         }
         writeln!(fmt, "")?;
         for &(ref label, ref content) in &self.logs {
@@ -331,12 +326,18 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
     Ok(String::from_utf8_lossy(&buffer).into_owned())
 }
 
+fn collect_metadata() -> HashMap<String, String> {
+    let mut metadata = HashMap::new();
+    metadata.insert(String::from("mullvad-daemon-version"), daemon_version());
+    metadata.insert(String::from("os"), os_version());
+    metadata
+}
+
 fn daemon_version() -> String {
-    format!(
-        "v{} {}",
-        env!("CARGO_PKG_VERSION"),
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
-    )
+    String::from(include_str!(concat!(
+        env!("OUT_DIR"),
+        "/git-commit-info.txt"
+    )))
 }
 
 #[cfg(target_os = "linux")]
@@ -376,7 +377,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_redacts_ipv4() {
+    fn redacts_ipv4() {
         assert_redacts_ipv4("1.2.3.4");
         assert_redacts_ipv4("10.127.0.1");
         assert_redacts_ipv4("192.168.1.1");
@@ -392,14 +393,14 @@ mod tests {
     }
 
     #[test]
-    fn test_does_not_redact_localhost_ipv4() {
+    fn does_not_redact_localhost_ipv4() {
         let report = ProblemReport::new(vec![]);
         let res = report.redact("127.0.0.1".to_owned());
         assert_eq!("127.0.0.1", res);
     }
 
     #[test]
-    fn test_redacts_ipv6() {
+    fn redacts_ipv6() {
         assert_redacts_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
         assert_redacts_ipv6("2001:db8:85a3:0:0:8a2e:370:7334");
         assert_redacts_ipv6("2001:db8:85a3::8a2e:370:7334");
@@ -411,6 +412,13 @@ mod tests {
         assert_redacts_ipv6("2001:db8::1:0:0:1");
         assert_redacts_ipv6("0::0");
         assert_redacts_ipv6("0:0:0:0::1");
+    }
+
+    #[test]
+    fn doesnt_redact_not_ipv6() {
+        let report = ProblemReport::new(vec![]);
+        let actual = report.redact(format!("[talpid_core::firewall]"));
+        assert_eq!("[talpid_core::firewall]", actual);
     }
 
     fn assert_redacts_ipv6(input: &str) {

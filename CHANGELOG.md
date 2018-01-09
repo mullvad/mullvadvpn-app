@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+### Fixed
+- Fixed bug where problem report tool would redact some things in the logs which were not IPv6
+  addresses, but looked like ones.
 
 
 ## [2018.1-beta8] - 2018-01-09

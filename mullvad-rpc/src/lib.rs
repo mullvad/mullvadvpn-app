@@ -24,6 +24,8 @@ pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 
+use std::collections::HashMap;
+
 
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
@@ -37,7 +39,13 @@ jsonrpc_client!(pub struct AccountsProxy {
 });
 
 jsonrpc_client!(pub struct ProblemReportProxy {
-    pub fn problem_report(&mut self, email: &str, message: &str, log: &str) -> RpcRequest<()>;
+    pub fn problem_report(
+        &mut self,
+        email: &str,
+        message: &str,
+        log: &str,
+        metadata: &HashMap<String, String>)
+        -> RpcRequest<()>;
 });
 
 impl ProblemReportProxy<HttpHandle> {
