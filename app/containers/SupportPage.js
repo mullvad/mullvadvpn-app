@@ -1,7 +1,7 @@
 // @flow
 
 import { log, openItem } from '../lib/platform';
-import { shell, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
