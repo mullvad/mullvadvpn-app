@@ -421,6 +421,14 @@ export class Backend {
     );
   }
 
+  async fetchSecurityState() {
+    await this._ensureAuthenticated();
+
+    const securityState = await this._ipc.getState();
+    const connectionState = this._securityStateToConnectionState(securityState);
+    this._dispatchConnectionState(connectionState);
+  }
+
   /**
    * Start reachability monitoring for online/offline detection
    * This is currently done via HTML5 APIs but will be replaced later
@@ -452,17 +460,7 @@ export class Backend {
       log.debug('Got new state from backend', newState);
 
       const newStatus = this._securityStateToConnectionState(newState);
-      switch(newStatus) {
-      case 'connecting':
-        this._store.dispatch(connectionActions.connecting());
-        break;
-      case 'connected':
-        this._store.dispatch(connectionActions.connected());
-        break;
-      case 'disconnected':
-        this._store.dispatch(connectionActions.disconnected());
-        break;
-      }
+      this._dispatchConnectionState(newStatus);
       this.sync();
     });
   }
@@ -476,6 +474,20 @@ export class Backend {
       return 'disconnected';
     }
     throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
+  }
+
+  _dispatchConnectionState(connectionState: ConnectionState) {
+    switch(connectionState) {
+    case 'connecting':
+      this._store.dispatch(connectionActions.connecting());
+      break;
+    case 'connected':
+      this._store.dispatch(connectionActions.connected());
+      break;
+    case 'disconnected':
+      this._store.dispatch(connectionActions.disconnected());
+      break;
+    }
   }
 
   _ensureAuthenticated() {
