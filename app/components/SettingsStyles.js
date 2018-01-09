@@ -79,9 +79,6 @@ export default Object.assign(createViewStyles({
     alignItems: 'flex-end',
     color: 'rgba(255, 255, 255, 0.8)',
   },
-  settings__account_paid_until_label__error:{
-    color: '#d0021b',
-  },
   settings__footer_button:{
     backgroundColor: 'rgba(208,2,27,1)',
     paddingTop: 7,
@@ -122,14 +119,20 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
-  settings__account_paid_until_label_container :{
-    flexGrow: 0,
-    textAlign: 'right',
-  },
   settings__account_paid_until_label:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.8)',
+    flexGrow: 0,
+    textAlign: 'right',
+  },
+  settings__account_paid_until_label__error:{
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '800',
+    flexGrow: 0,
+    textAlign: 'right',
+    color: '#d0021b',
   },
 }));
