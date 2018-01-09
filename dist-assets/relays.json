@@ -11,6 +11,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "au-mel-001",
@@ -69,6 +70,7 @@
             -33.861481,
             151.205475
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "au2",
@@ -181,6 +183,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "at1",
@@ -293,6 +296,7 @@
             50.833333,
             4.333333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "be1",
@@ -405,6 +409,7 @@
             42.6833333,
             23.3166667
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "bg1",
@@ -517,6 +522,7 @@
             43.666667,
             -79.416667
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "ca1",
@@ -671,6 +677,7 @@
             49.25,
             -123.133333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "ca4",
@@ -783,6 +790,7 @@
             50.083333,
             14.466667
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "cz1",
@@ -895,6 +903,7 @@
             55.666667,
             12.583333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "dk1",
@@ -1103,6 +1112,7 @@
             60.6,
             21.433333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "fi1",
@@ -1215,6 +1225,7 @@
             48.866667,
             2.333333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "fr1",
@@ -1327,6 +1338,7 @@
             54.033333,
             10.45
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "de6",
@@ -1529,6 +1541,7 @@
             52.35,
             14.55
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "de10",
@@ -1737,6 +1750,7 @@
             22.2833333,
             114.15
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "hk1",
@@ -1801,6 +1815,7 @@
             47.5,
             19.083333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "hu1",
@@ -1865,6 +1880,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "il1",
@@ -1929,6 +1945,7 @@
             45.466667,
             9.2
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "it1",
@@ -2041,6 +2058,7 @@
             35.685,
             139.751389
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "jp1",
@@ -2105,6 +2123,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "md0001",
@@ -2169,6 +2188,7 @@
             52.35,
             4.916667
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "nl1",
@@ -2222,7 +2242,7 @@
               "hostname": "nl10",
               "ipv4_addr_in": "185.65.134.140",
               "ipv4_addr_exit": "185.65.134.170",
-              "include_in_country": false,
+              "include_in_country": true,
               "weight": 100,
               "tunnels": {
                 "openvpn": [
@@ -3049,6 +3069,7 @@
             59.916667,
             10.75
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "no-osl-001",
@@ -3401,6 +3422,7 @@
             52.25,
             21.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "pl1",
@@ -3465,6 +3487,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "pt1",
@@ -3529,6 +3552,7 @@
             44.433333,
             26.1
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "ro1",
@@ -3641,6 +3665,7 @@
             1.2930556,
             103.8558333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "sg1",
@@ -3753,6 +3778,7 @@
             40.408566,
             -3.69222
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "es1",
@@ -3865,6 +3891,7 @@
             56.05,
             12.7
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "se1",
@@ -4259,6 +4286,7 @@
             58.35,
             11.333333
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "se0033",
@@ -4549,102 +4577,6 @@
               }
             },
             {
-              "hostname": "se5",
-              "ipv4_addr_in": "193.138.218.135",
-              "ipv4_addr_exit": "193.138.218.165",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
-              "hostname": "se6",
-              "ipv4_addr_in": "193.138.218.136",
-              "ipv4_addr_exit": "193.138.218.166",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
               "hostname": "se-mma-001",
               "ipv4_addr_in": "193.138.218.131",
               "ipv4_addr_exit": "193.138.218.161",
@@ -4845,6 +4777,7 @@
             61.883056,
             13.75
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "se17",
@@ -5581,6 +5514,7 @@
             47.366667,
             8.55
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "ch1",
@@ -5885,6 +5819,7 @@
             51.514125,
             -0.093689
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "gb2",
@@ -6087,6 +6022,7 @@
             53.5,
             -2.216667
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "gb4",
@@ -6247,6 +6183,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us0010",
@@ -6353,6 +6290,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us1",
@@ -6497,6 +6435,54 @@
                 ],
                 "wireguard": []
               }
+            },
+            {
+              "hostname": "us-chi-001",
+              "ipv4_addr_in": "208.77.22.187",
+              "ipv4_addr_exit": "208.77.22.188",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
             }
           ]
         },
@@ -6507,6 +6493,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us8",
@@ -6603,6 +6590,54 @@
                 ],
                 "wireguard": []
               }
+            },
+            {
+              "hostname": "us-dal-001",
+              "ipv4_addr_in": "75.126.73.46",
+              "ipv4_addr_exit": "174.127.93.141",
+              "include_in_country": false,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
             }
           ]
         },
@@ -6613,6 +6648,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us-las-001",
@@ -6767,6 +6803,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us21",
@@ -7065,6 +7102,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us19",
@@ -7267,6 +7305,7 @@
             4042.0,
             7400.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us-ewr-003",
@@ -7421,6 +7460,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us17",
@@ -7671,6 +7711,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us-phx-001",
@@ -7825,6 +7866,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us2",
@@ -7925,12 +7967,72 @@
           ]
         },
         {
+          "name": "Richmond, Virginia",
+          "code": "ric",
+          "position": [
+            0.0,
+            0.0
+          ],
+          "has_active_relays": false,
+          "relays": [
+            {
+              "hostname": "us-ric-001",
+              "ipv4_addr_in": "192.64.24.98",
+              "ipv4_addr_exit": "192.64.24.99",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            }
+          ]
+        },
+        {
           "name": "Salt Lake City, Utah",
           "code": "slc",
           "position": [
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us0004",
@@ -8031,12 +8133,72 @@
           ]
         },
         {
+          "name": "San Jose, California",
+          "code": "sjc",
+          "position": [
+            0.0,
+            0.0
+          ],
+          "has_active_relays": false,
+          "relays": [
+            {
+              "hostname": "us-sjc-001",
+              "ipv4_addr_in": "50.23.65.54",
+              "ipv4_addr_exit": "174.127.103.180",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            }
+          ]
+        },
+        {
           "name": "Seattle, Washington",
           "code": "sea",
           "position": [
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us0005",
@@ -8143,6 +8305,7 @@
             0.0,
             0.0
           ],
+          "has_active_relays": false,
           "relays": [
             {
               "hostname": "us24",
