@@ -789,9 +789,8 @@ fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Re
 
 fn log_version() {
     info!(
-        "Starting {} v{} {}",
+        "Starting {} {}",
         env!("CARGO_PKG_NAME"),
-        env!("CARGO_PKG_VERSION"),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
     )
 }
