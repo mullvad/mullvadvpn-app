@@ -1,5 +1,5 @@
 {
-	"name": "Mullvad VPN Android",
+	"name": "mullvad-vpn-android",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
