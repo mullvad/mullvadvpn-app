@@ -10,32 +10,40 @@ export default Object.assign(createViewStyles({
     height: '100%'
   },
   settings__header:{
-    flex: 0,
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 24,
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    paddingTop: 40,
     paddingRight: 24,
-    position: 'relative' /* anchor for close button */
+    paddingLeft: 24,
+    paddingBottom: 24,
   },
-  settings__content:{
+  settings__content: {
     flexDirection: 'column',
     flex: 1,
     justifyContent: 'space-between',
     height: '100%',
   },
-  settings__close:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginTop: 0,
-    marginLeft: 12,
+  settings__scrollview: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+  },
+  settings__close: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    borderWidth: 0,
+    padding: 0,
+    margin: 0,
+    zIndex: 1, /* part of .settings__close covers the button */
+    cursor: 'default',
   },
   settings__close_icon:{
     width: 24,
     height: 24,
     flex: 0,
     opacity: 0.6,
-    marginRight: 8,
   },
   settings__cell:{
     backgroundColor: 'rgba(41,71,115,1)',
@@ -79,14 +87,9 @@ export default Object.assign(createViewStyles({
     paddingRight: 12,
     paddingBottom: 9,
     borderRadius: 4,
-    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
   },
-  settings__footer:{
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  settings__footer: {
     paddingTop: 24,
     paddingLeft: 24,
     paddingRight: 24,
@@ -119,13 +122,12 @@ export default Object.assign(createViewStyles({
   },
   settings__account_paid_until_label_container :{
     flexGrow: 0,
-    textAlign: 'end',
+    textAlign: 'right',
   },
   settings__account_paid_until_label:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.8)',
-    textTransform: 'uppercase',
   },
 }));

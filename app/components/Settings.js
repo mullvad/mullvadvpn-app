@@ -28,16 +28,6 @@ export default class Settings extends Component {
   props: SettingsProps;
 
   render() {
-    const isLoggedIn = this.props.account.status === 'ok';
-    let isOutOfTime = false, formattedExpiry = '';
-    let expiryIso = this.props.account.expiry;
-
-    if(isLoggedIn && expiryIso) {
-      let expiry = moment(this.props.account.expiry);
-      isOutOfTime = expiry.isSameOrBefore(moment());
-      formattedExpiry = expiry.fromNow(true) + ' left';
-    }
-
     return (
       <Layout>
         <Header hidden={ true } style={ 'defaultDark' } />
@@ -52,80 +42,16 @@ export default class Settings extends Component {
                 <Text style={styles.settings__title}>Settings</Text>
               </View>
 
-              <CustomScrollbars autoHide={ true }>
+              <CustomScrollbars style={styles.settings__scrollview} autoHide={ true }>
 
                 <View style={styles.settings__content}>
-                  <View style={styles.settings__main}>
-                    {/* show account options when logged in */}
-                    {isLoggedIn ? (
-                      <View style={styles.settings_account} testName='settings__account'>
-
-                        <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
-                          <View style={styles.settings__cell}>
-                            <Text style={styles.settings__cell_label}>Account</Text>
-                            <View style={styles.settings__account_paid_until_label_container}>
-                              {isOutOfTime ? (
-                                <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
-                              ) : (
-                                <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
-                              )}
-                            </View>
-                            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-                          </View>
-                        </Button>
-                      </View>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewPreferences } testName='settings__preferences'>
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Preferences</Text>
-                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
-                        </View>
-                      </Button>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <Button onPress={ this.props.onViewAdvancedSettings } testName="settings__advanced">
-                        <View style={styles.settings__cell}>
-                          <Text style={styles.settings__cell_label}>Advanced</Text>
-                          <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-                        </View>
-                      </Button>
-                    ) : null}
-
-                    {isLoggedIn ? (
-                      <View style={styles.settings__cell_spacer}></View>
-                    ) : null}
-
-                    <Button onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
-                      <View style={styles.settings__cell}>
-                        <Text style={styles.settings__cell_label}>FAQs</Text>
-                        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
-                      </View>
-                    </Button>
-
-                    <Button onPress={ this.props.onExternalLink.bind(this, 'guides') } testName='settings__external_link'>
-                      <View style={styles.settings__cell}>
-                        <Text style={styles.settings__cell_label}>Guides</Text>
-                        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
-                      </View>
-                    </Button>
-
-                    <Button onPress={ this.props.onViewSupport }  testName='settings__view_support'>
-                      <View style={styles.settings__cell}>
-                        <Text style={styles.settings__cell_label}>Contact support</Text>
-                        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-                      </View>
-                    </Button>
+                  <View>
+                    { this._renderTopButtons() }
+                    { this._renderBottomButtons() }
                   </View>
-
-                  <View style={styles.settings__footer}>
-                    <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName='settings__quit'>
-                      <Text style={styles.settings__footer_button_label}>Quit app</Text>
-                    </Button>
-                  </View>
+                  { this._renderQuitButton() }
                 </View>
+
               </CustomScrollbars>
             </View>
           </View>
@@ -133,4 +59,86 @@ export default class Settings extends Component {
       </Layout>
     );
   }
+
+  _renderTopButtons() {
+    const isLoggedIn = this.props.account.status === 'ok';
+    if (!isLoggedIn) {
+      return null;
+    }
+
+    let isOutOfTime = false, formattedExpiry = '';
+    let expiryIso = this.props.account.expiry;
+
+    if(isLoggedIn && expiryIso) {
+      let expiry = moment(this.props.account.expiry);
+      isOutOfTime = expiry.isSameOrBefore(moment());
+      formattedExpiry = (expiry.fromNow(true) + ' left').toUpperCase();
+    }
+
+    return <View>
+      <View style={styles.settings_account} testName='settings__account'>
+        <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
+          <View style={styles.settings__cell}>
+            <Text style={styles.settings__cell_label}>Account</Text>
+            <View style={styles.settings__account_paid_until_label_container}>
+              {isOutOfTime ? (
+                <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
+              ) : (
+                <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
+              )}
+            </View>
+            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
+          </View>
+        </Button>
+      </View>
+
+      <ButtonCell onPress={ this.props.onViewPreferences } testName='settings__preferences'>
+        <Text style={styles.settings__cell_label}>Preferences</Text>
+        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
+      </ButtonCell>
+
+      <ButtonCell onPress={ this.props.onViewAdvancedSettings } testName='settings__advanced'>
+        <Text style={styles.settings__cell_label}>Advanced</Text>
+        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
+      </ButtonCell>
+
+      <View style={styles.settings__cell_spacer}></View>
+    </View>;
+  }
+
+  _renderBottomButtons() {
+    return <View>
+      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
+        <Text style={styles.settings__cell_label}>FAQs</Text>
+        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
+      </ButtonCell>
+
+      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'guides') } testName='settings__external_link'>
+        <Text style={styles.settings__cell_label}>Guides</Text>
+        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
+      </ButtonCell>
+
+      <ButtonCell onPress={ this.props.onViewSupport }  testName='settings__view_support'>
+        <Text style={styles.settings__cell_label}>Contact support</Text>
+        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
+      </ButtonCell>
+    </View>;
+  }
+
+  _renderQuitButton() {
+    return <View style={styles.settings__footer}>
+      <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName='settings__quit'>
+        <Text style={styles.settings__footer_button_label}>Quit app</Text>
+      </Button>
+    </View>;
+  }
+}
+
+function ButtonCell(props) {
+  const { children, ...rest } = props;
+  return <Button { ...rest } >
+    <View style={styles.settings__cell}>
+      { children }
+    </View>
+  </Button>;
 }

@@ -53,10 +53,11 @@ export default class CustomScrollbars extends Component {
   }
 
   render() {
+    const { autoHide: _autoHide, thumbInset: _thumbInset, children, ...otherProps } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
     const thumbAnimationClass = showScrollbars ? ' custom-scrollbars__thumb--visible' : '';
     return (
-      <div className="custom-scrollbars">
+      <div {...otherProps } className="custom-scrollbars">
         <div className={ `custom-scrollbars__thumb ${thumbAnimationClass}` }
           style={{ position: 'absolute', top: 0, right: 0 }}
           ref={ this._onThumbRef }></div>
@@ -64,7 +65,7 @@ export default class CustomScrollbars extends Component {
           style={{ overflow: 'auto' }}
           onScroll={ this._onScroll }
           ref={ this._onScrollableRef }>
-          { this.props.children }
+          { children }
         </div>
       </div>
     );
