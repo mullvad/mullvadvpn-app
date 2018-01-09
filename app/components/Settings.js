@@ -97,7 +97,7 @@ export default class Settings extends Component {
         <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
       </ButtonCell>
 
-      <ButtonCell onPress={ this.props.onViewAdvancedSettings }>
+      <ButtonCell onPress={ this.props.onViewAdvancedSettings } testName='settings__advanced'>
         <Text style={styles.settings__cell_label}>Advanced</Text>
         <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
       </ButtonCell>
