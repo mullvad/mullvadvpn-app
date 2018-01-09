@@ -4,20 +4,54 @@ The back- and frontend for the Mullvad VPN app.
 
 ## Status
 
-There is a [beta release available](https://mullvad.net/en/guides/beta-app/) for macOS.
+There is a beta release for macOS available on
+[our website](https://mullvad.net/en/guides/beta-app/) and on
+[github](https://github.com/mullvad/mullvadvpn-app/releases/).
 Support for Linux, Windows, Android and iOS is in the making.
 
+## Checking out the code
 
-## Developing
+This repository contains a submodule, so clone it recursively:
+```
+git clone --recursive https://github.com/mullvad/mullvadvpn-app.git
+```
 
-First you need to install all the javascript dependencies by running
-```bash
-yarn install
-```
-then you can start the program using
-```bash
-yarn run develop
-```
+## Install toolchains and dependencies
+
+1. Get the latest stable Rust toolchain. This is easy with rustup, follow the instructions on
+[rustup.rs](https://rustup.rs/).
+
+1. Get Node.js (version 8 or 9) and the latest version of yarn. On macOS these can be installed via
+homebrew:
+    ```bash
+    brew install node yarn
+    ```
+
+## Building and running the backend (mullvad-daemon)
+
+1. Build the backend without optimizations (debug mode) with:
+    ```
+    cargo build
+    ```
+
+1. Run the backend daemon debug binary with verbose logging to the terminal with:
+    ```
+    sudo ./target/debug/mullvad-daemon -vv
+    ```
+    It must run as root since it it modifies the firewall and sets up virtual network interfaces
+    etc.
+
+## Building and running the frontend (electron app)
+
+1. Install all the JavaScript dependencies by running:
+    ```bash
+    yarn install
+    ```
+
+1. Start the frontend in development mode by running:
+    ```bash
+    yarn run develop
+    ```
 
 If you change any javascript file while the development mode is running it will automatically
 transpile and reload the file so that the changes are visible almost immediately.
@@ -30,42 +64,47 @@ to run a specific version of the backend you can just start it yourself and the 
 it and behave accordingly.
 
 
-## Packaging
+## Packaging the app
 
-By running
-```bash
-yarn run pack
-```
-you create installation packages for windows, linux and MacOS. Note that you have to have run
-`yarn install` at least once to download the javascript dependencies.
+1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
 
-If you only want to build for a specific OS you run
-```bash
-yarn run pack:OS
-```
-as in `yarn run pack:linux`.
+1. Build the backend in optimized release mode with:
+    ```
+    ./build.sh
+    ```
 
-The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
+1.  Install build dependencies if you are on Linux
+    ```bash
+    sudo apt install icnsutils graphicsmagick
+    ```
 
-### Build dependencies
+1. Install all JavaScript dependencies (unless you already have) and package the application with:
+    ```bash
+    yarn install
+    yarn run pack
+    ```
+    This will create installation packages for windows, linux and MacOS. Note that you have to have
+    run `yarn install` at least once before this step to download the javascript dependencies.
 
-#### Linux
+    If you only want to build for a specific OS you run
+    ```bash
+    yarn run pack:OS
+    ```
+    as in `yarn run pack:linux`.
 
-```bash
-sudo apt install icnsutils graphicsmagick
-```
+    The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
 
 
-## Command line tools
+## Command line tools for frontend development
 
 - `$ yarn run develop` - develop app with live-reload enabled
 - `$ yarn run flow` - type-check the code
 - `$ yarn run lint` - lint code
 - `$ yarn run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`,
-   `pack:win`, `pack:linux` to generate package for single target.
+   `pack:win` or `pack:linux` to generate package for single target.
 - `$ yarn run test` - run tests
 
-## Structure
+## Repository structure
 
 - **app/**
   - **redux/** - state management
@@ -74,33 +113,25 @@ sudo apt install icnsutils graphicsmagick
     actions/backend.
   - **lib/** - shared classes and utilities
   - **assets/** - graphical assets and stylesheets
-  - **config.js** - static configuration file
+  - **config.json** - links to external components
   - **app.js** - entry file for renderer process
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
-  - **store.js** - redux store configurator
-  - **enums.js** - common enums used across components
-- **test/** - tests
-- **scripts/** - support scripts for development
+  - **transitions.js** - transition rules between views
+  - **types.js** - common Flow types used across the app
+- **build.sh** - Builds the backend in release mode. Will be extended to take care of more parts
+  of the release compiling and packaging.
+- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
+  Rust crates.
+- **client-binaries/** - Git submodule containing binaries shipped with the client. Most notably
+  the OpenVPN binaries.
+- **format.sh** - Script that runs rustfmt to format the Rust code
 - **init.js** - entry file for electron, points to compiled **main.js**
-
-## App diagram
-
-![App diagram](README%20images/app-diagram.png)
-
-## View layout
-
-Most of application layouts consist of header bar area and main content area. Three of components
-from `components/Layout` help to assemble each view, i.e:
-
-```
-<Layout>
-  <Header />
-  <Container>
-    { /* content goes here */ }
-  </Container>
-</Layout>
-```
+- **mullvad-daemon/** - Main Rust crate building the backend daemon binary
+- **scripts/** - support scripts for development
+- **test/** - frontend tests
+- **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
+  logs.
 
 
 # License
