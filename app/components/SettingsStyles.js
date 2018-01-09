@@ -60,6 +60,8 @@ export default Object.assign(createViewStyles({
   settings__cell_disclosure:{
     marginLeft: 8,
     color: 'rgba(255, 255, 255, 0.8)',
+    width: 7,
+    height: 12,
   },
   settings__cell_spacer:{
     height: 24,
