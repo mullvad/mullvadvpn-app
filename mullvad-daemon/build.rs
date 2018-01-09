@@ -28,7 +28,7 @@ fn main() {
 // if it was able to obtain it, otherwise an empty string.
 fn commit_info() -> String {
     match (commit_description(), commit_date()) {
-        (Some(hash), Some(date)) => format!("({} {})", hash.trim(), date),
+        (Some(hash), Some(date)) => format!("{} {}", hash.trim(), date),
         _ => String::new(),
     }
 }

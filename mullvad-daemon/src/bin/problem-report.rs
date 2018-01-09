@@ -334,11 +334,10 @@ fn collect_metadata() -> HashMap<String, String> {
 }
 
 fn daemon_version() -> String {
-    format!(
-        "v{} {}",
-        env!("CARGO_PKG_VERSION"),
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-info.txt"))
-    )
+    String::from(include_str!(concat!(
+        env!("OUT_DIR"),
+        "/git-commit-info.txt"
+    )))
 }
 
 #[cfg(target_os = "linux")]
