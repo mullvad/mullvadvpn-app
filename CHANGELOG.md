@@ -14,9 +14,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+
+
+## [2018.1-beta8] - 2018-01-09
 ### Added
 - "Allow LAN" setting that configures if the app should allow communication to the LAN (private
   networks: 10/8, 192.168/16 and 172.16/12) while the app is in the secured state.
+- The app can now be used to connect to all our servers rather than a smaller subset. The list
+  of servers is automatically updated when the app starts.
+- The location selector now shows if the country or city has any active servers.
 
 ### Changed
 - The tray icon now indicates wether the app is allowing traffic outside the tunnel or not. If the
@@ -24,6 +30,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   green lock with a red dot.
 - While connecting, a message telling the user that internet accesss is blocked is shown.
 - Default to selecting servers in Sweden to increase the likelyhood of a fast and stable connection.
+- Scrollbars will automatically hide when not scrolling.
+
+### Removed
+- Remove the unsafe Camellia and Seed ciphers from the list of allowed OpenVPN ciphers.
 
 
 ## [2017.1-beta7] - 2017-12-13
