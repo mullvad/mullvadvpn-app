@@ -6,7 +6,7 @@ import { push } from 'react-router-redux';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
-import { open } from '../lib/platform';
+import { openLink } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onDisconnect: () => {
       disconnect(backend);
     },
-    onExternalLink: (type) => open(links[type]),
+    onExternalLink: (type) => openLink(links[type]),
   };
 };
 
