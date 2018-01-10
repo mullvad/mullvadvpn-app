@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - The location selector now shows if the country or city has any active servers.
 
 ### Changed
-- The tray icon now indicates wether the app is allowing traffic outside the tunnel or not. If the
+- The tray icon now indicates whether the app is allowing traffic outside the tunnel or not. If the
   app blocks traffic because the tunnel is not connected the tray icon will indicate this with a
   green lock with a red dot.
 - While connecting, a message telling the user that internet accesss is blocked is shown.
