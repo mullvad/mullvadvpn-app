@@ -196,7 +196,10 @@ impl Relay {
             country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
             println!("{} ({})", country.name, country.code);
             for city in &country.cities {
-                println!("\t{} ({}) @ {:?}", city.name, city.code, city.position);
+                println!(
+                    "\t{} ({}) @ {:.5}°N, {:.5}°W",
+                    city.name, city.code, city.latitude, city.longitude
+                );
             }
             println!("");
         }
