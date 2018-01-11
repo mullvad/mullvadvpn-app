@@ -9,9 +9,15 @@
 extern crate chrono;
 #[macro_use]
 extern crate error_chain;
+extern crate futures;
+extern crate hyper;
+extern crate hyper_tls;
 #[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
+#[macro_use]
+extern crate log;
+extern crate native_tls;
 extern crate serde_json;
 extern crate tokio_core;
 
@@ -31,6 +37,7 @@ use mullvad_types::relay_list::RelayList;
 use std::collections::HashMap;
 
 pub mod event_loop;
+pub mod rest;
 
 
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";

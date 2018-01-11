@@ -269,14 +269,16 @@ impl RelaySelector {
                 city.has_active_relays = !city.relays.is_empty();
                 let city_name = city.name.clone();
                 let city_code = city.code.clone();
-                let position = city.position;
+                let latitude = city.latitude;
+                let longitude = city.longitude;
                 relays.extend(city.relays.drain(..).map(|mut relay| {
                     relay.location = Some(Location {
                         country: country_name.clone(),
                         country_code: country_code.clone(),
                         city: city_name.clone(),
                         city_code: city_code.clone(),
-                        position,
+                        latitude,
+                        longitude,
                     });
                     relay
                 }));

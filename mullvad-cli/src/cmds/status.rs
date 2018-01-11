@@ -2,11 +2,9 @@ use Command;
 use Result;
 use clap;
 
-use mullvad_types::location::Location;
+use mullvad_types::location::GeoIpLocation;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use rpc;
-
-use std::net::IpAddr;
 
 pub struct Status;
 
@@ -29,15 +27,18 @@ impl Command for Status {
             (SecurityState::Secured, TargetState::Secured) => println!("Connected"),
         }
 
-        let location: Location = rpc::call("get_current_location", &[] as &[u8; 0])?;
-        println!("Location: {}, {}", location.city, location.country);
+        let location: GeoIpLocation = rpc::call("get_current_location", &[] as &[u8; 0])?;
+        let city_and_country = if let Some(city) = location.city {
+            format!("{}, {}", city, location.country)
+        } else {
+            format!("{}", location.country)
+        };
+        println!("Location: {}", city_and_country);
         println!(
             "Position: {:.5}°N, {:.5}°W",
-            location.position[0], location.position[1]
+            location.latitude, location.longitude
         );
-
-        let ip: IpAddr = rpc::call("get_public_ip", &[] as &[u8; 0])?;
-        println!("IP: {}", ip);
+        println!("IP: {}", location.ip);
         Ok(())
     }
 }
