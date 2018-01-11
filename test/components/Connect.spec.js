@@ -69,7 +69,7 @@ describe('components/Connect', () => {
         status: 'connected',
         country: 'Norway',
         city: 'Oslo',
-        clientIp: '4.3.2.1',
+        ip: '4.3.2.1',
       }
     });
     const countryAndCity = component.find('.connect__status-location');
@@ -87,7 +87,7 @@ describe('components/Connect', () => {
         status: 'disconnected',
         country: 'Norway',
         city: 'Oslo',
-        clientIp: '4.3.2.1',
+        ip: '4.3.2.1',
       }
     });
     const countryAndCity = component.find('.connect__status-location');
@@ -166,8 +166,9 @@ const defaultProps: ConnectProps = {
   connection: {
     status: 'disconnected',
     isOnline: true,
-    clientIp: null,
-    location: null,
+    ip: null,
+    latitude: null,
+    longitude: null,
     country: null,
     city: null,
   },
