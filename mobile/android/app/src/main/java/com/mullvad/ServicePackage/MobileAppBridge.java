@@ -116,6 +116,15 @@ public class MobileAppBridge extends ReactContextBaseJavaModule implements Lifec
         }
     }
 
+    @ReactMethod
+    public void openItem(String path) {
+        //TODO: probably make a small activity to view text instead of intent.
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri uri = Uri.parse(path);
+        intent.setDataAndType(uri, "text/plain");
+        getReactApplicationContext().startActivity(intent);
+    }
+
     @Override
     public void onHostResume() {
         Log.d(TAG,"onHostResume");
