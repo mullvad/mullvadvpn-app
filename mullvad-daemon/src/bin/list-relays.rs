@@ -17,7 +17,7 @@ error_chain!{}
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let rpc_http_handle = mullvad_rpc::connect().chain_err(|| "Unable to connect RPC")?;
+    let rpc_http_handle = mullvad_rpc::standalone().chain_err(|| "Unable to connect RPC")?;
     let mut client = mullvad_rpc::RelayListProxy::new(rpc_http_handle);
 
     let relays = client
