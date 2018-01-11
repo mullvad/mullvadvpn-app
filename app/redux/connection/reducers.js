@@ -29,9 +29,6 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
   case 'CONNECTION_CHANGE':
     return { ...state, ...action.newData };
 
-  case 'NEW_PUBLIC_IP':
-    return { ...state, ...{ clientIp: action.ip }};
-
   case 'NEW_LOCATION':
     return { ...state, ...action.newLocation };
 

@@ -28,15 +28,13 @@ type DisconnectedAction = {
   type: 'DISCONNECTED',
 };
 
-type NewPublicIpAction = {
-  type: 'NEW_PUBLIC_IP',
-  ip: string,
-};
-
 type Location = {
-  location: Coordinate2d,
+  ip: Ip,
   country: string,
   city: string,
+  latitude: Number,
+  longitude: Number,
+  mullvad_exit_ip: boolean,
 };
 
 type NewLocationAction = {
@@ -52,8 +50,7 @@ type OfflineAction = {
   type: 'OFFLINE',
 };
 
-export type ConnectionAction = NewPublicIpAction
-                                | NewLocationAction
+export type ConnectionAction = NewLocationAction
                                 | ConnectingAction
                                 | ConnectedAction
                                 | DisconnectedAction
@@ -78,13 +75,6 @@ function disconnected(): DisconnectedAction {
   };
 }
 
-function newPublicIp(ip: string): NewPublicIpAction {
-  return {
-    type: 'NEW_PUBLIC_IP',
-    ip: ip,
-  };
-}
-
 function newLocation(newLoc: Location): NewLocationAction {
   return {
     type: 'NEW_LOCATION',
@@ -105,5 +95,5 @@ function offline(): OfflineAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, newPublicIp, newLocation, connecting, connected, disconnected, online, offline };
+export default { connect, disconnect, copyIPAddress, newLocation, connecting, connected, disconnected, online, offline };
 
