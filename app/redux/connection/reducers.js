@@ -1,14 +1,15 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { Coordinate2d } from '../../types';
+import type { Ip } from '../../lib/ipc-facade';
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected';
 export type ConnectionReduxState = {
   status: ConnectionState,
   isOnline: boolean,
-  clientIp: ?string,
-  location: ?Coordinate2d,
+  ip: ?Ip,
+  latitude: ?number,
+  longitude: ?number,
   country: ?string,
   city: ?string,
 };
@@ -16,8 +17,9 @@ export type ConnectionReduxState = {
 const initialState: ConnectionReduxState = {
   status: 'disconnected',
   isOnline: true,
-  clientIp: null,
-  location: null,
+  ip: null,
+  latitude: null,
+  longitude: null,
   country: null,
   city: null,
 };
@@ -28,9 +30,6 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
   switch (action.type) {
   case 'CONNECTION_CHANGE':
     return { ...state, ...action.newData };
-
-  case 'NEW_PUBLIC_IP':
-    return { ...state, ...{ clientIp: action.ip }};
 
   case 'NEW_LOCATION':
     return { ...state, ...action.newLocation };
