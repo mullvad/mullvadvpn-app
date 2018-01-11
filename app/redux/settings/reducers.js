@@ -20,7 +20,8 @@ export type RelaySettingsRedux = {|
 export type RelayLocationCityRedux = {
   name: string,
   code: string,
-  position: [number, number],
+  latitude: number,
+  longitude: number,
   hasActiveRelays: boolean,
 };
 

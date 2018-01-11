@@ -162,7 +162,7 @@ export default class Connect extends Component {
         if(isDisconnected) {
           ipComponent = (<span>{ '\u2003' }</span>);
         } else {
-          ipComponent = (<span>{ this.props.connection.clientIp }</span>);
+          ipComponent = (<span>{ this.props.connection.ip }</span>);
         }
       }
     }
