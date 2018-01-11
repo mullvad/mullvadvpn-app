@@ -128,12 +128,6 @@ export class Backend {
     }
 
     try {
-      await this._fetchPublicIP();
-    } catch(e) {
-      log.error('Failed to fetch the public IP: ', e.message);
-    }
-
-    try {
       await this._fetchLocation();
     } catch(e) {
       log.error('Failed to fetch the location: ', e.message);
@@ -359,25 +353,14 @@ export class Backend {
       cities: country.cities.map((city) => ({
         name: city.name,
         code: city.code,
-        position: city.position,
+        latitude: city.latitude,
+        longitude: city.longitude,
         hasActiveRelays: city.has_active_relays,
       }))
     }));
 
     this._store.dispatch(
       settingsActions.updateRelayLocations(storedLocations)
-    );
-  }
-
-  async _fetchPublicIP() {
-    await this._ensureAuthenticated();
-
-    const publicIp = await this._ipc.getPublicIp();
-
-    log.info('Got public IP: ', publicIp);
-
-    this._store.dispatch(
-      connectionActions.newPublicIp(publicIp)
     );
   }
 
@@ -389,9 +372,12 @@ export class Backend {
     log.info('Got location: ', location);
 
     const locationUpdate = {
+      ip: location.ip,
       country: location.country,
       city: location.city,
-      location: location.position
+      latitude: location.latitude,
+      longitude: location.longitude,
+      mullvadExitIp: location.mullvad_exit_ip,
     };
 
     this._store.dispatch(

@@ -7,15 +7,6 @@ import connectionActions from '../app/redux/connection/actions';
 
 describe('The connection state', () => {
 
-  it('should contain the latest IP', () => {
-    const store = createStore();
-
-    store.dispatch(connectionActions.newPublicIp('1.2.3.4'));
-    store.dispatch(connectionActions.newPublicIp('5.6.7.8'));
-
-    expect(store.getState().connection.clientIp).to.equal('5.6.7.8');
-  });
-
   it('should contain the latest location', () => {
     const store = createStore();
 
