@@ -30,6 +30,7 @@ extern crate jsonrpc_ws_server;
 #[macro_use]
 extern crate lazy_static;
 extern crate rand;
+extern crate tokio_core;
 extern crate tokio_timer;
 extern crate uuid;
 
@@ -39,13 +40,14 @@ extern crate talpid_core;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+mod account_history;
 mod cli;
+mod geoip;
 mod management_interface;
 mod relays;
 mod rpc_info;
 mod settings;
 mod shutdown;
-mod account_history;
 
 
 use app_dirs::AppInfo;
@@ -57,14 +59,14 @@ use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, HttpHandle};
 
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::location::Location;
+use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::{Relay, RelayList};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use std::env;
 use std::io;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
@@ -188,6 +190,8 @@ struct Daemon {
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
+    http_handle: mullvad_rpc::rest::RequestSender,
+    tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
     firewall: FirewallProxy,
     current_relay: Option<Relay>,
@@ -201,11 +205,18 @@ impl Daemon {
     pub fn new(tunnel_log: Option<PathBuf>) -> Result<Self> {
         let resource_dir = get_resource_dir();
 
-        let rpc_http_handle = mullvad_rpc::event_loop::create(|core| {
-            mullvad_rpc::shared(&core.handle())
-        }).chain_err(|| "Unable to initialize network event loop")?;
+        let (rpc_handle, http_handle, tokio_remote) =
+            mullvad_rpc::event_loop::create(|core| {
+                let handle = core.handle();
+                let rpc = mullvad_rpc::shared(&handle);
+                let http = mullvad_rpc::rest::create_http_client(&handle);
+                let remote = core.remote();
+                (rpc, http, remote)
+            }).chain_err(|| "Unable to initialize network event loop")?;
+        let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
+        let http_handle = http_handle.chain_err(|| "Unable to create HTTP client")?;
 
-        let relay_selector = Self::create_relay_selector(rpc_http_handle.clone(), &resource_dir)?;
+        let relay_selector = Self::create_relay_selector(rpc_handle.clone(), &resource_dir)?;
 
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
@@ -224,7 +235,9 @@ impl Daemon {
             tx,
             management_interface_broadcaster,
             settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
-            accounts_proxy: AccountsProxy::new(rpc_http_handle),
+            accounts_proxy: AccountsProxy::new(rpc_handle),
+            http_handle,
+            tokio_remote,
             relay_selector,
             firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
             current_relay: None,
@@ -236,10 +249,10 @@ impl Daemon {
     }
 
     fn create_relay_selector(
-        rpc_http_handle: mullvad_rpc::HttpHandle,
+        rpc_handle: mullvad_rpc::HttpHandle,
         resource_dir: &Path,
     ) -> Result<relays::RelaySelector> {
-        let mut relay_selector = relays::RelaySelector::new(rpc_http_handle, &resource_dir)
+        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir)
             .chain_err(|| "Unable to initialize relay list cache")?;
         if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
             if elapsed > *MAX_RELAY_CACHE_AGE {
@@ -351,7 +364,6 @@ impl Daemon {
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
-            GetPublicIp(tx) => Ok(self.on_get_ip(tx)),
             GetCurrentLocation(tx) => Ok(self.on_get_current_location(tx)),
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
             GetRelayLocations(tx) => Ok(self.on_get_relay_locations(tx)),
@@ -378,28 +390,28 @@ impl Daemon {
         Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
     }
 
-    fn on_get_ip(&self, tx: OneshotSender<IpAddr>) {
-        let ip = if let Some(ref relay) = self.current_relay {
-            IpAddr::V4(relay.ipv4_addr_exit)
+    fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
+        if let Some(ref relay) = self.current_relay {
+            let location = relay.location.as_ref().cloned().unwrap();
+            let geo_ip_location = GeoIpLocation {
+                ip: IpAddr::V4(relay.ipv4_addr_exit),
+                country: location.country,
+                city: Some(location.city),
+                latitude: location.latitude,
+                longitude: location.longitude,
+                mullvad_exit_ip: true,
+            };
+            Self::oneshot_send(tx, geo_ip_location, "current location");
         } else {
-            IpAddr::V4(Ipv4Addr::new(1, 3, 3, 7))
-        };
-        Self::oneshot_send(tx, ip, "current ip");
-    }
-
-    fn on_get_current_location(&self, tx: OneshotSender<Location>) {
-        let location = if let Some(ref relay) = self.current_relay {
-            relay.location.as_ref().cloned().unwrap()
-        } else {
-            Location {
-                country: String::from("Narnia"),
-                country_code: String::from("na"),
-                city: String::from("Le City"),
-                city_code: String::from("le"),
-                position: [13.37, 0.0],
-            }
-        };
-        Self::oneshot_send(tx, location, "current location");
+            let http_handle = self.http_handle.clone();
+            self.tokio_remote.spawn(move |_| {
+                geoip::send_location_request(http_handle)
+                    .map(move |location| Self::oneshot_send(tx, location, "current location"))
+                    .map_err(|e| {
+                        warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+                    })
+            });
+        }
     }
 
     fn on_get_account_data(
