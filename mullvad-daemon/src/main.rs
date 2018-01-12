@@ -397,8 +397,8 @@ impl Daemon {
                 ip: IpAddr::V4(relay.ipv4_addr_exit),
                 country: location.country,
                 city: Some(location.city),
-                latitude: location.position[0],
-                longitude: location.position[1],
+                latitude: location.latitude,
+                longitude: location.longitude,
                 mullvad_exit_ip: true,
             };
             Self::oneshot_send(tx, geo_ip_location, "current location");
