@@ -7,10 +7,8 @@
         {
           "name": "Melbourne",
           "code": "mel",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -66,10 +64,8 @@
         {
           "name": "Sydney",
           "code": "syd",
-          "position": [
-            -33.861481,
-            151.205475
-          ],
+          "latitude": -33.861481,
+          "longitude": 151.205475,
           "has_active_relays": false,
           "relays": [
             {
@@ -179,10 +175,8 @@
         {
           "name": "Wien",
           "code": "vie",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -292,10 +286,8 @@
         {
           "name": "Brussels",
           "code": "bru",
-          "position": [
-            50.833333,
-            4.333333
-          ],
+          "latitude": 50.833333,
+          "longitude": 4.333333,
           "has_active_relays": false,
           "relays": [
             {
@@ -405,10 +397,8 @@
         {
           "name": "Sofia",
           "code": "sof",
-          "position": [
-            42.6833333,
-            23.3166667
-          ],
+          "latitude": 42.6833333,
+          "longitude": 23.3166667,
           "has_active_relays": false,
           "relays": [
             {
@@ -518,10 +508,8 @@
         {
           "name": "Toronto",
           "code": "tor",
-          "position": [
-            43.666667,
-            -79.416667
-          ],
+          "latitude": 43.666667,
+          "longitude": -79.416667,
           "has_active_relays": false,
           "relays": [
             {
@@ -673,10 +661,8 @@
         {
           "name": "Vancouver",
           "code": "van",
-          "position": [
-            49.25,
-            -123.133333
-          ],
+          "latitude": 49.25,
+          "longitude": -123.133333,
           "has_active_relays": false,
           "relays": [
             {
@@ -786,10 +772,8 @@
         {
           "name": "Prague",
           "code": "prg",
-          "position": [
-            50.083333,
-            14.466667
-          ],
+          "latitude": 50.083333,
+          "longitude": 14.466667,
           "has_active_relays": false,
           "relays": [
             {
@@ -899,10 +883,8 @@
         {
           "name": "Copenhagen",
           "code": "cph",
-          "position": [
-            55.666667,
-            12.583333
-          ],
+          "latitude": 55.666667,
+          "longitude": 12.583333,
           "has_active_relays": false,
           "relays": [
             {
@@ -1108,10 +1090,8 @@
         {
           "name": "Helsinki",
           "code": "hel",
-          "position": [
-            60.6,
-            21.433333
-          ],
+          "latitude": 60.6,
+          "longitude": 21.433333,
           "has_active_relays": false,
           "relays": [
             {
@@ -1221,10 +1201,8 @@
         {
           "name": "Paris",
           "code": "par",
-          "position": [
-            48.866667,
-            2.333333
-          ],
+          "latitude": 48.866667,
+          "longitude": 2.333333,
           "has_active_relays": false,
           "relays": [
             {
@@ -1334,10 +1312,8 @@
         {
           "name": "Berlin",
           "code": "ber",
-          "position": [
-            54.033333,
-            10.45
-          ],
+          "latitude": 54.033333,
+          "longitude": 10.45,
           "has_active_relays": false,
           "relays": [
             {
@@ -1537,10 +1513,8 @@
         {
           "name": "Frankfurt",
           "code": "fra",
-          "position": [
-            52.35,
-            14.55
-          ],
+          "latitude": 52.35,
+          "longitude": 14.55,
           "has_active_relays": false,
           "relays": [
             {
@@ -1746,10 +1720,8 @@
         {
           "name": "Hong Kong",
           "code": "hkg",
-          "position": [
-            22.2833333,
-            114.15
-          ],
+          "latitude": 22.2833333,
+          "longitude": 114.15,
           "has_active_relays": false,
           "relays": [
             {
@@ -1811,10 +1783,8 @@
         {
           "name": "Budapest",
           "code": "bud",
-          "position": [
-            47.5,
-            19.083333
-          ],
+          "latitude": 47.5,
+          "longitude": 19.083333,
           "has_active_relays": false,
           "relays": [
             {
@@ -1876,10 +1846,8 @@
         {
           "name": "Petach-Tikva",
           "code": "pet",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -1941,10 +1909,8 @@
         {
           "name": "Milan",
           "code": "mil",
-          "position": [
-            45.466667,
-            9.2
-          ],
+          "latitude": 45.466667,
+          "longitude": 9.2,
           "has_active_relays": false,
           "relays": [
             {
@@ -2054,10 +2020,8 @@
         {
           "name": "Tokyo",
           "code": "tyo",
-          "position": [
-            35.685,
-            139.751389
-          ],
+          "latitude": 35.685,
+          "longitude": 139.751389,
           "has_active_relays": false,
           "relays": [
             {
@@ -2119,10 +2083,8 @@
         {
           "name": "Chisinau",
           "code": "kiv",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -2184,10 +2146,8 @@
         {
           "name": "Amsterdam",
           "code": "ams",
-          "position": [
-            52.35,
-            4.916667
-          ],
+          "latitude": 52.35,
+          "longitude": 4.916667,
           "has_active_relays": false,
           "relays": [
             {
@@ -3065,10 +3025,8 @@
         {
           "name": "Oslo",
           "code": "osl",
-          "position": [
-            59.916667,
-            10.75
-          ],
+          "latitude": 59.916667,
+          "longitude": 10.75,
           "has_active_relays": false,
           "relays": [
             {
@@ -3418,10 +3376,8 @@
         {
           "name": "Warsaw",
           "code": "waw",
-          "position": [
-            52.25,
-            21.0
-          ],
+          "latitude": 52.25,
+          "longitude": 21.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -3483,10 +3439,8 @@
         {
           "name": "Lisbon",
           "code": "lis",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -3548,10 +3502,8 @@
         {
           "name": "Bucharest",
           "code": "buh",
-          "position": [
-            44.433333,
-            26.1
-          ],
+          "latitude": 44.433333,
+          "longitude": 26.1,
           "has_active_relays": false,
           "relays": [
             {
@@ -3661,10 +3613,8 @@
         {
           "name": "Singapore",
           "code": "sin",
-          "position": [
-            1.2930556,
-            103.8558333
-          ],
+          "latitude": 1.2930556,
+          "longitude": 103.8558333,
           "has_active_relays": false,
           "relays": [
             {
@@ -3774,10 +3724,8 @@
         {
           "name": "Madrid",
           "code": "mad",
-          "position": [
-            40.408566,
-            -3.69222
-          ],
+          "latitude": 40.408566,
+          "longitude": -3.69222,
           "has_active_relays": false,
           "relays": [
             {
@@ -3887,10 +3835,8 @@
         {
           "name": "Helsingborg",
           "code": "hel",
-          "position": [
-            56.05,
-            12.7
-          ],
+          "latitude": 56.05,
+          "longitude": 12.7,
           "has_active_relays": false,
           "relays": [
             {
@@ -4282,10 +4228,8 @@
         {
           "name": "Malmö",
           "code": "mma",
-          "position": [
-            58.35,
-            11.333333
-          ],
+          "latitude": 58.35,
+          "longitude": 11.333333,
           "has_active_relays": false,
           "relays": [
             {
@@ -4767,16 +4711,158 @@
                 ],
                 "wireguard": []
               }
+            },
+            {
+              "hostname": "se-mma-007",
+              "ipv4_addr_in": "193.138.218.137",
+              "ipv4_addr_exit": "193.138.218.167",
+              "include_in_country": true,
+              "weight": 400,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            },
+            {
+              "hostname": "se-mma-008",
+              "ipv4_addr_in": "193.138.218.138",
+              "ipv4_addr_exit": "193.138.218.168",
+              "include_in_country": true,
+              "weight": 400,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            },
+            {
+              "hostname": "se-mma-009",
+              "ipv4_addr_in": "193.138.218.139",
+              "ipv4_addr_exit": "193.138.218.169",
+              "include_in_country": true,
+              "weight": 400,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
             }
           ]
         },
         {
           "name": "Stockholm",
           "code": "sto",
-          "position": [
-            61.883056,
-            13.75
-          ],
+          "latitude": 61.883056,
+          "longitude": 13.75,
           "has_active_relays": false,
           "relays": [
             {
@@ -5510,10 +5596,8 @@
         {
           "name": "Zurich",
           "code": "zrh",
-          "position": [
-            47.366667,
-            8.55
-          ],
+          "latitude": 47.366667,
+          "longitude": 8.55,
           "has_active_relays": false,
           "relays": [
             {
@@ -5815,10 +5899,8 @@
         {
           "name": "London",
           "code": "lon",
-          "position": [
-            51.514125,
-            -0.093689
-          ],
+          "latitude": 51.514125,
+          "longitude": -0.093689,
           "has_active_relays": false,
           "relays": [
             {
@@ -6018,10 +6100,8 @@
         {
           "name": "Manchester",
           "code": "mnc",
-          "position": [
-            53.5,
-            -2.216667
-          ],
+          "latitude": 53.5,
+          "longitude": -2.216667,
           "has_active_relays": false,
           "relays": [
             {
@@ -6179,10 +6259,8 @@
         {
           "name": "Atlanta, Georgia",
           "code": "atl",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -6286,10 +6364,8 @@
         {
           "name": "Chicago, Illinois",
           "code": "chi",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -6489,10 +6565,8 @@
         {
           "name": "Dallas, Texas",
           "code": "dal",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -6644,10 +6718,8 @@
         {
           "name": "Las Vegas, Nevada",
           "code": "las",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -6799,10 +6871,8 @@
         {
           "name": "Los Angeles, California",
           "code": "lax",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7098,10 +7168,8 @@
         {
           "name": "Miami, Florida",
           "code": "mia",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7301,10 +7369,8 @@
         {
           "name": "Newark, New Jersey",
           "code": "ewr",
-          "position": [
-            4042.0,
-            7400.0
-          ],
+          "latitude": 4042.0,
+          "longitude": 7400.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7456,10 +7522,8 @@
         {
           "name": "New York, New York",
           "code": "nyc",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7707,10 +7771,8 @@
         {
           "name": "Phoenix, Arizona",
           "code": "PHX",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7862,10 +7924,8 @@
         {
           "name": "Piscataway, New Jersey",
           "code": "pil",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -7969,10 +8029,8 @@
         {
           "name": "Richmond, Virginia",
           "code": "ric",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -8028,10 +8086,8 @@
         {
           "name": "Salt Lake City, Utah",
           "code": "slc",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -8135,10 +8191,8 @@
         {
           "name": "San Jose, California",
           "code": "sjc",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -8194,10 +8248,8 @@
         {
           "name": "Seattle, Washington",
           "code": "sea",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
@@ -8301,10 +8353,8 @@
         {
           "name": "Washington DC",
           "code": "was",
-          "position": [
-            0.0,
-            0.0
-          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
           "has_active_relays": false,
           "relays": [
             {
