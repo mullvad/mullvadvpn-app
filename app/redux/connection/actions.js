@@ -33,7 +33,7 @@ type NewLocationAction = {
   newLocation: {
     ip: Ip,
     country: string,
-    city: string,
+    city: ?string,
     latitude: number,
     longitude: number,
     mullvadExitIp: boolean,

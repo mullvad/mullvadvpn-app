@@ -1,7 +1,7 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
+import { object, maybe, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
 
 export type AccountData = { expiry: string };
@@ -10,7 +10,7 @@ export type Ip = string;
 export type Location = {
   ip: Ip,
   country: string,
-  city: string,
+  city: ?string,
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
@@ -18,7 +18,7 @@ export type Location = {
 const LocationSchema = object({
   ip: string,
   country: string,
-  city: string,
+  city: maybe(string),
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
