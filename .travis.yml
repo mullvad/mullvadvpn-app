@@ -38,7 +38,7 @@ matrix:
 
     # Backend macOS
     - language: rust
-      rust: nightly
+      rust: stable
       os: osx
       cache: cargo
 
@@ -48,35 +48,19 @@ matrix:
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
-        # Format only on nightly, since that is where rustfmt-nightly compiles
-        - if [ "${TRAVIS_RUST_VERSION}" = "nightly" ] && [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-            export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
-            && ./format.sh --write-mode=diff;
-          else
-            echo "Not checking formatting on this build";
-          fi
-
-    - language: rust
-      rust: stable
-      os: osx
-      cache: cargo
-      before_script: *rust_before_script
-      script: *rust_script
-
-    - language: rust
-      rust: beta
-      os: osx
-      cache: cargo
-      before_script: *rust_before_script
-      script: *rust_script
 
     # Backend Linux
     - language: rust
-      rust: stable
+      rust: nightly
       os: linux
       cache: cargo
       before_script: *rust_before_script
-      script: *rust_script
+      script:
+        - cargo build --verbose
+        - cargo test --verbose
+        # Format only on nightly, since that is where rustfmt-nightly compiles
+        - export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
+        - ./format.sh --write-mode=diff;
 
     - language: rust
       rust: beta
@@ -86,7 +70,7 @@ matrix:
       script: *rust_script
 
     - language: rust
-      rust: nightly
+      rust: stable
       os: linux
       cache: cargo
       before_script: *rust_before_script
