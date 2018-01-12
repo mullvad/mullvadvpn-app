@@ -129,6 +129,11 @@ export default class SelectLocation extends Component {
   _renderCountry(relayCountry: RelayLocationRedux) {
     const isSelected = this._isSelected({ country: relayCountry.code });
 
+    // show cities when
+    // 1. active relays available
+    // 2. more than one city available within the country
+    const shouldShowCities = relayCountry.hasActiveRelays && relayCountry.cities.length > 1;
+
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
 
@@ -168,7 +173,7 @@ export default class SelectLocation extends Component {
             </div>
           </div>
 
-          { relayCountry.hasActiveRelays && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
+          { shouldShowCities && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
             { isExpanded ?
               <ChevronUpSVG className="select-location__collapse-icon" /> :
               <ChevronDownSVG className="select-location__collapse-icon" /> }
@@ -176,7 +181,7 @@ export default class SelectLocation extends Component {
 
         </div>
 
-        { relayCountry.hasActiveRelays && relayCountry.cities.length > 0 &&
+        { shouldShowCities &&
           (<Accordion className="select-location__cities" height={ isExpanded ? 'auto' : 0 }>
             { relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity)) }
           </Accordion>)
