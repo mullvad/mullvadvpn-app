@@ -153,19 +153,6 @@ export default class Connect extends Component {
           : './assets/images/location-marker-unsecure.svg' } />
     */
 
-    let ipComponent = undefined;
-    if (isConnected || isDisconnected) {
-      if (this.state.showCopyIPMessage) {
-        ipComponent = (<span>{ 'IP copied to clipboard!' }</span>);
-      } else {
-        // TODO: remove empty IP placeholder when implemented in backend.
-        if(isDisconnected) {
-          ipComponent = (<span>{ '\u2003' }</span>);
-        } else {
-          ipComponent = (<span>{ this.props.connection.ip }</span>);
-        }
-      }
-    }
     return (
       <div className="connect">
         <div className="connect__map">
@@ -188,18 +175,8 @@ export default class Connect extends Component {
               **********************************
             */ }
 
-            { /* location when disconnected.
-            TODO: merge with the isConnecting block below when implemented in backend.
-            */ }
-            { isDisconnected ?
-              <div className="connect__status-location">
-                <span>{ '\u2002' }</span>
-              </div>
-              : null
-            }
-
-            { /* location when connecting */ }
-            { isConnecting ?
+            { /* location when connecting or disconnected */ }
+            { isConnecting || isDisconnected ?
               <div className="connect__status-location">
                 <span>{ this.props.connection.country }</span>
               </div>
@@ -209,9 +186,11 @@ export default class Connect extends Component {
             { /* location when connected */ }
             { isConnected ?
               <div className="connect__status-location">
-                { this.props.connection.city }<br/>{ this.props.connection.country }
+                { this.props.connection.city }
+                { this.props.connection.city && <br/> }
+                { this.props.connection.country }
               </div>
-              : null
+              :null
             }
 
             { /*
@@ -221,7 +200,12 @@ export default class Connect extends Component {
             */ }
 
             <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
-              { ipComponent }
+              { (isConnected || isDisconnected) ? (
+                <span>{
+                  this.state.showCopyIPMessage ?
+                    'IP copied to clipboard!' :
+                    this.props.connection.ip
+                }</span>) : null }
             </div>
           </div>
 

@@ -93,9 +93,9 @@ describe('components/Connect', () => {
     const countryAndCity = component.find('.connect__status-location');
     const ipAddr = component.find('.connect__status-ipaddress');
 
-    expect(countryAndCity.text()).to.contain('\u2002');
+    expect(countryAndCity.text()).to.contain('Norway');
     expect(countryAndCity.text()).to.not.contain('Oslo');
-    expect(ipAddr.text()).to.contain('\u2003');
+    expect(ipAddr.text()).to.contain('4.3.2.1');
   });
 
   it('shows the country name in the location switcher', () => {
