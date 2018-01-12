@@ -226,6 +226,7 @@ pub struct EventBroadcaster {
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: DaemonState) {
+        debug!("Broadcasting new state to listeners: {:?}", new_state);
         self.notify(&self.subscriptions.new_state_subscriptions, new_state);
     }
 
