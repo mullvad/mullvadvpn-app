@@ -177,8 +177,8 @@ export default class Connect extends Component {
               **********************************
             */ }
 
-            { /* location when connecting or disconnected */ }
-            <If condition={ isConnecting || isDisconnected }>
+            { /* location when disconnected */ }
+            <If condition={ isDisconnected }>
               <Then>
                 <div className="connect__status-location">
                   <span>{ this.props.connection.country }</span>
@@ -186,8 +186,8 @@ export default class Connect extends Component {
               </Then>
             </If>
 
-            { /* location when connected */ }
-            <If condition={ isConnected }>
+            { /* location when connecting or connected */ }
+            <If condition={ isConnecting || isConnected }>
               <Then>
                 <div className="connect__status-location">
                   { this.props.connection.city }
