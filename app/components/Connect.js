@@ -155,19 +155,6 @@ export default class Connect extends Component {
           : './assets/images/location-marker-unsecure.svg' } />
     */
 
-    let ipComponent = undefined;
-    if (isConnected || isDisconnected) {
-      if (this.state.showCopyIPMessage) {
-        ipComponent = (<span>{ 'IP copied to clipboard!' }</span>);
-      } else {
-        // TODO: remove empty IP placeholder when implemented in backend.
-        if(isDisconnected) {
-          ipComponent = (<span>{ '\u2003' }</span>);
-        } else {
-          ipComponent = (<span>{ this.props.connection.ip }</span>);
-        }
-      }
-    }
     return (
       <div className="connect">
         <div className="connect__map">
@@ -217,7 +204,12 @@ export default class Connect extends Component {
             */ }
 
             <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
-              { ipComponent }
+              { (isConnected || isDisconnected) ? (
+                <span>{
+                  this.state.showCopyIPMessage ?
+                    'IP copied to clipboard!' :
+                    this.props.connection.ip
+                }</span>) : null }
             </div>
           </div>
 
