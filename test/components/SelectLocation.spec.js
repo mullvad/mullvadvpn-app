@@ -26,6 +26,11 @@ describe('components/SelectLocation', () => {
         code: 'mma',
         position: [0, 0],
         hasActiveRelays: true,
+      }, {
+        name: 'Stockholm',
+        code: 'sto',
+        position: [0, 0],
+        hasActiveRelays: true,
       }],
     }],
     allowLan: false,
@@ -86,7 +91,7 @@ describe('components/SelectLocation', () => {
       }
     });
     const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__sub-cell');
-    expect(elements).to.have.length(1);
+    expect(elements).to.have.length(2);
     Simulate.click(elements[0]);
   });
 
