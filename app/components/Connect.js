@@ -2,7 +2,6 @@
 
 import moment from 'moment';
 import React, { Component } from 'react';
-import { If, Then } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
 
@@ -79,16 +78,15 @@ export default class Connect extends Component {
           <div className="connect__error-message">
             { error.message }
           </div>
-          <If condition={ error.type === 'NO_CREDIT' }>
-            <Then>
-              <div>
-                <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
-                  <span className="button-label">Buy more time</span>
-                  <ExternalLinkSVG className="button-icon button-icon--16" />
-                </button>
-              </div>
-            </Then>
-          </If>
+          { error.type === 'NO_CREDIT' ?
+            <div>
+              <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
+                <span className="button-label">Buy more time</span>
+                <ExternalLinkSVG className="button-icon button-icon--16" />
+              </button>
+            </div>
+            : null
+          }
         </div>
       </div>
     );
@@ -193,31 +191,28 @@ export default class Connect extends Component {
             { /* location when disconnected.
             TODO: merge with the isConnecting block below when implemented in backend.
             */ }
-            <If condition={ isDisconnected }>
-              <Then>
-                <div className="connect__status-location">
-                  <span>{ '\u2002' }</span>
-                </div>
-              </Then>
-            </If>
+            { isDisconnected ?
+              <div className="connect__status-location">
+                <span>{ '\u2002' }</span>
+              </div>
+              : null
+            }
 
             { /* location when connecting */ }
-            <If condition={ isConnecting }>
-              <Then>
-                <div className="connect__status-location">
-                  <span>{ this.props.connection.country }</span>
-                </div>
-              </Then>
-            </If>
+            { isConnecting ?
+              <div className="connect__status-location">
+                <span>{ this.props.connection.country }</span>
+              </div>
+              : null
+            }
 
             { /* location when connected */ }
-            <If condition={ isConnected }>
-              <Then>
-                <div className="connect__status-location">
-                  { this.props.connection.city }<br/>{ this.props.connection.country }
-                </div>
-              </Then>
-            </If>
+            { isConnected ?
+              <div className="connect__status-location">
+                { this.props.connection.city }<br/>{ this.props.connection.country }
+              </div>
+              : null
+            }
 
             { /*
               **********************************
@@ -238,52 +233,49 @@ export default class Connect extends Component {
           */ }
 
           { /* footer when disconnected */ }
-          <If condition={ isDisconnected }>
-            <Then>
-              <div className="connect__footer">
-                <div className="connect__row">
-                  <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
-                    <div className="connect__server-label">{ this._getLocationName() }</div>
-                    <div className="connect__server-chevron"><ChevronRightSVG /></div>
-                  </button>
-                </div>
-
-                <div className="connect__row">
-                  <button className="button button--positive" onClick={ this.props.onConnect }>Secure my connection</button>
-                </div>
+          { isDisconnected ?
+            <div className="connect__footer">
+              <div className="connect__row">
+                <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
+                  <div className="connect__server-label">{ this._getLocationName() }</div>
+                  <div className="connect__server-chevron"><ChevronRightSVG /></div>
+                </button>
               </div>
-            </Then>
-          </If>
+
+              <div className="connect__row">
+                <button className="button button--positive" onClick={ this.props.onConnect }>Secure my connection</button>
+              </div>
+            </div>
+            : null
+          }
 
           { /* footer when connecting */ }
-          <If condition={ isConnecting }>
-            <Then>
-              <div className="connect__footer">
-                <div className="connect__row">
-                  <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-                </div>
-
-                <div className="connect__row">
-                  <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
-                </div>
+          { isConnecting ?
+            <div className="connect__footer">
+              <div className="connect__row">
+                <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
               </div>
-            </Then>
-          </If>
+
+              <div className="connect__row">
+                <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
+              </div>
+            </div>
+            : null
+          }
 
           { /* footer when connected */ }
-          <If condition={ isConnected }>
-            <Then>
-              <div className="connect__footer">
-                <div className="connect__row">
-                  <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-                </div>
-
-                <div className="connect__row">
-                  <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
-                </div>
+          { isConnected ?
+            <div className="connect__footer">
+              <div className="connect__row">
+                <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
               </div>
-            </Then>
-          </If>
+
+              <div className="connect__row">
+                <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
+              </div>
+            </div>
+            : null
+          }
 
           { /*
             **********************************

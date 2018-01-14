@@ -1,7 +1,6 @@
 // @flow
 import moment from 'moment';
 import React, { Component } from 'react';
-import { If, Then, Else } from 'react-if';
 import { Layout, Container, Header } from './Layout';
 import { formatAccount } from '../lib/formatters';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
@@ -49,14 +48,11 @@ export default class Account extends Component {
 
                   <div className="account__row">
                     <div className="account__row-label">Paid until</div>
-                    <If condition={ isOutOfTime }>
-                      <Then>
-                        <div className="account__out-of-time account__row-value account__row-value--error">OUT OF TIME</div>
-                      </Then>
-                      <Else>
-                        <div className="account__row-value">{ formattedExpiry }</div>
-                      </Else>
-                    </If>
+                    { isOutOfTime ?
+                      <div className="account__out-of-time account__row-value account__row-value--error">OUT OF TIME</div>
+                      :
+                      <div className="account__row-value">{ formattedExpiry }</div>
+                    }
                   </div>
 
                   <div className="account__footer">
