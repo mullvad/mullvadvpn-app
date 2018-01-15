@@ -1,6 +1,5 @@
 // @flow
-import { remote } from 'electron';
-import { shell } from 'electron';
+import { remote, shell } from 'electron';
 import electronLog from 'electron-log';
 
 const log = electronLog;
