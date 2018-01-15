@@ -22,7 +22,6 @@
     "prop-types": "^15.5.10",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-if": "^2.2.1",
     "react-mapbox-gl": "^2.1.0",
     "react-native": "^0.50.4",
     "react-native-windows": "^0.50.0-rc.2",
