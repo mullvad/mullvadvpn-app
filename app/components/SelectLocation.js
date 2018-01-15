@@ -168,7 +168,7 @@ export default class SelectLocation extends Component {
             </div>
           </div>
 
-          { relayCountry.hasActiveRelays && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
+          { relayCountry.cities.length > 1 && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
             { isExpanded ?
               <ChevronUpSVG className="select-location__collapse-icon" /> :
               <ChevronDownSVG className="select-location__collapse-icon" /> }
@@ -176,7 +176,7 @@ export default class SelectLocation extends Component {
 
         </div>
 
-        { relayCountry.hasActiveRelays && relayCountry.cities.length > 0 &&
+        { relayCountry.cities.length > 1 &&
           (<Accordion className="select-location__cities" height={ isExpanded ? 'auto' : 0 }>
             { relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity)) }
           </Accordion>)
