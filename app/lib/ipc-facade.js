@@ -268,7 +268,10 @@ export class RealIpc implements IpcFacade {
   }
 
   getLocation(): Promise<Location> {
-    return this._ipc.send('get_current_location')
+    // send the IPC with 30s timeout since the backend will wait
+    // for a HTTP request before replying
+
+    return this._ipc.send('get_current_location', [], 30000)
       .then(raw => {
         try {
           const validated: any = validate(LocationSchema, raw);
