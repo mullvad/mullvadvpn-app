@@ -132,7 +132,28 @@ export default class Connect extends Component {
     }
   }
 
+  _getCityName(): ?string {
+    const { relaySettings } = this.props.settings;
+    const { city } = this.props.connection;
+
+    if(city && relaySettings.normal) {
+      const location = relaySettings.normal.location;
+
+      // Strip out the US state from the city name.
+      if(location !== 'any' && (
+        location.country === 'us' ||
+        (location.city && location.city[0] === 'us')
+      )) {
+        return city.split(',', 2)[0].trim();
+      }
+    }
+
+    return city;
+  }
+
   renderMap(): React.Element<*> {
+    const currentCity = this._getCityName();
+
     let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
@@ -190,8 +211,8 @@ export default class Connect extends Component {
             <If condition={ isConnected }>
               <Then>
                 <div className="connect__status-location">
-                  { this.props.connection.city }
-                  { this.props.connection.city && <br/> }
+                  { currentCity }
+                  { currentCity && <br/> }
                   { this.props.connection.country }
                 </div>
               </Then>
