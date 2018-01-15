@@ -23,8 +23,10 @@ pub struct RelayListCity {
     pub code: CityCode,
     pub latitude: f64,
     pub longitude: f64,
-    #[serde(skip_deserializing)] pub has_active_relays: bool,
-    #[serde(skip_serializing_if = "Vec::is_empty", default)] pub relays: Vec<Relay>,
+    #[serde(skip_deserializing)]
+    pub has_active_relays: bool,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub relays: Vec<Relay>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -35,7 +37,8 @@ pub struct Relay {
     pub include_in_country: bool,
     pub weight: u64,
     pub tunnels: RelayTunnels,
-    #[serde(skip)] pub location: Option<Location>,
+    #[serde(skip)]
+    pub location: Option<Location>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
