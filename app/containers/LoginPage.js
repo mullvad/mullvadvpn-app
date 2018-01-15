@@ -6,7 +6,7 @@ import { push } from 'react-router-redux';
 import Login from '../components/Login';
 import accountActions from '../redux/account/actions';
 import { links } from '../config';
-import { open } from '../lib/platform';
+import { openLink } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onFirstChangeAfterFailure: () => {
       resetLoginError();
     },
-    onExternalLink: (type) => open(links[type]),
+    onExternalLink: (type) => openLink(links[type]),
     onAccountTokenChange: (token) => {
       updateAccountToken(token);
     },

@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
-import log from 'electron-log';
+import { log } from './lib/platform';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { Backend, BackendError } from './lib/backend';

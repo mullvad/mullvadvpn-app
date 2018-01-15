@@ -2,7 +2,7 @@
 
 import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
-import log from 'electron-log';
+import { log } from '../lib/platform';
 
 export type UnansweredRequest = {
   resolve: (mixed) => void,
