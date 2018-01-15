@@ -1,13 +1,22 @@
 // @flow
-import { BackHandler } from 'react-native';
-import { Linking } from 'react-native';
+import { BackHandler, Linking } from 'react-native';
+import { MobileAppBridge } from 'NativeModules';
+
+const log = console.log;
 
 const exit = () => {
   BackHandler.exitApp();
 };
 
-const open = (link: string) => {
+const openLink = (link: string) => {
   Linking.openURL(link);
 };
 
-export {exit, open};
+const openItem = (path: string) => {
+  MobileAppBridge.openItem(path);
+};
+
+export { log, exit, openLink, openItem };
+
+
+

@@ -1,0 +1,48 @@
+{
+	"name": "mullvad-vpn-android",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"android": "react-native run-android && react-native log-android",
+		"start": "node node_modules/react-native/local-cli/cli.js start",
+		"private:compile": "babel ../js/ --copy-files --out-dir build"
+	},
+	"dependencies": {
+		"babel-preset-es2015": "^6.24.1",
+		"babel-preset-prometheusresearch": "^2.0.0",
+		"babel-preset-stage-1": "^6.24.1",
+		"events": "^1.1.1",
+		"history": "^4.6.1",
+		"jsonrpc-lite": "^1.2.3",
+		"moment": "https://github.com/tqc/moment.git#no-dynamic-import",
+		"react": "^16.0.0",
+		"react-custom-scrollbars": "^4.1.2",
+		"react-native": "^0.50.4",
+		"react-redux": "^5.0.6",
+		"react-router": "^4.2.0",
+		"react-router-native": "^4.2.0",
+		"react-router-redux": "4.0.8",
+		"react-simple-maps": "^0.9.0",
+		"react-transition-group": "^2.2.1",
+		"reactxp": "^0.46.5",
+		"redux": "^3.7.2",
+		"redux-thunk": "^2.2.0",
+		"validated": "^1.1.0"
+	},
+	"devDependencies": {
+		"babel-cli": "^6.26.0",
+		"babel-jest": "21.2.0",
+		"babel-preset-react-native": "4.0.0",
+		"jest": "21.2.1",
+		"react-native-cli": "^2.0.1",
+		"react-test-renderer": "16.0.0-beta.5"
+	},
+	"jest": {
+		"preset": "react-native"
+	},
+	"rnpm": {
+		"assets": [
+			"../js/assets/fonts"
+		]
+	}
+}

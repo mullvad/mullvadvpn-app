@@ -68,10 +68,13 @@
     "sinon": "^3.2.1"
   },
   "scripts": {
+    "setup-android": "cd mobile && yarn install",
+    "run-android": "cp -r ./app/* ./mobile/js/ && cd mobile && yarn android",
     "postinstall": "electron-builder install-app-deps",
     "develop": "npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
     "test": "electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
+    "lint-win": "eslint --rule 'linebreak-style': 0 --no-ignore scripts app test *.js",
     "flow": "flow",
     "pack": "run-s private:clean private:compile private:build:all",
     "pack:mac": "./pre-mac-sign.sh && run-s private:clean private:compile private:build:mac",

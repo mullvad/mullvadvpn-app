@@ -1,7 +1,7 @@
 // @flow
 
-import log from 'electron-log';
-import { shell, ipcRenderer } from 'electron';
+import { log, openItem } from '../lib/platform';
+import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
@@ -59,7 +59,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) =
         });
     },
 
-    onViewLog: (path) => shell.openItem(path),
+    onViewLog: (path) => openItem(path),
 
     onSend: (email, message, savedReport) => {
 
