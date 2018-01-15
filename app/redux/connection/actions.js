@@ -1,6 +1,6 @@
 // @flow
 
-import { clipboard } from 'electron';
+import { Clipboard } from 'reactxp';
 
 import type { Backend } from '../../lib/backend';
 import type { ReduxThunk } from '../store';
@@ -12,7 +12,7 @@ const copyIPAddress = (): ReduxThunk => {
   return (_, getState) => {
     const { connection: { clientIp } } = getState();
     if(clientIp) {
-      clipboard.writeText(clientIp);
+      Clipboard.setText(clientIp);
     }
   };
 };
