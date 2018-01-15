@@ -1,7 +1,6 @@
 // @flow
 
 import { log } from '../lib/platform';
-import EventEmitter from 'events';
 import { IpcFacade, RealIpc } from './ipc-facade';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
@@ -81,7 +80,6 @@ export class Backend {
   _credentials: ?IpcCredentials;
   _authenticationPromise: ?Promise<void>;
   _store: ReduxStore;
-  _eventEmitter = new EventEmitter();
 
   constructor(store: ReduxStore, credentials?: IpcCredentials, ipc: ?IpcFacade) {
     this._store = store;
