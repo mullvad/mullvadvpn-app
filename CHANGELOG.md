@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+### Added
+- Uses the https://am.i.mullvad.net/ service to figure out location and public IP of the device.
+  The app then shows this information in the unsecured state.
+
 ### Fixed
 - Fixed bug where problem report tool would redact some things in the logs which were not IPv6
   addresses, but looked like ones.

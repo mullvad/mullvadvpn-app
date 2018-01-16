@@ -196,7 +196,10 @@ impl Relay {
             country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
             println!("{} ({})", country.name, country.code);
             for city in &country.cities {
-                println!("\t{} ({}) @ {:?}", city.name, city.code, city.position);
+                println!(
+                    "\t{} ({}) @ {:.5}°N, {:.5}°W",
+                    city.name, city.code, city.latitude, city.longitude
+                );
             }
             println!("");
         }
@@ -208,8 +211,7 @@ impl Relay {
 fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
     match raw_port.to_lowercase().as_str() {
         "any" => Ok(Constraint::Any),
-        port => Ok(Constraint::Only(u16::from_str(port)
-            .chain_err(|| "Invalid port")?)),
+        port => Ok(Constraint::Only(u16::from_str(port).chain_err(|| "Invalid port")?)),
     }
 }
 

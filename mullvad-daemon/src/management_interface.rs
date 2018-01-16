@@ -9,7 +9,7 @@ use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::location::Location;
+use mullvad_types::location::GeoIpLocation;
 
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
@@ -19,7 +19,6 @@ use serde;
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::net::IpAddr;
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
 use talpid_core::mpsc::IntoSender;
@@ -99,14 +98,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_state")]
         fn get_state(&self, Self::Metadata) -> BoxFuture<DaemonState, Error>;
 
-        /// Returns the current public IP of this computer.
-        #[rpc(meta, name = "get_public_ip")]
-        fn get_public_ip(&self, Self::Metadata) -> BoxFuture<IpAddr, Error>;
-
         /// Performs a geoIP lookup and returns the current location as perceived by the public
         /// internet.
         #[rpc(meta, name = "get_current_location")]
-        fn get_current_location(&self, Self::Metadata) -> BoxFuture<Location, Error>;
+        fn get_current_location(&self, Self::Metadata) -> BoxFuture<GeoIpLocation, Error>;
 
         /// Makes the daemon exit its main loop and quit.
         #[rpc(meta, name = "shutdown")]
@@ -149,10 +144,8 @@ pub enum TunnelCommand {
     SetTargetState(TargetState),
     /// Request the current state.
     GetState(OneshotSender<DaemonState>),
-    /// Get the current IP as viewed from the internet.
-    GetPublicIp(OneshotSender<IpAddr>),
     /// Get the current geographical location.
-    GetCurrentLocation(OneshotSender<Location>),
+    GetCurrentLocation(OneshotSender<GeoIpLocation>),
     /// Request the metadata for an account.
     GetAccountData(
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
@@ -233,6 +226,7 @@ pub struct EventBroadcaster {
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: DaemonState) {
+        debug!("Broadcasting new state to listeners: {:?}", new_state);
         self.notify(&self.subscriptions.new_state_subscriptions, new_state);
     }
 
@@ -505,16 +499,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn get_public_ip(&self, meta: Self::Metadata) -> BoxFuture<IpAddr, Error> {
-        trace!("get_public_ip");
-        try_future!(self.check_auth(&meta));
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetPublicIp(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
-    fn get_current_location(&self, meta: Self::Metadata) -> BoxFuture<Location, Error> {
+    fn get_current_location(&self, meta: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
         trace!("get_current_location");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();

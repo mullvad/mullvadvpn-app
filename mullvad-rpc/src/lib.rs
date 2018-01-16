@@ -8,15 +8,25 @@
 
 extern crate chrono;
 #[macro_use]
+extern crate error_chain;
+extern crate futures;
+extern crate hyper;
+extern crate hyper_tls;
+#[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
+#[macro_use]
+extern crate log;
+extern crate native_tls;
 extern crate serde_json;
+extern crate tokio_core;
 
 extern crate mullvad_types;
 
 use chrono::DateTime;
 use chrono::offset::Utc;
 use jsonrpc_client_http::HttpTransport;
+use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};
 pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
@@ -26,11 +36,20 @@ use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
 
+pub mod event_loop;
+pub mod rest;
+
 
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
 
-pub fn connect() -> Result<HttpHandle, HttpError> {
+/// Create and returns a `HttpHandle` running on the given core handle.
+pub fn shared(handle: &Handle) -> Result<HttpHandle, HttpError> {
+    HttpTransport::shared(handle)?.handle(MASTER_API_URI)
+}
+
+/// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
+pub fn standalone() -> Result<HttpHandle, HttpError> {
     HttpTransport::new()?.handle(MASTER_API_URI)
 }
 

@@ -4,15 +4,15 @@ import { Clipboard } from 'reactxp';
 
 import type { Backend } from '../../lib/backend';
 import type { ReduxThunk } from '../store';
-import type { Coordinate2d } from '../../types';
+import type { Ip } from '../../lib/ipc-facade';
 
 const connect = (backend: Backend): ReduxThunk => () => backend.connect();
 const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = (): ReduxThunk => {
   return (_, getState) => {
-    const { connection: { clientIp } } = getState();
-    if(clientIp) {
-      Clipboard.setText(clientIp);
+    const ip = getState().connection.ip;
+    if(ip) {
+      Clipboard.setText(ip);
     }
   };
 };
@@ -28,20 +28,16 @@ type DisconnectedAction = {
   type: 'DISCONNECTED',
 };
 
-type NewPublicIpAction = {
-  type: 'NEW_PUBLIC_IP',
-  ip: string,
-};
-
-type Location = {
-  location: Coordinate2d,
-  country: string,
-  city: string,
-};
-
 type NewLocationAction = {
   type: 'NEW_LOCATION',
-  newLocation: Location,
+  newLocation: {
+    ip: Ip,
+    country: string,
+    city: ?string,
+    latitude: number,
+    longitude: number,
+    mullvadExitIp: boolean,
+  },
 };
 
 type OnlineAction = {
@@ -52,8 +48,7 @@ type OfflineAction = {
   type: 'OFFLINE',
 };
 
-export type ConnectionAction = NewPublicIpAction
-                                | NewLocationAction
+export type ConnectionAction = NewLocationAction
                                 | ConnectingAction
                                 | ConnectedAction
                                 | DisconnectedAction
@@ -78,14 +73,7 @@ function disconnected(): DisconnectedAction {
   };
 }
 
-function newPublicIp(ip: string): NewPublicIpAction {
-  return {
-    type: 'NEW_PUBLIC_IP',
-    ip: ip,
-  };
-}
-
-function newLocation(newLoc: Location): NewLocationAction {
+function newLocation(newLoc: $PropertyType<NewLocationAction, 'newLocation'>): NewLocationAction {
   return {
     type: 'NEW_LOCATION',
     newLocation: newLoc,
@@ -105,5 +93,5 @@ function offline(): OfflineAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, newPublicIp, newLocation, connecting, connected, disconnected, online, offline };
+export default { connect, disconnect, copyIPAddress, newLocation, connecting, connected, disconnected, online, offline };
 

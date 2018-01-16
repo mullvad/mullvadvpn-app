@@ -1,25 +1,27 @@
 // @flow
 
 import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
-import { object, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
+import { object, maybe, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
-
-import type { Coordinate2d } from '../types';
 
 export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
+  ip: Ip,
   country: string,
-  city: string,
-  position: Coordinate2d,
+  city: ?string,
+  latitude: number,
+  longitude: number,
+  mullvad_exit_ip: boolean,
 };
 const LocationSchema = object({
+  ip: string,
   country: string,
-  country_code: string,
-  city: string,
-  city_code: string,
-  position: arrayOf(number),
+  city: maybe(string),
+  latitude: number,
+  longitude: number,
+  mullvad_exit_ip: boolean,
 });
 
 export type SecurityState = 'secured' | 'unsecured';
@@ -121,7 +123,8 @@ export type RelayListCountry = {
 export type RelayListCity = {
   name: string,
   code: string,
-  position: [number, number],
+  latitude: number,
+  longitude: number,
   has_active_relays: boolean,
 };
 
@@ -132,7 +135,8 @@ const RelayListSchema = object({
     cities: arrayOf(object({
       name: string,
       code: string,
-      position: arrayOf(number),
+      latitude: number,
+      longitude: number,
       has_active_relays: boolean,
     })),
   })),
@@ -152,7 +156,6 @@ export interface IpcFacade {
   connect(): Promise<void>,
   disconnect(): Promise<void>,
   shutdown(): Promise<void>,
-  getPublicIp(): Promise<Ip>,
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
   registerStateListener((BackendState) => void): void,
@@ -264,19 +267,11 @@ export class RealIpc implements IpcFacade {
       .then(this._ignoreResponse);
   }
 
-  getPublicIp(): Promise<Ip> {
-    return this._ipc.send('get_public_ip')
-      .then(raw => {
-        if (typeof raw === 'string' && raw) {
-          return raw;
-        } else {
-          throw new InvalidReply(raw, 'Expected a string');
-        }
-      });
-  }
-
   getLocation(): Promise<Location> {
-    return this._ipc.send('get_current_location')
+    // send the IPC with 30s timeout since the backend will wait
+    // for a HTTP request before replying
+
+    return this._ipc.send('get_current_location', [], 30000)
       .then(raw => {
         try {
           const validated: any = validate(LocationSchema, raw);
