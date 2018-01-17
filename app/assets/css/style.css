@@ -6,7 +6,7 @@
 @import 'transitions.css';
 
 /* app */
-@import '../../components/WindowChrome.css';
+@import '../../components/PlatformWindow.css';
 @import '../../components/CustomScrollbars.css';
 @import '../../components/Login.css';
 @import '../../components/Connect.css';
