@@ -36,7 +36,7 @@ homebrew:
 
 1. Run the backend daemon debug binary with verbose logging to the terminal with:
     ```
-    sudo ./target/debug/mullvad-daemon -vv
+    sudo ./target/debug/mullvad-daemon -vv --resource-dir dist-assets/
     ```
     It must run as root since it it modifies the firewall and sets up virtual network interfaces
     etc.
