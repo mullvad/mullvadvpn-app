@@ -202,9 +202,7 @@ struct Daemon {
 }
 
 impl Daemon {
-    pub fn new(tunnel_log: Option<PathBuf>) -> Result<Self> {
-        let resource_dir = get_resource_dir();
-
+    pub fn new(tunnel_log: Option<PathBuf>, resource_dir: PathBuf) -> Result<Self> {
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(|core| {
                 let handle = core.handle();
@@ -754,7 +752,9 @@ fn run() -> Result<()> {
     init_logger(config.log_level, config.log_file.as_ref())?;
     log_version();
 
-    let daemon = Daemon::new(config.tunnel_log_file).chain_err(|| "Unable to initialize daemon")?;
+    let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir)
+        .chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
