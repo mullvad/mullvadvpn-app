@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 
-export default class WindowChrome extends Component {
+export default class PlatformWindow extends Component {
   props: {
     children: Array<React.Element<*>> | React.Element<*>
   }
