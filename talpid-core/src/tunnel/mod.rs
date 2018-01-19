@@ -177,7 +177,11 @@ impl TunnelMonitor {
     }
 
     fn get_openvpn_bin(resource_dir: &Path) -> OsString {
-        let bin = OsStr::new("openvpn");
+        let bin = if cfg!(windows) {
+            OsStr::new("openvpn.exe")
+        } else {
+            OsStr::new("openvpn")
+        };
         let bundled_path = resource_dir.join("openvpn-binaries").join(bin);
         if bundled_path.exists() {
             bundled_path.into_os_string()
@@ -188,8 +192,8 @@ impl TunnelMonitor {
     }
 
     fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
-        let lib_ext = Self::get_library_extension().chain_err(|| ErrorKind::PluginNotFound)?;
-        let path = resource_dir.join(format!("libtalpid_openvpn_plugin.{}", lib_ext));
+        let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
+        let path = resource_dir.join(library);
 
         if path.exists() {
             debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
@@ -199,13 +203,13 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_library_extension() -> Result<&'static str> {
+    fn get_library_name() -> Result<&'static str> {
         if cfg!(target_os = "macos") {
-            Ok("dylib")
+            Ok("libtalpid_openvpn_plugin.dylib")
         } else if cfg!(unix) {
-            Ok("so")
+            Ok("libtalpid_openvpn_plugin.so")
         } else if cfg!(windows) {
-            Ok("dll")
+            Ok("talpid_openvpn_plugin.dll")
         } else {
             bail!(ErrorKind::UnsupportedPlatform);
         }
