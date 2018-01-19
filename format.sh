@@ -5,7 +5,7 @@
 
 set -u
 
-VERSION="0.3.5"
+VERSION=`grep "required_version" rustfmt.toml | cut -f2 -d'"'`
 CMD="rustfmt"
 INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
 
@@ -37,5 +37,5 @@ else
     shift
 fi
 
-echo "Formatting..."
+echo "Formatting with $VERSION..."
 cargo +nightly fmt -- "$@"
