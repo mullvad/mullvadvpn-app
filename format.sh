@@ -7,12 +7,11 @@ set -u
 
 VERSION=`grep "required_version" rustfmt.toml | cut -f2 -d'"'`
 CMD="rustfmt"
-INSTALL_CMD="cargo install --vers $VERSION --force rustfmt-nightly"
+INSTALL_CMD="cargo +nightly install --vers $VERSION --force rustfmt-nightly"
 
 case "$(uname -s)" in
     Linux*)     export LD_LIBRARY_PATH=$(rustc +nightly --print sysroot)/lib;;
     Darwin*)    export DYLD_LIBRARY_PATH=$(rustc +nightly --print sysroot)/lib;;
-    *)          echo "Unsupported platform"; exit 1
 esac
 
 function correct_rustfmt() {
