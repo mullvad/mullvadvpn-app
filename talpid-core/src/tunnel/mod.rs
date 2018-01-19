@@ -177,7 +177,11 @@ impl TunnelMonitor {
     }
 
     fn get_openvpn_bin(resource_dir: &Path) -> OsString {
-        let bin = if cfg!(windows) { OsStr::new("openvpn.exe") } else { OsStr::new("openvpn") };
+        let bin = if cfg!(windows) {
+            OsStr::new("openvpn.exe")
+        } else {
+            OsStr::new("openvpn")
+        };
         let bundled_path = resource_dir.join("openvpn-binaries").join(bin);
         if bundled_path.exists() {
             bundled_path.into_os_string()
