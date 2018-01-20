@@ -1,7 +1,9 @@
 // @flow
-import React, { Component } from 'react';
+import React from 'react';
+import { Component, Text, Button, View, TextInput } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
-import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
+import styles from './SupportStyles';
+import Img from './Img';
 
 import type { AccountReduxState } from '../redux/account/reducers';
 
@@ -38,20 +40,12 @@ export default class Support extends Component {
     return this.state.message.trim().length > 0;
   }
 
-  onChangeEmail = (e: Event) => {
-    const input = e.target;
-    if(!(input instanceof HTMLInputElement)) {
-      throw new Error('input must be an instance of HTMLInputElement');
-    }
-    this.setState({ email: input.value });
+  onChangeEmail = (email: string) => {
+    this.setState({ email: email });
   }
 
-  onChangeDescription = (e: Event) => {
-    const input = e.target;
-    if(!(input instanceof HTMLTextAreaElement)) {
-      throw new Error('input must be an instance of HTMLTextAreaElement');
-    }
-    this.setState({ message: input.value });
+  onChangeDescription = (description: string) => {
+    this.setState({ message: description });
   }
 
   onViewLog = () => {
@@ -100,14 +94,13 @@ export default class Support extends Component {
 
   render() {
 
-    const header = <div className="support__header">
-      <h2 className="support__title">Report a problem</h2>
-      { this.state.sendState === 'INITIAL' && <div className="support__subtitle">
-        { `To help you more effectively, your app's log file will be attached to this message.
-                    Your data will remain secure and private, as it is encrypted & anonymised before sending.` }
-      </div>
+    const header = <View style={styles.support__header}>
+      <Text style={styles.support__title}>Report a problem</Text>
+      { this.state.sendState === 'INITIAL' && <Text style={styles.support__subtitle}>
+        { 'To help you more effectively, your app\'s log file will be attached to this message. Your data will remain secure and private, as it is encrypted & anonymised before sending.' }
+      </Text>
       }
-    </div>;
+    </View>;
 
     const content = this._renderContent();
 
@@ -115,19 +108,19 @@ export default class Support extends Component {
       <Layout>
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
-          <div className="support">
-            <div className="support__close" onClick={ this.props.onClose }>
-              <img className="support__close-icon" src="./assets/images/icon-back.svg" />
-              <span className="support__close-title">Settings</span>
-            </div>
-            <div className="support__container">
+          <View style={styles.support}>
+            <Button style={styles.support__close} onPress={ this.props.onClose } testName="support__close">
+              <Img style={styles.support__close_icon} source="icon-back" />
+              <Text style={styles.support__close_title}>Settings</Text>
+            </Button>
+            <View style={styles.support__container}>
 
               { header }
 
               { content }
 
-            </div>
-          </div>
+            </View>
+          </View>
         </Container>
       </Layout>
     );
@@ -149,106 +142,109 @@ export default class Support extends Component {
   }
 
   _renderForm() {
-    return <div className="support__content">
-      <div className="support__form">
-        <div className="support__form-row">
-          <input className="support__form-email"
-            type="email"
+    return <View style={styles.support__content}>
+      <View style={styles.support__form}>
+        <View style={styles.support__form_row}>
+          <TextInput style={styles.support__form_email}
             placeholder="Your email"
-            value={ this.state.email }
-            onChange={ this.onChangeEmail }
+            defaultValue={ this.state.email }
+            onChangeText={ this.onChangeEmail }
+            keyboardType="email-address"
             autoFocus={ true } />
-        </div>
-        <div className="support__form-row support__form-row-message">
-          <div className="support__form-message-scroll-wrap">
-            <textarea className="support__form-message"
+        </View>
+        <View style={styles.support__form_row_message}>
+          <View style={styles.support__form_message_scroll_wrap}>
+            <TextInput style={styles.support__form_message}
               placeholder="Describe your problem"
-              value={ this.state.message }
-              onChange={ this.onChangeDescription } />
-          </div>
-        </div>
-        <div className="support__footer">
-          <button type="button"
-            className="support__form-view-logs button button--primary"
-            onClick={ this.onViewLog }>
-            <span className="button-label">View app logs</span>
-            <ExternalLinkSVG className="button-icon button-icon--16" />
-          </button>
-          <button type="button"
-            className="support__form-send button button--positive"
-            disabled={ !this.validate() }
-            onClick={ this.onSend }>Send</button>
-        </div>
-      </div>
-    </div>;
+              defaultValue={ this.state.message }
+              multiline={ true }
+              onChangeText={ this.onChangeDescription }
+              testName="support__form_message"/>
+          </View>
+        </View>
+        <View style={styles.support__footer}>
+          <Button onPress={ this.onViewLog } style={{'flex':1}} testName='support__view_logs'>
+            <View style={styles.support__form_view_logs}>
+              <View style={styles.support__open_icon}></View>
+              <Text style={styles.support__button_label}>View app logs</Text>
+              <Img source="icon-extLink" style={styles.support__open_icon} tintColor='currentColor'/>
+            </View>
+          </Button>
+          <Button style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
+            <Text style={styles.support__button_label}>Send</Text>
+          </Button>
+        </View>
+      </View>
+    </View>;
   }
 
   _renderLoading() {
-    return <div className="support__content">
-
-      <div className="support__form">
-        <div className="support__form-row">
-          <div className="support__status-icon">
-            <img src="./assets/images/icon-spinner.svg" alt="" />
-          </div>
-          <div className="support__status-security--secure">
+    return <View style={styles.support__content}>
+      <View style={styles.support__form}>
+        <View style={styles.support__form_row}>
+          <View style={styles.support__status_icon}>
+            <Img source="icon-spinner" alt="" />
+          </View>
+          <View style={styles.support__status_security__secure}>
             Secure Connection
-          </div>
-          <div className="support__send-status">
-            <span>Sending...</span>
-          </div>
-        </div>
-      </div>
-    </div>;
+          </View>
+          <Text style={styles.support__send_status}>
+            Sending...
+          </Text>
+        </View>
+      </View>
+    </View>;
   }
 
   _renderSent() {
-    return <div className="support__content">
-      <div className="support__form">
-        <div className="support__form-row">
-          <div className="support__status-icon">
-            <img src="./assets/images/icon-success.svg" alt="" />
-          </div>
-          <div className="support__status-security--secure">
+    return <View style={styles.support__content}>
+      <View style={styles.support__form}>
+        <View style={styles.support__form_row}>
+          <View style={styles.support__status_icon}>
+            <Img source="icon-success" alt="" />
+          </View>
+          <Text style={styles.support__status_security__secure}>
             Secure Connection
-          </div>
-          <div className="support__send-status">
-            <span>Sent</span>
-          </div>
-          <div className="support__subtitle">
+          </Text>
+          <Text style={styles.support__send_status}>
+            Sent
+          </Text>
+          <Text style={styles.support__subtitle}>
             Thanks! We will look into this. If needed we will contact you on {'\u00A0'}
-            <div className="support__sent-email">{ this.state.email }</div>
-          </div>
-        </div>
-      </div>
-    </div>;
+            <Text style={styles.support__sent_email}>{ this.state.email }</Text>
+          </Text>
+        </View>
+      </View>
+    </View>;
   }
 
   _renderFailed() {
-    return <div className="support__content">
-      <div className="support__form">
-        <div className="support__form-row">
-          <div className="support__status-icon">
-            <img src="./assets/images/icon-fail.svg" alt="" />
-          </div>
-          <div className="support__status-security--secure">
+    return <View style={styles.support__content}>
+      <View style={styles.support__form}>
+        <View style={styles.support__form_row}>
+          <View style={styles.support__status_icon}>
+            <Img source="icon-fail" alt="" />
+          </View>
+          <Text style={styles.support__status_security__secure}>
             Secure Connection
-          </div>
-          <div className="support__send-status">
-            <span>Failed to send</span>
-          </div>
-        </div>
-      </div>
-      <div className="support__footer">
-        <button type="button"
-          className="support__form-view-logs button button--primary"
-          onClick={ () => this.setState({ sendState: 'INITIAL' }) }>
-          <span className="button-label">Edit message</span>
-        </button>
-        <button type="button"
-          className="support__form-send button button--positive"
-          onClick={ this.onSend }>Try again</button>
-      </div>
-    </div>;
+          </Text>
+          <Text style={styles.support__send_status}>
+            Failed to send
+          </Text>
+        </View>
+      </View>
+      <View style={styles.support__footer}>
+        <Button onPress={ () => this.setState({ sendState: 'INITIAL' }) }>
+          <View style={styles.support__form_edit_logs}>
+            <Text style={styles.support__button_label}>Edit message</Text>
+          </View>
+        </Button>
+        <Button onPress={ this.onSend }>
+          <View style={styles.support__form_send}>
+            <Text style={styles.support__button_label}>Try again</Text>
+          </View>
+        </Button>
+      </View>
+    </View>;
   }
 }
