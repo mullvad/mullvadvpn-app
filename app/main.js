@@ -104,6 +104,44 @@ const appDelegate = {
       window.webContents.send('shutdown');
     });
 
+    ipcMain.on('collect-logs', (event, id, toRedact) => {
+      log.info('Collecting logs in', appDelegate._logFileLocation);
+      fs.readdir(appDelegate._logFileLocation, (err, files) => {
+        if (err) {
+          event.sender.send('collect-logs-reply', id, err);
+          return;
+        }
+
+        const logFiles = files.filter(file => file.endsWith('.log'))
+          .map(f => path.join(appDelegate._logFileLocation, f));
+        const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
+
+        const binPath = resolveBin('problem-report');
+        let args = [
+          'collect',
+          '--output', reportPath,
+        ];
+
+        if (toRedact.length > 0) {
+          args = args.concat([
+            '--redact', ...toRedact,
+            '--',
+          ]);
+        }
+
+        args = args.concat(logFiles);
+
+        execFile(binPath, args, {windowsHide: true}, (err) => {
+          if (err) {
+            event.sender.send('collect-logs-reply', id, err);
+          } else {
+            log.debug('Report written to', reportPath);
+            event.sender.send('collect-logs-reply', id, null, reportPath);
+          }
+        });
+      });
+    });
+
     // create tray icon on macOS
     if(isMacOS) {
       appDelegate._tray = appDelegate._createTray(window);
@@ -384,44 +422,6 @@ const appDelegate = {
 
     // add IPC handler to change tray icon from renderer
     ipcMain.on('changeTrayIcon', (_: Event, type: TrayIconType) => trayIconManager.iconType = type);
-
-    ipcMain.on('collect-logs', (event, id, toRedact) => {
-      log.info('Collecting logs in', appDelegate._logFileLocation);
-      fs.readdir(appDelegate._logFileLocation, (err, files) => {
-        if (err) {
-          event.sender.send('collect-logs-reply', id, err);
-          return;
-        }
-
-        const logFiles = files.filter(file => file.endsWith('.log'))
-          .map(f => path.join(appDelegate._logFileLocation, f));
-        const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
-
-        const binPath = resolveBin('problem-report');
-        let args = [
-          'collect',
-          '--output', reportPath,
-        ];
-
-        if (toRedact.length > 0) {
-          args = args.concat([
-            '--redact', ...toRedact,
-            '--',
-          ]);
-        }
-
-        args = args.concat(logFiles);
-
-        execFile(binPath, args, {windowsHide: true}, (err) => {
-          if (err) {
-            event.sender.send('collect-logs-reply', id, err);
-          } else {
-            log.debug('Report written to', reportPath);
-            event.sender.send('collect-logs-reply', id, null, reportPath);
-          }
-        });
-      });
-    });
 
     // setup event handlers
     window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));

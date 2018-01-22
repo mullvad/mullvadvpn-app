@@ -1,10 +1,11 @@
 // @flow
 
 import { expect } from 'chai';
-import sinon from 'sinon';
 import React from 'react';
-import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Support from '../../app/components/Support';
+import { shallow } from 'enzyme';
+require('../setup/enzyme');
+import sinon from 'sinon';
 
 import type { SupportProps } from '../../app/components/Support';
 
@@ -27,26 +28,20 @@ describe('components/Support', () => {
     return Object.assign({}, defaultProps, mergeProps);
   };
 
-  const render = (props: SupportProps): Support => {
-    return ReactTestUtils.renderIntoDocument(
-      <Support { ...props } />
-    );
-  };
-
   it('should call close callback', (done) => {
     const props = makeProps({
       onClose: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'support__close');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'support__close');
+    click(component);
   });
 
   it('should call view logs callback', (done) => {
     const props = makeProps({
       onViewLog: (_path) => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'support__form-view-logs');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'support__view_logs');
+    click(component);
   });
 
   it('should call send callback when description filled in', (done) => {
@@ -55,25 +50,19 @@ describe('components/Support', () => {
     });
 
     const component = render(props);
+    component.setState({ message: 'abc' });
 
-    const descriptionField = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-message');
-    descriptionField.value = 'Lorem Ipsum';
-    Simulate.change(descriptionField);
-
-    const sendButton = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-send');
-    expect(sendButton.disabled).to.be.false;
-    Simulate.click(sendButton);
+    const sendButton = getComponent(component, 'support__send_logs');
+    expect(sendButton.prop('disabled')).to.be.false;
+    click(sendButton);
   });
 
   it('should not call send callback when description is empty', () => {
     const component = render(makeProps());
+    component.setState({ message: '' });
 
-    const descriptionField = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-message');
-    descriptionField.value = '';
-    Simulate.change(descriptionField);
-
-    const sendButton = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-send');
-    expect(sendButton.disabled).to.be.true;
+    const sendButton = getComponent(render(makeProps()), 'support__send_logs');
+    expect(sendButton.prop('disabled')).to.be.true;
   });
 
   it('should not collect report twice', (done) => {
@@ -82,12 +71,11 @@ describe('components/Support', () => {
       onCollectLog: collectCallback
     });
 
-    const component = render(props);
-    const viewLogButton = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-view-logs');
-    Simulate.click(viewLogButton);
+    const viewLogButton = getComponent(render(props), 'support__view_logs');
+    click(viewLogButton);
 
     setTimeout(() => {
-      Simulate.click(viewLogButton);
+      click(viewLogButton);
     });
 
     setTimeout(() => {
@@ -114,14 +102,25 @@ describe('components/Support', () => {
       }
     });
 
-    const component = render(props);
+    const component = render(makeProps());
+    component.setState({ message: '' });
 
-    const descriptionField = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-message');
-    descriptionField.value = 'Lorem Ipsum';
-    Simulate.change(descriptionField);
-
-    const sendButton = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'support__form-send');
-    Simulate.click(sendButton);
+    const sendButton = getComponent(render(props), 'support__send_logs');
+    click(sendButton);
   });
 
 });
+
+function render(props) {
+  return shallow(
+    <Support {...props} />
+  );
+}
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function click(component) {
+  component.prop('onPress')();
+}
