@@ -97,7 +97,7 @@ export default class Support extends Component {
     const header = <View style={styles.support__header}>
       <Text style={styles.support__title}>Report a problem</Text>
       { this.state.sendState === 'INITIAL' && <Text style={styles.support__subtitle}>
-        { 'To help you more effectively, your app\'s log file will be attached to this message. Your data will remain secure and private, as it is encrypted & anonymised before sending.' }
+        { 'To help you more effectively, your app\'s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.' }
       </Text>
       }
     </View>;
