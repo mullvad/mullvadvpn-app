@@ -11,18 +11,20 @@ import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT';
+export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT' | 'COMMUNICATION_FAILURE' | 'UNKNOWN_ERROR' ;
 
 export class BackendError extends Error {
   type: ErrorType;
   title: string;
   message: string;
+  cause: ?Error;
 
-  constructor(type: ErrorType) {
+  constructor(type: ErrorType, cause?: Error) {
     super('');
     this.type = type;
     this.title = BackendError.localizedTitle(type);
-    this.message = BackendError.localizedMessage(type);
+    this.message = BackendError.localizedMessage(type, cause);
+    this.cause = cause;
   }
 
   static localizedTitle(type: ErrorType): string {
@@ -36,7 +38,8 @@ export class BackendError extends Error {
     }
   }
 
-  static localizedMessage(type: ErrorType): string {
+  static localizedMessage(type: ErrorType, cause: ?Error): string {
+
     switch(type) {
     case 'NO_CREDIT':
       return 'Buy more time, so you can continue using the internet securely';
@@ -46,6 +49,15 @@ export class BackendError extends Error {
       return 'Invalid account number';
     case 'NO_ACCOUNT':
       return 'No account was set';
+    case 'COMMUNICATION_FAILURE':
+      return 'api.mullvad.net is blocked, please check your firewall';
+    case 'UNKNOWN_ERROR': {
+      const message = cause
+        ? ', ' + cause.message
+        : '';
+
+      return 'An unknown error occurred' + message;
+    }
     default:
       return '';
     }
@@ -174,10 +186,31 @@ export class Backend {
     } catch(e) {
       log.error('Failed to log in,', e.message);
 
-      // TODO: This is not true. If there is a communication link failure the promise will be rejected too
-      const err = new BackendError('INVALID_ACCOUNT');
+      const err = this._rpcErrorToBackendError(e);
       this._store.dispatch(accountActions.loginFailed(err));
     }
+  }
+
+  _rpcErrorToBackendError(e) {
+    const isJsonRpcError = e.hasOwnProperty('code');
+    if (isJsonRpcError) {
+      switch(e.code) {
+      case -200: // Account doesn't exist
+        return new BackendError('INVALID_ACCOUNT');
+      case -32603: // Internal error
+        // We treat all internal backend errors as the user cannot reach
+        // api.mullvad.net. This is not always true of course, but it is
+        // true so often that we choose to disregard the other edge cases
+        // for now.
+        return new BackendError('COMMUNICATION_FAILURE');
+      }
+    }
+
+    if (e.name === 'TimeOutError') {
+      return new BackendError('COMMUNICATION_FAILURE');
+    }
+
+    return new BackendError('UNKNOWN_ERROR', e);
   }
 
   async autologin() {
