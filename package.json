@@ -68,17 +68,6 @@
     "rimraf": "^2.5.4",
     "sinon": "^3.2.1"
   },
-  "babel": {
-    "env": {
-      "electron": {
-        "presets": ["es2015", "stage-0", "react"],
-        "plugins": ["transform-runtime", "inline-react-svg"]
-      },
-      "development": {
-        "presets": ["react-native"]
-      }
-    }
-  },
   "scripts": {
     "android": "react-native run-android",
     "postinstall": "electron-builder install-app-deps",

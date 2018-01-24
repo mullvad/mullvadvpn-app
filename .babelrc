@@ -1,0 +1,11 @@
+{
+  "env": {
+    "electron": {
+      "presets": ["es2015", "stage-0", "react"],
+      "plugins": ["transform-runtime", "inline-react-svg"]
+    },
+    "development": {
+      "presets": ["react-native"]
+    }
+  }
+}
