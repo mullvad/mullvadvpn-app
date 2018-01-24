@@ -19,12 +19,11 @@
     "mapbox-gl": "^0.37.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.17.1",
-    "prop-types": "^15.5.10",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-mapbox-gl": "^2.1.0",
-    "react-native": "^0.50.4",
-    "react-native-windows": "^0.50.0-rc.2",
+    "react-native": "^0.53.0-rc.0",
+    "react-native-windows": "^0.52.0-rc.0",
     "react-redux": "^5.0.2",
     "react-router": "^4.2.0",
     "react-router-redux": "5.0.0-alpha.6",
@@ -46,10 +45,12 @@
     "babel-plugin-inline-react-svg": "^0.4.0",
     "babel-plugin-transform-runtime": "^6.22.0",
     "babel-preset-es2015": "^6.1.18",
+    "babel-preset-prometheusresearch": "^2.0.0",
     "babel-preset-react": "^6.22.0",
     "babel-preset-stage-0": "^6.1.18",
     "browser-sync": "^2.9.3",
     "chai": "^4.1.0",
+    "cross-env": "^5.1.3",
     "electron": "^1.7.9",
     "electron-builder": "^19.37.2",
     "electron-devtools-installer": "^2.2.1",
@@ -67,9 +68,21 @@
     "rimraf": "^2.5.4",
     "sinon": "^3.2.1"
   },
+  "babel": {
+    "env": {
+      "electron": {
+        "presets": ["es2015", "stage-0", "react"],
+        "plugins": ["transform-runtime", "inline-react-svg"]
+      },
+      "development": {
+        "presets": ["react-native"]
+      }
+    }
+  },
   "scripts": {
+    "android": "react-native run-android",
     "postinstall": "electron-builder install-app-deps",
-    "develop": "npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
+    "develop": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
     "test": "electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "flow": "flow",
