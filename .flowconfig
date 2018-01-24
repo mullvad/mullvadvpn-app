@@ -37,6 +37,8 @@
 .*/node_modules/react-native/jest/.*
 .*/node_modules/react-native/ReactAndroid/src/androidTest/.*
 .*/node_modules/react-native-windows/.*
+.*/node_modules/metro/.*
+.*/node_modules/metro-source-map/.*
 
 [include]
 
