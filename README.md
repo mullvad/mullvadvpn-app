@@ -135,7 +135,7 @@ it and behave accordingly.
 
 ## Quirks
 
-- Babel configuration: `BABEL_ENV=development` [must be used for react-native](https://github.com/facebook/react-native/issues/8723)
+- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used for [react-native](https://github.com/facebook/react-native/issues/8723)
 
 # License
 
