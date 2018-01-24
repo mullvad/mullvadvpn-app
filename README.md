@@ -133,6 +133,9 @@ it and behave accordingly.
 - **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
   logs.
 
+## Quirks
+
+- `BABEL_ENV=development` must be used for react-native, https://github.com/facebook/react-native/issues/8723
 
 # License
 
