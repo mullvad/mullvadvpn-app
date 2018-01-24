@@ -7,6 +7,7 @@ import { Router } from 'react-router-redux';
 import { createMemoryHistory } from 'history';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
+import { log } from './lib/platform';
 import { Backend } from './lib/backend';
 import { DeviceEventEmitter } from 'react-native';
 import { MobileAppBridge } from 'NativeModules';
@@ -22,14 +23,13 @@ const store = configureStore(initialState, memoryHistory);
 const backend = new Backend(store);
 
 DeviceEventEmitter.addListener('com.mullvad.backend-info', function(e: Event) {
-  console.warn(e);
   backend.init();
   backend.sync();
   backend.autologin();
 });
 
 MobileAppBridge.startBackend().then(_response => {}).catch(e => {
-  console.warn('Failed starting backend:', e);
+  log.error('Failed starting backend:', e);
 });
 
 const _isPortrait = () => {
