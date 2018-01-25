@@ -4,6 +4,7 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
+import Map from './Map';
 
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import ChevronRightSVG from '../assets/images/icon-chevron.svg';
@@ -29,15 +30,10 @@ export type ConnectProps = {
 export default class Connect extends Component {
   props: ConnectProps;
   state = {
-    isFirstPass: true,
     showCopyIPMessage: false
   };
 
   _copyTimer: ?number;
-
-  componentDidMount() {
-    this.setState({ isFirstPass: false });
-  }
 
   componentWillUnmount() {
     if(this._copyTimer) {
@@ -46,7 +42,6 @@ export default class Connect extends Component {
     }
 
     this.setState({
-      isFirstPass: true,
       showCopyIPMessage: false
     });
   }
@@ -130,7 +125,7 @@ export default class Connect extends Component {
     }
   }
 
-  renderMap(): React.Element<*> {
+  renderMap() {
     let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
@@ -138,20 +133,45 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    // We decided to not include the map in the first beta release to customers
-    // but it MUST be included in the following releases. Therefore we choose
-    // to just comment it out
-    const map = undefined;
-    /*
-    const altitude = (isConnecting ? 300 : 100) * 1000;
-    const { location } = this.props.connection;
-    const map = <Map animate={ !this.state.isFirstPass }
-        location={ location || [0, 0] }
-        altitude= { altitude }
-        markerImagePath= { isConnected
+    const { longitude, latitude } = this.props.connection;
+
+    let zoomLevel, center, offset, showUserLocation;
+
+    // when the user location is known
+    if(typeof(longitude) === 'number' && typeof(latitude) === 'number') {
+      center = [longitude, latitude];
+
+      // do not show the marker until connected.
+      showUserLocation = !isConnecting;
+
+      // zoom in when connected
+      zoomLevel = isConnected ? 40 : 20;
+
+      // a magic offset to align marker with spinner
+      offset = [0, 123];
+    } else {
+      center = [0, 0];
+      showUserLocation = false;
+
+      // show the world when user location is not known
+      zoomLevel = 1;
+
+      // remove the offset since the marker is hidden
+      offset = [0, 0];
+    }
+
+    const map = (
+      <Map width={ 320 } height={ 494 }
+        center={ center }
+        offset={ offset }
+        zoomLevel={ zoomLevel }
+        showMarker={ showUserLocation }
+        markerImagePath={ isConnected
           ? './assets/images/location-marker-secure.svg'
-          : './assets/images/location-marker-unsecure.svg' } />
-    */
+          : './assets/images/location-marker-unsecure.svg' }
+      />
+    );
+
 
     return (
       <div className="connect">
