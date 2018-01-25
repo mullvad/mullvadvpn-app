@@ -82,8 +82,8 @@
     "private:build:win": "npm run private:build -- --win",
     "private:build:linux": "npm run private:build -- --linux",
     "private:build": "electron-builder",
-    "private:watch": "npm run private:compile -- --source-maps true --watch --skip-initial-build",
-    "private:serve": "babel-node scripts/serve.js",
+    "private:watch": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true --watch --skip-initial-build",
+    "private:serve": "cross-env BABEL_ENV=electron babel-node scripts/serve.js",
     "private:compile": "babel app/ --copy-files --out-dir build",
     "private:clean": "rimraf build"
   }
