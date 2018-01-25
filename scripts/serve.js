@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import electron from 'electron';
 import browserSync from 'browser-sync';
-import browserSyncConnectUtils from 'browser-sync/lib/connect-utils';
+import browserSyncConnectUtils from 'browser-sync/dist/connect-utils';
 
 const bsync = browserSync.create();
 
