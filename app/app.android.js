@@ -8,7 +8,7 @@ import { createMemoryHistory } from 'history';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { log } from './lib/platform';
-import { Backend } from './lib/backend';
+import { Backend, BackendError } from './lib/backend';
 import { DeviceEventEmitter } from 'react-native';
 import { MobileAppBridge } from 'NativeModules';
 import { Dimensions } from 'react-native';
@@ -22,7 +22,7 @@ const store = configureStore(initialState, memoryHistory);
 //////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
 
-DeviceEventEmitter.addListener('com.mullvad.backend-info', function(e: Event) {
+DeviceEventEmitter.addListener('com.mullvad.backend-info', async (_event, args) => {
   backend.setCredentials(args.credentials);
   backend.sync();
   try {
