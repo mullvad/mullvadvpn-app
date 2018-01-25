@@ -34,7 +34,7 @@ DeviceEventEmitter.addListener('com.mullvad.backend-info', function(e: Event) {
     if(e instanceof BackendError) {
       if(e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');
-        ipcRenderer.send('show-window');
+        MobileAppBridge.showWindow();
       }
     }
   }
