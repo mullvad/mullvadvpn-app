@@ -1,0 +1,6 @@
+This is a folder with python 2 scripts to produce geographical data for the Mullvad VPN app.
+
+Run the following command in terminal to install python dependencies:
+pip install -r requirements.txt
+
+Data source URL: http://www.naturalearthdata.com/downloads/50m-cultural-vectors/
