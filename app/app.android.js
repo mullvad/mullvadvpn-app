@@ -23,9 +23,21 @@ const store = configureStore(initialState, memoryHistory);
 const backend = new Backend(store);
 
 DeviceEventEmitter.addListener('com.mullvad.backend-info', function(e: Event) {
-  backend.init();
+  backend.setCredentials(args.credentials);
   backend.sync();
-  backend.autologin();
+  try {
+    await backend.autologin();
+    await backend.fetchRelaySettings();
+    await backend.fetchSecurityState();
+    await backend.connect();
+  } catch (e) {
+    if(e instanceof BackendError) {
+      if(e.type === 'NO_ACCOUNT') {
+        log.debug('No user set in the backend, showing window');
+        ipcRenderer.send('show-window');
+      }
+    }
+  }
 });
 
 MobileAppBridge.startBackend().then(_response => {}).catch(e => {
