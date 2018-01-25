@@ -1,6 +1,4 @@
 [ignore]
-.*/node_modules/mapbox-gl/.*
-.*/node_modules/cheap-ruler/.*
 .*/node_modules/jsonlint-lines-primitives/.*
 .*/node_modules/unflowify/.*
 
