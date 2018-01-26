@@ -17,7 +17,7 @@ export type SupportState = {
   email: string,
   message: string,
   savedReport: ?string,
-  sendState: 'INITIAL' | 'LOADING' | 'SUCCESS' | 'FAILED',
+  sendState: 'INITIAL' | 'CONFIRM_NO_EMAIL' | 'LOADING' | 'SUCCESS' | 'FAILED',
 };
 export type SupportProps = {
   account: AccountReduxState,
@@ -72,6 +72,16 @@ export default class Support extends Component {
   }
 
   onSend = () => {
+    if (this.state.sendState === 'INITIAL' && this.state.email.length === 0) {
+      this.setState({
+        sendState: 'CONFIRM_NO_EMAIL',
+      });
+    } else {
+      this._sendProblemReport();
+    }
+  }
+
+  _sendProblemReport() {
     this.setState({
       sendState: 'LOADING',
     }, () => {
@@ -94,9 +104,10 @@ export default class Support extends Component {
 
   render() {
 
+    const { sendState } = this.state;
     const header = <View style={styles.support__header}>
       <Text style={styles.support__title}>Report a problem</Text>
-      { this.state.sendState === 'INITIAL' && <Text style={styles.support__subtitle}>
+      { (sendState === 'INITIAL' || sendState === 'CONFIRM_NO_EMAIL') && <Text style={styles.support__subtitle}>
         { 'To help you more effectively, your app\'s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.' }
       </Text>
       }
@@ -110,8 +121,10 @@ export default class Support extends Component {
         <Container>
           <View style={styles.support}>
             <Button style={styles.support__close} onPress={ this.props.onClose } testName="support__close">
-              <Img style={styles.support__close_icon} source="icon-back" />
-              <Text style={styles.support__close_title}>Settings</Text>
+              <View style={styles.support__close}>
+                <Img style={styles.support__close_icon} source="icon-back" />
+                <Text style={styles.support__close_title}>Settings</Text>
+              </View>
             </Button>
             <View style={styles.support__container}>
 
@@ -129,6 +142,7 @@ export default class Support extends Component {
   _renderContent() {
     switch(this.state.sendState) {
     case 'INITIAL':
+    case 'CONFIRM_NO_EMAIL':
       return this._renderForm();
     case 'LOADING':
       return this._renderLoading();
@@ -142,6 +156,7 @@ export default class Support extends Component {
   }
 
   _renderForm() {
+
     return <View style={styles.support__content}>
       <View style={styles.support__form}>
         <View style={styles.support__form_row}>
@@ -163,19 +178,40 @@ export default class Support extends Component {
           </View>
         </View>
         <View style={styles.support__footer}>
-          <Button onPress={ this.onViewLog } style={{'flex':1}} testName='support__view_logs'>
-            <View style={styles.support__form_view_logs}>
-              <View style={styles.support__open_icon}></View>
-              <Text style={styles.support__button_label}>View app logs</Text>
-              <Img source="icon-extLink" style={styles.support__open_icon} tintColor='currentColor'/>
-            </View>
-          </Button>
-          <Button style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
-            <Text style={styles.support__button_label}>Send</Text>
-          </Button>
+          {
+            this.state.sendState === 'CONFIRM_NO_EMAIL'
+              ? this._renderNoEmailWarning()
+              : this._renderActionButtons()
+          }
         </View>
       </View>
     </View>;
+  }
+
+  _renderNoEmailWarning() {
+    return <View>
+      <Text style={styles.support__no_email_warning}>
+      You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
+      </Text>
+      <Button style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
+        <Text style={styles.support__button_label}>Send anyway</Text>
+      </Button>
+    </View>;
+  }
+
+  _renderActionButtons() {
+    return [
+      <Button key={1} onPress={ this.onViewLog } style={{'flex':1}} testName='support__view_logs'>
+        <View style={styles.support__form_view_logs}>
+          <View style={styles.support__open_icon}></View>
+          <Text style={styles.support__button_label}>View app logs</Text>
+          <Img source="icon-extLink" style={styles.support__open_icon} tintColor='currentColor'/>
+        </View>
+      </Button>,
+      <Button key={2} style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
+        <Text style={styles.support__button_label}>Send</Text>
+      </Button>
+    ];
   }
 
   _renderLoading() {

@@ -208,4 +208,11 @@ export default Object.assign(createViewStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  support__no_email_warning: {
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    lineHeight: 1.3,
+
+    color: 'rgba(255,255,255,0.8)',
+  },
 }));
