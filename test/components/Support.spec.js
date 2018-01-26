@@ -50,7 +50,7 @@ describe('components/Support', () => {
     });
 
     const component = render(props);
-    component.setState({ message: 'abc' });
+    component.setState({ message: 'abc', email: 'foo' });
 
     const sendButton = getComponent(component, 'support__send_logs');
     expect(sendButton.prop('disabled')).to.be.false;
@@ -102,10 +102,10 @@ describe('components/Support', () => {
       }
     });
 
-    const component = render(makeProps());
-    component.setState({ message: '' });
+    const component = render(props);
+    component.setState({ message: '', email: 'foo' });
 
-    const sendButton = getComponent(render(props), 'support__send_logs');
+    const sendButton = getComponent(component, 'support__send_logs');
     click(sendButton);
   });
 
