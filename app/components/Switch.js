@@ -1,8 +1,6 @@
 // @flow
 import React, { Component } from 'react';
 
-import type { Point2d } from '../types';
-
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;
 
@@ -24,7 +22,7 @@ export default class Switch extends Component {
 
   state = {
     ignoreChange: false,
-    initialPos: ({x: 0, y: 0}: Point2d),
+    initialPos: {x: 0, y: 0},
     startTime: (null: ?number)
   }
 

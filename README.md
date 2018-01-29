@@ -118,7 +118,6 @@ it and behave accordingly.
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
   - **transitions.js** - transition rules between views
-  - **types.js** - common Flow types used across the app
 - **build.sh** - Builds the backend in release mode. Will be extended to take care of more parts
   of the release compiling and packaging.
 - **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
