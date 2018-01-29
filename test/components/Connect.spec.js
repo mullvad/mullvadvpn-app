@@ -98,28 +98,6 @@ describe('components/Connect', () => {
     expect(ipAddr.text()).to.contain('4.3.2.1');
   });
 
-  it('shows the country name in the location switcher', () => {
-    const component = renderWithProps({
-      connection: {
-        ...defaultProps.connection,
-        status: 'disconnected',
-      },
-      settings: {
-        ...defaultProps.settings,
-        relaySettings: {
-          normal: {
-            location: { city: ['se', 'mma'] },
-            protocol: 'any',
-            port: 'any',
-          }
-        },
-      },
-    });
-
-    const locationSwitcher = component.find('.connect__server');
-    expect(locationSwitcher.text()).to.contain('Malmö');
-  });
-
   it('invokes the onConnect prop', (done) => {
     const component = renderWithProps({
       onConnect: () => done(),
@@ -142,28 +120,7 @@ const defaultProps: ConnectProps = {
   onDisconnect: () => {},
   onExternalLink: () => {},
   accountExpiry: '',
-  settings: {
-    relaySettings: {
-      normal: {
-        location: 'any',
-        protocol: 'any',
-        port: 'any',
-      }
-    },
-    relayLocations: [{
-      name: 'Sweden',
-      code: 'se',
-      hasActiveRelays: true,
-      cities: [{
-        name: 'Malmö',
-        code: 'mma',
-        latitude: 0,
-        longitude: 0,
-        hasActiveRelays: true,
-      }]
-    }],
-    allowLan: false,
-  },
+  selectedRelayName: '',
   connection: {
     status: 'disconnected',
     isOnline: true,

@@ -4,19 +4,18 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
+import Map from './Map';
 
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import ChevronRightSVG from '../assets/images/icon-chevron.svg';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
-import type { SettingsReduxState } from '../redux/settings/reducers';
-import type { RelayLocation } from '../lib/ipc-facade';
 
 export type ConnectProps = {
-  accountExpiry: string,
   connection: ConnectionReduxState,
-  settings: SettingsReduxState,
+  accountExpiry: string,
+  selectedRelayName: string,
   onSettings: () => void,
   onSelectLocation: () => void,
   onConnect: () => void,
@@ -25,33 +24,44 @@ export type ConnectProps = {
   onExternalLink: (type: string) => void,
 };
 
+type ConnectState = {
+  showCopyIPMessage: boolean,
+  mapOffset: [number, number],
+};
 
 export default class Connect extends Component {
   props: ConnectProps;
-  state = {
-    isFirstPass: true,
-    showCopyIPMessage: false
+  state: ConnectState = {
+    showCopyIPMessage: false,
+    mapOffset: [0, 0],
   };
 
   _copyTimer: ?number;
 
-  componentDidMount() {
-    this.setState({ isFirstPass: false });
+  shouldComponentUpdate(nextProps: ConnectProps, nextState: ConnectState) {
+    const { connection: prevConnection, ...otherPrevProps } = this.props;
+    const { connection: nextConnection, ...otherNextProps } = nextProps;
+
+    const prevState = this.state;
+
+    return (
+      // shallow compare the connection
+      !shallowCompare(prevConnection, nextConnection) ||
+      !shallowCompare(otherPrevProps, otherNextProps) ||
+
+      prevState.mapOffset[0] !== nextState.mapOffset[0] ||
+      prevState.mapOffset[1] !== nextState.mapOffset[1] ||
+      prevState.showCopyIPMessage !== nextState.showCopyIPMessage
+    );
   }
 
   componentWillUnmount() {
     if(this._copyTimer) {
       clearTimeout(this._copyTimer);
-      this._copyTimer = null;
     }
-
-    this.setState({
-      isFirstPass: true,
-      showCopyIPMessage: false
-    });
   }
 
-  render(): React.Element<*> {
+  render() {
     const error = this.displayError();
     const child = error ? this.renderError(error) : this.renderMap();
 
@@ -65,7 +75,7 @@ export default class Connect extends Component {
     );
   }
 
-  renderError(error: BackendError): React.Element<*> {
+  renderError(error: BackendError) {
     return (
       <div className="connect">
         <div className="connect__status">
@@ -92,45 +102,47 @@ export default class Connect extends Component {
     );
   }
 
-  _findRelayName(relay: RelayLocation): ?string {
-    const countries = this.props.settings.relayLocations;
-    const countryPredicate = (countryCode) => (country) => country.code === countryCode;
+  _getMapProps() {
+    const { longitude, latitude, status } = this.props.connection;
 
-    if(relay.country) {
-      const country = countries.find(countryPredicate(relay.country));
-      if(country) {
-        return country.name;
-      }
-    } else if(relay.city) {
-      const [countryCode, cityCode] = relay.city;
-      const country = countries.find(countryPredicate(countryCode));
-      if(country) {
-        const city = country.cities.find((city) => city.code === cityCode);
-        if(city) {
-          return city.name;
-        }
-      }
-    }
-    return null;
-  }
-
-  _getLocationName(): string {
-    const { relaySettings } = this.props.settings;
-    if(relaySettings.normal) {
-      const location = relaySettings.normal.location;
-      if(location === 'any') {
-        return 'Automatic';
-      } else {
-        return this._findRelayName(location) || 'Unknown';
-      }
-    } else if(relaySettings.custom_tunnel_endpoint) {
-      return 'Custom';
+    // when the user location is known
+    if(typeof(longitude) === 'number' && typeof(latitude) === 'number') {
+      return {
+        center: [longitude, latitude],
+        // do not show the marker when connecting
+        showMarker: status !== 'connecting',
+        markerStyle: status === 'connected' ? 'secure' : 'unsecure',
+        // zoom in when connected
+        zoomLevel: status === 'connected' ? 'low' : 'medium',
+        // a magic offset to align marker with spinner
+        offset: [0, 123],
+      };
     } else {
-      throw new Error('Unsupported relay settings.');
+      return {
+        center: [0, 0],
+        showMarker: false,
+        markerStyle: 'unsecure',
+        // show the world when user location is not known
+        zoomLevel: 'high',
+        // remove the offset since the marker is hidden
+        offset: [0, 0],
+      };
     }
   }
 
-  renderMap(): React.Element<*> {
+  _updateMapOffset = (spinnerNode: HTMLElement) => {
+    if(spinnerNode) {
+      // calculate the vertical offset from the center of the map
+      // to shift the center of the map upwards to align the centers
+      // of spinner and marker on the map
+      const y = spinnerNode.offsetTop + spinnerNode.clientHeight * 0.5;
+      this.setState({
+        mapOffset: [0, y]
+      });
+    }
+  }
+
+  renderMap() {
     let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
     switch(this.props.connection.status) {
     case 'connecting': isConnecting = true; break;
@@ -138,25 +150,10 @@ export default class Connect extends Component {
     case 'disconnected': isDisconnected = true; break;
     }
 
-    // We decided to not include the map in the first beta release to customers
-    // but it MUST be included in the following releases. Therefore we choose
-    // to just comment it out
-    const map = undefined;
-    /*
-    const altitude = (isConnecting ? 300 : 100) * 1000;
-    const { location } = this.props.connection;
-    const map = <Map animate={ !this.state.isFirstPass }
-        location={ location || [0, 0] }
-        altitude= { altitude }
-        markerImagePath= { isConnected
-          ? './assets/images/location-marker-secure.svg'
-          : './assets/images/location-marker-unsecure.svg' } />
-    */
-
     return (
       <div className="connect">
         <div className="connect__map">
-          { map }
+          <Map style={{ width: '100%', height: '100%' }} { ...this._getMapProps() } />
         </div>
         <div className="connect__container">
 
@@ -164,7 +161,7 @@ export default class Connect extends Component {
           <div className="connect__status">
             { /* show spinner when connecting */ }
             <div className={ this.spinnerClass() }>
-              <img src="./assets/images/icon-spinner.svg" alt="" />
+              <img src="./assets/images/icon-spinner.svg" alt="" ref={ this._updateMapOffset } />
             </div>
 
             <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
@@ -221,7 +218,7 @@ export default class Connect extends Component {
             <div className="connect__footer">
               <div className="connect__row">
                 <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
-                  <div className="connect__server-label">{ this._getLocationName() }</div>
+                  <div className="connect__server-label">{ this.props.selectedRelayName }</div>
                   <div className="connect__server-chevron"><ChevronRightSVG /></div>
                 </button>
               </div>
@@ -361,4 +358,12 @@ export default class Connect extends Component {
 
     return null;
   }
+}
+
+function shallowCompare(lhs: Object, rhs: Object) {
+  const keys = Object.keys(lhs);
+  return (
+    keys.length === Object.keys(rhs).length &&
+    keys.every(key => lhs[key] === rhs[key])
+  );
 }
