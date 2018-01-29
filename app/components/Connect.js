@@ -58,12 +58,7 @@ export default class Connect extends Component {
   componentWillUnmount() {
     if(this._copyTimer) {
       clearTimeout(this._copyTimer);
-      this._copyTimer = null;
     }
-
-    this.setState({
-      showCopyIPMessage: false
-    });
   }
 
   render() {
