@@ -10,3 +10,9 @@ cargo +stable build --release
 strip ./target/release/mullvad-daemon
 strip ./target/release/mullvad
 strip ./target/release/problem-report
+
+# Update the server list
+target/debug/list-relays > dist-assets/relays.json
+
+# Build the dmg
+yarn pack:mac
