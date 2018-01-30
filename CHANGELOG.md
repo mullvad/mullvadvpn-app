@@ -19,10 +19,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   The app then shows this information in the unsecured state.
 - Argument to the daemon, `--resource-dir <path>`, that allows customizing where it will look for
   needed resource files.
+- A very stylish map now indicates where you are connecting through.
 
 ### Fixed
-- Fixed bug where problem report tool would redact some things in the logs which were not IPv6
-  addresses, but looked like ones.
+- Fixed a bug where the problem report tool would redact some things in the logs which were not
+  IPv6 addresses, but looked like ones.
+- Show a better error message when api.mullvad.net is unreachable.
 
 
 ## [2018.1-beta8] - 2018-01-09
