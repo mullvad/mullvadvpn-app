@@ -119,7 +119,7 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
-  settings__account_paid_until_label:{
+  settings__cell_subtext:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
