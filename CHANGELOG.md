@@ -14,15 +14,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 
 ## [Unreleased]
+
+
+## [2018.1-beta9] - 2018-01-30
 ### Added
 - Uses the https://am.i.mullvad.net/ service to figure out location and public IP of the device.
   The app then shows this information in the unsecured state.
 - Argument to the daemon, `--resource-dir <path>`, that allows customizing where it will look for
   needed resource files.
+- A very stylish map now indicates where you are connecting through.
 
 ### Fixed
-- Fixed bug where problem report tool would redact some things in the logs which were not IPv6
-  addresses, but looked like ones.
+- Fixed a bug where the problem report tool would redact some things in the logs which were not
+  IPv6 addresses, but looked like ones.
+- Show a better error message when api.mullvad.net is unreachable.
+- Fix bug getting daemon state on frontend start instead of assuming it.
 
 
 ## [2018.1-beta8] - 2018-01-09
