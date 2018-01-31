@@ -52,6 +52,7 @@ describe('components/Settings', () => {
     const defaultProps: SettingsProps = {
       account: anAccountState,
       settings: aSettingsState,
+      version: '',
       onQuit: () => {},
       onClose: () => {},
       onViewAccount: () => {},

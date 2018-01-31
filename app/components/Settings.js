@@ -14,13 +14,14 @@ import type { SettingsReduxState } from '../redux/settings/reducers';
 export type SettingsProps = {
   account: AccountReduxState,
   settings: SettingsReduxState,
+  version: string,
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
   onViewSupport: () => void,
   onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
-  onExternalLink: (type: string) => void
+  onExternalLink: (type: string) => void,
 };
 
 export default class Settings extends Component {
@@ -47,6 +48,9 @@ export default class Settings extends Component {
                 <View style={styles.settings__content}>
                   <View>
                     { this._renderTopButtons() }
+                    <View style={styles.settings__cell_spacer}/>
+                    { this._renderMiddleButtons() }
+                    <View style={styles.settings__cell_spacer}/>
                     { this._renderBottomButtons() }
                   </View>
                   { this._renderQuitButton() }
@@ -83,7 +87,7 @@ export default class Settings extends Component {
             {isOutOfTime ? (
               <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
             ) : (
-              <Text style={styles.settings__account_paid_until_label} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
+              <Text style={styles.settings__cell_subtext} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
             )}
             <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
           </View>
@@ -100,8 +104,25 @@ export default class Settings extends Component {
         <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
       </ButtonCell>
 
-      <View style={styles.settings__cell_spacer}></View>
     </View>;
+  }
+
+  _renderMiddleButtons() {
+    return <View>
+      <ButtonCell testName='settings__version'>
+        <Text style={styles.settings__cell_label}>App version</Text>
+        <Text style={styles.settings__cell_subtext}>{this._formattedVersion()}</Text>
+      </ButtonCell>
+    </View>;
+  }
+
+  _formattedVersion() {
+    // the version in package.json has to be semver, but we use a YEAR.release-channel
+    // version scheme. in package.json we thus have to write YEAR.release.X-channel and
+    // this function is responsible for removing .X part.
+    return this.props.version
+      .replace('.0-', '-')  // remove the .0 in 2018.1.0-beta9
+      .replace(/\.0$/, ''); // remove the .0 in 2018.1.0
   }
 
   _renderBottomButtons() {

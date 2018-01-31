@@ -3,6 +3,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
+import { remote } from 'electron';
 import Settings from '../components/Settings';
 import { links } from '../config';
 import { openLink, exit } from '../lib/platform';
@@ -10,7 +11,12 @@ import { openLink, exit } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => state;
+const mapStateToProps = (state: ReduxState) => {
+  return {
+    ...state,
+    version: remote.app.getVersion(),
+  };
+};
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   return {
