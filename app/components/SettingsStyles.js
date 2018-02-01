@@ -23,6 +23,7 @@ export default Object.assign(createViewStyles({
     flex: 1,
     justifyContent: 'space-between',
     height: '100%',
+    overflow: 'visible',
   },
   settings__scrollview: {
     flexGrow: 1,
