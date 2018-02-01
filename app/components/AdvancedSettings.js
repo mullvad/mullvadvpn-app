@@ -1,12 +1,13 @@
 // @flow
 
 import React from 'react';
-import { Layout, Container, Header } from './Layout';
+import { Component, Text, Button, View } from 'reactxp';
+import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
+import styles from './AdvancedSettingsStyles';
+import Img from './Img';
 
-import TickSVG from '../assets/images/icon-tick.svg';
-
-export class AdvancedSettings extends React.Component {
+export class AdvancedSettings extends Component {
 
   props: {
     protocol: string,
@@ -35,7 +36,7 @@ export class AdvancedSettings extends React.Component {
           this.props.onUpdate(protocol, 'Automatic');
         }}/>
 
-      <div className="advanced-settings__cell-spacer"></div>
+      <View style={ styles.advanced_settings__cell_spacer }></View>
 
       { portSelector }
 
@@ -58,7 +59,6 @@ export class AdvancedSettings extends React.Component {
   }
 }
 
-
 class Selector extends React.Component {
 
   props: {
@@ -68,14 +68,23 @@ class Selector extends React.Component {
     onSelect: (*) => void,
   }
 
+  constructor(props) {
+    super(props);
+    this.state = { hoveredButtonIndex: -1 };
+  }
+
+  handleButtonHover = (value) => {
+    this.setState({ hoveredButtonIndex: value });
+  }
+
   render() {
-    return <div>
-      <div className="advanced-settings__section-title">
+    return <View>
+      <View style={ styles.advanced_settings__section_title }>
         { this.props.title }
-      </div>
+      </View>
 
       { this.props.values.map(value => this._renderCell(value)) }
-    </div>;
+    </View>;
   }
 
   _renderCell(value) {
@@ -88,48 +97,43 @@ class Selector extends React.Component {
   }
 
   _renderSelectedCell(value) {
-    return <div
-      key={ value }
-      className="advanced-settings__cell advanced-settings__cell--selected"
-      onClick={ () => this.props.onSelect(value) } >
-      <div className="advanced-settings__cell-icon"><TickSVG /></div>
-      <div className="advanced-settings__cell-label">{ value }</div>
-    </div>;
+    return <Button style={[ styles.advanced_settings__cell, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_selected_hover : null ]} onPress={ () => this.props.onSelect(value) } onHoverStart={() => this.handleButtonHover(value)} onHoverEnd={() => this.handleButtonHover(-1)} key={ value }>
+      <Img style={ styles.advanced_settings__cell_icon } source='icon-tick' tintColor='currentColor'/>
+      <Text style={ styles.advanced_settings__cell_label }>{ value }</Text>
+    </Button>;
   }
 
   _renderUnselectedCell(value) {
-    return <div
-      key={ value }
-      className="advanced-settings__cell advanced-settings__cell--dimmed"
-      onClick={ () => this.props.onSelect(value) }>
-      <div className="advanced-settings__cell-icon"></div>
-      <div className="advanced-settings__cell-label">{ value }</div>
-    </div>;
+    return <Button style={[ styles.advanced_settings__cell_dimmed, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_hover : null ]} onPress={ () => this.props.onSelect(value) } onHoverStart={() => this.handleButtonHover(value)} onHoverEnd={() => this.handleButtonHover(-1)} key={ value }>
+      <View style={ styles.advanced_settings__cell_icon }></View>
+      <Text style={ styles.advanced_settings__cell_label }>{ value }</Text>
+    </Button>;
   }
 }
 
 function BaseLayout(props) {
   return <Layout>
-    <Header hidden={ true } style={ 'defaultDark' } />
     <Container>
-      <div className="advanced-settings">
-        <div className="support__close" onClick={ props.onClose }>
-          <img className="support__close-icon" src="./assets/images/icon-back.svg" />
-          <span className="support__close-title">Settings</span>
-        </div>
-        <div className="advanced-settings__container">
-          <div className="advanced-settings__header">
-            <h2 className="advanced-settings__title">Advanced</h2>
-          </div>
+      <View style={ styles.advanced_settings }>
+        <Button style={ styles.advanced_settings__close } cursor='default' onPress={ props.onClose } testName='closeButton'>
+          <View style={ styles.advanced_settings__close_content }>
+            <Img style={ styles.advanced_settings__close_icon } source="icon-back" />
+            <Text style={ styles.advanced_settings__close_title }>Settings</Text>
+          </View>
+        </Button>
+        <View style={ styles.advanced_settings__container }>
+          <View style={ styles.advanced_settings__header }>
+            <Text style={ styles.advanced_settings__title }>Advanced</Text>
+          </View>
           <CustomScrollbars autoHide={ true }>
-            <div className="advanced-settings__content">
-              <div className="advanced-settings__main">
+            <View style={ styles.advanced_settings__content }>
+              <View style={ styles.advanced_settings__main }>
                 { props.children }
-              </div>
-            </div>
+              </View>
+            </View>
           </CustomScrollbars>
-        </div>
-      </div>
+        </View>
+      </View>
     </Container>
   </Layout>;
 }
