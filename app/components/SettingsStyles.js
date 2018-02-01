@@ -22,7 +22,6 @@ export default Object.assign(createViewStyles({
     flexDirection: 'column',
     flex: 1,
     justifyContent: 'space-between',
-    height: '100%',
   },
   settings__scrollview: {
     flexGrow: 1,
@@ -71,6 +70,7 @@ export default Object.assign(createViewStyles({
     backgroundColor: 'rgba(41,71,115,0.9)'
   },
   settings__cell_icon:{
+    marginLeft: 8,
     width: 16,
     height: 16,
     flexGrow: 0,
@@ -119,7 +119,7 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
-  settings__account_paid_until_label:{
+  settings__cell_subtext:{
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
