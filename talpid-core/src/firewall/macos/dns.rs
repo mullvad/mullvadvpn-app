@@ -1,11 +1,12 @@
 extern crate core_foundation;
 extern crate system_configuration;
 
-use self::core_foundation::array::{CFArray, CFArrayRef};
+use self::core_foundation::array::CFArray;
 use self::core_foundation::base::{CFType, TCFType};
 use self::core_foundation::dictionary::CFDictionary;
+use self::core_foundation::propertylist::CFPropertyList;
 use self::core_foundation::runloop::{CFRunLoop, kCFRunLoopCommonModes};
-use self::core_foundation::string::{CFString, CFStringRef};
+use self::core_foundation::string::CFString;
 
 use self::system_configuration::dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder,
                                                 SCDynamicStoreCallBackContext};
@@ -178,11 +179,10 @@ fn dns_change_callback_internal(
         None => {
             trace!("Not injecting DNS at this time");
         }
-        Some(ref mut state) => for path_ptr in changed_keys.as_untyped().iter() {
-            let path = unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
+        Some(ref mut state) => for path in changed_keys.iter() {
             let should_set_dns = match read_dns(&store, path.clone()) {
                 None => {
-                    debug!("Detected DNS removed for {}", path);
+                    debug!("Detected DNS removed for {}", *path);
                     state.backup.insert(path.to_string(), None);
                     true
                 }
@@ -190,7 +190,7 @@ fn dns_change_callback_internal(
                     debug!(
                         "Detected DNS changed to [{}] for {}",
                         servers.join(", "),
-                        path
+                        *path
                     );
                     state.backup.insert(path.to_string(), Some(servers));
                     true
@@ -200,7 +200,7 @@ fn dns_change_callback_internal(
             };
             if should_set_dns {
                 set_dns(&store, path.clone(), &state.desired_dns)
-                    .chain_err(|| format!("Failed changing DNS for {}", path))?;
+                    .chain_err(|| format!("Failed changing DNS for {}", *path))?;
                 // If we changed a state DNS, also set the corresponding setup DNS.
                 if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
                     let setup_path = CFString::new(&setup_path_str);
@@ -230,7 +230,7 @@ fn set_dns(store: &SCDynamicStore, path: CFString, servers: &[DnsServer]) -> Res
     let dns_dictionary =
         CFDictionary::from_CFType_pairs(&[(server_addresses_key, server_addresses_value)]);
 
-    if store.set(path, &dns_dictionary) {
+    if store.set(path, dns_dictionary) {
         Ok(())
     } else {
         bail!(ErrorKind::SettingDnsFailed)
@@ -242,22 +242,20 @@ fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<Vec<DnsSe
     let mut backup = HashMap::new();
     // Backup all "state" DNS, and all corresponding "setup" DNS even if they don't exist
     if let Some(paths) = store.get_keys(STATE_PATH_PATTERN) {
-        for path_ptr in paths.as_untyped().iter() {
-            let state_path = unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
+        for state_path in paths.iter() {
             let state_path_str = state_path.to_string();
             let setup_path_str = state_to_setup_path(&state_path_str).unwrap();
             let setup_path = CFString::new(&setup_path_str);
-            backup.insert(state_path_str, read_dns(store, state_path));
+            backup.insert(state_path_str, read_dns(store, state_path.clone()));
             backup.insert(setup_path_str, read_dns(store, setup_path));
         }
     }
     // Backup all "setup" DNS not already covered
     if let Some(paths) = store.get_keys(SETUP_PATH_PATTERN) {
-        for path_ptr in paths.as_untyped().iter() {
-            let setup_path = unsafe { CFString::wrap_under_get_rule(path_ptr as CFStringRef) };
+        for setup_path in paths.iter() {
             let setup_path_str = setup_path.to_string();
             if !backup.contains_key(&setup_path_str) {
-                backup.insert(setup_path_str, read_dns(store, setup_path));
+                backup.insert(setup_path_str, read_dns(store, setup_path.clone()));
             }
         }
     }
@@ -277,36 +275,31 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
 fn read_dns(store: &SCDynamicStore, path: CFString) -> Option<Vec<DnsServer>> {
     store
         .get(path.clone())
-        .and_then(|property_list| property_list.downcast::<_, CFDictionary>())
+        .and_then(CFPropertyList::downcast_into::<CFDictionary>)
         .and_then(|dictionary| {
             dictionary
                 .find2(&CFString::from_static_string("ServerAddresses"))
                 .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(array_ptr) })
         })
-        .and_then(|addresses: CFType| {
-            if addresses.instance_of::<_, CFArray>() {
-                let addresses_array = unsafe {
-                    CFArray::wrap_under_get_rule(addresses.as_concrete_TypeRef() as CFArrayRef)
-                };
-                parse_cf_string_array(addresses_array)
+        .and_then(|addresses| {
+            if let Some(array) = addresses.downcast::<CFArray<CFType>>() {
+                parse_cf_array_to_strings(array)
             } else {
-                error!("DNS settings is not an array: {:?}", addresses);
+                error!("DNS ServerAddresess is not an array: {:?}", addresses);
                 None
             }
         })
 }
 
-/// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString instances,
-/// otherwise `None` is returned.
-fn parse_cf_string_array(array: CFArray) -> Option<Vec<String>> {
+/// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString instances
+/// only, otherwise `None` is returned.
+fn parse_cf_array_to_strings(array: CFArray<CFType>) -> Option<Vec<String>> {
     let mut strings = Vec::new();
-    for string_ptr in array.iter() {
-        let cf_type = unsafe { CFType::wrap_under_get_rule(string_ptr) };
-        if cf_type.instance_of::<_, CFString>() {
-            let address = unsafe { CFString::wrap_under_get_rule(string_ptr as CFStringRef) };
-            strings.push(address.to_string());
+    for item in array.iter() {
+        if let Some(string) = item.downcast::<CFString>() {
+            strings.push(string.to_string());
         } else {
-            error!("DNS server entry is not a string: {:?}", cf_type);
+            error!("DNS server entry is not a string: {:?}", item);
             return None;
         };
     }
