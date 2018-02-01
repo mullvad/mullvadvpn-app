@@ -22,7 +22,6 @@ export default Object.assign(createViewStyles({
     flexDirection: 'column',
     flex: 1,
     justifyContent: 'space-between',
-    height: '100%',
   },
   settings__scrollview: {
     flexGrow: 1,
