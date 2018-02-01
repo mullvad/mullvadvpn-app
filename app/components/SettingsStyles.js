@@ -70,6 +70,7 @@ export default Object.assign(createViewStyles({
     backgroundColor: 'rgba(41,71,115,0.9)'
   },
   settings__cell_icon:{
+    marginLeft: 8,
     width: 16,
     height: 16,
     flexGrow: 0,

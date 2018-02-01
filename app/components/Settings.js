@@ -109,9 +109,10 @@ export default class Settings extends Component {
 
   _renderMiddleButtons() {
     return <View>
-      <ButtonCell testName='settings__version'>
+      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'download') } testName='settings__version'>
         <Text style={styles.settings__cell_label}>App version</Text>
         <Text style={styles.settings__cell_subtext}>{this._formattedVersion()}</Text>
+        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
       </ButtonCell>
     </View>;
   }
