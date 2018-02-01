@@ -211,7 +211,7 @@ export default Object.assign(createViewStyles({
   support__no_email_warning: {
     fontFamily: 'Open Sans',
     fontSize: 13,
-    lineHeight: 1.3,
+    lineHeight: 16,
 
     color: 'rgba(255,255,255,0.8)',
   },
