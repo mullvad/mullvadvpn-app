@@ -3,7 +3,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
-import { remote } from 'electron';
+import { version } from '../../package.json';
 import Settings from '../components/Settings';
 import { links } from '../config';
 import { openLink, exit } from '../lib/platform';
@@ -14,7 +14,7 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => {
   return {
     ...state,
-    version: remote.app.getVersion(),
+    version: version,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
