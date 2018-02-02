@@ -27,6 +27,11 @@ homebrew:
     brew install node yarn
     ```
 
+1. Install build dependencies if you are on Linux
+    ```bash
+    sudo apt install icnsutils graphicsmagick
+    ```
+
 ## Building and running the backend (mullvad-daemon)
 
 1. Build the backend without optimizations (debug mode) with:
@@ -75,12 +80,7 @@ it and behave accordingly.
 
 1. Build the backend in optimized release mode with:
     ```
-    ./build.sh
-    ```
-
-1.  Install build dependencies if you are on Linux
-    ```bash
-    sudo apt install icnsutils graphicsmagick
+    cargo build --release
     ```
 
 1. Install all JavaScript dependencies (unless you already have) and package the application with:
@@ -98,6 +98,34 @@ it and behave accordingly.
     as in `yarn run pack:linux`.
 
     The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
+
+
+## Making a release
+
+When making a real release there are a couple of steps to follow. `<VERSION>` here will denote
+the version of the app you are going to release. For example `2018.3-beta1` or `2018.4`.
+
+1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
+   if you have not already completed them.
+
+1. Make sure the `CHANGELOG.md` is up to date and has all the changes present in this release.
+   Also change the `[Unreleased]` header into `[<VERSION>] - <DATE>` and add a new `[Unreleased]`
+   header at the top. Push this, get it reviewed and merged.
+
+1. Run `./prepare_release.sh <VERSION>`. This will do the following for you:
+    1. Check if your repository is in a sane state and the given version has the correct format
+    1. Update `package.json` with the new version and commit that
+    1. Add a signed tag to the current commit with the release version in it
+
+    Please verify that the script did the right thing before you push the commit and tag it created.
+
+1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
+    do the following for you:
+    1. Update `relays.json` with the latest relays
+    1. Compile and package the app into a distributable artifact for your platform.
+
+    Please pay attention to the output at the end of the script and make sure the version it says
+    it built matches what you want to release.
 
 
 ## Command line tools for frontend development
@@ -139,7 +167,8 @@ it and behave accordingly.
 
 ## Quirks
 
-- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used for [react-native](https://github.com/facebook/react-native/issues/8723)
+- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
+  for [react-native](https://github.com/facebook/react-native/issues/8723)
 
 # License
 
