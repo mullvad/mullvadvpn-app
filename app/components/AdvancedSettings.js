@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react';
-import { Component, Text, Button, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
+import { Button } from './styled';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './AdvancedSettingsStyles';
@@ -97,14 +98,24 @@ class Selector extends React.Component {
   }
 
   _renderSelectedCell(value) {
-    return <Button style={[ styles.advanced_settings__cell, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_selected_hover : null ]} onPress={ () => this.props.onSelect(value) } onHoverStart={() => this.handleButtonHover(value)} onHoverEnd={() => this.handleButtonHover(-1)} key={ value }>
-      <Img style={ styles.advanced_settings__cell_icon } source='icon-tick' tintColor='currentColor'/>
+    return <Button style={[ styles.advanced_settings__cell, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_selected_hover : null ]}
+      onPress={ () => this.props.onSelect(value) }
+      onHoverStart={() => this.handleButtonHover(value)}
+      onHoverEnd={() => this.handleButtonHover(-1)}
+      key={ value }>
+      <Img style={ styles.advanced_settings__cell_icon }
+        source='icon-tick'
+        tintColor='currentColor'/>
       <Text style={ styles.advanced_settings__cell_label }>{ value }</Text>
     </Button>;
   }
 
   _renderUnselectedCell(value) {
-    return <Button style={[ styles.advanced_settings__cell_dimmed, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_hover : null ]} onPress={ () => this.props.onSelect(value) } onHoverStart={() => this.handleButtonHover(value)} onHoverEnd={() => this.handleButtonHover(-1)} key={ value }>
+    return <Button style={[ styles.advanced_settings__cell_dimmed, value === this.state.hoveredButtonIndex ? styles.advanced_settings__cell_hover : null ]}
+      onPress={ () => this.props.onSelect(value) }
+      onHoverStart={() => this.handleButtonHover(value)}
+      onHoverEnd={() => this.handleButtonHover(-1)}
+      key={ value }>
       <View style={ styles.advanced_settings__cell_icon }></View>
       <Text style={ styles.advanced_settings__cell_label }>{ value }</Text>
     </Button>;
@@ -115,7 +126,9 @@ function BaseLayout(props) {
   return <Layout>
     <Container>
       <View style={ styles.advanced_settings }>
-        <Button style={ styles.advanced_settings__close } cursor='default' onPress={ props.onClose } testName='closeButton'>
+        <Button style={ styles.advanced_settings__close }
+          onPress={ props.onClose }
+          testName='closeButton'>
           <View style={ styles.advanced_settings__close_content }>
             <Img style={ styles.advanced_settings__close_icon } source="icon-back" />
             <Text style={ styles.advanced_settings__close_title }>Settings</Text>
