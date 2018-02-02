@@ -33,7 +33,10 @@ pub fn get_config() -> Config {
 
 fn create_app() -> App<'static, 'static> {
     App::new(crate_name!())
-        .version(crate_version!())
+        .version(include_str!(concat!(
+            env!("OUT_DIR"),
+            "/git-commit-desc.txt"
+        )))
         .author(crate_authors!())
         .about(crate_description!())
         .arg(
