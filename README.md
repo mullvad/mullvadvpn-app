@@ -34,6 +34,11 @@ homebrew:
     cargo build
     ```
 
+1. Get the latest list of Mullvad relays:
+    ```
+    ./target/debug/list-relays > dist-assets/relays.json
+    ```
+
 1. Run the backend daemon debug binary with verbose logging to the terminal with:
     ```
     sudo ./target/debug/mullvad-daemon -vv --resource-dir dist-assets/
