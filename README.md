@@ -27,6 +27,11 @@ homebrew:
     brew install node yarn
     ```
 
+1. Install build dependencies if you are on Linux
+    ```bash
+    sudo apt install icnsutils graphicsmagick
+    ```
+
 ## Building and running the backend (mullvad-daemon)
 
 1. Build the backend without optimizations (debug mode) with:
@@ -75,12 +80,7 @@ it and behave accordingly.
 
 1. Build the backend in optimized release mode with:
     ```
-    ./build.sh
-    ```
-
-1.  Install build dependencies if you are on Linux
-    ```bash
-    sudo apt install icnsutils graphicsmagick
+    cargo build --release
     ```
 
 1. Install all JavaScript dependencies (unless you already have) and package the application with:
@@ -98,6 +98,36 @@ it and behave accordingly.
     as in `yarn run pack:linux`.
 
     The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
+
+
+## Making a release
+
+When making a real release there are a couple of steps to follow. `<VERSION>` here will denote
+the version of the app you are going to release. For example `2018.3-beta1` or `2018.4`.
+
+1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
+   if you have not already completed them.
+
+1. Make sure the `CHANGELOG.md` is up to date and has all the changes present in this release.
+   Also change the `[Unreleased]` header into `[<VERSION>] - <DATE>` and add a new `[Unreleased]`
+   header at the top.
+
+1. Bump the version in `package.json`.
+
+1. Push everything you have done up until now, get it reviewed and merged.
+
+1. Add a signed tag to the commit on the `master` branch that should become the release:
+    ```bash
+    git tag -s <VERSION>
+    # Verify that HEAD is a correctly signed tag
+    git verify-tag `git describe`
+    # Push your new tag
+    git push origin `git describe`
+    ```
+    Make the message in the tag be the same as the name of the tag.
+
+1. Run `./build.sh` to produce the release artifacts. Pay attention to the output at the end of
+   the script and make sure the version it says it built matches what you want to release.
 
 
 ## Command line tools for frontend development
@@ -139,7 +169,8 @@ it and behave accordingly.
 
 ## Quirks
 
-- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used for [react-native](https://github.com/facebook/react-native/issues/8723)
+- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
+  for [react-native](https://github.com/facebook/react-native/issues/8723)
 
 # License
 
