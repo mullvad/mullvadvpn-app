@@ -138,11 +138,9 @@ function BaseLayout(props) {
           <View style={ styles.advanced_settings__header }>
             <Text style={ styles.advanced_settings__title }>Advanced</Text>
           </View>
-          <CustomScrollbars autoHide={ true }>
+          <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={ true }>
             <View style={ styles.advanced_settings__content }>
-              <View style={ styles.advanced_settings__main }>
-                { props.children }
-              </View>
+              { props.children }
             </View>
           </CustomScrollbars>
         </View>
