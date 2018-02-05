@@ -60,7 +60,7 @@ export class AdvancedSettings extends Component {
   }
 }
 
-class Selector extends React.Component {
+class Selector extends Component {
 
   props: {
     title: string,
@@ -69,10 +69,7 @@ class Selector extends React.Component {
     onSelect: (*) => void,
   }
 
-  constructor(props) {
-    super(props);
-    this.state = { hoveredButtonIndex: -1 };
-  }
+  state = { hoveredButtonIndex: -1 };
 
   handleButtonHover = (value) => {
     this.setState({ hoveredButtonIndex: value });
