@@ -38,9 +38,9 @@ export default {
       marginRight: 8,
     },
     advanced_settings__scrollview: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: '100%',
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: '100%',
     },
     advanced_settings__content: {
       flexDirection: 'column',
