@@ -6,14 +6,12 @@ export default {
   ...createViewStyles({
     advanced_settings: {
       backgroundColor: '#192E45',
-      overflow: 'visible',
+      height: '100%',
     },
     advanced_settings__container: {
-      display: 'flex',
       flexDirection: 'column',
-    },
-    advanced_settings__main: {
-      marginBottom: 24,
+      height: '100%',
+      paddingBottom: 48,
     },
     advanced_settings__header: {
       flexGrow: 0,
@@ -39,10 +37,15 @@ export default {
       opacity: 0.6,
       marginRight: 8,
     },
+    advanced_settings__scrollview: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: '100%',
+    },
     advanced_settings__content: {
       flexDirection: 'column',
       flexGrow: 1,
-      flexShrink: 1,
+      flexShrink: 0,
       flexBasis: 'auto',
     },
     advanced_settings__cell: {
@@ -69,7 +72,6 @@ export default {
       height: 24,
       marginRight: 8,
       flex: 0,
-      overflow: 'visible',
       color: 'rgba(255, 255, 255, 0.8)',
     },
     advanced_settings__cell_dimmed: {
