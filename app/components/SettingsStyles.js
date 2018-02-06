@@ -44,19 +44,7 @@ export default Object.assign(createViewStyles({
     flex: 0,
     opacity: 0.6,
   },
-  settings__cell:{
-    backgroundColor: 'rgba(41,71,115,1)',
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginBottom: 1,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  settings__cell_disclosure:{
+  settings__icon_chevron:{
     marginLeft: 8,
     color: 'rgba(255, 255, 255, 0.8)',
     width: 7,
@@ -65,19 +53,6 @@ export default Object.assign(createViewStyles({
   settings__cell_spacer:{
     height: 24,
     flex: 0
-  },
-  settings__cell__active_hover:{
-    backgroundColor: 'rgba(41,71,115,0.9)'
-  },
-  settings__cell_icon:{
-    marginLeft: 8,
-    width: 16,
-    height: 16,
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: 'auto',
-    alignItems: 'flex-end',
-    color: 'rgba(255, 255, 255, 0.8)',
   },
   settings__footer_button:{
     backgroundColor: 'rgba(208,2,27,1)',
