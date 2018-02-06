@@ -81,7 +81,7 @@ export default class Settings extends Component {
 
     return <View>
       <View style={styles.settings_account} testName='settings__account'>
-        {isOutOfTime ? (
+        {!isOutOfTime ? (
           <CellButton onPress={ this.props.onViewAccount }
             text='Account'
             testName='settings__account_paid_until_label'
@@ -95,7 +95,6 @@ export default class Settings extends Component {
             text='Account'
             testName='settings__account_paid_until_label'
             subtext={ formattedExpiry }
-            subtextStyle={ styles.settings__account_paid_until_label }
             icon='icon-chevron'
             iconStyle={styles.settings__icon_chevron}
             tintColor='currentColor'/>

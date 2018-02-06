@@ -77,16 +77,6 @@ export default Object.assign(createViewStyles({
     lineHeight: 40,
     color: '#FFFFFF'
   },
-  settings__cell_label:{
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    color: '#FFFFFF',
-    flexGrow: 1,
-    flexShrink: 0,
-    flexBasis: 'auto',
-  },
   settings__footer_button_label:{
     fontFamily: 'DINPro',
     fontSize: 20,
@@ -94,20 +84,7 @@ export default Object.assign(createViewStyles({
     lineHeight: 26,
     color: 'rgba(255,255,255,0.8)'
   },
-  settings__cell_subtext:{
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.8)',
-    flexGrow: 0,
-    textAlign: 'right',
-  },
   settings__account_paid_until_label__error:{
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '800',
-    flexGrow: 0,
-    textAlign: 'right',
     color: '#d0021b',
   },
 }));
