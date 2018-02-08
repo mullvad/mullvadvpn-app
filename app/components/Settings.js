@@ -2,7 +2,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button, CellButton } from './styled';
+import { Button, CellButton, AppButton } from './styled';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -31,7 +31,6 @@ export default class Settings extends Component {
   render() {
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={styles.settings}>
             <Button style={styles.settings__close} onPress={ this.props.onClose } testName='settings__close'>
@@ -81,7 +80,7 @@ export default class Settings extends Component {
 
     return <View>
       <View style={styles.settings_account} testName='settings__account'>
-        {!isOutOfTime ? (
+        {isOutOfTime ? (
           <CellButton onPress={ this.props.onViewAccount }
             text='Account'
             testName='settings__account_paid_until_label'
@@ -158,9 +157,11 @@ export default class Settings extends Component {
 
   _renderQuitButton() {
     return <View style={styles.settings__footer}>
-      <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName='settings__quit'>
-        <Text style={styles.settings__footer_button_label}>Quit app</Text>
-      </Button>
+      <AppButton style={styles.settings__footer_button}
+        hoverStyle={styles.settings__footer_button_hover}
+        onPress={this.props.onQuit}
+        testName='settings__quit'
+        text='Quit app'/>
     </View>;
   }
 }

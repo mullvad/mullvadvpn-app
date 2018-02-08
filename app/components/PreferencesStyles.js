@@ -1,11 +1,11 @@
 // @flow
-
 import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({
     preferences: {
-      backgroundColor: '#192E45',
+      backgroundColor: colors.darkBlue,
       height: '100%',
     },
     preferences__container: {
@@ -47,7 +47,7 @@ export default {
       flexBasis: 'auto',
     },
     preferences__cell: {
-      backgroundColor: 'rgba(41,71,115,1)',
+      backgroundColor: colors.blue,
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -73,14 +73,14 @@ export default {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '600',
-      color: 'rgba(255, 255, 255, 0.6)',
+      color: colors.white60,
     },
     preferences__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
       fontWeight: '900',
       lineHeight: 40,
-      color: '#fff',
+      color: colors.white
     },
     preferences__cell_label: {
       fontFamily: 'DINPro',
@@ -88,7 +88,7 @@ export default {
       fontWeight: '900',
       lineHeight: 26,
       letterSpacing: -0.2,
-      color: '#fff',
+      color: colors.white,
     },
     preferences__cell_footer_label: {
       fontFamily: 'Open Sans',
@@ -96,7 +96,7 @@ export default {
       fontWeight: '600',
       lineHeight: 20,
       letterSpacing: -0.2,
-      color: 'rgba(255,255,255,0.8)'
+      color: colors.white80
     }
   })
 };

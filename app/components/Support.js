@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
-import { Component, Text, Button, View, TextInput } from 'reactxp';
-import { Layout, Container, Header } from './Layout';
+import { Component, Text, View, TextInput } from 'reactxp';
+import { Button, AppButton } from './styled';
+import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
 
@@ -117,14 +118,11 @@ export default class Support extends Component {
 
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={styles.support}>
             <Button style={styles.support__close} onPress={ this.props.onClose } testName="support__close">
-              <View style={styles.support__close}>
-                <Img style={styles.support__close_icon} source="icon-back" />
-                <Text style={styles.support__close_title}>Settings</Text>
-              </View>
+              <Img style={styles.support__close_icon} source="icon-back" />
+              <Text style={styles.support__close_title}>Settings</Text>
             </Button>
             <View style={styles.support__container}>
 
@@ -201,16 +199,21 @@ export default class Support extends Component {
 
   _renderActionButtons() {
     return [
-      <Button key={1} onPress={ this.onViewLog } style={{'flex':1}} testName='support__view_logs'>
-        <View style={styles.support__form_view_logs}>
-          <View style={styles.support__open_icon}></View>
-          <Text style={styles.support__button_label}>View app logs</Text>
-          <Img source="icon-extLink" style={styles.support__open_icon} tintColor='currentColor'/>
-        </View>
-      </Button>,
-      <Button key={2} style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
-        <Text style={styles.support__button_label}>Send</Text>
-      </Button>
+      <AppButton key={1}
+        onPress={ this.onViewLog }
+        style={ styles.support__form_view_logs }
+        testName='support__view_logs'
+        text='View app logs'
+        icon="icon-extLink"
+        iconStyle={styles.support__open_icon}
+        tintColor='currentColor'/>,
+      <AppButton key={2}
+        style={styles.support__form_send}
+        hoverStyle={styles.support__form_send_hover}
+        disabled={ !this.validate() }
+        onPress={ this.onSend }
+        testName='support__send_logs'
+        text='Send'/>
     ];
   }
 

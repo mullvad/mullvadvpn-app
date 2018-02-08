@@ -1,5 +1,6 @@
 // @flow
 import { createTextStyles, createViewStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({
@@ -8,7 +9,7 @@ export default {
       paddingBottom: 12,
       paddingLeft: 12,
       paddingRight: 12,
-      backgroundColor: '#294D73',
+      backgroundColor: colors.blue,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -23,13 +24,13 @@ export default {
       paddingTop: 24,
     },
     headerbar__style_defaultDark: {
-      backgroundColor: '#192E45',
+      backgroundColor: colors.darkBlue,
     },
     headerbar__style_error: {
-      backgroundColor: '#D0021B',
+      backgroundColor: colors.red,
     },
     headerbar__style_success: {
-      backgroundColor: '#44AD4D',
+      backgroundColor: colors.green,
     },
     headerbar__container: {
       display: 'flex',
@@ -55,7 +56,7 @@ export default {
       fontWeight: '900',
       lineHeight: 30,
       letterSpacing: -0.5,
-      color: 'rgba(255,255,255,0.6)',
+      color: colors.white60,
       marginLeft: 8,
     }
   })

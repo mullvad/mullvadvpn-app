@@ -1,19 +1,21 @@
 import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default Object.assign(createViewStyles({
   settings: {
-    backgroundColor: '#192E45',
+    backgroundColor: colors.darkBlue,
     height: '100%'
   },
   settings__container:{
     flexDirection: 'column',
-    height: '100%'
+    height: '100%',
+    paddingBottom: 48,
   },
   settings__header:{
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: 'auto',
-    paddingTop: 40,
+    paddingTop: 16,
     paddingRight: 24,
     paddingLeft: 24,
     paddingBottom: 24,
@@ -29,13 +31,8 @@ export default Object.assign(createViewStyles({
     flexBasis: '100%',
   },
   settings__close: {
-    position: 'absolute',
-    top: 0,
-    left: 12,
-    borderWidth: 0,
-    padding: 0,
-    margin: 0,
-    zIndex: 1, /* part of .settings__close covers the button */
+    marginLeft: 12,
+    marginTop: 24,
     cursor: 'default',
   },
   settings__close_icon:{
@@ -46,7 +43,7 @@ export default Object.assign(createViewStyles({
   },
   settings__icon_chevron:{
     marginLeft: 8,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: colors.white80,
     width: 7,
     height: 12,
   },
@@ -55,13 +52,10 @@ export default Object.assign(createViewStyles({
     flex: 0
   },
   settings__footer_button:{
-    backgroundColor: 'rgba(208,2,27,1)',
-    paddingTop: 7,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingBottom: 9,
-    borderRadius: 4,
-    alignItems: 'center',
+    backgroundColor: colors.red,
+  },
+  settings__footer_button_hover:{
+    backgroundColor: colors.red95,
   },
   settings__footer: {
     paddingTop: 24,
@@ -75,16 +69,9 @@ export default Object.assign(createViewStyles({
     fontSize: 32,
     fontWeight: '900',
     lineHeight: 40,
-    color: '#FFFFFF'
-  },
-  settings__footer_button_label:{
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    color: 'rgba(255,255,255,0.8)'
+    color: colors.white
   },
   settings__account_paid_until_label__error:{
-    color: '#d0021b',
+    color: colors.red,
   },
 }));
