@@ -10,6 +10,7 @@ import shellescape from 'shell-escape';
 import { version } from '../package.json';
 import { parseIpcCredentials } from './lib/backend';
 import { resolveBin } from './lib/proc';
+import { canTrustRpcAddressFile } from './lib/rpc-file-security';
 import { execFile } from 'child_process';
 import uuid from 'uuid';
 
@@ -243,11 +244,15 @@ const appDelegate = {
       return;
     }
 
-    log.debug('Reading the ipc connection info from', rpcAddressFile);
+    log.debug(`Reading the ipc connection info from "${rpcAddressFile}"`);
 
-    const isSecureEnough = isOwnedAndOnlyWritableByRoot(rpcAddressFile);
-    if (!isSecureEnough) {
-      log.error('Not trusting the contents of', rpcAddressFile, 'as it was not owned and only writable by root.');
+    try {
+      if (!canTrustRpcAddressFile(rpcAddressFile)) {
+        log.error(`Not trusting the contents of "${rpcAddressFile}".`);
+        return;
+      }
+    } catch(e) {
+      log.error(`Cannot verify the credibility of RPC address file: ${e.message}`);
       return;
     }
 
@@ -434,11 +439,3 @@ const appDelegate = {
 };
 
 appDelegate.setup();
-
-function isOwnedAndOnlyWritableByRoot(path) {
-  const stat = fs.statSync(path);
-  const isOwnedByRoot = stat.uid === 0;
-  const isOnlyWritableByOwner = (stat.mode & parseInt('022', 8)) === 0;
-
-  return isOwnedByRoot && isOnlyWritableByOwner;
-}
