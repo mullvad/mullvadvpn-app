@@ -7,7 +7,6 @@ import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
-import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
 import type { AccountReduxState } from '../redux/account/reducers';
 
@@ -31,7 +30,9 @@ export default class Account extends Component {
       <Layout>
         <Container>
           <View style={styles.account}>
-            <Button style={styles.account__close} onPress={ this.props.onClose }>
+            <Button style={styles.account__close}
+              onPress={ this.props.onClose }
+              testName='account__close'>
               <Img style={styles.account__close_icon} source="icon-back" />
               <Text style={styles.account__close_title}>Settings</Text>
             </Button>
@@ -52,7 +53,7 @@ export default class Account extends Component {
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Paid until</Text>
                     { isOutOfTime ?
-                      <Text style={styles.account__out_of_time}>OUT OF TIME</Text>
+                      <Text style={styles.account__out_of_time} testName='account__out_of_time'>OUT OF TIME</Text>
                       :
                       <Text style={styles.account__row_value}>{ formattedExpiry }</Text>
                     }
@@ -65,11 +66,13 @@ export default class Account extends Component {
                       text='Buy more credit'
                       icon='icon-extLink'
                       iconStyle={styles.account__buymore_icon}
-                      tintColor='currentColor'/>
+                      tintColor='currentColor'
+                      testName='account__buymore'/>
                     <AppButton style={styles.account__logout}
                       hoverStyle={styles.account__logout_hover}
                       onPress={ this.props.onLogout }
-                      text='Log out'/>
+                      text='Log out'
+                      testName='account__logout'/>
                   </View>
 
                 </View>

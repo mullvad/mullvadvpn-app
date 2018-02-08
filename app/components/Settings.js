@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { Button, CellButton, AppButton } from './styled';
-import { Layout, Container, Header } from './Layout';
+import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';

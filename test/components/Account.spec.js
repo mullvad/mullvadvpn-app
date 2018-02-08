@@ -2,7 +2,8 @@
 
 import { expect } from 'chai';
 import React from 'react';
-import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
+import { shallow } from 'enzyme';
+require('../setup/enzyme');
 import Account from '../../app/components/Account';
 
 import type { AccountReduxState } from '../../app/redux/account/reducers';
@@ -27,34 +28,28 @@ describe('components/Account', () => {
     return Object.assign({}, defaultProps, mergeProps);
   };
 
-  const render = (props: AccountProps): Account => {
-    return ReactTestUtils.renderIntoDocument(
-      <Account { ...props } />
-    );
-  };
-
   it('should call close callback', (done) => {
     const props = makeProps(state, {
       onClose: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'account__close');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'account__close');
+    click(component);
   });
 
   it('should call logout callback', (done) => {
     const props = makeProps(state, {
       onLogout: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'account__logout');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'account__logout');
+    click(component);
   });
 
   it('should call "buy more" callback', (done) => {
     const props = makeProps(state, {
       onBuyMore: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'account__buymore');
-    Simulate.click(domNode);
+    const component = getComponent(render(props), 'account__buymore');
+    click(component);
   });
 
   it('should display "out of time" message when account expired', () => {
@@ -66,13 +61,28 @@ describe('components/Account', () => {
       error: null
     };
     const props = makeProps(expiredState, {});
-    ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'account__out-of-time');
+    const component = getComponent(render(props), 'account__out_of_time');
+    expect(component).to.have.length(1);
   });
 
   it('should not display "out of time" message when account is active', () => {
     const props = makeProps(state, {});
-    const domNodes = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'account__out-of-time');
-    expect(domNodes.length).to.be.equal(0);
+    const component = getComponent(render(props), 'account__out_of_time');
+    expect(component).to.have.length(0);
   });
 
 });
+
+function render(props) {
+  return shallow(
+    <Account {...props} />
+  );
+}
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function click(component) {
+  component.prop('onPress')();
+}
