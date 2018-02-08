@@ -66,18 +66,16 @@ export default class CellButton extends Component {
     text: string,
     subtext?: string,
     tintColor?: string,
-    onPress?: () => void,
     style?: string
   };
 
   state = { hovered: false };
 
   render() {
-    const { style, tintColor, hoverStyle, text, subtext, subtextStyle, icon, iconStyle, onPress, ...otherProps } = this.props;
+    const { style, tintColor, hoverStyle, text, subtext, subtextStyle, icon, iconStyle, ...otherProps } = this.props;
 
     return (
       <Button style={[ styles.cell, style, this.state.hovered ? [styles.hover, hoverStyle] : null ]}
-        onPress={ onPress }
         onHoverStart={() => this.setState({ hovered: true })}
         onHoverEnd={() => this.setState({ hovered: false })}
         {...otherProps}>

@@ -60,7 +60,6 @@ export default class AppButton extends Component {
     text: string,
     textHoverStyle?: string,
     tintColor?: string,
-    onPress?: () => void,
     style?: string,
     disabled?: boolean,
   };
@@ -68,11 +67,10 @@ export default class AppButton extends Component {
   state = { hovered: false };
 
   render() {
-    const { style, tintColor, hoverStyle, text, textHoverStyle, icon, iconStyle, onPress, disabled, ...otherProps } = this.props;
+    const { style, tintColor, hoverStyle, text, textHoverStyle, icon, iconStyle, disabled, ...otherProps } = this.props;
 
     return (
       <Button style={[ styles.cell, style, this.state.hovered ? [styles.hover, hoverStyle] : null ]}
-        onPress={ onPress }
         onHoverStart={() => !disabled ? this.setState({ hovered: true }) : null }
         onHoverEnd={() => !disabled ? this.setState({ hovered: false }) : null }
         disabled={ disabled }
