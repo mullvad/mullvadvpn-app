@@ -36,7 +36,7 @@
     "validated": "^1.1.0"
   },
   "optionalDependencies": {
-    "nseventmonitor": "git+https://github.com/pronebird/NSEventMonitor.git#0.0.5"
+    "nseventmonitor": "git+https://github.com/pronebird/NSEventMonitor.git#0.0.6",
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
