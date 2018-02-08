@@ -9,8 +9,7 @@ export default Object.assign(createViewStyles({
   support__container:{
     display: 'flex',
     flexDirection: 'column',
-    height: '100%',
-    paddingBottom: 24,
+    flex: 1
   },
   support__header:{
     flex: 0,
@@ -39,7 +38,6 @@ export default Object.assign(createViewStyles({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    paddingBottom: 24,
   },
   support__form:{
     display: 'flex',

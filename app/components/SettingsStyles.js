@@ -8,8 +8,7 @@ export default Object.assign(createViewStyles({
   },
   settings__container:{
     flexDirection: 'column',
-    height: '100%',
-    paddingBottom: 48,
+    flex: 1
   },
   settings__header:{
     flexGrow: 0,

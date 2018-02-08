@@ -11,7 +11,7 @@ export default {
     preferences__container: {
       display: 'flex',
       flexDirection: 'column',
-      height: '100%',
+      flex: 1,
     },
     preferences__header: {
       flexGrow: 0,
