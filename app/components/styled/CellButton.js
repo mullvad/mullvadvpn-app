@@ -3,13 +3,14 @@ import React from 'react';
 import { Text, Component } from 'reactxp';
 import { Button } from './Button';
 import Img from '../Img';
+import { colors } from '../../config';
 
 import { createViewStyles, createTextStyles } from '../../lib/styles';
 
 const styles = {
   ...createViewStyles({
     cell:{
-      backgroundColor: 'rgba(41,71,115,1)',
+      backgroundColor: colors.blue,
       paddingTop: 15,
       paddingBottom: 15,
       paddingLeft: 24,
@@ -21,7 +22,7 @@ const styles = {
       justifyContent: 'space-between'
     },
     hover:{
-      backgroundColor: 'rgba(41,71,115,0.9)'
+      backgroundColor: colors.blue80
     },
     icon:{
       marginLeft: 8,
@@ -31,7 +32,7 @@ const styles = {
       flexShrink: 0,
       flexBasis: 'auto',
       alignItems: 'flex-end',
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: colors.white80,
     },
   }),
   ...createTextStyles({
@@ -40,7 +41,7 @@ const styles = {
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
-      color: '#FFFFFF',
+      color: colors.white,
       flexGrow: 1,
       flexShrink: 0,
       flexBasis: 'auto',
@@ -49,7 +50,7 @@ const styles = {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '800',
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: colors.white80,
       flexGrow: 0,
       textAlign: 'right',
     },
