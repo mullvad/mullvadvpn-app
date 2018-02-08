@@ -1,7 +1,11 @@
 // @flow
 import moment from 'moment';
-import React, { Component } from 'react';
-import { Layout, Container, Header } from './Layout';
+import React from 'react';
+import { Component, Text, View } from 'reactxp';
+import { Button, AppButton } from './styled';
+import { Layout, Container } from './Layout';
+import styles from './AccountStyles';
+import Img from './Img';
 import { formatAccount } from '../lib/formatters';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 
@@ -17,7 +21,7 @@ export type AccountProps = {
 export default class Account extends Component {
   props: AccountProps;
 
-  render(): React.Element<*> {
+  render() {
     const expiry = moment(this.props.account.expiry);
     const formattedAccountToken = formatAccount(this.props.account.accountToken || '');
     const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
@@ -25,48 +29,53 @@ export default class Account extends Component {
 
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
-          <div className="account">
-            <div className="account__close" onClick={ this.props.onClose }>
-              <img className="account__close-icon" src="./assets/images/icon-back.svg" />
-              <span className="account__close-title">Settings</span>
-            </div>
-            <div className="account__container">
+          <View style={styles.account}>
+            <Button style={styles.account__close} onPress={ this.props.onClose }>
+              <Img style={styles.account__close_icon} source="icon-back" />
+              <Text style={styles.account__close_title}>Settings</Text>
+            </Button>
+            <View style={styles.account__container}>
 
-              <div className="account__header">
-                <h2 className="account__title">Account</h2>
-              </div>
+              <View style={styles.account__header}>
+                <Text style={styles.account__title}>Account</Text>
+              </View>
 
-              <div className="account__content">
-                <div className="account__main">
+              <View style={styles.account__content}>
+                <View style={styles.account__main}>
 
-                  <div className="account__row">
-                    <div className="account__row-label">Account ID</div>
-                    <div className="account__row-value account__id">{ formattedAccountToken }</div>
-                  </div>
+                  <View style={styles.account__row}>
+                    <Text style={styles.account__row_label}>Account ID</Text>
+                    <Text style={styles.account__row_value}>{ formattedAccountToken }</Text>
+                  </View>
 
-                  <div className="account__row">
-                    <div className="account__row-label">Paid until</div>
+                  <View style={styles.account__row}>
+                    <Text style={styles.account__row_label}>Paid until</Text>
                     { isOutOfTime ?
-                      <div className="account__out-of-time account__row-value account__row-value--error">OUT OF TIME</div>
+                      <Text style={styles.account__out_of_time}>OUT OF TIME</Text>
                       :
-                      <div className="account__row-value">{ formattedExpiry }</div>
+                      <Text style={styles.account__row_value}>{ formattedExpiry }</Text>
                     }
-                  </div>
+                  </View>
 
-                  <div className="account__footer">
-                    <button className="account__buymore button button--positive" onClick={ this.props.onBuyMore }>
-                      <span className="button-label">Buy more time</span>
-                      <ExternalLinkSVG className="button-icon button-icon--16" />
-                    </button>
-                    <button className="account__logout button button--negative" onClick={ this.props.onLogout }>Logout</button>
-                  </div>
+                  <View style={styles.account__footer}>
+                    <AppButton style={styles.account__buymore}
+                      hoverStyle={styles.account__buymore_hover}
+                      onPress={ this.props.onBuyMore }
+                      text='Buy more credit'
+                      icon='icon-extLink'
+                      iconStyle={styles.account__buymore_icon}
+                      tintColor='currentColor'/>
+                    <AppButton style={styles.account__logout}
+                      hoverStyle={styles.account__logout_hover}
+                      onPress={ this.props.onLogout }
+                      text='Log out'/>
+                  </View>
 
-                </div>
-              </div>
-            </div>
-          </div>
+                </View>
+              </View>
+            </View>
+          </View>
         </Container>
       </Layout>
     );
