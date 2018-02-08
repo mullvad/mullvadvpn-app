@@ -6,5 +6,30 @@
     "guides": "https://mullvad.net/guides/",
     "download": "https://mullvad.net/download/",
     "supportEmail": "mailto:support@mullvad.net"
+  },
+  "colors": {
+    "darkBlue": "#192e45",
+    "blue": "#294d73",
+    "green": "#44ad4d",
+    "darkGreen": "#205425",
+    "red": "#d0021b",
+    "darkYellow": "#8e4e13",
+    "yellow": "#ffd524",
+    "white": "#ffffff",
+    "white80": "rgba(255, 255, 255, 0.8)",
+    "white60": "rgba(255, 255, 255, 0.6)",
+    "white40": "rgba(255, 255, 255, 0.4)",
+    "white20": "rgba(255, 255, 255, 0.2)",
+    "blue20": "rgba(41, 77, 115, 0.2)",
+    "blue40": "rgba(41, 77, 115, 0.4)",
+    "blue80": "rgba(41, 77, 115, 0.5)",
+    "blue60": "rgba(41, 77, 115, 0.6)",
+    "blue80": "rgba(41, 77, 115, 0.8)",
+    "blue80": "rgba(41, 77, 115, 0.9)",
+    "red95": "rgba(208, 2, 27, 0.95)",
+    "red40": "rgba(208, 2, 27, 0.40)",
+    "red45": "rgba(208, 2, 27, 0.45)",
+    "green90": "rgba(68, 173, 77, 0.9)",
+    "green40": "rgba(68, 173, 77, 0.4)"
   }
 }
