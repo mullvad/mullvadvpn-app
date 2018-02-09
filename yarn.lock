@@ -1853,7 +1853,11 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2, commander@2.11.0:
+commander@2:
+  version "2.14.1"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.14.1.tgz#2235123e37af8ca3c65df45b026dbd357b01b9aa"
+
+commander@2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
 
@@ -2224,13 +2228,7 @@ d3-geo@1.6.3:
   dependencies:
     d3-array "1"
 
-d3-geo@^1.1.0:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/d3-geo/-/d3-geo-1.7.1.tgz#44bbc7a218b1fd859f3d8fd7c443ca836569ce99"
-  dependencies:
-    d3-array "1"
-
-d3-geo@^1.7.1:
+d3-geo@^1.1.0, d3-geo@^1.7.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/d3-geo/-/d3-geo-1.9.1.tgz#157e3b0f917379d0f73bebfff3be537f49fa7356"
   dependencies:
@@ -6246,8 +6244,8 @@ react-router@^4.1.1, react-router@^4.2.0:
     warning "^3.0.0"
 
 react-simple-maps@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/react-simple-maps/-/react-simple-maps-0.10.1.tgz#4d884ac24a55c327a86076113f3890e61c92906a"
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/react-simple-maps/-/react-simple-maps-0.10.3.tgz#1c1ef4d94f494c6e598dd6c5db8f1be175110faa"
   dependencies:
     d3-geo "1.6.3"
     d3-geo-projection "1.2.2"
