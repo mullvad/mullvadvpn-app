@@ -191,9 +191,12 @@ export default class Support extends Component {
       <Text style={styles.support__no_email_warning}>
       You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
       </Text>
-      <Button style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
-        <Text style={styles.support__button_label}>Send anyway</Text>
-      </Button>
+      <AppButton style={styles.support__form_send}
+        hoverStyle={styles.support__form_send_hover}
+        disabled={ !this.validate() }
+        onPress={ this.onSend }
+        testName='support__send_logs'
+        text='Send anyway'/>
     </View>;
   }
 
@@ -278,16 +281,14 @@ export default class Support extends Component {
         </View>
       </View>
       <View style={styles.support__footer}>
-        <Button onPress={ () => this.setState({ sendState: 'INITIAL' }) }>
-          <View style={styles.support__form_edit_logs}>
-            <Text style={styles.support__button_label}>Edit message</Text>
-          </View>
-        </Button>
-        <Button onPress={ this.onSend }>
-          <View style={styles.support__form_send}>
-            <Text style={styles.support__button_label}>Try again</Text>
-          </View>
-        </Button>
+        <AppButton style={styles.support__form_edit_logs}
+          onPress={ () => this.setState({ sendState: 'INITIAL' }) }
+          text='Edit message'/>
+        <AppButton style={styles.support__form_send}
+          hoverStyle={styles.support__form_send_hover}
+          onPress={ this.onSend }
+          testName='support__send_logs'
+          text='Try again'/>
       </View>
     </View>;
   }
