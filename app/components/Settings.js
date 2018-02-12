@@ -47,9 +47,7 @@ export default class Settings extends Component {
                 <View style={styles.settings__content}>
                   <View>
                     { this._renderTopButtons() }
-                    <View style={styles.settings__cell_spacer}/>
                     { this._renderMiddleButtons() }
-                    <View style={styles.settings__cell_spacer}/>
                     { this._renderBottomButtons() }
                   </View>
                   { this._renderQuitButton() }
@@ -98,6 +96,7 @@ export default class Settings extends Component {
             iconStyle={styles.settings__icon_chevron}
             tintColor='currentColor'/>
         )}
+        <View style={styles.settings__cell_spacer}/>
       </View>
 
       <CellButton onPress={ this.props.onViewPreferences }
@@ -115,12 +114,13 @@ export default class Settings extends Component {
   }
 
   _renderMiddleButtons() {
-    return <CellButton onPress={ this.props.onExternalLink.bind(this, 'download') }
+    return[ <CellButton onPress={ this.props.onExternalLink.bind(this, 'download') }
       testName='settings__version'
       text='App version'
       subtext={this._formattedVersion()}
       icon='icon-extLink'
-      tintColor='currentColor'/>;
+      tintColor='currentColor'/>,
+      <View style={styles.settings__cell_spacer}/>];
   }
 
   _formattedVersion() {
