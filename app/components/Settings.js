@@ -96,7 +96,6 @@ export default class Settings extends Component {
             iconStyle={styles.settings__icon_chevron}
             tintColor='currentColor'/>
         )}
-        <View style={styles.settings__cell_spacer}/>
       </View>
 
       <CellButton onPress={ this.props.onViewPreferences }
@@ -110,6 +109,7 @@ export default class Settings extends Component {
         text='Advanced'
         icon='icon-chevron'
         tintColor='currentColor'/>
+      <View style={styles.settings__cell_spacer}/>
     </View>;
   }
 
