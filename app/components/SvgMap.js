@@ -171,10 +171,6 @@ export default class SvgMap extends Component {
           style={ zoomableGroupStyle }>
           <Geographies geography={ geographyData } disableOptimization={ true }>
             {(geographies, projection) => {
-              // see https://github.com/zcreativelabs/react-simple-maps/issues/51
-              if(geographies.length === 0) {
-                return [];
-              }
               return this.state.visibleGeometry.map(({ id }) => (
                 <Geography
                   key={ id }
@@ -186,10 +182,6 @@ export default class SvgMap extends Component {
           </Geographies>
           <Geographies geography={ statesProvincesLinesData } disableOptimization={ true }>
             {(geographies, projection) => {
-              // see https://github.com/zcreativelabs/react-simple-maps/issues/51
-              if(geographies.length === 0) {
-                return [];
-              }
               return this.state.visibleStatesProvincesLines.map(({ id }) => (
                 <Geography
                   key={ id }
