@@ -15,12 +15,15 @@ matrix:
         # FIXME: Flow throws error for optional dependencies
         # missing from node_modules on unsupported platforms
         # see: https://github.com/facebook/flow/issues/4171
-        - NSEVENTMON_INDEX_JS=node_modules/nseventmonitor/index.js;
-          if [ ! -f $NSEVENTMON_INDEX_JS ]; then
-            echo "Installing a stub for NSEventMonitor..";
-            mkdir -p `dirname $NSEVENTMON_INDEX_JS`;
-            echo "module.exports = {};" > $NSEVENTMON_INDEX_JS;
-          fi
+        - OPTIONAL_DEPS=('nseventmonitor' 'windows-security');
+          for MODULE in ${OPTIONAL_DEPS[@]}; do
+            FILE="node_modules/$MODULE/index.js";
+            if [ ! -f $FILE ]; then
+              echo "Installing a stub for $MODULE..";
+              mkdir -p `dirname $FILE`;
+              echo "module.exports = {};" > $FILE;
+            fi
+          done
       before_script: &node_before_script
         - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
       script: &node_script
