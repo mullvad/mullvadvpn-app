@@ -75,9 +75,9 @@ const styles = {
 
 export class Label extends Component {
   render() {
-    const color = this.props.color || styles.white;
+    const style = this.props.style || styles.white;
     return (
-      <Text style={[ styles.label, color ]}>
+      <Text style={[ styles.label, style ]}>
         {this.props.children}
       </Text>
     );
