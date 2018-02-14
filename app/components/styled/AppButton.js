@@ -75,9 +75,8 @@ const styles = {
 
 export class Label extends Component {
   render() {
-    const style = this.props.style || styles.white;
     return (
-      <Text style={[ styles.label, style ]}>
+      <Text style={[ styles.label, this.props.style ]}>
         {this.props.children}
       </Text>
     );
@@ -93,7 +92,6 @@ export class Icon extends Component {
       <Img style={[ styles.icon,
         {width,
           height},
-        styles.white,
         this.props.style]}
       source={source}
       tintColor='currentColor'/>);
