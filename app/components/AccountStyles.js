@@ -61,30 +61,6 @@ export default {
     account__footer: {
       marginTop: 12,
     },
-    account__buymore: {
-      marginTop: 12,
-      marginLeft: 24,
-      marginRight: 24,
-      backgroundColor: colors.green,
-    },
-    account__buymore_hover: {
-      backgroundColor: colors.green90,
-    },
-    account__buymore_icon: {
-      width: 16,
-      height: 16,
-      marginRight: 8,
-    },
-    account__logout:{
-      marginTop: 12,
-      marginLeft: 24,
-      marginRight: 24,
-      marginBottom: 12,
-      backgroundColor: colors.red,
-    },
-    account__logout_hover:{
-      backgroundColor: colors.red95,
-    },
   }),
   ...createTextStyles({
     account__close_title: {

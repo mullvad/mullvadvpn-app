@@ -2,7 +2,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button, CellButton, AppButton } from './styled';
+import { Button, CellButton, RedButton, Label, Icon } from './styled';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -158,11 +158,11 @@ export default class Settings extends Component {
 
   _renderQuitButton() {
     return <View style={styles.settings__footer}>
-      <AppButton style={styles.settings__footer_button}
-        hoverStyle={styles.settings__footer_button_hover}
+      <RedButton
         onPress={this.props.onQuit}
-        testName='settings__quit'
-        text='Quit app'/>
+        testName='settings__quit'>
+        <Label>Quit app</Label>
+      </RedButton>
     </View>;
   }
 }
