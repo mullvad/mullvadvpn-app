@@ -106,8 +106,8 @@ export default class BaseButton extends Component {
 
   state = { hovered: false };
 
-  textColor = () => this.state.hovered ? styles.white80 : styles.white;
-  iconTintColor = () => this.state.hovered ? styles.white80 : styles.white;
+  textStyle = () => this.state.hovered ? styles.white80 : styles.white;
+  iconStyle = () => this.state.hovered ? styles.white80 : styles.white;
   backgroundStyle = () => this.state.hovered ? styles.white80 : styles.white;
 
   onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
@@ -125,16 +125,16 @@ export default class BaseButton extends Component {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { style: this.textColor() };
+                updatedProps = { style: this.textStyle() };
               }
 
               if(node.type.name === 'Icon') {
-                updatedProps = { style: this.iconTintColor() };
+                updatedProps = { style: this.iconStyle() };
               }
 
               return React.cloneElement(node, updatedProps);
             } else {
-              return <Label style={this.textColor()}>{children}</Label>;
+              return <Label style={this.textStyle()}>{children}</Label>;
             }
           })
         }
