@@ -2,10 +2,15 @@
 
 import { Button } from './Button';
 import CellButton from './CellButton';
-import AppButton from './AppButton';
+import {RedButton, GreenButton, BlueButton, TransparentButton, Label, Icon} from './AppButton';
 
 export {
   Button,
   CellButton,
-  AppButton,
+  RedButton,
+  GreenButton,
+  BlueButton,
+  TransparentButton,
+  Label,
+  Icon,
 };

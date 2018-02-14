@@ -17,7 +17,7 @@ export default Object.assign(createViewStyles({
     paddingTop: 16,
     paddingRight: 24,
     paddingLeft: 24,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   settings__content: {
     flexDirection: 'column',
@@ -57,10 +57,8 @@ export default Object.assign(createViewStyles({
     backgroundColor: colors.red95,
   },
   settings__footer: {
-    paddingTop: 24,
-    paddingLeft: 24,
-    paddingRight: 24,
-    paddingBottom: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
 }), createTextStyles({
   settings__title:{

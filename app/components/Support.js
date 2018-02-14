@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
-import { Button, AppButton } from './styled';
+import { Button, BlueButton, GreenButton, Label, Icon } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
@@ -191,32 +191,29 @@ export default class Support extends Component {
       <Text style={styles.support__no_email_warning}>
       You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
       </Text>
-      <AppButton style={styles.support__form_send}
-        hoverStyle={styles.support__form_send_hover}
+      <GreenButton
         disabled={ !this.validate() }
         onPress={ this.onSend }
-        testName='support__send_logs'
-        text='Send anyway'/>
+        testName='support__send_logs'>
+        Send anyway
+      </GreenButton>
     </View>;
   }
 
   _renderActionButtons() {
     return [
-      <AppButton key={1}
+      <BlueButton key={1}
         onPress={ this.onViewLog }
-        style={ styles.support__form_view_logs }
-        testName='support__view_logs'
-        text='View app logs'
-        icon="icon-extLink"
-        iconStyle={styles.support__open_icon}
-        tintColor='currentColor'/>,
-      <AppButton key={2}
-        style={styles.support__form_send}
-        hoverStyle={styles.support__form_send_hover}
+        testName='support__view_logs'>
+        <Label>View app logs</Label>
+        <Icon source='icon-extLink' height='16' width='16' />
+      </BlueButton>,
+      <GreenButton key={2}
         disabled={ !this.validate() }
         onPress={ this.onSend }
-        testName='support__send_logs'
-        text='Send'/>
+        testName='support__send_logs'>
+        Send
+      </GreenButton>
     ];
   }
 
@@ -281,14 +278,14 @@ export default class Support extends Component {
         </View>
       </View>
       <View style={styles.support__footer}>
-        <AppButton style={styles.support__form_edit_logs}
-          onPress={ () => this.setState({ sendState: 'INITIAL' }) }
-          text='Edit message'/>
-        <AppButton style={styles.support__form_send}
-          hoverStyle={styles.support__form_send_hover}
+        <BlueButton onPress={ () => this.setState({ sendState: 'INITIAL' }) }>
+          Edit message
+        </BlueButton>
+        <GreenButton
           onPress={ this.onSend }
-          testName='support__send_logs'
-          text='Try again'/>
+          testName='support__send_logs'>
+          Try again
+        </GreenButton>
       </View>
     </View>;
   }

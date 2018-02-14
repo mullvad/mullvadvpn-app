@@ -2,7 +2,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button, AppButton } from './styled';
+import { Button, RedButton, GreenButton, Label, Icon } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
@@ -60,19 +60,19 @@ export default class Account extends Component {
                   </View>
 
                   <View style={styles.account__footer}>
-                    <AppButton style={styles.account__buymore}
-                      hoverStyle={styles.account__buymore_hover}
+                    <GreenButton
                       onPress={ this.props.onBuyMore }
                       text='Buy more credit'
                       icon='icon-extLink'
-                      iconStyle={styles.account__buymore_icon}
-                      tintColor='currentColor'
-                      testName='account__buymore'/>
-                    <AppButton style={styles.account__logout}
-                      hoverStyle={styles.account__logout_hover}
+                      testName='account__buymore'>
+                      <Label>Buy more credit</Label>
+                      <Icon source='icon-extLink' height='16' width='16' />
+                    </GreenButton>
+                    <RedButton
                       onPress={ this.props.onLogout }
-                      text='Log out'
-                      testName='account__logout'/>
+                      testName='account__logout'>
+                      Log out
+                    </RedButton>
                   </View>
 
                 </View>

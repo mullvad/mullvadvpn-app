@@ -9,82 +9,154 @@ import { createViewStyles, createTextStyles } from '../../lib/styles';
 
 const styles = {
   ...createViewStyles({
-    cell:{
+    red:{
+      backgroundColor: colors.red95,
+    },
+    redHover: {
+      backgroundColor: colors.red,
+    },
+    green:{
+      backgroundColor: colors.green,
+    },
+    greenHover:{
+      backgroundColor: colors.green90,
+    },
+    blue:{
       backgroundColor: colors.blue80,
+    },
+    blueHover:{
+      backgroundColor: colors.blue60,
+    },
+    transparent:{
+      backgroundColor: colors.white20,
+    },
+    transparentHover:{
+      backgroundColor: colors.white40,
+    },
+    white80:{
+      color: colors.white80,
+    },
+    white: {
+      color: colors.white,
+    },
+    common:{
       paddingTop: 7,
       paddingLeft: 12,
       paddingRight: 12,
       paddingBottom: 9,
+      marginTop: 8,
+      marginBottom: 8,
+      marginLeft: 24,
+      marginRight: 24,
       borderRadius: 4,
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: 'column',
       alignContent: 'center',
-      justifyContent: 'space-between',
-    },
-    hover:{
-      backgroundColor: colors.blue60,
+      justifyContent: 'center',
     },
     icon:{
-      marginLeft: 8,
-      width: 0,
-      height: 0,
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      alignItems: 'flex-end',
-      color: colors.white80,
+      position: 'absolute',
+      width: 7,
+      height: 12,
+      alignSelf: 'flex-end',
     },
   }),
   ...createTextStyles({
     label:{
-      alignItems: 'center',
-      alignContent: 'center',
+      alignSelf: 'center',
       fontFamily: 'DINPro',
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
-      color: colors.white80,
-    },
-    labelHover: {
-      color: colors.white,
     },
   })
 };
 
-export default class AppButton extends Component {
+
+export class Label extends Component {
+  render() {
+    const color = this.props.color || styles.white;
+    return (
+      <Text style={[ styles.label, color ]}>
+        {this.props.children}
+      </Text>
+    );
+  }
+}
+
+export class Icon extends Component {
+  render() {
+    const width = this.props.width || 7;
+    const height = this.props.height || 12;
+    const source = this.props.source || 'icon-chevron';
+    const color = this.props.color || styles.white;
+    return (
+      <Img style={[ styles.icon, {
+        width,
+        height,
+        }, color]}
+      source={source}
+      tintColor='currentColor'/>);
+  }
+}
+
+export default class BaseButton extends Component {
   props: {
-    icon?: string,
-    iconStyle?: string,
-    hoverStyle?: string,
-    text: string,
-    textHoverStyle?: string,
-    tintColor?: string,
-    style?: string,
-    disabled?: boolean,
+    children: React.Element<*>,
+    disabled: boolean,
   };
 
   state = { hovered: false };
 
+  textColor = () => this.state.hovered ? styles.white80 : styles.white;
+  iconTintColor = () => this.state.hovered ? styles.white80 : styles.white;
+  backgroundStyle = () => this.state.hovered ? styles.white80 : styles.white;
+
+  onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
+  onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
   render() {
-    const { style, tintColor, hoverStyle, text, textHoverStyle, icon, iconStyle, disabled, ...otherProps } = this.props;
-
+    const { children, ...otherProps } = this.props;
     return (
-      <Button style={[ styles.cell, style, this.state.hovered ? [styles.hover, hoverStyle] : null ]}
-        onHoverStart={() => !disabled ? this.setState({ hovered: true }) : null }
-        onHoverEnd={() => !disabled ? this.setState({ hovered: false }) : null }
-        disabled={ disabled }
+      <Button style={[ styles.common, this.backgroundStyle() ]}
+        onHoverStart={this.onHoverStart}
+        onHoverEnd={this.onHoverEnd}
         {...otherProps}>
+        {
+          React.Children.map(children, (node) => {
+            if (React.isValidElement(node)){
+              let updatedProps = {};
 
-        <View style={[ styles.icon, iconStyle ]}/>
+              if(node.type.name === 'Label') {
+                updatedProps = { color: this.textColor() };
+              }
 
-        <Text style={[ styles.label, this.state.hovered ? [styles.labelHover, textHoverStyle] : null ]}>{ text }</Text>
+              if(node.type.name === 'Icon') {
+                updatedProps = { color: this.iconTintColor() };
+              }
 
-        {icon ? <Img style={[ styles.icon, iconStyle ]}
-          source={ icon }
-          tintColor={ tintColor }/> : <View style={[ styles.icon, iconStyle ]}/> }
-
+              return React.cloneElement(node, updatedProps);
+            } else {
+              return <Label>{children}</Label>;
+            }
+          })
+        }
       </Button>
     );
   }
+}
+
+export class RedButton extends BaseButton{
+  backgroundStyle = () => this.state.hovered ? styles.redHover : styles.red;
+}
+
+export class GreenButton extends BaseButton{
+  backgroundStyle = () => this.state.hovered ? styles.greenHover : styles.green;
+}
+
+export class BlueButton extends BaseButton{
+  backgroundStyle = () => this.state.hovered ? styles.blueHover : styles.blue;
+}
+
+export class TransparentButton extends BaseButton{
+  backgroundStyle = () => this.state.hovered ? styles.transparentHover : styles.transparent;
 }
