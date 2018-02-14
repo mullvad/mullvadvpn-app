@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { View, Text, Component } from 'reactxp';
+import { Text, Component } from 'reactxp';
 import { Button } from './Button';
 import Img from '../Img';
 import { colors } from '../../config';
@@ -89,12 +89,12 @@ export class Icon extends Component {
     const width = this.props.width || 7;
     const height = this.props.height || 12;
     const source = this.props.source || 'icon-chevron';
-    const color = this.props.color || styles.white;
     return (
-      <Img style={[ styles.icon, {
-        width,
-        height,
-        }, color]}
+      <Img style={[ styles.icon,
+        {width,
+          height},
+        styles.white,
+        this.props.style]}
       source={source}
       tintColor='currentColor'/>);
   }
@@ -127,16 +127,16 @@ export default class BaseButton extends Component {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { color: this.textColor() };
+                updatedProps = { style: this.textColor() };
               }
 
               if(node.type.name === 'Icon') {
-                updatedProps = { color: this.iconTintColor() };
+                updatedProps = { style: this.iconTintColor() };
               }
 
               return React.cloneElement(node, updatedProps);
             } else {
-              return <Label>{children}</Label>;
+              return <Label style={this.textColor()}>{children}</Label>;
             }
           })
         }
