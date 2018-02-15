@@ -2,6 +2,8 @@
 import React from 'react';
 import { Text, Component } from 'reactxp';
 import { Button } from './Button';
+import { Label } from './Label';
+import { Icon } from './Icon';
 import Img from '../Img';
 import { colors } from '../../config';
 
@@ -54,49 +56,8 @@ const styles = {
       alignContent: 'center',
       justifyContent: 'center',
     },
-    icon:{
-      position: 'absolute',
-      width: 7,
-      height: 12,
-      alignSelf: 'flex-end',
-    },
   }),
-  ...createTextStyles({
-    label:{
-      alignSelf: 'center',
-      fontFamily: 'DINPro',
-      fontSize: 20,
-      fontWeight: '900',
-      lineHeight: 26,
-    },
-  })
 };
-
-
-export class Label extends Component {
-  render() {
-    return (
-      <Text style={[ styles.label, this.props.style ]}>
-        {this.props.children}
-      </Text>
-    );
-  }
-}
-
-export class Icon extends Component {
-  render() {
-    const width = this.props.width || 7;
-    const height = this.props.height || 12;
-    const source = this.props.source || 'icon-chevron';
-    return (
-      <Img style={[ styles.icon,
-        {width,
-          height},
-        this.props.style]}
-      source={source}
-      tintColor='currentColor'/>);
-  }
-}
 
 export default class BaseButton extends Component {
   props: {
