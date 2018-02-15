@@ -101,8 +101,10 @@ pub enum LocationConstraint {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum TunnelConstraints {
-    #[serde(rename = "openvpn")] OpenVpn(OpenVpnConstraints),
-    #[serde(rename = "wireguard")] Wireguard(WireguardConstraints),
+    #[serde(rename = "openvpn")]
+    OpenVpn(OpenVpnConstraints),
+    #[serde(rename = "wireguard")]
+    Wireguard(WireguardConstraints),
 }
 
 impl Match<OpenVpnParameters> for TunnelConstraints {
