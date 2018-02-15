@@ -2,7 +2,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button, CellButton, RedButton, Label } from './styled';
+import { Button, CellButton, RedButton, Label, Icon, SubText } from './styled';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -80,47 +80,45 @@ export default class Settings extends Component {
       <View style={styles.settings_account} testName='settings__account'>
         {isOutOfTime ? (
           <CellButton onPress={ this.props.onViewAccount }
-            text='Account'
-            testName='settings__account_paid_until_label'
-            subtext='OUT OF TIME'
-            subtextStyle={ styles.settings__account_paid_until_label__error }
-            icon='icon-chevron'
-            iconStyle={styles.settings__icon_chevron}
-            tintColor='currentColor'/>
+            testName='settings__account_paid_until_label'>
+            <Label>Account</Label>
+            <SubText style={styles.settings__account_paid_until_label__error}>OUT OF TIME</SubText>
+            <Icon height='12' width='7' source='icon-chevron' />
+          </CellButton>
         ) : (
           <CellButton onPress={ this.props.onViewAccount }
-            text='Account'
-            testName='settings__account_paid_until_label'
-            subtext={ formattedExpiry }
-            icon='icon-chevron'
-            iconStyle={styles.settings__icon_chevron}
-            tintColor='currentColor'/>
+            testName='settings__account_paid_until_label'>
+            <Label>Account</Label>
+            <SubText>{ formattedExpiry }</SubText>
+            <Icon height='12' width='7' source='icon-chevron' />
+          </CellButton>
         )}
       </View>
 
       <CellButton onPress={ this.props.onViewPreferences }
-        testName='settings__preferences'
-        text='Preferences'
-        icon='icon-chevron'
-        tintColor='currentColor'/>
+        testName='settings__preferences'>
+        <Label>Preferences</Label>
+        <Icon height='12' width='7' source='icon-chevron' />
+      </CellButton>
 
       <CellButton onPress={ this.props.onViewAdvancedSettings }
-        testName='settings__advanced'
-        text='Advanced'
-        icon='icon-chevron'
-        tintColor='currentColor'/>
+        testName='settings__advanced'>
+        <Label>Advanced</Label>
+        <Icon height='12' width='7' source='icon-chevron' />
+      </CellButton>
       <View style={styles.settings__cell_spacer}/>
     </View>;
   }
 
   _renderMiddleButtons() {
-    return <View> <CellButton onPress={ this.props.onExternalLink.bind(this, 'download') }
-      testName='settings__version'
-      text='App version'
-      subtext={this._formattedVersion()}
-      icon='icon-extLink'
-      tintColor='currentColor'/>
-    <View style={styles.settings__cell_spacer}/>
+    return <View>
+      <CellButton onPress={ this.props.onExternalLink.bind(this, 'download') }
+        testName='settings__version'>
+        <Label>App version</Label>
+        <SubText>{this._formattedVersion()}</SubText>
+        <Icon height='16' width='16' source='icon-extLink' />
+      </CellButton>
+      <View style={styles.settings__cell_spacer}/>
     </View>;
   }
 
@@ -136,23 +134,22 @@ export default class Settings extends Component {
   _renderBottomButtons() {
     return <View>
       <CellButton onPress={ this.props.onExternalLink.bind(this, 'faq') }
-        testName='settings__external_link'
-        text='FAQs'
-        icon='icon-extLink'
-        tintColor='currentColor'/>
+        testName='settings__external_link'>
+        <Label>FAQs</Label>
+        <Icon height='16' width='16' source='icon-extLink' />
+      </CellButton>
 
       <CellButton onPress={ this.props.onExternalLink.bind(this, 'guides') }
-        testName='settings__external_link'
-        text='Guides'
-        icon='icon-extLink'
-        tintColor='currentColor'/>
+        testName='settings__external_link'>
+        <Label>Guides</Label>
+        <Icon height='16' width='16' source='icon-extLink' />
+      </CellButton>
 
       <CellButton onPress={ this.props.onViewSupport }
-        testName='settings__view_support'
-        text='Contact support'
-        icon='icon-chevron'
-        iconStyle={styles.settings__icon_chevron}
-        tintColor='currentColor'/>
+        testName='settings__view_support'>
+        <Label>Contact support</Label>
+        <Icon height='12' width='7' source='icon-chevron' />
+      </CellButton>
     </View>;
   }
 

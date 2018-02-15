@@ -2,6 +2,9 @@
 import React from 'react';
 import { Text, Component } from 'reactxp';
 import { Button } from './Button';
+import { Label } from './Label';
+import { Icon } from './Icon';
+import { SubText } from './SubText';
 import Img from '../Img';
 import { colors } from '../../config';
 
@@ -10,7 +13,6 @@ import { createViewStyles, createTextStyles } from '../../lib/styles';
 const styles = {
   ...createViewStyles({
     cell:{
-      backgroundColor: colors.blue,
       paddingTop: 15,
       paddingBottom: 15,
       paddingLeft: 24,
@@ -19,75 +21,80 @@ const styles = {
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
+      alignContent: 'center',
       justifyContent: 'space-between'
     },
-    hover:{
-      backgroundColor: colors.blue80
+    blue:{
+      backgroundColor: colors.blue80,
     },
-    icon:{
-      marginLeft: 8,
-      width: 16,
-      height: 16,
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      alignItems: 'flex-end',
+    blueHover:{
+      backgroundColor: colors.blue60,
+    },
+    white40:{
+      color: colors.white40,
+    },
+    white60:{
+      color: colors.white60,
+    },
+    white80:{
       color: colors.white80,
+    },
+    white: {
+      color: colors.white,
+    },
+    relative: {
+      position: 'relative',
+      alignSelf: 'center',
     },
   }),
-  ...createTextStyles({
-    label:{
-      fontFamily: 'DINPro',
-      fontSize: 20,
-      fontWeight: '900',
-      lineHeight: 26,
-      color: colors.white,
-      flexGrow: 1,
-      flexShrink: 0,
-      flexBasis: 'auto',
-    },
-    subtext:{
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '800',
-      color: colors.white80,
-      flexGrow: 0,
-      textAlign: 'right',
-    },
-  })
 };
 
 export default class CellButton extends Component {
   props: {
-    icon?: string,
-    iconStyle?: string,
-    hoverStyle?: string,
-    subtextStyle?: string,
-    text: string,
-    subtext?: string,
-    tintColor?: string,
-    style?: string
+    children: React.Element<*>,
+    disabled: boolean,
   };
 
   state = { hovered: false };
 
+  textStyle = () => this.state.hovered ? styles.white80 : styles.white;
+  iconStyle = () => this.state.hovered ? styles.white80 : styles.white;
+  subtextStyle = () => this.state.hovered ? styles.white40 : styles.white60;
+  backgroundStyle = () => this.state.hovered ? styles.blueHover : styles.blue;
+
+  onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
+  onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
+
   render() {
-    const { style, tintColor, hoverStyle, text, subtext, subtextStyle, icon, iconStyle, ...otherProps } = this.props;
-
+    const { children, ...otherProps } = this.props;
     return (
-      <Button style={[ styles.cell, style, this.state.hovered ? [styles.hover, hoverStyle] : null ]}
-        onHoverStart={() => this.setState({ hovered: true })}
-        onHoverEnd={() => this.setState({ hovered: false })}
+      <Button style={[ styles.cell, this.backgroundStyle() ]}
+        onHoverStart={this.onHoverStart}
+        onHoverEnd={this.onHoverEnd}
         {...otherProps}>
+        {
+          React.Children.map(children, (node) => {
+            if (React.isValidElement(node)){
+              let updatedProps = {};
 
-        <Text style={ styles.label }>{ text }</Text>
+              if(node.type.name === 'Label') {
+                updatedProps = { style: [this.textStyle(), node.props.style]};
+              }
 
-        { subtext ? <Text style={[ styles.subtext, subtextStyle ]}>{ subtext }</Text> : null }
+              if(node.type.name === 'Icon') {
+                updatedProps = { style: [this.iconStyle(), styles.relative, node.props.style]};
+              }
 
-        <Img style={[ styles.icon, iconStyle ]}
-          source={ icon }
-          tintColor={ tintColor }/>
+              if(node.type.name === 'SubText') {
+                updatedProps = { style: [this.subtextStyle(), node.props.style]};
+              }
 
+              return React.cloneElement(node, updatedProps);
+            } else {
+              return <Label style={this.textStyle()}>{children}</Label>;
+            }
+          })
+        }
       </Button>
     );
   }
