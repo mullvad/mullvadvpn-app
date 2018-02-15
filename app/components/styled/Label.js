@@ -11,6 +11,8 @@ const styles = {
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
+      flex: 1,
+      marginLeft: 8,
     },
   })
 };

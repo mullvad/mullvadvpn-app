@@ -50,12 +50,6 @@ export default Object.assign(createViewStyles({
     height: 24,
     flex: 0
   },
-  settings__footer_button:{
-    backgroundColor: colors.red,
-  },
-  settings__footer_button_hover:{
-    backgroundColor: colors.red95,
-  },
   settings__footer: {
     paddingTop: 16,
     paddingBottom: 16,

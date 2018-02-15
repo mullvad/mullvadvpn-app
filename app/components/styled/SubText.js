@@ -9,7 +9,7 @@ const styles = {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '800',
-      flexGrow: 0,
+      flex: 0,
       textAlign: 'right',
     },
   })
