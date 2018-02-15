@@ -39,10 +39,16 @@ const styles = {
     white: {
       color: colors.white,
     },
+    icon:{
+      position: 'absolute',
+      alignSelf: 'flex-end',
+      right: 8,
+      marginLeft: 8,
+    },
     common:{
-      paddingTop: 7,
-      paddingLeft: 12,
-      paddingRight: 12,
+      paddingTop: 9,
+      paddingLeft: 9,
+      paddingRight: 9,
       paddingBottom: 9,
       marginTop: 8,
       marginBottom: 8,
@@ -59,7 +65,7 @@ const styles = {
 
 export default class BaseButton extends Component {
   props: {
-    children: React.Element<*>,
+    children: Array<React.Element<*>> | React.Element<*>,
     disabled: boolean,
   };
 
@@ -88,7 +94,7 @@ export default class BaseButton extends Component {
               }
 
               if(node.type.name === 'Icon') {
-                updatedProps = { style: this.iconStyle() };
+                updatedProps = { style: [styles.icon, this.iconStyle()]};
               }
 
               return React.cloneElement(node, updatedProps);

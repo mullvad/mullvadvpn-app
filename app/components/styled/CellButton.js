@@ -10,16 +10,15 @@ import { createViewStyles } from '../../lib/styles';
 const styles = {
   ...createViewStyles({
     cell:{
-      paddingTop: 15,
-      paddingBottom: 15,
-      paddingLeft: 24,
-      paddingRight: 24,
+      paddingTop: 14,
+      paddingBottom: 14,
+      paddingLeft: 16,
+      paddingRight: 16,
       marginBottom: 1,
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       alignContent: 'center',
-      justifyContent: 'space-between'
     },
     blue:{
       backgroundColor: colors.blue80,
@@ -39,23 +38,24 @@ const styles = {
     white: {
       color: colors.white,
     },
-    relative: {
+    icon: {
       position: 'relative',
       alignSelf: 'center',
+      marginLeft: 8,
     },
   }),
 };
 
 export default class CellButton extends Component {
   props: {
-    children: React.Element<*>,
+    children: Array<React.Element<*>> | React.Element<*>,
     disabled: boolean,
   };
 
   state = { hovered: false };
 
   textStyle = () => this.state.hovered ? styles.white80 : styles.white;
-  iconStyle = () => this.state.hovered ? styles.white80 : styles.white;
+  iconStyle = () => this.state.hovered ? styles.white40 : styles.white60;
   subtextStyle = () => this.state.hovered ? styles.white40 : styles.white60;
   backgroundStyle = () => this.state.hovered ? styles.blueHover : styles.blue;
 
@@ -79,7 +79,7 @@ export default class CellButton extends Component {
               }
 
               if(node.type.name === 'Icon') {
-                updatedProps = { style: [this.iconStyle(), styles.relative, node.props.style]};
+                updatedProps = { style: [this.iconStyle(), styles.icon, node.props.style]};
               }
 
               if(node.type.name === 'SubText') {
