@@ -11,7 +11,7 @@ export class Icon extends Component {
     return (
       <Img style={[{width,
         height},
-        this.props.style]}
+      this.props.style]}
       source={source}
       tintColor='currentColor'/>);
   }
