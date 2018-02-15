@@ -80,16 +80,16 @@ export default class Settings extends Component {
       <View style={styles.settings_account} testName='settings__account'>
         {isOutOfTime ? (
           <CellButton onPress={ this.props.onViewAccount }
-            testName='settings__account_paid_until_label'>
+            testName='settings__account_paid_until_button'>
             <Label>Account</Label>
-            <SubText style={styles.settings__account_paid_until_label__error}>OUT OF TIME</SubText>
+            <SubText testName='settings__account_paid_until_subtext' style={styles.settings__account_paid_until_label__error}>OUT OF TIME</SubText>
             <Icon height='12' width='7' source='icon-chevron' />
           </CellButton>
         ) : (
           <CellButton onPress={ this.props.onViewAccount }
-            testName='settings__account_paid_until_label'>
+            testName='settings__account_paid_until_button'>
             <Label>Account</Label>
-            <SubText>{ formattedExpiry }</SubText>
+            <SubText testName='settings__account_paid_until_subtext'>{ formattedExpiry }</SubText>
             <Icon height='12' width='7' source='icon-chevron' />
           </CellButton>
         )}
