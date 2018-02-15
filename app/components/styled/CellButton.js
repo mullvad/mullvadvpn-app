@@ -1,14 +1,11 @@
 // @flow
 import React from 'react';
-import { Text, Component } from 'reactxp';
+import { Component } from 'reactxp';
 import { Button } from './Button';
 import { Label } from './Label';
-import { Icon } from './Icon';
-import { SubText } from './SubText';
-import Img from '../Img';
 import { colors } from '../../config';
 
-import { createViewStyles, createTextStyles } from '../../lib/styles';
+import { createViewStyles } from '../../lib/styles';
 
 const styles = {
   ...createViewStyles({
