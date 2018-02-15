@@ -1,11 +1,10 @@
 // @flow
 import React from 'react';
-import { Component } from 'reactxp';
+import { Text, Component } from 'reactxp';
 import { Button } from './Button';
-import { Label } from './Label';
 import { colors } from '../../config';
 
-import { createViewStyles } from '../../lib/styles';
+import { createViewStyles, createTextStyles } from '../../lib/styles';
 
 const styles = {
   ...createViewStyles({
@@ -39,12 +38,31 @@ const styles = {
       color: colors.white,
     },
     icon: {
-      position: 'relative',
-      alignSelf: 'center',
       marginLeft: 8,
     },
   }),
+  ...createTextStyles({
+    label:{
+      alignSelf: 'center',
+      fontFamily: 'DINPro',
+      fontSize: 20,
+      fontWeight: '900',
+      lineHeight: 26,
+      flex: 1,
+      marginLeft: 8,
+    },
+    subtext:{
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '800',
+      flex: 0,
+      textAlign: 'right',
+    },
+  }),
 };
+
+export class SubText extends Text {}
+export class Label extends Text {}
 
 export default class CellButton extends Component {
   props: {
@@ -75,20 +93,20 @@ export default class CellButton extends Component {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { style: [this.textStyle(), node.props.style]};
+                updatedProps = { style: [styles.label, this.textStyle(), node.props.style]};
               }
 
-              if(node.type.name === 'Icon') {
-                updatedProps = { style: [this.iconStyle(), styles.icon, node.props.style]};
+              if(node.type.name === 'Img') {
+                updatedProps = { tintColor:'currentColor', style: [styles.icon, this.iconStyle(), node.props.style]};
               }
 
               if(node.type.name === 'SubText') {
-                updatedProps = { style: [this.subtextStyle(), node.props.style]};
+                updatedProps = { style: [styles.subtext, this.subtextStyle(), node.props.style]};
               }
 
               return React.cloneElement(node, updatedProps);
             } else {
-              return <Label style={this.textStyle()}>{children}</Label>;
+              return <Label style={[styles.label, this.textStyle()]}>{children}</Label>;
             }
           })
         }

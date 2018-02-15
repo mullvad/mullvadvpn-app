@@ -9,7 +9,8 @@ export default class Img extends Component {
   };
 
   render() {
-    const { source, tintColor, ...otherProps } = this.props;
+    const { source, ...otherProps } = this.props;
+    const tintColor = this.props.tintColor;
     const url = './assets/images/' + source + '.svg';
     let image;
 

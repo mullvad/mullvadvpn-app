@@ -40,12 +40,6 @@ export default Object.assign(createViewStyles({
     flex: 0,
     opacity: 0.6,
   },
-  settings__icon_chevron:{
-    marginLeft: 8,
-    color: colors.white80,
-    width: 7,
-    height: 12,
-  },
   settings__cell_spacer:{
     height: 24,
     flex: 0

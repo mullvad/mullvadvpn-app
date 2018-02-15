@@ -7,20 +7,25 @@ export default class Img extends Component {
   props: {
     source: string,
     style: Object,
-    tintColor?: string
+    tintColor?: string,
+    height?: number,
+    width?:number,
   };
 
   render(){
-    const { source, tintColor, style } = this.props;
+    const width = this.props.width || 7;
+    const height = this.props.height || 12;
+    const source = this.props.source || 'icon-chevron';
+    const tintColor = this.props.tintColor || 'currentColor';
 
-    if (tintColor === 'currentColor' && style) {
-      const { color: tint, ...otherStyles } = StyleSheet.flatten(style);
+    if (tintColor === 'currentColor' && this.props.style) {
+      const { color: tint, ...otherStyles } = StyleSheet.flatten(this.props.style);
       return(
-        <Image style={[ otherStyles, { tintColor: tint } ]} source={ source }/>
+        <Image style={[ otherStyles, { tintColor: tint, height: height, width: width } ]} source={ source }/>
       );
     } else {
       return(
-        <Image style={ style } source={ source }/>
+        <Image style={[ this.props.style, { height: height, width: width } ]} source={ source }/>
       );
     }
   }
