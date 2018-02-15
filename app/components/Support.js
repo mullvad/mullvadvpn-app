@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
-import { Button, BlueButton, GreenButton, Label, Icon } from './styled';
+import { Button, BlueButton, GreenButton, Label } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
@@ -206,7 +206,7 @@ export default class Support extends Component {
         onPress={ this.onViewLog }
         testName='support__view_logs'>
         <Label>View app logs</Label>
-        <Icon source='icon-extLink' height='16' width='16' />
+        <Img source='icon-extLink' height='16' width='16' />
       </BlueButton>,
       <GreenButton key={2}
         disabled={ !this.validate() }

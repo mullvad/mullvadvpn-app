@@ -1,11 +1,10 @@
 // @flow
 import React from 'react';
-import { Component } from 'reactxp';
+import { Text, Component } from 'reactxp';
 import { Button } from './Button';
-import { Label } from './Label';
 import { colors } from '../../config';
 
-import { createViewStyles } from '../../lib/styles';
+import { createViewStyles, createTextStyles } from '../../lib/styles';
 
 const styles = {
   ...createViewStyles({
@@ -61,7 +60,19 @@ const styles = {
       justifyContent: 'center',
     },
   }),
+  ...createTextStyles({
+    label:{
+      alignSelf: 'center',
+      fontFamily: 'DINPro',
+      fontSize: 20,
+      fontWeight: '900',
+      lineHeight: 26,
+      flex: 1,
+    },
+  }),
 };
+
+export class Label extends Text {}
 
 export default class BaseButton extends Component {
   props: {
@@ -90,16 +101,16 @@ export default class BaseButton extends Component {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { style: this.textStyle() };
+                updatedProps = { style: [styles.label, this.textStyle()]};
               }
 
-              if(node.type.name === 'Icon') {
-                updatedProps = { style: [styles.icon, this.iconStyle()]};
+              if(node.type.name === 'Img') {
+                updatedProps = { tintColor:'currentColor', style: [styles.icon, this.iconStyle()]};
               }
 
               return React.cloneElement(node, updatedProps);
             } else {
-              return <Label style={this.textStyle()}>{children}</Label>;
+              return <Label style={[styles.label, this.textStyle()]}>{children}</Label>;
             }
           })
         }

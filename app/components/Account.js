@@ -2,7 +2,7 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button, RedButton, GreenButton, Label, Icon } from './styled';
+import { Button, RedButton, GreenButton, Label } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
@@ -66,7 +66,7 @@ export default class Account extends Component {
                       icon='icon-extLink'
                       testName='account__buymore'>
                       <Label>Buy more credit</Label>
-                      <Icon source='icon-extLink' height='16' width='16' />
+                      <Img source='icon-extLink' height='16' width='16' />
                     </GreenButton>
                     <RedButton
                       onPress={ this.props.onLogout }
