@@ -39,7 +39,6 @@ matrix:
       cache: cargo
 
       before_script: &rust_before_script
-        - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
         - env
       script: &rust_script
         - cargo build --verbose
