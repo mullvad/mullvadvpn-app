@@ -1,9 +1,9 @@
 // @flow
-
+import React from 'react';
 import TransitionRule from './lib/transition-rule';
 import type { TransitionFork, TransitionDescriptor } from './lib/transition-rule';
 
-export type CSSTransitionGroupProps = {
+export type TransitionGroupProps = {
   transitionName: string,
   transitionEnterTimeout: number,
   transitionLeaveTimeout: number,
@@ -62,7 +62,7 @@ const transitionRules = [
  * @param {string} [fromRoute] - source route
  * @param {string} toRoute     - target route
  */
-export function getTransitionProps(fromRoute: ?string, toRoute: string): CSSTransitionGroupProps {
+export function getTransitionProps(fromRoute: ?string, toRoute: string): TransitionGroupProps {
   // ignore initial transition and transition between the same routes
   if(!fromRoute || fromRoute === toRoute) {
     return noTransitionProps();
@@ -71,7 +71,7 @@ export function getTransitionProps(fromRoute: ?string, toRoute: string): CSSTran
   for(const rule of transitionRules) {
     const match = rule.match(fromRoute, toRoute);
     if(match) {
-      return toCSSTransitionGroupProps(match.descriptor);
+      return toTransitionGroupProps(match.descriptor);
     }
   }
 
@@ -82,7 +82,7 @@ export function getTransitionProps(fromRoute: ?string, toRoute: string): CSSTran
  * Integrate TransitionDescriptor into CSSTransitionGroupProps
  * @param {TransitionDescriptor} descriptor
  */
-function toCSSTransitionGroupProps(descriptor: TransitionDescriptor): CSSTransitionGroupProps {
+function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGroupProps {
   const {name, duration} = descriptor;
   return {
     transitionName: name,
@@ -96,7 +96,7 @@ function toCSSTransitionGroupProps(descriptor: TransitionDescriptor): CSSTransit
 /**
  * Returns default props with animations disabled
  */
-function noTransitionProps(): CSSTransitionGroupProps {
+function noTransitionProps(): TransitionGroupProps {
   return {
     transitionName: '',
     transitionEnterTimeout: 0,

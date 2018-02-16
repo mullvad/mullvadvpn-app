@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
-import { CSSTransitionGroup } from 'react-transition-group';
+import TransitionContainer from './components/TransitionContainer';
 import PlatformWindow from './components/PlatformWindow';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
@@ -92,7 +92,7 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
 
       return (
         <PlatformWindow>
-          <CSSTransitionGroup component="div" className="transition-container" { ...transitionProps }>
+          <TransitionContainer { ...transitionProps }>
             <Switch key={ location.key } location={ location }>
               <LoginRoute exact path="/" component={ LoginPage } />
               <PrivateRoute exact path="/connect" component={ ConnectPage } />
@@ -103,7 +103,7 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
               <PublicRoute exact path="/settings/support" component={ SupportPage } />
               <PrivateRoute exact path="/select-location" component={ SelectLocationPage } />
             </Switch>
-          </CSSTransitionGroup>
+          </TransitionContainer>
         </PlatformWindow>
       );
     }} />
