@@ -1,12 +1,10 @@
 // @flow
-import React from 'react';
 import TransitionRule from './lib/transition-rule';
 import type { TransitionFork, TransitionDescriptor } from './lib/transition-rule';
 
 export type TransitionGroupProps = {
   transitionName: string,
-  transitionEnterTimeout: number,
-  transitionLeaveTimeout: number,
+  transitionDuration: number,
   transitionEnter: boolean,
   transitionLeave: boolean,
   transitionAppear?: boolean,
@@ -86,8 +84,7 @@ function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGro
   const {name, duration} = descriptor;
   return {
     transitionName: name,
-    transitionEnterTimeout: duration,
-    transitionLeaveTimeout: duration,
+    transitionDuration: duration,
     transitionEnter: true,
     transitionLeave: true
   };
@@ -99,8 +96,7 @@ function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGro
 function noTransitionProps(): TransitionGroupProps {
   return {
     transitionName: '',
-    transitionEnterTimeout: 0,
-    transitionLeaveTimeout: 0,
+    transitionDuration: 0,
     transitionEnter: false,
     transitionLeave: false
   };
