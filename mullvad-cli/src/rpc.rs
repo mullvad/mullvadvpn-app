@@ -3,7 +3,9 @@ use serde;
 
 use std::fs::{File, Metadata};
 use std::io::{self, BufRead, BufReader};
-use std::path::{Path, PathBuf};
+#[cfg(unix)]
+use std::path::Path;
+use std::path::PathBuf;
 
 use talpid_ipc::WsIpcClient;
 
@@ -73,7 +75,7 @@ fn is_rpc_file_trusted(metadata: Metadata) -> bool {
 }
 
 #[cfg(windows)]
-fn is_rpc_file_trusted(metadata: Metadata) -> bool {
+fn is_rpc_file_trusted(_metadata: Metadata) -> bool {
     // TODO: Check permissions correctly
     true
 }
