@@ -507,7 +507,7 @@ export class Backend {
     }
   }
 
-  _ensureAuthenticated() {
+  _ensureAuthenticated(): Promise<void> {
     const credentials = this._credentials;
     if(credentials) {
       if(!this._authenticationPromise) {

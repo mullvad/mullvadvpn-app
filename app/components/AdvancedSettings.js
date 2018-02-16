@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { Button } from './styled';
 import { Layout, Container } from './Layout';

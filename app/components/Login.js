@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import { formatAccount } from '../lib/formatters';
@@ -20,8 +20,13 @@ export type LoginPropTypes = {
   onRemoveAccountTokenFromHistory: (accountToken: AccountToken) => void,
 };
 
-export default class Login extends Component {
-  props: LoginPropTypes;
+type State = {
+  notifyOnFirstChangeAfterFailure: boolean,
+  isActive: boolean,
+  dropdownHeight: number
+};
+
+export default class Login extends React.Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: false,
@@ -293,13 +298,13 @@ export default class Login extends Component {
   }
 }
 
-class AccountDropdown extends Component {
-  props: {
-    items: Array<AccountToken>,
-    onSelect: ((value: AccountToken) => void),
-    onRemove: ((value: AccountToken) => void)
-  };
+type AccountDropdownProps = {
+  items: Array<AccountToken>,
+  onSelect: (value: AccountToken) => void,
+  onRemove: (value: AccountToken) => void,
+};
 
+class AccountDropdown extends React.Component<AccountDropdownProps> {
   render() {
     const uniqueItems = [...new Set(this.props.items)];
     return (
@@ -316,14 +321,14 @@ class AccountDropdown extends Component {
   }
 }
 
-class AccountDropdownItem extends Component {
-  props: {
-    label: string,
-    value: AccountToken,
-    onRemove: (value: AccountToken) => void,
-    onSelect: (value: AccountToken) => void
-  };
+type AccountDropdownItemProps = {
+  label: string,
+  value: AccountToken,
+  onRemove: (value: AccountToken) => void,
+  onSelect: (value: AccountToken) => void,
+};
 
+class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
   render() {
     return (
       <div className="login-form__account-dropdown__item">

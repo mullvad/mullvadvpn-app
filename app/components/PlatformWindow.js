@@ -1,11 +1,12 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 
-export default class PlatformWindow extends Component {
-  props: {
-    children: Array<React.Element<*>> | React.Element<*>
-  }
-  render(): React.Element<*> {
+type Props = {
+  children?: React.Node
+};
+
+export default class PlatformWindow extends React.Component<Props> {
+  render() {
     const chromeClass = ['window-chrome', 'window-chrome--' + process.platform];
     return (
       <div className={ chromeClass.join(' ') }>

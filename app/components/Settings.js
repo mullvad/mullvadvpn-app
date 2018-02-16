@@ -1,6 +1,6 @@
 // @flow
 import moment from 'moment';
-import React from 'react';
+import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { Button, CellButton, RedButton, Label, SubText} from './styled';
 import { Layout, Container } from './Layout';
@@ -24,10 +24,7 @@ export type SettingsProps = {
   onExternalLink: (type: string) => void,
 };
 
-export default class Settings extends Component {
-
-  props: SettingsProps;
-
+export default class Settings extends Component<SettingsProps> {
   render() {
     return (
       <Layout>

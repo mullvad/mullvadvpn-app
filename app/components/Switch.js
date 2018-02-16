@@ -1,30 +1,36 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;
 
 export type SwitchProps = {
+  className?: string;
   isOn: boolean;
   onChange: ?((isOn: boolean) => void);
 };
 
-export default class Switch extends Component {
-  props: SwitchProps;
+type State = {
+  ignoreChange: boolean,
+  initialPos: {x: number, y: number},
+  startTime: ?number,
+};
+
+export default class Switch extends React.Component<SwitchProps, State> {
   static defaultProps: SwitchProps = {
     isOn: false,
     onChange: null
-  }
-
-  isCapturingMouseEvents = false;
-  ref: ?HTMLInputElement;
-  onRef = (e: HTMLInputElement) => this.ref = e;
+  };
 
   state = {
     ignoreChange: false,
     initialPos: {x: 0, y: 0},
     startTime: (null: ?number)
-  }
+  };
+
+  isCapturingMouseEvents = false;
+  ref: ?HTMLInputElement;
+  onRef = (e: ?HTMLInputElement) => this.ref = e;
 
   handleMouseDown = (e: MouseEvent) => {
     const { clientX: x, clientY: y } = e;
@@ -124,9 +130,9 @@ export default class Switch extends Component {
     }
   }
 
-  render(): React.Element<*> {
+  render() {
     const { isOn, onChange, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
-    let className = ('switch' + ' ' + (otherProps.className || '')).trim();
+    const className = ('switch ' + (otherProps.className || '')).trim();
     return (
       <input { ...otherProps }
         type="checkbox"

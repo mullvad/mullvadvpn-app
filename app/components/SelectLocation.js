@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 
@@ -17,12 +17,15 @@ export type SelectLocationProps = {
   onSelect: (location: RelayLocation) => void;
 };
 
-export default class SelectLocation extends Component {
-  props: SelectLocationProps;
+type State = {
+  expanded: Array<string>
+};
+
+export default class SelectLocation extends React.Component<SelectLocationProps, State> {
   _selectedCell: ?HTMLElement;
 
   state = {
-    expanded: ([]: Array<string>),
+    expanded: [],
   };
 
   constructor(props: SelectLocationProps, context?: any) {

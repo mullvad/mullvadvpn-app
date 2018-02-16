@@ -6,8 +6,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Accordion from '../../app/components/Accordion';
 
-import type { AccordionProps } from '../../app/components/Accordion';
-
 describe('components/Accordion', () => {
 
   let container: ?HTMLElement;

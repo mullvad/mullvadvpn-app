@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Markers, Marker } from 'react-simple-maps';
 
 import { geoTimes } from 'd3-geo-projection';
@@ -44,9 +44,8 @@ type SvgMapState = {
 const MOVE_SPEED = 2000;
 
 // @TODO: Calculate zoom level based on (center + span) (aka MKCoordinateSpan)
-export default class SvgMap extends Component {
-  props: SvgMapProps;
-  state: SvgMapState = {
+export default class SvgMap extends React.Component<SvgMapProps, SvgMapState> {
+  state = {
     zoomCenter: [0, 0],
     zoomLevel: 1,
     visibleCities: [],

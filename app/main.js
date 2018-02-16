@@ -36,7 +36,7 @@ const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
   _logFileLocation: '',
-  connectionFilePollInterval: (null: ?number),
+  connectionFilePollInterval: (null: ?IntervalID),
 
   setup: () => {
     // Override userData path, i.e on macOS: ~/Library/Application Support/MullvadVPN

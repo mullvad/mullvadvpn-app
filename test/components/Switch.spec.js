@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Switch from '../../app/components/Switch';
@@ -10,7 +10,7 @@ describe('components/Switch', () => {
 
   let container: ?HTMLElement;
 
-  function renderIntoDocument(instance: React.Element<*>): React.Component<*, *, *> {
+  function renderIntoDocument(instance: React.Element<*>): React.Component<*, *> {
     if(container) {
       throw new Error('Unmount previously rendered component first.');
     }
@@ -105,6 +105,7 @@ describe('components/Switch', () => {
     const component = renderIntoDocument(
       <Switch isOn={ false } onChange={ onChange } />
     );
+
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
 
     Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
