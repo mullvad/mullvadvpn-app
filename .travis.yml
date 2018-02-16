@@ -32,7 +32,7 @@ matrix:
         - yarn test
 
 
-    # Backend macOS
+    # Daemon - macOS
     - language: rust
       rust: stable
       os: osx
@@ -45,7 +45,7 @@ matrix:
         - cargo build --verbose
         - cargo test --verbose
 
-    # Backend Linux
+    # Daemon - Linux
     - language: rust
       rust: nightly
       os: linux
