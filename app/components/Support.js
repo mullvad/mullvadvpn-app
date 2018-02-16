@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
-import { Component, Text, Button, View, TextInput } from 'reactxp';
-import { Layout, Container, Header } from './Layout';
+import { Component, Text, View, TextInput } from 'reactxp';
+import { Button, BlueButton, GreenButton, Label } from './styled';
+import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
 
@@ -117,14 +118,11 @@ export default class Support extends Component {
 
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={styles.support}>
             <Button style={styles.support__close} onPress={ this.props.onClose } testName="support__close">
-              <View style={styles.support__close}>
-                <Img style={styles.support__close_icon} source="icon-back" />
-                <Text style={styles.support__close_title}>Settings</Text>
-              </View>
+              <Img style={styles.support__close_icon} source="icon-back" />
+              <Text style={styles.support__close_title}>Settings</Text>
             </Button>
             <View style={styles.support__container}>
 
@@ -193,24 +191,29 @@ export default class Support extends Component {
       <Text style={styles.support__no_email_warning}>
       You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
       </Text>
-      <Button style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
-        <Text style={styles.support__button_label}>Send anyway</Text>
-      </Button>
+      <GreenButton
+        disabled={ !this.validate() }
+        onPress={ this.onSend }
+        testName='support__send_logs'>
+        Send anyway
+      </GreenButton>
     </View>;
   }
 
   _renderActionButtons() {
     return [
-      <Button key={1} onPress={ this.onViewLog } style={{'flex':1}} testName='support__view_logs'>
-        <View style={styles.support__form_view_logs}>
-          <View style={styles.support__open_icon}></View>
-          <Text style={styles.support__button_label}>View app logs</Text>
-          <Img source="icon-extLink" style={styles.support__open_icon} tintColor='currentColor'/>
-        </View>
-      </Button>,
-      <Button key={2} style={styles.support__form_send} disabled={ !this.validate() } onPress={ this.onSend } testName='support__send_logs'>
-        <Text style={styles.support__button_label}>Send</Text>
-      </Button>
+      <BlueButton key={1}
+        onPress={ this.onViewLog }
+        testName='support__view_logs'>
+        <Label>View app logs</Label>
+        <Img source='icon-extLink' height='16' width='16' />
+      </BlueButton>,
+      <GreenButton key={2}
+        disabled={ !this.validate() }
+        onPress={ this.onSend }
+        testName='support__send_logs'>
+        Send
+      </GreenButton>
     ];
   }
 
@@ -275,16 +278,14 @@ export default class Support extends Component {
         </View>
       </View>
       <View style={styles.support__footer}>
-        <Button onPress={ () => this.setState({ sendState: 'INITIAL' }) }>
-          <View style={styles.support__form_edit_logs}>
-            <Text style={styles.support__button_label}>Edit message</Text>
-          </View>
-        </Button>
-        <Button onPress={ this.onSend }>
-          <View style={styles.support__form_send}>
-            <Text style={styles.support__button_label}>Try again</Text>
-          </View>
-        </Button>
+        <BlueButton onPress={ () => this.setState({ sendState: 'INITIAL' }) }>
+          Edit message
+        </BlueButton>
+        <GreenButton
+          onPress={ this.onSend }
+          testName='support__send_logs'>
+          Try again
+        </GreenButton>
       </View>
     </View>;
   }

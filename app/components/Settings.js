@@ -2,8 +2,8 @@
 import moment from 'moment';
 import React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { Button } from './styled';
-import { Layout, Container, Header } from './Layout';
+import { Button, CellButton, RedButton, Label, SubText} from './styled';
+import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';
@@ -31,7 +31,6 @@ export default class Settings extends Component {
   render() {
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={styles.settings}>
             <Button style={styles.settings__close} onPress={ this.props.onClose } testName='settings__close'>
@@ -48,9 +47,7 @@ export default class Settings extends Component {
                 <View style={styles.settings__content}>
                   <View>
                     { this._renderTopButtons() }
-                    <View style={styles.settings__cell_spacer}/>
                     { this._renderMiddleButtons() }
-                    <View style={styles.settings__cell_spacer}/>
                     { this._renderBottomButtons() }
                   </View>
                   { this._renderQuitButton() }
@@ -81,39 +78,47 @@ export default class Settings extends Component {
 
     return <View>
       <View style={styles.settings_account} testName='settings__account'>
-        <Button onPress={ this.props.onViewAccount } testName='settings__view_account'>
-          <View style={styles.settings__cell}>
-            <Text style={styles.settings__cell_label}>Account</Text>
-            {isOutOfTime ? (
-              <Text style={styles.settings__account_paid_until_label__error} testName='settings__account_paid_until_label'>OUT OF TIME</Text>
-            ) : (
-              <Text style={styles.settings__cell_subtext} testName='settings__account_paid_until_label'>{formattedExpiry}</Text>
-            )}
-            <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-          </View>
-        </Button>
+        {isOutOfTime ? (
+          <CellButton onPress={ this.props.onViewAccount }
+            testName='settings__account_paid_until_button'>
+            <Label>Account</Label>
+            <SubText testName='settings__account_paid_until_subtext' style={styles.settings__account_paid_until_Label__error}>OUT OF TIME</SubText>
+            <Img height='12' width='7' source='icon-chevron' />
+          </CellButton>
+        ) : (
+          <CellButton onPress={ this.props.onViewAccount }
+            testName='settings__account_paid_until_button'>
+            <Label>Account</Label>
+            <SubText testName='settings__account_paid_until_subtext'>{ formattedExpiry }</SubText>
+            <Img height='12' width='7' source='icon-chevron' />
+          </CellButton>
+        )}
       </View>
 
-      <ButtonCell onPress={ this.props.onViewPreferences } testName='settings__preferences'>
-        <Text style={styles.settings__cell_label}>Preferences</Text>
-        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor' />
-      </ButtonCell>
+      <CellButton onPress={ this.props.onViewPreferences }
+        testName='settings__preferences'>
+        <Label>Preferences</Label>
+        <Img height='12' width='7' source='icon-chevron' />
+      </CellButton>
 
-      <ButtonCell onPress={ this.props.onViewAdvancedSettings } testName='settings__advanced'>
-        <Text style={styles.settings__cell_label}>Advanced</Text>
-        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-      </ButtonCell>
-
+      <CellButton onPress={ this.props.onViewAdvancedSettings }
+        testName='settings__advanced'>
+        <Label>Advanced</Label>
+        <Img height='12' width='7' source='icon-chevron' />
+      </CellButton>
+      <View style={styles.settings__cell_spacer}/>
     </View>;
   }
 
   _renderMiddleButtons() {
     return <View>
-      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'download') } testName='settings__version'>
-        <Text style={styles.settings__cell_label}>App version</Text>
-        <Text style={styles.settings__cell_subtext}>{this._formattedVersion()}</Text>
-        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
-      </ButtonCell>
+      <CellButton onPress={ this.props.onExternalLink.bind(this, 'download') }
+        testName='settings__version'>
+        <Label>App version</Label>
+        <SubText>{this._formattedVersion()}</SubText>
+        <Img height='16' width='16' source='icon-extLink' />
+      </CellButton>
+      <View style={styles.settings__cell_spacer}/>
     </View>;
   }
 
@@ -128,37 +133,33 @@ export default class Settings extends Component {
 
   _renderBottomButtons() {
     return <View>
-      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'faq') } testName='settings__external_link'>
-        <Text style={styles.settings__cell_label}>FAQs</Text>
-        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
-      </ButtonCell>
+      <CellButton onPress={ this.props.onExternalLink.bind(this, 'faq') }
+        testName='settings__external_link'>
+        <Label>FAQs</Label>
+        <Img height='16' width='16' source='icon-extLink' />
+      </CellButton>
 
-      <ButtonCell onPress={ this.props.onExternalLink.bind(this, 'guides') } testName='settings__external_link'>
-        <Text style={styles.settings__cell_label}>Guides</Text>
-        <Img style={styles.settings__cell_icon} source='icon-extLink' tintColor='currentColor'/>
-      </ButtonCell>
+      <CellButton onPress={ this.props.onExternalLink.bind(this, 'guides') }
+        testName='settings__external_link'>
+        <Label>Guides</Label>
+        <Img height='16' width='16' source='icon-extLink' />
+      </CellButton>
 
-      <ButtonCell onPress={ this.props.onViewSupport }  testName='settings__view_support'>
-        <Text style={styles.settings__cell_label}>Contact support</Text>
-        <Img style={styles.settings__cell_disclosure} source='icon-chevron' tintColor='currentColor'/>
-      </ButtonCell>
+      <CellButton onPress={ this.props.onViewSupport }
+        testName='settings__view_support'>
+        <Label>Contact support</Label>
+        <Img height='12' width='7' source='icon-chevron' />
+      </CellButton>
     </View>;
   }
 
   _renderQuitButton() {
     return <View style={styles.settings__footer}>
-      <Button style={styles.settings__footer_button} onPress={this.props.onQuit} testName='settings__quit'>
-        <Text style={styles.settings__footer_button_label}>Quit app</Text>
-      </Button>
+      <RedButton
+        onPress={this.props.onQuit}
+        testName='settings__quit'>
+        <Label>Quit app</Label>
+      </RedButton>
     </View>;
   }
-}
-
-function ButtonCell(props) {
-  const { children, ...rest } = props;
-  return <Button { ...rest } >
-    <View style={styles.settings__cell}>
-      { children }
-    </View>
-  </Button>;
 }

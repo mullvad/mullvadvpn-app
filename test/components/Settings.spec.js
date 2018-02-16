@@ -108,13 +108,13 @@ describe('components/Settings', () => {
 
   it('should show out-of-time message for unpaid account', () => {
     const props = makeProps(unpaidAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__account_paid_until_label');
+    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
     expect(component.children().text()).to.equal('OUT OF TIME');
   });
 
   it('should hide out-of-time message for paid account', () => {
     const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__account_paid_until_label');
+    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
     expect(component.children().text()).not.to.equal('OUT OF TIME');
   });
 
@@ -138,7 +138,7 @@ describe('components/Settings', () => {
     const props = makeProps(loggedInAccountState, settingsState, {
       onViewAccount: () => done()
     });
-    const component = getComponent(render(props), 'settings__view_account');
+    const component = getComponent(render(props), 'settings__account_paid_until_button');
     click(component);
   });
 
