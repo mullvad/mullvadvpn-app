@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Security
 - Update the CRL with newly revoked server certificates.
 
+
 ## [2018.1-beta9] - 2018-01-30
 ### Added
 - Uses the https://am.i.mullvad.net/ service to figure out location and public IP of the device.
