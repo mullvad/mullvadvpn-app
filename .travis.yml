@@ -32,20 +32,19 @@ matrix:
         - yarn test
 
 
-    # Backend macOS
+    # Daemon - macOS
     - language: rust
       rust: stable
       os: osx
       cache: cargo
 
       before_script: &rust_before_script
-        - export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
         - env
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
 
-    # Backend Linux
+    # Daemon - Linux
     - language: rust
       rust: nightly
       os: linux
@@ -54,9 +53,10 @@ matrix:
       script:
         - cargo build --verbose
         - cargo test --verbose
-        # Format only on nightly, since that is where rustfmt-nightly compiles
-        - export LD_LIBRARY_PATH=$(rustc --print sysroot)/lib:$LD_LIBRARY_PATH
-        - ./format.sh --write-mode=diff;
+        # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
+        - rustup component add rustfmt-preview
+        - rustfmt --version
+        - cargo fmt -- --write-mode=diff
 
     - language: rust
       rust: beta
