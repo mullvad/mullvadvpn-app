@@ -28,9 +28,6 @@ const initialState: ConnectionReduxState = {
 export default function(state: ConnectionReduxState = initialState, action: ReduxAction): ConnectionReduxState {
 
   switch (action.type) {
-  case 'CONNECTION_CHANGE':
-    return { ...state, ...action.newData };
-
   case 'NEW_LOCATION':
     return { ...state, ...action.newLocation };
 
