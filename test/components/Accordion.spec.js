@@ -2,7 +2,7 @@
 /* eslint react/no-find-dom-node: off */
 
 import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
 import Accordion from '../../app/components/Accordion';
 
@@ -10,7 +10,7 @@ describe('components/Accordion', () => {
 
   let container: ?HTMLElement;
 
-  function renderIntoDocument(instance: React.Element<AccordionProps>) {
+  function renderIntoDocument(instance) {
     if(!container) {
       container = document.createElement('div');
       if(!document.documentElement) {

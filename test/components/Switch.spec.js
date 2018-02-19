@@ -42,10 +42,12 @@ describe('components/Switch', () => {
       <Switch isOn={ false } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-
-    Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
-    Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
-    Simulate.change(domNode, { target: { checked: true } });
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+      Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
+      Simulate.change(domNode, { target: { checked: true } });
+    }
   });
 
   it('should switch off', (done) => {
@@ -57,10 +59,12 @@ describe('components/Switch', () => {
       <Switch isOn={ true } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-
-    Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
-    Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
-    Simulate.change(domNode, { target: { checked: false } });
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+      Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
+      Simulate.change(domNode, { target: { checked: false } });
+    }
   });
 
   it('should handle left to right swipe', (done) => {
@@ -72,8 +76,10 @@ describe('components/Switch', () => {
       <Switch isOn={ false } onChange={ onChange } />
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-
-    Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+    }
 
     // Switch listens to events on document
     document.dispatchEvent(new MouseEvent('mousemove', { clientX: 150, clientY: 0 }));
@@ -90,7 +96,10 @@ describe('components/Switch', () => {
     );
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
 
-    Simulate.mouseDown(domNode, { clientX: 150, clientY: 0 });
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.mouseDown(domNode, { clientX: 150, clientY: 0 });
+    }
 
     // Switch listens to events on document
     document.dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 0 }));
@@ -107,16 +116,21 @@ describe('components/Switch', () => {
     );
 
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-
-    Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
+    }
 
     setTimeout(() => {
       // Switch listens to events on document
       document.dispatchEvent(new MouseEvent('mouseup', { clientX: 100, clientY: 0 }));
 
       try {
-        // should not trigger onChange()
-        Simulate.change(domNode);
+        // See: https://github.com/facebook/flow/pull/5841
+        if(domNode) {
+          // should not trigger onChange()
+          Simulate.change(domNode);
+        }
         done();
       } catch(e) {
         done(e);

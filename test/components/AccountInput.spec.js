@@ -1,15 +1,19 @@
 // @flow
 import { expect } from 'chai';
 import { createKeyEvent } from '../helpers/dom-events';
-import React from 'react';
+import * as React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import AccountInput from '../../app/components/AccountInput';
 
 import type { AccountInputProps } from '../../app/components/AccountInput';
 
 describe('components/AccountInput', () => {
-  const getInputRef = (component: AccountInput): HTMLInputElement => {
-    return ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
+  const getInputRef = (component) => {
+    const node = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
+    if(!(node instanceof HTMLInputElement)) {
+      throw new Error('Node is expected to be an instance of HTMLInputElement');
+    }
+    return node;
   };
 
   const render = (mergeProps: $Shape<AccountInputProps>) => {
