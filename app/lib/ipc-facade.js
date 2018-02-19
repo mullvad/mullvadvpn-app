@@ -4,6 +4,8 @@ import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
 import { object, maybe, string, number, boolean, enumeration, arrayOf, oneOf } from 'validated/schema';
 import { validate } from 'validated/object';
 
+import type { Node as SchemaNode } from 'validated/schema';
+
 export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
@@ -75,13 +77,14 @@ export type RelaySettingsUpdate = {|
   custom_tunnel_endpoint: RelaySettingsCustom
 |};
 
-const Constraint = (v) => oneOf(string, object({
-  only: v,
+const constraint = <T>(constraintValue: SchemaNode<T>) => oneOf(string, object({
+  only: constraintValue,
 }));
+
 const RelaySettingsSchema = oneOf(
   object({
     normal: object({
-      location: Constraint(oneOf(
+      location: constraint(oneOf(
         object({
           city: arrayOf(string),
         }),
@@ -89,10 +92,10 @@ const RelaySettingsSchema = oneOf(
           country: string
         }),
       )),
-      tunnel: Constraint(object({
+      tunnel: constraint(object({
         openvpn: object({
-          port: Constraint(number),
-          protocol: Constraint(enumeration('udp', 'tcp')),
+          port: constraint(number),
+          protocol: constraint(enumeration('udp', 'tcp')),
         }),
       })),
     })
