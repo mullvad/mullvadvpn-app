@@ -74,7 +74,7 @@ const styles = {
 
 export class Label extends Text {}
 
-export default class BaseButton extends Component {
+class BaseButton extends Component {
   props: {
     children: Array<React.Element<*>> | React.Element<*>,
     disabled: boolean,
