@@ -21,7 +21,7 @@ export default class Preferences extends Component {
         <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
           <View style={ styles.preferences }>
-            <Button style={ styles.preferences__close } cursor='default' onPress={ this.props.onClose } testName='closeButton'>
+            <Button style={ styles.preferences__close } onPress={ this.props.onClose } testName='closeButton'>
               <View style={ styles.preferences__close_content }>
                 <Img style={ styles.preferences__close_icon } source="icon-back" />
                 <Text style={ styles.preferences__close_title }>Settings</Text>
