@@ -97,7 +97,7 @@ class BaseButton extends Component {
         {...otherProps}>
         {
           React.Children.map(children, (node) => {
-            if (React.isValidElement(node)){
+            if (React.isValidElement(node)) {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
@@ -119,18 +119,18 @@ class BaseButton extends Component {
   }
 }
 
-export class RedButton extends BaseButton{
+export class RedButton extends BaseButton {
   backgroundStyle = () => this.state.hovered ? styles.redHover : styles.red;
 }
 
-export class GreenButton extends BaseButton{
+export class GreenButton extends BaseButton {
   backgroundStyle = () => this.state.hovered ? styles.greenHover : styles.green;
 }
 
-export class BlueButton extends BaseButton{
+export class BlueButton extends BaseButton {
   backgroundStyle = () => this.state.hovered ? styles.blueHover : styles.blue;
 }
 
-export class TransparentButton extends BaseButton{
+export class TransparentButton extends BaseButton {
   backgroundStyle = () => this.state.hovered ? styles.transparentHover : styles.transparent;
 }
