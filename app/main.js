@@ -420,6 +420,7 @@ const appDelegate = {
 
     // setup NSEvent monitor to fix inconsistent window.blur
     // see https://github.com/electron/electron/issues/8689
+    // $FlowFixMe: this module is only available on macOS
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const trayIconManager = new TrayIconManager(tray, 'unsecured');
     const macEventMonitor = new NSEventMonitor();
