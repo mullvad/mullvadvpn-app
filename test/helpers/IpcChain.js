@@ -7,7 +7,7 @@ export class IpcChain {
   _expectedCalls: Array<string>;
   _recordedCalls: Array<string>;
   _mockIpc: {};
-  _done: (*) => void;
+  _done: (?Error) => void;
   _aborted: boolean;
 
   constructor(mockIpc: {}) {
@@ -17,28 +17,29 @@ export class IpcChain {
     this._aborted = false;
   }
 
-  require(ipcCall: string): StepBuilder {
+  require<R>(ipcCall: string): StepBuilder<R> {
     this._expectedCalls.push(ipcCall);
     return new StepBuilder(ipcCall, this._addStep.bind(this));
   }
 
-  _addStep(step: StepBuilder) {
+  _addStep<R>(step: StepBuilder<R>) {
     const me = this;
     this._mockIpc[step.ipcCall] = function() {
       return new Promise(r => me._stepPromiseCallback(step, r, arguments));
     };
   }
 
-  _stepPromiseCallback(step, resolve, args) {
+  _stepPromiseCallback<R>(step: StepBuilder<R>, resolve: (?R) => void, args: Array<mixed>) {
     if (this._aborted) {
       return;
     }
 
     this._registerCall(step.ipcCall);
 
-    if (step.inputValidation) {
+    const inputValidation = step.inputValidation;
+    if (inputValidation) {
       const failedInputValidation = failFast(() => {
-        step.inputValidation(...args);
+        inputValidation(...args);
       }, this._done);
 
       if (failedInputValidation) {
@@ -77,23 +78,23 @@ export class IpcChain {
   }
 }
 
-class StepBuilder {
+class StepBuilder<R> {
   ipcCall: string;
-  inputValidation: () => void;
-  returnValue: *;
-  _cb: (StepBuilder) => void;
+  inputValidation: ?() => void;
+  returnValue: ?R;
+  _cb: (StepBuilder<R>) => void;
 
-  constructor(ipcCall: string, cb: (StepBuilder)=> void) {
+  constructor(ipcCall: string, cb: (StepBuilder<R>) => void) {
     this.ipcCall = ipcCall;
     this._cb = cb;
   }
 
-  withInputValidation(iv: () => void): StepBuilder {
+  withInputValidation(iv: () => void): this {
     this.inputValidation = iv;
     return this;
   }
 
-  withReturnValue(rv: *): StepBuilder {
+  withReturnValue(rv: R): this {
     this.returnValue = rv;
     return this;
   }

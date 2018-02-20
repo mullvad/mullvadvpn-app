@@ -6,7 +6,7 @@ import configureStore from '../../app/redux/store';
 import { createMemoryHistory } from 'history';
 import { mockStore } from '../mocks/redux';
 
-type DoneCallback = (?mixed) => void;
+type DoneCallback = (?Error) => void;
 type Check = () => void;
 
 export function setupIpcAndStore() {
