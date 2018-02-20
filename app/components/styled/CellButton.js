@@ -89,7 +89,7 @@ export default class CellButton extends Component {
         {...otherProps}>
         {
           React.Children.map(children, (node) => {
-            if (React.isValidElement(node)){
+            if (React.isValidElement(node)) {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
