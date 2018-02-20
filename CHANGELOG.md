@@ -16,6 +16,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 
+## [2018.1-beta10] - 2018-02-13
+### Added
+- Show the app version in the settings view.
+
+### Changed
+- Require confirmation when sending problem reports without an email address.
+
+### Fixed
+- Fix erroneous styles in the settings view.
+
+### Security
+- Update the CRL with newly revoked server certificates.
+
+
 ## [2018.1-beta9] - 2018-01-30
 ### Added
 - Uses the https://am.i.mullvad.net/ service to figure out location and public IP of the device.
