@@ -42,141 +42,140 @@ export default class TransitionContainer extends Component<TransitionContainerPr
   }
 
   componentWillReceiveProps(nextProps: TransitionContainerProps) {
-    if (this.props.children.key !== nextProps.children.key){
-      switch (nextProps.name){
-      case 'slide-up':
-        this.state.currentTranslationValue.setValue(this.state.dimensions.height);
-        this.setState({
-          previousChildren: this.props.children,
-          childrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 1,
-            transform: [{ translateY: this.state.currentTranslationValue }]
-          }),
-          previousChildrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 0,
-            transform: [{ translateY: 0 }]
-          }),
-        }, ()=>{
+    switch (nextProps.name){
+    case 'slide-up':
+      this.state.currentTranslationValue.setValue(this.state.dimensions.height);
+      this.setState({
+        previousChildren: this.props.children,
+        childrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 1,
+          transform: [{ translateY: this.state.currentTranslationValue }]
+        }),
+        previousChildrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 0,
+          transform: [{ translateY: 0 }]
+        }),
+      }, ()=>{
+        Animated.timing(this.state.currentTranslationValue, {
+          toValue: 0,
+          easing: Animated.Easing.InOut(),
+          duration: nextProps.duration,
+          useNativeDriver: true,
+        }).start(()=>{
+          this.setState({
+            childrenAnimation: this.state.animationStyles.allowPointerEvents,
+            previousChildren: null
+          });
+        });
+      });
+      break;
+    case 'slide-down':
+      this.state.previousTranslationValue.setValue(0);
+      this.setState({
+        previousChildren: this.props.children,
+        childrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 0,
+          transform: [{
+            translateY: 0 }]
+        }),
+        previousChildrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 1,
+          transform: [{ translateY: this.state.previousTranslationValue }]
+        }),
+      }, ()=>{
+        Animated.timing(this.state.previousTranslationValue, {
+          toValue: this.state.dimensions.height,
+          easing: Animated.Easing.InOut(),
+          duration: nextProps.duration,
+          useNativeDriver: true,
+        }).start(()=>{
+          this.setState({
+            childrenAnimation: this.state.animationStyles.allowPointerEvents,
+            previousChildren: null
+          });
+        });
+      });
+      break;
+    case 'push':
+      this.state.currentTranslationValue.setValue(this.state.dimensions.width);
+      this.state.previousTranslationValue.setValue(0);
+      this.setState({
+        previousChildren: this.props.children,
+        childrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 1,
+          transform: [{ translateX: this.state.currentTranslationValue }]
+        }),
+        previousChildrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 0,
+          transform: [{ translateX: this.state.previousTranslationValue }]
+        }),
+      }, ()=>{
+        const compositeAnimation = Animated.parallel([
           Animated.timing(this.state.currentTranslationValue, {
             toValue: 0,
             easing: Animated.Easing.InOut(),
             duration: nextProps.duration,
             useNativeDriver: true,
-          }).start(()=>{
-            this.setState({
-              childrenAnimation: this.state.animationStyles.allowPointerEvents,
-              previousChildren: null
-            });
-          });
-        });
-        break;
-      case 'slide-down':
-        this.state.previousTranslationValue.setValue(0);
-        this.setState({
-          previousChildren: this.props.children,
-          childrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 0,
-            transform: [{
-              translateY: 0 }]
           }),
-          previousChildrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 1,
-            transform: [{ translateY: this.state.previousTranslationValue }]
-          }),
-        }, ()=>{
           Animated.timing(this.state.previousTranslationValue, {
-            toValue: this.state.dimensions.height,
+            toValue: - this.state.dimensions.width / 2,
             easing: Animated.Easing.InOut(),
             duration: nextProps.duration,
             useNativeDriver: true,
-          }).start(()=>{
-            this.setState({
-              childrenAnimation: this.state.animationStyles.allowPointerEvents,
-              previousChildren: null
-            });
-          });
-        });
-        break;
-      case 'push':
-        this.state.currentTranslationValue.setValue(this.state.dimensions.width);
-        this.state.previousTranslationValue.setValue(0);
-        this.setState({
-          previousChildren: this.props.children,
-          childrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 1,
-            transform: [{ translateX: this.state.currentTranslationValue }]
+          })
+        ]);
+        compositeAnimation.start(() => this.setState({
+          childrenAnimation: this.state.animationStyles.allowPointerEvents,
+          previousChildren: null
+        }));
+      });
+      break;
+    case 'pop':
+      this.state.currentTranslationValue.setValue(- this.state.dimensions.width / 2 );
+      this.state.previousTranslationValue.setValue(0);
+      this.setState({
+        previousChildren: this.props.children,
+        childrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 0,
+          transform: [{ translateX: this.state.currentTranslationValue }]
+        }),
+        previousChildrenAnimation: Styles.createAnimatedViewStyle({
+          pointerEvents: 'none',
+          zIndex: 1,
+          transform: [{ translateX: this.state.previousTranslationValue }]
+        }),
+      }, ()=>{
+        const compositeAnimation = Animated.parallel([
+          Animated.timing(this.state.currentTranslationValue, {
+            toValue: 0,
+            easing: Animated.Easing.InOut(),
+            duration: nextProps.duration,
+            useNativeDriver: true,
           }),
-          previousChildrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 0,
-            transform: [{ translateX: this.state.previousTranslationValue }]
-          }),
-        }, ()=>{
-          const compositeAnimation = Animated.parallel([
-            Animated.timing(this.state.currentTranslationValue, {
-              toValue: 0,
-              easing: Animated.Easing.InOut(),
-              duration: nextProps.duration,
-              useNativeDriver: true,
-            }),
-            Animated.timing(this.state.previousTranslationValue, {
-              toValue: - this.state.dimensions.width / 2,
-              easing: Animated.Easing.InOut(),
-              duration: nextProps.duration,
-              useNativeDriver: true,
-            })
-          ]);
-          compositeAnimation.start(() => this.setState({
-            childrenAnimation: this.state.animationStyles.allowPointerEvents,
-            previousChildren: null
-          }));
-        });
-        break;
-      case 'pop':
-        this.state.currentTranslationValue.setValue(- this.state.dimensions.width / 2 );
-        this.state.previousTranslationValue.setValue(0);
-        this.setState({
-          previousChildren: this.props.children,
-          childrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 0,
-            transform: [{ translateX: this.state.currentTranslationValue }]
-          }),
-          previousChildrenAnimation: Styles.createAnimatedViewStyle({
-            pointerEvents: 'none',
-            zIndex: 1,
-            transform: [{ translateX: this.state.previousTranslationValue }]
-          }),
-        }, ()=>{
-          const compositeAnimation = Animated.parallel([
-            Animated.timing(this.state.currentTranslationValue, {
-              toValue: 0,
-              easing: Animated.Easing.InOut(),
-              duration: nextProps.duration,
-              useNativeDriver: true,
-            }),
-            Animated.timing(this.state.previousTranslationValue, {
-              toValue: this.state.dimensions.width,
-              easing: Animated.Easing.InOut(),
-              duration: nextProps.duration,
-              useNativeDriver: true,
-            })
-          ]);
-          compositeAnimation.start(() => this.setState({
-            childrenAnimation: this.state.animationStyles.allowPointerEvents,
-            previousChildren: null
-          }));
-        });
-        break;
-      default:
-        break;
-      }
+          Animated.timing(this.state.previousTranslationValue, {
+            toValue: this.state.dimensions.width,
+            easing: Animated.Easing.InOut(),
+            duration: nextProps.duration,
+            useNativeDriver: true,
+          })
+        ]);
+        compositeAnimation.start(() => this.setState({
+          childrenAnimation: this.state.animationStyles.allowPointerEvents,
+          previousChildren: null
+        }));
+      });
+      break;
+    default:
+      break;
     }
+
   }
 
   render() {
