@@ -20,6 +20,8 @@ type State = {
   showScrollIndicators: boolean,
 };
 
+type ScrollPosition = 'top' | 'bottom' | 'middle';
+
 export default class CustomScrollbars extends React.Component<Props, State> {
   static defaultProps = {
     autoHide: true,
@@ -34,6 +36,28 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   _scrollableElement: ?HTMLElement;
   _thumbElement: ?HTMLElement;
   _autoHideTimer: ?TimeoutID;
+
+  scrollTo(x: number, y: number) {
+    const scrollable = this._scrollableElement;
+    if(scrollable) {
+      scrollable.scrollLeft = x;
+      scrollable.scrollTop = y;
+    }
+  }
+
+  scrollToElement(child: HTMLElement, scrollPosition: ScrollPosition) {
+    const scrollable = this._scrollableElement;
+    if(scrollable) {
+      // throw if child is not a descendant of scroll view
+      if(!scrollable.contains(child)) {
+        throw new Error('Cannot scroll to an element which is not a descendant of CustomScrollbars.');
+      }
+
+      const scrollTop = this._computeScrollTop(scrollable, child, scrollPosition);
+
+      this.scrollTo(0, scrollTop);
+    }
+  }
 
   componentDidMount() {
     this._updateScrollbarsHelper({
@@ -115,6 +139,22 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     if(this._autoHideTimer) {
       clearTimeout(this._autoHideTimer);
       this._autoHideTimer = null;
+    }
+  }
+
+  _computeScrollTop(scrollable: HTMLElement, child: HTMLElement, scrollPosition: ScrollPosition) {
+    switch(scrollPosition) {
+    case 'top':
+      return child.offsetTop;
+
+    case 'bottom':
+      return child.offsetTop - (scrollable.offsetHeight - child.clientHeight);
+
+    case 'middle':
+      return child.offsetTop - ((scrollable.offsetHeight - child.clientHeight) * 0.5);
+
+    default:
+      throw new Error(`Unknown enum type for ScrollPosition: ${ scrollPosition }`);
     }
   }
 

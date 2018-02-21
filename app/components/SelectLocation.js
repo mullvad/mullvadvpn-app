@@ -23,6 +23,7 @@ type State = {
 
 export default class SelectLocation extends React.Component<SelectLocationProps, State> {
   _selectedCell: ?HTMLElement;
+  _scrollView: ?CustomScrollbars;
 
   state = {
     expanded: [],
@@ -48,13 +49,10 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   componentDidMount() {
     // restore scroll to selected cell
     const cell = this._selectedCell;
-    if(cell) {
-      // this is non-standard webkit method but it works great!
-      if(typeof(cell.scrollIntoViewIfNeeded) !== 'function') {
-        console.warn('HTMLElement.scrollIntoViewIfNeeded() is not available anymore! Please replace it with viable alternative.');
-        return;
-      }
-      cell.scrollIntoViewIfNeeded(true);
+    const scrollView = this._scrollView;
+
+    if(scrollView && cell) {
+      scrollView.scrollToElement(cell, 'middle');
     }
   }
 
@@ -70,7 +68,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
                 <h2 className="select-location__title">Select location</h2>
               </div>
 
-              <CustomScrollbars autoHide={ true }>
+              <CustomScrollbars autoHide={ true } ref={ (ref) => this._scrollView = ref }>
                 <div>
                   <div className="select-location__subtitle">
                     While connected, your real location is masked with a private and secure location in the selected region
