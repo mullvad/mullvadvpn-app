@@ -3,12 +3,8 @@ import TransitionRule from './lib/transition-rule';
 import type { TransitionFork, TransitionDescriptor } from './lib/transition-rule';
 
 export type TransitionGroupProps = {
-  transitionName: string,
-  transitionDuration: number,
-  transitionEnter: boolean,
-  transitionLeave: boolean,
-  transitionAppear?: boolean,
-  transitionAppearTimeout?: number
+  name: string,
+  duration: number,
 };
 
 type TransitionMap = {
@@ -21,21 +17,21 @@ type TransitionMap = {
 const transitions: TransitionMap = {
   slide: {
     forward: {
-      name: 'slide-up-transition',
+      name: 'slide-up',
       duration: 450
     },
     backward: {
-      name: 'slide-down-transition',
+      name: 'slide-down',
       duration: 450
     }
   },
   push: {
     forward: {
-      name: 'push-transition',
+      name: 'push',
       duration: 450
     },
     backward: {
-      name: 'pop-transition',
+      name: 'pop',
       duration: 450
     }
   }
@@ -55,7 +51,7 @@ const transitionRules = [
 ];
 
 /**
- * Calculate CSSTransitionGroup props.
+ * Calculate TransitionGroup props.
  *
  * @param {string} [fromRoute] - source route
  * @param {string} toRoute     - target route
@@ -77,28 +73,24 @@ export function getTransitionProps(fromRoute: ?string, toRoute: string): Transit
 }
 
 /**
- * Integrate TransitionDescriptor into CSSTransitionGroupProps
+ * Integrate TransitionDescriptor into TransitionGroupProps
  * @param {TransitionDescriptor} descriptor
  */
 function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGroupProps {
   const {name, duration} = descriptor;
   return {
-    transitionName: name,
-    transitionDuration: duration,
-    transitionEnter: true,
-    transitionLeave: true
+    name: name,
+    duration: duration,
   };
 }
 
 /**
- * Returns default props with animations disabled
+ * Returns default props with no animation
  */
 function noTransitionProps(): TransitionGroupProps {
   return {
-    transitionName: '',
-    transitionDuration: 0,
-    transitionEnter: false,
-    transitionLeave: false
+    name: '',
+    duration: 0,
   };
 }
 

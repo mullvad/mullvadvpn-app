@@ -3,7 +3,6 @@
 @import 'fonts.css';
 @import 'global.css';
 @import 'buttons.css';
-@import 'transitions.css';
 
 /* app */
 @import '../../components/PlatformWindow.css';
