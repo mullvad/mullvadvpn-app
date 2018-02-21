@@ -176,10 +176,10 @@ export default class TransitionContainer extends Component {
 
     return (
       <View style={{flex:1}}>
-        <Animated.View style={[this.animationStyles.style, previousChildrenAnimation]}>
+        <Animated.View key={previousChildren ? previousChildren.key : null } style={[this.animationStyles.style, previousChildrenAnimation]}>
           {previousChildren}
         </Animated.View>
-        <Animated.View style={[this.animationStyles.style, childrenAnimation]}>
+        <Animated.View key={children.key} style={[this.animationStyles.style, childrenAnimation]}>
           {children}
         </Animated.View>
       </View>
