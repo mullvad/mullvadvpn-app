@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import { CSSTransitionGroup } from 'react-transition-group';
 import PlatformWindow from './components/PlatformWindow';
@@ -22,13 +22,13 @@ export type SharedRouteProps = {
 };
 
 type CustomRouteProps = {
-  component: ReactClass<*>
+  component: React.ComponentType<*>
 };
 
 export default function makeRoutes(getState: ReduxGetState, componentProps: SharedRouteProps): React.Element<*> {
 
   // Merge props and render component
-  const renderMergedProps = (ComponentClass: ReactClass<*>, ...rest: Array<Object>): React.Element<*> => {
+  const renderMergedProps = (ComponentClass: React.ComponentType<*>, ...rest: Array<Object>): React.Element<*> => {
     const finalProps = Object.assign({}, componentProps, ...rest);
     return (
       <ComponentClass { ...finalProps } />

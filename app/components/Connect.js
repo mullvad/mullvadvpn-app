@@ -1,7 +1,7 @@
 // @flow
 
 import moment from 'moment';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
 import Map from './Map';
@@ -29,14 +29,13 @@ type ConnectState = {
   mapOffset: [number, number],
 };
 
-export default class Connect extends Component {
-  props: ConnectProps;
-  state: ConnectState = {
+export default class Connect extends React.Component<ConnectProps, ConnectState> {
+  state = {
     showCopyIPMessage: false,
     mapOffset: [0, 0],
   };
 
-  _copyTimer: ?number;
+  _copyTimer: ?TimeoutID;
 
   shouldComponentUpdate(nextProps: ConnectProps, nextState: ConnectState) {
     const { connection: prevConnection, ...otherPrevProps } = this.props;
@@ -130,7 +129,7 @@ export default class Connect extends Component {
     }
   }
 
-  _updateMapOffset = (spinnerNode: HTMLElement) => {
+  _updateMapOffset = (spinnerNode: ?HTMLElement) => {
     if(spinnerNode) {
       // calculate the vertical offset from the center of the map
       // to shift the center of the map upwards to align the centers

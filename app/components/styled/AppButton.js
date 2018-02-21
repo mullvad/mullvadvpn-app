@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import * as React from 'react';
 import { Text, Component } from 'reactxp';
 import { Button } from './Button';
 import { colors } from '../../config';
@@ -76,7 +76,7 @@ export class Label extends Text {}
 
 class BaseButton extends Component {
   props: {
-    children: Array<React.Element<*>> | React.Element<*>,
+    children?: React.Node,
     disabled: boolean,
   };
 

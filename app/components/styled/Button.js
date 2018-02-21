@@ -7,7 +7,12 @@ const defaultStyle = ReactXP.Styles.createViewStyle({
   cursor: 'default',
 });
 
-export function Button(props: *) {
+type Props = {
+  style?: Object | Array<any>;
+  cursor?: string;
+};
+
+export function Button(props: Props) {
   const { style, cursor, ...rest } = props;
 
   const concreteStyle = ReactXP.Styles.combine([defaultStyle, style]);

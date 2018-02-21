@@ -7,7 +7,7 @@ import { log } from '../lib/platform';
 export type UnansweredRequest = {
   resolve: (mixed) => void,
   reject: (mixed) => void,
-  timerId: number,
+  timerId: TimeoutID,
   message: Object,
 }
 
@@ -154,7 +154,7 @@ export default class Ipc {
     }
   }
 
-  _getWebSocket() {
+  _getWebSocket(): Promise<WebSocket> {
     return new Promise(resolve => {
       if (this._websocket && this._websocket.readyState === 1) { // Connected
         resolve(this._websocket);

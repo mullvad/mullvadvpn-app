@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { Component, View } from 'reactxp';
 
 import SvgMap from './SvgMap';
@@ -21,11 +21,8 @@ type MapState = {
   }
 };
 
-export default class Map extends Component {
-
-  props: MapProps;
-
-  state: MapState = {
+export default class Map extends Component<MapProps, MapState> {
+  state = {
     bounds: {
       width: 0,
       height: 0,
@@ -84,6 +81,8 @@ export default class Map extends Component {
     case 'high': return 1;
     case 'medium': return 20;
     case 'low': return 40;
+    default:
+      throw new Error(`Invalid enumeration type: ${variant}`);
     }
   }
 
@@ -93,6 +92,8 @@ export default class Map extends Component {
       return './assets/images/location-marker-secure.svg';
     case 'unsecure':
       return './assets/images/location-marker-unsecure.svg';
+    default:
+      throw new Error(`Invalid enumeration type: ${style}`);
     }
   }
 

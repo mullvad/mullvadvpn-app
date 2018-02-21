@@ -47,4 +47,3 @@ flow-libs/
 emoji=true
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
 munge_underscores=true
-unsafe.enable_getters_and_setters=true

@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 import { formatAccount } from '../lib/formatters';
 
 // @TODO: move it into types.js
@@ -20,23 +20,21 @@ export type AccountInputProps = {
   onChange: ?((newValue: string) => void);
 };
 
-export type AccountInputState = {
+type AccountInputState = {
   value: string;
   selectionRange: SelectionRange;
 };
 
-export type SelectionRange = [number, number];
+type SelectionRange = [number, number];
 
-export default class AccountInput extends Component {
-  props: AccountInputProps;
-
-  static defaultProps: AccountInputProps = {
+export default class AccountInput extends React.Component<AccountInputProps, AccountInputState> {
+  static defaultProps = {
     value: '',
     onEnter: null,
     onChange: null
   };
 
-  state: AccountInputState = {
+  state = {
     value: '',
     selectionRange: [0, 0]
   };
@@ -297,7 +295,7 @@ export default class AccountInput extends Component {
     }
   }
 
-  onRef = (ref: HTMLInputElement) => {
+  onRef = (ref: ?HTMLInputElement) => {
     this._ref = ref;
     if(!ref) { return; }
 

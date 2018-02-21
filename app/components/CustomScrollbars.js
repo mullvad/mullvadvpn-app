@@ -1,5 +1,6 @@
 // @flow
-import React, { Component } from 'react';
+
+import * as React from 'react';
 
 type ScrollbarUpdateContext = {
   size: boolean,
@@ -8,13 +9,18 @@ type ScrollbarUpdateContext = {
 
 const AUTOHIDE_TIMEOUT = 1000;
 
-export default class CustomScrollbars extends Component {
-  props: {
-    autoHide: boolean,
-    thumbInset: { x: number, y: number },
-    children: ?React.Element<*>,
-  };
+type Props = {
+  autoHide: boolean,
+  thumbInset: { x: number, y: number },
+  children?: React.Node,
+};
 
+type State = {
+  canScroll: boolean,
+  showScrollIndicators: boolean,
+};
+
+export default class CustomScrollbars extends React.Component<Props, State> {
   static defaultProps = {
     autoHide: true,
     thumbInset: { x: 2, y: 2 },
@@ -27,7 +33,7 @@ export default class CustomScrollbars extends Component {
 
   _scrollableElement: ?HTMLElement;
   _thumbElement: ?HTMLElement;
-  _autoHideTimer: ?number;
+  _autoHideTimer: ?TimeoutID;
 
   componentDidMount() {
     this._updateScrollbarsHelper({

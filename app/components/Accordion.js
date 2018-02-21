@@ -1,25 +1,23 @@
 // @flow
-
-import React, { Component } from 'react';
+import * as React from 'react';
 
 export type AccordionProps = {
   height?: number | string,
   transitionStyle?: string,
-  children?: Array<React.Element<*>> | React.Element<*> // see https://github.com/facebook/flow/issues/1964
+  children?: React.Node
 };
 
-export type AccordionState = {
+type AccordionState = {
   computedHeight: ?number | ?string,
 };
 
-export default class Accordion extends Component {
-  props: AccordionProps;
-  static defaultProps: $Shape<AccordionProps> = {
+export default class Accordion extends React.Component<AccordionProps, AccordionState> {
+  static defaultProps = {
     height: 'auto',
     transitionStyle: 'height 0.25s ease-in-out'
   };
 
-  state: AccordionState = {
+  state = {
     computedHeight: null,
   };
 
@@ -93,7 +91,7 @@ export default class Accordion extends Component {
   // Sets initial height and delays transition until next runloop
   // to make sure CSS transitions properly kick in.
   // This method resolves immediately if the height is already set.
-  _warmupTransition() {
+  _warmupTransition(): Promise<void> {
     const contentElement = this._contentElement;
     if(!contentElement) {
       throw new Error('contentElement cannot be null');

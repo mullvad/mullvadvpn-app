@@ -24,6 +24,7 @@ function isOwnedAndOnlyWritableByRoot(path: string): boolean {
 }
 
 function isOwnedByLocalSystem(path: string): boolean {
+  // $FlowFixMe: this module is only available on Windows
   const winsec = require('windows-security');
   const ownerSid = winsec.getFileOwnerSid(path, null);
   const isWellKnownSid = winsec.isWellKnownSid(ownerSid, winsec.WellKnownSid.LocalSystemSid);

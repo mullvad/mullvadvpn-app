@@ -63,7 +63,7 @@ describe('autologin', () => {
   it('should mark the state as not logged in if no account is set', () => {
     const { store, backend, mockIpc } = setupBackendAndStore();
 
-    mockIpc.getAccount = () => new Promise(r => r(null));
+    mockIpc.getAccount = () => Promise.resolve(null);
 
     return backend.autologin()
       .catch( () => {}) // ignore errors

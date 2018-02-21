@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import SelectLocation from '../../app/components/SelectLocation';
 
@@ -47,7 +47,7 @@ describe('components/SelectLocation', () => {
     return Object.assign({}, defaultProps, mergeProps);
   };
 
-  const render = (props: SelectLocationProps): SelectLocation => {
+  const render = (props: SelectLocationProps) => {
     return ReactTestUtils.renderIntoDocument(
       <SelectLocation { ...props } />
     );
@@ -58,7 +58,10 @@ describe('components/SelectLocation', () => {
       onClose: () => done()
     });
     const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'select-location__close');
-    Simulate.click(domNode);
+    // See: https://github.com/facebook/flow/pull/5841
+    if(domNode) {
+      Simulate.click(domNode);
+    }
   });
 
   it('should call select callback for country', (done) => {

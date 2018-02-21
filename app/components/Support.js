@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import * as React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
 import { Button, BlueButton, GreenButton, Label } from './styled';
 import { Layout, Container } from './Layout';
@@ -14,12 +14,13 @@ export type SupportReport = {
   savedReport: ?string,
 };
 
-export type SupportState = {
+type SupportState = {
   email: string,
   message: string,
   savedReport: ?string,
   sendState: 'INITIAL' | 'CONFIRM_NO_EMAIL' | 'LOADING' | 'SUCCESS' | 'FAILED',
 };
+
 export type SupportProps = {
   account: AccountReduxState,
   onClose: () => void;
@@ -28,14 +29,13 @@ export type SupportProps = {
   onSend: (email: string, message: string, savedReport: string) => void;
 };
 
-export default class Support extends Component {
-  props: SupportProps;
-  state: SupportState = {
+export default class Support extends Component<SupportProps, SupportState> {
+  state = {
     email: '',
     message: '',
     savedReport: null,
     sendState: 'INITIAL',
-  }
+  };
 
   validate() {
     return this.state.message.trim().length > 0;
@@ -57,7 +57,7 @@ export default class Support extends Component {
       });
   }
 
-  _getLog() {
+  _getLog(): Promise<string> {
     const toRedact = [];
     if (this.props.account.accountToken) {
       toRedact.push(this.props.account.accountToken.toString());

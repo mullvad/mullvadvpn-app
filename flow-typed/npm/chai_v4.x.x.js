@@ -1,5 +1,5 @@
-// flow-typed signature: 88d2313c965c71ea202a84ce638ce5b1
-// flow-typed version: cfc9aef80e/chai_v4.x.x/flow_>=v0.15.0
+// flow-typed signature: 308b923163d321c5d8ef18be2a25e903
+// flow-typed version: 37b0393aaf/chai_v4.x.x/flow_>=v0.25.0
 
 declare module "chai" {
   declare type ExpectChain<T> = {
@@ -36,8 +36,12 @@ declare module "chai" {
     equals: (value: T) => ExpectChain<T>,
 
     above: (value: T & number) => ExpectChain<T>,
+    gt: (value: T & number) => ExpectChain<T>,
+    greaterThan: (value: T & number) => ExpectChain<T>,
     least: (value: T & number) => ExpectChain<T>,
     below: (value: T & number) => ExpectChain<T>,
+    lessThan: (value: T & number) => ExpectChain<T>,
+    lt: (value: T & number) => ExpectChain<T>,
     most: (value: T & number) => ExpectChain<T>,
     within: (start: T & number, finish: T & number) => ExpectChain<T>,
 
@@ -272,7 +276,7 @@ declare module "chai" {
       delta: number,
       msg?: string
     ): void;
-    
+
     // chai-immutable
     static sizeOf(val: mixed, length: number): void;
   }

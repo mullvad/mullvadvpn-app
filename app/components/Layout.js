@@ -1,14 +1,13 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 import HeaderBar from './HeaderBar';
 
 import type { HeaderBarProps } from './HeaderBar';
 
-export class Header extends Component {
-  props: HeaderBarProps;
+export class Header extends React.Component<HeaderBarProps> {
   static defaultProps = HeaderBar.defaultProps;
 
-  render(): React.Element<*> {
+  render() {
     return (
       <div className="layout__header">
         <HeaderBar { ...this.props } />
@@ -17,12 +16,13 @@ export class Header extends Component {
   }
 }
 
-export class Container extends Component {
-  props: {
-    children: React.Element<*>
-  }
 
-  render(): React.Element<*> {
+type ContainerProps = {
+  children?: React.Element<*>
+};
+
+export class Container extends React.Component<ContainerProps> {
+  render() {
     return (
       <div className="layout__container">
         { this.props.children }
@@ -31,12 +31,12 @@ export class Container extends Component {
   }
 }
 
-export class Layout extends Component {
-  props: {
-    children: Array<React.Element<*>> | React.Element<*>
-  }
+type LayoutProps = {
+  children?: React.Node
+};
 
-  render(): React.Element<*> {
+export class Layout extends React.Component<LayoutProps> {
+  render() {
     return (
       <div className="layout">
         { this.props.children }

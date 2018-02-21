@@ -1,13 +1,13 @@
 // @flow
-import type { IpcFacade, BackendState } from '../../app/lib/ipc-facade';
+import type { IpcFacade, AccountToken, AccountData, BackendState } from '../../app/lib/ipc-facade';
 
 interface MockIpc {
   sendNewState: (BackendState) => void;
   killWebSocket: () => void;
-  -getAccountData: *;
-  -connect: *;
-  -getAccount: *;
-  -authenticate: *;
+  -getAccountData: (AccountToken) => Promise<AccountData>;
+  -connect: () => Promise<void>;
+  -getAccount: () => Promise<?AccountToken>;
+  -authenticate: (string) => Promise<void>;
 }
 
 export function newMockIpc() {
