@@ -3,33 +3,42 @@ import * as React from 'react';
 import { Styles, Component, Animated, View, Types, UserInterface } from 'reactxp';
 import type { TransitionGroupProps } from '../transitions';
 
-export type TransitionContainerProps = {
+type TransitionContainerProps = {
   children: React.Node,
   ...TransitionGroupProps
-}
+};
 
-export default class TransitionContainer extends Component {
-  props: TransitionContainerProps;
-
-  state = {
-    previousChildren: React.Node,
+type State = {
+    previousChildren: ?React.Node,
     childrenAnimation: Types.AnimatedViewStyleRuleSet,
     previousChildrenAnimation: Types.AnimatedViewStyleRuleSet,
-    currentTranslationValue: Animated.createValue(0),
-    previousTranslationValue: Animated.createValue(0),
-    toValue: 0,
-    dimensions: UserInterface.measureWindow(),
-  }
+    animationStyles: Types.AnimatedViewStyleRuleSet,
+    currentTranslationValue: Animated.Value,
+    previousTranslationValue: Animated.Value,
+    toValue: number,
+    dimensions: Types.Dimensions,
+};
 
-  animationStyles = {
-    style: Styles.createAnimatedViewStyle({
-      position: 'absolute',
-      width: this.state.dimensions.width,
-      height: this.state.dimensions.height,
-    }),
-    allowPointerEvents: Styles.createAnimatedViewStyle({
-      pointerEvents: 'auto',
-    }),
+export default class TransitionContainer extends Component<TransitionContainerProps, State>{
+
+  constructor(props: TransitionContainerProps) {
+    super(props);
+    const dimensions = UserInterface.measureWindow();
+    this.state = {
+      dimensions: dimensions,
+      currentTranslationValue: Animated.createValue(0),
+      previousTranslationValue: Animated.createValue(0),
+      animationStyles: {
+        style: Styles.createAnimatedViewStyle({
+          position: 'absolute',
+          width: dimensions.width,
+          height: dimensions.height,
+        }),
+        allowPointerEvents: Styles.createAnimatedViewStyle({
+          pointerEvents: 'auto',
+        })
+      }
+    };
   }
 
   componentWillReceiveProps(nextProps: TransitionContainerProps) {
@@ -57,7 +66,7 @@ export default class TransitionContainer extends Component {
             useNativeDriver: true,
           }).start(()=>{
             this.setState({
-              childrenAnimation: this.animationStyles.allowPointerEvents,
+              childrenAnimation: this.state.animationStyles.allowPointerEvents,
               previousChildren: null
             });
           });
@@ -86,7 +95,7 @@ export default class TransitionContainer extends Component {
             useNativeDriver: true,
           }).start(()=>{
             this.setState({
-              childrenAnimation: this.animationStyles.allowPointerEvents,
+              childrenAnimation: this.state.animationStyles.allowPointerEvents,
               previousChildren: null
             });
           });
@@ -108,7 +117,7 @@ export default class TransitionContainer extends Component {
             transform: [{ translateX: this.state.previousTranslationValue }]
           }),
         }, ()=>{
-          let compositeAnimation = Animated.parallel([
+          const compositeAnimation = Animated.parallel([
             Animated.timing(this.state.currentTranslationValue, {
               toValue: 0,
               easing: Animated.Easing.InOut(),
@@ -116,20 +125,20 @@ export default class TransitionContainer extends Component {
               useNativeDriver: true,
             }),
             Animated.timing(this.state.previousTranslationValue, {
-              toValue: -50,
+              toValue: - this.state.dimensions.width / 2,
               easing: Animated.Easing.InOut(),
               duration: nextProps.duration,
               useNativeDriver: true,
             })
           ]);
           compositeAnimation.start(() => this.setState({
-            childrenAnimation: this.animationStyles.allowPointerEvents,
+            childrenAnimation: this.state.animationStyles.allowPointerEvents,
             previousChildren: null
           }));
         });
         break;
       case 'pop':
-        this.state.currentTranslationValue.setValue(-50);
+        this.state.currentTranslationValue.setValue(- this.state.dimensions.width / 2 );
         this.state.previousTranslationValue.setValue(0);
         this.setState({
           previousChildren: this.props.children,
@@ -144,7 +153,7 @@ export default class TransitionContainer extends Component {
             transform: [{ translateX: this.state.previousTranslationValue }]
           }),
         }, ()=>{
-          let compositeAnimation = Animated.parallel([
+          const compositeAnimation = Animated.parallel([
             Animated.timing(this.state.currentTranslationValue, {
               toValue: 0,
               easing: Animated.Easing.InOut(),
@@ -159,7 +168,7 @@ export default class TransitionContainer extends Component {
             })
           ]);
           compositeAnimation.start(() => this.setState({
-            childrenAnimation: this.animationStyles.allowPointerEvents,
+            childrenAnimation: this.state.animationStyles.allowPointerEvents,
             previousChildren: null
           }));
         });
@@ -173,13 +182,12 @@ export default class TransitionContainer extends Component {
   render() {
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation} = this.state;
-
     return (
       <View style={{flex:1}}>
-        <Animated.View key={previousChildren ? previousChildren.key : null } style={[this.animationStyles.style, previousChildrenAnimation]}>
+        <Animated.View key={previousChildren ? previousChildren.key : null } style={[this.state.animationStyles.style, previousChildrenAnimation]}>
           {previousChildren}
         </Animated.View>
-        <Animated.View key={children.key} style={[this.animationStyles.style, childrenAnimation]}>
+        <Animated.View key={children.key} style={[this.state.animationStyles.style, childrenAnimation]}>
           {children}
         </Animated.View>
       </View>
