@@ -24,17 +24,22 @@ export default class Accordion extends React.Component<AccordionProps, Accordion
   _containerElement: ?HTMLElement;
   _contentElement: ?HTMLElement;
 
+  constructor(props: AccordionProps) {
+    super(props);
+
+    // set the initial height if it's known
+    if(props.height !== 'auto') {
+      this.state = {
+        computedHeight: props.height
+      };
+    }
+  }
+
   componentDidMount() {
     const containerElement = this._containerElement;
     if(!containerElement) {
       throw new Error('containerElement cannot be null');
     }
-
-    // update initial state
-    if(this.props.height !== Accordion.defaultProps.height) {
-      this._updateHeight();
-    }
-
     containerElement.addEventListener('transitionend', this._onTransitionEnd);
   }
 
