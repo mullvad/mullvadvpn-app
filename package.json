@@ -25,7 +25,7 @@
     "react-native-windows": "^0.52.0-rc.0",
     "react-redux": "^5.0.2",
     "react-router": "^4.2.0",
-    "react-router-redux": "5.0.0-alpha.6",
+    "react-router-redux": "^5.0.0-alpha.9",
     "react-simple-maps": "^0.10.1",
     "react-transition-group": "^1.2.0",
     "reactxp": "^0.51.8",
