@@ -67,7 +67,7 @@ win:
       to: .
     - from: ./target/release/mullvad-daemon.exe
       to: .
-    - from: ./target/release/libtalpid_openvpn_plugin.dll
+    - from: ./target/release/talpid_openvpn_plugin.dll
       to: .
 
 linux:
