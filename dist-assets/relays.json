@@ -2377,6 +2377,117 @@
                 ],
                 "wireguard": []
               }
+            },
+            {
+              "hostname": "jp-tyo-001",
+              "ipv4_addr_in": "82.102.28.114",
+              "ipv4_addr_exit": "82.102.28.115",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Luxembourg",
+      "code": "lu",
+      "cities": [
+        {
+          "name": "Luxembourg",
+          "code": "lux",
+          "latitude": 49.611622,
+          "longitude": 6.131935,
+          "has_active_relays": false,
+          "relays": [
+            {
+              "hostname": "lu-lux-001",
+              "ipv4_addr_in": "212.117.188.112",
+              "ipv4_addr_exit": "212.117.188.113",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
             }
           ]
         }
@@ -3920,7 +4031,7 @@
           "name": "Nis",
           "code": "ini",
           "latitude": 43.3194,
-          "longitude": 218963.0,
+          "longitude": 21.8963,
           "has_active_relays": false,
           "relays": [
             {
@@ -4258,8 +4369,8 @@
           "relays": [
             {
               "hostname": "se1",
-              "ipv4_addr_in": "185.65.132.102",
-              "ipv4_addr_exit": "185.65.132.110",
+              "ipv4_addr_in": "185.213.152.131",
+              "ipv4_addr_exit": "185.213.152.161",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -4306,8 +4417,8 @@
             },
             {
               "hostname": "se13",
-              "ipv4_addr_in": "185.65.132.112",
-              "ipv4_addr_exit": "185.65.132.113",
+              "ipv4_addr_in": "185.213.152.143",
+              "ipv4_addr_exit": "185.213.152.173",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -4546,8 +4657,8 @@
             },
             {
               "hostname": "se9",
-              "ipv4_addr_in": "185.65.132.105",
-              "ipv4_addr_exit": "185.65.132.106",
+              "ipv4_addr_in": "185.213.152.139",
+              "ipv4_addr_exit": "185.213.152.169",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -5857,150 +5968,6 @@
                 ],
                 "wireguard": []
               }
-            },
-            {
-              "hostname": "se30",
-              "ipv4_addr_in": "185.65.135.150",
-              "ipv4_addr_exit": "185.65.135.180",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
-              "hostname": "se31",
-              "ipv4_addr_in": "185.65.135.151",
-              "ipv4_addr_exit": "185.65.135.181",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
-              "hostname": "se32",
-              "ipv4_addr_in": "185.65.135.152",
-              "ipv4_addr_exit": "185.65.135.182",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
             }
           ]
         }
@@ -6779,63 +6746,6 @@
           ]
         },
         {
-          "name": "Charlotte, NC",
-          "code": "clt",
-          "latitude": 35.227085,
-          "longitude": -80.843124,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-clt-001",
-              "ipv4_addr_in": "207.189.2.130",
-              "ipv4_addr_exit": "207.189.2.131",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
           "name": "Chicago, IL",
           "code": "chi",
           "latitude": 41.881832,
@@ -6985,111 +6895,6 @@
                 ],
                 "wireguard": []
               }
-            },
-            {
-              "hostname": "us-chi-001",
-              "ipv4_addr_in": "208.77.22.187",
-              "ipv4_addr_exit": "208.77.22.188",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
-          "name": "Cleveland, OH",
-          "code": "cle",
-          "latitude": 41.49932,
-          "longitude": -81.6943605,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-cle-001",
-              "ipv4_addr_in": "66.171.36.106",
-              "ipv4_addr_exit": "66.171.36.107",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
             }
           ]
         },
@@ -7152,63 +6957,6 @@
               "hostname": "us-dal-002",
               "ipv4_addr_in": "96.44.147.130",
               "ipv4_addr_exit": "96.44.147.131",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
-          "name": "Denver, CO",
-          "code": "den",
-          "latitude": 39.7392358,
-          "longitude": -104.990251,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-den-001",
-              "ipv4_addr_in": "207.189.30.66",
-              "ipv4_addr_exit": "207.189.30.67",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -7416,150 +7164,6 @@
           "has_active_relays": false,
           "relays": [
             {
-              "hostname": "us21",
-              "ipv4_addr_in": "38.95.111.74",
-              "ipv4_addr_exit": "38.95.111.75",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
-              "hostname": "us22",
-              "ipv4_addr_in": "38.95.111.66",
-              "ipv4_addr_exit": "38.95.111.67",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
-              "hostname": "us28",
-              "ipv4_addr_in": "38.95.108.162",
-              "ipv4_addr_exit": "38.95.108.163",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            },
-            {
               "hostname": "us7",
               "ipv4_addr_in": "173.199.80.130",
               "ipv4_addr_exit": "173.199.80.131",
@@ -7608,9 +7212,153 @@
               }
             },
             {
+              "hostname": "us-lax-001",
+              "ipv4_addr_in": "185.236.200.98",
+              "ipv4_addr_exit": "185.236.200.99",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            },
+            {
+              "hostname": "us-lax-002",
+              "ipv4_addr_in": "185.236.200.90",
+              "ipv4_addr_exit": "185.236.200.91",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            },
+            {
+              "hostname": "us-lax-003",
+              "ipv4_addr_in": "185.236.200.242",
+              "ipv4_addr_exit": "185.236.200.243",
+              "include_in_country": true,
+              "weight": 100,
+              "tunnels": {
+                "openvpn": [
+                  {
+                    "port": 1194,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1195,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1196,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1197,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1300,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1301,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 1302,
+                    "protocol": "udp"
+                  },
+                  {
+                    "port": 443,
+                    "protocol": "tcp"
+                  },
+                  {
+                    "port": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "wireguard": []
+              }
+            },
+            {
               "hostname": "us-lax-005",
-              "ipv4_addr_in": "38.95.110.18",
-              "ipv4_addr_exit": "38.95.110.19",
+              "ipv4_addr_in": "185.236.200.66",
+              "ipv4_addr_exit": "185.236.200.67",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -7657,65 +7405,8 @@
             },
             {
               "hostname": "us-lax-006",
-              "ipv4_addr_in": "38.95.110.23",
-              "ipv4_addr_exit": "38.95.110.24",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
-          "name": "Louisville, KY",
-          "code": "lui",
-          "latitude": 38.328732,
-          "longitude": -85.764771,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-lui-001",
-              "ipv4_addr_in": "207.89.23.114",
-              "ipv4_addr_exit": "207.89.23.115",
+              "ipv4_addr_in": "185.236.200.71",
+              "ipv4_addr_exit": "185.236.200.72",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8124,9 +7815,9 @@
           "has_active_relays": false,
           "relays": [
             {
-              "hostname": "us17",
-              "ipv4_addr_in": "38.132.107.138",
-              "ipv4_addr_exit": "38.132.107.139",
+              "hostname": "us-nyc-001",
+              "ipv4_addr_in": "185.232.22.66",
+              "ipv4_addr_exit": "185.232.22.67",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8172,9 +7863,9 @@
               }
             },
             {
-              "hostname": "us18",
-              "ipv4_addr_in": "38.132.107.146",
-              "ipv4_addr_exit": "38.132.107.147",
+              "hostname": "us-nyc-002",
+              "ipv4_addr_in": "185.232.22.98",
+              "ipv4_addr_exit": "185.232.22.99",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8220,9 +7911,9 @@
               }
             },
             {
-              "hostname": "us27",
-              "ipv4_addr_in": "38.132.127.74",
-              "ipv4_addr_exit": "38.132.127.75",
+              "hostname": "us-nyc-003",
+              "ipv4_addr_in": "185.232.22.90",
+              "ipv4_addr_exit": "185.232.22.91",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8269,8 +7960,8 @@
             },
             {
               "hostname": "us-nyc-004",
-              "ipv4_addr_in": "38.132.119.90",
-              "ipv4_addr_exit": "38.132.119.91",
+              "ipv4_addr_in": "185.217.69.122",
+              "ipv4_addr_exit": "185.217.69.123",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8317,65 +8008,8 @@
             },
             {
               "hostname": "us-nyc-005",
-              "ipv4_addr_in": "38.132.119.162",
-              "ipv4_addr_exit": "38.132.119.163",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
-          "name": "Oklahoma City, OK",
-          "code": "okc",
-          "latitude": 35.481918,
-          "longitude": -97.508469,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-okc-001",
-              "ipv4_addr_in": "192.64.26.82",
-              "ipv4_addr_exit": "192.64.26.83",
+              "ipv4_addr_in": "185.232.22.10",
+              "ipv4_addr_exit": "185.232.22.11",
               "include_in_country": true,
               "weight": 100,
               "tunnels": {
@@ -8681,63 +8315,6 @@
           ]
         },
         {
-          "name": "Richmond, VA",
-          "code": "ric",
-          "latitude": 37.646152,
-          "longitude": -77.511429,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-ric-001",
-              "ipv4_addr_in": "192.64.24.98",
-              "ipv4_addr_exit": "192.64.24.99",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
           "name": "Salt Lake City, UT",
           "code": "slc",
           "latitude": 40.758701,
@@ -8745,10 +8322,10 @@
           "has_active_relays": false,
           "relays": [
             {
-              "hostname": "us-slc-001",
-              "ipv4_addr_in": "165.84.230.58",
-              "ipv4_addr_exit": "165.84.230.59",
-              "include_in_country": true,
+              "hostname": "us0004",
+              "ipv4_addr_in": "107.182.238.229",
+              "ipv4_addr_exit": "173.244.208.35",
+              "include_in_country": false,
               "weight": 100,
               "tunnels": {
                 "openvpn": [
@@ -8791,21 +8368,12 @@
                 ],
                 "wireguard": []
               }
-            }
-          ]
-        },
-        {
-          "name": "San Francisco, CA",
-          "code": "sfo",
-          "latitude": 37.773972,
-          "longitude": -122.431297,
-          "has_active_relays": false,
-          "relays": [
+            },
             {
-              "hostname": "us-sfo-001",
-              "ipv4_addr_in": "66.133.74.74",
-              "ipv4_addr_exit": "66.133.74.75",
-              "include_in_country": true,
+              "hostname": "us23",
+              "ipv4_addr_in": "209.95.56.171",
+              "ipv4_addr_exit": "67.212.238.174",
+              "include_in_country": false,
               "weight": 100,
               "tunnels": {
                 "openvpn": [
@@ -8859,67 +8427,10 @@
           "has_active_relays": false,
           "relays": [
             {
-              "hostname": "us-sea-001",
-              "ipv4_addr_in": "104.128.136.10",
-              "ipv4_addr_exit": "104.128.136.11",
-              "include_in_country": true,
-              "weight": 100,
-              "tunnels": {
-                "openvpn": [
-                  {
-                    "port": 1194,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1195,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1196,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1197,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1300,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1301,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 1302,
-                    "protocol": "udp"
-                  },
-                  {
-                    "port": 443,
-                    "protocol": "tcp"
-                  },
-                  {
-                    "port": 80,
-                    "protocol": "tcp"
-                  }
-                ],
-                "wireguard": []
-              }
-            }
-          ]
-        },
-        {
-          "name": "Washington DC",
-          "code": "was",
-          "latitude": 38.889484,
-          "longitude": -77.035278,
-          "has_active_relays": false,
-          "relays": [
-            {
-              "hostname": "us-was-001",
-              "ipv4_addr_in": "66.171.37.138",
-              "ipv4_addr_exit": "66.171.37.139",
-              "include_in_country": true,
+              "hostname": "us0005",
+              "ipv4_addr_in": "104.200.129.42",
+              "ipv4_addr_exit": "104.200.129.48",
+              "include_in_country": false,
               "weight": 100,
               "tunnels": {
                 "openvpn": [
@@ -8964,10 +8475,10 @@
               }
             },
             {
-              "hostname": "us-was-002",
-              "ipv4_addr_in": "66.171.37.146",
-              "ipv4_addr_exit": "66.171.37.147",
-              "include_in_country": true,
+              "hostname": "us16",
+              "ipv4_addr_in": "104.200.129.202",
+              "ipv4_addr_exit": "104.200.129.212",
+              "include_in_country": false,
               "weight": 100,
               "tunnels": {
                 "openvpn": [
