@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 
+## [2018.1] - 2018-02-27
+Identical to 2018.1-beta10, just removing the beta label.
+
+
 ## [2018.1-beta10] - 2018-02-13
 ### Added
 - Show the app version in the settings view.
