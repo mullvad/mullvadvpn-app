@@ -1,13 +1,13 @@
 {
   "name": "mullvad-vpn",
-  "version": "2018.1.0-beta10",
+  "version": "2018.1.0",
   "description": "Mullvad VPN client",
   "main": "init.js",
   "author": {
     "name": "Mullvad VPN",
     "email": "support@mullvad.net"
   },
-  "repository": "https://github.com/mullvad/vpnclient-gui",
+  "repository": "https://github.com/mullvad/mullvadvpn-app",
   "license": "GPL-3.0",
   "dependencies": {
     "babel-runtime": "^6.22.0",
