@@ -5,6 +5,15 @@
 
 set -eu
 
+REQUIRED_RUSTC_VERSION="rustc 1.24.0 (4d90ac38c 2018-02-12)"
+RUSTC_VERSION=`rustc +stable --version`
+if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
+    echo "You are running the wrong Rust compiler version."
+    echo "You are running $RUSTC_VERSION, but this project requires $REQUIRED_RUSTC_VERSION"
+    echo "for release builds."
+    exit 1
+fi
+
 if [[ "${1:-""}" != "--allow-dirty" ]]; then
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
@@ -20,21 +29,18 @@ case "$(uname -s)" in
     Darwin*)    export MACOSX_DEPLOYMENT_TARGET="10.7";;
 esac
 
+# Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
+cargo +stable clean
+
+echo "Compiling Rust backend in release mode with $RUSTC_VERSION..."
+cargo +stable build --release
+
+
 binaries=(
     ./target/release/mullvad-daemon
     ./target/release/mullvad
     ./target/release/problem-report
 )
-
-# Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
-for binary in ${binaries[*]}; do
-    echo "Removing $binary"
-    rm -f $binary
-done
-
-echo "Compiling Rust backend in release mode..."
-cargo +stable build --release
-
 for binary in ${binaries[*]}; do
     echo "Stripping debugging symbols from $binary"
     strip $binary
