@@ -24,7 +24,6 @@ export default Object.assign(createViewStyles({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginLeft: 12,
   },
   support__close_icon:{
     width: 24,
