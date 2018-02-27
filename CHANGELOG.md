@@ -15,6 +15,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- All account numbers from the account history are now being used to redact logs.
+- Increased a timeout for problem report collection to fix a timeout error on slower machines.
+
+### Fixed
+- Fixed a memory leak in the problem report collection routine.
+- Fixed an issue when viewing a problem report brought up a dialog
+  to choose the application to open the file.
 
 ## [2018.1-beta10] - 2018-02-13
 ### Added
