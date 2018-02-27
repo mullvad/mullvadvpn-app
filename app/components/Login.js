@@ -7,6 +7,7 @@ import { formatAccount } from '../lib/formatters';
 import Img from './Img';
 import { Button, BlueButton, Label } from './styled';
 import styles from './LoginStyles';
+import { colors } from '../config';
 
 import type { AccountReduxState } from '../redux/account/reducers';
 import type { AccountToken } from '../lib/ipc-facade';
@@ -117,7 +118,6 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     }
     const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
     const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
-    console.log(dropdownHeight);
     this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight));
   }
 
@@ -306,6 +306,7 @@ export default class Login extends React.Component<LoginPropTypes, State> {
           <AccountInput style={styles.account_input_textfield}
             type="text"
             placeholder="e.g 0000 0000 0000"
+            placeholderTextColor={colors.blue20}
             onFocus={ this._onFocus }
             onBlur={ this._onBlur }
             onChange={ this._onInputChange }
