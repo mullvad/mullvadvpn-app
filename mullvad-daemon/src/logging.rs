@@ -23,6 +23,8 @@ pub const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 pub fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Result<()> {
     let silenced_crates = [
         "jsonrpc_core",
+        // jsonrpc_core does some logging under the "rpc" target as well.
+        "rpc",
         "tokio_core",
         "tokio_proto",
         "jsonrpc_ws_server",
