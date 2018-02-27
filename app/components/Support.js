@@ -58,15 +58,11 @@ export default class Support extends Component<SupportProps, SupportState> {
   }
 
   _getLog(): Promise<string> {
-    const toRedact = [];
-    if (this.props.account.accountToken) {
-      toRedact.push(this.props.account.accountToken.toString());
-    }
-
+    const accountsToRedact = this.props.account.accountHistory;
     const { savedReport } = this.state;
     return savedReport ?
       Promise.resolve(savedReport) :
-      this.props.onCollectLog(toRedact)
+      this.props.onCollectLog(accountsToRedact)
         .then( path => {
           return new Promise(resolve => this.setState({ savedReport: path }, () => resolve(path)));
         });
