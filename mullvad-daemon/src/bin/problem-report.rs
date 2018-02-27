@@ -196,15 +196,15 @@ impl ProblemReport {
     /// contents if error occurred when reading log file.
     pub fn add_log(&mut self, path: &Path) {
         let content = self.redact(
-            read_file_lossy(path, LOG_MAX_READ_BYTES)
+            &read_file_lossy(path, LOG_MAX_READ_BYTES)
                 .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
                 .unwrap_or_else(|e| e.display_chain().to_string()),
         );
-        let path = self.redact(path.to_string_lossy().into_owned());
+        let path = self.redact(&path.to_string_lossy());
         self.logs.push((path, content));
     }
 
-    fn redact(&self, input: String) -> String {
+    fn redact(&self, input: &str) -> String {
         let mut out = self.redact_home_dir(input);
 
         out = self.redact_network_info(&out);
@@ -212,10 +212,10 @@ impl ProblemReport {
         self.redact_custom_strings(out)
     }
 
-    fn redact_home_dir(&self, input: String) -> String {
+    fn redact_home_dir(&self, input: &str) -> String {
         match env::home_dir() {
             Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
-            None => input,
+            None => input.to_owned(),
         }
     }
 
