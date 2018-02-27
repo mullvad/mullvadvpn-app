@@ -16,6 +16,11 @@ type State = {
     dimensions: Types.Dimensions,
 };
 
+const transitionContainerStyle = Styles.createViewStyle({
+  flex: 1,
+  position: 'relative'
+});
+
 export default class TransitionContainer extends Component<TransitionContainerProps, State> {
 
   constructor(props: TransitionContainerProps) {
@@ -184,7 +189,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
     return (
-      <View style={{flex:1}}>
+      <View style={[ transitionContainerStyle ]}>
 
         { previousChildren &&
           (<Animated.View key={ previousChildren && previousChildren.key }
