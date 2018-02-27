@@ -5,39 +5,42 @@ import { ipcRenderer } from 'electron';
 import { log } from './platform';
 import uuid from 'uuid';
 
-const collectProblemReport = (toRedact: string) => {
-  const unAnsweredIpcCalls = new Map();
-  function reapIpcCall(id) {
-    const promise = unAnsweredIpcCalls.get(id);
-    unAnsweredIpcCalls.delete(id);
-
-    if (promise) {
-      promise.reject(new Error('Timed out'));
-    }
-  }
-  ipcRenderer.on('collect-logs-reply', (_event, id, err, reportId) => {
-    const promise = unAnsweredIpcCalls.get(id);
-    unAnsweredIpcCalls.delete(id);
-    if(promise) {
-      if(err) {
-        promise.reject(err);
-      } else {
-        promise.resolve(reportId);
-      }
-    }
-  });
+const collectProblemReport = (toRedact: Array<string>): Promise<string> => {
   return new Promise((resolve, reject) => {
+    const requestId = uuid.v4();
+    let responseListener: Function;
 
-    const id = uuid.v4();
-    unAnsweredIpcCalls.set(id, { resolve, reject });
-    ipcRenderer.send('collect-logs', id, toRedact);
-    setTimeout(() => reapIpcCall(id), 1000);
-  }).catch((e) => {
-    const { err, stdout } = e;
-    log.error('Failed collecting problem report', err);
-    log.error('  stdout: ' + stdout);
+    const removeResponseListener = () => {
+      ipcRenderer.removeListener('collect-logs-reply', responseListener);
+    };
 
-    throw e;
+    // timeout after 10 seconds if no ipc response received
+    const requestTimeout = setTimeout(() => {
+      removeResponseListener();
+      log.error('Timed out when collecting a problem report');
+      reject(new Error('Timed out'));
+    }, 10000);
+
+    responseListener = (_event, id, error, reportPath) => {
+      if(id !== requestId) { return; }
+
+      clearTimeout(requestTimeout);
+      removeResponseListener();
+
+      if(error) {
+        log.error(`Cannot collect a problem report: ${ error.err }`);
+        log.error(`Stdout: ${ error.stdout }`);
+        reject(error);
+      } else {
+        resolve(reportPath);
+      }
+    };
+
+    // add ipc response listener
+    ipcRenderer.on('collect-logs-reply', responseListener);
+
+    // send ipc request
+    ipcRenderer.send('collect-logs', requestId, toRedact);
   });
 };
 
