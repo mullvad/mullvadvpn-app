@@ -2,17 +2,15 @@
 import { expect } from 'chai';
 import { createKeyEvent } from '../helpers/dom-events';
 import * as React from 'react';
-import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
+import { shallow } from 'enzyme';
+require('../setup/enzyme');
 import AccountInput from '../../app/components/AccountInput';
 
 import type { AccountInputProps } from '../../app/components/AccountInput';
 
 describe('components/AccountInput', () => {
   const getInputRef = (component) => {
-    const node = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-    if(!(node instanceof HTMLInputElement)) {
-      throw new Error('Node is expected to be an instance of HTMLInputElement');
-    }
+    const node = getComponent(component, 'AccountInput');
     return node;
   };
 
@@ -23,8 +21,8 @@ describe('components/AccountInput', () => {
       onChange: null
     };
     const props = Object.assign({}, defaultProps, mergeProps);
-    return ReactTestUtils.renderIntoDocument(
-      <AccountInput { ...props } />
+    return shallow(
+      <AccountInput {...props} />
     );
   };
 
@@ -32,7 +30,7 @@ describe('components/AccountInput', () => {
     const component = render({
       onEnter: () => done()
     });
-    Simulate.keyUp(getInputRef(component), createKeyEvent('Enter'));
+    keyPress(getInputRef(component), createKeyEvent('Enter'));
   });
 
   it('should call onChange', (done) => {
@@ -42,7 +40,7 @@ describe('components/AccountInput', () => {
         done();
       }
     });
-    Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
+    keyPress(getInputRef(component), createKeyEvent('1'));
   });
 
   it('should format input properly', () => {
@@ -65,7 +63,7 @@ describe('components/AccountInput', () => {
 
     for(const value of cases) {
       const component = render({ value });
-      expect(getInputRef(component).value).to.be.equal(value);
+      expect(getInputRef(component).prop('value')).to.be.equal(value);
     }
   });
 
@@ -77,7 +75,7 @@ describe('components/AccountInput', () => {
         done();
       }
     });
-    Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
+    keyPress(getInputRef(component), createKeyEvent('Backspace'));
   });
 
   it('should remove first character', (done) => {
@@ -89,7 +87,7 @@ describe('components/AccountInput', () => {
       }
     });
     component.setState({ selectionRange: [1, 1] }, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
+      keyPress(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
@@ -102,7 +100,7 @@ describe('components/AccountInput', () => {
       }
     });
     component.setState({ selectionRange: [0, 8] }, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
+      keyPress(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
@@ -115,7 +113,7 @@ describe('components/AccountInput', () => {
       }
     });
     component.setState({ selectionRange: [4, 8] }, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
+      keyPress(getInputRef(component), createKeyEvent('Backspace'));
     });
   });
 
@@ -125,11 +123,11 @@ describe('components/AccountInput', () => {
     });
 
     component.setState({ selectionRange: [1, 3] }, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
+      keyPress(getInputRef(component), createKeyEvent('1'));
 
       component.setState({}, () => {
-        expect(component.state.value).to.be.equal('010');
-        expect(component.state.selectionRange).to.deep.equal([2, 2]);
+        expect(component.state().value).to.be.equal('010');
+        expect(component.state().selectionRange).to.deep.equal([2, 2]);
         done();
       });
     });
@@ -139,12 +137,12 @@ describe('components/AccountInput', () => {
     const component = render({ value: '' });
 
     for(let i = 0; i < 12; i++) {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
+      keyPress(getInputRef(component), createKeyEvent('1'));
     }
 
     component.setState({}, () => {
-      expect(component.state.value).to.be.equal('111111111111');
-      expect(component.state.selectionRange).to.deep.equal([12, 12]);
+      expect(component.state().value).to.be.equal('111111111111');
+      expect(component.state().selectionRange).to.deep.equal([12, 12]);
       done();
     });
   });
@@ -154,11 +152,11 @@ describe('components/AccountInput', () => {
       value: '0000'
     });
     component.setState({ selectionRange: [1, 1]}, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('1'));
+      keyPress(getInputRef(component), createKeyEvent('1'));
 
       component.setState({}, () => {
-        expect(component.state.value).to.be.equal('01000');
-        expect(component.state.selectionRange).to.deep.equal([2, 2]);
+        expect(component.state().value).to.be.equal('01000');
+        expect(component.state().selectionRange).to.deep.equal([2, 2]);
         done();
       });
     });
@@ -169,14 +167,22 @@ describe('components/AccountInput', () => {
       value: '0000'
     });
     component.setState({ selectionRange: [0, 0] }, () => {
-      Simulate.keyDown(getInputRef(component), createKeyEvent('Backspace'));
+      keyPress(getInputRef(component), createKeyEvent('Backspace'));
 
       component.setState({}, () => {
-        expect(component.state.value).to.be.equal('0000');
-        expect(component.state.selectionRange).to.deep.equal([0, 0]);
+        expect(component.state().value).to.be.equal('0000');
+        expect(component.state().selectionRange).to.deep.equal([0, 0]);
         done();
       });
     });
   });
 
 });
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function keyPress(component, key) {
+  component.prop('onKeyPress')(key);
+}
