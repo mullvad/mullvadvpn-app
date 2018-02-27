@@ -25,7 +25,7 @@ impl HandleKillExt for duct::Handle {
             debug!("Child process exited from SIGTERM");
             Ok(())
         } else {
-            debug!("Child process did not exit from SIGTERM, sending SIGKILL");
+            warn!("Child process did not exit from SIGTERM, sending SIGKILL");
             self.kill()
         }
     }
