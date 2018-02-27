@@ -306,7 +306,7 @@ export default class Login extends React.Component<LoginPropTypes, State> {
           <AccountInput style={styles.account_input_textfield}
             type="text"
             placeholder="e.g 0000 0000 0000"
-            placeholderTextColor={colors.blue20}
+            placeholderTextColor={colors.blue40}
             onFocus={ this._onFocus }
             onBlur={ this._onBlur }
             onChange={ this._onInputChange }
