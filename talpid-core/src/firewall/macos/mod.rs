@@ -19,9 +19,6 @@ error_chain! {
     }
 }
 
-/// alias used to instantiate firewall implementation
-pub type ConcreteFirewall = PacketFilter;
-
 const ANCHOR_NAME: &'static str = "mullvad";
 
 /// The macOS firewall implementation. Acting as converter between the `Firewall` trait API
@@ -32,7 +29,9 @@ pub struct PacketFilter {
     dns_monitor: DnsMonitor,
 }
 
-impl Firewall<Error> for PacketFilter {
+impl Firewall for PacketFilter {
+    type Error = Error;
+
     fn new() -> Result<Self> {
         Ok(PacketFilter {
             pf: pfctl::PfCtl::new()?,
