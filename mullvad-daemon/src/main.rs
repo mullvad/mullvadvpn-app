@@ -13,7 +13,6 @@ extern crate chrono;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
-extern crate fern;
 extern crate futures;
 #[macro_use]
 extern crate log;
@@ -43,6 +42,7 @@ extern crate talpid_types;
 mod account_history;
 mod cli;
 mod geoip;
+mod logging;
 mod management_interface;
 mod relays;
 mod rpc_info;
@@ -118,8 +118,6 @@ static APP_INFO: AppInfo = AppInfo {
     name: crate_name!(),
     author: "Mullvad",
 };
-
-const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -311,7 +309,7 @@ impl Daemon {
     ) {
         thread::spawn(move || {
             let result = server.wait();
-            debug!("Mullvad management interface shut down");
+            error!("Mullvad management interface shut down");
             let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
         });
     }
@@ -764,7 +762,8 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let config = cli::get_config();
-    init_logger(config.log_level, config.log_file.as_ref())?;
+    logging::init_logger(config.log_level, config.log_file.as_ref())
+        .chain_err(|| "Unable to initialize logger")?;
     log_version();
 
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
@@ -777,43 +776,9 @@ fn run() -> Result<()> {
 
     daemon.run()?;
 
-    debug!("Mullvad daemon is quitting");
+    info!("Mullvad daemon is quitting");
     thread::sleep(Duration::from_millis(500));
     Ok(())
-}
-
-fn init_logger(log_level: log::LogLevelFilter, log_file: Option<&PathBuf>) -> Result<()> {
-    let silenced_crates = [
-        "jsonrpc_core",
-        "tokio_core",
-        "tokio_proto",
-        "jsonrpc_ws_server",
-        "ws",
-        "mio",
-        "hyper",
-    ];
-    let mut config = fern::Dispatch::new()
-        .format(|out, message, record| {
-            out.finish(format_args!(
-                "[{}][{}][{}] {}",
-                chrono::Local::now().format(DATE_TIME_FORMAT_STR),
-                record.target(),
-                record.level(),
-                message
-            ))
-        })
-        .level(log_level)
-        .chain(std::io::stdout());
-    for silenced_crate in &silenced_crates {
-        config = config.level_for(*silenced_crate, log::LogLevelFilter::Warn);
-    }
-    if let Some(ref log_file) = log_file {
-        let f = fern::log_file(log_file).chain_err(|| "Failed to open log file for writing")?;
-        config = config.chain(f);
-    }
-    config
-        .apply()
-        .chain_err(|| "Failed to bootstrap logging system")
 }
 
 fn log_version() {

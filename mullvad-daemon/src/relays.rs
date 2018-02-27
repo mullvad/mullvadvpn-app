@@ -54,10 +54,10 @@ impl RelaySelector {
     pub fn new(rpc_handle: HttpHandle, resource_dir: &Path) -> Result<Self> {
         let (last_updated, relay_list) = Self::read_cached_relays(resource_dir)?;
         let (locations, relays) = Self::process_relay_list(relay_list);
-        debug!(
+        info!(
             "Initialized with {} cached relays from {}",
             relays.len(),
-            DateTime::<Local>::from(last_updated).format(::DATE_TIME_FORMAT_STR)
+            DateTime::<Local>::from(last_updated).format(::logging::DATE_TIME_FORMAT_STR)
         );
         Ok(RelaySelector {
             locations,
@@ -243,7 +243,7 @@ impl RelaySelector {
 
     /// Downloads the latest relay list and caches it. This operation is blocking.
     pub fn update(&mut self, timeout: Duration) -> Result<()> {
-        info!("Downloading list of relays");
+        info!("Downloading list of relays...");
         let download_future = self.rpc_client
             .relay_list()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
@@ -252,7 +252,7 @@ impl RelaySelector {
             error!("Unable to save relays to cache: {}", e.display_chain());
         }
         let (locations, relays) = Self::process_relay_list(relay_list);
-        debug!("Downloaded relay inventory has {} relays", relays.len());
+        info!("Downloaded relay inventory has {} relays", relays.len());
         self.locations = locations;
         self.relays = relays;
         self.last_updated = SystemTime::now();
