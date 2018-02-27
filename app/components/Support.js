@@ -162,8 +162,7 @@ export default class Support extends Component<SupportProps, SupportState> {
             placeholder="Your email"
             defaultValue={ this.state.email }
             onChangeText={ this.onChangeEmail }
-            keyboardType="email-address"
-            autoFocus={ true } />
+            keyboardType="email-address" />
         </View>
         <View style={styles.support__form_row_message}>
           <View style={styles.support__form_message_scroll_wrap}>
