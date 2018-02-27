@@ -1,11 +1,12 @@
 // @flow
 import * as React from 'react';
+import { Text, View, Animated, Styles } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import { formatAccount } from '../lib/formatters';
-import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
-import LoginArrowSVG from '../assets/images/icon-arrow.svg';
-import RemoveAccountSVG from '../assets/images/icon-close-sml.svg';
+import Img from './Img';
+import { Button, BlueButton, Label } from './styled';
+import styles from './LoginStyles';
 
 import type { AccountReduxState } from '../redux/account/reducers';
 import type { AccountToken } from '../lib/ipc-facade';
@@ -23,14 +24,26 @@ export type LoginPropTypes = {
 type State = {
   notifyOnFirstChangeAfterFailure: boolean,
   isActive: boolean,
-  dropdownHeight: number
+  dropdownHeight: number,
+  footerHeight: number,
+  animatedFooterValue: Animated.Value,
+  animatedDropdownValue: Animated.Value,
+  animation: Animated.CompositeAnimation,
+  footerAnimationStyle: Animated.Style,
+  dropdownAnimationStyle: Animated.Style,
 };
 
 export default class Login extends React.Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: false,
-    dropdownHeight: 0
+    dropdownHeight: 0,
+    footerHeight: 0,
+    animatedFooterValue: Animated.createValue(0),
+    animatedDropdownValue: Animated.createValue(0),
+    animation: Animated.CompositeAnimation,
+    footerAnimationStyle: Animated.Style,
+    dropdownAnimationStyle: Animated.Style,
   };
 
   constructor(props: LoginPropTypes) {
@@ -38,14 +51,8 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     if(props.account.status === 'failed') {
       this.state.notifyOnFirstChangeAfterFailure = true;
     }
-  }
-
-  componentDidMount() {
-    this._updateDropdownHeight();
-  }
-
-  componentDidUpdate() {
-    this._updateDropdownHeight();
+    this.state.dropdownAnimationStyle = Styles.createAnimatedViewStyle({height: this.state.animatedDropdownValue});
+    this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({transform: [{translateY: this.state.animatedFooterValue }]});
   }
 
   componentWillReceiveProps(nextProps: LoginPropTypes) {
@@ -55,36 +62,41 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     if(prev.status !== next.status && next.status === 'failed') {
       this.setState({ notifyOnFirstChangeAfterFailure: true });
     }
+
+    this._animate(nextProps);
   }
 
   render() {
-    const footerClass = this._shouldShowFooter() ? '' : 'login-footer--invisible';
     return (
       <Layout>
         <Header showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
-          <div className="login">
-            <div className="login-form">
+          <View style={styles.login}>
+            <View style={styles.login_form}>
               { this._getStatusIcon() }
 
-              <div className="login-form__title">{ this._formTitle() }</div>
+              <Text style={styles.title}>{ this._formTitle() }</Text>
 
-              {this._shouldShowLoginForm() && <div className='login-form__fields'>
+              {this._shouldShowLoginForm() && <View>
                 { this._createLoginForm() }
-              </div>}
-            </div>
+              </View>}
+            </View>
 
-            <div className={ 'login-footer ' + footerClass }>
+            <Animated.View onLayout={this._onFooterLayout} style={[styles.login_footer, this.state.footerAnimationStyle]} testName='footer'>
               { this._createFooter() }
-            </div>
-          </div>
+            </Animated.View>
+          </View>
         </Container>
       </Layout>
     );
   }
 
-  _onCreateAccount = () => this.props.onExternalLink('createAccount');
-  _onFocus = () => this.setState({ isActive: true });
+  _onCreateAccount = () => this.props.onExternalLink('createAccount')
+
+  _onFocus = () => this.setState({ isActive: true }, () => {
+    this._animate(this.props);
+  })
+
   _onBlur = (e) => {
     const relatedTarget = e.relatedTarget;
 
@@ -94,7 +106,28 @@ export default class Login extends React.Component<LoginPropTypes, State> {
       return;
     }
 
-    this.setState({ isActive: false });
+    this.setState({ isActive: false }, () => {
+      this._animate(this.props);
+    });
+  }
+
+  _animate = (props: LoginPropTypes) => {
+    if (this.state.animation) {
+      this.state.animation.stop();
+    }
+    const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
+    const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
+    console.log(dropdownHeight);
+    this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight));
+  }
+
+  _setAnimation = (footerAnimation: Animated.CompositeAnimation, dropdownAnimation: Animated.CompositeAnimation) => {
+    let compositeAnimation = Animated.parallel([ footerAnimation, dropdownAnimation ]);
+    this.setState({animation: compositeAnimation}, () => {
+      this.state.animation.start(() => this.setState({
+        animation: null
+      }));
+    });
   }
 
   _onLogin = () => {
@@ -140,88 +173,103 @@ export default class Login extends React.Component<LoginPropTypes, State> {
 
   _getStatusIcon() {
     const statusIconPath = this._getStatusIconPath();
-    return <div className="login-form__status-icon">
+    return <View style={ styles.status_icon}>
       { statusIconPath ?
-        <img src={ statusIconPath } alt="" /> :
+        <Img source={ statusIconPath } height='48' width='48' alt="" /> :
         null }
-    </div>;
+    </View>;
   }
 
   _getStatusIconPath(): ?string {
     switch(this.props.account.status) {
     case 'logging in':
-      return './assets/images/icon-spinner.svg';
+      return 'icon-spinner';
     case 'failed':
-      return './assets/images/icon-fail.svg';
+      return 'icon-fail';
     case 'ok':
-      return './assets/images/icon-success.svg';
+      return 'icon-success';
     default:
       return undefined;
     }
   }
 
-  _accountInputGroupClass(): string {
-    const classes = ['login-form__account-input-group'];
+  _accountInputGroupClass(): Array<Object> {
+    const classes = [styles.account_input_group];
     if(this.state.isActive) {
-      classes.push('login-form__account-input-group--active');
+      classes.push(styles.account_input_group__active);
     }
 
     switch(this.props.account.status) {
     case 'logging in':
-      classes.push('login-form__account-input-group--inactive');
+      classes.push(styles.account_input_group__inactive);
       break;
     case 'failed':
-      classes.push('login-form__account-input-group--error');
+      classes.push(styles.account_input_group__error);
       break;
     }
 
-    return classes.join(' ');
+    return classes;
   }
 
-  _accountInputButtonClass(): string {
+  _accountInputButtonClass(): Array<Object> {
     const { accountToken, status } = this.props.account;
-    const classes = ['login-form__account-input-button'];
+    const classes = [styles.account_input_button];
 
     if(accountToken && accountToken.length > 0) {
-      classes.push('login-form__account-input-button--active');
+      classes.push(styles.account_input_button__active);
     }
 
     if(status === 'logging in') {
-      classes.push('login-form__account-input-button--invisible');
+      classes.push(styles.account_input_button__invisible);
     }
 
-    return classes.join(' ');
+    return classes;
   }
 
-  _shouldEnableAccountInput() {
+  _shouldEnableAccountInput(props: LoginPropTypes) {
     // enable account input always except when "logging in"
-    return this.props.account.status !== 'logging in';
+    return props.account.status !== 'logging in';
   }
 
-  _shouldShowAccountHistory() {
-    return this._shouldEnableAccountInput() &&
+  _shouldShowAccountHistory(props: LoginPropTypes) {
+    return this._shouldEnableAccountInput(props) &&
       this.state.isActive &&
-      this.props.account.accountHistory.length > 0;
+      props.account.accountHistory.length > 0;
   }
 
   _shouldShowLoginForm() {
     return this.props.account.status !== 'ok';
   }
 
-  _shouldShowFooter() {
-    const { status } = this.props.account;
-    return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory();
+  _shouldShowFooter(props: LoginPropTypes) {
+    const { status } = props.account;
+    return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory(props);
   }
 
-  // helper function to calculate and save dropdown element's height
-  // this is a no-op of the height didn't change since last update
-  _updateDropdownHeight() {
-    const element = this._accountDropdownElement;
-    if(element && this.state.dropdownHeight !== element.clientHeight) {
-      this.setState({
-        dropdownHeight: element.clientHeight
-      });
-    }
+  _getFooterAnimation(toValue: number){
+    return Animated.timing(this.state.animatedFooterValue, {
+      toValue: toValue,
+      easing: Animated.Easing.InOut(),
+      duration: 250,
+      useNativeDriver: true,
+    });
+  }
+
+  _onFooterLayout = (layout) => {
+    this.setState({footerHeight: layout.height});
+  }
+
+  _getDropdownAnimation(toValue: number){
+    return Animated.timing(this.state.animatedDropdownValue, {
+      toValue: toValue,
+      easing: Animated.Easing.InOut(),
+      duration: 250,
+      useNativeDriver: true,
+    });
+  }
+
+  _onDropdownLayout = (layout) => {
+    this.setState({dropdownHeight: layout.height});
   }
 
   // returns true if DOM node is within dropdown hierarchy
@@ -241,9 +289,6 @@ export default class Login extends React.Component<LoginPropTypes, State> {
 
   _createLoginForm() {
     const { accountHistory, accountToken } = this.props.account;
-    const dropdownStyles = {
-      height: this._shouldShowAccountHistory() ? this.state.dropdownHeight : 0
-    };
 
     // auto-focus on account input when failed to log in
     // do not refactor this into instance method,
@@ -254,47 +299,46 @@ export default class Login extends React.Component<LoginPropTypes, State> {
       }
     };
 
-    return <div>
-      <div className="login-form__subtitle">{ this._formSubtitle() }</div>
-      <div className="login-form__account-input-container">
-        <div className={ this._accountInputGroupClass() }>
-          <div className="login-form__account-input-backdrop">
-            <AccountInput className="login-form__account-input-textfield"
-              type="text"
-              placeholder="e.g 0000 0000 0000"
-              onFocus={ this._onFocus }
-              onBlur={ this._onBlur }
-              onChange={ this._onInputChange }
-              onEnter={ this._onLogin }
-              value={ accountToken || '' }
-              disabled={ !this._shouldEnableAccountInput() }
-              autoFocus={ true }
-              ref={ autoFocusOnFailure } />
-            <button className={ this._accountInputButtonClass() } onClick={ this._onLogin }>
-              <LoginArrowSVG className="login-form__account-input-button-icon" />
-            </button>
-          </div>
-          <div style={ dropdownStyles } className="login-form__account-dropdown-container">
-            <div ref={ this._onAccountDropdownContainerRef }>
-              { <AccountDropdown
-                items={ accountHistory.slice().reverse() }
-                onSelect={ this._onSelectAccountFromHistory }
-                onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>;
+    return <View style= {styles.login}>
+      <Text style={ styles.subtitle }>{ this._formSubtitle() }</Text>
+      <View style={ this._accountInputGroupClass() }>
+        <View style={ styles.account_input_backdrop}>
+          <AccountInput style={styles.account_input_textfield}
+            type="text"
+            placeholder="e.g 0000 0000 0000"
+            onFocus={ this._onFocus }
+            onBlur={ this._onBlur }
+            onChange={ this._onInputChange }
+            onEnter={ this._onLogin }
+            value={ accountToken || '' }
+            disabled={ !this._shouldEnableAccountInput(this.props) }
+            autoFocus={ true }
+            ref={ autoFocusOnFailure }
+            testName='AccountInput'/>
+          <Button style={ this._accountInputButtonClass() } onPress={ this._onLogin } testName='account-input-button'>
+            <Img style={[ this._accountInputButtonClass() ]} source='icon-arrow' height='16' width='24' tintColor='currentColor' />
+          </Button>
+        </View>
+        <Animated.View style={ this.state.dropdownAnimationStyle }>
+          <View onLayout={this._onDropdownLayout} ref={ this._onAccountDropdownContainerRef }>
+            { <AccountDropdown
+              items={ accountHistory.slice().reverse() }
+              onSelect={ this._onSelectAccountFromHistory }
+              onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
+          </View>
+        </Animated.View>
+      </View>
+    </View>;
   }
 
   _createFooter() {
-    return <div>
-      <div className="login-footer__prompt">{ 'Don\'t have an account number?' }</div>
-      <button className="button button--primary" onClick={ this._onCreateAccount }>
-        <span className="button-label">Create account</span>
-        <ExternalLinkSVG className="button-icon button-icon--16" />
-      </button>
-    </div>;
+    return <View>
+      <Text style={ styles.login_footer__prompt}>{ 'Don\'t have an account number?' }</Text>
+      <BlueButton onPress={ this._onCreateAccount }>
+        <Label>Create account</Label>
+        <Img source='icon-extLink' height='16' width='16' />
+      </BlueButton>
+    </View>;
   }
 }
 
@@ -308,7 +352,7 @@ class AccountDropdown extends React.Component<AccountDropdownProps> {
   render() {
     const uniqueItems = [...new Set(this.props.items)];
     return (
-      <div className="login-form__account-dropdown">
+      <View>
         { uniqueItems.map(token => (
           <AccountDropdownItem key={ token }
             value={ token }
@@ -316,7 +360,7 @@ class AccountDropdown extends React.Component<AccountDropdownProps> {
             onSelect={ this.props.onSelect }
             onRemove={ this.props.onRemove } />
         )) }
-      </div>
+      </View>
     );
   }
 }
@@ -330,15 +374,17 @@ type AccountDropdownItemProps = {
 
 class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
   render() {
-    return (
-      <div className="login-form__account-dropdown__item">
-        <button className="login-form__account-dropdown__label"
-          onClick={ () => this.props.onSelect(this.props.value) }>{ this.props.label }</button>
-        <button className="login-form__account-dropdown__remove"
-          onClick={ () => this.props.onRemove(this.props.value) }>
-          <RemoveAccountSVG />
-        </button>
-      </div>
+    return (<View>
+      <View style={ styles.account_dropdown__spacer }/>
+      <View style={ styles.account_dropdown__item }>
+        <Button style={styles.account_dropdown__label}
+          onPress={ () => this.props.onSelect(this.props.value) }>{ this.props.label }</Button>
+        <Button style={styles.account_dropdown__remove}
+          onPress={ () => this.props.onRemove(this.props.value) }>
+          <Img source='icon-close-sml' height='16' width='16' />
+        </Button>
+      </View>
+    </View>
     );
   }
 }

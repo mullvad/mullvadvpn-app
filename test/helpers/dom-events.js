@@ -18,5 +18,5 @@ const keycodes = {
 export type Keycode = $Keys<typeof keycodes>;
 
 export function createKeyEvent(key: Keycode): Object {
-  return Object.assign({}, { key }, keycodes[key]);
+  return Object.assign({}, { key }, keycodes[key], {preventDefault: () => {}});
 }
