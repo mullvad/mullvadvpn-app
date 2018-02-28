@@ -41,7 +41,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   };
 
   _ref: ?HTMLInputElement;
-  _ignoreSelect = false;
 
   constructor(props: AccountInputProps) {
     super(props);
@@ -216,8 +215,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
       const result = this.remove(value, selectionRange);
       e.preventDefault();
 
-      //this._ignoreSelect = true;
-
       this.setState(result, () => {
         if(this.props.onChange) {
           this.props.onChange(result.value);
@@ -226,8 +223,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
       const result = this.insert(value, e.key, selectionRange);
       e.preventDefault();
-
-      //this._ignoreSelect = true;
 
       this.setState(result, () => {
         if(this.props.onChange) {
@@ -240,10 +235,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   onSelect = (start: number, end: number) => {
-    if(this._ignoreSelect) {
-      return;
-    }
-
     const selRange = this.toInternalSelectionRange(this.sanitize(this.state.value), [start, end]);
     this.setState({ selectionRange: selRange });
   }
@@ -262,7 +253,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   onCut = (e: ClipboardEvent) => {
-    console.log(e);
     const target = e.target;
     if(!(target instanceof HTMLInputElement)) {
       throw new Error('ref must be an instance of HTMLInputElement');
