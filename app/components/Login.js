@@ -52,8 +52,12 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     if(props.account.status === 'failed') {
       this.state.notifyOnFirstChangeAfterFailure = true;
     }
-    this.state.dropdownAnimationStyle = Styles.createAnimatedViewStyle({height: this.state.animatedDropdownValue});
-    this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({transform: [{translateY: this.state.animatedFooterValue }]});
+    this.state.dropdownAnimationStyle = Styles.createAnimatedViewStyle({
+      height: this.state.animatedDropdownValue
+    });
+    this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({
+      transform: [{translateY: this.state.animatedFooterValue }]
+    });
   }
 
   componentWillReceiveProps(nextProps: LoginPropTypes) {
