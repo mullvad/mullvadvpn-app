@@ -115,7 +115,7 @@ const appDelegate = {
 
         const logFiles = files.filter(file => file.endsWith('.log'))
           .map(f => path.join(appDelegate._logFileLocation, f));
-        const reportPath = path.join(writableDirectory, uuid.v4() + '.report');
+        const reportPath = path.join(writableDirectory, uuid.v4() + '.log');
 
         const binPath = resolveBin('problem-report');
         let args = [
