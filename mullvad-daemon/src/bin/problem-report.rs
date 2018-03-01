@@ -205,11 +205,15 @@ impl ProblemReport {
     }
 
     fn redact(&self, input: &str) -> String {
-        let mut out = self.redact_home_dir(input);
-
+        let mut out = self.redact_account_number(input);
+        out = self.redact_home_dir(&out);
         out = self.redact_network_info(&out);
-
         self.redact_custom_strings(out)
+    }
+
+    fn redact_account_number(&self, input: &str) -> String {
+        let re = Regex::new("\\d{16}").unwrap();
+        re.replace_all(input, "[REDACTED ACCOUNT NUMBER]").to_string()
     }
 
     fn redact_home_dir(&self, input: &str) -> String {
