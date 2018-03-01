@@ -11,11 +11,11 @@ app_dirs = "1.1"
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2.25"
 error-chain = "0.11"
-fern = "0.4"
+fern = { version = "0.5", features = ["colored"] }
 futures = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-log = "0.3"
+log = "0.4"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
