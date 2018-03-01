@@ -61,7 +61,7 @@ fn openvpn_open(
     args: Vec<CString>,
     _env: HashMap<CString, CString>,
 ) -> Result<(Vec<OpenVpnPluginEvent>, EventProcessor)> {
-    env_logger::init().chain_err(|| "Failed to bootstrap logging system")?;
+    env_logger::init();
     debug!("Initializing plugin");
 
     let core_server_id = parse_args(&args)?;
