@@ -11,6 +11,8 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate regex;
+#[macro_use]
+extern crate lazy_static;
 
 extern crate mullvad_rpc;
 
@@ -205,86 +207,39 @@ impl ProblemReport {
     }
 
     fn redact(&self, input: &str) -> String {
-        let mut out = self.redact_account_number(input);
-        out = self.redact_home_dir(&out);
-        out = self.redact_network_info(&out);
+        let mut out = Self::redact_account_number(input);
+        out = Self::redact_home_dir(&out);
+        out = Self::redact_network_info(&out);
         self.redact_custom_strings(out)
     }
 
-    fn redact_account_number(&self, input: &str) -> String {
-        let re = Regex::new("\\d{16}").unwrap();
-        re.replace_all(input, "[REDACTED ACCOUNT NUMBER]").to_string()
+    fn redact_account_number(input: &str) -> String {
+        lazy_static! {
+            static ref RE: Regex = Regex::new("\\d{16}").unwrap();
+        }
+        RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]").to_string()
     }
 
-    fn redact_home_dir(&self, input: &str) -> String {
+    fn redact_home_dir(input: &str) -> String {
         match env::home_dir() {
             Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
             None => input.to_owned(),
         }
     }
 
-    fn redact_network_info(&self, input: &str) -> String {
-        let combined_pattern = format!(
-            "\\b({}|{}|{})\\b",
-            self.build_ipv4_regex(),
-            self.build_ipv6_regex(),
-            self.build_mac_regex()
-        );
-        let re = Regex::new(&combined_pattern).unwrap();
-
-        re.replace_all(input, "[REDACTED]").to_string()
-    }
-
-    fn build_mac_regex(&self) -> String {
-        let octet = "[[:xdigit:]]{2}"; // 0 - ff
-
-        // five pairs of two hexadecimal chars followed by colon or dash
-        // followed by a pair of hexadecimal chars
-        format!("(?:{0}[:-]){{5}}({0})", octet)
-    }
-
-    fn build_ipv4_regex(&self) -> String {
-        // regex adapted from  https://www.regular-expressions.info/ip.html
-
-        let above_250 = "25[0-5]";
-        let above_200 = "2[0-4][0-9]";
-        let above_100 = "1[0-9][0-9]";
-
-        // 100-119 | 120-126 | 128-129 | 130 - 199
-        let above_100_not_127 = "1(?:[01][0-9]|2[0-6]|2[89]|[3-9][0-9])";
-
-        let above_0 = "0?[0-9][0-9]?";
-
-        // matches 0-255, except 127
-        let first_octet = format!(
-            "(?:{}|{}|{}|{})",
-            above_250, above_200, above_100_not_127, above_0
-        );
-
-        // matches 0-255
-        let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
-
-        format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
-    }
-
-    fn build_ipv6_regex(&self) -> String {
-        let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
-
-        // Matches 1-7 hextets followed by one or two colons
-        // and one last hextet.
-        //
-        // This means that there are many
-        // invalid IPv6 addresses that matches this. E.g.
-        // all that has more than one instance of '::', but we
-        // don't really care.
-        let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
-
-        // Matches addresses without double colon. This is
-        // a separate regex to make it easier to not match
-        // on time
-        let long = format!("({0}:){{7}}{0}", hextet);
-
-        format!("(?:{})|(?:{})", short, long)
+    fn redact_network_info(input: &str) -> String {
+        lazy_static! {
+            static ref RE: Regex = {
+                let combined_pattern = format!(
+                    "\\b({}|{}|{})\\b",
+                    build_ipv4_regex(),
+                    build_ipv6_regex(),
+                    build_mac_regex()
+                );
+                Regex::new(&combined_pattern).unwrap()
+            };
+        }
+        RE.replace_all(input, "[REDACTED]").to_string()
     }
 
     fn redact_custom_strings(&self, input: String) -> String {
@@ -312,6 +267,58 @@ impl fmt::Display for ProblemReport {
         }
         Ok(())
     }
+}
+
+fn build_mac_regex() -> String {
+    let octet = "[[:xdigit:]]{2}"; // 0 - ff
+
+    // five pairs of two hexadecimal chars followed by colon or dash
+    // followed by a pair of hexadecimal chars
+    format!("(?:{0}[:-]){{5}}({0})", octet)
+}
+
+fn build_ipv4_regex() -> String {
+    // regex adapted from  https://www.regular-expressions.info/ip.html
+
+    let above_250 = "25[0-5]";
+    let above_200 = "2[0-4][0-9]";
+    let above_100 = "1[0-9][0-9]";
+
+    // 100-119 | 120-126 | 128-129 | 130 - 199
+    let above_100_not_127 = "1(?:[01][0-9]|2[0-6]|2[89]|[3-9][0-9])";
+
+    let above_0 = "0?[0-9][0-9]?";
+
+    // matches 0-255, except 127
+    let first_octet = format!(
+        "(?:{}|{}|{}|{})",
+        above_250, above_200, above_100_not_127, above_0
+    );
+
+    // matches 0-255
+    let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
+
+    format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
+}
+
+fn build_ipv6_regex() -> String {
+    let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
+
+    // Matches 1-7 hextets followed by one or two colons
+    // and one last hextet.
+    //
+    // This means that there are many
+    // invalid IPv6 addresses that matches this. E.g.
+    // all that has more than one instance of '::', but we
+    // don't really care.
+    let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
+
+    // Matches addresses without double colon. This is
+    // a separate regex to make it easier to not match
+    // on time
+    let long = format!("({0}:){{7}}{0}", hextet);
+
+    format!("(?:{})|(?:{})", short, long)
 }
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
