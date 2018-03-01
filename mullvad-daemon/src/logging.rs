@@ -4,6 +4,7 @@ use self::fern::colors::{Color, ColoredLevelConfig};
 use chrono;
 use log;
 
+use std::fmt;
 use std::io;
 use std::path::PathBuf;
 
@@ -46,15 +47,7 @@ pub fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> R
     }
 
     let stdout_dispatcher = fern::Dispatch::new()
-        .format(move |out, message, record| {
-            out.finish(format_args!(
-                "[{}][{}][{}] {}",
-                chrono::Local::now().format(DATE_TIME_FORMAT_STR),
-                record.target(),
-                colors.color(record.level()),
-                message
-            ))
-        })
+        .format(move |out, message, record| format_log_msg(out, message, record, Some(&colors)))
         .chain(io::stdout());
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
@@ -62,18 +55,36 @@ pub fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> R
         let f = fern::log_file(log_file)
             .chain_err(|| ErrorKind::WriteFileError(log_file.to_path_buf()))?;
         let file_dispatcher = fern::Dispatch::new()
-            .format(move |out, message, record| {
-                out.finish(format_args!(
-                    "[{}][{}][{}] {}",
-                    chrono::Local::now().format(DATE_TIME_FORMAT_STR),
-                    record.target(),
-                    record.level(),
-                    message
-                ))
-            })
+            .format(|out, message, record| format_log_msg(out, message, record, None))
             .chain(f);
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
     }
     top_dispatcher.apply()?;
     Ok(())
+}
+
+fn format_log_msg(
+    out: fern::FormatCallback,
+    message: &fmt::Arguments,
+    record: &log::Record,
+    colors: Option<&ColoredLevelConfig>,
+) {
+    let timestamp = chrono::Local::now().format(DATE_TIME_FORMAT_STR);
+    if let (Some(colors), false) = (colors, cfg!(windows)) {
+        out.finish(format_args!(
+            "[{}][{}][{}] {}",
+            timestamp,
+            record.target(),
+            colors.color(record.level()),
+            message,
+        ))
+    } else {
+        out.finish(format_args!(
+            "[{}][{}][{}] {}",
+            timestamp,
+            record.target(),
+            record.level(),
+            message
+        ))
+    }
 }
