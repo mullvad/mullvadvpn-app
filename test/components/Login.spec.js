@@ -33,20 +33,27 @@ describe('components/Login', () => {
 
   it('does not show the footer when logging in', () => {
     const component = renderLoggingIn();
-    const footer = getComponent(component, 'footer');
-    //TODO: add footer check
-    expect(footer.length).to.not.equal(0);
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(0);
+    expect(invisibleFooters.length).to.equal(1);
   });
 
   it('shows the footer and account input when not logged in', () => {
     const component = renderNotLoggedIn();
-    //TODO: add footer check
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(1);
+    expect(invisibleFooters.length).to.equal(0);
     expect(getComponent(component, 'AccountInput').length).to.be.above(0);
   });
 
   it('does not show the footer nor account input when logged in', () => {
     const component = renderLoggedIn();
-    //TODO: add footer check
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(0);
+    expect(invisibleFooters.length).to.equal(1);
     expect(getComponent(component, 'AccountInput').length).to.equal(0);
   });
 
