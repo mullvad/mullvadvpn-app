@@ -401,14 +401,14 @@ mod tests {
 
     fn assert_redacts_ipv4(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("pre {} post", input));
+        let actual = report.redact(&format!("pre {} post", input));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
     fn does_not_redact_localhost_ipv4() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("127.0.0.1".to_owned());
+        let res = report.redact("127.0.0.1");
         assert_eq!("127.0.0.1", res);
     }
 
@@ -430,27 +430,27 @@ mod tests {
     #[test]
     fn doesnt_redact_not_ipv6() {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("[talpid_core::firewall]"));
+        let actual = report.redact("[talpid_core::firewall]");
         assert_eq!("[talpid_core::firewall]", actual);
     }
 
     fn assert_redacts_ipv6(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("pre {} post", input));
+        let actual = report.redact(&format!("pre {} post", input));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
     fn test_does_not_redact_localhost_ipv6() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("::1".to_owned());
+        let res = report.redact("::1");
         assert_eq!("::1", res);
     }
 
     #[test]
     fn test_does_not_redact_time() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("09:47:59".to_owned());
+        let res = report.redact("09:47:59");
         assert_eq!("09:47:59", res);
     }
 }
