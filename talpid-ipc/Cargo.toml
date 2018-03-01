@@ -9,7 +9,7 @@ license = "GPL-3.0"
 error-chain = "0.11"
 serde = "1.0"
 serde_json = "1.0"
-log = "0.3"
+log = "0.4"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 ws = { git = "https://github.com/tomusdrw/ws-rs" }

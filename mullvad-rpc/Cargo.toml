@@ -16,6 +16,6 @@ tokio-core = "0.1"
 hyper = "0.11"
 hyper-tls = "0.1"
 native-tls = "0.1"
-log = "0.3"
+log = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
