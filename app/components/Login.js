@@ -87,7 +87,7 @@ export default class Login extends React.Component<LoginPropTypes, State> {
               </View>}
             </View>
 
-            <Animated.View onLayout={this._onFooterLayout} style={[styles.login_footer, this.state.footerAnimationStyle]} testName='footer'>
+            <Animated.View onLayout={this._onFooterLayout} style={[styles.login_footer, this.state.footerAnimationStyle]} testName={'footerVisibility ' + this._shouldShowFooter(this.props).toString()}>
               { this._createFooter() }
             </Animated.View>
           </View>
