@@ -22,6 +22,7 @@ use regex::Regex;
 use std::cmp::min;
 use std::collections::HashMap;
 use std::env;
+use std::borrow::Cow;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom, Write};
@@ -207,27 +208,27 @@ impl ProblemReport {
     }
 
     fn redact(&self, input: &str) -> String {
-        let mut out = Self::redact_account_number(input);
-        out = Self::redact_home_dir(&out);
-        out = Self::redact_network_info(&out);
-        self.redact_custom_strings(out)
+        let out1 = Self::redact_account_number(input);
+        let out2 = Self::redact_home_dir(&out1);
+        let out3 = Self::redact_network_info(&out2);
+        self.redact_custom_strings(&out3).to_string()
     }
 
-    fn redact_account_number(input: &str) -> String {
+    fn redact_account_number(input: &str) -> Cow<str> {
         lazy_static! {
             static ref RE: Regex = Regex::new("\\d{16}").unwrap();
         }
-        RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]").to_string()
+        RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]")
     }
 
-    fn redact_home_dir(input: &str) -> String {
+    fn redact_home_dir(input: &str) -> Cow<str> {
         match env::home_dir() {
-            Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
-            None => input.to_owned(),
+            Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
+            None => Cow::from(input),
         }
     }
 
-    fn redact_network_info(input: &str) -> String {
+    fn redact_network_info(input: &str) -> Cow<str> {
         lazy_static! {
             static ref RE: Regex = {
                 let combined_pattern = format!(
@@ -239,13 +240,14 @@ impl ProblemReport {
                 Regex::new(&combined_pattern).unwrap()
             };
         }
-        RE.replace_all(input, "[REDACTED]").to_string()
+        RE.replace_all(input, "[REDACTED]")
     }
 
-    fn redact_custom_strings(&self, input: String) -> String {
-        let mut out = input;
+    fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        // Can probably me made a lot faster with aho-corasick if optimization is ever needed.
+        let mut out = Cow::from(input);
         for redact in &self.redact_custom_strings {
-            out = out.replace(redact, "[REDACTED]")
+            out = out.replace(redact, "[REDACTED]").into()
         }
         out
     }
