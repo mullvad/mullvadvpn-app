@@ -16,8 +16,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 
-## [2018.1] - 2018-02-27
-Identical to 2018.1-beta10, just removing the beta label.
+## [2018.1] - 2018-03-01
+### Changed
+- Redact all account numbers in the account number history from problem reports instead of only the
+  currently logged in one.
+
+### Fixed
+- Increase a timeout for problem report collection to fix a timeout error on slower machines.
+- Fix a memory leak in the problem report collection routine.
+- Fix an issue when viewing a problem report brought up a dialog to choose the application to open
+  the file.
 
 
 ## [2018.1-beta10] - 2018-02-13
