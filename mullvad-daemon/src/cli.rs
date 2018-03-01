@@ -4,7 +4,7 @@ use log;
 use std::path::PathBuf;
 
 pub struct Config {
-    pub log_level: log::LogLevelFilter,
+    pub log_level: log::LevelFilter,
     pub log_file: Option<PathBuf>,
     pub tunnel_log_file: Option<PathBuf>,
     pub resource_dir: Option<PathBuf>,
@@ -16,9 +16,9 @@ pub fn get_config() -> Config {
     let matches = app.get_matches();
 
     let log_level = match matches.occurrences_of("v") {
-        0 => log::LogLevelFilter::Info,
-        1 => log::LogLevelFilter::Debug,
-        _ => log::LogLevelFilter::Trace,
+        0 => log::LevelFilter::Info,
+        1 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
     };
     let log_file = matches.value_of_os("log_file").map(PathBuf::from);
     let tunnel_log_file = matches.value_of_os("tunnel_log_file").map(PathBuf::from);
