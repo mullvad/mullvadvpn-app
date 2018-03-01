@@ -10,19 +10,19 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
-extern crate regex;
 #[macro_use]
 extern crate lazy_static;
+extern crate regex;
 
 extern crate mullvad_rpc;
 
 use error_chain::ChainedError;
 use regex::Regex;
 
+use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::HashMap;
 use std::env;
-use std::borrow::Cow;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom, Write};
@@ -198,11 +198,9 @@ impl ProblemReport {
     /// Attach file log to this report. This method uses the error chain instead of log
     /// contents if error occurred when reading log file.
     pub fn add_log(&mut self, path: &Path) {
-        let content = self.redact(
-            &read_file_lossy(path, LOG_MAX_READ_BYTES)
-                .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
-                .unwrap_or_else(|e| e.display_chain().to_string()),
-        );
+        let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
+            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+            .unwrap_or_else(|e| e.display_chain().to_string()));
         let path = self.redact(&path.to_string_lossy());
         self.logs.push((path, content));
     }
