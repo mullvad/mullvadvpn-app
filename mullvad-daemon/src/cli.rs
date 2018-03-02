@@ -8,6 +8,7 @@ pub struct Config {
     pub log_file: Option<PathBuf>,
     pub tunnel_log_file: Option<PathBuf>,
     pub resource_dir: Option<PathBuf>,
+    pub require_auth: bool,
 }
 
 pub fn get_config() -> Config {
@@ -22,12 +23,14 @@ pub fn get_config() -> Config {
     let log_file = matches.value_of_os("log_file").map(PathBuf::from);
     let tunnel_log_file = matches.value_of_os("tunnel_log_file").map(PathBuf::from);
     let resource_dir = matches.value_of_os("resource_dir").map(PathBuf::from);
+    let require_auth = !matches.is_present("disable_rpc_auth");
 
     Config {
         log_level,
         log_file,
         tunnel_log_file,
         resource_dir,
+        require_auth,
     }
 }
 
@@ -50,14 +53,14 @@ fn create_app() -> App<'static, 'static> {
                 .long("log")
                 .takes_value(true)
                 .value_name("PATH")
-                .help("Activates file logging to the given path"),
+                .help("Activates file logging to the given path."),
         )
         .arg(
             Arg::with_name("tunnel_log_file")
                 .long("tunnel-log")
                 .takes_value(true)
                 .value_name("PATH")
-                .help("Save log from tunnel implementation process to this file path"),
+                .help("Save log from tunnel implementation process to this file path."),
         )
         .arg(
             Arg::with_name("resource_dir")
@@ -65,5 +68,10 @@ fn create_app() -> App<'static, 'static> {
                 .takes_value(true)
                 .value_name("DIR")
                 .help("Uses the given directory to read needed resources, such as certificates."),
+        )
+        .arg(
+            Arg::with_name("disable_rpc_auth")
+                .long("disable-rpc-auth")
+                .help("Don't require authentication on the RPC management interface."),
         )
 }
