@@ -202,7 +202,11 @@ struct Daemon {
 }
 
 impl Daemon {
-    pub fn new(tunnel_log: Option<PathBuf>, resource_dir: PathBuf) -> Result<Self> {
+    pub fn new(
+        tunnel_log: Option<PathBuf>,
+        resource_dir: PathBuf,
+        require_auth: bool,
+    ) -> Result<Self> {
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(|core| {
                 let handle = core.handle();
@@ -217,7 +221,8 @@ impl Daemon {
         let relay_selector = Self::create_relay_selector(rpc_handle.clone(), &resource_dir)?;
 
         let (tx, rx) = mpsc::channel();
-        let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
+        let management_interface_broadcaster =
+            Self::start_management_interface(tx.clone(), require_auth)?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -266,9 +271,10 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
+        require_auth: bool,
     ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx, require_auth)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
@@ -276,15 +282,24 @@ impl Daemon {
 
     fn start_management_interface_server(
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
+        require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
-        let shared_secret = uuid::Uuid::new_v4().to_string();
+        let shared_secret = if require_auth {
+            Some(uuid::Uuid::new_v4().to_string())
+        } else {
+            warn!("RPC management interface allows unauthorized access");
+            None
+        };
+
         let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone())
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
             server.address()
         );
-        rpc_info::write(server.address(), &shared_secret).chain_err(|| {
+
+        let written_shared_secret = shared_secret.unwrap_or(String::from(""));
+        rpc_info::write(server.address(), &written_shared_secret).chain_err(|| {
             ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
         })?;
         Ok(server)
@@ -753,7 +768,7 @@ fn run() -> Result<()> {
     log_version();
 
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir)
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, config.require_auth)
         .chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
