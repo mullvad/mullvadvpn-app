@@ -85,7 +85,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
         onKeyDown={ this.onKeyDown }
         onPaste={ this.onPaste }
         onCut={ this.onCut }
-        ref={ this.onRef } />
+        ref={ (ref) => this.onRef(ref) } />
     );
   }
 
@@ -295,7 +295,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     }
   }
 
-  onRef = (ref: ?HTMLInputElement) => {
+  onRef(ref: ?HTMLInputElement) {
     this._ref = ref;
     if(!ref) { return; }
 
