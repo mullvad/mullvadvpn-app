@@ -37,7 +37,7 @@ type State = {
 export default class Login extends Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
-    isActive: false,
+    isActive: true,
     dropdownHeight: 0,
     footerHeight: 0,
     animatedFooterValue: Animated.createValue(0),
@@ -128,7 +128,7 @@ export default class Login extends Component<LoginPropTypes, State> {
   _setAnimation = (footerAnimation: Animated.CompositeAnimation, dropdownAnimation: Animated.CompositeAnimation) => {
     let compositeAnimation = Animated.parallel([ footerAnimation, dropdownAnimation ]);
     this.setState({animation: compositeAnimation}, () => {
-      this.state.animation.start(() => this.setState({
+      compositeAnimation.start(() => this.setState({
         animation: null
       }));
     });
