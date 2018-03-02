@@ -49,7 +49,7 @@ pub fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> R
     }
 
     let stdout_dispatcher = fern::Dispatch::new()
-        .format(move |out, message, record| format_log_msg(out, message, record, true))
+        .format(move |out, message, record| format_log_message(out, message, record, true))
         .chain(io::stdout());
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
@@ -57,7 +57,7 @@ pub fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> R
         let f = fern::log_file(log_file)
             .chain_err(|| ErrorKind::WriteFileError(log_file.to_path_buf()))?;
         let file_dispatcher = fern::Dispatch::new()
-            .format(|out, message, record| format_log_msg(out, message, record, false))
+            .format(|out, message, record| format_log_message(out, message, record, false))
             .chain(f);
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
     }
@@ -65,7 +65,7 @@ pub fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> R
     Ok(())
 }
 
-fn format_log_msg(
+fn format_log_message(
     out: fern::FormatCallback,
     message: &fmt::Arguments,
     record: &log::Record,
