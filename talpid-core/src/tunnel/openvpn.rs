@@ -262,7 +262,7 @@ mod event_server {
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
-            debug!("OpenVPN event {:?}", event);
+            trace!("OpenVPN event {:?}", event);
             (self.on_event)(event, env);
             Ok(())
         }

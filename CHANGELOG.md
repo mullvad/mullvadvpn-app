@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Add `--disable-rpc-auth` flag to daemon to make it accept unauthorized control.
+- Add colors to terminal output on macOS and Linux.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
