@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import { Text, View, Animated, Styles } from 'reactxp';
+import { Component, Text, View, Animated, Styles } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import { formatAccount } from '../lib/formatters';
@@ -34,7 +34,7 @@ type State = {
   dropdownAnimationStyle: Animated.Style,
 };
 
-export default class Login extends React.Component<LoginPropTypes, State> {
+export default class Login extends Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: false,
