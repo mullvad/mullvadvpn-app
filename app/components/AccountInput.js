@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { formatAccount } from '../lib/formatters';
 import { TextInput } from 'reactxp';
+import { colors } from '../config';
 
 // @TODO: move it into types.js
 
@@ -40,7 +41,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     selectionRange: [0, 0]
   };
 
-  _ref: ?HTMLInputElement;
+  _ref: ?TextInput;
 
   constructor(props: AccountInputProps) {
     super(props);
@@ -81,13 +82,13 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
         onSelectionChange={ this.onSelect }
         onPaste={ this.onPaste }
         onCut={ this.onCut }
-        ref={ this.onRef }
+        ref={ (ref) => this.onRef(ref) }
         autoCorrect={ false }
         onChangeText={ () => {} }
         onKeyPress={ this.onKeyPress }
         returnKeyType="done"
         keyboardType="numeric"
-        placeholderTextColor="rgba(41,77,115,0.2)"
+        placeholderTextColor={colors.blue20}
         testName='AccountInput'
       />
     );
@@ -207,24 +208,28 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   // Events
-
+  _ignoreSelect: boolean;
   onKeyPress = (e: KeyboardEvent) => {
     const { value, selectionRange } = this.state;
 
     if(e.which === 8) { // backspace
+      this._ignoreSelect = true;
       const result = this.remove(value, selectionRange);
       e.preventDefault();
 
       this.setState(result, () => {
+        this._ignoreSelect = false;
         if(this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
     } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
+      this._ignoreSelect = true;
       const result = this.insert(value, e.key, selectionRange);
       e.preventDefault();
 
       this.setState(result, () => {
+        this._ignoreSelect = false;
         if(this.props.onChange) {
           this.props.onChange(result.value);
         }
@@ -235,6 +240,9 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   onSelect = (start: number, end: number) => {
+    if (this._ignoreSelect){
+      return;
+    }
     const selRange = this.toInternalSelectionRange(this.sanitize(this.state.value), [start, end]);
     this.setState({ selectionRange: selRange });
   }
@@ -278,15 +286,14 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     }
   }
 
-  onRef(ref: ?HTMLInputElement) {
+  onRef = (ref: ?TextInput) => {
     this._ref = ref;
     if(!ref) { return; }
 
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
 
-    ref.selectionStart = domRange[0];
-    ref.selectionEnd = domRange[1];
+    ref.selectRange(domRange[0], domRange[1]);
   }
 
   focus() {
@@ -294,5 +301,4 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
       this._ref.focus();
     }
   }
-
 }
