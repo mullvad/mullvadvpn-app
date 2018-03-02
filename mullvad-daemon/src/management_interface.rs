@@ -183,7 +183,7 @@ pub struct ManagementInterfaceServer {
 impl ManagementInterfaceServer {
     pub fn start<T>(
         tunnel_tx: IntoSender<TunnelCommand, T>,
-        shared_secret: String,
+        shared_secret: Option<String>,
     ) -> talpid_ipc::Result<Self>
     where
         T: From<TunnelCommand> + 'static + Send,
@@ -256,11 +256,11 @@ impl EventBroadcaster {
 struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<TunnelCommand, T>>,
-    shared_secret: String,
+    shared_secret: Option<String>,
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String) -> Self {
+    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: Option<String>) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
@@ -330,7 +330,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if meta.authenticated.load(Ordering::SeqCst) {
+        if self.shared_secret.is_none() || meta.authenticated.load(Ordering::SeqCst) {
             trace!("auth success");
             Ok(())
         } else {
@@ -354,13 +354,18 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     type Metadata = Meta;
 
     fn auth(&self, meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
-        let authenticated = shared_secret == self.shared_secret;
-        meta.authenticated.store(authenticated, Ordering::SeqCst);
-        debug!("authenticated: {}", authenticated);
-        if authenticated {
-            Box::new(future::ok(()))
+        if let Some(ref self_shared_secret) = self.shared_secret {
+            let authenticated = &shared_secret == self_shared_secret;
+            meta.authenticated.store(authenticated, Ordering::SeqCst);
+            debug!("authenticated: {}", authenticated);
+            if authenticated {
+                Box::new(future::ok(()))
+            } else {
+                Box::new(future::err(Error::internal_error()))
+            }
         } else {
-            Box::new(future::err(Error::internal_error()))
+            warn!("Ignoring auth call since authentication is disabled");
+            Box::new(future::ok(()))
         }
     }
 
