@@ -42,9 +42,9 @@ export default class Login extends Component<LoginPropTypes, State> {
     footerHeight: 0,
     animatedFooterValue: Animated.createValue(0),
     animatedDropdownValue: Animated.createValue(0),
-    animation: Animated.CompositeAnimation,
-    footerAnimationStyle: Animated.Style,
-    dropdownAnimationStyle: Animated.Style,
+    animation: null,
+    footerAnimationStyle: null,
+    dropdownAnimationStyle: null,
   };
 
   constructor(props: LoginPropTypes) {
