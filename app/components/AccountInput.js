@@ -295,7 +295,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     }
   }
 
-  onRef = (ref: ?HTMLInputElement) => {
+  onRef(ref: ?HTMLInputElement) {
     this._ref = ref;
     if(!ref) { return; }
 
