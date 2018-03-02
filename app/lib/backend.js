@@ -72,7 +72,7 @@ export type IpcCredentials = {
 };
 export function parseIpcCredentials(data: string): ?IpcCredentials {
   const [connectionString, sharedSecret] = data.split('\n', 2);
-  if(connectionString && sharedSecret) {
+  if(connectionString && sharedSecret !== undefined) {
     return {
       connectionString,
       sharedSecret,
