@@ -44,20 +44,24 @@ lazy_static! {
 }
 
 fn read_rpc_address() -> Result<(String, String)> {
-    debug!(
-        "Trying to read RPC address at {}",
-        RPC_ADDRESS_FILE_PATH.to_string_lossy()
-    );
-    let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
-
-    check_if_rpc_file_can_be_trusted(file.metadata()?).chain_err(|| "RPC file is not trusted")?;
-
+    let file = open_rpc_file()?;
     let mut buf_file = BufReader::new(file);
     let mut address = String::new();
     buf_file.read_line(&mut address)?;
     let mut shared_secret = String::new();
     buf_file.read_line(&mut shared_secret)?;
     Ok((address, shared_secret))
+}
+
+fn open_rpc_file() -> Result<File> {
+    debug!(
+        "Trying to read RPC address at {}",
+        RPC_ADDRESS_FILE_PATH.to_string_lossy()
+    );
+    let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
+    check_if_rpc_file_can_be_trusted(file.metadata()?).chain_err(|| "RPC file is not trusted")?;
+
+    Ok(file)
 }
 
 #[cfg(unix)]
