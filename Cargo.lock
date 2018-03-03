@@ -673,6 +673,7 @@ dependencies = [
  "jsonrpc-pubsub 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "jsonrpc-ws-server 7.1.1 (git+https://github.com/paritytech/jsonrpc?tag=v7.1.1)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.35 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",

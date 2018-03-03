@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Add `--disable-rpc-auth` flag to daemon to make it accept unauthorized control.
 - Add colors to terminal output on macOS and Linux.
 - Add details to mullvad CLI interface error for when it doesn't trust the RPC file.
+- Warn if daemon is running as a non-root user.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
