@@ -14,6 +14,7 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
+extern crate libc;
 #[macro_use]
 extern crate log;
 
