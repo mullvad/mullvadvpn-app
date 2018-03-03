@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Redact all account numbers in the account number history from problem reports instead of only the currently logged in one.
+- Create a backup of the existing tunnel log instead of overwriting it.
 
 ### Fixed
 - Increase a timeout for problem report collection to fix a timeout error on slower machines.
