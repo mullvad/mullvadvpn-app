@@ -59,13 +59,13 @@ fn open_rpc_file() -> Result<File> {
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
     let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
-    check_if_rpc_file_can_be_trusted(file.metadata()?).chain_err(|| "Refusing to trust RPC file")?;
+    ensure_written_by_admin(file.metadata()?).chain_err(|| "Refusing to trust RPC file")?;
 
     Ok(file)
 }
 
 #[cfg(unix)]
-fn check_if_rpc_file_can_be_trusted(metadata: Metadata) -> Result<()> {
+fn ensure_written_by_admin(metadata: Metadata) -> Result<()> {
     use std::os::unix::fs::MetadataExt;
 
     let is_owned_by_root = metadata.uid() == 0;
@@ -81,7 +81,7 @@ fn check_if_rpc_file_can_be_trusted(metadata: Metadata) -> Result<()> {
 }
 
 #[cfg(windows)]
-fn check_if_rpc_file_can_be_trusted(_metadata: Metadata) -> Result<()> {
+fn ensure_written_by_admin(_metadata: Metadata) -> Result<()> {
     // TODO: Check permissions correctly
     Ok(())
 }
