@@ -84,6 +84,9 @@ use std::fs;
 
 error_chain!{
     errors {
+        DaemonIsAlreadyRunning {
+            description("Another instance of the daemon is already running")
+        }
         /// The client is in the wrong state for the requested operation. Optimally the code should
         /// be written in such a way so such states can't exist.
         InvalidState {
@@ -284,6 +287,11 @@ impl Daemon {
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
+        ensure!(
+            !rpc_info::is_another_instance_running(),
+            ErrorKind::DaemonIsAlreadyRunning
+        );
+
         let shared_secret = if require_auth {
             Some(uuid::Uuid::new_v4().to_string())
         } else {
