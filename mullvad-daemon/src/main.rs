@@ -660,10 +660,12 @@ impl Daemon {
             backup.set_extension("old.log");
 
             fs::rename(file, backup).unwrap_or_else(|error| {
-                warn!(
-                    "Failed to create backup of previous tunnel log file ({})",
-                    error
-                );
+                if error.kind() != io::ErrorKind::NotFound {
+                    warn!(
+                        "Failed to create backup of previous tunnel log file ({})",
+                        error
+                    );
+                }
             });
 
             fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
