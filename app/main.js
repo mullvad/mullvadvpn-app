@@ -483,29 +483,34 @@ const appDelegate = {
     tray.setHighlightMode('never');
     tray.on('click', () => appDelegate._toggleWindow(window, tray));
 
-    const trayIconManager = new TrayIconManager(tray, 'unsecured');
-
-    // setup NSEvent monitor to fix inconsistent window.blur
-    // see https://github.com/electron/electron/issues/8689
-    // $FlowFixMe: this module is only available on macOS
-    if(process.platform === 'darwin') {
-      const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-      const macEventMonitor = new NSEventMonitor();
-      const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
-
-      window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));
-      window.on('hide', () => macEventMonitor.stop());
-    }
-
     // add IPC handler to change tray icon from renderer
+    const trayIconManager = new TrayIconManager(tray, 'unsecured');
     ipcMain.on('changeTrayIcon', (_: Event, type: TrayIconType) => trayIconManager.iconType = type);
 
     // setup event handlers
     window.on('close', () => window.closeDevTools());
     window.on('blur', () => !window.isDevToolsOpened() && window.hide());
 
+    // apply macOS patch for windows.blur
+    if(process.platform === 'darwin') {
+      appDelegate._macOSFixInconsistentWindowBlur(window);
+    }
+
     return tray;
-  }
+  },
+
+  // setup NSEvent monitor to fix inconsistent window.blur on macOS
+  // see https://github.com/electron/electron/issues/8689
+  _macOSFixInconsistentWindowBlur: (window: BrowserWindow) => {
+    // $FlowFixMe: this module is only available on macOS
+    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
+    const macEventMonitor = new NSEventMonitor();
+    const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
+
+    window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));
+    window.on('hide', () => macEventMonitor.stop());
+  },
+
 };
 
 appDelegate.setup();
