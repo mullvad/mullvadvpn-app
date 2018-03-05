@@ -10,6 +10,8 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
+extern crate lazy_static;
 extern crate regex;
 
 extern crate mullvad_rpc;
@@ -17,6 +19,7 @@ extern crate mullvad_rpc;
 use error_chain::ChainedError;
 use regex::Regex;
 
+use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::HashMap;
 use std::env;
@@ -195,98 +198,54 @@ impl ProblemReport {
     /// Attach file log to this report. This method uses the error chain instead of log
     /// contents if error occurred when reading log file.
     pub fn add_log(&mut self, path: &Path) {
-        let content = self.redact(
-            read_file_lossy(path, LOG_MAX_READ_BYTES)
-                .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
-                .unwrap_or_else(|e| e.display_chain().to_string()),
-        );
-        let path = self.redact(path.to_string_lossy().into_owned());
+        let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
+            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+            .unwrap_or_else(|e| e.display_chain().to_string()));
+        let path = self.redact(&path.to_string_lossy());
         self.logs.push((path, content));
     }
 
-    fn redact(&self, input: String) -> String {
-        let mut out = self.redact_home_dir(input);
-
-        out = self.redact_network_info(&out);
-
-        self.redact_custom_strings(out)
+    fn redact(&self, input: &str) -> String {
+        let out1 = Self::redact_account_number(input);
+        let out2 = Self::redact_home_dir(&out1);
+        let out3 = Self::redact_network_info(&out2);
+        self.redact_custom_strings(&out3).to_string()
     }
 
-    fn redact_home_dir(&self, input: String) -> String {
+    fn redact_account_number(input: &str) -> Cow<str> {
+        lazy_static! {
+            static ref RE: Regex = Regex::new("\\d{16}").unwrap();
+        }
+        RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]")
+    }
+
+    fn redact_home_dir(input: &str) -> Cow<str> {
         match env::home_dir() {
-            Some(home) => input.replace(home.to_string_lossy().as_ref(), "~"),
-            None => input,
+            Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
+            None => Cow::from(input),
         }
     }
 
-    fn redact_network_info(&self, input: &str) -> String {
-        let combined_pattern = format!(
-            "\\b({}|{}|{})\\b",
-            self.build_ipv4_regex(),
-            self.build_ipv6_regex(),
-            self.build_mac_regex()
-        );
-        let re = Regex::new(&combined_pattern).unwrap();
-
-        re.replace_all(input, "[REDACTED]").to_string()
+    fn redact_network_info(input: &str) -> Cow<str> {
+        lazy_static! {
+            static ref RE: Regex = {
+                let combined_pattern = format!(
+                    "\\b({}|{}|{})\\b",
+                    build_ipv4_regex(),
+                    build_ipv6_regex(),
+                    build_mac_regex()
+                );
+                Regex::new(&combined_pattern).unwrap()
+            };
+        }
+        RE.replace_all(input, "[REDACTED]")
     }
 
-    fn build_mac_regex(&self) -> String {
-        let octet = "[[:xdigit:]]{2}"; // 0 - ff
-
-        // five pairs of two hexadecimal chars followed by colon or dash
-        // followed by a pair of hexadecimal chars
-        format!("(?:{0}[:-]){{5}}({0})", octet)
-    }
-
-    fn build_ipv4_regex(&self) -> String {
-        // regex adapted from  https://www.regular-expressions.info/ip.html
-
-        let above_250 = "25[0-5]";
-        let above_200 = "2[0-4][0-9]";
-        let above_100 = "1[0-9][0-9]";
-
-        // 100-119 | 120-126 | 128-129 | 130 - 199
-        let above_100_not_127 = "1(?:[01][0-9]|2[0-6]|2[89]|[3-9][0-9])";
-
-        let above_0 = "0?[0-9][0-9]?";
-
-        // matches 0-255, except 127
-        let first_octet = format!(
-            "(?:{}|{}|{}|{})",
-            above_250, above_200, above_100_not_127, above_0
-        );
-
-        // matches 0-255
-        let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
-
-        format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
-    }
-
-    fn build_ipv6_regex(&self) -> String {
-        let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
-
-        // Matches 1-7 hextets followed by one or two colons
-        // and one last hextet.
-        //
-        // This means that there are many
-        // invalid IPv6 addresses that matches this. E.g.
-        // all that has more than one instance of '::', but we
-        // don't really care.
-        let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
-
-        // Matches addresses without double colon. This is
-        // a separate regex to make it easier to not match
-        // on time
-        let long = format!("({0}:){{7}}{0}", hextet);
-
-        format!("(?:{})|(?:{})", short, long)
-    }
-
-    fn redact_custom_strings(&self, input: String) -> String {
-        let mut out = input;
+    fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        // Can probably me made a lot faster with aho-corasick if optimization is ever needed.
+        let mut out = Cow::from(input);
         for redact in &self.redact_custom_strings {
-            out = out.replace(redact, "[REDACTED]")
+            out = out.replace(redact, "[REDACTED]").into()
         }
         out
     }
@@ -308,6 +267,58 @@ impl fmt::Display for ProblemReport {
         }
         Ok(())
     }
+}
+
+fn build_mac_regex() -> String {
+    let octet = "[[:xdigit:]]{2}"; // 0 - ff
+
+    // five pairs of two hexadecimal chars followed by colon or dash
+    // followed by a pair of hexadecimal chars
+    format!("(?:{0}[:-]){{5}}({0})", octet)
+}
+
+fn build_ipv4_regex() -> String {
+    // regex adapted from  https://www.regular-expressions.info/ip.html
+
+    let above_250 = "25[0-5]";
+    let above_200 = "2[0-4][0-9]";
+    let above_100 = "1[0-9][0-9]";
+
+    // 100-119 | 120-126 | 128-129 | 130 - 199
+    let above_100_not_127 = "1(?:[01][0-9]|2[0-6]|2[89]|[3-9][0-9])";
+
+    let above_0 = "0?[0-9][0-9]?";
+
+    // matches 0-255, except 127
+    let first_octet = format!(
+        "(?:{}|{}|{}|{})",
+        above_250, above_200, above_100_not_127, above_0
+    );
+
+    // matches 0-255
+    let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
+
+    format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
+}
+
+fn build_ipv6_regex() -> String {
+    let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
+
+    // Matches 1-7 hextets followed by one or two colons
+    // and one last hextet.
+    //
+    // This means that there are many
+    // invalid IPv6 addresses that matches this. E.g.
+    // all that has more than one instance of '::', but we
+    // don't really care.
+    let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
+
+    // Matches addresses without double colon. This is
+    // a separate regex to make it easier to not match
+    // on time
+    let long = format!("({0}:){{7}}{0}", hextet);
+
+    format!("(?:{})|(?:{})", short, long)
 }
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
@@ -390,14 +401,14 @@ mod tests {
 
     fn assert_redacts_ipv4(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("pre {} post", input));
+        let actual = report.redact(&format!("pre {} post", input));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
     fn does_not_redact_localhost_ipv4() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("127.0.0.1".to_owned());
+        let res = report.redact("127.0.0.1");
         assert_eq!("127.0.0.1", res);
     }
 
@@ -419,27 +430,27 @@ mod tests {
     #[test]
     fn doesnt_redact_not_ipv6() {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("[talpid_core::firewall]"));
+        let actual = report.redact("[talpid_core::firewall]");
         assert_eq!("[talpid_core::firewall]", actual);
     }
 
     fn assert_redacts_ipv6(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(format!("pre {} post", input));
+        let actual = report.redact(&format!("pre {} post", input));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
     fn test_does_not_redact_localhost_ipv6() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("::1".to_owned());
+        let res = report.redact("::1");
         assert_eq!("::1", res);
     }
 
     #[test]
     fn test_does_not_redact_time() {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("09:47:59".to_owned());
+        let res = report.redact("09:47:59");
         assert_eq!("09:47:59", res);
     }
 }

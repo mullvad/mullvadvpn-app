@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
   position.
+- Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
+  account numbers.
 
 
 ## [2018.1] - 2018-03-01
