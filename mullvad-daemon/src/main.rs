@@ -754,8 +754,8 @@ fn run() -> Result<()> {
     init_logger(config.log_level, config.log_file.as_ref())?;
     log_version();
 
-    if !user_is_root() {
-        warn!("Running daemon as a non-root user, clients might refuse to connect");
+    if !running_as_admin() {
+        warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
@@ -833,13 +833,13 @@ fn get_resource_dir() -> PathBuf {
 }
 
 #[cfg(unix)]
-fn user_is_root() -> bool {
+fn running_as_admin() -> bool {
     let uid = unsafe { libc::getuid() };
     uid == 0
 }
 
 #[cfg(windows)]
-fn user_is_root() -> bool {
+fn running_as_admin() -> bool {
     // TODO: Check if user is administrator correctly on Windows.
     true
 }
