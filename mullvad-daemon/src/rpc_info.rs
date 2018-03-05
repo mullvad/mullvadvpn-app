@@ -2,9 +2,6 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
-#[cfg(unix)]
-use libc;
-
 error_chain! {
     errors {
         WriteFailed(path: PathBuf) {
@@ -50,9 +47,6 @@ pub fn remove() -> Result<()> {
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
-    if !user_is_root() {
-        warn!("Running daemon as a non-root user, clients might refuse to connect");
-    }
     let file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -60,18 +54,6 @@ fn open_file(path: &Path) -> io::Result<File> {
         .open(path)?;
     set_rpc_file_permissions(&file)?;
     Ok(file)
-}
-
-#[cfg(unix)]
-fn user_is_root() -> bool {
-    let uid = unsafe { libc::getuid() };
-    uid == 0
-}
-
-#[cfg(windows)]
-fn user_is_root() -> bool {
-    // TODO: Check if user is administrator correctly on Windows.
-    true
 }
 
 #[cfg(unix)]
