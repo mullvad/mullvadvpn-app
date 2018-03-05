@@ -673,7 +673,9 @@ impl Daemon {
 
         // Try to remove file first, in case rename fails to overwrite it
         fs::remove_file(&backup).unwrap_or_else(|error| {
-            warn!("Failed to remove old backup of tunnel log file ({})", error);
+            if error.kind() != io::ErrorKind::NotFound {
+                warn!("Failed to remove old backup of tunnel log file ({})", error);
+            }
         });
 
         fs::rename(log_file, backup).unwrap_or_else(|error| {
