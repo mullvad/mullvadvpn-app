@@ -671,12 +671,10 @@ impl Daemon {
         let mut backup = log_file.clone();
         backup.set_extension("old.log");
 
-        if backup.exists() {
-            // Try to remove file first, in case rename fails to overwrite it
-            fs::remove_file(&backup).unwrap_or_else(|error| {
-                warn!("Failed to remove old backup of tunnel log file ({})", error);
-            });
-        }
+        // Try to remove file first, in case rename fails to overwrite it
+        fs::remove_file(&backup).unwrap_or_else(|error| {
+            warn!("Failed to remove old backup of tunnel log file ({})", error);
+        });
 
         fs::rename(log_file, backup).unwrap_or_else(|error| {
             warn!(
