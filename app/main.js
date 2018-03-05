@@ -10,6 +10,7 @@ import shellescape from 'shell-escape';
 import { version } from '../package.json';
 import { parseIpcCredentials } from './lib/backend';
 import { resolveBin } from './lib/proc';
+import { getSystemTemporaryDirectory } from './lib/tempdir';
 import { canTrustRpcAddressFile } from './lib/rpc-file-security';
 import { execFile } from 'child_process';
 import uuid from 'uuid';
@@ -18,17 +19,11 @@ import type { TrayIconType } from './lib/tray-icon-manager';
 
 const isDevelopment = (process.env.NODE_ENV === 'development');
 const isMacOS = (process.platform === 'darwin');
-const isLinux = (process.platform === 'linux');
 
 // The name for application directory used for
 // scoping logs and user data in platform special folders
 const appDirectoryName = 'MullvadVPN';
-
-const writableDirectory = isMacOS || isLinux
-  ? '/tmp'
-  : app.getPath('temp');
-
-const rpcAddressFile = path.join(writableDirectory, '.mullvad_rpc_address');
+const rpcAddressFile = path.join(getSystemTemporaryDirectory(), '.mullvad_rpc_address');
 
 let browserWindowReady = false;
 
@@ -115,7 +110,7 @@ const appDelegate = {
 
         const logFiles = files.filter(file => file.endsWith('.log'))
           .map(f => path.join(appDelegate._logFileLocation, f));
-        const reportPath = path.join(writableDirectory, uuid.v4() + '.log');
+        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
 
         const binPath = resolveBin('problem-report');
         let args = [
