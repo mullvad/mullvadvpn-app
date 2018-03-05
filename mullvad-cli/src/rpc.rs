@@ -72,7 +72,10 @@ fn check_if_rpc_file_can_be_trusted(metadata: Metadata) -> Result<()> {
     let is_read_only_by_non_owner = (metadata.mode() & 0o022) == 0;
 
     ensure!(is_owned_by_root, "RPC file is not owned by root");
-    ensure!(is_read_only_by_non_owner, "RPC file is writable by non-root users");
+    ensure!(
+        is_read_only_by_non_owner,
+        "RPC file is writable by non-root users"
+    );
 
     Ok(())
 }
