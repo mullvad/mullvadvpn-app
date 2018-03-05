@@ -59,7 +59,7 @@ fn open_rpc_file() -> Result<File> {
         RPC_ADDRESS_FILE_PATH.to_string_lossy()
     );
     let file = File::open(&*RPC_ADDRESS_FILE_PATH)?;
-    check_if_rpc_file_can_be_trusted(file.metadata()?).chain_err(|| "RPC file is not trusted")?;
+    check_if_rpc_file_can_be_trusted(file.metadata()?).chain_err(|| "Refusing to trust RPC file")?;
 
     Ok(file)
 }
