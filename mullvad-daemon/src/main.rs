@@ -664,7 +664,10 @@ impl Daemon {
         }
 
         fs::rename(log_file, backup).unwrap_or_else(|error| {
-            warn!("Failed to create backup of previous tunnel log file ({})", error);
+            warn!(
+                "Failed to create backup of previous tunnel log file ({})",
+                error
+            );
         });
     }
 
