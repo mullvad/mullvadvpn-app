@@ -15,7 +15,6 @@ fern = { version = "0.5", features = ["colored"] }
 futures = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-libc = "0.2"
 log = "0.4"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v7.1.1" }
@@ -35,6 +34,7 @@ talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(unix)'.dependencies]
+libc = "0.2"
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
