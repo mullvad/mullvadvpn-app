@@ -27,6 +27,11 @@ declare module 'electron' {
     y: number;
   }
 
+  declare type Point = {
+    x: number;
+    y: number;
+  }
+
   // http://electron.atom.io/docs/api/app
 
   declare class App extends EventEmitter {
@@ -78,6 +83,27 @@ declare module 'electron' {
     setHighlightMode(mode: 'selection' | 'always' | 'never'): void;
     setImage(image: NativeImage | string): void;
     setPressedImage(image: NativeImage | string): void;
+  }
+
+  // https://electronjs.org/docs/api/screen
+
+  declare type Display = {
+    id: number;
+    rotation: number;
+    scaleFactor: number;
+    touchSupport: 'available' | 'unavailable' | 'unknown';
+    bounds: Rectangle;
+    size: Size;
+    workArea: Rectangle;
+    workAreaSize: Size;
+  }
+
+  declare class Screen extends EventEmitter {
+    getCursorScreenPoint(): Point;
+    getPrimaryDisplay(): Display;
+    getAllDisplays(): Array<Display>;
+    getDisplayNearestPoint(point: Point): Display;
+    getDisplayMatching(rect: Rectangle): Display;
   }
 
   // http://electron.atom.io/docs/api/web-frame
@@ -191,4 +217,5 @@ declare module 'electron' {
   declare var remote: Remote;
   declare var shell: Shell;
   declare var clipboard: Clipboard;
+  declare var screen: Screen;
 }
