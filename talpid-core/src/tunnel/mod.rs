@@ -5,6 +5,7 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
+use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
@@ -24,6 +25,14 @@ mod errors {
             /// An error indicating there was an error listening for events from the VPN tunnel.
             TunnelMonitoringError {
                 description("Error while setting up or processing events from the VPN tunnel")
+            }
+            /// Failed to get the current executable path.
+            ExecutablePathInaccessible {
+                description("Error while reading current executable path")
+            }
+            /// Obtained executable path doesn't have a parent directory.
+            ExecutableHasNoParentDir {
+                description("Executable path has no directories")
             }
             /// The OpenVPN plugin was not found.
             PluginNotFound {
@@ -145,11 +154,8 @@ impl TunnelMonitor {
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(
-            cmd,
-            on_openvpn_event,
-            Self::get_plugin_path(resource_dir)?,
-        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
+            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -191,9 +197,11 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
+    fn get_plugin_path() -> Result<PathBuf> {
         let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
-        let path = resource_dir.join(library);
+        let mut path = Self::get_executable_dir().chain_err(|| ErrorKind::PluginNotFound)?;
+
+        path.push(library);
 
         if path.exists() {
             debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
@@ -201,6 +209,15 @@ impl TunnelMonitor {
         } else {
             Err(ErrorKind::PluginNotFound.into())
         }
+    }
+
+    fn get_executable_dir() -> Result<PathBuf> {
+        let exe_path = env::current_exe().chain_err(|| ErrorKind::ExecutablePathInaccessible)?;
+
+        exe_path
+            .parent()
+            .map(Path::to_path_buf)
+            .ok_or(ErrorKind::ExecutableHasNoParentDir.into())
     }
 
     fn get_library_name() -> Result<&'static str> {
