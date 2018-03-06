@@ -480,7 +480,6 @@ const appDelegate = {
 
   _createTray: (window: BrowserWindow): Tray => {
     const tray = new Tray(nativeImage.createEmpty());
-    tray.setHighlightMode('never');
     tray.on('click', () => appDelegate._toggleWindow(window, tray));
 
     // add IPC handler to change tray icon from renderer
@@ -491,8 +490,11 @@ const appDelegate = {
     window.on('close', () => window.closeDevTools());
     window.on('blur', () => !window.isDevToolsOpened() && window.hide());
 
-    // apply macOS patch for windows.blur
     if(process.platform === 'darwin') {
+      // disable icon highlight on macOS
+      tray.setHighlightMode('never');
+
+      // apply macOS patch for windows.blur
       appDelegate._macOSFixInconsistentWindowBlur(window);
     }
 
