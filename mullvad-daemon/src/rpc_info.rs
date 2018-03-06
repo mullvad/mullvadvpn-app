@@ -60,7 +60,7 @@ pub fn remove() -> Result<()> {
 }
 
 fn other_daemon_responds() -> bool {
-    if let Err(message) = check_other_daemon() {
+    if let Err(message) = call_other_daemon() {
         info!("{}; assuming it has stopped", message);
         return false;
     } else {
@@ -68,7 +68,7 @@ fn other_daemon_responds() -> bool {
     }
 }
 
-fn check_other_daemon() -> result::Result<(), String> {
+fn call_other_daemon() -> result::Result<(), String> {
     let method = "get_state";
     let args: [u8; 0] = [];
     let address = read_rpc_file().map_err(|_| "Failed to read RPC address file of other daemon")?;
