@@ -32,10 +32,10 @@ lazy_static! {
 }
 
 
-pub fn no_other_instance_is_running() -> bool {
-    let rpc_file_doesnt_exist = !RPC_ADDRESS_FILE_PATH.as_path().exists();
+pub fn other_instance_is_running() -> bool {
+    let rpc_file_exists = RPC_ADDRESS_FILE_PATH.as_path().exists();
 
-    rpc_file_doesnt_exist || other_daemon_isnt_responding()
+    rpc_file_exists && other_daemon_responds()
 }
 
 /// Writes down the RPC connection info to some API to a file.
@@ -59,12 +59,12 @@ pub fn remove() -> Result<()> {
         .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
 }
 
-fn other_daemon_isnt_responding() -> bool {
+fn other_daemon_responds() -> bool {
     if let Err(message) = check_other_daemon() {
         info!("{}; assuming it has stopped", message);
-        return true;
-    } else {
         return false;
+    } else {
+        return true;
     }
 }
 
