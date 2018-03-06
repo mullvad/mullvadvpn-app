@@ -643,10 +643,7 @@ impl Daemon {
 
         self.set_security_policy()?;
 
-        if let Some(ref file) = self.tunnel_log {
-            let _ = fs::remove_file(file);
-            fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
-        }
+        self.prepare_tunnel_log_file()?;
 
         let tunnel_monitor =
             self.spawn_tunnel_monitor(self.tunnel_endpoint.unwrap(), &account_token)?;
@@ -654,6 +651,26 @@ impl Daemon {
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
         self.set_state(TunnelState::Connecting)?;
+        Ok(())
+    }
+
+    fn prepare_tunnel_log_file(&self) -> Result<()> {
+        if let Some(ref file) = self.tunnel_log {
+            let mut backup = file.clone();
+            backup.set_extension("old.log");
+
+            fs::rename(file, backup).unwrap_or_else(|error| {
+                if error.kind() != io::ErrorKind::NotFound {
+                    warn!(
+                        "Failed to create backup of previous tunnel log file ({})",
+                        error
+                    );
+                }
+            });
+
+            fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
+        }
+
         Ok(())
     }
 
