@@ -35,7 +35,7 @@ error_chain! {
 quick_main!(run);
 
 fn run() -> Result<()> {
-    env_logger::init().chain_err(|| "Failed to bootstrap logging system")?;
+    env_logger::init();
 
     let commands = cmds::get_commands();
 

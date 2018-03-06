@@ -17,5 +17,5 @@ url = "1.4"
 
 [dev-dependencies]
 assert_matches = "1.0"
-env_logger = "0.4"
+env_logger = "0.5"
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v8.0.1" }
