@@ -34,6 +34,7 @@ talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(unix)'.dependencies]
+libc = "0.2"
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]

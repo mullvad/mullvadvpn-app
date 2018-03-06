@@ -14,6 +14,8 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
+#[cfg(unix)]
+extern crate libc;
 #[macro_use]
 extern crate log;
 
@@ -766,6 +768,10 @@ fn run() -> Result<()> {
         .chain_err(|| "Unable to initialize logger")?;
     log_version();
 
+    if !running_as_admin() {
+        warn!("Running daemon as a non-administrator user, clients might refuse to connect");
+    }
+
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
     let daemon = Daemon::new(config.tunnel_log_file, resource_dir, config.require_auth)
         .chain_err(|| "Unable to initialize daemon")?;
@@ -804,4 +810,16 @@ fn get_resource_dir() -> PathBuf {
             PathBuf::from(".")
         }
     }
+}
+
+#[cfg(unix)]
+fn running_as_admin() -> bool {
+    let uid = unsafe { libc::getuid() };
+    uid == 0
+}
+
+#[cfg(windows)]
+fn running_as_admin() -> bool {
+    // TODO: Check if user is administrator correctly on Windows.
+    true
 }
