@@ -480,6 +480,9 @@ const appDelegate = {
 
   _createTray: (window: BrowserWindow): Tray => {
     const tray = new Tray(nativeImage.createEmpty());
+
+    // configure tray icon
+    tray.setToolTip('Mullvad VPN');
     tray.on('click', () => appDelegate._toggleWindow(window, tray));
 
     // add IPC handler to change tray icon from renderer
