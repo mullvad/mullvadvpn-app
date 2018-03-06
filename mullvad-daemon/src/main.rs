@@ -285,7 +285,7 @@ impl Daemon {
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
-        ensure!(rpc_info::no_other_instance_is_running(), ErrorKind::DaemonIsAlreadyRunning);
+        ensure!(!rpc_info::other_instance_is_running(), ErrorKind::DaemonIsAlreadyRunning);
 
         let shared_secret = if require_auth {
             Some(uuid::Uuid::new_v4().to_string())
