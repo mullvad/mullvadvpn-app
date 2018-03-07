@@ -1,7 +1,7 @@
 use error_chain;
 
 use error_chain::ChainedError;
-use jsonrpc_core::{Error, ErrorCode, Metadata};
+use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_macros::pubsub;
@@ -193,7 +193,8 @@ impl ManagementInterfaceServer {
 
         let mut io = PubSubHandler::default();
         io.extend_with(rpc.to_delegate());
-        let server = talpid_ipc::IpcServer::start_with_metadata(io.into(), meta_extractor)?;
+        let meta_io: MetaIoHandler<Meta> = io.into();
+        let server = talpid_ipc::IpcServer::start_with_metadata(meta_io, meta_extractor)?;
         Ok(ManagementInterfaceServer {
             server,
             subscriptions,

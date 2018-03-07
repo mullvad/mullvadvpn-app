@@ -30,7 +30,7 @@ impl TestApi for ApiImpl {
 
 #[test]
 fn ipc_client_server() {
-    env_logger::init().unwrap();
+    env_logger::init();
 
     let (server, rx) = create_server();
     let server_id = server.address().to_owned();
