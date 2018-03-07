@@ -47,7 +47,8 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc_info;
+mod rpc_uniqueness_check;
+mod rpc_address_file;
 mod settings;
 mod shutdown;
 
@@ -288,7 +289,7 @@ impl Daemon {
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
         ensure!(
-            !rpc_info::is_another_instance_running(),
+            !rpc_uniqueness_check::is_another_instance_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 
@@ -307,7 +308,7 @@ impl Daemon {
         );
 
         let written_shared_secret = shared_secret.unwrap_or(String::from(""));
-        rpc_info::write(server.address(), &written_shared_secret).chain_err(|| {
+        rpc_address_file::write(server.address(), &written_shared_secret).chain_err(|| {
             ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
         })?;
         Ok(server)
@@ -778,7 +779,9 @@ impl DaemonShutdownHandle {
 
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
-        if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
+        if let Err(e) =
+            rpc_address_file::remove().chain_err(|| "Unable to clean up rpc address file")
+        {
             error!("{}", e.display_chain());
         }
     }

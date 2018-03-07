@@ -1,10 +1,6 @@
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
-use std::result;
-
-use mullvad_types::states::DaemonState;
-use talpid_ipc::WsIpcClient;
 
 error_chain! {
     errors {
@@ -32,17 +28,13 @@ lazy_static! {
 }
 
 
-/// Checks if there is another instance of the daemon running.
-///
-/// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
-/// other daemon has stopped.
-pub fn is_another_instance_running() -> bool {
-    if let Err(message) = call_other_daemon() {
-        info!("{}; assuming it has stopped", message);
-        false
-    } else {
-        true
-    }
+/// Reads the address of the RPC connection from the RPC info file.
+pub fn read() -> io::Result<String> {
+    let file = File::open(RPC_ADDRESS_FILE_PATH.as_path())?;
+    let mut reader = BufReader::new(file);
+    let mut address = String::new();
+    reader.read_line(&mut address)?;
+    Ok(address)
 }
 
 /// Writes down the RPC connection info to some API to a file.
@@ -73,27 +65,6 @@ pub fn remove() -> Result<()> {
     } else {
         Ok(())
     }
-}
-
-fn call_other_daemon() -> result::Result<(), String> {
-    let method = "get_state";
-    let args: [u8; 0] = [];
-    let address = read_rpc_file().map_err(|_| "Failed to read RPC address file of other daemon")?;
-    // TODO: Authenticate with server
-    let mut rpc_client =
-        WsIpcClient::new(address).map_err(|_| "Failed to connect to other daemon")?;
-    let _: DaemonState = rpc_client
-        .call(method, &args)
-        .map_err(|_| "Failed to execute RPC call to other daemon")?;
-    Ok(())
-}
-
-fn read_rpc_file() -> io::Result<String> {
-    let file = File::open(RPC_ADDRESS_FILE_PATH.as_path())?;
-    let mut reader = BufReader::new(file);
-    let mut address = String::new();
-    reader.read_line(&mut address)?;
-    Ok(address)
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
