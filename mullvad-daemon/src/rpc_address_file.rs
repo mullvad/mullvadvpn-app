@@ -28,11 +28,6 @@ lazy_static! {
 }
 
 
-/// Checks if the RPC info file exists.
-pub fn exists() -> bool {
-    RPC_ADDRESS_FILE_PATH.as_path().exists()
-}
-
 /// Reads the address of the RPC connection from the RPC info file.
 pub fn read() -> io::Result<String> {
     let file = File::open(RPC_ADDRESS_FILE_PATH.as_path())?;
