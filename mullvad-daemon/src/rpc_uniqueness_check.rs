@@ -11,10 +11,6 @@ use rpc_address_file;
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn other_instance_is_running() -> bool {
-    rpc_address_file::exists() && other_daemon_responds()
-}
-
-fn other_daemon_responds() -> bool {
     if let Err(message) = call_other_daemon() {
         info!("{}; assuming it has stopped", message);
         return false;
