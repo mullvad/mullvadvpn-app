@@ -11,19 +11,22 @@ use rpc_address_file;
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
-    if let Err(message) = call_other_daemon() {
-        info!("{}; assuming it has stopped", message);
-        false
+    if let Ok(address) = rpc_address_file::read() {
+        match call_other_instance(address) {
+            Ok(_) => true,
+            Err(message) => {
+                info!("{}; assuming it has stopped", message);
+                false
+            }
+        }
     } else {
-        true
+        false
     }
 }
 
-fn call_other_daemon() -> result::Result<(), String> {
+fn call_other_instance(address: String) -> result::Result<(), String> {
     let method = "get_state";
     let args: [u8; 0] = [];
-    let address =
-        rpc_address_file::read().map_err(|_| "Failed to read RPC address file of other daemon")?;
     // TODO: Authenticate with server
     let mut rpc_client =
         WsIpcClient::new(address).map_err(|_| "Failed to connect to other daemon")?;
