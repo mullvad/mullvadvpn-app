@@ -40,7 +40,7 @@ pub fn read() -> io::Result<String> {
 /// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     // Avoids opening an existing file owned by another user and writing sensitive data to it.
-    remove_previous()?;
+    remove()?;
 
     open_file(RPC_ADDRESS_FILE_PATH.as_path())
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
@@ -53,29 +53,19 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     Ok(())
 }
 
-/// Removes the created RPC file.
-///
-/// Fails if the file doesn't exist.
+/// Removes the RPC file, if it exists.
 pub fn remove() -> Result<()> {
-    fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path())
-        .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
-}
-
-/// Removes previous RPC file, if it exists.
-///
-/// Doesn't fail if the file doesn't exist.
-fn remove_previous() -> Result<()> {
-    match fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
-        Err(error) => {
-            if error.kind() == io::ErrorKind::NotFound {
-                // No previously existing file
-                Ok(())
-            } else {
-                Err(error).chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
-            }
+    if let Err(error) = fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
+        if error.kind() == io::ErrorKind::NotFound {
+            // No previously existing file
+            return Ok(());
+        } else {
+            return Err(error)
+                .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()));
         }
-        Ok(_) => Ok(()),
     }
+
+    Ok(())
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
