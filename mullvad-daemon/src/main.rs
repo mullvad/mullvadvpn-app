@@ -47,7 +47,7 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc_info;
+mod rpc;
 mod settings;
 mod shutdown;
 
@@ -80,6 +80,8 @@ use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::TunnelEndpoint;
 
 use std::fs;
+
+use rpc::rpc_info;
 
 
 error_chain!{
@@ -288,7 +290,7 @@ impl Daemon {
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
         ensure!(
-            !rpc_info::other_instance_is_running(),
+            !rpc::other_instance_is_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 
