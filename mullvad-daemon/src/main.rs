@@ -47,7 +47,7 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc;
+mod rpc_uniqueness_check;
 mod rpc_address_file;
 mod settings;
 mod shutdown;
@@ -289,7 +289,7 @@ impl Daemon {
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
         ensure!(
-            !rpc::other_instance_is_running(),
+            !rpc_uniqueness_check::other_instance_is_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 
