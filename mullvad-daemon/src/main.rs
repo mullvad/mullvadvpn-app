@@ -289,7 +289,7 @@ impl Daemon {
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
         ensure!(
-            !rpc_uniqueness_check::other_instance_is_running(),
+            !rpc_uniqueness_check::is_another_instance_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 

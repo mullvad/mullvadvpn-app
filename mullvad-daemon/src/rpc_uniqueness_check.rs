@@ -6,11 +6,11 @@ use talpid_ipc::WsIpcClient;
 use rpc_address_file;
 
 
-/// Verifies if there is another instance of the daemon running.
+/// Checks if there is another instance of the daemon running.
 ///
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
-pub fn other_instance_is_running() -> bool {
+pub fn is_another_instance_running() -> bool {
     if let Err(message) = call_other_daemon() {
         info!("{}; assuming it has stopped", message);
         false
