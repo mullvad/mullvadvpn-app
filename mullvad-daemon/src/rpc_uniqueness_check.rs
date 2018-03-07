@@ -13,9 +13,9 @@ use rpc_address_file;
 pub fn other_instance_is_running() -> bool {
     if let Err(message) = call_other_daemon() {
         info!("{}; assuming it has stopped", message);
-        return false;
+        false
     } else {
-        return true;
+        true
     }
 }
 

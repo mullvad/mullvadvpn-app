@@ -58,14 +58,13 @@ pub fn remove() -> Result<()> {
     if let Err(error) = fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
         if error.kind() == io::ErrorKind::NotFound {
             // No previously existing file
-            return Ok(());
+            Ok(())
         } else {
-            return Err(error)
-                .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()));
+            Err(error).chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
         }
+    } else {
+        Ok(())
     }
-
-    Ok(())
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
