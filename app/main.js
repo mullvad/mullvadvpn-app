@@ -394,11 +394,14 @@ const appDelegate = {
     }
   },
 
+  _updateWindowPosition: (window: BrowserWindow, tray: Tray) => {
+    const { x, y } = appDelegate._getWindowPosition(window, tray);
+    window.setPosition(x, y, false);
+  },
+
   _showWindow: (window: BrowserWindow, tray: ?Tray) => {
-    // position window based on tray icon location
     if(tray) {
-      const { x, y } = appDelegate._getWindowPosition(window, tray);
-      window.setPosition(x, y, false);
+      appDelegate._updateWindowPosition(window, tray);
     }
 
     window.show();
@@ -484,6 +487,13 @@ const appDelegate = {
     // configure tray icon
     tray.setToolTip('Mullvad VPN');
     tray.on('click', () => appDelegate._toggleWindow(window, tray));
+
+    // add display metrics change handler
+    electron.screen.addListener('display-metrics-changed', (_event, _display, changedMetrics) => {
+      if(changedMetrics.includes('workArea') && window.isVisible()) {
+        appDelegate._updateWindowPosition(window, tray);
+      }
+    });
 
     // add IPC handler to change tray icon from renderer
     const trayIconManager = new TrayIconManager(tray, 'unsecured');
