@@ -57,6 +57,9 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     Ok(())
 }
 
+/// Removes the created RPC file.
+///
+/// Fails if the file doesn't exist.
 pub fn remove() -> Result<()> {
     fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path())
         .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
