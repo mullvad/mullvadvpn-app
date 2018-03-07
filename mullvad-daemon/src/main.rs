@@ -48,6 +48,7 @@ mod logging;
 mod management_interface;
 mod relays;
 mod rpc;
+mod rpc_address_file;
 mod settings;
 mod shutdown;
 
@@ -80,8 +81,6 @@ use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::TunnelEndpoint;
 
 use std::fs;
-
-use rpc::rpc_info;
 
 
 error_chain!{
@@ -309,7 +308,7 @@ impl Daemon {
         );
 
         let written_shared_secret = shared_secret.unwrap_or(String::from(""));
-        rpc_info::write(server.address(), &written_shared_secret).chain_err(|| {
+        rpc_address_file::write(server.address(), &written_shared_secret).chain_err(|| {
             ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
         })?;
         Ok(server)
@@ -780,7 +779,9 @@ impl DaemonShutdownHandle {
 
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
-        if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
+        if let Err(e) =
+            rpc_address_file::remove().chain_err(|| "Unable to clean up rpc address file")
+        {
             error!("{}", e.display_chain());
         }
     }
