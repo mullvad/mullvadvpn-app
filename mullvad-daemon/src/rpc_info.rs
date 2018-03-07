@@ -40,8 +40,7 @@ pub fn other_instance_is_running() -> bool {
 
 /// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
-    // Remove any existent RPC address file first
-    let _ = remove();
+    remove_existing()?;
 
     open_file(RPC_ADDRESS_FILE_PATH.as_path())
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
@@ -57,6 +56,23 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
 pub fn remove() -> Result<()> {
     fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path())
         .chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
+}
+
+/// Removes previous RPC file, if it exists.
+///
+/// Avoids opening an existing file owned by another user and writing sensitive data to it.
+fn remove_existing() -> Result<()> {
+    match fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
+        Err(error) => {
+            if error.kind() == io::ErrorKind::NotFound {
+                // No previously existing file
+                Ok(())
+            } else {
+                Err(error).chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
+            }
+        }
+        Ok(_) => Ok(()),
+    }
 }
 
 fn other_daemon_responds() -> bool {
