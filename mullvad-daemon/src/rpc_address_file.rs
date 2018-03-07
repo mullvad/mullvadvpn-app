@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 error_chain! {
     errors {
         WriteFailed(path: PathBuf) {
-            description("Failed to write RCP connection info to file")
+            description("Failed to write RPC connection info to file")
             display("Failed to write RPC connection info to {}", path.to_string_lossy())
         }
         RemoveFailed(path: PathBuf) {
