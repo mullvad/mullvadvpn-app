@@ -44,7 +44,8 @@ pub fn read() -> io::Result<String> {
 
 /// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
-    remove_existing()?;
+    // Avoids opening an existing file owned by another user and writing sensitive data to it.
+    remove_previous()?;
 
     open_file(RPC_ADDRESS_FILE_PATH.as_path())
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
@@ -67,8 +68,8 @@ pub fn remove() -> Result<()> {
 
 /// Removes previous RPC file, if it exists.
 ///
-/// Avoids opening an existing file owned by another user and writing sensitive data to it.
-fn remove_existing() -> Result<()> {
+/// Doesn't fail if the file doesn't exist.
+fn remove_previous() -> Result<()> {
     match fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
         Err(error) => {
             if error.kind() == io::ErrorKind::NotFound {
