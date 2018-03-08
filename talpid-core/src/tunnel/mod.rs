@@ -5,6 +5,7 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
+use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
@@ -145,11 +146,8 @@ impl TunnelMonitor {
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(
-            cmd,
-            on_openvpn_event,
-            Self::get_plugin_path(resource_dir)?,
-        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
+            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -191,15 +189,33 @@ impl TunnelMonitor {
         }
     }
 
-    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
+    fn get_plugin_path() -> Result<PathBuf> {
         let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
-        let path = resource_dir.join(library);
+        let mut path = Self::get_executable_dir();
+
+        path.push(library);
 
         if path.exists() {
             debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
             Ok(path)
         } else {
             Err(ErrorKind::PluginNotFound.into())
+        }
+    }
+
+    fn get_executable_dir() -> PathBuf {
+        match env::current_exe() {
+            Ok(mut path) => {
+                path.pop();
+                path
+            }
+            Err(e) => {
+                error!(
+                    "Failed finding the install directory. Using working directory: {}",
+                    e
+                );
+                PathBuf::from(".")
+            }
         }
     }
 

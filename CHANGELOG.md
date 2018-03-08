@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   position.
 - Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
   account numbers.
+- Fix OpenVPN plugin search directory to be the installation directory.
 
 
 ## [2018.1] - 2018-03-01
