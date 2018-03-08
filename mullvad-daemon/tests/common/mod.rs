@@ -52,7 +52,7 @@ impl DaemonInstance {
             let search_result = Self::search_in_stdout(stdout, pattern);
             searcher_tx
                 .send(search_result)
-                .expect("failed to report searc result");
+                .expect("failed to report search result");
         });
 
         assert!(
