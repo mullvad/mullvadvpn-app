@@ -211,6 +211,11 @@ impl Daemon {
         resource_dir: PathBuf,
         require_auth: bool,
     ) -> Result<Self> {
+        ensure!(
+            !rpc_uniqueness_check::is_another_instance_running(),
+            ErrorKind::DaemonIsAlreadyRunning
+        );
+
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(|core| {
                 let handle = core.handle();
@@ -288,11 +293,6 @@ impl Daemon {
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
         require_auth: bool,
     ) -> Result<ManagementInterfaceServer> {
-        ensure!(
-            !rpc_uniqueness_check::is_another_instance_running(),
-            ErrorKind::DaemonIsAlreadyRunning
-        );
-
         let shared_secret = if require_auth {
             Some(uuid::Uuid::new_v4().to_string())
         } else {
