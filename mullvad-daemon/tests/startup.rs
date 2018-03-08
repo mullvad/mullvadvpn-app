@@ -18,7 +18,7 @@ fn rpc_info_file_permissions() {
 
     let mut daemon = DaemonInstance::new();
 
-    daemon.expect(
+    daemon.assert_log_contains(
         "Mullvad management interface listening on",
         Duration::from_secs(10),
     );
