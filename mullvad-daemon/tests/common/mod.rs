@@ -37,28 +37,16 @@ impl DaemonInstance {
 
     pub fn assert_log_contains(&mut self, pattern: &'static str, timeout: Duration) {
         let (tx, rx) = mpsc::channel();
-        let timeout_tx = tx.clone();
-        let searcher_tx = tx;
         let stdout = self.output.clone();
 
-        // Timeout thread
         thread::spawn(move || {
-            thread::sleep(timeout);
-            timeout_tx.send(false).expect("failed to report timeout");
+            if Self::search_in_stdout(stdout, pattern) {
+                tx.send(()).expect("failed to report search result");
+            }
         });
 
-        // Searcher thread
-        thread::spawn(move || {
-            let search_result = Self::search_in_stdout(stdout, pattern);
-            searcher_tx
-                .send(search_result)
-                .expect("failed to report search result");
-        });
-
-        assert!(
-            rx.recv()
-                .expect(&format!("failed to search for {:?}", pattern))
-        );
+        rx.recv_timeout(timeout)
+            .expect(&format!("failed to search for {:?}", pattern));
     }
 
     fn search_in_stdout(stdout: Arc<Mutex<BufReader<ChildStdout>>>, pattern: &str) -> bool {
@@ -69,7 +57,6 @@ impl DaemonInstance {
                 output
                     .read_line(&mut line)
                     .expect("failed to read line from daemon stdout");
-                println!("{:?}", line);
             }
 
             true
