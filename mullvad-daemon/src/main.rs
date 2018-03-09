@@ -47,7 +47,8 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc_info;
+mod rpc_uniqueness_check;
+mod rpc_address_file;
 mod settings;
 mod shutdown;
 
@@ -84,6 +85,9 @@ use std::fs;
 
 error_chain!{
     errors {
+        DaemonIsAlreadyRunning {
+            description("Another instance of the daemon is already running")
+        }
         /// The client is in the wrong state for the requested operation. Optimally the code should
         /// be written in such a way so such states can't exist.
         InvalidState {
@@ -207,6 +211,11 @@ impl Daemon {
         resource_dir: PathBuf,
         require_auth: bool,
     ) -> Result<Self> {
+        ensure!(
+            !rpc_uniqueness_check::is_another_instance_running(),
+            ErrorKind::DaemonIsAlreadyRunning
+        );
+
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(|core| {
                 let handle = core.handle();
@@ -299,7 +308,7 @@ impl Daemon {
         );
 
         let written_shared_secret = shared_secret.unwrap_or(String::from(""));
-        rpc_info::write(server.address(), &written_shared_secret).chain_err(|| {
+        rpc_address_file::write(server.address(), &written_shared_secret).chain_err(|| {
             ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
         })?;
         Ok(server)
@@ -770,7 +779,9 @@ impl DaemonShutdownHandle {
 
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
-        if let Err(e) = rpc_info::remove().chain_err(|| "Unable to clean up rpc address file") {
+        if let Err(e) =
+            rpc_address_file::remove().chain_err(|| "Unable to clean up rpc address file")
+        {
             error!("{}", e.display_chain());
         }
     }
