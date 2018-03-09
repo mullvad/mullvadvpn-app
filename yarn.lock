@@ -2771,9 +2771,9 @@ electron-publish@19.55.2:
     fs-extra-p "^4.5.0"
     mime "^2.2.0"
 
-"electron-sudo@https://github.com/eriklarko/electron-sudo.git":
+"electron-sudo@https://github.com/mullvad/electron-sudo.git":
   version "4.0.12"
-  resolved "https://github.com/eriklarko/electron-sudo.git#f71134f86541b15359f4813715d721818fb2b1f4"
+  resolved "https://github.com/mullvad/electron-sudo.git#f71134f86541b15359f4813715d721818fb2b1f4"
   dependencies:
     babel-runtime "^6.18.0"
     bluebird "^3.4.6"
@@ -5526,9 +5526,9 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nseventmonitor@git+https://github.com/pronebird/NSEventMonitor.git#0.0.6":
+"nseventmonitor@git+https://github.com/mullvad/NSEventMonitor.git#0.0.6":
   version "0.0.6"
-  resolved "git+https://github.com/pronebird/NSEventMonitor.git#a67e14daa07e14577595e34aad2be81182c3f4f0"
+  resolved "git+https://github.com/mullvad/NSEventMonitor.git#a67e14daa07e14577595e34aad2be81182c3f4f0"
   dependencies:
     bindings "^1.2.1"
 
@@ -8083,9 +8083,9 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
 
-"windows-security@git+https://github.com/pronebird/windows-security.git#0.0.1":
+"windows-security@git+https://github.com/mullvad/windows-security.git#0.0.1":
   version "0.0.1"
-  resolved "git+https://github.com/pronebird/windows-security.git#c6f62c0bc3f34f473f22f778b96ab3c1371809f5"
+  resolved "git+https://github.com/mullvad/windows-security.git#c6f62c0bc3f34f473f22f778b96ab3c1371809f5"
   dependencies:
     bindings "^1.3.0"
 
