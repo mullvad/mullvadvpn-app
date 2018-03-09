@@ -8083,11 +8083,12 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
 
-"windows-security@git+https://github.com/mullvad/windows-security.git#0.0.1":
-  version "0.0.1"
-  resolved "git+https://github.com/mullvad/windows-security.git#c6f62c0bc3f34f473f22f778b96ab3c1371809f5"
+"windows-security@git+https://github.com/mullvad/windows-security.git#0.0.2":
+  version "0.0.2"
+  resolved "git+https://github.com/mullvad/windows-security.git#469d33767de2a52e9bf10f06f2d90024438d2084"
   dependencies:
     bindings "^1.3.0"
+    node-pre-gyp "^0.6.39"
 
 winston@*:
   version "2.4.0"
