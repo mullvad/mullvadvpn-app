@@ -37,9 +37,12 @@ lazy_static! {
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
-    let rpc_file_exists = RPC_ADDRESS_FILE_PATH.as_path().exists();
-
-    rpc_file_exists && other_daemon_responds()
+    if let Err(message) = call_other_daemon() {
+        info!("{}; assuming it has stopped", message);
+        false
+    } else {
+        true
+    }
 }
 
 /// Writes down the RPC connection info to some API to a file.
@@ -69,15 +72,6 @@ pub fn remove() -> Result<()> {
         }
     } else {
         Ok(())
-    }
-}
-
-fn other_daemon_responds() -> bool {
-    if let Err(message) = call_other_daemon() {
-        info!("{}; assuming it has stopped", message);
-        false
-    } else {
-        true
     }
 }
 
