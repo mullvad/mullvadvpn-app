@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::io::{BufRead, BufReader, Read};
 use std::process::{Child, ChildStdout, Command, Stdio};
 use std::sync::{mpsc, Arc, Mutex};
