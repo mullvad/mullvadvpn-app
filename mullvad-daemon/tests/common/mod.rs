@@ -4,6 +4,8 @@ use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+use libc;
+
 pub struct DaemonInstance {
     process: Child,
     output: Arc<Mutex<BufReader<ChildStdout>>>,
@@ -68,6 +70,10 @@ impl DaemonInstance {
 
 impl Drop for DaemonInstance {
     fn drop(&mut self) {
-        self.process.kill().expect("failed to kill daemon process");
+        let pid = self.process.id();
+
+        unsafe {
+            libc::kill(pid as i32, libc::SIGTERM);
+        }
     }
 }
