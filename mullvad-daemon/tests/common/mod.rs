@@ -1,31 +1,36 @@
 #![allow(dead_code)]
 
 use std::io::{BufRead, BufReader, Read};
-use std::process::{Child, ChildStdout, Command, Stdio};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+use duct;
+use duct::unix::HandleExt;
 use libc;
+use os_pipe::{pipe, PipeReader};
 
 pub struct DaemonInstance {
-    process: Child,
-    output: Arc<Mutex<BufReader<ChildStdout>>>,
+    process: duct::Handle,
+    output: Arc<Mutex<BufReader<PipeReader>>>,
 }
 
 impl DaemonInstance {
     pub fn new() -> Self {
-        let mut process = Command::new("target/debug/mullvad-daemon")
-            .stdout(Stdio::piped())
-            .current_dir("..")
-            .args(&["--resource-dir", "dist-assets"])
-            .spawn()
+        let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
+        let process = cmd!(
+            "../target/debug/mullvad-daemon",
+            "--resource-dir",
+            "dist-assets"
+        ).dir("..")
+            .stderr_to_stdout()
+            .stdout_handle(writer)
+            .start()
             .expect("failed to start daemon");
-        let output = BufReader::new(process.stdout.take().expect("missing daemon stdout"));
 
         DaemonInstance {
             process,
-            output: Arc::new(Mutex::new(output)),
+            output: Arc::new(Mutex::new(BufReader::new(reader))),
         }
     }
 
@@ -53,7 +58,7 @@ impl DaemonInstance {
             .expect(&format!("failed to search for {:?}", pattern));
     }
 
-    fn search_in_stdout(stdout: Arc<Mutex<BufReader<ChildStdout>>>, pattern: &str) -> bool {
+    fn search_in_stdout(stdout: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) -> bool {
         if let Ok(mut output) = stdout.lock() {
             let mut line = String::new();
 
@@ -72,10 +77,6 @@ impl DaemonInstance {
 
 impl Drop for DaemonInstance {
     fn drop(&mut self) {
-        let pid = self.process.id();
-
-        unsafe {
-            libc::kill(pid as i32, libc::SIGTERM);
-        }
+        let _ = self.process.send_signal(libc::SIGTERM);
     }
 }

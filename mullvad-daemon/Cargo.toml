@@ -42,3 +42,5 @@ ctrlc = "3.0"
 
 [dev-dependencies]
 assert_matches = "1.0"
+duct = "0.10"
+os_pipe = "0.6"
