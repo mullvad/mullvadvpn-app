@@ -1,8 +1,12 @@
+#[macro_use]
+extern crate duct;
 extern crate libc;
+extern crate os_pipe;
 
 mod common;
 
 use std::fs;
+use std::io;
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
 use std::time::Duration;
@@ -13,7 +17,12 @@ use common::DaemonInstance;
 fn rpc_info_file_permissions() {
     let rpc_file = Path::new("/tmp/.mullvad_rpc_address");
 
-    let _ = fs::remove_file(&rpc_file);
+    if let Err(error) = fs::remove_file(&rpc_file) {
+        if error.kind() != io::ErrorKind::NotFound {
+            panic!("failed to remove existing RPC address file");
+        }
+    }
+
     assert!(!rpc_file.exists());
 
     let mut daemon = DaemonInstance::new();
