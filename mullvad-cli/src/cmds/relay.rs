@@ -53,6 +53,15 @@ impl Command for Relay {
                                     .index(4)
                                     .default_value("udp")
                                     .possible_values(&["udp", "tcp"]),
+                            )
+                            .arg(
+                                clap::Arg::with_name("mssfix")
+                                    .help(
+                                        "Mirrors '--mssfix' parameter for OpenVPN. \
+                                         For Wireguard this is ignored.",
+                                    )
+                                    .index(5)
+                                    .takes_value(true),
                             ),
                     )
                     .subcommand(
@@ -134,10 +143,12 @@ impl Relay {
     fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
+        let mssfix = value_t!(matches.value_of("mssfix"), u16).ok();
         let tunnel = match matches.value_of("tunnel").unwrap() {
             "openvpn" => TunnelEndpointData::OpenVpn(OpenVpnEndpointData {
                 port,
                 protocol: value_t!(matches.value_of("protocol"), TransportProtocol).unwrap(),
+                mssfix: mssfix,
             }),
             "wireguard" => TunnelEndpointData::Wireguard(WireguardEndpointData { port }),
             _ => unreachable!("Invalid tunnel protocol"),
