@@ -51,6 +51,8 @@ mod platform_specific {
 
 #[cfg(not(unix))]
 mod platform_specific {
+    use super::*;
+
     pub fn check_metadata(metadata: Metadata) {
         // TODO: Test when correctly implemented on Windows
     }
