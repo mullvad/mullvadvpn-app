@@ -5,6 +5,7 @@ use app_dirs;
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
                                        RelaySettings, RelaySettingsUpdate};
 
+use talpid_types::net::TunnelParameters;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
@@ -37,6 +38,9 @@ pub struct Settings {
     relay_settings: RelaySettings,
     /// If the app should allow communication with private (LAN) networks.
     allow_lan: bool,
+    /// Optional argument for openvpn to try and limit TCP packet size,
+    /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
+    openvpn_mssfix: Option<u16>,
 }
 
 impl Default for Settings {
@@ -48,6 +52,7 @@ impl Default for Settings {
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
+            openvpn_mssfix: None,
         }
     }
 }
@@ -66,8 +71,7 @@ impl Settings {
                     "No settings file at {}, using defaults",
                     settings_path.to_string_lossy()
                 );
-                Ok(Settings::default())
-            }
+                Ok(Settings::default()) }
             Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(settings_path)),
         }
     }
@@ -147,6 +151,28 @@ impl Settings {
             self.save().map(|_| true)
         } else {
             Ok(false)
+        }
+    }
+
+    pub fn get_openvpn_mssfix(&self) -> Option<u16> {
+        self.openvpn_mssfix
+    }
+
+    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool> {
+        if self.openvpn_mssfix != openvpn_mssfix {
+            self.openvpn_mssfix = openvpn_mssfix;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn apply_custom_tunnel_parameters(&self, params: &mut TunnelParameters) {
+        match params {
+            &mut TunnelParameters::OpenVpn(ref mut params) => {
+                params.mssfix_arg = self.openvpn_mssfix;
+            }
+            _ => (),
         }
     }
 }
