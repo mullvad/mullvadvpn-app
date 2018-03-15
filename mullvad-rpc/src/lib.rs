@@ -18,6 +18,9 @@ extern crate jsonrpc_client_http;
 #[macro_use]
 extern crate log;
 extern crate native_tls;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 extern crate tokio_core;
 
@@ -25,6 +28,7 @@ extern crate mullvad_types;
 
 use chrono::DateTime;
 use chrono::offset::Utc;
+use hyper::header::Host;
 use jsonrpc_client_http::HttpTransport;
 use tokio_core::reactor::Handle;
 
@@ -35,28 +39,32 @@ use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
+use std::path::Path;
 
 pub mod event_loop;
 pub mod rest;
 
-
-static MASTER_API_HOST: &str = "api.mullvad.net";
-static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
+mod api_ip_address;
+use api_ip_address::*;
 
 
 /// Create and returns a `HttpHandle` running on the given core handle.
-pub fn shared(handle: &Handle) -> Result<HttpHandle, HttpError> {
-    create_http_handle(HttpTransport::shared(handle)?)
+pub fn shared(resource_dir: &Path, handle: &Handle) -> Result<HttpHandle, HttpError> {
+    create_http_handle(resource_dir, HttpTransport::shared(handle)?)
 }
 
 /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-pub fn standalone() -> Result<HttpHandle, HttpError> {
-    create_http_handle(HttpTransport::new()?)
+pub fn standalone(resource_dir: &Path) -> Result<HttpHandle, HttpError> {
+    create_http_handle(resource_dir, HttpTransport::new()?)
 }
 
-fn create_http_handle(transport: HttpTransport) -> Result<HttpHandle, HttpError> {
-    let mut handle = transport.handle(MASTER_API_URI)?;
-    handle.set_header(Host::new(MASTER_API_HOST));
+fn create_http_handle(
+    resource_dir: &Path,
+    transport: HttpTransport,
+) -> Result<HttpHandle, HttpError> {
+    let uri = format!("https://{}/rpc", api_ip_address(resource_dir));
+    let mut handle = transport.handle(&uri)?;
+    handle.set_header(Host::new(MASTER_API_HOST, None));
     Ok(handle)
 }
 
@@ -75,8 +83,8 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 impl ProblemReportProxy<HttpHandle> {
-    pub fn connect() -> Result<Self, HttpError> {
-        let transport = standalone()?;
+    pub fn connect(resource_dir: &Path) -> Result<Self, HttpError> {
+        let transport = standalone(resource_dir)?;
         Ok(ProblemReportProxy::new(transport))
     }
 }
