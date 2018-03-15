@@ -1,17 +1,20 @@
 #[macro_use]
 extern crate duct;
+#[cfg(unix)]
 extern crate libc;
 extern crate os_pipe;
 
 mod common;
 
 use std::fs;
+use std::fs::Metadata;
 use std::io;
-use std::os::unix::fs::MetadataExt;
-use std::path::Path;
+use std::path::PathBuf;
 use std::time::Duration;
 
 use common::DaemonInstance;
+
+use platform_specific::*;
 
 #[test]
 fn rpc_info_file_permissions() {
@@ -33,18 +36,35 @@ fn rpc_info_file_permissions() {
     );
     assert!(rpc_file.exists());
 
-    let uid = unsafe { libc::getuid() };
-    let metadata = fs::metadata(&rpc_file).expect("failed to inspect RPC address file");
-    assert_eq!(metadata.uid(), uid);
-    assert_eq!(metadata.mode() & 0o022, 0);
+    check_metadata(fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"));
 }
 
-#[cfg(target(unix))]
-fn rpc_file_path() -> Path {
-    Path::new("/tmp/.mullvad_rpc_address")
+#[cfg(unix)]
+mod platform_specific {
+    use super::*;
+    use std::os::unix::fs::MetadataExt;
+    use std::path::Path;
+
+    pub fn rpc_file_path() -> PathBuf {
+        Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
+    }
+
+    pub fn check_metadata(metadata: Metadata) {
+        let process_uid = unsafe { libc::getuid() };
+        assert_eq!(metadata.uid(), process_uid);
+        assert_eq!(metadata.mode() & 0o022, 0);
+    }
 }
 
-#[cfg(not(target(unix)))]
-fn rpc_file_path() -> Path {
-    ::std::env::temp_dir().join("/tmp/.mullvad_rpc_address")
+#[cfg(not(unix))]
+mod platform_specific {
+    use super::*;
+
+    pub fn rpc_file_path() -> PathBuf {
+        ::std::env::temp_dir().join("/tmp/.mullvad_rpc_address")
+    }
+
+    pub fn check_metadata() {
+        // TODO: Test when correctly implemented on Windows
+    }
 }
