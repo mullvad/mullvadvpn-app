@@ -167,7 +167,7 @@ impl DaemonInstance {
     }
 
     #[cfg(not(unix))]
-    fn terminate(process: &duct::Handle) -> bool {
+    fn terminate(_process: &duct::Handle) -> bool {
         false
     }
 }
