@@ -53,7 +53,7 @@ impl Command for Relay {
                                     .index(4)
                                     .default_value("udp")
                                     .possible_values(&["udp", "tcp"]),
-                            ),
+                            )
                     )
                     .subcommand(
                         clap::SubCommand::with_name("location")
