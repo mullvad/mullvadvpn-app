@@ -190,7 +190,7 @@ impl Drop for DaemonInstance {
                     }
                 });
 
-                wait_handle.wait();
+                let _ = wait_handle.wait();
             } else {
                 process.kill().unwrap();
             }
