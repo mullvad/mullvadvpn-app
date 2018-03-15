@@ -4,6 +4,7 @@ use app_dirs;
 
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
                                        RelaySettings, RelaySettingsUpdate};
+use talpid_types::net::TunnelOptions;
 
 use std::fs::File;
 use std::io;
@@ -37,6 +38,9 @@ pub struct Settings {
     relay_settings: RelaySettings,
     /// If the app should allow communication with private (LAN) networks.
     allow_lan: bool,
+    /// Options that should be applied to tunnels of a specific type regardless of where the relays
+    /// might be located.
+    tunnel_options: TunnelOptions,
 }
 
 impl Default for Settings {
@@ -48,6 +52,7 @@ impl Default for Settings {
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
+            tunnel_options: TunnelOptions::default(),
         }
     }
 }
@@ -148,5 +153,18 @@ impl Settings {
         } else {
             Ok(false)
         }
+    }
+
+    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool> {
+        if self.tunnel_options.openvpn.mssfix != openvpn_mssfix {
+            self.tunnel_options.openvpn.mssfix = openvpn_mssfix;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_tunnel_options(&self) -> &TunnelOptions {
+        &self.tunnel_options
     }
 }

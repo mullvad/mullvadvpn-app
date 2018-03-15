@@ -78,7 +78,7 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::TunnelEndpoint;
+use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use std::fs;
 
@@ -394,6 +394,8 @@ impl Daemon {
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
+            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
+            GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -527,6 +529,25 @@ impl Daemon {
 
     fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
         Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
+    }
+
+    fn on_set_openvpn_mssfix(
+        &mut self,
+        tx: OneshotSender<()>,
+        mssfix_arg: Option<u16>,
+    ) -> Result<()> {
+        let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_mssfix response"),
+            Err(e) => error!("{}", e.display_chain()),
+        };
+        Ok(())
+    }
+
+    fn on_get_tunnel_options(&self, tx: OneshotSender<TunnelOptions>) -> Result<()> {
+        let tunnel_options = self.settings.get_tunnel_options().clone();
+        Self::oneshot_send(tx, tunnel_options, "get_tunnel_options response");
+        Ok(())
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
@@ -696,8 +717,11 @@ impl Daemon {
                 .unwrap()
                 .send(DaemonEvent::TunnelEvent(event));
         };
+
+        let tunnel_options = self.settings.get_tunnel_options();
         TunnelMonitor::new(
             tunnel_endpoint,
+            &tunnel_options,
             account_token,
             self.tunnel_log.as_ref().map(PathBuf::as_path),
             &self.resource_dir,
