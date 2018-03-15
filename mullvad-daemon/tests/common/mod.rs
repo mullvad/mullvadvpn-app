@@ -8,8 +8,6 @@ use std::thread;
 use std::time::Duration;
 
 use duct;
-use duct::unix::HandleExt;
-use libc;
 use os_pipe::{pipe, PipeReader};
 use serde::{Deserialize, Serialize};
 use talpid_ipc::WsIpcClient;
@@ -163,7 +161,9 @@ impl DaemonInstance {
 
     #[cfg(unix)]
     fn terminate(process: &duct::Handle) -> bool {
-        process.send_signal(libc::SIGTERM).is_ok()
+        use duct::unix::HandleExt;
+
+        process.send_signal(::libc::SIGTERM).is_ok()
     }
 
     #[cfg(not(unix))]
