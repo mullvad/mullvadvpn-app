@@ -51,6 +51,8 @@ impl TunnelParameters {
 pub struct OpenVpnParameters {
     pub port: u16,
     pub protocol: TransportProtocol,
+    /// Optional limit that's announced to TCP sessions about packet sizes
+    pub mssfix_arg: Option<u16>,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
