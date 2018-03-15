@@ -84,6 +84,7 @@ impl DaemonInstance {
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
         let process = cmd!(
             "../target/debug/mullvad-daemon",
+            "-v",
             "--disable-rpc-auth",
             "--resource-dir",
             "dist-assets"
