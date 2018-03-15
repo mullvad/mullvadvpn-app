@@ -61,7 +61,7 @@ mod platform_specific {
     use super::*;
 
     pub fn rpc_file_path() -> PathBuf {
-        ::std::env::temp_dir().join("/tmp/.mullvad_rpc_address")
+        ::std::env::temp_dir().join(".mullvad_rpc_address")
     }
 
     pub fn check_metadata() {
