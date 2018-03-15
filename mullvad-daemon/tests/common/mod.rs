@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
+use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
+use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -9,6 +11,16 @@ use duct;
 use duct::unix::HandleExt;
 use libc;
 use os_pipe::{pipe, PipeReader};
+
+#[cfg(unix)]
+pub fn rpc_file_path() -> PathBuf {
+    Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
+}
+
+#[cfg(not(unix))]
+pub fn rpc_file_path() -> PathBuf {
+    ::std::env::temp_dir().join(".mullvad_rpc_address")
+}
 
 pub struct DaemonInstance {
     process: duct::Handle,

@@ -9,10 +9,9 @@ mod common;
 use std::fs;
 use std::fs::Metadata;
 use std::io;
-use std::path::PathBuf;
 use std::time::Duration;
 
-use common::DaemonInstance;
+use common::{rpc_file_path, DaemonInstance};
 
 use platform_specific::*;
 
@@ -43,11 +42,6 @@ fn rpc_info_file_permissions() {
 mod platform_specific {
     use super::*;
     use std::os::unix::fs::MetadataExt;
-    use std::path::Path;
-
-    pub fn rpc_file_path() -> PathBuf {
-        Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
-    }
 
     pub fn check_metadata(metadata: Metadata) {
         let process_uid = unsafe { libc::getuid() };
@@ -58,12 +52,6 @@ mod platform_specific {
 
 #[cfg(not(unix))]
 mod platform_specific {
-    use super::*;
-
-    pub fn rpc_file_path() -> PathBuf {
-        ::std::env::temp_dir().join(".mullvad_rpc_address")
-    }
-
     pub fn check_metadata() {
         // TODO: Test when correctly implemented on Windows
     }
