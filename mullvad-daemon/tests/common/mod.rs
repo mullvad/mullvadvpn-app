@@ -150,6 +150,7 @@ impl DaemonInstance {
             let mut line = String::new();
 
             while !line.contains(pattern) {
+                line.clear();
                 output
                     .read_line(&mut line)
                     .expect("failed to read line from daemon stdout");
