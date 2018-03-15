@@ -115,6 +115,14 @@ build_rpc_trait! {
         #[rpc(meta, name = "remove_account_from_history")]
         fn remove_account_from_history(&self, Self::Metadata, AccountToken) -> BoxFuture<(), Error>;
 
+        /// Sets openvpn's mssfix parameter
+        #[rpc(meta, name = "set_openvpn_mssfix")]
+        fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
+
+        /// Gets openvpn's mssfix parameter
+        #[rpc(meta, name = "set_openvpn_mssfix")]
+        fn get_openvpn_mssfix(&self, Self::Metadata) -> BoxFuture<Option<u16>, Error>;
+
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
             #[rpc(name = "new_state_subscribe")]
@@ -165,6 +173,10 @@ pub enum TunnelCommand {
     SetAllowLan(OneshotSender<()>, bool),
     /// Request the current allow LAN setting.
     GetAllowLan(OneshotSender<bool>),
+    /// Set the mssfix argument for OpenVPN
+    SetOpenVpnMssfix(OneshotSender<Result<(), Error>>, Option<u16>),
+    /// Get the mssfix argument for OpenVPN
+    GetOpenVpnMssfix(OneshotSender<Option<u16>>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -551,6 +563,32 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
                     Error::internal_error()
                 }),
         ))
+    }
+
+    fn set_openvpn_mssfix(
+        &self,
+        meta: Self::Metadata,
+        mssfix: Option<u16>,
+    ) -> BoxFuture<(), Error> {
+        trace!("set_openvpn_mssfix");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::SetOpenVpnMssfix(tx, mssfix))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|r| match r {
+                Ok(_) => future::ok(()),
+                Err(e) => future::err(e),
+            });
+        Box::new(future)
+    }
+
+    fn get_openvpn_mssfix(&self, meta: Self::Metadata) -> BoxFuture<Option<u16>, Error> {
+        trace!("get_openvpn_mssfix");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetOpenVpnMssfix(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn new_state_subscribe(
