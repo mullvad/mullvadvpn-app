@@ -129,6 +129,7 @@ impl TunnelMonitor {
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
+            &tunnel_endpoint.tunnel,
             user_pass_file.as_ref(),
             log,
             resource_dir,
@@ -156,6 +157,7 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(
         remote: Endpoint,
+        params: &TunnelParameters,
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -166,6 +168,7 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
+            .extra_parameters(params)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
         if let Some(log) = log {
