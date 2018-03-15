@@ -31,12 +31,9 @@ fn rpc_info_file_permissions() {
 
     let mut daemon = DaemonInstance::new();
 
-    daemon.assert_log_contains(
-        "Mullvad management interface listening on",
-        Duration::from_secs(10),
-    );
-    assert!(rpc_file.exists());
+    daemon.assert_log_contains("Wrote RPC connection info to", Duration::from_secs(10));
 
+    assert!(rpc_file.exists());
     check_metadata(fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"));
 }
 
