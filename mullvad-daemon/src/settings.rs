@@ -5,10 +5,10 @@ use app_dirs;
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
                                        RelaySettings, RelaySettingsUpdate};
 
-use talpid_types::net::TunnelParameters;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
+use talpid_types::net::TunnelParameters;
 
 error_chain! {
     errors {
@@ -71,7 +71,8 @@ impl Settings {
                     "No settings file at {}, using defaults",
                     settings_path.to_string_lossy()
                 );
-                Ok(Settings::default()) }
+                Ok(Settings::default())
+            }
             Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(settings_path)),
         }
     }
