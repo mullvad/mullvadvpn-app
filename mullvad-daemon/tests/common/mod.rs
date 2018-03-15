@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
@@ -22,6 +22,17 @@ pub fn rpc_file_path() -> PathBuf {
 #[cfg(not(unix))]
 pub fn rpc_file_path() -> PathBuf {
     ::std::env::temp_dir().join(".mullvad_rpc_address")
+}
+
+fn ensure_relay_list_exists<T: AsRef<Path>>(path: T) {
+    let path = path.as_ref();
+
+    if !path.exists() {
+        File::create(path)
+            .expect("failed to create relay list file")
+            .write_all(b"{ \"countries\": [] }")
+            .expect("failed to write relay list");
+    }
 }
 
 pub struct DaemonRpcClient {
@@ -68,6 +79,8 @@ pub struct DaemonInstance {
 
 impl DaemonInstance {
     pub fn new() -> Self {
+        ensure_relay_list_exists("../dist-assets/relays.json");
+
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
         let process = cmd!(
             "../target/debug/mullvad-daemon",
