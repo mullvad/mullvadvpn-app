@@ -12,14 +12,28 @@ use os_pipe::{pipe, PipeReader};
 use serde::{Deserialize, Serialize};
 use talpid_ipc::WsIpcClient;
 
+pub use self::platform_specific::*;
+
 #[cfg(unix)]
-pub fn rpc_file_path() -> PathBuf {
-    Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
+mod platform_specific {
+    use super::*;
+
+    pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
+
+    pub fn rpc_file_path() -> PathBuf {
+        Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
+    }
 }
 
 #[cfg(not(unix))]
-pub fn rpc_file_path() -> PathBuf {
-    ::std::env::temp_dir().join(".mullvad_rpc_address")
+mod platform_specific {
+    use super::*;
+
+    pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+
+    pub fn rpc_file_path() -> PathBuf {
+        ::std::env::temp_dir().join(".mullvad_rpc_address")
+    }
 }
 
 fn ensure_relay_list_exists<T: AsRef<Path>>(path: T) {
@@ -81,7 +95,7 @@ impl DaemonInstance {
 
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
         let process = cmd!(
-            "../target/debug/mullvad-daemon",
+            DAEMON_EXECUTABLE_PATH,
             "-v",
             "--disable-rpc-auth",
             "--resource-dir",
