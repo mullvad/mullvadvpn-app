@@ -394,6 +394,8 @@ impl Daemon {
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
+            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
+            GetOpenVpnMssfix(tx) => self.on_get_openvpn_mssfix(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -529,6 +531,36 @@ impl Daemon {
         Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
     }
 
+    fn on_set_openvpn_mssfix(
+        &mut self,
+        tx: OneshotSender<::std::result::Result<(), jsonrpc_core::Error>>,
+        mssfix_arg: Option<u16>,
+    ) -> Result<()> {
+        // maybe validation should happen at a deeper level?
+        if let Some(mss) = mssfix_arg {
+            if mss > 3000 {
+                Self::oneshot_send(
+                    tx,
+                    Err(jsonrpc_core::Error::invalid_params("invalid mssfix value")),
+                    "set_openvpn_mssfix error response",
+                );
+                return Ok(());
+            };
+        };
+        let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
+        match save_result.chain_err(|| "Unable to save settigns") {
+            Ok(_) => Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response"),
+            Err(e) => error!("{}", e.display_chain()),
+        };
+        Ok(())
+    }
+
+    fn on_get_openvpn_mssfix(&self, tx: OneshotSender<Option<u16>>) -> Result<()> {
+        let mssfix_arg = self.settings.get_openvpn_mssfix();
+        Self::oneshot_send(tx, mssfix_arg, "set_openvpn_mssfix");
+        Ok(())
+    }
+
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
         if let Err(_) = tx.send(t) {
             warn!("Unable to send {} to management interface client", msg);
@@ -632,15 +664,19 @@ impl Daemon {
 
         match self.settings.get_relay_settings() {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => {
-                let tunnel_endpoint = custom_relay
+                let mut tunnel_endpoint = custom_relay
                     .to_tunnel_endpoint()
                     .chain_err(|| ErrorKind::NoRelay)?;
+                self.settings
+                    .apply_custom_tunnel_parameters(&mut tunnel_endpoint.tunnel);
                 self.tunnel_endpoint = Some(tunnel_endpoint);
             }
             RelaySettings::Normal(constraints) => {
-                let (relay, tunnel_endpoint) = self.relay_selector
+                let (relay, mut tunnel_endpoint) = self.relay_selector
                     .get_tunnel_endpoint(&constraints)
                     .chain_err(|| ErrorKind::NoRelay)?;
+                self.settings
+                    .apply_custom_tunnel_parameters(&mut tunnel_endpoint.tunnel);
                 self.tunnel_endpoint = Some(tunnel_endpoint);
                 self.current_relay = Some(relay);
             }
