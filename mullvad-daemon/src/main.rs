@@ -542,7 +542,7 @@ impl Daemon {
                 Self::oneshot_send(
                     tx,
                     Err(jsonrpc_core::Error::invalid_params("invalid mssfix value").into()),
-                    "set_openvpn_mssfix error response"
+                    "set_openvpn_mssfix error response",
                 );
                 return Ok(());
             };
