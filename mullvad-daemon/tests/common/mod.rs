@@ -141,7 +141,6 @@ impl DaemonInstance {
                 output
                     .read_line(&mut line)
                     .expect("failed to read line from daemon stdout");
-                println!("{}", line);
             }
 
             true
