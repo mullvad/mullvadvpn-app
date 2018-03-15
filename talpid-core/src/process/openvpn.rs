@@ -39,6 +39,7 @@ pub struct OpenVpnCommand {
     crl: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
+    mssfix: Option<u16>,
 }
 
 impl OpenVpnCommand {
@@ -54,6 +55,7 @@ impl OpenVpnCommand {
             crl: None,
             plugin: None,
             log: None,
+            mssfix: None,
         }
     }
 
@@ -100,6 +102,15 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Sets extra tunnel parameters if the parameters are `net::TunnelParameters::OpenVpn`.
+    pub fn extra_parameters(&mut self, params: &net::TunnelParameters) -> &mut Self {
+        match params {
+            &net::TunnelParameters::OpenVpn(ref p) => self.mssfix = p.mssfix_arg,
+            _ => (),
+        };
+        self
+    }
+
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
@@ -136,6 +147,11 @@ impl OpenVpnCommand {
         if let Some(ref path) = self.log {
             args.push(OsString::from("--log"));
             args.push(OsString::from(path))
+        }
+
+        if let Some(mssfix_arg) = self.mssfix {
+            args.push(OsString::from("--mssfix"));
+            args.push(OsString::from(mssfix_arg.to_string()));
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));
