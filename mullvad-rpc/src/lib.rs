@@ -37,30 +37,39 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub mod event_loop;
 pub mod rest;
 
+mod cached_dns_resolver;
+use cached_dns_resolver::CachedDnsResolver;
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
 
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcFactory {
-    resource_dir: Option<PathBuf>,
+    address_cache: Option<CachedDnsResolver>,
 }
 
 impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory`.
     pub fn new() -> Self {
-        MullvadRpcFactory { resource_dir: None }
+        MullvadRpcFactory {
+            address_cache: None,
+        }
     }
 
     /// Create a new `MullvadRpcFactory` using the specified resource directory.
-    pub fn with_resource_dir(resource_dir: PathBuf) -> Self {
+    pub fn with_resource_dir(resource_dir: &Path) -> Self {
+        let hostname = MASTER_API_HOST.to_owned();
+        let cache_file = resource_dir.join("api_ip_address.txt");
+
+        let cached_dns_resolver = CachedDnsResolver::new(hostname, cache_file);
+
         MullvadRpcFactory {
-            resource_dir: Some(resource_dir),
+            address_cache: Some(cached_dns_resolver),
         }
     }
 
@@ -75,12 +84,21 @@ impl MullvadRpcFactory {
     }
 
     fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
-        let uri = format!("https://{}/rpc/", MASTER_API_HOST);
-        let mut handle = transport.handle(&uri)?;
+        let mut handle = transport.handle(&self.api_uri())?;
 
         handle.set_header(Host::new(MASTER_API_HOST, None));
 
         Ok(handle)
+    }
+
+    fn api_uri(&self) -> String {
+        let address = self.address_cache
+            .as_ref()
+            .and_then(CachedDnsResolver::resolve)
+            .map(|ip| ip.to_string())
+            .unwrap_or_else(|| MASTER_API_HOST.to_owned());
+
+        format!("https://{}/rpc/", address)
     }
 }
 
