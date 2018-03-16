@@ -216,12 +216,12 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let api_ip_cache_dir = resource_dir.clone();
+        let api_address_cache_dir = resource_dir.clone();
 
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(move |core| {
                 let handle = core.handle();
-                let rpc = mullvad_rpc::shared(&api_ip_cache_dir, &handle);
+                let rpc = mullvad_rpc::shared(&api_address_cache_dir, &handle);
                 let http = mullvad_rpc::rest::create_http_client(&handle);
                 let remote = core.remote();
                 (rpc, http, remote)

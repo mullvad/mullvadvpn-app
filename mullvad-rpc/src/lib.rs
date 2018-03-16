@@ -44,8 +44,8 @@ use std::path::Path;
 pub mod event_loop;
 pub mod rest;
 
-mod api_ip_address;
-use api_ip_address::*;
+mod api_address;
+use api_address::*;
 
 
 /// Create and returns a `HttpHandle` running on the given core handle.
@@ -62,7 +62,7 @@ fn create_http_handle(
     resource_dir: &Path,
     transport: HttpTransport,
 ) -> Result<HttpHandle, HttpError> {
-    let uri = format!("https://{}/rpc", api_ip_address(resource_dir));
+    let uri = format!("https://{}/rpc", api_address(resource_dir));
     let mut handle = transport.handle(&uri)?;
     handle.set_header(Host::new(MASTER_API_HOST, None));
     Ok(handle)
