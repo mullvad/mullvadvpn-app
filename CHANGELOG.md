@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
   paths and window captions etc.
+- Bundle an IP address with the app and introduce a disk cache fallback method for when the DNS
+  resolution of the Mullvad API server hostname fails.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
