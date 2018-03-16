@@ -43,14 +43,24 @@ pub mod rest;
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
 
-/// Create and returns a `HttpHandle` running on the given core handle.
-pub fn shared(handle: &Handle) -> Result<HttpHandle, HttpError> {
-    HttpTransport::shared(handle)?.handle(MASTER_API_URI)
-}
+/// A type that helps with the creation of RPC connections.
+pub struct RpcConnectionManager;
 
-/// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-pub fn standalone() -> Result<HttpHandle, HttpError> {
-    HttpTransport::new()?.handle(MASTER_API_URI)
+impl RpcConnectionManager {
+    /// Create a new `RpcConnectionManager`.
+    pub fn new() -> Self {
+        RpcConnectionManager
+    }
+
+    /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
+    pub fn new_connection(&self) -> Result<HttpHandle, HttpError> {
+        HttpTransport::new()?.handle(MASTER_API_URI)
+    }
+
+    /// Create and returns a `HttpHandle` running on the given core handle.
+    pub fn new_connection_on_event_loop(&self, handle: &Handle) -> Result<HttpHandle, HttpError> {
+        HttpTransport::shared(handle)?.handle(MASTER_API_URI)
+    }
 }
 
 jsonrpc_client!(pub struct AccountsProxy {
@@ -68,9 +78,8 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 impl ProblemReportProxy<HttpHandle> {
-    pub fn connect() -> Result<Self, HttpError> {
-        let transport = HttpTransport::new()?.handle(MASTER_API_URI)?;
-        Ok(ProblemReportProxy::new(transport))
+    pub fn connect(manager: &RpcConnectionManager) -> Result<Self, HttpError> {
+        Ok(ProblemReportProxy::new(manager.new_connection()?))
     }
 }
 
