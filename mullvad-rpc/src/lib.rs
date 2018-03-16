@@ -44,7 +44,6 @@ pub mod rest;
 
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
-static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
 
 /// A type that helps with the creation of RPC connections.
@@ -76,7 +75,8 @@ impl MullvadRpcFactory {
     }
 
     fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
-        let mut handle = transport.handle(MASTER_API_URI)?;
+        let uri = format!("https://{}/rpc/", MASTER_API_HOST);
+        let mut handle = transport.handle(&uri)?;
 
         handle.set_header(Host::new(MASTER_API_HOST, None));
 
