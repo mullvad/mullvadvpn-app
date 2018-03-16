@@ -25,13 +25,16 @@ impl CachedAddress {
 
 /// Returns the IP address of the Mullvad API server from cache if it exists, otherwise it tries to
 /// resolve it based on its hostname and cache the result.
-pub fn api_address(resource_dir: &Path) -> String {
-    let cache_file = get_cache_file_path(resource_dir);
-    if let Ok(address) = read_cached_address(&cache_file) {
-        address
-    } else if let Ok(address) = resolve_address_from_hostname() {
-        let _ = store_address_in_cache(&address, &cache_file);
-        address.to_string()
+pub fn api_address(resource_dir: Option<&Path>) -> String {
+    if let Some(cache_file) = resource_dir.map(get_cache_file_path) {
+        if let Ok(address) = read_cached_address(&cache_file) {
+            address
+        } else if let Ok(address) = resolve_address_from_hostname() {
+            let _ = store_address_in_cache(&address, &cache_file);
+            address.to_string()
+        } else {
+            MASTER_API_HOST.to_string()
+        }
     } else {
         MASTER_API_HOST.to_string()
     }
@@ -101,7 +104,7 @@ mod tests {
             ).unwrap();
         }
 
-        let address = api_address(temp_dir.path());
+        let address = api_address(Some(temp_dir.path()));
 
         assert_eq!(
             address,
@@ -112,7 +115,7 @@ mod tests {
     #[test]
     fn caches_resolved_address() {
         let temp_dir = TempDir::new("address-cache-test").unwrap();
-        let address = api_address(temp_dir.path());
+        let address = api_address(Some(temp_dir.path()));
 
         let cache_file_path = temp_dir.path().join("api_address.json");
         assert!(cache_file_path.exists());

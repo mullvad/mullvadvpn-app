@@ -49,17 +49,17 @@ use api_address::*;
 
 
 /// Create and returns a `HttpHandle` running on the given core handle.
-pub fn shared(resource_dir: &Path, handle: &Handle) -> Result<HttpHandle, HttpError> {
+pub fn shared(handle: &Handle, resource_dir: Option<&Path>) -> Result<HttpHandle, HttpError> {
     create_http_handle(resource_dir, HttpTransport::shared(handle)?)
 }
 
 /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-pub fn standalone(resource_dir: &Path) -> Result<HttpHandle, HttpError> {
+pub fn standalone(resource_dir: Option<&Path>) -> Result<HttpHandle, HttpError> {
     create_http_handle(resource_dir, HttpTransport::new()?)
 }
 
 fn create_http_handle(
-    resource_dir: &Path,
+    resource_dir: Option<&Path>,
     transport: HttpTransport,
 ) -> Result<HttpHandle, HttpError> {
     let uri = format!("https://{}/rpc", api_address(resource_dir));
@@ -83,8 +83,8 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 impl ProblemReportProxy<HttpHandle> {
-    pub fn connect(resource_dir: &Path) -> Result<Self, HttpError> {
-        let transport = standalone(resource_dir)?;
+    pub fn connect() -> Result<Self, HttpError> {
+        let transport = standalone(None)?;
         Ok(ProblemReportProxy::new(transport))
     }
 }
