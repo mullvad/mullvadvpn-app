@@ -35,6 +35,7 @@ use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub mod event_loop;
 pub mod rest;
@@ -44,12 +45,21 @@ static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
 
 /// A type that helps with the creation of RPC connections.
-pub struct RpcConnectionManager;
+pub struct RpcConnectionManager {
+    resource_dir: Option<PathBuf>,
+}
 
 impl RpcConnectionManager {
     /// Create a new `RpcConnectionManager`.
     pub fn new() -> Self {
-        RpcConnectionManager
+        RpcConnectionManager { resource_dir: None }
+    }
+
+    /// Create a new `RpcConnectionManager` using the specified resource directory.
+    pub fn with_resource_dir(resource_dir: PathBuf) -> Self {
+        RpcConnectionManager {
+            resource_dir: Some(resource_dir),
+        }
     }
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
