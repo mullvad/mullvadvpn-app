@@ -61,3 +61,86 @@ impl CachedDnsResolver {
         writeln!(cache_file, "{}", address)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate tempdir;
+
+    use std::fs::{self, File};
+    use std::io::{Read, Write};
+
+    use self::tempdir::TempDir;
+    use super::*;
+
+    #[test]
+    fn uses_cached_address() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let cached_address = "127.0.0.1".parse().unwrap();
+
+        write_address(&cache_dir, cached_address);
+
+        let cache = create_cached_dns_resolver(&cache_dir);
+        let address = cache.resolve().unwrap();
+
+        assert_eq!(address, cached_address);
+    }
+
+    #[test]
+    fn caches_resolved_ip() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let cache = create_cached_dns_resolver(&cache_dir);
+
+        let address = cache.resolve().unwrap();
+
+        assert_eq!(get_cached_address(&cache_dir), address.to_string());
+    }
+
+    #[test]
+    fn resolves_even_if_impossible_to_store_in_cache() {
+        let (temp_dir, cache_dir) = create_test_dirs();
+        let cache = create_cached_dns_resolver(&cache_dir);
+
+        ::std::mem::drop(temp_dir);
+
+        assert!(cache.resolve().is_some());
+    }
+
+    fn create_test_dirs() -> (TempDir, PathBuf) {
+        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let cache_dir = temp_dir.path().join("cache");
+
+        fs::create_dir(&cache_dir).unwrap();
+
+        (temp_dir, cache_dir)
+    }
+
+    fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
+        let file_path = dir.join("api_ip_address.txt");
+        let mut file = File::create(&file_path).unwrap();
+
+        writeln!(file, "{}", address).unwrap();
+
+        file_path
+    }
+
+    fn get_cached_address(cache_dir: &Path) -> String {
+        let cache_file_path = cache_dir.join("api_ip_address.txt");
+
+        assert!(cache_file_path.exists());
+
+        let mut cache_file = File::open(cache_file_path).unwrap();
+        let mut cached_address = String::new();
+
+        cache_file.read_to_string(&mut cached_address).unwrap();
+
+        cached_address.trim().to_string()
+    }
+
+    fn create_cached_dns_resolver(cache_dir: &Path) -> CachedDnsResolver {
+        let hostname = "api.mullvad.net".to_owned();
+        let filename = "api_ip_address.txt";
+        let cache_file = cache_dir.join(filename);
+
+        CachedDnsResolver::new(hostname, cache_file)
+    }
+}
