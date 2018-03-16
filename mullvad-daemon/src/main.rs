@@ -218,10 +218,11 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
+        let rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
         let (rpc_handle, http_handle, tokio_remote) =
-            mullvad_rpc::event_loop::create(|core| {
+            mullvad_rpc::event_loop::create(move |core| {
                 let handle = core.handle();
-                let rpc = mullvad_rpc::shared(&handle);
+                let rpc = rpc_manager.new_connection_on_event_loop(&handle);
                 let http = mullvad_rpc::rest::create_http_client(&handle);
                 let remote = core.remote();
                 (rpc, http, remote)
