@@ -39,61 +39,34 @@ use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
-use std::fmt::{self, Display, Formatter};
-use std::fs::File;
-use std::io;
-use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub mod event_loop;
 pub mod rest;
 
+mod address_cache;
+use address_cache::AddressCache;
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
 
 
-#[derive(Deserialize, Serialize)]
-struct AddressCacheData {
-    ip: String,
-    port: u16,
-}
-
-impl AddressCacheData {
-    fn is_valid(&self) -> bool {
-        self.ip.parse::<IpAddr>().is_ok()
-    }
-}
-
-impl From<SocketAddr> for AddressCacheData {
-    fn from(address: SocketAddr) -> Self {
-        AddressCacheData {
-            ip: address.ip().to_string(),
-            port: address.port(),
-        }
-    }
-}
-
-impl Display for AddressCacheData {
-    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
-        write!(fmt, "{}:{}", self.ip, self.port)
-    }
-}
-
 /// A type that helps with the creation of RPC connections.
 pub struct RpcConnectionManager {
-    resource_dir: Option<PathBuf>,
+    address_cache: Option<AddressCache>,
 }
 
 impl RpcConnectionManager {
     /// Create a new `RpcConnectionManager`.
     pub fn new() -> Self {
-        RpcConnectionManager { resource_dir: None }
+        RpcConnectionManager {
+            address_cache: None,
+        }
     }
 
     /// Create a new `RpcConnectionManager` using the specified resource directory.
-    pub fn with_resource_dir(resource_dir: PathBuf) -> Self {
+    pub fn with_resource_dir(resource_dir: &Path) -> Self {
         RpcConnectionManager {
-            resource_dir: Some(resource_dir),
+            address_cache: Some(AddressCache::new(resource_dir)),
         }
     }
 
@@ -117,58 +90,10 @@ impl RpcConnectionManager {
     }
 
     fn api_address(&self) -> String {
-        if let Some(cache_file) = self.cache_file_path() {
-            Self::load_address_from_cache(&cache_file)
-                .or_else(|_| {
-                    Self::resolve_address().map(|address| {
-                        let _ = Self::store_address_in_cache(address, &cache_file);
-                        address.to_string()
-                    })
-                })
-                .unwrap_or(MASTER_API_HOST.to_owned())
-        } else {
-            MASTER_API_HOST.to_owned()
-        }
-    }
-
-    fn cache_file_path(&self) -> Option<PathBuf> {
-        self.resource_dir
+        self.address_cache
             .as_ref()
-            .map(|dir| dir.join("api_address_cache.json"))
-    }
-
-    fn load_address_from_cache(cache_file_path: &Path) -> Result<String, io::Error> {
-        let cache_file = File::open(cache_file_path)?;
-        let address: AddressCacheData = serde_json::from_reader(cache_file)?;
-
-        if address.is_valid() {
-            Ok(address.to_string())
-        } else {
-            Err(io::Error::new(
-                io::ErrorKind::Other,
-                "cached address is invalid",
-            ))
-        }
-    }
-
-    fn resolve_address() -> Result<SocketAddr, io::Error> {
-        (MASTER_API_HOST, 0)
-            .to_socket_addrs()?
-            .next()
-            .ok_or_else(|| {
-                io::Error::new(io::ErrorKind::NotFound, "Mullvad RPC API host not found")
-            })
-    }
-
-    fn store_address_in_cache(
-        address: SocketAddr,
-        cache_file_path: &Path,
-    ) -> Result<(), io::Error> {
-        let cache_file = File::create(cache_file_path)?;
-        let cache_data = AddressCacheData::from(address);
-
-        serde_json::to_writer(&cache_file, &cache_data)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+            .and_then(AddressCache::api_address)
+            .unwrap_or_else(|| MASTER_API_HOST.to_owned())
     }
 }
 
