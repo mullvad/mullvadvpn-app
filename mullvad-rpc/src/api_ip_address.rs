@@ -72,3 +72,61 @@ fn store_ip_address_in_cache(address: &SocketAddr, cache_file: &Path) -> Result<
     serde_json::to_writer(file, &address_to_cache)
         .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate tempdir;
+
+    use std::fs::File;
+    use std::io::{BufRead, BufReader, Write};
+
+    use self::tempdir::TempDir;
+    use super::*;
+
+    #[test]
+    fn uses_cached_ip() {
+        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let cached_ip = IpAddress {
+            ip_address: "127.0.0.1".to_string(),
+            port: 52780,
+        };
+
+        {
+            let cache_file_path = temp_dir.path().join("api_ip_address.json");
+            let mut cache_file = File::create(cache_file_path).unwrap();
+            writeln!(
+                cache_file,
+                "{{ \"ip_address\": \"{}\", \"port\": {} }}",
+                cached_ip.ip_address, cached_ip.port
+            ).unwrap();
+        }
+
+        let ip = api_ip_address(temp_dir.path());
+
+        assert_eq!(ip, format!("{}:{}", cached_ip.ip_address, cached_ip.port));
+    }
+
+    #[test]
+    fn caches_resolved_ip() {
+        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let ip = api_ip_address(temp_dir.path());
+
+        let cache_file_path = temp_dir.path().join("api_ip_address.json");
+        assert!(cache_file_path.exists());
+
+        let cache_file = File::open(cache_file_path).unwrap();
+        let mut cache_reader = BufReader::new(cache_file);
+        let mut cached_address = String::new();
+        cache_reader.read_line(&mut cached_address).unwrap();
+
+        let mut address_parts = ip.split(":");
+        let ip = address_parts.next().unwrap();
+        let port = address_parts.next().unwrap();
+        assert!(address_parts.next().is_none());
+
+        assert_eq!(
+            cached_address,
+            format!("{{\"ip_address\":\"{}\",\"port\":{}}}", ip, port)
+        );
+    }
+}
