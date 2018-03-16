@@ -36,30 +36,38 @@ use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub mod event_loop;
 pub mod rest;
 
+mod cached_dns_resolver;
+use cached_dns_resolver::CachedDnsResolver;
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
 
 
 /// A type that helps with the creation of RPC connections.
 pub struct RpcConnectionManager {
-    resource_dir: Option<PathBuf>,
+    address_cache: Option<CachedDnsResolver>,
 }
 
 impl RpcConnectionManager {
     /// Create a new `RpcConnectionManager`.
     pub fn new() -> Self {
-        RpcConnectionManager { resource_dir: None }
+        RpcConnectionManager {
+            address_cache: None,
+        }
     }
 
     /// Create a new `RpcConnectionManager` using the specified resource directory.
-    pub fn with_resource_dir(resource_dir: PathBuf) -> Self {
+    pub fn with_resource_dir(resource_dir: &Path) -> Self {
         RpcConnectionManager {
-            resource_dir: Some(resource_dir),
+            address_cache: Some(CachedDnsResolver::new(
+                MASTER_API_HOST.to_owned(),
+                resource_dir,
+                "api_ip_address.txt",
+            )),
         }
     }
 
@@ -74,12 +82,20 @@ impl RpcConnectionManager {
     }
 
     fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
-        let uri = format!("https://{}/rpc/", MASTER_API_HOST);
+        let uri = format!("https://{}/rpc/", self.api_address());
         let mut handle = transport.handle(&uri)?;
 
         handle.set_header(Host::new(MASTER_API_HOST, None));
 
         Ok(handle)
+    }
+
+    fn api_address(&self) -> String {
+        self.address_cache
+            .as_ref()
+            .and_then(CachedDnsResolver::resolve)
+            .map(|ip| ip.to_string())
+            .unwrap_or_else(|| MASTER_API_HOST.to_owned())
     }
 }
 
