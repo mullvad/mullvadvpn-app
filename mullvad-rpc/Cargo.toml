@@ -21,3 +21,6 @@ native-tls = "0.1"
 log = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
+
+[dev-dependencies]
+tempdir = "0.3"
