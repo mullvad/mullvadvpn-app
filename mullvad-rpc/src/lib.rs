@@ -25,6 +25,7 @@ extern crate mullvad_types;
 
 use chrono::offset::Utc;
 use chrono::DateTime;
+use jsonrpc_client_http::header::Host;
 use jsonrpc_client_http::HttpTransport;
 use tokio_core::reactor::Handle;
 
@@ -42,6 +43,7 @@ pub mod event_loop;
 pub mod rest;
 
 
+static MASTER_API_HOST: &str = "api.mullvad.net";
 static MASTER_API_URI: &str = "https://api.mullvad.net/rpc/";
 
 
@@ -65,12 +67,20 @@ impl MullvadRpcFactory {
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
     pub fn new_connection(&self) -> Result<HttpHandle, HttpError> {
-        HttpTransport::new()?.handle(MASTER_API_URI)
+        self.setup_connection(HttpTransport::new()?)
     }
 
     /// Create and returns a `HttpHandle` running on the given core handle.
     pub fn new_connection_on_event_loop(&self, handle: &Handle) -> Result<HttpHandle, HttpError> {
-        HttpTransport::shared(handle)?.handle(MASTER_API_URI)
+        self.setup_connection(HttpTransport::shared(handle)?)
+    }
+
+    fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
+        let mut handle = transport.handle(MASTER_API_URI)?;
+
+        handle.set_header(Host::new(MASTER_API_HOST, None));
+
+        Ok(handle)
     }
 }
 
