@@ -216,8 +216,7 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let rpc_manager =
-            mullvad_rpc::RpcConnectionManager::with_resource_dir(resource_dir.clone());
+        let rpc_manager = mullvad_rpc::RpcConnectionManager::with_resource_dir(&resource_dir);
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(move |core| {
                 let handle = core.handle();
