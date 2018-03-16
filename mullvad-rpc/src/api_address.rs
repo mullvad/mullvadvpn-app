@@ -135,4 +135,14 @@ mod tests {
             format!("{{\"ip\":\"{}\",\"port\":{}}}", ip, port)
         );
     }
+
+    #[test]
+    fn resolves_even_if_cache_dir_is_unavailble() {
+        let temp_dir_path = TempDir::new("address-cache-test")
+            .unwrap()
+            .path()
+            .to_path_buf();
+
+        assert_ne!(api_address(Some(&temp_dir_path)), MASTER_API_HOST);
+    }
 }
