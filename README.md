@@ -1,11 +1,11 @@
 # Mullvad VPN desktop and mobile app
 
-The back- and frontend for the Mullvad VPN app.
+The system service/daemon, GUI and CLI for the Mullvad VPN app.
 
 ## Status
 
-There is a beta release for macOS available on
-[our website](https://mullvad.net/en/guides/beta-app/) and on
+There are built and signed releases for macOS available on
+[our website](https://mullvad.net/download/) and on
 [github](https://github.com/mullvad/mullvadvpn-app/releases/).
 Support for Linux, Windows, Android and iOS is in the making.
 
