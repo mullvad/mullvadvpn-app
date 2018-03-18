@@ -32,9 +32,9 @@ homebrew:
     sudo apt install icnsutils graphicsmagick
     ```
 
-## Building and running the backend (mullvad-daemon)
+## Building and running mullvad-daemon
 
-1. Build the backend without optimizations (debug mode) with:
+1. Build the daemon without optimizations (debug mode) with:
     ```
     cargo build
     ```
@@ -44,21 +44,21 @@ homebrew:
     ./target/debug/list-relays > dist-assets/relays.json
     ```
 
-1. Run the backend daemon debug binary with verbose logging to the terminal with:
+1. Run the daemon debug binary with verbose logging to the terminal with:
     ```
     sudo ./target/debug/mullvad-daemon -vv --resource-dir dist-assets/
     ```
     It must run as root since it it modifies the firewall and sets up virtual network interfaces
     etc.
 
-## Building and running the frontend (electron app)
+## Building and running the Electron GUI app
 
 1. Install all the JavaScript dependencies by running:
     ```bash
     yarn install
     ```
 
-1. Start the frontend in development mode by running:
+1. Start the GUI in development mode by running:
     ```bash
     yarn run develop
     ```
@@ -66,11 +66,11 @@ homebrew:
 If you change any javascript file while the development mode is running it will automatically
 transpile and reload the file so that the changes are visible almost immediately.
 
-The app will attempt to start the backend automatically. The exact binary being run can be
+The app will attempt to start the daemon automatically. The exact binary being run can be
 customized with the `MULLVAD_BACKEND` environment variable.
 
-If the `/tmp/.mullvad_rpc_address` file exists the app will not start the backend, so if you want
-to run a specific version of the backend you can just start it yourself and the app will pick up on
+If the `/tmp/.mullvad_rpc_address` file exists the app will not start the daemon, so if you want
+to run a specific version of the daemon you can just start it yourself and the app will pick up on
 it and behave accordingly.
 
 
@@ -78,7 +78,7 @@ it and behave accordingly.
 
 1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
 
-1. Build the backend in optimized release mode with:
+1. Build the daemon in optimized release mode with:
     ```
     cargo build --release
     ```
@@ -128,7 +128,7 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
     it built matches what you want to release.
 
 
-## Command line tools for frontend development
+## Command line tools for Electron GUI app development
 
 - `$ yarn run develop` - develop app with live-reload enabled
 - `$ yarn run flow` - type-check the code
@@ -139,6 +139,7 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
 
 ## Repository structure
 
+### Electron GUI and electron-builder packaging
 - **app/**
   - **redux/** - state management
   - **components/** - components
@@ -151,19 +152,35 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
   - **transitions.js** - transition rules between views
-- **build.sh** - Builds the backend in release mode. Will be extended to take care of more parts
-  of the release compiling and packaging.
-- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
-  Rust crates.
 - **client-binaries/** - Git submodule containing binaries shipped with the client. Most notably
   the OpenVPN binaries.
-- **format.sh** - Script that runs rustfmt to format the Rust code
 - **init.js** - entry file for electron, points to compiled **main.js**
-- **mullvad-daemon/** - Main Rust crate building the backend daemon binary
 - **scripts/** - support scripts for development
-- **test/** - frontend tests
+- **test/** - Electron GUI tests
+
+### Building, testing and misc
+- **build.sh** - Sanity checks the working directory state and then builds release artifacts for
+  the app.
 - **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
   logs.
+
+### Daemon
+
+The daemon is implemented in Rust and is implemented in several crates. The main, or top level,
+crate that builds the final daemon binary is `mullvad-daemon` which then depend on the others.
+
+In general one can look at the daemon as split into two parts, the crates starting with `talpid`
+and the crates starting with `mullvad`. The `talpid` crates are supposed to be completely unrelated
+to Mullvad specific things. A `talpid` crate is not allowed to know anything about the API through
+which the daemon fetch Mullvad account details or download VPN server lists for example. The
+`talpid` components should be viewed as a generic VPN client with extra privacy and anonymity
+preserving features. The crates having `mullvad` in their name on the other hand make use of the
+`talpid` components to build a secure and Mullvad specific VPN client.
+
+
+- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
+  Rust crates.
+- **mullvad-daemon/** - Main Rust crate building the daemon binary.
 
 ## Quirks
 
