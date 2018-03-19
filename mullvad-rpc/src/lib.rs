@@ -43,7 +43,7 @@ pub mod event_loop;
 pub mod rest;
 
 mod api_address;
-use api_address::*;
+use api_address::{api_address, MASTER_API_HOST};
 
 
 /// Create and returns a `HttpHandle` running on the given core handle.
