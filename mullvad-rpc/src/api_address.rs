@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io;
-use std::net::{AddrParseError, SocketAddr, ToSocketAddrs};
+use std::net::{SocketAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 
 use serde_json;
@@ -8,20 +8,6 @@ use serde_json;
 
 pub static MASTER_API_HOST: &str = "api.mullvad.net";
 
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-struct CachedAddress {
-    ip: String,
-    port: u16,
-}
-
-impl CachedAddress {
-    pub fn try_into_socket_addr(self) -> Result<SocketAddr, AddrParseError> {
-        let ip = self.ip.parse()?;
-
-        Ok(SocketAddr::new(ip, self.port))
-    }
-}
 
 /// Returns the IP address of the Mullvad API server from cache if it exists, otherwise it tries to
 /// resolve it based on its hostname and cache the result.
@@ -46,12 +32,9 @@ fn get_cache_file_path(resource_dir: &Path) -> PathBuf {
 
 fn read_cached_address(cache_file: &Path) -> Result<String, io::Error> {
     let reader = File::open(cache_file)?;
-    let cached_address: CachedAddress = serde_json::from_reader(reader)?;
+    let address: SocketAddr = serde_json::from_reader(reader)?;
 
-    cached_address
-        .try_into_socket_addr()
-        .map(|address| address.to_string())
-        .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+    Ok(address.to_string())
 }
 
 fn resolve_address_from_hostname() -> Result<SocketAddr, io::Error> {
@@ -68,11 +51,7 @@ fn resolve_address_from_hostname() -> Result<SocketAddr, io::Error> {
 
 fn store_address_in_cache(address: &SocketAddr, cache_file: &Path) -> Result<(), io::Error> {
     let file = File::create(cache_file)?;
-    let address_to_cache = CachedAddress {
-        ip: address.ip().to_string(),
-        port: address.port(),
-    };
-    serde_json::to_writer(file, &address_to_cache)
+    serde_json::to_writer(file, address)
         .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
 }
 
@@ -89,27 +68,17 @@ mod tests {
     #[test]
     fn uses_cached_address() {
         let temp_dir = TempDir::new("address-cache-test").unwrap();
-        let cached_address = CachedAddress {
-            ip: "127.0.0.1".to_string(),
-            port: 52780,
-        };
+        let cached_address = SocketAddr::new("127.0.0.1".parse().unwrap(), 52780);
 
         {
             let cache_file_path = temp_dir.path().join("api_address.json");
             let mut cache_file = File::create(cache_file_path).unwrap();
-            writeln!(
-                cache_file,
-                "{{ \"ip\": \"{}\", \"port\": {} }}",
-                cached_address.ip, cached_address.port
-            ).unwrap();
+            writeln!(cache_file, "\"{}\"", cached_address,).unwrap();
         }
 
         let address = api_address(Some(temp_dir.path()));
 
-        assert_eq!(
-            address,
-            format!("{}:{}", cached_address.ip, cached_address.port)
-        );
+        assert_eq!(address, cached_address.to_string());
     }
 
     #[test]
@@ -125,15 +94,7 @@ mod tests {
         let mut cached_address = String::new();
         cache_reader.read_line(&mut cached_address).unwrap();
 
-        let mut address_parts = address.split(":");
-        let ip = address_parts.next().unwrap();
-        let port = address_parts.next().unwrap();
-        assert!(address_parts.next().is_none());
-
-        assert_eq!(
-            cached_address,
-            format!("{{\"ip\":\"{}\",\"port\":{}}}", ip, port)
-        );
+        assert_eq!(cached_address, format!("\"{}\"", address));
     }
 
     #[test]
