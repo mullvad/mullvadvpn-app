@@ -127,3 +127,12 @@ impl Error for TransportProtocolParseError {
         "Not a valid transport protocol"
     }
 }
+
+
+/// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
+/// of the relay parameters - i.e. have nothing to do with the particular OpenVpn server, but do
+/// affect the connection.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub struct OpenVpnTunnelOptions {
+    pub mssfix: Option<u16>,
+}
