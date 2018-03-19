@@ -10,7 +10,7 @@ export default {
     login_footer: {
       backgroundColor: colors.darkBlue,
       paddingTop: 18,
-      paddingBottom:24,
+      paddingBottom:16,
       flex: 0,
     },
     status_icon: {
@@ -64,13 +64,15 @@ export default {
       border: 0,
       width: 48,
       alignItems: 'center',
+      justifyContent: 'center',
       color: colors.blue20,
     },
     account_input_button__active: {
       color: colors.white,
-      backgroundColor: colors.green,
     },
     account_input_button__invisible: {
+      color: colors.white,
+      backgroundColor: colors.white,
       visibility: 'hidden',
       opacity: 0,
     },

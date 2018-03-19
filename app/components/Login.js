@@ -29,9 +29,11 @@ type State = {
   footerHeight: number,
   animatedFooterValue: Animated.Value,
   animatedDropdownValue: Animated.Value,
-  animation: Animated.CompositeAnimation,
-  footerAnimationStyle: Animated.Style,
-  dropdownAnimationStyle: Animated.Style,
+  animatedLoginButtonValue: Animated.Value,
+  animation: ?Animated.CompositeAnimation,
+  footerAnimationStyle: ?Animated.Style,
+  dropdownAnimationStyle: ?Animated.Style,
+  loginButtonAnimationStyle: ?Animated.Style,
 };
 
 export default class Login extends Component<LoginPropTypes, State> {
@@ -42,9 +44,11 @@ export default class Login extends Component<LoginPropTypes, State> {
     footerHeight: 0,
     animatedFooterValue: Animated.createValue(0),
     animatedDropdownValue: Animated.createValue(0),
+    animatedLoginButtonValue: Animated.createValue(0),
     animation: null,
     footerAnimationStyle: null,
     dropdownAnimationStyle: null,
+    loginButtonAnimationStyle: null,
   };
 
   constructor(props: LoginPropTypes) {
@@ -57,6 +61,9 @@ export default class Login extends Component<LoginPropTypes, State> {
     });
     this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({
       transform: [{translateY: this.state.animatedFooterValue }]
+    });
+    this.state.loginButtonAnimationStyle = Styles.createAnimatedViewStyle({
+      backgroundColor: Animated.interpolate(this.state.animatedLoginButtonValue, [0.0, 1.0], [colors.white, colors.green]),
     });
   }
 
@@ -106,7 +113,7 @@ export default class Login extends Component<LoginPropTypes, State> {
     const relatedTarget = e.relatedTarget;
 
     // restore focus if click happened within dropdown
-    if(relatedTarget && this._isWithinDropdown(relatedTarget)) {
+    if(relatedTarget) {
       e.target.focus();
       return;
     }
@@ -122,11 +129,12 @@ export default class Login extends Component<LoginPropTypes, State> {
     }
     const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
     const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
-    this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight));
+    const loginButtonValue = (props.account.accountToken && props.account.accountToken.length) > 0 ? 1 : 0;
+    this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight), this._getLoginButtonAnimation(loginButtonValue));
   }
 
-  _setAnimation = (footerAnimation: Animated.CompositeAnimation, dropdownAnimation: Animated.CompositeAnimation) => {
-    let compositeAnimation = Animated.parallel([ footerAnimation, dropdownAnimation ]);
+  _setAnimation = (footerAnimation: Animated.CompositeAnimation, dropdownAnimation: Animated.CompositeAnimation, loginButtonAnimation: Animated.CompositeAnimation) => {
+    let compositeAnimation = Animated.parallel([ footerAnimation, dropdownAnimation, loginButtonAnimation]);
     this.setState({animation: compositeAnimation}, () => {
       compositeAnimation.start(() => this.setState({
         animation: null
@@ -197,7 +205,7 @@ export default class Login extends Component<LoginPropTypes, State> {
     }
   }
 
-  _accountInputGroupClass(): Array<Object> {
+  _accountInputGroupStyles(): Array<Object> {
     const classes = [styles.account_input_group];
     if(this.state.isActive) {
       classes.push(styles.account_input_group__active);
@@ -215,7 +223,20 @@ export default class Login extends Component<LoginPropTypes, State> {
     return classes;
   }
 
-  _accountInputButtonClass(): Array<Object> {
+  _accountInputButtonStyles(): Array<Object> {
+    const { status } = this.props.account;
+    const classes = [styles.account_input_button];
+
+    if(status === 'logging in') {
+      classes.push(styles.account_input_button__invisible);
+    }
+
+    classes.push(this.state.loginButtonAnimationStyle);
+
+    return classes;
+  }
+
+  _accountInputArrowStyles(): Array<Object> {
     const { accountToken, status } = this.props.account;
     const classes = [styles.account_input_button];
 
@@ -272,18 +293,30 @@ export default class Login extends Component<LoginPropTypes, State> {
     });
   }
 
+  _getLoginButtonAnimation(toValue: number){
+    return Animated.timing(this.state.animatedLoginButtonValue, {
+      toValue: toValue,
+      easing: Animated.Easing.Linear(),
+      duration: 250,
+      useNativeDriver: true,
+    });
+  }
+
+  _getLoginArrowAnimation(toValue: number){
+    return Animated.timing(this.state.animatedLoginArrowValue, {
+      toValue: toValue,
+      easing: Animated.Easing.Linear(),
+      duration: 250,
+      useNativeDriver: true,
+    });
+  }
+
   _onDropdownLayout = (layout) => {
     this.setState({dropdownHeight: layout.height});
   }
 
-  // returns true if DOM node is within dropdown hierarchy
-  _isWithinDropdown(relatedTarget) {
-    const dropdownElement = this._accountDropdownElement;
-    return dropdownElement && dropdownElement.contains(relatedTarget);
-  }
-
   // container element used for measuring the height of the accounts dropdown
-  _accountDropdownElement: ?HTMLElement;
+  _accountDropdownElement: ?React.Node;
   _onAccountDropdownContainerRef = ref => this._accountDropdownElement = ref;
 
   _onSelectAccountFromHistory = (accountToken) => {
@@ -303,9 +336,11 @@ export default class Login extends Component<LoginPropTypes, State> {
       }
     };
 
+
+
     return <View style= {styles.login}>
       <Text style={ styles.subtitle }>{ this._formSubtitle() }</Text>
-      <View style={ this._accountInputGroupClass() }>
+      <View style={ this._accountInputGroupStyles() }>
         <View style={ styles.account_input_backdrop}>
           <AccountInput style={styles.account_input_textfield}
             type="text"
@@ -320,9 +355,9 @@ export default class Login extends Component<LoginPropTypes, State> {
             autoFocus={ true }
             ref={ autoFocusOnFailure }
             testName='AccountInput'/>
-          <Button style={ this._accountInputButtonClass() } onPress={ this._onLogin } testName='account-input-button'>
-            <Img style={[ this._accountInputButtonClass() ]} source='icon-arrow' height='16' width='24' tintColor='currentColor' />
-          </Button>
+          <Animated.View style={this._accountInputButtonStyles()} onPress={ this._onLogin } testName='account-input-button'>
+            <Img style={this._accountInputArrowStyles()} source='icon-arrow' height='16' width='24' tintColor='currentColor' />
+          </Animated.View>
         </View>
         <Animated.View style={ this.state.dropdownAnimationStyle }>
           <View onLayout={this._onDropdownLayout} ref={ this._onAccountDropdownContainerRef }>
