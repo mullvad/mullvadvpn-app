@@ -8,7 +8,6 @@ use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayCons
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
-use talpid_types::net::TunnelParameters;
 
 error_chain! {
     errors {
@@ -165,15 +164,6 @@ impl Settings {
             self.save().map(|_| true)
         } else {
             Ok(false)
-        }
-    }
-
-    pub fn apply_custom_tunnel_parameters(&self, params: &mut TunnelParameters) {
-        match params {
-            &mut TunnelParameters::OpenVpn(ref mut params) => {
-                params.mssfix = self.openvpn_mssfix;
-            }
-            _ => (),
         }
     }
 }

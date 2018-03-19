@@ -667,16 +667,12 @@ impl Daemon {
                 let mut tunnel_endpoint = custom_relay
                     .to_tunnel_endpoint()
                     .chain_err(|| ErrorKind::NoRelay)?;
-                self.settings
-                    .apply_custom_tunnel_parameters(&mut tunnel_endpoint.tunnel);
                 self.tunnel_endpoint = Some(tunnel_endpoint);
             }
             RelaySettings::Normal(constraints) => {
                 let (relay, mut tunnel_endpoint) = self.relay_selector
                     .get_tunnel_endpoint(&constraints)
                     .chain_err(|| ErrorKind::NoRelay)?;
-                self.settings
-                    .apply_custom_tunnel_parameters(&mut tunnel_endpoint.tunnel);
                 self.tunnel_endpoint = Some(tunnel_endpoint);
                 self.current_relay = Some(relay);
             }
