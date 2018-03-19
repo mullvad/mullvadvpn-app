@@ -49,6 +49,12 @@ pkg:
   allowAnywhere: false
   allowCurrentUserHome: false
 
+nsis:
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+      
 win:
   "target": [
     {
