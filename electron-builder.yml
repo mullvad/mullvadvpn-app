@@ -50,8 +50,15 @@ pkg:
   allowCurrentUserHome: false
 
 win:
-  target:
-    - nsis
+  "target": [
+    {
+      "target": "nsis",
+      "arch": [
+        "x64",
+        "ia32"
+      ]
+    }
+  ]
   artifactName: MullvadVPN-${version}.${ext}
   extraResources:
     - from: ./target/release/mullvad.exe
