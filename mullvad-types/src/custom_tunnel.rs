@@ -1,6 +1,6 @@
 use std::net::{IpAddr, ToSocketAddrs};
 
-use talpid_types::net::{TunnelEndpoint, TunnelParameters};
+use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 error_chain!{
     errors {
@@ -14,7 +14,7 @@ error_chain!{
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {
     pub host: String,
-    pub tunnel: TunnelParameters,
+    pub tunnel: TunnelEndpointData,
 }
 
 impl CustomTunnelEndpoint {

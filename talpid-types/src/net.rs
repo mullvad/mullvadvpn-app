@@ -7,7 +7,7 @@ use std::str::FromStr;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
-    pub tunnel: TunnelParameters,
+    pub tunnel: TunnelEndpointData,
 }
 
 impl TunnelEndpoint {
@@ -21,40 +21,42 @@ impl TunnelEndpoint {
     }
 }
 
+/// TunnelEndpointData contains data required to connect to a given tunnel endpoint.
+/// Different endpoint types can require different types of data.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub enum TunnelParameters {
+pub enum TunnelEndpointData {
     /// Extra parameters for an OpenVPN tunnel endpoint.
     #[serde(rename = "openvpn")]
-    OpenVpn(OpenVpnParameters),
+    OpenVpn(OpenVpnEndpointData),
     /// Extra parameters for a Wireguard tunnel endpoint.
     #[serde(rename = "wireguard")]
-    Wireguard(WireguardParameters),
+    Wireguard(WireguardEndpointData),
 }
 
-impl TunnelParameters {
+impl TunnelEndpointData {
     pub fn port(&self) -> u16 {
         match *self {
-            TunnelParameters::OpenVpn(metadata) => metadata.port,
-            TunnelParameters::Wireguard(metadata) => metadata.port,
+            TunnelEndpointData::OpenVpn(metadata) => metadata.port,
+            TunnelEndpointData::Wireguard(metadata) => metadata.port,
         }
     }
 
     pub fn transport_protocol(&self) -> TransportProtocol {
         match *self {
-            TunnelParameters::OpenVpn(metadata) => metadata.protocol,
-            TunnelParameters::Wireguard(_) => TransportProtocol::Udp,
+            TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
+            TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
         }
     }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnParameters {
+pub struct OpenVpnEndpointData {
     pub port: u16,
     pub protocol: TransportProtocol,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct WireguardParameters {
+pub struct WireguardEndpointData {
     pub port: u16,
 }
 
