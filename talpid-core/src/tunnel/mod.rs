@@ -12,7 +12,7 @@ use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
-use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelParameters};
+use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelEndpointData};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -122,8 +122,8 @@ impl TunnelMonitor {
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         match tunnel_endpoint.tunnel {
-            TunnelParameters::OpenVpn(_) => (),
-            TunnelParameters::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+            TunnelEndpointData::OpenVpn(_) => (),
+            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
         }
         let user_pass_file = Self::create_user_pass_file(account_token)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;

@@ -11,7 +11,7 @@ use mullvad_types::relay_list::{Relay, RelayList, RelayTunnels};
 
 use serde_json;
 
-use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelParameters};
+use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
 
 use std::fs::File;
 use std::io;
@@ -234,11 +234,11 @@ impl RelaySelector {
         }
     }
 
-    fn get_random_tunnel(&mut self, tunnels: &RelayTunnels) -> Option<TunnelParameters> {
+    fn get_random_tunnel(&mut self, tunnels: &RelayTunnels) -> Option<TunnelEndpointData> {
         self.rng
             .choose(&tunnels.openvpn)
             .cloned()
-            .map(|openvpn_endpoint| TunnelParameters::OpenVpn(openvpn_endpoint))
+            .map(|openvpn_endpoint| TunnelEndpointData::OpenVpn(openvpn_endpoint))
     }
 
     /// Downloads the latest relay list and caches it. This operation is blocking.

@@ -2,7 +2,7 @@ use location::{CityCode, CountryCode, Location};
 
 use std::net::Ipv4Addr;
 
-use talpid_types::net::{OpenVpnParameters, WireguardParameters};
+use talpid_types::net::{OpenVpnEndpointData, WireguardEndpointData};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -44,6 +44,6 @@ pub struct Relay {
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RelayTunnels {
-    pub openvpn: Vec<OpenVpnParameters>,
-    pub wireguard: Vec<WireguardParameters>,
+    pub openvpn: Vec<OpenVpnEndpointData>,
+    pub wireguard: Vec<WireguardEndpointData>,
 }
