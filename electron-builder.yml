@@ -51,7 +51,9 @@ pkg:
 
 win:
   target:
-    - nsis
+    - target: nsis
+      arch:
+        - x64
   artifactName: MullvadVPN-${version}.${ext}
   extraResources:
     - from: ./target/release/mullvad.exe
