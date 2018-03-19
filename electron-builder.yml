@@ -56,6 +56,12 @@ mac:
     - from: ./client-binaries/mac/include/openvpn
       to: ./openvpn-binaries/openvpn
 
+nsis:
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+      
 win:
   "target": [
     {
