@@ -157,7 +157,7 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(
         remote: Endpoint,
-        params: &TunnelParameters,
+        _params: &TunnelEndpointData,
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -168,7 +168,6 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .extra_parameters(params)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
         if let Some(log) = log {

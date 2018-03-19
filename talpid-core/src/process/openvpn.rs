@@ -102,15 +102,6 @@ impl OpenVpnCommand {
         self
     }
 
-    /// Sets extra tunnel parameters if the parameters are `net::TunnelParameters::OpenVpn`.
-    pub fn extra_parameters(&mut self, params: &net::TunnelParameters) -> &mut Self {
-        match params {
-            &net::TunnelParameters::OpenVpn(ref p) => self.mssfix = p.mssfix,
-            _ => (),
-        };
-        self
-    }
-
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
@@ -198,6 +189,11 @@ impl OpenVpnCommand {
             args.push(OsString::from(user_pass_path));
         }
         args
+    }
+
+    fn set_options(&mut self, opts: &net::OpenVpnTunnelOptions) -> &mut Self {
+        self.mssfix = opts.mssfix;
+        self
     }
 }
 
