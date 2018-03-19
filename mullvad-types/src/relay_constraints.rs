@@ -3,7 +3,7 @@ use location::{CityCode, CountryCode};
 
 use std::fmt;
 
-use talpid_types::net::{OpenVpnParameters, TransportProtocol, WireguardParameters};
+use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, WireguardEndpointData};
 
 
 pub trait Match<T> {
@@ -107,8 +107,8 @@ pub enum TunnelConstraints {
     Wireguard(WireguardConstraints),
 }
 
-impl Match<OpenVpnParameters> for TunnelConstraints {
-    fn matches(&self, endpoint: &OpenVpnParameters) -> bool {
+impl Match<OpenVpnEndpointData> for TunnelConstraints {
+    fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
         match *self {
             TunnelConstraints::OpenVpn(ref constraints) => constraints.matches(endpoint),
             _ => false,
@@ -116,8 +116,8 @@ impl Match<OpenVpnParameters> for TunnelConstraints {
     }
 }
 
-impl Match<WireguardParameters> for TunnelConstraints {
-    fn matches(&self, endpoint: &WireguardParameters) -> bool {
+impl Match<WireguardEndpointData> for TunnelConstraints {
+    fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
         match *self {
             TunnelConstraints::Wireguard(ref constraints) => constraints.matches(endpoint),
             _ => false,
@@ -131,8 +131,8 @@ pub struct OpenVpnConstraints {
     pub protocol: Constraint<TransportProtocol>,
 }
 
-impl Match<OpenVpnParameters> for OpenVpnConstraints {
-    fn matches(&self, endpoint: &OpenVpnParameters) -> bool {
+impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
+    fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
         self.port.matches(&endpoint.port) && self.protocol.matches(&endpoint.protocol)
     }
 }
@@ -142,8 +142,8 @@ pub struct WireguardConstraints {
     pub port: Constraint<u16>,
 }
 
-impl Match<WireguardParameters> for WireguardConstraints {
-    fn matches(&self, endpoint: &WireguardParameters) -> bool {
+impl Match<WireguardEndpointData> for WireguardConstraints {
+    fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
         self.port.matches(&endpoint.port)
     }
 }
