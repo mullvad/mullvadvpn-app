@@ -128,6 +128,14 @@ impl Error for TransportProtocolParseError {
     }
 }
 
+/// TunnelOptions holds optional settings for tunnels, that are to be applied to any tunnel of the
+/// appropriate type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct TunnelOptions {
+    /// openvpn holds OpenVPN specific tunnel options.
+    pub openvpn: OpenVpnTunnelOptions,
+}
+
 
 /// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
 /// of the relay parameters - i.e. have nothing to do with the particular OpenVpn server, but do
@@ -136,3 +144,5 @@ impl Error for TransportProtocolParseError {
 pub struct OpenVpnTunnelOptions {
     pub mssfix: Option<u16>,
 }
+
+
