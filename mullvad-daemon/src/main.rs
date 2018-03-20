@@ -533,20 +533,20 @@ impl Daemon {
 
     fn on_set_openvpn_mssfix(
         &mut self,
-        tx: OneshotSender<settings::Result<()>>,
+        tx: OneshotSender<()>,
         mssfix_arg: Option<u16>,
     ) -> Result<()> {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(_) => Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response"),
+            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_mssfix response"),
             Err(e) => error!("{}", e.display_chain()),
         };
         Ok(())
     }
 
     fn on_get_openvpn_mssfix(&self, tx: OneshotSender<Option<u16>>) -> Result<()> {
-        let mssfix_arg = self.settings.get_openvpn_mssfix();
-        Self::oneshot_send(tx, mssfix_arg, "set_openvpn_mssfix");
+        let mssfix_arg = self.settings.get_tunnel_options().openvpn.mssfix;
+        Self::oneshot_send(tx, mssfix_arg, "get_openvpn_mssfix");
         Ok(())
     }
 
@@ -653,13 +653,13 @@ impl Daemon {
 
         match self.settings.get_relay_settings() {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => {
-                let mut tunnel_endpoint = custom_relay
+                let tunnel_endpoint = custom_relay
                     .to_tunnel_endpoint()
                     .chain_err(|| ErrorKind::NoRelay)?;
                 self.tunnel_endpoint = Some(tunnel_endpoint);
             }
             RelaySettings::Normal(constraints) => {
-                let (relay, mut tunnel_endpoint) = self.relay_selector
+                let (relay, tunnel_endpoint) = self.relay_selector
                     .get_tunnel_endpoint(&constraints)
                     .chain_err(|| ErrorKind::NoRelay)?;
                 self.tunnel_endpoint = Some(tunnel_endpoint);

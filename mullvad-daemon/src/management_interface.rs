@@ -1,7 +1,6 @@
 use error_chain;
 
 use error_chain::ChainedError;
-use futures::future::IntoFuture;
 use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
@@ -25,7 +24,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use uuid;
-use settings;
 
 use account_history::AccountHistory;
 
@@ -176,7 +174,7 @@ pub enum TunnelCommand {
     /// Request the current allow LAN setting.
     GetAllowLan(OneshotSender<bool>),
     /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(OneshotSender<settings::Result<()>>, Option<u16>),
+    SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Get the mssfix argument for OpenVPN
     GetOpenVpnMssfix(OneshotSender<Option<u16>>),
     /// Makes the daemon exit the main loop and quit.
@@ -576,22 +574,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::SetOpenVpnMssfix(tx, mssfix))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|f| {
-                f.into_future()
-                    .map_err(|e| {
-            match e.into() {
-                settings::ErrorKind::ValidationError(e) => {
-                    let mut jsonrpc_err = Error::invalid_request();
-                    jsonrpc_err.message = e.to_string();
-                    jsonrpc_err
-                },
-                _ => Error::internal_error(),
-            }
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
-        })
-            })
-;
         Box::new(future)
     }
 
