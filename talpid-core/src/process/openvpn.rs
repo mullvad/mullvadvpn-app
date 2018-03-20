@@ -39,7 +39,7 @@ pub struct OpenVpnCommand {
     crl: Option<PathBuf>,
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
-    mssfix: Option<u16>,
+    tunnel_options: net::OpenVpnTunnelOptions,
 }
 
 impl OpenVpnCommand {
@@ -55,7 +55,7 @@ impl OpenVpnCommand {
             crl: None,
             plugin: None,
             log: None,
-            mssfix: None,
+            tunnel_options: net::OpenVpnTunnelOptions::default(),
         }
     }
 
@@ -108,6 +108,12 @@ impl OpenVpnCommand {
         duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
     }
 
+    /// Sets extra options
+    pub fn set_tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
+        self.tunnel_options = *tunnel_options;
+        self
+    }
+
     /// Returns all arguments that the subprocess would be spawned with.
     pub fn get_arguments(&self) -> Vec<OsString> {
         let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();
@@ -140,7 +146,7 @@ impl OpenVpnCommand {
             args.push(OsString::from(path))
         }
 
-        if let Some(mssfix) = self.mssfix {
+        if let Some(mssfix) = self.tunnel_options.mssfix {
             args.push(OsString::from("--mssfix"));
             args.push(OsString::from(mssfix.to_string()));
         }
@@ -189,11 +195,6 @@ impl OpenVpnCommand {
             args.push(OsString::from(user_pass_path));
         }
         args
-    }
-
-    fn set_options(&mut self, opts: &net::OpenVpnTunnelOptions) -> &mut Self {
-        self.mssfix = opts.mssfix;
-        self
     }
 }
 
