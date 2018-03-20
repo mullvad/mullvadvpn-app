@@ -127,11 +127,11 @@ export default class Login extends Component<LoginPropTypes, State> {
     if (this.state.animation) {
       this.state.animation.stop();
     }
-    const accountToken = this.props.account.accountToken;
+    const accountToken = props.account.accountToken || [];
 
     const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
     const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
-    const loginButtonValue = (accountToken && accountToken.length) > 0 ? 1 : 0;
+    const loginButtonValue = (accountToken.length) > 0 ? 1 : 0;
     this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight), this._getLoginButtonAnimation(loginButtonValue));
   }
 
