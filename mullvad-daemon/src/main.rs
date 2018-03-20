@@ -533,12 +533,12 @@ impl Daemon {
 
     fn on_set_openvpn_mssfix(
         &mut self,
-        tx: OneshotSender<settings::Result<()>>,
+        tx: OneshotSender<()>,
         mssfix_arg: Option<u16>,
     ) -> Result<()> {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result.chain_err(|| "Unable to save settigns") {
-            Ok(_) => Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response"),
+            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_mssfix response"),
             Err(e) => error!("{}", e.display_chain()),
         };
         Ok(())
@@ -546,7 +546,7 @@ impl Daemon {
 
     fn on_get_openvpn_mssfix(&self, tx: OneshotSender<Option<u16>>) -> Result<()> {
         let mssfix_arg = self.settings.get_openvpn_mssfix();
-        Self::oneshot_send(tx, mssfix_arg, "set_openvpn_mssfix");
+        Self::oneshot_send(tx, mssfix_arg, "get_openvpn_mssfix");
         Ok(())
     }
 

@@ -26,10 +26,6 @@ error_chain! {
         ParseError {
             description("Malformed settings")
         }
-        ValidationError(desc: String) {
-            description("Invalid value for a setting")
-            display("")
-        }
     }
 }
 
