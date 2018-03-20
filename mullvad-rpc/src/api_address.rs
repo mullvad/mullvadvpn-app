@@ -121,11 +121,11 @@ mod tests {
     }
 
     #[test]
-    fn resolves_even_if_cache_dir_is_unavailble() {
-        let temp_dir_path = TempDir::new("address-cache-test")
-            .unwrap()
-            .path()
-            .to_path_buf();
+    fn resolves_even_if_cache_dir_is_unavailable() {
+        let temp_dir = TempDir::new("address-cache-test").unwrap();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        ::std::mem::drop(temp_dir);
 
         assert_eq!(
             ApiAddress::<MockResolver>::get(Some(&temp_dir_path)),
