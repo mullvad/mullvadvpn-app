@@ -691,6 +691,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-service"
+version = "0.1.0"
+dependencies = [
+ "winapi 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "mullvad-types"
 version = "0.1.0"
 dependencies = [
