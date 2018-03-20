@@ -36,6 +36,7 @@ use mullvad_types::relay_list::RelayList;
 
 use std::collections::HashMap;
 
+mod dns;
 pub mod event_loop;
 pub mod rest;
 
