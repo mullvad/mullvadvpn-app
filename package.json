@@ -27,7 +27,7 @@
     "react-router": "^4.2.0",
     "react-router-redux": "^5.0.0-alpha.9",
     "react-simple-maps": "^0.10.1",
-    "reactxp": "^0.51.8",
+    "reactxp": "^1.0.2",
     "redux": "^3.0.0",
     "redux-thunk": "^2.2.0",
     "shell-escape": "^0.2.0",

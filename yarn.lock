@@ -95,9 +95,13 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@types/lodash@^4.14.64", "@types/lodash@^4.14.78":
+"@types/lodash@^4.14.64":
   version "4.14.91"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.91.tgz#794611b28056d16b5436059c6d800b39d573cd3a"
+
+"@types/lodash@^4.14.80":
+  version "4.14.105"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.105.tgz#9fcc4627a1f98f8f8fce79ddb2bff4afd97e959b"
 
 "@types/node@*":
   version "8.5.2"
@@ -4947,7 +4951,7 @@ lodash@^3.1.0, lodash@^3.10.1, lodash@^3.2.0, lodash@^3.3.1, lodash@^3.5.0:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@^4.11.1, lodash@^4.14.0, lodash@^4.15.0, lodash@^4.16.6, lodash@^4.17.1, lodash@^4.17.2, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1:
+lodash@^4.11.1, lodash@^4.14.0, lodash@^4.15.0, lodash@^4.16.6, lodash@^4.17.2, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -6348,20 +6352,20 @@ react@^16.0.0:
     object-assign "^4.1.1"
     prop-types "^15.6.0"
 
-reactxp@^0.51.8:
-  version "0.51.8"
-  resolved "https://registry.yarnpkg.com/reactxp/-/reactxp-0.51.8.tgz#e8ef1eaaa6fef35040f411a7b11193dc98f96a6e"
+reactxp@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/reactxp/-/reactxp-1.0.2.tgz#fff3e0f11b32773c3ee2bde8e72796b45e79847e"
   dependencies:
-    "@types/lodash" "^4.14.78"
+    "@types/lodash" "^4.14.80"
     "@types/react" "^16.0.36"
     "@types/react-dom" "^16.0.3"
     assert "^1.3.0"
     ifvisible "^1.1.0"
-    lodash "^4.17.1"
+    lodash "^4.17.4"
     prop-types "^15.5.9"
     rebound "^0.0.13"
     subscribableevent "^1.0.0"
-    synctasks "^0.3.0"
+    synctasks "^0.3.1"
 
 read-all-stream@^3.0.0:
   version "3.1.0"
@@ -7444,7 +7448,7 @@ sync-exec@~0.6.x:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/sync-exec/-/sync-exec-0.6.2.tgz#717d22cc53f0ce1def5594362f3a89a2ebb91105"
 
-synctasks@^0.3.0:
+synctasks@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/synctasks/-/synctasks-0.3.1.tgz#1f9012b23792ad775ba2693e0cafcfcd65b80d97"
 
