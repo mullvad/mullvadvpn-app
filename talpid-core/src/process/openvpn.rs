@@ -108,6 +108,12 @@ impl OpenVpnCommand {
         duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
     }
 
+    /// Sets extra options
+    pub fn set_tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
+        self.mssfix = tunnel_options.mssfix;
+        self
+    }
+
     /// Returns all arguments that the subprocess would be spawned with.
     pub fn get_arguments(&self) -> Vec<OsString> {
         let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();
@@ -189,11 +195,6 @@ impl OpenVpnCommand {
             args.push(OsString::from(user_pass_path));
         }
         args
-    }
-
-    fn set_options(&mut self, opts: &net::OpenVpnTunnelOptions) -> &mut Self {
-        self.mssfix = opts.mssfix;
-        self
     }
 }
 
