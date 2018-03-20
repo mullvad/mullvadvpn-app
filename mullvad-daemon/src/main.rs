@@ -533,22 +533,11 @@ impl Daemon {
 
     fn on_set_openvpn_mssfix(
         &mut self,
-        tx: OneshotSender<::std::result::Result<(), jsonrpc_core::Error>>,
+        tx: OneshotSender<settings::Result<()>>,
         mssfix_arg: Option<u16>,
     ) -> Result<()> {
-        // maybe validation should happen at a deeper level?
-        if let Some(mss) = mssfix_arg {
-            if mss > 3000 {
-                Self::oneshot_send(
-                    tx,
-                    Err(jsonrpc_core::Error::invalid_params("invalid mssfix value")),
-                    "set_openvpn_mssfix error response",
-                );
-                return Ok(());
-            };
-        };
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
-        match save_result.chain_err(|| "Unable to save settigns") {
+        match save_result.chain_err(|| "Unable to save settings") {
             Ok(_) => Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response"),
             Err(e) => error!("{}", e.display_chain()),
         };
@@ -728,8 +717,11 @@ impl Daemon {
                 .unwrap()
                 .send(DaemonEvent::TunnelEvent(event));
         };
+
+        let tunnel_options = self.settings.get_tunnel_options();
         TunnelMonitor::new(
             tunnel_endpoint,
+            &tunnel_options,
             account_token,
             self.tunnel_log.as_ref().map(PathBuf::as_path),
             &self.resource_dir,
