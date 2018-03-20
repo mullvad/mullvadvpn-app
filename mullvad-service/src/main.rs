@@ -239,13 +239,13 @@ impl std::fmt::Display for ConversionError {
 
 trait TryConvertFrom<T: ?Sized> where Self: Sized {
     type Error;
-    fn try_convert_from(value: T) -> ::std::result::Result<Self, Self::Error>;
+    fn try_convert_from(value: T) -> Result<Self, Self::Error>;
 }
 
 impl TryConvertFrom<u32> for ServiceState {
     type Error = ConversionError;
 
-    fn try_convert_from(raw_state: u32) -> ::std::result::Result<Self, Self::Error> {
+    fn try_convert_from(raw_state: u32) -> Result<Self, Self::Error> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
