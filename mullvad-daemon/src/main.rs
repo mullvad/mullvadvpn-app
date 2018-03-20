@@ -216,12 +216,17 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let api_address_cache_dir = resource_dir.clone();
+        let api_address_resource_dir = resource_dir.clone();
+        let api_address_cache_dir = get_cache_dir();
 
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(move |core| {
                 let handle = core.handle();
-                let rpc = mullvad_rpc::shared(&handle, Some(&api_address_cache_dir));
+                let rpc = mullvad_rpc::shared(
+                    &handle,
+                    Some(&api_address_resource_dir),
+                    Some(&api_address_cache_dir),
+                );
                 let http = mullvad_rpc::rest::create_http_client(&handle);
                 let remote = core.remote();
                 (rpc, http, remote)
@@ -835,6 +840,19 @@ fn get_resource_dir() -> PathBuf {
         Err(e) => {
             error!(
                 "Failed finding the install directory. Using working directory: {}",
+                e
+            );
+            PathBuf::from(".")
+        }
+    }
+}
+
+fn get_cache_dir() -> PathBuf {
+    match app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO) {
+        Ok(path) => path,
+        Err(e) => {
+            error!(
+                "Failed to find cache directory. Using working directory: {}",
                 e
             );
             PathBuf::from(".")
