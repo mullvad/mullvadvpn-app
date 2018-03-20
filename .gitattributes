@@ -1,0 +1,2 @@
+# Do not break script files on Windows (Cygwin gets upset with CRLF)
+*.sh text eof=lf
