@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io;
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use serde_json;
 
@@ -45,7 +46,7 @@ fn get_api_address_using_resolver<R: DnsResolver>(
     let cache_file = cache_dir.map(get_address_file_path);
     let provided_file = resource_dir.map(get_address_file_path);
 
-    if let Ok(address) = read_address_from_file(cache_file.as_ref()) {
+    if let Ok(address) = read_cached_address(cache_file.as_ref()) {
         address.to_string()
     } else {
         let resolved_address = read_address_from_file(provided_file.as_ref())
@@ -64,16 +65,30 @@ fn get_address_file_path(dir: &Path) -> PathBuf {
     dir.join("api_address.json")
 }
 
-fn store_address_in_cache(address: &IpAddr, cache_file: Option<&PathBuf>) -> Result<(), io::Error> {
-    if let Some(cache_file) = cache_file {
-        let file = File::create(cache_file)?;
+fn read_cached_address(cache_file: Option<&PathBuf>) -> Result<IpAddr, io::Error> {
+    lazy_static! {
+        static ref MAX_TIME_IN_CACHE: Duration = Duration::from_secs(3600);
+    }
 
-        serde_json::to_writer(file, address)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+    if let Some(cache_file) = cache_file {
+        let metadata = cache_file.metadata()?;
+        let last_modified = metadata.modified()?;
+        let cache_entry_age = last_modified.elapsed().map_err(|_| {
+            io::Error::new(io::ErrorKind::Other, "Failed to calculate cache entry age")
+        })?;
+
+        if cache_entry_age > *MAX_TIME_IN_CACHE {
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Cached address is too old",
+            ))
+        } else {
+            read_address_from_file(Some(cache_file))
+        }
     } else {
         Err(io::Error::new(
             io::ErrorKind::Other,
-            "No cache file specified",
+            "No API IP address cache file",
         ))
     }
 }
@@ -92,13 +107,29 @@ fn read_address_from_file(file: Option<&PathBuf>) -> Result<IpAddr, io::Error> {
     }
 }
 
+fn store_address_in_cache(address: &IpAddr, cache_file: Option<&PathBuf>) -> Result<(), io::Error> {
+    if let Some(cache_file) = cache_file {
+        let file = File::create(cache_file)?;
+
+        serde_json::to_writer(file, address)
+            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::Other,
+            "No cache file specified",
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    extern crate filetime;
     extern crate tempdir;
 
     use std::fs::{create_dir, File};
     use std::io::{BufRead, BufReader, Write};
 
+    use self::filetime::FileTime;
     use self::tempdir::TempDir;
     use super::*;
 
@@ -118,6 +149,32 @@ mod tests {
             get_api_address_using_resolver(mock_resolver, Some(&cache_dir), Some(&resource_dir));
 
         assert_eq!(address, cached_address);
+    }
+
+    #[test]
+    fn ignores_old_cached_address() {
+        let (_temp_dir, cache_dir, resource_dir) = create_temp_dirs();
+        let (mock_address, mock_resolver) = create_mock_resolver();
+        let cache_file_path = cache_dir.join("api_address.json");
+        let cached_address = "127.0.0.1";
+
+        {
+            let mut cache_file = File::create(&cache_file_path).unwrap();
+            writeln!(cache_file, "\"{}\"", cached_address).unwrap();
+        }
+
+        let cache_file_metadata = cache_file_path.metadata().unwrap();
+        let last_access_time = FileTime::from_last_access_time(&cache_file_metadata);
+        let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
+
+        filetime::set_file_times(&cache_file_path, last_access_time, fake_modification_time)
+            .unwrap();
+
+        let address =
+            get_api_address_using_resolver(mock_resolver, Some(&cache_dir), Some(&resource_dir));
+
+        assert_eq!(address, mock_address.to_string());
+        check_cached_address(&cache_dir, &mock_address.to_string());
     }
 
     #[test]

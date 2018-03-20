@@ -16,6 +16,8 @@ extern crate hyper_tls;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 #[macro_use]
+extern crate lazy_static;
+#[macro_use]
 extern crate log;
 extern crate native_tls;
 extern crate serde;
