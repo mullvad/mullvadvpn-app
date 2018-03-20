@@ -290,9 +290,9 @@ impl Service {
         }
     }
 
-    //fn stop(&self) -> Result<ServiceStatus, Error> {
-    //    self.send_control_command(command: ServiceControl::Stop)
-    //}
+    fn stop(&self) -> Result<ServiceStatus, io::Error> {
+        self.send_control_command(ServiceControl::Stop)
+    }
 }
 
 impl Drop for Service {
