@@ -7,14 +7,40 @@ use serde_json;
 
 use super::MASTER_API_HOST;
 
-pub struct AddressCache {
-    cache_file: PathBuf,
+pub trait DnsResolver {
+    fn resolve(&self, host: &str) -> Result<IpAddr, io::Error>;
 }
 
-impl AddressCache {
+pub struct SystemDnsResolver;
+
+impl DnsResolver for SystemDnsResolver {
+    fn resolve(&self, host: &str) -> Result<IpAddr, io::Error> {
+        (host, 0)
+            .to_socket_addrs()?
+            .next()
+            .map(|socket_address| socket_address.ip())
+            .ok_or_else(|| {
+                io::Error::new(io::ErrorKind::NotFound, format!("Host not found: {}", host))
+            })
+    }
+}
+
+pub struct AddressCache<R: DnsResolver = SystemDnsResolver> {
+    cache_file: PathBuf,
+    dns_resolver: R,
+}
+
+impl AddressCache<SystemDnsResolver> {
     pub fn new(cache_dir: &Path) -> Self {
+        Self::with_dns_resolver(SystemDnsResolver, cache_dir)
+    }
+}
+
+impl<R: DnsResolver> AddressCache<R> {
+    pub fn with_dns_resolver(dns_resolver: R, cache_dir: &Path) -> Self {
         AddressCache {
             cache_file: cache_dir.join("api_address.json"),
+            dns_resolver,
         }
     }
 
@@ -33,21 +59,15 @@ impl AddressCache {
     }
 
     fn resolve_into_cache(&self) -> Result<IpAddr, io::Error> {
-        let address = Self::resolve_address()?.into();
+        let address = self.resolve_address()?.into();
 
         let _ = self.store_in_cache(&address);
 
         Ok(address)
     }
 
-    fn resolve_address() -> Result<IpAddr, io::Error> {
-        (MASTER_API_HOST, 0)
-            .to_socket_addrs()?
-            .next()
-            .map(|socket_address| socket_address.ip())
-            .ok_or_else(|| {
-                io::Error::new(io::ErrorKind::NotFound, "Mullvad RPC API host not found")
-            })
+    fn resolve_address(&self) -> Result<IpAddr, io::Error> {
+        self.dns_resolver.resolve(MASTER_API_HOST)
     }
 
     fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
@@ -71,6 +91,7 @@ mod tests {
     #[test]
     fn uses_cached_address() {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
         {
@@ -79,16 +100,18 @@ mod tests {
             writeln!(cache_file, "\"{}\"", cached_address).unwrap();
         }
 
-        let cache = AddressCache::new(temp_dir.path());
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, temp_dir.path());
         let address = cache.api_address().unwrap();
 
-        assert_eq!(address, format!("{}", cached_address));
+        assert_eq!(address, cached_address.to_string());
     }
 
     #[test]
     fn caches_resolved_ip() {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
-        let cache = AddressCache::new(temp_dir.path());
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, temp_dir.path());
+
         let address = cache.api_address().unwrap();
 
         let cache_file_path = temp_dir.path().join("api_address.json");
@@ -99,14 +122,41 @@ mod tests {
         let mut cached_address = String::new();
         cache_reader.read_line(&mut cached_address).unwrap();
 
-        assert_eq!(cached_address, format!("\"{}\"", address));
+        assert_eq!(address, mock_resolver.address().to_string());
+        assert_eq!(cached_address, format!("\"{}\"", mock_resolver.address()));
     }
 
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
         let temp_dir_path = TempDir::new("ip-cache-test").unwrap().path().to_path_buf();
-        let cache = AddressCache::new(&temp_dir_path);
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &temp_dir_path);
 
-        assert!(cache.api_address().is_some());
+        assert_eq!(
+            cache.api_address().unwrap(),
+            mock_resolver.address().to_string()
+        );
+    }
+
+    struct MockDnsResolver {
+        address: IpAddr,
+    }
+
+    impl MockDnsResolver {
+        pub fn from_str(ip_address: &str) -> Self {
+            MockDnsResolver {
+                address: ip_address.parse().unwrap(),
+            }
+        }
+
+        pub fn address(&self) -> &IpAddr {
+            &self.address
+        }
+    }
+
+    impl<'r> DnsResolver for &'r MockDnsResolver {
+        fn resolve(&self, _host: &str) -> Result<IpAddr, io::Error> {
+            Ok(self.address.clone())
+        }
     }
 }
