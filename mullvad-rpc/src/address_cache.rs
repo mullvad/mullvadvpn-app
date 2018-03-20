@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io;
-use std::net::{SocketAddr, ToSocketAddrs};
+use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 
 use serde_json;
@@ -25,14 +25,14 @@ impl AddressCache {
             .ok()
     }
 
-    fn load_from_cache(&self) -> Result<SocketAddr, io::Error> {
+    fn load_from_cache(&self) -> Result<IpAddr, io::Error> {
         let cache_file = File::open(&self.cache_file)?;
         let address = serde_json::from_reader(cache_file)?;
 
         Ok(address)
     }
 
-    fn resolve_into_cache(&self) -> Result<SocketAddr, io::Error> {
+    fn resolve_into_cache(&self) -> Result<IpAddr, io::Error> {
         let address = Self::resolve_address()?.into();
 
         let _ = self.store_in_cache(&address);
@@ -40,16 +40,17 @@ impl AddressCache {
         Ok(address)
     }
 
-    fn resolve_address() -> Result<SocketAddr, io::Error> {
+    fn resolve_address() -> Result<IpAddr, io::Error> {
         (MASTER_API_HOST, 0)
             .to_socket_addrs()?
             .next()
+            .map(|socket_address| socket_address.ip())
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::NotFound, "Mullvad RPC API host not found")
             })
     }
 
-    fn store_in_cache(&self, address: &SocketAddr) -> Result<(), io::Error> {
+    fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
         let cache_file = File::create(&self.cache_file)?;
 
         serde_json::to_writer(&cache_file, &address)
@@ -70,7 +71,7 @@ mod tests {
     #[test]
     fn uses_cached_address() {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
-        let cached_address = SocketAddr::new("127.0.0.1".parse().unwrap(), 52780);
+        let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
         {
             let cache_file_path = temp_dir.path().join("api_address.json");
@@ -81,10 +82,7 @@ mod tests {
         let cache = AddressCache::new(temp_dir.path());
         let address = cache.api_address().unwrap();
 
-        assert_eq!(
-            address,
-            format!("{}:{}", cached_address.ip(), cached_address.port())
-        );
+        assert_eq!(address, format!("{}", cached_address));
     }
 
     #[test]
