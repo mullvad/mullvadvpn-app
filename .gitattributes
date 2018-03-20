@@ -1,2 +1,5 @@
+# Set the default behavior
+* text=auto
+
 # Do not break script files on Windows (Cygwin gets upset with CRLF)
 *.sh text eol=lf
