@@ -46,9 +46,9 @@ export default class Login extends Component<LoginPropTypes, State> {
     animatedDropdownValue: Animated.createValue(0),
     animatedLoginButtonValue: Animated.createValue(0),
     animation: null,
-    footerAnimationStyle: null,
-    dropdownAnimationStyle: null,
-    loginButtonAnimationStyle: null,
+    footerAnimationStyle: {},
+    dropdownAnimationStyle: {},
+    loginButtonAnimationStyle: {},
   };
 
   constructor(props: LoginPropTypes) {
@@ -127,9 +127,11 @@ export default class Login extends Component<LoginPropTypes, State> {
     if (this.state.animation) {
       this.state.animation.stop();
     }
+    const accountToken = this.props.account.accountToken;
+
     const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
     const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
-    const loginButtonValue = (props.account.accountToken && props.account.accountToken.length) > 0 ? 1 : 0;
+    const loginButtonValue = (accountToken && accountToken.length) > 0 ? 1 : 0;
     this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight), this._getLoginButtonAnimation(loginButtonValue));
   }
 
@@ -295,15 +297,6 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _getLoginButtonAnimation(toValue: number){
     return Animated.timing(this.state.animatedLoginButtonValue, {
-      toValue: toValue,
-      easing: Animated.Easing.Linear(),
-      duration: 250,
-      useNativeDriver: true,
-    });
-  }
-
-  _getLoginArrowAnimation(toValue: number){
-    return Animated.timing(this.state.animatedLoginArrowValue, {
       toValue: toValue,
       easing: Animated.Easing.Linear(),
       duration: 250,
