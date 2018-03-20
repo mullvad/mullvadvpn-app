@@ -1,0 +1,7 @@
+[package]
+name = "mullvad-service"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winsvc"] }
