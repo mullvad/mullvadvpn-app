@@ -9,8 +9,8 @@ use mullvad_types::relay_constraints::{Constraint, LocationConstraint, OpenVpnCo
 use mullvad_types::relay_list::RelayList;
 
 use rpc;
-use talpid_types::net::{OpenVpnParameters, TransportProtocol, TunnelParameters,
-                        WireguardParameters};
+use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, TunnelEndpointData,
+                        WireguardEndpointData};
 
 pub struct Relay;
 
@@ -135,11 +135,11 @@ impl Relay {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let tunnel = match matches.value_of("tunnel").unwrap() {
-            "openvpn" => TunnelParameters::OpenVpn(OpenVpnParameters {
+            "openvpn" => TunnelEndpointData::OpenVpn(OpenVpnEndpointData {
                 port,
                 protocol: value_t!(matches.value_of("protocol"), TransportProtocol).unwrap(),
             }),
-            "wireguard" => TunnelParameters::Wireguard(WireguardParameters { port }),
+            "wireguard" => TunnelEndpointData::Wireguard(WireguardEndpointData { port }),
             _ => unreachable!("Invalid tunnel protocol"),
         };
         self.update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(
