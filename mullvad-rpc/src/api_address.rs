@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io;
-use std::net::{SocketAddr, ToSocketAddrs};
+use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 
 use serde_json;
@@ -32,15 +32,16 @@ fn get_cache_file_path(resource_dir: &Path) -> PathBuf {
 
 fn read_cached_address(cache_file: &Path) -> Result<String, io::Error> {
     let reader = File::open(cache_file)?;
-    let address: SocketAddr = serde_json::from_reader(reader)?;
+    let address: IpAddr = serde_json::from_reader(reader)?;
 
     Ok(address.to_string())
 }
 
-fn resolve_address_from_hostname() -> Result<SocketAddr, io::Error> {
+fn resolve_address_from_hostname() -> Result<IpAddr, io::Error> {
     (MASTER_API_HOST, 0)
         .to_socket_addrs()?
         .next()
+        .map(|socket_address| socket_address.ip())
         .ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::NotFound,
@@ -49,7 +50,7 @@ fn resolve_address_from_hostname() -> Result<SocketAddr, io::Error> {
         })
 }
 
-fn store_address_in_cache(address: &SocketAddr, cache_file: &Path) -> Result<(), io::Error> {
+fn store_address_in_cache(address: &IpAddr, cache_file: &Path) -> Result<(), io::Error> {
     let file = File::create(cache_file)?;
     serde_json::to_writer(file, address)
         .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
@@ -68,17 +69,17 @@ mod tests {
     #[test]
     fn uses_cached_address() {
         let temp_dir = TempDir::new("address-cache-test").unwrap();
-        let cached_address = SocketAddr::new("127.0.0.1".parse().unwrap(), 52780);
+        let cached_address = "127.0.0.1";
 
         {
             let cache_file_path = temp_dir.path().join("api_address.json");
             let mut cache_file = File::create(cache_file_path).unwrap();
-            writeln!(cache_file, "\"{}\"", cached_address,).unwrap();
+            writeln!(cache_file, "\"{}\"", cached_address).unwrap();
         }
 
         let address = api_address(Some(temp_dir.path()));
 
-        assert_eq!(address, cached_address.to_string());
+        assert_eq!(address, cached_address);
     }
 
     #[test]
