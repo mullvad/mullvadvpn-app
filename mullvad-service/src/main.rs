@@ -2,7 +2,8 @@ extern crate winapi;
 
 use std::ffi::{OsStr, OsString};
 use std::os::windows::prelude::*;
-use std::io::Error;
+use std::error;
+use std::io;
 
 use winapi::um::winsvc;
 use winapi::um::winnt;
@@ -36,14 +37,14 @@ fn main() {
     }
 }
 
-fn install_service() -> Result<(), Error> {
+fn install_service() -> Result<(), io::Error> {
     let access_mask = SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
     let service_manager = SCManager::active_database(access_mask)?;
     let service_info = get_service_info();
     service_manager.create_service(service_info).map(|_| ())
 }
 
-fn remove_service() -> Result<(), Error> {
+fn remove_service() -> Result<(), io::Error> {
     let access_mask = SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
     let service_manager = SCManager::active_database(access_mask)?;
 
@@ -244,7 +245,7 @@ trait TryConvertFrom<T: ?Sized> where Self: Sized {
 impl TryConvertFrom<u32> for ServiceState {
     type Error = ConversionError;
 
-    fn try_convert_from(raw_state: u32) -> ::std::result::Result<Self, Error> {
+    fn try_convert_from(raw_state: u32) -> ::std::result::Result<Self, Self::Error> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
@@ -266,7 +267,7 @@ struct ServiceStatus {
 impl TryConvertFrom<winsvc::SERVICE_STATUS> for ServiceStatus {
     type Error = ConversionError;
 
-    fn try_convert_from(raw_status: winsvc::SERVICE_STATUS) -> ::std::result::Result<Self, Error> {
+    fn try_convert_from(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, Self::Error> {
         let current_state = ServiceState::try_convert_from(raw_status.dwCurrentState as u32)?;
         Ok(ServiceStatus {
             current_state: current_state
@@ -276,15 +277,16 @@ impl TryConvertFrom<winsvc::SERVICE_STATUS> for ServiceStatus {
 
 struct Service(winsvc::SC_HANDLE);
 impl Service {
-    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, Error> {
-        let status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
+    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, io::Error> {
+        let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let raw_command: u32 = command.into();
-        let success = unsafe { winsvc::ControlService(self.0, raw_command, &mut status) };
+        let success = unsafe { winsvc::ControlService(self.0, raw_command, &mut raw_status) };
 
         if success == 1 {
-            Ok(ServiceStatus::from(status))
+            // TBD: expected io::Error but got Conversion error
+            Ok(ServiceStatus::try_convert_from(raw_status).unwrap())
         } else {
-            Err(Error::last_os_error())
+            Err(io::Error::last_os_error())
         }
     }
 
@@ -301,7 +303,7 @@ impl Drop for Service {
 
 struct SCManager(winsvc::SC_HANDLE);
 impl SCManager {
-    fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(machine: Option<MACHINE>, database: Option<DATABASE>, access_mask: SCManagerAccessMask) -> Result<Self, Error> {        
+    fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(machine: Option<MACHINE>, database: Option<DATABASE>, access_mask: SCManagerAccessMask) -> Result<Self, io::Error> {        
         let machine_name = machine.map(|s| to_wide_with_nul(s));
         let machine_ptr = machine_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
 
@@ -312,21 +314,21 @@ impl SCManager {
         let handle = unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, raw_access_mask) };
         
         if handle.is_null() {
-            Err(Error::last_os_error())
+            Err(io::Error::last_os_error())
         } else {
             Ok(SCManager(handle))
         }
     }
 
-    fn local_computer<DATABASE: AsRef<OsStr>>(database: DATABASE, access_mask: SCManagerAccessMask) -> Result<Self, Error> {
+    fn local_computer<DATABASE: AsRef<OsStr>>(database: DATABASE, access_mask: SCManagerAccessMask) -> Result<Self, io::Error> {
         SCManager::new(None::<&OsStr>, Some(database), access_mask)
     }
 
-    fn active_database(access_mask: SCManagerAccessMask) -> Result<Self, Error> {
+    fn active_database(access_mask: SCManagerAccessMask) -> Result<Self, io::Error> {
         SCManager::new(None::<&OsStr>, None::<&OsStr>, access_mask)
     }
 
-    fn create_service(&self, service_info: ServiceInfo) -> Result<Service, Error> {
+    fn create_service(&self, service_info: ServiceInfo) -> Result<Service, io::Error> {
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
         let executable_path = to_wide_with_nul(service_info.executable_path);
@@ -359,19 +361,19 @@ impl SCManager {
         ) };
 
         if service_handle.is_null() {
-            Err(Error::last_os_error())
+            Err(io::Error::last_os_error())
         } else {
             Ok(Service(service_handle))
         }
     }
 
-    fn open_service<T: AsRef<OsStr>>(&self, name: T, access_mask: ServiceAccessMask) -> Result<Service, Error> {
+    fn open_service<T: AsRef<OsStr>>(&self, name: T, access_mask: ServiceAccessMask) -> Result<Service, io::Error> {
         let service_name = to_wide_with_nul(name);
         let raw_access_mask: u32 = (&access_mask).into();
         let service_handle = unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), raw_access_mask) };
         
         if service_handle.is_null() {
-            Err(Error::last_os_error())
+            Err(io::Error::last_os_error())
         } else {
             Ok(Service(service_handle))
         }
