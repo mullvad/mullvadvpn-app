@@ -26,10 +26,6 @@ error_chain! {
         ParseError {
             description("Malformed settings")
         }
-        ValidationError(desc: String) {
-            description("Invalid value for a setting")
-            display("")
-        }
     }
 }
 
@@ -42,8 +38,8 @@ pub struct Settings {
     relay_settings: RelaySettings,
     /// If the app should allow communication with private (LAN) networks.
     allow_lan: bool,
-    /// Optional argument for openvpn to try and limit TCP packet size,
-    /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
+    /// Options that should be applied to tunnels of a specific type regardless of where the relays
+    /// might be located.
     tunnel_options: TunnelOptions,
 }
 
@@ -159,10 +155,6 @@ impl Settings {
         }
     }
 
-    pub fn get_openvpn_mssfix(&self) -> Option<u16> {
-        self.tunnel_options.openvpn.mssfix
-    }
-
     pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool> {
         if self.tunnel_options.openvpn.mssfix != openvpn_mssfix {
             self.tunnel_options.openvpn.mssfix = openvpn_mssfix;
@@ -172,7 +164,7 @@ impl Settings {
         }
     }
 
-    pub fn get_tunnel_options(&self) -> TunnelOptions {
-        self.tunnel_options.clone()
+    pub fn get_tunnel_options(&self) -> &TunnelOptions {
+        &self.tunnel_options
     }
 }
