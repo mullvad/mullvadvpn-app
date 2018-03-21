@@ -1,10 +1,10 @@
 use std;
-use std::io;
 use std::ffi::OsStr;
+use std::io;
 
-use winapi::um::winsvc;
 use service::{Service, ServiceAccessMask, ServiceInfo};
 use widestring::to_wide_with_nul;
+use winapi::um::winsvc;
 
 /// Enum describing access permissions for SCManager
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -42,19 +42,23 @@ impl SCManagerAccessMask {
 /// Service control manager
 pub struct SCManager(winsvc::SC_HANDLE);
 impl SCManager {
-
     /// Designated initializer
     /// Passing None for machine connects to local machine
     /// Passing None for database connects to active database
-    pub fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(machine: Option<MACHINE>, database: Option<DATABASE>, access_mask: SCManagerAccessMask) -> io::Result<Self> {        
+    pub fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(
+        machine: Option<MACHINE>,
+        database: Option<DATABASE>,
+        access_mask: SCManagerAccessMask,
+    ) -> io::Result<Self> {
         let machine_name = machine.map(|s| to_wide_with_nul(s));
         let machine_ptr = machine_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
 
         let database_name = database.map(|s| to_wide_with_nul(s));
         let database_ptr = database_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
-        
-        let handle = unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, access_mask.to_raw()) };
-        
+
+        let handle =
+            unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, access_mask.to_raw()) };
+
         if handle.is_null() {
             Err(io::Error::last_os_error())
         } else {
@@ -62,7 +66,10 @@ impl SCManager {
         }
     }
 
-    pub fn local_computer<DATABASE: AsRef<OsStr>>(database: DATABASE, access_mask: SCManagerAccessMask) -> io::Result<Self> {
+    pub fn local_computer<DATABASE: AsRef<OsStr>>(
+        database: DATABASE,
+        access_mask: SCManagerAccessMask,
+    ) -> io::Result<Self> {
         SCManager::new(None::<&OsStr>, Some(database), access_mask)
     }
 
@@ -79,21 +86,23 @@ impl SCManager {
         let account_password = service_info.account_password.map(|s| to_wide_with_nul(s));
         let account_password_ptr = account_password.map_or(std::ptr::null(), |vec| vec.as_ptr());
 
-        let service_handle = unsafe { winsvc::CreateServiceW(
-            self.0,
-            service_name.as_ptr(),
-            display_name.as_ptr(),
-            service_info.service_access.to_raw(),
-            service_info.service_type.to_raw(),
-            service_info.start_type.to_raw(),
-            service_info.error_control.to_raw(),
-            executable_path.as_ptr(),
-            std::ptr::null(), // load ordering group
-            std::ptr::null_mut(), // tag id within the load ordering group
-            std::ptr::null(), // service dependencies
-            account_name_ptr,
-            account_password_ptr,
-        ) };
+        let service_handle = unsafe {
+            winsvc::CreateServiceW(
+                self.0,
+                service_name.as_ptr(),
+                display_name.as_ptr(),
+                service_info.service_access.to_raw(),
+                service_info.service_type.to_raw(),
+                service_info.start_type.to_raw(),
+                service_info.error_control.to_raw(),
+                executable_path.as_ptr(),
+                std::ptr::null(),     // load ordering group
+                std::ptr::null_mut(), // tag id within the load ordering group
+                std::ptr::null(),     // service dependencies
+                account_name_ptr,
+                account_password_ptr,
+            )
+        };
 
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
@@ -102,10 +111,15 @@ impl SCManager {
         }
     }
 
-    pub fn open_service<T: AsRef<OsStr>>(&self, name: T, access_mask: ServiceAccessMask) -> io::Result<Service> {
+    pub fn open_service<T: AsRef<OsStr>>(
+        &self,
+        name: T,
+        access_mask: ServiceAccessMask,
+    ) -> io::Result<Service> {
         let service_name = to_wide_with_nul(name);
-        let service_handle = unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), access_mask.to_raw()) };
-        
+        let service_handle =
+            unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), access_mask.to_raw()) };
+
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
         } else {
