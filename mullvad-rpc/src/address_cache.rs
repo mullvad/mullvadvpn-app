@@ -29,20 +29,24 @@ impl DnsResolver for SystemDnsResolver {
 pub struct AddressCache<R: DnsResolver = SystemDnsResolver> {
     cache_file: PathBuf,
     dns_resolver: R,
-    fallback_address_file: Option<PathBuf>,
+    fallback_address_file: PathBuf,
 }
 
 impl AddressCache<SystemDnsResolver> {
-    pub fn new(cache_dir: &Path) -> Self {
-        Self::with_dns_resolver(SystemDnsResolver, cache_dir)
+    pub fn new(cache_dir: &Path, fallback_address_dir: &Path) -> Self {
+        Self::with_dns_resolver(SystemDnsResolver, cache_dir, fallback_address_dir)
     }
 }
 
 impl<R: DnsResolver> AddressCache<R> {
-    pub fn with_dns_resolver(dns_resolver: R, cache_dir: &Path) -> Self {
+    pub fn with_dns_resolver(
+        dns_resolver: R,
+        cache_dir: &Path,
+        fallback_address_dir: &Path,
+    ) -> Self {
         AddressCache {
             cache_file: cache_dir.join("api_address.json"),
-            fallback_address_file: None,
+            fallback_address_file: fallback_address_dir.join("api_address.json"),
             dns_resolver,
         }
     }
@@ -97,18 +101,7 @@ impl<R: DnsResolver> AddressCache<R> {
     fn resolve_address(&self) -> Result<IpAddr, io::Error> {
         self.dns_resolver
             .resolve(MASTER_API_HOST)
-            .or_else(|_| self.load_fallback_address())
-    }
-
-    fn load_fallback_address(&self) -> Result<IpAddr, io::Error> {
-        if let Some(ref fallback_address_file) = self.fallback_address_file {
-            Self::load_from_file(fallback_address_file)
-        } else {
-            Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                "no fallback address file specified",
-            ))
-        }
+            .or_else(|_| Self::load_from_file(&self.fallback_address_file))
     }
 
     fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
@@ -133,7 +126,7 @@ mod tests {
 
     #[test]
     fn uses_cached_address() {
-        let (_temp_dir, cache_dir, _) = create_test_dirs();
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
@@ -143,7 +136,7 @@ mod tests {
             writeln!(cache_file, "\"{}\"", cached_address).unwrap();
         }
 
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, cached_address.to_string());
@@ -151,7 +144,7 @@ mod tests {
 
     #[test]
     fn ignores_old_cached_address() {
-        let (_temp_dir, cache_dir, _) = create_test_dirs();
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let cache_file_path = cache_dir.join("api_address.json");
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
@@ -168,7 +161,7 @@ mod tests {
         filetime::set_file_times(&cache_file_path, last_access_time, fake_modification_time)
             .unwrap();
 
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, mock_resolver.address().to_string());
@@ -176,9 +169,9 @@ mod tests {
 
     #[test]
     fn caches_resolved_ip() {
-        let (_temp_dir, cache_dir, _) = create_test_dirs();
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         let address = cache.api_address().unwrap();
 
@@ -196,9 +189,9 @@ mod tests {
 
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
-        let (temp_dir, cache_dir, _) = create_test_dirs();
+        let (temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         ::std::mem::drop(temp_dir);
 
@@ -212,15 +205,13 @@ mod tests {
     fn uses_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let cache = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
 
         {
             let fallback_file_path = resource_dir.join("api_address.json");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
             writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
         }
-
-        let mut cache = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir);
-        cache.set_fallback_address_dir(&resource_dir);
 
         let address = cache.api_address().unwrap();
 
@@ -232,15 +223,13 @@ mod tests {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         {
             let fallback_file_path = resource_dir.join("api_address.json");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
             writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
         }
-
-        let mut cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
-        cache.set_fallback_address_dir(&resource_dir);
 
         let address = cache.api_address().unwrap();
 
