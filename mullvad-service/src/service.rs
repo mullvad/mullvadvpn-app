@@ -1,6 +1,8 @@
-use std;
+use std::error;
 use std::ffi::OsString;
+use std::fmt;
 use std::io;
+use std::mem;
 
 use winapi::um::winnt;
 use winapi::um::winsvc;
@@ -13,12 +15,12 @@ pub enum ServiceError {
     System(io::Error),
 }
 
-impl ::std::error::Error for ServiceError {
+impl error::Error for ServiceError {
     fn description(&self) -> &str {
         "Service error"
     }
 
-    fn cause(&self) -> Option<&::std::error::Error> {
+    fn cause(&self) -> Option<&error::Error> {
         match self {
             &ServiceError::RawConversion(ref err) => Some(err),
             &ServiceError::System(ref io_err) => Some(io_err),
@@ -26,8 +28,8 @@ impl ::std::error::Error for ServiceError {
     }
 }
 
-impl ::std::fmt::Display for ServiceError {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl fmt::Display for ServiceError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             &ServiceError::RawConversion(ref err) => err.fmt(f),
             &ServiceError::System(ref io_err) => io_err.fmt(f),
@@ -208,7 +210,7 @@ impl Service {
     }
 
     pub fn query_status(&self) -> Result<ServiceStatus, ServiceError> {
-        let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
+        let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
             ServiceStatus::from_raw(raw_status).map_err(|err| ServiceError::RawConversion(err))
@@ -227,7 +229,7 @@ impl Service {
     }
 
     fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, ServiceError> {
-        let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
+        let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::ControlService(self.0, command.to_raw(), &mut raw_status) };
 
         if success == 1 {
