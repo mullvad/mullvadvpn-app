@@ -1,3 +1,5 @@
+#![cfg(windows)]
+
 extern crate winapi;
 
 use std::ffi::OsString;
