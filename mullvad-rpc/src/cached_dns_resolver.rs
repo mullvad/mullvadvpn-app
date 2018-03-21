@@ -52,10 +52,9 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         cache
     }
 
-    pub fn api_address(&self) -> Option<String> {
+    pub fn api_address(&self) -> Option<IpAddr> {
         self.load_from_cache()
             .or_else(|_| self.resolve_into_cache())
-            .map(|address| address.to_string())
             .ok()
     }
 
@@ -147,7 +146,7 @@ mod tests {
         let address = cache.api_address().unwrap();
 
         assert!(!mock_resolver.was_called());
-        assert_eq!(address, cached_address.to_string());
+        assert_eq!(address, cached_address);
     }
 
     #[test]
@@ -167,7 +166,7 @@ mod tests {
         let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
-        assert_eq!(address, mock_resolver.address().to_string());
+        assert_eq!(address, mock_resolver.address());
     }
 
     #[test]
@@ -192,10 +191,7 @@ mod tests {
 
         ::std::mem::drop(temp_dir);
 
-        assert_eq!(
-            cache.api_address().unwrap(),
-            mock_resolver.address().to_string()
-        );
+        assert_eq!(cache.api_address().unwrap(), mock_resolver.address());
     }
 
     #[test]
@@ -210,7 +206,7 @@ mod tests {
         let address = cache.api_address().unwrap();
 
         assert!(mock_resolver.was_called());
-        assert_eq!(address, provided_address.to_string());
+        assert_eq!(address, provided_address);
     }
 
     #[test]
@@ -224,7 +220,7 @@ mod tests {
 
         let address = cache.api_address().unwrap();
 
-        assert_eq!(address, mock_resolver.address().to_string());
+        assert_eq!(address, mock_resolver.address());
     }
 
     #[test]
@@ -295,8 +291,8 @@ mod tests {
             }
         }
 
-        pub fn address(&self) -> &IpAddr {
-            self.address.as_ref().unwrap()
+        pub fn address(&self) -> IpAddr {
+            self.address.unwrap()
         }
 
         pub fn was_called(&self) -> bool {
