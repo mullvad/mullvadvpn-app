@@ -2,7 +2,7 @@ use {Command, Result};
 use clap;
 
 use rpc;
-use talpid_types::net::TunnelOptions;
+use talpid_types::net::{OpenVpnTunnelOptions, TunnelOptions};
 
 pub struct Tunnel;
 
@@ -52,7 +52,8 @@ impl Tunnel {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             Self::set_openvpn_option(set_matches)
         } else if let Some(_) = matches.subcommand_matches("get") {
-            println!("{:#?}", Self::get_tunnel_options()?);
+            let openvpn_options = Self::get_tunnel_options()?.openvpn;
+            Self::print_openvpn_tunnel_options(&openvpn_options);
             Ok(())
         } else {
             unreachable!("Unrecognized subcommand");
@@ -77,5 +78,12 @@ impl Tunnel {
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
         rpc::call("get_tunnel_options", &[] as &[u8; 0])
+    }
+
+    fn print_openvpn_tunnel_options(options: &OpenVpnTunnelOptions) {
+        println!("OpenVPN tunnel options");
+        println!("\tmssfix: {}", options.mssfix
+                 .map(|v| v.to_string())
+                 .unwrap_or("UNSET".to_string()));
     }
 }
