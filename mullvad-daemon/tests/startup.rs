@@ -8,8 +8,7 @@ extern crate talpid_ipc;
 
 mod common;
 
-use std::fs;
-use std::fs::Metadata;
+use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
 
