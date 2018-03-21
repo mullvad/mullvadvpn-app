@@ -8,8 +8,10 @@ use winapi::um::winnt;
 use conversion::TryConvertFrom;
 use errors::ConversionError;
 
+/// Enum describing types of windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ServiceType {
+    /// Service that runs in its own process.
     OwnProcess,
 }
 
@@ -21,6 +23,7 @@ impl From<ServiceType> for u32 {
     }
 }
 
+/// Enum describing the access permissions when working with Services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ServiceAccess {
     QueryStatus,
@@ -40,6 +43,7 @@ impl From<ServiceAccess> for u32 {
     }
 }
 
+/// Bitwise mask helper for ServiceAccess
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ServiceAccessMask(Vec<ServiceAccess>);
 impl ServiceAccessMask {
@@ -54,10 +58,14 @@ impl<'a> From<&'a ServiceAccessMask> for u32 {
     }
 }
 
+/// Enum describing the start options for windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ServiceStartType {
+    /// Autostart on system startup
     AutoStart,
+    /// Service is enabled, can be started manually
     OnDemand,
+    /// Disabled service
     Disabled,
 }
 
@@ -71,6 +79,8 @@ impl From<ServiceStartType> for u32 {
     }
 }
 
+/// Error handling strategy for service failures
+/// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms682450(v=vs.85).aspx
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ServiceErrorControl {
     Critical,
@@ -90,6 +100,8 @@ impl From<ServiceErrorControl> for u32 {
     }
 }
 
+/// A struct that describes the service
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ServiceInfo {
     pub name: OsString, 
     pub display_name: OsString,
@@ -102,8 +114,9 @@ pub struct ServiceInfo {
     pub account_password: Option<OsString>,
 }
 
+// Private enum describing the service control operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ServiceControl {
+enum ServiceControl {
     Stop,
 }
 
@@ -115,6 +128,7 @@ impl From<ServiceControl> for u32 {
     }
 }
 
+/// Service state returned as a part of ServiceStatus
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ServiceState {
     Stopped,
@@ -143,8 +157,10 @@ impl TryConvertFrom<u32> for ServiceState {
     }
 }
 
+/// Service status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ServiceStatus {
+    /// Current state of the service
     pub current_state: ServiceState,
 }
 
@@ -153,12 +169,11 @@ impl TryConvertFrom<winsvc::SERVICE_STATUS> for ServiceStatus {
 
     fn try_convert_from(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, Self::Error> {
         let current_state = ServiceState::try_convert_from(raw_status.dwCurrentState as u32)?;
-        Ok(ServiceStatus {
-            current_state: current_state
-        })
+        Ok(ServiceStatus { current_state })
     }
 }
 
+/// A structure that allows to handle
 pub struct Service(pub winsvc::SC_HANDLE);
 impl Service {
     pub fn stop(&self) -> Result<ServiceStatus, io::Error> {
@@ -168,7 +183,6 @@ impl Service {
     pub fn query_status(&self) -> Result<ServiceStatus, io::Error> {
         let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
-
         if success == 1 {
             // TBD: expected io::Error but got Conversion error
             Ok(ServiceStatus::try_convert_from(raw_status).unwrap())
