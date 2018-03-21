@@ -6,6 +6,7 @@ use winapi::um::winsvc;
 use service::{Service, ServiceAccessMask, ServiceInfo};
 use widestring::to_wide_with_nul;
 
+/// Enum describing access permissions for SCManager
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SCManagerAccess {
     All,
@@ -25,6 +26,7 @@ impl From<SCManagerAccess> for u32 {
     }
 }
 
+/// Bitwise mask helper for SCManagerAccess
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SCManagerAccessMask(Vec<SCManagerAccess>);
 impl SCManagerAccessMask {
@@ -39,8 +41,13 @@ impl<'a> From<&'a SCManagerAccessMask> for u32 {
     }
 }
 
+/// Service control manager
 pub struct SCManager(winsvc::SC_HANDLE);
 impl SCManager {
+
+    /// Designated initializer
+    /// Passing None for machine connects to local machine
+    /// Passing None for database connects to active database
     pub fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(machine: Option<MACHINE>, database: Option<DATABASE>, access_mask: SCManagerAccessMask) -> io::Result<Self> {        
         let machine_name = machine.map(|s| to_wide_with_nul(s));
         let machine_ptr = machine_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
