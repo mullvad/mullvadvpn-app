@@ -5,7 +5,6 @@ use std::ffi::OsString;
 use winapi::um::winsvc;
 use winapi::um::winnt;
 
-use conversion::TryConvertFrom;
 use errors::ConversionError;
 
 /// Enum describing types of windows services
@@ -15,10 +14,10 @@ pub enum ServiceType {
     OwnProcess,
 }
 
-impl From<ServiceType> for u32 {
-    fn from(service_type: ServiceType) -> Self {
-        match service_type {
-            ServiceType::OwnProcess => winnt::SERVICE_WIN32_OWN_PROCESS,
+impl ServiceType {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &ServiceType::OwnProcess => winnt::SERVICE_WIN32_OWN_PROCESS,
         }
     }
 }
@@ -32,13 +31,13 @@ pub enum ServiceAccess {
     Delete,
 }
 
-impl From<ServiceAccess> for u32 {
-    fn from(access: ServiceAccess) -> Self {
-        match access {
-            ServiceAccess::QueryStatus => winsvc::SERVICE_QUERY_STATUS,
-            ServiceAccess::Start => winsvc::SERVICE_START,
-            ServiceAccess::Stop => winsvc::SERVICE_STOP,
-            ServiceAccess::Delete => winnt::DELETE,
+impl ServiceAccess {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &ServiceAccess::QueryStatus => winsvc::SERVICE_QUERY_STATUS,
+            &ServiceAccess::Start => winsvc::SERVICE_START,
+            &ServiceAccess::Stop => winsvc::SERVICE_STOP,
+            &ServiceAccess::Delete => winnt::DELETE,
         }
     }
 }
@@ -50,11 +49,9 @@ impl ServiceAccessMask {
     pub fn new(set: &[ServiceAccess]) -> Self {
         ServiceAccessMask(set.to_vec())
     }
-}
 
-impl<'a> From<&'a ServiceAccessMask> for u32 {
-    fn from(mask: &ServiceAccessMask) -> Self {
-        mask.0.iter().fold(0, |acc, &x| (acc | u32::from(x)))
+    pub fn to_raw(&self) -> u32 {
+        self.0.iter().fold(0, |acc, &x| (acc | x.to_raw()))
     }
 }
 
@@ -69,12 +66,12 @@ pub enum ServiceStartType {
     Disabled,
 }
 
-impl From<ServiceStartType> for u32 {
-    fn from(start_type: ServiceStartType) -> Self {
-        match start_type {
-            ServiceStartType::AutoStart => winnt::SERVICE_AUTO_START,
-            ServiceStartType::OnDemand => winnt::SERVICE_DEMAND_START,
-            ServiceStartType::Disabled => winnt::SERVICE_DISABLED,
+impl ServiceStartType {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &ServiceStartType::AutoStart => winnt::SERVICE_AUTO_START,
+            &ServiceStartType::OnDemand => winnt::SERVICE_DEMAND_START,
+            &ServiceStartType::Disabled => winnt::SERVICE_DISABLED,
         }
     }
 }
@@ -89,13 +86,13 @@ pub enum ServiceErrorControl {
     Severe
 }
 
-impl From<ServiceErrorControl> for u32 {
-    fn from(error_control: ServiceErrorControl) -> Self {
-        match error_control {
-            ServiceErrorControl::Critical => winnt::SERVICE_ERROR_NORMAL,
-            ServiceErrorControl::Ignore => winnt::SERVICE_ERROR_IGNORE,
-            ServiceErrorControl::Normal => winnt::SERVICE_ERROR_NORMAL,
-            ServiceErrorControl::Severe => winnt::SERVICE_ERROR_SEVERE,
+impl ServiceErrorControl {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &ServiceErrorControl::Critical => winnt::SERVICE_ERROR_NORMAL,
+            &ServiceErrorControl::Ignore => winnt::SERVICE_ERROR_IGNORE,
+            &ServiceErrorControl::Normal => winnt::SERVICE_ERROR_NORMAL,
+            &ServiceErrorControl::Severe => winnt::SERVICE_ERROR_SEVERE,
         }
     }
 }
@@ -120,10 +117,10 @@ enum ServiceControl {
     Stop,
 }
 
-impl From<ServiceControl> for u32 {
-    fn from(control_command: ServiceControl) -> Self {
-        match control_command {
-            ServiceControl::Stop => winsvc::SERVICE_CONTROL_STOP,
+impl ServiceControl {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &ServiceControl::Stop => winsvc::SERVICE_CONTROL_STOP,
         }
     }
 }
@@ -140,10 +137,8 @@ pub enum ServiceState {
     Paused,
 }
 
-impl TryConvertFrom<u32> for ServiceState {
-    type Error = ConversionError;
-
-    fn try_convert_from(raw_state: u32) -> Result<Self, Self::Error> {
+impl ServiceState {
+    pub fn from_raw(raw_state: u32) -> Result<Self, ConversionError> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
@@ -164,11 +159,9 @@ pub struct ServiceStatus {
     pub current_state: ServiceState,
 }
 
-impl TryConvertFrom<winsvc::SERVICE_STATUS> for ServiceStatus {
-    type Error = ConversionError;
-
-    fn try_convert_from(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, Self::Error> {
-        let current_state = ServiceState::try_convert_from(raw_status.dwCurrentState as u32)?;
+impl ServiceStatus {
+    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ConversionError> {
+        let current_state = ServiceState::from_raw(raw_status.dwCurrentState as u32)?;
         Ok(ServiceStatus { current_state })
     }
 }
@@ -185,7 +178,7 @@ impl Service {
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
             // TBD: expected io::Error but got Conversion error
-            Ok(ServiceStatus::try_convert_from(raw_status).unwrap())
+            Ok(ServiceStatus::from_raw(raw_status).unwrap())
         } else {
             Err(io::Error::last_os_error())
         }
@@ -202,12 +195,11 @@ impl Service {
 
     fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, io::Error> {
         let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
-        let raw_command: u32 = command.into();
-        let success = unsafe { winsvc::ControlService(self.0, raw_command, &mut raw_status) };
+        let success = unsafe { winsvc::ControlService(self.0, command.to_raw(), &mut raw_status) };
 
         if success == 1 {
             // TBD: expected io::Error but got Conversion error
-            Ok(ServiceStatus::try_convert_from(raw_status).unwrap())
+            Ok(ServiceStatus::from_raw(raw_status).unwrap())
         } else {
             Err(io::Error::last_os_error())
         }
