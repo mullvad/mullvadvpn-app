@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Component } from 'reactxp';
+import { Text, Component, Types } from 'reactxp';
 import { Button } from './Button';
 import { colors } from '../../config';
 
@@ -10,6 +10,7 @@ import { createViewStyles, createTextStyles } from '../../lib/styles';
 const styles = {
   ...createViewStyles({
     cell:{
+      backgroundColor: colors.blue80,
       paddingTop: 14,
       paddingBottom: 14,
       paddingLeft: 16,
@@ -39,11 +40,13 @@ const styles = {
       color: colors.white,
     },
     icon: {
+      color: colors.white60,
       marginLeft: 8,
     },
   }),
   ...createTextStyles({
     label:{
+      color: colors.white,
       alignSelf: 'center',
       fontFamily: 'DINPro',
       fontSize: 20,
@@ -53,6 +56,7 @@ const styles = {
       marginLeft: 8,
     },
     subtext:{
+      color: colors.white60,
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '800',
@@ -65,26 +69,30 @@ const styles = {
 export class SubText extends Text {}
 export class Label extends Text {}
 
-export default class CellButton extends Component {
-  props: {
-    children?: React.Node,
-    disabled: boolean,
-  };
 
+type CellButtonProps = {
+  children?: React.Node,
+  disabled: boolean,
+  hoverStyle?: Types.ViewStyle,
+};
+
+type State = { hovered: boolean };
+
+export default class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
-  textStyle = () => this.state.hovered ? styles.white80 : styles.white;
-  iconStyle = () => this.state.hovered ? styles.white40 : styles.white60;
-  subtextStyle = () => this.state.hovered ? styles.white40 : styles.white60;
-  backgroundStyle = () => this.state.hovered ? styles.blueHover : styles.blue;
+  textStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white80 : null;
+  iconStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white40 : null;
+  subtextStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white40 : null;
+  backgroundStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.blueHover : null;
 
   onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
   onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
 
   render() {
-    const { children, ...otherProps } = this.props;
+    const { children, hoverStyle, ...otherProps } = this.props;
     return (
-      <Button style={[ styles.cell, this.backgroundStyle() ]}
+      <Button style={[ styles.cell, this.props.style, this.backgroundStyle(hoverStyle) ]}
         onHoverStart={this.onHoverStart}
         onHoverEnd={this.onHoverEnd}
         {...otherProps}>
@@ -94,15 +102,15 @@ export default class CellButton extends Component {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { style: [styles.label, this.textStyle(), node.props.style]};
+                updatedProps = { style: [styles.label, node.props.style, this.textStyle(node.props.hoverStyle)]};
               }
 
               if(node.type.name === 'Img') {
-                updatedProps = { tintColor:'currentColor', style: [styles.icon, this.iconStyle(), node.props.style]};
+                updatedProps = { tintColor:'currentColor', style: [styles.icon, node.props.style, this.iconStyle(node.props.hoverStyle)]};
               }
 
               if(node.type.name === 'SubText') {
-                updatedProps = { style: [styles.subtext, this.subtextStyle(), node.props.style]};
+                updatedProps = { style: [styles.subtext, node.props.style, this.subtextStyle(node.props.hoverStyle)]};
               }
 
               return React.cloneElement(node, updatedProps);
