@@ -82,7 +82,7 @@ impl<R: DnsResolver> AddressCache<R> {
 mod tests {
     extern crate tempdir;
 
-    use std::fs::File;
+    use std::fs::{self, File};
     use std::io::{BufRead, BufReader, Write};
 
     use self::tempdir::TempDir;
@@ -90,17 +90,17 @@ mod tests {
 
     #[test]
     fn uses_cached_address() {
-        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let (_temp_dir, cache_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
         {
-            let cache_file_path = temp_dir.path().join("api_address.json");
+            let cache_file_path = cache_dir.join("api_address.json");
             let mut cache_file = File::create(cache_file_path).unwrap();
             writeln!(cache_file, "\"{}\"", cached_address).unwrap();
         }
 
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, temp_dir.path());
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, cached_address.to_string());
@@ -108,13 +108,13 @@ mod tests {
 
     #[test]
     fn caches_resolved_ip() {
-        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let (_temp_dir, cache_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, temp_dir.path());
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
 
         let address = cache.api_address().unwrap();
 
-        let cache_file_path = temp_dir.path().join("api_address.json");
+        let cache_file_path = cache_dir.join("api_address.json");
         assert!(cache_file_path.exists());
 
         let cache_file = File::open(cache_file_path).unwrap();
@@ -128,10 +128,9 @@ mod tests {
 
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
-        let temp_dir = TempDir::new("ip-cache-test").unwrap();
-        let temp_dir_path = temp_dir.path().to_path_buf();
+        let (temp_dir, cache_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &temp_dir_path);
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
 
         ::std::mem::drop(temp_dir);
 
@@ -139,6 +138,15 @@ mod tests {
             cache.api_address().unwrap(),
             mock_resolver.address().to_string()
         );
+    }
+
+    fn create_test_dirs() -> (TempDir, PathBuf) {
+        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let cache_dir = temp_dir.path().join("cache");
+
+        fs::create_dir(&cache_dir).unwrap();
+
+        (temp_dir, cache_dir)
     }
 
     struct MockDnsResolver {
