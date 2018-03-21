@@ -2,6 +2,12 @@ use std::fs::File;
 use std::io::{self, Read, Write};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+
+static MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
+static EXPIRED_CACHE_TIMESTAMP: SystemTime = UNIX_EPOCH;
+
 
 pub trait DnsResolver {
     fn resolve(&self, host: &str) -> io::Result<IpAddr>;
@@ -26,7 +32,7 @@ pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     dns_resolver: R,
     cache_file: PathBuf,
     cached_address: IpAddr,
-    should_update: bool,
+    last_updated: SystemTime,
 }
 
 impl CachedDnsResolver<SystemDnsResolver> {
@@ -42,7 +48,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         cache_file: PathBuf,
         fallback_address: IpAddr,
     ) -> Self {
-        let (cached_address, should_update) =
+        let (cached_address, last_updated) =
             Self::load_initial_cached_address(&cache_file, fallback_address);
 
         CachedDnsResolver {
@@ -50,22 +56,34 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             dns_resolver,
             cache_file,
             cached_address,
-            should_update,
+            last_updated,
         }
     }
 
     pub fn resolve(&mut self) -> IpAddr {
-        if self.should_update {
+        if let Ok(cache_age) = self.last_updated.elapsed() {
+            if cache_age > MAX_CACHE_AGE {
+                self.resolve_into_cache();
+            }
+        } else {
             self.resolve_into_cache();
         }
 
         self.cached_address
     }
 
-    fn load_initial_cached_address(cache_file: &Path, fallback_address: IpAddr) -> (IpAddr, bool) {
+    fn load_initial_cached_address(
+        cache_file: &Path,
+        fallback_address: IpAddr,
+    ) -> (IpAddr, SystemTime) {
         match Self::load_from_file(cache_file) {
-            Ok(previously_cached_address) => (previously_cached_address, false),
-            Err(_) => (fallback_address, true),
+            Ok(previously_cached_address) => {
+                let last_updated = Self::read_file_modification_time(cache_file)
+                    .unwrap_or(EXPIRED_CACHE_TIMESTAMP);
+
+                (previously_cached_address, last_updated)
+            }
+            Err(_) => (fallback_address, EXPIRED_CACHE_TIMESTAMP),
         }
     }
 
@@ -81,10 +99,16 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             .map_err(|_| io::Error::new(io::ErrorKind::Other, "Invalid address data"))
     }
 
+    fn read_file_modification_time(cache_file: &Path) -> Option<SystemTime> {
+        let metadata = cache_file.metadata().ok()?;
+
+        metadata.modified().ok()
+    }
+
     fn resolve_into_cache(&mut self) {
         if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
             self.cached_address = address;
-            self.should_update = false;
+            self.last_updated = SystemTime::now();
             self.update_cache_file();
         }
     }
@@ -98,6 +122,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
 
 #[cfg(test)]
 mod tests {
+    extern crate filetime;
     extern crate tempdir;
 
     use std::fs::{self, File};
@@ -105,11 +130,12 @@ mod tests {
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
 
+    use self::filetime::FileTime;
     use self::tempdir::TempDir;
     use super::*;
 
     #[test]
-    fn uses_cached_address() {
+    fn uses_previously_cached_address() {
         let (_temp_dir, cache_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::with_address("192.168.1.206".parse().unwrap());
         let mock_resolver_was_called = mock_resolver.was_called_handle();
@@ -121,6 +147,40 @@ mod tests {
         let address = cache.resolve();
 
         assert!(!mock_resolver_was_called.load(Ordering::Acquire));
+        assert_eq!(address, cached_address);
+    }
+
+    #[test]
+    fn old_cache_file_is_updated() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let cached_address = "127.0.0.1".parse().unwrap();
+        let mock_address = "192.168.1.206".parse().unwrap();
+        let mock_resolver = MockDnsResolver::with_address(mock_address);
+
+        let cache_file_path = write_address(&cache_dir, cached_address);
+
+        make_file_old(&cache_file_path);
+
+        let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
+        let address = cache.resolve();
+
+        assert_eq!(get_cached_address(&cache_dir), address.to_string());
+        assert_eq!(address, mock_address);
+    }
+
+    #[test]
+    fn old_cache_file_is_used_if_resolution_fails() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let mock_resolver = MockDnsResolver::that_fails();
+        let cached_address = "127.0.0.1".parse().unwrap();
+
+        let cache_file_path = write_address(&cache_dir, cached_address);
+
+        make_file_old(&cache_file_path);
+
+        let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
+        let address = cache.resolve();
+
         assert_eq!(address, cached_address);
     }
 
@@ -195,6 +255,14 @@ mod tests {
         writeln!(file, "{}", address).unwrap();
 
         file_path
+    }
+
+    fn make_file_old(file: &Path) {
+        let file_metadata = file.metadata().unwrap();
+        let last_access_time = FileTime::from_last_access_time(&file_metadata);
+        let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
+
+        filetime::set_file_times(&file, last_access_time, fake_modification_time).unwrap();
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {

@@ -21,4 +21,5 @@ log = "0.4"
 mullvad-types = { path = "../mullvad-types" }
 
 [dev-dependencies]
+filetime = "0.1"
 tempdir = "0.3"
