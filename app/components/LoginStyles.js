@@ -83,15 +83,23 @@ export default {
     account_dropdown__item: {
       flexDirection: 'row',
       backgroundColor: colors.white60,
-      borderColor: colors.darkBlue,
+    },
+    account_dropdown__item_hover: {
+      backgroundColor: colors.white40,
     },
     account_dropdown__remove: {
       paddingTop: 10,
       paddingLeft: 12,
       paddingRight: 12,
       paddingBottom: 12,
-      /* center SVG within button */
       justifyContent: 'center',
+      color: colors.blue60,
+    },
+    account_dropdown__remove_hover: {
+      color: colors.blue,
+    },
+    account_dropdown__label_hover: {
+      color: colors.blue,
     },
   }),
   ...createTextStyles({
@@ -144,7 +152,7 @@ export default {
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
-      color: colors.blue,
+      color: colors.blue80,
       border: 0,
       paddingTop: 10,
       paddingLeft: 12,
