@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
+import Accordion from './Accordion';
 import { formatAccount } from '../lib/formatters';
 import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
 import LoginArrowSVG from '../assets/images/icon-arrow.svg';
@@ -22,15 +23,13 @@ export type LoginPropTypes = {
 
 type State = {
   notifyOnFirstChangeAfterFailure: boolean,
-  isActive: boolean,
-  dropdownHeight: number
+  isActive: boolean
 };
 
 export default class Login extends React.Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: false,
-    dropdownHeight: 0
   };
 
   constructor(props: LoginPropTypes) {
@@ -38,14 +37,6 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     if(props.account.status === 'failed') {
       this.state.notifyOnFirstChangeAfterFailure = true;
     }
-  }
-
-  componentDidMount() {
-    this._updateDropdownHeight();
-  }
-
-  componentDidUpdate() {
-    this._updateDropdownHeight();
   }
 
   componentWillReceiveProps(nextProps: LoginPropTypes) {
@@ -213,17 +204,6 @@ export default class Login extends React.Component<LoginPropTypes, State> {
     return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory();
   }
 
-  // helper function to calculate and save dropdown element's height
-  // this is a no-op of the height didn't change since last update
-  _updateDropdownHeight() {
-    const element = this._accountDropdownElement;
-    if(element && this.state.dropdownHeight !== element.clientHeight) {
-      this.setState({
-        dropdownHeight: element.clientHeight
-      });
-    }
-  }
-
   // returns true if DOM node is within dropdown hierarchy
   _isWithinDropdown(relatedTarget) {
     const dropdownElement = this._accountDropdownElement;
@@ -241,9 +221,6 @@ export default class Login extends React.Component<LoginPropTypes, State> {
 
   _createLoginForm() {
     const { accountHistory, accountToken } = this.props.account;
-    const dropdownStyles = {
-      height: this._shouldShowAccountHistory() ? this.state.dropdownHeight : 0
-    };
 
     // auto-focus on account input when failed to log in
     // do not refactor this into instance method,
@@ -274,14 +251,14 @@ export default class Login extends React.Component<LoginPropTypes, State> {
               <LoginArrowSVG className="login-form__account-input-button-icon" />
             </button>
           </div>
-          <div style={ dropdownStyles } className="login-form__account-dropdown-container">
+          <Accordion height={ this._shouldShowAccountHistory() ? 'auto' : 0 }>
             <div ref={ this._onAccountDropdownContainerRef }>
               { <AccountDropdown
                 items={ accountHistory.slice().reverse() }
                 onSelect={ this._onSelectAccountFromHistory }
                 onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
             </div>
-          </div>
+          </Accordion>
         </div>
       </div>
     </div>;
