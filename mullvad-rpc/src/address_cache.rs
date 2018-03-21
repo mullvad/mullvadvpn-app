@@ -1,10 +1,8 @@
 use std::fs::File;
-use std::io;
+use std::io::{self, BufRead, BufReader, Write};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
-
-use serde_json;
 
 use super::MASTER_API_HOST;
 
@@ -45,8 +43,8 @@ impl<R: DnsResolver> AddressCache<R> {
         fallback_address_dir: &Path,
     ) -> Self {
         let cache = AddressCache {
-            cache_file: cache_dir.join("api_address.json"),
-            fallback_address_file: fallback_address_dir.join("api_address.json"),
+            cache_file: cache_dir.join("api_address.txt"),
+            fallback_address_file: fallback_address_dir.join("api_address.txt"),
             dns_resolver,
         };
 
@@ -92,9 +90,15 @@ impl<R: DnsResolver> AddressCache<R> {
 
     fn load_from_file(file_path: &Path) -> Result<IpAddr, io::Error> {
         let file = File::open(file_path)?;
-        let address = serde_json::from_reader(file)?;
+        let mut reader = BufReader::new(file);
+        let mut address = String::new();
 
-        Ok(address)
+        reader.read_line(&mut address)?;
+
+        address
+            .trim()
+            .parse()
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Invalid address data"))
     }
 
     fn resolve_into_cache(&self) -> Result<IpAddr, io::Error> {
@@ -112,10 +116,9 @@ impl<R: DnsResolver> AddressCache<R> {
     }
 
     fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
-        let cache_file = File::create(&self.cache_file)?;
+        let mut cache_file = File::create(&self.cache_file)?;
 
-        serde_json::to_writer(&cache_file, &address)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+        writeln!(cache_file, "{}", address)
     }
 }
 
@@ -138,9 +141,9 @@ mod tests {
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
         {
-            let cache_file_path = cache_dir.join("api_address.json");
+            let cache_file_path = cache_dir.join("api_address.txt");
             let mut cache_file = File::create(cache_file_path).unwrap();
-            writeln!(cache_file, "\"{}\"", cached_address).unwrap();
+            writeln!(cache_file, "{}", cached_address).unwrap();
         }
 
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
@@ -152,13 +155,13 @@ mod tests {
     #[test]
     fn ignores_old_cached_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
-        let cache_file_path = cache_dir.join("api_address.json");
+        let cache_file_path = cache_dir.join("api_address.txt");
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
         {
             let mut cache_file = File::create(&cache_file_path).unwrap();
-            writeln!(cache_file, "\"{}\"", cached_address).unwrap();
+            writeln!(cache_file, "{}", cached_address).unwrap();
         }
 
         let cache_file_metadata = cache_file_path.metadata().unwrap();
@@ -180,18 +183,12 @@ mod tests {
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
-        let address = cache.api_address().unwrap();
+        let _ = cache.api_address().unwrap();
 
-        let cache_file_path = cache_dir.join("api_address.json");
-        assert!(cache_file_path.exists());
-
-        let cache_file = File::open(cache_file_path).unwrap();
-        let mut cache_reader = BufReader::new(cache_file);
-        let mut cached_address = String::new();
-        cache_reader.read_line(&mut cached_address).unwrap();
-
-        assert_eq!(address, mock_resolver.address().to_string());
-        assert_eq!(cached_address, format!("\"{}\"", mock_resolver.address()));
+        assert_eq!(
+            get_cached_address(&cache_dir),
+            mock_resolver.address().to_string()
+        );
     }
 
     #[test]
@@ -215,9 +212,9 @@ mod tests {
         let cache = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
 
         {
-            let fallback_file_path = resource_dir.join("api_address.json");
+            let fallback_file_path = resource_dir.join("api_address.txt");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+            writeln!(fallback_file, "{}", provided_address).unwrap();
         }
 
         let address = cache.api_address().unwrap();
@@ -233,9 +230,9 @@ mod tests {
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         {
-            let fallback_file_path = resource_dir.join("api_address.json");
+            let fallback_file_path = resource_dir.join("api_address.txt");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+            writeln!(fallback_file, "{}", provided_address).unwrap();
         }
 
         let address = cache.api_address().unwrap();
@@ -249,22 +246,14 @@ mod tests {
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
 
         {
-            let fallback_file_path = resource_dir.join("api_address.json");
+            let fallback_file_path = resource_dir.join("api_address.txt");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+            writeln!(fallback_file, "{}", provided_address).unwrap();
         }
 
         let _ = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
 
-        let cache_file_path = cache_dir.join("api_address.json");
-        assert!(cache_file_path.exists());
-
-        let cache_file = File::open(cache_file_path).unwrap();
-        let mut cache_reader = BufReader::new(cache_file);
-        let mut cached_address = String::new();
-        cache_reader.read_line(&mut cached_address).unwrap();
-
-        assert_eq!(cached_address, format!("\"{}\"", provided_address));
+        assert_eq!(get_cached_address(&cache_dir), provided_address.to_string());
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
@@ -276,6 +265,20 @@ mod tests {
         fs::create_dir(&resource_dir).unwrap();
 
         (temp_dir, cache_dir, resource_dir)
+    }
+
+    fn get_cached_address(cache_dir: &Path) -> String {
+        let cache_file_path = cache_dir.join("api_address.txt");
+
+        assert!(cache_file_path.exists());
+
+        let cache_file = File::open(cache_file_path).unwrap();
+        let mut cache_reader = BufReader::new(cache_file);
+        let mut cached_address = String::new();
+
+        cache_reader.read_line(&mut cached_address).unwrap();
+
+        cached_address.trim().to_string()
     }
 
     struct MockDnsResolver {
