@@ -86,14 +86,14 @@ impl DaemonRpcClient {
     }
 }
 
-pub struct DaemonInstance {
+pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
     rpc_client: Option<DaemonRpcClient>,
 }
 
-impl DaemonInstance {
-    pub fn new() -> Self {
+impl DaemonRunner {
+    pub fn spawn() -> Self {
         ensure_relay_list_exists("../dist-assets/relays.json");
 
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
@@ -109,7 +109,7 @@ impl DaemonInstance {
             .start()
             .expect("failed to start daemon");
 
-        DaemonInstance {
+        DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
             rpc_client: None,
@@ -190,7 +190,7 @@ impl DaemonInstance {
     }
 }
 
-impl Drop for DaemonInstance {
+impl Drop for DaemonRunner {
     fn drop(&mut self) {
         if let Some(process) = self.process.take() {
             if self.shutdown() || Self::terminate(&process) {

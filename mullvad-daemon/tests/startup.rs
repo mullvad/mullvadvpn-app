@@ -10,7 +10,7 @@ use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
 
-use common::{rpc_file_path, DaemonInstance};
+use common::{rpc_file_path, DaemonRunner};
 
 use platform_specific::*;
 
@@ -26,7 +26,7 @@ fn rpc_info_file_permissions() {
 
     assert!(!rpc_file.exists());
 
-    let mut daemon = DaemonInstance::new();
+    let mut daemon = DaemonRunner::spawn();
 
     daemon.assert_log_contains("Wrote RPC connection info to", Duration::from_secs(10));
 
