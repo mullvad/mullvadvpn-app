@@ -6,7 +6,7 @@ import AccountInput from './AccountInput';
 import Accordion from './Accordion';
 import { formatAccount } from '../lib/formatters';
 import Img from './Img';
-import { Button, BlueButton, Label, CellButton } from './styled';
+import { BlueButton, Label, CellButton } from './styled';
 import styles from './LoginStyles';
 import { colors } from '../config';
 
