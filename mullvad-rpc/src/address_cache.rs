@@ -139,13 +139,9 @@ mod tests {
     fn uses_cached_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
+        let cached_address = "127.0.0.1".parse().unwrap();
 
-        {
-            let cache_file_path = cache_dir.join("api_address.txt");
-            let mut cache_file = File::create(cache_file_path).unwrap();
-            writeln!(cache_file, "{}", cached_address).unwrap();
-        }
+        write_address(&cache_dir, cached_address);
 
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
@@ -157,15 +153,10 @@ mod tests {
     #[test]
     fn ignores_old_cached_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
-        let cache_file_path = cache_dir.join("api_address.txt");
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
+        let cached_address = "127.0.0.1".parse().unwrap();
 
-        {
-            let mut cache_file = File::create(&cache_file_path).unwrap();
-            writeln!(cache_file, "{}", cached_address).unwrap();
-        }
-
+        let cache_file_path = write_address(&cache_dir, cached_address);
         let cache_file_metadata = cache_file_path.metadata().unwrap();
         let last_access_time = FileTime::from_last_access_time(&cache_file_metadata);
         let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
@@ -210,15 +201,11 @@ mod tests {
     #[test]
     fn uses_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
-        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let provided_address = "192.168.1.31".parse().unwrap();
         let mock_resolver = MockDnsResolver::that_fails();
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
-        {
-            let fallback_file_path = resource_dir.join("api_address.txt");
-            let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "{}", provided_address).unwrap();
-        }
+        write_address(&resource_dir, provided_address);
 
         let address = cache.api_address().unwrap();
 
@@ -230,14 +217,10 @@ mod tests {
     fn ignores_fallback_address_if_resolution_succeeds() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let provided_address = "192.168.1.31".parse().unwrap();
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
-        {
-            let fallback_file_path = resource_dir.join("api_address.txt");
-            let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "{}", provided_address).unwrap();
-        }
+        write_address(&resource_dir, provided_address);
 
         let address = cache.api_address().unwrap();
 
@@ -247,14 +230,10 @@ mod tests {
     #[test]
     fn initially_populates_cache_with_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
-        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let provided_address = "192.168.1.31".parse().unwrap();
         let mock_resolver = MockDnsResolver::that_fails();
 
-        {
-            let fallback_file_path = resource_dir.join("api_address.txt");
-            let mut fallback_file = File::create(fallback_file_path).unwrap();
-            writeln!(fallback_file, "{}", provided_address).unwrap();
-        }
+        write_address(&resource_dir, provided_address);
 
         let _ = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
@@ -271,6 +250,15 @@ mod tests {
         fs::create_dir(&resource_dir).unwrap();
 
         (temp_dir, cache_dir, resource_dir)
+    }
+
+    fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
+        let file_path = dir.join("api_address.txt");
+        let mut file = File::create(&file_path).unwrap();
+
+        writeln!(file, "{}", address).unwrap();
+
+        file_path
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {
