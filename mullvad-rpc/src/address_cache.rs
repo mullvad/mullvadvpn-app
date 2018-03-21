@@ -44,15 +44,14 @@ impl<R: DnsResolver> AddressCache<R> {
         cache_dir: &Path,
         fallback_address_dir: &Path,
     ) -> Self {
-        AddressCache {
+        let cache = AddressCache {
             cache_file: cache_dir.join("api_address.json"),
             fallback_address_file: fallback_address_dir.join("api_address.json"),
             dns_resolver,
-        }
-    }
+        };
 
-    pub fn set_fallback_address_dir(&mut self, address_file_dir: &Path) {
-        self.fallback_address_file = Some(address_file_dir.join("api_address.json"));
+        cache.create_initial_cache_if_needed();
+        cache
     }
 
     pub fn api_address(&self) -> Option<String> {
@@ -60,6 +59,14 @@ impl<R: DnsResolver> AddressCache<R> {
             .or_else(|_| self.resolve_into_cache())
             .map(|address| address.to_string())
             .ok()
+    }
+
+    fn create_initial_cache_if_needed(&self) {
+        if self.load_from_cache().is_err() {
+            if let Ok(address) = Self::load_from_file(&self.fallback_address_file) {
+                let _ = self.store_in_cache(&address);
+            }
+        }
     }
 
     fn load_from_cache(&self) -> Result<IpAddr, io::Error> {
@@ -234,6 +241,30 @@ mod tests {
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, mock_resolver.address().to_string());
+    }
+
+    #[test]
+    fn initially_populates_cache_with_fallback_address() {
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
+        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+
+        {
+            let fallback_file_path = resource_dir.join("api_address.json");
+            let mut fallback_file = File::create(fallback_file_path).unwrap();
+            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+        }
+
+        let _ = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
+
+        let cache_file_path = cache_dir.join("api_address.json");
+        assert!(cache_file_path.exists());
+
+        let cache_file = File::open(cache_file_path).unwrap();
+        let mut cache_reader = BufReader::new(cache_file);
+        let mut cached_address = String::new();
+        cache_reader.read_line(&mut cached_address).unwrap();
+
+        assert_eq!(cached_address, format!("\"{}\"", provided_address));
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
