@@ -1,6 +1,6 @@
-use std;
 use std::ffi::OsStr;
 use std::io;
+use std::ptr;
 
 use service::{Service, ServiceAccessMask, ServiceInfo};
 use widestring::to_wide_with_nul;
@@ -51,10 +51,10 @@ impl SCManager {
         access_mask: SCManagerAccessMask,
     ) -> io::Result<Self> {
         let machine_name = machine.map(|s| to_wide_with_nul(s));
-        let machine_ptr = machine_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
+        let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
         let database_name = database.map(|s| to_wide_with_nul(s));
-        let database_ptr = database_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
+        let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
         let handle =
             unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, access_mask.to_raw()) };
@@ -82,9 +82,9 @@ impl SCManager {
         let display_name = to_wide_with_nul(service_info.display_name);
         let executable_path = to_wide_with_nul(service_info.executable_path);
         let account_name = service_info.account_name.map(|s| to_wide_with_nul(s));
-        let account_name_ptr = account_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
+        let account_name_ptr = account_name.map_or(ptr::null(), |vec| vec.as_ptr());
         let account_password = service_info.account_password.map(|s| to_wide_with_nul(s));
-        let account_password_ptr = account_password.map_or(std::ptr::null(), |vec| vec.as_ptr());
+        let account_password_ptr = account_password.map_or(ptr::null(), |vec| vec.as_ptr());
 
         let service_handle = unsafe {
             winsvc::CreateServiceW(
@@ -96,9 +96,9 @@ impl SCManager {
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
                 executable_path.as_ptr(),
-                std::ptr::null(),     // load ordering group
-                std::ptr::null_mut(), // tag id within the load ordering group
-                std::ptr::null(),     // service dependencies
+                ptr::null(),     // load ordering group
+                ptr::null_mut(), // tag id within the load ordering group
+                ptr::null(),     // service dependencies
                 account_name_ptr,
                 account_password_ptr,
             )
