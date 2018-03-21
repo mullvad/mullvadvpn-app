@@ -32,7 +32,7 @@ pub use self::errors::*;
 
 
 #[cfg(unix)]
-lazy_static!{
+lazy_static! {
     static ref OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
 }
 
