@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io;
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use serde_json;
 
@@ -58,7 +59,24 @@ impl<R: DnsResolver> AddressCache<R> {
     }
 
     fn load_from_cache(&self) -> Result<IpAddr, io::Error> {
-        Self::load_from_file(&self.cache_file)
+        lazy_static! {
+            static ref MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
+        };
+
+        let metadata = self.cache_file.metadata()?;
+        let last_modified = metadata.modified()?;
+        let cache_age = last_modified
+            .elapsed()
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Failed to read cache age"))?;
+
+        if cache_age > *MAX_CACHE_AGE {
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Cache data is too old",
+            ))
+        } else {
+            Self::load_from_file(&self.cache_file)
+        }
     }
 
     fn load_from_file(file_path: &Path) -> Result<IpAddr, io::Error> {
@@ -102,11 +120,13 @@ impl<R: DnsResolver> AddressCache<R> {
 
 #[cfg(test)]
 mod tests {
+    extern crate filetime;
     extern crate tempdir;
 
     use std::fs::{self, File};
     use std::io::{BufRead, BufReader, Write};
 
+    use self::filetime::FileTime;
     use self::tempdir::TempDir;
     use super::*;
 
@@ -126,6 +146,31 @@ mod tests {
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, cached_address.to_string());
+    }
+
+    #[test]
+    fn ignores_old_cached_address() {
+        let (_temp_dir, cache_dir, _) = create_test_dirs();
+        let cache_file_path = cache_dir.join("api_address.json");
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
+        let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
+
+        {
+            let mut cache_file = File::create(&cache_file_path).unwrap();
+            writeln!(cache_file, "\"{}\"", cached_address).unwrap();
+        }
+
+        let cache_file_metadata = cache_file_path.metadata().unwrap();
+        let last_access_time = FileTime::from_last_access_time(&cache_file_metadata);
+        let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
+
+        filetime::set_file_times(&cache_file_path, last_access_time, fake_modification_time)
+            .unwrap();
+
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        let address = cache.api_address().unwrap();
+
+        assert_eq!(address, mock_resolver.address().to_string());
     }
 
     #[test]
