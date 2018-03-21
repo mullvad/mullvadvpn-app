@@ -202,7 +202,6 @@ impl ServiceStatus {
     }
 }
 
-/// A structure that allows to handle
 pub struct Service(pub winsvc::SC_HANDLE);
 impl Service {
     pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
