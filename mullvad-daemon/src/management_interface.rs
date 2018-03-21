@@ -121,7 +121,7 @@ build_rpc_trait! {
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
         /// Gets openvpn's mssfix parameter
-        #[rpc(meta, name = "set_openvpn_mssfix")]
+        #[rpc(meta, name = "get_tunnel_options")]
         fn get_tunnel_options(&self, Self::Metadata) -> BoxFuture<TunnelOptions, Error>;
 
         #[pubsub(name = "new_state")] {
@@ -583,7 +583,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     }
 
     fn get_tunnel_options(&self, meta: Self::Metadata) -> BoxFuture<TunnelOptions, Error> {
-        trace!("get_openvpn_mssfix");
+        trace!("get_tunnel_options");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetTunnelOptions(tx))
