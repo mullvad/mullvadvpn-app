@@ -144,5 +144,3 @@ pub struct OpenVpnTunnelOptions {
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
 }
-
-
