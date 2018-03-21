@@ -78,23 +78,23 @@ fn install_service() -> Result<(), io::Error> {
 }
 
 fn remove_service() -> Result<(), io::Error> {
-    let access_mask = SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
-    let service_manager = SCManager::active_database(access_mask)?;
+    let manager_access = SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
+    let service_manager = SCManager::active_database(manager_access)?;
 
-    let access_mask = ServiceAccessMask::new(&[ServiceAccess::QueryStatus, ServiceAccess::Stop, ServiceAccess::Delete]);
-    let service = service_manager.open_service(SERVICE_NAME, access_mask)?;
+    let service_access = ServiceAccessMask::new(&[ServiceAccess::QueryStatus, ServiceAccess::Stop, ServiceAccess::Delete]);
+    let service = service_manager.open_service(SERVICE_NAME, service_access)?;
 
     loop {
         let service_status = service.query_status()?;
         match service_status.current_state {
             ServiceState::StopPending => thread::sleep(time::Duration::from_secs(1)),
             ServiceState::Stopped => {
-                println!("Deleting the service");
+                println!("Removing the service...");
                 service.delete()?;
                 return Ok(()); // explicit return
             },
             _ => {
-                println!("Stopping the service");
+                println!("Stopping the service...");
                 service.stop()?;
                 thread::sleep(time::Duration::from_secs(1));
             }
