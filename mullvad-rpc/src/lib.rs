@@ -27,8 +27,8 @@ extern crate mullvad_types;
 
 use chrono::DateTime;
 use chrono::offset::Utc;
-use hyper::header::Host;
 use jsonrpc_client_http::HttpTransport;
+use jsonrpc_client_http::header::Host;
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};
