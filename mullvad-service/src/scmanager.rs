@@ -15,13 +15,13 @@ pub enum SCManagerAccess {
     EnumerateService,
 }
 
-impl From<SCManagerAccess> for u32 {
-    fn from(access: SCManagerAccess) -> Self {
-        match access {
-            SCManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
-            SCManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
-            SCManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
-            SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
+impl SCManagerAccess {
+    pub fn to_raw(&self) -> u32 {
+        match self {
+            &SCManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
+            &SCManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
+            &SCManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
+            &SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
         }
     }
 }
@@ -33,11 +33,9 @@ impl SCManagerAccessMask {
     pub fn new(set: &[SCManagerAccess]) -> Self {
         SCManagerAccessMask(set.to_vec())
     }
-}
 
-impl<'a> From<&'a SCManagerAccessMask> for u32 {
-    fn from(mask: &SCManagerAccessMask) -> Self {
-        mask.0.iter().fold(0, |acc, &x| (acc | u32::from(x)))
+    pub fn to_raw(&self) -> u32 {
+        self.0.iter().fold(0, |acc, &x| (acc | x.to_raw()))
     }
 }
 
@@ -55,8 +53,7 @@ impl SCManager {
         let database_name = database.map(|s| to_wide_with_nul(s));
         let database_ptr = database_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
         
-        let raw_access_mask: u32 = (&access_mask).into();
-        let handle = unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, raw_access_mask) };
+        let handle = unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, access_mask.to_raw()) };
         
         if handle.is_null() {
             Err(io::Error::last_os_error())
@@ -77,26 +74,19 @@ impl SCManager {
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
         let executable_path = to_wide_with_nul(service_info.executable_path);
-
         let account_name = service_info.account_name.map(|s| to_wide_with_nul(s));
         let account_name_ptr = account_name.map_or(std::ptr::null(), |vec| vec.as_ptr());
-
         let account_password = service_info.account_password.map(|s| to_wide_with_nul(s));
         let account_password_ptr = account_password.map_or(std::ptr::null(), |vec| vec.as_ptr());
-
-        let raw_service_access_mask: u32 = (&service_info.service_access).into();
-        let raw_service_type: u32 = service_info.service_type.into();
-        let raw_start_type: u32 = service_info.start_type.into();
-        let raw_error_control: u32 = service_info.error_control.into();
 
         let service_handle = unsafe { winsvc::CreateServiceW(
             self.0,
             service_name.as_ptr(),
             display_name.as_ptr(),
-            raw_service_access_mask,
-            raw_service_type,
-            raw_start_type,
-            raw_error_control,
+            service_info.service_access.to_raw(),
+            service_info.service_type.to_raw(),
+            service_info.start_type.to_raw(),
+            service_info.error_control.to_raw(),
             executable_path.as_ptr(),
             std::ptr::null(), // load ordering group
             std::ptr::null_mut(), // tag id within the load ordering group
@@ -114,8 +104,7 @@ impl SCManager {
 
     pub fn open_service<T: AsRef<OsStr>>(&self, name: T, access_mask: ServiceAccessMask) -> io::Result<Service> {
         let service_name = to_wide_with_nul(name);
-        let raw_access_mask: u32 = (&access_mask).into();
-        let service_handle = unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), raw_access_mask) };
+        let service_handle = unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), access_mask.to_raw()) };
         
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
