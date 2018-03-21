@@ -1,9 +1,9 @@
 use std;
-use std::io;
 use std::ffi::OsString;
+use std::io;
 
-use winapi::um::winsvc;
 use winapi::um::winnt;
+use winapi::um::winsvc;
 
 use errors::RawConversionError;
 
@@ -117,7 +117,7 @@ pub enum ServiceErrorControl {
     Critical,
     Ignore,
     Normal,
-    Severe
+    Severe,
 }
 
 impl ServiceErrorControl {
@@ -134,7 +134,7 @@ impl ServiceErrorControl {
 /// A struct that describes the service
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ServiceInfo {
-    pub name: OsString, 
+    pub name: OsString,
     pub display_name: OsString,
     pub service_access: ServiceAccessMask,
     pub service_type: ServiceType,
@@ -211,8 +211,7 @@ impl Service {
         let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
-            ServiceStatus::from_raw(raw_status)
-                .map_err(|err| ServiceError::RawConversion(err))
+            ServiceStatus::from_raw(raw_status).map_err(|err| ServiceError::RawConversion(err))
         } else {
             Err(io::Error::last_os_error().into())
         }
@@ -232,8 +231,7 @@ impl Service {
         let success = unsafe { winsvc::ControlService(self.0, command.to_raw(), &mut raw_status) };
 
         if success == 1 {
-            ServiceStatus::from_raw(raw_status)
-                .map_err(|err| ServiceError::RawConversion(err))
+            ServiceStatus::from_raw(raw_status).map_err(|err| ServiceError::RawConversion(err))
         } else {
             Err(io::Error::last_os_error().into())
         }
