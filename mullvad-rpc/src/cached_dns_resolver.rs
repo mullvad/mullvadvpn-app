@@ -61,7 +61,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     fn create_initial_cache_if_needed(&self) {
         if self.load_from_cache().is_err() {
             if let Ok(address) = Self::load_from_file(&self.fallback_address_file) {
-                let _ = self.store_in_cache(&address);
+                let _ = self.store_in_cache(address);
             }
         }
     }
@@ -103,7 +103,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     fn resolve_into_cache(&self) -> Result<IpAddr, io::Error> {
         let address = self.resolve_address()?;
 
-        let _ = self.store_in_cache(&address);
+        let _ = self.store_in_cache(address);
 
         Ok(address)
     }
@@ -114,7 +114,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             .or_else(|_| Self::load_from_file(&self.fallback_address_file))
     }
 
-    fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
+    fn store_in_cache(&self, address: IpAddr) -> Result<(), io::Error> {
         let mut cache_file = File::create(&self.cache_file)?;
 
         writeln!(cache_file, "{}", address)
