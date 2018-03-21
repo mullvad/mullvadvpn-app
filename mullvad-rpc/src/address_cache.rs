@@ -129,6 +129,7 @@ mod tests {
 
     use std::fs::{self, File};
     use std::io::{BufRead, BufReader, Write};
+    use std::sync::atomic::{AtomicBool, Ordering};
 
     use self::filetime::FileTime;
     use self::tempdir::TempDir;
@@ -149,6 +150,7 @@ mod tests {
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
+        assert!(!mock_resolver.was_called());
         assert_eq!(address, cached_address.to_string());
     }
 
@@ -209,7 +211,8 @@ mod tests {
     fn uses_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
-        let cache = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
+        let mock_resolver = MockDnsResolver::that_fails();
+        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         {
             let fallback_file_path = resource_dir.join("api_address.txt");
@@ -219,6 +222,7 @@ mod tests {
 
         let address = cache.api_address().unwrap();
 
+        assert!(mock_resolver.was_called());
         assert_eq!(address, provided_address.to_string());
     }
 
@@ -244,6 +248,7 @@ mod tests {
     fn initially_populates_cache_with_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+        let mock_resolver = MockDnsResolver::that_fails();
 
         {
             let fallback_file_path = resource_dir.join("api_address.txt");
@@ -251,8 +256,9 @@ mod tests {
             writeln!(fallback_file, "{}", provided_address).unwrap();
         }
 
-        let _ = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir, &resource_dir);
+        let _ = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
+        assert!(!mock_resolver.was_called());
         assert_eq!(get_cached_address(&cache_dir), provided_address.to_string());
     }
 
@@ -282,35 +288,44 @@ mod tests {
     }
 
     struct MockDnsResolver {
-        address: IpAddr,
+        address: Option<IpAddr>,
+        called: AtomicBool,
     }
 
     impl MockDnsResolver {
         pub fn from_str(ip_address: &str) -> Self {
             MockDnsResolver {
-                address: ip_address.parse().unwrap(),
+                address: Some(ip_address.parse().unwrap()),
+                called: AtomicBool::new(false),
+            }
+        }
+
+        pub fn that_fails() -> Self {
+            MockDnsResolver {
+                address: None,
+                called: AtomicBool::new(false),
             }
         }
 
         pub fn address(&self) -> &IpAddr {
-            &self.address
+            self.address.as_ref().unwrap()
+        }
+
+        pub fn was_called(&self) -> bool {
+            self.called.load(Ordering::Acquire)
         }
     }
 
     impl<'r> DnsResolver for &'r MockDnsResolver {
-        fn resolve(&self, _host: &str) -> Result<IpAddr, io::Error> {
-            Ok(self.address.clone())
-        }
-    }
-
-    struct FailingDnsResolver;
-
-    impl DnsResolver for FailingDnsResolver {
         fn resolve(&self, host: &str) -> Result<IpAddr, io::Error> {
-            Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                format!("Failed to resolve address for {:?}", host),
-            ))
+            self.called.store(true, Ordering::Release);
+
+            self.address.ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!("Failed to resolve address for {:?}", host),
+                )
+            })
         }
     }
 }
