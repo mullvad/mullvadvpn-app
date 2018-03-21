@@ -62,21 +62,10 @@ impl RpcConnectionManager {
         }
     }
 
-    /// Create a new `RpcConnectionManager` using the specified cache directory.
-    pub fn with_cache_dir(cache_dir: &Path) -> Self {
-        RpcConnectionManager {
-            address_cache: Some(AddressCache::new(cache_dir)),
-        }
-    }
-
     /// Create a new `RpcConnectionManager` using the specified resource and cache directories.
     pub fn with_resource_and_cache_dirs(resource_dir: &Path, cache_dir: &Path) -> Self {
-        let mut address_cache = AddressCache::new(cache_dir);
-
-        address_cache.set_fallback_address_dir(resource_dir);
-
         RpcConnectionManager {
-            address_cache: Some(address_cache),
+            address_cache: Some(AddressCache::new(cache_dir, resource_dir)),
         }
     }
 
