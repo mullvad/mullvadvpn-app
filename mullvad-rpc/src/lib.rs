@@ -33,6 +33,7 @@ pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 
 use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
+use mullvad_types::version;
 
 use std::collections::HashMap;
 
@@ -76,4 +77,9 @@ impl ProblemReportProxy<HttpHandle> {
 
 jsonrpc_client!(pub struct RelayListProxy {
     pub fn relay_list(&mut self) -> RpcRequest<RelayList>;
+});
+
+jsonrpc_client!(pub struct AppVersionProxy {
+    pub fn latest_app_version(&mut self) -> RpcRequest<version::LatestReleases>;
+    pub fn is_app_version_supported(&mut self, version: &version::AppVersion) -> RpcRequest<bool>;
 });
