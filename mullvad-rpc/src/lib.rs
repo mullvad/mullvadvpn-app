@@ -43,15 +43,15 @@ use std::path::Path;
 pub mod event_loop;
 pub mod rest;
 
-mod address_cache;
-use address_cache::AddressCache;
+mod cached_dns_resolver;
+use cached_dns_resolver::CachedDnsResolver;
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
 
 
 /// A type that helps with the creation of RPC connections.
 pub struct RpcConnectionManager {
-    address_cache: Option<AddressCache>,
+    address_cache: Option<CachedDnsResolver>,
 }
 
 impl RpcConnectionManager {
@@ -65,7 +65,7 @@ impl RpcConnectionManager {
     /// Create a new `RpcConnectionManager` using the specified resource and cache directories.
     pub fn with_resource_and_cache_dirs(resource_dir: &Path, cache_dir: &Path) -> Self {
         RpcConnectionManager {
-            address_cache: Some(AddressCache::new(cache_dir, resource_dir)),
+            address_cache: Some(CachedDnsResolver::new(cache_dir, resource_dir)),
         }
     }
 
@@ -91,7 +91,7 @@ impl RpcConnectionManager {
     fn api_address(&self) -> String {
         self.address_cache
             .as_ref()
-            .and_then(AddressCache::api_address)
+            .and_then(CachedDnsResolver::api_address)
             .unwrap_or_else(|| MASTER_API_HOST.to_owned())
     }
 }

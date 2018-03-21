@@ -24,25 +24,25 @@ impl DnsResolver for SystemDnsResolver {
     }
 }
 
-pub struct AddressCache<R: DnsResolver = SystemDnsResolver> {
+pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     cache_file: PathBuf,
     dns_resolver: R,
     fallback_address_file: PathBuf,
 }
 
-impl AddressCache<SystemDnsResolver> {
+impl CachedDnsResolver<SystemDnsResolver> {
     pub fn new(cache_dir: &Path, fallback_address_dir: &Path) -> Self {
         Self::with_dns_resolver(SystemDnsResolver, cache_dir, fallback_address_dir)
     }
 }
 
-impl<R: DnsResolver> AddressCache<R> {
+impl<R: DnsResolver> CachedDnsResolver<R> {
     pub fn with_dns_resolver(
         dns_resolver: R,
         cache_dir: &Path,
         fallback_address_dir: &Path,
     ) -> Self {
-        let cache = AddressCache {
+        let cache = CachedDnsResolver {
             cache_file: cache_dir.join("api_address.txt"),
             fallback_address_file: fallback_address_dir.join("api_address.txt"),
             dns_resolver,
@@ -143,7 +143,7 @@ mod tests {
 
         write_address(&cache_dir, cached_address);
 
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
         assert!(!mock_resolver.was_called());
@@ -164,7 +164,7 @@ mod tests {
         filetime::set_file_times(&cache_file_path, last_access_time, fake_modification_time)
             .unwrap();
 
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
         let address = cache.api_address().unwrap();
 
         assert_eq!(address, mock_resolver.address().to_string());
@@ -174,7 +174,7 @@ mod tests {
     fn caches_resolved_ip() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         let _ = cache.api_address().unwrap();
 
@@ -188,7 +188,7 @@ mod tests {
     fn resolves_even_if_impossible_to_store_in_cache() {
         let (temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         ::std::mem::drop(temp_dir);
 
@@ -203,7 +203,7 @@ mod tests {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let provided_address = "192.168.1.31".parse().unwrap();
         let mock_resolver = MockDnsResolver::that_fails();
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         write_address(&resource_dir, provided_address);
 
@@ -218,7 +218,7 @@ mod tests {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let provided_address = "192.168.1.31".parse().unwrap();
-        let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         write_address(&resource_dir, provided_address);
 
@@ -235,7 +235,7 @@ mod tests {
 
         write_address(&resource_dir, provided_address);
 
-        let _ = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
+        let _ = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
         assert!(!mock_resolver.was_called());
         assert_eq!(get_cached_address(&cache_dir), provided_address.to_string());
