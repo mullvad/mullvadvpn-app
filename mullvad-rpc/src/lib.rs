@@ -91,7 +91,7 @@ impl RpcConnectionManager {
     fn api_address(&self) -> String {
         self.address_cache
             .as_ref()
-            .and_then(CachedDnsResolver::api_address)
+            .and_then(CachedDnsResolver::api_ip_address)
             .map(|ip| ip.to_string())
             .unwrap_or_else(|| MASTER_API_HOST.to_owned())
     }
