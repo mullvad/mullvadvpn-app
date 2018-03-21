@@ -28,6 +28,7 @@ impl DnsResolver for SystemDnsResolver {
 pub struct AddressCache<R: DnsResolver = SystemDnsResolver> {
     cache_file: PathBuf,
     dns_resolver: R,
+    fallback_address_file: Option<PathBuf>,
 }
 
 impl AddressCache<SystemDnsResolver> {
@@ -40,8 +41,13 @@ impl<R: DnsResolver> AddressCache<R> {
     pub fn with_dns_resolver(dns_resolver: R, cache_dir: &Path) -> Self {
         AddressCache {
             cache_file: cache_dir.join("api_address.json"),
+            fallback_address_file: None,
             dns_resolver,
         }
+    }
+
+    pub fn set_fallback_address_dir(&mut self, address_file_dir: &Path) {
+        self.fallback_address_file = Some(address_file_dir.join("api_address.json"));
     }
 
     pub fn api_address(&self) -> Option<String> {
@@ -52,14 +58,18 @@ impl<R: DnsResolver> AddressCache<R> {
     }
 
     fn load_from_cache(&self) -> Result<IpAddr, io::Error> {
-        let cache_file = File::open(&self.cache_file)?;
-        let address = serde_json::from_reader(cache_file)?;
+        Self::load_from_file(&self.cache_file)
+    }
+
+    fn load_from_file(file_path: &Path) -> Result<IpAddr, io::Error> {
+        let file = File::open(file_path)?;
+        let address = serde_json::from_reader(file)?;
 
         Ok(address)
     }
 
     fn resolve_into_cache(&self) -> Result<IpAddr, io::Error> {
-        let address = self.resolve_address()?.into();
+        let address = self.resolve_address()?;
 
         let _ = self.store_in_cache(&address);
 
@@ -67,7 +77,19 @@ impl<R: DnsResolver> AddressCache<R> {
     }
 
     fn resolve_address(&self) -> Result<IpAddr, io::Error> {
-        self.dns_resolver.resolve(MASTER_API_HOST)
+        self.load_fallback_address()
+            .or_else(|_| self.dns_resolver.resolve(MASTER_API_HOST))
+    }
+
+    fn load_fallback_address(&self) -> Result<IpAddr, io::Error> {
+        if let Some(ref fallback_address_file) = self.fallback_address_file {
+            Self::load_from_file(fallback_address_file)
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "no fallback address file specified",
+            ))
+        }
     }
 
     fn store_in_cache(&self, address: &IpAddr) -> Result<(), io::Error> {
@@ -90,7 +112,7 @@ mod tests {
 
     #[test]
     fn uses_cached_address() {
-        let (_temp_dir, cache_dir) = create_test_dirs();
+        let (_temp_dir, cache_dir, _) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cached_address: IpAddr = "127.0.0.1".parse().unwrap();
 
@@ -108,7 +130,7 @@ mod tests {
 
     #[test]
     fn caches_resolved_ip() {
-        let (_temp_dir, cache_dir) = create_test_dirs();
+        let (_temp_dir, cache_dir, _) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
 
@@ -128,7 +150,7 @@ mod tests {
 
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
-        let (temp_dir, cache_dir) = create_test_dirs();
+        let (temp_dir, cache_dir, _) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
 
@@ -140,13 +162,35 @@ mod tests {
         );
     }
 
-    fn create_test_dirs() -> (TempDir, PathBuf) {
+    #[test]
+    fn uses_fallback_address() {
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
+        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+
+        {
+            let fallback_file_path = cache_dir.join("api_address.json");
+            let mut fallback_file = File::create(fallback_file_path).unwrap();
+            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+        }
+
+        let mut cache = AddressCache::with_dns_resolver(&mock_resolver, &cache_dir);
+        cache.set_fallback_address_dir(&resource_dir);
+
+        let address = cache.api_address().unwrap();
+
+        assert_eq!(address, provided_address.to_string());
+    }
+
+    fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
         let cache_dir = temp_dir.path().join("cache");
+        let resource_dir = temp_dir.path().join("resource");
 
         fs::create_dir(&cache_dir).unwrap();
+        fs::create_dir(&resource_dir).unwrap();
 
-        (temp_dir, cache_dir)
+        (temp_dir, cache_dir, resource_dir)
     }
 
     struct MockDnsResolver {
