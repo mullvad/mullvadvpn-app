@@ -3,9 +3,10 @@ import * as React from 'react';
 import { Component, Text, View, Animated, Styles } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
+import Accordion from './Accordion';
 import { formatAccount } from '../lib/formatters';
 import Img from './Img';
-import { Button, BlueButton, Label } from './styled';
+import { Button, BlueButton, Label, CellButton } from './styled';
 import styles from './LoginStyles';
 import { colors } from '../config';
 
@@ -25,10 +26,8 @@ export type LoginPropTypes = {
 type State = {
   notifyOnFirstChangeAfterFailure: boolean,
   isActive: boolean,
-  dropdownHeight: number,
   footerHeight: number,
   animatedFooterValue: Animated.Value,
-  animatedDropdownValue: Animated.Value,
   animatedLoginButtonValue: Animated.Value,
   animation: ?Animated.CompositeAnimation,
   footerAnimationStyle: ?Animated.Style,
@@ -40,14 +39,11 @@ export default class Login extends Component<LoginPropTypes, State> {
   state = {
     notifyOnFirstChangeAfterFailure: false,
     isActive: true,
-    dropdownHeight: 0,
     footerHeight: 0,
     animatedFooterValue: Animated.createValue(0),
-    animatedDropdownValue: Animated.createValue(0),
     animatedLoginButtonValue: Animated.createValue(0),
     animation: null,
     footerAnimationStyle: {},
-    dropdownAnimationStyle: {},
     loginButtonAnimationStyle: {},
   };
 
@@ -56,9 +52,6 @@ export default class Login extends Component<LoginPropTypes, State> {
     if(props.account.status === 'failed') {
       this.state.notifyOnFirstChangeAfterFailure = true;
     }
-    this.state.dropdownAnimationStyle = Styles.createAnimatedViewStyle({
-      height: this.state.animatedDropdownValue
-    });
     this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({
       transform: [{translateY: this.state.animatedFooterValue }]
     });
@@ -130,13 +123,12 @@ export default class Login extends Component<LoginPropTypes, State> {
     const accountToken = props.account.accountToken || [];
 
     const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
-    const dropdownHeight = this._shouldShowAccountHistory(props) ? this.state.dropdownHeight : 0;
     const loginButtonValue = (accountToken.length) > 0 ? 1 : 0;
-    this._setAnimation(this._getFooterAnimation(footerPosition), this._getDropdownAnimation(dropdownHeight), this._getLoginButtonAnimation(loginButtonValue));
+    this._setAnimation(this._getFooterAnimation(footerPosition), this._getLoginButtonAnimation(loginButtonValue));
   }
 
-  _setAnimation = (footerAnimation: Animated.CompositeAnimation, dropdownAnimation: Animated.CompositeAnimation, loginButtonAnimation: Animated.CompositeAnimation) => {
-    let compositeAnimation = Animated.parallel([ footerAnimation, dropdownAnimation, loginButtonAnimation]);
+  _setAnimation = (footerAnimation: Animated.CompositeAnimation, loginButtonAnimation: Animated.CompositeAnimation) => {
+    let compositeAnimation = Animated.parallel([ footerAnimation, loginButtonAnimation]);
     this.setState({animation: compositeAnimation}, () => {
       compositeAnimation.start(() => this.setState({
         animation: null
@@ -286,15 +278,6 @@ export default class Login extends Component<LoginPropTypes, State> {
     this.setState({footerHeight: layout.height});
   }
 
-  _getDropdownAnimation(toValue: number){
-    return Animated.timing(this.state.animatedDropdownValue, {
-      toValue: toValue,
-      easing: Animated.Easing.InOut(),
-      duration: 250,
-      useNativeDriver: true,
-    });
-  }
-
   _getLoginButtonAnimation(toValue: number){
     return Animated.timing(this.state.animatedLoginButtonValue, {
       toValue: toValue,
@@ -352,14 +335,14 @@ export default class Login extends Component<LoginPropTypes, State> {
             <Img style={this._accountInputArrowStyles()} source='icon-arrow' height='16' width='24' tintColor='currentColor' />
           </Animated.View>
         </View>
-        <Animated.View style={ this.state.dropdownAnimationStyle }>
+        <Accordion height={ this._shouldShowAccountHistory(this.props) ? 'auto' : 0 }>
           <View onLayout={this._onDropdownLayout} ref={ this._onAccountDropdownContainerRef }>
             { <AccountDropdown
               items={ accountHistory.slice().reverse() }
               onSelect={ this._onSelectAccountFromHistory }
               onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
           </View>
-        </Animated.View>
+        </Accordion>
       </View>
     </View>;
   }
@@ -409,14 +392,12 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
   render() {
     return (<View>
       <View style={ styles.account_dropdown__spacer }/>
-      <View style={ styles.account_dropdown__item }>
-        <Button style={styles.account_dropdown__label}
-          onPress={ () => this.props.onSelect(this.props.value) }>{ this.props.label }</Button>
-        <Button style={styles.account_dropdown__remove}
-          onPress={ () => this.props.onRemove(this.props.value) }>
-          <Img source='icon-close-sml' height='16' width='16' />
-        </Button>
-      </View>
+      <CellButton style={ styles.account_dropdown__item } hoverStyle={ styles.account_dropdown__item_hover }>
+        <Label style={styles.account_dropdown__label} hoverStyle={ styles.account_dropdown__label_hover } onPress={ () => this.props.onSelect(this.props.value) }>
+          { this.props.label }
+        </Label>
+        <Img style={styles.account_dropdown__remove} hoverStyle={ styles.account_dropdown__remove_hover } source='icon-close-sml' height='16' width='16' onPress={ () => this.props.onRemove(this.props.value) }/>
+      </CellButton>
     </View>
     );
   }
