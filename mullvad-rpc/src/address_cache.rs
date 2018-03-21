@@ -128,9 +128,12 @@ mod tests {
 
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
-        let temp_dir_path = TempDir::new("ip-cache-test").unwrap().path().to_path_buf();
+        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let temp_dir_path = temp_dir.path().to_path_buf();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cache = AddressCache::with_dns_resolver(&mock_resolver, &temp_dir_path);
+
+        ::std::mem::drop(temp_dir);
 
         assert_eq!(
             cache.api_address().unwrap(),
