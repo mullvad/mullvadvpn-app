@@ -29,6 +29,7 @@ use std::io;
 error_chain! {
     foreign_links {
         Io(io::Error);
+        ParseIntError(::std::num::ParseIntError);
     }
 }
 
