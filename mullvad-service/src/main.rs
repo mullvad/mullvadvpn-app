@@ -5,14 +5,6 @@ use std::io;
 use std::thread;
 use std::time;
 
-mod conversion {
-    pub trait TryConvertFrom<T: ?Sized> where Self: Sized {
-        type Error;
-        fn try_convert_from(value: T) -> Result<Self, Self::Error>;
-    }
-}
-pub use conversion::*;
-
 mod errors {
     #[derive(Debug, Clone)]
     pub struct ConversionError;
