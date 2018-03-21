@@ -154,7 +154,7 @@ enum ServiceControl {
 }
 
 impl ServiceControl {
-    pub fn to_raw(&self) -> u32 {
+    fn to_raw(&self) -> u32 {
         match self {
             &ServiceControl::Stop => winsvc::SERVICE_CONTROL_STOP,
         }
