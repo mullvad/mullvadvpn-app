@@ -43,8 +43,8 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         fallback_address_dir: &Path,
     ) -> Self {
         let cache = CachedDnsResolver {
-            cache_file: cache_dir.join("api_address.txt"),
-            fallback_address_file: fallback_address_dir.join("api_address.txt"),
+            cache_file: cache_dir.join("api_ip_address.txt"),
+            fallback_address_file: fallback_address_dir.join("api_ip_address.txt"),
             dns_resolver,
         };
 
@@ -52,7 +52,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         cache
     }
 
-    pub fn api_address(&self) -> Option<IpAddr> {
+    pub fn api_ip_address(&self) -> Option<IpAddr> {
         self.load_from_cache()
             .or_else(|_| self.resolve_into_cache())
             .ok()
@@ -143,7 +143,7 @@ mod tests {
         write_address(&cache_dir, cached_address);
 
         let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
-        let address = cache.api_address().unwrap();
+        let address = cache.api_ip_address().unwrap();
 
         assert!(!mock_resolver.was_called());
         assert_eq!(address, cached_address);
@@ -164,7 +164,7 @@ mod tests {
             .unwrap();
 
         let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
-        let address = cache.api_address().unwrap();
+        let address = cache.api_ip_address().unwrap();
 
         assert_eq!(address, mock_resolver.address());
     }
@@ -175,7 +175,7 @@ mod tests {
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let cache = CachedDnsResolver::with_dns_resolver(&mock_resolver, &cache_dir, &resource_dir);
 
-        let _ = cache.api_address().unwrap();
+        let _ = cache.api_ip_address().unwrap();
 
         assert_eq!(
             get_cached_address(&cache_dir),
@@ -191,7 +191,7 @@ mod tests {
 
         ::std::mem::drop(temp_dir);
 
-        assert_eq!(cache.api_address().unwrap(), mock_resolver.address());
+        assert_eq!(cache.api_ip_address().unwrap(), mock_resolver.address());
     }
 
     #[test]
@@ -203,7 +203,7 @@ mod tests {
 
         write_address(&resource_dir, provided_address);
 
-        let address = cache.api_address().unwrap();
+        let address = cache.api_ip_address().unwrap();
 
         assert!(mock_resolver.was_called());
         assert_eq!(address, provided_address);
@@ -218,7 +218,7 @@ mod tests {
 
         write_address(&resource_dir, provided_address);
 
-        let address = cache.api_address().unwrap();
+        let address = cache.api_ip_address().unwrap();
 
         assert_eq!(address, mock_resolver.address());
     }
@@ -249,7 +249,7 @@ mod tests {
     }
 
     fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
-        let file_path = dir.join("api_address.txt");
+        let file_path = dir.join("api_ip_address.txt");
         let mut file = File::create(&file_path).unwrap();
 
         writeln!(file, "{}", address).unwrap();
@@ -258,7 +258,7 @@ mod tests {
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {
-        let cache_file_path = cache_dir.join("api_address.txt");
+        let cache_file_path = cache_dir.join("api_ip_address.txt");
 
         assert!(cache_file_path.exists());
 
