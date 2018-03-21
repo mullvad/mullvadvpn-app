@@ -5,7 +5,41 @@ use std::ffi::OsString;
 use winapi::um::winsvc;
 use winapi::um::winnt;
 
-use errors::ConversionError;
+use errors::RawConversionError;
+
+#[derive(Debug)]
+pub enum ServiceError {
+    RawConversion(RawConversionError),
+    System(io::Error),
+}
+
+impl ::std::error::Error for ServiceError {
+    fn description(&self) -> &str {
+        "Service error"
+    }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        match self {
+            &ServiceError::RawConversion(ref err) => Some(err),
+            &ServiceError::System(ref io_err) => Some(io_err),
+        }
+    }
+}
+
+impl ::std::fmt::Display for ServiceError {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        match self {
+            &ServiceError::RawConversion(ref err) => err.fmt(f),
+            &ServiceError::System(ref io_err) => io_err.fmt(f),
+        }
+    }
+}
+
+impl From<io::Error> for ServiceError {
+    fn from(io_error: io::Error) -> Self {
+        ServiceError::System(io_error)
+    }
+}
 
 /// Enum describing types of windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -138,7 +172,7 @@ pub enum ServiceState {
 }
 
 impl ServiceState {
-    pub fn from_raw(raw_state: u32) -> Result<Self, ConversionError> {
+    pub fn from_raw(raw_state: u32) -> Result<Self, RawConversionError> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
@@ -147,7 +181,7 @@ impl ServiceState {
             winsvc::SERVICE_CONTINUE_PENDING => Ok(ServiceState::ContinuePending),
             winsvc::SERVICE_PAUSE_PENDING => Ok(ServiceState::PausePending),
             winsvc::SERVICE_PAUSED => Ok(ServiceState::Paused),
-            _ => Err(ConversionError),
+            _ => Err(RawConversionError),
         }
     }
 }
@@ -160,7 +194,7 @@ pub struct ServiceStatus {
 }
 
 impl ServiceStatus {
-    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ConversionError> {
+    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, RawConversionError> {
         let current_state = ServiceState::from_raw(raw_status.dwCurrentState as u32)?;
         Ok(ServiceStatus { current_state })
     }
@@ -169,18 +203,18 @@ impl ServiceStatus {
 /// A structure that allows to handle
 pub struct Service(pub winsvc::SC_HANDLE);
 impl Service {
-    pub fn stop(&self) -> Result<ServiceStatus, io::Error> {
+    pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
         self.send_control_command(ServiceControl::Stop)
     }
 
-    pub fn query_status(&self) -> Result<ServiceStatus, io::Error> {
+    pub fn query_status(&self) -> Result<ServiceStatus, ServiceError> {
         let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
-            // TBD: expected io::Error but got Conversion error
-            Ok(ServiceStatus::from_raw(raw_status).unwrap())
+            ServiceStatus::from_raw(raw_status)
+                .map_err(|err| ServiceError::RawConversion(err))
         } else {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         }
     }
 
@@ -193,15 +227,15 @@ impl Service {
         }
     }
 
-    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, io::Error> {
+    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, ServiceError> {
         let mut raw_status = unsafe { std::mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::ControlService(self.0, command.to_raw(), &mut raw_status) };
 
         if success == 1 {
-            // TBD: expected io::Error but got Conversion error
-            Ok(ServiceStatus::from_raw(raw_status).unwrap())
+            ServiceStatus::from_raw(raw_status)
+                .map_err(|err| ServiceError::RawConversion(err))
         } else {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         }
     }
 }
