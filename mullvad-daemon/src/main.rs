@@ -78,7 +78,7 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::TunnelEndpoint;
+use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use std::fs;
 
@@ -395,7 +395,7 @@ impl Daemon {
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
-            GetOpenVpnMssfix(tx) => self.on_get_openvpn_mssfix(tx),
+            GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
@@ -544,9 +544,9 @@ impl Daemon {
         Ok(())
     }
 
-    fn on_get_openvpn_mssfix(&self, tx: OneshotSender<Option<u16>>) -> Result<()> {
-        let mssfix_arg = self.settings.get_tunnel_options().openvpn.mssfix;
-        Self::oneshot_send(tx, mssfix_arg, "get_openvpn_mssfix");
+    fn on_get_tunnel_options(&self, tx: OneshotSender<TunnelOptions>) -> Result<()> {
+        let tunnel_options = self.settings.get_tunnel_options().clone();
+        Self::oneshot_send(tx, tunnel_options, "get_tunnel_options response");
         Ok(())
     }
 
