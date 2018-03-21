@@ -31,7 +31,10 @@ fn rpc_info_file_permissions() {
     daemon.assert_log_contains("Wrote RPC connection info to", Duration::from_secs(10));
 
     assert!(rpc_file.exists());
-    check_metadata(fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"));
+
+    ensure_only_admin_can_write(
+        fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"),
+    );
 }
 
 #[cfg(unix)]
@@ -41,7 +44,7 @@ mod platform_specific {
     use super::*;
     use std::os::unix::fs::MetadataExt;
 
-    pub fn check_metadata(metadata: Metadata) {
+    pub fn ensure_only_admin_can_write(metadata: Metadata) {
         let process_uid = unsafe { libc::getuid() };
         assert_eq!(metadata.uid(), process_uid);
         assert_eq!(metadata.mode() & 0o022, 0);
@@ -52,7 +55,7 @@ mod platform_specific {
 mod platform_specific {
     use super::*;
 
-    pub fn check_metadata(metadata: Metadata) {
+    pub fn sure_only_admin_can_write(metadata: Metadata) {
         // TODO: Test when correctly implemented on Windows
     }
 }
