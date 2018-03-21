@@ -95,8 +95,9 @@ impl<R: DnsResolver> AddressCache<R> {
     }
 
     fn resolve_address(&self) -> Result<IpAddr, io::Error> {
-        self.load_fallback_address()
-            .or_else(|_| self.dns_resolver.resolve(MASTER_API_HOST))
+        self.dns_resolver
+            .resolve(MASTER_API_HOST)
+            .or_else(|_| self.load_fallback_address())
     }
 
     fn load_fallback_address(&self) -> Result<IpAddr, io::Error> {
@@ -210,11 +211,30 @@ mod tests {
     #[test]
     fn uses_fallback_address() {
         let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
+        let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
+
+        {
+            let fallback_file_path = resource_dir.join("api_address.json");
+            let mut fallback_file = File::create(fallback_file_path).unwrap();
+            writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
+        }
+
+        let mut cache = AddressCache::with_dns_resolver(FailingDnsResolver, &cache_dir);
+        cache.set_fallback_address_dir(&resource_dir);
+
+        let address = cache.api_address().unwrap();
+
+        assert_eq!(address, provided_address.to_string());
+    }
+
+    #[test]
+    fn ignores_fallback_address_if_resolution_succeeds() {
+        let (_temp_dir, cache_dir, resource_dir) = create_test_dirs();
         let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
         let provided_address: IpAddr = "192.168.1.31".parse().unwrap();
 
         {
-            let fallback_file_path = cache_dir.join("api_address.json");
+            let fallback_file_path = resource_dir.join("api_address.json");
             let mut fallback_file = File::create(fallback_file_path).unwrap();
             writeln!(fallback_file, "\"{}\"", provided_address).unwrap();
         }
@@ -224,7 +244,7 @@ mod tests {
 
         let address = cache.api_address().unwrap();
 
-        assert_eq!(address, provided_address.to_string());
+        assert_eq!(address, mock_resolver.address().to_string());
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
@@ -257,6 +277,17 @@ mod tests {
     impl<'r> DnsResolver for &'r MockDnsResolver {
         fn resolve(&self, _host: &str) -> Result<IpAddr, io::Error> {
             Ok(self.address.clone())
+        }
+    }
+
+    struct FailingDnsResolver;
+
+    impl DnsResolver for FailingDnsResolver {
+        fn resolve(&self, host: &str) -> Result<IpAddr, io::Error> {
+            Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("Failed to resolve address for {:?}", host),
+            ))
         }
     }
 }
