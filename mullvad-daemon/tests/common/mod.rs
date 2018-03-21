@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 
+#[cfg(unix)]
+extern crate libc;
+
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
@@ -178,7 +181,7 @@ impl DaemonInstance {
     fn terminate(process: &duct::Handle) -> bool {
         use duct::unix::HandleExt;
 
-        process.send_signal(::libc::SIGTERM).is_ok()
+        process.send_signal(libc::SIGTERM).is_ok()
     }
 
     #[cfg(not(unix))]

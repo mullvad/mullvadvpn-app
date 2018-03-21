@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate duct;
-#[cfg(unix)]
-extern crate libc;
 extern crate os_pipe;
 extern crate serde;
 extern crate talpid_ipc;
@@ -38,6 +36,8 @@ fn rpc_info_file_permissions() {
 
 #[cfg(unix)]
 mod platform_specific {
+    extern crate libc;
+
     use super::*;
     use std::os::unix::fs::MetadataExt;
 
