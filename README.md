@@ -182,6 +182,22 @@ preserving features. The crates having `mullvad` in their name on the other hand
   Rust crates.
 - **mullvad-daemon/** - Main Rust crate building the daemon binary.
 
+
+## Vocabulary
+
+Explanations for some common words used in the documentation and code in this repository.
+
+- **App** - This entire product (everything in this repository) is the "Mullvad VPN App", or App for
+  short.
+  - **Daemon** - Refers to the `mullvad-daemon` Rust program. This headless program exposes a
+    management interface that can be used to control the daemon
+  - **Frontend** - Term used for any program or component that connects to the daemon management
+    interface and allows a user to control the daemon.
+    - **GUI** - The Electron + React program that is a graphical frontend for the Mullvad VPN App.
+    - **CLI** - The Rust program named `mullvad` that is a terminal based frontend for the Mullvad
+      VPN app.
+
+
 ## Quirks
 
 - If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
