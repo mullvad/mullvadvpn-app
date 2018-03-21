@@ -7,19 +7,21 @@ use std::time;
 
 mod errors {
     #[derive(Debug, Clone)]
-    pub struct ConversionError;
+    pub struct RawConversionError;
 
-    impl ::std::error::Error for ConversionError {
+    impl ::std::error::Error for RawConversionError {
         fn description(&self) -> &str {
-            "Conversion error"
+            "Raw conversion error"
         }
+        
         fn cause(&self) -> Option<&::std::error::Error> {
             None
         }
     }
-    impl ::std::fmt::Display for ConversionError {
+
+    impl ::std::fmt::Display for RawConversionError {
         fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-            write!(f, "Conversion error")
+            write!(f, "Raw conversion error")
         }
     }
 }
@@ -69,7 +71,7 @@ fn install_service() -> Result<(), io::Error> {
     service_manager.create_service(service_info).map(|_| ())
 }
 
-fn remove_service() -> Result<(), io::Error> {
+fn remove_service() -> Result<(), ServiceError> {
     let manager_access = SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
     let service_manager = SCManager::active_database(manager_access)?;
 
@@ -78,6 +80,7 @@ fn remove_service() -> Result<(), io::Error> {
 
     loop {
         let service_status = service.query_status()?;
+        
         match service_status.current_state {
             ServiceState::StopPending => thread::sleep(time::Duration::from_secs(1)),
             ServiceState::Stopped => {
