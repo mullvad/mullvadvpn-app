@@ -161,11 +161,6 @@
   opacity: 0;
 }
 
-.login-form__account-dropdown-container {
-  overflow: hidden;
-  transition: height 0.25s ease-in-out;
-}
-
 .login-form__account-dropdown__item {
   display: flex;
   flex-direction: row;
