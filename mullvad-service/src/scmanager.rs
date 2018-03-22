@@ -34,44 +34,21 @@ impl SCManagerAccess {
 pub struct SCManager(winsvc::SC_HANDLE);
 
 impl SCManager {
-    /// Designated initializer
-    /// Passing None for machine connects to local machine
     /// Passing None for database connects to active database
-    pub fn new<M: AsRef<OsStr>, D: AsRef<OsStr>>(
-        machine: Option<M>,
-        database: Option<D>,
+    pub fn local_computer<T: AsRef<OsStr>>(
+        database: Option<T>,
         access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
-        let machine_name = machine.map(to_wide_with_nul);
-        let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
-
-        let database_name = database.map(to_wide_with_nul);
-        let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
-
-        let handle = unsafe {
-            winsvc::OpenSCManagerW(
-                machine_ptr,
-                database_ptr,
-                SCManagerAccess::raw_mask(access_mask),
-            )
-        };
-
-        if handle.is_null() {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(SCManager(handle))
-        }
+        SCManager::new_manager(None::<&OsStr>, database, access_mask)
     }
 
-    pub fn local_computer<D: AsRef<OsStr>>(
-        database: D,
+    /// Passing None for database connects to active database
+    pub fn remote_computer<T: AsRef<OsStr>, Y: AsRef<OsStr>>(
+        machine: T,
+        database: Option<Y>,
         access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
-        SCManager::new(None::<&OsStr>, Some(database), access_mask)
-    }
-
-    pub fn active_database(access_mask: &[SCManagerAccess]) -> io::Result<Self> {
-        SCManager::new(None::<&OsStr>, None::<&OsStr>, access_mask)
+        SCManager::new_manager(Some(machine), database, access_mask)
     }
 
     pub fn create_service(&self, service_info: ServiceInfo) -> io::Result<Service> {
@@ -126,6 +103,36 @@ impl SCManager {
             Err(io::Error::last_os_error())
         } else {
             Ok(Service(service_handle))
+        }
+    }
+
+
+    /// Private initializer
+    /// Passing None for machine connects to local machine
+    /// Passing None for database connects to active database
+    fn new_manager<M: AsRef<OsStr>, D: AsRef<OsStr>>(
+        machine: Option<M>,
+        database: Option<D>,
+        access_mask: &[SCManagerAccess],
+    ) -> io::Result<Self> {
+        let machine_name = machine.map(to_wide_with_nul);
+        let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
+
+        let database_name = database.map(to_wide_with_nul);
+        let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
+
+        let handle = unsafe {
+            winsvc::OpenSCManagerW(
+                machine_ptr,
+                database_ptr,
+                SCManagerAccess::raw_mask(access_mask),
+            )
+        };
+
+        if handle.is_null() {
+            Err(io::Error::last_os_error())
+        } else {
+            Ok(SCManager(handle))
         }
     }
 }
