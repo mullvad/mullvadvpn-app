@@ -54,6 +54,7 @@ nsis:
   perMachine: true
   allowElevation: true
   allowToChangeInstallationDirectory: true
+  include: dist-assets/installer.nsh
 
 win:
   target:
