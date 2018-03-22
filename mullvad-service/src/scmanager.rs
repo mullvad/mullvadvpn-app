@@ -37,9 +37,9 @@ impl SCManager {
     /// Designated initializer
     /// Passing None for machine connects to local machine
     /// Passing None for database connects to active database
-    pub fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(
-        machine: Option<MACHINE>,
-        database: Option<DATABASE>,
+    pub fn new<M: AsRef<OsStr>, D: AsRef<OsStr>>(
+        machine: Option<M>,
+        database: Option<D>,
         access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
         let machine_name = machine.map(to_wide_with_nul);
@@ -63,8 +63,8 @@ impl SCManager {
         }
     }
 
-    pub fn local_computer<DATABASE: AsRef<OsStr>>(
-        database: DATABASE,
+    pub fn local_computer<D: AsRef<OsStr>>(
+        database: D,
         access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
         SCManager::new(None::<&OsStr>, Some(database), access_mask)
