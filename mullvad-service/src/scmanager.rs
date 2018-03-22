@@ -17,11 +17,11 @@ pub enum SCManagerAccess {
 
 impl SCManagerAccess {
     pub fn to_raw(&self) -> u32 {
-        match self {
-            &SCManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
-            &SCManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
-            &SCManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
-            &SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
+        match *self {
+            SCManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
+            SCManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
+            SCManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
+            SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
         }
     }
 
