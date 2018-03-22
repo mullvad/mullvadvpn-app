@@ -139,19 +139,19 @@ impl DaemonRunner {
         let stdout = self.output.clone();
 
         thread::spawn(move || {
-            if Self::search_in_stdout(stdout, pattern) {
-                tx.send(()).expect("failed to report search result");
-            }
+            Self::wait_for_output(stdout, pattern);
+            tx.send(()).expect("failed to report search result");
         });
 
         rx.recv_timeout(timeout)
             .expect(&format!("failed to search for {:?}", pattern));
     }
 
-    fn search_in_stdout(stdout: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) -> bool {
-        let mut output = stdout
+    fn wait_for_output(output: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) {
+        let mut output = output
             .lock()
             .expect("another thread panicked while holding a lock to the process output");
+
         let mut line = String::new();
 
         while !line.contains(pattern) {
@@ -160,8 +160,6 @@ impl DaemonRunner {
                 .read_line(&mut line)
                 .expect("failed to read line from daemon stdout");
         }
-
-        true
     }
 
     fn shutdown(&mut self) -> bool {
