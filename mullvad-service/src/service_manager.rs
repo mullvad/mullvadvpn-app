@@ -6,49 +6,49 @@ use service::{Service, ServiceAccess, ServiceInfo};
 use widestring::to_wide_with_nul;
 use winapi::um::winsvc;
 
-/// Enum describing access permissions for SCManager
+/// Enum describing access permissions for ServiceManager
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SCManagerAccess {
+pub enum ServiceManagerAccess {
     All,
     Connect,
     CreateService,
     EnumerateService,
 }
 
-impl SCManagerAccess {
+impl ServiceManagerAccess {
     pub fn to_raw(&self) -> u32 {
         match *self {
-            SCManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
-            SCManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
-            SCManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
-            SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
+            ServiceManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
+            ServiceManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
+            ServiceManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
+            ServiceManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
         }
     }
 
-    pub fn raw_mask(values: &[SCManagerAccess]) -> u32 {
+    pub fn raw_mask(values: &[ServiceManagerAccess]) -> u32 {
         values.iter().fold(0, |acc, &x| (acc | x.to_raw()))
     }
 }
 
 /// Service control manager
-pub struct SCManager(winsvc::SC_HANDLE);
+pub struct ServiceManager(winsvc::SC_HANDLE);
 
-impl SCManager {
+impl ServiceManager {
     /// Passing None for database connects to active database
     pub fn local_computer<T: AsRef<OsStr>>(
         database: Option<T>,
-        access_mask: &[SCManagerAccess],
+        access_mask: &[ServiceManagerAccess],
     ) -> io::Result<Self> {
-        SCManager::new_manager(None::<&OsStr>, database, access_mask)
+        ServiceManager::new_manager(None::<&OsStr>, database, access_mask)
     }
 
     /// Passing None for database connects to active database
     pub fn remote_computer<T: AsRef<OsStr>, Y: AsRef<OsStr>>(
         machine: T,
         database: Option<Y>,
-        access_mask: &[SCManagerAccess],
+        access_mask: &[ServiceManagerAccess],
     ) -> io::Result<Self> {
-        SCManager::new_manager(Some(machine), database, access_mask)
+        ServiceManager::new_manager(Some(machine), database, access_mask)
     }
 
     pub fn create_service(&self, service_info: ServiceInfo) -> io::Result<Service> {
@@ -113,7 +113,7 @@ impl SCManager {
     fn new_manager<M: AsRef<OsStr>, D: AsRef<OsStr>>(
         machine: Option<M>,
         database: Option<D>,
-        access_mask: &[SCManagerAccess],
+        access_mask: &[ServiceManagerAccess],
     ) -> io::Result<Self> {
         let machine_name = machine.map(to_wide_with_nul);
         let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
@@ -125,19 +125,19 @@ impl SCManager {
             winsvc::OpenSCManagerW(
                 machine_ptr,
                 database_ptr,
-                SCManagerAccess::raw_mask(access_mask),
+                ServiceManagerAccess::raw_mask(access_mask),
             )
         };
 
         if handle.is_null() {
             Err(io::Error::last_os_error())
         } else {
-            Ok(SCManager(handle))
+            Ok(ServiceManager(handle))
         }
     }
 }
 
-impl Drop for SCManager {
+impl Drop for ServiceManager {
     fn drop(&mut self) {
         unsafe { winsvc::CloseServiceHandle(self.0) };
     }
