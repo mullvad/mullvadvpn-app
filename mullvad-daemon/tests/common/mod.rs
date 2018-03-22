@@ -4,7 +4,7 @@
 extern crate libc;
 
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
@@ -114,16 +114,6 @@ impl DaemonRunner {
             output: Arc::new(Mutex::new(BufReader::new(reader))),
             rpc_client: None,
         }
-    }
-
-    pub fn output(&mut self) -> String {
-        let mut bytes = Vec::new();
-        self.output
-            .lock()
-            .expect("failed to access daemon stdout")
-            .read_to_end(&mut bytes)
-            .expect("failed to read daemon stdout");
-        String::from_utf8_lossy(&bytes).to_string()
     }
 
     pub fn rpc_client(&mut self) -> &DaemonRpcClient {
