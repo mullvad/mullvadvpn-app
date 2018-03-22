@@ -75,18 +75,9 @@ impl ServiceAccess {
             &ServiceAccess::Delete => winnt::DELETE,
         }
     }
-}
 
-/// Bitwise mask helper for ServiceAccess
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ServiceAccessMask(Vec<ServiceAccess>);
-impl ServiceAccessMask {
-    pub fn new(set: &[ServiceAccess]) -> Self {
-        ServiceAccessMask(set.to_vec())
-    }
-
-    pub fn to_raw(&self) -> u32 {
-        self.0.iter().fold(0, |acc, &x| (acc | x.to_raw()))
+    pub fn raw_mask(values: &[ServiceAccess]) -> u32 {
+        values.iter().fold(0, |acc, &x| (acc | x.to_raw()))
     }
 }
 
@@ -137,7 +128,7 @@ impl ServiceErrorControl {
 pub struct ServiceInfo {
     pub name: OsString,
     pub display_name: OsString,
-    pub service_access: ServiceAccessMask,
+    pub service_access: Vec<ServiceAccess>,
     pub service_type: ServiceType,
     pub start_type: ServiceStartType,
     pub error_control: ServiceErrorControl,
@@ -202,6 +193,7 @@ impl ServiceStatus {
 }
 
 pub struct Service(pub winsvc::SC_HANDLE);
+
 impl Service {
     pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
         self.send_control_command(ServiceControl::Stop)

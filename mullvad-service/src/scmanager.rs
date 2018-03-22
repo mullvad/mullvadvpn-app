@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 use std::io;
 use std::ptr;
 
-use service::{Service, ServiceAccessMask, ServiceInfo};
+use service::{Service, ServiceAccess, ServiceInfo};
 use widestring::to_wide_with_nul;
 use winapi::um::winsvc;
 
@@ -24,23 +24,15 @@ impl SCManagerAccess {
             &SCManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
         }
     }
-}
 
-/// Bitwise mask helper for SCManagerAccess
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct SCManagerAccessMask(Vec<SCManagerAccess>);
-impl SCManagerAccessMask {
-    pub fn new(set: &[SCManagerAccess]) -> Self {
-        SCManagerAccessMask(set.to_vec())
-    }
-
-    pub fn to_raw(&self) -> u32 {
-        self.0.iter().fold(0, |acc, &x| (acc | x.to_raw()))
+    pub fn raw_mask(values: &[SCManagerAccess]) -> u32 {
+        values.iter().fold(0, |acc, &x| (acc | x.to_raw()))
     }
 }
 
 /// Service control manager
 pub struct SCManager(winsvc::SC_HANDLE);
+
 impl SCManager {
     /// Designated initializer
     /// Passing None for machine connects to local machine
@@ -48,7 +40,7 @@ impl SCManager {
     pub fn new<MACHINE: AsRef<OsStr>, DATABASE: AsRef<OsStr>>(
         machine: Option<MACHINE>,
         database: Option<DATABASE>,
-        access_mask: SCManagerAccessMask,
+        access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
         let machine_name = machine.map(to_wide_with_nul);
         let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
@@ -56,8 +48,13 @@ impl SCManager {
         let database_name = database.map(to_wide_with_nul);
         let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
-        let handle =
-            unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, access_mask.to_raw()) };
+        let handle = unsafe {
+            winsvc::OpenSCManagerW(
+                machine_ptr,
+                database_ptr,
+                SCManagerAccess::raw_mask(access_mask),
+            )
+        };
 
         if handle.is_null() {
             Err(io::Error::last_os_error())
@@ -68,12 +65,12 @@ impl SCManager {
 
     pub fn local_computer<DATABASE: AsRef<OsStr>>(
         database: DATABASE,
-        access_mask: SCManagerAccessMask,
+        access_mask: &[SCManagerAccess],
     ) -> io::Result<Self> {
         SCManager::new(None::<&OsStr>, Some(database), access_mask)
     }
 
-    pub fn active_database(access_mask: SCManagerAccessMask) -> io::Result<Self> {
+    pub fn active_database(access_mask: &[SCManagerAccess]) -> io::Result<Self> {
         SCManager::new(None::<&OsStr>, None::<&OsStr>, access_mask)
     }
 
@@ -91,7 +88,7 @@ impl SCManager {
                 self.0,
                 service_name.as_ptr(),
                 display_name.as_ptr(),
-                service_info.service_access.to_raw(),
+                ServiceAccess::raw_mask(&service_info.service_access),
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
@@ -114,11 +111,16 @@ impl SCManager {
     pub fn open_service<T: AsRef<OsStr>>(
         &self,
         name: T,
-        access_mask: ServiceAccessMask,
+        access_mask: &[ServiceAccess],
     ) -> io::Result<Service> {
         let service_name = to_wide_with_nul(name);
-        let service_handle =
-            unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), access_mask.to_raw()) };
+        let service_handle = unsafe {
+            winsvc::OpenServiceW(
+                self.0,
+                service_name.as_ptr(),
+                ServiceAccess::raw_mask(access_mask),
+            )
+        };
 
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
