@@ -47,14 +47,14 @@ fn main() {
 
 fn install_service() -> Result<(), io::Error> {
     let access_mask = &[SCManagerAccess::Connect, SCManagerAccess::CreateService];
-    let service_manager = SCManager::active_database(access_mask)?;
+    let service_manager = SCManager::local_computer(None::<&str>, access_mask)?;
     let service_info = get_service_info();
     service_manager.create_service(service_info).map(|_| ())
 }
 
 fn remove_service() -> Result<(), ServiceError> {
     let manager_access = &[SCManagerAccess::Connect, SCManagerAccess::CreateService];
-    let service_manager = SCManager::active_database(manager_access)?;
+    let service_manager = SCManager::local_computer(None::<&str>, manager_access)?;
 
     let service_access = &[
         ServiceAccess::QueryStatus,
