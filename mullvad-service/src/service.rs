@@ -20,18 +20,18 @@ impl error::Error for ServiceError {
     }
 
     fn cause(&self) -> Option<&error::Error> {
-        match self {
-            &ServiceError::RawConversion(ref err) => Some(err),
-            &ServiceError::System(ref io_err) => Some(io_err),
+        match *self {
+            ServiceError::Decode(ref err) => Some(err),
+            ServiceError::System(ref io_err) => Some(io_err),
         }
     }
 }
 
 impl fmt::Display for ServiceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &ServiceError::RawConversion(ref err) => err.fmt(f),
-            &ServiceError::System(ref io_err) => io_err.fmt(f),
+        match *self {
+            ServiceError::Decode(ref err) => err.fmt(f),
+            ServiceError::System(ref io_err) => io_err.fmt(f),
         }
     }
 }
@@ -68,11 +68,11 @@ pub enum ServiceAccess {
 
 impl ServiceAccess {
     pub fn to_raw(&self) -> u32 {
-        match self {
-            &ServiceAccess::QueryStatus => winsvc::SERVICE_QUERY_STATUS,
-            &ServiceAccess::Start => winsvc::SERVICE_START,
-            &ServiceAccess::Stop => winsvc::SERVICE_STOP,
-            &ServiceAccess::Delete => winnt::DELETE,
+        match *self {
+            ServiceAccess::QueryStatus => winsvc::SERVICE_QUERY_STATUS,
+            ServiceAccess::Start => winsvc::SERVICE_START,
+            ServiceAccess::Stop => winsvc::SERVICE_STOP,
+            ServiceAccess::Delete => winnt::DELETE,
         }
     }
 
@@ -94,10 +94,10 @@ pub enum ServiceStartType {
 
 impl ServiceStartType {
     pub fn to_raw(&self) -> u32 {
-        match self {
-            &ServiceStartType::AutoStart => winnt::SERVICE_AUTO_START,
-            &ServiceStartType::OnDemand => winnt::SERVICE_DEMAND_START,
-            &ServiceStartType::Disabled => winnt::SERVICE_DISABLED,
+        match *self {
+            ServiceStartType::AutoStart => winnt::SERVICE_AUTO_START,
+            ServiceStartType::OnDemand => winnt::SERVICE_DEMAND_START,
+            ServiceStartType::Disabled => winnt::SERVICE_DISABLED,
         }
     }
 }
@@ -114,11 +114,11 @@ pub enum ServiceErrorControl {
 
 impl ServiceErrorControl {
     pub fn to_raw(&self) -> u32 {
-        match self {
-            &ServiceErrorControl::Critical => winnt::SERVICE_ERROR_NORMAL,
-            &ServiceErrorControl::Ignore => winnt::SERVICE_ERROR_IGNORE,
-            &ServiceErrorControl::Normal => winnt::SERVICE_ERROR_NORMAL,
-            &ServiceErrorControl::Severe => winnt::SERVICE_ERROR_SEVERE,
+        match *self {
+            ServiceErrorControl::Critical => winnt::SERVICE_ERROR_NORMAL,
+            ServiceErrorControl::Ignore => winnt::SERVICE_ERROR_IGNORE,
+            ServiceErrorControl::Normal => winnt::SERVICE_ERROR_NORMAL,
+            ServiceErrorControl::Severe => winnt::SERVICE_ERROR_SEVERE,
         }
     }
 }
