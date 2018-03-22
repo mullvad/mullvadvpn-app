@@ -4,8 +4,7 @@ use std::fmt;
 use std::io;
 use std::mem;
 
-use winapi::um::winnt;
-use winapi::um::winsvc;
+use winapi::um::{winnt, winsvc};
 
 use errors::RawConversionError;
 
