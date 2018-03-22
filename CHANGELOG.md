@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Warn if daemon is running as a non-root user.
 - Include the last two OpenVPN logs in problem reports instead of only the last.
 - Prevent two instances of the daemon to run at the same time.
+- Daemon now fetches latest app versions and verifies whether the current
+  version is supported.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior

@@ -14,6 +14,7 @@ use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::{DaemonState, TargetState};
+use mullvad_types::version;
 
 use serde;
 
@@ -124,6 +125,14 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_tunnel_options")]
         fn get_tunnel_options(&self, Self::Metadata) -> BoxFuture<TunnelOptions, Error>;
 
+        /// Retreive version of the app
+        #[rpc(meta, name = "get_current_version")]
+        fn get_current_version(&self, Self::Metadata) -> BoxFuture<String, Error>;
+
+        /// Retrieve information about the currently running and latest versions of the app
+        #[rpc(meta, name = "get_version_info")]
+        fn get_version_info(&self, Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error>;
+
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
             #[rpc(name = "new_state_subscribe")]
@@ -178,6 +187,10 @@ pub enum TunnelCommand {
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Get the mssfix argument for OpenVPN
     GetTunnelOptions(OneshotSender<TunnelOptions>),
+    /// Get information about the currently running and latest app versions
+    GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
+    /// Get current version of the app
+    GetCurrentVersion(OneshotSender<version::AppVersion>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -588,6 +601,33 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let (tx, rx) = sync::oneshot::channel();
         let future = self.send_command_to_daemon(TunnelCommand::GetTunnelOptions(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn get_current_version(&self, meta: Self::Metadata) -> BoxFuture<String, Error> {
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetCurrentVersion(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+
+        Box::new(future)
+    }
+
+    fn get_version_info(&self, meta: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self.send_command_to_daemon(TunnelCommand::GetVersionInfo(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|version_future| {
+                version_future.map_err(|error| {
+                    error!(
+                        "Unable to get version data from master: {}",
+                        error.display_chain()
+                    );
+                    Self::map_rpc_error(error)
+                })
+            });
+
         Box::new(future)
     }
 
