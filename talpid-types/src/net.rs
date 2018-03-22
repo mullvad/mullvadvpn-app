@@ -125,3 +125,22 @@ impl Error for TransportProtocolParseError {
         "Not a valid transport protocol"
     }
 }
+
+/// TunnelOptions holds optional settings for tunnels, that are to be applied to any tunnel of the
+/// appropriate type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct TunnelOptions {
+    /// openvpn holds OpenVPN specific tunnel options.
+    pub openvpn: OpenVpnTunnelOptions,
+}
+
+
+/// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
+/// of the relay parameters - i.e. have nothing to do with the particular OpenVPN server, but do
+/// affect the connection.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub struct OpenVpnTunnelOptions {
+    /// Optional argument for openvpn to try and limit TCP packet size,
+    /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
+    pub mssfix: Option<u16>,
+}

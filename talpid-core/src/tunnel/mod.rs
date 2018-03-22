@@ -12,7 +12,8 @@ use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
-use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::{Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData,
+                        TunnelOptions};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -113,6 +114,7 @@ impl TunnelMonitor {
     /// on tunnel state changes.
     pub fn new<L>(
         tunnel_endpoint: TunnelEndpoint,
+        tunnel_options: &TunnelOptions,
         account_token: &str,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -129,6 +131,7 @@ impl TunnelMonitor {
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
+            &tunnel_options.openvpn,
             user_pass_file.as_ref(),
             log,
             resource_dir,
@@ -156,6 +159,7 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(
         remote: Endpoint,
+        options: &OpenVpnTunnelOptions,
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -166,6 +170,7 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
+            .set_tunnel_options(&options)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
         if let Some(log) = log {
