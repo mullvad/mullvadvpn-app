@@ -7,28 +7,6 @@ use std::io;
 use std::thread;
 use std::time;
 
-mod errors {
-    #[derive(Debug, Clone)]
-    pub struct RawConversionError;
-
-    impl ::std::error::Error for RawConversionError {
-        fn description(&self) -> &str {
-            "Raw conversion error"
-        }
-
-        fn cause(&self) -> Option<&::std::error::Error> {
-            None
-        }
-    }
-
-    impl ::std::fmt::Display for RawConversionError {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-            write!(f, "Raw conversion error")
-        }
-    }
-}
-pub use errors::*;
-
 mod scmanager;
 use scmanager::{SCManager, SCManagerAccess};
 
