@@ -50,10 +50,10 @@ impl SCManager {
         database: Option<DATABASE>,
         access_mask: SCManagerAccessMask,
     ) -> io::Result<Self> {
-        let machine_name = machine.map(|s| to_wide_with_nul(s));
+        let machine_name = machine.map(to_wide_with_nul);
         let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
-        let database_name = database.map(|s| to_wide_with_nul(s));
+        let database_name = database.map(to_wide_with_nul);
         let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
         let handle =
@@ -81,9 +81,9 @@ impl SCManager {
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
         let executable_path = to_wide_with_nul(service_info.executable_path);
-        let account_name = service_info.account_name.map(|s| to_wide_with_nul(s));
+        let account_name = service_info.account_name.map(to_wide_with_nul);
         let account_name_ptr = account_name.map_or(ptr::null(), |vec| vec.as_ptr());
-        let account_password = service_info.account_password.map(|s| to_wide_with_nul(s));
+        let account_password = service_info.account_password.map(to_wide_with_nul);
         let account_password_ptr = account_password.map_or(ptr::null(), |vec| vec.as_ptr());
 
         let service_handle = unsafe {
