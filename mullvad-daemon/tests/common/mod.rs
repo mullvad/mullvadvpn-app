@@ -89,7 +89,6 @@ impl DaemonRpcClient {
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
-    rpc_client: Option<DaemonRpcClient>,
 }
 
 impl DaemonRunner {
@@ -112,16 +111,7 @@ impl DaemonRunner {
         DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
-            rpc_client: None,
         }
-    }
-
-    pub fn rpc_client(&mut self) -> &DaemonRpcClient {
-        if self.rpc_client.is_none() {
-            self.rpc_client = Some(DaemonRpcClient::new().unwrap());
-        }
-
-        self.rpc_client.as_ref().unwrap()
     }
 
     pub fn assert_log_contains(&mut self, pattern: &'static str, timeout: Duration) {
@@ -153,11 +143,7 @@ impl DaemonRunner {
     }
 
     fn shutdown(&mut self) -> bool {
-        let rpc_client = self.rpc_client
-            .take()
-            .or_else(|| DaemonRpcClient::new().ok());
-
-        if let Some(rpc_client) = rpc_client {
+        if let Ok(rpc_client) = DaemonRpcClient::new() {
             rpc_client.shutdown().is_ok()
         } else {
             false
