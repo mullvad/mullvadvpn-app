@@ -25,6 +25,8 @@ pub use self::lan::Lan;
 mod tunnel;
 pub use self::tunnel::Tunnel;
 
+mod version;
+pub use self::version::Version;
 
 /// Returns a map of all available subcommands with their name as key.
 pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
@@ -37,6 +39,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
         Box::new(Relay),
         Box::new(Lan),
         Box::new(Tunnel),
+        Box::new(Version),
     ];
     let mut map = HashMap::new();
     for cmd in commands {
