@@ -30,10 +30,11 @@ mod errors {
 pub use errors::*;
 
 mod scmanager;
-use scmanager::*;
+use scmanager::{SCManager, SCManagerAccess};
 
 mod service;
-use service::*;
+use service::{ServiceAccess, ServiceError, ServiceErrorControl, ServiceInfo, ServiceStartType,
+              ServiceState, ServiceType};
 
 mod widestring;
 
