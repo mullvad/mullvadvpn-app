@@ -51,7 +51,7 @@ mod rpc_uniqueness_check;
 mod rpc_address_file;
 mod settings;
 mod shutdown;
-
+mod version;
 
 use app_dirs::AppInfo;
 use error_chain::ChainedError;
@@ -59,13 +59,14 @@ use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
-use mullvad_rpc::{AccountsProxy, HttpHandle};
+use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::{Relay, RelayList};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
+use mullvad_types::version::AppVersionInfo;
 
 use std::env;
 use std::io;
@@ -194,6 +195,7 @@ struct Daemon {
     management_interface_broadcaster: management_interface::EventBroadcaster,
     settings: settings::Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
+    version_proxy: AppVersionProxy<HttpHandle>,
     http_handle: mullvad_rpc::rest::RequestSender,
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
@@ -247,6 +249,7 @@ impl Daemon {
             tx,
             management_interface_broadcaster,
             settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+            version_proxy: AppVersionProxy::new(rpc_handle.clone()),
             accounts_proxy: AccountsProxy::new(rpc_handle),
             http_handle,
             tokio_remote,
@@ -397,6 +400,8 @@ impl Daemon {
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
+            GetVersionInfo(tx) => Ok(self.on_get_version_info(tx)),
+            GetCurrentVersion(tx) => Ok(self.on_get_current_version(tx)),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -478,6 +483,30 @@ impl Daemon {
             Err(e) => error!("{}", e.display_chain()),
         }
         Ok(())
+    }
+
+    fn on_get_version_info(
+        &mut self,
+        tx: OneshotSender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
+    ) {
+        let current_version = version::current().to_owned();
+        let fut = self.version_proxy
+            .latest_app_version()
+            .join(
+                self.version_proxy
+                    .is_app_version_supported(&current_version),
+            )
+            .map(move |(latest_versions, is_supported)| AppVersionInfo {
+                current_version: current_version,
+                is_supported: is_supported,
+                latest: latest_versions,
+            });
+        Self::oneshot_send(tx, Box::new(fut), "get_version_info response");
+    }
+
+    fn on_get_current_version(&mut self, tx: OneshotSender<String>) {
+        let current_version = version::current().to_owned();
+        Self::oneshot_send(tx, current_version, "get_current_version response");
     }
 
     fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
@@ -843,8 +872,8 @@ fn log_version() {
     info!(
         "Starting {} - {} {}",
         env!("CARGO_PKG_NAME"),
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt")),
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
+        version::current(),
+        version::current_build_date()
     )
 }
 
