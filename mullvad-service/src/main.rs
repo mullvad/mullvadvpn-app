@@ -67,23 +67,21 @@ fn main() {
 }
 
 fn install_service() -> Result<(), io::Error> {
-    let access_mask =
-        SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
+    let access_mask = &[SCManagerAccess::Connect, SCManagerAccess::CreateService];
     let service_manager = SCManager::active_database(access_mask)?;
     let service_info = get_service_info();
     service_manager.create_service(service_info).map(|_| ())
 }
 
 fn remove_service() -> Result<(), ServiceError> {
-    let manager_access =
-        SCManagerAccessMask::new(&[SCManagerAccess::Connect, SCManagerAccess::CreateService]);
+    let manager_access = &[SCManagerAccess::Connect, SCManagerAccess::CreateService];
     let service_manager = SCManager::active_database(manager_access)?;
 
-    let service_access = ServiceAccessMask::new(&[
+    let service_access = &[
         ServiceAccess::QueryStatus,
         ServiceAccess::Stop,
         ServiceAccess::Delete,
-    ]);
+    ];
     let service = service_manager.open_service(SERVICE_NAME, service_access)?;
 
     loop {
@@ -110,7 +108,7 @@ fn get_service_info() -> ServiceInfo {
     ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
-        service_access: ServiceAccessMask::new(&[ServiceAccess::QueryStatus]),
+        service_access: vec![ServiceAccess::QueryStatus],
         service_type: ServiceType::OwnProcess,
         start_type: ServiceStartType::OnDemand, // TBD: change to AutoStart
         error_control: ServiceErrorControl::Normal,
