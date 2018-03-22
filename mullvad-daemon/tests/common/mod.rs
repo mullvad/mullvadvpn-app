@@ -39,7 +39,7 @@ mod platform_specific {
     }
 }
 
-fn ensure_relay_list_exists<T: AsRef<Path>>(path: T) {
+fn prepare_relay_list<T: AsRef<Path>>(path: T) {
     let path = path.as_ref();
 
     if !path.exists() {
@@ -93,7 +93,7 @@ pub struct DaemonRunner {
 
 impl DaemonRunner {
     pub fn spawn() -> Self {
-        ensure_relay_list_exists("../dist-assets/relays.json");
+        prepare_relay_list("../dist-assets/relays.json");
 
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
         let process = cmd!(
