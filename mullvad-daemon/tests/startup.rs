@@ -55,7 +55,7 @@ mod platform_specific {
 mod platform_specific {
     use super::*;
 
-    pub fn sure_only_admin_can_write(metadata: Metadata) {
+    pub fn ensure_only_admin_can_write(metadata: Metadata) {
         // TODO: Test when correctly implemented on Windows
     }
 }
