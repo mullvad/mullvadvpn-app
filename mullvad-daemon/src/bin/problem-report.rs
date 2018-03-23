@@ -349,7 +349,7 @@ fn daemon_version() -> String {
         "{} {}",
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt")),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
-    )
+            )
 }
 
 #[cfg(target_os = "linux")]

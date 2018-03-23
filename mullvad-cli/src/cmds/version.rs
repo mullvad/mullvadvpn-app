@@ -19,7 +19,7 @@ impl Command for Version {
     fn run(&self, _: &clap::ArgMatches) -> Result<()> {
         let current_version: String = rpc::call("get_current_version", &[] as &[u8; 0])?;
         println!("Current version: {}", current_version);
-        let version_info: version::AppVersionInfo =  rpc::call("get_version_info", &[] as &[u8; 0])?;
+        let version_info: version::AppVersionInfo = rpc::call("get_version_info", &[] as &[u8; 0])?;
         println!("Supported: {}", version_info.is_supported);
         println!("Supported versions:");
         println!("\tlatest stable: {}", version_info.latest.latest_stable);
