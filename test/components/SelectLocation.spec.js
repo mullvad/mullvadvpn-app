@@ -2,7 +2,7 @@
 
 import { expect } from 'chai';
 import * as React from 'react';
-import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
+import { shallow } from 'enzyme';
 import SelectLocation from '../../app/components/SelectLocation';
 
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
@@ -48,7 +48,7 @@ describe('components/SelectLocation', () => {
   };
 
   const render = (props: SelectLocationProps) => {
-    return ReactTestUtils.renderIntoDocument(
+    return shallow(
       <SelectLocation { ...props } />
     );
   };
@@ -57,11 +57,8 @@ describe('components/SelectLocation', () => {
     const props = makeProps(state, {
       onClose: () => done()
     });
-    const domNode = ReactTestUtils.findRenderedDOMComponentWithClass(render(props), 'select-location__close');
-    // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
-      Simulate.click(domNode);
-    }
+    const node = getComponent(render(props), 'close');
+    click(node);
   });
 
   it('should call select callback for country', (done) => {
@@ -77,9 +74,9 @@ describe('components/SelectLocation', () => {
         }
       }
     });
-    const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__cell');
+    const elements = getComponent(render(props), 'country');
     expect(elements).to.have.length(1);
-    Simulate.click(elements[0]);
+    click(elements.at(0));
   });
 
   it('should call select callback for city', (done) => {
@@ -95,9 +92,17 @@ describe('components/SelectLocation', () => {
         }
       }
     });
-    const elements = ReactTestUtils.scryRenderedDOMComponentsWithClass(render(props), 'select-location__sub-cell');
+    const elements = getComponent(render(props), 'city');
     expect(elements).to.have.length(2);
-    Simulate.click(elements[0]);
+    click(elements.at(0));
   });
 
 });
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function click(component) {
+  component.prop('onPress')();
+}
