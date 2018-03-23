@@ -1,0 +1,147 @@
+// @flow
+import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
+
+export default {
+  ...createViewStyles({
+    connect: {
+      height: '100%',
+      flex: 1,
+    },
+    map: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 0,
+      height: '100%',
+      width: '100%',
+    },
+    container: {
+      flexDirection: 'column',
+      flex: 1,
+      position: 'relative', /* need this for z-index to work to cover map */
+      zIndex: 1,
+    },
+    footer:{
+      flex: 0,
+      marginBottom: 16,
+    },
+    blocking_container: {
+      color: colors.white80,
+      overflow: 'hidden',
+      position: 'absolute',
+    },
+    blocking_icon: {
+      width: 10,
+      height: 10,
+      flex: 0,
+      display: 'flex',
+      borderRadius: 5,
+      marginTop: 4,
+      marginRight: 8,
+      backgroundColor: colors.red,
+    },
+    server: {
+      paddingTop: 7,
+      paddingLeft: 12,
+      paddingRight: 12,
+      paddingBottom: 9,
+      backgroundColor: colors.white20,
+      borderRadius: 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    status: {
+      justifyContent: 'center',
+      paddingTop: 0,
+      paddingLeft: 24,
+      paddingRight: 24,
+      paddingBottom: 0,
+      marginTop: 94,
+      flex: 1,
+    },
+    status_icon: {
+      alignSelf: 'center',
+      width: 60,
+      height: 60,
+      marginBottom: 32,
+    },
+  }),
+  ...createTextStyles({
+    blocking_message: {
+      display: 'flex',
+      flexDirection: 'row',
+      fontFamily: 'Open Sans',
+      fontSize: 12,
+      fontWeight: '800',
+      lineHeight: 17,
+      marginTop: 8,
+      marginLeft: 20,
+      marginRight: 20,
+      marginBottom: 8,
+      color: colors.white60,
+      backgroundColor: colors.blue,
+    },
+    server_label: {
+      fontFamily: 'DINPro',
+      fontSize: 32,
+      fontWeight: '900',
+      lineHeight: 44,
+      letterSpacing: -0.7,
+      color: colors.white,
+      marginBottom: 7,
+      flex:0,
+    },
+    error_title: {
+      fontFamily: 'DINPro',
+      fontSize: 32,
+      fontWeight: '900',
+      lineHeight: 40,
+      color: colors.white,
+      marginBottom: 8,
+    },
+    error_message: {
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.white,
+      marginBottom: 24,
+    },
+    status_security: {
+      fontFamily: 'Open Sans',
+      fontSize: 16,
+      fontWeight: '800',
+      lineHeight: 22,
+      marginBottom: 4,
+      color: colors.white,
+    },
+    status_security__secure: {
+      color: colors.green,
+    },
+    status_security__unsecured: {
+      color: colors.red,
+    },
+    status_ipaddress: {
+      fontFamily: 'Open Sans',
+      fontSize: 16,
+      fontWeight: '800',
+      color: colors.white,
+    },
+    status_ipaddress__invisible: {
+      opacity: 0,
+    },
+    status_location: {
+      fontFamily: 'DINPro',
+      fontSize: 38,
+      fontWeight: '900',
+      lineHeight: 40,
+      overflow: 'hidden',
+      letterSpacing: -0.9,
+      color: colors.white,
+      marginBottom: 4,
+    },
+  }),
+  blockingMessageHeight: 36,
+};

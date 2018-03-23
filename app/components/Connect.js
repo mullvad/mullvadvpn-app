@@ -3,11 +3,14 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
+import { Text, View, Animated, Styles, Types } from 'reactxp';
+import Img from './Img';
+import { TransparentButton, GreenButton, RedButton, Label } from './styled';
+import styles from './ConnectStyles';
+import { colors } from '../config';
+
 import { BackendError } from '../lib/backend';
 import Map from './Map';
-
-import ExternalLinkSVG from '../assets/images/icon-extLink.svg';
-import ChevronRightSVG from '../assets/images/icon-chevron.svg';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
@@ -66,7 +69,7 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
 
     return (
       <Layout>
-        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } />
+        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } testName='header'/>
         <Container>
           { child }
         </Container>
@@ -76,28 +79,28 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
 
   renderError(error: BackendError) {
     return (
-      <div className="connect">
-        <div className="connect__status">
-          <div className="connect__status-icon">
-            <img src="./assets/images/icon-fail.svg" alt="" />
-          </div>
-          <div className="connect__error-title">
+      <View style={styles.connect}>
+        <View style={styles.status}>
+          <View style={styles.status_icon}>
+            <Img source="icon-fail" height="60" width="60" alt="" />
+          </View>
+          <View style={styles.error_title}>
             { error.title }
-          </div>
-          <div className="connect__error-message">
+          </View>
+          <View style={styles.error_message}>
             { error.message }
-          </div>
+          </View>
           { error.type === 'NO_CREDIT' ?
-            <div>
-              <button className="button button--positive" onClick={ this.onExternalLink.bind(this, 'purchase') }>
-                <span className="button-label">Buy more time</span>
-                <ExternalLinkSVG className="button-icon button-icon--16" />
-              </button>
-            </div>
+            <View>
+              <GreenButton onPress={ this.onExternalLink.bind(this, 'purchase') }>
+                <Label>Buy more time</Label>
+                <Img source='icon-extLink' height='16' width='16' />
+              </GreenButton>
+            </View>
             : null
           }
-        </div>
-      </div>
+        </View>
+      </View>
     );
   }
 
@@ -150,20 +153,23 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
     }
 
     return (
-      <div className="connect">
-        <div className="connect__map">
+      <View style={styles.connect}>
+        <View style={styles.map}>
           <Map style={{ width: '100%', height: '100%' }} { ...this._getMapProps() } />
-        </div>
-        <div className="connect__container">
+        </View>
+        <View style={styles.container}>
 
           { this._renderIsBlockingInternetMessage() }
-          <div className="connect__status">
+          <View style={styles.status}>
             { /* show spinner when connecting */ }
-            <div className={ this.spinnerClass() }>
-              <img src="./assets/images/icon-spinner.svg" alt="" ref={ this._updateMapOffset } />
-            </div>
+            { isConnecting ?
+              <View style={ styles.status_icon }>
+                <Img source="icon-spinner" height="60" width="60" alt="" ref={ this._updateMapOffset } />
+              </View>
+              : null
+            }
 
-            <div className={ this.networkSecurityClass() }>{ this.networkSecurityMessage() }</div>
+            <View style={ this.networkSecurityStyle() } testName='networkSecurityMessage'>{ this.networkSecurityMessage() }</View>
 
             { /*
               **********************************
@@ -173,19 +179,19 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
 
             { /* location when connecting or disconnected */ }
             { isConnecting || isDisconnected ?
-              <div className="connect__status-location">
-                <span>{ this.props.connection.country }</span>
-              </div>
+              <Text style={styles.status_location} testName='location'>
+                { this.props.connection.country }
+              </Text>
               : null
             }
 
             { /* location when connected */ }
             { isConnected ?
-              <div className="connect__status-location">
+              <Text style={styles.status_location} testName='location'>
                 { this.props.connection.city }
                 { this.props.connection.city && <br/> }
                 { this.props.connection.country }
-              </div>
+              </Text>
               :null
             }
 
@@ -195,15 +201,15 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
               **********************************
             */ }
 
-            <div className={ this.ipAddressClass() } onClick={ this.onIPAddressClick.bind(this) }>
+            <Text style={ this.ipAddressStyle() } onPress={ this.onIPAddressClick.bind(this) }>
               { (isConnected || isDisconnected) ? (
-                <span>{
+                <Text testName='ipAddress'>{
                   this.state.showCopyIPMessage ?
                     'IP copied to clipboard!' :
                     this.props.connection.ip
-                }</span>) : null }
-            </div>
-          </div>
+                }</Text>) : null }
+            </Text>
+          </View>
 
 
           { /*
@@ -214,46 +220,31 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
 
           { /* footer when disconnected */ }
           { isDisconnected ?
-            <div className="connect__footer">
-              <div className="connect__row">
-                <button className="connect__server button button--neutral button--blur" onClick={ this.props.onSelectLocation }>
-                  <div className="connect__server-label">{ this.props.selectedRelayName }</div>
-                  <div className="connect__server-chevron"><ChevronRightSVG /></div>
-                </button>
-              </div>
-
-              <div className="connect__row">
-                <button className="button button--positive" onClick={ this.props.onConnect }>Secure my connection</button>
-              </div>
-            </div>
+            <View style={styles.footer}>
+              <TransparentButton onPress={ this.props.onSelectLocation }>
+                <Label>{ this.props.selectedRelayName }</Label>
+                <Img height='12' width='7' source='icon-chevron' />
+              </TransparentButton>
+              <GreenButton onPress={ this.props.onConnect } testName='secureConnection'>Secure my connection</GreenButton>
+            </View>
             : null
           }
 
           { /* footer when connecting */ }
           { isConnecting ?
-            <div className="connect__footer">
-              <div className="connect__row">
-                <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-              </div>
-
-              <div className="connect__row">
-                <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Cancel</button>
-              </div>
-            </div>
+            <View style={styles.footer}>
+              <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
+              <RedButton onPress={ this.props.onDisconnect }>Cancel</RedButton>
+            </View>
             : null
           }
 
           { /* footer when connected */ }
           { isConnected ?
-            <div className="connect__footer">
-              <div className="connect__row">
-                <button className="button button--neutral button--blur" onClick={ this.props.onSelectLocation }>Switch location</button>
-              </div>
-
-              <div className="connect__row">
-                <button className="button button--negative-light button--blur" onClick={ this.props.onDisconnect }>Disconnect</button>
-              </div>
-            </div>
+            <View style={styles.footer}>
+              <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
+              <RedButton onPress={ this.props.onDisconnect } testName='disconnect'>Disconnect</RedButton>
+            </View>
             : null
           }
 
@@ -263,23 +254,39 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
             **********************************
           */ }
 
-        </div>
-      </div>
+        </View>
+      </View>
     );
   }
 
+  _getBlockingMessageAnimation(animationValue: Animated.Value, toValue: number){
+    return Animated.timing(animationValue, {
+      toValue: toValue,
+      easing: Animated.Easing.InOut(),
+      duration: 250,
+      useNativeDriver: true,
+    });
+  }
+
+
   _renderIsBlockingInternetMessage() {
-    let animationClass = 'hide';
+    let messageHeight = 0;
+    let messageHeightValue = Animated.createValue(0);
     if (this.props.connection.status === 'connecting') {
-      animationClass = 'show';
+      messageHeight = styles.blockingMessageHeight;
     }
 
-    return <div className={`connect__blocking-container ${animationClass}`}>
-      <div className="connect__blocking-message">
-        <div className="connect__blocking-icon">&nbsp;</div>
-        blocking internet
-      </div>
-    </div>;
+    this._getBlockingMessageAnimation(messageHeightValue, messageHeight).start();
+
+    return <Animated.View style={
+      Styles.createAnimatedViewStyle({
+        height: messageHeight,
+        backgroundColor: colors.blue})} >
+      <Text style={styles.blocking_message}>
+        <Text style={styles.blocking_icon}>&nbsp;</Text>
+        <Text>BLOCKING INTERNET</Text>
+      </Text>
+    </Animated.View>;
   }
 
   // Handlers
@@ -308,39 +315,30 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
     throw new Error('Invalid ConnectionState');
   }
 
-  networkSecurityClass(): string {
-    let classes = ['connect__status-security'];
+  networkSecurityStyle(): Types.Style {
+    let classes = [styles.status_security];
     if(this.props.connection.status === 'connected') {
-      classes.push('connect__status-security--secure');
+      classes.push(styles.status_security__secure);
     } else if(this.props.connection.status === 'disconnected') {
-      classes.push('connect__status-security--unsecured');
+      classes.push(styles.status_security__unsecured);
     }
-
-    return classes.join(' ');
+    return classes;
   }
 
   networkSecurityMessage(): string {
     switch(this.props.connection.status) {
-    case 'connected': return 'Secure connection';
-    case 'connecting': return 'Creating secure connection';
-    default: return 'Unsecured connection';
+    case 'connected': return 'SECURE CONNECTION';
+    case 'connecting': return 'CREATING SECURE CONNECTION';
+    default: return 'UNSECURED CONNECTION';
     }
   }
 
-  spinnerClass(): string {
-    var classes = ['connect__status-icon'];
-    if(this.props.connection.status !== 'connecting') {
-      classes.push('connect__status-icon--hidden');
-    }
-    return classes.join(' ');
-  }
-
-  ipAddressClass(): string {
-    var classes = ['connect__status-ipaddress'];
+  ipAddressStyle(): Types.Style {
+    var classes = [styles.status_ipaddress];
     if(this.props.connection.status === 'connecting') {
-      classes.push('connect__status-ipaddress--invisible');
+      classes.push(styles.status_ipaddress__invisible);
     }
-    return classes.join(' ');
+    return classes;
   }
 
   displayError(): ?BackendError {

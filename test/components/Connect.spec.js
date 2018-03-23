@@ -2,10 +2,9 @@
 
 import { expect } from 'chai';
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import Connect from '../../app/components/Connect';
-import Header from '../../app/components/HeaderBar';
 
 import type { ConnectProps } from '../../app/components/Connect';
 
@@ -19,13 +18,12 @@ describe('components/Connect', () => {
       }
     });
 
-    const header = component.find(Header);
-    const securityMessage = component.find('.connect__status-security--unsecured');
-    const connectButton = component.find('.button .button--positive');
-
+    const header = getComponent(component, 'header');
+    const securityMessage = getComponent(component, 'networkSecurityMessage');
+    const connectButton = getComponent(component, 'secureConnection');
     expect(header.prop('style')).to.equal('error');
-    expect(securityMessage.text().toLowerCase()).to.contain('unsecured');
-    expect(connectButton.text()).to.equal('Secure my connection');
+    expect(securityMessage.html()).to.contain('UNSECURED');
+    expect(connectButton.html()).to.contain('Secure my connection');
   });
 
   it('shows secured hints when connected', () => {
@@ -36,13 +34,12 @@ describe('components/Connect', () => {
       }
     });
 
-    const header = component.find(Header);
-    const securityMessage = component.find('.connect__status-security--secure');
-    const disconnectButton = component.find('.button .button--negative-light');
-
+    const header = getComponent(component, 'header');
+    const securityMessage = getComponent(component, 'networkSecurityMessage');
+    const disconnectButton = getComponent(component, 'disconnect');
     expect(header.prop('style')).to.equal('success');
-    expect(securityMessage.text().toLowerCase()).to.contain('secure');
-    expect(disconnectButton.text()).to.equal('Disconnect');
+    expect(securityMessage.html()).to.contain('SECURE ');
+    expect(disconnectButton.html()).to.contain('Disconnect');
   });
 
   it('shows the connection location when connecting', () => {
@@ -54,12 +51,12 @@ describe('components/Connect', () => {
         city: 'Oslo',
       }
     });
-    const countryAndCity = component.find('.connect__status-location');
-    const ipAddr = component.find('.connect__status-ipaddress');
+    const countryAndCity = getComponent(component, 'location');
+    const ipAddr = getComponent(component, 'ipAddress');
 
-    expect(countryAndCity.text()).to.contain('Norway');
-    expect(countryAndCity.text()).not.to.contain('Oslo');
-    expect(ipAddr.text()).to.be.empty;
+    expect(countryAndCity.html()).to.contain('Norway');
+    expect(countryAndCity.html()).not.to.contain('Oslo');
+    expect(ipAddr.length).to.equal(0);
   });
 
   it('shows the connection location when connected', () => {
@@ -72,12 +69,12 @@ describe('components/Connect', () => {
         ip: '4.3.2.1',
       }
     });
-    const countryAndCity = component.find('.connect__status-location');
-    const ipAddr = component.find('.connect__status-ipaddress');
+    const countryAndCity = getComponent(component, 'location');
+    const ipAddr = getComponent(component, 'ipAddress');
 
-    expect(countryAndCity.text()).to.contain('Norway');
-    expect(countryAndCity.text()).to.contain('Oslo');
-    expect(ipAddr.text()).to.contain('4.3.2.1');
+    expect(countryAndCity.html()).to.contain('Norway');
+    expect(countryAndCity.html()).to.contain('Oslo');
+    expect(ipAddr.html()).to.contain('4.3.2.1');
   });
 
   it('shows the connection location when disconnected', () => {
@@ -90,12 +87,12 @@ describe('components/Connect', () => {
         ip: '4.3.2.1',
       }
     });
-    const countryAndCity = component.find('.connect__status-location');
-    const ipAddr = component.find('.connect__status-ipaddress');
+    const countryAndCity = getComponent(component, 'location');
+    const ipAddr = getComponent(component, 'ipAddress');
 
-    expect(countryAndCity.text()).to.contain('Norway');
-    expect(countryAndCity.text()).to.not.contain('Oslo');
-    expect(ipAddr.text()).to.contain('4.3.2.1');
+    expect(countryAndCity.html()).to.contain('Norway');
+    expect(countryAndCity.html()).to.not.contain('Oslo');
+    expect(ipAddr.html()).to.contain('4.3.2.1');
   });
 
   it('invokes the onConnect prop', (done) => {
@@ -106,9 +103,9 @@ describe('components/Connect', () => {
         status: 'disconnected',
       }
     });
-    const connectButton = component.find('.button .button--positive');
+    const connectButton = getComponent(component, 'secureConnection');
 
-    connectButton.simulate('click');
+    connectButton.prop('onPress')();
   });
 });
 
@@ -134,5 +131,9 @@ const defaultProps: ConnectProps = {
 
 function renderWithProps(customProps: $Shape<ConnectProps>) {
   const props = { ...defaultProps, ...customProps };
-  return mount( <Connect { ...props } /> );
+  return shallow( <Connect { ...props } /> );
+}
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
 }
