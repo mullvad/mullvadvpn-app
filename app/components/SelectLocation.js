@@ -1,12 +1,13 @@
 // @flow
 import * as React from 'react';
-import { Layout, Container, Header } from './Layout';
+import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
+import { Text, View } from 'reactxp';
+import { Button, CellButton, Label } from './styled';
+import styles from './SelectLocationStyles';
+import Img from './Img';
 
 import Accordion from './Accordion';
-import ChevronDownSVG from '../assets/images/icon-chevron-down.svg';
-import ChevronUpSVG from '../assets/images/icon-chevron-up.svg';
-import TickSVG from '../assets/images/icon-tick.svg';
 
 import type { SettingsReduxState, RelayLocationRedux, RelayLocationCityRedux } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/ipc-facade';
@@ -22,7 +23,7 @@ type State = {
 };
 
 export default class SelectLocation extends React.Component<SelectLocationProps, State> {
-  _selectedCell: ?HTMLElement;
+  _selectedCell: ?CellButton;
   _scrollView: ?CustomScrollbars;
 
   state = {
@@ -50,6 +51,8 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     // restore scroll to selected cell
     const cell = this._selectedCell;
     const scrollView = this._scrollView;
+    console.log(scrollView);
+    console.log(cell);
 
     if(scrollView && cell) {
       scrollView.scrollToElement(cell, 'middle');
@@ -59,29 +62,30 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   render() {
     return (
       <Layout>
-        <Header hidden={ true } style={ 'defaultDark' } />
         <Container>
-          <div className="select-location">
-            <button className="select-location__close" onClick={ this.props.onClose } />
-            <div className="select-location__container">
-              <div className="select-location__header">
-                <h2 className="select-location__title">Select location</h2>
-              </div>
+          <View style={styles.select_location}>
+            <Button style={styles.close} onPress={ this.props.onClose } testName='close'>
+              <Img style={styles.close_icon} source='icon-close'/>
+            </Button>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Text style={styles.title}>Select location</Text>
+              </View>
 
-              <CustomScrollbars autoHide={ true } ref={ (ref) => this._scrollView = ref }>
-                <div>
-                  <div className="select-location__subtitle">
+              <CustomScrollbars autoHide={ true }  ref={ (ref) => this._scrollView = ref }>
+                <View>
+                  <Text style={styles.subtitle}>
                     While connected, your real location is masked with a private and secure location in the selected region
-                  </div>
+                  </Text>
 
                   { this.props.settings.relayLocations.map((relayCountry) => {
                     return this._renderCountry(relayCountry);
                   }) }
 
-                </div>
+                </View>
               </CustomScrollbars>
-            </div>
-          </div>
+            </View>
+          </View>
         </Container>
       </Layout>
     );
@@ -122,9 +126,9 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   }
 
   _relayStatusIndicator(active: boolean) {
-    const statusClass = active ? 'select-location-relay-status--active' : 'select-location-relay-status--inactive';
+    const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
-    return (<div className={ 'select-location-relay-status ' + statusClass }></div>);
+    return (<View style={[ styles.relay_status, statusClass ]}></View>);
   }
 
   _renderCountry(relayCountry: RelayLocationRedux) {
@@ -142,47 +146,35 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
       e.stopPropagation();
     };
 
-    const countryClass = 'select-location__cell' +
-      (isSelected ? ' select-location__cell--selected' : '') +
-      (relayCountry.hasActiveRelays ? ' select-location__cell--selectable' : '');
-
-    const onRef = isSelected ? (element) => {
-      this._selectedCell = element;
-    } : undefined;
-
     return (
-      <div key={ relayCountry.code } className="select-location__country">
-        <div className={ countryClass }
-          onClick={ handleSelect }
-          ref={ onRef }>
-          <div className="select-location__cell-content">
+      <View key={ relayCountry.code } style={styles.country}>
+        <CellButton
+          style={ isSelected ? styles.cell_selected : null }
+          onPress={ handleSelect }
+          disabled={!relayCountry.hasActiveRelays}
+          testName='country'>
 
-            <div className="select-location__cell-icon">
-              { isSelected ?
-                <TickSVG /> :
-                this._relayStatusIndicator(relayCountry.hasActiveRelays) }
-            </div>
+          { isSelected ?
+            <Img source='icon-tick' height='24' width='24' /> :
+            this._relayStatusIndicator(relayCountry.hasActiveRelays) }
 
-            <div className={ 'select-location__cell-label' +
-              (relayCountry.hasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
-              { relayCountry.name }
-            </div>
-          </div>
+          <Label>
+            { relayCountry.name }
+          </Label>
 
-          { relayCountry.cities.length > 1 && <button type="button" className="select-location__collapse-button" onClick={ handleCollapse }>
-            { isExpanded ?
-              <ChevronUpSVG className="select-location__collapse-icon" /> :
-              <ChevronDownSVG className="select-location__collapse-icon" /> }
-          </button> }
-
-        </div>
+          { relayCountry.cities.length > 1 ?
+            isExpanded ?
+              <Img style={styles.collapse_button} onPress={ handleCollapse } source='icon-chevron-up' height='24' width='24' /> :
+              <Img style={styles.collapse_button} onPress={ handleCollapse } source='icon-chevron-down' height='24' width='24' />
+            : null }
+        </CellButton>
 
         { relayCountry.cities.length > 1 &&
-          (<Accordion className="select-location__cities" height={ isExpanded ? 'auto' : 0 }>
+          (<Accordion height={ isExpanded ? 'auto' : 0 }>
             { relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity)) }
           </Accordion>)
         }
-      </div>
+      </View>
     );
   }
 
@@ -191,36 +183,30 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
 
     const isSelected = this._isSelected(relayLocation);
 
-    const cityClass = 'select-location__sub-cell' +
-      (isSelected ? ' select-location__sub-cell--selected' : '') +
-      (relayCity.hasActiveRelays ? ' select-location__sub-cell--selectable' : '');
+    const onRef = isSelected ? (element) => {
+      this._selectedCell = element;
+    } : undefined;
 
     const handleSelect = (relayCity.hasActiveRelays && !isSelected) ? () => {
       this.props.onSelect(relayLocation);
     } : undefined;
 
-    const onRef = isSelected ? (element) => {
-      this._selectedCell = element;
-    } : undefined;
-
     return (
-      <div key={ `${countryCode}_${relayCity.code}` }
-        className={ cityClass }
-        onClick={ handleSelect }
-        ref={ onRef }>
+      <CellButton key={ `${countryCode}_${relayCity.code}` }
+        onPress={ handleSelect }
+        disabled={!relayCity.hasActiveRelays}
+        style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
+        testName='city'
+        ref={onRef}>
 
-        <div className="select-location__cell-icon">
-          { isSelected ?
-            <TickSVG /> :
-            this._relayStatusIndicator(relayCity.hasActiveRelays) }
-        </div>
+        { isSelected ?
+          <Img source='icon-tick' height='24' width='24' /> :
+          this._relayStatusIndicator(relayCity.hasActiveRelays) }
 
-        <div className={ 'select-location__cell-label' +
-          (relayCity.hasActiveRelays ? '' : ' select-location__cell-label--inactive') }>
+        <Label>
           { relayCity.name }
-        </div>
-      </div>
+        </Label>
+      </CellButton>
     );
   }
-
 }
