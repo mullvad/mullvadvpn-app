@@ -3,6 +3,8 @@ use log;
 
 use std::path::PathBuf;
 
+use version;
+
 pub struct Config {
     pub log_level: log::LevelFilter,
     pub log_file: Option<PathBuf>,
@@ -36,10 +38,7 @@ pub fn get_config() -> Config {
 
 fn create_app() -> App<'static, 'static> {
     App::new(crate_name!())
-        .version(include_str!(concat!(
-            env!("OUT_DIR"),
-            "/git-commit-desc.txt"
-        )))
+        .version(version::current())
         .author(crate_authors!())
         .about(crate_description!())
         .arg(
