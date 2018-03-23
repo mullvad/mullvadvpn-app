@@ -137,9 +137,12 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
 
     fn resolve_into_cache(&mut self) {
         if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
-            self.cached_address = address;
+            if self.cached_address != address {
+                self.cached_address = address;
+                self.update_cache_file();
+            }
+
             self.last_updated = Instant::now();
-            self.update_cache_file();
         }
     }
 
@@ -270,6 +273,24 @@ mod tests {
         assert_eq!(address, mock_resolver.address());
     }
 
+    #[test]
+    fn doesnt_update_cache_file_if_resolved_address_is_the_same() {
+        let (_temp_dir, cache_dir, fallback_dir) = create_test_dirs();
+        let mock_resolver = MockDnsResolver::from_str("192.168.1.206");
+
+        let cache_file_path = write_address(&cache_dir, mock_resolver.address());
+        let cache_file_last_updated = make_file_old(&cache_file_path);
+
+        let mut cache = create_cached_dns_resolver(&mock_resolver, &cache_dir, &fallback_dir);
+        let address = cache.resolve();
+
+        assert_eq!(address, mock_resolver.address());
+        assert_eq!(
+            get_file_last_updated(&cache_file_path),
+            cache_file_last_updated
+        );
+    }
+
     fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
         let cache_dir = temp_dir.path().join("cache");
@@ -290,12 +311,14 @@ mod tests {
         file_path
     }
 
-    fn make_file_old(file: &Path) {
+    fn make_file_old(file: &Path) -> FileTime {
         let file_metadata = file.metadata().unwrap();
         let last_access_time = FileTime::from_last_access_time(&file_metadata);
         let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
 
         filetime::set_file_times(&file, last_access_time, fake_modification_time).unwrap();
+
+        fake_modification_time
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {
@@ -310,6 +333,12 @@ mod tests {
         cache_reader.read_line(&mut cached_address).unwrap();
 
         cached_address.trim().to_string()
+    }
+
+    fn get_file_last_updated(file: &Path) -> FileTime {
+        let file_metadata = file.metadata().unwrap();
+
+        FileTime::from_last_modification_time(&file_metadata)
     }
 
     fn create_cached_dns_resolver<'a>(
