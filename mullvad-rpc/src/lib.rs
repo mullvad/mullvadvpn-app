@@ -37,6 +37,7 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
+use std::net::IpAddr;
 use std::path::Path;
 
 pub mod event_loop;
@@ -61,12 +62,13 @@ impl MullvadRpcFactory {
         }
     }
 
-    /// Create a new `MullvadRpcFactory` using the specified resource directory.
-    pub fn with_resource_dir(resource_dir: &Path) -> Self {
+    /// Create a new `MullvadRpcFactory` using the specified cache directory.
+    pub fn with_cache_dir(cache_dir: &Path) -> Self {
         let hostname = MASTER_API_HOST.to_owned();
-        let cache_file = resource_dir.join("api_ip_address.txt");
+        let cache_file = cache_dir.join("api_ip_address.txt");
+        let fallback_address = IpAddr::from([193, 138, 219, 46]);
 
-        let cached_dns_resolver = CachedDnsResolver::new(hostname, cache_file);
+        let cached_dns_resolver = CachedDnsResolver::new(hostname, cache_file, fallback_address);
 
         MullvadRpcFactory {
             address_cache: Some(cached_dns_resolver),
@@ -74,16 +76,19 @@ impl MullvadRpcFactory {
     }
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-    pub fn new_connection(&self) -> Result<HttpHandle, HttpError> {
+    pub fn new_connection(&mut self) -> Result<HttpHandle, HttpError> {
         self.setup_connection(HttpTransport::new()?)
     }
 
     /// Create and returns a `HttpHandle` running on the given core handle.
-    pub fn new_connection_on_event_loop(&self, handle: &Handle) -> Result<HttpHandle, HttpError> {
+    pub fn new_connection_on_event_loop(
+        &mut self,
+        handle: &Handle,
+    ) -> Result<HttpHandle, HttpError> {
         self.setup_connection(HttpTransport::shared(handle)?)
     }
 
-    fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
+    fn setup_connection(&mut self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
         let mut handle = transport.handle(&self.api_uri())?;
 
         handle.set_header(Host::new(MASTER_API_HOST, None));
@@ -91,12 +96,12 @@ impl MullvadRpcFactory {
         Ok(handle)
     }
 
-    fn api_uri(&self) -> String {
-        let address = self.address_cache
-            .as_ref()
-            .and_then(CachedDnsResolver::resolve)
-            .map(|ip| ip.to_string())
-            .unwrap_or_else(|| MASTER_API_HOST.to_owned());
+    fn api_uri(&mut self) -> String {
+        let address = if let Some(ref mut address_cache) = self.address_cache {
+            address_cache.resolve().to_string()
+        } else {
+            MASTER_API_HOST.to_owned()
+        };
 
         format!("https://{}/rpc/", address)
     }
@@ -117,7 +122,7 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 impl ProblemReportProxy<HttpHandle> {
-    pub fn connect(manager: &MullvadRpcFactory) -> Result<Self, HttpError> {
+    pub fn connect(manager: &mut MullvadRpcFactory) -> Result<Self, HttpError> {
         Ok(ProblemReportProxy::new(manager.new_connection()?))
     }
 }
