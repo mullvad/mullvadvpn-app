@@ -216,7 +216,10 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let rpc_manager = mullvad_rpc::RpcConnectionManager::with_resource_dir(&resource_dir);
+        let mut rpc_manager = mullvad_rpc::RpcConnectionManager::with_resource_and_cache_dirs(
+            &resource_dir,
+            &get_cache_dir(),
+        ).chain_err(|| "Unable to create RPC connection manager")?;
 
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(move |core| {
@@ -859,6 +862,19 @@ fn get_resource_dir() -> PathBuf {
         Err(e) => {
             error!(
                 "Failed finding the install directory. Using working directory: {}",
+                e
+            );
+            PathBuf::from(".")
+        }
+    }
+}
+
+fn get_cache_dir() -> PathBuf {
+    match app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO) {
+        Ok(path) => path,
+        Err(e) => {
+            error!(
+                "Failed to find the cache directory. Using working directory: {}",
                 e
             );
             PathBuf::from(".")
