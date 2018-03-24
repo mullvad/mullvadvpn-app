@@ -86,6 +86,9 @@ use std::fs;
 
 error_chain!{
     errors {
+        NoCacheDir {
+            description("Unable to create cache directory")
+        }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
         }
@@ -218,7 +221,8 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let rpc_manager = mullvad_rpc::MullvadRpcFactory::with_resource_dir(&resource_dir);
+        let cache_dir = get_cache_dir()?;
+        let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir);
 
         let (rpc_handle, http_handle, tokio_remote) =
             mullvad_rpc::event_loop::create(move |core| {
@@ -891,6 +895,11 @@ fn get_resource_dir() -> PathBuf {
             PathBuf::from(".")
         }
     }
+}
+
+fn get_cache_dir() -> Result<PathBuf> {
+    app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO)
+        .chain_err(|| ErrorKind::NoCacheDir)
 }
 
 #[cfg(unix)]

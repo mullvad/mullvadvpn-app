@@ -17,7 +17,7 @@ error_chain!{}
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
+    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
     let rpc_http_handle = rpc_manager
         .new_connection()
         .chain_err(|| "Unable to connect RPC")?;

@@ -159,9 +159,9 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
     let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
         .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
     let metadata = collect_metadata();
-    let rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
-    let mut rpc_client =
-        mullvad_rpc::ProblemReportProxy::connect(&rpc_manager).chain_err(|| ErrorKind::RpcError)?;
+    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
+    let mut rpc_client = mullvad_rpc::ProblemReportProxy::connect(&mut rpc_manager)
+        .chain_err(|| ErrorKind::RpcError)?;
     rpc_client
         .problem_report(user_email, user_message, &report_content, &metadata)
         .call()

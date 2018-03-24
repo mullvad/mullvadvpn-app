@@ -25,30 +25,48 @@ pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     hostname: String,
     dns_resolver: R,
     cache_file: PathBuf,
-    cached_address: Option<IpAddr>,
+    cached_address: IpAddr,
+    should_update: bool,
 }
 
 impl CachedDnsResolver<SystemDnsResolver> {
-    pub fn new(hostname: String, cache_file: PathBuf) -> Self {
-        Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file)
+    pub fn new(hostname: String, cache_file: PathBuf, fallback_address: IpAddr) -> Self {
+        Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file, fallback_address)
     }
 }
 
 impl<R: DnsResolver> CachedDnsResolver<R> {
-    pub fn with_dns_resolver(dns_resolver: R, hostname: String, cache_file: PathBuf) -> Self {
-        let cached_address = Self::load_from_file(&cache_file).ok();
+    pub fn with_dns_resolver(
+        dns_resolver: R,
+        hostname: String,
+        cache_file: PathBuf,
+        fallback_address: IpAddr,
+    ) -> Self {
+        let (cached_address, should_update) =
+            Self::load_initial_cached_address(&cache_file, fallback_address);
 
         CachedDnsResolver {
             hostname,
             dns_resolver,
             cache_file,
             cached_address,
+            should_update,
         }
     }
 
-    pub fn resolve(&self) -> Option<IpAddr> {
+    pub fn resolve(&mut self) -> IpAddr {
+        if self.should_update {
+            self.resolve_into_cache();
+        }
+
         self.cached_address
-            .or_else(|| self.resolve_into_cache().ok())
+    }
+
+    fn load_initial_cached_address(cache_file: &Path, fallback_address: IpAddr) -> (IpAddr, bool) {
+        match Self::load_from_file(cache_file) {
+            Ok(previously_cached_address) => (previously_cached_address, false),
+            Err(_) => (fallback_address, true),
+        }
     }
 
     fn load_from_file(file_path: &Path) -> io::Result<IpAddr> {
@@ -63,22 +81,18 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             .map_err(|_| io::Error::new(io::ErrorKind::Other, "Invalid address data"))
     }
 
-    fn resolve_into_cache(&self) -> io::Result<IpAddr> {
-        let address = self.resolve_address()?;
-
-        let _ = self.store_in_cache(address);
-
-        Ok(address)
+    fn resolve_into_cache(&mut self) {
+        if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
+            self.cached_address = address;
+            self.should_update = false;
+            self.update_cache_file();
+        }
     }
 
-    fn resolve_address(&self) -> io::Result<IpAddr> {
-        self.dns_resolver.resolve(&self.hostname)
-    }
-
-    fn store_in_cache(&self, address: IpAddr) -> io::Result<()> {
-        let mut cache_file = File::create(&self.cache_file)?;
-
-        writeln!(cache_file, "{}", address)
+    fn update_cache_file(&mut self) {
+        if let Ok(mut cache_file) = File::create(&self.cache_file) {
+            let _ = writeln!(cache_file, "{}", self.cached_address);
+        }
     }
 }
 
@@ -103,8 +117,8 @@ mod tests {
 
         write_address(&cache_dir, cached_address);
 
-        let cache = create_cached_dns_resolver(mock_resolver, &cache_dir);
-        let address = cache.resolve().unwrap();
+        let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
+        let address = cache.resolve();
 
         assert!(!mock_resolver_was_called.load(Ordering::Acquire));
         assert_eq!(address, cached_address);
@@ -115,9 +129,9 @@ mod tests {
         let (_temp_dir, cache_dir) = create_test_dirs();
         let mock_address = "192.168.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
-        let cache = create_cached_dns_resolver(mock_resolver, &cache_dir);
 
-        let address = cache.resolve().unwrap();
+        let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
+        let address = cache.resolve();
 
         assert_eq!(address, mock_address);
         assert_eq!(get_cached_address(&cache_dir), address.to_string());
@@ -128,11 +142,41 @@ mod tests {
         let (temp_dir, cache_dir) = create_test_dirs();
         let mock_address = "192.168.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
-        let cache = create_cached_dns_resolver(mock_resolver, &cache_dir);
+
+        let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
 
         ::std::mem::drop(temp_dir);
 
-        assert_eq!(cache.resolve().unwrap(), mock_address);
+        assert_eq!(cache.resolve(), mock_address);
+    }
+
+    #[test]
+    fn uses_fallback_address() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let fallback_address = "192.168.1.31".parse().unwrap();
+        let mock_resolver = MockDnsResolver::that_fails();
+        let mock_resolver_was_called = mock_resolver.was_called_handle();
+
+        let mut cache =
+            create_cached_dns_resolver(mock_resolver, &cache_dir, Some(fallback_address));
+        let address = cache.resolve();
+
+        assert!(mock_resolver_was_called.load(Ordering::Acquire));
+        assert_eq!(address, fallback_address);
+    }
+
+    #[test]
+    fn ignores_fallback_address_if_resolution_succeeds() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let fallback_address = "192.168.1.31".parse().unwrap();
+        let mock_address = "192.168.1.206".parse().unwrap();
+        let mock_resolver = MockDnsResolver::with_address(mock_address);
+
+        let mut cache =
+            create_cached_dns_resolver(mock_resolver, &cache_dir, Some(fallback_address));
+        let address = cache.resolve();
+
+        assert_eq!(address, mock_address);
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf) {
@@ -169,12 +213,14 @@ mod tests {
     fn create_cached_dns_resolver(
         mock_resolver: MockDnsResolver,
         cache_dir: &Path,
+        fallback_address: Option<IpAddr>,
     ) -> CachedDnsResolver<MockDnsResolver> {
         let hostname = "dummy.host".to_owned();
         let filename = "api_ip_address.txt";
         let cache_file = cache_dir.join(filename);
+        let fallback_address = fallback_address.unwrap_or(IpAddr::from([10, 0, 109, 91]));
 
-        CachedDnsResolver::with_dns_resolver(mock_resolver, hostname, cache_file)
+        CachedDnsResolver::with_dns_resolver(mock_resolver, hostname, cache_file, fallback_address)
     }
 
     struct MockDnsResolver {
@@ -186,6 +232,13 @@ mod tests {
         pub fn with_address(address: IpAddr) -> Self {
             MockDnsResolver {
                 address: Some(address),
+                called: Arc::new(AtomicBool::new(false)),
+            }
+        }
+
+        pub fn that_fails() -> Self {
+            MockDnsResolver {
+                address: None,
                 called: Arc::new(AtomicBool::new(false)),
             }
         }
