@@ -37,6 +37,7 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
+use std::io;
 use std::path::Path;
 
 pub mod event_loop;
@@ -61,30 +62,35 @@ impl RpcConnectionManager {
         }
     }
 
-    /// Create a new `RpcConnectionManager` using the specified resource directory.
-    pub fn with_resource_dir(resource_dir: &Path) -> Self {
+    /// Create a new `RpcConnectionManager` using the specified resource and cache directories.
+    pub fn with_resource_and_cache_dirs(resource_dir: &Path, cache_dir: &Path) -> io::Result<Self> {
         let filename = "api_ip_address.txt";
-        let cache_file = resource_dir.join(filename);
+        let cache_file = cache_dir.join(filename);
+        let fallback_file = resource_dir.join(filename);
 
-        RpcConnectionManager {
+        Ok(RpcConnectionManager {
             address_cache: Some(CachedDnsResolver::new(
                 MASTER_API_HOST.to_owned(),
                 cache_file,
-            )),
-        }
+                fallback_file,
+            )?),
+        })
     }
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-    pub fn new_connection(&self) -> Result<HttpHandle, HttpError> {
+    pub fn new_connection(&mut self) -> Result<HttpHandle, HttpError> {
         self.setup_connection(HttpTransport::new()?)
     }
 
     /// Create and returns a `HttpHandle` running on the given core handle.
-    pub fn new_connection_on_event_loop(&self, handle: &Handle) -> Result<HttpHandle, HttpError> {
+    pub fn new_connection_on_event_loop(
+        &mut self,
+        handle: &Handle,
+    ) -> Result<HttpHandle, HttpError> {
         self.setup_connection(HttpTransport::shared(handle)?)
     }
 
-    fn setup_connection(&self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
+    fn setup_connection(&mut self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
         let uri = format!("https://{}/rpc/", self.api_address());
         let mut handle = transport.handle(&uri)?;
 
@@ -93,12 +99,12 @@ impl RpcConnectionManager {
         Ok(handle)
     }
 
-    fn api_address(&self) -> String {
-        self.address_cache
-            .as_ref()
-            .and_then(CachedDnsResolver::resolve)
-            .map(|ip| ip.to_string())
-            .unwrap_or_else(|| MASTER_API_HOST.to_owned())
+    fn api_address(&mut self) -> String {
+        if let Some(ref mut address_cache) = self.address_cache {
+            address_cache.resolve().to_string()
+        } else {
+            MASTER_API_HOST.to_owned()
+        }
     }
 }
 
@@ -117,7 +123,7 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 impl ProblemReportProxy<HttpHandle> {
-    pub fn connect(manager: &RpcConnectionManager) -> Result<Self, HttpError> {
+    pub fn connect(manager: &mut RpcConnectionManager) -> Result<Self, HttpError> {
         Ok(ProblemReportProxy::new(manager.new_connection()?))
     }
 }
