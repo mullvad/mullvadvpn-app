@@ -1,16 +1,20 @@
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
+use std::marker::PhantomData;
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::thread;
 use std::time::{Duration, Instant};
 
 
 lazy_static! {
     static ref MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
+    static ref MAX_DNS_RESOLUTION_TIME: Duration = Duration::from_secs(5);
 }
 
 
-pub trait DnsResolver {
+pub trait DnsResolver: Send + 'static {
     fn resolve(&self, host: &str) -> io::Result<IpAddr>;
 }
 
@@ -30,10 +34,13 @@ impl DnsResolver for SystemDnsResolver {
 
 pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     hostname: String,
-    dns_resolver: R,
     cache_file: PathBuf,
     cached_address: IpAddr,
     last_updated: Instant,
+    hostname_tx: mpsc::Sender<String>,
+    ip_address_rx: mpsc::Receiver<Option<IpAddr>>,
+    dns_timeout: Duration,
+    _dns_resolver: PhantomData<R>,
 }
 
 impl CachedDnsResolver<SystemDnsResolver> {
@@ -43,8 +50,9 @@ impl CachedDnsResolver<SystemDnsResolver> {
         fallback_dir: &Path,
         filename: &str,
     ) -> io::Result<Self> {
-        Self::with_dns_resolver(
+        Self::with_dns_resolver_and_dns_timeout(
             SystemDnsResolver,
+            *MAX_DNS_RESOLUTION_TIME,
             hostname,
             cache_dir,
             fallback_dir,
@@ -54,8 +62,9 @@ impl CachedDnsResolver<SystemDnsResolver> {
 }
 
 impl<R: DnsResolver> CachedDnsResolver<R> {
-    pub fn with_dns_resolver(
+    pub fn with_dns_resolver_and_dns_timeout(
         dns_resolver: R,
+        dns_timeout: Duration,
         hostname: String,
         cache_dir: &Path,
         fallback_dir: &Path,
@@ -67,12 +76,22 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         let (cached_address, last_updated) =
             Self::load_initial_cached_address(&cache_file, &fallback_file)?;
 
+        let (hostname_tx, hostname_rx) = mpsc::channel();
+        let (ip_address_tx, ip_address_rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            Self::resolution_worker_thread(hostname_rx, ip_address_tx, dns_resolver)
+        });
+
         Ok(CachedDnsResolver {
             hostname,
-            dns_resolver,
             cache_file,
             cached_address,
             last_updated,
+            hostname_tx,
+            ip_address_rx,
+            dns_timeout,
+            _dns_resolver: PhantomData,
         })
     }
 
@@ -136,7 +155,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     }
 
     fn resolve_into_cache(&mut self) {
-        if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
+        if let Some(address) = self.resolve_using_dns_resolver() {
             if self.cached_address != address {
                 self.cached_address = address;
                 self.update_cache_file();
@@ -146,9 +165,29 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         }
     }
 
+    fn resolve_using_dns_resolver(&mut self) -> Option<IpAddr> {
+        self.hostname_tx.send(self.hostname.to_owned()).ok()?;
+        self.ip_address_rx.recv_timeout(self.dns_timeout).ok()?
+    }
+
     fn update_cache_file(&mut self) {
         if let Ok(mut cache_file) = File::create(&self.cache_file) {
             let _ = writeln!(cache_file, "{}", self.cached_address);
+        }
+    }
+
+    fn resolution_worker_thread(
+        requests: mpsc::Receiver<String>,
+        ip_addresses: mpsc::Sender<Option<IpAddr>>,
+        dns_resolver: R,
+    ) {
+        while let Ok(hostname) = requests.recv() {
+            let ip_address = dns_resolver.resolve(&hostname);
+            let send_result = ip_addresses.send(ip_address.ok());
+
+            if send_result.is_err() {
+                break;
+            }
         }
     }
 }
@@ -160,6 +199,7 @@ mod tests {
 
     use std::fs::{self, File};
     use std::io::{BufRead, BufReader, Write};
+    use std::sync::Arc;
     use std::sync::atomic::{AtomicBool, Ordering};
 
     use self::filetime::FileTime;
@@ -291,6 +331,22 @@ mod tests {
         );
     }
 
+    #[test]
+    fn long_resolution_times_out() {
+        let (_temp_dir, cache_dir, fallback_dir) = create_test_dirs();
+        let mock_resolver =
+            MockDnsResolver::from_str_with_delay("192.168.1.206", Duration::from_secs(10));
+        let provided_address = "192.168.1.31".parse().unwrap();
+
+        write_address(&fallback_dir, provided_address);
+
+        let mut cache = create_cached_dns_resolver(&mock_resolver, &cache_dir, &fallback_dir);
+        let address = cache.resolve();
+
+        assert!(mock_resolver.was_called());
+        assert_eq!(address, provided_address);
+    }
+
     fn create_test_dirs() -> (TempDir, PathBuf, PathBuf) {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
         let cache_dir = temp_dir.path().join("cache");
@@ -341,16 +397,18 @@ mod tests {
         FileTime::from_last_modification_time(&file_metadata)
     }
 
-    fn create_cached_dns_resolver<'a>(
-        mock_resolver: &'a MockDnsResolver,
-        cache_dir: &'a Path,
-        fallback_dir: &'a Path,
-    ) -> CachedDnsResolver<&'a MockDnsResolver> {
+    fn create_cached_dns_resolver(
+        mock_resolver: &Arc<MockDnsResolver>,
+        cache_dir: &Path,
+        fallback_dir: &Path,
+    ) -> CachedDnsResolver<Arc<MockDnsResolver>> {
         let hostname = "dummy.host".to_owned();
         let filename = "api_ip_address.txt";
+        let dns_timeout = Duration::from_millis(50);
 
-        CachedDnsResolver::with_dns_resolver(
-            mock_resolver,
+        CachedDnsResolver::with_dns_resolver_and_dns_timeout(
+            mock_resolver.clone(),
+            dns_timeout,
             hostname,
             cache_dir,
             fallback_dir,
@@ -360,22 +418,33 @@ mod tests {
 
     struct MockDnsResolver {
         address: Option<IpAddr>,
+        delay: Option<Duration>,
         called: AtomicBool,
     }
 
     impl MockDnsResolver {
-        pub fn from_str(ip_address: &str) -> Self {
-            MockDnsResolver {
+        pub fn from_str(ip_address: &str) -> Arc<Self> {
+            Arc::new(MockDnsResolver {
                 address: Some(ip_address.parse().unwrap()),
+                delay: None,
                 called: AtomicBool::new(false),
-            }
+            })
         }
 
-        pub fn that_fails() -> Self {
-            MockDnsResolver {
-                address: None,
+        pub fn from_str_with_delay(ip_address: &str, delay: Duration) -> Arc<Self> {
+            Arc::new(MockDnsResolver {
+                address: Some(ip_address.parse().unwrap()),
+                delay: Some(delay),
                 called: AtomicBool::new(false),
-            }
+            })
+        }
+
+        pub fn that_fails() -> Arc<Self> {
+            Arc::new(MockDnsResolver {
+                address: None,
+                delay: None,
+                called: AtomicBool::new(false),
+            })
         }
 
         pub fn address(&self) -> IpAddr {
@@ -387,9 +456,14 @@ mod tests {
         }
     }
 
-    impl<'r> DnsResolver for &'r MockDnsResolver {
+    impl DnsResolver for Arc<MockDnsResolver> {
         fn resolve(&self, host: &str) -> io::Result<IpAddr> {
             self.called.store(true, Ordering::Release);
+
+            if let Some(delay) = self.delay {
+                println!("Simulating long DNS resolution...");
+                thread::sleep(delay);
+            }
 
             self.address.ok_or_else(|| {
                 io::Error::new(
