@@ -88,10 +88,6 @@ export default {
       backgroundColor: colors.white40,
     },
     account_dropdown__remove: {
-      paddingTop: 10,
-      paddingLeft: 12,
-      paddingRight: 12,
-      paddingBottom: 12,
       justifyContent: 'center',
       color: colors.blue60,
     },
@@ -154,10 +150,6 @@ export default {
       lineHeight: 26,
       color: colors.blue80,
       border: 0,
-      paddingTop: 10,
-      paddingLeft: 12,
-      paddingRight: 12,
-      paddingBottom: 12,
       textAlign: 'left',
     },
   })
