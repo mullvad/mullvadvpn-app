@@ -72,8 +72,9 @@ export class Label extends Text {}
 
 type CellButtonProps = {
   children?: React.Node,
-  disabled: boolean,
+  disabled?: boolean,
   hoverStyle?: Types.ViewStyle,
+  style?: Types.ViewStyle
 };
 
 type State = { hovered: boolean };
@@ -90,9 +91,9 @@ export default class CellButton extends Component<CellButtonProps, State> {
   onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
 
   render() {
-    const { children, hoverStyle, ...otherProps } = this.props;
+    const { children, style, hoverStyle, ...otherProps } = this.props;
     return (
-      <Button style={[ styles.cell, this.props.style, this.backgroundStyle(hoverStyle) ]}
+      <Button style={[ styles.cell, style, this.backgroundStyle(hoverStyle) ]}
         onHoverStart={this.onHoverStart}
         onHoverEnd={this.onHoverEnd}
         {...otherProps}>
@@ -114,7 +115,7 @@ export default class CellButton extends Component<CellButtonProps, State> {
               }
 
               return React.cloneElement(node, updatedProps);
-            } else {
+            } else if (node != null){
               return <Label style={[styles.label, this.textStyle()]}>{children}</Label>;
             }
           })
