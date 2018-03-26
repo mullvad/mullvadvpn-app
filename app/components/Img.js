@@ -1,11 +1,11 @@
 // @flow
 import * as React from 'react';
-import { View, Component, Styles } from 'reactxp';
+import { View, Component, Styles, Types } from 'reactxp';
 
 type ImgProps = {
     source: string,
     tintColor?: string,
-    hoverColor?: string,
+    hoverStyle?: Types.ViewStyle,
     disabled?: boolean,
   };
 
@@ -15,12 +15,10 @@ export default class Img extends Component<ImgProps, State> {
 
   state = { hovered: false };
 
-  hoverColorStyle = Styles.createViewStyle({color: this.props.hoverColor}, false);
-
   onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
   onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
 
-  getHoverStyle = () => (this.state.hovered && this.props.hoverColor) ? this.hoverColorStyle : null;
+  getHoverStyle = () => this.state.hovered ? this.props.hoverStyle || null : null;
 
   render() {
     const { source, disabled, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;

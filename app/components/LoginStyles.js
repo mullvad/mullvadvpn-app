@@ -98,6 +98,9 @@ export default {
     account_dropdown__remove_cell_hover: {
       color: colors.blue60,
     },
+    account_dropdown__remove_hover: {
+      color: colors.blue,
+    },
     account_dropdown__label_hover: {
       color: colors.blue,
     },
@@ -157,5 +160,4 @@ export default {
       textAlign: 'left',
     },
   }),
-  account_dropdown__remove_hover: colors.blue,
 };
