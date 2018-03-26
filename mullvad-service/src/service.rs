@@ -6,34 +6,9 @@ use std::mem;
 
 use winapi::um::{winnt, winsvc};
 
-#[derive(Debug, Clone)]
-pub enum DecodeError {
-    ServiceState(u32),
-}
-
-impl ::std::error::Error for DecodeError {
-    fn description(&self) -> &str {
-        "Decoding failure"
-    }
-
-    fn cause(&self) -> Option<&::std::error::Error> {
-        None
-    }
-}
-
-impl ::std::fmt::Display for DecodeError {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        match *self {
-            DecodeError::ServiceState(raw_value) => {
-                write!(f, "Cannot decode the service state: {}", raw_value)
-            }
-        }
-    }
-}
-
 #[derive(Debug)]
 pub enum ServiceError {
-    Decode(DecodeError),
+    InvalidServiceState(u32),
     System(io::Error),
 }
 
@@ -44,7 +19,7 @@ impl error::Error for ServiceError {
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            ServiceError::Decode(ref err) => Some(err),
+            ServiceError::InvalidServiceState(_) => None,
             ServiceError::System(ref io_err) => Some(io_err),
         }
     }
@@ -53,7 +28,9 @@ impl error::Error for ServiceError {
 impl fmt::Display for ServiceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ServiceError::Decode(ref err) => err.fmt(f),
+            ServiceError::InvalidServiceState(raw_value) => {
+                write!(f, "Invalid service state value: {}", raw_value)
+            }
             ServiceError::System(ref io_err) => io_err.fmt(f),
         }
     }
@@ -62,13 +39,6 @@ impl fmt::Display for ServiceError {
 impl From<io::Error> for ServiceError {
     fn from(io_error: io::Error) -> Self {
         ServiceError::System(io_error)
-    }
-}
-
-
-impl From<DecodeError> for ServiceError {
-    fn from(decode_error: DecodeError) -> Self {
-        ServiceError::Decode(decode_error)
     }
 }
 
@@ -193,7 +163,7 @@ pub enum ServiceState {
 }
 
 impl ServiceState {
-    pub fn from_raw(raw_state: u32) -> Result<Self, DecodeError> {
+    pub fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
@@ -202,7 +172,7 @@ impl ServiceState {
             winsvc::SERVICE_CONTINUE_PENDING => Ok(ServiceState::ContinuePending),
             winsvc::SERVICE_PAUSE_PENDING => Ok(ServiceState::PausePending),
             winsvc::SERVICE_PAUSED => Ok(ServiceState::Paused),
-            other => Err(DecodeError::ServiceState(other)),
+            other => Err(ServiceError::InvalidServiceState(other)),
         }
     }
 }
@@ -215,7 +185,7 @@ pub struct ServiceStatus {
 }
 
 impl ServiceStatus {
-    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, DecodeError> {
+    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ServiceError> {
         let current_state = ServiceState::from_raw(raw_status.dwCurrentState as u32)?;
         Ok(ServiceStatus { current_state })
     }
@@ -232,7 +202,7 @@ impl Service {
         let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
-            ServiceStatus::from_raw(raw_status).map_err(|err| err.into())
+            ServiceStatus::from_raw(raw_status)
         } else {
             Err(io::Error::last_os_error().into())
         }
