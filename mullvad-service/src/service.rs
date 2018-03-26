@@ -44,36 +44,31 @@ impl From<io::Error> for ServiceError {
 
 /// Enum describing types of windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceType {
     /// Service that runs in its own process.
-    OwnProcess,
+    OwnProcess = winnt::SERVICE_WIN32_OWN_PROCESS,
 }
 
 impl ServiceType {
     pub fn to_raw(&self) -> u32 {
-        match self {
-            &ServiceType::OwnProcess => winnt::SERVICE_WIN32_OWN_PROCESS,
-        }
+        *self as u32
     }
 }
 
 /// Enum describing the access permissions when working with Services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceAccess {
-    QueryStatus,
-    Start,
-    Stop,
-    Delete,
+    QueryStatus = winsvc::SERVICE_QUERY_STATUS,
+    Start = winsvc::SERVICE_START,
+    Stop = winsvc::SERVICE_STOP,
+    Delete = winnt::DELETE,
 }
 
 impl ServiceAccess {
     pub fn to_raw(&self) -> u32 {
-        match *self {
-            ServiceAccess::QueryStatus => winsvc::SERVICE_QUERY_STATUS,
-            ServiceAccess::Start => winsvc::SERVICE_START,
-            ServiceAccess::Stop => winsvc::SERVICE_STOP,
-            ServiceAccess::Delete => winnt::DELETE,
-        }
+        *self as u32
     }
 
     pub fn raw_mask(values: &[ServiceAccess]) -> u32 {
@@ -105,21 +100,17 @@ impl ServiceStartType {
 /// Error handling strategy for service failures
 /// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms682450(v=vs.85).aspx
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceErrorControl {
-    Critical,
-    Ignore,
-    Normal,
-    Severe,
+    Critical = winnt::SERVICE_ERROR_CRITICAL,
+    Ignore = winnt::SERVICE_ERROR_IGNORE,
+    Normal = winnt::SERVICE_ERROR_NORMAL,
+    Severe = winnt::SERVICE_ERROR_SEVERE,
 }
 
 impl ServiceErrorControl {
     pub fn to_raw(&self) -> u32 {
-        match *self {
-            ServiceErrorControl::Critical => winnt::SERVICE_ERROR_NORMAL,
-            ServiceErrorControl::Ignore => winnt::SERVICE_ERROR_IGNORE,
-            ServiceErrorControl::Normal => winnt::SERVICE_ERROR_NORMAL,
-            ServiceErrorControl::Severe => winnt::SERVICE_ERROR_SEVERE,
-        }
+        *self as u32
     }
 }
 
