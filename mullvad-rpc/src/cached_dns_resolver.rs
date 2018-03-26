@@ -2,22 +2,36 @@ use std::fs::File;
 use std::io::{self, Read, Write};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::thread;
 use std::time::{Duration, SystemTime};
 
 
 lazy_static! {
     static ref MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
+    static ref DNS_TIMEOUT: Duration = Duration::from_secs(5);
 }
 
 
 pub trait DnsResolver {
-    fn resolve(&self, host: &str) -> io::Result<IpAddr>;
+    fn resolve(&mut self, host: &str) -> io::Result<IpAddr>;
 }
 
 pub struct SystemDnsResolver;
 
-impl DnsResolver for SystemDnsResolver {
-    fn resolve(&self, host: &str) -> io::Result<IpAddr> {
+impl SystemDnsResolver {
+    fn resolve_in_background_thread(host: &str) -> mpsc::Receiver<io::Result<IpAddr>> {
+        let host = host.to_owned();
+        let (tx, rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            let _ = tx.send(Self::resolve_hostname(&host));
+        });
+
+        rx
+    }
+
+    fn resolve_hostname(host: &str) -> io::Result<IpAddr> {
         (host, 0)
             .to_socket_addrs()?
             .next()
@@ -25,6 +39,20 @@ impl DnsResolver for SystemDnsResolver {
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::NotFound, format!("Host not found: {}", host))
             })
+    }
+}
+
+impl DnsResolver for SystemDnsResolver {
+    fn resolve(&mut self, host: &str) -> io::Result<IpAddr> {
+        Self::resolve_in_background_thread(host)
+            .recv_timeout(*DNS_TIMEOUT)
+            .map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    "Timeout while performing DNS resolution",
+                )
+            })
+            .and_then(|result| result)
     }
 }
 
@@ -335,7 +363,7 @@ mod tests {
     }
 
     impl DnsResolver for MockDnsResolver {
-        fn resolve(&self, host: &str) -> io::Result<IpAddr> {
+        fn resolve(&mut self, host: &str) -> io::Result<IpAddr> {
             self.called.store(true, Ordering::Release);
 
             self.address.ok_or_else(|| {
