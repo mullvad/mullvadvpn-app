@@ -1,6 +1,8 @@
 // @flow
 import * as React from 'react';
 import { formatAccount } from '../lib/formatters';
+import { TextInput } from 'reactxp';
+import { colors } from '../config';
 
 // @TODO: move it into types.js
 
@@ -39,8 +41,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     selectionRange: [0, 0]
   };
 
-  _ref: ?HTMLInputElement;
-  _ignoreSelect = false;
+  _ref: ?TextInput;
 
   constructor(props: AccountInputProps) {
     super(props);
@@ -76,16 +77,20 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     const displayString = formatAccount(this.state.value || '');
     const { value, onChange, onEnter, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
     return (
-      <input { ...otherProps }
-        type="text"
+      <TextInput { ...otherProps }
         value={ displayString }
-        onChange={ () => {} }
-        onSelect={ this.onSelect }
-        onKeyUp={ this.onKeyUp }
-        onKeyDown={ this.onKeyDown }
+        onSelectionChange={ this.onSelect }
         onPaste={ this.onPaste }
         onCut={ this.onCut }
-        ref={ (ref) => this.onRef(ref) } />
+        ref={ (ref) => this.onRef(ref) }
+        autoCorrect={ false }
+        onChangeText={ () => {} }
+        onKeyPress={ this.onKeyPress }
+        returnKeyType="done"
+        keyboardType="numeric"
+        placeholderTextColor={colors.blue20}
+        testName='AccountInput'
+      />
     );
   }
 
@@ -203,56 +208,42 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   // Events
-
-  onKeyDown = (e: KeyboardEvent) => {
+  _ignoreSelect: boolean;
+  onKeyPress = (e: KeyboardEvent) => {
     const { value, selectionRange } = this.state;
 
     if(e.which === 8) { // backspace
+      this._ignoreSelect = true;
       const result = this.remove(value, selectionRange);
       e.preventDefault();
 
-      this._ignoreSelect = true;
-
       this.setState(result, () => {
+        this._ignoreSelect = false;
         if(this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
     } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
+      this._ignoreSelect = true;
       const result = this.insert(value, e.key, selectionRange);
       e.preventDefault();
 
-      this._ignoreSelect = true;
-
       this.setState(result, () => {
+        this._ignoreSelect = false;
         if(this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
-    }
-  }
-
-  onKeyUp = (e: KeyboardEvent) => {
-    this._ignoreSelect = false;
-
-    if(e.which === 13 && this.props.onEnter) {
+    } else if(e.which === 13 && this.props.onEnter) {
       this.props.onEnter();
     }
   }
 
-  onSelect = (e: Event) => {
-    const ref = e.target;
-    if(!(ref instanceof HTMLInputElement)) {
-      throw new Error('ref must be an instance of HTMLInputElement');
-    }
-
-    if(this._ignoreSelect) {
+  onSelect = (start: number, end: number) => {
+    if (this._ignoreSelect){
       return;
     }
-
-    const start = ref.selectionStart;
-    const end = ref.selectionEnd;
-    const selRange = this.toInternalSelectionRange(this.sanitize(ref.value), [start, end]);
+    const selRange = this.toInternalSelectionRange(this.sanitize(this.state.value), [start, end]);
     this.setState({ selectionRange: selRange });
   }
 
@@ -295,15 +286,14 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     }
   }
 
-  onRef(ref: ?HTMLInputElement) {
+  onRef = (ref: ?TextInput) => {
     this._ref = ref;
     if(!ref) { return; }
 
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
 
-    ref.selectionStart = domRange[0];
-    ref.selectionEnd = domRange[1];
+    ref.selectRange(domRange[0], domRange[1]);
   }
 
   focus() {
@@ -311,5 +301,4 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
       this._ref.focus();
     }
   }
-
 }

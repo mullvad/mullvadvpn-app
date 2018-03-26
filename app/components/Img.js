@@ -1,15 +1,27 @@
 // @flow
-import React from 'react';
-import { View, Component } from 'reactxp';
+import * as React from 'react';
+import { View, Component, Types } from 'reactxp';
 
-export default class Img extends Component {
-  props: {
+type ImgProps = {
     source: string,
-    tintColor?: string
+    tintColor?: string,
+    hoverStyle?: Types.ViewStyle,
+    disabled?: boolean,
   };
 
+type State = { hovered: boolean };
+
+export default class Img extends Component<ImgProps, State> {
+
+  state = { hovered: false };
+
+  onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
+  onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
+
+  getHoverStyle = () => this.state.hovered ? this.props.hoverStyle || null : null;
+
   render() {
-    const { source, ...otherProps } = this.props;
+    const { source, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;
     const tintColor = this.props.tintColor;
     const url = './assets/images/' + source + '.svg';
     let image;
@@ -34,7 +46,10 @@ export default class Img extends Component {
     }
 
     return (
-      <View { ...otherProps }>
+      <View { ...otherProps }
+        onMouseEnter={onMouseEnter || this.onHoverStart}
+        onMouseLeave={onMouseLeave || this.onHoverEnd}
+        style={[style, this.getHoverStyle()]}>
         { image }
       </View>);
   }

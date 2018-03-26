@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
 
@@ -33,22 +33,28 @@ describe('components/Login', () => {
 
   it('does not show the footer when logging in', () => {
     const component = renderLoggingIn();
-    const footer = component.find('.login-footer');
-    expect(footer.hasClass('login-footer--invisible')).to.be.true;
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(0);
+    expect(invisibleFooters.length).to.equal(1);
   });
 
   it('shows the footer and account input when not logged in', () => {
     const component = renderNotLoggedIn();
-    const footer = component.find('.login-footer');
-    expect(footer.hasClass('login-footer--invisible')).to.be.false;
-    expect(component.find(AccountInput).exists()).to.be.true;
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(1);
+    expect(invisibleFooters.length).to.equal(0);
+    expect(getComponent(component, 'AccountInput').length).to.be.above(0);
   });
 
   it('does not show the footer nor account input when logged in', () => {
     const component = renderLoggedIn();
-    const footer = component.find('.login-footer');
-    expect(footer.hasClass('login-footer--invisible')).to.be.true;
-    expect(component.find('.login-form__fields')).to.have.length(0);
+    const visibleFooters = getComponent(component, 'footerVisibility true');
+    const invisibleFooters = getComponent(component, 'footerVisibility false');
+    expect(visibleFooters.length).to.equal(0);
+    expect(invisibleFooters.length).to.equal(1);
+    expect(getComponent(component, 'AccountInput').length).to.equal(0);
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
@@ -67,7 +73,7 @@ describe('components/Login', () => {
       },
     });
 
-    component.find('.login-form__account-input-button').simulate('click');
+    click(getComponent(component, 'account-input-button'));
   });
 });
 
@@ -117,4 +123,12 @@ function renderNotLoggedIn() {
 function renderWithProps(customProps) {
   const props = Object.assign({}, defaultProps, customProps);
   return shallow( <Login { ...props } /> );
+}
+
+function getComponent(container, testName) {
+  return container.findWhere( n => n.prop('testName') === testName);
+}
+
+function click(component) {
+  component.prop('onPress')();
 }
