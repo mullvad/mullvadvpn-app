@@ -19,8 +19,8 @@ use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
-use rand::{self, Rng, ThreadRng};
 use rand::distributions::{IndependentSample, Range};
+use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
 

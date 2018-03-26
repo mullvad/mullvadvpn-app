@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 use std::process::ExitStatus;
-use std::sync::{mpsc, Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{mpsc, Arc};
 use std::thread;
 use std::time::Duration;
 

@@ -47,8 +47,8 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc_uniqueness_check;
 mod rpc_address_file;
+mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
 

@@ -20,8 +20,8 @@ extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-mod rpc;
 mod cmds;
+mod rpc;
 
 
 use std::io;

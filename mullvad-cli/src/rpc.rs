@@ -1,5 +1,5 @@
-use {Result, ResultExt};
 use serde;
+use {Result, ResultExt};
 
 use std::fs::{File, Metadata};
 use std::io::{BufRead, BufReader};
