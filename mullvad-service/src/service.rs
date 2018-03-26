@@ -158,7 +158,6 @@ impl ServiceErrorControl {
 pub struct ServiceInfo {
     pub name: OsString,
     pub display_name: OsString,
-    pub service_access: Vec<ServiceAccess>,
     pub service_type: ServiceType,
     pub start_type: ServiceStartType,
     pub error_control: ServiceErrorControl,
