@@ -356,7 +356,6 @@ class AccountDropdown extends React.Component<AccountDropdownProps> {
     const uniqueItems = [...new Set(this.props.items)];
     return (
       <View>
-        <View style={ styles.account_dropdown__spacer }/>
         { uniqueItems.map(token => (
           <AccountDropdownItem key={ token }
             value={ token }
@@ -378,7 +377,8 @@ type AccountDropdownItemProps = {
 
 class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
   render() {
-    return (
+    return (<View>
+      <View style={ styles.account_dropdown__spacer }/>
       <CellButton style={ styles.account_dropdown__item } cellHoverStyle={ styles.account_dropdown__item_hover }>
         <Label style={styles.account_dropdown__label} cellHoverStyle={ styles.account_dropdown__label_hover } onPress={ () => this.props.onSelect(this.props.value) }>
           { this.props.label }
@@ -390,6 +390,6 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
           height='16' width='16'
           onPress={ () => this.props.onRemove(this.props.value) }/>
       </CellButton>
-    );
+    </View>);
   }
 }

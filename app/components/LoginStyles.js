@@ -85,6 +85,7 @@ export default {
       paddingRight: 12,
       paddingLeft: 12,
       paddingBottom: 12,
+      marginBottom: 0,
       flexDirection: 'row',
       backgroundColor: colors.white60,
     },
@@ -158,6 +159,7 @@ export default {
       color: colors.blue80,
       border: 0,
       textAlign: 'left',
+      marginLeft: 0,
     },
   }),
 };
