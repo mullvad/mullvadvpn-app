@@ -94,7 +94,7 @@ impl ServiceStartType {
     }
 }
 
-/// Error handling strategy for service failures
+/// Error handling strategy for service failures.
 /// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms682450(v=vs.85).aspx
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u32)]
