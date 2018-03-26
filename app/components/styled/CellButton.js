@@ -115,7 +115,7 @@ export default class CellButton extends Component<CellButtonProps, State> {
               }
 
               return React.cloneElement(node, updatedProps);
-            } else if (node != null){
+            } else if (node){
               return <Label style={[styles.label, this.textStyle()]}>{children}</Label>;
             }
           })
