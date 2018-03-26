@@ -110,7 +110,7 @@ impl ServiceManager {
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
         } else {
-            Ok(Service(service_handle))
+            Ok(unsafe { Service::from_handle(service_handle) })
         }
     }
 
@@ -131,7 +131,7 @@ impl ServiceManager {
         if service_handle.is_null() {
             Err(io::Error::last_os_error())
         } else {
-            Ok(Service(service_handle))
+            Ok(unsafe { Service::from_handle(service_handle) })
         }
     }
 }
