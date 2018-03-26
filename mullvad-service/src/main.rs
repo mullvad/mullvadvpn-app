@@ -2,6 +2,7 @@
 
 extern crate winapi;
 
+use std::error::Error;
 use std::ffi::OsString;
 use std::io;
 use std::thread;
@@ -32,6 +33,9 @@ fn main() {
             "-remove" | "/remove" => {
                 if let Err(e) = remove_service() {
                     println!("Failed to remove the service: {}", e);
+                    if let Some(cause) = e.cause() {
+                        println!("Cause: {}", cause);
+                    }
                 } else {
                     println!("Removed the service.");
                 }

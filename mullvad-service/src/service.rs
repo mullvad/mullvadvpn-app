@@ -31,7 +31,7 @@ impl fmt::Display for ServiceError {
             ServiceError::InvalidServiceState(raw_value) => {
                 write!(f, "Invalid service state value: {}", raw_value)
             }
-            ServiceError::System(ref io_err) => io_err.fmt(f),
+            ServiceError::System(_) => write!(f, "System call error"),
         }
     }
 }
