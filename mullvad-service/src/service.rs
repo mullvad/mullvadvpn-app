@@ -221,7 +221,7 @@ impl ServiceStatus {
     }
 }
 
-pub struct Service(pub winsvc::SC_HANDLE);
+pub struct Service(pub winsvc::SC_HANDLE); // TBD: change pub to pub(crate)
 
 impl Service {
     pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
