@@ -8,21 +8,17 @@ use winapi::um::winsvc;
 
 /// Enum describing access permissions for ServiceManager
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceManagerAccess {
-    All,
-    Connect,
-    CreateService,
-    EnumerateService,
+    All = winsvc::SC_MANAGER_ALL_ACCESS,
+    Connect = winsvc::SC_MANAGER_CONNECT,
+    CreateService = winsvc::SC_MANAGER_CREATE_SERVICE,
+    EnumerateService = winsvc::SC_MANAGER_ENUMERATE_SERVICE,
 }
 
 impl ServiceManagerAccess {
     pub fn to_raw(&self) -> u32 {
-        match *self {
-            ServiceManagerAccess::All => winsvc::SC_MANAGER_ALL_ACCESS,
-            ServiceManagerAccess::Connect => winsvc::SC_MANAGER_CONNECT,
-            ServiceManagerAccess::CreateService => winsvc::SC_MANAGER_CREATE_SERVICE,
-            ServiceManagerAccess::EnumerateService => winsvc::SC_MANAGER_ENUMERATE_SERVICE,
-        }
+        *self as u32
     }
 
     pub fn raw_mask(values: &[ServiceManagerAccess]) -> u32 {
