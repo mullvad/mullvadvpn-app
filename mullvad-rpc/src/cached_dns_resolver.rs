@@ -2,22 +2,50 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::{IpAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::thread;
 use std::time::{Duration, Instant};
 
 
 lazy_static! {
     static ref MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
+    static ref DNS_TIMEOUT: Duration = Duration::from_secs(5);
 }
 
 
 pub trait DnsResolver {
-    fn resolve(&self, host: &str) -> io::Result<IpAddr>;
+    fn resolve(&mut self, host: String) -> io::Result<IpAddr>;
 }
 
-pub struct SystemDnsResolver;
+pub struct SystemDnsResolver {
+    requests: mpsc::Sender<String>,
+    responses: mpsc::Receiver<io::Result<IpAddr>>,
+}
 
-impl DnsResolver for SystemDnsResolver {
-    fn resolve(&self, host: &str) -> io::Result<IpAddr> {
+impl SystemDnsResolver {
+    pub fn new() -> Self {
+        let (requests_tx, requests_rx) = mpsc::channel();
+        let (responses_tx, responses_rx) = mpsc::channel();
+
+        let instance = SystemDnsResolver {
+            requests: requests_tx,
+            responses: responses_rx,
+        };
+
+        thread::spawn(move || {
+            for hostname in requests_rx.iter() {
+                let response = Self::resolve_hostname(&hostname);
+
+                if responses_tx.send(response).is_err() {
+                    break;
+                }
+            }
+        });
+
+        instance
+    }
+
+    fn resolve_hostname(host: &str) -> io::Result<IpAddr> {
         (host, 0)
             .to_socket_addrs()?
             .next()
@@ -25,6 +53,24 @@ impl DnsResolver for SystemDnsResolver {
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::NotFound, format!("Host not found: {}", host))
             })
+    }
+}
+
+impl DnsResolver for SystemDnsResolver {
+    fn resolve(&mut self, host: String) -> io::Result<IpAddr> {
+        if self.requests.send(host).is_ok() {
+            self.responses.recv_timeout(*DNS_TIMEOUT).map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    "Timeout while performing DNS resolution",
+                )
+            })?
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                "DNS resolutions have stopped",
+            ))
+        }
     }
 }
 
@@ -38,7 +84,12 @@ pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
 
 impl CachedDnsResolver<SystemDnsResolver> {
     pub fn new(hostname: String, cache_file: PathBuf, fallback_file: PathBuf) -> io::Result<Self> {
-        Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file, fallback_file)
+        Self::with_dns_resolver(
+            SystemDnsResolver::new(),
+            hostname,
+            cache_file,
+            fallback_file,
+        )
     }
 }
 
@@ -112,7 +163,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     }
 
     fn resolve_into_cache(&mut self) {
-        if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
+        if let Ok(address) = self.dns_resolver.resolve(self.hostname.clone()) {
             self.cached_address = address;
             self.last_updated = Instant::now();
             self.update_cache_file();
@@ -335,7 +386,7 @@ mod tests {
     }
 
     impl DnsResolver for MockDnsResolver {
-        fn resolve(&self, host: &str) -> io::Result<IpAddr> {
+        fn resolve(&mut self, host: String) -> io::Result<IpAddr> {
             self.called.store(true, Ordering::Release);
 
             self.address.ok_or_else(|| {
