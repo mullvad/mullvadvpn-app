@@ -52,7 +52,10 @@ fn install_service() -> Result<(), io::Error> {
     ];
     let service_manager = ServiceManager::local_computer(None::<&str>, access_mask)?;
     let service_info = get_service_info();
-    service_manager.create_service(service_info).map(|_| ())
+
+    service_manager
+        .create_service(service_info, &[])
+        .map(|_| ())
 }
 
 fn remove_service() -> Result<(), ServiceError> {
@@ -94,7 +97,6 @@ fn get_service_info() -> ServiceInfo {
     ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
-        service_access: vec![ServiceAccess::QueryStatus],
         service_type: ServiceType::OwnProcess,
         start_type: ServiceStartType::OnDemand, // TBD: change to AutoStart
         error_control: ServiceErrorControl::Normal,
