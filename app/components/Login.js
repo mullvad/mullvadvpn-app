@@ -31,7 +31,6 @@ type State = {
   animatedLoginButtonValue: Animated.Value,
   animation: ?Animated.CompositeAnimation,
   footerAnimationStyle: ?Animated.Style,
-  dropdownAnimationStyle: ?Animated.Style,
   loginButtonAnimationStyle: ?Animated.Style,
 };
 
@@ -287,14 +286,6 @@ export default class Login extends Component<LoginPropTypes, State> {
     });
   }
 
-  _onDropdownLayout = (layout) => {
-    this.setState({dropdownHeight: layout.height});
-  }
-
-  // container element used for measuring the height of the accounts dropdown
-  _accountDropdownElement: ?React.Node;
-  _onAccountDropdownContainerRef = ref => this._accountDropdownElement = ref;
-
   _onSelectAccountFromHistory = (accountToken) => {
     this.props.onAccountTokenChange(accountToken);
     this.props.onLogin(accountToken);
@@ -311,8 +302,6 @@ export default class Login extends Component<LoginPropTypes, State> {
         input.focus();
       }
     };
-
-
 
     return <View style= {styles.login}>
       <Text style={ styles.subtitle }>{ this._formSubtitle() }</Text>
@@ -336,12 +325,10 @@ export default class Login extends Component<LoginPropTypes, State> {
           </Animated.View>
         </View>
         <Accordion height={ this._shouldShowAccountHistory(this.props) ? 'auto' : 0 }>
-          <View onLayout={this._onDropdownLayout} ref={ this._onAccountDropdownContainerRef }>
-            { <AccountDropdown
-              items={ accountHistory.slice().reverse() }
-              onSelect={ this._onSelectAccountFromHistory }
-              onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
-          </View>
+          { <AccountDropdown
+            items={ accountHistory.slice().reverse() }
+            onSelect={ this._onSelectAccountFromHistory }
+            onRemove={ this.props.onRemoveAccountTokenFromHistory } /> }
         </Accordion>
       </View>
     </View>;
