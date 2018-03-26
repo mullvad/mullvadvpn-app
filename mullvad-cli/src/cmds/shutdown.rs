@@ -1,5 +1,5 @@
-use {Command, Result};
 use clap;
+use {Command, Result};
 
 use rpc;
 

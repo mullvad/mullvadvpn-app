@@ -1,5 +1,5 @@
-use {Command, Result};
 use clap;
+use {Command, Result};
 
 use rpc;
 use talpid_types::net::{OpenVpnTunnelOptions, TunnelOptions};

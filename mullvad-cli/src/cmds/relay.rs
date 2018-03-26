@@ -1,6 +1,6 @@
-use {Command, Result, ResultExt};
 use clap;
 use std::str::FromStr;
+use {Command, Result, ResultExt};
 
 use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, OpenVpnConstraints,

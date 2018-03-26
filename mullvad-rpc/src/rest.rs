@@ -1,9 +1,9 @@
-use futures::{future, Future, Stream};
 use futures::sync::{mpsc, oneshot};
+use futures::{future, Future, Stream};
 
 use hyper;
-use hyper::{Request, StatusCode, Uri};
 use hyper::client::Client;
+use hyper::{Request, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use native_tls;
 

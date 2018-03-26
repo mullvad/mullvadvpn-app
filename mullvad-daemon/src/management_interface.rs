@@ -1,9 +1,9 @@
 use error_chain;
 
 use error_chain::ChainedError;
-use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
-use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
+use jsonrpc_core::futures::{future, sync, Future};
+use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use jsonrpc_ws_server;
@@ -19,8 +19,8 @@ use serde;
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, RwLock};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::net::TunnelOptions;

@@ -1,6 +1,6 @@
-use {Command, Result};
 use clap;
 use rpc;
+use {Command, Result};
 
 pub struct Lan;
 
