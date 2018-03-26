@@ -73,7 +73,7 @@ export class Label extends Text {}
 type CellButtonProps = {
   children?: React.Node,
   disabled?: boolean,
-  hoverStyle?: Types.ViewStyle,
+  cellHoverStyle?: Types.ViewStyle,
   style?: Types.ViewStyle
 };
 
@@ -82,18 +82,18 @@ type State = { hovered: boolean };
 export default class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
-  textStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white80 : null;
-  iconStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white40 : null;
-  subtextStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.white40 : null;
-  backgroundStyle = (hoverStyle?: Types.ViewStyle) => this.state.hovered ? hoverStyle || styles.blueHover : null;
+  textStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white80 : null;
+  iconStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white40 : null;
+  subtextStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white40 : null;
+  backgroundStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.blueHover : null;
 
   onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
   onHoverEnd = () => !this.props.disabled ? this.setState({ hovered: false }) : null;
 
   render() {
-    const { children, style, hoverStyle, ...otherProps } = this.props;
+    const { children, style, cellHoverStyle, ...otherProps } = this.props;
     return (
-      <Button style={[ styles.cell, style, this.backgroundStyle(hoverStyle) ]}
+      <Button style={[ styles.cell, style, this.backgroundStyle(cellHoverStyle) ]}
         onHoverStart={this.onHoverStart}
         onHoverEnd={this.onHoverEnd}
         {...otherProps}>
@@ -103,15 +103,15 @@ export default class CellButton extends Component<CellButtonProps, State> {
               let updatedProps = {};
 
               if(node.type.name === 'Label') {
-                updatedProps = { style: [styles.label, node.props.style, this.textStyle(node.props.hoverStyle)]};
+                updatedProps = { style: [styles.label, node.props.style, this.textStyle(node.props.cellHoverStyle)]};
               }
 
               if(node.type.name === 'Img') {
-                updatedProps = { tintColor:'currentColor', style: [styles.icon, node.props.style, this.iconStyle(node.props.hoverStyle)]};
+                updatedProps = { tintColor:'currentColor', style: [styles.icon, node.props.style, this.iconStyle(node.props.cellHoverStyle)]};
               }
 
               if(node.type.name === 'SubText') {
-                updatedProps = { style: [styles.subtext, node.props.style, this.subtextStyle(node.props.hoverStyle)]};
+                updatedProps = { style: [styles.subtext, node.props.style, this.subtextStyle(node.props.cellHoverStyle)]};
               }
 
               return React.cloneElement(node, updatedProps);
