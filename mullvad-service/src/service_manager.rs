@@ -34,7 +34,6 @@ impl ServiceManagerAccess {
 pub struct ServiceManager(winsvc::SC_HANDLE);
 
 impl ServiceManager {
-
     /// Private initializer
     /// Passing None for machine connects to local machine
     /// Passing None for database connects to active database
