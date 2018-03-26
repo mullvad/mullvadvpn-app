@@ -78,22 +78,19 @@ impl ServiceAccess {
 
 /// Enum describing the start options for windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceStartType {
     /// Autostart on system startup
-    AutoStart,
+    AutoStart = winnt::SERVICE_AUTO_START,
     /// Service is enabled, can be started manually
-    OnDemand,
+    OnDemand = winnt::SERVICE_DEMAND_START,
     /// Disabled service
-    Disabled,
+    Disabled = winnt::SERVICE_DISABLED,
 }
 
 impl ServiceStartType {
     pub fn to_raw(&self) -> u32 {
-        match *self {
-            ServiceStartType::AutoStart => winnt::SERVICE_AUTO_START,
-            ServiceStartType::OnDemand => winnt::SERVICE_DEMAND_START,
-            ServiceStartType::Disabled => winnt::SERVICE_DISABLED,
-        }
+        *self as u32
     }
 }
 
