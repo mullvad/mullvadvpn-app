@@ -51,11 +51,10 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     // restore scroll to selected cell
     const cell = this._selectedCell;
     const scrollView = this._scrollView;
-    console.log(scrollView);
-    console.log(cell);
 
     if(scrollView && cell) {
-      scrollView.scrollToElement(cell, 'middle');
+      //TODO: fix this when repairing the auto-scroll in customscrollbars.
+      //scrollView.scrollToElement(cell, 'middle');
     }
   }
 

@@ -18,7 +18,7 @@ export default {
     },
     close: {
       marginLeft: 12,
-      marginTop: 12,
+      marginTop: 24,
       cursor: 'default',
     },
     close_icon:{
