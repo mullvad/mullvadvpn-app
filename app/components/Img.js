@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import { View, Component, Styles, Types } from 'reactxp';
+import { View, Component, Types } from 'reactxp';
 
 type ImgProps = {
     source: string,
@@ -21,7 +21,7 @@ export default class Img extends Component<ImgProps, State> {
   getHoverStyle = () => this.state.hovered ? this.props.hoverStyle || null : null;
 
   render() {
-    const { source, disabled, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;
+    const { source, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;
     const tintColor = this.props.tintColor;
     const url = './assets/images/' + source + '.svg';
     let image;
