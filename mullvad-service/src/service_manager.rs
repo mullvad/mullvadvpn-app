@@ -80,7 +80,11 @@ impl ServiceManager {
         ServiceManager::new(Some(machine), database, access_mask)
     }
 
-    pub fn create_service(&self, service_info: ServiceInfo) -> io::Result<Service> {
+    pub fn create_service(
+        &self,
+        service_info: ServiceInfo,
+        access_mask: &[ServiceAccess],
+    ) -> io::Result<Service> {
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
         let executable_path = to_wide_with_nul(service_info.executable_path);
@@ -94,7 +98,7 @@ impl ServiceManager {
                 self.0,
                 service_name.as_ptr(),
                 display_name.as_ptr(),
-                ServiceAccess::raw_mask(&service_info.service_access),
+                ServiceAccess::raw_mask(access_mask),
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
