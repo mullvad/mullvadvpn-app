@@ -154,7 +154,7 @@ pub enum ServiceState {
 }
 
 impl ServiceState {
-    pub fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
+    fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
         match raw_state {
             winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
             winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
@@ -176,13 +176,13 @@ pub struct ServiceStatus {
 }
 
 impl ServiceStatus {
-    pub fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ServiceError> {
+    fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ServiceError> {
         let current_state = ServiceState::from_raw(raw_status.dwCurrentState as u32)?;
         Ok(ServiceStatus { current_state })
     }
 }
 
-pub struct Service(pub winsvc::SC_HANDLE); // TBD: change pub to pub(crate)
+pub struct Service(pub(super) winsvc::SC_HANDLE);
 
 impl Service {
     pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
