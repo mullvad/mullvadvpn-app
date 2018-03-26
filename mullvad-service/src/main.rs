@@ -73,7 +73,7 @@ fn remove_service() -> Result<(), ServiceError> {
         let service_status = service.query_status()?;
 
         match service_status.current_state {
-            ServiceState::StopPending => thread::sleep(time::Duration::from_secs(1)),
+            ServiceState::StopPending => (),
             ServiceState::Stopped => {
                 println!("Removing the service...");
                 service.delete()?;
@@ -82,9 +82,10 @@ fn remove_service() -> Result<(), ServiceError> {
             _ => {
                 println!("Stopping the service...");
                 service.stop()?;
-                thread::sleep(time::Duration::from_secs(1));
             }
         }
+
+        thread::sleep(time::Duration::from_secs(1))
     }
 }
 
