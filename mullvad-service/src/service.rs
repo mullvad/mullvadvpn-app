@@ -179,9 +179,14 @@ impl ServiceStatus {
     }
 }
 
-pub struct Service(pub(super) winsvc::SC_HANDLE);
+pub struct Service(winsvc::SC_HANDLE);
 
 impl Service {
+    /// Internal constructor
+    pub(super) unsafe fn from_handle(handle: winsvc::SC_HANDLE) -> Self {
+        Service(handle)
+    }
+
     pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
         self.send_control_command(ServiceControl::Stop)
     }
