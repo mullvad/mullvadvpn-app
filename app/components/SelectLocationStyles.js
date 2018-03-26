@@ -60,6 +60,9 @@ export default {
     cell_selected: {
       backgroundColor: colors.green,
     },
+    expand_chevron_hover: {
+      color: colors.white,
+    },
   }),
   ...createTextStyles({
     title: {
