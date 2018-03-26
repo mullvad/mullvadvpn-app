@@ -163,8 +163,8 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
 
           { relayCountry.cities.length > 1 ?
             isExpanded ?
-              <Img style={styles.collapse_button} onPress={ handleCollapse } source='icon-chevron-up' height='24' width='24' /> :
-              <Img style={styles.collapse_button} onPress={ handleCollapse } source='icon-chevron-down' height='24' width='24' />
+              <Img style={styles.collapse_button} hoverStyle={styles.expand_chevron_hover} onPress={ handleCollapse } source='icon-chevron-up' height='24' width='24' /> :
+              <Img style={styles.collapse_button} hoverStyle={styles.expand_chevron_hover} onPress={ handleCollapse } source='icon-chevron-down' height='24' width='24' />
             : null }
         </CellButton>
 
