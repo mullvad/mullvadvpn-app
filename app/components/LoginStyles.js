@@ -81,6 +81,10 @@ export default {
       backgroundColor: colors.darkBlue,
     },
     account_dropdown__item: {
+      paddingTop: 10,
+      paddingRight: 12,
+      paddingLeft: 12,
+      paddingBottom: 12,
       flexDirection: 'row',
       backgroundColor: colors.white60,
     },
