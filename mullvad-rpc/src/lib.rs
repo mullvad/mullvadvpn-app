@@ -39,7 +39,6 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
-use std::io;
 use std::path::Path;
 
 pub mod event_loop;
@@ -65,7 +64,10 @@ impl RpcConnectionManager {
     }
 
     /// Create a new `RpcConnectionManager` using the specified resource and cache directories.
-    pub fn with_resource_and_cache_dirs(resource_dir: &Path, cache_dir: &Path) -> io::Result<Self> {
+    pub fn with_resource_and_cache_dirs(
+        resource_dir: &Path,
+        cache_dir: &Path,
+    ) -> cached_dns_resolver::Result<Self> {
         let filename = "api_ip_address.txt";
         let cache_file = cache_dir.join(filename);
         let fallback_file = resource_dir.join(filename);
