@@ -264,8 +264,7 @@ impl Daemon {
         rpc_handle: mullvad_rpc::HttpHandle,
         resource_dir: &Path,
     ) -> Result<relays::RelaySelector> {
-        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir)
-            .chain_err(|| "Unable to initialize relay list cache")?;
+        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir);
         if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
             if elapsed > *MAX_RELAY_CACHE_AGE {
                 if let Err(e) = relay_selector.update(*RELAY_CACHE_UPDATE_TIMEOUT) {

@@ -17,7 +17,7 @@ use std::fs::File;
 use std::io;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime};
+use std::time::{self, Duration, SystemTime};
 
 use rand::distributions::{IndependentSample, Range};
 use rand::{self, Rng, ThreadRng};
@@ -51,21 +51,21 @@ pub struct RelaySelector {
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
     /// to refresh the relay list from the internet.
-    pub fn new(rpc_handle: HttpHandle, resource_dir: &Path) -> Result<Self> {
-        let (last_updated, relay_list) = Self::read_cached_relays(resource_dir)?;
+    pub fn new(rpc_handle: HttpHandle, resource_dir: &Path) -> Self {
+        let (last_updated, relay_list) = Self::read_cached_relays(resource_dir);
         let (locations, relays) = Self::process_relay_list(relay_list);
         info!(
             "Initialized with {} cached relays from {}",
             relays.len(),
             DateTime::<Local>::from(last_updated).format(::logging::DATE_TIME_FORMAT_STR)
         );
-        Ok(RelaySelector {
+        RelaySelector {
             locations,
             relays,
             last_updated,
             rng: rand::thread_rng(),
             rpc_client: RelayListProxy::new(rpc_handle),
-        })
+        }
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
@@ -294,12 +294,17 @@ impl RelaySelector {
     }
 
     /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
-    fn read_cached_relays(resource_dir: &Path) -> Result<(SystemTime, RelayList)> {
+    /// If reading both files fail it will return an empty `RelayList` and the Unix epoch time.
+    fn read_cached_relays(resource_dir: &Path) -> (SystemTime, RelayList) {
         match Self::get_cache_path().and_then(|path| Self::read_relays(&path)) {
-            Ok(value) => Ok(value),
-            Err(read_cache_error) => match Self::read_relays(&resource_dir.join("relays.json")) {
-                Ok(value) => Ok(value),
-                Err(read_resource_error) => Err(read_cache_error.chain_err(|| read_resource_error)),
+            Ok(value) => value,
+            Err(_read_cache_error) => match Self::read_relays(&resource_dir.join("relays.json")) {
+                Ok(value) => value,
+                Err(read_resource_error) => {
+                    let error = read_resource_error.chain_err(|| "Unable to load cached relays");
+                    error!("{}", error.display_chain());
+                    (time::UNIX_EPOCH, RelayList::empty())
+                }
             },
         }
     }
