@@ -6,6 +6,8 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, SystemTime};
 
+use error_chain::ChainedError;
+
 
 lazy_static! {
     static ref MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
@@ -120,6 +122,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
                 self.resolve_into_cache();
             }
         } else {
+            warn!("System time changed, assuming cached IP address has expired");
             self.resolve_into_cache();
         }
 
@@ -133,13 +136,19 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         let expired_last_update = SystemTime::now() - *MAX_CACHE_AGE - Duration::from_secs(1);
 
         match Self::load_from_file(cache_file) {
-            Ok(previously_cached_address) => {
-                let last_updated =
-                    Self::read_file_modification_time(cache_file).unwrap_or(expired_last_update);
+            Ok(previously_cached_address) => match Self::read_file_modification_time(cache_file) {
+                Ok(last_updated) => Ok((previously_cached_address, last_updated)),
+                Err(error) => {
+                    warn!("Failed to read modification time of file: {}", error);
+                    Ok((previously_cached_address, expired_last_update))
+                }
+            },
+            Err(error) => {
+                info!(
+                    "Failed to load previously cached IP address, using fallback: {}",
+                    error.display_chain(),
+                );
 
-                Ok((previously_cached_address, last_updated))
-            }
-            Err(_) => {
                 let fallback_address = Self::load_from_file(fallback_file)
                     .chain_err(|| ErrorKind::FallbackAddressError)?;
 
@@ -160,24 +169,27 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             .chain_err(|| ErrorKind::InvalidAddress)
     }
 
-    fn read_file_modification_time(cache_file: &Path) -> Option<SystemTime> {
-        let metadata = cache_file.metadata().ok()?;
-
-        metadata.modified().ok()
+    fn read_file_modification_time(cache_file: &Path) -> io::Result<SystemTime> {
+        cache_file
+            .metadata()
+            .and_then(|metadata| metadata.modified())
     }
 
     fn resolve_into_cache(&mut self) {
         if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
             self.cached_address = address;
             self.last_updated = SystemTime::now();
-            self.update_cache_file();
+
+            if let Err(error) = self.update_cache_file() {
+                warn!("Failed to update cache file with new IP address: {}", error);
+            }
         }
     }
 
-    fn update_cache_file(&mut self) {
-        if let Ok(mut cache_file) = File::create(&self.cache_file) {
-            let _ = writeln!(cache_file, "{}", self.cached_address);
-        }
+    fn update_cache_file(&mut self) -> io::Result<()> {
+        let mut cache_file = File::create(&self.cache_file)?;
+
+        writeln!(cache_file, "{}", self.cached_address)
     }
 }
 
