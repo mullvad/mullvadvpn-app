@@ -10,6 +10,14 @@ pub struct RelayList {
     pub countries: Vec<RelayListCountry>,
 }
 
+impl RelayList {
+    pub fn empty() -> Self {
+        Self {
+            countries: Vec::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RelayListCountry {
     pub name: String,
