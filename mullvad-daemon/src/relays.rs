@@ -296,9 +296,9 @@ impl RelaySelector {
     /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
     /// If reading both files fail it will return an empty `RelayList` and the Unix epoch time.
     fn read_cached_relays(resource_dir: &Path) -> (SystemTime, RelayList) {
-        match Self::get_cache_path().and_then(|path| Self::read_relays(&path)) {
+        match Self::get_cache_path().and_then(Self::read_relays) {
             Ok(value) => value,
-            Err(_read_cache_error) => match Self::read_relays(&resource_dir.join("relays.json")) {
+            Err(_read_cache_error) => match Self::read_relays(resource_dir.join("relays.json")) {
                 Ok(value) => value,
                 Err(read_resource_error) => {
                     let error = read_resource_error.chain_err(|| "Unable to load cached relays");
@@ -311,12 +311,12 @@ impl RelaySelector {
 
     /// Read and deserialize a `RelayList` from a given path.
     /// Returns the file modification time and the relays.
-    fn read_relays(path: &Path) -> Result<(SystemTime, RelayList)> {
+    fn read_relays<P: AsRef<Path>>(path: P) -> Result<(SystemTime, RelayList)> {
         debug!(
             "Trying to read relays cache from {}",
-            path.to_string_lossy()
+            path.as_ref().to_string_lossy()
         );
-        let (last_modified, file) = Self::read_file(path).chain_err(|| ErrorKind::RelayCacheError)?;
+        let (last_modified, file) = Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
         let relay_list = serde_json::from_reader(file).chain_err(|| ErrorKind::SerializationError)?;
         Ok((last_modified, relay_list))
     }
