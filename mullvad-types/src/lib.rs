@@ -24,6 +24,7 @@ pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;
 pub mod states;
+pub mod version;
 
 mod custom_tunnel;
 pub use custom_tunnel::*;
