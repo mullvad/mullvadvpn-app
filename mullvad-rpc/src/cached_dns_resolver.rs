@@ -6,20 +6,49 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use error_chain::ChainedError;
+
 
 static DNS_TIMEOUT: Duration = Duration::from_secs(2);
 static MAX_CACHE_AGE: Duration = Duration::from_secs(3600);
 static EXPIRED_CACHE_TIMESTAMP: SystemTime = UNIX_EPOCH;
 
+error_chain! {
+    errors {
+        DnsTimeout(host: String) {
+            description("DNS resolution for a host took too long")
+            display("DNS resolution for host \"{}\" took too long", host)
+        }
+
+        HostNotFound(host: String) {
+            description("DNS resolution for a host didn't return any IP addresses")
+            display("DNS resolution for host \"{}\" didn't return any IP addresses", host)
+        }
+
+        InvalidAddress {
+            description("Address loaded from file is invalid")
+        }
+
+        ResolveFailure(host: String) {
+            description("Failed to resolve IP address for host")
+            display("Failed to resolve IP address for host: {}", host)
+        }
+    }
+
+    foreign_links {
+        FileAccessError(io::Error);
+    }
+}
+
 
 pub trait DnsResolver {
-    fn resolve(&mut self, host: &str) -> io::Result<IpAddr>;
+    fn resolve(&mut self, host: &str) -> Result<IpAddr>;
 }
 
 pub struct SystemDnsResolver;
 
 impl SystemDnsResolver {
-    fn resolve_in_background_thread(host: &str) -> mpsc::Receiver<io::Result<IpAddr>> {
+    fn resolve_in_background_thread(host: &str) -> mpsc::Receiver<Result<IpAddr>> {
         let host = host.to_owned();
         let (tx, rx) = mpsc::channel();
 
@@ -30,27 +59,21 @@ impl SystemDnsResolver {
         rx
     }
 
-    fn resolve_hostname(host: &str) -> io::Result<IpAddr> {
+    fn resolve_hostname(host: &str) -> Result<IpAddr> {
         (host, 0)
-            .to_socket_addrs()?
+            .to_socket_addrs()
+            .chain_err(|| ErrorKind::ResolveFailure(host.to_owned()))?
             .next()
             .map(|socket_address| socket_address.ip())
-            .ok_or_else(|| {
-                io::Error::new(io::ErrorKind::NotFound, format!("Host not found: {}", host))
-            })
+            .ok_or_else(|| ErrorKind::HostNotFound(host.to_owned()).into())
     }
 }
 
 impl DnsResolver for SystemDnsResolver {
-    fn resolve(&mut self, host: &str) -> io::Result<IpAddr> {
+    fn resolve(&mut self, host: &str) -> Result<IpAddr> {
         Self::resolve_in_background_thread(host)
             .recv_timeout(DNS_TIMEOUT)
-            .map_err(|_| {
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    "Timeout while performing DNS resolution",
-                )
-            })
+            .chain_err(|| ErrorKind::DnsTimeout(host.to_owned()))
             .and_then(|result| result)
     }
 }
@@ -94,6 +117,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
                 self.resolve_into_cache();
             }
         } else {
+            warn!("System time changed, assuming cached IP address has expired");
             self.resolve_into_cache();
         }
 
@@ -105,17 +129,25 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         fallback_address: IpAddr,
     ) -> (IpAddr, SystemTime) {
         match Self::load_from_file(cache_file) {
-            Ok(previously_cached_address) => {
-                let last_updated = Self::read_file_modification_time(cache_file)
-                    .unwrap_or(EXPIRED_CACHE_TIMESTAMP);
+            Ok(previously_cached_address) => match Self::read_file_modification_time(cache_file) {
+                Ok(last_updated) => (previously_cached_address, last_updated),
+                Err(error) => {
+                    warn!("Failed to read modification time of file: {}", error);
+                    (previously_cached_address, EXPIRED_CACHE_TIMESTAMP)
+                }
+            },
+            Err(error) => {
+                info!(
+                    "Failed to load previously cached IP address, using fallback: {}",
+                    error.display_chain(),
+                );
 
-                (previously_cached_address, last_updated)
+                (fallback_address, EXPIRED_CACHE_TIMESTAMP)
             }
-            Err(_) => (fallback_address, EXPIRED_CACHE_TIMESTAMP),
         }
     }
 
-    fn load_from_file(file_path: &Path) -> io::Result<IpAddr> {
+    fn load_from_file(file_path: &Path) -> Result<IpAddr> {
         let mut file = File::open(file_path)?;
         let mut address = String::new();
 
@@ -124,27 +156,30 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         address
             .trim()
             .parse()
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Invalid address data"))
+            .chain_err(|| ErrorKind::InvalidAddress)
     }
 
-    fn read_file_modification_time(cache_file: &Path) -> Option<SystemTime> {
-        let metadata = cache_file.metadata().ok()?;
-
-        metadata.modified().ok()
+    fn read_file_modification_time(cache_file: &Path) -> io::Result<SystemTime> {
+        cache_file
+            .metadata()
+            .and_then(|metadata| metadata.modified())
     }
 
     fn resolve_into_cache(&mut self) {
         if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
             self.cached_address = address;
             self.last_updated = SystemTime::now();
-            self.update_cache_file();
+
+            if let Err(error) = self.update_cache_file() {
+                warn!("Failed to update cache file with new IP address: {}", error);
+            }
         }
     }
 
-    fn update_cache_file(&mut self) {
-        if let Ok(mut cache_file) = File::create(&self.cache_file) {
-            let _ = writeln!(cache_file, "{}", self.cached_address);
-        }
+    fn update_cache_file(&mut self) -> io::Result<()> {
+        let mut cache_file = File::create(&self.cache_file)?;
+
+        writeln!(cache_file, "{}", self.cached_address)
     }
 }
 
@@ -267,6 +302,23 @@ mod tests {
         assert_eq!(address, mock_address);
     }
 
+    #[test]
+    fn invalid_cache_file_leads_to_fallback_address_usage() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let fallback_address = "192.168.1.31".parse().unwrap();
+        let mock_resolver = MockDnsResolver::that_fails();
+        let mock_resolver_was_called = mock_resolver.was_called_handle();
+
+        write_invalid_address(&cache_dir);
+
+        let mut cache =
+            create_cached_dns_resolver(mock_resolver, &cache_dir, Some(fallback_address));
+        let address = cache.resolve();
+
+        assert!(mock_resolver_was_called.load(Ordering::Acquire));
+        assert_eq!(address, fallback_address);
+    }
+
     fn create_test_dirs() -> (TempDir, PathBuf) {
         let temp_dir = TempDir::new("ip-cache-test").unwrap();
         let cache_dir = temp_dir.path().join("cache");
@@ -274,6 +326,15 @@ mod tests {
         fs::create_dir(&cache_dir).unwrap();
 
         (temp_dir, cache_dir)
+    }
+
+    fn write_invalid_address(dir: &Path) -> PathBuf {
+        let file_path = dir.join("api_ip_address.txt");
+        let mut file = File::create(&file_path).unwrap();
+
+        writeln!(file, "400.30.12.9").unwrap();
+
+        file_path
     }
 
     fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
@@ -345,15 +406,10 @@ mod tests {
     }
 
     impl DnsResolver for MockDnsResolver {
-        fn resolve(&mut self, host: &str) -> io::Result<IpAddr> {
+        fn resolve(&mut self, host: &str) -> Result<IpAddr> {
             self.called.store(true, Ordering::Release);
-
-            self.address.ok_or_else(|| {
-                io::Error::new(
-                    io::ErrorKind::NotFound,
-                    format!("Failed to resolve address for {:?}", host),
-                )
-            })
+            self.address
+                .ok_or_else(|| ErrorKind::ResolveFailure(host.to_owned()).into())
         }
     }
 }
