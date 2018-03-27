@@ -229,7 +229,7 @@ impl Daemon {
         let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
         let http_handle = http_handle.chain_err(|| "Unable to create HTTP client")?;
 
-        let relay_selector = Self::create_relay_selector(rpc_handle.clone(), &resource_dir)?;
+        let relay_selector = Self::create_relay_selector(rpc_handle.clone(), &resource_dir);
 
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster =
@@ -266,9 +266,8 @@ impl Daemon {
     fn create_relay_selector(
         rpc_handle: mullvad_rpc::HttpHandle,
         resource_dir: &Path,
-    ) -> Result<relays::RelaySelector> {
-        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir)
-            .chain_err(|| "Unable to initialize relay list cache")?;
+    ) -> relays::RelaySelector {
+        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir);
         if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
             if elapsed > *MAX_RELAY_CACHE_AGE {
                 if let Err(e) = relay_selector.update(*RELAY_CACHE_UPDATE_TIMEOUT) {
@@ -276,7 +275,7 @@ impl Daemon {
                 }
             }
         }
-        Ok(relay_selector)
+        relay_selector
     }
 
     // Starts the management interface and spawns a thread that will process it.
