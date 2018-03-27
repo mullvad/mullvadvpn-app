@@ -89,7 +89,8 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
     // note: _getValue() is private.
     const primitiveFromValue = parseInt(fromValue._getValue());
     const multiplier = Math.abs(toValue - primitiveFromValue) / Math.max(1, this._contentHeight);
-    const duration = this.props.animationDuration * multiplier;
+    const duration = Math.max(100, Math.ceil(this.props.animationDuration * multiplier));
+
     const animation = Animated.timing(fromValue, {
       toValue: toValue,
       easing: Animated.Easing.InOut(),
