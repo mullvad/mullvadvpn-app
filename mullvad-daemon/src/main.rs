@@ -86,6 +86,9 @@ use std::fs;
 
 error_chain!{
     errors {
+        AuthFailed {
+            description("Authentication failed")
+        }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
         }
@@ -356,6 +359,8 @@ impl Daemon {
         if self.state == TunnelState::Connecting {
             match tunnel_event {
                 TunnelEvent::AuthFailed => {
+                    self.management_interface_broadcaster
+                        .notify_error(&Error::from(ErrorKind::AuthFailed));
                     self.kill_tunnel()
                 }
                 TunnelEvent::Up(metadata) => {
