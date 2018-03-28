@@ -17,7 +17,7 @@ jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 tokio-core = "0.1"
 futures = "0.1"
 
-openvpn-plugin = { version = "0.3", features = ["serde", "log"] }
+openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
 talpid-ipc = { path = "../talpid-ipc" }
 
 
