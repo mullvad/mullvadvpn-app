@@ -354,12 +354,16 @@ impl Daemon {
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         debug!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting {
-            if let TunnelEvent::Up(metadata) = tunnel_event {
-                self.tunnel_metadata = Some(metadata);
-                self.set_security_policy()?;
-                self.set_state(TunnelState::Connected)
-            } else {
-                Ok(())
+            match tunnel_event {
+                TunnelEvent::AuthFailed => {
+                    self.kill_tunnel()
+                }
+                TunnelEvent::Up(metadata) => {
+                    self.tunnel_metadata = Some(metadata);
+                    self.set_security_policy()?;
+                    self.set_state(TunnelState::Connected)
+                }
+                _ => Ok(()),
             }
         } else if self.state == TunnelState::Connected && tunnel_event == TunnelEvent::Down {
             self.kill_tunnel()
