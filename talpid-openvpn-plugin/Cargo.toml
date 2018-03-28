@@ -13,5 +13,5 @@ error-chain = "0.11"
 log = "0.4"
 env_logger = "0.5"
 
-openvpn-plugin = { version = "0.3", features = ["serde", "log"] }
+openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
 talpid-ipc = { path = "../talpid-ipc" }
