@@ -14,7 +14,7 @@ jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 libc = "0.2.20"
 log = "0.4"
-openvpn-plugin = { version = "0.3", features = ["serde"] }
+openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
 os_pipe = "0.7"
 shell-escape = "0.1"
 tokio-core = "0.1"

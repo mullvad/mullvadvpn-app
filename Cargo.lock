@@ -1166,9 +1166,17 @@ dependencies = [
 [[package]]
 name = "openvpn-plugin"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event#6e2586030d6c8fb0e39d88769677a4085a1dd121"
 dependencies = [
  "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "openvpn-plugin"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
  "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1641,7 +1649,7 @@ dependencies = [
  "mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs)",
  "nftnl 0.1.0 (git+https://github.com/mullvad/nftnl-rs)",
  "notify 4.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
  "os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "resolv-conf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1687,7 +1695,7 @@ dependencies = [
  "jsonrpc-client-core 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
  "jsonrpc-client-ipc 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
  "talpid-ipc 0.1.0",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "windres 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2270,6 +2278,7 @@ source = "git+https://github.com/mullvad/rust-openssl#4dbd237fe1f6454d8a0042ccf4
 "checksum num_cpus 1.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c51a3322e4bca9d212ad9a158a02abc6934d005490c054a2778df73a70aa0a30"
 "checksum openssl 0.10.11 (registry+https://github.com/rust-lang/crates.io-index)" = "6c24d3508b4fb6da175c10baac54c578b33f09c89ae90c6fe9788b3b4768efdc"
 "checksum openssl-sys 0.9.35 (registry+https://github.com/rust-lang/crates.io-index)" = "912f301a749394e1025d9dcddef6106ddee9252620e6d0a0e5f8d0681de9b129"
+"checksum openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)" = "<none>"
 "checksum openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f01f94fa077e8648fa20c654f6aef90e1a0feae5455a7b5d80c19eadeb97c7e8"
 "checksum os_pipe 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "fe033225d563042c3eeb22ffd1d2ea1aefcc48e7e37151a064c9e0bae64b253f"
 "checksum os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cd9d339267cdef39ee54ef165fdfaa2c7289a7465f0188ebe1c8a63872ca64c7"
