@@ -480,6 +480,9 @@ export class Backend {
       this._dispatchConnectionState(newStatus);
       this.sync();
     });
+    this._ipc.registerErrorListener(errorChain => {
+      log.debug('Got error from backend', errorChain);
+    });
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
