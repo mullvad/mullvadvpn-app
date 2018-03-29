@@ -197,16 +197,17 @@ pub enum ServiceState {
 
 impl ServiceState {
     fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
-        match raw_state {
-            winsvc::SERVICE_STOPPED => Ok(ServiceState::Stopped),
-            winsvc::SERVICE_START_PENDING => Ok(ServiceState::StartPending),
-            winsvc::SERVICE_STOP_PENDING => Ok(ServiceState::StopPending),
-            winsvc::SERVICE_RUNNING => Ok(ServiceState::Running),
-            winsvc::SERVICE_CONTINUE_PENDING => Ok(ServiceState::ContinuePending),
-            winsvc::SERVICE_PAUSE_PENDING => Ok(ServiceState::PausePending),
-            winsvc::SERVICE_PAUSED => Ok(ServiceState::Paused),
-            other => Err(ServiceError::InvalidServiceState(other)),
-        }
+        let service_state = match raw_state {
+            winsvc::SERVICE_STOPPED => ServiceState::Stopped,
+            winsvc::SERVICE_START_PENDING => ServiceState::StartPending,
+            winsvc::SERVICE_STOP_PENDING => ServiceState::StopPending,
+            winsvc::SERVICE_RUNNING => ServiceState::Running,
+            winsvc::SERVICE_CONTINUE_PENDING => ServiceState::ContinuePending,
+            winsvc::SERVICE_PAUSE_PENDING => ServiceState::PausePending,
+            winsvc::SERVICE_PAUSED => ServiceState::Paused,
+            other => Err(ServiceError::InvalidServiceState(other))?,
+        };
+        Ok(service_state)
     }
 }
 
