@@ -86,8 +86,9 @@ use std::fs;
 
 error_chain!{
     errors {
-        AuthFailed {
+        AuthFailed(reason: String) {
             description("Authentication failed")
+            display("Authentication failed: {}", reason)
         }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
@@ -360,9 +361,13 @@ impl Daemon {
         debug!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting {
             match tunnel_event {
-                TunnelEvent::AuthFailed => {
+                TunnelEvent::AuthFailed(optional_reason) => {
+                    let reason = match optional_reason {
+                        Some(reason) => format!("\"{}\"", reason),
+                        None => "No reason provided".to_owned(),
+                    };
                     self.management_interface_broadcaster
-                        .notify_error(&Error::from(ErrorKind::AuthFailed));
+                        .notify_error(&Error::from(ErrorKind::AuthFailed(reason)));
                     self.kill_tunnel()
                 }
                 TunnelEvent::Up(metadata) => {

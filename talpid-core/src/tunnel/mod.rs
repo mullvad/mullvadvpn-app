@@ -53,7 +53,7 @@ pub use self::errors::*;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
     /// Sent when the tunnel fails to connect due to an authentication error.
-    AuthFailed,
+    AuthFailed(Option<String>),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
     /// Sent when the tunnel goes down.
@@ -79,7 +79,10 @@ impl TunnelEvent {
         env: &HashMap<String, String>,
     ) -> Option<TunnelEvent> {
         match *event {
-            OpenVpnPluginEvent::AuthFailed => Some(TunnelEvent::AuthFailed),
+            OpenVpnPluginEvent::AuthFailed => {
+                let reason = env.get("auth_failed_reason").map(String::to_owned);
+                Some(TunnelEvent::AuthFailed(reason))
+            }
             OpenVpnPluginEvent::Up => {
                 let interface = env.get("dev")
                     .expect("No \"dev\" in tunnel up event")
