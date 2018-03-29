@@ -67,6 +67,8 @@ pub enum ServiceAccess {
     QueryStatus = winsvc::SERVICE_QUERY_STATUS,
     Start = winsvc::SERVICE_START,
     Stop = winsvc::SERVICE_STOP,
+    PauseContinue = winsvc::SERVICE_PAUSE_CONTINUE,
+    Interrogate = winsvc::SERVICE_INTERROGATE,
     Delete = winnt::DELETE,
 }
 
