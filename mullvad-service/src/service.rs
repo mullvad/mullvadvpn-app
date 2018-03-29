@@ -9,6 +9,7 @@ use winapi::um::{winnt, winsvc};
 #[derive(Debug)]
 pub enum ServiceError {
     InvalidServiceState(u32),
+    InvalidServiceControl(u32),
     System(io::Error),
 }
 
@@ -19,8 +20,8 @@ impl error::Error for ServiceError {
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            ServiceError::InvalidServiceState(_) => None,
             ServiceError::System(ref io_err) => Some(io_err),
+            _ => None,
         }
     }
 }
@@ -30,6 +31,9 @@ impl fmt::Display for ServiceError {
         match *self {
             ServiceError::InvalidServiceState(raw_value) => {
                 write!(f, "Invalid service state value: {}", raw_value)
+            }
+            ServiceError::InvalidServiceControl(raw_value) => {
+                write!(f, "Invalid service control value: {}", raw_value)
             }
             ServiceError::System(_) => write!(f, "System call error"),
         }
@@ -124,17 +128,58 @@ pub struct ServiceInfo {
     pub account_password: Option<OsString>,
 }
 
-// Private enum describing the service control operations
+// Enum describing the service control operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum ServiceControl {
-    Stop,
+#[repr(u32)]
+pub enum ServiceControl {
+    Continue = winsvc::SERVICE_CONTROL_CONTINUE,
+    Interrogate = winsvc::SERVICE_CONTROL_INTERROGATE,
+    NetBindAdd = winsvc::SERVICE_CONTROL_NETBINDADD,
+    NetBindDisable = winsvc::SERVICE_CONTROL_NETBINDDISABLE,
+    NetBindEnable = winsvc::SERVICE_CONTROL_NETBINDENABLE,
+    NetBindRemove = winsvc::SERVICE_CONTROL_NETBINDREMOVE,
+    ParamChange = winsvc::SERVICE_CONTROL_PARAMCHANGE,
+    Pause = winsvc::SERVICE_CONTROL_PAUSE,
+    Preshutdown = winsvc::SERVICE_CONTROL_PRESHUTDOWN,
+    Shutdown = winsvc::SERVICE_CONTROL_SHUTDOWN,
+    Stop = winsvc::SERVICE_CONTROL_STOP,
+    DeviceEvent = winsvc::SERVICE_CONTROL_DEVICEEVENT,
+    HardwareProfileChange = winsvc::SERVICE_CONTROL_HARDWAREPROFILECHANGE,
+    PowerEvent = winsvc::SERVICE_CONTROL_POWEREVENT,
+    SessionChange = winsvc::SERVICE_CONTROL_SESSIONCHANGE,
+    TimeChange = winsvc::SERVICE_CONTROL_TIMECHANGE,
+    TriggerEvent = winsvc::SERVICE_CONTROL_TRIGGEREVENT,
 }
 
 impl ServiceControl {
-    fn to_raw(&self) -> u32 {
-        match self {
-            &ServiceControl::Stop => winsvc::SERVICE_CONTROL_STOP,
-        }
+    pub fn from_raw(raw_value: u32) -> Result<Self, ServiceError> {
+        let service_control = match raw_value {
+            x if x == ServiceControl::Continue.to_raw() => ServiceControl::Continue,
+            x if x == ServiceControl::Interrogate.to_raw() => ServiceControl::Interrogate,
+            x if x == ServiceControl::NetBindAdd.to_raw() => ServiceControl::NetBindAdd,
+            x if x == ServiceControl::NetBindDisable.to_raw() => ServiceControl::NetBindDisable,
+            x if x == ServiceControl::NetBindEnable.to_raw() => ServiceControl::NetBindEnable,
+            x if x == ServiceControl::NetBindRemove.to_raw() => ServiceControl::NetBindRemove,
+            x if x == ServiceControl::ParamChange.to_raw() => ServiceControl::ParamChange,
+            x if x == ServiceControl::Pause.to_raw() => ServiceControl::Pause,
+            x if x == ServiceControl::Preshutdown.to_raw() => ServiceControl::Preshutdown,
+            x if x == ServiceControl::Shutdown.to_raw() => ServiceControl::Shutdown,
+            x if x == ServiceControl::Stop.to_raw() => ServiceControl::Stop,
+            x if x == ServiceControl::DeviceEvent.to_raw() => ServiceControl::DeviceEvent,
+            x if x == ServiceControl::HardwareProfileChange.to_raw() => {
+                ServiceControl::HardwareProfileChange
+            }
+            x if x == ServiceControl::PowerEvent.to_raw() => ServiceControl::PowerEvent,
+            x if x == ServiceControl::SessionChange.to_raw() => ServiceControl::SessionChange,
+            x if x == ServiceControl::TimeChange.to_raw() => ServiceControl::TimeChange,
+            x if x == ServiceControl::TriggerEvent.to_raw() => ServiceControl::TriggerEvent,
+            other => Err(ServiceError::InvalidServiceControl(other))?,
+        };
+        Ok(service_control)
+    }
+
+    pub fn to_raw(&self) -> u32 {
+        *self as u32
     }
 }
 
