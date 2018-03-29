@@ -371,7 +371,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
 /// If it is `Ok(val)`, evaluates to `val`.
 /// If it is `Err(e)` it early returns `Box<Future>` where the future will result in `e`.
 macro_rules! try_future {
-    ($result: expr) => {
+    ($result:expr) => {
         match $result {
             ::std::result::Result::Ok(val) => val,
             ::std::result::Result::Err(e) => return Box::new(future::err(e)),
