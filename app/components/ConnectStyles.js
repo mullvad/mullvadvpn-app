@@ -81,7 +81,6 @@ export default {
       paddingLeft: 20,
       paddingRight: 20,
       paddingBottom: 8,
-      height: 36,
       color: colors.white60,
       backgroundColor: colors.blue,
     },
