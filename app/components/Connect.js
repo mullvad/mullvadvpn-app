@@ -3,11 +3,11 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
-import { Text, View, Animated, Styles, Types } from 'reactxp';
+import { Component, Text, View, Types } from 'reactxp';
 import Img from './Img';
 import { TransparentButton, GreenButton, RedButton, Label } from './styled';
+import Accordion from './Accordion';
 import styles from './ConnectStyles';
-import { colors } from '../config';
 
 import { BackendError } from '../lib/backend';
 import Map from './Map';
@@ -32,7 +32,7 @@ type ConnectState = {
   mapOffset: [number, number],
 };
 
-export default class Connect extends React.Component<ConnectProps, ConnectState> {
+export default class Connect extends Component<ConnectProps, ConnectState> {
   state = {
     showCopyIPMessage: false,
     mapOffset: [0, 0],
@@ -259,34 +259,13 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
     );
   }
 
-  _getBlockingMessageAnimation(animationValue: Animated.Value, toValue: number){
-    return Animated.timing(animationValue, {
-      toValue: toValue,
-      easing: Animated.Easing.InOut(),
-      duration: 250,
-      useNativeDriver: true,
-    });
-  }
-
-
   _renderIsBlockingInternetMessage() {
-    let messageHeight = 0;
-    let messageHeightValue = Animated.createValue(0);
-    if (this.props.connection.status === 'connecting') {
-      messageHeight = styles.blockingMessageHeight;
-    }
-
-    this._getBlockingMessageAnimation(messageHeightValue, messageHeight).start();
-
-    return <Animated.View style={
-      Styles.createAnimatedViewStyle({
-        height: messageHeight,
-        backgroundColor: colors.blue})} >
+    return <Accordion height={ (this.props.connection.status === 'connecting') ? 'auto' : 0 }>
       <Text style={styles.blocking_message}>
         <Text style={styles.blocking_icon}>&nbsp;</Text>
         <Text>BLOCKING INTERNET</Text>
       </Text>
-    </Animated.View>;
+    </Accordion>;
   }
 
   // Handlers
