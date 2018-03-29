@@ -1,149 +1,129 @@
 // @flow
+
 import * as React from 'react';
+import { Component, View, Styles, Animated, UserInterface } from 'reactxp';
 
 export type AccordionProps = {
-  height?: number | string,
-  transitionStyle?: string,
+  height: number | 'auto',
+  animationDuration?: number,
   children?: React.Node
 };
 
-type AccordionState = {
-  computedHeight: ?number | ?string,
+export type AccordionState = {
+  animatedValue: ?Animated.Value,
 };
 
-export default class Accordion extends React.Component<AccordionProps, AccordionState> {
+const containerOverflowStyle = Styles.createViewStyle({ overflow: 'hidden' });
+
+export default class Accordion extends Component<AccordionProps, AccordionState> {
   static defaultProps = {
     height: 'auto',
-    transitionStyle: 'height 0.25s ease-in-out'
+    animationDuration: 350
   };
 
-  state = {
-    computedHeight: null,
+  state: AccordionState = {
+    animatedValue: null,
+    animation: null,
   };
 
-  _containerElement: ?HTMLElement;
-  _contentElement: ?HTMLElement;
+  _containerView: ?React.Node;
+  _contentHeight = 0;
+  _animation = (null: ?Animated.CompositeAnimation);
 
   constructor(props: AccordionProps) {
     super(props);
 
     // set the initial height if it's known
-    if(props.height !== 'auto') {
+    if(typeof(props.height) === 'number') {
       this.state = {
-        computedHeight: props.height
+        animatedValue: Animated.createValue(props.height)
       };
     }
   }
 
-  componentDidMount() {
-    const containerElement = this._containerElement;
-    if(!containerElement) {
-      throw new Error('containerElement cannot be null');
+  componentWillUnmount() {
+    if(this._animation) {
+      this._animation.stop();
     }
-    containerElement.addEventListener('transitionend', this._onTransitionEnd);
   }
 
-  componentWillUnmount() {
-    const containerElement = this._containerElement;
-    if(!containerElement) {
-      throw new Error('containerElement cannot be null');
-    }
-    containerElement.removeEventListener('transitionend', this._onTransitionEnd);
+  shouldComponentUpdate(nextProps: AccordionProps, nextState: AccordionState) {
+    return nextState.animatedValue !== this.state.animatedValue ||
+           nextProps.height !== this.props.height;
   }
 
   componentDidUpdate(prevProps: AccordionProps, _prevState: AccordionState) {
     if(prevProps.height !== this.props.height) {
-      (async () => {
-        const { transitionStyle } = this.props;
-
-        // make sure to warm up CSS transition before updating height
-        // do not warm up transitions if they are not expected to run
-        if(transitionStyle && transitionStyle.toLowerCase() !== 'none') {
-          await this._warmupTransition();
-          this._updateHeight();
-        } else {
-          this._updateHeight();
-          this._onTransitionEnd();
-        }
-
-      })();
+      this._animateHeightChanges();
     }
   }
 
   render() {
-    const { height: _height, children, transitionStyle, ...otherProps } = this.props;
-    let style = {
-      transition: transitionStyle,
-    };
+    const { height: _height, children, animationDuration: _animationDuration, ...otherProps } = this.props;
+    const containerStyles = [];
 
-    if(typeof(this.state.computedHeight) === 'number') {
-      style = {
-        ...style,
-        overflow: 'hidden',
-        height: this.state.computedHeight.toString() + 'px',
-      };
+    if(this.state.animatedValue !== null) {
+      const animatedStyle = Styles.createAnimatedViewStyle({
+        height: this.state.animatedValue,
+      });
+
+      containerStyles.push(containerOverflowStyle, animatedStyle);
     }
 
     return (
-      <div { ...otherProps } style={ style } ref={ this._onContainerRef }>
-        <div ref={ this._onContentRef }>
+      <Animated.View { ...otherProps } style={ containerStyles } ref={ (node) => this._containerView = node }>
+        <View onLayout={ this._contentLayoutDidChange }>
           { children }
-        </div>
-      </div>
+        </View>
+      </Animated.View>
     );
   }
 
-  // Sets initial height and delays transition until next runloop
-  // to make sure CSS transitions properly kick in.
-  // This method resolves immediately if the height is already set.
-  _warmupTransition(): Promise<void> {
-    const contentElement = this._contentElement;
-    if(!contentElement) {
-      throw new Error('contentElement cannot be null');
+  _animateHeightChanges() {
+    const containerView = this._containerView;
+    if(!containerView) {
+      return;
     }
-    return new Promise((resolve, _) => {
-      // CSS transition always needs the initial height
-      // to perform the animation
-      if(this.state.computedHeight === null) {
-        this.setState({
-          computedHeight: contentElement.clientHeight
-        }, () => {
-          // important to skip a run loop
-          // for CSS transition to kick in
-          setTimeout(resolve, 0);
+
+    if(this._animation) {
+      this._animation.stop();
+      this._animation = null;
+    }
+
+    UserInterface.measureLayoutRelativeToWindow(containerView)
+      .then((layout) => {
+        const fromValue = this.state.animatedValue || Animated.createValue(layout.height);
+        const toValue = this.props.height === 'auto' ? this._contentHeight : this.props.height;
+
+        // calculate the animation duration based on travel distance
+        const multiplier = Math.abs(toValue - layout.height) / Math.max(1, this._contentHeight);
+        const duration = Math.ceil(this.props.animationDuration * multiplier);
+
+        const animation = Animated.timing(fromValue, {
+          toValue: toValue,
+          easing: Animated.Easing.InOut(),
+          duration: duration,
+          useNativeDriver: true,
         });
-      } else {
-        resolve();
-      }
-    });
-  }
 
-  _updateHeight() {
-    const contentElement = this._contentElement;
-    if(!contentElement) {
-      throw new Error('contentElement cannot be null');
-    }
-    this.setState({
-      computedHeight: this.props.height === 'auto' ?
-        contentElement.clientHeight :
-        this.props.height
-    });
-  }
-
-  _onTransitionEnd = () => {
-    // reset height after transition to let element layout naturally
-    if(this.props.height === 'auto') {
-      this.setState({
-        computedHeight: null,
+        this._animation = animation;
+        this.setState({ animatedValue: fromValue }, () => {
+          animation.start(this._onAnimationEnd);
+        });
       });
+  }
+
+  _onAnimationEnd = ({ finished }) => {
+    if(finished) {
+      this._animation = null;
+
+      // reset height after transition to let element layout naturally
+      // if animation finished without interruption
+      if(this.props.height === 'auto') {
+        this.setState({ animatedValue: null });
+      }
     }
   }
 
-  _onContainerRef = (element) => {
-    this._containerElement = element;
-  }
-
-  _onContentRef = (element) => {
-    this._contentElement = element;
-  }
+  _contentLayoutDidChange = ({ height }) => this._contentHeight = height;
 }
