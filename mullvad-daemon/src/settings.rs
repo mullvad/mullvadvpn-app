@@ -1,6 +1,6 @@
 extern crate serde_json;
 
-use app_dirs;
+use app_dirs2;
 
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
                                        RelaySettings, RelaySettingsUpdate};
@@ -88,7 +88,7 @@ impl Settings {
     }
 
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(app_dirs::AppDataType::UserConfig, &::APP_INFO)
+        let dir = app_dirs2::app_root(app_dirs2::AppDataType::UserConfig, &::APP_INFO)
             .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }

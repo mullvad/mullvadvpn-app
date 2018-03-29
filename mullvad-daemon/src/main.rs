@@ -7,7 +7,7 @@
 //! the License, or (at your option) any later version.
 
 
-extern crate app_dirs;
+extern crate app_dirs2;
 extern crate chrono;
 #[macro_use]
 extern crate clap;
@@ -53,7 +53,7 @@ mod settings;
 mod shutdown;
 mod version;
 
-use app_dirs::AppInfo;
+use app_dirs2::AppInfo;
 use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
