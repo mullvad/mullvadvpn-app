@@ -51,27 +51,27 @@ fn main() {
         match command.as_ref() {
             "-install" | "/install" => {
                 if let Err(e) = install_service() {
-                    println!("Failed to install the service: {}", e);
+                    error!("Failed to install the service: {}", e);
                 } else {
-                    println!("Installed the service.");
+                    info!("Installed the service.");
                 }
             }
             "-remove" | "/remove" => {
                 if let Err(e) = remove_service() {
-                    println!("Failed to remove the service: {}", e);
+                    error!("Failed to remove the service: {}", e);
                     if let Some(cause) = e.cause() {
-                        println!("Cause: {}", cause);
+                        error!("Cause: {}", cause);
                     }
                 } else {
-                    println!("Removed the service.");
+                    info!("Removed the service.");
                 }
             }
-            _ => println!("Unsupported command: {}", command),
+            _ => warn!("Unsupported command: {}", command),
         }
     } else {
-        println!("Usage:");
-        println!("-install to install the service");
-        println!("-remove to uninstall the service");
+        info!("Usage:");
+        info!("-install to install the service");
+        info!("-remove to uninstall the service");
 
         if let Err(e) = start_service_dispatcher() {
             println!("Failed to start service dispatcher: {}", e);
@@ -133,14 +133,14 @@ extern "system" fn service_control_handler(
 
     match result {
         Ok(service_control_event) => {
-            println!(
+            info!(
                 "Received service control event: {:?}",
                 service_control_event
             );
             handle_service_control_event(service_control_event)
         }
         Err(ref e) => {
-            println!("Received unrecognized service control event: {}", e);
+            warn!("Received unrecognized service control event: {}", e);
             ERROR_CALL_NOT_IMPLEMENTED
         }
     }
@@ -195,12 +195,12 @@ fn remove_service() -> Result<(), ServiceError> {
         match service_status.current_state {
             ServiceState::StopPending => (),
             ServiceState::Stopped => {
-                println!("Removing the service...");
+                info!("Removing the service...");
                 service.delete()?;
                 return Ok(()); // explicit return
             }
             _ => {
-                println!("Stopping the service...");
+                info!("Stopping the service...");
                 service.stop()?;
             }
         }
