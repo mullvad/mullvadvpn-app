@@ -29,10 +29,24 @@ use service::{ServiceAccess, ServiceControl, ServiceError, ServiceErrorControl, 
 mod widestring;
 use widestring::to_wide_with_nul;
 
+mod logging;
+use logging::init_logger;
+
 static SERVICE_NAME: &'static str = "Mullvad";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
 
 fn main() {
+    let log_file = ::std::path::PathBuf::from("C:\\Windows\\Temp\\mullvad-service.log");
+    if let Err(e) = OpenOptions::new()
+        .append(true)
+        .create_new(true)
+        .open(log_file.as_path())
+    {
+        error!("Cannot create a log file: {}", e);
+    }
+
+    let _ = init_logger(log::LevelFilter::Trace, Some(&log_file));
+
     if let Some(command) = std::env::args().nth(1) {
         match command.as_ref() {
             "-install" | "/install" => {
