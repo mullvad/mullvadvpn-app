@@ -4,4 +4,8 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["winsvc", "winerror", "minwindef"] }
+chrono = { version = "0.4", features = ["serde"] }
+error-chain = "0.11"
+fern = { version = "0.5", features = ["colored"] }
+log = "0.4"
+winapi = { version = "0.3", features = ["std", "winsvc", "winerror"] }
