@@ -154,8 +154,16 @@
 		Goto InstallService_return
 	${EndIf}
 
-	# TODO start service
-	
+	nsExec::ExecToStack 'net start mullvad'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to start Mullvad service"
+		Goto InstallService_return
+	${EndIf}
+
 	Push 0
 	Pop $R0
 	
