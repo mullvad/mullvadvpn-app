@@ -248,6 +248,73 @@ impl ServiceExitCode {
     }
 }
 
+/// Accepted types of service control requests
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Default)]
+pub struct ServiceControlAccept {
+    /// The service is a network component that can accept changes in its binding without being
+    /// stopped and restarted. This allows service to receive `ServiceControl::Netbind*`
+    /// family of events.
+    pub netbind_change: bool,
+
+    /// The service can reread its startup parameters without being stopped and restarted.
+    pub param_change: bool,
+
+    /// The service can be paused and continued.
+    pub pause_continue: bool,
+
+    /// The service can perform preshutdown tasks.
+    pub preshutdown: bool,
+
+    /// The service is notified when system shutdown occurs.
+    pub shutdown: bool,
+
+    /// The service can be stopped.
+    pub stop: bool,
+}
+
+impl ServiceControlAccept {
+    pub(super) fn from_raw(raw_mask: u32) -> Self {
+        ServiceControlAccept {
+            netbind_change: (raw_mask & winsvc::SERVICE_ACCEPT_NETBINDCHANGE) != 0,
+            param_change: (raw_mask & winsvc::SERVICE_ACCEPT_PARAMCHANGE) != 0,
+            pause_continue: (raw_mask & winsvc::SERVICE_ACCEPT_PAUSE_CONTINUE) != 0,
+            preshutdown: (raw_mask & winsvc::SERVICE_ACCEPT_PRESHUTDOWN) != 0,
+            shutdown: (raw_mask & winsvc::SERVICE_ACCEPT_SHUTDOWN) != 0,
+            stop: (raw_mask & winsvc::SERVICE_ACCEPT_STOP) != 0,
+        }
+    }
+
+    pub(super) fn to_raw(&self) -> u32 {
+        let mut mask: u32 = 0;
+
+        if self.netbind_change {
+            mask |= winsvc::SERVICE_ACCEPT_NETBINDCHANGE;
+        }
+
+        if self.param_change {
+            mask |= winsvc::SERVICE_ACCEPT_PARAMCHANGE;
+        }
+
+        if self.pause_continue {
+            mask |= winsvc::SERVICE_ACCEPT_PAUSE_CONTINUE;
+        }
+
+        if self.preshutdown {
+            mask |= winsvc::SERVICE_ACCEPT_PRESHUTDOWN;
+        }
+
+        if self.shutdown {
+            mask |= winsvc::SERVICE_ACCEPT_SHUTDOWN;
+        }
+
+        if self.stop {
+            mask |= winsvc::SERVICE_ACCEPT_STOP;
+        }
+
+        mask
+    }
+}
+
 /// Service status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ServiceStatus {
