@@ -80,8 +80,8 @@ impl<'a> ServiceControlHandler<'a> {
 #[allow(dead_code)]
 extern "system" fn service_control_handler(
     control: u32,
-    event_type: u32,
-    event_data: *mut ::std::os::raw::c_void,
+    _event_type: u32,
+    _event_data: *mut ::std::os::raw::c_void,
     context: *mut ::std::os::raw::c_void,
 ) -> u32 {
     // Danger: cast the context to ServiceControlHandler

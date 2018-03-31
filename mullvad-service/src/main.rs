@@ -142,7 +142,7 @@ extern "system" fn service_main(argc: u32, argv: *mut *mut u16) {
     let (shutdown_sender, shutdown_receiver) = channel();
 
     // Service event handler
-    let handler = move |ref status_handle, control_event| -> u32 {
+    let handler = move |ref _status_handle, control_event| -> u32 {
         match control_event {
             // Notifies a service to report its current status information to the service control
             // manager. Always return NO_ERROR even if not implemented.

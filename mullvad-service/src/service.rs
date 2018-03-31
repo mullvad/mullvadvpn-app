@@ -288,27 +288,49 @@ impl ServiceExitCode {
 }
 
 /// Accepted types of service control requests
-#[derive(Builder, Debug)]
+#[derive(Builder, Debug, Clone)]
+#[builder(build_fn(validate = "Self::validate"))]
 pub struct ServiceControlAccept {
     /// The service is a network component that can accept changes in its binding without being
     /// stopped and restarted. This allows service to receive `ServiceControl::Netbind*`
     /// family of events.
+    #[builder(default)]
     pub netbind_change: bool,
 
     /// The service can reread its startup parameters without being stopped and restarted.
+    #[builder(default)]
     pub param_change: bool,
 
     /// The service can be paused and continued.
+    #[builder(default)]
     pub pause_continue: bool,
 
     /// The service can perform preshutdown tasks.
+    /// Mutually exclusive with shutdown.
+    #[builder(default)]
     pub preshutdown: bool,
 
     /// The service is notified when system shutdown occurs.
+    /// Mutually exclusive with preshutdown.
+    #[builder(default)]
     pub shutdown: bool,
 
     /// The service can be stopped.
+    #[builder(default)]
     pub stop: bool,
+}
+
+impl ServiceControlAcceptBuilder {
+    fn validate(&self) -> Result<(), String> {
+        // Services that register for preshutdown notifications cannot receive shutdown
+        // notification because they have already stopped.
+        match (self.preshutdown, self.shutdown) {
+            (Some(true), Some(true)) => {
+                Err("Preshutdown and shutdown are mutually exclusive.".to_string())
+            }
+            _ => Ok(()),
+        }
+    }
 }
 
 impl ServiceControlAccept {
@@ -355,7 +377,8 @@ impl ServiceControlAccept {
 }
 
 /// Service status
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(build_fn(validate = "Self::validate"))]
 pub struct ServiceStatus {
     /// Type of service
     pub service_type: ServiceType,
@@ -381,6 +404,30 @@ pub struct ServiceStatus {
     /// This could be either circumvented by updating the `current_state` or incrementing a
     /// `checkpoint` value.
     pub wait_hint: Duration,
+}
+
+impl ServiceStatusBuilder {
+    fn validate(&self) -> Result<(), String> {
+        match (self.current_state, self.checkpoint) {
+            (Some(current_state), Some(checkpoint)) => {
+                let is_pending_operation = match current_state {
+                    ServiceState::StartPending
+                    | ServiceState::StopPending
+                    | ServiceState::PausePending
+                    | ServiceState::ContinuePending => true,
+                    _ => false,
+                };
+
+                if !is_pending_operation && checkpoint != 0 {
+                    Err("Checkpoint can only be used for pending start, stop, pause or continue operations.".to_string())
+                } else {
+                    Ok(())
+                }
+            }
+
+            _ => Ok(()),
+        }
+    }
 }
 
 impl ServiceStatus {
