@@ -10,6 +10,7 @@ extern crate winapi;
 use std::error::Error;
 use std::ffi::{OsStr, OsString};
 use std::fs::OpenOptions;
+use std::sync::mpsc::channel;
 use std::{io, ptr, thread, time};
 
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED, NO_ERROR};
@@ -21,6 +22,9 @@ use service_manager::{ServiceManager, ServiceManagerAccess};
 mod service;
 use service::{ServiceAccess, ServiceControl, ServiceError, ServiceErrorControl, ServiceInfo,
               ServiceStartType, ServiceState, ServiceType};
+
+mod service_control_handler;
+use service_control_handler::ServiceControlHandler;
 
 mod widestring;
 use widestring::{from_raw_wide_string, to_wide_with_nul};
@@ -69,8 +73,7 @@ fn main() {
         info!("-install to install the service");
         info!("-remove to uninstall the service");
 
-        // Start service dispatcher
-        // This will eventually call `service_main`
+        // Start service dispatcher which blocks the main thread
         let result = start_service_dispatcher(SERVICE_NAME);
         match result {
             Err(ref e) => {
@@ -113,69 +116,6 @@ fn start_service_dispatcher<T: AsRef<OsStr>>(service_name: T) -> io::Result<()> 
     }
 }
 
-#[derive(Debug)]
-struct WindowsService {
-    service_status_handle: winsvc::SERVICE_STATUS_HANDLE,
-}
-
-impl WindowsService {
-    pub fn new<T: AsRef<OsStr>>(service_name: T) -> io::Result<Self> {
-        let mut windows_service = WindowsService {
-            service_status_handle: ptr::null_mut(),
-        };
-
-        let service_name = to_wide_with_nul(service_name);
-
-        // Danger: pass the pointer to this instance as a context via
-        // RegisterServiceCtrlHandlerExW so the static `service_control_handler`
-        // could return the control back to the instance.
-        let context = &mut windows_service as *mut _ as *mut ::std::os::raw::c_void;
-
-        let service_status_handle = unsafe {
-            winsvc::RegisterServiceCtrlHandlerExW(
-                service_name.as_ptr(),
-                Some(service_control_handler),
-                context,
-            )
-        };
-        if service_status_handle.is_null() {
-            Err(io::Error::last_os_error())
-        } else {
-            windows_service.service_status_handle = service_status_handle;
-            Ok(windows_service)
-        }
-    }
-
-    /// Service event handler.
-    /// This function is called by a static `service_control_handler`
-    /// Please visit MSDN for more details about service events handling:
-    /// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683241(v=vs.85).aspx
-    fn on_service_control_event(&self, control_event: ServiceControl) -> u32 {
-        match control_event {
-            // Notifies a service to report its current status information to the service control
-            // manager. Always return NO_ERROR even if not implemented.
-            ServiceControl::Interrogate => NO_ERROR,
-
-            // Stop daemon on stop or system shutdown
-            ServiceControl::Stop | ServiceControl::Shutdown => NO_ERROR,
-
-            _ => ERROR_CALL_NOT_IMPLEMENTED,
-        }
-    }
-
-    /// Service runner
-    /// For now it does nothing
-    pub fn run(&self) {
-        let sleep_duration = time::Duration::from_secs(10);
-
-        loop {
-            info!("Working...");
-
-            thread::sleep(sleep_duration);
-        }
-    }
-}
-
 unsafe fn parse_service_main_arguments(argc: u32, argv: *mut *mut u16) -> Vec<OsString> {
     (0..argc)
         .into_iter()
@@ -194,56 +134,35 @@ extern "system" fn service_main(argc: u32, argv: *mut *mut u16) {
 
     // Parse arguments passed by service control manager
     let arguments = unsafe { parse_service_main_arguments(argc, argv) };
+    debug!("Service arguments: {:?}", arguments);
 
-    // First argument is normally a name of launched service
-    if arguments.len() > 0 {
-        let service_name = &arguments[0];
-        let remaining_arguments: Vec<::std::borrow::Cow<str>> = (&arguments[1..])
-            .iter()
-            .map(|s| s.to_string_lossy())
-            .collect();
+    // Create a shutdown channel to release this thread when stopping the service
+    let (shutdown_sender, shutdown_receiver) = channel();
 
-        debug!(
-            "Identified the name of service: {}",
-            service_name.to_string_lossy()
-        );
+    // Service event handler
+    let handler = move |status_handle, control_event| -> u32 {
+        match control_event {
+            // Notifies a service to report its current status information to the service control
+            // manager. Always return NO_ERROR even if not implemented.
+            ServiceControl::Interrogate => NO_ERROR,
 
-        debug!("Service arguments: {:?}", remaining_arguments);
-    }
+            // Stop daemon on stop or system shutdown
+            ServiceControl::Stop | ServiceControl::Shutdown => {
+                shutdown_sender.send(()).unwrap();
+                NO_ERROR
+            }
 
-    let windows_service = WindowsService::new(SERVICE_NAME);
-
-    match windows_service {
-        Err(ref e) => error!("Failed to start Windows Service: {}", e),
-        Ok(ref service) => service.run(),
-    };
-}
-
-/// Static service control handler
-/// The context contains the pointer to WindowsService passed
-/// in WindowsService::new()
-extern "system" fn service_control_handler(
-    control: u32,
-    _event_type: u32,
-    _event_data: *mut ::std::os::raw::c_void,
-    context: *mut ::std::os::raw::c_void,
-) -> u32 {
-    let result = ServiceControl::from_raw(control);
-
-    // TODO: pass a tx from mpsc::channel instead.
-    let windows_service = unsafe { &*(context as *mut WindowsService) };
-
-    match result {
-        Ok(service_control_event) => {
-            info!(
-                "Received service control event: {:?}",
-                service_control_event
-            );
-            windows_service.on_service_control_event(service_control_event)
+            _ => ERROR_CALL_NOT_IMPLEMENTED,
         }
-        Err(ref e) => {
-            warn!("Received unrecognized service control event: {}", e);
-            ERROR_CALL_NOT_IMPLEMENTED
+    };
+
+    let result = ServiceControlHandler::new(SERVICE_NAME, &handler);
+    match result {
+        Ok(_) => {
+            shutdown_receiver.recv().unwrap();
+        }
+        Err(e) => {
+            error!("Cannot register a service control handler: {}", e);
         }
     }
 }
