@@ -1,10 +1,10 @@
 use std::ffi::OsStr;
-use std::io;
-use std::ptr;
+use std::{io, ptr};
+
+use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
 use widestring::to_wide_with_nul;
-use winapi::um::winsvc;
 
 /// Enum describing access permissions for ServiceManager
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
