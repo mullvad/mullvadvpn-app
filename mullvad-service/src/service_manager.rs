@@ -7,22 +7,38 @@ use service::{Service, ServiceAccess, ServiceInfo};
 use widestring::to_wide_with_nul;
 
 /// Enum describing access permissions for ServiceManager
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(u32)]
-pub enum ServiceManagerAccess {
-    All = winsvc::SC_MANAGER_ALL_ACCESS,
-    Connect = winsvc::SC_MANAGER_CONNECT,
-    CreateService = winsvc::SC_MANAGER_CREATE_SERVICE,
-    EnumerateService = winsvc::SC_MANAGER_ENUMERATE_SERVICE,
+#[derive(Builder, Debug)]
+pub struct ServiceManagerAccess {
+    /// Can connect to service control manager
+    #[builder(default)]
+    pub connect: bool,
+
+    /// Can create services
+    #[builder(default)]
+    pub create_service: bool,
+
+    /// Can enumerate services
+    #[builder(default)]
+    pub enumerate_service: bool,
 }
 
 impl ServiceManagerAccess {
     pub fn to_raw(&self) -> u32 {
-        *self as u32
-    }
+        let mut mask: u32 = 0;
 
-    pub fn raw_mask(values: &[ServiceManagerAccess]) -> u32 {
-        values.iter().fold(0, |acc, &x| (acc | x.to_raw()))
+        if self.connect {
+            mask |= winsvc::SC_MANAGER_CONNECT;
+        }
+
+        if self.create_service {
+            mask |= winsvc::SC_MANAGER_CREATE_SERVICE;
+        }
+
+        if self.enumerate_service {
+            mask |= winsvc::SC_MANAGER_ENUMERATE_SERVICE;
+        }
+
+        mask
     }
 }
 
@@ -36,7 +52,7 @@ impl ServiceManager {
     fn new<M: AsRef<OsStr>, D: AsRef<OsStr>>(
         machine: Option<M>,
         database: Option<D>,
-        access_mask: &[ServiceManagerAccess],
+        request_access: ServiceManagerAccess,
     ) -> io::Result<Self> {
         let machine_name = machine.map(to_wide_with_nul);
         let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
@@ -44,13 +60,8 @@ impl ServiceManager {
         let database_name = database.map(to_wide_with_nul);
         let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
 
-        let handle = unsafe {
-            winsvc::OpenSCManagerW(
-                machine_ptr,
-                database_ptr,
-                ServiceManagerAccess::raw_mask(access_mask),
-            )
-        };
+        let handle =
+            unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, request_access.to_raw()) };
 
         if handle.is_null() {
             Err(io::Error::last_os_error())
@@ -62,24 +73,24 @@ impl ServiceManager {
     /// Passing None for database connects to active database
     pub fn local_computer<T: AsRef<OsStr>>(
         database: Option<T>,
-        access_mask: &[ServiceManagerAccess],
+        request_access: ServiceManagerAccess,
     ) -> io::Result<Self> {
-        ServiceManager::new(None::<&OsStr>, database, access_mask)
+        ServiceManager::new(None::<&OsStr>, database, request_access)
     }
 
     /// Passing None for database connects to active database
-    pub fn remote_computer<T: AsRef<OsStr>, Y: AsRef<OsStr>>(
-        machine: T,
-        database: Option<Y>,
-        access_mask: &[ServiceManagerAccess],
+    pub fn remote_computer<M: AsRef<OsStr>, D: AsRef<OsStr>>(
+        machine: M,
+        database: Option<D>,
+        request_access: ServiceManagerAccess,
     ) -> io::Result<Self> {
-        ServiceManager::new(Some(machine), database, access_mask)
+        ServiceManager::new(Some(machine), database, request_access)
     }
 
     pub fn create_service(
         &self,
         service_info: ServiceInfo,
-        access_mask: &[ServiceAccess],
+        request_access: ServiceAccess,
     ) -> io::Result<Service> {
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
@@ -94,7 +105,7 @@ impl ServiceManager {
                 self.0,
                 service_name.as_ptr(),
                 display_name.as_ptr(),
-                ServiceAccess::raw_mask(access_mask),
+                request_access.to_raw(),
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
@@ -117,16 +128,11 @@ impl ServiceManager {
     pub fn open_service<T: AsRef<OsStr>>(
         &self,
         name: T,
-        access_mask: &[ServiceAccess],
+        request_access: ServiceAccess,
     ) -> io::Result<Service> {
         let service_name = to_wide_with_nul(name);
-        let service_handle = unsafe {
-            winsvc::OpenServiceW(
-                self.0,
-                service_name.as_ptr(),
-                ServiceAccess::raw_mask(access_mask),
-            )
-        };
+        let service_handle =
+            unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), request_access.to_raw()) };
 
         if service_handle.is_null() {
             Err(io::Error::last_os_error())

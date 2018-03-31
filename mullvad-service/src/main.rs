@@ -2,6 +2,8 @@
 
 extern crate chrono;
 #[macro_use]
+extern crate derive_builder;
+#[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
@@ -17,11 +19,11 @@ use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED, NO_ERROR};
 use winapi::um::winsvc;
 
 mod service_manager;
-use service_manager::{ServiceManager, ServiceManagerAccess};
+use service_manager::{ServiceManager, ServiceManagerAccessBuilder};
 
 mod service;
-use service::{ServiceAccess, ServiceControl, ServiceError, ServiceErrorControl, ServiceInfo,
-              ServiceStartType, ServiceState, ServiceType};
+use service::{ServiceAccessBuilder, ServiceControl, ServiceError, ServiceErrorControl,
+              ServiceInfo, ServiceStartType, ServiceState, ServiceType};
 
 mod service_control_handler;
 use service_control_handler::ServiceControlHandler;
@@ -168,30 +170,33 @@ extern "system" fn service_main(argc: u32, argv: *mut *mut u16) {
 }
 
 fn install_service() -> Result<(), io::Error> {
-    let access_mask = &[
-        ServiceManagerAccess::Connect,
-        ServiceManagerAccess::CreateService,
-    ];
-    let service_manager = ServiceManager::local_computer(None::<&str>, access_mask)?;
-    let service_info = get_service_info();
+    let manager_access = ServiceManagerAccessBuilder::default()
+        .connect(true)
+        .create_service(true)
+        .build()
+        .unwrap();
+    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)?;
 
+    let service_access = ServiceAccessBuilder::default().build().unwrap();
+    let service_info = get_service_info();
     service_manager
-        .create_service(service_info, &[])
+        .create_service(service_info, service_access)
         .map(|_| ())
 }
 
 fn remove_service() -> Result<(), ServiceError> {
-    let manager_access = &[
-        ServiceManagerAccess::Connect,
-        ServiceManagerAccess::CreateService,
-    ];
+    let manager_access = ServiceManagerAccessBuilder::default()
+        .connect(true)
+        .build()
+        .unwrap();
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)?;
 
-    let service_access = &[
-        ServiceAccess::QueryStatus,
-        ServiceAccess::Stop,
-        ServiceAccess::Delete,
-    ];
+    let service_access = ServiceAccessBuilder::default()
+        .query_status(true)
+        .stop(true)
+        .delete(true)
+        .build()
+        .unwrap();
     let service = service_manager.open_service(SERVICE_NAME, service_access)?;
 
     loop {

@@ -2,7 +2,7 @@ use std::ffi::OsString;
 use std::time::Duration;
 use std::{error, fmt, io, mem};
 
-use winapi::shared::winerror::{ERROR_SERVICE_SPECIFIC_ERROR, NO_ERROR};
+use winapi::shared::winerror::ERROR_SERVICE_SPECIFIC_ERROR;
 use winapi::um::{winnt, winsvc};
 
 #[derive(Debug)]
@@ -71,25 +71,63 @@ impl ServiceType {
     }
 }
 
-/// Enum describing the access permissions when working with Services
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(u32)]
-pub enum ServiceAccess {
-    QueryStatus = winsvc::SERVICE_QUERY_STATUS,
-    Start = winsvc::SERVICE_START,
-    Stop = winsvc::SERVICE_STOP,
-    PauseContinue = winsvc::SERVICE_PAUSE_CONTINUE,
-    Interrogate = winsvc::SERVICE_INTERROGATE,
-    Delete = winnt::DELETE,
+/// Struct describing the access permissions when working with Services
+#[derive(Builder, Debug)]
+pub struct ServiceAccess {
+    /// Can query the service status
+    #[builder(default)]
+    pub query_status: bool,
+
+    /// Can start the service
+    #[builder(default)]
+    pub start: bool,
+
+    // Can stop the service
+    #[builder(default)]
+    pub stop: bool,
+
+    /// Can pause or continue the service execution
+    #[builder(default)]
+    pub pause_continue: bool,
+
+    /// Can ask the service to report its status
+    #[builder(default)]
+    pub interrogate: bool,
+
+    /// Can delete the service
+    #[builder(default)]
+    pub delete: bool,
 }
 
 impl ServiceAccess {
     pub fn to_raw(&self) -> u32 {
-        *self as u32
-    }
+        let mut mask: u32 = 0;
 
-    pub fn raw_mask(values: &[ServiceAccess]) -> u32 {
-        values.iter().fold(0, |acc, &x| (acc | x.to_raw()))
+        if self.query_status {
+            mask |= winsvc::SERVICE_QUERY_STATUS;
+        }
+
+        if self.start {
+            mask |= winsvc::SERVICE_START;
+        }
+
+        if self.stop {
+            mask |= winsvc::SERVICE_STOP;
+        }
+
+        if self.pause_continue {
+            mask |= winsvc::SERVICE_PAUSE_CONTINUE;
+        }
+
+        if self.interrogate {
+            mask |= winsvc::SERVICE_INTERROGATE;
+        }
+
+        if self.delete {
+            mask |= winnt::DELETE;
+        }
+
+        mask
     }
 }
 
@@ -250,7 +288,7 @@ impl ServiceExitCode {
 }
 
 /// Accepted types of service control requests
-#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Default)]
+#[derive(Builder, Debug)]
 pub struct ServiceControlAccept {
     /// The service is a network component that can accept changes in its binding without being
     /// stopped and restarted. This allows service to receive `ServiceControl::Netbind*`
@@ -317,7 +355,7 @@ impl ServiceControlAccept {
 }
 
 /// Service status
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug)]
 pub struct ServiceStatus {
     /// Type of service
     pub service_type: ServiceType,
