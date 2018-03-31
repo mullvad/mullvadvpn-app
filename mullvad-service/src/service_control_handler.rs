@@ -7,9 +7,8 @@ use winapi::um::winsvc;
 use service::{ServiceControl, ServiceStatus};
 use widestring::to_wide_with_nul;
 
-/// Service status handle is a unique token that allows to update the service status.
-/// The underlying handle is not meant to be explicitly released.
-#[derive(Debug, Copy, Clone)]
+/// Struct that holds unique token for updating the status of the corresponding service.
+#[derive(Debug, Clone, Copy)]
 pub struct ServiceStatusHandle(winsvc::SERVICE_STATUS_HANDLE);
 
 impl ServiceStatusHandle {
@@ -29,26 +28,29 @@ impl ServiceStatusHandle {
     }
 }
 
-type HandlerFn = Fn(ServiceStatusHandle, ServiceControl) -> u32;
+unsafe impl Send for ServiceStatusHandle {}
 
-/// Service control events handler
+type HandlerFn<'a> = Fn(&'a ServiceStatusHandle, ServiceControl) -> u32;
+
+/// Struct that describes a service event handler.
+/// Since this struct connects to the service control dispatcher
+/// it should be only instantiated from `service_main`.
 pub struct ServiceControlHandler<'a> {
     status_handle: Option<ServiceStatusHandle>,
-    handler_closure: &'a HandlerFn,
+    handler_closure: &'a HandlerFn<'a>,
 }
 
 impl<'a> ServiceControlHandler<'a> {
     pub fn new<T: AsRef<OsStr>>(
         service_name: T,
-        handler_closure: &'a HandlerFn,
+        handler_closure: &'a HandlerFn<'a>,
     ) -> io::Result<Self> {
         let mut handler = ServiceControlHandler {
             status_handle: None,
             handler_closure,
         };
 
-        // Danger: pass the pointer to this instance via context so `service_control_handler` could
-        // return the control back to the instance.
+        // Danger: pass the pointer to this instance via context
         let context = &mut handler as *mut _ as *mut ::std::os::raw::c_void;
 
         let service_name = to_wide_with_nul(service_name);
@@ -68,9 +70,8 @@ impl<'a> ServiceControlHandler<'a> {
         }
     }
 
-    fn handle_event(&self, control: ServiceControl) -> u32 {
-        let status_handle = self.status_handle.clone().unwrap();
-
+    fn handle_event(&'a self, control: ServiceControl) -> u32 {
+        let status_handle = self.status_handle.as_ref().unwrap();
         (self.handler_closure)(status_handle, control)
     }
 }
