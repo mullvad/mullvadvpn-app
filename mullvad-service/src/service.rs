@@ -1,6 +1,7 @@
 use std::ffi::OsString;
 use std::{error, fmt, io, mem};
 
+use winapi::shared::winerror::{ERROR_SERVICE_SPECIFIC_ERROR, NO_ERROR};
 use winapi::um::{winnt, winsvc};
 
 #[derive(Debug)]
@@ -213,6 +214,38 @@ impl ServiceState {
     }
 }
 
+/// Service exit code abstraction
+/// This struct provides a logic around the relationship between `win32_exit_code` and
+/// `service_specific_exit_code`. The service can either return a win32 error code or a custom error
+/// code. In that case `win32_exit_code` has to be set to `ERROR_SERVICE_SPECIFIC_ERROR` and
+/// the `service_specific_exit_code` assigned with custom error code.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ServiceExitCode {
+    Win32(u32),
+    ServiceSpecific(u32),
+}
+
+impl ServiceExitCode {
+    fn copy_to(&self, raw_service_status: &mut winsvc::SERVICE_STATUS) {
+        match *self {
+            ServiceExitCode::Win32(win32_error_code) => {
+                raw_service_status.dwWin32ExitCode = win32_error_code;
+                raw_service_status.dwServiceSpecificExitCode = 0;
+            }
+            ServiceExitCode::ServiceSpecific(service_error_code) => {
+                raw_service_status.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+                raw_service_status.dwServiceSpecificExitCode = service_error_code;
+            }
+        }
+    }
+
+    fn from_raw_service_status(raw_service_status: &winsvc::SERVICE_STATUS) -> Self {
+        if raw_service_status.dwWin32ExitCode == ERROR_SERVICE_SPECIFIC_ERROR {
+            ServiceExitCode::ServiceSpecific(raw_service_status.dwServiceSpecificExitCode)
+        } else {
+            ServiceExitCode::Win32(raw_service_status.dwWin32ExitCode)
+        }
+    }
 }
 
 /// Service status
