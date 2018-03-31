@@ -1,13 +1,11 @@
-use std::error;
 use std::ffi::OsString;
-use std::fmt;
-use std::io;
-use std::mem;
+use std::{error, fmt, io, mem};
 
 use winapi::um::{winnt, winsvc};
 
 #[derive(Debug)]
 pub enum ServiceError {
+    InvalidServiceType(u32),
     InvalidServiceState(u32),
     InvalidServiceControl(u32),
     System(io::Error),
@@ -29,6 +27,9 @@ impl error::Error for ServiceError {
 impl fmt::Display for ServiceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            ServiceError::InvalidServiceType(raw_value) => {
+                write!(f, "Invalid service type value: {}", raw_value)
+            }
             ServiceError::InvalidServiceState(raw_value) => {
                 write!(f, "Invalid service state value: {}", raw_value)
             }
@@ -55,6 +56,14 @@ pub enum ServiceType {
 }
 
 impl ServiceType {
+    pub fn from_raw(raw_value: u32) -> Result<Self, ServiceError> {
+        let service_type = match raw_value {
+            x if x == ServiceType::OwnProcess.to_raw() => ServiceType::OwnProcess,
+            _ => Err(ServiceError::InvalidServiceType(raw_value))?,
+        };
+        Ok(service_type)
+    }
+
     pub fn to_raw(&self) -> u32 {
         *self as u32
     }
