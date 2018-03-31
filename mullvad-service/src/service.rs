@@ -145,12 +145,6 @@ pub enum ServiceControl {
     Preshutdown = winsvc::SERVICE_CONTROL_PRESHUTDOWN,
     Shutdown = winsvc::SERVICE_CONTROL_SHUTDOWN,
     Stop = winsvc::SERVICE_CONTROL_STOP,
-    DeviceEvent = winsvc::SERVICE_CONTROL_DEVICEEVENT,
-    HardwareProfileChange = winsvc::SERVICE_CONTROL_HARDWAREPROFILECHANGE,
-    PowerEvent = winsvc::SERVICE_CONTROL_POWEREVENT,
-    SessionChange = winsvc::SERVICE_CONTROL_SESSIONCHANGE,
-    TimeChange = winsvc::SERVICE_CONTROL_TIMECHANGE,
-    TriggerEvent = winsvc::SERVICE_CONTROL_TRIGGEREVENT,
 }
 
 impl ServiceControl {
@@ -167,14 +161,6 @@ impl ServiceControl {
             x if x == ServiceControl::Preshutdown.to_raw() => ServiceControl::Preshutdown,
             x if x == ServiceControl::Shutdown.to_raw() => ServiceControl::Shutdown,
             x if x == ServiceControl::Stop.to_raw() => ServiceControl::Stop,
-            x if x == ServiceControl::DeviceEvent.to_raw() => ServiceControl::DeviceEvent,
-            x if x == ServiceControl::HardwareProfileChange.to_raw() => {
-                ServiceControl::HardwareProfileChange
-            }
-            x if x == ServiceControl::PowerEvent.to_raw() => ServiceControl::PowerEvent,
-            x if x == ServiceControl::SessionChange.to_raw() => ServiceControl::SessionChange,
-            x if x == ServiceControl::TimeChange.to_raw() => ServiceControl::TimeChange,
-            x if x == ServiceControl::TriggerEvent.to_raw() => ServiceControl::TriggerEvent,
             other => Err(ServiceError::InvalidServiceControl(other))?,
         };
         Ok(service_control)
