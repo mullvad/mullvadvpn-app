@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::time::Duration;
 use std::{error, fmt, io, mem};
 
 use winapi::shared::winerror::{ERROR_SERVICE_SPECIFIC_ERROR, NO_ERROR};
@@ -318,16 +319,61 @@ impl ServiceControlAccept {
 /// Service status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ServiceStatus {
+    /// Type of service
+    pub service_type: ServiceType,
+
     /// Current state of the service
     pub current_state: ServiceState,
+
+    /// Control commands that service accepts.
+    pub controls_accepted: ServiceControlAccept,
+
+    /// Service exit code
+    pub exit_code: ServiceExitCode,
+
+    /// Service initialization progress value that should be increased during a lengthy start,
+    /// stop, pause or continue eration. For example the service should increment the value as
+    /// it completes each step of initialization.
+    /// This value must be zero if the service does not have any pending start, stop, pause or
+    /// continue operations.
+    pub checkpoint: u32,
+
+    /// Estimated time for pending operation.
+    /// This basically works as a timeout until the service manager assumes that the service hung.
+    /// This could be either circumvented by updating the `current_state` or incrementing a
+    /// `checkpoint` value.
+    pub wait_hint: Duration,
 }
 
 impl ServiceStatus {
+    pub(super) fn to_raw(&self) -> winsvc::SERVICE_STATUS {
+        let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
+        raw_status.dwServiceType = self.service_type.to_raw();
+        raw_status.dwCurrentState = self.current_state.to_raw();
+        raw_status.dwControlsAccepted = self.controls_accepted.to_raw();
+
+        self.exit_code.copy_to(&mut raw_status);
+
+        raw_status.dwCheckPoint = self.checkpoint;
+
+        // we lose precision here but dwWaitHint should never be too big.
+        raw_status.dwWaitHint = (self.wait_hint.as_secs() * 1000) as u32;
+
+        raw_status
+    }
+
     fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ServiceError> {
-        let current_state = ServiceState::from_raw(raw_status.dwCurrentState as u32)?;
-        Ok(ServiceStatus { current_state })
+        Ok(ServiceStatus {
+            service_type: ServiceType::from_raw(raw_status.dwServiceType)?,
+            current_state: ServiceState::from_raw(raw_status.dwCurrentState)?,
+            controls_accepted: ServiceControlAccept::from_raw(raw_status.dwControlsAccepted),
+            exit_code: ServiceExitCode::from_raw_service_status(&raw_status),
+            checkpoint: raw_status.dwCheckPoint,
+            wait_hint: Duration::from_millis(raw_status.dwWaitHint as u64),
+        })
     }
 }
+
 
 pub struct Service(winsvc::SC_HANDLE);
 
