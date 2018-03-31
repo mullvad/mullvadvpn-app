@@ -182,30 +182,37 @@ impl ServiceControl {
 
 /// Service state returned as a part of ServiceStatus
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u32)]
 pub enum ServiceState {
-    Stopped,
-    StartPending,
-    StopPending,
-    Running,
-    ContinuePending,
-    PausePending,
-    Paused,
+    Stopped = winsvc::SERVICE_STOPPED,
+    StartPending = winsvc::SERVICE_START_PENDING,
+    StopPending = winsvc::SERVICE_STOP_PENDING,
+    Running = winsvc::SERVICE_RUNNING,
+    ContinuePending = winsvc::SERVICE_CONTINUE_PENDING,
+    PausePending = winsvc::SERVICE_PAUSE_PENDING,
+    Paused = winsvc::SERVICE_PAUSED,
 }
 
 impl ServiceState {
     fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
         let service_state = match raw_state {
-            winsvc::SERVICE_STOPPED => ServiceState::Stopped,
-            winsvc::SERVICE_START_PENDING => ServiceState::StartPending,
-            winsvc::SERVICE_STOP_PENDING => ServiceState::StopPending,
-            winsvc::SERVICE_RUNNING => ServiceState::Running,
-            winsvc::SERVICE_CONTINUE_PENDING => ServiceState::ContinuePending,
-            winsvc::SERVICE_PAUSE_PENDING => ServiceState::PausePending,
-            winsvc::SERVICE_PAUSED => ServiceState::Paused,
+            x if x == ServiceState::Stopped.to_raw() => ServiceState::Stopped,
+            x if x == ServiceState::StartPending.to_raw() => ServiceState::StartPending,
+            x if x == ServiceState::StopPending.to_raw() => ServiceState::StopPending,
+            x if x == ServiceState::Running.to_raw() => ServiceState::Running,
+            x if x == ServiceState::ContinuePending.to_raw() => ServiceState::ContinuePending,
+            x if x == ServiceState::PausePending.to_raw() => ServiceState::PausePending,
+            x if x == ServiceState::Paused.to_raw() => ServiceState::Paused,
             other => Err(ServiceError::InvalidServiceState(other))?,
         };
         Ok(service_state)
     }
+
+    fn to_raw(&self) -> u32 {
+        *self as u32
+    }
+}
+
 }
 
 /// Service status
