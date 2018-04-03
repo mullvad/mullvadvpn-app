@@ -52,7 +52,7 @@ mod linux;
 #[cfg(target_os = "linux")]
 pub use self::linux::{Error, ErrorKind, Netfilter as FirewallProxy, Result};
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 mod windows;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub use self::windows::{Error, ErrorKind, Result, WindowsFirewall as FirewallProxy};
