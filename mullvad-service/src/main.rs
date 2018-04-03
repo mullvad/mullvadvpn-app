@@ -73,7 +73,7 @@ fn main() {
             "--service" => {
                 // Start the service dispatcher.
                 // This will block current thread until the service stopped.
-                let result = start_service_dispatcher!(SERVICE_NAME, service_main);
+                let result = WindowsService::start_dispatcher();
 
                 match result {
                     Err(ref e) => {
@@ -82,7 +82,7 @@ fn main() {
                     Ok(_) => {
                         info!("Service dispatcher exited.");
                     }
-                }
+                };
             }
             _ => warn!("Unsupported command: {}", command),
         }
@@ -94,13 +94,10 @@ fn main() {
     }
 }
 
-/// Define the entry point for windows service.
-/// This function is called by start_service_dispatcher!() implementation.
-define_service_main!(service_main, handle_service_main);
+define_windows_service!(WindowsService, SERVICE_NAME, handle_service_main);
 
 fn handle_service_main(arguments: Vec<OsString>) {
     info!("Starting the service...");
-    debug!("handle_service_main thread: {:?}", thread::current().id());
     debug!("Service arguments: {:?}", arguments);
 
     // Create a shutdown channel to release this thread when stopping the service
