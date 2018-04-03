@@ -7,6 +7,7 @@ extern crate derive_builder;
 extern crate error_chain;
 #[macro_use]
 extern crate log;
+extern crate shell_escape;
 extern crate winapi;
 
 use std::error::Error;
@@ -220,14 +221,14 @@ fn remove_service() -> Result<(), ServiceError> {
 }
 
 fn get_service_info() -> ServiceInfo {
-    let executable_path = std::env::current_exe().unwrap();
     ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
         service_type: ServiceType::OwnProcess,
         start_type: ServiceStartType::OnDemand, // TBD: change to AutoStart
         error_control: ServiceErrorControl::Normal,
-        executable_path: OsString::from(executable_path),
+        executable_path: std::env::current_exe().unwrap(),
+        launch_arguments: vec![String::from("--service")],
         account_name: None, // run as System
         account_password: None,
     }
