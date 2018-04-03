@@ -1,6 +1,7 @@
 use std::ffi::OsStr;
 use std::{io, ptr};
 
+use shell_escape;
 use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
@@ -92,9 +93,24 @@ impl ServiceManager {
         service_info: ServiceInfo,
         request_access: ServiceAccess,
     ) -> io::Result<Service> {
+        // escape executable path
+        let launch_path =
+            shell_escape::escape(service_info.executable_path.to_string_lossy()).into_owned();
+
+        // escape and combine launch arguments in space separated string
+        let launch_arguments = service_info
+            .launch_arguments
+            .into_iter()
+            .map(|s| shell_escape::escape(s.into()).into_owned())
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        // combine escaped executable path and launch arguments into one command
+        let launch_command = vec![launch_path, launch_arguments].join(" ");
+
         let service_name = to_wide_with_nul(service_info.name);
         let display_name = to_wide_with_nul(service_info.display_name);
-        let executable_path = to_wide_with_nul(service_info.executable_path);
+        let executable_path = to_wide_with_nul(launch_command);
         let account_name = service_info.account_name.map(to_wide_with_nul);
         let account_name_ptr = account_name.map_or(ptr::null(), |vec| vec.as_ptr());
         let account_password = service_info.account_password.map(to_wide_with_nul);
