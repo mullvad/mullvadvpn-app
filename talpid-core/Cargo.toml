@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
+links = "wfpctl"
+build = "build.rs"
 
 [dependencies]
 duct = "0.10"
@@ -27,3 +29,8 @@ pfctl = "0.1"
 system-configuration = "0.1"
 core-foundation = "0.5"
 tokio-core = "0.1"
+
+[target.'cfg(windows)'.dependencies]
+libc = "0.2.20"
+env_logger = "*"
+widestring = "0.3"

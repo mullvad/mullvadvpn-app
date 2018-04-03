@@ -25,6 +25,11 @@ extern crate jsonrpc_macros;
 extern crate shell_escape;
 extern crate uuid;
 
+#[cfg(target_os = "windows")]
+extern crate libc;
+#[cfg(target_os = "windows")]
+extern crate widestring;
+
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
