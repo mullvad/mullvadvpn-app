@@ -10,3 +10,4 @@ error-chain = "0.11"
 fern = { version = "0.5", features = ["colored"] }
 log = "0.4"
 winapi = { version = "0.3", features = ["std", "winsvc", "winerror"] }
+shell-escape = "0.1.4"

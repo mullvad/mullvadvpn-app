@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::path::PathBuf;
 use std::time::Duration;
 use std::{error, fmt, io, mem};
 
@@ -169,13 +170,30 @@ impl ServiceErrorControl {
 /// A struct that describes the service
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ServiceInfo {
+    /// Service name
     pub name: OsString,
+
+    /// Friendly service name
     pub display_name: OsString,
+
     pub service_type: ServiceType,
     pub start_type: ServiceStartType,
     pub error_control: ServiceErrorControl,
-    pub executable_path: OsString,
-    pub account_name: Option<OsString>, // use None to run as LocalSystem
+
+    /// Path to the service binary.
+    pub executable_path: PathBuf,
+
+    /// Launch arguments passed to `main` when system starts the service.
+    /// This is not the same as arguments passed to `service_main`.
+    pub launch_arguments: Vec<String>,
+
+    /// Account to use for running the service.
+    /// for example: NT Authority\System.
+    /// use `None` to run as LocalSystem.
+    pub account_name: Option<OsString>,
+
+    /// Account password.
+    /// For system accounts this should normally be `None`.
     pub account_password: Option<OsString>,
 }
 
