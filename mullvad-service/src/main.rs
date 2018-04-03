@@ -11,13 +11,12 @@ extern crate shell_escape;
 extern crate winapi;
 
 use std::error::Error;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::sync::mpsc::channel;
-use std::{io, ptr, thread, time};
+use std::{io, thread, time};
 
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED, NO_ERROR};
-use winapi::um::winsvc;
 
 mod service_manager;
 use service_manager::{ServiceManager, ServiceManagerAccessBuilder};
@@ -29,8 +28,10 @@ use service::{ServiceAccessBuilder, ServiceControl, ServiceError, ServiceErrorCo
 mod service_control_handler;
 use service_control_handler::ServiceControlHandler;
 
+#[macro_use]
+mod service_dispatcher;
+
 mod widestring;
-use widestring::{from_raw_wide_string, to_wide_with_nul};
 
 mod logging;
 use logging::init_logger;
@@ -52,14 +53,14 @@ fn main() {
 
     if let Some(command) = std::env::args().nth(1) {
         match command.as_ref() {
-            "-install" | "/install" => {
+            "--install-service" => {
                 if let Err(e) = install_service() {
                     error!("Failed to install the service: {}", e);
                 } else {
                     info!("Installed the service.");
                 }
             }
-            "-remove" | "/remove" => {
+            "--remove-service" => {
                 if let Err(e) = remove_service() {
                     error!("Failed to remove the service: {}", e);
                     if let Some(cause) = e.cause() {
@@ -69,74 +70,37 @@ fn main() {
                     info!("Removed the service.");
                 }
             }
+            "--service" => {
+                // Start the service dispatcher.
+                // This will block current thread until the service stopped.
+                let result = start_service_dispatcher!(SERVICE_NAME, service_main);
+
+                match result {
+                    Err(ref e) => {
+                        error!("Failed to start service dispatcher: {}", e);
+                    }
+                    Ok(_) => {
+                        info!("Service dispatcher exited.");
+                    }
+                }
+            }
             _ => warn!("Unsupported command: {}", command),
         }
     } else {
         info!("Usage:");
-        info!("-install to install the service");
-        info!("-remove to uninstall the service");
-
-        // Start service dispatcher which blocks the main thread
-        let result = start_service_dispatcher(SERVICE_NAME);
-        match result {
-            Err(ref e) => {
-                error!("Failed to start service dispatcher: {}", e);
-            }
-            Ok(_) => {
-                info!("Service dispatcher exited.");
-            }
-        }
+        info!("--install-service to install the service");
+        info!("--remove-service to uninstall the service");
+        info!("--service to run the service");
     }
 }
 
-fn start_service_dispatcher<T: AsRef<OsStr>>(service_name: T) -> io::Result<()> {
-    let service_name = to_wide_with_nul(service_name);
+/// Define the entry point for windows service.
+/// This function is called by start_service_dispatcher!() implementation.
+define_service_main!(service_main, handle_service_main);
 
-    let service_table: &[winsvc::SERVICE_TABLE_ENTRYW] = &[
-        winsvc::SERVICE_TABLE_ENTRYW {
-            lpServiceName: service_name.as_ptr(),
-            lpServiceProc: Some(service_main),
-        },
-        // the last item has to be { null, null }
-        winsvc::SERVICE_TABLE_ENTRYW {
-            lpServiceName: ptr::null(),
-            lpServiceProc: None,
-        },
-    ];
-
-    debug!(
-        "Starting service control dispatcher from thread: {:?}",
-        thread::current().id()
-    );
-
-    // Blocks current thread until the service is stopped
-    // This call spawns a new thread and calls `service_main`
-    let result = unsafe { winsvc::StartServiceCtrlDispatcherW(service_table.as_ptr()) };
-    if result == 0 {
-        Err(io::Error::last_os_error())
-    } else {
-        Ok(())
-    }
-}
-
-unsafe fn parse_service_main_arguments(argc: u32, argv: *mut *mut u16) -> Vec<OsString> {
-    (0..argc)
-        .into_iter()
-        .map(|i| {
-            let ptr = argv.offset(i as isize);
-            from_raw_wide_string(*ptr, 256)
-        })
-        .collect()
-}
-
-/// Main entry point for windows service
-/// `start_service_dispatcher` registers this function from `main`
-extern "system" fn service_main(argc: u32, argv: *mut *mut u16) {
+fn handle_service_main(arguments: Vec<OsString>) {
     info!("Starting the service...");
-    debug!("service_main thread: {:?}", thread::current().id());
-
-    // Parse arguments passed by service control manager
-    let arguments = unsafe { parse_service_main_arguments(argc, argv) };
+    debug!("handle_service_main thread: {:?}", thread::current().id());
     debug!("Service arguments: {:?}", arguments);
 
     // Create a shutdown channel to release this thread when stopping the service
