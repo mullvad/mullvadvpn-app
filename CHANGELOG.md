@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
   paths and window captions etc.
 - Bundle an IP address with the app and introduce a disk cache fallback method for when the DNS
   resolution of the Mullvad API server hostname fails.
+- Manage firewall rules on windows depending on connection state.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
