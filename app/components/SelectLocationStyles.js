@@ -43,6 +43,7 @@ export default {
       backgroundColor: colors.green90,
     },
     tick_icon: {
+      color: colors.white,
       marginLeft: 0,
       marginRight: 0,
       marginTop: 14,
