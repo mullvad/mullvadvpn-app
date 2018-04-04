@@ -12,3 +12,4 @@ log = "0.4"
 winapi = { version = "0.3", features = ["std", "winsvc", "winerror"] }
 shell-escape = "0.1.4"
 widestring = "0.3.0"
+bitflags = "1.0.1"
