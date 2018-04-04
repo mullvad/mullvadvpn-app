@@ -12,7 +12,7 @@
 /// ```
 ///
 macro_rules! define_windows_service {
-    ($struct_name: ident, $service_name: ident, $service_main: ident) => {
+    ($struct_name:ident, $service_name:ident, $service_main:ident) => {
         struct $struct_name;
 
         impl $struct_name {
