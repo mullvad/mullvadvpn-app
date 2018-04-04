@@ -124,10 +124,12 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     });
   }
 
-  _relayStatusIndicator(active: boolean) {
+  _relayStatusIndicator(active: boolean, isSelected: boolean) {
     const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
-    return (<View style={[ styles.relay_status, statusClass ]}></View>);
+    return ( isSelected ?
+            <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
+            <View style={[ styles.relay_status, statusClass ]}></View>);
   }
 
   _renderCountry(relayCountry: RelayLocationRedux) {
@@ -149,14 +151,12 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
       <View key={ relayCountry.code } style={styles.country}>
         <CellButton
           cellHoverStyle={ isSelected ? styles.cell_selected : null }
-          style={ isSelected ? styles.cell_selected : null }
+          style={ isSelected ? styles.cell_selected : styles.cell }
           onPress={ handleSelect }
           disabled={!relayCountry.hasActiveRelays}
           testName='country'>
 
-          { isSelected ?
-            <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
-            this._relayStatusIndicator(relayCountry.hasActiveRelays) }
+          { this._relayStatusIndicator(relayCountry.hasActiveRelays, isSelected) }
 
           <Label>
             { relayCountry.name }
@@ -200,9 +200,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         testName='city'
         ref={onRef}>
 
-        { isSelected ?
-          <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
-          this._relayStatusIndicator(relayCity.hasActiveRelays) }
+        { this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected) }
 
         <Label>
           { relayCity.name }
