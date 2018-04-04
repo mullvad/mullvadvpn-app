@@ -271,9 +271,12 @@ impl ServiceState {
     }
 }
 
-/// Service exit code abstraction
+/// Service exit code abstraction.
+///
 /// This struct provides a logic around the relationship between `win32_exit_code` and
-/// `service_specific_exit_code`. The service can either return a win32 error code or a custom error
+/// `service_specific_exit_code`.
+///
+/// The service can either return a win32 error code or a custom error
 /// code. In that case `win32_exit_code` has to be set to `ERROR_SERVICE_SPECIFIC_ERROR` and
 /// the `service_specific_exit_code` assigned with custom error code.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
