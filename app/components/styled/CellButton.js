@@ -82,9 +82,9 @@ type State = { hovered: boolean };
 export default class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
-  textStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white80 : null;
-  iconStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white40 : null;
-  subtextStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.white40 : null;
+  textStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle : null;
+  iconStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle : null;
+  subtextStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle : null;
   backgroundStyle = (cellHoverStyle?: Types.ViewStyle) => this.state.hovered ? cellHoverStyle || styles.blueHover : null;
 
   onHoverStart = () => !this.props.disabled ? this.setState({ hovered: true }) : null;
