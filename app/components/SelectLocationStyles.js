@@ -107,6 +107,7 @@ export default {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '600',
+      lineHeight: 20,
       color: colors.white60,
       letterSpacing: -0.2,
       paddingTop: 0,
