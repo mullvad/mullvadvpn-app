@@ -40,6 +40,10 @@ export default {
     relay_status__active: {
       backgroundColor: colors.green90,
     },
+    tick_icon: {
+      marginLeft: 4,
+      marginRight: 4,
+    },
     country: {
       flexDirection: 'column',
       flex: 0,

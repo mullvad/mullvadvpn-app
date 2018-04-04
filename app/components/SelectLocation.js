@@ -155,7 +155,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           testName='country'>
 
           { isSelected ?
-            <Img source='icon-tick' height='24' width='24' /> :
+            <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
             this._relayStatusIndicator(relayCountry.hasActiveRelays) }
 
           <Label>
@@ -201,7 +201,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         ref={onRef}>
 
         { isSelected ?
-          <Img source='icon-tick' height='24' width='24' /> :
+          <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
           this._relayStatusIndicator(relayCity.hasActiveRelays) }
 
         <Label>
