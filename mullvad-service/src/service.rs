@@ -298,12 +298,14 @@ impl ServiceExitCode {
             }
         }
     }
+}
 
-    fn from_raw_service_status(raw_service_status: &winsvc::SERVICE_STATUS) -> Self {
-        if raw_service_status.dwWin32ExitCode == ERROR_SERVICE_SPECIFIC_ERROR {
-            ServiceExitCode::ServiceSpecific(raw_service_status.dwServiceSpecificExitCode)
+impl<'a> From<&'a winsvc::SERVICE_STATUS> for ServiceExitCode {
+    fn from(service_status: &'a winsvc::SERVICE_STATUS) -> Self {
+        if service_status.dwWin32ExitCode == ERROR_SERVICE_SPECIFIC_ERROR {
+            ServiceExitCode::ServiceSpecific(service_status.dwServiceSpecificExitCode)
         } else {
-            ServiceExitCode::Win32(raw_service_status.dwWin32ExitCode)
+            ServiceExitCode::Win32(service_status.dwWin32ExitCode)
         }
     }
 }
@@ -397,7 +399,7 @@ impl ServiceControlAccept {
     }
 }
 
-/// Service status
+/// Service status.
 #[derive(Builder, Debug)]
 #[builder(build_fn(validate = "Self::validate"))]
 pub struct ServiceStatus {
@@ -473,7 +475,7 @@ impl ServiceStatus {
             service_type: ServiceType::from_raw(raw_status.dwServiceType)?,
             current_state: ServiceState::from_raw(raw_status.dwCurrentState)?,
             controls_accepted: ServiceControlAccept::from_raw(raw_status.dwControlsAccepted),
-            exit_code: ServiceExitCode::from_raw_service_status(&raw_status),
+            exit_code: ServiceExitCode::from(&raw_status),
             checkpoint: raw_status.dwCheckPoint,
             wait_hint: Duration::from_millis(raw_status.dwWaitHint as u64),
         })
