@@ -148,6 +148,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     return (
       <View key={ relayCountry.code } style={styles.country}>
         <CellButton
+          cellHoverStyle={ isSelected ? styles.cell_selected : null }
           style={ isSelected ? styles.cell_selected : null }
           onPress={ handleSelect }
           disabled={!relayCountry.hasActiveRelays}
@@ -194,6 +195,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
       <CellButton key={ `${countryCode}_${relayCity.code}` }
         onPress={ handleSelect }
         disabled={!relayCity.hasActiveRelays}
+        cellHoverStyle={isSelected ? styles.sub_cell__selected : null}
         style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
         testName='city'
         ref={onRef}>
