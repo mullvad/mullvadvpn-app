@@ -28,10 +28,10 @@ macro_rules! define_windows_service {
             /// On failure: immediately returns an error, no threads are spawned.
             ///
             pub fn start_dispatcher() -> ::std::io::Result<()> {
-                use widestring::to_wide_with_nul;
                 use winapi::um::winsvc;
 
-                let service_name = to_wide_with_nul($service_name);
+                let service_name =
+                    unsafe { widestring::WideCString::from_str_unchecked($service_name) };
                 let service_table: &[winsvc::SERVICE_TABLE_ENTRYW] = &[
                     winsvc::SERVICE_TABLE_ENTRYW {
                         lpServiceName: service_name.as_ptr(),
@@ -70,13 +70,11 @@ macro_rules! define_windows_service {
                 argc: u32,
                 argv: *mut *mut u16,
             ) -> Vec<std::ffi::OsString> {
-                use widestring::from_raw_wide_string;
-
                 (0..argc)
                     .into_iter()
                     .map(|i| {
-                        let ptr = argv.offset(i as isize);
-                        from_raw_wide_string(*ptr, 256)
+                        let array_element_ptr: *mut *mut u16 = argv.offset(i as isize);
+                        widestring::WideCStr::from_ptr_str(*array_element_ptr).to_os_string()
                     })
                     .collect()
             }

@@ -1,11 +1,11 @@
 use std::ffi::OsStr;
 use std::io;
 
+use widestring::WideCString;
 use winapi::shared::winerror::ERROR_CALL_NOT_IMPLEMENTED;
 use winapi::um::winsvc;
 
 use service::{ServiceControl, ServiceStatus};
-use widestring::to_wide_with_nul;
 
 /// Struct that holds unique token for updating the status of the corresponding service.
 #[derive(Debug, Clone, Copy)]
@@ -53,7 +53,7 @@ impl<'a> ServiceControlHandler<'a> {
         // Danger: pass the pointer to this instance via context
         let context = &mut handler as *mut _ as *mut ::std::os::raw::c_void;
 
-        let service_name = to_wide_with_nul(service_name);
+        let service_name = unsafe { WideCString::from_str_unchecked(service_name) };
         let status_handle = unsafe {
             winsvc::RegisterServiceCtrlHandlerExW(
                 service_name.as_ptr(),
