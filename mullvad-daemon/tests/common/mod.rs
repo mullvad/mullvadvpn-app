@@ -35,7 +35,10 @@ mod platform_specific {
     pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
 
     pub fn rpc_file_path() -> PathBuf {
-        ::std::env::temp_dir().join(".mullvad_rpc_address")
+        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
+        PathBuf::from(windows_directory)
+            .join("Temp")
+            .join(".mullvad_rpc_address")
     }
 }
 
