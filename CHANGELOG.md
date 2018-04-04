@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
   account numbers.
 - Fix OpenVPN plugin search directory to be the installation directory.
+- Write and look for RPC address file in global temp directory on Windows.
 
 
 ## [2018.1] - 2018-03-01
