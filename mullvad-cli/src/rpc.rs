@@ -40,7 +40,10 @@ lazy_static! {
 #[cfg(not(unix))]
 lazy_static! {
     /// The path to the file where we read the RPC address
-    static ref RPC_ADDRESS_FILE_PATH: PathBuf = ::std::env::temp_dir().join(".mullvad_rpc_address");
+    static ref RPC_ADDRESS_FILE_PATH: PathBuf = {
+        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
+        PathBuf::from(windows_directory).join("Temp").join(".mullvad_rpc_address")
+    };
 }
 
 fn read_rpc_address() -> Result<(String, String)> {
