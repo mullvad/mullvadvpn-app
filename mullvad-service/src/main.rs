@@ -8,6 +8,7 @@ extern crate error_chain;
 #[macro_use]
 extern crate log;
 extern crate shell_escape;
+extern crate widestring;
 extern crate winapi;
 
 use std::error::Error;
@@ -30,8 +31,6 @@ use service_control_handler::ServiceControlHandler;
 
 #[macro_use]
 mod service_dispatcher;
-
-mod widestring;
 
 mod logging;
 use logging::init_logger;

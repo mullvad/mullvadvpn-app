@@ -2,10 +2,10 @@ use std::ffi::OsStr;
 use std::{io, ptr};
 
 use shell_escape;
+use widestring::WideCString;
 use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
-use widestring::to_wide_with_nul;
 
 /// Enum describing access permissions for ServiceManager
 #[derive(Builder, Debug)]
@@ -55,14 +55,16 @@ impl ServiceManager {
         database: Option<D>,
         request_access: ServiceManagerAccess,
     ) -> io::Result<Self> {
-        let machine_name = machine.map(to_wide_with_nul);
-        let machine_ptr = machine_name.map_or(ptr::null(), |vec| vec.as_ptr());
+        let machine_name = machine.map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
+        let database_name = database.map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
 
-        let database_name = database.map(to_wide_with_nul);
-        let database_ptr = database_name.map_or(ptr::null(), |vec| vec.as_ptr());
-
-        let handle =
-            unsafe { winsvc::OpenSCManagerW(machine_ptr, database_ptr, request_access.to_raw()) };
+        let handle = unsafe {
+            winsvc::OpenSCManagerW(
+                machine_name.map_or(ptr::null(), |s| s.as_ptr()),
+                database_name.map_or(ptr::null(), |s| s.as_ptr()),
+                request_access.to_raw(),
+            )
+        };
 
         if handle.is_null() {
             Err(io::Error::last_os_error())
@@ -108,13 +110,15 @@ impl ServiceManager {
         // combine escaped executable path and launch arguments into one command
         let launch_command = vec![launch_path, launch_arguments].join(" ");
 
-        let service_name = to_wide_with_nul(service_info.name);
-        let display_name = to_wide_with_nul(service_info.display_name);
-        let executable_path = to_wide_with_nul(launch_command);
-        let account_name = service_info.account_name.map(to_wide_with_nul);
-        let account_name_ptr = account_name.map_or(ptr::null(), |vec| vec.as_ptr());
-        let account_password = service_info.account_password.map(to_wide_with_nul);
-        let account_password_ptr = account_password.map_or(ptr::null(), |vec| vec.as_ptr());
+        let service_name = unsafe { WideCString::from_str_unchecked(service_info.name) };
+        let display_name = unsafe { WideCString::from_str_unchecked(service_info.display_name) };
+        let executable_path = unsafe { WideCString::from_str_unchecked(launch_command) };
+        let account_name = service_info
+            .account_name
+            .map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
+        let account_password = service_info
+            .account_password
+            .map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
 
         let service_handle = unsafe {
             winsvc::CreateServiceW(
@@ -129,8 +133,8 @@ impl ServiceManager {
                 ptr::null(),     // load ordering group
                 ptr::null_mut(), // tag id within the load ordering group
                 ptr::null(),     // service dependencies
-                account_name_ptr,
-                account_password_ptr,
+                account_name.map_or(ptr::null(), |s| s.as_ptr()),
+                account_password.map_or(ptr::null(), |s| s.as_ptr()),
             )
         };
 
@@ -146,7 +150,7 @@ impl ServiceManager {
         name: T,
         request_access: ServiceAccess,
     ) -> io::Result<Service> {
-        let service_name = to_wide_with_nul(name);
+        let service_name = unsafe { WideCString::from_str_unchecked(name) };
         let service_handle =
             unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), request_access.to_raw()) };
 
