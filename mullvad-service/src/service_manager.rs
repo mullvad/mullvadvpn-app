@@ -8,38 +8,16 @@ use winapi::um::winsvc;
 use service::{Service, ServiceAccess, ServiceInfo};
 
 /// Enum describing access permissions for ServiceManager
-#[derive(Builder, Debug)]
-pub struct ServiceManagerAccess {
-    /// Can connect to service control manager
-    #[builder(default)]
-    pub connect: bool,
+bitflags! {
+    pub struct ServiceManagerAccess: u32 {
+        /// Can connect to service control manager
+        const CONNECT = winsvc::SC_MANAGER_CONNECT;
 
-    /// Can create services
-    #[builder(default)]
-    pub create_service: bool,
+        /// Can create services
+        const CREATE_SERVICE = winsvc::SC_MANAGER_CREATE_SERVICE;
 
-    /// Can enumerate services
-    #[builder(default)]
-    pub enumerate_service: bool,
-}
-
-impl ServiceManagerAccess {
-    pub fn to_raw(&self) -> u32 {
-        let mut mask: u32 = 0;
-
-        if self.connect {
-            mask |= winsvc::SC_MANAGER_CONNECT;
-        }
-
-        if self.create_service {
-            mask |= winsvc::SC_MANAGER_CREATE_SERVICE;
-        }
-
-        if self.enumerate_service {
-            mask |= winsvc::SC_MANAGER_ENUMERATE_SERVICE;
-        }
-
-        mask
+        /// Can enumerate services
+        const ENUMERATE_SERVICE = winsvc::SC_MANAGER_ENUMERATE_SERVICE;
     }
 }
 
@@ -62,7 +40,7 @@ impl ServiceManager {
             winsvc::OpenSCManagerW(
                 machine_name.map_or(ptr::null(), |s| s.as_ptr()),
                 database_name.map_or(ptr::null(), |s| s.as_ptr()),
-                request_access.to_raw(),
+                request_access.bits(),
             )
         };
 
@@ -93,7 +71,7 @@ impl ServiceManager {
     pub fn create_service(
         &self,
         service_info: ServiceInfo,
-        request_access: ServiceAccess,
+        service_access: ServiceAccess,
     ) -> io::Result<Service> {
         // escape executable path
         let launch_path =
@@ -125,7 +103,7 @@ impl ServiceManager {
                 self.0,
                 service_name.as_ptr(),
                 display_name.as_ptr(),
-                request_access.to_raw(),
+                service_access.bits(),
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
@@ -152,7 +130,7 @@ impl ServiceManager {
     ) -> io::Result<Service> {
         let service_name = unsafe { WideCString::from_str_unchecked(name) };
         let service_handle =
-            unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), request_access.to_raw()) };
+            unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), request_access.bits()) };
 
         if service_handle.is_null() {
             Err(io::Error::last_os_error())

@@ -73,62 +73,25 @@ impl ServiceType {
 }
 
 /// Struct describing the access permissions when working with Services
-#[derive(Builder, Debug)]
-pub struct ServiceAccess {
-    /// Can query the service status
-    #[builder(default)]
-    pub query_status: bool,
+bitflags! {
+    pub struct ServiceAccess: u32 {
+        /// Can query the service status
+        const QUERY_STATUS = winsvc::SERVICE_QUERY_STATUS;
 
-    /// Can start the service
-    #[builder(default)]
-    pub start: bool,
+        /// Can start the service
+        const START = winsvc::SERVICE_START;
 
-    // Can stop the service
-    #[builder(default)]
-    pub stop: bool,
+        // Can stop the service
+        const STOP = winsvc::SERVICE_STOP;
 
-    /// Can pause or continue the service execution
-    #[builder(default)]
-    pub pause_continue: bool,
+        /// Can pause or continue the service execution
+        const PAUSE_CONTINUE = winsvc::SERVICE_PAUSE_CONTINUE;
 
-    /// Can ask the service to report its status
-    #[builder(default)]
-    pub interrogate: bool,
+        /// Can ask the service to report its status
+        const INTERROGATE = winsvc::SERVICE_INTERROGATE;
 
-    /// Can delete the service
-    #[builder(default)]
-    pub delete: bool,
-}
-
-impl ServiceAccess {
-    pub fn to_raw(&self) -> u32 {
-        let mut mask: u32 = 0;
-
-        if self.query_status {
-            mask |= winsvc::SERVICE_QUERY_STATUS;
-        }
-
-        if self.start {
-            mask |= winsvc::SERVICE_START;
-        }
-
-        if self.stop {
-            mask |= winsvc::SERVICE_STOP;
-        }
-
-        if self.pause_continue {
-            mask |= winsvc::SERVICE_PAUSE_CONTINUE;
-        }
-
-        if self.interrogate {
-            mask |= winsvc::SERVICE_INTERROGATE;
-        }
-
-        if self.delete {
-            mask |= winnt::DELETE;
-        }
-
-        mask
+        /// Can delete the service
+        const DELETE = winnt::DELETE;
     }
 }
 
@@ -311,91 +274,29 @@ impl<'a> From<&'a winsvc::SERVICE_STATUS> for ServiceExitCode {
 }
 
 /// Accepted types of service control requests
-#[derive(Builder, Debug, Clone)]
-#[builder(build_fn(validate = "Self::validate"))]
-pub struct ServiceControlAccept {
-    /// The service is a network component that can accept changes in its binding without being
-    /// stopped and restarted. This allows service to receive `ServiceControl::Netbind*`
-    /// family of events.
-    #[builder(default)]
-    pub netbind_change: bool,
+bitflags! {
+    pub struct ServiceControlAccept: u32 {
+        /// The service is a network component that can accept changes in its binding without being
+        /// stopped and restarted. This allows service to receive `ServiceControl::Netbind*`
+        /// family of events.
+        const NETBIND_CHANGE = winsvc::SERVICE_ACCEPT_NETBINDCHANGE;
 
-    /// The service can reread its startup parameters without being stopped and restarted.
-    #[builder(default)]
-    pub param_change: bool,
+        /// The service can reread its startup parameters without being stopped and restarted.
+        const PARAM_CHANGE = winsvc::SERVICE_ACCEPT_PARAMCHANGE;
 
-    /// The service can be paused and continued.
-    #[builder(default)]
-    pub pause_continue: bool,
+        /// The service can be paused and continued.
+        const PAUSE_CONTINUE = winsvc::SERVICE_ACCEPT_PAUSE_CONTINUE;
 
-    /// The service can perform preshutdown tasks.
-    /// Mutually exclusive with shutdown.
-    #[builder(default)]
-    pub preshutdown: bool,
+        /// The service can perform preshutdown tasks.
+        /// Mutually exclusive with shutdown.
+        const PRESHUTDOWN = winsvc::SERVICE_ACCEPT_PRESHUTDOWN;
 
-    /// The service is notified when system shutdown occurs.
-    /// Mutually exclusive with preshutdown.
-    #[builder(default)]
-    pub shutdown: bool,
+        /// The service is notified when system shutdown occurs.
+        /// Mutually exclusive with preshutdown.
+        const SHUTDOWN = winsvc::SERVICE_ACCEPT_SHUTDOWN;
 
-    /// The service can be stopped.
-    #[builder(default)]
-    pub stop: bool,
-}
-
-impl ServiceControlAcceptBuilder {
-    fn validate(&self) -> Result<(), String> {
-        // Services that register for preshutdown notifications cannot receive shutdown
-        // notification because they have already stopped.
-        match (self.preshutdown, self.shutdown) {
-            (Some(true), Some(true)) => {
-                Err("Preshutdown and shutdown are mutually exclusive.".to_string())
-            }
-            _ => Ok(()),
-        }
-    }
-}
-
-impl ServiceControlAccept {
-    pub(super) fn from_raw(raw_mask: u32) -> Self {
-        ServiceControlAccept {
-            netbind_change: (raw_mask & winsvc::SERVICE_ACCEPT_NETBINDCHANGE) != 0,
-            param_change: (raw_mask & winsvc::SERVICE_ACCEPT_PARAMCHANGE) != 0,
-            pause_continue: (raw_mask & winsvc::SERVICE_ACCEPT_PAUSE_CONTINUE) != 0,
-            preshutdown: (raw_mask & winsvc::SERVICE_ACCEPT_PRESHUTDOWN) != 0,
-            shutdown: (raw_mask & winsvc::SERVICE_ACCEPT_SHUTDOWN) != 0,
-            stop: (raw_mask & winsvc::SERVICE_ACCEPT_STOP) != 0,
-        }
-    }
-
-    pub(super) fn to_raw(&self) -> u32 {
-        let mut mask: u32 = 0;
-
-        if self.netbind_change {
-            mask |= winsvc::SERVICE_ACCEPT_NETBINDCHANGE;
-        }
-
-        if self.param_change {
-            mask |= winsvc::SERVICE_ACCEPT_PARAMCHANGE;
-        }
-
-        if self.pause_continue {
-            mask |= winsvc::SERVICE_ACCEPT_PAUSE_CONTINUE;
-        }
-
-        if self.preshutdown {
-            mask |= winsvc::SERVICE_ACCEPT_PRESHUTDOWN;
-        }
-
-        if self.shutdown {
-            mask |= winsvc::SERVICE_ACCEPT_SHUTDOWN;
-        }
-
-        if self.stop {
-            mask |= winsvc::SERVICE_ACCEPT_STOP;
-        }
-
-        mask
+        /// The service can be stopped.
+        const STOP = winsvc::SERVICE_ACCEPT_STOP;
     }
 }
 
@@ -458,7 +359,7 @@ impl ServiceStatus {
         let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         raw_status.dwServiceType = self.service_type.to_raw();
         raw_status.dwCurrentState = self.current_state.to_raw();
-        raw_status.dwControlsAccepted = self.controls_accepted.to_raw();
+        raw_status.dwControlsAccepted = self.controls_accepted.bits();
 
         self.exit_code.copy_to(&mut raw_status);
 
@@ -474,7 +375,9 @@ impl ServiceStatus {
         Ok(ServiceStatus {
             service_type: ServiceType::from_raw(raw_status.dwServiceType)?,
             current_state: ServiceState::from_raw(raw_status.dwCurrentState)?,
-            controls_accepted: ServiceControlAccept::from_raw(raw_status.dwControlsAccepted),
+            controls_accepted: ServiceControlAccept::from_bits_truncate(
+                raw_status.dwControlsAccepted,
+            ),
             exit_code: ServiceExitCode::from(&raw_status),
             checkpoint: raw_status.dwCheckPoint,
             wait_hint: Duration::from_millis(raw_status.dwWaitHint as u64),
