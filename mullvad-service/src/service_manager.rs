@@ -1,11 +1,12 @@
-use std::ffi::OsStr;
+use std::borrow::Cow;
+use std::ffi::{OsStr, OsString};
 use std::{io, ptr};
 
-use shell_escape;
 use widestring::WideCString;
 use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
+use shell_escape;
 
 /// Flags describing access permissions for ServiceManager
 bitflags! {
@@ -74,19 +75,24 @@ impl ServiceManager {
         service_access: ServiceAccess,
     ) -> io::Result<Service> {
         // escape executable path
-        let launch_path =
-            shell_escape::escape(service_info.executable_path.to_string_lossy()).into_owned();
+        let launch_executable = shell_escape::escape(Cow::Borrowed(
+            service_info.executable_path.as_os_str(),
+        )).into_owned();
 
-        // escape and combine launch arguments in space separated string
+        // escape launch arguments
         let launch_arguments = service_info
             .launch_arguments
             .into_iter()
-            .map(|s| shell_escape::escape(s.to_string_lossy()).into_owned())
-            .collect::<Vec<_>>()
-            .join(" ");
+            .map(|s| shell_escape::escape(Cow::Owned(s)).into_owned())
+            .collect::<Vec<OsString>>();
 
-        // combine escaped executable path and launch arguments into one command
-        let launch_command = vec![launch_path, launch_arguments].join(" ");
+        // combine escaped executable path and arguments into command
+        let mut launch_command = OsString::new();
+        launch_command.push(launch_executable);
+        for launch_argument in launch_arguments.iter() {
+            launch_command.push(" ");
+            launch_command.push(launch_argument);
+        }
 
         let service_name = unsafe { WideCString::from_str_unchecked(service_info.name) };
         let display_name = unsafe { WideCString::from_str_unchecked(service_info.display_name) };
