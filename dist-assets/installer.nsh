@@ -12,7 +12,7 @@
 #
 
 # TAP device hardware ID
-!define TapHardwareId "TAP0901"
+!define TapHardwareId "tap0901"
 
 #
 # BreakInstallation
