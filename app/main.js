@@ -21,7 +21,7 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 
 // The name for application directory used for
 // scoping logs and user data in platform special folders
-const appDirectoryName = 'MullvadVPN';
+const appDirectoryName = 'Mullvad VPN';
 const rpcAddressFile = path.join(getSystemTemporaryDirectory(), '.mullvad_rpc_address');
 
 let browserWindowReady = false;
@@ -33,7 +33,7 @@ const appDelegate = {
   connectionFilePollInterval: (null: ?IntervalID),
 
   setup: () => {
-    // Override userData path, i.e on macOS: ~/Library/Application Support/MullvadVPN
+    // Override userData path, i.e on macOS: ~/Library/Application Support/Mullvad VPN
     app.setPath('userData', path.join(app.getPath('appData'), appDirectoryName));
 
     appDelegate._logFileLocation = appDelegate._getLogsDirectory();
