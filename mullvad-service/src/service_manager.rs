@@ -7,7 +7,7 @@ use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
 
-/// Enum describing access permissions for ServiceManager
+/// Flags describing access permissions for ServiceManager
 bitflags! {
     pub struct ServiceManagerAccess: u32 {
         /// Can connect to service control manager
