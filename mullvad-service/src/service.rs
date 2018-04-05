@@ -148,7 +148,7 @@ pub struct ServiceInfo {
 
     /// Launch arguments passed to `main` when system starts the service.
     /// This is not the same as arguments passed to `service_main`.
-    pub launch_arguments: Vec<String>,
+    pub launch_arguments: Vec<OsString>,
 
     /// Account to use for running the service.
     /// for example: NT Authority\System.

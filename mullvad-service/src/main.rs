@@ -176,7 +176,7 @@ fn get_service_info() -> ServiceInfo {
         start_type: ServiceStartType::OnDemand, // TBD: change to AutoStart
         error_control: ServiceErrorControl::Normal,
         executable_path: std::env::current_exe().unwrap(),
-        launch_arguments: vec![String::from("--service")],
+        launch_arguments: vec![OsString::from("--service")],
         account_name: None, // run as System
         account_password: None,
     }
