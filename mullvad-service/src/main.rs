@@ -9,7 +9,6 @@ extern crate derive_builder;
 extern crate error_chain;
 #[macro_use]
 extern crate log;
-extern crate shell_escape;
 extern crate widestring;
 extern crate winapi;
 
@@ -30,6 +29,8 @@ use service::{ServiceAccess, ServiceControl, ServiceError, ServiceErrorControl, 
 
 mod service_control_handler;
 use service_control_handler::ServiceControlHandler;
+
+mod shell_escape;
 
 #[macro_use]
 mod service_dispatcher;

@@ -88,5 +88,5 @@ macro_rules! define_windows_service {
                     .collect()
             }
         }
-    }
+    };
 }
