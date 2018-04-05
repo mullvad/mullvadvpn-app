@@ -81,7 +81,7 @@ impl ServiceManager {
         let launch_arguments = service_info
             .launch_arguments
             .into_iter()
-            .map(|s| shell_escape::escape(s.into()).into_owned())
+            .map(|s| shell_escape::escape(s.to_string_lossy()).into_owned())
             .collect::<Vec<_>>()
             .join(" ");
 
