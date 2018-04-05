@@ -90,7 +90,7 @@ impl ServiceManager {
 
         let service_name = unsafe { WideCString::from_str_unchecked(service_info.name) };
         let display_name = unsafe { WideCString::from_str_unchecked(service_info.display_name) };
-        let executable_path = unsafe { WideCString::from_str_unchecked(launch_command) };
+        let wide_launch_command = unsafe { WideCString::from_str_unchecked(launch_command) };
         let account_name = service_info
             .account_name
             .map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
@@ -107,7 +107,7 @@ impl ServiceManager {
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
-                executable_path.as_ptr(),
+                wide_launch_command.as_ptr(),
                 ptr::null(),     // load ordering group
                 ptr::null_mut(), // tag id within the load ordering group
                 ptr::null(),     // service dependencies
