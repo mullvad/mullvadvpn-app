@@ -72,7 +72,7 @@ impl ServiceType {
     }
 }
 
-/// Struct describing the access permissions when working with Services
+/// Flags describing the access permissions when working with services
 bitflags! {
     pub struct ServiceAccess: u32 {
         /// Can query the service status
@@ -160,7 +160,7 @@ pub struct ServiceInfo {
     pub account_password: Option<OsString>,
 }
 
-// Enum describing the service control operations
+/// Enum describing the service control operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u32)]
 pub enum ServiceControl {
@@ -273,7 +273,7 @@ impl<'a> From<&'a winsvc::SERVICE_STATUS> for ServiceExitCode {
     }
 }
 
-/// Accepted types of service control requests
+/// Flags describing accepted types of service control requests
 bitflags! {
     pub struct ServiceControlAccept: u32 {
         /// The service is a network component that can accept changes in its binding without being
