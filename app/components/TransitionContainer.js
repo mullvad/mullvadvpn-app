@@ -16,11 +16,6 @@ type State = {
     dimensions: Types.Dimensions,
 };
 
-const transitionContainerStyle = Styles.createViewStyle({
-  flex: 1,
-  position: 'relative'
-});
-
 export default class TransitionContainer extends Component<TransitionContainerProps, State> {
 
   constructor(props: TransitionContainerProps) {
@@ -39,7 +34,11 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         allowPointerEvents: Styles.createAnimatedViewStyle({
           pointerEvents: 'auto',
         })
-      }
+      },
+      transitionContainerStyle: Styles.createViewStyle({
+        width: dimensions.width,
+        height: dimensions.height,
+      })
     };
   }
 
@@ -64,7 +63,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
 
   onFinishedAnimation() {
     this.setState({
-      childrenAnimation: this.state.animationStyles.allowPointerEvents,
+      childrenAnimation: null,//this.state.animationStyles.allowPointerEvents,
       previousChildren: null
     });
   }
@@ -88,7 +87,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: 0,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: false,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -112,7 +110,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: this.state.dimensions.height,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: false,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -138,13 +135,11 @@ export default class TransitionContainer extends Component<TransitionContainerPr
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: false,
         }),
         Animated.timing(previousTranslationValue, {
           toValue: - this.state.dimensions.width / 2,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: false,
         })
       ]);
       compositeAnimation.start(() => this.onFinishedAnimation());
@@ -172,13 +167,11 @@ export default class TransitionContainer extends Component<TransitionContainerPr
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         }),
         Animated.timing(previousTranslationValue, {
           toValue: this.state.dimensions.width,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         })
       ]);
       compositeAnimation.start(() => this.onFinishedAnimation());
@@ -189,8 +182,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
     return (
-      <View style={[ transitionContainerStyle ]}>
-
+      <View style={ this.state.transitionContainerStyle }>
         { previousChildren &&
           (<Animated.View key={ previousChildren && previousChildren.key }
             style={[this.state.animationStyles.style, previousChildrenAnimation]}>

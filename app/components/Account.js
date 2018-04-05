@@ -33,7 +33,7 @@ export default class Account extends Component {
             <Button style={styles.account__close}
               onPress={ this.props.onClose }
               testName='account__close'>
-              <Img style={styles.account__close_icon} source="icon-back" />
+              <Img height={24} width={24} style={styles.account__close_icon} source="icon-back" />
               <Text style={styles.account__close_title}>Settings</Text>
             </Button>
             <View style={styles.account__container}>

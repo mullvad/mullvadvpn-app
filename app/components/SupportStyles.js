@@ -26,8 +26,6 @@ export default Object.assign(createViewStyles({
     justifyContent: 'flex-start',
   },
   support__close_icon:{
-    width: 24,
-    height: 24,
     flex: 0,
     opacity: 0.6,
     marginRight: 8,

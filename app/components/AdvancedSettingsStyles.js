@@ -31,8 +31,6 @@ export default {
       paddingTop: 24,
     },
     advanced_settings__close_icon: {
-      width: 24,
-      height: 24,
       opacity: 0.6,
       marginRight: 8,
     },

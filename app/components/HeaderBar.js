@@ -31,26 +31,26 @@ export default class HeaderBar extends Component {
   render() {
     let containerClass = [
       styles['headerbar'],
-      styles['headerbar__' + process.platform],
-      styles['headerbar__style_' + this.props.style]
+      styles[process.platform],
+      styles['style_' + this.props.style]
     ];
 
     if(this.props.hidden) {
-      containerClass.push(styles['headerbar__hidden']);
+      containerClass.push(styles['hidden']);
     }
 
     return (
       <View style={ containerClass }>
         {!this.props.hidden ?
-          <View style={styles.headerbar__container} testName="headerbar__container">
-            <Img style={ styles.headerbar__logo } source='logo-icon'/>
-            <Text style={styles.headerbar__title}>MULLVAD VPN</Text>
+          <View style={styles.container} testName="headerbar__container">
+            <Img height={50} width={50} source='logo-icon'/>
+            <Text style={styles.title}>MULLVAD VPN</Text>
           </View>
           : null}
 
         {this.props.showSettings ?
-          <Button style={ styles.headerbar__settings } onPress={ this.props.onSettings } testName="headerbar__settings">
-            <Img source='icon-settings' style={ styles.headerbar__settings_icon } hoverStyle={ styles.settings_icon_hover }/>
+          <Button style={ styles.settings } onPress={ this.props.onSettings } testName="headerbar__settings">
+            <Img height={24} width={24} source='icon-settings' style={ styles.settings_icon } hoverStyle={ styles.settings_icon_hover }/>
           </Button>
           : null}
       </View>

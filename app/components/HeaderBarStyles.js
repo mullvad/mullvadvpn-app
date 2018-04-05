@@ -14,39 +14,33 @@ export default {
       justifyContent: 'space-between',
       alignItems: 'center',
     },
-    headerbar__hidden: {
+    hidden: {
       paddingTop: 24,
       paddingBottom: 0,
       paddingLeft: 0,
       paddingRight: 0,
     },
-    headerbar__darwin: {
+    darwin: {
       paddingTop: 24,
     },
-    headerbar__style_defaultDark: {
+    style_defaultDark: {
       backgroundColor: colors.darkBlue,
     },
-    headerbar__style_error: {
+    style_error: {
       backgroundColor: colors.red,
     },
-    headerbar__style_success: {
+    style_success: {
       backgroundColor: colors.green,
     },
-    headerbar__container: {
+    container: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
     },
-    headerbar__logo: {
-      height: 50,
-      width: 50,
-    },
-    headerbar__settings: {
+    settings: {
       padding: 0
     },
-    headerbar__settings_icon: {
-      width: 24,
-      height: 24,
+    settings_icon: {
       color: colors.white60,
     },
     settings_icon_hover: {
@@ -54,7 +48,7 @@ export default {
     },
   }),
   ...createTextStyles({
-    headerbar__title: {
+    title: {
       fontFamily: 'DINPro',
       fontSize: 24,
       fontWeight: '900',

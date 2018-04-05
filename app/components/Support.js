@@ -117,7 +117,7 @@ export default class Support extends Component<SupportProps, SupportState> {
         <Container>
           <View style={styles.support}>
             <Button style={styles.support__close} onPress={ this.props.onClose } testName="support__close">
-              <Img style={styles.support__close_icon} source="icon-back" />
+              <Img height={24} width={24} style={styles.support__close_icon} source="icon-back" />
               <Text style={styles.support__close_title}>Settings</Text>
             </Button>
             <View style={styles.support__container}>

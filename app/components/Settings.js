@@ -31,7 +31,7 @@ export default class Settings extends Component<SettingsProps> {
         <Container>
           <View style={styles.settings}>
             <Button style={styles.settings__close} onPress={ this.props.onClose } testName='settings__close'>
-              <Img style={styles.settings__close_icon} source='icon-close'/>
+              <Img height={24} width={24} style={styles.settings__close_icon} source='icon-close'/>
             </Button>
 
             <View style={styles.settings__container}>
