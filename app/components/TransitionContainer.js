@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Styles, Component, Animated, View, Types, UserInterface } from 'reactxp';
 import type { TransitionGroupProps } from '../transitions';
+import getStyles from './TransitionContainerStyles'
 
 type TransitionContainerProps = {
   children: React.Node,
@@ -25,20 +26,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
 
     this.state = {
       dimensions,
-      animationStyles: {
-        style: Styles.createAnimatedViewStyle({
-          position: 'absolute',
-          width: dimensions.width,
-          height: dimensions.height,
-        }),
-        allowPointerEvents: Styles.createAnimatedViewStyle({
-          pointerEvents: 'auto',
-        })
-      },
-      transitionContainerStyle: Styles.createViewStyle({
-        width: dimensions.width,
-        height: dimensions.height,
-      })
     };
   }
 
@@ -63,7 +50,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
 
   onFinishedAnimation() {
     this.setState({
-      childrenAnimation: null,//this.state.animationStyles.allowPointerEvents,
+      childrenAnimation: getStyles().allowPointerEventsStyle,
       previousChildren: null
     });
   }
@@ -182,14 +169,14 @@ export default class TransitionContainer extends Component<TransitionContainerPr
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
     return (
-      <View style={ this.state.transitionContainerStyle }>
+      <View style={ getStyles().transitionContainerStyle }>
         { previousChildren &&
           (<Animated.View key={ previousChildren && previousChildren.key }
-            style={[this.state.animationStyles.style, previousChildrenAnimation]}>
+            style={[getStyles().animationDefaultStyle, previousChildrenAnimation]}>
             { previousChildren }
           </Animated.View>) }
 
-        <Animated.View key={ children.key } style={[this.state.animationStyles.style, childrenAnimation]}>
+        <Animated.View key={ children.key } style={[getStyles().animationDefaultStyle, childrenAnimation]}>
           { children }
         </Animated.View>
 
