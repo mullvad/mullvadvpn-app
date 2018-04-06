@@ -2,5 +2,5 @@
 	path = client-binaries
 	url = https://github.com/mullvad/client-binaries.git
 [submodule "talpid-core/wfp"]
-	path = talpid-core/wfp
+	path = wfp
 	url = git@github.com:mullvad/wfp.git
