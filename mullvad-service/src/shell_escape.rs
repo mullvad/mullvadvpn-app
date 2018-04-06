@@ -3,13 +3,13 @@ use std::ffi::{OsStr, OsString};
 use std::iter::repeat;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
 
-/// Common UCS2 code points
+/// Common UCS-2 code points.
 mod ucs2 {
-    pub const DOUBLEQUOTE: u16 = 0x0022; // '"'
-    pub const BACKSLASH: u16 = 0x005C; // '\\'
-    pub const SPACE: u16 = 0x0020; // ' '
-    pub const LINEFEED: u16 = 0x000A; // '\n'
-    pub const HTAB: u16 = 0x0009; // '\t'
+    pub const DOUBLEQUOTE: u16 = '"' as u16;
+    pub const BACKSLASH: u16 = '\\' as u16;
+    pub const SPACE: u16 = ' ' as u16;
+    pub const LINEFEED: u16 = '\n' as u16;
+    pub const HTAB: u16 = '\t' as u16;
     pub const VTAB: u16 = 0x000B; // '\v'
 }
 
@@ -25,7 +25,7 @@ pub fn escape(s: Cow<OsStr>) -> Cow<OsStr> {
         ucs2::VTAB,
         ucs2::DOUBLEQUOTE,
     ];
-    let needs_escape = s.encode_wide().any(|ref c| ESCAPE_CHARS.contains(c));
+    let needs_escape = s.is_empty() || s.encode_wide().any(|ref c| ESCAPE_CHARS.contains(c));
     if !needs_escape {
         return s;
     }
@@ -71,6 +71,14 @@ mod tests {
         assert_eq!(
             escape(Cow::Borrowed(OsStr::new("--aaa=bbb-ccc"))),
             OsStr::new("--aaa=bbb-ccc")
+        );
+    }
+
+    #[test]
+    fn test_escape_empty_argument() {
+        assert_eq!(
+            escape(Cow::Borrowed(OsStr::new(""))),
+            OsStr::new(r#""""#)
         );
     }
 
