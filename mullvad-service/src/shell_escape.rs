@@ -3,8 +3,8 @@ use std::ffi::{OsStr, OsString};
 use std::iter::repeat;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
 
-/// Common UCS-2 code points.
-mod ucs2 {
+/// Common UTF-16 code points.
+mod utf16 {
     pub const DOUBLEQUOTE: u16 = '"' as u16;
     pub const BACKSLASH: u16 = '\\' as u16;
     pub const SPACE: u16 = ' ' as u16;
@@ -19,45 +19,45 @@ mod ucs2 {
 /// Heavily based on https://github.com/sfackler/shell-escape
 pub fn escape(s: Cow<OsStr>) -> Cow<OsStr> {
     static ESCAPE_CHARS: &'static [u16] = &[
-        ucs2::SPACE,
-        ucs2::LINEFEED,
-        ucs2::HTAB,
-        ucs2::VTAB,
-        ucs2::DOUBLEQUOTE,
+        utf16::DOUBLEQUOTE,
+        utf16::SPACE,
+        utf16::LINEFEED,
+        utf16::HTAB,
+        utf16::VTAB,
     ];
     let needs_escape = s.is_empty() || s.encode_wide().any(|ref c| ESCAPE_CHARS.contains(c));
     if !needs_escape {
         return s;
     }
 
-    let mut escaped_wide_string: Vec<u16> = Vec::with_capacity(s.len());
-    escaped_wide_string.push(ucs2::DOUBLEQUOTE);
+    let mut escaped_wide_string: Vec<u16> = Vec::with_capacity(s.len() + 2);
+    escaped_wide_string.push(utf16::DOUBLEQUOTE);
 
     let mut chars = s.encode_wide().peekable();
     loop {
         let mut num_slashes = 0;
-        while let Some(&ucs2::BACKSLASH) = chars.peek() {
+        while let Some(&utf16::BACKSLASH) = chars.peek() {
             chars.next();
             num_slashes += 1;
         }
 
         match chars.next() {
-            Some(ucs2::DOUBLEQUOTE) => {
-                escaped_wide_string.extend(repeat(ucs2::BACKSLASH).take(num_slashes * 2 + 1));
-                escaped_wide_string.push(ucs2::DOUBLEQUOTE);
+            Some(utf16::DOUBLEQUOTE) => {
+                escaped_wide_string.extend(repeat(utf16::BACKSLASH).take(num_slashes * 2 + 1));
+                escaped_wide_string.push(utf16::DOUBLEQUOTE);
             }
             Some(c) => {
-                escaped_wide_string.extend(repeat(ucs2::BACKSLASH).take(num_slashes));
+                escaped_wide_string.extend(repeat(utf16::BACKSLASH).take(num_slashes));
                 escaped_wide_string.push(c);
             }
             None => {
-                escaped_wide_string.extend(repeat(ucs2::BACKSLASH).take(num_slashes * 2));
+                escaped_wide_string.extend(repeat(utf16::BACKSLASH).take(num_slashes * 2));
                 break;
             }
         }
     }
 
-    escaped_wide_string.push(ucs2::DOUBLEQUOTE);
+    escaped_wide_string.push(utf16::DOUBLEQUOTE);
 
     Cow::Owned(OsString::from_wide(&escaped_wide_string))
 }
@@ -76,10 +76,7 @@ mod tests {
 
     #[test]
     fn test_escape_empty_argument() {
-        assert_eq!(
-            escape(Cow::Borrowed(OsStr::new(""))),
-            OsStr::new(r#""""#)
-        );
+        assert_eq!(escape(Cow::Borrowed(OsStr::new(""))), OsStr::new(r#""""#));
     }
 
     #[test]
