@@ -38,7 +38,7 @@
 #
 !macro ExtractOpenVpn
 
-	SetOutPath "$INSTDIR\resources\openvpn"
+	SetOutPath "$INSTDIR\resources\openvpn-binaries"
 	File "${PROJECT_DIR}\client-binaries\windows\openvpn\bin\amd64\*"
 
 !macroend
