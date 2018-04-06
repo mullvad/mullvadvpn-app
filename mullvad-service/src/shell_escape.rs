@@ -95,6 +95,17 @@ mod tests {
         );
     }
 
+
+    #[test]
+    fn test_escape_multiple_backslashes_and_nested_quotes() {
+        assert_eq!(
+            escape(Cow::Borrowed(OsStr::new(
+                r#"hello \\\"quote\\\""#
+            ))),
+            OsStr::new(r#""hello \\\\\\\"quote\\\\\\\"""#)
+        );
+    }
+
     // Input:
     // child.exe "\some\directory with\spaces\" argument2
     //
