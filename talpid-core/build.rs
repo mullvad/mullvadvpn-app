@@ -1,52 +1,11 @@
 #[cfg(windows)]
 mod win {
     use std::env;
-    use std::path::{Path, PathBuf};
+    use std::path::PathBuf;
 
-    static WFP_SOLUTIONS: &'static [&'static str] = &["libcommon", "libwfp", "wfpctl"];
-    static WFP_BUILD_DIR: &'static str = "wfp\\bin";
-    static WFP_SRC_DIR: &'static str = "wfp\\src";
+    static WFP_BUILD_DIR: &'static str = "..\\wfp\\bin";
 
-    pub fn build_wfpctl() {
-        use std::process::Command;
-        use std::fs;
-
-        let mut wfp_manifest_path = manifest_dir();
-        wfp_manifest_path.push(Path::new(WFP_SRC_DIR));
-        wfp_manifest_path.push("wfp.sln");
-
-        let mut cmd = Command::new("msbuild");
-        cmd.arg(wfp_manifest_path)
-            .arg(format!{"/t:{}", WFP_SOLUTIONS.join(";")})
-            .arg(format!("/p:Configuration={}", get_build_mode()))
-            .arg(format!("/p:Platform={}", get_target_platform()));
-        println!("running build command: {:?}", cmd);
-        let result = cmd.spawn()
-            .expect("failed to start building wfpctl library, is msbuild in %PATH% ?")
-            .wait()
-            .map(|w| w.success())
-            .unwrap_or(false);
-
-        if !result {
-            panic!("failed to build wfpctl library");
-        }
-
-        let mut lib_output_path = env::var("OUT_DIR")
-            .map(PathBuf::from)
-            .expect("OUT_DIR env var not set");
-        lib_output_path.push("wfpctl.dll");
-        let mut lib_dir = get_lib_dir();
-        lib_dir.push("wfpctl.dll");
-
-        println!(
-            "copying {:?} to {:?}",
-            lib_dir.to_str(),
-            lib_output_path.to_str()
-        );
-        fs::copy(lib_dir, lib_output_path).expect("failed to copy wfpctl.dll to output directory");
-    }
-
-    pub fn get_lib_dir() -> PathBuf {
+    pub fn default_wfpctl_output_dir() -> PathBuf {
         let target = env::var("TARGET").expect("TARGET env var not set");
 
         let target_dir = match target.as_str() {
@@ -56,7 +15,7 @@ mod win {
         };
 
         let mut lib_dir = manifest_dir();
-        lib_dir.push(Path::new(WFP_BUILD_DIR));
+        lib_dir.push(WFP_BUILD_DIR);
         lib_dir.push(&target_dir);
 
         lib_dir
@@ -76,29 +35,25 @@ mod win {
             "Debug"
         }
     }
-
-    fn get_target_platform() -> &'static str {
-        let target = env::var("TARGET").expect("TARGET env var not set");
-        match target.as_str() {
-            "i686-pc-windows-msvc" => "x86",
-            "x86_64-pc-windows-msvc" => "x64",
-            _ => panic!("uncrecognized target: {}", target),
-        }
-    }
-
 }
 
 #[cfg(windows)]
 fn main() {
     use win::*;
-    build_wfpctl();
-    let wfpctl_build_dir = get_lib_dir();
-    let wfpctl_build_dir = wfpctl_build_dir
-        .to_str()
-        .expect("failed construct a wfpctl build dir path");
+    use std::env;
+    use std::path::PathBuf;
 
-    println!("cargo:rustc-link-search={}", wfpctl_build_dir);
-    println!("cargo:rustc-link-lib=wfpctl");
+    let wfpctl_dir = env::var_os("WFPCTL_INCLUDE_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(default_wfpctl_output_dir);
+
+    println!(
+        "cargo:rustc-link-search={}",
+        wfpctl_dir
+            .to_str()
+            .expect("failed to construct path for wfpctl include directory")
+    );
+    println!("cargo:rustc-link-lib=dylib=wfpctl");
 }
 
 #[cfg(not(windows))]
