@@ -75,7 +75,7 @@ fn main() {
             "--service" => {
                 // Start the service dispatcher.
                 // This will block current thread until the service stopped.
-                let result = windows_service::start_dispatcher();
+                let result = service_dispatcher::start_dispatcher(SERVICE_NAME, service_main);
 
                 match result {
                     Err(ref e) => {
@@ -96,43 +96,39 @@ fn main() {
     }
 }
 
-mod windows_service {
-    use super::*;
+define_windows_service!(service_main, handle_service_main);
 
-    define_windows_service!(SERVICE_NAME, handle_service_main);
+fn handle_service_main(arguments: Vec<OsString>) {
+    info!("Starting the service...");
+    debug!("Service arguments: {:?}", arguments);
 
-    fn handle_service_main(arguments: Vec<OsString>) {
-        info!("Starting the service...");
-        debug!("Service arguments: {:?}", arguments);
+    // Create a shutdown channel to release this thread when stopping the service
+    let (shutdown_sender, shutdown_receiver) = channel();
 
-        // Create a shutdown channel to release this thread when stopping the service
-        let (shutdown_sender, shutdown_receiver) = channel();
+    // Service event handler
+    let handler = move |ref _status_handle, control_event| -> u32 {
+        match control_event {
+            // Notifies a service to report its current status information to the service
+            // control manager. Always return NO_ERROR even if not implemented.
+            ServiceControl::Interrogate => NO_ERROR,
 
-        // Service event handler
-        let handler = move |ref _status_handle, control_event| -> u32 {
-            match control_event {
-                // Notifies a service to report its current status information to the service control
-                // manager. Always return NO_ERROR even if not implemented.
-                ServiceControl::Interrogate => NO_ERROR,
-
-                // Stop daemon on stop or system shutdown
-                ServiceControl::Stop | ServiceControl::Shutdown => {
-                    shutdown_sender.send(()).unwrap();
-                    NO_ERROR
-                }
-
-                _ => ERROR_CALL_NOT_IMPLEMENTED,
+            // Stop daemon on stop or system shutdown
+            ServiceControl::Stop | ServiceControl::Shutdown => {
+                shutdown_sender.send(()).unwrap();
+                NO_ERROR
             }
-        };
 
-        let result = ServiceControlHandler::new(SERVICE_NAME, &handler);
-        match result {
-            Ok(_) => {
-                shutdown_receiver.recv().unwrap();
-            }
-            Err(e) => {
-                error!("Cannot register a service control handler: {}", e);
-            }
+            _ => ERROR_CALL_NOT_IMPLEMENTED,
+        }
+    };
+
+    let result = ServiceControlHandler::new(SERVICE_NAME, &handler);
+    match result {
+        Ok(_) => {
+            shutdown_receiver.recv().unwrap();
+        }
+        Err(e) => {
+            error!("Cannot register a service control handler: {}", e);
         }
     }
 }
