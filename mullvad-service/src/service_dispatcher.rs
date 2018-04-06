@@ -1,86 +1,71 @@
-/// Macro to generate a boilerplate for Windows service.
+use std::ffi::OsStr;
+use std::{io, ptr};
+use widestring::WideCString;
+use winapi::um::winsvc;
+
+/// Macro to generate a "service_main" function for Windows service.
 ///
-/// The generated struct contains a helper method to start the service control dispatcher and
-/// a private FFI callback (`service_main`) that is invoked by the dispatcher.
-///
-/// The `service_main` callback parses service arguments provided by the system
+/// The `service_main` function parses service arguments provided by the system
 /// and passes them with a call to `$service_main_handler`.
 ///
-/// `$service_name` - name of the windows service.
-/// `$service_main_handler` - the function that's called from `service_main`. Accepts parsed
-/// service arguments as `Vec<OsString>`. Its responsibility is to create a
-/// `ServiceControlHandler`, start processing control events and report the service status to the
-/// system.
-///
-/// The signature for the `service_main` function is:
-///
-/// ```
-/// fn handle_service_main(arguments: Vec<OsString>)
-/// ```
+/// `$function_name` - name of the "service_main" callback.
+/// `$service_main_handler` - function with a signature `fn(Vec<OsString>)` that's called from
+/// generated `$function_name`. Accepts parsed service arguments as `Vec<OsString>`. Its
+/// responsibility is to create a `ServiceControlHandler`, start processing control events and
+/// report the service status to the system.
 ///
 macro_rules! define_windows_service {
-    ($service_name:ident, $service_main_handler:ident) => {
-        /// Start service control dispatcher.
-        ///
-        /// Once started the service control dispatcher blocks the current thread execution
-        /// until the service is stopped.
-        ///
-        /// Upon successful initialization, system calls the `service_main` in
-        /// background thread which parses service arguments received from the system and
-        /// passes them to higher level `$service_main_handler` handler.
-        ///
-        /// On failure: immediately returns an error, no threads are spawned.
-        ///
-        pub fn start_dispatcher() -> ::std::io::Result<()> {
-            use winapi::um::winsvc;
-
-            let service_name =
-                unsafe { ::widestring::WideCString::from_str_unchecked($service_name) };
-            let service_table: &[winsvc::SERVICE_TABLE_ENTRYW] = &[
-                winsvc::SERVICE_TABLE_ENTRYW {
-                    lpServiceName: service_name.as_ptr(),
-                    lpServiceProc: Some(service_main),
-                },
-                // the last item has to be { null, null }
-                winsvc::SERVICE_TABLE_ENTRYW {
-                    lpServiceName: ::std::ptr::null(),
-                    lpServiceProc: None,
-                },
-            ];
-
-            let result = unsafe { winsvc::StartServiceCtrlDispatcherW(service_table.as_ptr()) };
-            if result == 0 {
-                Err(::std::io::Error::last_os_error())
-            } else {
-                Ok(())
-            }
-        }
-
+    ($function_name:ident, $service_main_handler:ident) => {
         /// Static callback used by the system to bootstrap the service.
-        ///
-        /// Note: this function is private and can be mangled by Rust.
-        /// To my understanding this is normal since everything happens
-        /// within the same process and we point to the address
-        /// when calling StartServiceCtrlDispatcherW.
-        extern "system" fn service_main(argc: u32, argv: *mut *mut u16) {
-            let arguments = unsafe { parse_raw_arguments(argc, argv) };
+        /// Do not call it directly.
+        extern "system" fn $function_name(argc: u32, argv: *mut *mut u16) {
+            let arguments = unsafe {
+                (0..argc)
+                    .into_iter()
+                    .map(|i| {
+                        let array_element_ptr: *mut *mut u16 = argv.offset(i as isize);
+                        ::widestring::WideCStr::from_ptr_str(*array_element_ptr).to_os_string()
+                    })
+                    .collect()
+            };
 
             $service_main_handler(arguments);
         }
+    };
+}
 
-        /// Parse an unsafe array of raw string pointers received in
-        /// `service_main` from the system.
-        unsafe fn parse_raw_arguments(
-            argc: u32,
-            argv: *mut *mut u16,
-        ) -> Vec<::std::ffi::OsString> {
-            (0..argc)
-                .into_iter()
-                .map(|i| {
-                    let array_element_ptr: *mut *mut u16 = argv.offset(i as isize);
-                    ::widestring::WideCStr::from_ptr_str(*array_element_ptr).to_os_string()
-                })
-                .collect()
-        }
+/// Start service control dispatcher.
+///
+/// Once started the service control dispatcher blocks the current thread execution
+/// until the service is stopped.
+///
+/// Upon successful initialization, system calls the `service_main` in
+/// background thread which parses service arguments received from the system and
+/// passes them to higher level `$service_main_handler` handler.
+///
+/// On failure: immediately returns an error, no threads are spawned.
+///
+pub fn start_dispatcher<T: AsRef<OsStr>>(
+    service_name: T,
+    service_main: extern "system" fn(u32, *mut *mut u16),
+) -> io::Result<()> {
+    let service_name = unsafe { WideCString::from_str_unchecked(service_name) };
+    let service_table: &[winsvc::SERVICE_TABLE_ENTRYW] = &[
+        winsvc::SERVICE_TABLE_ENTRYW {
+            lpServiceName: service_name.as_ptr(),
+            lpServiceProc: Some(service_main),
+        },
+        // the last item has to be { null, null }
+        winsvc::SERVICE_TABLE_ENTRYW {
+            lpServiceName: ptr::null(),
+            lpServiceProc: None,
+        },
+    ];
+
+    let result = unsafe { winsvc::StartServiceCtrlDispatcherW(service_table.as_ptr()) };
+    if result == 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
     }
 }
