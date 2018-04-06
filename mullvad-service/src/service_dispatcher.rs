@@ -1,6 +1,6 @@
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::{io, ptr};
-use widestring::WideCString;
+use widestring::{WideCStr, WideCString};
 use winapi::um::winsvc;
 
 /// Macro to generate a "service_main" function for Windows service.
@@ -19,15 +19,7 @@ macro_rules! define_windows_service {
         /// Static callback used by the system to bootstrap the service.
         /// Do not call it directly.
         extern "system" fn $function_name(argc: u32, argv: *mut *mut u16) {
-            let arguments = unsafe {
-                (0..argc)
-                    .into_iter()
-                    .map(|i| {
-                        let array_element_ptr: *mut *mut u16 = argv.offset(i as isize);
-                        ::widestring::WideCStr::from_ptr_str(*array_element_ptr).to_os_string()
-                    })
-                    .collect()
-            };
+            let arguments = unsafe { $crate::service_dispatcher::parse_raw_arguments(argc, argv) };
 
             $service_main_handler(arguments);
         }
@@ -68,4 +60,15 @@ pub fn start_dispatcher<T: AsRef<OsStr>>(
     } else {
         Ok(())
     }
+}
+
+/// Parse raw arguments received from `service_main` into Vec.
+pub unsafe fn parse_raw_arguments(argc: u32, argv: *mut *mut u16) -> Vec<OsString> {
+    (0..argc)
+        .into_iter()
+        .map(|i| {
+            let array_element_ptr: *mut *mut u16 = argv.offset(i as isize);
+            WideCStr::from_ptr_str(*array_element_ptr).to_os_string()
+        })
+        .collect()
 }
