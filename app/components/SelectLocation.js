@@ -128,8 +128,8 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
     return ( isSelected ?
-            <Img style={ styles.tick_icon } source='icon-tick' height='24' width='24' /> :
-            <View style={[ styles.relay_status, statusClass ]}></View>);
+      <Img style={ styles.tick_icon } source='icon-tick' height={24} width={24} /> :
+      <View style={[ styles.relay_status, statusClass ]}></View>);
   }
 
   _renderCountry(relayCountry: RelayLocationRedux) {
@@ -163,9 +163,12 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           </Label>
 
           { relayCountry.cities.length > 1 ?
-            isExpanded ?
-              <Img style={styles.collapse_button} hoverStyle={styles.expand_chevron_hover} onPress={ handleCollapse } source='icon-chevron-up' height='24' width='24' /> :
-              <Img style={styles.collapse_button} hoverStyle={styles.expand_chevron_hover} onPress={ handleCollapse } source='icon-chevron-down' height='24' width='24' />
+            <Img style={styles.collapse_button}
+              hoverStyle={styles.expand_chevron_hover}
+              onPress={ handleCollapse }
+              source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
+              height={24}
+              width={24} />
             : null }
         </CellButton>
 

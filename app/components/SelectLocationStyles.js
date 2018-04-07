@@ -55,16 +55,15 @@ export default {
     },
     collapse_button: {
       flex: 0,
-      alignSelf: 'flex-end',
-      paddingTop: 14,
-      paddingBottom: 14,
+      alignSelf: 'stretch',
+      justifyContent: 'center',
       paddingRight: 16,
       paddingLeft: 16,
     },
     cell: {
       paddingTop: 0,
       paddingBottom: 0,
-      paddingLeft: 24,
+      paddingLeft: 20,
       paddingRight: 0,
     },
     sub_cell: {
