@@ -23,7 +23,10 @@ error_chain!{
 const WFPCTL_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the `Firewall` trait.
-pub struct WindowsFirewall;
+pub struct WindowsFirewall {
+    _unused: [u8; 0],
+}
+
 impl Firewall for WindowsFirewall {
     type Error = Error;
 
@@ -32,7 +35,7 @@ impl Firewall for WindowsFirewall {
             unsafe { Wfpctl_Initialize(WFPCTL_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut()) };
         ok.into_result("initialise wfpctl").map(|_| {
             trace!("Successfully initialized wfpctl");
-            WindowsFirewall
+            WindowsFirewall{_unused: []}
         })
     }
 
@@ -130,7 +133,6 @@ impl WindowsFirewall {
     }
 }
 
-#[allow(non_snake_case)]
 mod ffi {
 
     use super::{ErrorKind, Result};
@@ -206,6 +208,7 @@ mod ffi {
         }
     }
 
+    #[allow(non_snake_case)]
     extern "system" {
         #[link_name(Wfpctl_Initialize)]
         pub fn Wfpctl_Initialize(
