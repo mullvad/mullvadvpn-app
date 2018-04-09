@@ -23,14 +23,14 @@ export default {
       flex: 1,
       position: 'relative', /* need this for z-index to work to cover map */
       zIndex: 1,
+
     },
     footer:{
       flex: 0,
       marginBottom: 16,
     },
     blocking_container: {
-      color: colors.white80,
-      overflow: 'hidden',
+      width: '100%',
       position: 'absolute',
     },
     blocking_icon: {
@@ -63,10 +63,11 @@ export default {
       flex: 1,
     },
     status_icon: {
+      position:'absolute',
       alignSelf: 'center',
       width: 60,
       height: 60,
-      marginBottom: 32,
+      marginTop: 94,
     },
   }),
   ...createTextStyles({

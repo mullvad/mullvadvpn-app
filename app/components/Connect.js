@@ -160,14 +160,16 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
         <View style={styles.container}>
 
           { this._renderIsBlockingInternetMessage() }
+
+          { /* show spinner when connecting */ }
+          { isConnecting ?
+            <View style={ styles.status_icon }>
+              <Img source="icon-spinner" height="60" width="60" alt="" ref={ this._updateMapOffset } />
+            </View>
+            : null
+          }
+
           <View style={styles.status}>
-            { /* show spinner when connecting */ }
-            { isConnecting ?
-              <View style={ styles.status_icon }>
-                <Img source="icon-spinner" height="60" width="60" alt="" ref={ this._updateMapOffset } />
-              </View>
-              : null
-            }
 
             <View style={ this.networkSecurityStyle() } testName='networkSecurityMessage'>{ this.networkSecurityMessage() }</View>
 
@@ -260,7 +262,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   _renderIsBlockingInternetMessage() {
-    return <Accordion height={ (this.props.connection.status === 'connecting') ? 'auto' : 0 }>
+    return <Accordion style={styles.blocking_container} height={ (this.props.connection.status === 'connecting') ? 'auto' : 0 }>
       <Text style={styles.blocking_message}>
         <Text style={styles.blocking_icon}>&nbsp;</Text>
         <Text>BLOCKING INTERNET</Text>
