@@ -5,3 +5,5 @@ build
 .DS_Store
 *.log
 dist-assets/relays.json
+wfpctl/bin/
+**/.vs/
