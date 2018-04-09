@@ -62,9 +62,9 @@ impl Settings {
     pub fn load() -> Result<Settings> {
         let settings_path = Self::get_settings_path()?;
         match File::open(&settings_path) {
-            Ok(mut file) => {
+            Ok(file) => {
                 info!("Loading settings from {}", settings_path.to_string_lossy());
-                Self::read_settings(&mut file)
+                Self::read_settings(&mut io::BufReader::new(file))
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 info!(
@@ -93,7 +93,7 @@ impl Settings {
         Ok(dir.join(SETTINGS_FILE))
     }
 
-    fn read_settings(file: &mut File) -> Result<Settings> {
+    fn read_settings<T: io::Read>(file: &mut T) -> Result<Settings> {
         serde_json::from_reader(file).chain_err(|| ErrorKind::ParseError)
     }
 
