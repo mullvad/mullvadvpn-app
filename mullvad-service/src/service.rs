@@ -301,8 +301,7 @@ bitflags! {
 }
 
 /// Service status.
-#[derive(Builder, Debug)]
-#[builder(build_fn(validate = "Self::validate"))]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ServiceStatus {
     /// Type of service
     pub service_type: ServiceType,
@@ -328,30 +327,6 @@ pub struct ServiceStatus {
     /// This could be either circumvented by updating the `current_state` or incrementing a
     /// `checkpoint` value.
     pub wait_hint: Duration,
-}
-
-impl ServiceStatusBuilder {
-    fn validate(&self) -> Result<(), String> {
-        match (self.current_state, self.checkpoint) {
-            (Some(current_state), Some(checkpoint)) => {
-                let is_pending_operation = match current_state {
-                    ServiceState::StartPending
-                    | ServiceState::StopPending
-                    | ServiceState::PausePending
-                    | ServiceState::ContinuePending => true,
-                    _ => false,
-                };
-
-                if !is_pending_operation && checkpoint != 0 {
-                    Err("Checkpoint can only be used for pending start, stop, pause or continue operations.".to_string())
-                } else {
-                    Ok(())
-                }
-            }
-
-            _ => Ok(()),
-        }
-    }
 }
 
 impl ServiceStatus {
