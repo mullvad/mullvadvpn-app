@@ -10,20 +10,20 @@ extern crate log;
 extern crate widestring;
 extern crate winapi;
 
-use std::error::Error;
 use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::sync::mpsc::channel;
-use std::{io, thread, time};
+use std::{thread, time};
 
+use error_chain::ChainedError;
 use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED, NO_ERROR};
 
 mod service_manager;
 use service_manager::{ServiceManager, ServiceManagerAccess};
 
 mod service;
-use service::{ServiceAccess, ServiceControl, ServiceError, ServiceErrorControl, ServiceInfo,
-              ServiceStartType, ServiceState, ServiceType};
+use service::{ServiceAccess, ServiceControl, ServiceErrorControl, ServiceInfo, ServiceStartType,
+              ServiceState, ServiceType};
 
 mod service_control_handler;
 use service_control_handler::ServiceControlHandler;
@@ -35,6 +35,20 @@ mod service_dispatcher;
 
 mod logging;
 use logging::init_logger;
+
+mod errors {
+    error_chain! {
+        errors {
+            InstallService {
+                description("Failed to install the service")
+            }
+            RemoveService {
+                description("Failed to remove the service")
+            }
+        }
+    }
+}
+use errors::*;
 
 static SERVICE_NAME: &'static str = "Mullvad";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
@@ -55,17 +69,14 @@ fn main() {
         match command.as_ref() {
             "--install-service" => {
                 if let Err(e) = install_service() {
-                    error!("Failed to install the service: {}", e);
+                    error!("{}", e.display_chain());
                 } else {
                     info!("Installed the service.");
                 }
             }
             "--remove-service" => {
                 if let Err(e) = remove_service() {
-                    error!("Failed to remove the service: {}", e);
-                    if let Some(cause) = e.cause() {
-                        error!("Cause: {}", cause);
-                    }
+                    error!("{}", e.display_chain());
                 } else {
                     info!("Removed the service.");
                 }
@@ -77,7 +88,7 @@ fn main() {
 
                 match result {
                     Err(ref e) => {
-                        error!("Failed to start service dispatcher: {}", e);
+                        error!("Failed to start service dispatcher: {}", e.display_chain());
                     }
                     Ok(_) => {
                         info!("Service dispatcher exited.");
@@ -131,35 +142,42 @@ fn handle_service_main(arguments: Vec<OsString>) {
     }
 }
 
-fn install_service() -> Result<(), io::Error> {
+fn install_service() -> Result<()> {
     let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
-    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)?;
+    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
+        .chain_err(|| ErrorKind::InstallService)?;
     let service_info = get_service_info();
     service_manager
         .create_service(service_info, ServiceAccess::empty())
         .map(|_| ())
+        .chain_err(|| ErrorKind::InstallService)
 }
 
-fn remove_service() -> Result<(), ServiceError> {
+fn remove_service() -> Result<()> {
     let manager_access = ServiceManagerAccess::CONNECT;
-    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)?;
+    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
+        .chain_err(|| ErrorKind::RemoveService)?;
 
     let service_access = ServiceAccess::QUERY_STATUS | ServiceAccess::STOP | ServiceAccess::DELETE;
-    let service = service_manager.open_service(SERVICE_NAME, service_access)?;
+    let service = service_manager
+        .open_service(SERVICE_NAME, service_access)
+        .chain_err(|| ErrorKind::RemoveService)?;
 
     loop {
-        let service_status = service.query_status()?;
+        let service_status = service
+            .query_status()
+            .chain_err(|| ErrorKind::RemoveService)?;
 
         match service_status.current_state {
             ServiceState::StopPending => (),
             ServiceState::Stopped => {
                 info!("Removing the service...");
-                service.delete()?;
+                service.delete().chain_err(|| ErrorKind::RemoveService)?;
                 return Ok(()); // explicit return
             }
             _ => {
                 info!("Stopping the service...");
-                service.stop()?;
+                service.stop().chain_err(|| ErrorKind::RemoveService)?;
             }
         }
 

@@ -3,6 +3,20 @@ use std::{io, ptr};
 use widestring::{WideCStr, WideCString};
 use winapi::um::winsvc;
 
+mod errors {
+    error_chain! {
+        errors {
+            InvalidServiceName {
+                description("Invalid service name")
+            }
+        }
+        foreign_links {
+            System(::std::io::Error);
+        }
+    }
+}
+pub use self::errors::*;
+
 /// Macro to generate a "service_main" function for Windows service.
 ///
 /// The `service_main` function parses service arguments provided by the system
@@ -40,8 +54,9 @@ macro_rules! define_windows_service {
 pub fn start_dispatcher<T: AsRef<OsStr>>(
     service_name: T,
     service_main: extern "system" fn(u32, *mut *mut u16),
-) -> io::Result<()> {
-    let service_name = unsafe { WideCString::from_str_unchecked(service_name) };
+) -> Result<()> {
+    let service_name =
+        WideCString::from_str(service_name).chain_err(|| ErrorKind::InvalidServiceName)?;
     let service_table: &[winsvc::SERVICE_TABLE_ENTRYW] = &[
         winsvc::SERVICE_TABLE_ENTRYW {
             lpServiceName: service_name.as_ptr(),
@@ -56,7 +71,7 @@ pub fn start_dispatcher<T: AsRef<OsStr>>(
 
     let result = unsafe { winsvc::StartServiceCtrlDispatcherW(service_table.as_ptr()) };
     if result == 0 {
-        Err(io::Error::last_os_error())
+        Err(io::Error::last_os_error().into())
     } else {
         Ok(())
     }

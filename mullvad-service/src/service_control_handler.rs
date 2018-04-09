@@ -7,6 +7,20 @@ use winapi::um::winsvc;
 
 use service::{ServiceControl, ServiceStatus};
 
+mod errors {
+    error_chain! {
+        errors {
+            InvalidServiceName {
+                description("Invalid service name")
+            }
+        }
+        foreign_links {
+            System(::std::io::Error);
+        }
+    }
+}
+pub use self::errors::*;
+
 /// Struct that holds unique token for updating the status of the corresponding service.
 #[derive(Debug, Clone, Copy)]
 pub struct ServiceStatusHandle(winsvc::SERVICE_STATUS_HANDLE);
@@ -44,7 +58,7 @@ impl<'a> ServiceControlHandler<'a> {
     pub fn new<T: AsRef<OsStr>>(
         service_name: T,
         handler_closure: &'a HandlerFn<'a>,
-    ) -> io::Result<Self> {
+    ) -> Result<Self> {
         let mut handler = ServiceControlHandler {
             status_handle: None,
             handler_closure,
@@ -53,7 +67,8 @@ impl<'a> ServiceControlHandler<'a> {
         // Danger: pass the pointer to this instance via context
         let context = &mut handler as *mut _ as *mut ::std::os::raw::c_void;
 
-        let service_name = unsafe { WideCString::from_str_unchecked(service_name) };
+        let service_name =
+            WideCString::from_str(service_name).chain_err(|| ErrorKind::InvalidServiceName)?;
         let status_handle = unsafe {
             winsvc::RegisterServiceCtrlHandlerExW(
                 service_name.as_ptr(),
@@ -63,7 +78,7 @@ impl<'a> ServiceControlHandler<'a> {
         };
 
         if status_handle.is_null() {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         } else {
             handler.status_handle = Some(ServiceStatusHandle::from_handle(status_handle));
             Ok(handler)

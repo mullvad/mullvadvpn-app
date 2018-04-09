@@ -1,54 +1,33 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 use std::time::Duration;
-use std::{error, fmt, io, mem};
+use std::{io, mem};
 
 use winapi::shared::winerror::ERROR_SERVICE_SPECIFIC_ERROR;
 use winapi::um::{winnt, winsvc};
 
-#[derive(Debug)]
-pub enum ServiceError {
-    InvalidServiceType(u32),
-    InvalidServiceState(u32),
-    InvalidServiceControl(u32),
-    System(io::Error),
-}
-
-impl error::Error for ServiceError {
-    fn description(&self) -> &str {
-        "Service error"
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        match *self {
-            ServiceError::System(ref io_err) => Some(io_err),
-            _ => None,
+mod errors {
+    error_chain! {
+        errors {
+            InvalidServiceType(raw_value: u32) {
+                description("Invalid service type value")
+                display("Invalid service type value: {}", raw_value)
+            }
+            InvalidServiceState(raw_value: u32) {
+                description("Invalid service state")
+                display("Invalid service state value: {}", raw_value)
+            }
+            InvalidServiceControl(raw_value: u32) {
+                description("Invalid service control")
+                display("Invalid service control value: {}", raw_value)
+            }
+        }
+        foreign_links {
+            System(::std::io::Error);
         }
     }
 }
-
-impl fmt::Display for ServiceError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ServiceError::InvalidServiceType(raw_value) => {
-                write!(f, "Invalid service type value: {}", raw_value)
-            }
-            ServiceError::InvalidServiceState(raw_value) => {
-                write!(f, "Invalid service state value: {}", raw_value)
-            }
-            ServiceError::InvalidServiceControl(raw_value) => {
-                write!(f, "Invalid service control value: {}", raw_value)
-            }
-            ServiceError::System(_) => write!(f, "System call error"),
-        }
-    }
-}
-
-impl From<io::Error> for ServiceError {
-    fn from(io_error: io::Error) -> Self {
-        ServiceError::System(io_error)
-    }
-}
+pub use self::errors::*;
 
 /// Enum describing types of windows services
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -59,10 +38,10 @@ pub enum ServiceType {
 }
 
 impl ServiceType {
-    pub fn from_raw(raw_value: u32) -> Result<Self, ServiceError> {
+    pub fn from_raw(raw_value: u32) -> Result<Self> {
         let service_type = match raw_value {
             x if x == ServiceType::OwnProcess.to_raw() => ServiceType::OwnProcess,
-            _ => Err(ServiceError::InvalidServiceType(raw_value))?,
+            _ => Err(ErrorKind::InvalidServiceType(raw_value))?,
         };
         Ok(service_type)
     }
@@ -178,7 +157,7 @@ pub enum ServiceControl {
 }
 
 impl ServiceControl {
-    pub fn from_raw(raw_value: u32) -> Result<Self, ServiceError> {
+    pub fn from_raw(raw_value: u32) -> Result<Self> {
         let service_control = match raw_value {
             x if x == ServiceControl::Continue.to_raw() => ServiceControl::Continue,
             x if x == ServiceControl::Interrogate.to_raw() => ServiceControl::Interrogate,
@@ -191,7 +170,7 @@ impl ServiceControl {
             x if x == ServiceControl::Preshutdown.to_raw() => ServiceControl::Preshutdown,
             x if x == ServiceControl::Shutdown.to_raw() => ServiceControl::Shutdown,
             x if x == ServiceControl::Stop.to_raw() => ServiceControl::Stop,
-            other => Err(ServiceError::InvalidServiceControl(other))?,
+            other => Err(ErrorKind::InvalidServiceControl(other))?,
         };
         Ok(service_control)
     }
@@ -215,7 +194,7 @@ pub enum ServiceState {
 }
 
 impl ServiceState {
-    fn from_raw(raw_state: u32) -> Result<Self, ServiceError> {
+    fn from_raw(raw_state: u32) -> Result<Self> {
         let service_state = match raw_state {
             x if x == ServiceState::Stopped.to_raw() => ServiceState::Stopped,
             x if x == ServiceState::StartPending.to_raw() => ServiceState::StartPending,
@@ -224,7 +203,7 @@ impl ServiceState {
             x if x == ServiceState::ContinuePending.to_raw() => ServiceState::ContinuePending,
             x if x == ServiceState::PausePending.to_raw() => ServiceState::PausePending,
             x if x == ServiceState::Paused.to_raw() => ServiceState::Paused,
-            other => Err(ServiceError::InvalidServiceState(other))?,
+            other => Err(ErrorKind::InvalidServiceState(other))?,
         };
         Ok(service_state)
     }
@@ -346,7 +325,7 @@ impl ServiceStatus {
         raw_status
     }
 
-    fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self, ServiceError> {
+    fn from_raw(raw_status: winsvc::SERVICE_STATUS) -> Result<Self> {
         Ok(ServiceStatus {
             service_type: ServiceType::from_raw(raw_status.dwServiceType)?,
             current_state: ServiceState::from_raw(raw_status.dwCurrentState)?,
@@ -369,11 +348,11 @@ impl Service {
         Service(handle)
     }
 
-    pub fn stop(&self) -> Result<ServiceStatus, ServiceError> {
+    pub fn stop(&self) -> Result<ServiceStatus> {
         self.send_control_command(ServiceControl::Stop)
     }
 
-    pub fn query_status(&self) -> Result<ServiceStatus, ServiceError> {
+    pub fn query_status(&self) -> Result<ServiceStatus> {
         let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::QueryServiceStatus(self.0, &mut raw_status) };
         if success == 1 {
@@ -392,7 +371,7 @@ impl Service {
         }
     }
 
-    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus, ServiceError> {
+    fn send_control_command(&self, command: ServiceControl) -> Result<ServiceStatus> {
         let mut raw_status = unsafe { mem::zeroed::<winsvc::SERVICE_STATUS>() };
         let success = unsafe { winsvc::ControlService(self.0, command.to_raw(), &mut raw_status) };
 
