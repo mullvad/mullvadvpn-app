@@ -73,6 +73,7 @@ win:
 linux:
   target:
     - deb
+    - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   extraResources:
     - from: ./target/release/mullvad
