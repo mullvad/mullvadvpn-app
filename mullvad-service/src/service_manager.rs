@@ -1,12 +1,47 @@
 use std::borrow::Cow;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::{io, ptr};
 
-use widestring::WideCString;
+use widestring::{WideCString, WideString};
 use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
 use shell_escape;
+
+mod errors {
+    error_chain! {
+        errors {
+            InvalidAccountName {
+                description("Invalid account name")
+            }
+            InvalidAccountPassword {
+                description("Invalid account password")
+            }
+            InvalidDisplayName {
+                description("Invalid display name")
+            }
+            InvalidDatabaseName {
+                description("Invalid database name")
+            }
+            InvalidExecutablePath {
+                description("Invalid executable path")
+            }
+            InvalidLaunchArgument {
+                description("Invalid launch argument")
+            }
+            InvalidMachineName {
+                description("Invalid machine name")
+            }
+            InvalidServiceName {
+                description("Invalid service name")
+            }
+        }
+        foreign_links {
+            System(::std::io::Error);
+        }
+    }
+}
+pub use self::errors::*;
 
 /// Flags describing access permissions for ServiceManager
 bitflags! {
@@ -33,9 +68,18 @@ impl ServiceManager {
         machine: Option<M>,
         database: Option<D>,
         request_access: ServiceManagerAccess,
-    ) -> io::Result<Self> {
-        let machine_name = machine.map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
-        let database_name = database.map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
+    ) -> Result<Self> {
+        let machine_name = if let Some(machine_name) = machine {
+            Some(WideCString::from_str(machine_name).chain_err(|| ErrorKind::InvalidMachineName)?)
+        } else {
+            None
+        };
+
+        let database_name = if let Some(database_name) = database {
+            Some(WideCString::from_str(database_name).chain_err(|| ErrorKind::InvalidDatabaseName)?)
+        } else {
+            None
+        };
 
         let handle = unsafe {
             winsvc::OpenSCManagerW(
@@ -46,7 +90,7 @@ impl ServiceManager {
         };
 
         if handle.is_null() {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         } else {
             Ok(ServiceManager(handle))
         }
@@ -56,7 +100,7 @@ impl ServiceManager {
     pub fn local_computer<T: AsRef<OsStr>>(
         database: Option<T>,
         request_access: ServiceManagerAccess,
-    ) -> io::Result<Self> {
+    ) -> Result<Self> {
         ServiceManager::new(None::<&OsStr>, database, request_access)
     }
 
@@ -65,7 +109,7 @@ impl ServiceManager {
         machine: M,
         database: Option<D>,
         request_access: ServiceManagerAccess,
-    ) -> io::Result<Self> {
+    ) -> Result<Self> {
         ServiceManager::new(Some(machine), database, request_access)
     }
 
@@ -73,36 +117,42 @@ impl ServiceManager {
         &self,
         service_info: ServiceInfo,
         service_access: ServiceAccess,
-    ) -> io::Result<Service> {
-        // escape executable path
-        let launch_executable = shell_escape::escape(Cow::Borrowed(
-            service_info.executable_path.as_os_str(),
-        )).into_owned();
+    ) -> Result<Service> {
+        let service_name =
+            WideCString::from_str(service_info.name).chain_err(|| ErrorKind::InvalidServiceName)?;
+        let display_name = WideCString::from_str(service_info.display_name)
+            .chain_err(|| ErrorKind::InvalidDisplayName)?;
+        let account_name = if let Some(account_name) = service_info.account_name {
+            Some(WideCString::from_str(account_name).chain_err(|| ErrorKind::InvalidAccountName)?)
+        } else {
+            None
+        };
+        let account_password = if let Some(account_password) = service_info.account_password {
+            Some(WideCString::from_str(account_password)
+                .chain_err(|| ErrorKind::InvalidAccountPassword)?)
+        } else {
+            None
+        };
 
-        // escape launch arguments
-        let launch_arguments = service_info
-            .launch_arguments
-            .into_iter()
-            .map(|s| shell_escape::escape(Cow::Owned(s)).into_owned())
-            .collect::<Vec<OsString>>();
+        // escape executable path and arguments and combine them into single command
+        let escaped_executable_path =
+            shell_escape::escape(Cow::Borrowed(service_info.executable_path.as_os_str()));
+        let checked_launch_executable = WideCString::from_str(escaped_executable_path)
+            .chain_err(|| ErrorKind::InvalidExecutablePath)?;
 
-        // combine escaped executable path and arguments into command
-        let mut launch_command = OsString::new();
-        launch_command.push(launch_executable);
-        for launch_argument in launch_arguments.iter() {
-            launch_command.push(" ");
-            launch_command.push(launch_argument);
+        let mut launch_command_buffer = WideString::new();
+        launch_command_buffer.push(checked_launch_executable.to_wide_string());
+
+        for launch_argument in service_info.launch_arguments.iter() {
+            let escaped_value = shell_escape::escape(Cow::Borrowed(launch_argument));
+            let checked_value = WideCString::from_str(escaped_value)
+                .chain_err(|| ErrorKind::InvalidLaunchArgument)?;
+
+            launch_command_buffer.push_str(" ");
+            launch_command_buffer.push(checked_value.to_wide_string());
         }
 
-        let service_name = unsafe { WideCString::from_str_unchecked(service_info.name) };
-        let display_name = unsafe { WideCString::from_str_unchecked(service_info.display_name) };
-        let wide_launch_command = unsafe { WideCString::from_str_unchecked(launch_command) };
-        let account_name = service_info
-            .account_name
-            .map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
-        let account_password = service_info
-            .account_password
-            .map(|ref s| unsafe { WideCString::from_str_unchecked(s) });
+        let launch_command = WideCString::from_wide_str(launch_command_buffer).unwrap();
 
         let service_handle = unsafe {
             winsvc::CreateServiceW(
@@ -113,7 +163,7 @@ impl ServiceManager {
                 service_info.service_type.to_raw(),
                 service_info.start_type.to_raw(),
                 service_info.error_control.to_raw(),
-                wide_launch_command.as_ptr(),
+                launch_command.as_ptr(),
                 ptr::null(),     // load ordering group
                 ptr::null_mut(), // tag id within the load ordering group
                 ptr::null(),     // service dependencies
@@ -123,7 +173,7 @@ impl ServiceManager {
         };
 
         if service_handle.is_null() {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         } else {
             Ok(unsafe { Service::from_handle(service_handle) })
         }
@@ -133,13 +183,13 @@ impl ServiceManager {
         &self,
         name: T,
         request_access: ServiceAccess,
-    ) -> io::Result<Service> {
-        let service_name = unsafe { WideCString::from_str_unchecked(name) };
+    ) -> Result<Service> {
+        let service_name = WideCString::from_str(name).chain_err(|| ErrorKind::InvalidServiceName)?;
         let service_handle =
             unsafe { winsvc::OpenServiceW(self.0, service_name.as_ptr(), request_access.bits()) };
 
         if service_handle.is_null() {
-            Err(io::Error::last_os_error())
+            Err(io::Error::last_os_error().into())
         } else {
             Ok(unsafe { Service::from_handle(service_handle) })
         }
