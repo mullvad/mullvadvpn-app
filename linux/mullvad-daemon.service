@@ -1,0 +1,9 @@
+[Unit]
+Description=Mullvad VPN daemon
+Wants=network.target
+
+[Service]
+ExecStart="/opt/Mullvad VPN/resources/mullvad-daemon" --disable-stdout-timestamps
+
+[Install]
+WantedBy=multi-user.target
