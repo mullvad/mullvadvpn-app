@@ -37,7 +37,7 @@ impl DnsSettings {
 
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         if self.backup.is_none() {
-            self.backup = Some(Self::read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?);
+            self.backup = Some(read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?);
         }
 
         self.desired_dns = Some(servers);
@@ -50,7 +50,7 @@ impl DnsSettings {
         self.desired_dns = None;
 
         if let Some(backup) = self.backup.take() {
-            Self::write_resolv_conf(&backup).chain_err(|| ErrorKind::WriteResolvConf)?;
+            write_resolv_conf(&backup).chain_err(|| ErrorKind::WriteResolvConf)?;
         }
 
         Ok(())
@@ -73,21 +73,21 @@ impl DnsSettings {
             config.nameservers.clear();
         }
 
-        Self::write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
+        write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
     }
+}
 
-    fn read_resolv_conf() -> io::Result<String> {
-        let mut file = File::open("/etc/resolv.conf")?;
-        let mut contents = String::new();
+fn read_resolv_conf() -> io::Result<String> {
+    let mut file = File::open("/etc/resolv.conf")?;
+    let mut contents = String::new();
 
-        file.read_to_string(&mut contents)?;
+    file.read_to_string(&mut contents)?;
 
-        Ok(contents)
-    }
+    Ok(contents)
+}
 
-    fn write_resolv_conf(contents: &str) -> io::Result<()> {
-        let mut file = File::create("/etc/resolv.conf")?;
+fn write_resolv_conf(contents: &str) -> io::Result<()> {
+    let mut file = File::create("/etc/resolv.conf")?;
 
-        file.write_all(contents.as_bytes())
-    }
+    file.write_all(contents.as_bytes())
 }
