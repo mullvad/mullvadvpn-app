@@ -1,5 +1,5 @@
-use chrono::DateTime;
 use chrono::offset::Utc;
+use chrono::DateTime;
 
 pub type AccountToken = String;
 

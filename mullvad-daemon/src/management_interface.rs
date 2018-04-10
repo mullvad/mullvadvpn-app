@@ -18,8 +18,8 @@ use mullvad_types::version;
 
 use serde;
 
-use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use talpid_core::mpsc::IntoSender;

@@ -2,11 +2,11 @@ use clap;
 use std::str::FromStr;
 use {Command, Result, ResultExt};
 
-use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, OpenVpnConstraints,
                                        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
                                        TunnelConstraints};
 use mullvad_types::relay_list::RelayList;
+use mullvad_types::CustomTunnelEndpoint;
 
 use rpc;
 use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, TunnelEndpointData,
