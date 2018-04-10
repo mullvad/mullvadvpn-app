@@ -1,6 +1,6 @@
+use clap;
 use Command;
 use Result;
-use clap;
 
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};

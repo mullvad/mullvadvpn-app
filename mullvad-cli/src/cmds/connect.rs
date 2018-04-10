@@ -1,7 +1,7 @@
-use Command;
-use Result;
 use clap;
 use rpc;
+use Command;
+use Result;
 
 pub struct Connect;
 
