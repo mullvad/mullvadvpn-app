@@ -22,6 +22,9 @@ talpid-types = { path = "../talpid-types" }
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.20"
 
+[target.'cfg(target_os = "linux")'.dependencies]
+resolv-conf = { git = "https://github.com/tailhook/resolv-conf.git" }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.1"
 system-configuration = "0.1"
