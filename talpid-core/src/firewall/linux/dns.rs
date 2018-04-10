@@ -23,14 +23,14 @@ error_chain!{
 
 pub struct DnsMonitor {
     backup: Option<String>,
-    state: Option<Vec<String>>,
+    desired_dns: Option<Vec<String>>,
 }
 
 impl DnsMonitor {
     pub fn new() -> Result<Self> {
         Ok(DnsMonitor {
             backup: None,
-            state: None,
+            desired_dns: None,
         })
     }
 
@@ -39,14 +39,14 @@ impl DnsMonitor {
             self.backup = Some(read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?);
         }
 
-        self.state = Some(servers);
-        self.write_state()?;
+        self.desired_dns = Some(servers);
+        self.configure_dns()?;
 
         Ok(())
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        self.state = None;
+        self.desired_dns = None;
 
         if let Some(backup) = self.backup.take() {
             write_resolv_conf(&backup).chain_err(|| ErrorKind::WriteResolvConf)?;
@@ -55,7 +55,7 @@ impl DnsMonitor {
         Ok(())
     }
 
-    fn write_state(&self) -> Result<()> {
+    fn configure_dns(&self) -> Result<()> {
         let mut config = match self.backup {
             Some(ref previous_config) => {
                 Config::parse(previous_config).chain_err(|| ErrorKind::ParseResolvConf)?
@@ -63,7 +63,7 @@ impl DnsMonitor {
             None => Config::new(),
         };
 
-        if let Some(ref nameservers) = self.state {
+        if let Some(ref nameservers) = self.desired_dns {
             config.nameservers = nameservers
                 .iter()
                 .filter_map(
