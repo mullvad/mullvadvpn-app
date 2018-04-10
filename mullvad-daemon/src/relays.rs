@@ -320,7 +320,8 @@ impl RelaySelector {
         );
         let (last_modified, file) =
             Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
-        let relay_list = serde_json::from_reader(file).chain_err(|| ErrorKind::SerializationError)?;
+        let relay_list = serde_json::from_reader(io::BufReader::new(file))
+            .chain_err(|| ErrorKind::SerializationError)?;
         Ok((last_modified, relay_list))
     }
 
