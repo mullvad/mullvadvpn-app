@@ -1,0 +1,9 @@
+[Unit]
+Description=Mullvad daemon
+Wants=network.target
+
+[Service]
+ExecStart="/opt/Mullvad VPN/resources/mullvad-daemon"
+
+[Install]
+WantedBy=multi-user.target
