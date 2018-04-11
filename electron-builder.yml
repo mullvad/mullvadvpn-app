@@ -84,3 +84,11 @@ linux:
       to: .
     - from: ./target/release/libtalpid_openvpn_plugin.so
       to: .
+
+deb:
+  afterInstall: linux/install_script.sh
+  afterRemove: linux/uninstall_script.sh
+
+rpm:
+  afterInstall: linux/install_script.sh
+  afterRemove: linux/uninstall_script.sh
