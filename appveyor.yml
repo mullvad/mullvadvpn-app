@@ -1,29 +1,35 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
+image:
+- Visual Studio 2017
+
+platform:
+- x64
+
 environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
     RUST_VERSION: stable
+    RUST_BACKTRACE: "1"
+    WFP_BUILD_MODES: "Debug"
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
-    # MinGW
-    - TARGET: i686-pc-windows-gnu
-    - TARGET: x86_64-pc-windows-gnu
-
-    # MSVC
     - TARGET: i686-pc-windows-msvc
+      WFP_BUILD_TARGETS: "x86"
+
     - TARGET: x86_64-pc-windows-msvc
+      WFP_BUILD_TARGETS: "x64"
 
     # Testing other channels
-    - TARGET: x86_64-pc-windows-gnu
-      RUST_VERSION: beta
-    - TARGET: x86_64-pc-windows-gnu
-      RUST_VERSION: nightly
     - TARGET: x86_64-pc-windows-msvc
+      WFP_BUILD_TARGETS: "x64"
+      RUST_VERSION: beta
+    - TARGET: x86_64-pc-windows-msvc
+      WFP_BUILD_TARGETS: "x64"
       RUST_VERSION: nightly
 
 install:
@@ -39,10 +45,13 @@ install:
   # TMP fix for https://github.com/rust-lang-nursery/rustup.rs/issues/893:
   - set PATH=%PATH%;C:\Users\appveyor\.rustup\toolchains\%RUST_VERSION%-%TARGET%\bin
   - rustc -Vv
+  - rustc --print cfg
   - cargo -V
+  - git submodule update --init --recursive
 
 # This is the "test phase", tweak it as you see fit
 test_script:
+  - bash -x build_wfp.sh
   - cargo build
   - cargo test
 
