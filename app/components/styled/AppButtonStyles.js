@@ -21,7 +21,6 @@ export default {
     },
     blueHover:{
       backgroundColor: colors.blue60,
-      backdropFilter: "blur(4px)",
     },
     transparent:{
       backgroundColor: colors.white20,
@@ -29,6 +28,7 @@ export default {
     },
     transparentHover:{
       backgroundColor: colors.white40,
+      backdropFilter: "blur(4px)",
     },
     redTransparent:{
       backgroundColor: colors.red40,
