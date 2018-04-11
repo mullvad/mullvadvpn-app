@@ -33,8 +33,8 @@ export default {
       borderRadius: 8,
       marginLeft: 4,
       marginRight: 4,
-      marginTop: 20,
-      marginBottom: 20,
+      marginTop: 19.5,
+      marginBottom: 19.5,
     },
     relay_status__inactive: {
       backgroundColor: colors.red95,
@@ -46,8 +46,8 @@ export default {
       color: colors.white,
       marginLeft: 0,
       marginRight: 0,
-      marginTop: 14,
-      marginBottom: 14,
+      marginTop: 15.5,
+      marginBottom: 15.5,
     },
     country: {
       flexDirection: 'column',
