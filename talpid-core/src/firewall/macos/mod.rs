@@ -10,12 +10,12 @@ use talpid_types::net;
 
 mod dns;
 
-use self::dns::DnsMonitor;
+use self::dns::MacOsDnsManager;
 
 error_chain! {
     links {
         PfCtl(self::pfctl::Error, self::pfctl::ErrorKind) #[doc = "PF error"];
-        DnsMonitor(self::dns::Error, self::dns::ErrorKind) #[doc = "DNS error"];
+        DnsManager(::dns::Error,::dns::ErrorKind) #[doc = "DNS error"];
     }
 }
 
@@ -26,7 +26,7 @@ const ANCHOR_NAME: &'static str = "mullvad";
 pub struct PacketFilter {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
-    dns_monitor: DnsMonitor,
+    dns_manager: MacOsDnsManager,
 }
 
 impl Firewall for PacketFilter {
@@ -36,7 +36,7 @@ impl Firewall for PacketFilter {
         Ok(PacketFilter {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
-            dns_monitor: DnsMonitor::new()?,
+            dns_manager: MacOsDnsManager::spawn()?,
         })
     }
 
@@ -97,7 +97,7 @@ impl PacketFilter {
                 tunnel,
                 allow_lan,
             } => {
-                self.dns_monitor.set_dns(vec![tunnel.gateway.to_string()])?;
+                self.dns_manager.configure(vec![tunnel.gateway.into()])?;
 
                 let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
                     .action(pfctl::FilterRuleAction::Pass)
@@ -260,7 +260,7 @@ impl PacketFilter {
     }
 
     fn restore_dns(&self) -> Result<()> {
-        Ok(self.dns_monitor.reset()?)
+        Ok(self.dns_manager.restore()?)
     }
 
     fn add_anchor(&mut self) -> Result<()> {
