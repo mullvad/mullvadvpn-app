@@ -2,7 +2,6 @@
 @import 'reset.css';
 @import 'fonts.css';
 @import 'global.css';
-@import 'buttons.css';
 
 /* app */
 @import '../../components/PlatformWindow.css';
