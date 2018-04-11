@@ -9,8 +9,8 @@ license = "GPL-3.0"
 chrono = { version = "0.4", features = ["serde"] }
 error-chain = "0.11"
 futures = "0.1.15"
-jsonrpc-client-core = "0.3"
-jsonrpc-client-http = "0.3"
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
+jsonrpc-client-http = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 serde_json = "1.0"
 tokio-core = "0.1"
 hyper = "0.11"
@@ -19,3 +19,7 @@ native-tls = "0.1"
 log = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
+
+[dev-dependencies]
+filetime = "0.1"
+tempdir = "0.3"
