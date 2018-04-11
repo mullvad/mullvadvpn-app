@@ -1,5 +1,6 @@
 // @flow
 
+import type { BackendError } from '../../lib/backend';
 import type { ReduxAction } from '../store';
 import type { Ip } from '../../lib/ipc-facade';
 
@@ -12,6 +13,7 @@ export type ConnectionReduxState = {
   longitude: ?number,
   country: ?string,
   city: ?string,
+  authFailureCause: ?BackendError,
 };
 
 const initialState: ConnectionReduxState = {
@@ -22,6 +24,7 @@ const initialState: ConnectionReduxState = {
   longitude: null,
   country: null,
   city: null,
+  authFailureCause: null,
 };
 
 
@@ -35,10 +38,13 @@ export default function(state: ConnectionReduxState = initialState, action: Redu
     return { ...state, ...{ status: 'connecting' }};
 
   case 'CONNECTED':
-    return { ...state, ...{ status: 'connected' }};
+    return { ...state, ...{ status: 'connected', authFailureCause: null }};
 
   case 'DISCONNECTED':
     return { ...state, ...{ status: 'disconnected' }};
+
+  case 'AUTH_FAILED':
+    return { ...state, ...{ status: 'disconnected', authFailureCause: action.cause }};
 
   case 'ONLINE':
     return { ...state, ...{ isOnline: true }};

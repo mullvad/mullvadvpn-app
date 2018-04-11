@@ -161,6 +161,7 @@ export interface IpcFacade {
   shutdown(): Promise<void>,
   getLocation(): Promise<Location>,
   getState(): Promise<BackendState>,
+  registerErrorListener((Array<string>) => void): void,
   registerStateListener((BackendState) => void): void,
   setCloseConnectionHandler(() => void): void,
   authenticate(sharedSecret: string): Promise<void>,
@@ -309,6 +310,20 @@ export class RealIpc implements IpcFacade {
     } else {
       throw new InvalidReply(raw);
     }
+  }
+
+  registerErrorListener(listener: (Array<string>) => void) {
+    this._ipc.on('error', (rawEvent) => {
+      if (
+        rawEvent &&
+        Array.isArray(rawEvent) &&
+        rawEvent.length > 0 &&
+        rawEvent.every(error => typeof error === 'string')
+      ) {
+        const checkedEvent: any = rawEvent;
+        listener(checkedEvent);
+      }
+    });
   }
 
   registerStateListener(listener: (BackendState) => void) {

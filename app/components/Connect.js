@@ -1,6 +1,5 @@
 // @flow
 
-import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import { BackendError } from '../lib/backend';
@@ -344,17 +343,12 @@ export default class Connect extends React.Component<ConnectProps, ConnectState>
   }
 
   displayError(): ?BackendError {
-    // Offline?
-    if(!this.props.connection.isOnline) {
-      return new BackendError('NO_INTERNET');
+    if(this.props.connection.status === 'connected') {
+      return null;
     }
-
-    // No credit?
-    const expiry = this.props.accountExpiry;
-    if(expiry && moment(expiry).isSameOrBefore(moment())) {
-      return new BackendError('NO_CREDIT');
+    if(this.props.connection.authFailureCause) {
+      return this.props.connection.authFailureCause;
     }
-
     return null;
   }
 }

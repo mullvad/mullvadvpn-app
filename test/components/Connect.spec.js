@@ -129,6 +129,7 @@ const defaultProps: ConnectProps = {
     longitude: null,
     country: null,
     city: null,
+    authFailureCause: null,
   },
 };
 

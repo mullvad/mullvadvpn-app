@@ -480,6 +480,11 @@ export class Backend {
       this._dispatchConnectionState(newStatus);
       this.sync();
     });
+    this._ipc.registerErrorListener(errorChain => {
+      log.debug('Got error from backend', errorChain);
+
+      this._dispatchError(errorChain);
+    });
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
@@ -504,6 +509,23 @@ export class Backend {
     case 'disconnected':
       this._store.dispatch(connectionActions.disconnected());
       break;
+    }
+  }
+
+  _dispatchError(errorChain: Array<string>) {
+    var authFailed = 'Authentication failed';
+    if(errorChain[0].startsWith(authFailed)) {
+      var errorCause = errorChain[0].substr(authFailed.length);
+      var cause = new BackendError('UNKNOWN_ERROR');
+      switch(errorCause) {
+      case ': no credit':
+        cause = new BackendError('NO_CREDIT');
+        break;
+      case ': invalid account':
+        cause = new BackendError('INVALID_ACCOUNT');
+        break;
+      }
+      this._store.dispatch(connectionActions.authFailed(cause));
     }
   }
 

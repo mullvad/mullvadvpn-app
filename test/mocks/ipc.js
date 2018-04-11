@@ -12,6 +12,7 @@ interface MockIpc {
 
 export function newMockIpc() {
 
+  const errorListeners = [];
   const stateListeners = [];
   const connectionCloseListeners = [];
 
@@ -74,9 +75,19 @@ export function newMockIpc() {
       stateListeners.push(listener);
     },
 
+    registerErrorListener: (listener: (Array<string>) => void) => {
+      errorListeners.push(listener);
+    },
+
     sendNewState: (state: BackendState) => {
       for(const l of stateListeners) {
         l(state);
+      }
+    },
+
+    sendError: (errorChain: Array<string>) => {
+      for(const l of errorListeners) {
+        l(errorChain);
       }
     },
 

@@ -2,7 +2,7 @@
 
 import { Clipboard } from 'reactxp';
 
-import type { Backend } from '../../lib/backend';
+import type { Backend, BackendError } from '../../lib/backend';
 import type { ReduxThunk } from '../store';
 import type { Ip } from '../../lib/ipc-facade';
 
@@ -26,6 +26,11 @@ type ConnectedAction = {
 };
 type DisconnectedAction = {
   type: 'DISCONNECTED',
+};
+
+type AuthFailedAction = {
+  type: 'AUTH_FAILED',
+  cause: ?BackendError,
 };
 
 type NewLocationAction = {
@@ -52,6 +57,7 @@ export type ConnectionAction = NewLocationAction
                                 | ConnectingAction
                                 | ConnectedAction
                                 | DisconnectedAction
+                                | AuthFailedAction
                                 | OnlineAction
                                 | OfflineAction;
 
@@ -70,6 +76,13 @@ function connected(): ConnectedAction {
 function disconnected(): DisconnectedAction {
   return {
     type: 'DISCONNECTED',
+  };
+}
+
+function authFailed(cause: ?BackendError): AuthFailedAction {
+  return {
+    type: 'AUTH_FAILED',
+    cause,
   };
 }
 
@@ -93,5 +106,5 @@ function offline(): OfflineAction {
 }
 
 
-export default { connect, disconnect, copyIPAddress, newLocation, connecting, connected, disconnected, online, offline };
+export default { connect, disconnect, copyIPAddress, newLocation, connecting, connected, disconnected, authFailed, online, offline };
 

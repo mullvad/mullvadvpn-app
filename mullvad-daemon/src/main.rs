@@ -86,6 +86,10 @@ use std::fs;
 
 error_chain!{
     errors {
+        AuthFailed(reason: String) {
+            description("Authentication failed")
+            display("Authentication failed: {}", reason)
+        }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
         }
@@ -165,6 +169,8 @@ pub enum TunnelState {
     NotRunning,
     /// The tunnel has been started, but it is not established/functional.
     Connecting,
+    /// The tunnel connection was cancelled before it was successfully established.
+    ConnectionCancelled,
     /// The tunnel is up and working.
     Connected,
     /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -176,7 +182,7 @@ impl TunnelState {
     pub fn as_security_state(&self) -> SecurityState {
         use TunnelState::*;
         match *self {
-            NotRunning | Connecting => SecurityState::Unsecured,
+            NotRunning | Connecting | ConnectionCancelled => SecurityState::Unsecured,
             Connected | Exiting => SecurityState::Secured,
         }
     }
@@ -354,12 +360,22 @@ impl Daemon {
     fn handle_tunnel_event(&mut self, tunnel_event: TunnelEvent) -> Result<()> {
         debug!("Tunnel event: {:?}", tunnel_event);
         if self.state == TunnelState::Connecting {
-            if let TunnelEvent::Up(metadata) = tunnel_event {
-                self.tunnel_metadata = Some(metadata);
-                self.set_security_policy()?;
-                self.set_state(TunnelState::Connected)
-            } else {
-                Ok(())
+            match tunnel_event {
+                TunnelEvent::AuthFailed(optional_reason) => {
+                    let reason = match optional_reason {
+                        Some(reason) => format!("\"{}\"", reason),
+                        None => "No reason provided".to_owned(),
+                    };
+                    self.management_interface_broadcaster
+                        .notify_error(&Error::from(ErrorKind::AuthFailed(reason)));
+                    self.kill_tunnel()
+                }
+                TunnelEvent::Up(metadata) => {
+                    self.tunnel_metadata = Some(metadata);
+                    self.set_security_policy()?;
+                    self.set_state(TunnelState::Connected)
+                }
+                _ => Ok(()),
             }
         } else if self.state == TunnelState::Connected && tunnel_event == TunnelEvent::Down {
             self.kill_tunnel()
@@ -631,6 +647,7 @@ impl Daemon {
             match self.state {
                 NotRunning => self.tunnel_close_handle.is_none(),
                 Connecting => self.tunnel_close_handle.is_some(),
+                ConnectionCancelled => self.tunnel_close_handle.is_none(),
                 Connected => self.tunnel_close_handle.is_some(),
                 Exiting => self.tunnel_close_handle.is_none(),
             },
@@ -770,12 +787,13 @@ impl Daemon {
     }
 
     fn kill_tunnel(&mut self) -> Result<()> {
-        ensure!(
-            self.state == TunnelState::Connecting || self.state == TunnelState::Connected,
-            ErrorKind::InvalidState
-        );
+        let new_state = match self.state {
+            TunnelState::Connecting => TunnelState::ConnectionCancelled,
+            TunnelState::Connected => TunnelState::Exiting,
+            _ => bail!(ErrorKind::InvalidState),
+        };
         let close_handle = self.tunnel_close_handle.take().unwrap();
-        self.set_state(TunnelState::Exiting)?;
+        self.set_state(new_state)?;
         let result_tx = self.tx.clone();
         thread::spawn(move || {
             let result = close_handle.close();
