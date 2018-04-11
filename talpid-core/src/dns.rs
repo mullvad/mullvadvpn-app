@@ -149,13 +149,15 @@ where
     }
 
     fn update(&mut self, update: I::Update) -> Result<()> {
-        let config_to_write = if let Some(ref state) = self.state {
+        let config_to_write = if let Some(ref mut state) = self.state {
+            let current_config = state.config();
             let new_config = self.interface
                 .read_update(update)
                 .chain_err(|| ErrorKind::ReadDnsUpdate)?;
 
             if !new_config.uses_nameservers(&state.servers) {
-                Some(state.config())
+                state.backup = new_config;
+                Some(current_config)
             } else {
                 None
             }
