@@ -54,12 +54,11 @@ export default {
       alignItems: 'center',
     },
     status: {
-      justifyContent: 'center',
       paddingTop: 0,
       paddingLeft: 24,
       paddingRight: 24,
       paddingBottom: 0,
-      marginTop: 94,
+      marginTop: 186,
       flex: 1,
     },
     status_icon: {
