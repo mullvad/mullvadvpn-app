@@ -3,4 +3,4 @@
 	url = https://github.com/mullvad/client-binaries.git
 [submodule "wfpctl/libwfp"]
 	path = wfpctl/libwfp
-	url = git@github.com:mullvad/libwfp
+	url = https://github.com/mullvad/libwfp.git
