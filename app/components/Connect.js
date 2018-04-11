@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import { Component, Text, View, Types } from 'reactxp';
 import Img from './Img';
-import { TransparentButton, GreenButton, RedButton, Label } from './styled';
+import { TransparentButton, RedTransparentButton, GreenButton, RedButton, Label } from './styled';
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
 
@@ -236,7 +236,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           { isConnecting ?
             <View style={styles.footer}>
               <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
-              <RedButton onPress={ this.props.onDisconnect }>Cancel</RedButton>
+              <RedTransparentButton onPress={ this.props.onDisconnect }>Cancel</RedTransparentButton>
             </View>
             : null
           }
@@ -245,7 +245,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           { isConnected ?
             <View style={styles.footer}>
               <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
-              <RedButton onPress={ this.props.onDisconnect } testName='disconnect'>Disconnect</RedButton>
+              <RedTransparentButton onPress={ this.props.onDisconnect } testName='disconnect'>Disconnect</RedTransparentButton>
             </View>
             : null
           }
