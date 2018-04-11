@@ -32,8 +32,8 @@ error_chain!{
 /// The only thing that matters for this module is how to read the configured name server IP
 /// addresses and how to change the them.
 pub trait DnsConfig: Clone {
-    /// List configuration's name server IP addresses.
-    fn nameservers(&self) -> &Vec<IpAddr>;
+    /// Checks if the configuration uses only the specified nameservers.
+    fn uses_nameservers(&self, nameservers: &Vec<IpAddr>) -> bool;
 
     /// Set the configuration's name servers.
     fn set_nameservers(&mut self, nameservers: &Vec<IpAddr>);
@@ -154,7 +154,7 @@ where
                 .read_update(update)
                 .chain_err(|| ErrorKind::ReadDnsUpdate)?;
 
-            if *new_config.nameservers() != state.servers {
+            if !new_config.uses_nameservers(&state.servers) {
                 Some(state.config())
             } else {
                 None
