@@ -1,10 +1,21 @@
 use std::net::IpAddr;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::mpsc;
+use std::thread;
 
 use error_chain::ChainedError;
 
 error_chain!{
     errors {
+        /// Failure to open DNS configuration interface.
+        OpenInterface {
+            description("failed to open the DNS configuration interface")
+        }
+
+        /// DNS configuration handler thread stopped unexpectedly.
+        HandlerStopped {
+            description("DNS configuration handler thread has stopped unexpectedly")
+        }
+
         /// Failure to read DNS configuration.
         ReadDnsConfig {
             description("failed to read current DNS configuration")
@@ -55,15 +66,20 @@ pub trait DnsConfig: Clone {
 
 /// Handles the interface between the cross-platform abstractions and the platform specific
 /// operations.
-pub trait DnsConfigInterface {
+///
+/// A type implementing this interface does not need to implement `Send`.
+pub trait DnsConfigInterface: Sized {
     /// The system DNS configuration type.
     type Config: DnsConfig;
 
     /// Representation of system DNS update events.
-    type Update;
+    type Update: Send + 'static;
 
     /// Error type.
     type Error: ::std::error::Error + Send + 'static;
+
+    /// Create a new instance of the interface.
+    fn open() -> ::std::result::Result<Self, Self::Error>;
 
     /// Read current DNS configuration.
     fn read_config(&mut self) -> ::std::result::Result<Self::Config, Self::Error>;
@@ -78,26 +94,18 @@ pub trait DnsConfigInterface {
     fn write_config(&mut self, config: Self::Config) -> ::std::result::Result<(), Self::Error>;
 }
 
-/// A receiver of DNS change events.
-pub trait DnsConfigListener {
-    /// Accepted updated event type.
-    type Update;
-
-    fn notify_change(&mut self, update: Self::Update);
-}
-
 /// System specific type that monitors DNS configuration changes.
 ///
 /// An implementing type should implement the `spawn` method by starting to watch for system DNS
 /// changes and notifying the given handler when a change is detected.
 ///
 /// Monitoring should stop when the type is dropped.
-pub trait DnsConfigMonitor<L: DnsConfigListener>: Sized {
+pub trait DnsConfigMonitor<U: Send>: Sized {
     /// Error type.
     type Error: ::std::error::Error + Send + 'static;
 
     /// Start the monitor, and notify the handler of any updates.
-    fn spawn(handler: Arc<Mutex<L>>) -> ::std::result::Result<Self, Self::Error>;
+    fn spawn(update_events: UpdateSender<U>) -> ::std::result::Result<Self, Self::Error>;
 }
 
 struct DnsState<C: DnsConfig> {
@@ -135,11 +143,11 @@ impl<I> DnsConfigHandler<I>
 where
     I: DnsConfigInterface,
 {
-    fn new(interface: I) -> Self {
-        DnsConfigHandler {
+    fn new() -> Result<Self> {
+        Ok(DnsConfigHandler {
             state: None,
-            interface,
-        }
+            interface: I::open().chain_err(|| ErrorKind::OpenInterface)?,
+        })
     }
 
     fn configure(&mut self, servers: Vec<IpAddr>) -> Result<()> {
@@ -202,19 +210,26 @@ where
     }
 }
 
-impl<I> DnsConfigListener for DnsConfigHandler<I>
-where
-    I: DnsConfigInterface,
-{
-    type Update = I::Update;
+enum DnsConfigEvent<U: Send> {
+    Configure(Vec<IpAddr>, mpsc::Sender<Result<()>>),
+    Restore(mpsc::Sender<Result<()>>),
+    Update(U),
+}
 
-    fn notify_change(&mut self, update: Self::Update) {
-        if let Err(error) = self.update(update) {
-            error!(
-                "Failed to reconfigure DNS settings: {}",
-                error.display_chain()
-            );
-        }
+/// Wraps an `mpsc::Sender` to convert update events into DNS configuration events.
+pub struct UpdateSender<U: Send> {
+    sender: mpsc::Sender<DnsConfigEvent<U>>,
+}
+
+impl<U: Send + 'static> UpdateSender<U> {
+    fn new(sender: mpsc::Sender<DnsConfigEvent<U>>) -> Self {
+        UpdateSender { sender }
+    }
+
+    pub fn send(&mut self, event: U) -> Result<()> {
+        self.sender
+            .send(DnsConfigEvent::Update(event))
+            .chain_err(|| ErrorKind::HandlerStopped)
     }
 }
 
@@ -229,22 +244,26 @@ where
 pub struct DnsConfigManager<I, M>
 where
     I: DnsConfigInterface,
-    M: DnsConfigMonitor<DnsConfigHandler<I>>,
+    M: DnsConfigMonitor<I::Update>,
 {
-    handler: Arc<Mutex<DnsConfigHandler<I>>>,
+    handler: mpsc::Sender<DnsConfigEvent<I::Update>>,
     _monitor: M,
 }
 
 impl<I, M> DnsConfigManager<I, M>
 where
     I: DnsConfigInterface,
-    M: DnsConfigMonitor<DnsConfigHandler<I>>,
+    M: DnsConfigMonitor<I::Update>,
 {
     /// Create a new instance that uses the provided interface to the platform specific DNS
     /// configuration system.
-    pub fn with_interface(interface: I) -> Result<Self> {
-        let handler = Arc::new(Mutex::new(DnsConfigHandler::new(interface)));
-        let monitor = M::spawn(handler.clone()).chain_err(|| ErrorKind::SpawnDnsMonitor)?;
+    pub fn spawn() -> Result<Self> {
+        let (event_tx, event_rx) = mpsc::channel();
+        let handler = event_tx.clone();
+        let monitor =
+            M::spawn(UpdateSender::new(event_tx)).chain_err(|| ErrorKind::SpawnDnsMonitor)?;
+
+        Self::spawn_handler_thread(event_rx)?;
 
         Ok(Self {
             handler,
@@ -254,17 +273,67 @@ where
 
     /// Applies a desired configuration.
     pub fn configure(&self, servers: Vec<IpAddr>) -> Result<()> {
-        self.lock_handler().configure(servers)
+        let (reply_tx, reply_rx) = mpsc::channel();
+
+        self.handler
+            .send(DnsConfigEvent::Configure(servers, reply_tx))
+            .chain_err(|| ErrorKind::HandlerStopped)?;
+
+        reply_rx.recv().chain_err(|| ErrorKind::HandlerStopped)?
     }
 
     /// Restores to the original configuration.
     pub fn restore(&self) -> Result<()> {
-        self.lock_handler().restore()
+        let (reply_tx, reply_rx) = mpsc::channel();
+
+        self.handler
+            .send(DnsConfigEvent::Restore(reply_tx))
+            .chain_err(|| ErrorKind::HandlerStopped)?;
+
+        reply_rx.recv().chain_err(|| ErrorKind::HandlerStopped)?
     }
 
-    fn lock_handler(&self) -> MutexGuard<DnsConfigHandler<I>> {
-        self.handler
-            .lock()
-            .expect("a thread panicked while using the DNS configuration handler")
+    fn spawn_handler_thread(event_rx: mpsc::Receiver<DnsConfigEvent<I::Update>>) -> Result<()> {
+        let (handler_result_tx, handler_result_rx) = mpsc::channel();
+
+        thread::spawn(move || match DnsConfigHandler::new() {
+            Ok(handler) => {
+                let _ = handler_result_tx.send(Ok(()));
+                Self::run_handler_thread(handler, event_rx);
+            }
+            Err(error) => {
+                let _ = handler_result_tx.send(Err(error));
+            }
+        });
+
+        handler_result_rx
+            .recv()
+            .chain_err(|| ErrorKind::HandlerStopped)?
+    }
+
+    fn run_handler_thread(
+        mut handler: DnsConfigHandler<I>,
+        events: mpsc::Receiver<DnsConfigEvent<I::Update>>,
+    ) {
+        use self::DnsConfigEvent::*;
+
+        for event in events {
+            match event {
+                Configure(servers, reply) => {
+                    let _ = reply.send(handler.configure(servers));
+                }
+                Restore(reply) => {
+                    let _ = reply.send(handler.restore());
+                }
+                Update(update) => {
+                    if let Err(error) = handler.update(update) {
+                        error!(
+                            "Failed to reconfigure DNS settings: {}",
+                            error.display_chain()
+                        );
+                    }
+                }
+            }
+        }
     }
 }
