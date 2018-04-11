@@ -1,6 +1,8 @@
 use std::net::IpAddr;
 use std::sync::{Arc, Mutex, MutexGuard};
 
+use error_chain::ChainedError;
+
 error_chain!{
     errors {
         /// Failure to read DNS configuration.
@@ -62,18 +64,26 @@ pub trait DnsConfigInterface {
     fn write_config(&mut self, config: Self::Config) -> ::std::result::Result<(), Self::Error>;
 }
 
+/// A receiver of DNS change events.
+pub trait DnsConfigListener {
+    /// Accepted updated event type.
+    type Update;
+
+    fn notify_change(&mut self, update: Self::Update);
+}
+
 /// System specific type that monitors DNS configuration changes.
 ///
 /// An implementing type should implement the `spawn` method by starting to watch for system DNS
 /// changes and notifying the given handler when a change is detected.
 ///
 /// Monitoring should stop when the type is dropped.
-pub trait DnsConfigMonitor<I: DnsConfigInterface>: Sized {
+pub trait DnsConfigMonitor<L: DnsConfigListener>: Sized {
     /// Error type.
     type Error: ::std::error::Error + Send + 'static;
 
     /// Start the monitor, and notify the handler of any updates.
-    fn spawn(handler: Arc<Mutex<DnsConfigHandler<I>>>) -> ::std::result::Result<Self, Self::Error>;
+    fn spawn(handler: Arc<Mutex<L>>) -> ::std::result::Result<Self, Self::Error>;
 }
 
 struct DnsState<C: DnsConfig> {
@@ -118,8 +128,27 @@ where
         }
     }
 
-    /// Notify that the DNS configuration has changed.
-    pub fn update(&mut self, update: I::Update) -> Result<()> {
+    fn configure(&mut self, servers: Vec<IpAddr>) -> Result<()> {
+        let state = match self.state.take() {
+            Some(existing_state) => DnsState {
+                backup: existing_state.backup,
+                servers,
+            },
+            None => DnsState {
+                backup: self.interface
+                    .read_config()
+                    .chain_err(|| ErrorKind::ReadDnsConfig)?,
+                servers,
+            },
+        };
+
+        self.write_config(state.config())?;
+        self.state = Some(state);
+
+        Ok(())
+    }
+
+    fn update(&mut self, update: I::Update) -> Result<()> {
         let config_to_write = if let Some(ref state) = self.state {
             let new_config = self.interface
                 .read_update(update)
@@ -141,26 +170,6 @@ where
         }
     }
 
-    fn configure(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        let state = match self.state.take() {
-            Some(existing_state) => DnsState {
-                backup: existing_state.backup,
-                servers,
-            },
-            None => DnsState {
-                backup: self.interface
-                    .read_config()
-                    .chain_err(|| ErrorKind::ReadDnsConfig)?,
-                servers,
-            },
-        };
-
-        self.write_config(state.config())?;
-        self.state = Some(state);
-
-        Ok(())
-    }
-
     fn restore(&mut self) -> Result<()> {
         if let Some(state) = self.state.take() {
             self.write_config(state.backup)
@@ -176,6 +185,22 @@ where
     }
 }
 
+impl<I> DnsConfigListener for DnsConfigHandler<I>
+where
+    I: DnsConfigInterface,
+{
+    type Update = I::Update;
+
+    fn notify_change(&mut self, update: Self::Update) {
+        if let Err(error) = self.update(update) {
+            error!(
+                "Failed to reconfigure DNS settings: {}",
+                error.display_chain()
+            );
+        }
+    }
+}
+
 /// Manages the system DNS configuration to keep it in a desired state.
 ///
 /// The DNS configuration is managed through a [`DnsConfigInterface`] type, which provides the
@@ -184,7 +209,11 @@ where
 ///
 /// [`DnsConfigInterface`]: trait.DnsConfigInterface.html
 /// [`DnsConfigMonitor`]: trait.DnsConfigMonitor.html
-pub struct DnsConfigManager<I: DnsConfigInterface, M: DnsConfigMonitor<I>> {
+pub struct DnsConfigManager<I, M>
+where
+    I: DnsConfigInterface,
+    M: DnsConfigMonitor<DnsConfigHandler<I>>,
+{
     handler: Arc<Mutex<DnsConfigHandler<I>>>,
     _monitor: M,
 }
@@ -192,7 +221,7 @@ pub struct DnsConfigManager<I: DnsConfigInterface, M: DnsConfigMonitor<I>> {
 impl<I, M> DnsConfigManager<I, M>
 where
     I: DnsConfigInterface,
-    M: DnsConfigMonitor<I>,
+    M: DnsConfigMonitor<DnsConfigHandler<I>>,
 {
     /// Create a new instance that uses the provided interface to the platform specific DNS
     /// configuration system.
