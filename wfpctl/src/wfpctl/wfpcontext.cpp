@@ -32,6 +32,26 @@ rules::PermitVpnRelay::Protocol TranslateProtocol(WfpctlProtocol protocol)
 	};
 }
 
+void AppendSettingsRules(WfpContext::Ruleset &ruleset, const WfpctlSettings &settings)
+{
+	if (settings.permitDhcp)
+	{
+		ruleset.emplace_back(std::make_unique<rules::PermitDhcp>());
+	}
+
+	if (settings.permitLan)
+	{
+		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
+		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
+	}
+}
+
+void AppendNetBlockedRules(WfpContext::Ruleset &ruleset)
+{
+	ruleset.emplace_back(std::make_unique<rules::BlockAll>());
+	ruleset.emplace_back(std::make_unique<rules::PermitLoopback>());
+}
+
 } // anonymous namespace
 
 WfpContext::WfpContext(uint32_t timeout)
@@ -56,7 +76,8 @@ bool WfpContext::applyPolicyConnecting(const WfpctlSettings &settings, const Wfp
 {
 	Ruleset ruleset;
 
-	appendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset);
+	AppendSettingsRules(ruleset, settings);
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
@@ -71,7 +92,8 @@ bool WfpContext::applyPolicyConnected(const WfpctlSettings &settings, const Wfpc
 {
 	Ruleset ruleset;
 
-	appendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset);
+	AppendSettingsRules(ruleset, settings);
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
@@ -91,6 +113,15 @@ bool WfpContext::applyPolicyConnected(const WfpctlSettings &settings, const Wfpc
 	return applyRuleset(ruleset);
 }
 
+bool WfpContext::applyPolicyNetBlocked()
+{
+	Ruleset ruleset;
+
+	AppendNetBlockedRules(ruleset);
+
+	return applyRuleset(ruleset);
+}
+
 bool WfpContext::reset()
 {
 	return m_sessionController->executeTransaction([this]()
@@ -98,20 +129,6 @@ bool WfpContext::reset()
 		m_sessionController->revert(m_baseline);
 		return true;
 	});
-}
-
-void WfpContext::appendSettingsRules(Ruleset &ruleset, const WfpctlSettings &settings)
-{
-	if (settings.permitDhcp)
-	{
-		ruleset.emplace_back(std::make_unique<rules::PermitDhcp>());
-	}
-
-	if (settings.permitLan)
-	{
-		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
-		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
-	}
 }
 
 bool WfpContext::applyRuleset(const Ruleset &ruleset)
@@ -138,14 +155,10 @@ bool WfpContext::applyBaseConfiguration()
 	{
 		//
 		// Install structural objects
-		// Apply block-all rule
-		// Apply permit loopback rule
 		//
 
 		return m_sessionController->addProvider(*MullvadObjects::Provider())
 			&& m_sessionController->addSublayer(*MullvadObjects::SublayerWhitelist())
-			&& m_sessionController->addSublayer(*MullvadObjects::SublayerBlacklist())
-			&& rules::BlockAll().apply(*m_sessionController)
-			&& rules::PermitLoopback().apply(*m_sessionController);
+			&& m_sessionController->addSublayer(*MullvadObjects::SublayerBlacklist());
 	});
 }

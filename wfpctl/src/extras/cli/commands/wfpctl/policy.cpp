@@ -55,6 +55,12 @@ Policy::Policy(MessageSink messageSink)
 
 	m_dispatcher.addSubcommand
 	(
+		L"netblocked",
+		std::bind(&Policy::processNetBlocked, this)
+	);
+
+	m_dispatcher.addSubcommand
+	(
 		L"reset",
 		std::bind(&Policy::processReset, this)
 	);
@@ -137,6 +143,15 @@ void Policy::processConnected(const KeyValuePairs &arguments)
 		GetArgumentValue(arguments, L"tunnel").c_str(),
 		GetArgumentValue(arguments, L"dns").c_str()
 	);
+
+	m_messageSink((success
+		? L"Successfully applied policy."
+		: L"Failed to apply policy."));
+}
+
+void Policy::processNetBlocked()
+{
+	auto success = Wfpctl_ApplyPolicyNetBlocked();
 
 	m_messageSink((success
 		? L"Successfully applied policy."
