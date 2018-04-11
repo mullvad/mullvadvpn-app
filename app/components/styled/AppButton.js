@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Text, Component } from 'reactxp';
 import { Button } from './Button';
 import styles from './AppButtonStyles';
+import blurStyles from './BlurAppButtonStyles';
 
 export class Label extends Text {}
 
@@ -64,9 +65,9 @@ export class BlueButton extends BaseButton {
 }
 
 export class TransparentButton extends BaseButton {
-  backgroundStyle = () => this.state.hovered ? styles.transparentHover : styles.transparent;
+  backgroundStyle = () => this.state.hovered ? blurStyles.transparentHover : blurStyles.transparent;
 }
 
 export class RedTransparentButton extends BaseButton {
-  backgroundStyle = () => this.state.hovered ? styles.redTransparentHover : styles.redTransparent;
+  backgroundStyle = () => this.state.hovered ? blurStyles.redTransparentHover : blurStyles.redTransparent;
 }
