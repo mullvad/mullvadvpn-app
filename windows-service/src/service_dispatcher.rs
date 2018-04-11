@@ -28,6 +28,7 @@ pub use self::errors::*;
 /// responsibility is to create a `ServiceControlHandler`, start processing control events and
 /// report the service status to the system.
 ///
+#[macro_export]
 macro_rules! define_windows_service {
     ($function_name:ident, $service_main_handler:ident) => {
         /// Static callback used by the system to bootstrap the service.

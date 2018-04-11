@@ -1,8 +1,7 @@
 use std::ffi::OsStr;
 use std::io;
-
 use widestring::WideCString;
-use winapi::shared::winerror::ERROR_CALL_NOT_IMPLEMENTED;
+use winapi::shared::winerror::{ERROR_CALL_NOT_IMPLEMENTED, NO_ERROR};
 use winapi::um::winsvc;
 
 use service::{ServiceControl, ServiceStatus};
@@ -44,7 +43,34 @@ impl ServiceStatusHandle {
 
 unsafe impl Send for ServiceStatusHandle {}
 
-type HandlerFn<'a> = Fn(&'a ServiceStatusHandle, ServiceControl) -> u32;
+/// Abstraction over the return value of service control handler.
+/// The meaning of each of variants in this enum depends on the type of received event.
+/// See the "Return value" section of corresponding MSDN article for more info:
+/// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683241(v=vs.85).aspx
+#[derive(Debug)]
+pub enum ServiceControlHandlerResult {
+    /// Either used to aknowledge the call or grant the permission in advanced events.
+    NoError,
+    /// The received event is not implemented.
+    NotImplemented,
+    /// This variant is used to deny permission and return the reason error code in advanced
+    /// events.
+    Other(u32),
+}
+
+impl ServiceControlHandlerResult {
+    pub fn to_raw(&self) -> u32 {
+        match *self {
+            ServiceControlHandlerResult::NoError => NO_ERROR,
+            ServiceControlHandlerResult::NotImplemented => ERROR_CALL_NOT_IMPLEMENTED,
+            ServiceControlHandlerResult::Other(code) => code,
+        }
+    }
+}
+
+/// The only useful codes that can be returned from this function are `NO_ERROR`,
+/// `ERROR_CALL_NOT_IMPLEMENTED`
+type HandlerFn<'a> = Fn(&'a ServiceStatusHandle, ServiceControl) -> ServiceControlHandlerResult;
 
 /// Struct that describes a service event handler.
 /// Since this struct connects to the service control dispatcher
@@ -85,7 +111,7 @@ impl<'a> ServiceControlHandler<'a> {
         }
     }
 
-    fn handle_event(&'a self, control: ServiceControl) -> u32 {
+    fn handle_event(&'a self, control: ServiceControl) -> ServiceControlHandlerResult {
         let status_handle = self.status_handle.as_ref().unwrap();
         (self.handler_closure)(status_handle, control)
     }
@@ -106,13 +132,13 @@ extern "system" fn service_control_handler(
     match service_control {
         Ok(service_control) => {
             debug!("Received service control event: {:?}", service_control);
-            event_handler.handle_event(service_control)
+            event_handler.handle_event(service_control).to_raw()
         }
 
         // Report all unknown control commands as unimplemented
         Err(ref e) => {
             warn!("Received unrecognized service control request: {}", e);
-            ERROR_CALL_NOT_IMPLEMENTED
+            ServiceControlHandlerResult::NotImplemented.to_raw()
         }
     }
 }

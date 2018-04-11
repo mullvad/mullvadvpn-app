@@ -1,5 +1,5 @@
 [package]
-name = "mullvad-service"
+name = "windows-service"
 version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
 
