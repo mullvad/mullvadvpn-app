@@ -37,6 +37,12 @@ pub trait DnsConfig: Clone {
 
     /// Set the configuration's name servers.
     fn set_nameservers(&mut self, nameservers: &Vec<IpAddr>);
+
+    /// Merges with another configuration.
+    ///
+    /// This is system specific behavior, but the point is to allow the current configuration to
+    /// collect new information from a newer configuration.
+    fn merge_with(&mut self, other: Self);
 }
 
 /// Handles the interface between the cross-platform abstractions and the platform specific
@@ -156,7 +162,7 @@ where
                 .chain_err(|| ErrorKind::ReadDnsUpdate)?;
 
             if !new_config.uses_nameservers(&state.servers) {
-                state.backup = new_config;
+                state.backup.merge_with(new_config);
                 Some(current_config)
             } else {
                 None
