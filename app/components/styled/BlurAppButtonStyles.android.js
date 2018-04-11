@@ -17,4 +17,4 @@ export default {
       backgroundColor: colors.red45,
     },
   })
-}
+};

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import { Component, Text, View, Types } from 'reactxp';
 import Img from './Img';
-import { TransparentButton, RedTransparentButton, GreenButton, RedButton, Label } from './styled';
+import { TransparentButton, RedTransparentButton, GreenButton, Label } from './styled';
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
 
