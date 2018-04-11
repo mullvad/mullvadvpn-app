@@ -29,6 +29,9 @@ extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+/// Configuring system DNS name servers.
+mod dns;
+
 /// Working with processes.
 pub mod process;
 
