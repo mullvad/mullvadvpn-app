@@ -43,6 +43,14 @@ pub trait DnsConfig: Clone {
     /// This is system specific behavior, but the point is to allow the current configuration to
     /// collect new information from a newer configuration.
     fn merge_with(&mut self, other: Self);
+
+    /// Merges with another configuration ignoring the other configuration's name server list.
+    ///
+    /// This is similar to the [`merge_with`] method, but here the point is to collect new
+    /// information that does not include the list of name servers.
+    ///
+    /// [`merge_with`]: #method.merge_with
+    fn merge_ignoring_nameservers(&mut self, other: Self);
 }
 
 /// Handles the interface between the cross-platform abstractions and the platform specific
@@ -165,6 +173,7 @@ where
                 state.backup.merge_with(new_config);
                 Some(current_config)
             } else {
+                state.backup.merge_ignoring_nameservers(new_config);
                 None
             }
         } else {
