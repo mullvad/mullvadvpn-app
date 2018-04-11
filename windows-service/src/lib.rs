@@ -4,8 +4,6 @@
 extern crate bitflags;
 #[macro_use]
 pub extern crate error_chain;
-#[macro_use]
-extern crate log;
 extern crate widestring;
 extern crate winapi;
 
