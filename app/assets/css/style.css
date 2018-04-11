@@ -2,12 +2,9 @@
 @import 'reset.css';
 @import 'fonts.css';
 @import 'global.css';
-@import 'buttons.css';
 
 /* app */
 @import '../../components/PlatformWindow.css';
 @import '../../components/CustomScrollbars.css';
-@import '../../components/Connect.css';
-@import '../../components/SelectLocation.css';
 @import '../../components/Layout.css';
 @import '../../components/Switch.css';

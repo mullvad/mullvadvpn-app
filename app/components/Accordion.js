@@ -59,8 +59,8 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
   }
 
   render() {
-    const { height: _height, children, animationDuration: _animationDuration, ...otherProps } = this.props;
-    const containerStyles = [];
+    const { style: style, height: _height, children, animationDuration: _animationDuration, ...otherProps } = this.props;
+    const containerStyles = [style];
 
     if(this.state.animatedValue !== null) {
       const animatedStyle = Styles.createAnimatedViewStyle({
