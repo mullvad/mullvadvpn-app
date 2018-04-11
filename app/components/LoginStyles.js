@@ -55,7 +55,18 @@ export default {
     account_input_textfield__inactive: {
       backgroundColor: colors.white60,
     },
-    account_input_button: {
+    input_button: {
+      flex: 0,
+      borderWidth: 0,
+      width: 48,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    input_button__invisible: {
+      backgroundColor: colors.white,
+      opacity: 0,
+    },
+    input_arrow: {
       flex: 0,
       borderWidth: 0,
       width: 48,
@@ -63,14 +74,14 @@ export default {
       justifyContent: 'center',
       color: colors.blue20,
     },
-    account_input_button__active: {
+    input_arrow__active: {
       color: colors.white,
     },
-    account_input_button__invisible: {
+    input_arrow__invisible: {
       color: colors.white,
-      backgroundColor: colors.white,
       opacity: 0,
     },
+
     account_dropdown__spacer: {
       height: 1,
       backgroundColor: colors.darkBlue,

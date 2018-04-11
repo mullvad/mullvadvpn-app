@@ -215,10 +215,10 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _accountInputButtonStyles(): Array<Object> {
     const { status } = this.props.account;
-    const classes = [styles.account_input_button];
+    const classes = [styles.input_button];
 
     if(status === 'logging in') {
-      classes.push(styles.account_input_button__invisible);
+      classes.push(styles.input_button__invisible);
     }
 
     classes.push(this.state.loginButtonAnimationStyle);
@@ -228,14 +228,14 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _accountInputArrowStyles(): Array<Object> {
     const { accountToken, status } = this.props.account;
-    const classes = [styles.account_input_button];
+    const classes = [styles.input_arrow];
 
     if(accountToken && accountToken.length > 0) {
-      classes.push(styles.account_input_button__active);
+      classes.push(styles.input_arrow__active);
     }
 
     if(status === 'logging in') {
-      classes.push(styles.account_input_button__invisible);
+      classes.push(styles.input_arrow__invisible);
     }
 
     return classes;
