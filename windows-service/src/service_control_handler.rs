@@ -130,15 +130,9 @@ extern "system" fn service_control_handler(
     let service_control = ServiceControl::from_raw(control);
 
     match service_control {
-        Ok(service_control) => {
-            debug!("Received service control event: {:?}", service_control);
-            event_handler.handle_event(service_control).to_raw()
-        }
+        Ok(service_control) => event_handler.handle_event(service_control).to_raw(),
 
         // Report all unknown control commands as unimplemented
-        Err(ref e) => {
-            warn!("Received unrecognized service control request: {}", e);
-            ServiceControlHandlerResult::NotImplemented.to_raw()
-        }
+        Err(_) => ServiceControlHandlerResult::NotImplemented.to_raw(),
     }
 }
