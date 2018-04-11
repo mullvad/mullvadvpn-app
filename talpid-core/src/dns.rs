@@ -242,7 +242,7 @@ where
 {
     /// Create a new instance that uses the provided interface to the platform specific DNS
     /// configuration system.
-    pub fn new(interface: I) -> Result<Self> {
+    pub fn with_interface(interface: I) -> Result<Self> {
         let handler = Arc::new(Mutex::new(DnsConfigHandler::new(interface)));
         let monitor = M::spawn(handler.clone()).chain_err(|| ErrorKind::SpawnDnsMonitor)?;
 
