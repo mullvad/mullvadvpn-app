@@ -849,8 +849,11 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let config = cli::get_config();
-    logging::init_logger(config.log_level, config.log_file.as_ref())
-        .chain_err(|| "Unable to initialize logger")?;
+    logging::init_logger(
+        config.log_level,
+        config.log_file.as_ref(),
+        config.log_stdout_timestamps,
+    ).chain_err(|| "Unable to initialize logger")?;
     log_version();
 
     if !running_as_admin() {

@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Daemon now fetches latest app versions and verifies whether the current
   version is supported.
 - Add `version` subcommand in the CLI to show information about current versions.
+- Add a flag to daemon to print log entries to standard output without timestamps.
 
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
