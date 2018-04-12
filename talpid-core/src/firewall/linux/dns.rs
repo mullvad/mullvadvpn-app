@@ -25,57 +25,57 @@ error_chain!{
 }
 
 pub struct DnsSettings {
-    backup: Option<String>,
-    desired_dns: Option<Vec<IpAddr>>,
+    state: Option<State>,
 }
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
-        Ok(DnsSettings {
-            backup: None,
-            desired_dns: None,
-        })
+        Ok(DnsSettings { state: None })
     }
 
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        if self.backup.is_none() {
-            self.backup = Some(read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?);
-        }
+        let new_state = match self.state.take() {
+            None => State {
+                backup: read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?,
+                desired_dns: servers,
+            },
+            Some(previous_state) => State {
+                backup: previous_state.backup,
+                desired_dns: servers,
+            },
+        };
 
-        self.desired_dns = Some(servers);
-        self.configure_dns()?;
+        write_config(&new_state.desired_config()?)?;
+
+        self.state = Some(new_state);
 
         Ok(())
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        self.desired_dns = None;
-
-        if let Some(backup) = self.backup.take() {
-            write_resolv_conf(&backup).chain_err(|| ErrorKind::WriteResolvConf)?;
-        }
-
-        Ok(())
-    }
-
-    fn configure_dns(&self) -> Result<()> {
-        let mut config = match self.backup {
-            Some(ref previous_config) => {
-                Config::parse(previous_config).chain_err(|| ErrorKind::ParseResolvConf)?
-            }
-            None => Config::new(),
-        };
-
-        if let Some(ref nameservers) = self.desired_dns {
-            config.nameservers = nameservers
-                .iter()
-                .map(|&address| ScopedIp::from(address))
-                .collect();
+        if let Some(state) = self.state.take() {
+            write_resolv_conf(&state.backup).chain_err(|| ErrorKind::WriteResolvConf)
         } else {
-            config.nameservers.clear();
+            Ok(())
         }
+    }
+}
 
-        write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
+struct State {
+    backup: String,
+    desired_dns: Vec<IpAddr>,
+}
+
+impl State {
+    fn desired_config(&self) -> Result<Config> {
+        let mut config = Config::parse(&self.backup).chain_err(|| ErrorKind::ParseResolvConf)?;
+
+        config.nameservers = self.desired_dns
+            .iter()
+            .map(|&address| ScopedIp::from(address))
+            .collect();
+
+        Ok(config)
     }
 }
 
@@ -86,6 +86,10 @@ fn read_resolv_conf() -> io::Result<String> {
     file.read_to_string(&mut contents)?;
 
     Ok(contents)
+}
+
+fn write_config(config: &Config) -> Result<()> {
+    write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
 }
 
 fn write_resolv_conf(contents: &str) -> io::Result<()> {
