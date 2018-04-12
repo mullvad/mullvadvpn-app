@@ -51,6 +51,22 @@ homebrew:
     It must run as root since it it modifies the firewall and sets up virtual network interfaces
     etc.
 
+### Prerequisites for Windows
+There are some extra steps to build the daemon on Windows:
+- The host has to have Microsoft's _Build Tools for Visual Studio 2017_ (a
+regular installation of Visual Studio 2017 Community edition works as well).
+The specific build tool version that is required is `v141`.
+
+- The host has to have `msbuild.exe` available in `%PATH%`.
+
+- The host has to have `bash` installed.
+
+- Before compiling the daemon, one must run `build_wfp.sh` to build a C++
+  library that sets firewall rules on Windows.
+    ```bash
+    bash build_wfp.sh
+    ```
+
 ## Building and running the Electron GUI app
 
 1. Install all the JavaScript dependencies by running:
