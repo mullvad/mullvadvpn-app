@@ -86,9 +86,13 @@ linux:
       to: .
 
 deb:
+  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+       "./linux/mullvad-daemon.service=/etc/systemd/system/"]
   afterInstall: linux/install_script.sh
   afterRemove: linux/uninstall_script.sh
 
 rpm:
+  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+       "./linux/mullvad-daemon.service=/etc/systemd/system/"]
   afterInstall: linux/install_script.sh
   afterRemove: linux/uninstall_script.sh
