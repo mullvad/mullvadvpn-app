@@ -97,8 +97,8 @@ impl ServiceManager {
     }
 
     /// Passing None for database connects to active database
-    pub fn local_computer<T: AsRef<OsStr>>(
-        database: Option<T>,
+    pub fn local_computer<D: AsRef<OsStr>>(
+        database: Option<D>,
         request_access: ServiceManagerAccess,
     ) -> Result<Self> {
         ServiceManager::new(None::<&OsStr>, database, request_access)
