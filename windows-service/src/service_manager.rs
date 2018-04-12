@@ -118,21 +118,17 @@ impl ServiceManager {
             to_wide(service_info.account_password).chain_err(|| ErrorKind::InvalidAccountPassword)?;
 
         // escape executable path and arguments and combine them into single command
-        let escaped_executable_path =
-            shell_escape::escape(Cow::Borrowed(service_info.executable_path.as_os_str()));
-        let checked_launch_executable = WideCString::from_str(escaped_executable_path)
+        let executable_path = escape_wide(service_info.executable_path)
             .chain_err(|| ErrorKind::InvalidExecutablePath)?;
 
         let mut launch_command_buffer = WideString::new();
-        launch_command_buffer.push(checked_launch_executable.to_wide_string());
+        launch_command_buffer.push(executable_path);
 
         for launch_argument in service_info.launch_arguments.iter() {
-            let escaped_value = shell_escape::escape(Cow::Borrowed(launch_argument));
-            let checked_value = WideCString::from_str(escaped_value)
-                .chain_err(|| ErrorKind::InvalidLaunchArgument)?;
+            let wide = escape_wide(launch_argument).chain_err(|| ErrorKind::InvalidLaunchArgument)?;
 
             launch_command_buffer.push_str(" ");
-            launch_command_buffer.push(checked_value.to_wide_string());
+            launch_command_buffer.push(wide);
         }
 
         let launch_command = WideCString::from_wide_str(launch_command_buffer).unwrap();
@@ -191,4 +187,10 @@ fn to_wide<T: AsRef<OsStr>>(s: Option<T>) -> ::std::result::Result<Option<WideCS
     } else {
         Ok(None)
     }
+}
+
+fn escape_wide<T: AsRef<OsStr>>(s: T) -> ::std::result::Result<WideString, NulError> {
+    let escaped = shell_escape::escape(Cow::Borrowed(s.as_ref()));
+    let wide = WideCString::from_str(escaped)?;
+    Ok(wide.to_wide_string())
 }
