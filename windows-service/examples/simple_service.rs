@@ -1,11 +1,10 @@
 #![cfg(windows)]
 
-extern crate chrono;
 #[macro_use]
 extern crate error_chain;
-extern crate fern;
 #[macro_use]
 extern crate log;
+extern crate simplelog;
 #[macro_use]
 extern crate windows_service;
 
@@ -13,7 +12,10 @@ use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
-use std::{env, fmt, io, thread, time};
+use std::{env, thread, time};
+
+use log::LevelFilter;
+use simplelog::{CombinedLogger, Config, TermLogger, WriteLogger};
 
 use windows_service::error_chain::ChainedError;
 use windows_service::service::{ServiceAccess, ServiceControl, ServiceErrorControl, ServiceInfo,
@@ -30,9 +32,12 @@ error_chain! {
         RemoveService {
             description("Failed to remove the service")
         }
-        WriteLogFile(path: PathBuf) {
+        OpenLogFile(path: PathBuf) {
             description("Unable to open log file for writing")
             display("Unable to open log file for writing: {}", path.to_string_lossy())
+        }
+        InitLogger {
+            description("Cannot initialize logger")
         }
     }
     foreign_links {
@@ -45,20 +50,9 @@ static SERVICE_NAME: &'static str = "SimpleService";
 static SERVICE_DISPLAY_NAME: &'static str = "Simple Service";
 
 fn main() {
-    let windows_directory = ::env::var_os("WINDIR").unwrap();
-    let log_file = PathBuf::from(windows_directory)
-        .join("Temp")
-        .join("simple-service.log");
-
-    if let Err(e) = OpenOptions::new()
-        .append(true)
-        .create_new(true)
-        .open(log_file.as_path())
-    {
-        error!("Cannot create a log file: {}", e);
+    if let Err(err) = init_logger() {
+        panic!("Unable to initialize logger: {}", err.display_chain());
     }
-
-    let _ = init_logger(log::LevelFilter::Trace, Some(&log_file));
 
     if let Some(command) = env::args().nth(1) {
         match command.as_ref() {
@@ -76,7 +70,7 @@ fn main() {
                     info!("Removed the service.");
                 }
             }
-            "--service" => {
+            "--run-service" => {
                 // Start the service dispatcher.
                 // This will block current thread until the service stopped.
                 let result = service_dispatcher::start_dispatcher(SERVICE_NAME, service_main);
@@ -96,7 +90,7 @@ fn main() {
         info!("Usage:");
         info!("--install-service to install the service");
         info!("--remove-service to uninstall the service");
-        info!("--service to run the service");
+        info!("--run-service to run the service");
     }
 }
 
@@ -193,33 +187,21 @@ fn get_service_info() -> ServiceInfo {
     }
 }
 
+fn init_logger() -> Result<()> {
+    let windows_directory = env::var_os("WINDIR").unwrap();
+    let log_file_path = PathBuf::from(windows_directory)
+        .join("Temp")
+        .join("simple-service.log");
 
-fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> Result<()> {
-    let mut top_dispatcher = fern::Dispatch::new().level(log_level);
-    let stdout_dispatcher = fern::Dispatch::new()
-        .format(move |out, message, record| format_log_message(out, message, record))
-        .chain(io::stdout());
-    top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
+    let log_file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_file_path.as_path())
+        .chain_err(|| ErrorKind::OpenLogFile(log_file_path))?;
 
-    if let Some(ref log_file) = log_file {
-        let f =
-            fern::log_file(log_file).chain_err(|| ErrorKind::WriteLogFile(log_file.to_path_buf()))?;
-        let file_dispatcher = fern::Dispatch::new()
-            .format(|out, message, record| format_log_message(out, message, record))
-            .chain(f);
-        top_dispatcher = top_dispatcher.chain(file_dispatcher);
-    }
-    top_dispatcher.apply()?;
-    Ok(())
-}
+    let terminal_logger =
+        TermLogger::new(LevelFilter::Trace, Config::default()).chain_err(|| ErrorKind::InitLogger)?;
+    let file_logger = WriteLogger::new(LevelFilter::Trace, Config::default(), log_file);
 
-fn format_log_message(out: fern::FormatCallback, message: &fmt::Arguments, record: &log::Record) {
-    let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
-    out.finish(format_args!(
-        "[{}][{}][{}] {}",
-        timestamp,
-        record.target(),
-        record.level(),
-        message
-    ))
+    CombinedLogger::init(vec![terminal_logger, file_logger]).chain_err(|| ErrorKind::InitLogger)
 }
