@@ -10,6 +10,5 @@ winapi = { version = "0.3", features = ["std", "winsvc", "winerror"] }
 widestring = "0.3.0"
 
 [target.'cfg(windows)'.dev-dependencies]
-chrono = { version = "0.4", features = ["serde"] }
-fern = { version = "0.5" }
 log = "0.4"
+simplelog = "0.5"
