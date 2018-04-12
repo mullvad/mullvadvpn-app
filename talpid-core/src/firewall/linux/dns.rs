@@ -1,3 +1,4 @@
+extern crate notify;
 extern crate resolv_conf;
 
 use std::fs::File;
@@ -6,6 +7,9 @@ use std::net::IpAddr;
 use std::sync::mpsc;
 use std::thread;
 
+use error_chain::ChainedError;
+
+use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 
 static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
@@ -24,6 +28,10 @@ error_chain!{
             description("failed to read /etc/resolv.conf")
         }
 
+        WatchResolvConf {
+            description("failed to watch /etc/resolv.conf for changes")
+        }
+
         WriteResolvConf {
             description("failed to write to /etc/resolv.conf")
         }
@@ -32,16 +40,19 @@ error_chain!{
 
 pub struct DnsSettings {
     configurator: mpsc::Sender<DnsEvent>,
+    _watcher: DnsWatcher,
 }
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
         let (event_tx, event_rx) = mpsc::channel();
+        let watcher = DnsWatcher::start(event_tx.clone())?;
 
         Self::spawn_configurator_thread(event_rx)?;
 
         Ok(DnsSettings {
             configurator: event_tx,
+            _watcher: watcher,
         })
     }
 
@@ -90,6 +101,14 @@ impl DnsSettings {
                 DnsEvent::Reset(reply) => {
                     let _ = reply.send(configurator.reset());
                 }
+                DnsEvent::Update => {
+                    if let Err(error) = configurator.update() {
+                        error!(
+                            "Failed to notify DNS configurator that DNS settings have changed: {}",
+                            error.display_chain()
+                        );
+                    }
+                }
             };
         }
     }
@@ -111,6 +130,7 @@ impl DnsSettings {
 enum DnsEvent {
     Set(Vec<IpAddr>, mpsc::Sender<Result<()>>),
     Reset(mpsc::Sender<Result<()>>),
+    Update,
 }
 
 struct State {
@@ -165,6 +185,57 @@ impl DnsConfigurator {
         } else {
             Ok(())
         }
+    }
+
+    fn update(&mut self) -> Result<()> {
+        if let Some(ref mut state) = self.state {
+            let mut new_config = read_config()?;
+            let desired_nameservers = state
+                .desired_dns
+                .iter()
+                .map(|&address| ScopedIp::from(address))
+                .collect();
+
+            if new_config.nameservers != desired_nameservers {
+                state.backup = new_config.clone();
+                new_config.nameservers = desired_nameservers;
+
+                write_config(&new_config)
+            } else {
+                new_config.nameservers.clear();
+                new_config.nameservers.append(&mut state.backup.nameservers);
+                state.backup = new_config;
+
+                Ok(())
+            }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+struct DnsWatcher {
+    _watcher: RecommendedWatcher,
+}
+
+impl DnsWatcher {
+    fn start(notification_sink: mpsc::Sender<DnsEvent>) -> Result<Self> {
+        let (event_tx, event_rx) = mpsc::channel();
+        let mut watcher = notify::raw_watcher(event_tx).chain_err(|| ErrorKind::WatchResolvConf)?;
+
+        watcher
+            .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
+            .chain_err(|| ErrorKind::WatchResolvConf)?;
+
+        thread::spawn(move || {
+            for _ in event_rx {
+                if notification_sink.send(DnsEvent::Update).is_err() {
+                    break;
+                }
+            }
+        });
+
+        Ok(DnsWatcher { _watcher: watcher })
     }
 }
 
