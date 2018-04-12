@@ -1,7 +1,9 @@
 LIBRARY wfpctl
 EXPORTS
-            Wfpctl_ApplyPolicyConnected
-            Wfpctl_ApplyPolicyConnecting
-            Wfpctl_Deinitialize
-            Wfpctl_Initialize
-            Wfpctl_Reset
+
+Wfpctl_Initialize
+Wfpctl_Deinitialize
+Wfpctl_ApplyPolicyConnecting
+Wfpctl_ApplyPolicyConnected
+Wfpctl_ApplyPolicyNetBlocked
+Wfpctl_Reset

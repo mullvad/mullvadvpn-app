@@ -86,7 +86,7 @@ Wfpctl_Deinitialize();
 //
 // ApplyPolicyConnecting:
 //
-// Apply restrictions in the firewall that blocks all traffic, except:
+// Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
 // - Communication with the relay server
 //
@@ -102,7 +102,7 @@ Wfpctl_ApplyPolicyConnecting(
 //
 // ApplyPolicyConnected:
 //
-// Apply restrictions in the firewall that blocks all traffic, except:
+// Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
 // - Communication with the relay server
 // - Non-DNS traffic inside the VPN tunnel
@@ -124,6 +124,18 @@ Wfpctl_ApplyPolicyConnected(
 	const WfpctlRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *primaryDns
+);
+
+//
+// ApplyPolicyNetBlocked:
+//
+// Apply restrictions in the firewall that block all traffic.
+//
+extern "C"
+WFPCTL_LINKAGE
+bool
+WFPCTL_API
+Wfpctl_ApplyPolicyNetBlocked(
 );
 
 //

@@ -15,8 +15,11 @@ public:
 
 	bool applyPolicyConnecting(const WfpctlSettings &settings, const WfpctlRelay &relay);
 	bool applyPolicyConnected(const WfpctlSettings &settings, const WfpctlRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *primaryDns);
+	bool applyPolicyNetBlocked();
 
 	bool reset();
+
+	using Ruleset = std::vector<std::unique_ptr<rules::IFirewallRule> >;
 
 private:
 
@@ -24,10 +27,6 @@ private:
 	WfpContext &operator=(const WfpContext &) = delete;
 
 	bool applyBaseConfiguration();
-
-	using Ruleset = std::vector<std::unique_ptr<rules::IFirewallRule> >;
-
-	void appendSettingsRules(Ruleset &ruleset, const WfpctlSettings &settings);
 	bool applyRuleset(const Ruleset &ruleset);
 
 	std::unique_ptr<SessionController> m_sessionController;

@@ -147,6 +147,36 @@ Wfpctl_ApplyPolicyConnected(
 WFPCTL_LINKAGE
 bool
 WFPCTL_API
+Wfpctl_ApplyPolicyNetBlocked(
+)
+{
+	if (nullptr == g_wfpContext)
+	{
+		return false;
+	}
+
+	try
+	{
+		return g_wfpContext->applyPolicyNetBlocked();
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != g_ErrorSink)
+		{
+			g_ErrorSink(err.what(), g_ErrorContext);
+		}
+
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+WFPCTL_LINKAGE
+bool
+WFPCTL_API
 Wfpctl_Reset()
 {
 	if (nullptr == g_wfpContext)
