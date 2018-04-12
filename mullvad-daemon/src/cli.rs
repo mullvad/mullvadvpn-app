@@ -11,7 +11,7 @@ pub struct Config {
     pub tunnel_log_file: Option<PathBuf>,
     pub resource_dir: Option<PathBuf>,
     pub require_auth: bool,
-}
+    pub log_stdout_timestamps : bool, }
 
 pub fn get_config() -> Config {
     let app = create_app();
@@ -26,6 +26,7 @@ pub fn get_config() -> Config {
     let tunnel_log_file = matches.value_of_os("tunnel_log_file").map(PathBuf::from);
     let resource_dir = matches.value_of_os("resource_dir").map(PathBuf::from);
     let require_auth = !matches.is_present("disable_rpc_auth");
+    let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
     Config {
         log_level,
@@ -33,6 +34,7 @@ pub fn get_config() -> Config {
         tunnel_log_file,
         resource_dir,
         require_auth,
+        log_stdout_timestamps,
     }
 }
 
@@ -73,4 +75,9 @@ fn create_app() -> App<'static, 'static> {
                 .long("disable-rpc-auth")
                 .help("Don't require authentication on the RPC management interface."),
         )
+        .arg(
+            Arg::with_name("disable_stdout_timestamps")
+            .long("no-stdout-timestamps")
+            .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
+            )
 }
