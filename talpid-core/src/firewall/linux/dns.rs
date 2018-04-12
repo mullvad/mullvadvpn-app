@@ -8,6 +8,8 @@ use std::thread;
 
 use self::resolv_conf::{Config, ScopedIp};
 
+static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+
 error_chain!{
     errors {
         ConfiguratorStopped {
@@ -174,7 +176,7 @@ fn read_config() -> Result<Config> {
 }
 
 fn read_resolv_conf() -> io::Result<String> {
-    let mut file = File::open("/etc/resolv.conf")?;
+    let mut file = File::open(RESOLV_CONF_PATH)?;
     let mut contents = String::new();
 
     file.read_to_string(&mut contents)?;
@@ -187,7 +189,7 @@ fn write_config(config: &Config) -> Result<()> {
 }
 
 fn write_resolv_conf(contents: &str) -> io::Result<()> {
-    let mut file = File::create("/etc/resolv.conf")?;
+    let mut file = File::create(RESOLV_CONF_PATH)?;
 
     file.write_all(contents.as_bytes())
 }
