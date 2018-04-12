@@ -88,7 +88,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: 0,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -112,7 +112,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: this.state.dimensions.height,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -138,13 +138,13 @@ export default class TransitionContainer extends Component<TransitionContainerPr
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
         Animated.timing(previousTranslationValue, {
           toValue: - this.state.dimensions.width / 2,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
+          useNativeDriver: false,
         })
       ]);
       compositeAnimation.start(() => this.onFinishedAnimation());

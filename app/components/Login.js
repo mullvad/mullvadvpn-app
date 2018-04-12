@@ -75,21 +75,18 @@ export default class Login extends Component<LoginPropTypes, State> {
       <Layout>
         <Header showSettings={ true } onSettings={ this.props.onSettings } />
         <Container>
-          <View style={styles.login}>
-            <View style={styles.login_form}>
-              { this._getStatusIcon() }
+          <View style={styles.login_form}>
+            { this._getStatusIcon() }
+            <Text style={styles.title}>{ this._formTitle() }</Text>
 
-              <Text style={styles.title}>{ this._formTitle() }</Text>
-
-              {this._shouldShowLoginForm() && <View>
-                { this._createLoginForm() }
-              </View>}
-            </View>
-
-            <Animated.View onLayout={this._onFooterLayout} style={[styles.login_footer, this.state.footerAnimationStyle]} testName={'footerVisibility ' + this._shouldShowFooter(this.props).toString()}>
-              { this._createFooter() }
-            </Animated.View>
+            {this._shouldShowLoginForm() && <View>
+              { this._createLoginForm() }
+            </View>}
           </View>
+
+          <Animated.View onLayout={this._onFooterLayout} style={[styles.login_footer, this.state.footerAnimationStyle]} testName={'footerVisibility ' + this._shouldShowFooter(this.props).toString()}>
+            { this._createFooter() }
+          </Animated.View>
         </Container>
       </Layout>
     );
@@ -180,7 +177,7 @@ export default class Login extends Component<LoginPropTypes, State> {
     const statusIconPath = this._getStatusIconPath();
     return <View style={ styles.status_icon}>
       { statusIconPath ?
-        <Img source={ statusIconPath } height='48' width='48' alt="" /> :
+        <Img source={ statusIconPath } height={48} width={48} alt="" /> :
         null }
     </View>;
   }
@@ -269,7 +266,7 @@ export default class Login extends Component<LoginPropTypes, State> {
       toValue: toValue,
       easing: Animated.Easing.InOut(),
       duration: 250,
-      useNativeDriver: true,
+      useNativeDriver: false,
     });
   }
 
@@ -282,7 +279,7 @@ export default class Login extends Component<LoginPropTypes, State> {
       toValue: toValue,
       easing: Animated.Easing.Linear(),
       duration: 250,
-      useNativeDriver: true,
+      useNativeDriver: false,
     });
   }
 
@@ -303,7 +300,7 @@ export default class Login extends Component<LoginPropTypes, State> {
       }
     };
 
-    return <View style= {styles.login}>
+    return <View>
       <Text style={ styles.subtitle }>{ this._formSubtitle() }</Text>
       <View style={ this._accountInputGroupStyles() }>
         <View style={ styles.account_input_backdrop}>
@@ -321,7 +318,7 @@ export default class Login extends Component<LoginPropTypes, State> {
             ref={ autoFocusOnFailure }
             testName='AccountInput'/>
           <Animated.View style={this._accountInputButtonStyles()} onPress={ this._onLogin } testName='account-input-button'>
-            <Img style={this._accountInputArrowStyles()} source='icon-arrow' height='16' width='24' tintColor='currentColor' />
+            <Img style={this._accountInputArrowStyles()} source='icon-arrow' height={16} width={24} tintColor='currentColor' />
           </Animated.View>
         </View>
         <Accordion height={ this._shouldShowAccountHistory(this.props) ? 'auto' : 0 }>
@@ -339,7 +336,7 @@ export default class Login extends Component<LoginPropTypes, State> {
       <Text style={ styles.login_footer__prompt}>{ 'Don\'t have an account number?' }</Text>
       <BlueButton onPress={ this._onCreateAccount }>
         <Label>Create account</Label>
-        <Img source='icon-extLink' height='16' width='16' />
+        <Img source='icon-extLink' height={16} width={16} />
       </BlueButton>
     </View>;
   }
@@ -387,7 +384,7 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
           cellHoverStyle={ styles.account_dropdown__remove_cell_hover }
           hoverStyle={ styles.account_dropdown__remove_hover }
           source='icon-close-sml'
-          height='16' width='16'
+          height={16} width={16}
           onPress={ () => this.props.onRemove(this.props.value) }/>
       </CellButton>
     </View>);

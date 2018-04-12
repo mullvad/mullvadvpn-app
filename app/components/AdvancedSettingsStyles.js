@@ -6,12 +6,11 @@ export default {
   ...createViewStyles({
     advanced_settings: {
       backgroundColor: '#192E45',
-      height: '100%',
+      flex: 1,
     },
     advanced_settings__container: {
       flexDirection: 'column',
-      height: '100%',
-      paddingBottom: 48,
+      flex: 1,
     },
     advanced_settings__header: {
       flexGrow: 0,

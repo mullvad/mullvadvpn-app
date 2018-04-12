@@ -80,14 +80,14 @@ export default class Settings extends Component<SettingsProps> {
             testName='settings__account_paid_until_button'>
             <Label>Account</Label>
             <SubText testName='settings__account_paid_until_subtext' style={styles.settings__account_paid_until_Label__error}>OUT OF TIME</SubText>
-            <Img height='12' width='7' source='icon-chevron' />
+            <Img height={12} width={7} source='icon-chevron' />
           </CellButton>
         ) : (
           <CellButton onPress={ this.props.onViewAccount }
             testName='settings__account_paid_until_button'>
             <Label>Account</Label>
             <SubText testName='settings__account_paid_until_subtext'>{ formattedExpiry }</SubText>
-            <Img height='12' width='7' source='icon-chevron' />
+            <Img height={12} width={7} source='icon-chevron' />
           </CellButton>
         )}
       </View>
@@ -95,13 +95,13 @@ export default class Settings extends Component<SettingsProps> {
       <CellButton onPress={ this.props.onViewPreferences }
         testName='settings__preferences'>
         <Label>Preferences</Label>
-        <Img height='12' width='7' source='icon-chevron' />
+        <Img height={12} width={7} source='icon-chevron' />
       </CellButton>
 
       <CellButton onPress={ this.props.onViewAdvancedSettings }
         testName='settings__advanced'>
         <Label>Advanced</Label>
-        <Img height='12' width='7' source='icon-chevron' />
+        <Img height={12} width={7} source='icon-chevron' />
       </CellButton>
       <View style={styles.settings__cell_spacer}/>
     </View>;
@@ -113,7 +113,7 @@ export default class Settings extends Component<SettingsProps> {
         testName='settings__version'>
         <Label>App version</Label>
         <SubText>{this._formattedVersion()}</SubText>
-        <Img height='16' width='16' source='icon-extLink' />
+        <Img height={16} width={16} source='icon-extLink' />
       </CellButton>
       <View style={styles.settings__cell_spacer}/>
     </View>;
@@ -133,19 +133,19 @@ export default class Settings extends Component<SettingsProps> {
       <CellButton onPress={ this.props.onExternalLink.bind(this, 'faq') }
         testName='settings__external_link'>
         <Label>FAQs</Label>
-        <Img height='16' width='16' source='icon-extLink' />
+        <Img height={16} width={16} source='icon-extLink' />
       </CellButton>
 
       <CellButton onPress={ this.props.onExternalLink.bind(this, 'guides') }
         testName='settings__external_link'>
         <Label>Guides</Label>
-        <Img height='16' width='16' source='icon-extLink' />
+        <Img height={16} width={16} source='icon-extLink' />
       </CellButton>
 
       <CellButton onPress={ this.props.onViewSupport }
         testName='settings__view_support'>
         <Label>Contact support</Label>
-        <Img height='12' width='7' source='icon-chevron' />
+        <Img height={12} width={7} source='icon-chevron' />
       </CellButton>
     </View>;
   }

@@ -201,7 +201,7 @@ export default class Support extends Component<SupportProps, SupportState> {
         onPress={ this.onViewLog }
         testName='support__view_logs'>
         <Label>View app logs</Label>
-        <Img source='icon-extLink' height='16' width='16' />
+        <Img source='icon-extLink' height={16} width={16} />
       </BlueButton>,
       <GreenButton key={2}
         disabled={ !this.validate() }
@@ -217,7 +217,7 @@ export default class Support extends Component<SupportProps, SupportState> {
       <View style={styles.support__form}>
         <View style={styles.support__form_row}>
           <View style={styles.support__status_icon}>
-            <Img source="icon-spinner" alt="" />
+            <Img source="icon-spinner" height={60} width={60} alt="" />
           </View>
           <View style={styles.support__status_security__secure}>
             Secure Connection
@@ -235,7 +235,7 @@ export default class Support extends Component<SupportProps, SupportState> {
       <View style={styles.support__form}>
         <View style={styles.support__form_row}>
           <View style={styles.support__status_icon}>
-            <Img source="icon-success" alt="" />
+            <Img source="icon-success" height={60} width={60} alt="" />
           </View>
           <Text style={styles.support__status_security__secure}>
             Secure Connection
@@ -262,7 +262,7 @@ export default class Support extends Component<SupportProps, SupportState> {
       <View style={styles.support__form}>
         <View style={styles.support__form_row}>
           <View style={styles.support__status_icon}>
-            <Img source="icon-fail" alt="" />
+            <Img source="icon-fail" height={60} width={60} alt="" />
           </View>
           <Text style={styles.support__status_security__secure}>
             Secure Connection

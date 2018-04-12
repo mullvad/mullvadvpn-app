@@ -82,7 +82,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
       <View style={styles.connect}>
         <View style={styles.status}>
           <View style={styles.status_icon}>
-            <Img source="icon-fail" height="60" width="60" alt="" />
+            <Img source="icon-fail" height={60} width={60} alt="" />
           </View>
           <View style={styles.error_title}>
             { error.title }
@@ -94,7 +94,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
             <View>
               <GreenButton onPress={ this.onExternalLink.bind(this, 'purchase') }>
                 <Label>Buy more time</Label>
-                <Img source='icon-extLink' height='16' width='16' />
+                <Img source='icon-extLink' height={16} width={16} />
               </GreenButton>
             </View>
             : null
@@ -164,7 +164,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           { /* show spinner when connecting */ }
           { isConnecting ?
             <View style={ styles.status_icon }>
-              <Img source="icon-spinner" height="60" width="60" alt="" ref={ this._updateMapOffset } />
+              <Img source='icon-spinner' height={60} width={60} alt="" ref={ this._updateMapOffset } />
             </View>
             : null
           }
@@ -225,7 +225,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
             <View style={styles.footer}>
               <TransparentButton onPress={ this.props.onSelectLocation }>
                 <Label>{ this.props.selectedRelayName }</Label>
-                <Img height='12' width='7' source='icon-chevron' />
+                <Img height={12} width={7} source='icon-chevron' />
               </TransparentButton>
               <GreenButton onPress={ this.props.onConnect } testName='secureConnection'>Secure my connection</GreenButton>
             </View>

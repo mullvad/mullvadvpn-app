@@ -1,46 +1,49 @@
 // @flow
 import * as React from 'react';
 import HeaderBar from './HeaderBar';
+import { View, Component } from 'reactxp';
 
 import type { HeaderBarProps } from './HeaderBar';
 
-export class Header extends React.Component<HeaderBarProps> {
+import styles from './LayoutStyles';
+
+export class Header extends Component {
+  props: HeaderBarProps;
   static defaultProps = HeaderBar.defaultProps;
 
   render() {
     return (
-      <div className="layout__header">
+      <View style={styles.header}>
         <HeaderBar { ...this.props } />
-      </div>
+      </View>
     );
   }
 }
 
+export class Container extends Component {
+  props: {
+    children: React.Node
+  }
 
-type ContainerProps = {
-  children?: React.Element<*>
-};
-
-export class Container extends React.Component<ContainerProps> {
   render() {
     return (
-      <div className="layout__container">
+      <View style={styles.container}>
         { this.props.children }
-      </div>
+      </View>
     );
   }
 }
 
-type LayoutProps = {
-  children?: React.Node
-};
+export class Layout extends Component {
+  props: {
+    children: Array<React.Node> | React.Node
+  }
 
-export class Layout extends React.Component<LayoutProps> {
   render() {
     return (
-      <div className="layout">
+      <View style={styles.layout}>
         { this.props.children }
-      </div>
+      </View>
     );
   }
 }

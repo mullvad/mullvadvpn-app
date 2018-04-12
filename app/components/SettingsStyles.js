@@ -4,7 +4,7 @@ import { colors } from '../config';
 export default Object.assign(createViewStyles({
   settings: {
     backgroundColor: colors.darkBlue,
-    height: '100%'
+    flex: 1,
   },
   settings__container:{
     flexDirection: 'column',

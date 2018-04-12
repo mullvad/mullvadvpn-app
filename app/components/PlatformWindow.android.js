@@ -1,10 +1,10 @@
 // @flow
-import React, { Component } from 'react';
+import * as React from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 
-export default class PlatformWindow extends Component {
+export default class PlatformWindow extends React.Component {
   props: {
-    children: Array<React.Element<*>> | React.Element<*>
+    children: Array<React.Node> | React.Node
   };
 
   render() {

@@ -66,7 +66,7 @@ export default class Account extends Component {
                       icon='icon-extLink'
                       testName='account__buymore'>
                       <Label>Buy more credit</Label>
-                      <Img source='icon-extLink' height='16' width='16' />
+                      <Img source='icon-extLink' height={16} width={16} />
                     </GreenButton>
                     <RedButton
                       onPress={ this.props.onLogout }

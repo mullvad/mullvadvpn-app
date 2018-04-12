@@ -47,6 +47,10 @@ export default {
     headerbar__settings_icon: {
       width: 24,
       height: 24,
+      color: colors.white60,
+    },
+    settings_icon_hover: {
+      color: colors.white,
     },
   }),
   ...createTextStyles({

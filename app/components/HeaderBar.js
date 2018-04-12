@@ -50,7 +50,7 @@ export default class HeaderBar extends Component {
 
         {this.props.showSettings ?
           <Button style={ styles.headerbar__settings } onPress={ this.props.onSettings } testName="headerbar__settings">
-            <Img source='icon-settings' style={ styles.headerbar__settings_icon } />
+            <Img source='icon-settings' style={ styles.headerbar__settings_icon } hoverStyle={ styles.settings_icon_hover }/>
           </Button>
           : null}
       </View>
