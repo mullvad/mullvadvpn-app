@@ -21,14 +21,14 @@ error_chain!{
     }
 }
 
-pub struct DnsMonitor {
+pub struct DnsSettings {
     backup: Option<String>,
     desired_dns: Option<Vec<String>>,
 }
 
-impl DnsMonitor {
+impl DnsSettings {
     pub fn new() -> Result<Self> {
-        Ok(DnsMonitor {
+        Ok(DnsSettings {
             backup: None,
             desired_dns: None,
         })
