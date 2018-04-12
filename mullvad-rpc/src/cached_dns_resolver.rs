@@ -190,8 +190,8 @@ mod tests {
 
     use std::fs::{self, File};
     use std::io::{Read, Write};
-    use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, Ordering};
 
     use self::filetime::FileTime;
     use self::tempdir::TempDir;

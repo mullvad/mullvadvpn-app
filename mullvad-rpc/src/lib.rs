@@ -23,10 +23,10 @@ extern crate tokio_core;
 
 extern crate mullvad_types;
 
-use chrono::offset::Utc;
 use chrono::DateTime;
-use jsonrpc_client_http::header::Host;
+use chrono::offset::Utc;
 use jsonrpc_client_http::HttpTransport;
+use jsonrpc_client_http::header::Host;
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};

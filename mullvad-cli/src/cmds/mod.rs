@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use Command;
+use std::collections::HashMap;
 
 mod account;
 pub use self::account::Account;

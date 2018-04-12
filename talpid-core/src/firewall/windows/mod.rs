@@ -35,7 +35,7 @@ impl Firewall for WindowsFirewall {
             unsafe { Wfpctl_Initialize(WFPCTL_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut()) };
         ok.into_result("initialise wfpctl").map(|_| {
             trace!("Successfully initialized wfpctl");
-            WindowsFirewall{_unused: []}
+            WindowsFirewall { _unused: [] }
         })
     }
 
@@ -137,12 +137,12 @@ impl WindowsFirewall {
 #[allow(non_snake_case)]
 mod ffi {
 
-    use super::{ErrorKind, Result};
     use super::libc;
+    use super::{ErrorKind, Result};
     use std::ffi::CStr;
     use std::os::raw::c_char;
-    use talpid_types::net::TransportProtocol;
     use std::ptr;
+    use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
     pub struct WfpCtlResult {

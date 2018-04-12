@@ -1,5 +1,5 @@
-use location::{CityCode, CountryCode};
 use CustomTunnelEndpoint;
+use location::{CityCode, CountryCode};
 
 use std::fmt;
 

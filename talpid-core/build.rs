@@ -39,9 +39,9 @@ mod win {
 
 #[cfg(windows)]
 fn main() {
-    use win::*;
     use std::env;
     use std::path::PathBuf;
+    use win::*;
 
     let wfpctl_dir = env::var_os("WFPCTL_INCLUDE_DIR")
         .map(PathBuf::from)
