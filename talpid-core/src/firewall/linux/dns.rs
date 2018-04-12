@@ -36,7 +36,7 @@ impl DnsSettings {
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         let new_state = match self.state.take() {
             None => State {
-                backup: read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?,
+                backup: read_config()?,
                 desired_dns: servers,
             },
             Some(previous_state) => State {
@@ -45,16 +45,16 @@ impl DnsSettings {
             },
         };
 
-        write_config(&new_state.desired_config()?)?;
+        let new_config = new_state.desired_config();
 
         self.state = Some(new_state);
 
-        Ok(())
+        write_config(&new_config)
     }
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.state.take() {
-            write_resolv_conf(&state.backup).chain_err(|| ErrorKind::WriteResolvConf)
+            write_config(&state.backup)
         } else {
             Ok(())
         }
@@ -62,21 +62,28 @@ impl DnsSettings {
 }
 
 struct State {
-    backup: String,
+    backup: Config,
     desired_dns: Vec<IpAddr>,
 }
 
 impl State {
-    fn desired_config(&self) -> Result<Config> {
-        let mut config = Config::parse(&self.backup).chain_err(|| ErrorKind::ParseResolvConf)?;
+    fn desired_config(&self) -> Config {
+        let mut config = self.backup.clone();
 
         config.nameservers = self.desired_dns
             .iter()
             .map(|&address| ScopedIp::from(address))
             .collect();
 
-        Ok(config)
+        config
     }
+}
+
+fn read_config() -> Result<Config> {
+    let contents = read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?;
+    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
+
+    Ok(config)
 }
 
 fn read_resolv_conf() -> io::Result<String> {
