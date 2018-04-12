@@ -17,6 +17,6 @@ const styles = {
   })
 };
 
-export default function getStyles() {
-  return styles
+export default () => {
+  return styles;
 };

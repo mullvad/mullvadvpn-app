@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Styles, Component, Animated, View, Types, UserInterface } from 'reactxp';
 import type { TransitionGroupProps } from '../transitions';
-import getStyles from './TransitionContainerStyles'
+import getStyles from './TransitionContainerStyles';
 
 type TransitionContainerProps = {
   children: React.Node,
