@@ -2,6 +2,7 @@ extern crate resolv_conf;
 
 use std::fs::File;
 use std::io::{self, Read, Write};
+use std::net::IpAddr;
 
 use self::resolv_conf::{Config, ScopedIp};
 
@@ -23,7 +24,7 @@ error_chain!{
 
 pub struct DnsSettings {
     backup: Option<String>,
-    desired_dns: Option<Vec<String>>,
+    desired_dns: Option<Vec<IpAddr>>,
 }
 
 impl DnsSettings {
@@ -34,7 +35,7 @@ impl DnsSettings {
         })
     }
 
-    pub fn set_dns(&mut self, servers: Vec<String>) -> Result<()> {
+    pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         if self.backup.is_none() {
             self.backup = Some(read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?);
         }
@@ -66,15 +67,7 @@ impl DnsSettings {
         if let Some(ref nameservers) = self.desired_dns {
             config.nameservers = nameservers
                 .iter()
-                .filter_map(
-                    |nameserver_string| match nameserver_string.parse::<ScopedIp>() {
-                        Ok(address) => Some(address),
-                        Err(_) => {
-                            error!("Invalid IP address for DNS: {}", nameserver_string);
-                            None
-                        }
-                    },
-                )
+                .map(|&address| ScopedIp::from(address))
                 .collect();
         } else {
             config.nameservers.clear();

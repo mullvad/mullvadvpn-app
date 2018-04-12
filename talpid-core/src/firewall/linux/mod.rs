@@ -29,7 +29,7 @@ impl Firewall for Netfilter {
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
         match policy {
             SecurityPolicy::Connected { tunnel, .. } => {
-                self.dns_settings.set_dns(vec![tunnel.gateway.to_string()])?;
+                self.dns_settings.set_dns(vec![tunnel.gateway.into()])?;
             }
             _ => (),
         }
