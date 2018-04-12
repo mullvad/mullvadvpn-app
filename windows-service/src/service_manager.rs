@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::ffi::OsStr;
 use std::{io, ptr};
 
-use widestring::{WideCString, WideString};
+use widestring::{NulError, WideCString, WideString};
 use winapi::um::winsvc;
 
 use service::{Service, ServiceAccess, ServiceInfo};
@@ -69,18 +69,8 @@ impl ServiceManager {
         database: Option<D>,
         request_access: ServiceManagerAccess,
     ) -> Result<Self> {
-        let machine_name = if let Some(machine_name) = machine {
-            Some(WideCString::from_str(machine_name).chain_err(|| ErrorKind::InvalidMachineName)?)
-        } else {
-            None
-        };
-
-        let database_name = if let Some(database_name) = database {
-            Some(WideCString::from_str(database_name).chain_err(|| ErrorKind::InvalidDatabaseName)?)
-        } else {
-            None
-        };
-
+        let machine_name = to_wide(machine).chain_err(|| ErrorKind::InvalidMachineName)?;
+        let database_name = to_wide(database).chain_err(|| ErrorKind::InvalidDatabaseName)?;
         let handle = unsafe {
             winsvc::OpenSCManagerW(
                 machine_name.map_or(ptr::null(), |s| s.as_ptr()),
@@ -122,17 +112,10 @@ impl ServiceManager {
             WideCString::from_str(service_info.name).chain_err(|| ErrorKind::InvalidServiceName)?;
         let display_name = WideCString::from_str(service_info.display_name)
             .chain_err(|| ErrorKind::InvalidDisplayName)?;
-        let account_name = if let Some(account_name) = service_info.account_name {
-            Some(WideCString::from_str(account_name).chain_err(|| ErrorKind::InvalidAccountName)?)
-        } else {
-            None
-        };
-        let account_password = if let Some(account_password) = service_info.account_password {
-            Some(WideCString::from_str(account_password)
-                .chain_err(|| ErrorKind::InvalidAccountPassword)?)
-        } else {
-            None
-        };
+        let account_name =
+            to_wide(service_info.account_name).chain_err(|| ErrorKind::InvalidAccountName)?;
+        let account_password =
+            to_wide(service_info.account_password).chain_err(|| ErrorKind::InvalidAccountPassword)?;
 
         // escape executable path and arguments and combine them into single command
         let escaped_executable_path =
@@ -199,5 +182,13 @@ impl ServiceManager {
 impl Drop for ServiceManager {
     fn drop(&mut self) {
         unsafe { winsvc::CloseServiceHandle(self.0) };
+    }
+}
+
+fn to_wide<T: AsRef<OsStr>>(s: Option<T>) -> ::std::result::Result<Option<WideCString>, NulError> {
+    if let Some(s) = s {
+        Ok(Some(WideCString::from_str(s)?))
+    } else {
+        Ok(None)
     }
 }

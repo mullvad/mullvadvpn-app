@@ -202,8 +202,8 @@ fn init_logger(log_level: log::LevelFilter, log_file: Option<&PathBuf>) -> Resul
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
     if let Some(ref log_file) = log_file {
-        let f = fern::log_file(log_file)
-            .chain_err(|| ErrorKind::WriteLogFile(log_file.to_path_buf()))?;
+        let f =
+            fern::log_file(log_file).chain_err(|| ErrorKind::WriteLogFile(log_file.to_path_buf()))?;
         let file_dispatcher = fern::Dispatch::new()
             .format(|out, message, record| format_log_message(out, message, record))
             .chain(f);
