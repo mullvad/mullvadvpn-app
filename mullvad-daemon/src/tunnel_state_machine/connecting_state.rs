@@ -8,13 +8,13 @@ use futures::sink::Wait;
 use futures::sync::mpsc;
 use futures::{Sink, Stream};
 
-use talpid_core::tunnel::{TunnelEvent, TunnelMonitor};
-use talpid_types::net::TunnelEndpointData;
+use talpid_core::tunnel::{TunnelEvent, TunnelMetadata, TunnelMonitor};
+use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
     AfterDisconnect, CloseHandle, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
     DisconnectingState, EventConsequence, Result, ResultExt, StateEntryResult, TunnelCommand,
-    TunnelParameters, TunnelState, TunnelStateWrapper, OPENVPN_LOG_FILENAME,
+    TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper, OPENVPN_LOG_FILENAME,
     WIREGUARD_LOG_FILENAME,
 };
 use logging;
@@ -30,11 +30,13 @@ const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
 pub struct ConnectingState {
     close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    tunnel_endpoint: TunnelEndpoint,
 }
 
 impl ConnectingState {
     fn new(parameters: TunnelParameters) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
+        let tunnel_endpoint = parameters.endpoint;
         let monitor = Self::spawn_tunnel_monitor(parameters, event_tx.wait())?;
         let close_handle = CloseHandle::new(&monitor);
 
@@ -43,6 +45,7 @@ impl ConnectingState {
         Ok(ConnectingState {
             close_handle,
             tunnel_events: event_rx,
+            tunnel_endpoint,
         })
     }
 
@@ -108,11 +111,17 @@ impl ConnectingState {
         });
     }
 
-    fn into_connected_state_bootstrap(self) -> ConnectedStateBootstrap {
+    fn into_connected_state_bootstrap(self, metadata: TunnelMetadata) -> ConnectedStateBootstrap {
         ConnectedStateBootstrap {
+            metadata,
             tunnel_events: self.tunnel_events,
+            tunnel_endpoint: self.tunnel_endpoint,
             close_handle: self.close_handle,
         }
+    }
+
+    pub fn info(&self) -> TunnelStateTransition {
+        TunnelStateTransition::Connecting(self.tunnel_endpoint)
     }
 
     fn handle_commands(
@@ -134,9 +143,9 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::Up(_)) => {
-                NewState(ConnectedState::enter(self.into_connected_state_bootstrap()))
-            }
+            Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
+                self.into_connected_state_bootstrap(metadata),
+            )),
             Ok(_) => SameState(self),
             Err(_) => NewState(DisconnectingState::enter((
                 self.close_handle.close(),

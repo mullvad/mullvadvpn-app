@@ -1,30 +1,41 @@
 use futures::sync::mpsc;
 use futures::Stream;
 
-use talpid_core::tunnel::TunnelEvent;
+use talpid_core::tunnel::{TunnelEvent, TunnelMetadata};
+use talpid_types::net::TunnelEndpoint;
 
 use super::{
     AfterDisconnect, CloseHandle, DisconnectingState, EventConsequence, StateEntryResult,
-    TunnelCommand, TunnelState, TunnelStateWrapper,
+    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 
 pub struct ConnectedStateBootstrap {
+    pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    pub tunnel_endpoint: TunnelEndpoint,
     pub close_handle: CloseHandle,
 }
 
 /// The tunnel is up and working.
 pub struct ConnectedState {
-    close_handle: CloseHandle,
+    metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    tunnel_endpoint: TunnelEndpoint,
+    close_handle: CloseHandle,
 }
 
 impl ConnectedState {
     fn from(bootstrap: ConnectedStateBootstrap) -> Self {
         ConnectedState {
-            close_handle: bootstrap.close_handle,
+            metadata: bootstrap.metadata,
             tunnel_events: bootstrap.tunnel_events,
+            tunnel_endpoint: bootstrap.tunnel_endpoint,
+            close_handle: bootstrap.close_handle,
         }
+    }
+
+    pub fn info(&self) -> TunnelStateTransition {
+        TunnelStateTransition::Connected(self.tunnel_endpoint, self.metadata.clone())
     }
 
     fn handle_commands(
