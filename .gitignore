@@ -7,3 +7,4 @@ build
 dist-assets/relays.json
 windows/winfw/bin/
 **/.vs/
+windns/bin/
