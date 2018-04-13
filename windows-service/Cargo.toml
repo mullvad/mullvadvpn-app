@@ -9,6 +9,7 @@ error-chain = "0.11"
 winapi = { version = "0.3", features = ["std", "winsvc", "winerror"] }
 widestring = "0.3.0"
 
-[target.'cfg(windows)'.dev-dependencies]
+[dev-dependencies]
+error-chain = "0.11"
 log = "0.4"
 simplelog = "0.5"
