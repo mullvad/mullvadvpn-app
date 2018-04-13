@@ -17,7 +17,7 @@ use std::{env, thread, time};
 use log::LevelFilter;
 use simplelog::{CombinedLogger, Config, TermLogger, WriteLogger};
 
-use windows_service::error_chain::ChainedError;
+use windows_service::ChainedError;
 use windows_service::service::{ServiceAccess, ServiceControl, ServiceErrorControl, ServiceInfo,
                                ServiceStartType, ServiceState, ServiceType};
 use windows_service::service_control_handler::{ServiceControlHandler, ServiceControlHandlerResult};
