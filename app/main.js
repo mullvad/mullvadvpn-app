@@ -95,9 +95,14 @@ const appDelegate = {
     ipcMain.on('hide-window', () => window.hide());
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
-    if (process.platform !== 'linux') {
+    if (process.platform === 'linux') {
       window.on('close', () => {
         log.debug('The browser window is closing, shutting down the tunnel...');
+        window.webContents.send('disconnect');
+      });
+    } else {
+      window.on('close', () => {
+        log.debug('The browser window is closing, shutting down the daemon...');
         window.webContents.send('shutdown');
       });
     }

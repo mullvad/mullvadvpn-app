@@ -47,6 +47,14 @@ ipcRenderer.on('shutdown', () => {
       log.warn('Unable to shut down the backend', e.message);
     });
 });
+
+ipcRenderer.on('disconnect', () => {
+  log.info('Been told by the node process to disconnect the tunnel');
+  backend.disconnect()
+    .catch( e => {
+      log.warn('Unable to disconnect the tunnel', e.message);
+    });
+});
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
