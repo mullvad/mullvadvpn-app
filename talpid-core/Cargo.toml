@@ -27,3 +27,7 @@ pfctl = "0.1"
 system-configuration = "0.1"
 core-foundation = "0.5"
 tokio-core = "0.1"
+
+[target.'cfg(windows)'.dependencies]
+libc = "0.2.20"
+widestring = "0.3"
