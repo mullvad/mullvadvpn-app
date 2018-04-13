@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="wmi\connection.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="comlol.h" />
+    <ClInclude Include="wmi\resultset.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="wmi\iconnection.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="dnsregistry.h" />
+    <ClInclude Include="windns.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="wmi\connection.cpp">
+      <Filter>wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="wmi\resultset.cpp">
+      <Filter>wmi</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="wmi">
+      <UniqueIdentifier>{5deb73ee-53cc-49ac-bcdd-0a4b38914f0e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
