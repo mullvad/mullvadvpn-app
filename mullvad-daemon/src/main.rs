@@ -55,6 +55,7 @@ mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
 mod system_service;
+mod tunnel_state_machine;
 mod version;
 
 use error_chain::ChainedError;
