@@ -3,9 +3,11 @@
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
-pub extern crate error_chain;
+extern crate error_chain;
 extern crate widestring;
 extern crate winapi;
+
+pub use error_chain::ChainedError;
 
 pub mod service;
 pub mod service_control_handler;
