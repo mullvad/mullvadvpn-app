@@ -87,10 +87,10 @@ fn main() {
             _ => warn!("Unsupported command: {}", command),
         }
     } else {
-        info!("Usage:");
-        info!("--install-service to install the service");
-        info!("--remove-service to uninstall the service");
-        info!("--run-service to run the service");
+        println!("Usage:");
+        println!("--install-service to install the service");
+        println!("--remove-service to uninstall the service");
+        println!("--run-service to run the service");
     }
 }
 
