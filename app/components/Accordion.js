@@ -49,7 +49,8 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
 
   shouldComponentUpdate(nextProps: AccordionProps, nextState: AccordionState) {
     return nextState.animatedValue !== this.state.animatedValue ||
-           nextProps.height !== this.props.height;
+           nextProps.height !== this.props.height ||
+           nextProps.children !== this.props.children;
   }
 
   componentDidUpdate(prevProps: AccordionProps, _prevState: AccordionState) {
