@@ -7,11 +7,11 @@ export default {
   ...createViewStyles({
     account: {
       backgroundColor: colors.darkBlue,
-      height: '100%',
+      flex: 1,
     },
     account__container: {
       flexDirection: 'column',
-      height: '100%',
+      flex: 1,
       paddingBottom: 48,
     },
     account__header: {

@@ -4,9 +4,6 @@ import { colors } from '../config';
 
 export default {
   ...createViewStyles({
-    login: {
-      height: '100%',
-    },
     login_footer: {
       backgroundColor: colors.darkBlue,
       paddingTop: 18,
@@ -22,7 +19,6 @@ export default {
     login_form:{
       flex:1,
       flexDirection: 'column',
-      justifyContent: 'flex_end',
       overflow:'visible',
       paddingTop: 0,
       paddingBottom: 0,
@@ -59,23 +55,33 @@ export default {
     account_input_textfield__inactive: {
       backgroundColor: colors.white60,
     },
-    account_input_button: {
+    input_button: {
       flex: 0,
-      border: 0,
+      borderWidth: 0,
+      width: 48,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    input_button__invisible: {
+      backgroundColor: colors.white,
+      opacity: 0,
+    },
+    input_arrow: {
+      flex: 0,
+      borderWidth: 0,
       width: 48,
       alignItems: 'center',
       justifyContent: 'center',
       color: colors.blue20,
     },
-    account_input_button__active: {
+    input_arrow__active: {
       color: colors.white,
     },
-    account_input_button__invisible: {
+    input_arrow__invisible: {
       color: colors.white,
-      backgroundColor: colors.white,
-      visibility: 'hidden',
       opacity: 0,
     },
+
     account_dropdown__spacer: {
       height: 1,
       backgroundColor: colors.darkBlue,
@@ -131,20 +137,19 @@ export default {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '600',
-
-      letterSpaceing: -0.2,
+      letterSpacing: -0.2,
       color: colors.white80,
       marginBottom: 8,
     },
     account_input_textfield: {
-      border: 0,
+      borderWidth: 0,
       paddingTop: 10,
       paddingRight: 12,
       paddingLeft: 12,
       paddingBottom: 12,
       fontFamily: 'DINPro',
       fontSize: 20,
-      fontWeight: 900,
+      fontWeight: '900',
       lineHeight: 26,
       color: colors.blue,
       backgroundColor: 'transparent',
@@ -157,7 +162,7 @@ export default {
       fontWeight: '900',
       lineHeight: 26,
       color: colors.blue80,
-      border: 0,
+      borderWidth: 0,
       textAlign: 'left',
       marginLeft: 0,
     },

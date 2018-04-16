@@ -6,7 +6,7 @@ export default {
   ...createViewStyles({
     select_location: {
       backgroundColor: colors.darkBlue,
-      height: '100%',
+      flex: 1,
     },
     container: {
       flexDirection: 'column',

@@ -1,7 +1,7 @@
 // @flow
 import React, { Component }  from 'react';
 import { StyleSheet } from 'react-native';
-import { Image } from 'reactxp';
+import { Image, Styles } from 'reactxp';
 
 export default class Img extends Component {
   props: {
@@ -21,11 +21,11 @@ export default class Img extends Component {
     if (tintColor === 'currentColor' && this.props.style) {
       const { color: tint, ...otherStyles } = StyleSheet.flatten(this.props.style);
       return(
-        <Image style={[ otherStyles, { tintColor: tint, height: height, width: width } ]} source={ source }/>
+        <Image style={Styles.createViewStyle({ ...otherStyles, tintColor: tint, height: height, width: width }, false)} source={ source }/>
       );
     } else {
       return(
-        <Image style={[ this.props.style, { height: height, width: width } ]} source={ source }/>
+        <Image style={Styles.createViewStyle({ ...this.props.style, height: height, width: width }, false)} source={ source }/>
       );
     }
   }

@@ -127,7 +127,7 @@ function BaseLayout(props) {
           onPress={ props.onClose }
           testName='closeButton'>
           <View style={ styles.advanced_settings__close_content }>
-            <Img style={ styles.advanced_settings__close_icon } source="icon-back" />
+            <Img height={24} width={24} style={ styles.advanced_settings__close_icon } source="icon-back" />
             <Text style={ styles.advanced_settings__close_title }>Settings</Text>
           </View>
         </Button>

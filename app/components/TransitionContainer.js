@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Styles, Component, Animated, View, Types, UserInterface } from 'reactxp';
 import type { TransitionGroupProps } from '../transitions';
+import getStyles from './TransitionContainerStyles';
 
 type TransitionContainerProps = {
   children: React.Node,
@@ -16,11 +17,6 @@ type State = {
     dimensions: Types.Dimensions,
 };
 
-const transitionContainerStyle = Styles.createViewStyle({
-  flex: 1,
-  position: 'relative'
-});
-
 export default class TransitionContainer extends Component<TransitionContainerProps, State> {
 
   constructor(props: TransitionContainerProps) {
@@ -30,16 +26,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
 
     this.state = {
       dimensions,
-      animationStyles: {
-        style: Styles.createAnimatedViewStyle({
-          position: 'absolute',
-          width: dimensions.width,
-          height: dimensions.height,
-        }),
-        allowPointerEvents: Styles.createAnimatedViewStyle({
-          pointerEvents: 'auto',
-        })
-      }
     };
   }
 
@@ -64,7 +50,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
 
   onFinishedAnimation() {
     this.setState({
-      childrenAnimation: this.state.animationStyles.allowPointerEvents,
+      childrenAnimation: getStyles().allowPointerEventsStyle,
       previousChildren: null
     });
   }
@@ -88,7 +74,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: 0,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: true,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -112,7 +97,6 @@ export default class TransitionContainer extends Component<TransitionContainerPr
         toValue: this.state.dimensions.height,
         easing: Animated.Easing.InOut(),
         duration: nextProps.duration,
-        useNativeDriver: true,
       }).start(() => this.onFinishedAnimation());
     });
   }
@@ -138,13 +122,11 @@ export default class TransitionContainer extends Component<TransitionContainerPr
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         }),
         Animated.timing(previousTranslationValue, {
           toValue: - this.state.dimensions.width / 2,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         })
       ]);
       compositeAnimation.start(() => this.onFinishedAnimation());
@@ -172,13 +154,11 @@ export default class TransitionContainer extends Component<TransitionContainerPr
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         }),
         Animated.timing(previousTranslationValue, {
           toValue: this.state.dimensions.width,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-          useNativeDriver: true,
         })
       ]);
       compositeAnimation.start(() => this.onFinishedAnimation());
@@ -189,15 +169,14 @@ export default class TransitionContainer extends Component<TransitionContainerPr
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
     return (
-      <View style={[ transitionContainerStyle ]}>
-
+      <View style={ getStyles().transitionContainerStyle }>
         { previousChildren &&
           (<Animated.View key={ previousChildren && previousChildren.key }
-            style={[this.state.animationStyles.style, previousChildrenAnimation]}>
+            style={[getStyles().animationDefaultStyle, previousChildrenAnimation]}>
             { previousChildren }
           </Animated.View>) }
 
-        <Animated.View key={ children.key } style={[this.state.animationStyles.style, childrenAnimation]}>
+        <Animated.View key={ children.key } style={[getStyles().animationDefaultStyle, childrenAnimation]}>
           { children }
         </Animated.View>
 

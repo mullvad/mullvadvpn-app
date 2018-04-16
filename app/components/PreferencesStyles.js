@@ -6,7 +6,7 @@ export default {
   ...createViewStyles({
     preferences: {
       backgroundColor: colors.darkBlue,
-      height: '100%',
+      flex: 1,
     },
     preferences__container: {
       display: 'flex',
