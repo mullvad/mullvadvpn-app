@@ -46,6 +46,9 @@ pub mod rest;
 mod cached_dns_resolver;
 use cached_dns_resolver::CachedDnsResolver;
 
+mod https_client_with_sni;
+use https_client_with_sni::HttpsClientWithSni;
+
 static MASTER_API_HOST: &str = "api.mullvad.net";
 
 
@@ -77,7 +80,8 @@ impl MullvadRpcFactory {
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
     pub fn new_connection(&mut self) -> Result<HttpHandle, HttpError> {
-        self.setup_connection(HttpTransport::new()?)
+        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
+        self.setup_connection(HttpTransport::with_client(client)?)
     }
 
     /// Create and returns a `HttpHandle` running on the given core handle.
@@ -85,7 +89,8 @@ impl MullvadRpcFactory {
         &mut self,
         handle: &Handle,
     ) -> Result<HttpHandle, HttpError> {
-        self.setup_connection(HttpTransport::shared(handle)?)
+        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
+        self.setup_connection(HttpTransport::with_client_shared(client, handle)?)
     }
 
     fn setup_connection(&mut self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
