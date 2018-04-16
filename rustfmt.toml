@@ -1,7 +1,4 @@
 # Activation of features, almost objectively better ;)
-reorder_imports = true
-reorder_imported_names = true
-reorder_imports_in_group = true
 use_try_shorthand = true
 condense_wildcard_suffixes = true
 normalize_comments = true
