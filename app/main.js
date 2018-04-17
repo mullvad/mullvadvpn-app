@@ -95,10 +95,17 @@ const appDelegate = {
     ipcMain.on('hide-window', () => window.hide());
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
-    window.on('close', () => {
-      log.debug('The browser window is closing, shutting down the tunnel...');
-      window.webContents.send('shutdown');
-    });
+    if (process.platform === 'linux') {
+      window.on('close', () => {
+        log.debug('The browser window is closing, shutting down the tunnel...');
+        window.webContents.send('disconnect');
+      });
+    } else {
+      window.on('close', () => {
+        log.debug('The browser window is closing, shutting down the daemon...');
+        window.webContents.send('shutdown');
+      });
+    }
 
     ipcMain.on('collect-logs', (event, id, toRedact) => {
       log.info('Collecting logs in', appDelegate._logFileLocation);
