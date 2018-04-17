@@ -41,6 +41,9 @@ impl ServiceStatusHandle {
     }
 }
 
+// Underlying SERVICE_STATUS_HANDLE is thread safe.
+// See remarks section for more info:
+// https://msdn.microsoft.com/en-us/library/windows/desktop/ms686241(v=vs.85).aspx
 unsafe impl Send for ServiceStatusHandle {}
 
 /// Abstraction over the return value of service control handler.
@@ -68,56 +71,39 @@ impl ServiceControlHandlerResult {
     }
 }
 
-/// The only useful codes that can be returned from this function are `NO_ERROR`,
-/// `ERROR_CALL_NOT_IMPLEMENTED`
-type HandlerFn<'a> = Fn(&'a ServiceStatusHandle, ServiceControl) -> ServiceControlHandlerResult;
+/// Alias for control event handler closure.
+type HandlerFn = Fn(ServiceControl) -> ServiceControlHandlerResult;
 
-/// Struct that describes a service event handler.
-/// Since this struct connects to the service control dispatcher
-/// it should be only instantiated from `service_main`.
-pub struct ServiceControlHandler<'a> {
-    status_handle: Option<ServiceStatusHandle>,
-    handler_closure: &'a HandlerFn<'a>,
+/// Private struct used as a context for `service_control_handler`.
+struct ServiceControlHandlerContext<'a> {
+    event_handler: &'a HandlerFn,
 }
 
-impl<'a> ServiceControlHandler<'a> {
-    pub fn new<T: AsRef<OsStr>>(
-        service_name: T,
-        handler_closure: &'a HandlerFn<'a>,
-    ) -> Result<Self> {
-        let mut handler = ServiceControlHandler {
-            status_handle: None,
-            handler_closure,
-        };
+pub fn register_control_handler<S: AsRef<OsStr>>(
+    service_name: S,
+    event_handler: &HandlerFn,
+) -> Result<ServiceStatusHandle> {
+    let boxed_context: Box<ServiceControlHandlerContext> =
+        Box::new(ServiceControlHandlerContext { event_handler });
 
-        // Danger: pass the pointer to this instance via context
-        let context = &mut handler as *mut _ as *mut ::std::os::raw::c_void;
+    // Important: leak the Box<ServiceControlHandlerContext> which will be released in
+    // `service_control_handler`.
+    let context = Box::into_raw(boxed_context) as *mut ::std::os::raw::c_void;
 
-        let service_name =
-            WideCString::from_str(service_name).chain_err(|| ErrorKind::InvalidServiceName)?;
-        let status_handle = unsafe {
-            winsvc::RegisterServiceCtrlHandlerExW(
-                service_name.as_ptr(),
-                Some(service_control_handler),
-                context,
-            )
-        };
+    let service_name =
+        WideCString::from_str(service_name).chain_err(|| ErrorKind::InvalidServiceName)?;
+    let status_handle = unsafe {
+        winsvc::RegisterServiceCtrlHandlerExW(
+            service_name.as_ptr(),
+            Some(service_control_handler),
+            context,
+        )
+    };
 
-        if status_handle.is_null() {
-            Err(io::Error::last_os_error().into())
-        } else {
-            handler.status_handle = Some(ServiceStatusHandle::from_handle(status_handle));
-            Ok(handler)
-        }
-    }
-
-    pub fn get_status_handle(&self) -> &ServiceStatusHandle {
-        self.status_handle.as_ref().unwrap()
-    }
-
-    fn handle_event(&'a self, control: ServiceControl) -> ServiceControlHandlerResult {
-        let status_handle = self.status_handle.as_ref().unwrap();
-        (self.handler_closure)(status_handle, control)
+    if status_handle.is_null() {
+        Err(io::Error::last_os_error().into())
+    } else {
+        Ok(ServiceStatusHandle::from_handle(status_handle))
     }
 }
 
@@ -129,12 +115,25 @@ extern "system" fn service_control_handler(
     _event_data: *mut ::std::os::raw::c_void,
     context: *mut ::std::os::raw::c_void,
 ) -> u32 {
-    // Danger: cast the context to ServiceControlHandler
-    let event_handler = unsafe { &*(context as *mut ServiceControlHandler) };
-    let service_control = ServiceControl::from_raw(control);
+    // Important: cast context to Box<ServiceControlHandlerContext>> but do not take ownership.
+    let boxed_context = unsafe { &mut *(context as *mut ServiceControlHandlerContext) };
 
-    match service_control {
-        Ok(service_control) => event_handler.handle_event(service_control).to_raw(),
+    match ServiceControl::from_raw(control) {
+        Ok(service_control) => {
+            let return_code = ((boxed_context.event_handler)(service_control)).to_raw();
+
+            // Important: release context upon Stop, Shutdown or Preshutdown at the end of the
+            // service lifecycle.
+            match service_control {
+                ServiceControl::Stop | ServiceControl::Shutdown | ServiceControl::Preshutdown => {
+                    let _owned_boxed_content: Box<ServiceControlHandlerContext> =
+                        unsafe { Box::from_raw(context as *mut ServiceControlHandlerContext) };
+                }
+                _ => (),
+            };
+
+            return_code
+        }
 
         // Report all unknown control commands as unimplemented
         Err(_) => ServiceControlHandlerResult::NotImplemented.to_raw(),
