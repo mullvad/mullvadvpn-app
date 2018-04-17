@@ -111,6 +111,10 @@ impl<'a> ServiceControlHandler<'a> {
         }
     }
 
+    pub fn get_status_handle(&self) -> &ServiceStatusHandle {
+        self.status_handle.as_ref().unwrap()
+    }
+
     fn handle_event(&'a self, control: ServiceControl) -> ServiceControlHandlerResult {
         let status_handle = self.status_handle.as_ref().unwrap();
         (self.handler_closure)(status_handle, control)
