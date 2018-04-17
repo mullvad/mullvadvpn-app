@@ -27,7 +27,7 @@ mod simple_service {
     use std::{env, thread, time};
 
     use log::LevelFilter;
-    use simplelog::{CombinedLogger, Config, TermLogger, WriteLogger};
+    use simplelog::{CombinedLogger, Config, WriteLogger};
 
     use windows_service::ChainedError;
     use windows_service::service::{ServiceAccess, ServiceControl, ServiceErrorControl, ServiceInfo,
@@ -61,27 +61,28 @@ mod simple_service {
     }
 
     pub fn run() {
-        if let Err(err) = init_logger() {
-            panic!("Unable to initialize logger: {}", err.display_chain());
-        }
-
         if let Some(command) = env::args().nth(1) {
             match command.as_ref() {
                 "--install-service" => {
                     if let Err(e) = install_service() {
-                        error!("{}", e.display_chain());
+                        println!("{}", e.display_chain());
                     } else {
-                        info!("Installed the service.");
+                        println!("Installed the service.");
                     }
                 }
                 "--remove-service" => {
                     if let Err(e) = remove_service() {
-                        error!("{}", e.display_chain());
+                        println!("{}", e.display_chain());
                     } else {
-                        info!("Removed the service.");
+                        println!("Removed the service.");
                     }
                 }
                 "--run-service" => {
+                    // Setup file logger since there is no stdout when running as a service.
+                    if let Err(err) = init_logger() {
+                        panic!("Unable to initialize logger: {}", err.display_chain());
+                    }
+
                     // Start the service dispatcher.
                     // This will block current thread until the service stopped.
                     let result = service_dispatcher::start_dispatcher(SERVICE_NAME, service_main);
@@ -95,7 +96,7 @@ mod simple_service {
                         }
                     };
                 }
-                _ => warn!("Unsupported command: {}", command),
+                _ => println!("Unsupported command: {}", command),
             }
         } else {
             println!("Usage:");
@@ -170,12 +171,12 @@ mod simple_service {
             match service_status.current_state {
                 ServiceState::StopPending => (),
                 ServiceState::Stopped => {
-                    info!("Removing the service...");
+                    println!("Removing the service...");
                     service.delete().chain_err(|| ErrorKind::RemoveService)?;
                     return Ok(()); // explicit return
                 }
                 _ => {
-                    info!("Stopping the service...");
+                    println!("Stopping the service...");
                     service.stop().chain_err(|| ErrorKind::RemoveService)?;
                 }
             }
@@ -210,11 +211,9 @@ mod simple_service {
             .open(log_file_path.as_path())
             .chain_err(|| ErrorKind::OpenLogFile(log_file_path))?;
 
-        let terminal_logger =
-            TermLogger::new(LevelFilter::Trace, Config::default()).chain_err(|| ErrorKind::InitLogger)?;
         let file_logger = WriteLogger::new(LevelFilter::Trace, Config::default(), log_file);
 
-        CombinedLogger::init(vec![terminal_logger, file_logger]).chain_err(|| ErrorKind::InitLogger)
+        CombinedLogger::init(vec![file_logger]).chain_err(|| ErrorKind::InitLogger)
     }
 
 }
