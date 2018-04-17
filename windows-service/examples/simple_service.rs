@@ -192,7 +192,7 @@ mod simple_service {
             start_type: ServiceStartType::OnDemand,
             error_control: ServiceErrorControl::Normal,
             executable_path: env::current_exe().unwrap(),
-            launch_arguments: vec![OsString::from("--service")],
+            launch_arguments: vec![OsString::from("--run-service")],
             account_name: None, // run as System
             account_password: None,
         }
