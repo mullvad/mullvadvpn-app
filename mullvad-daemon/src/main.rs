@@ -75,7 +75,7 @@ use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
@@ -755,11 +755,7 @@ impl Daemon {
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {
         let error_tx = self.tx.clone();
         thread::spawn(move || {
-            let start = Instant::now();
-            let result = tunnel_monitor.wait();
-            if let Some(sleep_dur) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
-                thread::sleep(sleep_dur);
-            }
+            let result = tunnel_monitor.wait_at_least(MIN_TUNNEL_ALIVE_TIME);
             let _ = error_tx.send(DaemonEvent::TunnelExited(result));
             trace!("Tunnel monitor thread exit");
         });

@@ -9,6 +9,8 @@ use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
+use std::thread;
+use std::time::{Duration, Instant};
 
 use talpid_types::net::{
     Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData, TunnelOptions,
@@ -259,11 +261,22 @@ impl TunnelMonitor {
         CloseHandle(self.monitor.close_handle())
     }
 
-    /// Consumes the monitor and block until the tunnel exits or there is an error.
+    /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
         self.monitor
             .wait()
             .chain_err(|| ErrorKind::TunnelMonitoringError)
+    }
+
+    /// Consumes the monitor and blocks for at least the specified duration until the tunnel exits
+    /// or there is an error.
+    pub fn wait_at_least(self, duration: Duration) -> Result<()> {
+        let start = Instant::now();
+        let result = self.wait();
+        if let Some(sleep_dur) = duration.checked_sub(start.elapsed()) {
+            thread::sleep(sleep_dur);
+        }
+        result
     }
 }
 
