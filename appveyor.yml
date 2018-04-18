@@ -55,11 +55,6 @@ test_script:
   - cargo build
   - cargo test
 
-# Cache build binaries for faster builds next time
-cache:
-  - C:\Users\appveyor\.cargo\registry
-  - target
-
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
 
