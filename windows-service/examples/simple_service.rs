@@ -171,8 +171,7 @@ mod simple_service {
             }
         };
 
-        let result =
-            service_control_handler::register_control_handler(SERVICE_NAME, &event_handler);
+        let result = service_control_handler::register_control_handler(SERVICE_NAME, event_handler);
         match result {
             Ok(status_handle) => {
                 run_service(status_handle, event_rx);
