@@ -17,7 +17,6 @@ use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
-use super::{OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME};
 use logging;
 
 error_chain! {
@@ -36,25 +35,28 @@ error_chain! {
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
+const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
+const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
+
 #[cfg(windows)]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
 #[cfg(not(windows))]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
 
-/// Spawn the tunnel state machine thread, returning a channel for sending tunnel requests.
+/// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub fn spawn<P, T>(
     cache_dir: P,
     state_change_listener: IntoSender<TunnelStateInfo, T>,
-) -> Result<mpsc::UnboundedSender<TunnelRequest>>
+) -> Result<mpsc::UnboundedSender<TunnelCommand>>
 where
     P: AsRef<Path> + Send + 'static,
     T: From<TunnelStateInfo> + Send + 'static,
 {
-    let (request_tx, request_rx) = mpsc::unbounded();
+    let (command_tx, command_rx) = mpsc::unbounded();
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
 
     thread::spawn(
-        move || match create_event_loop(cache_dir, request_rx, state_change_listener) {
+        move || match create_event_loop(cache_dir, command_rx, state_change_listener) {
             Ok((mut reactor, event_loop)) => {
                 startup_result_tx.send(Ok(())).expect(
                     "Tunnel state machine won't be started because the owner thread crashed",
@@ -77,12 +79,12 @@ where
     startup_result_rx
         .recv()
         .expect("Failed to start tunnel state machine thread")
-        .map(|_| request_tx)
+        .map(|_| command_tx)
 }
 
 fn create_event_loop<P, T>(
     cache_dir: P,
-    requests: mpsc::UnboundedReceiver<TunnelRequest>,
+    commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: IntoSender<TunnelStateInfo, T>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>)>
 where
@@ -90,7 +92,7 @@ where
     T: From<TunnelStateInfo> + Send + 'static,
 {
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
-    let state_machine = TunnelStateMachine::new(&cache_dir, requests)?;
+    let state_machine = TunnelStateMachine::new(&cache_dir, commands)?;
 
     let future = state_machine.for_each(move |state_change_event| {
         state_change_listener
@@ -101,15 +103,15 @@ where
     Ok((reactor, future))
 }
 
-/// Representation of external requests for the tunnel state machine.
-pub enum TunnelRequest {
-    /// Request to enable or disable LAN access in the firewall.
+/// Representation of external commands for the tunnel state machine.
+pub enum TunnelCommand {
+    /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
-    /// Request a tunnel to be opened.
+    /// Open tunnel connection.
     Connect(TunnelParameters),
-    /// Request the tunnel to restart if it has been previously requested to be opened.
+    /// Restart tunnel connection if it has been previously requested to be opened.
     Reconnect(TunnelParameters),
-    /// Request a tunnel to be closed.
+    /// Close tunnel connection.
     Disconnect,
 }
 
@@ -137,26 +139,26 @@ pub enum TunnelStateInfo {
 /// Asynchronous handling of the tunnel state machine.
 ///
 /// This type implements `Stream`, and attempts to advance the state machine based on the events
-/// received on the requests stream and possibly on events that specific states are also listening
+/// received on the commands stream and possibly on events that specific states are also listening
 /// to. Every time it successfully advances the state machine a `TunnelStateInfo` is emitted by the
 /// stream.
 struct TunnelStateMachine {
     current_state: Option<TunnelState>,
-    requests: mpsc::UnboundedReceiver<TunnelRequest>,
+    commands: mpsc::UnboundedReceiver<TunnelCommand>,
     shared_values: SharedTunnelStateValues,
 }
 
 impl TunnelStateMachine {
     fn new<P: AsRef<Path>>(
         cache_dir: P,
-        requests: mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
         let firewall = FirewallProxy::new(cache_dir).chain_err(|| ErrorKind::FirewallError)?;
         let shared_values = SharedTunnelStateValues { firewall };
 
         Ok(TunnelStateMachine {
             current_state: Some(TunnelState::from(DisconnectedState)),
-            requests,
+            commands,
             shared_values,
         })
     }
@@ -177,7 +179,7 @@ impl Stream for TunnelStateMachine {
         let mut event_was_ignored = true;
 
         while event_was_ignored {
-            let transition = state.handle_event(&mut self.requests, &mut self.shared_values);
+            let transition = state.handle_event(&mut self.commands, &mut self.shared_values);
 
             event_was_ignored = match transition {
                 SameState(_) => true,
@@ -257,13 +259,13 @@ trait TunnelStateProgress: Sized {
     /// when it has completed, or itself if it wants to ignore a received event or if no events were
     /// ready to be received. See [`TunnelStateTransition`] for more details.
     ///
-    /// An implementation can handle events from many sources, but it should also handle request
-    /// events received through the provided `requests` stream.
+    /// An implementation can handle events from many sources, but it should also handle command
+    /// events received through the provided `commands` stream.
     ///
     /// [`TunnelStateTransition`]: enum.TunnelStateTransition.html
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self>;
 }
@@ -291,7 +293,7 @@ macro_rules! try_handle_event {
 /// Valid states of the tunnel.
 ///
 /// All implementations must implement `TunnelStateProgress` so that they can handle events and
-/// requests in order to advance the state machine.
+/// commands in order to advance the state machine.
 enum TunnelState {
     Disconnected(DisconnectedState),
     Connecting(ConnectingState),
@@ -333,11 +335,11 @@ impl TunnelStateProgress for TunnelState {
     /// Main state function.
     ///
     /// This is the state entry point. It consumes itself and returns the next state to advance to
-    /// when it has completed, or `None` if the requests channel has closed. The requests channel
-    /// contains `TunnelRequest` events that are handled by the state to advance the state machine.
+    /// when it has completed, or `None` if the commands channel has closed. The commands channel
+    /// contains `TunnelCommand` events that are handled by the state to advance the state machine.
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<TunnelState> {
         use self::TunnelStateTransition::*;
@@ -347,7 +349,7 @@ impl TunnelStateProgress for TunnelState {
                 match self {
                     $(
                         TunnelState::$state(state) => {
-                            match state.handle_event(requests, shared_values) {
+                            match state.handle_event(commands, shared_values) {
                                 NewState(tunnel_state) => NewState(tunnel_state),
                                 SameState(state) => SameState(TunnelState::$state(state)),
                                 NoEvents(state) => NoEvents(TunnelState::$state(state)),
@@ -421,13 +423,13 @@ impl DisconnectedState {
 impl TunnelStateProgress for DisconnectedState {
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
-        match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(parameters)) => {
+        match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ConnectingState::start(shared_values, parameters))
             }
             _ => SameState(self),
@@ -588,28 +590,28 @@ impl ConnectingState {
         tunnel_close_event_rx
     }
 
-    fn handle_requests(
+    fn handle_commands(
         mut self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
-        match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(parameters)) => {
+        match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::Connect(parameters)) => {
                 if parameters != self.tunnel_parameters {
                     NewState(ReconnectingState::wait_for(self.close_handle, parameters))
                 } else {
                     SameState(self)
                 }
             }
-            Ok(TunnelRequest::Reconnect(parameters)) => {
+            Ok(TunnelCommand::Reconnect(parameters)) => {
                 NewState(ReconnectingState::wait_for(self.close_handle, parameters))
             }
-            Ok(TunnelRequest::Disconnect) | Err(_) => {
+            Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::wait_for(self.close_handle))
             }
-            Ok(TunnelRequest::AllowLan(allow_lan)) => {
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 self.tunnel_parameters.allow_lan = allow_lan;
                 match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
                     Ok(()) => SameState(self),
@@ -668,10 +670,10 @@ impl ConnectingState {
 impl TunnelStateProgress for ConnectingState {
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
-        self.handle_requests(requests, shared_values)
+        self.handle_commands(commands, shared_values)
             .or_else(Self::handle_tunnel_events, shared_values)
             .or_else(Self::handle_tunnel_close_event, shared_values)
     }
@@ -735,28 +737,28 @@ impl ConnectedState {
             .chain_err(|| "Failed to apply security policy for connected state")
     }
 
-    fn handle_requests(
+    fn handle_commands(
         mut self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
-        match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(parameters)) => {
+        match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::Connect(parameters)) => {
                 if parameters != self.tunnel_parameters {
                     NewState(ReconnectingState::wait_for(self.close_handle, parameters))
                 } else {
                     SameState(self)
                 }
             }
-            Ok(TunnelRequest::Reconnect(parameters)) => {
+            Ok(TunnelCommand::Reconnect(parameters)) => {
                 NewState(ReconnectingState::wait_for(self.close_handle, parameters))
             }
-            Ok(TunnelRequest::Disconnect) | Err(_) => {
+            Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::wait_for(self.close_handle))
             }
-            Ok(TunnelRequest::AllowLan(allow_lan)) => {
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 self.tunnel_parameters.allow_lan = allow_lan;
 
                 let set_security_policy_result = Self::set_security_policy(
@@ -814,10 +816,10 @@ impl ConnectedState {
 impl TunnelStateProgress for ConnectedState {
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
-        self.handle_requests(requests, shared_values)
+        self.handle_commands(commands, shared_values)
             .or_else(Self::handle_tunnel_events, shared_values)
             .or_else(Self::handle_tunnel_close_event, shared_values)
     }
@@ -838,14 +840,14 @@ impl DisconnectingState {
         Self::new(close_handle.close())
     }
 
-    fn handle_requests(
+    fn handle_commands(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
-        match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(parameters)) => {
+        match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ReconnectingState::new(self.exited, parameters))
             }
             _ => SameState(self),
@@ -868,10 +870,10 @@ impl DisconnectingState {
 impl TunnelStateProgress for DisconnectingState {
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
-        self.handle_requests(requests)
+        self.handle_commands(commands)
             .or_else(Self::handle_exit_event, shared_values)
     }
 }
@@ -891,21 +893,21 @@ impl ReconnectingState {
         Self::new(close_handle.close(), parameters)
     }
 
-    fn handle_requests(
+    fn handle_commands(
         mut self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
-        match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(parameters)) | Ok(TunnelRequest::Reconnect(parameters)) => {
+        match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::Connect(parameters)) | Ok(TunnelCommand::Reconnect(parameters)) => {
                 self.parameters = parameters;
                 SameState(self)
             }
-            Ok(TunnelRequest::Disconnect) | Err(_) => {
+            Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::new(self.exited))
             }
-            Ok(TunnelRequest::AllowLan(allow_lan)) => {
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 self.parameters.allow_lan = allow_lan;
                 SameState(self)
             }
@@ -930,10 +932,10 @@ impl ReconnectingState {
 impl TunnelStateProgress for ReconnectingState {
     fn handle_event(
         self,
-        requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> TunnelStateTransition<Self> {
-        self.handle_requests(requests)
+        self.handle_commands(commands)
             .or_else(Self::handle_exit_event, shared_values)
     }
 }
