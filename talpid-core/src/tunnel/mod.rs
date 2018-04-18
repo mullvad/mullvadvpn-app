@@ -280,7 +280,7 @@ impl TunnelMonitor {
         CloseHandle(self.monitor.close_handle())
     }
 
-    /// Consumes the monitor and block until the tunnel exits or there is an error.
+    /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
         self.monitor
             .wait()
