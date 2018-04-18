@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "mullvad-daemon",
+    "windows-service",
     "mullvad-cli",
     "mullvad-types",
     "mullvad-rpc",
