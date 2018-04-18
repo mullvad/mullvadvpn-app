@@ -6,13 +6,14 @@ use talpid_types::net::TunnelEndpoint;
 
 use super::{
     AfterDisconnect, CloseHandle, DisconnectingState, EventConsequence, StateEntryResult,
-    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_endpoint: TunnelEndpoint,
+    pub tunnel_parameters: TunnelParameters,
     pub close_handle: CloseHandle,
 }
 
@@ -21,6 +22,7 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
+    tunnel_parameters: TunnelParameters,
     close_handle: CloseHandle,
 }
 
@@ -30,6 +32,7 @@ impl ConnectedState {
             metadata: bootstrap.metadata,
             tunnel_events: bootstrap.tunnel_events,
             tunnel_endpoint: bootstrap.tunnel_endpoint,
+            tunnel_parameters: bootstrap.tunnel_parameters,
             close_handle: bootstrap.close_handle,
         }
     }
@@ -45,7 +48,16 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::Connect(_)) => SameState(self),
+            Ok(TunnelCommand::Connect(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(DisconnectingState::enter((
+                        self.close_handle.close(),
+                        AfterDisconnect::Reconnect(parameters),
+                    )))
+                } else {
+                    SameState(self)
+                }
+            }
             Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter((
                 self.close_handle.close(),
                 AfterDisconnect::Nothing,
@@ -59,7 +71,7 @@ impl ConnectedState {
         match try_handle_event!(self, self.tunnel_events.poll()) {
             Ok(TunnelEvent::Down) | Err(_) => NewState(DisconnectingState::enter((
                 self.close_handle.close(),
-                AfterDisconnect::Nothing,
+                AfterDisconnect::Reconnect(self.tunnel_parameters),
             ))),
             Ok(_) => SameState(self),
         }

@@ -76,6 +76,7 @@ pub enum TunnelCommand {
 }
 
 /// Information necessary to open a tunnel.
+#[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
     pub endpoint: TunnelEndpoint,
     pub options: TunnelOptions,
