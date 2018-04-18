@@ -262,6 +262,12 @@ export class Backend {
   }
 
   async connect() {
+    let current_state = await this._ipc.getState();
+    if (current_state.state === 'secured') {
+      log.debug('Refusing to connect as connection is already secured');
+      this._store.dispatch(connectionActions.connected());
+      return;
+    }
     try {
       this._store.dispatch(connectionActions.connecting());
 
@@ -472,11 +478,13 @@ export class Backend {
   }
 
   async _registerIpcListeners() {
+    log.debug('registerin ipc listeners');
     await this._ensureAuthenticated();
     this._ipc.registerStateListener(newState => {
       log.debug('Got new state from backend', newState);
 
       const newStatus = this._securityStateToConnectionState(newState);
+      log.debug('Got newStatus: ', newStatus);
       this._dispatchConnectionState(newStatus);
       this.sync();
     });
