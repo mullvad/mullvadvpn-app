@@ -70,11 +70,14 @@ where
 pub enum TunnelRequest {
     /// Request a tunnel to be opened.
     Connect(TunnelParameters),
+    /// Requst the tunnel to restart if it has been previously requested to be opened.
+    Reconnect(TunnelParameters),
     /// Request a tunnel to be closed.
     Disconnect,
 }
 
 /// Information necessary to open a tunnel.
+#[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
     pub endpoint: TunnelEndpoint,
     pub options: TunnelOptions,
@@ -350,7 +353,7 @@ impl TunnelStateProgress for DisconnectedState {
 
         match try_handle_event!(self, requests.poll()) {
             Ok(TunnelRequest::Connect(parameters)) => NewState(ConnectingState::start(parameters)),
-            Ok(TunnelRequest::Disconnect) | Err(_) => SameState(self),
+            _ => SameState(self),
         }
     }
 }
@@ -360,6 +363,7 @@ struct ConnectingState {
     close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
+    tunnel_parameters: TunnelParameters,
 }
 
 impl ConnectingState {
@@ -377,7 +381,7 @@ impl ConnectingState {
     fn new(parameters: TunnelParameters) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let tunnel_endpoint = parameters.endpoint;
-        let monitor = Self::spawn_tunnel_monitor(parameters, event_tx.wait())?;
+        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
         let close_handle = CloseHandle::new(&monitor);
 
         Self::spawn_tunnel_monitor_wait_thread(monitor);
@@ -386,11 +390,12 @@ impl ConnectingState {
             close_handle,
             tunnel_events: event_rx,
             tunnel_endpoint,
+            tunnel_parameters: parameters,
         })
     }
 
     fn spawn_tunnel_monitor(
-        parameters: TunnelParameters,
+        parameters: &TunnelParameters,
         events: Wait<mpsc::UnboundedSender<TunnelEvent>>,
     ) -> Result<TunnelMonitor> {
         let event_tx = Mutex::new(events);
@@ -462,7 +467,16 @@ impl ConnectingState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(_)) => SameState(self),
+            Ok(TunnelRequest::Connect(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(ReconnectingState::wait_for(self.close_handle, parameters))
+                } else {
+                    SameState(self)
+                }
+            }
+            Ok(TunnelRequest::Reconnect(parameters)) => {
+                NewState(ReconnectingState::wait_for(self.close_handle, parameters))
+            }
             Ok(TunnelRequest::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::wait_for(self.close_handle))
             }
@@ -478,6 +492,7 @@ impl ConnectingState {
                 self.tunnel_events,
                 self.close_handle,
                 self.tunnel_endpoint,
+                self.tunnel_parameters,
             )),
             Ok(_) => SameState(self),
             Err(_) => NewState(DisconnectingState::wait_for(self.close_handle)),
@@ -501,6 +516,7 @@ struct ConnectedState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
     metadata: TunnelMetadata,
+    tunnel_parameters: TunnelParameters,
 }
 
 impl ConnectedState {
@@ -509,12 +525,14 @@ impl ConnectedState {
         tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
         close_handle: CloseHandle,
         tunnel_endpoint: TunnelEndpoint,
+        tunnel_parameters: TunnelParameters,
     ) -> TunnelState {
         ConnectedState {
             close_handle,
             tunnel_events,
             tunnel_endpoint,
             metadata,
+            tunnel_parameters,
         }.into()
     }
 
@@ -529,7 +547,16 @@ impl ConnectedState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(_)) => SameState(self),
+            Ok(TunnelRequest::Connect(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(ReconnectingState::wait_for(self.close_handle, parameters))
+                } else {
+                    SameState(self)
+                }
+            }
+            Ok(TunnelRequest::Reconnect(parameters)) => {
+                NewState(ReconnectingState::wait_for(self.close_handle, parameters))
+            }
             Ok(TunnelRequest::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::wait_for(self.close_handle))
             }
@@ -540,9 +567,10 @@ impl ConnectedState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::Down) | Err(_) => {
-                NewState(DisconnectingState::wait_for(self.close_handle))
-            }
+            Ok(TunnelEvent::Down) | Err(_) => NewState(ReconnectingState::wait_for(
+                self.close_handle,
+                self.tunnel_parameters,
+            )),
             Ok(_) => SameState(self),
         }
     }
@@ -583,7 +611,7 @@ impl DisconnectingState {
             Ok(TunnelRequest::Connect(parameters)) => {
                 NewState(ReconnectingState::new(self.exited, parameters))
             }
-            Ok(TunnelRequest::Disconnect) | Err(_) => SameState(self),
+            _ => SameState(self),
         }
     }
 
@@ -623,13 +651,16 @@ impl ReconnectingState {
     }
 
     fn handle_requests(
-        self,
+        mut self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::Connect(_)) => SameState(self),
+            Ok(TunnelRequest::Connect(parameters)) | Ok(TunnelRequest::Reconnect(parameters)) => {
+                self.parameters = parameters;
+                SameState(self)
+            }
             Ok(TunnelRequest::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::new(self.exited))
             }
