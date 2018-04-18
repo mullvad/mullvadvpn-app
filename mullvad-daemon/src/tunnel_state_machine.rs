@@ -63,12 +63,15 @@ where
 /// Representation of external requests for the tunnel state machine.
 pub enum TunnelRequest {
     /// Request a tunnel to be opened.
-    StartTunnel(TunnelParameters),
+    Start(TunnelParameters),
+    /// Requst the tunnel to restart if it has been previously requested to be opened.
+    Restart(TunnelParameters),
     /// Request a tunnel to be closed.
-    CloseTunnel,
+    Close,
 }
 
 /// Information necessary to open a tunnel.
+#[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
     pub endpoint: TunnelEndpoint,
     pub options: TunnelOptions,
@@ -343,10 +346,8 @@ impl TunnelStateProgress for NotConnectedState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::StartTunnel(parameters)) => {
-                NewState(ConnectingState::start(parameters))
-            }
-            Ok(TunnelRequest::CloseTunnel) | Err(_) => SameState(self),
+            Ok(TunnelRequest::Start(parameters)) => NewState(ConnectingState::start(parameters)),
+            _ => SameState(self),
         }
     }
 }
@@ -356,6 +357,7 @@ struct ConnectingState {
     close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
+    tunnel_parameters: TunnelParameters,
 }
 
 impl ConnectingState {
@@ -373,7 +375,7 @@ impl ConnectingState {
     fn new(parameters: TunnelParameters) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let tunnel_endpoint = parameters.endpoint;
-        let monitor = Self::spawn_tunnel_monitor(parameters, event_tx.wait())?;
+        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
         let close_handle = CloseHandle::new(&monitor);
 
         Self::spawn_tunnel_monitor_wait_thread(monitor);
@@ -382,11 +384,12 @@ impl ConnectingState {
             close_handle,
             tunnel_events: event_rx,
             tunnel_endpoint,
+            tunnel_parameters: parameters,
         })
     }
 
     fn spawn_tunnel_monitor(
-        parameters: TunnelParameters,
+        parameters: &TunnelParameters,
         events: Wait<mpsc::UnboundedSender<TunnelEvent>>,
     ) -> Result<TunnelMonitor> {
         let event_tx = Mutex::new(events);
@@ -447,8 +450,17 @@ impl ConnectingState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::StartTunnel(_)) => SameState(self),
-            Ok(TunnelRequest::CloseTunnel) | Err(_) => {
+            Ok(TunnelRequest::Start(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(RestartingState::wait_for(self.close_handle, parameters))
+                } else {
+                    SameState(self)
+                }
+            }
+            Ok(TunnelRequest::Restart(parameters)) => {
+                NewState(RestartingState::wait_for(self.close_handle, parameters))
+            }
+            Ok(TunnelRequest::Close) | Err(_) => {
                 NewState(ExitingState::wait_for(self.close_handle))
             }
         }
@@ -463,6 +475,7 @@ impl ConnectingState {
                 self.tunnel_events,
                 self.close_handle,
                 self.tunnel_endpoint,
+                self.tunnel_parameters,
             )),
             Ok(_) => SameState(self),
             Err(_) => NewState(ExitingState::wait_for(self.close_handle)),
@@ -486,6 +499,7 @@ struct ConnectedState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
     metadata: TunnelMetadata,
+    tunnel_parameters: TunnelParameters,
 }
 
 impl ConnectedState {
@@ -494,12 +508,14 @@ impl ConnectedState {
         tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
         close_handle: CloseHandle,
         tunnel_endpoint: TunnelEndpoint,
+        tunnel_parameters: TunnelParameters,
     ) -> TunnelState {
         ConnectedState {
             close_handle,
             tunnel_events,
             tunnel_endpoint,
             metadata,
+            tunnel_parameters,
         }.into()
     }
 
@@ -514,8 +530,17 @@ impl ConnectedState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::StartTunnel(_)) => SameState(self),
-            Ok(TunnelRequest::CloseTunnel) | Err(_) => {
+            Ok(TunnelRequest::Start(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(RestartingState::wait_for(self.close_handle, parameters))
+                } else {
+                    SameState(self)
+                }
+            }
+            Ok(TunnelRequest::Restart(parameters)) => {
+                NewState(RestartingState::wait_for(self.close_handle, parameters))
+            }
+            Ok(TunnelRequest::Close) | Err(_) => {
                 NewState(ExitingState::wait_for(self.close_handle))
             }
         }
@@ -525,7 +550,10 @@ impl ConnectedState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::Down) | Err(_) => NewState(ExitingState::wait_for(self.close_handle)),
+            Ok(TunnelEvent::Down) | Err(_) => NewState(RestartingState::wait_for(
+                self.close_handle,
+                self.tunnel_parameters,
+            )),
             Ok(_) => SameState(self),
         }
     }
@@ -563,10 +591,10 @@ impl ExitingState {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::StartTunnel(parameters)) => {
+            Ok(TunnelRequest::Start(parameters)) => {
                 NewState(RestartingState::new(self.exited, parameters))
             }
-            Ok(TunnelRequest::CloseTunnel) | Err(_) => SameState(self),
+            _ => SameState(self),
         }
     }
 
@@ -606,14 +634,17 @@ impl RestartingState {
     }
 
     fn handle_requests(
-        self,
+        mut self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
         match try_handle_event!(self, requests.poll()) {
-            Ok(TunnelRequest::StartTunnel(_)) => SameState(self),
-            Ok(TunnelRequest::CloseTunnel) | Err(_) => NewState(ExitingState::new(self.exited)),
+            Ok(TunnelRequest::Start(parameters)) | Ok(TunnelRequest::Restart(parameters)) => {
+                self.parameters = parameters;
+                SameState(self)
+            }
+            Ok(TunnelRequest::Close) | Err(_) => NewState(ExitingState::new(self.exited)),
         }
     }
 
