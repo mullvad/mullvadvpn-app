@@ -40,6 +40,8 @@ export class BackendError extends Error {
 
   static localizedMessage(type: ErrorType, cause: ?Error): string {
 
+    // TODO: since instanceof now works, BackendError can be replaced by a set
+    // of specific error types
     switch(type) {
     case 'NO_CREDIT':
       return 'Buy more time, so you can continue using the internet securely';
