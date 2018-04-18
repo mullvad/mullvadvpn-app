@@ -16,13 +16,16 @@ pub struct ReconnectingState {
 
 impl ReconnectingState {
     fn handle_commands(
-        self,
+        mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::Connect(_)) => SameState(self),
+            Ok(TunnelCommand::Connect(parameters)) | Ok(TunnelCommand::Reconnect(parameters)) => {
+                self.parameters = parameters;
+                SameState(self)
+            }
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::enter(self.exited))
             }
