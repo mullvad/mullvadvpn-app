@@ -71,24 +71,24 @@ impl ServiceControlHandlerResult {
     }
 }
 
-/// Alias for control event handler closure.
-type HandlerFn = Fn(ServiceControl) -> ServiceControlHandlerResult;
-
-/// Private struct used as a context for `service_control_handler`.
-struct ServiceControlHandlerContext<'a> {
-    event_handler: &'a HandlerFn,
-}
-
-pub fn register_control_handler<S: AsRef<OsStr>>(
+/// Register a closure for receiving service events.
+/// Returns `ServiceStatusHandle` that can be used to report the service status back to the system.
+pub fn register_control_handler<
+    S: AsRef<OsStr>,
+    F: Fn(ServiceControl) -> ServiceControlHandlerResult + 'static,
+>(
     service_name: S,
-    event_handler: &HandlerFn,
+    event_handler: F,
 ) -> Result<ServiceStatusHandle> {
-    let boxed_context: Box<ServiceControlHandlerContext> =
-        Box::new(ServiceControlHandlerContext { event_handler });
+    // Move closure data on heap.
+    // The Box<HandlerFn> is a trait object and is stored on stack at this point.
+    let heap_event_handler = Box::new(event_handler) as Box<HandlerFn>;
 
-    // Important: leak the Box<ServiceControlHandlerContext> which will be released in
-    // `service_control_handler`.
-    let context = Box::into_raw(boxed_context) as *mut ::std::os::raw::c_void;
+    // Box again to move trait object to heap.
+    let boxed_event_handler: Box<Box<HandlerFn>> = Box::new(heap_event_handler);
+
+    // Important: leak the Box<Box<HandlerFn>> which will be released in `service_control_handler`.
+    let context = Box::into_raw(boxed_event_handler) as *mut ::std::os::raw::c_void;
 
     let service_name =
         WideCString::from_str(service_name).chain_err(|| ErrorKind::InvalidServiceName)?;
@@ -107,6 +107,9 @@ pub fn register_control_handler<S: AsRef<OsStr>>(
     }
 }
 
+/// Alias for control event handler closure.
+type HandlerFn = Fn(ServiceControl) -> ServiceControlHandlerResult;
+
 /// Static service control handler
 #[allow(dead_code)]
 extern "system" fn service_control_handler(
@@ -115,19 +118,19 @@ extern "system" fn service_control_handler(
     _event_data: *mut ::std::os::raw::c_void,
     context: *mut ::std::os::raw::c_void,
 ) -> u32 {
-    // Important: cast context to Box<ServiceControlHandlerContext>> but do not take ownership.
-    let boxed_context = unsafe { &mut *(context as *mut ServiceControlHandlerContext) };
+    // Important: cast context to &mut Box<HandlerFn> without taking ownership.
+    let handler_fn = unsafe { &mut *(context as *mut Box<HandlerFn>) };
 
     match ServiceControl::from_raw(control) {
         Ok(service_control) => {
-            let return_code = ((boxed_context.event_handler)(service_control)).to_raw();
+            let return_code = ((handler_fn)(service_control)).to_raw();
 
             // Important: release context upon Stop, Shutdown or Preshutdown at the end of the
             // service lifecycle.
             match service_control {
                 ServiceControl::Stop | ServiceControl::Shutdown | ServiceControl::Preshutdown => {
-                    let _owned_boxed_content: Box<ServiceControlHandlerContext> =
-                        unsafe { Box::from_raw(context as *mut ServiceControlHandlerContext) };
+                    let _owned_boxed_handler: Box<Box<HandlerFn>> =
+                        unsafe { Box::from_raw(context as *mut Box<HandlerFn>) };
                 }
                 _ => (),
             };
