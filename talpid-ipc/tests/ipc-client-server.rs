@@ -38,6 +38,10 @@ fn ipc_client_server() {
 
     let _result: () = client.call("foo", &[97]).unwrap();
     assert_eq!(Ok(97), rx.recv_timeout(Duration::from_millis(500)));
+
+    let result: Result<(), _> = client.call("invalid_method", &[0]);
+    assert_matches!(result, Err(_));
+    server.close_handle().close();
 }
 
 #[test]
@@ -47,7 +51,7 @@ fn ipc_client_invalid_url() {
 }
 
 #[test]
-fn ipc_client_invalid_method() {
+fn ipc_client_bad_connection() {
     let mut client = create_client("ws://127.0.0.1:9876".to_owned());
     let result: Result<(), _> = client.call("invalid_method", &[0]);
     assert_matches!(result, Err(_));
