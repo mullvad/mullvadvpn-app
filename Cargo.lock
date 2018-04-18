@@ -1582,6 +1582,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows-service"
+version = "0.1.0"
+dependencies = [
+ "bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "widestring 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "ws"
 version = "0.7.5"
 source = "git+https://github.com/tomusdrw/ws-rs#368ce39e2aa8700d568ca29dbacaecdf1bf749d1"
