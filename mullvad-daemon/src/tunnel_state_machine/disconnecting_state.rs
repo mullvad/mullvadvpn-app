@@ -25,7 +25,7 @@ impl DisconnectingState {
             Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ReconnectingState::enter((self.exited, parameters)))
             }
-            Ok(TunnelCommand::Disconnect) | Err(_) => SameState(self),
+            _ => SameState(self),
         }
     }
 

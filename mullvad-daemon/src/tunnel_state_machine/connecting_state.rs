@@ -13,8 +13,8 @@ use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
     CloseHandle, ConnectedState, ConnectedStateBootstrap, DisconnectedState, DisconnectingState,
-    EventConsequence, Result, ResultExt, StateEntryResult, TunnelCommand, TunnelParameters,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper, OPENVPN_LOG_FILENAME,
+    EventConsequence, ReconnectingState, Result, ResultExt, StateEntryResult, TunnelCommand,
+    TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper, OPENVPN_LOG_FILENAME,
     WIREGUARD_LOG_FILENAME,
 };
 use logging;
@@ -31,13 +31,14 @@ pub struct ConnectingState {
     close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
+    tunnel_parameters: TunnelParameters,
 }
 
 impl ConnectingState {
     fn new(parameters: TunnelParameters) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let tunnel_endpoint = parameters.endpoint;
-        let monitor = Self::spawn_tunnel_monitor(parameters, event_tx.wait())?;
+        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
         let close_handle = CloseHandle::new(&monitor);
 
         Self::spawn_tunnel_monitor_wait_thread(monitor);
@@ -46,11 +47,12 @@ impl ConnectingState {
             close_handle,
             tunnel_events: event_rx,
             tunnel_endpoint,
+            tunnel_parameters: parameters,
         })
     }
 
     fn spawn_tunnel_monitor(
-        parameters: TunnelParameters,
+        parameters: &TunnelParameters,
         events: Wait<mpsc::UnboundedSender<TunnelEvent>>,
     ) -> Result<TunnelMonitor> {
         let event_tx = Mutex::new(events);
@@ -116,6 +118,7 @@ impl ConnectingState {
             metadata,
             tunnel_events: self.tunnel_events,
             tunnel_endpoint: self.tunnel_endpoint,
+            tunnel_parameters: self.tunnel_parameters,
             close_handle: self.close_handle,
         }
     }
@@ -131,7 +134,20 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::Connect(_)) => SameState(self),
+            Ok(TunnelCommand::Connect(parameters)) => {
+                if parameters != self.tunnel_parameters {
+                    NewState(ReconnectingState::enter((
+                        self.close_handle.close(),
+                        parameters,
+                    )))
+                } else {
+                    SameState(self)
+                }
+            }
+            Ok(TunnelCommand::Reconnect(parameters)) => NewState(ReconnectingState::enter((
+                self.close_handle.close(),
+                parameters,
+            ))),
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::enter(self.close_handle.close()))
             }
