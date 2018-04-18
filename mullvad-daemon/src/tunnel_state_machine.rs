@@ -15,12 +15,14 @@ use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
-use super::{OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME};
 use logging;
 
 error_chain!{}
 
 const MIN_TUNNEL_ALIVE_TIME_MS: Duration = Duration::from_millis(1000);
+
+const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
+const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel requests.
 pub fn spawn<T>(
