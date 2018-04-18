@@ -22,9 +22,19 @@ impl DisconnectingState {
     ) -> EventConsequence<Self> {
         use self::AfterDisconnect::*;
 
-        self.after_disconnect = match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-            Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
+        let event = try_handle_event!(self, commands.poll());
+        let after_disconnect = self.after_disconnect;
+
+        self.after_disconnect = match after_disconnect {
+            Nothing => match event {
+                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
+                _ => Nothing,
+            },
+            Reconnect(_) => match event {
+                Ok(TunnelCommand::Connect(parameters))
+                | Ok(TunnelCommand::Reconnect(parameters)) => Reconnect(parameters),
+                Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
+            },
         };
 
         EventConsequence::SameState(self)

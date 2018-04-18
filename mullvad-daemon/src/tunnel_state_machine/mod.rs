@@ -71,11 +71,14 @@ where
 pub enum TunnelCommand {
     /// Open tunnel connection.
     Connect(TunnelParameters),
+    /// Restart tunnel connection if it has been previously requested to be opened.
+    Reconnect(TunnelParameters),
     /// Close tunnel connection.
     Disconnect,
 }
 
 /// Information necessary to open a tunnel.
+#[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
     pub endpoint: TunnelEndpoint,
     pub options: TunnelOptions,
