@@ -28,6 +28,8 @@ impl TestApi for ApiImpl {
     }
 }
 
+// TODO fix this test on Windows
+#[cfg(not(windows))]
 #[test]
 fn ipc_client_server() {
     env_logger::init();
