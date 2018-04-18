@@ -24,7 +24,7 @@ impl TunnelState for DisconnectedState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::Connect(parameters)) => NewState(ConnectingState::enter(parameters)),
-            Ok(TunnelCommand::Disconnect) | Err(_) => SameState(self),
+            _ => SameState(self),
         }
     }
 }
