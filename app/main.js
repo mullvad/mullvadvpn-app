@@ -161,6 +161,11 @@ const appDelegate = {
       await appDelegate._installDevTools();
       window.openDevTools({ mode: 'detach' });
     }
+
+    // Tray icon might not be supported on all linux distributions
+    if (process.platform === 'linux') {
+      window.show();
+    }
   },
 
   onAllWindowsClosed: () => {
@@ -294,6 +299,7 @@ const appDelegate = {
   },
 
   _createWindow: (): BrowserWindow => {
+    log.debug('Main process PID - ', process.pid);
     const contentHeight = 568;
     const options = {
       width: 320,
@@ -302,6 +308,7 @@ const appDelegate = {
       maximizable: false,
       fullscreenable: false,
       show: false,
+      frame: false,
       webPreferences: {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
@@ -317,7 +324,6 @@ const appDelegate = {
         ...options,
         // 12 is the size of transparent area around arrow
         height: contentHeight + 12,
-        frame: false,
         transparent: true
       });
 
@@ -331,8 +337,13 @@ const appDelegate = {
       // setup window flags to mimic an overlay window
       return new BrowserWindow({
         ...options,
-        frame: false,
         transparent: true
+      });
+
+    case 'linux':
+      return new BrowserWindow({
+        ...options,
+        show: true,
       });
 
     default:
@@ -515,7 +526,9 @@ const appDelegate = {
 
     // setup event handlers
     window.on('close', () => window.closeDevTools());
-    window.on('blur', () => !window.isDevToolsOpened() && window.hide());
+    if (process.platform !== 'linux') {
+      window.on('blur', () => !window.isDevToolsOpened() && window.hide());
+    }
 
     if(process.platform === 'darwin') {
       // disable icon highlight on macOS
