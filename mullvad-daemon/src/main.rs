@@ -991,6 +991,39 @@ mod system_service {
     }
 
     fn start_service(_arguments: Vec<OsString>) -> Result<()> {
+        let (event_tx, event_rx) = mpsc::channel();
+
+        // Register service event handler
+        let control_event_tx = event_tx.clone();
+        let event_handler = move |control_event| -> ServiceControlHandlerResult {
+            match control_event {
+                // Notifies a service to report its current status information to the service
+                // control manager. Always return NO_ERROR even if not implemented.
+                ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
+
+                ServiceControl::Shutdown | ServiceControl::Stop => {
+                    control_event_tx
+                        .send(ServiceEvent::Control(control_event))
+                        .unwrap();
+                    ServiceControlHandlerResult::NoError
+                }
+
+                _ => ServiceControlHandlerResult::NotImplemented,
+            }
+        };
+
+        // Register system service events handler
+        let status_handle =
+            service_control_handler::register_control_handler(SERVICE_NAME, event_handler)
+                .chain_err(|| "Failed to register a service control handler")?;
+
+        let start_duration_hint = Duration::from_secs(1);
+        update_service_status(
+            &status_handle,
+            ServiceStateUpdate::StartPending(start_duration_hint),
+        ).unwrap();
+
+        // Create daemon
         let windows_directory = ::std::env::var_os("WINDIR").unwrap();
         let tunnel_log_file = PathBuf::from(windows_directory)
             .join("Temp")
@@ -1001,39 +1034,17 @@ mod system_service {
             .chain_err(|| "Unable to initialize daemon")?;
         let shutdown_handle = daemon.shutdown_handle();
 
-        // Register service event handler
-        let event_handler = move |control_event| -> ServiceControlHandlerResult {
-            match control_event {
-                // Notifies a service to report its current status information to the service
-                // control manager. Always return NO_ERROR even if not implemented.
-                ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
+        // Register monitor that translates `ServiceEvent` to Daemon events
+        let event_monitor_thread =
+            start_event_monitor(status_handle.clone(), shutdown_handle, event_rx);
 
-                ServiceControl::Shutdown | ServiceControl::Stop => {
-                    shutdown_handle.shutdown();
-                    ServiceControlHandlerResult::NoError
-                }
-
-                _ => ServiceControlHandlerResult::NotImplemented,
-            }
-        };
-
-        let status_handle =
-            service_control_handler::register_control_handler(SERVICE_NAME, event_handler)
-                .chain_err(|| "Failed to register a service control handler")?;
-
-        // Chicken or egg problem: `ServiceState::StartPending` is never sent because
-        // `event_handler` needs `DaemonShutdownHandle`.
-        //
-        // At the same time Daemon seems to initialize quick enough so there is no need for
-        // explicit `ServiceState::StartPending` which the app enters automatically anyway.
-        //
-        // The difference in behavior may be that when Windows puts the app into
-        // `ServiceState::StartPending` state it probably uses some system default timeout to
-        // conclude that the service has hung. In case of explicit `StartPending` we can specify the
-        // approximate time until transition to `ServiceState::Running`.
         update_service_status(&status_handle, ServiceStateUpdate::Running).unwrap();
 
         let result = daemon.run();
+
+        // shutdown event monitor
+        event_tx.send(ServiceEvent::Shutdown).unwrap();
+        event_monitor_thread.join().unwrap();
 
         // TBD: Catch Daemon shutdown and change service status to `ServiceState::StopPending`
 
@@ -1045,9 +1056,43 @@ mod system_service {
         result
     }
 
+    /// Service event is a protocol between control handler and event monitor.
+    #[derive(Debug)]
+    enum ServiceEvent {
+        Control(ServiceControl),
+        Shutdown,
+    }
+
+    /// Start event monitor thread that polls for `ServiceEvent` and translates them into calls to
+    /// Daemon.
+    fn start_event_monitor(
+        status_handle: ServiceStatusHandle,
+        shutdown_handle: DaemonShutdownHandle,
+        event_rx: mpsc::Receiver<ServiceEvent>,
+    ) -> thread::JoinHandle<()> {
+        thread::spawn(move || match event_rx.recv().unwrap() {
+            ServiceEvent::Control(ServiceControl::Stop)
+            | ServiceEvent::Control(ServiceControl::Shutdown) => {
+                let shutdown_duration_hint = Duration::from_secs(3);
+
+                update_service_status(
+                    &status_handle,
+                    ServiceStateUpdate::StopPending(shutdown_duration_hint),
+                ).unwrap();
+
+                shutdown_handle.shutdown();
+            }
+            ServiceEvent::Shutdown => {
+                return;
+            }
+            _ => (),
+        })
+    }
+
     /// Checkpoint counter for ServiceState.
     static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+    /// Struct that logically groups information used at different stages of service lifecycle.
     #[derive(Debug)]
     enum ServiceStateUpdate {
         Running,
@@ -1081,15 +1126,16 @@ mod system_service {
 
         fn get_wait_hint(&self) -> Duration {
             match *self {
-                ServiceStateUpdate::StartPending(wait_hint) |
-                ServiceStateUpdate::StopPending(wait_hint) |
-                ServiceStateUpdate::ContinuePending(wait_hint) |
-                ServiceStateUpdate::PausePending(wait_hint) => wait_hint,
+                ServiceStateUpdate::StartPending(wait_hint)
+                | ServiceStateUpdate::StopPending(wait_hint)
+                | ServiceStateUpdate::ContinuePending(wait_hint)
+                | ServiceStateUpdate::PausePending(wait_hint) => wait_hint,
                 _ => Duration::default(),
             }
         }
     }
 
+    /// Send service status update to the system
     fn update_service_status(
         status_handle: &ServiceStatusHandle,
         state_update: ServiceStateUpdate,
