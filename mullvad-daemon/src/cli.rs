@@ -39,8 +39,8 @@ pub fn get_config() -> Config {
     }
 }
 
-fn create_app() -> App<'static, 'static> {
-    App::new(crate_name!())
+pub fn create_app() -> App<'static, 'static> {
+    let app = App::new(crate_name!())
         .version(version::current())
         .author(crate_authors!())
         .about(crate_description!())
@@ -80,5 +80,19 @@ fn create_app() -> App<'static, 'static> {
             Arg::with_name("disable_stdout_timestamps")
             .long("disable-stdout-timestamps")
             .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
-            )
+            );
+
+    if cfg!(windows) {
+        app.arg(
+            Arg::with_name("run_as_service")
+                .long("run-as-service")
+                .help("Run as a system service. On Windows it's obligatory launch argument for system service"),
+        ).arg(
+            Arg::with_name("register_service")
+                .long("register-service")
+                .help("Register a system service"),
+        )
+    } else {
+        app
+    }
 }
