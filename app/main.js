@@ -302,6 +302,7 @@ const appDelegate = {
       maximizable: false,
       fullscreenable: false,
       show: false,
+      frame: false,
       webPreferences: {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
@@ -317,7 +318,6 @@ const appDelegate = {
         ...options,
         // 12 is the size of transparent area around arrow
         height: contentHeight + 12,
-        frame: false,
         transparent: true
       });
 
@@ -331,7 +331,6 @@ const appDelegate = {
       // setup window flags to mimic an overlay window
       return new BrowserWindow({
         ...options,
-        frame: false,
         transparent: true
       });
 
