@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 use std::{io, mem};
 
-use winapi::shared::winerror::ERROR_SERVICE_SPECIFIC_ERROR;
+use winapi::shared::winerror::{ERROR_SERVICE_SPECIFIC_ERROR, NO_ERROR};
 use winapi::um::{winnt, winsvc};
 
 mod errors {
@@ -239,6 +239,12 @@ impl ServiceExitCode {
                 raw_service_status.dwServiceSpecificExitCode = service_error_code;
             }
         }
+    }
+}
+
+impl Default for ServiceExitCode {
+    fn default() -> Self {
+        ServiceExitCode::Win32(NO_ERROR)
     }
 }
 

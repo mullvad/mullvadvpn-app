@@ -41,6 +41,10 @@ extern crate talpid_core;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+#[cfg(windows)]
+#[macro_use]
+extern crate windows_service;
+
 mod account_history;
 mod cli;
 mod geoip;
@@ -51,6 +55,7 @@ mod rpc_address_file;
 mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
+mod system_service;
 mod version;
 
 use app_dirs::AppInfo;
@@ -855,7 +860,33 @@ fn run() -> Result<()> {
         config.log_stdout_timestamps,
     ).chain_err(|| "Unable to initialize logger")?;
     log_version();
+    run_platform(config)
+}
 
+#[cfg(windows)]
+fn run_platform(config: cli::Config) -> Result<()> {
+    if config.run_as_service {
+        system_service::run()
+    } else {
+        if config.register_service {
+            let install_result =
+                system_service::install_service().chain_err(|| "Unable to install the service");
+            if install_result.is_ok() {
+                println!("Installed the service.");
+            }
+            install_result
+        } else {
+            run_standalone(config)
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn run_platform(config: cli::Config) -> Result<()> {
+    run_standalone(config)
+}
+
+fn run_standalone(config: cli::Config) -> Result<()> {
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }

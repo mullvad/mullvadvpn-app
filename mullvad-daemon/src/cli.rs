@@ -12,6 +12,8 @@ pub struct Config {
     pub resource_dir: Option<PathBuf>,
     pub require_auth: bool,
     pub log_stdout_timestamps: bool,
+    pub run_as_service: bool,
+    pub register_service: bool,
 }
 
 pub fn get_config() -> Config {
@@ -29,6 +31,9 @@ pub fn get_config() -> Config {
     let require_auth = !matches.is_present("disable_rpc_auth");
     let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
+    let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
+    let register_service = cfg!(windows) && matches.is_present("register_service");
+
     Config {
         log_level,
         log_file,
@@ -36,11 +41,13 @@ pub fn get_config() -> Config {
         resource_dir,
         require_auth,
         log_stdout_timestamps,
+        run_as_service,
+        register_service,
     }
 }
 
 fn create_app() -> App<'static, 'static> {
-    App::new(crate_name!())
+    let app = App::new(crate_name!())
         .version(version::current())
         .author(crate_authors!())
         .about(crate_description!())
@@ -80,5 +87,19 @@ fn create_app() -> App<'static, 'static> {
             Arg::with_name("disable_stdout_timestamps")
             .long("disable-stdout-timestamps")
             .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
-            )
+            );
+
+    if cfg!(windows) {
+        app.arg(
+            Arg::with_name("run_as_service")
+                .long("run-as-service")
+                .help("Run as a system service. On Windows this option must be used when running a system service"),
+        ).arg(
+            Arg::with_name("register_service")
+                .long("register-service")
+                .help("Register itself as a system service"),
+        )
+    } else {
+        app
+    }
 }
