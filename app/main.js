@@ -515,7 +515,9 @@ const appDelegate = {
 
     // setup event handlers
     window.on('close', () => window.closeDevTools());
-    window.on('blur', () => !window.isDevToolsOpened() && window.hide());
+    if (process.platform !== 'linux') {
+      window.on('blur', () => !window.isDevToolsOpened() && window.hide());
+    }
 
     if(process.platform === 'darwin') {
       // disable icon highlight on macOS
