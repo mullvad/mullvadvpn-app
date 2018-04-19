@@ -41,7 +41,10 @@ const appDelegate = {
 
     log.info('Running version', version);
 
-    appDelegate._startBackend();
+    // Backend must be installed as a system service on windows
+    if (process.platform !== 'win32') {
+      appDelegate._startBackend();
+    }
 
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
