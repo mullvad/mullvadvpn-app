@@ -4,9 +4,10 @@
 extern crate libc;
 #[cfg(not(unix))]
 extern crate mullvad_ipc_client;
+extern crate mullvad_paths;
 extern crate os_pipe;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex};
@@ -15,6 +16,7 @@ use std::time::Duration;
 
 use duct;
 
+use self::mullvad_paths::get_rpc_address_path;
 use self::os_pipe::{pipe, PipeReader};
 
 #[cfg(unix)]
@@ -128,6 +130,10 @@ impl Drop for DaemonRunner {
             } else {
                 process.kill().unwrap();
             }
+        }
+
+        if let Ok(file_path) = get_rpc_address_path() {
+            let _ = fs::remove_file(file_path);
         }
     }
 }
