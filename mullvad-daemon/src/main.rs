@@ -41,6 +41,10 @@ extern crate talpid_core;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+#[cfg(windows)]
+#[macro_use]
+extern crate windows_service;
+
 mod account_history;
 mod cli;
 mod geoip;
@@ -847,7 +851,32 @@ impl Drop for Daemon {
 
 quick_main!(run);
 
+#[cfg(windows)]
 fn run() -> Result<()> {
+    let matches = cli::create_app().get_matches();
+
+    if matches.is_present("run_as_service") {
+        system_service::run()
+    } else {
+        if matches.is_present("register_service") {
+            let install_result =
+                system_service::install_service().chain_err(|| "Unable to install the service");
+            if install_result.is_ok() {
+                println!("Installed the service.");
+            }
+            install_result
+        } else {
+            run_standalone()
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn run() -> Result<()> {
+    run_standalone()
+}
+
+fn run_standalone() -> Result<()> {
     let config = cli::get_config();
     logging::init_logger(
         config.log_level,
@@ -915,4 +944,221 @@ fn running_as_admin() -> bool {
 fn running_as_admin() -> bool {
     // TODO: Check if user is administrator correctly on Windows.
     true
+}
+
+// Windows service implementation
+
+#[cfg(windows)]
+mod system_service {
+    use super::*;
+
+    use std::ffi::OsString;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    use windows_service::service::{ServiceAccess, ServiceControl, ServiceControlAccept,
+                                   ServiceErrorControl, ServiceExitCode, ServiceInfo,
+                                   ServiceStartType, ServiceState, ServiceStatus, ServiceType};
+    use windows_service::service_control_handler::{self, ServiceControlHandlerResult,
+                                                   ServiceStatusHandle};
+    use windows_service::service_dispatcher;
+    use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
+
+    static SERVICE_NAME: &'static str = "MullvadVPN";
+    static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
+
+    pub fn run() -> Result<()> {
+        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
+        let global_temp_directory = PathBuf::from(windows_directory).join("Temp");
+        let main_log_file = Some(global_temp_directory.join("mullvad-daemon-service.log"));
+
+        logging::init_logger(log::LevelFilter::Debug, main_log_file.as_ref(), true)
+            .chain_err(|| "Unable to initialize logger")?;
+        log_version();
+
+        // Start the service dispatcher.
+        // This will block current thread until the service stopped and spawn `service_main` on a
+        // background thread.
+        service_dispatcher::start_dispatcher(SERVICE_NAME, service_main)
+            .chain_err(|| "Failed to start a service dispatcher")
+    }
+
+    define_windows_service!(service_main, handle_service_main);
+
+    pub fn handle_service_main(arguments: Vec<OsString>) {
+        debug!("Started as a system service.");
+
+        let _ = start_service(arguments);
+    }
+
+    fn start_service(_arguments: Vec<OsString>) -> Result<()> {
+        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
+        let tunnel_log_file = PathBuf::from(windows_directory)
+            .join("Temp")
+            .join("mullvad-daemon-openvpn.log");
+
+        let resource_dir = get_resource_dir();
+        let daemon = Daemon::new(Some(tunnel_log_file), resource_dir, true)
+            .chain_err(|| "Unable to initialize daemon")?;
+        let shutdown_handle = daemon.shutdown_handle();
+
+        // Register service event handler
+        let event_handler = move |control_event| -> ServiceControlHandlerResult {
+            match control_event {
+                // Notifies a service to report its current status information to the service
+                // control manager. Always return NO_ERROR even if not implemented.
+                ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
+
+                ServiceControl::Shutdown | ServiceControl::Stop => {
+                    shutdown_handle.shutdown();
+                    ServiceControlHandlerResult::NoError
+                }
+
+                _ => ServiceControlHandlerResult::NotImplemented,
+            }
+        };
+
+        let status_handle =
+            service_control_handler::register_control_handler(SERVICE_NAME, event_handler)
+                .chain_err(|| "Failed to register a service control handler")?;
+
+        // Chicken or egg problem: `ServiceState::StartPending` is never sent because
+        // `event_handler` needs `DaemonShutdownHandle`.
+        //
+        // At the same time Daemon seems to initialize quick enough so there is no need for
+        // explicit `ServiceState::StartPending` which the app enters automatically anyway.
+        //
+        // The difference in behavior may be that when Windows puts the app into
+        // `ServiceState::StartPending` state it probably uses some system default timeout to
+        // conclude that the service has hung. In case of explicit `StartPending` we can specify the
+        // approximate time until transition to `ServiceState::Running`.
+        update_service_status(&status_handle, ServiceStateUpdate::Running).unwrap();
+
+        let result = daemon.run();
+
+        // TBD: Catch Daemon shutdown and change service status to `ServiceState::StopPending`
+
+        update_service_status(
+            &status_handle,
+            ServiceStateUpdate::Stopped(ServiceExitCode::Win32(0)),
+        ).unwrap();
+
+        result
+    }
+
+    /// Checkpoint counter for ServiceState.
+    static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+    #[derive(Debug)]
+    enum ServiceStateUpdate {
+        Running,
+        Paused,
+        Stopped(ServiceExitCode),
+        StartPending(Duration),
+        StopPending(Duration),
+        ContinuePending(Duration),
+        PausePending(Duration),
+    }
+
+    impl ServiceStateUpdate {
+        fn get_service_state(&self) -> ServiceState {
+            match *self {
+                ServiceStateUpdate::Running => ServiceState::Running,
+                ServiceStateUpdate::Paused => ServiceState::Paused,
+                ServiceStateUpdate::Stopped(_) => ServiceState::Stopped,
+                ServiceStateUpdate::StartPending(_) => ServiceState::StartPending,
+                ServiceStateUpdate::StopPending(_) => ServiceState::StopPending,
+                ServiceStateUpdate::ContinuePending(_) => ServiceState::ContinuePending,
+                ServiceStateUpdate::PausePending(_) => ServiceState::PausePending,
+            }
+        }
+
+        fn get_exit_code(&self) -> ServiceExitCode {
+            match *self {
+                ServiceStateUpdate::Stopped(exit_code) => exit_code,
+                _ => ServiceExitCode::Win32(0),
+            }
+        }
+
+        fn get_wait_hint(&self) -> Duration {
+            match *self {
+                ServiceStateUpdate::StartPending(wait_hint) |
+                ServiceStateUpdate::StopPending(wait_hint) |
+                ServiceStateUpdate::ContinuePending(wait_hint) |
+                ServiceStateUpdate::PausePending(wait_hint) => wait_hint,
+                _ => Duration::default(),
+            }
+        }
+    }
+
+    fn update_service_status(
+        status_handle: &ServiceStatusHandle,
+        state_update: ServiceStateUpdate,
+    ) -> io::Result<()> {
+        let next_state = state_update.get_service_state();
+
+        // Automatically bump the checkpoint when updating the pending events to tell the system
+        // that the service is making a progress in transition from pending to final state.
+        // `wait_hint` should reflect the estimated time for transition to complete.
+        let checkpoint = match next_state {
+            ServiceState::StartPending
+            | ServiceState::StopPending
+            | ServiceState::ContinuePending
+            | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst) + 1,
+            _ => 0,
+        };
+
+        let service_status = ServiceStatus {
+            service_type: ServiceType::OwnProcess,
+            current_state: next_state,
+            controls_accepted: accepted_controls_by_state(next_state),
+            exit_code: state_update.get_exit_code(),
+            checkpoint: checkpoint as u32,
+            wait_hint: state_update.get_wait_hint(),
+        };
+
+        debug!(
+            "Update service status: {:?}, checkpoint: {}, wait_hint: {:?}",
+            service_status.current_state, service_status.checkpoint, service_status.wait_hint
+        );
+
+        status_handle.set_service_status(service_status)
+    }
+
+    /// Returns the list of accepted service events at each stage of the service lifecycle.
+    fn accepted_controls_by_state(state: ServiceState) -> ServiceControlAccept {
+        match state {
+            ServiceState::StartPending
+            | ServiceState::PausePending
+            | ServiceState::ContinuePending => ServiceControlAccept::empty(),
+            ServiceState::Running => ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN,
+            ServiceState::Paused => ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN,
+            ServiceState::StopPending | ServiceState::Stopped => ServiceControlAccept::empty(),
+        }
+    }
+
+    pub fn install_service() -> Result<()> {
+        let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
+        let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
+            .chain_err(|| "Unable to connect to service manager")?;
+        let service_info = get_service_info();
+        service_manager
+            .create_service(service_info, ServiceAccess::empty())
+            .map(|_| ())
+            .chain_err(|| "Unable to create a service")
+    }
+
+    fn get_service_info() -> ServiceInfo {
+        ServiceInfo {
+            name: OsString::from(SERVICE_NAME),
+            display_name: OsString::from(SERVICE_DISPLAY_NAME),
+            service_type: ServiceType::OwnProcess,
+            start_type: ServiceStartType::OnDemand,
+            error_control: ServiceErrorControl::Normal,
+            executable_path: env::current_exe().unwrap(),
+            launch_arguments: vec![OsString::from("--run-as-service")],
+            account_name: None, // run as System
+            account_password: None,
+        }
+    }
+
 }
