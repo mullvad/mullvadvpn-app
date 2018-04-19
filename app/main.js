@@ -154,6 +154,11 @@ const appDelegate = {
       await appDelegate._installDevTools();
       window.openDevTools({ mode: 'detach' });
     }
+
+    // Tray icon might not be supported on all linux distributions
+    if (process.platform === 'linux') {
+      window.show();
+    }
   },
 
   onAllWindowsClosed: () => {
