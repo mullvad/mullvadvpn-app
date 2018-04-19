@@ -451,7 +451,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "jsonrpc-client-core"
 version = "0.3.0"
-source = "git+https://github.com/mullvad/jsonrpc-client-rs#853f03cfeaf45af070c5e5ea608479094cfce79c"
+source = "git+https://github.com/mullvad/jsonrpc-client-rs#99edc032afe46f5d3c8cc878220da8e149d7cb25"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -464,15 +464,13 @@ dependencies = [
 [[package]]
 name = "jsonrpc-client-http"
 version = "0.3.0"
-source = "git+https://github.com/mullvad/jsonrpc-client-rs#853f03cfeaf45af070c5e5ea608479094cfce79c"
+source = "git+https://github.com/mullvad/jsonrpc-client-rs#99edc032afe46f5d3c8cc878220da8e149d7cb25"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.11.21 (registry+https://github.com/rust-lang/crates.io-index)",
- "hyper-tls 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.3.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "native-tls 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
