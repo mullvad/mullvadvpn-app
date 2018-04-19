@@ -41,7 +41,11 @@ const appDelegate = {
 
     log.info('Running version', version);
 
-    appDelegate._startBackend();
+    // Only macOS builds still launch the daemon manually.
+    // On other platforms mullvad-daemon already runs as a system service.
+    if (process.platform === 'darwin') {
+      appDelegate._startBackend();
+    }
 
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
@@ -95,15 +99,18 @@ const appDelegate = {
     ipcMain.on('hide-window', () => window.hide());
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
-    if (process.platform === 'linux') {
-      window.on('close', () => {
-        log.debug('The browser window is closing, shutting down the tunnel...');
-        window.webContents.send('disconnect');
-      });
-    } else {
+
+    // Since macOS still runs the daemon manually it has to shut it down.
+    // On other platforms closing the app only disconnects the tunnel.
+    if (process.platform === 'darwin') {
       window.on('close', () => {
         log.debug('The browser window is closing, shutting down the daemon...');
         window.webContents.send('shutdown');
+      });
+    } else {
+      window.on('close', () => {
+        log.debug('The browser window is closing, shutting down the tunnel...');
+        window.webContents.send('disconnect');
       });
     }
 
