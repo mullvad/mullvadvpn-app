@@ -163,7 +163,7 @@ mod simple_service {
     define_windows_service!(service_main, handle_service_main);
 
     pub fn handle_service_main(arguments: Vec<OsString>) {
-        // Create a shutdown channel to release this thread when stopping the service
+        // Create an event channel to funnel events to worker.
         let (event_tx, event_rx) = mpsc::channel();
 
         info!("Received arguments: {:?}", arguments);

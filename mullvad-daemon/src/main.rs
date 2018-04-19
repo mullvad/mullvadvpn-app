@@ -41,6 +41,10 @@ extern crate talpid_core;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+#[cfg(windows)]
+#[macro_use]
+extern crate windows_service;
+
 mod account_history;
 mod cli;
 mod geoip;
@@ -51,6 +55,7 @@ mod rpc_address_file;
 mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
+mod system_service;
 mod version;
 
 use app_dirs::AppInfo;
@@ -847,7 +852,32 @@ impl Drop for Daemon {
 
 quick_main!(run);
 
+#[cfg(windows)]
 fn run() -> Result<()> {
+    let matches = cli::create_app().get_matches();
+
+    if matches.is_present("run_as_service") {
+        system_service::run()
+    } else {
+        if matches.is_present("register_service") {
+            let install_result =
+                system_service::install_service().chain_err(|| "Unable to install the service");
+            if install_result.is_ok() {
+                println!("Installed the service.");
+            }
+            install_result
+        } else {
+            run_standalone()
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn run() -> Result<()> {
+    run_standalone()
+}
+
+fn run_standalone() -> Result<()> {
     let config = cli::get_config();
     logging::init_logger(
         config.log_level,
