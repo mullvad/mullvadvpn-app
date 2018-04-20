@@ -313,6 +313,10 @@ impl MockOpenVpnPluginRpcClient {
         self.send_event(OpenVpnPluginEvent::Up, env)
     }
 
+    pub fn route_predown(&mut self) -> Result<(), String> {
+        self.send_event(OpenVpnPluginEvent::RoutePredown, HashMap::new())
+    }
+
     fn send_event(
         &mut self,
         event: OpenVpnPluginEvent,
