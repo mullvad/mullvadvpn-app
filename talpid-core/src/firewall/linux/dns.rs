@@ -5,15 +5,27 @@ use std::fs::File;
 use std::io::{self, Read, Write};
 use std::net::IpAddr;
 use std::ops::DerefMut;
+use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::thread;
+use std::{env, thread};
 
 use error_chain::ChainedError;
 
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 
-static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+lazy_static! {
+    static ref RESOLV_CONF_PATH: PathBuf = {
+        #[cfg(feature = "testing")]
+        {
+            if let Some(resolv_conf_path) = env::var_os("TALPID_RESOLV_CONF_PATH") {
+                return PathBuf::from(resolv_conf_path);
+            }
+        }
+
+        PathBuf::from("/etc/resolv.conf")
+    };
+}
 
 error_chain!{
     errors {
@@ -115,7 +127,7 @@ impl DnsWatcher {
         let mut watcher = notify::raw_watcher(event_tx).chain_err(|| ErrorKind::WatchResolvConf)?;
 
         watcher
-            .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
+            .watch(&*RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
             .chain_err(|| ErrorKind::WatchResolvConf)?;
 
         thread::spawn(move || Self::event_loop(event_rx, state));
@@ -172,7 +184,7 @@ fn read_config() -> Result<Config> {
 }
 
 fn read_resolv_conf() -> io::Result<String> {
-    let mut file = File::open(RESOLV_CONF_PATH)?;
+    let mut file = File::open(&*RESOLV_CONF_PATH)?;
     let mut contents = String::new();
 
     file.read_to_string(&mut contents)?;
@@ -185,7 +197,7 @@ fn write_config(config: &Config) -> Result<()> {
 }
 
 fn write_resolv_conf(contents: &str) -> io::Result<()> {
-    let mut file = File::create(RESOLV_CONF_PATH)?;
+    let mut file = File::create(&*RESOLV_CONF_PATH)?;
 
     file.write_all(contents.as_bytes())
 }
