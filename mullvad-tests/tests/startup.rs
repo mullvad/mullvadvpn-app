@@ -2,6 +2,7 @@
 
 extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
+extern crate mullvad_types;
 
 use std::fs::{self, Metadata};
 use std::io;
@@ -9,6 +10,7 @@ use std::time::Duration;
 
 use mullvad_ipc_client::rpc_file_path;
 use mullvad_tests::DaemonRunner;
+use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use platform_specific::*;
 
@@ -35,6 +37,20 @@ fn rpc_info_file_permissions() {
     ensure_only_admin_can_write(
         fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"),
     );
+}
+
+#[test]
+fn starts_in_not_connected_state() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().expect("failed to create RPC client");
+
+    let state = rpc_client.get_state().expect("failed to read daemon state");
+    let not_connected_state = DaemonState {
+        state: SecurityState::Unsecured,
+        target_state: TargetState::Unsecured,
+    };
+
+    assert_eq!(state, not_connected_state);
 }
 
 #[cfg(unix)]
