@@ -31,7 +31,7 @@ impl TestApi for ApiImpl {
 // TODO fix this test on Windows
 #[cfg(not(windows))]
 #[test]
-fn ipc_client_server() {
+fn can_call_rpcs_on_server() {
     env_logger::init();
 
     let (server, rx) = create_server();
@@ -46,6 +46,8 @@ fn ipc_client_server() {
     server.close_handle().close();
 }
 
+// TODO fix this test on Windows
+#[cfg(not(windows))]
 #[test]
 #[should_panic]
 fn ipc_client_invalid_url() {
