@@ -24,6 +24,11 @@ const CONNECTING_STATE: DaemonState = DaemonState {
     target_state: TargetState::Secured,
 };
 
+const CONNECTED_STATE: DaemonState = DaemonState {
+    state: SecurityState::Secured,
+    target_state: TargetState::Secured,
+};
+
 #[test]
 fn spawns_openvpn() {
     let mut daemon = DaemonRunner::spawn();
@@ -146,6 +151,27 @@ fn separate_connections_have_independent_authentication() {
     assert!(call_result.is_err());
     assert_no_state_event(&state_events);
     assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+}
+
+#[test]
+fn changes_to_connected_state() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+
+    mock_plugin_client.authenticate().unwrap();
+    mock_plugin_client.up().unwrap();
+
+    assert_state_event(&state_events, CONNECTED_STATE);
+    assert_eq!(rpc_client.get_state().unwrap(), CONNECTED_STATE);
 }
 
 fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
