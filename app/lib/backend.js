@@ -485,7 +485,8 @@ export class Backend {
     this._ipc.registerStateListener(newState => {
 
       const connectionState = this._securityStateToConnectionState(newState);
-      log.debug('Got new state from backend ${newState}, translated to ${connectionState}');
+      log.debug(`Got new state from backend {state: ${newState.state}, \
+        target_state: ${newState.target_state}}, translated to '${connectionState}'`);
       this._dispatchConnectionState(connectionState);
       this.sync();
     });
