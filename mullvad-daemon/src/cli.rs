@@ -86,11 +86,11 @@ pub fn create_app() -> App<'static, 'static> {
         app.arg(
             Arg::with_name("run_as_service")
                 .long("run-as-service")
-                .help("Run as a system service. On Windows it's obligatory launch argument for system service"),
+                .help("Run as a system service. On Windows this option must be used when running a system service"),
         ).arg(
             Arg::with_name("register_service")
                 .long("register-service")
-                .help("Register a system service"),
+                .help("Register itself as a system service"),
         )
     } else {
         app
