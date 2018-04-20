@@ -4,12 +4,20 @@ extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
 extern crate mullvad_types;
 
-use std::fs;
+use std::fs::{self, File};
+use std::io::{BufRead, BufReader};
+use std::path::Path;
 use std::sync::mpsc;
 use std::time::Duration;
 
-use mullvad_tests::{wait_for_file_write_finish, DaemonRunner};
+use mullvad_tests::{wait_for_file_write_finish, DaemonRunner, MockOpenVpnPluginRpcClient};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
+
+#[cfg(target_os = "linux")]
+const OPENVPN_PLUGIN_NAME: &str = "libtalpid_openvpn_plugin.so";
+
+#[cfg(windows)]
+const OPENVPN_PLUGIN_NAME: &str = "talpid_openvpn_plugin.dll";
 
 const CONNECTING_STATE: DaemonState = DaemonState {
     state: SecurityState::Unsecured,
@@ -62,14 +70,70 @@ fn changes_to_connecting_state() {
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
-    assert_state_event(state_events, CONNECTING_STATE);
+    assert_state_event(&state_events, CONNECTING_STATE);
     assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
 }
 
-fn assert_state_event(receiver: mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
+#[test]
+fn ignores_event_from_unauthorized_connection_from_openvpn_plugin() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+    let call_result = mock_plugin_client.up();
+
+    assert!(call_result.is_err());
+    assert_no_state_event(&state_events);
+    assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+}
+
+fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
     let received_state = receiver
         .recv_timeout(Duration::from_secs(1))
         .expect("Failed to receive new state event from daemon");
 
     assert_eq!(received_state, expected_state);
+}
+
+fn assert_no_state_event(receiver: &mpsc::Receiver<DaemonState>) {
+    assert_eq!(
+        receiver.recv_timeout(Duration::from_secs(1)),
+        Err(mpsc::RecvTimeoutError::Timeout),
+    );
+}
+
+fn create_mock_openvpn_plugin_client<P: AsRef<Path>>(
+    openvpn_args_file_path: P,
+) -> MockOpenVpnPluginRpcClient {
+    let address = get_plugin_address(openvpn_args_file_path);
+
+    MockOpenVpnPluginRpcClient::with_address(address)
+        .expect("Failed to create mock RPC client to connect to OpenVPN plugin event listener")
+}
+
+fn get_plugin_address<P: AsRef<Path>>(openvpn_args_file_path: P) -> String {
+    let args_file_path = openvpn_args_file_path.as_ref();
+
+    wait_for_file_write_finish(&args_file_path, Duration::from_secs(5));
+
+    let args_file = File::open(&args_file_path).expect(&format!(
+        "Failed to open mock OpenVPN command-line file: {}",
+        args_file_path.display(),
+    ));
+
+    let args = BufReader::new(args_file).lines();
+
+    args.skip_while(|element| {
+        element.is_ok() && !element.as_ref().unwrap().contains(OPENVPN_PLUGIN_NAME)
+    }).skip(1)
+        .next()
+        .expect("Missing OpenVPN plugin RPC listener address argument")
+        .expect("Failed to read from mock OpenVPN command line file")
 }
