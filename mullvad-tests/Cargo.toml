@@ -9,6 +9,7 @@ license = "GPL-3.0"
 duct = "0.10"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
+mullvad-types = { path = "../mullvad-types" }
 notify = "4.0"
 os_pipe = "0.6"
 tempfile = "3.0"
