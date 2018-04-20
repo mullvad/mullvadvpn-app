@@ -10,6 +10,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
+use mullvad_paths::get_rpc_address_path;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
@@ -77,13 +78,19 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file(true)?;
+        Self::with_rpc_address_file(get_rpc_address_path()?)
+    }
+
+    pub fn with_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        ensure_written_by_admin(&file_path)?;
+
+        let (address, credentials) = Self::read_rpc_file(file_path)?;
 
         Self::with_address_and_credentials(address, credentials)
     }
 
-    pub fn without_rpc_file_security_check() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file(false)?;
+    pub fn with_insecure_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(file_path)?;
 
         Self::with_address_and_credentials(address, credentials)
     }
@@ -100,26 +107,25 @@ impl DaemonRpcClient {
         Ok(instance)
     }
 
-    fn read_rpc_file(verify_security: bool) -> Result<(String, String)> {
-        let file_path = mullvad_paths::get_rpc_address_path()?;
+    fn read_rpc_file<P>(file_path: P) -> Result<(String, String)>
+    where
+        P: AsRef<Path>,
+    {
+        let file_path = file_path.as_ref();
         let rpc_file =
-            File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
-
-        if verify_security {
-            ensure_written_by_admin(&file_path)?;
-        }
+            File::open(file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
         let address = lines
             .next()
-            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.clone()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
+            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.to_owned()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
         let credentials = lines
             .next()
-            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.clone()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
+            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.to_owned()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
 
         Ok((address, credentials))
     }

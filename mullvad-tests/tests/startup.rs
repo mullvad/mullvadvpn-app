@@ -23,7 +23,7 @@ fn rpc_info_file_permissions() {
 
     assert!(!rpc_file.exists());
 
-    let mut daemon = DaemonRunner::spawn();
+    let mut daemon = DaemonRunner::spawn_with_real_rpc_address_file();
 
     daemon.assert_output("Wrote RPC connection info to", Duration::from_secs(10));
 
