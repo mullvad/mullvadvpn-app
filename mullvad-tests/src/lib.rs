@@ -132,6 +132,14 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
     ).expect("Failed to create mock relay list file");
 }
 
+fn create_fake_resolv_conf<P: AsRef<Path>>(parent_dir: P) -> PathBuf {
+    let file_path = parent_dir.as_ref().join("resolv.conf");
+
+    File::create(&file_path).expect("Failed to create fake resolv.conf file");
+
+    file_path
+}
+
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
@@ -152,6 +160,7 @@ impl DaemonRunner {
     fn spawn_internal(mock_rpc_address_file: bool) -> Self {
         let (temp_dir, cache_dir, resource_dir, settings_dir) = prepare_test_dirs();
         let mock_openvpn_args_file = temp_dir.path().join(MOCK_OPENVPN_ARGS_FILE);
+        let resolv_conf_file = create_fake_resolv_conf(temp_dir.path());
         let rpc_address_file = if mock_rpc_address_file {
             temp_dir.path().join(".mullvad_rpc_address")
         } else {
@@ -165,6 +174,7 @@ impl DaemonRunner {
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
             .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
+            .env("TALPID_RESOLV_CONF_PATH", resolv_conf_file)
             .stderr_to_stdout()
             .stdout_handle(writer);
 
