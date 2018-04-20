@@ -134,30 +134,52 @@ pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
     mock_openvpn_args_file: PathBuf,
+    rpc_address_file: PathBuf,
     _temp_dir: TempDir,
 }
 
 impl DaemonRunner {
+    pub fn spawn_with_real_rpc_address_file() -> Self {
+        Self::spawn_internal(false)
+    }
+
     pub fn spawn() -> Self {
+        Self::spawn_internal(true)
+    }
+
+    fn spawn_internal(mock_rpc_address_file: bool) -> Self {
         let (temp_dir, resource_dir, settings_dir) = prepare_test_dirs();
         let mock_openvpn_args_file = temp_dir.path().join(MOCK_OPENVPN_ARGS_FILE);
+        let rpc_address_file = if mock_rpc_address_file {
+            temp_dir.path().join(".mullvad_rpc_address")
+        } else {
+            mullvad_paths::get_rpc_address_path().expect("Failed to build RPC connection file path")
+        };
 
         let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
-        let process = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
+        let mut expression = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", "./")
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
             .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
             .stderr_to_stdout()
-            .stdout_handle(writer)
-            .start()
-            .expect("Failed to start daemon");
+            .stdout_handle(writer);
+
+        if mock_rpc_address_file {
+            expression = expression.env(
+                "MULLVAD_RPC_ADDRESS_PATH",
+                rpc_address_file.display().to_string(),
+            );
+        }
+
+        let process = expression.start().expect("Failed to start daemon");
 
         DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
             mock_openvpn_args_file,
+            rpc_address_file,
             _temp_dir: temp_dir,
         }
     }
@@ -195,14 +217,11 @@ impl DaemonRunner {
     }
 
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient, String> {
-        let rpc_file = mullvad_paths::get_rpc_address_path()
-            .map_err(|error| format!("Failed to build RPC connection file path: {}", error))?;
-
-        if !rpc_file.exists() {
-            wait_for_file_write_finish(rpc_file, Duration::from_secs(10));
+        if !self.rpc_address_file.exists() {
+            wait_for_file_write_finish(&self.rpc_address_file, Duration::from_secs(10));
         }
 
-        DaemonRpcClient::without_rpc_file_security_check()
+        DaemonRpcClient::with_insecure_rpc_address_file(&self.rpc_address_file)
             .map_err(|error| format!("Failed to create RPC client: {}", error))
     }
 
@@ -247,8 +266,6 @@ impl Drop for DaemonRunner {
             }
         }
 
-        if let Ok(file_path) = mullvad_paths::get_rpc_address_path() {
-            let _ = fs::remove_file(file_path);
-        }
+        let _ = fs::remove_file(&self.rpc_address_file);
     }
 }
