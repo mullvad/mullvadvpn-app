@@ -5,12 +5,16 @@ authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
 
+[features]
+testing = []
+
 [dependencies]
 atty = "0.2"
 duct = "0.10"
 error-chain = "0.11"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v8.0.1" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v8.0.1" }
+lazy_static = "1.0"
 log = "0.4"
 os_pipe = "0.6"
 uuid = { version = "0.6", features = ["v4"] }

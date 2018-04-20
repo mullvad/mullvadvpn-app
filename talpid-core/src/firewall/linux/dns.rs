@@ -3,7 +3,7 @@ extern crate resolv_conf;
 
 use std::net::IpAddr;
 use std::ops::DerefMut;
-use std::path::Path;
+use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::{fs, io, thread};
 
@@ -12,8 +12,30 @@ use error_chain::ChainedError;
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 
-const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
-const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
+lazy_static! {
+    static ref RESOLV_CONF_PATH: PathBuf = {
+        #[cfg(feature = "testing")]
+        {
+            if let Some(resolv_conf_path) = ::std::env::var_os("TALPID_RESOLV_CONF_PATH") {
+                return PathBuf::from(resolv_conf_path);
+            }
+        }
+
+        PathBuf::from("/etc/resolv.conf")
+    };
+    static ref RESOLV_CONF_BACKUP_PATH: PathBuf = {
+        #[cfg(feature = "testing")]
+        {
+            if let Some(mut resolv_conf_backup_path) = ::std::env::var_os("TALPID_RESOLV_CONF_PATH")
+            {
+                resolv_conf_backup_path.push(".mullvadbackup");
+                return PathBuf::from(resolv_conf_backup_path);
+            }
+        }
+
+        PathBuf::from("/etc/resolv.conf.mullvadbackup")
+    };
+}
 
 error_chain!{
     errors {
@@ -88,7 +110,7 @@ impl DnsSettings {
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.lock_state().take() {
             write_config(&state.backup)?;
-            let _ = fs::remove_file(RESOLV_CONF_BACKUP_PATH);
+            let _ = fs::remove_file(&*RESOLV_CONF_BACKUP_PATH);
         }
 
         Ok(())
@@ -101,12 +123,12 @@ impl DnsSettings {
     }
 
     fn restore_persisted_state() -> Result<()> {
-        let backup_file = Path::new(RESOLV_CONF_BACKUP_PATH);
+        let backup_file = &*RESOLV_CONF_BACKUP_PATH;
 
         match fs::read(&backup_file) {
             Ok(backup) => {
                 info!("Restoring DNS state from backup");
-                fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                fs::write(&*RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
                 fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
             }
             Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
@@ -148,7 +170,7 @@ impl DnsWatcher {
         let mut watcher = notify::raw_watcher(event_tx).chain_err(|| ErrorKind::WatchResolvConf)?;
 
         watcher
-            .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
+            .watch(&*RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
             .chain_err(|| ErrorKind::WatchResolvConf)?;
 
         thread::spawn(move || Self::event_loop(event_rx, state));
@@ -198,21 +220,21 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents = fs::read_to_string(&*RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
     Ok(config)
 }
 
 fn write_config(config: &Config) -> Result<()> {
-    fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
+    fs::write(&*RESOLV_CONF_PATH, config.to_string().as_bytes())
         .chain_err(|| ErrorKind::WriteResolvConf)
 }
 
 fn backup_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents = fs::read_to_string(&*RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
 
-    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes())
+    fs::write(&*RESOLV_CONF_BACKUP_PATH, contents.as_bytes())
         .chain_err(|| ErrorKind::BackupResolvConf)?;
 
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
@@ -221,6 +243,6 @@ fn backup_config() -> Result<Config> {
 }
 
 fn update_backup(backup: &Config) -> Result<()> {
-    fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
+    fs::write(&*RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
         .chain_err(|| ErrorKind::BackupResolvConf)
 }
