@@ -1,10 +1,35 @@
 #![cfg(target_os = "linux")]
 
 extern crate mullvad_tests;
+extern crate mullvad_types;
 
 use std::time::Duration;
 
 use mullvad_tests::{wait_for_file, DaemonRunner};
+use mullvad_types::states::{DaemonState, SecurityState, TargetState};
+
+const CONNECTING_STATE: DaemonState = DaemonState {
+    state: SecurityState::Unsecured,
+    target_state: TargetState::Secured,
+};
+
+macro_rules! assert_state_event {
+    ($receiver:ident, $expected_state:ident $(,)*) => {
+        let received_state = $receiver
+            .recv_timeout(Duration::from_secs(1))
+            .expect("Failed to receive new state event from daemon");
+
+        assert_eq!(received_state, $expected_state);
+    };
+}
+
+macro_rules! assert_current_state {
+    ($rpc_client:ident, $expected_state:ident $(,)*) => {
+        let queried_state = $rpc_client.get_state().expect("Failed to get daemon state");
+
+        assert_eq!(queried_state, $expected_state);
+    };
+}
 
 #[test]
 fn spawns_openvpn() {
@@ -20,4 +45,17 @@ fn spawns_openvpn() {
     wait_for_file(&openvpn_command_line_file, Duration::from_secs(5));
 
     assert!(openvpn_command_line_file.exists());
+}
+
+#[test]
+fn changes_to_connecting_state() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event!(state_events, CONNECTING_STATE);
+    assert_current_state!(rpc_client, CONNECTING_STATE);
 }
