@@ -5,6 +5,7 @@ extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
+use std::env;
 use std::fs::{File, Metadata};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -19,8 +20,7 @@ use serde::{Deserialize, Serialize};
 use talpid_ipc::WsIpcClient;
 use talpid_types::net::TunnelOptions;
 
-use platform_specific::ensure_written_by_admin;
-pub use platform_specific::rpc_file_path;
+use platform_specific::{default_rpc_address_path, ensure_written_by_admin};
 
 error_chain! {
     errors {
@@ -78,13 +78,17 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file(true)?;
+        Self::with_rpc_file(rpc_file_path()?)
+    }
+
+    pub fn with_rpc_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(file_path, true)?;
 
         Self::with_address_and_credentials(address, credentials)
     }
 
-    pub fn without_rpc_file_security_check() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file(false)?;
+    pub fn with_insecure_rpc_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(file_path, false)?;
 
         Self::with_address_and_credentials(address, credentials)
     }
@@ -101,11 +105,14 @@ impl DaemonRpcClient {
         Ok(instance)
     }
 
-    fn read_rpc_file(verify_security: bool) -> Result<(String, String)> {
-        let file_path = rpc_file_path()?;
+    fn read_rpc_file<P>(file_path: P, verify_security: bool) -> Result<(String, String)>
+    where
+        P: AsRef<Path>,
+    {
+        let file_path = file_path.as_ref();
         let file_path_string = || file_path.display().to_string();
         let rpc_file =
-            File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+            File::open(file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
 
         if verify_security {
             let file_metadata = rpc_file
@@ -213,13 +220,20 @@ impl DaemonRpcClient {
     }
 }
 
+pub fn rpc_file_path() -> Result<PathBuf> {
+    match env::var_os("MULLVAD_RPC_ADDRESS_PATH") {
+        Some(rpc_address_path) => Ok(PathBuf::from(rpc_address_path)),
+        None => default_rpc_address_path(),
+    }
+}
+
 #[cfg(unix)]
 mod platform_specific {
     use std::os::unix::fs::MetadataExt;
 
     use super::*;
 
-    pub fn rpc_file_path() -> Result<PathBuf> {
+    pub fn default_rpc_address_path() -> Result<PathBuf> {
         Ok(Path::new("/tmp/.mullvad_rpc_address").to_path_buf())
     }
 
@@ -244,7 +258,7 @@ mod platform_specific {
 
     use self::mullvad_metadata::PRODUCT_NAME;
 
-    pub fn rpc_file_path() -> Result<PathBuf> {
+    pub fn default_rpc_address_path() -> Result<PathBuf> {
         let shared_data_directory =
             ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
 
