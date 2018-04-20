@@ -834,6 +834,7 @@ dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-ipc-client 0.1.0",
  "mullvad-paths 0.1.0",
+ "mullvad-types 0.1.0",
  "notify 4.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
