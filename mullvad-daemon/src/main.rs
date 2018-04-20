@@ -1198,7 +1198,7 @@ mod system_service {
             name: OsString::from(SERVICE_NAME),
             display_name: OsString::from(SERVICE_DISPLAY_NAME),
             service_type: ServiceType::OwnProcess,
-            start_type: ServiceStartType::OnDemand,
+            start_type: ServiceStartType::AutoStart,
             error_control: ServiceErrorControl::Normal,
             executable_path: env::current_exe().unwrap(),
             launch_arguments: vec![OsString::from("--run-as-service")],
