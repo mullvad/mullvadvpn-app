@@ -72,5 +72,5 @@ fn create_server() -> (talpid_ipc::IpcServer, mpsc::Receiver<i64>) {
 }
 
 fn create_client(id: talpid_ipc::IpcServerId) -> talpid_ipc::WsIpcClient {
-    talpid_ipc::WsIpcClient::new(id).unwrap()
+    talpid_ipc::WsIpcClient::connect(id).unwrap()
 }

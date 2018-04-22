@@ -24,7 +24,7 @@ where
 {
     let (address, _shared_secret) = read_rpc_address().chain_err(|| "Unable to read RPC address")?;
     info!("Using RPC address {}", address);
-    let mut rpc_client = WsIpcClient::new(address).chain_err(|| "Unable to create RPC client")?;
+    let mut rpc_client = WsIpcClient::connect(address).chain_err(|| "Unable to create RPC client")?;
     rpc_client
         .call(method, args)
         .chain_err(|| format!("Unable to call RPC method {}", method))
