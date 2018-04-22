@@ -22,6 +22,21 @@ use super::{get_resource_dir, log_version, logging, Daemon, DaemonShutdownHandle
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
+static SERVICE_TYPE: ServiceType = ServiceType::OwnProcess;
+
+lazy_static! {
+    static ref SERVICE_INFO: ServiceInfo = ServiceInfo {
+        name: OsString::from(SERVICE_NAME),
+        display_name: OsString::from(SERVICE_DISPLAY_NAME),
+        service_type: SERVICE_TYPE,
+        start_type: ServiceStartType::AutoStart,
+        error_control: ServiceErrorControl::Normal,
+        executable_path: env::current_exe().unwrap(),
+        launch_arguments: vec![OsString::from("--run-as-service")],
+        account_name: None, // run as System
+        account_password: None,
+    };
+}
 
 pub fn run() -> Result<()> {
     let windows_directory = ::std::env::var_os("WINDIR").unwrap();
@@ -79,7 +94,7 @@ fn start_service(_arguments: Vec<OsString>) -> Result<()> {
     let start_duration_hint = Duration::from_secs(1);
     update_service_status(
         &status_handle,
-        ServiceStateUpdate::StartPending(start_duration_hint),
+        ServiceStatusUpdate::StartPending(start_duration_hint),
     ).unwrap();
 
     // Create daemon
@@ -97,7 +112,7 @@ fn start_service(_arguments: Vec<OsString>) -> Result<()> {
     let event_monitor_thread =
         start_event_monitor(status_handle.clone(), shutdown_handle, event_rx);
 
-    update_service_status(&status_handle, ServiceStateUpdate::Running).unwrap();
+    update_service_status(&status_handle, ServiceStatusUpdate::Running).unwrap();
 
     let result = daemon.run();
 
@@ -109,7 +124,7 @@ fn start_service(_arguments: Vec<OsString>) -> Result<()> {
 
     update_service_status(
         &status_handle,
-        ServiceStateUpdate::Stopped(ServiceExitCode::Win32(0)),
+        ServiceStatusUpdate::Stopped(ServiceExitCode::Win32(0)),
     ).unwrap();
 
     result
@@ -136,7 +151,7 @@ fn start_event_monitor(
 
             update_service_status(
                 &status_handle,
-                ServiceStateUpdate::StopPending(shutdown_duration_hint),
+                ServiceStatusUpdate::StopPending(shutdown_duration_hint),
             ).unwrap();
 
             shutdown_handle.shutdown();
@@ -153,7 +168,7 @@ static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// Struct that logically groups information used at different stages of service lifecycle.
 #[derive(Debug)]
-enum ServiceStateUpdate {
+enum ServiceStatusUpdate {
     Running,
     Paused,
     Stopped(ServiceExitCode),
@@ -163,32 +178,32 @@ enum ServiceStateUpdate {
     PausePending(Duration),
 }
 
-impl ServiceStateUpdate {
+impl ServiceStatusUpdate {
     fn get_service_state(&self) -> ServiceState {
         match *self {
-            ServiceStateUpdate::Running => ServiceState::Running,
-            ServiceStateUpdate::Paused => ServiceState::Paused,
-            ServiceStateUpdate::Stopped(_) => ServiceState::Stopped,
-            ServiceStateUpdate::StartPending(_) => ServiceState::StartPending,
-            ServiceStateUpdate::StopPending(_) => ServiceState::StopPending,
-            ServiceStateUpdate::ContinuePending(_) => ServiceState::ContinuePending,
-            ServiceStateUpdate::PausePending(_) => ServiceState::PausePending,
+            ServiceStatusUpdate::Running => ServiceState::Running,
+            ServiceStatusUpdate::Paused => ServiceState::Paused,
+            ServiceStatusUpdate::Stopped(_) => ServiceState::Stopped,
+            ServiceStatusUpdate::StartPending(_) => ServiceState::StartPending,
+            ServiceStatusUpdate::StopPending(_) => ServiceState::StopPending,
+            ServiceStatusUpdate::ContinuePending(_) => ServiceState::ContinuePending,
+            ServiceStatusUpdate::PausePending(_) => ServiceState::PausePending,
         }
     }
 
     fn get_exit_code(&self) -> ServiceExitCode {
         match *self {
-            ServiceStateUpdate::Stopped(exit_code) => exit_code,
+            ServiceStatusUpdate::Stopped(exit_code) => exit_code,
             _ => ServiceExitCode::Win32(0),
         }
     }
 
     fn get_wait_hint(&self) -> Duration {
         match *self {
-            ServiceStateUpdate::StartPending(wait_hint)
-            | ServiceStateUpdate::StopPending(wait_hint)
-            | ServiceStateUpdate::ContinuePending(wait_hint)
-            | ServiceStateUpdate::PausePending(wait_hint) => wait_hint,
+            ServiceStatusUpdate::StartPending(wait_hint)
+            | ServiceStatusUpdate::StopPending(wait_hint)
+            | ServiceStatusUpdate::ContinuePending(wait_hint)
+            | ServiceStatusUpdate::PausePending(wait_hint) => wait_hint,
             _ => Duration::default(),
         }
     }
@@ -197,7 +212,7 @@ impl ServiceStateUpdate {
 /// Send service status update to the system
 fn update_service_status(
     status_handle: &ServiceStatusHandle,
-    state_update: ServiceStateUpdate,
+    state_update: ServiceStatusUpdate,
 ) -> io::Result<()> {
     let next_state = state_update.get_service_state();
 
@@ -213,7 +228,7 @@ fn update_service_status(
     };
 
     let service_status = ServiceStatus {
-        service_type: ServiceType::OwnProcess,
+        service_type: SERVICE_TYPE,
         current_state: next_state,
         controls_accepted: accepted_controls_by_state(next_state),
         exit_code: state_update.get_exit_code(),
@@ -245,23 +260,8 @@ pub fn install_service() -> Result<()> {
     let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .chain_err(|| "Unable to connect to service manager")?;
-    let service_info = get_service_info();
     service_manager
-        .create_service(service_info, ServiceAccess::empty())
+        .create_service(SERVICE_INFO.clone(), ServiceAccess::empty())
         .map(|_| ())
         .chain_err(|| "Unable to create a service")
-}
-
-fn get_service_info() -> ServiceInfo {
-    ServiceInfo {
-        name: OsString::from(SERVICE_NAME),
-        display_name: OsString::from(SERVICE_DISPLAY_NAME),
-        service_type: ServiceType::OwnProcess,
-        start_type: ServiceStartType::AutoStart,
-        error_control: ServiceErrorControl::Normal,
-        executable_path: env::current_exe().unwrap(),
-        launch_arguments: vec![OsString::from("--run-as-service")],
-        account_name: None, // run as System
-        account_password: None,
-    }
 }
