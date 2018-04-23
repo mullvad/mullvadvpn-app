@@ -6,15 +6,20 @@
     <ClInclude Include="wmi\connection.h">
       <Filter>wmi</Filter>
     </ClInclude>
-    <ClInclude Include="comlol.h" />
     <ClInclude Include="wmi\resultset.h">
       <Filter>wmi</Filter>
     </ClInclude>
     <ClInclude Include="wmi\iconnection.h">
       <Filter>wmi</Filter>
     </ClInclude>
-    <ClInclude Include="dnsregistry.h" />
     <ClInclude Include="windns.h" />
+    <ClInclude Include="windnscontext.h" />
+    <ClInclude Include="dnsconfiguration.h" />
+    <ClInclude Include="wmi\methodcall.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="comhelpers.h" />
+    <ClInclude Include="dnshelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -25,6 +30,14 @@
     <ClCompile Include="wmi\resultset.cpp">
       <Filter>wmi</Filter>
     </ClCompile>
+    <ClCompile Include="windns.cpp" />
+    <ClCompile Include="windnscontext.cpp" />
+    <ClCompile Include="dnsconfiguration.cpp" />
+    <ClCompile Include="wmi\methodcall.cpp">
+      <Filter>wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="comhelpers.cpp" />
+    <ClCompile Include="dnshelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="wmi">
