@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
   account numbers.
 - Fix OpenVPN plugin search directory to be the installation directory.
 - Reduce RPC timeout to Mullvad API server.
+- Fix OpenVPN warning about usage of AES-256-CBC cipher.
 
 
 ## [2018.1] - 2018-03-01
