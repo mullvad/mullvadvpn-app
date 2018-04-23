@@ -147,12 +147,9 @@ static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(1);
 #[derive(Debug)]
 enum ServiceStatusUpdate {
     Running,
-    Paused,
     Stopped(ServiceExitCode),
     StartPending(Duration),
     StopPending(Duration),
-    ContinuePending(Duration),
-    PausePending(Duration),
 }
 
 impl ServiceStatusUpdate {
@@ -183,12 +180,9 @@ impl ServiceStatusUpdate {
     fn get_service_state(&self) -> ServiceState {
         match *self {
             ServiceStatusUpdate::Running => ServiceState::Running,
-            ServiceStatusUpdate::Paused => ServiceState::Paused,
             ServiceStatusUpdate::Stopped(_) => ServiceState::Stopped,
             ServiceStatusUpdate::StartPending(_) => ServiceState::StartPending,
             ServiceStatusUpdate::StopPending(_) => ServiceState::StopPending,
-            ServiceStatusUpdate::ContinuePending(_) => ServiceState::ContinuePending,
-            ServiceStatusUpdate::PausePending(_) => ServiceState::PausePending,
         }
     }
 
@@ -202,9 +196,7 @@ impl ServiceStatusUpdate {
     fn get_wait_hint(&self) -> Duration {
         match *self {
             ServiceStatusUpdate::StartPending(wait_hint)
-            | ServiceStatusUpdate::StopPending(wait_hint)
-            | ServiceStatusUpdate::ContinuePending(wait_hint)
-            | ServiceStatusUpdate::PausePending(wait_hint) => wait_hint,
+            | ServiceStatusUpdate::StopPending(wait_hint) => wait_hint,
             _ => Duration::default(),
         }
     }
