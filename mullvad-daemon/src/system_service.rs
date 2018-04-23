@@ -166,7 +166,7 @@ fn start_event_monitor(
 }
 
 /// Checkpoint counter for ServiceState.
-static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(0);
+static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(1);
 
 /// Struct that logically groups information used at different stages of service lifecycle.
 #[derive(Debug)]
@@ -225,7 +225,7 @@ fn update_service_status(
         ServiceState::StartPending
         | ServiceState::StopPending
         | ServiceState::ContinuePending
-        | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst) + 1,
+        | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst),
         _ => 0,
     };
 
