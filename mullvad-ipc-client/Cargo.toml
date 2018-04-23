@@ -1,0 +1,6 @@
+[package]
+name = "mullvad-ipc-client"
+version = "0.1.0"
+authors = ["Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
+
+[dependencies]

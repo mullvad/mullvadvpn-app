@@ -738,6 +738,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-ipc-client"
+version = "0.1.0"
+
+[[package]]
 name = "mullvad-rpc"
 version = "0.1.0"
 dependencies = [
