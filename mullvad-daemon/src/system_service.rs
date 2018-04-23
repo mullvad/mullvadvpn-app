@@ -163,6 +163,30 @@ enum ServiceStatusUpdate {
 }
 
 impl ServiceStatusUpdate {
+    fn to_service_status(&self) -> ServiceStatus {
+        let next_state = self.get_service_state();
+
+        // Automatically bump the checkpoint when updating the pending events to tell the system
+        // that the service is making a progress in transition from pending to final state.
+        // `wait_hint` should reflect the estimated time for transition to complete.
+        let checkpoint = match next_state {
+            ServiceState::StartPending
+            | ServiceState::StopPending
+            | ServiceState::ContinuePending
+            | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst),
+            _ => 0,
+        };
+
+        ServiceStatus {
+            service_type: SERVICE_TYPE,
+            current_state: next_state,
+            controls_accepted: accepted_controls_by_state(next_state),
+            exit_code: self.get_exit_code(),
+            checkpoint: checkpoint as u32,
+            wait_hint: self.get_wait_hint(),
+        }
+    }
+
     fn get_service_state(&self) -> ServiceState {
         match *self {
             ServiceStatusUpdate::Running => ServiceState::Running,
@@ -196,29 +220,9 @@ impl ServiceStatusUpdate {
 /// Send service status update to the system
 fn update_service_status(
     status_handle: &ServiceStatusHandle,
-    state_update: ServiceStatusUpdate,
+    status_update: ServiceStatusUpdate,
 ) -> io::Result<()> {
-    let next_state = state_update.get_service_state();
-
-    // Automatically bump the checkpoint when updating the pending events to tell the system
-    // that the service is making a progress in transition from pending to final state.
-    // `wait_hint` should reflect the estimated time for transition to complete.
-    let checkpoint = match next_state {
-        ServiceState::StartPending
-        | ServiceState::StopPending
-        | ServiceState::ContinuePending
-        | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst),
-        _ => 0,
-    };
-
-    let service_status = ServiceStatus {
-        service_type: SERVICE_TYPE,
-        current_state: next_state,
-        controls_accepted: accepted_controls_by_state(next_state),
-        exit_code: state_update.get_exit_code(),
-        checkpoint: checkpoint as u32,
-        wait_hint: state_update.get_wait_hint(),
-    };
+    let service_status = status_update.to_service_status();
 
     debug!(
         "Update service status: {:?}, checkpoint: {}, wait_hint: {:?}",
