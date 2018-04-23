@@ -77,7 +77,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
 
     // Create daemon
     let resource_dir = get_resource_dir();
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, true)
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, config.require_auth)
         .chain_err(|| "Unable to initialize daemon")?;
     let shutdown_handle = daemon.shutdown_handle();
 
