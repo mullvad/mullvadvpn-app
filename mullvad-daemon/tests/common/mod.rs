@@ -2,45 +2,24 @@
 
 #[cfg(unix)]
 extern crate libc;
+#[cfg(not(unix))]
+extern crate mullvad_ipc_client;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 use duct;
 use os_pipe::{pipe, PipeReader};
-use serde::{Deserialize, Serialize};
-use talpid_ipc::WsIpcClient;
-
-pub use self::platform_specific::*;
 
 #[cfg(unix)]
-mod platform_specific {
-    use super::*;
-
-    pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
-
-    pub fn rpc_file_path() -> PathBuf {
-        Path::new("/tmp/.mullvad_rpc_address").to_path_buf()
-    }
-}
+pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
 
 #[cfg(not(unix))]
-mod platform_specific {
-    use super::*;
-
-    pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
-
-    pub fn rpc_file_path() -> PathBuf {
-        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
-        PathBuf::from(windows_directory)
-            .join("Temp")
-            .join(".mullvad_rpc_address")
-    }
-}
+pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
 
 fn prepare_relay_list<T: AsRef<Path>>(path: T) {
     let path = path.as_ref();
@@ -50,42 +29,6 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
             .expect("failed to create relay list file")
             .write_all(b"{ \"countries\": [] }")
             .expect("failed to write relay list");
-    }
-}
-
-pub struct DaemonRpcClient {
-    address: String,
-}
-
-impl DaemonRpcClient {
-    fn new() -> Result<Self, String> {
-        let rpc_file = File::open(rpc_file_path())
-            .map_err(|error| format!("failed to open RPC address file: {}", error))?;
-        let reader = BufReader::new(rpc_file);
-        let mut lines = reader.lines();
-        let address = lines
-            .next()
-            .ok_or("RPC address file is empty".to_string())?
-            .map_err(|error| format!("failed to read address from RPC address file: {}", error))?;
-
-        Ok(DaemonRpcClient { address })
-    }
-
-    pub fn shutdown(&self) -> Result<(), String> {
-        self.call("shutdown", &[] as &[u8; 0])
-    }
-
-    pub fn call<A, O>(&self, method: &str, args: &A) -> Result<O, String>
-    where
-        A: Serialize,
-        O: for<'de> Deserialize<'de>,
-    {
-        let mut rpc_client = WsIpcClient::new(self.address.clone())
-            .map_err(|error| format!("unable to create RPC client: {}", error))?;
-
-        rpc_client
-            .call(method, args)
-            .map_err(|error| format!("RPC request failed: {}", error))
     }
 }
 
@@ -154,6 +97,8 @@ impl DaemonRunner {
 
     #[cfg(not(unix))]
     fn request_clean_shutdown(&mut self, _: &mut duct::Handle) -> bool {
+        use self::mullvad_ipc_client::DaemonRpcClient;
+
         if let Ok(rpc_client) = DaemonRpcClient::new() {
             rpc_client.shutdown().is_ok()
         } else {

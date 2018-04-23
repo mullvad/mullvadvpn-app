@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate duct;
+extern crate mullvad_ipc_client;
 extern crate os_pipe;
-extern crate serde;
 extern crate talpid_ipc;
 
 mod common;
@@ -10,7 +10,9 @@ use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
 
-use common::{rpc_file_path, DaemonRunner};
+use mullvad_ipc_client::rpc_file_path;
+
+use common::DaemonRunner;
 
 use platform_specific::*;
 

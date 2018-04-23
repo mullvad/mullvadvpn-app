@@ -45,3 +45,4 @@ windows-service = { path = "../windows-service" }
 assert_matches = "1.0"
 duct = "0.10"
 os_pipe = "0.6"
+mullvad-ipc-client = { path = "../mullvad-ipc-client" }
