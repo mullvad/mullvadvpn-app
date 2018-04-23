@@ -852,11 +852,21 @@ impl Drop for Daemon {
 
 quick_main!(run);
 
-#[cfg(windows)]
 fn run() -> Result<()> {
     let config = cli::get_config();
+    logging::init_logger(
+        config.log_level,
+        config.log_file.as_ref(),
+        config.log_stdout_timestamps,
+    ).chain_err(|| "Unable to initialize logger")?;
+    log_version();
+    run_platform(config)
+}
+
+#[cfg(windows)]
+fn run_platform(config: cli::Config) -> Result<()> {
     if config.run_as_service {
-        system_service::run(config)
+        system_service::run()
     } else {
         if config.register_service {
             let install_result =
@@ -872,19 +882,11 @@ fn run() -> Result<()> {
 }
 
 #[cfg(not(windows))]
-fn run() -> Result<()> {
-    let config = cli::get_config();
+fn run_platform(config: cli::Config) -> Result<()> {
     run_standalone(config)
 }
 
 fn run_standalone(config: cli::Config) -> Result<()> {
-    logging::init_logger(
-        config.log_level,
-        config.log_file.as_ref(),
-        config.log_stdout_timestamps,
-    ).chain_err(|| "Unable to initialize logger")?;
-    log_version();
-
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
