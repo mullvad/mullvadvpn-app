@@ -1,3 +1,4 @@
+use atty;
 use duct;
 
 use std::ffi::{OsStr, OsString};
@@ -106,7 +107,23 @@ impl OpenVpnCommand {
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
-        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
+
+        let mut cmd = duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked();
+
+        // Prevent forwarding the stdio when it's not available.
+        if atty::is(atty::Stream::Stdin) {
+            cmd = cmd.stdin_null();
+        }
+
+        if atty::is(atty::Stream::Stdout) {
+            cmd = cmd.stdout_null();
+        }
+
+        if atty::is(atty::Stream::Stderr) {
+            cmd = cmd.stderr_null();
+        }
+
+        cmd
     }
 
     /// Sets extra options

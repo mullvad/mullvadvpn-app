@@ -6,6 +6,7 @@ description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
 
 [dependencies]
+atty = "0.2"
 duct = "0.10"
 error-chain = "0.11"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", tag = "v8.0.1" }
