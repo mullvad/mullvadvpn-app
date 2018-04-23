@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="other files">
+      <UniqueIdentifier>{f6f1a55f-c90a-4972-9986-37b42d9ae7a0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\connection.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\iconnection.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\resultset.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\dnsconfiguration.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\methodcall.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\comhelpers.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\dnshelpers.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnstest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\wmi\connection.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\wmi\resultset.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\dnsconfiguration.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\wmi\methodcall.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\comhelpers.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\dnshelpers.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
