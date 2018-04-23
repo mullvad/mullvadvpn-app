@@ -3,18 +3,32 @@ extern crate error_chain;
 extern crate serde;
 extern crate talpid_ipc;
 
-use std::fs::File;
+use std::fs::{File, Metadata};
 use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 use talpid_ipc::WsIpcClient;
+
+use platform_specific::ensure_written_by_admin;
+pub use platform_specific::rpc_file_path;
 
 error_chain! {
     errors {
         EmptyRpcFile(file_path: String) {
             description("RPC connection file is empty")
             display("RPC connection file \"{}\" is empty", file_path)
+        }
+
+        InsecureRpcFile(file_path: String) {
+            description(
+                "RPC connection file is insecure because it might not have been written by an \
+                administrator user"
+            )
+            display(
+                "RPC connection file \"{}\" is insecure because it might not have been written by \
+                an administrator user", file_path
+            )
         }
 
         ReadRpcFileError(file_path: String) {
@@ -56,6 +70,13 @@ impl DaemonRpcClient {
         let file_path_string = || file_path.display().to_string();
         let rpc_file =
             File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+
+        let file_metadata = rpc_file
+            .metadata()
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+
+        ensure_written_by_admin(&file_path, file_metadata)?;
+
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
@@ -84,18 +105,46 @@ impl DaemonRpcClient {
 }
 
 #[cfg(unix)]
-pub fn rpc_file_path() -> Result<PathBuf> {
-    use std::path::Path;
+mod platform_specific {
+    use std::os::unix::fs::MetadataExt;
 
-    Ok(Path::new("/tmp/.mullvad_rpc_address").to_path_buf())
+    use super::*;
+
+    pub fn rpc_file_path() -> Result<PathBuf> {
+        Ok(Path::new("/tmp/.mullvad_rpc_address").to_path_buf())
+    }
+
+    pub fn ensure_written_by_admin<P: AsRef<Path>>(file_path: P, metadata: Metadata) -> Result<()> {
+        let is_owned_by_root = metadata.uid() == 0;
+        let is_read_only_by_non_owner = (metadata.mode() & 0o022) == 0;
+
+        ensure!(
+            is_owned_by_root && is_read_only_by_non_owner,
+            ErrorKind::InsecureRpcFile(file_path.as_ref().display().to_string())
+        );
+
+        Ok(())
+    }
 }
 
 #[cfg(windows)]
-pub fn rpc_file_path() -> Result<PathBuf> {
-    let windows_directory =
-        ::std::env::var_os("WINDIR").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
+mod platform_specific {
+    use super::*;
 
-    Ok(PathBuf::from(windows_directory)
-        .join("Temp")
-        .join(".mullvad_rpc_address"))
+    pub fn rpc_file_path() -> Result<PathBuf> {
+        let windows_directory =
+            ::std::env::var_os("WINDIR").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
+
+        Ok(PathBuf::from(windows_directory)
+            .join("Temp")
+            .join(".mullvad_rpc_address"))
+    }
+
+    pub fn ensure_written_by_admin<P: AsRef<Path>>(
+        _file_path: P,
+        _metadata: Metadata,
+    ) -> Result<()> {
+        // TODO: Check permissions correctly
+        Ok(())
+    }
 }
