@@ -25,20 +25,6 @@ static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
 static SERVICE_TYPE: ServiceType = ServiceType::OwnProcess;
 
-lazy_static! {
-    static ref SERVICE_INFO: ServiceInfo = ServiceInfo {
-        name: OsString::from(SERVICE_NAME),
-        display_name: OsString::from(SERVICE_DISPLAY_NAME),
-        service_type: SERVICE_TYPE,
-        start_type: ServiceStartType::AutoStart,
-        error_control: ServiceErrorControl::Normal,
-        executable_path: env::current_exe().unwrap(),
-        launch_arguments: vec![OsString::from("--run-as-service")],
-        account_name: None, // run as System
-        account_password: None,
-    };
-}
-
 pub fn run(config: cli::Config) -> Result<()> {
     logging::init_logger(
         config.log_level,
@@ -65,6 +51,7 @@ pub fn handle_service_main(arguments: Vec<OsString>) {
 }
 
 fn run_service(_arguments: Vec<OsString>) -> Result<()> {
+    let config = cli::get_config();
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -98,13 +85,8 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
     ).unwrap();
 
     // Create daemon
-    let windows_directory = ::std::env::var_os("WINDIR").unwrap();
-    let tunnel_log_file = PathBuf::from(windows_directory)
-        .join("Temp")
-        .join("mullvad-openvpn.log");
-
     let resource_dir = get_resource_dir();
-    let daemon = Daemon::new(Some(tunnel_log_file), resource_dir, true)
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, true)
         .chain_err(|| "Unable to initialize daemon")?;
     let shutdown_handle = daemon.shutdown_handle();
 
@@ -263,7 +245,36 @@ pub fn install_service() -> Result<()> {
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .chain_err(|| "Unable to connect to service manager")?;
     service_manager
-        .create_service(SERVICE_INFO.clone(), ServiceAccess::empty())
+        .create_service(get_service_info(), ServiceAccess::empty())
         .map(|_| ())
         .chain_err(|| "Unable to create a service")
+}
+
+fn get_service_info() -> ServiceInfo {
+    let windows_directory = ::std::env::var_os("WINDIR").unwrap();
+    let service_log_file = PathBuf::from(&windows_directory)
+        .join("Temp")
+        .join("mullvad-service.log");
+    let tunnel_log_file = PathBuf::from(&windows_directory)
+        .join("Temp")
+        .join("mullvad-openvpn.log");
+
+    ServiceInfo {
+        name: OsString::from(SERVICE_NAME),
+        display_name: OsString::from(SERVICE_DISPLAY_NAME),
+        service_type: SERVICE_TYPE,
+        start_type: ServiceStartType::AutoStart,
+        error_control: ServiceErrorControl::Normal,
+        executable_path: env::current_exe().unwrap(),
+        launch_arguments: vec![
+            OsString::from("--log"),
+            OsString::from(service_log_file),
+            OsString::from("--tunnel-log"),
+            OsString::from(tunnel_log_file),
+            OsString::from("--run-as-service"),
+            OsString::from("-v"),
+        ],
+        account_name: None, // run as System
+        account_password: None,
+    }
 }
