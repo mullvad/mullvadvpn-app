@@ -31,16 +31,8 @@ pub fn get_config() -> Config {
     let require_auth = !matches.is_present("disable_rpc_auth");
     let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
-    let run_as_service = if cfg!(windows) {
-        matches.is_present("run_as_service")
-    } else {
-        false
-    };
-    let register_service = if cfg!(windows) {
-        matches.is_present("register_service")
-    } else {
-        false
-    };
+    let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
+    let register_service = cfg!(windows) && matches.is_present("register_service");
 
     Config {
         log_level,
