@@ -80,10 +80,10 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   renderError(error: BackendError) {
     return (
       <View style={styles.connect}>
+        <View style={styles.status_icon}>
+          <Img source="icon-fail" height={60} width={60} alt="" />
+        </View>
         <View style={styles.status}>
-          <View style={styles.status_icon}>
-            <Img source="icon-fail" height={60} width={60} alt="" />
-          </View>
           <View style={styles.error_title}>
             { error.title }
           </View>
