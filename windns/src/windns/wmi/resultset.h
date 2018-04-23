@@ -3,7 +3,6 @@
 #include <string>
 #include <atlbase.h>
 #include <wbemidl.h>
-#include <comutil.h>
 
 namespace wmi
 {
@@ -14,19 +13,16 @@ public:
 
 	ResultSet(CComPtr<IEnumWbemClassObject> rs);
 
+	ResultSet(const ResultSet &) = delete;
+	ResultSet &operator=(const ResultSet &) = delete;
 	ResultSet(ResultSet &&) = default;
 	ResultSet &operator=(ResultSet &&) = default;
 
 	bool advance();
 
-	_variant_t getResultProperty(const std::wstring &name);
-
-	CComPtr<IWbemClassObject> getResult();
+	CComPtr<IWbemClassObject> result();
 
 private:
-
-	ResultSet(const ResultSet &) = delete;
-	ResultSet &operator=(const ResultSet &) = delete;
 
 	CComPtr<IEnumWbemClassObject> m_resultset;
 	CComPtr<IWbemClassObject> m_result;

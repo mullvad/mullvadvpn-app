@@ -6,6 +6,9 @@
 #include <windows.h>
 #include <atlbase.h>
 #include <comutil.h>
+#include <comdef.h>
+
+#pragma comment(lib, "wbemuuid.lib")
 
 namespace wmi
 {
@@ -17,23 +20,20 @@ public:
 	enum class Namespace
 	{
 		Default,
-		Cimv2
+		Cimv2,
+		StandardCimv2
 	};
 
 	explicit Connection(Namespace ns);
 
-	ResultSet Query(const wchar_t *query) override;
+	ResultSet query(const wchar_t *query) override;
 
-	// TODO: Move to shared base class.
-	ResultSet Query(const std::wstring &str)
+	CComPtr<IWbemServices> services() override
 	{
-		return Query(str.c_str());
+		return m_services;
 	}
 
 private:
-
-	Connection(const Connection &) = delete;
-	Connection &operator=(const Connection &) = delete;
 
 	CComPtr<IWbemLocator> m_locator;
 	CComPtr<IWbemServices> m_services;
