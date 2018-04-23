@@ -856,7 +856,7 @@ quick_main!(run);
 fn run() -> Result<()> {
     let config = cli::get_config();
     if config.run_as_service {
-        system_service::run()
+        system_service::run(config)
     } else {
         if config.register_service {
             let install_result =
@@ -866,18 +866,18 @@ fn run() -> Result<()> {
             }
             install_result
         } else {
-            run_standalone()
+            run_standalone(config)
         }
     }
 }
 
 #[cfg(not(windows))]
 fn run() -> Result<()> {
-    run_standalone()
+    let config = cli::get_config();
+    run_standalone(config)
 }
 
-fn run_standalone() -> Result<()> {
-    let config = cli::get_config();
+fn run_standalone(config: cli::Config) -> Result<()> {
     logging::init_logger(
         config.log_level,
         config.log_file.as_ref(),

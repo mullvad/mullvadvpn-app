@@ -38,13 +38,12 @@ lazy_static! {
     };
 }
 
-pub fn run() -> Result<()> {
-    let windows_directory = ::std::env::var_os("WINDIR").unwrap();
-    let global_temp_directory = PathBuf::from(windows_directory).join("Temp");
-    let main_log_file = Some(global_temp_directory.join("mullvad-service.log"));
-
-    logging::init_logger(log::LevelFilter::Debug, main_log_file.as_ref(), true)
-        .chain_err(|| "Unable to initialize logger")?;
+pub fn run(config: cli::Config) -> Result<()> {
+    logging::init_logger(
+        config.log_level,
+        config.log_file.as_ref(),
+        config.log_stdout_timestamps,
+    ).chain_err(|| "Unable to initialize logger")?;
     log_version();
 
     // Start the service dispatcher.
