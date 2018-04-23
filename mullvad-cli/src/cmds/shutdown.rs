@@ -1,7 +1,7 @@
 use clap;
 use {Command, Result};
 
-use rpc;
+use mullvad_ipc_client::DaemonRpcClient;
 
 pub struct Shutdown;
 
@@ -15,6 +15,8 @@ impl Command for Shutdown {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        rpc::call("shutdown", &[] as &[u8; 0])
+        let rpc = DaemonRpcClient::new()?;
+        rpc.shutdown()?;
+        Ok(())
     }
 }
