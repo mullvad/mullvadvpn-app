@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 - Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
   account numbers.
 - Fix OpenVPN plugin search directory to be the installation directory.
+- Reduce RPC timeout to Mullvad API server.
 
 
 ## [2018.1] - 2018-03-01
