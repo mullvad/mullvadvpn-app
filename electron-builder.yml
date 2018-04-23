@@ -71,6 +71,8 @@ win:
       to: .
     - from: ./target/release/talpid_openvpn_plugin.dll
       to: .
+    - from: ./windows/winfw/bin/x64-Release/winfw.dll
+      to: .
 
 linux:
   target:
