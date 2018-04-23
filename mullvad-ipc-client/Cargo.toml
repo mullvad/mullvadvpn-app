@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
 
 [dependencies]
+error-chain = "0.11"
 serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
