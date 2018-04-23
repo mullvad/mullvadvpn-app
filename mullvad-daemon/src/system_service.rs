@@ -3,7 +3,7 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc};
 use std::time::Duration;
 use std::{env, io, thread};
 
@@ -66,14 +66,11 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
     let status_handle =
         service_control_handler::register_control_handler(SERVICE_NAME, event_handler)
             .chain_err(|| "Failed to register a service control handler")?;
+    let mut persistent_service_status = PersistentServiceStatus::new(status_handle);
+    persistent_service_status
+        .set_pending_start(Duration::from_secs(1))
+        .unwrap();
 
-    let start_duration_hint = Duration::from_secs(1);
-    update_service_status(
-        &status_handle,
-        ServiceStatusUpdate::StartPending(start_duration_hint),
-    ).unwrap();
-
-    // Create daemon
     let resource_dir = get_resource_dir();
     let daemon = Daemon::new(config.tunnel_log_file, resource_dir, config.require_auth)
         .chain_err(|| "Unable to initialize daemon")?;
@@ -81,16 +78,16 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
 
     // Register monitor that translates `ServiceControl` to Daemon events
     let _event_monitor_thread =
-        start_event_monitor(status_handle.clone(), shutdown_handle, event_rx);
+        start_event_monitor(persistent_service_status.clone(), shutdown_handle, event_rx);
 
-    update_service_status(&status_handle, ServiceStatusUpdate::Running).unwrap();
+    persistent_service_status.set_running().unwrap();
 
     let result = daemon.run();
 
-    update_service_status(
-        &status_handle,
-        ServiceStatusUpdate::Stopped(ServiceExitCode::Win32(0)),
-    ).unwrap();
+    // TBD: report correct exit code back after running a daemon.
+    persistent_service_status
+        .set_stopped(ServiceExitCode::default())
+        .unwrap();
 
     result
 }
@@ -98,7 +95,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
 /// Daemon.
 fn start_event_monitor(
-    status_handle: ServiceStatusHandle,
+    mut persistent_service_status: PersistentServiceStatus,
     shutdown_handle: DaemonShutdownHandle,
     event_rx: mpsc::Receiver<ServiceControl>,
 ) -> thread::JoinHandle<()> {
@@ -106,12 +103,9 @@ fn start_event_monitor(
         for event in event_rx {
             match event {
                 ServiceControl::Stop | ServiceControl::Shutdown => {
-                    let shutdown_duration_hint = Duration::from_secs(3);
-
-                    update_service_status(
-                        &status_handle,
-                        ServiceStatusUpdate::StopPending(shutdown_duration_hint),
-                    ).unwrap();
+                    persistent_service_status
+                        .set_pending_stop(Duration::from_secs(3))
+                        .unwrap();
 
                     shutdown_handle.shutdown();
                 }
@@ -121,22 +115,63 @@ fn start_event_monitor(
     })
 }
 
-/// Checkpoint counter for ServiceState.
-static CHECKPOINT_COUNTER: AtomicUsize = AtomicUsize::new(1);
 
-/// Struct that logically groups information used at different stages of service lifecycle.
-#[derive(Debug)]
-enum ServiceStatusUpdate {
-    Running,
-    Stopped(ServiceExitCode),
-    StartPending(Duration),
-    StopPending(Duration),
+/// Service status helper with persistent checkpoint counter.
+#[derive(Debug, Clone)]
+struct PersistentServiceStatus {
+    status_handle: ServiceStatusHandle,
+    checkpoint_counter: Arc<AtomicUsize>,
 }
 
-impl ServiceStatusUpdate {
-    fn to_service_status(&self) -> ServiceStatus {
-        let next_state = self.get_service_state();
+impl PersistentServiceStatus {
+    fn new(status_handle: ServiceStatusHandle) -> Self {
+        PersistentServiceStatus {
+            status_handle,
+            checkpoint_counter: Arc::new(AtomicUsize::new(1)),
+        }
+    }
 
+    /// Tell the system that the service is pending start and provide the time estimate until
+    /// initialization is complete.
+    fn set_pending_start(&mut self, wait_hint: Duration) -> io::Result<()> {
+        self.report_status(
+            ServiceState::StartPending,
+            wait_hint,
+            ServiceExitCode::default(),
+        )
+    }
+
+    /// Tell the system that the service is running.
+    fn set_running(&mut self) -> io::Result<()> {
+        self.report_status(
+            ServiceState::Running,
+            Duration::default(),
+            ServiceExitCode::default(),
+        )
+    }
+
+    /// Tell the system that the service is pending stop and provide the time estimate until the
+    /// service is stopped.
+    fn set_pending_stop(&mut self, wait_hint: Duration) -> io::Result<()> {
+        self.report_status(
+            ServiceState::StopPending,
+            wait_hint,
+            ServiceExitCode::default(),
+        )
+    }
+
+    /// Tell the system that the service is stopped and provide the exit code.
+    fn set_stopped(&mut self, exit_code: ServiceExitCode) -> io::Result<()> {
+        self.report_status(ServiceState::Stopped, Duration::default(), exit_code)
+    }
+
+    /// Private helper to report the service status update.
+    fn report_status(
+        &mut self,
+        next_state: ServiceState,
+        wait_hint: Duration,
+        exit_code: ServiceExitCode,
+    ) -> io::Result<()> {
         // Automatically bump the checkpoint when updating the pending events to tell the system
         // that the service is making a progress in transition from pending to final state.
         // `wait_hint` should reflect the estimated time for transition to complete.
@@ -144,58 +179,26 @@ impl ServiceStatusUpdate {
             ServiceState::StartPending
             | ServiceState::StopPending
             | ServiceState::ContinuePending
-            | ServiceState::PausePending => CHECKPOINT_COUNTER.fetch_add(1, Ordering::SeqCst),
+            | ServiceState::PausePending => self.checkpoint_counter.fetch_add(1, Ordering::SeqCst),
             _ => 0,
         };
 
-        ServiceStatus {
+        let service_status = ServiceStatus {
             service_type: SERVICE_TYPE,
             current_state: next_state,
             controls_accepted: accepted_controls_by_state(next_state),
-            exit_code: self.get_exit_code(),
+            exit_code: exit_code,
             checkpoint: checkpoint as u32,
-            wait_hint: self.get_wait_hint(),
-        }
+            wait_hint: wait_hint,
+        };
+
+        debug!(
+            "Update service status: {:?}, checkpoint: {}, wait_hint: {:?}",
+            service_status.current_state, service_status.checkpoint, service_status.wait_hint
+        );
+
+        self.status_handle.set_service_status(service_status)
     }
-
-    fn get_service_state(&self) -> ServiceState {
-        match *self {
-            ServiceStatusUpdate::Running => ServiceState::Running,
-            ServiceStatusUpdate::Stopped(_) => ServiceState::Stopped,
-            ServiceStatusUpdate::StartPending(_) => ServiceState::StartPending,
-            ServiceStatusUpdate::StopPending(_) => ServiceState::StopPending,
-        }
-    }
-
-    fn get_exit_code(&self) -> ServiceExitCode {
-        match *self {
-            ServiceStatusUpdate::Stopped(exit_code) => exit_code,
-            _ => ServiceExitCode::Win32(0),
-        }
-    }
-
-    fn get_wait_hint(&self) -> Duration {
-        match *self {
-            ServiceStatusUpdate::StartPending(wait_hint)
-            | ServiceStatusUpdate::StopPending(wait_hint) => wait_hint,
-            _ => Duration::default(),
-        }
-    }
-}
-
-/// Send service status update to the system
-fn update_service_status(
-    status_handle: &ServiceStatusHandle,
-    status_update: ServiceStatusUpdate,
-) -> io::Result<()> {
-    let service_status = status_update.to_service_status();
-
-    debug!(
-        "Update service status: {:?}, checkpoint: {}, wait_hint: {:?}",
-        service_status.current_state, service_status.checkpoint, service_status.wait_hint
-    );
-
-    status_handle.set_service_status(service_status)
 }
 
 /// Returns the list of accepted service events at each stage of the service lifecycle.
