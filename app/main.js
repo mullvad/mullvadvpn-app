@@ -294,7 +294,7 @@ const appDelegate = {
   },
 
   _createWindow: (): BrowserWindow => {
-    log.debug('Electron renderer process PID - ', process.pid);
+    log.debug('Main process PID - ', process.pid);
     const contentHeight = 568;
     const options = {
       width: 320,
