@@ -54,9 +54,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
             ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
 
             ServiceControl::Shutdown | ServiceControl::Stop => {
-                control_event_tx
-                    .send(ServiceEvent::Control(control_event))
-                    .unwrap();
+                control_event_tx.send(control_event).unwrap();
                 ServiceControlHandlerResult::NoError
             }
 
@@ -81,19 +79,13 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
         .chain_err(|| "Unable to initialize daemon")?;
     let shutdown_handle = daemon.shutdown_handle();
 
-    // Register monitor that translates `ServiceEvent` to Daemon events
-    let event_monitor_thread =
+    // Register monitor that translates `ServiceControl` to Daemon events
+    let _event_monitor_thread =
         start_event_monitor(status_handle.clone(), shutdown_handle, event_rx);
 
     update_service_status(&status_handle, ServiceStatusUpdate::Running).unwrap();
 
     let result = daemon.run();
-
-    // shutdown event monitor
-    event_tx.send(ServiceEvent::Shutdown).unwrap();
-    event_monitor_thread.join().unwrap();
-
-    // TBD: Catch Daemon shutdown and change service status to `ServiceState::StopPending`
 
     update_service_status(
         &status_handle,
@@ -103,25 +95,17 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
     result
 }
 
-/// Service event is a protocol between control handler and event monitor.
-#[derive(Debug)]
-enum ServiceEvent {
-    Control(ServiceControl),
-    Shutdown,
-}
-
-/// Start event monitor thread that polls for `ServiceEvent` and translates them into calls to
+/// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
 /// Daemon.
 fn start_event_monitor(
     status_handle: ServiceStatusHandle,
     shutdown_handle: DaemonShutdownHandle,
-    event_rx: mpsc::Receiver<ServiceEvent>,
+    event_rx: mpsc::Receiver<ServiceControl>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         for event in event_rx {
             match event {
-                ServiceEvent::Control(ServiceControl::Stop)
-                | ServiceEvent::Control(ServiceControl::Shutdown) => {
+                ServiceControl::Stop | ServiceControl::Shutdown => {
                     let shutdown_duration_hint = Duration::from_secs(3);
 
                     update_service_status(
@@ -130,9 +114,6 @@ fn start_event_monitor(
                     ).unwrap();
 
                     shutdown_handle.shutdown();
-                }
-                ServiceEvent::Shutdown => {
-                    return;
                 }
                 _ => (),
             }
