@@ -197,13 +197,13 @@
 		Abort
 	${EndIf}
 
-	${InstallService}
+;	${InstallService}
 
-	${If} $R0 != 0
-		MessageBox MB_OK "Fatal error during service installation: $R0"
-		${BreakInstallation}
-		Abort
-	${EndIf}
+;	${If} $R0 != 0
+;		MessageBox MB_OK "Fatal error during service installation: $R0"
+;		${BreakInstallation}
+;		Abort
+;	${EndIf}
 
 	Pop $R0
 
