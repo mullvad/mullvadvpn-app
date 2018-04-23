@@ -1,0 +1,8 @@
+[package]
+name = "mullvad-ipc-client"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
+description = "RPC client for Mullvad daemon"
+license = "GPL-3.0"
+
+[dependencies]
