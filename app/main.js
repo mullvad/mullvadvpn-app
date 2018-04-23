@@ -327,6 +327,12 @@ const appDelegate = {
         transparent: true
       });
 
+    case 'linux':
+      return new BrowserWindow({
+        ...options,
+        show: true,
+      });
+
     default:
       return new BrowserWindow(options);
     }
