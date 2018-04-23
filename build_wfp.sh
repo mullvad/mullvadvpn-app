@@ -11,18 +11,21 @@ WFP_BUILD_TARGETS=${WFP_BUILD_TARGETS:-"x86 x64"}
 # Override this to set a different cargo target directory
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"./target/"}
 
+
 # Builds all 4 variations of the wfpctl.dll library. Takes an argument that is
 # the root of the WFP repository.
 function build_wfpctl
 {
-  local path="$1/wfpctl.sln"
+  local path="$1"
+
+  # Sometimes the build output needs to be cleaned up
+  rm -r $path/bin/* || true
+  
   set -x
   for mode in $WFP_BUILD_MODES; do
     for target in $WFP_BUILD_TARGETS; do
-      msbuild.exe "$(to_win_path $path)" \
-        //p:Configuration=$mode \
-        //p:Platform=$target \
-        //t:$WFP_SOLUTIONS
+      cmd.exe "/c msbuild.exe $(to_win_path $path/wfpctl.sln) /p:Configuration=$mode /p:Platform=$target /t:$WFP_SOLUTIONS"
+		
     done
   done
   set +x
@@ -30,7 +33,17 @@ function build_wfpctl
 
 function to_win_path
 {
-  echo $1 | sed -e 's/^\///' -e 's/\//\\/g' -e 's/^./\0:/'
+  local unixpath=$1
+  # if it's a relative path and starts with a dot (.), don't transform the
+  # drive prefix (/c/ -> C:\)
+  if echo $unixpath | grep '^\.' >/dev/null; then
+    echo $unixpath | sed -e 's/^\///' -e 's/\//\\/g' 
+  # if it's an absolute path, transform the drive prefix
+  else
+    # remove the cygrdive prefix if it's there
+    unixpath=$(echo $1 | sed -e 's/^\/cygdrive//')
+    echo $unixpath | sed -e 's/^\///' -e 's/\//\\/g' -e 's/^./\0:/'
+  fi
 }
 
 function copy_outputs
@@ -130,7 +143,7 @@ function arch_from_build_target
 
 function rustc_host_arch
 {
-  rustc --print cfg \
+  rustc.exe --print cfg \
    | grep '^target_arch=' \
    | cut -d'=' -f2 \
    | tr -d '"'
@@ -140,7 +153,7 @@ function rustc_host_arch
 function main
 {
 
-  local wfp_root_path=${WFP_ROOT_PATH:-"$(pwd)/wfpctl"}
+  local wfp_root_path=${WFP_ROOT_PATH:-"./wfpctl"}
 
   build_wfpctl $wfp_root_path
   copy_outputs $wfp_root_path
