@@ -7,6 +7,7 @@ use std::sync::mpsc;
 use std::time::Duration;
 use std::{env, io, thread};
 
+use cli;
 use error_chain::ChainedError;
 use log;
 use windows_service::service::{ServiceAccess, ServiceControl, ServiceControlAccept,
