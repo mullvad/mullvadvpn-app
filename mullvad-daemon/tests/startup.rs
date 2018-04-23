@@ -20,7 +20,7 @@ use platform_specific::*;
 #[cfg(not(windows))]
 #[test]
 fn rpc_info_file_permissions() {
-    let rpc_file = rpc_file_path();
+    let rpc_file = rpc_file_path().unwrap();
 
     if let Err(error) = fs::remove_file(&rpc_file) {
         if error.kind() != io::ErrorKind::NotFound {

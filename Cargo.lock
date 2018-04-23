@@ -742,6 +742,7 @@ dependencies = [
 name = "mullvad-ipc-client"
 version = "0.1.0"
 dependencies = [
+ "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
 ]
