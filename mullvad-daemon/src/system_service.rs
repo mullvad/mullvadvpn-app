@@ -117,23 +117,25 @@ fn start_event_monitor(
     shutdown_handle: DaemonShutdownHandle,
     event_rx: mpsc::Receiver<ServiceEvent>,
 ) -> thread::JoinHandle<()> {
-    thread::spawn(move || loop {
-        match event_rx.recv().unwrap() {
-            ServiceEvent::Control(ServiceControl::Stop)
-            | ServiceEvent::Control(ServiceControl::Shutdown) => {
-                let shutdown_duration_hint = Duration::from_secs(3);
+    thread::spawn(move || {
+        for event in event_rx {
+            match event {
+                ServiceEvent::Control(ServiceControl::Stop)
+                | ServiceEvent::Control(ServiceControl::Shutdown) => {
+                    let shutdown_duration_hint = Duration::from_secs(3);
 
-                update_service_status(
-                    &status_handle,
-                    ServiceStatusUpdate::StopPending(shutdown_duration_hint),
-                ).unwrap();
+                    update_service_status(
+                        &status_handle,
+                        ServiceStatusUpdate::StopPending(shutdown_duration_hint),
+                    ).unwrap();
 
-                shutdown_handle.shutdown();
+                    shutdown_handle.shutdown();
+                }
+                ServiceEvent::Shutdown => {
+                    return;
+                }
+                _ => (),
             }
-            ServiceEvent::Shutdown => {
-                return;
-            }
-            _ => (),
         }
     })
 }
