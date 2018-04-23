@@ -38,6 +38,8 @@ error_chain! {
     }
 }
 
+static NO_ARGS: [u8; 0] = [];
+
 pub struct DaemonRpcClient {
     address: String,
 }
@@ -64,7 +66,7 @@ impl DaemonRpcClient {
     }
 
     pub fn shutdown(&self) -> Result<()> {
-        self.call("shutdown", &[] as &[u8; 0])
+        self.call("shutdown", &NO_ARGS)
     }
 
     pub fn call<A, O>(&self, method: &str, args: &A) -> Result<O>
