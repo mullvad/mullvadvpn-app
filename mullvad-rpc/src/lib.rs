@@ -26,7 +26,7 @@ extern crate mullvad_types;
 use chrono::offset::Utc;
 use chrono::DateTime;
 use jsonrpc_client_http::header::Host;
-use jsonrpc_client_http::HttpTransport;
+use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};
@@ -39,6 +39,7 @@ use mullvad_types::version;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use std::path::Path;
+use std::time::Duration;
 
 pub mod event_loop;
 pub mod rest;
@@ -50,6 +51,7 @@ mod https_client_with_sni;
 use https_client_with_sni::HttpsClientWithSni;
 
 static MASTER_API_HOST: &str = "api.mullvad.net";
+static MASTER_RPC_TIMEOUT: Duration = Duration::from_secs(5);
 
 
 /// A type that helps with the creation of RPC connections.
@@ -80,8 +82,7 @@ impl MullvadRpcFactory {
 
     /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
     pub fn new_connection(&mut self) -> Result<HttpHandle, HttpError> {
-        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
-        self.setup_connection(HttpTransport::with_client(client)?)
+        self.setup_connection(HttpTransportBuilder::standalone)
     }
 
     /// Create and returns a `HttpHandle` running on the given core handle.
@@ -89,11 +90,19 @@ impl MullvadRpcFactory {
         &mut self,
         handle: &Handle,
     ) -> Result<HttpHandle, HttpError> {
-        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
-        self.setup_connection(HttpTransport::with_client_shared(client, handle)?)
+        self.setup_connection(move |transport| transport.shared(handle))
     }
 
-    fn setup_connection(&mut self, transport: HttpTransport) -> Result<HttpHandle, HttpError> {
+    fn setup_connection<F>(&mut self, create_transport: F) -> Result<HttpHandle, HttpError>
+    where
+        F: FnOnce(HttpTransportBuilder<HttpsClientWithSni>)
+            -> jsonrpc_client_http::Result<HttpTransport>,
+    {
+        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
+        let transport_builder =
+            HttpTransportBuilder::with_client(client).timeout(MASTER_RPC_TIMEOUT);
+
+        let transport = create_transport(transport_builder)?;
         let mut handle = transport.handle(&self.api_uri())?;
 
         handle.set_header(Host::new(MASTER_API_HOST, None));
