@@ -720,6 +720,7 @@ dependencies = [
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.39 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-ipc-client 0.1.0",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -740,6 +741,10 @@ dependencies = [
 [[package]]
 name = "mullvad-ipc-client"
 version = "0.1.0"
+dependencies = [
+ "serde 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid-ipc 0.1.0",
+]
 
 [[package]]
 name = "mullvad-rpc"
