@@ -46,7 +46,6 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
-    let control_event_tx = event_tx.clone();
     let event_handler = move |control_event| -> ServiceControlHandlerResult {
         match control_event {
             // Notifies a service to report its current status information to the service
@@ -54,7 +53,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
             ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
 
             ServiceControl::Shutdown | ServiceControl::Stop => {
-                control_event_tx.send(control_event).unwrap();
+                event_tx.send(control_event).unwrap();
                 ServiceControlHandlerResult::NoError
             }
 
