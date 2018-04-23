@@ -9,7 +9,6 @@ use std::{env, io, thread};
 
 use cli;
 use error_chain::ChainedError;
-use log;
 use windows_service::service::{ServiceAccess, ServiceControl, ServiceControlAccept,
                                ServiceErrorControl, ServiceExitCode, ServiceInfo,
                                ServiceStartType, ServiceState, ServiceStatus, ServiceType};
@@ -18,21 +17,13 @@ use windows_service::service_control_handler::{self, ServiceControlHandlerResult
 use windows_service::service_dispatcher;
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 
-use super::{get_resource_dir, log_version, logging, Daemon, DaemonShutdownHandle, Result,
-            ResultExt};
+use super::{get_resource_dir, Daemon, DaemonShutdownHandle, Result, ResultExt};
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
 static SERVICE_TYPE: ServiceType = ServiceType::OwnProcess;
 
-pub fn run(config: cli::Config) -> Result<()> {
-    logging::init_logger(
-        config.log_level,
-        config.log_file.as_ref(),
-        config.log_stdout_timestamps,
-    ).chain_err(|| "Unable to initialize logger")?;
-    log_version();
-
+pub fn run() -> Result<()> {
     // Start the service dispatcher.
     // This will block current thread until the service stopped and spawn `service_main` on a
     // background thread.
