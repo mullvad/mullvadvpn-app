@@ -12,6 +12,8 @@ pub struct Config {
     pub resource_dir: Option<PathBuf>,
     pub require_auth: bool,
     pub log_stdout_timestamps: bool,
+    pub run_as_service: bool,
+    pub register_service: bool,
 }
 
 pub fn get_config() -> Config {
@@ -29,6 +31,17 @@ pub fn get_config() -> Config {
     let require_auth = !matches.is_present("disable_rpc_auth");
     let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
+    let run_as_service = if cfg!(windows) {
+        matches.is_present("run_as_service")
+    } else {
+        false
+    };
+    let register_service = if cfg!(windows) {
+        matches.is_present("register_service")
+    } else {
+        false
+    };
+
     Config {
         log_level,
         log_file,
@@ -36,10 +49,12 @@ pub fn get_config() -> Config {
         resource_dir,
         require_auth,
         log_stdout_timestamps,
+        run_as_service,
+        register_service,
     }
 }
 
-pub fn create_app() -> App<'static, 'static> {
+fn create_app() -> App<'static, 'static> {
     let app = App::new(crate_name!())
         .version(version::current())
         .author(crate_authors!())
