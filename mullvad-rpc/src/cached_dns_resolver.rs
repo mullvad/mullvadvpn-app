@@ -236,8 +236,8 @@ mod tests {
     #[test]
     fn old_cache_file_is_updated() {
         let (_temp_dir, cache_dir) = create_test_dirs();
-        let cached_address = "127.0.0.1".parse().unwrap();
-        let mock_address = "192.168.1.206".parse().unwrap();
+        let cached_address = "80.10.20.30".parse().unwrap();
+        let mock_address = "90.168.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
 
         let cache_file_path = write_address(&cache_dir, cached_address);
@@ -270,7 +270,7 @@ mod tests {
     #[test]
     fn caches_resolved_ip() {
         let (_temp_dir, cache_dir) = create_test_dirs();
-        let mock_address = "192.168.1.206".parse().unwrap();
+        let mock_address = "80.10.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
 
         let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
@@ -283,7 +283,7 @@ mod tests {
     #[test]
     fn resolves_even_if_impossible_to_store_in_cache() {
         let (temp_dir, cache_dir) = create_test_dirs();
-        let mock_address = "192.168.1.206".parse().unwrap();
+        let mock_address = "201.0.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
 
         let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
@@ -311,8 +311,8 @@ mod tests {
     #[test]
     fn ignores_fallback_address_if_resolution_succeeds() {
         let (_temp_dir, cache_dir) = create_test_dirs();
-        let fallback_address = "192.168.1.31".parse().unwrap();
-        let mock_address = "192.168.1.206".parse().unwrap();
+        let fallback_address = "200.10.1.31".parse().unwrap();
+        let mock_address = "150.10.1.206".parse().unwrap();
         let mock_resolver = MockDnsResolver::with_address(mock_address);
 
         let mut cache =
@@ -325,7 +325,7 @@ mod tests {
     #[test]
     fn invalid_cache_file_leads_to_fallback_address_usage() {
         let (_temp_dir, cache_dir) = create_test_dirs();
-        let fallback_address = "192.168.1.31".parse().unwrap();
+        let fallback_address = "160.20.1.31".parse().unwrap();
         let mock_resolver = MockDnsResolver::that_fails();
         let mock_resolver_was_called = mock_resolver.was_called_handle();
 
@@ -337,6 +337,22 @@ mod tests {
 
         assert!(mock_resolver_was_called.load(Ordering::Acquire));
         assert_eq!(address, fallback_address);
+    }
+
+    #[test]
+    fn ignores_private_ip() {
+        let (_temp_dir, cache_dir) = create_test_dirs();
+        let fallback_address = "160.20.1.31".parse().unwrap();
+        let mock_address = "10.100.200.1".parse().unwrap();
+        let mock_resolver = MockDnsResolver::with_address(mock_address);
+
+        let mut cache =
+            create_cached_dns_resolver(mock_resolver, &cache_dir, Some(fallback_address));
+        let address = cache.resolve();
+
+        assert_eq!(address, fallback_address);
+        let cache_file_path = cache_dir.join("api_ip_address.txt");
+        assert!(!cache_file_path.exists());
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf) {
