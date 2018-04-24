@@ -1,8 +1,8 @@
 use clap;
 use {Command, Result};
 
-use mullvad_types::account::{AccountData, AccountToken};
-use rpc;
+use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_types::account::AccountToken;
 
 pub struct Account;
 
@@ -37,7 +37,7 @@ impl Command for Account {
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let token = value_t_or_exit!(set_matches.value_of("token"), String);
-            self.set(Some(&token))
+            self.set(Some(token))
         } else if let Some(_matches) = matches.subcommand_matches("unset") {
             self.set(None)
         } else if let Some(_matches) = matches.subcommand_matches("get") {
@@ -49,21 +49,23 @@ impl Command for Account {
 }
 
 impl Account {
-    fn set(&self, token: Option<&str>) -> Result<()> {
-        rpc::call("set_account", &[token]).map(|_: Option<()>| {
-            if let Some(token) = token {
-                println!("Mullvad account \"{}\" set", token);
-            } else {
-                println!("Mullvad account removed");
-            }
-        })
+    fn set(&self, token: Option<AccountToken>) -> Result<()> {
+        let rpc = DaemonRpcClient::new()?;
+        rpc.set_account(token.clone())?;
+        if let Some(token) = token {
+            println!("Mullvad account \"{}\" set", token);
+        } else {
+            println!("Mullvad account removed");
+        }
+        Ok(())
     }
 
     fn get(&self) -> Result<()> {
-        let account_token: Option<AccountToken> = rpc::call("get_account", &[] as &[u8; 0])?;
+        let rpc = DaemonRpcClient::new()?;
+        let account_token = rpc.get_account()?;
         if let Some(account_token) = account_token {
-            let expiry: AccountData = rpc::call("get_account_data", &[&account_token])?;
             println!("Mullvad account: {}", account_token);
+            let expiry = rpc.get_account_data(account_token)?;
             println!("Expires at     : {}", expiry.expiry);
         } else {
             println!("No account configured");
