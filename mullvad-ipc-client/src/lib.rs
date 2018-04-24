@@ -204,6 +204,10 @@ impl DaemonRpcClient {
         self.rpc_client = Some(WsIpcClient::connect(self.address.clone())
             .chain_err(|| ErrorKind::StartRpcClient(self.address.clone()))?);
 
+        let credentials = self.credentials.clone();
+        self.auth(&credentials)
+            .chain_err(|| "Daemon did not authorize the credentials used")?;
+
         Ok(self.rpc_client
             .as_mut()
             .expect("Connection should have been established"))
