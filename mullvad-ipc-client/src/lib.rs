@@ -1,14 +1,23 @@
 #[macro_use]
 extern crate error_chain;
+extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_ipc;
+extern crate talpid_types;
 
 use std::fs::{File, Metadata};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
+use mullvad_types::account::{AccountData, AccountToken};
+use mullvad_types::location::GeoIpLocation;
+use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
+use mullvad_types::relay_list::RelayList;
+use mullvad_types::states::DaemonState;
+use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
 use talpid_ipc::WsIpcClient;
+use talpid_types::net::TunnelOptions;
 
 use platform_specific::ensure_written_by_admin;
 pub use platform_specific::rpc_file_path;
@@ -86,8 +95,72 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))
     }
 
+    pub fn connect(&self) -> Result<()> {
+        self.call("connect", &NO_ARGS)
+    }
+
+    pub fn disconnect(&self) -> Result<()> {
+        self.call("disconnect", &NO_ARGS)
+    }
+
+    pub fn get_account(&self) -> Result<Option<AccountToken>> {
+        self.call("get_account", &NO_ARGS)
+    }
+
+    pub fn get_account_data(&self, account: AccountToken) -> Result<AccountData> {
+        self.call("get_account_data", &[account])
+    }
+
+    pub fn get_allow_lan(&self) -> Result<bool> {
+        self.call("get_allow_lan", &NO_ARGS)
+    }
+
+    pub fn get_current_location(&self) -> Result<GeoIpLocation> {
+        self.call("get_current_location", &NO_ARGS)
+    }
+
+    pub fn get_current_version(&self) -> Result<String> {
+        self.call("get_current_version", &NO_ARGS)
+    }
+
+    pub fn get_relay_locations(&self) -> Result<RelayList> {
+        self.call("get_relay_locations", &NO_ARGS)
+    }
+
+    pub fn get_relay_settings(&self) -> Result<RelaySettings> {
+        self.call("get_relay_settings", &NO_ARGS)
+    }
+
+    pub fn get_state(&self) -> Result<DaemonState> {
+        self.call("get_state", &NO_ARGS)
+    }
+
+    pub fn get_tunnel_options(&self) -> Result<TunnelOptions> {
+        self.call("get_tunnel_options", &NO_ARGS)
+    }
+
+    pub fn get_version_info(&self) -> Result<AppVersionInfo> {
+        self.call("get_version_info", &NO_ARGS)
+    }
+
+    pub fn set_account(&self, account: Option<AccountToken>) -> Result<()> {
+        self.call("set_account", &[account])
+    }
+
+    pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
+        self.call("set_allow_lan", &[allow_lan])
+    }
+
+    pub fn set_openvpn_mssfix(&self, mssfix: Option<u16>) -> Result<()> {
+        self.call("set_openvpn_mssfix", &[mssfix])
+    }
+
     pub fn shutdown(&self) -> Result<()> {
         self.call("shutdown", &NO_ARGS)
+    }
+
+    pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
+        self.call("update_relay_settings", &[update])
     }
 
     pub fn call<A, O>(&self, method: &str, args: &A) -> Result<O>

@@ -7,5 +7,7 @@ license = "GPL-3.0"
 
 [dependencies]
 error-chain = "0.11"
+mullvad-types = { path = "../mullvad-types" }
 serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
+talpid-types = { path = "../talpid-types" }
