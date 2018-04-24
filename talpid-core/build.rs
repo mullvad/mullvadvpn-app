@@ -14,11 +14,7 @@ mod win {
             _ => panic!("uncrecognized target: {}", target),
         };
 
-        let mut lib_dir = manifest_dir();
-        lib_dir.push(WFP_BUILD_DIR);
-        lib_dir.push(&target_dir);
-
-        lib_dir
+        manifest_dir().join(WFP_BUILD_DIR).join(&target_dir)
     }
 
     fn manifest_dir() -> PathBuf {
