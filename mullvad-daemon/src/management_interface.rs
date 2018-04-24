@@ -411,7 +411,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
                     error!(
-                        "Unable to get account data from master: {}",
+                        "Unable to get account data from API: {}",
                         error.display_chain()
                     );
                     Self::map_rpc_error(error)
@@ -621,7 +621,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             .and_then(|version_future| {
                 version_future.map_err(|error| {
                     error!(
-                        "Unable to get version data from master: {}",
+                        "Unable to get version data from API: {}",
                         error.display_chain()
                     );
                     Self::map_rpc_error(error)
