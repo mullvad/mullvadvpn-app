@@ -10,6 +10,7 @@ import {
 import Img from './Img';
 
 import styles from './HeaderBarStyles';
+import platformStyles from './HeaderBarPlatformStyles';
 
 export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
 export type HeaderBarProps = {
@@ -31,7 +32,7 @@ export default class HeaderBar extends Component {
   render() {
     let containerClass = [
       styles['headerbar'],
-      styles[process.platform],
+      platformStyles[process.platform],
       styles['style_' + this.props.style]
     ];
 
@@ -50,7 +51,7 @@ export default class HeaderBar extends Component {
 
         {this.props.showSettings ?
           <Button style={ styles.settings } onPress={ this.props.onSettings } testName="headerbar__settings">
-            <Img height={24} width={24} source='icon-settings' style={ styles.settings_icon } hoverStyle={ styles.settings_icon_hover }/>
+            <Img height={24} width={24} source='icon-settings' style={[ styles.settings_icon, platformStyles.settings_icon ]} hoverStyle={ styles.settings_icon_hover }/>
           </Button>
           : null}
       </View>
