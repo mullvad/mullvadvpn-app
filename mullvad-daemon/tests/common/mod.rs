@@ -99,7 +99,7 @@ impl DaemonRunner {
     fn request_clean_shutdown(&mut self, _: &mut duct::Handle) -> bool {
         use self::mullvad_ipc_client::DaemonRpcClient;
 
-        if let Ok(rpc_client) = DaemonRpcClient::new() {
+        if let Ok(mut rpc_client) = DaemonRpcClient::new() {
             rpc_client.shutdown().is_ok()
         } else {
             false

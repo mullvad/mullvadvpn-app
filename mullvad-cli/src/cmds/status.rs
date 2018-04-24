@@ -17,7 +17,7 @@ impl Command for Status {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         let state = rpc.get_state()?;
         print!("Tunnel status: ");
         match (state.state, state.target_state) {
