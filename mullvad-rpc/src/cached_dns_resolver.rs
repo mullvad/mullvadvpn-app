@@ -71,6 +71,7 @@ impl SystemDnsResolver {
 
 impl DnsResolver for SystemDnsResolver {
     fn resolve(&mut self, host: &str) -> Result<IpAddr> {
+        debug!("Resolving IP for {}", host);
         Self::resolve_in_background_thread(host)
             .recv_timeout(DNS_TIMEOUT)
             .chain_err(|| ErrorKind::DnsTimeout(host.to_owned()))
@@ -167,6 +168,15 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
 
     fn resolve_into_cache(&mut self) {
         if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
+            if Self::is_bogus_address(address) {
+                warn!(
+                    "DNS lookup for {} returned bogus address {}, ignoring",
+                    self.hostname, address
+                );
+                return;
+            }
+
+            debug!("Updating DNS cache for {} with {}", self.hostname, address);
             self.cached_address = address;
             self.last_updated = SystemTime::now();
 
@@ -174,6 +184,16 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
                 warn!("Failed to update cache file with new IP address: {}", error);
             }
         }
+    }
+
+    /// Checks if an IP seems to be a reasonable and routable IP. Used to try to filter out and
+    /// ignore invalid IPs returned by poisoned DNS etc.
+    fn is_bogus_address(address: IpAddr) -> bool {
+        let is_private = match address {
+            IpAddr::V4(address) => address.is_private(),
+            _ => false,
+        };
+        address.is_unspecified() || address.is_loopback() || is_private
     }
 
     fn update_cache_file(&mut self) -> io::Result<()> {

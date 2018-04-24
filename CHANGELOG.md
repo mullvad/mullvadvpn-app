@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
   version is supported.
 - Add `version` subcommand in the CLI to show information about current versions.
 - Add a flag to daemon to print log entries to standard output without timestamps.
+- Filter out and ignore DNS lookup results for api.mullvad.net that are bogus (private etc.)
 
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
