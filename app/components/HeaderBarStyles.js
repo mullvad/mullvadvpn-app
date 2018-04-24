@@ -20,9 +20,6 @@ export default {
       paddingLeft: 0,
       paddingRight: 0,
     },
-    darwin: {
-      paddingTop: 24,
-    },
     style_defaultDark: {
       backgroundColor: colors.darkBlue,
     },
