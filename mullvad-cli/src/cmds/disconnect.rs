@@ -17,7 +17,7 @@ impl Command for Disconnect {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         rpc.disconnect()?;
         Ok(())
     }

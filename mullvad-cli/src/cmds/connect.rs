@@ -17,7 +17,7 @@ impl Command for Connect {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         rpc.connect()?;
         Ok(())
     }

@@ -15,7 +15,7 @@ impl Command for Shutdown {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         rpc.shutdown()?;
         Ok(())
     }
