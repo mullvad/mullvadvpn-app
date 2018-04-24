@@ -749,6 +749,7 @@ dependencies = [
  "hyper-tls 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.3.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
  "jsonrpc-client-http 0.3.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
+ "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-types 0.1.0",
  "native-tls 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
