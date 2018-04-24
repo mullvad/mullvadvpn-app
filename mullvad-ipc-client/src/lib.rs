@@ -24,6 +24,10 @@ pub use platform_specific::rpc_file_path;
 
 error_chain! {
     errors {
+        AuthenticationError {
+            description("Failed to authenticate the connection with the daemon")
+        }
+
         EmptyRpcFile(file_path: String) {
             description("RPC connection file is empty")
             display("RPC connection file \"{}\" is empty", file_path)
@@ -77,8 +81,13 @@ impl DaemonRpcClient {
         let (address, credentials) = Self::read_rpc_file()?;
         let rpc_client =
             WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
+        let mut instance = DaemonRpcClient { rpc_client };
 
-        Ok(DaemonRpcClient { rpc_client })
+        instance
+            .auth(&credentials)
+            .chain_err(|| ErrorKind::AuthenticationError)?;
+
+        Ok(instance)
     }
 
     fn read_rpc_file() -> Result<(String, String)> {
