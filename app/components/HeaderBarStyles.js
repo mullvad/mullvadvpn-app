@@ -2,6 +2,13 @@
 import { createTextStyles, createViewStyles } from '../lib/styles';
 import { colors } from '../config';
 
+function conditionalStyle(predicate: boolean, style: Object): Object {
+  if (predicate) {
+    return style;
+  }
+  return {};
+}
+
 export default {
   ...createViewStyles({
     headerbar: {
@@ -45,7 +52,9 @@ export default {
     },
     settings_icon: {
       color: colors.white60,
-      webkitAppRegion: 'no-drag',
+      ...conditionalStyle(process.platform === 'linux', {
+        webkitAppRegion: 'no-drag'
+      }),
     },
     settings_icon_hover: {
       color: colors.white,
