@@ -1,7 +1,8 @@
 use clap;
-use rpc;
 use Command;
 use Result;
+
+use mullvad_ipc_client::DaemonRpcClient;
 
 pub struct Disconnect;
 
@@ -16,7 +17,8 @@ impl Command for Disconnect {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let _response: Option<()> = rpc::call("disconnect", &[] as &[u8; 0])?;
+        let rpc = DaemonRpcClient::new()?;
+        rpc.disconnect()?;
         Ok(())
     }
 }
