@@ -16,6 +16,8 @@ extern crate hyper_tls;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 #[macro_use]
+extern crate lazy_static;
+#[macro_use]
 extern crate log;
 extern crate native_tls;
 extern crate serde_json;
@@ -37,7 +39,7 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
-use std::net::IpAddr;
+use std::net::{IpAddr, Ipv4Addr};
 use std::path::Path;
 use std::time::Duration;
 
@@ -50,8 +52,12 @@ use cached_dns_resolver::CachedDnsResolver;
 mod https_client_with_sni;
 use https_client_with_sni::HttpsClientWithSni;
 
-static MASTER_API_HOST: &str = "api.mullvad.net";
-static MASTER_RPC_TIMEOUT: Duration = Duration::from_secs(5);
+static API_HOST: &str = "api.mullvad.net";
+static RPC_TIMEOUT: Duration = Duration::from_secs(5);
+static API_IP_CACHE_FILENAME: &str = "api_ip_address.txt";
+lazy_static! {
+    static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 219, 46));
+}
 
 
 /// A type that helps with the creation of RPC connections.
@@ -69,11 +75,8 @@ impl MullvadRpcFactory {
 
     /// Create a new `MullvadRpcFactory` using the specified cache directory.
     pub fn with_cache_dir(cache_dir: &Path) -> Self {
-        let hostname = MASTER_API_HOST.to_owned();
-        let cache_file = cache_dir.join("api_ip_address.txt");
-        let fallback_address = IpAddr::from([193, 138, 219, 46]);
-
-        let cached_dns_resolver = CachedDnsResolver::new(hostname, cache_file, fallback_address);
+        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
+        let cached_dns_resolver = CachedDnsResolver::new(API_HOST.to_owned(), cache_file, *API_IP);
 
         MullvadRpcFactory {
             address_cache: Some(cached_dns_resolver),
@@ -98,14 +101,13 @@ impl MullvadRpcFactory {
         F: FnOnce(HttpTransportBuilder<HttpsClientWithSni>)
             -> jsonrpc_client_http::Result<HttpTransport>,
     {
-        let client = HttpsClientWithSni::new(MASTER_API_HOST.to_owned());
-        let transport_builder =
-            HttpTransportBuilder::with_client(client).timeout(MASTER_RPC_TIMEOUT);
+        let client = HttpsClientWithSni::new(API_HOST.to_owned());
+        let transport_builder = HttpTransportBuilder::with_client(client).timeout(RPC_TIMEOUT);
 
         let transport = create_transport(transport_builder)?;
         let mut handle = transport.handle(&self.api_uri())?;
 
-        handle.set_header(Host::new(MASTER_API_HOST, None));
+        handle.set_header(Host::new(API_HOST, None));
 
         Ok(handle)
     }
@@ -114,7 +116,7 @@ impl MullvadRpcFactory {
         let address = if let Some(ref mut address_cache) = self.address_cache {
             address_cache.resolve().to_string()
         } else {
-            MASTER_API_HOST.to_owned()
+            API_HOST.to_owned()
         };
 
         format!("https://{}/rpc/", address)
