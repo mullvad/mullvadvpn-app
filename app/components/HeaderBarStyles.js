@@ -20,12 +20,6 @@ export default {
       paddingLeft: 0,
       paddingRight: 0,
     },
-    darwin: {
-      paddingTop: 24,
-    },
-    linux: {
-      webkitAppRegion: 'drag',
-    },
     style_defaultDark: {
       backgroundColor: colors.darkBlue,
     },
@@ -45,7 +39,6 @@ export default {
     },
     settings_icon: {
       color: colors.white60,
-      webkitAppRegion: 'no-drag',
     },
     settings_icon_hover: {
       color: colors.white,
