@@ -95,6 +95,10 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))
     }
 
+    pub fn auth(&self, credentials: &str) -> Result<()> {
+        self.call("auth", &[credentials])
+    }
+
     pub fn connect(&self) -> Result<()> {
         self.call("connect", &NO_ARGS)
     }
