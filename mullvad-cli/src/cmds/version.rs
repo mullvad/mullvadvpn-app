@@ -1,8 +1,7 @@
 use clap;
 use {Command, Result};
 
-use mullvad_types::version;
-use rpc;
+use mullvad_ipc_client::DaemonRpcClient;
 
 pub struct Version;
 
@@ -17,9 +16,10 @@ impl Command for Version {
     }
 
     fn run(&self, _: &clap::ArgMatches) -> Result<()> {
-        let current_version: String = rpc::call("get_current_version", &[] as &[u8; 0])?;
+        let rpc = DaemonRpcClient::new()?;
+        let current_version = rpc.get_current_version()?;
         println!("Current version: {}", current_version);
-        let version_info: version::AppVersionInfo = rpc::call("get_version_info", &[] as &[u8; 0])?;
+        let version_info = rpc.get_version_info()?;
         println!("Supported: {}", version_info.current_is_supported);
         println!("Latest releases:");
         println!("\tlatest stable: {}", version_info.latest.latest_stable);
