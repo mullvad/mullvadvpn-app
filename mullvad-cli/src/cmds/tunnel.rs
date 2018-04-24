@@ -1,7 +1,7 @@
 use clap;
 use {Command, Result};
 
-use rpc;
+use mullvad_ipc_client::DaemonRpcClient;
 use talpid_types::net::{OpenVpnTunnelOptions, TunnelOptions};
 
 pub struct Tunnel;
@@ -71,15 +71,18 @@ impl Tunnel {
                 Some(mssfix_str.parse()?)
             };
 
-            rpc::call("set_openvpn_mssfix", &[mssfix])
-                .map(|_: ()| println!("mssfix parameter updated"))
+            let rpc = DaemonRpcClient::new()?;
+            rpc.set_openvpn_mssfix(mssfix)?;
+            println!("mssfix parameter updated");
+            Ok(())
         } else {
             unreachable!("Invalid option passed to 'openvpn set'");
         }
     }
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
-        rpc::call("get_tunnel_options", &[] as &[u8; 0])
+        let rpc = DaemonRpcClient::new()?;
+        Ok(rpc.get_tunnel_options()?)
     }
 
     fn print_openvpn_tunnel_options(options: &OpenVpnTunnelOptions) {
