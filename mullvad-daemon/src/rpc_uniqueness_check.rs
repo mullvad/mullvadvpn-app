@@ -9,7 +9,7 @@ use mullvad_ipc_client::DaemonRpcClient;
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
     match DaemonRpcClient::new() {
-        Ok(client) => match client.get_state() {
+        Ok(mut client) => match client.get_state() {
             Ok(_) => true,
             Err(error) => {
                 let chained_error = error.chain_err(|| {

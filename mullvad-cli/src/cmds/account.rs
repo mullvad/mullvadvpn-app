@@ -50,7 +50,7 @@ impl Command for Account {
 
 impl Account {
     fn set(&self, token: Option<AccountToken>) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         rpc.set_account(token.clone())?;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
@@ -61,7 +61,7 @@ impl Account {
     }
 
     fn get(&self) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         let account_token = rpc.get_account()?;
         if let Some(account_token) = account_token {
             println!("Mullvad account: {}", account_token);

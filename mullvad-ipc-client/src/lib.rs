@@ -69,18 +69,16 @@ error_chain! {
 static NO_ARGS: [u8; 0] = [];
 
 pub struct DaemonRpcClient {
-    address: String,
-    credentials: String,
+    rpc_client: WsIpcClient,
 }
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
         let (address, credentials) = Self::read_rpc_file()?;
+        let rpc_client =
+            WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
 
-        Ok(DaemonRpcClient {
-            address,
-            credentials,
-        })
+        Ok(DaemonRpcClient { rpc_client })
     }
 
     fn read_rpc_file() -> Result<(String, String)> {
@@ -110,87 +108,84 @@ impl DaemonRpcClient {
         Ok((address, credentials))
     }
 
-    pub fn auth(&self, credentials: &str) -> Result<()> {
+    pub fn auth(&mut self, credentials: &str) -> Result<()> {
         self.call("auth", &[credentials])
     }
 
-    pub fn connect(&self) -> Result<()> {
+    pub fn connect(&mut self) -> Result<()> {
         self.call("connect", &NO_ARGS)
     }
 
-    pub fn disconnect(&self) -> Result<()> {
+    pub fn disconnect(&mut self) -> Result<()> {
         self.call("disconnect", &NO_ARGS)
     }
 
-    pub fn get_account(&self) -> Result<Option<AccountToken>> {
+    pub fn get_account(&mut self) -> Result<Option<AccountToken>> {
         self.call("get_account", &NO_ARGS)
     }
 
-    pub fn get_account_data(&self, account: AccountToken) -> Result<AccountData> {
+    pub fn get_account_data(&mut self, account: AccountToken) -> Result<AccountData> {
         self.call("get_account_data", &[account])
     }
 
-    pub fn get_allow_lan(&self) -> Result<bool> {
+    pub fn get_allow_lan(&mut self) -> Result<bool> {
         self.call("get_allow_lan", &NO_ARGS)
     }
 
-    pub fn get_current_location(&self) -> Result<GeoIpLocation> {
+    pub fn get_current_location(&mut self) -> Result<GeoIpLocation> {
         self.call("get_current_location", &NO_ARGS)
     }
 
-    pub fn get_current_version(&self) -> Result<String> {
+    pub fn get_current_version(&mut self) -> Result<String> {
         self.call("get_current_version", &NO_ARGS)
     }
 
-    pub fn get_relay_locations(&self) -> Result<RelayList> {
+    pub fn get_relay_locations(&mut self) -> Result<RelayList> {
         self.call("get_relay_locations", &NO_ARGS)
     }
 
-    pub fn get_relay_settings(&self) -> Result<RelaySettings> {
+    pub fn get_relay_settings(&mut self) -> Result<RelaySettings> {
         self.call("get_relay_settings", &NO_ARGS)
     }
 
-    pub fn get_state(&self) -> Result<DaemonState> {
+    pub fn get_state(&mut self) -> Result<DaemonState> {
         self.call("get_state", &NO_ARGS)
     }
 
-    pub fn get_tunnel_options(&self) -> Result<TunnelOptions> {
+    pub fn get_tunnel_options(&mut self) -> Result<TunnelOptions> {
         self.call("get_tunnel_options", &NO_ARGS)
     }
 
-    pub fn get_version_info(&self) -> Result<AppVersionInfo> {
+    pub fn get_version_info(&mut self) -> Result<AppVersionInfo> {
         self.call("get_version_info", &NO_ARGS)
     }
 
-    pub fn set_account(&self, account: Option<AccountToken>) -> Result<()> {
+    pub fn set_account(&mut self, account: Option<AccountToken>) -> Result<()> {
         self.call("set_account", &[account])
     }
 
-    pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<()> {
         self.call("set_allow_lan", &[allow_lan])
     }
 
-    pub fn set_openvpn_mssfix(&self, mssfix: Option<u16>) -> Result<()> {
+    pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn shutdown(&self) -> Result<()> {
+    pub fn shutdown(&mut self) -> Result<()> {
         self.call("shutdown", &NO_ARGS)
     }
 
-    pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<()> {
         self.call("update_relay_settings", &[update])
     }
 
-    pub fn call<A, O>(&self, method: &str, args: &A) -> Result<O>
+    pub fn call<A, O>(&mut self, method: &str, args: &A) -> Result<O>
     where
         A: Serialize,
         O: for<'de> Deserialize<'de>,
     {
-        let mut rpc_client = WsIpcClient::connect(&self.address)
-            .chain_err(|| ErrorKind::StartRpcClient(self.address.clone()))?;
-
-        rpc_client
+        self.rpc_client
             .call(method, args)
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
