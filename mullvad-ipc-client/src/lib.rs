@@ -40,6 +40,11 @@ error_chain! {
             )
         }
 
+        MissingRpcCredentials(file_path: String) {
+            description("no credentials found in RPC connection file")
+            display("no credentials found in RPC connection file {}", file_path)
+        }
+
         ReadRpcFileError(file_path: String) {
             description("Failed to read RPC connection information")
             display("Failed to read RPC connection information from {}", file_path)
@@ -65,16 +70,20 @@ static NO_ARGS: [u8; 0] = [];
 
 pub struct DaemonRpcClient {
     address: String,
+    credentials: String,
 }
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let address = Self::read_rpc_file()?;
+        let (address, credentials) = Self::read_rpc_file()?;
 
-        Ok(DaemonRpcClient { address })
+        Ok(DaemonRpcClient {
+            address,
+            credentials,
+        })
     }
 
-    fn read_rpc_file() -> Result<String> {
+    fn read_rpc_file() -> Result<(String, String)> {
         let file_path = rpc_file_path()?;
         let file_path_string = || file_path.display().to_string();
         let rpc_file =
@@ -89,10 +98,16 @@ impl DaemonRpcClient {
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
-        lines
+        let address = lines
             .next()
             .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path_string()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+        let credentials = lines
+            .next()
+            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path_string()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+
+        Ok((address, credentials))
     }
 
     pub fn auth(&self, credentials: &str) -> Result<()> {
