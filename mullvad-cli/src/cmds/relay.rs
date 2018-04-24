@@ -2,13 +2,11 @@ use clap;
 use std::str::FromStr;
 use {Command, Result, ResultExt};
 
+use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint, OpenVpnConstraints,
-                                       RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+                                       RelayConstraintsUpdate, RelaySettingsUpdate,
                                        TunnelConstraints};
-use mullvad_types::relay_list::RelayList;
 use mullvad_types::CustomTunnelEndpoint;
-
-use rpc;
 use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, TunnelEndpointData,
                         WireguardEndpointData};
 
@@ -115,8 +113,10 @@ impl Command for Relay {
 
 impl Relay {
     fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
-        rpc::call("update_relay_settings", &[update])
-            .map(|_: Option<()>| println!("Relay constraints updated"))
+        let rpc = DaemonRpcClient::new()?;
+        rpc.update_relay_settings(update)?;
+        println!("Relay constraints updated");
+        Ok(())
     }
 
     fn set(&self, matches: &clap::ArgMatches) -> Result<()> {
@@ -183,14 +183,16 @@ impl Relay {
     }
 
     fn get(&self) -> Result<()> {
-        let constraints: RelaySettings = rpc::call("get_relay_settings", &[] as &[u8; 0])?;
+        let rpc = DaemonRpcClient::new()?;
+        let constraints = rpc.get_relay_settings()?;
         println!("Current constraints: {:#?}", constraints);
 
         Ok(())
     }
 
     fn list(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let mut locations: RelayList = rpc::call("get_relay_locations", &[] as &[u8; 0])?;
+        let rpc = DaemonRpcClient::new()?;
+        let mut locations = rpc.get_relay_locations()?;
         locations.countries.sort_by(|c1, c2| c1.name.cmp(&c2.name));
         for mut country in locations.countries {
             country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
