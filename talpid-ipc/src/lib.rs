@@ -16,6 +16,7 @@ extern crate serde;
 extern crate serde_json;
 
 extern crate jsonrpc_core;
+extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
 extern crate url;
 extern crate ws;
