@@ -1,7 +1,9 @@
+use std::collections::HashMap;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 
 use error_chain::ChainedError;
+use jsonrpc_pubsub::SubscriptionId;
 use serde;
 use serde_json::{self, Result as JsonResult, Value as JsonValue};
 use url;
@@ -17,9 +19,24 @@ mod errors {
                 display("Received an RPC error response: {}", error_message)
             }
 
+            DeserializeSubscriptionEvent(event: String) {
+                description("Failed to deserialize RPC subscription event")
+                display("Failed to deserialize RPC subscription event {}", event)
+            }
+
+            ForwardSubscriptionEvent(event: String) {
+                description("Failed to forward RPC subscription event")
+                display("Failed to forward RPC subscription event {}", event)
+            }
+
             InvalidJsonRpcResponse(details: &'static str) {
                 description("Received an invalid JSON-RPC response")
                 display("Received an invalid JSON-RPC response: {}", details)
+            }
+
+            InvalidSubscriptionEvent(details: &'static str) {
+                description("Received an invalid JSON-RPC PubSub event")
+                display("Received an invalid JSON-RPC PubSub event: {}", details)
             }
 
             WebSocketError {
@@ -30,6 +47,13 @@ mod errors {
 }
 pub use self::errors::*;
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum SubscriptionHandlerResult {
+    Active,
+    Finished,
+}
+
+type SubscriptionHandler = Box<Fn(JsonValue) -> SubscriptionHandlerResult + Send>;
 
 struct ActiveRequest {
     id: i64,
@@ -52,6 +76,7 @@ impl ActiveRequest {
 
 struct Factory {
     active_request: Arc<Mutex<Option<ActiveRequest>>>,
+    active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
     sender_tx: mpsc::Sender<ws::Sender>,
 }
 
@@ -65,6 +90,7 @@ impl ws::Factory for Factory {
 
         Handler {
             active_request: self.active_request.clone(),
+            active_subscriptions: self.active_subscriptions.clone(),
         }
     }
 }
@@ -72,27 +98,20 @@ impl ws::Factory for Factory {
 
 struct Handler {
     active_request: Arc<Mutex<Option<ActiveRequest>>>,
+    active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
 }
 
 impl Handler {
     fn process_message(&mut self, msg: ws::Message) -> Result<()> {
         trace!("WsIpcClient incoming message: {:?}", msg);
-        let mut response_json_object = self.parse_message_object(msg)?;
-        let response_id = self.parse_response_id(&mut response_json_object)?;
-        let rpc_result = self.parse_response_result(response_json_object);
+        let mut message_json_object = self.parse_message_object(msg)?;
+        let response_id = self.parse_response_id(&mut message_json_object)?;
 
-        let mut active_request = self.lock_active_request();
-
-        if let Some(mut request) = active_request.take() {
-            if response_id == request.id() {
-                let _ = request.send_response(rpc_result);
-            } else {
-                warn!("Received an unexpect JSON-RPC message");
-                *active_request = Some(request);
-            }
+        if let Some(id) = response_id {
+            self.process_response(id, message_json_object)
+        } else {
+            self.process_notification(message_json_object)
         }
-
-        Ok(())
     }
 
     fn parse_message_object(&self, msg: ws::Message) -> Result<JsonMap> {
@@ -119,14 +138,30 @@ impl Handler {
         Ok(json_object_map)
     }
 
-    fn parse_response_id(&self, json_object_map: &mut JsonMap) -> Result<i64> {
+    fn parse_response_id(&self, json_object_map: &mut JsonMap) -> Result<Option<i64>> {
         match json_object_map.remove("id") {
-            Some(JsonValue::Number(id)) => id.as_i64().ok_or_else(|| {
+            Some(JsonValue::Number(id)) => id.as_i64().map(Some).ok_or_else(|| {
                 ErrorKind::InvalidJsonRpcResponse("Invalid request ID number").into()
             }),
-            None => Err(ErrorKind::InvalidJsonRpcResponse("Missing request ID").into()),
+            None => Ok(None),
             _ => Err(ErrorKind::InvalidJsonRpcResponse("Invalid request ID value").into()),
         }
+    }
+
+    fn process_response(&mut self, response_id: i64, response: JsonMap) -> Result<()> {
+        let rpc_result = self.parse_response_result(response);
+        let mut active_request = self.lock_active_request();
+
+        if let Some(mut request) = active_request.take() {
+            if response_id == request.id() {
+                let _ = request.send_response(rpc_result);
+            } else {
+                warn!("Received an unexpect JSON-RPC message");
+                *active_request = Some(request);
+            }
+        }
+
+        Ok(())
     }
 
     fn parse_response_result(&self, mut json_object_map: JsonMap) -> Result<JsonValue> {
@@ -145,6 +180,53 @@ impl Handler {
             (Some(_), Some(_)) => Err(ErrorKind::InvalidJsonRpcResponse(
                 "Response is ambiguous, contains both a successful result and an error",
             ).into()),
+        }
+    }
+
+    fn process_notification(&mut self, notification: JsonMap) -> Result<()> {
+        let (subscription_id, event) = self.parse_subscription_event(notification)?;
+        let mut active_subscriptions = self.active_subscriptions
+            .lock()
+            .expect("a thread panicked while using the active subscriptions map");
+
+        let should_remove_handler =
+            if let Some(handle_subscription) = active_subscriptions.get(&subscription_id) {
+                handle_subscription(event) == SubscriptionHandlerResult::Finished
+            } else {
+                warn!("Received an unexpected notification");
+                false
+            };
+
+        if should_remove_handler {
+            active_subscriptions.remove(&subscription_id);
+        }
+
+        Ok(())
+    }
+
+    fn parse_subscription_event(
+        &mut self,
+        mut notification: JsonMap,
+    ) -> Result<(SubscriptionId, JsonValue)> {
+        match notification.remove("params") {
+            Some(JsonValue::Object(mut parameters)) => {
+                let raw_id = parameters
+                    .remove("subscription")
+                    .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Missing subscription ID"))?;
+                let id = SubscriptionId::parse_value(&raw_id)
+                    .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Invalid subscription ID"))?;
+                let event = parameters
+                    .remove("result")
+                    .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Missing event data"))?;
+
+                Ok((id, event))
+            }
+            Some(_) => bail!(ErrorKind::InvalidSubscriptionEvent(
+                "RPC parameters is not a JSON object map"
+            )),
+            None => bail!(ErrorKind::InvalidSubscriptionEvent(
+                "Missing RPC parameters"
+            )),
         }
     }
 
@@ -176,6 +258,7 @@ impl ws::Handler for Handler {
 pub struct WsIpcClient {
     next_id: i64,
     active_request: Arc<Mutex<Option<ActiveRequest>>>,
+    active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
     sender: ws::Sender,
 }
 
@@ -183,11 +266,14 @@ impl WsIpcClient {
     pub fn connect(server_id: ::IpcServerId) -> Result<Self> {
         let url = url::Url::parse(&server_id).chain_err(|| "Unable to parse server_id as url")?;
         let active_request = Arc::new(Mutex::new(None));
-        let sender = Self::open_websocket(url, active_request.clone())?;
+        let active_subscriptions = Arc::new(Mutex::new(HashMap::new()));
+        let sender =
+            Self::open_websocket(url, active_request.clone(), active_subscriptions.clone())?;
 
         Ok(WsIpcClient {
             next_id: 1,
             active_request,
+            active_subscriptions,
             sender,
         })
     }
@@ -195,10 +281,12 @@ impl WsIpcClient {
     fn open_websocket(
         url: url::Url,
         active_request: Arc<Mutex<Option<ActiveRequest>>>,
+        active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
     ) -> Result<ws::Sender> {
         let (sender_tx, sender_rx) = mpsc::channel();
         let factory = Factory {
             active_request,
+            active_subscriptions,
             sender_tx,
         };
 
@@ -219,6 +307,40 @@ impl WsIpcClient {
         });
 
         sender_rx.recv().chain_err(|| "WebSocket connection failed")
+    }
+
+    pub fn subscribe<V, M>(&mut self, event: &str, sender: mpsc::Sender<M>) -> Result<()>
+    where
+        V: for<'de> serde::Deserialize<'de>,
+        M: From<V> + Send + 'static,
+    {
+        let raw_subscription_id = self.call(&format!("{}_subscribe", event), &[] as &[u8; 0])?;
+        let subscription_id = SubscriptionId::parse_value(&raw_subscription_id)
+            .ok_or_else(|| format!("Invalid subscription ID received: {}", raw_subscription_id))?;
+
+        let event_name = event.to_owned();
+        let handler =
+            move |json_value| match forward_subscription_event(&event_name, json_value, &sender) {
+                Ok(()) => SubscriptionHandlerResult::Active,
+                Err(error) => {
+                    error!("{}", error.display_chain());
+                    SubscriptionHandlerResult::Finished
+                }
+            };
+
+        self.register_subscription(subscription_id, handler);
+
+        Ok(())
+    }
+
+    fn register_subscription<H>(&mut self, id: SubscriptionId, handler: H)
+    where
+        H: Fn(JsonValue) -> SubscriptionHandlerResult + Send + 'static,
+    {
+        self.active_subscriptions
+            .lock()
+            .expect("a thread panicked while using the active subscriptions map")
+            .insert(id, Box::new(handler));
     }
 
     pub fn call<T, O>(&mut self, method: &str, params: &T) -> Result<O>
@@ -274,4 +396,22 @@ impl WsIpcClient {
         });
         format!("{}", request_json)
     }
+}
+
+fn forward_subscription_event<V, M>(
+    event_name: &String,
+    json_value: JsonValue,
+    sender: &mpsc::Sender<M>,
+) -> Result<()>
+where
+    V: for<'de> serde::Deserialize<'de>,
+    M: From<V> + Send + 'static,
+{
+    let value: V = serde_json::from_value(json_value)
+        .chain_err(|| ErrorKind::DeserializeSubscriptionEvent(event_name.clone()))?;
+    let message = value.into();
+
+    sender
+        .send(message)
+        .chain_err(|| ErrorKind::ForwardSubscriptionEvent(event_name.clone()))
 }
