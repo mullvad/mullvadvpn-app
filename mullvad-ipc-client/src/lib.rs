@@ -78,7 +78,18 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file()?;
+        let (address, credentials) = Self::read_rpc_file(true)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    pub fn without_rpc_file_security_check() -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(false)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    fn with_address_and_credentials(address: String, credentials: String) -> Result<Self> {
         let rpc_client =
             WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
         let mut instance = DaemonRpcClient { rpc_client };
@@ -90,17 +101,19 @@ impl DaemonRpcClient {
         Ok(instance)
     }
 
-    fn read_rpc_file() -> Result<(String, String)> {
+    fn read_rpc_file(verify_security: bool) -> Result<(String, String)> {
         let file_path = rpc_file_path()?;
         let file_path_string = || file_path.display().to_string();
         let rpc_file =
             File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
 
-        let file_metadata = rpc_file
-            .metadata()
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+        if verify_security {
+            let file_metadata = rpc_file
+                .metadata()
+                .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
 
-        ensure_written_by_admin(&file_path, file_metadata)?;
+            ensure_written_by_admin(&file_path, file_metadata)?;
+        }
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
