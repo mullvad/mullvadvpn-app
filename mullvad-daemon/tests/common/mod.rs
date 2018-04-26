@@ -4,6 +4,7 @@
 extern crate libc;
 #[cfg(not(unix))]
 extern crate mullvad_ipc_client;
+extern crate os_pipe;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
@@ -13,7 +14,8 @@ use std::thread;
 use std::time::Duration;
 
 use duct;
-use os_pipe::{pipe, PipeReader};
+
+use self::os_pipe::{pipe, PipeReader};
 
 #[cfg(unix)]
 pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
