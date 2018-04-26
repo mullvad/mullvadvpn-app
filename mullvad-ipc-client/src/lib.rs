@@ -9,6 +9,7 @@ extern crate talpid_types;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
 
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
@@ -57,6 +58,11 @@ error_chain! {
         RpcCallError(method: String) {
             description("Failed to call RPC method")
             display("Failed to call RPC method \"{}\"", method)
+        }
+
+        RpcSubscribeError(event: String) {
+            description("Failed to subscribe to RPC event")
+            display("Failed to subscribe to RPC event \"{}\"", event)
         }
 
         StartRpcClient(address: String) {
@@ -209,6 +215,25 @@ impl DaemonRpcClient {
         self.rpc_client
             .call(method, args)
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
+    }
+
+    pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<DaemonState>> {
+        self.subscribe("new_state")
+    }
+
+    pub fn subscribe<T>(&mut self, event: &str) -> Result<mpsc::Receiver<T>>
+    where
+        T: for<'de> serde::Deserialize<'de> + Send + 'static,
+    {
+        let (event_tx, event_rx) = mpsc::channel();
+        let subscribe_method = format!("{}_subscribe", event);
+        let unsubscribe_method = format!("{}_unsubscribe", event);
+
+        self.rpc_client
+            .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
+            .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
+
+        Ok(event_rx)
     }
 }
 
