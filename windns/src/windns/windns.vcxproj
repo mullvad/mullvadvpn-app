@@ -176,22 +176,34 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="comhelpers.h" />
-    <ClInclude Include="dnsconfiguration.h" />
-    <ClInclude Include="dnshelpers.h" />
+    <ClInclude Include="configmanager.h" />
+    <ClInclude Include="consoletracesink.h" />
+    <ClInclude Include="dnsconfig.h" />
+    <ClInclude Include="dnsreverter.h" />
+    <ClInclude Include="itracesink.h" />
+    <ClInclude Include="macroargument.h" />
+    <ClInclude Include="netconfigeventsink.h" />
+    <ClInclude Include="netconfighelpers.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="windns.h" />
     <ClInclude Include="windnscontext.h" />
     <ClInclude Include="wmi\connection.h" />
+    <ClInclude Include="wmi\eventsink.h" />
     <ClInclude Include="wmi\iconnection.h" />
     <ClInclude Include="wmi\methodcall.h" />
+    <ClInclude Include="wmi\notification.h" />
     <ClInclude Include="wmi\resultset.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="comhelpers.cpp" />
+    <ClCompile Include="configmanager.cpp" />
+    <ClCompile Include="consoletracesink.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="dnsconfiguration.cpp" />
-    <ClCompile Include="dnshelpers.cpp" />
+    <ClCompile Include="dnsconfig.cpp" />
+    <ClCompile Include="dnsreverter.cpp" />
+    <ClCompile Include="netconfigeventsink.cpp" />
+    <ClCompile Include="netconfighelpers.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -201,7 +213,9 @@
     <ClCompile Include="windns.cpp" />
     <ClCompile Include="windnscontext.cpp" />
     <ClCompile Include="wmi\connection.cpp" />
+    <ClCompile Include="wmi\eventsink.cpp" />
     <ClCompile Include="wmi\methodcall.cpp" />
+    <ClCompile Include="wmi\notification.cpp" />
     <ClCompile Include="wmi\resultset.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -33,16 +33,34 @@
     <ClInclude Include="..\windns\wmi\resultset.h">
       <Filter>other files</Filter>
     </ClInclude>
-    <ClInclude Include="..\windns\dnsconfiguration.h">
-      <Filter>other files</Filter>
-    </ClInclude>
     <ClInclude Include="..\windns\wmi\methodcall.h">
       <Filter>other files</Filter>
     </ClInclude>
     <ClInclude Include="..\windns\comhelpers.h">
       <Filter>other files</Filter>
     </ClInclude>
-    <ClInclude Include="..\windns\dnshelpers.h">
+    <ClInclude Include="..\windns\configmanager.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\dnsconfig.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\consoletracesink.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\eventsink.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\netconfigeventsink.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\netconfighelpers.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\wmi\notification.h">
+      <Filter>other files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windns\dnsreverter.h">
       <Filter>other files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,16 +77,34 @@
     <ClCompile Include="..\windns\wmi\resultset.cpp">
       <Filter>other files</Filter>
     </ClCompile>
-    <ClCompile Include="..\windns\dnsconfiguration.cpp">
-      <Filter>other files</Filter>
-    </ClCompile>
     <ClCompile Include="..\windns\wmi\methodcall.cpp">
       <Filter>other files</Filter>
     </ClCompile>
     <ClCompile Include="..\windns\comhelpers.cpp">
       <Filter>other files</Filter>
     </ClCompile>
-    <ClCompile Include="..\windns\dnshelpers.cpp">
+    <ClCompile Include="..\windns\configmanager.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\dnsconfig.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\consoletracesink.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\wmi\eventsink.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\netconfigeventsink.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\netconfighelpers.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\wmi\notification.cpp">
+      <Filter>other files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windns\dnsreverter.cpp">
       <Filter>other files</Filter>
     </ClCompile>
   </ItemGroup>
