@@ -1,6 +1,6 @@
 #pragma once
 
-#include "windns/dnshelpers.h"
+#include "windns/netconfighelpers.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -8,17 +8,17 @@
 #include <atlbase.h>
 #include <wbemidl.h>
 
-class DnsConfiguration
+class DnsConfig
 {
 public:
 
 	// instance = Win32_NetworkAdapterConfiguration.
-	DnsConfiguration(CComPtr<IWbemClassObject> instance);
+	DnsConfig(CComPtr<IWbemClassObject> instance);
 
-	DnsConfiguration(const DnsConfiguration &) = delete;
-	DnsConfiguration &operator=(const DnsConfiguration &) = delete;
-	DnsConfiguration(DnsConfiguration &&) = default;
-	DnsConfiguration &operator=(DnsConfiguration &&) = default;
+	DnsConfig(const DnsConfig &) = delete;
+	DnsConfig &operator=(const DnsConfig &) = delete;
+	DnsConfig(DnsConfig &&) = default;
+	DnsConfig &operator=(DnsConfig &&) = default;
 
 	const std::wstring &id() const
 	{
@@ -30,13 +30,13 @@ public:
 		return m_interfaceIndex;
 	}
 
-	std::vector<std::wstring> *servers() const;
+	const std::vector<std::wstring> *servers() const;
 
-	void update(CComPtr<IWbemClassObject> instance);
+//	void update(CComPtr<IWbemClassObject> instance);
 
 private:
 
 	std::wstring m_configId;
 	uint32_t m_interfaceIndex;
-	dnshelpers::OptionalStringList m_servers;
+	nchelpers::OptionalStringList m_servers;
 };

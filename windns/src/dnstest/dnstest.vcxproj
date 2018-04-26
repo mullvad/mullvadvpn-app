@@ -106,7 +106,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windns.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -125,7 +125,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windns.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,7 +148,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windns.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -171,26 +171,38 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windns.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\windns\comhelpers.h" />
-    <ClInclude Include="..\windns\dnsconfiguration.h" />
-    <ClInclude Include="..\windns\dnshelpers.h" />
+    <ClInclude Include="..\windns\configmanager.h" />
+    <ClInclude Include="..\windns\consoletracesink.h" />
+    <ClInclude Include="..\windns\dnsconfig.h" />
+    <ClInclude Include="..\windns\dnsreverter.h" />
+    <ClInclude Include="..\windns\netconfigeventsink.h" />
+    <ClInclude Include="..\windns\netconfighelpers.h" />
     <ClInclude Include="..\windns\wmi\connection.h" />
+    <ClInclude Include="..\windns\wmi\eventsink.h" />
     <ClInclude Include="..\windns\wmi\iconnection.h" />
     <ClInclude Include="..\windns\wmi\methodcall.h" />
+    <ClInclude Include="..\windns\wmi\notification.h" />
     <ClInclude Include="..\windns\wmi\resultset.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\windns\comhelpers.cpp" />
-    <ClCompile Include="..\windns\dnsconfiguration.cpp" />
-    <ClCompile Include="..\windns\dnshelpers.cpp" />
+    <ClCompile Include="..\windns\configmanager.cpp" />
+    <ClCompile Include="..\windns\consoletracesink.cpp" />
+    <ClCompile Include="..\windns\dnsconfig.cpp" />
+    <ClCompile Include="..\windns\dnsreverter.cpp" />
+    <ClCompile Include="..\windns\netconfigeventsink.cpp" />
+    <ClCompile Include="..\windns\netconfighelpers.cpp" />
     <ClCompile Include="..\windns\wmi\connection.cpp" />
+    <ClCompile Include="..\windns\wmi\eventsink.cpp" />
     <ClCompile Include="..\windns\wmi\methodcall.cpp" />
+    <ClCompile Include="..\windns\wmi\notification.cpp" />
     <ClCompile Include="..\windns\wmi\resultset.cpp" />
     <ClCompile Include="dnstest.cpp" />
     <ClCompile Include="stdafx.cpp">

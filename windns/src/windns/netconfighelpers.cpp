@@ -1,16 +1,17 @@
 #include "stdafx.h"
-#include "dnshelpers.h"
+#include "netconfighelpers.h"
 #include "comhelpers.h"
+#include "wmi/methodcall.h"
 
-namespace dnshelpers
+namespace nchelpers
 {
 
-std::wstring GetId(CComPtr<IWbemClassObject> instance)
+std::wstring GetConfigId(CComPtr<IWbemClassObject> instance)
 {
 	return ComConvertString(V_BSTR(&ComGetPropertyAlways(instance, L"SettingID")));
 }
 
-OptionalStringList GetServers(CComPtr<IWbemClassObject> instance)
+OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 {
 	OptionalStringList result;
 
@@ -25,6 +26,30 @@ OptionalStringList GetServers(CComPtr<IWbemClassObject> instance)
 		ComConvertStringArray(V_ARRAY(&servers)));
 
 	return result;
+}
+
+void SetDnsServers(wmi::IConnection &connection, CComPtr<IWbemClassObject> instance,
+	const std::vector<std::wstring> *servers)
+{
+	wmi::MethodCall methodCall;
+
+	if (nullptr == servers)
+	{
+		methodCall.addNullArgument(L"DNSServerSearchOrder", VT_ARRAY | VT_BSTR);
+	}
+	else
+	{
+		auto comServers = ComConvertIntoStringArray(*servers);
+		methodCall.addArgument(L"DNSServerSearchOrder", ComPackageStringArray(comServers));
+	}
+
+	auto status = methodCall.invoke(connection, instance, L"SetDNSServerSearchOrder");
+
+	//
+	// TODO check status, (type? expected value?)
+	//
+
+	return;
 }
 
 }

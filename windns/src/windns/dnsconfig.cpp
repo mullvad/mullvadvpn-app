@@ -1,20 +1,20 @@
 #include "stdafx.h"
-#include "dnsconfiguration.h"
+#include "dnsconfig.h"
 #include "windns/comhelpers.h"
 
-DnsConfiguration::DnsConfiguration(CComPtr<IWbemClassObject> instance)
+DnsConfig::DnsConfig(CComPtr<IWbemClassObject> instance)
 {
-	m_configId = dnshelpers::GetId(instance);
+	m_configId = nchelpers::GetConfigId(instance);
 	m_interfaceIndex = ComGetPropertyAlways(instance, L"InterfaceIndex").uintVal;
-	m_servers = dnshelpers::GetServers(instance);
+	m_servers = nchelpers::GetDnsServers(instance);
 }
 
-std::vector<std::wstring> *DnsConfiguration::servers() const
+const std::vector<std::wstring> *DnsConfig::servers() const
 {
 	return m_servers.get();
 }
 
-void DnsConfiguration::update(CComPtr<IWbemClassObject> instance)
-{
-	m_servers = dnshelpers::GetServers(instance);
-}
+//void DnsConfig::update(CComPtr<IWbemClassObject> instance)
+//{
+//	m_servers = nchelpers::GetDnsServers(instance);
+//}
