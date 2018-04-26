@@ -4,6 +4,7 @@
 extern crate libc;
 #[cfg(not(unix))]
 extern crate mullvad_ipc_client;
+extern crate os_pipe;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
@@ -13,7 +14,8 @@ use std::thread;
 use std::time::Duration;
 
 use duct;
-use os_pipe::{pipe, PipeReader};
+
+use self::os_pipe::{pipe, PipeReader};
 
 #[cfg(unix)]
 pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
@@ -26,9 +28,9 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
 
     if !path.exists() {
         File::create(path)
-            .expect("failed to create relay list file")
+            .expect("Failed to create relay list file")
             .write_all(b"{ \"countries\": [] }")
-            .expect("failed to write relay list");
+            .expect("Failed to write relay list");
     }
 }
 
@@ -41,7 +43,7 @@ impl DaemonRunner {
     pub fn spawn() -> Self {
         prepare_relay_list("../dist-assets/relays.json");
 
-        let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
+        let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
         let process = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", "./")
@@ -49,7 +51,7 @@ impl DaemonRunner {
             .stderr_to_stdout()
             .stdout_handle(writer)
             .start()
-            .expect("failed to start daemon");
+            .expect("Failed to start daemon");
 
         DaemonRunner {
             process: Some(process),
@@ -63,7 +65,7 @@ impl DaemonRunner {
 
         thread::spawn(move || {
             Self::wait_for_output(stdout, pattern);
-            tx.send(()).expect("failed to report search result");
+            tx.send(()).expect("Failed to report search result");
         });
 
         rx.recv_timeout(timeout)
@@ -73,7 +75,7 @@ impl DaemonRunner {
     fn wait_for_output(output: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) {
         let mut output = output
             .lock()
-            .expect("another thread panicked while holding a lock to the process output");
+            .expect("Another thread panicked while holding a lock to the process output");
 
         let mut line = String::new();
 
@@ -81,7 +83,7 @@ impl DaemonRunner {
             line.clear();
             output
                 .read_line(&mut line)
-                .expect("failed to read line from daemon stdout");
+                .expect("Failed to read line from daemon stdout");
         }
     }
 
