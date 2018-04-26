@@ -2,8 +2,6 @@
 extern crate duct;
 extern crate mullvad_ipc_client;
 extern crate mullvad_paths;
-extern crate os_pipe;
-extern crate talpid_ipc;
 
 mod common;
 
@@ -36,7 +34,7 @@ fn rpc_info_file_permissions() {
     assert!(rpc_file.exists());
 
     ensure_only_admin_can_write(
-        fs::metadata(&rpc_file).expect("failed to read RPC address file metadata"),
+        fs::metadata(&rpc_file).expect("Failed to read RPC address file metadata"),
     );
 }
 
