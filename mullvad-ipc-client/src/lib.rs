@@ -77,7 +77,18 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file()?;
+        let (address, credentials) = Self::read_rpc_file(true)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    pub fn without_rpc_file_security_check() -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(false)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    fn with_address_and_credentials(address: String, credentials: String) -> Result<Self> {
         let rpc_client =
             WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
         let mut instance = DaemonRpcClient { rpc_client };
@@ -89,12 +100,14 @@ impl DaemonRpcClient {
         Ok(instance)
     }
 
-    fn read_rpc_file() -> Result<(String, String)> {
+    fn read_rpc_file(verify_security: bool) -> Result<(String, String)> {
         let file_path = mullvad_paths::get_rpc_address_path()?;
         let rpc_file =
             File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
 
-        ensure_written_by_admin(&file_path)?;
+        if verify_security {
+            ensure_written_by_admin(&file_path)?;
+        }
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
