@@ -306,7 +306,7 @@ export default class Login extends Component<LoginPropTypes, State> {
         <View style={ styles.account_input_backdrop}>
           <AccountInput style={styles.account_input_textfield}
             type="text"
-            placeholder="e.g 0000 0000 0000"
+            placeholder="0000 0000 0000 0000"
             placeholderTextColor={colors.blue40}
             onFocus={ this._onFocus }
             onBlur={ this._onBlur }
