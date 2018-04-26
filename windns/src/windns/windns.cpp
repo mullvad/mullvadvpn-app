@@ -95,6 +95,19 @@ WinDns_Set(
 
 	try
 	{
+		//
+		// TODO: This is a temporary hack to enable alpha version. Review.
+		//
+
+		delete g_Context;
+		g_Context = nullptr;
+
+		g_Context = new WinDnsContext;
+
+		//
+		// Onwards.
+		//
+
 		return g_Context->set(MakeStringArray(servers, numServers), g_ErrorSink, g_ErrorContext);
 	}
 	catch (std::exception &err)

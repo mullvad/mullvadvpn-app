@@ -14,12 +14,24 @@
     </ClInclude>
     <ClInclude Include="windns.h" />
     <ClInclude Include="windnscontext.h" />
-    <ClInclude Include="dnsconfiguration.h" />
     <ClInclude Include="wmi\methodcall.h">
       <Filter>wmi</Filter>
     </ClInclude>
     <ClInclude Include="comhelpers.h" />
-    <ClInclude Include="dnshelpers.h" />
+    <ClInclude Include="configmanager.h" />
+    <ClInclude Include="dnsconfig.h" />
+    <ClInclude Include="itracesink.h" />
+    <ClInclude Include="consoletracesink.h" />
+    <ClInclude Include="wmi\eventsink.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="netconfigeventsink.h" />
+    <ClInclude Include="netconfighelpers.h" />
+    <ClInclude Include="macroargument.h" />
+    <ClInclude Include="wmi\notification.h">
+      <Filter>wmi</Filter>
+    </ClInclude>
+    <ClInclude Include="dnsreverter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -32,12 +44,22 @@
     </ClCompile>
     <ClCompile Include="windns.cpp" />
     <ClCompile Include="windnscontext.cpp" />
-    <ClCompile Include="dnsconfiguration.cpp" />
     <ClCompile Include="wmi\methodcall.cpp">
       <Filter>wmi</Filter>
     </ClCompile>
     <ClCompile Include="comhelpers.cpp" />
-    <ClCompile Include="dnshelpers.cpp" />
+    <ClCompile Include="configmanager.cpp" />
+    <ClCompile Include="dnsconfig.cpp" />
+    <ClCompile Include="consoletracesink.cpp" />
+    <ClCompile Include="wmi\eventsink.cpp">
+      <Filter>wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="netconfigeventsink.cpp" />
+    <ClCompile Include="netconfighelpers.cpp" />
+    <ClCompile Include="wmi\notification.cpp">
+      <Filter>wmi</Filter>
+    </ClCompile>
+    <ClCompile Include="dnsreverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="wmi">
