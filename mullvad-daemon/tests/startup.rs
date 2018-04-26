@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate duct;
 extern crate mullvad_ipc_client;
-extern crate os_pipe;
-extern crate talpid_ipc;
 
 mod common;
 
