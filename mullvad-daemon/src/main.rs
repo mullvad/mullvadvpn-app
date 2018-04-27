@@ -35,6 +35,7 @@ extern crate tokio_core;
 extern crate tokio_timer;
 extern crate uuid;
 
+extern crate mullvad_ipc_client;
 extern crate mullvad_rpc;
 extern crate mullvad_types;
 extern crate talpid_core;

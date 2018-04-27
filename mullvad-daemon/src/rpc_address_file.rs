@@ -1,5 +1,5 @@
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 error_chain! {
@@ -30,15 +30,6 @@ lazy_static! {
     };
 }
 
-
-/// Reads the address of the RPC connection from the RPC info file.
-pub fn read() -> io::Result<String> {
-    let file = File::open(RPC_ADDRESS_FILE_PATH.as_path())?;
-    let mut reader = BufReader::new(file);
-    let mut address = String::new();
-    reader.read_line(&mut address)?;
-    Ok(address)
-}
 
 /// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
