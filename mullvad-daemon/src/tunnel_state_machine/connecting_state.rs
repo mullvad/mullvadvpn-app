@@ -174,7 +174,10 @@ impl ConnectingState {
                 self.into_connected_state_bootstrap(metadata),
             )),
             Ok(_) => SameState(self),
-            Err(_) => NewState(DisconnectingState::enter(self.close_handle.close())),
+            Err(_) => NewState(ReconnectingState::enter((
+                self.close_handle.close(),
+                self.tunnel_parameters,
+            ))),
         }
     }
 
