@@ -174,7 +174,7 @@ impl ConnectingState {
             Err(_) => NewState(DisconnectingState::enter((
                 self.close_handle,
                 self.tunnel_close_event,
-                AfterDisconnect::Nothing,
+                AfterDisconnect::Reconnect(self.tunnel_parameters),
             ))),
         }
     }
