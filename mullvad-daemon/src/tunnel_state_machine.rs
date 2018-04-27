@@ -1,11 +1,11 @@
 use std::ffi::OsString;
-use std::io;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
 
 use error_chain::ChainedError;
+use futures::future::Shared;
 use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Poll, Sink, Stream};
@@ -320,24 +320,31 @@ impl TunnelStateProgress for TunnelState {
 /// Internal handle to request tunnel to be closed.
 struct CloseHandle {
     tunnel_close_handle: tunnel::CloseHandle,
+    tunnel_close_event: Shared<oneshot::Receiver<()>>,
 }
 
 impl CloseHandle {
-    fn new(tunnel_monitor: &TunnelMonitor) -> Self {
+    fn new(
+        tunnel_close_handle: tunnel::CloseHandle,
+        tunnel_close_event: Shared<oneshot::Receiver<()>>,
+    ) -> Self {
         CloseHandle {
-            tunnel_close_handle: tunnel_monitor.close_handle(),
+            tunnel_close_handle,
+            tunnel_close_event,
         }
     }
 
-    fn close(self) -> oneshot::Receiver<io::Result<()>> {
-        let (close_tx, close_rx) = oneshot::channel();
+    fn close(self) -> Shared<oneshot::Receiver<()>> {
+        let close_result = self
+            .tunnel_close_handle
+            .close()
+            .chain_err(|| "Failed to request tunnel monitor to close the tunnel");
 
-        thread::spawn(move || {
-            let _ = close_tx.send(self.tunnel_close_handle.close());
-            trace!("Tunnel kill thread exit");
-        });
+        if let Err(error) = close_result {
+            error!("{}", error.display_chain());
+        }
 
-        close_rx
+        self.tunnel_close_event
     }
 }
 
@@ -360,10 +367,11 @@ impl TunnelStateProgress for DisconnectedState {
 
 /// The tunnel has been started, but it is not established/functional.
 struct ConnectingState {
-    close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
     tunnel_parameters: TunnelParameters,
+    tunnel_close_event: Shared<oneshot::Receiver<()>>,
+    close_handle: CloseHandle,
 }
 
 impl ConnectingState {
@@ -378,19 +386,25 @@ impl ConnectingState {
         }
     }
 
-    fn new(parameters: TunnelParameters) -> Result<Self> {
-        let (event_tx, event_rx) = mpsc::unbounded();
-        let tunnel_endpoint = parameters.endpoint;
-        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
-        let close_handle = CloseHandle::new(&monitor);
+    fn restart(parameters: TunnelParameters) -> TunnelState {
+        info!("Tunnel closed. Reconnecting.");
+        Self::start(parameters)
+    }
 
-        Self::spawn_tunnel_monitor_wait_thread(monitor);
+    fn new(parameters: TunnelParameters) -> Result<Self> {
+        let tunnel_endpoint = parameters.endpoint;
+        let (event_tx, event_rx) = mpsc::unbounded();
+        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
+        let tunnel_close_handle = monitor.close_handle();
+        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor).shared();
+        let close_handle = CloseHandle::new(tunnel_close_handle, tunnel_close_event.clone());
 
         Ok(ConnectingState {
-            close_handle,
             tunnel_events: event_rx,
             tunnel_endpoint,
             tunnel_parameters: parameters,
+            tunnel_close_event,
+            close_handle,
         })
     }
 
@@ -436,7 +450,9 @@ impl ConnectingState {
         }
     }
 
-    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: TunnelMonitor) {
+    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: TunnelMonitor) -> oneshot::Receiver<()> {
+        let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
+
         thread::spawn(move || {
             let start = Instant::now();
 
@@ -452,8 +468,14 @@ impl ConnectingState {
                 thread::sleep(remaining_time);
             }
 
+            if tunnel_close_event_tx.send(()).is_err() {
+                warn!("Tunnel state machine stopped before receiving tunnel closed event");
+            }
+
             trace!("Tunnel monitor thread exit");
         });
+
+        tunnel_close_event_rx
     }
 
     fn info(&self) -> TunnelStateInfo {
@@ -490,13 +512,26 @@ impl ConnectingState {
             Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::new(
                 metadata,
                 self.tunnel_events,
-                self.close_handle,
                 self.tunnel_endpoint,
                 self.tunnel_parameters,
+                self.tunnel_close_event,
+                self.close_handle,
             )),
             Ok(_) => SameState(self),
             Err(_) => NewState(DisconnectingState::wait_for(self.close_handle)),
         }
+    }
+
+    fn handle_tunnel_close_event(mut self) -> TunnelStateTransition<Self> {
+        use self::TunnelStateTransition::*;
+
+        match self.tunnel_close_event.poll() {
+            Ok(Async::Ready(_)) => {}
+            Ok(Async::NotReady) => return NoEvents(self),
+            Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
+        }
+
+        NewState(ConnectingState::restart(self.tunnel_parameters))
     }
 }
 
@@ -507,32 +542,36 @@ impl TunnelStateProgress for ConnectingState {
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_tunnel_events)
+            .or_else(Self::handle_tunnel_close_event)
     }
 }
 
 /// The tunnel is up and working.
 struct ConnectedState {
-    close_handle: CloseHandle,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
     metadata: TunnelMetadata,
     tunnel_parameters: TunnelParameters,
+    tunnel_close_event: Shared<oneshot::Receiver<()>>,
+    close_handle: CloseHandle,
 }
 
 impl ConnectedState {
     fn new(
         metadata: TunnelMetadata,
         tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
-        close_handle: CloseHandle,
         tunnel_endpoint: TunnelEndpoint,
         tunnel_parameters: TunnelParameters,
+        tunnel_close_event: Shared<oneshot::Receiver<()>>,
+        close_handle: CloseHandle,
     ) -> TunnelState {
         ConnectedState {
-            close_handle,
             tunnel_events,
             tunnel_endpoint,
             metadata,
             tunnel_parameters,
+            tunnel_close_event,
+            close_handle,
         }.into()
     }
 
@@ -574,6 +613,18 @@ impl ConnectedState {
             Ok(_) => SameState(self),
         }
     }
+
+    fn handle_tunnel_close_event(mut self) -> TunnelStateTransition<Self> {
+        use self::TunnelStateTransition::*;
+
+        match self.tunnel_close_event.poll() {
+            Ok(Async::Ready(_)) => {}
+            Ok(Async::NotReady) => return NoEvents(self),
+            Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
+        }
+
+        NewState(ConnectingState::restart(self.tunnel_parameters))
+    }
 }
 
 impl TunnelStateProgress for ConnectedState {
@@ -583,17 +634,18 @@ impl TunnelStateProgress for ConnectedState {
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_tunnel_events)
+            .or_else(Self::handle_tunnel_close_event)
     }
 }
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 struct DisconnectingState {
-    exited: oneshot::Receiver<io::Result<()>>,
+    exited: Shared<oneshot::Receiver<()>>,
 }
 
 impl DisconnectingState {
-    fn new(exited: oneshot::Receiver<io::Result<()>>) -> TunnelState {
+    fn new(exited: Shared<oneshot::Receiver<()>>) -> TunnelState {
         DisconnectingState { exited }.into()
     }
 
@@ -637,12 +689,12 @@ impl TunnelStateProgress for DisconnectingState {
 
 /// This state is active when the tunnel is being closed but will be reopened shortly afterwards.
 struct ReconnectingState {
-    exited: oneshot::Receiver<io::Result<()>>,
+    exited: Shared<oneshot::Receiver<()>>,
     parameters: TunnelParameters,
 }
 
 impl ReconnectingState {
-    fn new(exited: oneshot::Receiver<io::Result<()>>, parameters: TunnelParameters) -> TunnelState {
+    fn new(exited: Shared<oneshot::Receiver<()>>, parameters: TunnelParameters) -> TunnelState {
         ReconnectingState { exited, parameters }.into()
     }
 
