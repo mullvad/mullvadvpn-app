@@ -505,7 +505,10 @@ impl ConnectingState {
                 self.close_handle,
             )),
             Ok(_) => SameState(self),
-            Err(_) => NewState(ExitingState::wait_for(self.close_handle)),
+            Err(_) => NewState(RestartingState::wait_for(
+                self.close_handle,
+                self.tunnel_parameters,
+            )),
         }
     }
 
