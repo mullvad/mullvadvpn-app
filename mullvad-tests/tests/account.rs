@@ -8,7 +8,7 @@ use std::path::Path;
 use std::time::Duration;
 
 use mullvad_tests::mock_openvpn::search_openvpn_args;
-use mullvad_tests::{wait_for_file_write_finish, DaemonRunner};
+use mullvad_tests::{wait_for_file_to_be_deleted, wait_for_file_write_finish, DaemonRunner};
 
 #[test]
 fn uses_account_token() {
@@ -23,6 +23,30 @@ fn uses_account_token() {
     let account_token = read_account_token(openvpn_args_file).unwrap();
 
     assert_eq!(account_token, account);
+}
+
+#[test]
+fn uses_updated_account_token() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+
+    let first_account = "123456";
+    rpc_client
+        .set_account(Some(first_account.to_owned()))
+        .unwrap();
+    rpc_client.connect().unwrap();
+
+    let second_account = "654321";
+    rpc_client
+        .set_account(Some(second_account.to_owned()))
+        .unwrap();
+
+    wait_for_file_to_be_deleted(openvpn_args_file, Duration::from_secs(5));
+
+    let account_token = read_account_token(openvpn_args_file).unwrap();
+
+    assert_eq!(account_token, second_account);
 }
 
 fn read_account_token<P: AsRef<Path>>(openvpn_args_file_path: P) -> Result<String, String> {
