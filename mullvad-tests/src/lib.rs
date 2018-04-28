@@ -12,6 +12,8 @@ extern crate os_pipe;
 extern crate talpid_ipc;
 extern crate tempfile;
 
+pub mod mock_openvpn;
+
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
@@ -27,9 +29,8 @@ use os_pipe::{pipe, PipeReader};
 use talpid_ipc::WsIpcClient;
 use tempfile::TempDir;
 
+use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
 use self::platform_specific::*;
-
-pub const MOCK_OPENVPN_ARGS_FILE: &str = "mock_openvpn_args";
 
 #[cfg(unix)]
 mod platform_specific {
