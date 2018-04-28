@@ -4,12 +4,12 @@ extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
 extern crate mullvad_types;
 
-use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
+use std::fs;
 use std::path::Path;
 use std::sync::mpsc;
 use std::time::Duration;
 
+use mullvad_tests::mock_openvpn::search_openvpn_args;
 use mullvad_tests::{wait_for_file_write_finish, DaemonRunner, MockOpenVpnPluginRpcClient};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
@@ -267,17 +267,7 @@ fn get_plugin_arguments<P: AsRef<Path>>(openvpn_args_file_path: P) -> (String, S
 
     wait_for_file_write_finish(&args_file_path, Duration::from_secs(5));
 
-    let args_file = File::open(&args_file_path).expect(&format!(
-        "Failed to open mock OpenVPN command-line file: {}",
-        args_file_path.display(),
-    ));
-
-    let args_reader = BufReader::new(args_file).lines();
-    let mut arguments = args_reader
-        .skip_while(|element| {
-            element.is_ok() && !element.as_ref().unwrap().contains(OPENVPN_PLUGIN_NAME)
-        })
-        .skip(1);
+    let mut arguments = search_openvpn_args(&args_file_path, OPENVPN_PLUGIN_NAME).skip(1);
 
     let address = arguments
         .next()
