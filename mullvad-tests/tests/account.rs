@@ -7,7 +7,7 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 use mullvad_tests::mock_openvpn::search_openvpn_args;
-use mullvad_tests::{DaemonRunner, PathWatcher};
+use mullvad_tests::{watch_event, DaemonRunner, PathWatcher};
 
 #[test]
 fn uses_account_token() {
@@ -27,6 +27,34 @@ fn uses_account_token() {
     let account_token_sent_to_plugin = read_account_token(openvpn_args_file).unwrap();
 
     assert_eq!(account_token_sent_to_plugin, specified_account);
+}
+
+#[test]
+fn uses_updated_account_token() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
+
+    let first_account_specified = "123456";
+    rpc_client
+        .set_account(Some(first_account_specified.to_owned()))
+        .unwrap();
+    rpc_client.connect().unwrap();
+
+    openvpn_args_file_events.assert_create_write_close_sequence();
+
+    let second_account_specified = "654321";
+    rpc_client
+        .set_account(Some(second_account_specified.to_owned()))
+        .unwrap();
+
+    assert_eq!(openvpn_args_file_events.next(), Some(watch_event::REMOVE));
+    openvpn_args_file_events.assert_create_write_close_sequence();
+
+    let account_token_sent_to_plugin = read_account_token(openvpn_args_file).unwrap();
+
+    assert_eq!(account_token_sent_to_plugin, second_account_specified);
 }
 
 fn read_account_token<P: AsRef<Path>>(openvpn_args_file_path: P) -> Result<String, String> {
