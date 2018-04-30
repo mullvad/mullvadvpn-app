@@ -55,6 +55,19 @@ ipcRenderer.on('disconnect', () => {
       log.warn('Unable to disconnect the tunnel', e.message);
     });
 });
+
+ipcRenderer.on('app-shutdown', () => {
+  log.info('Been told by the renderer process that the app is shutting down');
+  // The shutdown behaviour may have to be different on mobile platforms
+  const shutdown_func = process.platform === 'darwin' ? () => backend.shutdown() : () => backend.disconnect();
+  shutdown_func().catch( e => {
+    log.error('Failed to shutdown tunnel: ', e);
+  });
+
+  // no matter what, don't block the frontend from shutting down, I guess.
+  ipcRenderer.send('daemon-shutdown', true);
+});
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
