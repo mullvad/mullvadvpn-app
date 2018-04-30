@@ -555,4 +555,22 @@ const appDelegate = {
 
 };
 
+try {
+  // This callback is guaranteed to be excuted after 'ready' events have been
+  // sent to the app.
+  const notFirstInstance = app.makeSingleInstance((_args, _workingDirectory) => {
+    log.debug('Another instance was spawned, showing window');
+    const window = appDelegate._window;
+    if (window != null) {
+      appDelegate._showWindow(window, appDelegate._tray);
+    }
+  });
+
+  if (notFirstInstance) {
+    log.info('Another instance already exists, shutting down');
+    app.exit();
+  }
+} catch (e) {
+  log.error('Failed to check if another instance is running: ', e);
+}
 appDelegate.setup();
