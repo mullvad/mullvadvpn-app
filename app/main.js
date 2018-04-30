@@ -81,9 +81,11 @@ const appDelegate = {
     case 'darwin':
       // macOS: ~/Library/Logs/{appname}
       return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
+    case 'win32':
+      // Windows: %ALLUSERSPROFILE%\{appname}
+      return path.join(process.env.ALLUSERSPROFILE, appDirectoryName);
     default:
       // Linux: ~/.config/{appname}/logs
-      // Windows: ~\AppData\Roaming\{appname}\logs
       return path.join(app.getPath('userData'), 'logs');
     }
   },
