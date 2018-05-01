@@ -38,6 +38,23 @@ const REPORT_MAX_SIZE: usize = 2 * LOG_MAX_READ_BYTES + 16 * 1024;
 /// Field delimeter in generated problem report
 const LOG_DELIMITER: &'static str = "====================";
 
+/// Line separator character sequence
+#[cfg(not(windows))]
+const LINE_SEPARATOR: &str = "\n";
+
+#[cfg(windows)]
+const LINE_SEPARATOR: &str = "\r\n";
+
+/// Custom macro to write a line to an output formatter that uses platform-specific newline
+/// character sequences.
+macro_rules! write_line {
+    ($fmt:expr $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
+    ($fmt:expr, $pattern:expr $(, $arg:expr)* $(,)*) => {
+        write!($fmt, $pattern, $( $arg ),*)
+            .and_then(|_| write!($fmt, "{}", LINE_SEPARATOR))
+    };
+}
+
 error_chain!{
     errors {
         WriteReportError(path: PathBuf) {
@@ -254,17 +271,17 @@ impl ProblemReport {
 
 impl fmt::Display for ProblemReport {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(fmt, "System information:")?;
+        write_line!(fmt, "System information:")?;
         for (key, value) in &self.metadata {
-            writeln!(fmt, "{}: {}", key, value)?;
+            write_line!(fmt, "{}: {}", key, value)?;
         }
-        writeln!(fmt, "")?;
+        write_line!(fmt)?;
         for &(ref label, ref content) in &self.logs {
-            writeln!(fmt, "{}", LOG_DELIMITER)?;
-            writeln!(fmt, "Log: {}", label)?;
-            writeln!(fmt, "{}", LOG_DELIMITER)?;
+            write_line!(fmt, "{}", LOG_DELIMITER)?;
+            write_line!(fmt, "Log: {}", label)?;
+            write_line!(fmt, "{}", LOG_DELIMITER)?;
             fmt.write_str(content)?;
-            writeln!(fmt)?;
+            write_line!(fmt)?;
         }
         Ok(())
     }
