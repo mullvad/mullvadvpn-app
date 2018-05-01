@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reduce RPC timeout to Mullvad API server.
 - Fix OpenVPN warning about usage of AES-256-CBC cipher.
 - Fix "Out of time" screen status icon position.
+- Fix log newline characters on Windows.
 
 
 ## [2018.1] - 2018-03-01
