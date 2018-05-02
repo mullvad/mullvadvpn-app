@@ -1,7 +1,8 @@
 #![cfg(windows)]
 
 use std::ffi::OsString;
-use std::path::PathBuf;
+use std::fs;
+use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
 use std::time::Duration;
@@ -19,7 +20,7 @@ use windows_service::service_control_handler::{
 use windows_service::service_dispatcher;
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 
-use super::{get_resource_dir, Daemon, DaemonShutdownHandle, Result, ResultExt};
+use super::{get_resource_dir, Daemon, DaemonShutdownHandle, ErrorKind, Result, ResultExt};
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
@@ -216,21 +217,26 @@ pub fn install_service() -> Result<()> {
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .chain_err(|| "Unable to connect to service manager")?;
     service_manager
-        .create_service(get_service_info(), ServiceAccess::empty())
+        .create_service(get_service_info()?, ServiceAccess::empty())
         .map(|_| ())
         .chain_err(|| "Unable to create a service")
 }
 
-fn get_service_info() -> ServiceInfo {
-    let windows_directory = ::std::env::var_os("WINDIR").unwrap();
-    let service_log_file = PathBuf::from(&windows_directory)
-        .join("Temp")
-        .join("mullvad-service.log");
-    let tunnel_log_file = PathBuf::from(&windows_directory)
-        .join("Temp")
-        .join("mullvad-openvpn.log");
+fn get_service_info() -> Result<ServiceInfo> {
+    let program_data_directory_string =
+        ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoLogDir)?;
+    let program_data_directory = Path::new(&program_data_directory_string);
+    let log_directory = program_data_directory.join(::PRODUCT_NAME);
+    let service_log_file = log_directory.join("backend.log");
+    let tunnel_log_file = log_directory.join("openvpn.log");
 
-    ServiceInfo {
+    if let Err(error) = fs::create_dir(log_directory) {
+        if error.kind() != io::ErrorKind::AlreadyExists {
+            return Err(error).chain_err(|| ErrorKind::NoLogDir);
+        }
+    }
+
+    Ok(ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
         service_type: SERVICE_TYPE,
@@ -247,5 +253,5 @@ fn get_service_info() -> ServiceInfo {
         ],
         account_name: None, // run as System
         account_password: None,
-    }
+    })
 }

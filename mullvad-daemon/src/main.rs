@@ -95,6 +95,10 @@ error_chain!{
         NoCacheDir {
             description("Unable to create cache directory")
         }
+        #[cfg(windows)]
+        NoLogDir {
+            description("Unable to create log directory")
+        }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
         }
@@ -134,6 +138,9 @@ static APP_INFO: AppInfo = AppInfo {
     name: crate_name!(),
     author: "Mullvad",
 };
+
+#[cfg(windows)]
+static PRODUCT_NAME: &str = "Mullvad VPN";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
