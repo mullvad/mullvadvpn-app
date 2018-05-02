@@ -26,7 +26,7 @@ let browserWindowReady = false;
 const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
-  _logFileLocation: '',
+  _logFilePath: '',
   _readyToQuit: false,
   connectionFilePollInterval: (null: ?IntervalID),
 
@@ -34,7 +34,6 @@ const appDelegate = {
     // Override userData path, i.e on macOS: ~/Library/Application Support/Mullvad VPN
     app.setPath('userData', path.join(app.getPath('appData'), appDirectoryName));
 
-    appDelegate._logFileLocation = appDelegate._getLogsDirectory();
     appDelegate._initLogging();
 
     log.info('Running version', version);
@@ -45,7 +44,11 @@ const appDelegate = {
 
   _initLogging: () => {
 
+    const logDirectory = appDelegate._getLogsDirectory();
     const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
+
+    appDelegate._logFilePath = path.join(logDirectory, 'frontend.log');
+
     log.transports.console.format = format;
     log.transports.file.format = format;
     if (isDevelopment) {
@@ -56,11 +59,11 @@ const appDelegate = {
     } else {
       log.transports.console.level = 'debug';
       log.transports.file.level = 'debug';
-      log.transports.file.file = path.join(appDelegate._logFileLocation, 'frontend.log');
+      log.transports.file.file = appDelegate._logFilePath;
     }
 
     // create log folder
-    mkdirp.sync(appDelegate._logFileLocation);
+    mkdirp.sync(logDirectory);
   },
 
   // Returns platform specific logs folder for application
@@ -124,40 +127,30 @@ const appDelegate = {
     });
 
     ipcMain.on('collect-logs', (event, id, toRedact) => {
-      log.info('Collecting logs in', appDelegate._logFileLocation);
-      fs.readdir(appDelegate._logFileLocation, (err, files) => {
+      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+
+      const binPath = resolveBin('problem-report');
+      let args = [
+        'collect',
+        '--output', reportPath,
+      ];
+
+      if (toRedact.length > 0) {
+        args = args.concat([
+          '--redact', ...toRedact,
+          '--',
+        ]);
+      }
+
+      args = args.concat([appDelegate._logFilePath]);
+
+      execFile(binPath, args, {windowsHide: true}, (err) => {
         if (err) {
           event.sender.send('collect-logs-reply', id, err);
-          return;
+        } else {
+          log.debug('Report written to', reportPath);
+          event.sender.send('collect-logs-reply', id, null, reportPath);
         }
-
-        const logFiles = files.filter(file => file.endsWith('.log'))
-          .map(f => path.join(appDelegate._logFileLocation, f));
-        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-
-        const binPath = resolveBin('problem-report');
-        let args = [
-          'collect',
-          '--output', reportPath,
-        ];
-
-        if (toRedact.length > 0) {
-          args = args.concat([
-            '--redact', ...toRedact,
-            '--',
-          ]);
-        }
-
-        args = args.concat(logFiles);
-
-        execFile(binPath, args, {windowsHide: true}, (err) => {
-          if (err) {
-            event.sender.send('collect-logs-reply', id, err);
-          } else {
-            log.debug('Report written to', reportPath);
-            event.sender.send('collect-logs-reply', id, null, reportPath);
-          }
-        });
       });
     });
 

@@ -14,6 +14,8 @@ extern crate error_chain;
 extern crate lazy_static;
 extern crate regex;
 
+#[cfg(windows)]
+extern crate mullvad_metadata;
 extern crate mullvad_rpc;
 
 use error_chain::ChainedError;
@@ -21,9 +23,10 @@ use regex::Regex;
 
 use std::borrow::Cow;
 use std::cmp::min;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
-use std::fs::File;
+use std::ffi::OsStr;
+use std::fs::{self, File};
 use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
@@ -43,6 +46,24 @@ const LINE_SEPARATOR: &str = "\n";
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
 
+/// Location of log files to be collected
+#[cfg(windows)]
+lazy_static! {
+    static ref LOG_DIRECTORY: PathBuf = {
+        use mullvad_metadata::PRODUCT_NAME;
+
+        let program_data_dir =
+            env::var_os("ALLUSERSPROFILE").expect("Missing %ALLUSERSPROFILE% environment variable");
+
+        PathBuf::from(program_data_dir).join(PRODUCT_NAME)
+    };
+}
+
+#[cfg(unix)]
+lazy_static! {
+    static ref LOG_DIRECTORY: PathBuf = PathBuf::from("/var/log/mullvad-daemon");
+}
+
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
 macro_rules! write_line {
@@ -55,6 +76,13 @@ macro_rules! write_line {
 
 error_chain!{
     errors {
+        LogDirError(path: PathBuf) {
+            description("Error listing the files in the mullvad-daemon log directory")
+            display(
+                "Error listing the files in the mullvad-daemon log directory: {}",
+                path.to_string_lossy()
+            )
+        }
         WriteReportError(path: PathBuf) {
             description("Error writing the problem report file")
             display("Error writing the problem report file: {}", path.display())
@@ -90,10 +118,10 @@ fn run() -> Result<()> {
                         .required(true),
                 )
                 .arg(
-                    clap::Arg::with_name("logs")
-                        .help("The paths to log files to include in the problem report.")
+                    clap::Arg::with_name("extra_logs")
+                        .help("Paths to additional log files to be included.")
                         .multiple(true)
-                        .value_name("LOG PATHS")
+                        .value_name("EXTRA LOGS")
                         .takes_value(true)
                         .required(false),
                 )
@@ -141,12 +169,12 @@ fn run() -> Result<()> {
         let redact_custom_strings = collect_matches
             .values_of_lossy("redact")
             .unwrap_or(Vec::new());
-        let log_paths = collect_matches
-            .values_of_os("logs")
+        let extra_logs = collect_matches
+            .values_of_os("extra_logs")
             .map(|os_values| os_values.map(Path::new).collect())
             .unwrap_or(Vec::new());
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
-        collect_report(&log_paths, output_path, redact_custom_strings)
+        collect_report(&extra_logs, output_path, redact_custom_strings)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -158,16 +186,35 @@ fn run() -> Result<()> {
 }
 
 fn collect_report(
-    log_paths: &[&Path],
+    extra_logs: &[&Path],
     output_path: &Path,
     redact_custom_strings: Vec<String>,
 ) -> Result<()> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
-    for log_path in log_paths {
-        problem_report.add_log(log_path);
-    }
+
+    add_logs_from_log_directory(&mut problem_report)?;
+
+    problem_report.add_logs(extra_logs);
+
     write_problem_report(&output_path, problem_report)
         .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
+}
+
+fn add_logs_from_log_directory(problem_report: &mut ProblemReport) -> Result<()> {
+    let log_dir = &*LOG_DIRECTORY;
+    let dir_entries = fs::read_dir(&log_dir).chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
+    let log_extension = Some(OsStr::new("log"));
+
+    for dir_entry in dir_entries {
+        let file = dir_entry.chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
+        let file_path = file.path();
+
+        if file_path.extension() == log_extension {
+            problem_report.add_log(&file_path);
+        }
+    }
+
+    Ok(())
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
@@ -197,6 +244,7 @@ fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Resul
 struct ProblemReport {
     metadata: HashMap<String, String>,
     logs: Vec<(String, String)>,
+    log_paths: HashSet<PathBuf>,
     redact_custom_strings: Vec<String>,
 }
 
@@ -207,18 +255,33 @@ impl ProblemReport {
         ProblemReport {
             metadata: collect_metadata(),
             logs: Vec::new(),
+            log_paths: HashSet::new(),
             redact_custom_strings,
+        }
+    }
+
+    /// Attach some file logs to this report. This method adds the error chain instead of the log
+    /// contents if an error occurs while reading one of the log files.
+    pub fn add_logs<I>(&mut self, paths: I)
+    where
+        I: IntoIterator,
+        I::Item: AsRef<Path>,
+    {
+        for path in paths {
+            self.add_log(path.as_ref());
         }
     }
 
     /// Attach a file log to this report. This method adds the error chain instead of the log
     /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
-        let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
-            .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
-            .unwrap_or_else(|e| e.display_chain().to_string()));
-        let path = self.redact(&path.to_string_lossy());
-        self.logs.push((path, content));
+        if self.log_paths.insert(path.to_owned()) {
+            let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
+                .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+                .unwrap_or_else(|e| e.display_chain().to_string()));
+            let path = self.redact(&path.to_string_lossy());
+            self.logs.push((path, content));
+        }
     }
 
     fn redact(&self, input: &str) -> String {
