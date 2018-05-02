@@ -16,8 +16,6 @@ extraResources:
     to: .
   - from: CHANGELOG.md
     to: .
-  - from: wfpctl/bin/x64-Release/wfpctl.dll
-    to: .
 
 directories:
   buildResources: dist-assets/
@@ -83,6 +81,10 @@ win:
     - from: ./target/release/mullvad-daemon.exe
       to: .
     - from: ./target/release/talpid_openvpn_plugin.dll
+      to: .
+    - from: wfpctl/bin/x64-Release/wfpctl.dll
+      to: .
+    - from: windns/bin/x64-Release/windns.dll
       to: .
 
 linux:
