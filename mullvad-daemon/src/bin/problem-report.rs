@@ -75,7 +75,7 @@ fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
         .version(crate_version!())
         .author(crate_authors!())
-        .about("Mullvad VPN problem report tool. Collects logs and send them to Mullvad support.")
+        .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(
             clap::SubCommand::with_name("collect")
