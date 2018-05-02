@@ -124,40 +124,28 @@ const appDelegate = {
     });
 
     ipcMain.on('collect-logs', (event, id, toRedact) => {
-      log.info('Collecting logs in', appDelegate._logFileLocation);
-      fs.readdir(appDelegate._logFileLocation, (err, files) => {
+      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+
+      const binPath = resolveBin('problem-report');
+      let args = [
+        'collect',
+        '--output', reportPath,
+      ];
+
+      if (toRedact.length > 0) {
+        args = args.concat([
+          '--redact', ...toRedact,
+          '--',
+        ]);
+      }
+
+      execFile(binPath, args, {windowsHide: true}, (err) => {
         if (err) {
           event.sender.send('collect-logs-reply', id, err);
-          return;
+        } else {
+          log.debug('Report written to', reportPath);
+          event.sender.send('collect-logs-reply', id, null, reportPath);
         }
-
-        const logFiles = files.filter(file => file.endsWith('.log'))
-          .map(f => path.join(appDelegate._logFileLocation, f));
-        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-
-        const binPath = resolveBin('problem-report');
-        let args = [
-          'collect',
-          '--output', reportPath,
-        ];
-
-        if (toRedact.length > 0) {
-          args = args.concat([
-            '--redact', ...toRedact,
-            '--',
-          ]);
-        }
-
-        args = args.concat(logFiles);
-
-        execFile(binPath, args, {windowsHide: true}, (err) => {
-          if (err) {
-            event.sender.send('collect-logs-reply', id, err);
-          } else {
-            log.debug('Report written to', reportPath);
-            event.sender.send('collect-logs-reply', id, null, reportPath);
-          }
-        });
       });
     });
 
