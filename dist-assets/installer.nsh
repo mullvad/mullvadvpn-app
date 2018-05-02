@@ -144,7 +144,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --install-service'
+	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
 
 	Pop $0
 	Pop $1
@@ -197,13 +197,13 @@
 		Abort
 	${EndIf}
 
-;	${InstallService}
+	${InstallService}
 
-;	${If} $R0 != 0
-;		MessageBox MB_OK "Fatal error during service installation: $R0"
-;		${BreakInstallation}
-;		Abort
-;	${EndIf}
+	${If} $R0 != 0
+		MessageBox MB_OK "Fatal error during service installation: $R0"
+		${BreakInstallation}
+		Abort
+	${EndIf}
 
 	Pop $R0
 
