@@ -172,8 +172,8 @@ fn collect_report(
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
-    let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
-        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
+    let report_content = normalize_newlines(read_file_lossy(report_path, REPORT_MAX_SIZE)
+        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?);
     let metadata = collect_metadata();
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
     let mut rpc_client = mullvad_rpc::ProblemReportProxy::connect(&mut rpc_manager)
@@ -398,6 +398,16 @@ fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
         .output()
         .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
         .ok()
+}
+
+#[cfg(not(windows))]
+fn normalize_newlines(text: String) -> String {
+    text
+}
+
+#[cfg(windows)]
+fn normalize_newlines(text: String) -> String {
+    text.replace(LINE_SEPARATOR, "\n")
 }
 
 #[cfg(test)]
