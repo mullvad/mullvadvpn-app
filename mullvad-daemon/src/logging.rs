@@ -113,6 +113,8 @@ impl Formatter {
         message: &fmt::Arguments,
         record: &log::Record,
     ) {
+        let message = escape_newlines(format!("{}", message));
+
         out.finish(format_args!(
             "{}[{}][{}] {}",
             chrono::Local::now().format(self.get_timetsamp_fmt()),
@@ -121,4 +123,14 @@ impl Formatter {
             message,
         ))
     }
+}
+
+#[cfg(not(windows))]
+fn escape_newlines(text: String) -> String {
+    text
+}
+
+#[cfg(windows)]
+fn escape_newlines(text: String) -> String {
+    text.replace("\n", LINE_SEPARATOR)
 }
