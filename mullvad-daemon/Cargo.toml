@@ -27,6 +27,7 @@ tokio-core = "0.1"
 tokio-timer = "0.1"
 regex = "0.2"
 
+mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
@@ -45,4 +46,3 @@ windows-service = { path = "../windows-service" }
 assert_matches = "1.0"
 duct = "0.10"
 os_pipe = "0.6"
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }

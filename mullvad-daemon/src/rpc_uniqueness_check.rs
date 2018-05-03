@@ -1,9 +1,6 @@
-use std::result;
+use error_chain::ChainedError;
 
-use mullvad_types::states::DaemonState;
-use talpid_ipc::WsIpcClient;
-
-use rpc_address_file;
+use mullvad_ipc_client::DaemonRpcClient;
 
 
 /// Checks if there is another instance of the daemon running.
@@ -11,27 +8,23 @@ use rpc_address_file;
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
-    if let Ok(address) = rpc_address_file::read() {
-        match call_other_instance(address) {
+    match DaemonRpcClient::new() {
+        Ok(client) => match client.get_state() {
             Ok(_) => true,
-            Err(message) => {
-                info!("{}; assuming it has stopped", message);
+            Err(error) => {
+                let chained_error = error.chain_err(|| {
+                    "Failed to communicate with another daemon instance, assuming it has stopped"
+                });
+                info!("{}", chained_error.display_chain());
                 false
             }
+        },
+        Err(error) => {
+            let chained_error = error.chain_err(|| {
+                "Failed to load RPC address for another daemon instance, assuming there isn't one"
+            });
+            debug!("{}", chained_error.display_chain());
+            false
         }
-    } else {
-        false
     }
-}
-
-fn call_other_instance(address: String) -> result::Result<(), String> {
-    let method = "get_state";
-    let args: [u8; 0] = [];
-    // TODO: Authenticate with server
-    let mut rpc_client =
-        WsIpcClient::new(address).map_err(|_| "Failed to connect to other daemon")?;
-    let _: DaemonState = rpc_client
-        .call(method, &args)
-        .map_err(|_| "Failed to execute RPC call to other daemon")?;
-    Ok(())
 }

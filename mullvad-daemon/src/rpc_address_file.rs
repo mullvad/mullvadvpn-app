@@ -1,9 +1,14 @@
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+
+use mullvad_ipc_client::rpc_file_path;
 
 error_chain! {
     errors {
+        UnknownFilePath {
+            description("Failed to find path for RPC connection info file")
+        }
         WriteFailed(path: PathBuf) {
             description("Failed to write RPC connection info to file")
             display("Failed to write RPC connection info to {}", path.to_string_lossy())
@@ -15,55 +20,34 @@ error_chain! {
     }
 }
 
-#[cfg(unix)]
-lazy_static! {
-    /// The path to the file where we write the RPC connection info
-    static ref RPC_ADDRESS_FILE_PATH: PathBuf = Path::new("/tmp").join(".mullvad_rpc_address");
-}
-
-#[cfg(not(unix))]
-lazy_static! {
-    /// The path to the file where we write the RPC connection info
-    static ref RPC_ADDRESS_FILE_PATH: PathBuf = {
-        let windows_directory = ::std::env::var_os("WINDIR").unwrap();
-        PathBuf::from(windows_directory).join("Temp").join(".mullvad_rpc_address")
-    };
-}
-
-
-/// Reads the address of the RPC connection from the RPC info file.
-pub fn read() -> io::Result<String> {
-    let file = File::open(RPC_ADDRESS_FILE_PATH.as_path())?;
-    let mut reader = BufReader::new(file);
-    let mut address = String::new();
-    reader.read_line(&mut address)?;
-    Ok(address)
-}
-
 /// Writes down the RPC connection info to some API to a file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     // Avoids opening an existing file owned by another user and writing sensitive data to it.
     remove()?;
 
-    open_file(RPC_ADDRESS_FILE_PATH.as_path())
+    let file_path = rpc_file_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+
+    open_file(&file_path)
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
-        .chain_err(|| ErrorKind::WriteFailed(RPC_ADDRESS_FILE_PATH.to_owned()))?;
+        .chain_err(|| ErrorKind::WriteFailed(file_path.clone()))?;
 
     debug!(
         "Wrote RPC connection info to {}",
-        RPC_ADDRESS_FILE_PATH.to_string_lossy()
+        file_path.to_string_lossy()
     );
     Ok(())
 }
 
 /// Removes the RPC file, if it exists.
 pub fn remove() -> Result<()> {
-    if let Err(error) = fs::remove_file(RPC_ADDRESS_FILE_PATH.as_path()) {
+    let file_path = rpc_file_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+
+    if let Err(error) = fs::remove_file(&file_path) {
         if error.kind() == io::ErrorKind::NotFound {
             // No previously existing file
             Ok(())
         } else {
-            Err(error).chain_err(|| ErrorKind::RemoveFailed(RPC_ADDRESS_FILE_PATH.to_owned()))
+            Err(error).chain_err(|| ErrorKind::RemoveFailed(file_path))
         }
     } else {
         Ok(())
