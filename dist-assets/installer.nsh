@@ -14,6 +14,10 @@
 # TAP device hardware ID
 !define TapHardwareId "tap0901"
 
+# "sc" exit code
+!define SERVICE_STARTED 0
+!define SERVICE_START_PENDING 2
+
 #
 # BreakInstallation
 #
@@ -144,6 +148,12 @@
 	Push $0
 	Push $1
 
+	nsExec::ExecToStack '"sc.exe" delete mullvadvpn'
+
+	# Discard return value
+	# The service may have not been installed previously
+	Pop $0
+	
 	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
 
 	Pop $0
@@ -154,12 +164,13 @@
 		Goto InstallService_return
 	${EndIf}
 
-	nsExec::ExecToStack 'net start mullvad'
+	nsExec::ExecToStack '"sc.exe" start mullvadvpn'
 
 	Pop $0
 	Pop $1
 
-	${If} $0 != 0
+	${If} $0 != ${SERVICE_STARTED}
+	${AndIf} $0 != ${SERVICE_START_PENDING}
 		StrCpy $R0 "Failed to start Mullvad service"
 		Goto InstallService_return
 	${EndIf}
