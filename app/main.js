@@ -30,6 +30,7 @@ const appDelegate = {
   _window: (null: ?BrowserWindow),
   _tray: (null: ?Tray),
   _logFileLocation: '',
+  _readyToQuit: false,
   connectionFilePollInterval: (null: ?IntervalID),
 
   setup: () => {
@@ -87,6 +88,11 @@ const appDelegate = {
     }
   },
 
+  onTunnelShutdown: (isTunnelDown: boolean) => {
+    appDelegate._readyToQuit = isTunnelDown;
+    app.quit();
+  },
+
   onReady: async () => {
     const window = appDelegate._window = appDelegate._createWindow();
 
@@ -97,22 +103,16 @@ const appDelegate = {
 
     ipcMain.on('show-window', () => appDelegate._showWindow(window, appDelegate._tray));
     ipcMain.on('hide-window', () => window.hide());
+    ipcMain.on('daemon-shutdown', appDelegate.onTunnelShutdown);
 
     window.loadURL('file://' + path.join(__dirname, 'index.html'));
 
-    // Since macOS still runs the daemon manually it has to shut it down.
-    // On other platforms closing the app only disconnects the tunnel.
-    if (process.platform === 'darwin') {
-      window.on('close', () => {
-        log.debug('The browser window is closing, shutting down the daemon...');
-        window.webContents.send('shutdown');
-      });
-    } else {
-      window.on('close', () => {
-        log.debug('The browser window is closing, shutting down the tunnel...');
-        window.webContents.send('disconnect');
-      });
-    }
+    app.on('before-quit', (event) => {
+      if (!appDelegate._readyToQuit) {
+        event.preventDefault();
+        window.webContents.send('app-shutdown');
+      }
+    });
 
     ipcMain.on('collect-logs', (event, id, toRedact) => {
       log.info('Collecting logs in', appDelegate._logFileLocation);
