@@ -168,7 +168,7 @@ impl DaemonRpcClient {
         A: Serialize,
         O: for<'de> Deserialize<'de>,
     {
-        let mut rpc_client = WsIpcClient::connect(self.address.clone())
+        let mut rpc_client = WsIpcClient::connect(&self.address)
             .chain_err(|| ErrorKind::StartRpcClient(self.address.clone()))?;
 
         rpc_client

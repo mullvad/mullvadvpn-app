@@ -18,7 +18,7 @@ pub struct EventProcessor {
 }
 
 impl EventProcessor {
-    pub fn new(server_id: IpcServerId) -> Result<EventProcessor> {
+    pub fn new(server_id: &IpcServerId) -> Result<EventProcessor> {
         trace!("Creating EventProcessor");
         let ipc_client =
             WsIpcClient::connect(server_id).chain_err(|| "Unable to create IPC client")?;
