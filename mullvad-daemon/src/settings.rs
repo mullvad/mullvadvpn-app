@@ -2,8 +2,9 @@ extern crate serde_json;
 
 use app_dirs;
 
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraints,
-                                       RelaySettings, RelaySettingsUpdate};
+use mullvad_types::relay_constraints::{
+    Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
+};
 use talpid_types::net::TunnelOptions;
 
 use std::fs::File;

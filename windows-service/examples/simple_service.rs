@@ -48,11 +48,13 @@ mod simple_service {
     use log::LevelFilter;
     use simplelog::{CombinedLogger, Config, WriteLogger};
 
-    use windows_service::service::{ServiceAccess, ServiceControl, ServiceControlAccept,
-                                   ServiceErrorControl, ServiceExitCode, ServiceInfo,
-                                   ServiceStartType, ServiceState, ServiceStatus, ServiceType};
-    use windows_service::service_control_handler::{self, ServiceControlHandlerResult,
-                                                   ServiceStatusHandle};
+    use windows_service::service::{
+        ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
+        ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
+    };
+    use windows_service::service_control_handler::{
+        self, ServiceControlHandlerResult, ServiceStatusHandle,
+    };
     use windows_service::service_dispatcher;
     use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
     use windows_service::ChainedError;
