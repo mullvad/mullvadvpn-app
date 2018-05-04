@@ -1,32 +1,32 @@
 extern crate libc;
 
-use duct;
-use duct::unix::HandleExt;
+use process::proc_handle::OpenVpnProcHandle;
 
+use duct;
 use std::io;
 use std::thread;
 use std::time::{Duration, Instant};
 
 static POLL_INTERVAL_MS: u64 = 50;
 
-/// Extra methods for terminating `duct::Handle` instances.
+/// Extra methods for terminating `OpenVpnProcHandle` instances.
 pub trait HandleKillExt {
     /// Kills a process by first sending it the `SIGTERM` signal and then wait up to `timeout`.
     /// If the process has not died after the timeout has expired it is killed.
     fn nice_kill(&self, timeout: Duration) -> io::Result<()>;
 }
 
-impl HandleKillExt for duct::Handle {
+impl HandleKillExt for OpenVpnProcHandle {
     fn nice_kill(&self, timeout: Duration) -> io::Result<()> {
         trace!("Sending SIGTERM to child process");
-        self.send_signal(libc::SIGTERM)?;
+        self.try_stop()?;
 
-        if wait_timeout(self, timeout)? {
+        if wait_timeout(&self.inner, timeout)? {
             debug!("Child process exited from SIGTERM");
             Ok(())
         } else {
             warn!("Child process did not exit from SIGTERM, sending SIGKILL");
-            self.kill()
+            self.kill_process()
         }
     }
 }
