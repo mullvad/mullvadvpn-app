@@ -12,7 +12,7 @@
 #
 
 # TAP device hardware ID
-!define TapHardwareId "tap0901"
+!define TAP_HARDWARE_ID "tap0901"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -82,7 +82,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TapHardwareId}'
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
 
 	Pop $0
 	Pop $1
@@ -94,11 +94,11 @@
 
 	# If the driver is already installed, the hardware ID will be echoed in the command output
 	# $1 holds the output from "tapinstall hwids"
-	${StrContains} $0 ${TapHardwareId} $1
+	${StrContains} $0 ${TAP_HARDWARE_ID} $1
 	StrCmp $0 "" InstallDriver_install_driver
 
 	# Update driver
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" update "$TEMP\driver\OemVista.inf" ${TapHardwareId}'
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" update "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 
 	Pop $0
 	Pop $1
@@ -112,7 +112,7 @@
 
 	InstallDriver_install_driver:
 
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TapHardwareId}'
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 	
 	Pop $0
 	Pop $1
