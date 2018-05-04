@@ -84,8 +84,8 @@ win:
       to: .
     - from: wfpctl/bin/x64-Release/wfpctl.dll
       to: .
-    - from: windns/bin/x64-Release/windns.dll
-      to: .
+#    - from: windns/bin/x64-Release/windns.dll
+#      to: .
 
 linux:
   target:
