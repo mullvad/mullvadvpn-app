@@ -11,17 +11,12 @@ extern crate clap;
 extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
+extern crate mullvad_ipc_client;
 extern crate mullvad_types;
 extern crate serde;
-extern crate talpid_ipc;
 extern crate talpid_types;
 
 mod cmds;
-mod rpc;
 
 
 use std::io;
@@ -30,6 +25,10 @@ error_chain! {
     foreign_links {
         Io(io::Error);
         ParseIntError(::std::num::ParseIntError);
+    }
+
+    links {
+        RpcError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
     }
 }
 

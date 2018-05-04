@@ -12,11 +12,10 @@ path = "src/main.rs"
 [dependencies]
 clap = "2.20"
 error-chain = "0.11"
-lazy_static = "1.0"
-log = "0.4"
 env_logger = "0.5"
 serde = "1.0"
 
+mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 talpid-ipc = { path = "../talpid-ipc" }
