@@ -8,8 +8,9 @@ use self::core_foundation::propertylist::CFPropertyList;
 use self::core_foundation::runloop::{kCFRunLoopCommonModes, CFRunLoop};
 use self::core_foundation::string::CFString;
 
-use self::system_configuration::dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder,
-                                                SCDynamicStoreCallBackContext};
+use self::system_configuration::dynamic_store::{
+    SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext,
+};
 
 use error_chain::ChainedError;
 

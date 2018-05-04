@@ -9,11 +9,13 @@ use std::{env, io, thread};
 
 use cli;
 use error_chain::ChainedError;
-use windows_service::service::{ServiceAccess, ServiceControl, ServiceControlAccept,
-                               ServiceErrorControl, ServiceExitCode, ServiceInfo,
-                               ServiceStartType, ServiceState, ServiceStatus, ServiceType};
-use windows_service::service_control_handler::{self, ServiceControlHandlerResult,
-                                               ServiceStatusHandle};
+use windows_service::service::{
+    ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
+    ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
+};
+use windows_service::service_control_handler::{
+    self, ServiceControlHandlerResult, ServiceStatusHandle,
+};
 use windows_service::service_dispatcher;
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 

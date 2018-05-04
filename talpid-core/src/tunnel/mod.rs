@@ -12,8 +12,9 @@ use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
-use talpid_types::net::{Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData,
-                        TunnelOptions};
+use talpid_types::net::{
+    Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData, TunnelOptions,
+};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;

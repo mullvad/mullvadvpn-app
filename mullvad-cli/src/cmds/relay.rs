@@ -3,12 +3,14 @@ use std::str::FromStr;
 use {Command, Result, ResultExt};
 
 use mullvad_ipc_client::DaemonRpcClient;
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint, OpenVpnConstraints,
-                                       RelayConstraintsUpdate, RelaySettingsUpdate,
-                                       TunnelConstraints};
+use mullvad_types::relay_constraints::{
+    Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
+    RelaySettingsUpdate, TunnelConstraints,
+};
 use mullvad_types::CustomTunnelEndpoint;
-use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, TunnelEndpointData,
-                        WireguardEndpointData};
+use talpid_types::net::{
+    OpenVpnEndpointData, TransportProtocol, TunnelEndpointData, WireguardEndpointData,
+};
 
 pub struct Relay;
 

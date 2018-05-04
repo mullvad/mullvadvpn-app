@@ -5,8 +5,9 @@ use futures::Future;
 
 use mullvad_rpc::{HttpHandle, RelayListProxy};
 use mullvad_types::location::Location;
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint, Match, OpenVpnConstraints,
-                                       RelayConstraints, TunnelConstraints};
+use mullvad_types::relay_constraints::{
+    Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints, TunnelConstraints,
+};
 use mullvad_types::relay_list::{Relay, RelayList, RelayTunnels};
 
 use serde_json;
