@@ -66,7 +66,7 @@ fn openvpn_open(
 
     let core_server_id = parse_args(&args)?;
     info!("Connecting back to talpid core at {}", core_server_id);
-    let processor = EventProcessor::new(core_server_id).chain_err(|| ErrorKind::InitHandleFailed)?;
+    let processor = EventProcessor::new(&core_server_id).chain_err(|| ErrorKind::InitHandleFailed)?;
 
     Ok((INTERESTING_EVENTS.to_vec(), processor))
 }
