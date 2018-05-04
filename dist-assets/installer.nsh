@@ -148,12 +148,6 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"sc.exe" delete mullvadvpn'
-
-	# Discard return value
-	# The service may have not been installed previously
-	Pop $0
-	
 	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
 
 	Pop $0
@@ -217,5 +211,42 @@
 	${EndIf}
 
 	Pop $R0
+
+!macroend
+
+###############################################################################
+#
+# Uninstaller
+#
+###############################################################################
+
+#
+# customRemoveFiles
+#
+# This macro is activated just after the removal of files have started.
+# Shortcuts etc may have been removed but application files remain.
+#
+!macro customRemoveFiles
+
+	Push $0
+
+	nsExec::ExecToStack '"sc.exe" stop mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 5000
+
+	nsExec::ExecToStack '"sc.exe" delete mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 1000
+
+	# Original removal functionality provided by Electron-builder
+    RMDir /r $INSTDIR
+	
+	Pop $0
 
 !macroend
