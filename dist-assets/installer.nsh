@@ -88,7 +88,7 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to list hardware IDs"
+		StrCpy $R0 "Failed to list hardware IDs: error $0"
 		Goto InstallDriver_return
 	${EndIf}
 
@@ -104,7 +104,7 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to update TAP driver"
+		StrCpy $R0 "Failed to update TAP driver: error $0"
 		Goto InstallDriver_return
 	${EndIf}
 	
@@ -118,7 +118,7 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to install TAP driver"
+		StrCpy $R0 "Failed to install TAP driver: error $0"
 		Goto InstallDriver_return
 	${EndIf}
 	
@@ -154,7 +154,7 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to install Mullvad service"
+		StrCpy $R0 "Failed to install Mullvad service: error $0"
 		Goto InstallService_return
 	${EndIf}
 
@@ -165,7 +165,7 @@
 
 	${If} $0 != ${SERVICE_STARTED}
 	${AndIf} $0 != ${SERVICE_START_PENDING}
-		StrCpy $R0 "Failed to start Mullvad service"
+		StrCpy $R0 "Failed to start Mullvad service: error $0"
 		Goto InstallService_return
 	${EndIf}
 
