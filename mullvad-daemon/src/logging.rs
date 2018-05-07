@@ -1,6 +1,7 @@
 extern crate fern;
 
 use self::fern::colors::{Color, ColoredLevelConfig};
+use self::fern::Output;
 use chrono;
 use log;
 
@@ -40,6 +41,12 @@ const COLORS: ColoredLevelConfig = ColoredLevelConfig {
     trace: Color::Black,
 };
 
+#[cfg(not(windows))]
+const LINE_SEPARATOR: &str = "\n";
+
+#[cfg(windows)]
+const LINE_SEPARATOR: &str = "\r\n";
+
 pub const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 pub fn init_logger(
@@ -70,7 +77,7 @@ pub fn init_logger(
             .chain_err(|| ErrorKind::WriteFileError(log_file.to_path_buf()))?;
         let file_dispatcher = fern::Dispatch::new()
             .format(move |out, message, record| file_formatter.output_msg(out, message, record))
-            .chain(f);
+            .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
     }
     top_dispatcher.apply()?;
@@ -106,6 +113,8 @@ impl Formatter {
         message: &fmt::Arguments,
         record: &log::Record,
     ) {
+        let message = escape_newlines(format!("{}", message));
+
         out.finish(format_args!(
             "{}[{}][{}] {}",
             chrono::Local::now().format(self.get_timetsamp_fmt()),
@@ -114,4 +123,14 @@ impl Formatter {
             message,
         ))
     }
+}
+
+#[cfg(not(windows))]
+fn escape_newlines(text: String) -> String {
+    text
+}
+
+#[cfg(windows)]
+fn escape_newlines(text: String) -> String {
+    text.replace("\n", LINE_SEPARATOR)
 }

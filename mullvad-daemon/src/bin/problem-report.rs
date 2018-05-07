@@ -23,9 +23,8 @@ use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::HashMap;
 use std::env;
-use std::fmt;
 use std::fs::File;
-use std::io::{self, Read, Seek, SeekFrom, Write};
+use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -37,6 +36,23 @@ const REPORT_MAX_SIZE: usize = 2 * LOG_MAX_READ_BYTES + 16 * 1024;
 
 /// Field delimeter in generated problem report
 const LOG_DELIMITER: &'static str = "====================";
+
+/// Line separator character sequence
+#[cfg(not(windows))]
+const LINE_SEPARATOR: &str = "\n";
+
+#[cfg(windows)]
+const LINE_SEPARATOR: &str = "\r\n";
+
+/// Custom macro to write a line to an output formatter that uses platform-specific newline
+/// character sequences.
+macro_rules! write_line {
+    ($fmt:expr $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
+    ($fmt:expr, $pattern:expr $(, $arg:expr)* $(,)*) => {
+        write!($fmt, $pattern, $( $arg ),*)
+            .and_then(|_| write!($fmt, "{}", LINE_SEPARATOR))
+    };
+}
 
 error_chain!{
     errors {
@@ -156,8 +172,8 @@ fn collect_report(
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
-    let report_content = read_file_lossy(report_path, REPORT_MAX_SIZE)
-        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?;
+    let report_content = normalize_newlines(read_file_lossy(report_path, REPORT_MAX_SIZE)
+        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?);
     let metadata = collect_metadata();
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
     let mut rpc_client = mullvad_rpc::ProblemReportProxy::connect(&mut rpc_manager)
@@ -169,11 +185,11 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
 }
 
 fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Result<()> {
-    let mut file = File::create(path)?;
+    let file = File::create(path)?;
     let mut permissions = file.metadata()?.permissions();
     permissions.set_readonly(true);
     file.set_permissions(permissions)?;
-    file.write(problem_report.to_string().as_bytes())?;
+    problem_report.write_to(BufWriter::new(file))?;
     Ok(())
 }
 
@@ -250,21 +266,19 @@ impl ProblemReport {
         }
         out
     }
-}
 
-impl fmt::Display for ProblemReport {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(fmt, "System information:")?;
+    fn write_to<W: Write>(&self, mut output: W) -> io::Result<()> {
+        write_line!(output, "System information:")?;
         for (key, value) in &self.metadata {
-            writeln!(fmt, "{}: {}", key, value)?;
+            write_line!(output, "{}: {}", key, value)?;
         }
-        writeln!(fmt, "")?;
+        write_line!(output)?;
         for &(ref label, ref content) in &self.logs {
-            writeln!(fmt, "{}", LOG_DELIMITER)?;
-            writeln!(fmt, "Log: {}", label)?;
-            writeln!(fmt, "{}", LOG_DELIMITER)?;
-            fmt.write_str(content)?;
-            writeln!(fmt)?;
+            write_line!(output, "{}", LOG_DELIMITER)?;
+            write_line!(output, "Log: {}", label)?;
+            write_line!(output, "{}", LOG_DELIMITER)?;
+            output.write_all(content.as_bytes())?;
+            write_line!(output)?;
         }
         Ok(())
     }
@@ -384,6 +398,16 @@ fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
         .output()
         .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
         .ok()
+}
+
+#[cfg(not(windows))]
+fn normalize_newlines(text: String) -> String {
+    text
+}
+
+#[cfg(windows)]
+fn normalize_newlines(text: String) -> String {
+    text.replace(LINE_SEPARATOR, "\n")
 }
 
 #[cfg(test)]
