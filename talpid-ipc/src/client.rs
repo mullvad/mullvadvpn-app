@@ -286,10 +286,10 @@ impl ws::Handler for Handler {
 
 
 pub struct WsIpcClient {
-    next_id: i64,
+    next_id: Arc<Mutex<i64>>,
     active_request: Arc<Mutex<Option<ActiveRequest>>>,
     active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
-    sender: ws::Sender,
+    sender: Arc<Mutex<ws::Sender>>,
 }
 
 impl WsIpcClient {
@@ -302,7 +302,7 @@ impl WsIpcClient {
             Self::open_websocket(url, active_request.clone(), active_subscriptions.clone())?;
 
         Ok(WsIpcClient {
-            next_id: 1,
+            next_id: Arc::new(Mutex::new(1)),
             active_request,
             active_subscriptions,
             sender,
@@ -313,7 +313,7 @@ impl WsIpcClient {
         url: Url,
         active_request: Arc<Mutex<Option<ActiveRequest>>>,
         active_subscriptions: Arc<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
-    ) -> Result<ws::Sender> {
+    ) -> Result<Arc<Mutex<ws::Sender>>> {
         let (sender_tx, sender_rx) = mpsc::channel();
         let factory = Factory {
             active_request,
@@ -340,10 +340,11 @@ impl WsIpcClient {
 
         sender_rx
             .recv()
+            .map(|sender| Arc::new(Mutex::new(sender)))
             .chain_err(|| ErrorKind::ConnectError("WebSocket connection failed"))
     }
 
-    pub fn subscribe<V, M>(&mut self, event: &str, sender: mpsc::Sender<M>) -> Result<()>
+    pub fn subscribe<V, M>(&self, event: &str, sender: mpsc::Sender<M>) -> Result<()>
     where
         V: for<'de> serde::Deserialize<'de>,
         M: From<V> + Send + 'static,
@@ -367,7 +368,7 @@ impl WsIpcClient {
         Ok(())
     }
 
-    fn register_subscription<H>(&mut self, id: SubscriptionId, handler: H)
+    fn register_subscription<H>(&self, id: SubscriptionId, handler: H)
     where
         H: Fn(JsonValue) -> SubscriptionHandlerResult + Send + 'static,
     {
@@ -377,7 +378,7 @@ impl WsIpcClient {
             .insert(id, Box::new(handler));
     }
 
-    pub fn call<T, O>(&mut self, method: &str, params: &T) -> Result<O>
+    pub fn call<T, O>(&self, method: &str, params: &T) -> Result<O>
     where
         T: serde::Serialize,
         O: for<'de> serde::Deserialize<'de>,
@@ -393,13 +394,17 @@ impl WsIpcClient {
         Ok(serde_json::from_value(json_result?).chain_err(|| ErrorKind::DeserializeResponseError)?)
     }
 
-    fn new_id(&mut self) -> i64 {
-        let id = self.next_id;
-        self.next_id += 1;
+    fn new_id(&self) -> i64 {
+        let mut next_id = self.next_id
+            .lock()
+            .expect("a thread panicked generating a JSON-RPC request ID");
+
+        let id = *next_id;
+        *next_id += 1;
         id
     }
 
-    fn queue_request_response(&mut self, id: i64, result_tx: mpsc::Sender<Result<JsonValue>>) {
+    fn queue_request_response(&self, id: i64, result_tx: mpsc::Sender<Result<JsonValue>>) {
         let mut active_request = self.active_request
             .lock()
             .expect("a thread panicked using the active RPC request map");
@@ -407,18 +412,20 @@ impl WsIpcClient {
         *active_request = Some(ActiveRequest::new(id, result_tx));
     }
 
-    fn send_request<T>(&mut self, id: i64, method: &str, params: &T) -> Result<()>
+    fn send_request<T>(&self, id: i64, method: &str, params: &T) -> Result<()>
     where
         T: serde::Serialize,
     {
         let json_request = self.build_json_request(id, method, params);
 
         self.sender
+            .lock()
+            .expect("a thread panicked while sending a JSON-RPC request")
             .send(json_request.as_bytes())
             .chain_err(|| ErrorKind::SendRequestError)
     }
 
-    fn build_json_request<T>(&mut self, id: i64, method: &str, params: &T) -> String
+    fn build_json_request<T>(&self, id: i64, method: &str, params: &T) -> String
     where
         T: serde::Serialize,
     {
