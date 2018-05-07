@@ -4,7 +4,7 @@ use std::thread;
 use error_chain::ChainedError;
 use serde;
 use serde_json::{self, Result as JsonResult, Value as JsonValue};
-use url;
+use url::Url;
 use ws;
 
 type JsonMap = serde_json::map::Map<String, JsonValue>;
@@ -12,14 +12,40 @@ type JsonMap = serde_json::map::Map<String, JsonValue>;
 mod errors {
     error_chain! {
         errors {
+            ConnectError(details: &'static str) {
+                description("Failed to connect to RPC server")
+                display("Failed to connect to RPC server: {}", details)
+            }
+
             ErrorResponse(error_message: String) {
                 description("Received an RPC error response")
                 display("Received an RPC error response: {}", error_message)
             }
 
+            DeserializeResponseError {
+                description("Failed to deserialize response")
+            }
+
             InvalidJsonRpcResponse(details: &'static str) {
                 description("Received an invalid JSON-RPC response")
                 display("Received an invalid JSON-RPC response: {}", details)
+            }
+
+            InvalidServerIdUrl(server_id: ::IpcServerId) {
+                description("Unable to parse given server ID as a URL")
+                display("Unable to parse given server ID as a URL: {}", server_id)
+            }
+
+            MissingResponse {
+                description("No response received")
+            }
+
+            SendRequestError(method: String) {
+                description("Failed to send a request to call a remote JSON-RPC procedure")
+                display(
+                    "Failed to send a request to call the \"{}\" remote JSON-RPC procedure",
+                    method
+                )
             }
 
             WebSocketError {
@@ -124,8 +150,8 @@ impl Handler {
             Some(JsonValue::Number(id)) => id.as_i64().ok_or_else(|| {
                 ErrorKind::InvalidJsonRpcResponse("Invalid request ID number").into()
             }),
+            Some(_) => Err(ErrorKind::InvalidJsonRpcResponse("Invalid request ID value").into()),
             None => Err(ErrorKind::InvalidJsonRpcResponse("Missing request ID").into()),
-            _ => Err(ErrorKind::InvalidJsonRpcResponse("Invalid request ID value").into()),
         }
     }
 
@@ -181,7 +207,8 @@ pub struct WsIpcClient {
 
 impl WsIpcClient {
     pub fn connect(server_id: &::IpcServerId) -> Result<Self> {
-        let url = url::Url::parse(server_id).chain_err(|| "Unable to parse server_id as url")?;
+        let url = Url::parse(&server_id)
+            .chain_err(|| ErrorKind::InvalidServerIdUrl(server_id.to_owned()))?;
         let active_request = Arc::new(Mutex::new(None));
         let sender = Self::open_websocket(url, active_request.clone())?;
 
@@ -193,7 +220,7 @@ impl WsIpcClient {
     }
 
     fn open_websocket(
-        url: url::Url,
+        url: Url,
         active_request: Arc<Mutex<Option<ActiveRequest>>>,
     ) -> Result<ws::Sender> {
         let (sender_tx, sender_rx) = mpsc::channel();
@@ -202,23 +229,26 @@ impl WsIpcClient {
             sender_tx,
         };
 
-        let mut websocket = ws::WebSocket::new(factory).chain_err(|| "Unable to create WebSocket")?;
+        let mut websocket = ws::WebSocket::new(factory)
+            .chain_err(|| ErrorKind::ConnectError("Unable to create WebSocket"))?;
 
         websocket
             .connect(url)
-            .chain_err(|| "Unable to connect WebSocket to URL")?;
+            .chain_err(|| ErrorKind::ConnectError("Unable to connect WebSocket to URL"))?;
 
         thread::spawn(move || {
             let result = websocket
                 .run()
-                .chain_err(|| "Error while running WebSocket event loop");
+                .chain_err(|| ErrorKind::ConnectError("Error while running WebSocket event loop"));
 
             if let Err(error) = result {
                 error!("{}", error.display_chain());
             }
         });
 
-        sender_rx.recv().chain_err(|| "WebSocket connection failed")
+        sender_rx
+            .recv()
+            .chain_err(|| ErrorKind::ConnectError("WebSocket connection failed"))
     }
 
     pub fn call<T, O>(&mut self, method: &str, params: &T) -> Result<O>
@@ -232,9 +262,9 @@ impl WsIpcClient {
         self.queue_request_response(id, result_tx);
         self.send_request(id, method, params)?;
 
-        let json_result = result_rx.recv().chain_err(|| "No response received")?;
+        let json_result = result_rx.recv().chain_err(|| ErrorKind::MissingResponse)?;
 
-        Ok(serde_json::from_value(json_result?).chain_err(|| "Failed to deserialize RPC result")?)
+        Ok(serde_json::from_value(json_result?).chain_err(|| ErrorKind::DeserializeResponseError)?)
     }
 
     fn new_id(&mut self) -> i64 {
@@ -259,7 +289,7 @@ impl WsIpcClient {
 
         self.sender
             .send(json_request.as_bytes())
-            .chain_err(|| "Unable to send jsonrpc request")
+            .chain_err(|| ErrorKind::SendRequestError(method.to_owned()))
     }
 
     fn build_json_request<T>(&mut self, id: i64, method: &str, params: &T) -> String
