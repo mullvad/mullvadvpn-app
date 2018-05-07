@@ -173,6 +173,10 @@ const appDelegate = {
   },
 
   _startBackend: () => {
+    if (process.platform === 'win32') {
+      return;
+    }
+  
     const backendIsRunning = appDelegate._rpcAddressFileExists();
     if (backendIsRunning) {
       log.info('Not starting the backend as it appears to already be running');

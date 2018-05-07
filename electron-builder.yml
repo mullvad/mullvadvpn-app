@@ -56,9 +56,22 @@ mac:
     - from: ./client-binaries/mac/include/openvpn
       to: ./openvpn-binaries/openvpn
 
+nsis:
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  include: dist-assets/installer.nsh
+      
 win:
-  target:
-    - nsis
+  "target": [
+    {
+      "target": "nsis",
+      "arch": [
+        "x64"
+      ]
+    }
+  ]
   artifactName: MullvadVPN-${version}.${ext}
   extraResources:
     - from: ./target/release/mullvad.exe
@@ -69,6 +82,10 @@ win:
       to: .
     - from: ./target/release/talpid_openvpn_plugin.dll
       to: .
+    - from: wfpctl/bin/x64-Release/wfpctl.dll
+      to: .
+#    - from: windns/bin/x64-Release/windns.dll
+#      to: .
 
 linux:
   target:
