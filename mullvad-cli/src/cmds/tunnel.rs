@@ -71,7 +71,7 @@ impl Tunnel {
                 Some(mssfix_str.parse()?)
             };
 
-            let rpc = DaemonRpcClient::new()?;
+            let mut rpc = DaemonRpcClient::new()?;
             rpc.set_openvpn_mssfix(mssfix)?;
             println!("mssfix parameter updated");
             Ok(())
@@ -81,7 +81,7 @@ impl Tunnel {
     }
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         Ok(rpc.get_tunnel_options()?)
     }
 

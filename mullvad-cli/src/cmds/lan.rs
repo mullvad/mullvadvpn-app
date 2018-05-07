@@ -43,14 +43,14 @@ impl Command for Lan {
 
 impl Lan {
     fn set(&self, allow_lan: bool) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         rpc.set_allow_lan(allow_lan)?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
     fn get(&self) -> Result<()> {
-        let rpc = DaemonRpcClient::new()?;
+        let mut rpc = DaemonRpcClient::new()?;
         let allow_lan = rpc.get_allow_lan()?;
         println!(
             "Local network sharing setting: {}",

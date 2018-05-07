@@ -24,6 +24,10 @@ pub use platform_specific::rpc_file_path;
 
 error_chain! {
     errors {
+        AuthenticationError {
+            description("Failed to authenticate the connection with the daemon")
+        }
+
         EmptyRpcFile(file_path: String) {
             description("RPC connection file is empty")
             display("RPC connection file \"{}\" is empty", file_path)
@@ -38,6 +42,11 @@ error_chain! {
                 "RPC connection file \"{}\" is insecure because it might not have been written by \
                 an administrator user", file_path
             )
+        }
+
+        MissingRpcCredentials(file_path: String) {
+            description("no credentials found in RPC connection file")
+            display("no credentials found in RPC connection file {}", file_path)
         }
 
         ReadRpcFileError(file_path: String) {
@@ -64,17 +73,24 @@ error_chain! {
 static NO_ARGS: [u8; 0] = [];
 
 pub struct DaemonRpcClient {
-    address: String,
+    rpc_client: WsIpcClient,
 }
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let address = Self::read_rpc_file()?;
+        let (address, credentials) = Self::read_rpc_file()?;
+        let rpc_client =
+            WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
+        let mut instance = DaemonRpcClient { rpc_client };
 
-        Ok(DaemonRpcClient { address })
+        instance
+            .auth(&credentials)
+            .chain_err(|| ErrorKind::AuthenticationError)?;
+
+        Ok(instance)
     }
 
-    fn read_rpc_file() -> Result<String> {
+    fn read_rpc_file() -> Result<(String, String)> {
         let file_path = rpc_file_path()?;
         let file_path_string = || file_path.display().to_string();
         let rpc_file =
@@ -89,89 +105,96 @@ impl DaemonRpcClient {
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
-        lines
+        let address = lines
             .next()
             .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path_string()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+        let credentials = lines
+            .next()
+            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path_string()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+
+        Ok((address, credentials))
     }
 
-    pub fn connect(&self) -> Result<()> {
+    pub fn auth(&mut self, credentials: &str) -> Result<()> {
+        self.call("auth", &[credentials])
+    }
+
+    pub fn connect(&mut self) -> Result<()> {
         self.call("connect", &NO_ARGS)
     }
 
-    pub fn disconnect(&self) -> Result<()> {
+    pub fn disconnect(&mut self) -> Result<()> {
         self.call("disconnect", &NO_ARGS)
     }
 
-    pub fn get_account(&self) -> Result<Option<AccountToken>> {
+    pub fn get_account(&mut self) -> Result<Option<AccountToken>> {
         self.call("get_account", &NO_ARGS)
     }
 
-    pub fn get_account_data(&self, account: AccountToken) -> Result<AccountData> {
+    pub fn get_account_data(&mut self, account: AccountToken) -> Result<AccountData> {
         self.call("get_account_data", &[account])
     }
 
-    pub fn get_allow_lan(&self) -> Result<bool> {
+    pub fn get_allow_lan(&mut self) -> Result<bool> {
         self.call("get_allow_lan", &NO_ARGS)
     }
 
-    pub fn get_current_location(&self) -> Result<GeoIpLocation> {
+    pub fn get_current_location(&mut self) -> Result<GeoIpLocation> {
         self.call("get_current_location", &NO_ARGS)
     }
 
-    pub fn get_current_version(&self) -> Result<String> {
+    pub fn get_current_version(&mut self) -> Result<String> {
         self.call("get_current_version", &NO_ARGS)
     }
 
-    pub fn get_relay_locations(&self) -> Result<RelayList> {
+    pub fn get_relay_locations(&mut self) -> Result<RelayList> {
         self.call("get_relay_locations", &NO_ARGS)
     }
 
-    pub fn get_relay_settings(&self) -> Result<RelaySettings> {
+    pub fn get_relay_settings(&mut self) -> Result<RelaySettings> {
         self.call("get_relay_settings", &NO_ARGS)
     }
 
-    pub fn get_state(&self) -> Result<DaemonState> {
+    pub fn get_state(&mut self) -> Result<DaemonState> {
         self.call("get_state", &NO_ARGS)
     }
 
-    pub fn get_tunnel_options(&self) -> Result<TunnelOptions> {
+    pub fn get_tunnel_options(&mut self) -> Result<TunnelOptions> {
         self.call("get_tunnel_options", &NO_ARGS)
     }
 
-    pub fn get_version_info(&self) -> Result<AppVersionInfo> {
+    pub fn get_version_info(&mut self) -> Result<AppVersionInfo> {
         self.call("get_version_info", &NO_ARGS)
     }
 
-    pub fn set_account(&self, account: Option<AccountToken>) -> Result<()> {
+    pub fn set_account(&mut self, account: Option<AccountToken>) -> Result<()> {
         self.call("set_account", &[account])
     }
 
-    pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<()> {
         self.call("set_allow_lan", &[allow_lan])
     }
 
-    pub fn set_openvpn_mssfix(&self, mssfix: Option<u16>) -> Result<()> {
+    pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn shutdown(&self) -> Result<()> {
+    pub fn shutdown(&mut self) -> Result<()> {
         self.call("shutdown", &NO_ARGS)
     }
 
-    pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<()> {
         self.call("update_relay_settings", &[update])
     }
 
-    pub fn call<A, O>(&self, method: &str, args: &A) -> Result<O>
+    pub fn call<A, O>(&mut self, method: &str, args: &A) -> Result<O>
     where
         A: Serialize,
         O: for<'de> Deserialize<'de>,
     {
-        let mut rpc_client = WsIpcClient::connect(self.address.clone())
-            .chain_err(|| ErrorKind::StartRpcClient(self.address.clone()))?;
-
-        rpc_client
+        self.rpc_client
             .call(method, args)
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }

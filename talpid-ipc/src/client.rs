@@ -180,8 +180,8 @@ pub struct WsIpcClient {
 }
 
 impl WsIpcClient {
-    pub fn connect(server_id: ::IpcServerId) -> Result<Self> {
-        let url = url::Url::parse(&server_id).chain_err(|| "Unable to parse server_id as url")?;
+    pub fn connect(server_id: &::IpcServerId) -> Result<Self> {
+        let url = url::Url::parse(server_id).chain_err(|| "Unable to parse server_id as url")?;
         let active_request = Arc::new(Mutex::new(None));
         let sender = Self::open_websocket(url, active_request.clone())?;
 
