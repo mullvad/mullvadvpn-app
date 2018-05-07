@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{mpsc, Arc, Mutex, MutexGuard};
+use std::sync::{mpsc, Arc, Mutex, MutexGuard, Weak};
 use std::thread;
 
 use error_chain::ChainedError;
@@ -354,11 +354,14 @@ impl WsIpcClient {
             .ok_or_else(|| ErrorKind::InvalidSubscriptionId(raw_subscription_id))?;
 
         let event_name = event.to_owned();
+        let unsubscriber = self.downgrade();
+        let unsubscribe_id = subscription_id.clone();
         let handler =
             move |json_value| match forward_subscription_event(&event_name, json_value, &sender) {
                 Ok(()) => SubscriptionHandlerResult::Active,
                 Err(error) => {
                     error!("{}", error.display_chain());
+                    unsubscriber.unsubscribe(&event_name, &unsubscribe_id);
                     SubscriptionHandlerResult::Finished
                 }
             };
@@ -368,14 +371,40 @@ impl WsIpcClient {
         Ok(())
     }
 
+    fn downgrade(&self) -> WeakWsIpcClient {
+        WeakWsIpcClient {
+            next_id: Arc::downgrade(&self.next_id),
+            active_request: Arc::downgrade(&self.active_request),
+            active_subscriptions: Arc::downgrade(&self.active_subscriptions),
+            sender: Arc::downgrade(&self.sender),
+        }
+    }
+
     fn register_subscription<H>(&self, id: SubscriptionId, handler: H)
     where
         H: Fn(JsonValue) -> SubscriptionHandlerResult + Send + 'static,
     {
+        self.lock_active_subscriptions()
+            .insert(id, Box::new(handler));
+    }
+
+    fn lock_active_subscriptions(
+        &self,
+    ) -> MutexGuard<HashMap<SubscriptionId, SubscriptionHandler>> {
         self.active_subscriptions
             .lock()
             .expect("a thread panicked while using the active subscriptions map")
-            .insert(id, Box::new(handler));
+    }
+
+    pub fn unsubscribe(&self, event: &str, id: SubscriptionId) -> Result<()> {
+        let method = format!("{}_unsubscribe", event);
+
+        self.lock_active_subscriptions().remove(&id);
+
+        match id {
+            SubscriptionId::Number(raw_id) => self.call(&method, &[raw_id]),
+            SubscriptionId::String(raw_id) => self.call(&method, &[raw_id]),
+        }
     }
 
     pub fn call<T, O>(&self, method: &str, params: &T) -> Result<O>
@@ -455,4 +484,39 @@ where
     sender
         .send(message)
         .chain_err(|| ErrorKind::ForwardSubscriptionEvent(event_name.clone()))
+}
+
+struct WeakWsIpcClient {
+    next_id: Weak<Mutex<i64>>,
+    active_request: Weak<Mutex<Option<ActiveRequest>>>,
+    active_subscriptions: Weak<Mutex<HashMap<SubscriptionId, SubscriptionHandler>>>,
+    sender: Weak<Mutex<ws::Sender>>,
+}
+
+impl WeakWsIpcClient {
+    pub fn upgrade(&self) -> Option<WsIpcClient> {
+        let next_id = self.next_id.upgrade()?;
+        let active_request = self.active_request.upgrade()?;
+        let active_subscriptions = self.active_subscriptions.upgrade()?;
+        let sender = self.sender.upgrade()?;
+
+        Some(WsIpcClient {
+            next_id,
+            active_request,
+            active_subscriptions,
+            sender,
+        })
+    }
+
+    pub fn unsubscribe(&self, event: &str, id: &SubscriptionId) {
+        if let Some(upgraded_self) = self.upgrade() {
+            if let Err(error) = upgraded_self.unsubscribe(event, id.clone()) {
+                let chained_error = Error::with_chain(
+                    error,
+                    format!("Failed to unsubscribe from events of type {}", event),
+                );
+                error!("{}", chained_error.display_chain());
+            }
+        }
+    }
 }
