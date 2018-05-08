@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix log newline characters on Windows.
 - Mullvad CLI can now be used with daemon instance that doesn't have the `--disable-rpc-auth`
   flag set.
+- Place log files in a directory where the GUI running as a non-privileged user can access.
 
 
 ## [2018.1] - 2018-03-01
