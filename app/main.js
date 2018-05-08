@@ -22,7 +22,6 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 // The name for application directory used for
 // scoping logs and user data in platform special folders
 const appDirectoryName = 'Mullvad VPN';
-const rpcAddressFile = path.join(getSystemTemporaryDirectory(), '.mullvad_rpc_address');
 
 let browserWindowReady = false;
 
@@ -81,18 +80,28 @@ const appDelegate = {
     case 'darwin':
       // macOS: ~/Library/Logs/{appname}
       return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
-    case 'win32': {
+    case 'win32':
       // Windows: %ALLUSERSPROFILE%\{appname}
-      let appDataDir = process.env.ALLUSERSPROFILE;
-      if (appDataDir) {
-        return path.join(appDataDir, appDirectoryName);
-      } else {
-        throw new Error('Missing %ALLUSERSPROFILE% environment variable');
-      }
-    }
+      return appDelegate._getSharedDataDirectory();
     default:
       // Linux: ~/.config/{appname}/logs
       return path.join(app.getPath('userData'), 'logs');
+    }
+  },
+
+  _getSharedDataDirectory: () => {
+    switch(process.platform) {
+    case 'win32': {
+      // Windows: %ALLUSERSPROFILE%\{appname}
+      let programDataDirectory = process.env.ALLUSERSPROFILE;
+      if (typeof programDataDirectory === 'undefined' || programDataDirectory === null) {
+        throw new Error('Missing %ALLUSERSPROFILE% environment variable');
+      } else {
+        return path.join(programDataDirectory, appDirectoryName);
+      }
+    }
+    default:
+      throw new Error(`No shared data directory on platform: ${process.platform}`);
     }
   },
 
@@ -181,7 +190,8 @@ const appDelegate = {
   },
 
   _startBackend: () => {
-    const backendIsRunning = appDelegate._rpcAddressFileExists();
+    const rpcAddressFile = appDelegate._getRpcAddressFilePath();
+    const backendIsRunning = fs.existsSync(rpcAddressFile);
     if (backendIsRunning) {
       log.info('Not starting the backend as it appears to already be running');
       return;
@@ -205,8 +215,15 @@ const appDelegate = {
         return p;
       });
   },
-  _rpcAddressFileExists: () => {
-    return fs.existsSync(rpcAddressFile);
+  _getRpcAddressFilePath: () => {
+    const rpcAddressFileName = '.mullvad_rpc_address';
+
+    switch(process.platform) {
+    case 'win32':
+      return path.join(appDelegate._getSharedDataDirectory(), rpcAddressFileName);
+    default:
+      return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
+    }
   },
   _setupBackendProcessListeners: (p) => {
     // electron-sudo writes all output to some buffers in memory.
@@ -239,22 +256,24 @@ const appDelegate = {
       return;
     }
 
+    const rpcAddressFile = appDelegate._getRpcAddressFilePath();
+
     const pollIntervalMs = 200;
     appDelegate.connectionFilePollInterval = setInterval(() => {
 
-      if (browserWindowReady && appDelegate._rpcAddressFileExists()) {
+      if (browserWindowReady && fs.existsSync(rpcAddressFile)) {
 
         if (appDelegate.connectionFilePollInterval) {
           clearInterval(appDelegate.connectionFilePollInterval);
           appDelegate.connectionFilePollInterval = null;
         }
 
-        appDelegate._sendBackendInfo();
+        appDelegate._sendBackendInfo(rpcAddressFile);
       }
 
     }, pollIntervalMs);
   },
-  _sendBackendInfo: () => {
+  _sendBackendInfo: (rpcAddressFile: string) => {
     const window = appDelegate._window;
     if (!window) {
       log.error('Attempted to send backend rpc address before the window was ready');
