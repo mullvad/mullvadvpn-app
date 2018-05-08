@@ -227,12 +227,14 @@ mod platform_specific {
 mod platform_specific {
     use super::*;
 
-    pub fn rpc_file_path() -> Result<PathBuf> {
-        let windows_directory =
-            ::std::env::var_os("WINDIR").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
+    static PRODUCT_NAME: &str = "Mullvad VPN";
 
-        Ok(PathBuf::from(windows_directory)
-            .join("Temp")
+    pub fn rpc_file_path() -> Result<PathBuf> {
+        let shared_data_directory =
+            ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
+
+        Ok(PathBuf::from(shared_data_directory)
+            .join(PRODUCT_NAME)
             .join(".mullvad_rpc_address"))
     }
 
