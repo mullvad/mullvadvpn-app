@@ -214,6 +214,46 @@ Explanations for some common words used in the documentation and code in this re
       VPN app.
 
 
+## File paths used by Mullvad VPN app
+
+A list of file paths written to and read from by the various components of the Mullvad VPN app
+
+### Daemon
+
+#### Settings
+
+| Platform | Path |
+|----------|------|
+| Linux | /root/.config/mullvad-daemon/settings.json |
+| macOS | ~/Library/Application Support/mullvad-daemon/settings.json |
+| Windows | C:/ProgramData/Mullvad/mullvad-daemon/settings.json |
+
+#### Logs
+
+| Platform | Path |
+|----------|------|
+| Linux | <When running as system service log is collected by syslog?> |
+| macOS | ~/Library/Logs/Mullvad VPN/ |
+| Windows | C:/ProgramData/Mullvad VPN/ |
+
+#### Cache
+
+The daemon caches relay server list and DNS lookups etc. These cache files are stored inside
+
+| Platform | Path |
+|----------|------|
+| Linux | /root/.cache/mullvad-daemon/ |
+| macOS | ~/Library/Caches/mullvad-daemon/ |
+| Windows | C:/ProgramData/ |
+
+#### RPC address file
+
+| Platform | Path |
+|----------|------|
+| Linux | /tmp/.mullvad_rpc_address |
+| macOS | /tmp/.mullvad_rpc_address |
+| Windows | C:/ProgramData/Mullvad VPN/.mullvad_rpc_address |
+
 ## Quirks
 
 - If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
