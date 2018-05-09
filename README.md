@@ -230,11 +230,11 @@ A list of file paths written to and read from by the various components of the M
 
 #### Logs
 
-| Platform | Path |
-|----------|------|
-| Linux | <When running as system service log is collected by syslog?> |
-| macOS | ~/Library/Logs/Mullvad VPN/ |
-| Windows | C:/ProgramData/Mullvad VPN/ |
+| Platform | Path | Defined in |
+|----------|------|------------|
+| Linux | systemd + /var/log/mullvad-daemon/ | linux/mullvad-daemon.service |
+| macOS | /var/log/mullvad-daemon/ | macos/net.mullvad.daemon.plist |
+| Windows | C:/ProgramData/Mullvad VPN/ | mullvad-daemon/src/system_service.rs |
 
 #### Cache
 
