@@ -232,8 +232,8 @@ A list of file paths written to and read from by the various components of the M
 
 | Platform | Path |
 |----------|------|
-| Linux | <When running as system service log is collected by syslog?> |
-| macOS | ~/Library/Logs/Mullvad VPN/ |
+| Linux | systemd + /var/log/mullvad-daemon/ |
+| macOS | /var/log/mullvad-daemon/ |
 | Windows | C:/ProgramData/Mullvad VPN/ |
 
 #### Cache
