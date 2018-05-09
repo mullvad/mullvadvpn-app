@@ -32,9 +32,7 @@ pub use self::errors::*;
 
 
 #[cfg(unix)]
-lazy_static! {
-    static ref OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
-}
+static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
 
 
 /// Struct for monitoring an OpenVPN process.
@@ -214,7 +212,7 @@ impl ProcessHandle for duct::Handle {
     #[cfg(unix)]
     fn kill(&self) -> io::Result<()> {
         use process::unix::HandleKillExt;
-        self.nice_kill(*OPENVPN_DIE_TIMEOUT)
+        self.nice_kill(OPENVPN_DIE_TIMEOUT)
     }
 
     #[cfg(not(unix))]
