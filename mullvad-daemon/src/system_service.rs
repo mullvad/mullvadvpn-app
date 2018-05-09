@@ -10,6 +10,7 @@ use std::{env, io, thread};
 
 use cli;
 use error_chain::ChainedError;
+use mullvad_metadata::PRODUCT_NAME;
 use windows_service::service::{
     ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
     ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
@@ -226,7 +227,7 @@ fn get_service_info() -> Result<ServiceInfo> {
     let program_data_directory_string =
         ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoLogDir)?;
     let program_data_directory = Path::new(&program_data_directory_string);
-    let log_directory = program_data_directory.join(::PRODUCT_NAME);
+    let log_directory = program_data_directory.join(PRODUCT_NAME);
     let service_log_file = log_directory.join("backend.log");
     let tunnel_log_file = log_directory.join("openvpn.log");
 
