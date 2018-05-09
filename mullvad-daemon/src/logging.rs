@@ -6,6 +6,7 @@ use chrono;
 use log;
 
 use std::fmt;
+use std::fs;
 use std::io;
 use std::path::PathBuf;
 
@@ -13,7 +14,11 @@ error_chain! {
     errors {
         WriteFileError(path: PathBuf) {
             description("Unable to open log file for writing")
-            display("Unable to open log file for writing: {}", path.to_string_lossy())
+            display("Unable to open log file for writing: {}", path.display())
+        }
+        CreateDirError(path: PathBuf) {
+            description("Unable to create directory for log")
+            display("Unable to create directory for log: {}", path.display())
         }
     }
     foreign_links {
@@ -70,6 +75,9 @@ pub fn init_logger(
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
     if let Some(ref log_file) = log_file {
+        if let Some(parent) = log_file.parent() {
+            fs::create_dir_all(parent).chain_err(|| ErrorKind::CreateDirError(parent.to_owned()))?;
+        }
         let file_formatter = Formatter {
             output_timestamp: true,
             output_color: false,
