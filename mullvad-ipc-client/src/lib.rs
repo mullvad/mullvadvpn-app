@@ -225,9 +225,11 @@ mod platform_specific {
 
 #[cfg(windows)]
 mod platform_specific {
+    extern crate mullvad_metadata;
+
     use super::*;
 
-    static PRODUCT_NAME: &str = "Mullvad VPN";
+    use self::mullvad_metadata::PRODUCT_NAME;
 
     pub fn rpc_file_path() -> Result<PathBuf> {
         let shared_data_directory =

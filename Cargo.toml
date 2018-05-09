@@ -4,6 +4,7 @@ members = [
     "windows-service",
     "mullvad-cli",
     "mullvad-ipc-client",
+    "mullvad-metadata",
     "mullvad-types",
     "mullvad-rpc",
     "talpid-openvpn-plugin",
