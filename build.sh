@@ -54,7 +54,7 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    #Linux*)     yarn pack:linux;;
+    Linux*)     yarn pack:linux;;
     Darwin*)    yarn pack:mac;;
 esac
 
