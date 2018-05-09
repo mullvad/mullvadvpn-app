@@ -52,7 +52,8 @@ pub const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_file: Option<&PathBuf>,
-    output_timestamp: bool,
+    stdout_timestamps: bool,
+    stdout_colors: bool,
 ) -> Result<()> {
     let mut top_dispatcher = fern::Dispatch::new().level(log_level);
     for silenced_crate in SILENCED_CRATES {
@@ -60,8 +61,8 @@ pub fn init_logger(
     }
 
     let stdout_formatter = Formatter {
-        output_timestamp: output_timestamp,
-        output_color: true,
+        output_timestamp: stdout_timestamps,
+        output_color: stdout_colors,
     };
     let stdout_dispatcher = fern::Dispatch::new()
         .format(move |out, message, record| stdout_formatter.output_msg(out, message, record))

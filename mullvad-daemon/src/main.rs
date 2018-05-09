@@ -859,6 +859,7 @@ fn run() -> Result<()> {
         config.log_level,
         config.log_file.as_ref(),
         config.log_stdout_timestamps,
+        config.log_stdout_colors,
     ).chain_err(|| "Unable to initialize logger")?;
     log_version();
     run_platform(config)
