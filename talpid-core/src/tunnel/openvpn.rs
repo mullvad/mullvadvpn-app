@@ -9,6 +9,7 @@ use std::process::ExitStatus;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc};
 use std::thread;
+#[cfg(unix)]
 use std::time::Duration;
 
 use talpid_ipc;
