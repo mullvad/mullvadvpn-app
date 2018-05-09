@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add `version` subcommand in the CLI to show information about current versions.
 - Add a flag to daemon to print log entries to standard output without timestamps.
 - Filter out and ignore DNS lookup results for api.mullvad.net that are bogus (private etc.)
+- Add `--disable-stdout-colors` to daemon to allow logging without color.
 
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
