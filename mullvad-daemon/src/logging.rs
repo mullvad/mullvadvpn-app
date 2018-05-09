@@ -27,6 +27,7 @@ const SILENCED_CRATES: &[&str] = &[
     "rpc",
     "tokio_core",
     "tokio_proto",
+    "tokio_reactor",
     "jsonrpc_ws_server",
     "ws",
     "mio",
