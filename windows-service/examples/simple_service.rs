@@ -15,12 +15,12 @@
 // `tail -F C:\Windows\Temp\simple-service.log`
 //
 
+#[cfg(windows)]
 #[macro_use]
 extern crate error_chain;
+#[cfg(windows)]
 #[macro_use]
 extern crate log;
-extern crate simplelog;
-
 #[cfg(windows)]
 #[macro_use]
 extern crate windows_service;
@@ -37,6 +37,8 @@ fn main() {
 
 #[cfg(windows)]
 mod simple_service {
+    extern crate simplelog;
+
     use std::ffi::OsString;
     use std::fs::OpenOptions;
     use std::path::PathBuf;
@@ -45,8 +47,8 @@ mod simple_service {
     use std::time::Duration;
     use std::{env, io, thread, time};
 
+    use self::simplelog::{CombinedLogger, Config, WriteLogger};
     use log::LevelFilter;
-    use simplelog::{CombinedLogger, Config, WriteLogger};
 
     use windows_service::service::{
         ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
