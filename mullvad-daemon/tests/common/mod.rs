@@ -6,10 +6,11 @@ extern crate mullvad_ipc_client;
 extern crate mullvad_paths;
 extern crate notify;
 extern crate os_pipe;
+extern crate tempfile;
 
-use std::fs::{self, File};
-use std::io::{BufRead, BufReader, Write};
-use std::path::Path;
+use std::fs;
+use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -20,6 +21,7 @@ use self::mullvad_ipc_client::DaemonRpcClient;
 use self::mullvad_paths::get_rpc_address_path;
 use self::notify::{op, RawEvent, RecursiveMode, Watcher};
 use self::os_pipe::{pipe, PipeReader};
+use self::tempfile::TempDir;
 
 #[cfg(unix)]
 pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
@@ -68,31 +70,59 @@ pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duratio
     }
 }
 
-fn prepare_relay_list<T: AsRef<Path>>(path: T) {
-    let path = path.as_ref();
+fn prepare_fake_resource_dir() -> (TempDir, PathBuf) {
+    let temp_dir = TempDir::new().expect("Failed to create temporary daemon directory");
+    let resource_dir = temp_dir.path().join("resource-dir");
+    let relay_list = resource_dir.join("relays.json");
 
-    if !path.exists() {
-        File::create(path)
-            .expect("failed to create relay list file")
-            .write_all(b"{ \"countries\": [] }")
-            .expect("failed to write relay list");
-    }
+    fs::create_dir(&resource_dir).expect("failed to resource directory");
+
+    prepare_relay_list(relay_list);
+
+    (temp_dir, resource_dir)
+}
+
+fn prepare_relay_list<T: AsRef<Path>>(path: T) {
+    fs::write(
+        path,
+        r#"{
+            "countries": [{
+                "name": "Mockland",
+                "code": "fake",
+                "latitude": -91,
+                "longitude": 0,
+                "relays": [{
+                    "hostname": "fake-mockland",
+                    "ipv4_addr_in": "192.168.0.100",
+                    "ipv4_addr_exit": "192.168.0.101",
+                    "include_in_country": true,
+                    "weight": 100,
+                    "tunnels": {
+                        "openvpn": [ { "port": 10000, "protocol": "udp" } ],
+                        "wireguard": [],
+                    },
+                }],
+            }]
+        }"#,
+    ).expect("Failed to create mock relay list file");
 }
 
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
+    resource_dir: PathBuf,
+    _temp_dir: TempDir,
 }
 
 impl DaemonRunner {
     pub fn spawn() -> Self {
-        prepare_relay_list("../dist-assets/relays.json");
+        let (temp_dir, resource_dir) = prepare_fake_resource_dir();
 
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
         let process = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", "./")
-            .env("MULLVAD_RESOURCE_DIR", "./dist-assets")
+            .env("MULLVAD_RESOURCE_DIR", &resource_dir.display().to_string())
             .stderr_to_stdout()
             .stdout_handle(writer)
             .start()
@@ -101,6 +131,8 @@ impl DaemonRunner {
         DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
+            resource_dir,
+            _temp_dir: temp_dir,
         }
     }
 
