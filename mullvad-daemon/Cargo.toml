@@ -45,4 +45,5 @@ windows-service = "0.1"
 [dev-dependencies]
 assert_matches = "1.0"
 duct = "0.10"
+notify = "4.0"
 os_pipe = "0.6"
