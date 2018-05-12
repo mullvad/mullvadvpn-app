@@ -3,6 +3,7 @@
 #[cfg(unix)]
 extern crate libc;
 extern crate mullvad_ipc_client;
+extern crate notify;
 extern crate os_pipe;
 
 use std::fs::{self, File};
@@ -10,11 +11,12 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use duct;
 
-use self::mullvad_ipc_client::rpc_file_path;
+use self::mullvad_ipc_client::{rpc_file_path, DaemonRpcClient};
+use self::notify::{op, RawEvent, RecursiveMode, Watcher};
 use self::os_pipe::{pipe, PipeReader};
 
 #[cfg(unix)]
@@ -22,6 +24,40 @@ pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
 
 #[cfg(not(unix))]
 pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+
+pub fn wait_for_file<P: AsRef<Path>>(file_path: P, timeout: Duration) {
+    let file_path = file_path.as_ref();
+    let file_name = file_path.file_name();
+    let parent_dir = file_path.parent().expect("missing file parent directory");
+
+    let (tx, rx) = mpsc::channel();
+    let mut watcher = notify::raw_watcher(tx).expect("failed to listen for file system events");
+    let start = Instant::now();
+    let mut remaining_time = Some(timeout);
+
+    watcher
+        .watch(parent_dir, RecursiveMode::NonRecursive)
+        .expect("failed to listen for file system events on directory");
+
+    if !file_path.exists() {
+        while let Some(wait_time) = remaining_time {
+            let event = rx.recv_timeout(wait_time);
+
+            if let Ok(RawEvent {
+                path: Some(path),
+                op: Ok(op),
+                ..
+            }) = event
+            {
+                if op.contains(op::CLOSE_WRITE) && path.file_name() == file_name {
+                    break;
+                }
+            }
+
+            remaining_time = timeout.checked_sub(start.elapsed());
+        }
+    }
+}
 
 fn prepare_relay_list<T: AsRef<Path>>(path: T) {
     let path = path.as_ref();
@@ -91,6 +127,18 @@ impl DaemonRunner {
         }
     }
 
+    pub fn rpc_client(&mut self) -> Result<DaemonRpcClient, String> {
+        let rpc_file = rpc_file_path()
+            .map_err(|error| format!("Failed to build RPC connection file path: {}", error))?;
+
+        if !rpc_file.exists() {
+            wait_for_file(rpc_file, Duration::from_secs(10));
+        }
+
+        DaemonRpcClient::without_rpc_file_security_check()
+            .map_err(|error| format!("Failed to create RPC client: {}", error))
+    }
+
     #[cfg(unix)]
     fn request_clean_shutdown(&mut self, process: &mut duct::Handle) -> bool {
         use duct::unix::HandleExt;
@@ -100,9 +148,7 @@ impl DaemonRunner {
 
     #[cfg(not(unix))]
     fn request_clean_shutdown(&mut self, _: &mut duct::Handle) -> bool {
-        use self::mullvad_ipc_client::DaemonRpcClient;
-
-        if let Ok(mut rpc_client) = DaemonRpcClient::new() {
+        if let Ok(mut rpc_client) = self.rpc_client() {
             rpc_client.shutdown().is_ok()
         } else {
             false
