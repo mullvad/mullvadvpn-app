@@ -1,7 +1,6 @@
-use duct;
 use openvpn_plugin::types::OpenVpnPluginEvent;
-use process::openvpn::OpenVpnCommand;
-use process::proc_handle::OpenVpnProcHandle;
+use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
+use process::stoppable_process::StoppableProcess;
 
 use std::collections::HashMap;
 use std::io;
@@ -33,9 +32,7 @@ mod errors {
 pub use self::errors::*;
 
 
-#[cfg(unix)]
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
-
 
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]
@@ -213,7 +210,6 @@ impl ProcessHandle for OpenVpnProcHandle {
     }
 
     fn kill(&self) -> io::Result<()> {
-        use process::unix::HandleKillExt;
         self.nice_kill(OPENVPN_DIE_TIMEOUT)
     }
 }
