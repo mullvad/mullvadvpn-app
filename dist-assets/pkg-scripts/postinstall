@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -eu
+
+LOG_DIR=/var/log/mullvad-daemon
+
+mkdir -p $LOG_DIR
+exec 2>&1 > $LOG_DIR/install.log
+
+INSTALL_DIR=$2
+DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
+
+DAEMON_PLIST=$(cat <<-EOM
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+        <dict>
+                <key>Label</key>
+                <string>net.mullvad.daemon</string>
+
+                <key>ProgramArguments</key>
+                <array>
+                        <string>$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-daemon</string>
+                        <string>-v</string>
+                        <string>--log</string>
+                        <string>$LOG_DIR/daemon.log</string>
+                        <string>--tunnel-log</string>
+                        <string>$LOG_DIR/openvpn.log</string>
+                </array>
+
+                <key>UserName</key>
+                <string>root</string>
+
+                <key>RunAtLoad</key>
+                <true/>
+
+                <key>KeepAlive</key>
+                <true/>
+
+                <key>StandardErrorPath</key>
+                <string>$LOG_DIR/stderr.log</string>
+        </dict>
+</plist>
+EOM
+)
+
+launchctl unload -w $DAEMON_PLIST_PATH
+echo "$DAEMON_PLIST" > $DAEMON_PLIST_PATH
+launchctl load -w $DAEMON_PLIST_PATH
