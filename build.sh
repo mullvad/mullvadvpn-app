@@ -32,7 +32,7 @@ esac
 # Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
 cargo +stable clean
 
-echo "Compiling Rust backend in release mode with $RUSTC_VERSION..."
+echo "Compiling mullvad-daemon in release mode with $RUSTC_VERSION..."
 cargo +stable build --release
 
 
