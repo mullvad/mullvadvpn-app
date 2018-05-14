@@ -6,6 +6,8 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+#![recursion_limit = "128"]
+
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
@@ -16,6 +18,7 @@ extern crate serde;
 extern crate serde_json;
 
 extern crate jsonrpc_core;
+extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
 extern crate url;
 extern crate ws;
