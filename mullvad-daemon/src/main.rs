@@ -36,6 +36,7 @@ extern crate tokio_timer;
 extern crate uuid;
 
 extern crate mullvad_ipc_client;
+extern crate mullvad_metadata;
 extern crate mullvad_rpc;
 extern crate mullvad_types;
 extern crate talpid_core;
@@ -59,7 +60,6 @@ mod shutdown;
 mod system_service;
 mod version;
 
-use app_dirs::AppInfo;
 use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
@@ -67,6 +67,7 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 
+use mullvad_metadata::APP_INFO;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
@@ -133,14 +134,6 @@ lazy_static! {
     static ref MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
     static ref RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
 }
-
-static APP_INFO: AppInfo = AppInfo {
-    name: crate_name!(),
-    author: "Mullvad",
-};
-
-#[cfg(windows)]
-static PRODUCT_NAME: &str = "Mullvad VPN";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -940,7 +933,7 @@ fn get_resource_dir() -> PathBuf {
 }
 
 fn get_cache_dir() -> Result<PathBuf> {
-    app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO)
+    app_dirs::app_root(app_dirs::AppDataType::UserCache, &APP_INFO)
         .chain_err(|| ErrorKind::NoCacheDir)
 }
 

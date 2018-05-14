@@ -1,0 +1,9 @@
+[package]
+name = "mullvad-metadata"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
+description = "Mullvad VPN application metadata"
+license = "GPL-3.0"
+
+[dependencies]
+app_dirs = "1.2"
