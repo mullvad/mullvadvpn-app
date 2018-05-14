@@ -27,19 +27,8 @@ files:
   - build/
   - node_modules/
 
-dmg:
-  contents:
-    - type: link
-      path: /Applications
-      x: 410
-      y: 150
-    - type: file
-      x: 130
-      y: 150
-
 mac:
-  target:
-    - dmg
+  target: pkg
   artifactName: MullvadVPN-${version}.${ext}
   category: public.app-category.tools
   extendInfo:
@@ -55,6 +44,10 @@ mac:
       to: .
     - from: ./client-binaries/mac/include/openvpn
       to: ./openvpn-binaries/openvpn
+
+pkg:
+  allowAnywhere: false
+  allowCurrentUserHome: false
 
 win:
   target:

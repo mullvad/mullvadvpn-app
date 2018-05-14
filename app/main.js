@@ -5,8 +5,6 @@ import mkdirp from 'mkdirp';
 import { log } from './lib/platform';
 import electron, { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconManager from './lib/tray-icon-manager';
-import ElectronSudo from 'electron-sudo';
-import shellescape from 'shell-escape';
 import { version } from '../package.json';
 import { parseIpcCredentials } from './lib/backend';
 import { resolveBin } from './lib/proc';
@@ -40,12 +38,6 @@ const appDelegate = {
     appDelegate._initLogging();
 
     log.info('Running version', version);
-
-    // Only macOS builds still launch the daemon manually.
-    // On other platforms mullvad-daemon already runs as a system service.
-    if (process.platform === 'darwin') {
-      appDelegate._startBackend();
-    }
 
     app.on('window-all-closed', () => appDelegate.onAllWindowsClosed());
     app.on('ready', () => appDelegate.onReady());
@@ -188,33 +180,6 @@ const appDelegate = {
   onAllWindowsClosed: () => {
     app.quit();
   },
-
-  _startBackend: () => {
-    const rpcAddressFile = appDelegate._getRpcAddressFilePath();
-    const backendIsRunning = fs.existsSync(rpcAddressFile);
-    if (backendIsRunning) {
-      log.info('Not starting the backend as it appears to already be running');
-      return;
-    }
-
-    const pathToBackend = resolveBin('mullvad-daemon');
-    log.info('Starting the mullvad backend at', pathToBackend);
-
-    const options = {
-      name: 'Mullvad',
-    };
-    const sudo = new ElectronSudo(options);
-    const backendCommand = shellescape([
-      pathToBackend, '-v',
-      '--log', path.join(appDelegate._logFileLocation, 'backend.log'),
-      '--tunnel-log', path.join(appDelegate._logFileLocation, 'openvpn.log')
-    ]);
-    sudo.spawn(backendCommand, [])
-      .then( p => {
-        appDelegate._setupBackendProcessListeners(p);
-        return p;
-      });
-  },
   _getRpcAddressFilePath: () => {
     const rpcAddressFileName = '.mullvad_rpc_address';
 
@@ -224,30 +189,6 @@ const appDelegate = {
     default:
       return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
     }
-  },
-  _setupBackendProcessListeners: (p) => {
-    // electron-sudo writes all output to some buffers in memory.
-    // For long-running processes such as this one that would
-    // cause a memory leak.
-    p.stdout.removeAllListeners('data');
-    p.stderr.removeAllListeners('data');
-
-    p.stdout.on('data', (data) => {
-      console.log('BACKEND stdout:', data.toString());
-    });
-    p.stderr.on('data', (data) => {
-      console.warn('BACKEND stderr:', data.toString());
-    });
-
-    p.on('error', (err) => {
-      log.error('Failed to start or kill the backend', err);
-    });
-
-    p.on('exit', (code) => {
-      const timeoutMs = 500;
-      log.info('The backend exited with code', code + '. Attempting to restart it in', timeoutMs, 'milliseconds...');
-      setTimeout( () => appDelegate._startBackend(), timeoutMs);
-    });
   },
   _pollForConnectionInfoFile: () => {
 
