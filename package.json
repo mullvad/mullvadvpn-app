@@ -14,7 +14,6 @@
     "babel-runtime": "^6.22.0",
     "d3-geo-projection": "^2.3.2",
     "electron-log": "^2.2.8",
-    "electron-sudo": "https://github.com/mullvad/electron-sudo.git",
     "history": "^4.6.1",
     "jsonrpc-lite": "^1.2.3",
     "mkdirp": "^0.5.1",
@@ -31,7 +30,6 @@
     "reactxp": "^1.1.0-rc.2",
     "redux": "^3.0.0",
     "redux-thunk": "^2.2.0",
-    "shell-escape": "^0.2.0",
     "uuid": "^3.0.1",
     "validated": "^1.1.0"
   },

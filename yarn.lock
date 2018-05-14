@@ -1396,7 +1396,7 @@ bluebird-lst@^1.0.5:
   dependencies:
     bluebird "^3.5.1"
 
-bluebird@^3.4.6, bluebird@^3.5.0, bluebird@^3.5.1:
+bluebird@^3.5.0, bluebird@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
 
@@ -2785,13 +2785,6 @@ electron-publish@19.55.2:
     chalk "^2.3.0"
     fs-extra-p "^4.5.0"
     mime "^2.2.0"
-
-"electron-sudo@https://github.com/mullvad/electron-sudo.git":
-  version "4.0.12"
-  resolved "https://github.com/mullvad/electron-sudo.git#f71134f86541b15359f4813715d721818fb2b1f4"
-  dependencies:
-    babel-runtime "^6.18.0"
-    bluebird "^3.4.6"
 
 electron-window@^0.8.0:
   version "0.8.1"
@@ -6999,10 +6992,6 @@ shebang-command@^1.2.0:
 shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
-
-shell-escape@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/shell-escape/-/shell-escape-0.2.0.tgz#68fd025eb0490b4f567a027f0bf22480b5f84133"
 
 shell-quote@1.6.1, shell-quote@^1.6.1:
   version "1.6.1"
