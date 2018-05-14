@@ -82,12 +82,12 @@ The specific build tool version that is required is `v141`.
 If you change any javascript file while the development mode is running it will automatically
 transpile and reload the file so that the changes are visible almost immediately.
 
-The app will attempt to start the daemon automatically. The exact binary being run can be
-customized with the `MULLVAD_BACKEND` environment variable.
+Please note that the GUI needs a running daemon to connect to in order to work. See
+[Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instruction on how
+to do that before starting the GUI.
 
-If the `/tmp/.mullvad_rpc_address` file exists the app will not start the daemon, so if you want
-to run a specific version of the daemon you can just start it yourself and the app will pick up on
-it and behave accordingly.
+The GUI will need to resolve the path to binaries. In development mode this defaults to
+`./target/debug/`, but can be configured with the `MULLVAD_PATH` environment variable.
 
 
 ## Packaging the app
