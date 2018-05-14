@@ -1,11 +1,15 @@
-use atty;
 use duct;
+extern crate os_pipe;
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+use self::os_pipe::{pipe, PipeWriter};
+use atty;
 use shell_escape;
+use std::io;
+use std::sync::{Arc, Mutex};
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -107,23 +111,7 @@ impl OpenVpnCommand {
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
-
-        let mut cmd = duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked();
-
-        // Prevent forwarding the stdio when it's not available.
-        if atty::is(atty::Stream::Stdin) {
-            cmd = cmd.stdin_null();
-        }
-
-        if atty::is(atty::Stream::Stdout) {
-            cmd = cmd.stdout_null();
-        }
-
-        if atty::is(atty::Stream::Stderr) {
-            cmd = cmd.stderr_null();
-        }
-
-        cmd
+        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
     }
 
     /// Sets extra options
@@ -213,6 +201,53 @@ impl OpenVpnCommand {
             args.push(OsString::from(user_pass_path));
         }
         args
+    }
+}
+
+/// Proc handle for an openvpn process
+pub struct OpenVpnProcHandle {
+    /// Duct handle
+    pub inner: duct::Handle,
+    /// Standard input handle
+    pub stdin: Arc<Mutex<PipeWriter>>,
+}
+
+/// Impl for proc handle
+impl OpenVpnProcHandle {
+    const KILL_BYTE: u8 = b'c';
+    /// Constructor for a new openvpn proc handle
+    pub fn new(openvpn_command: duct::Expression) -> io::Result<Self> {
+        let (reader, writer) = pipe()?;
+        let mut cmd = openvpn_command;
+
+        if atty::is(atty::Stream::Stdout) {
+            cmd = cmd.stdout_null();
+        }
+
+        if atty::is(atty::Stream::Stderr) {
+            cmd = cmd.stderr_null();
+        }
+
+        let proc_handle = cmd.stdin_handle(reader).start()?;
+
+        Ok(Self {
+            inner: proc_handle,
+            stdin: Arc::new(Mutex::new(writer)),
+        })
+    }
+
+    /// Writes a byte to the standard input of the OpenVPN process - Mullvad's OpenVPN is modified
+    /// to exit when it reads a particular byte from STDIN.
+    pub fn try_stop(&self) -> io::Result<()> {
+        use std::io::Write;
+        let mut writer = self.stdin.lock().unwrap();
+        writer.write(&[Self::KILL_BYTE])?;
+        writer.flush()
+    }
+
+    /// Brutally kills the underlinyg process
+    pub fn kill_process(&self) -> io::Result<()> {
+        self.inner.kill()
     }
 }
 
