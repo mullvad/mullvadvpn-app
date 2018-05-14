@@ -9,8 +9,7 @@ export function resolveBin(binaryName: string) {
 
 function getBasePath() {
   if (process.env.NODE_ENV === 'development') {
-    return process.env.MULLVAD_BACKEND || './target/debug';
-
+    return process.env.MULLVAD_PATH || './target/debug';
   } else {
     return process.resourcesPath;
   }
