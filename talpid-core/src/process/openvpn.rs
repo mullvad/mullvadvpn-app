@@ -1,6 +1,7 @@
 use duct;
 extern crate os_pipe;
 extern crate libc;
+#[cfg(windows)]	extern crate winapi;
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
@@ -232,11 +233,11 @@ impl OpenVpnProcHandle {
     const KILL_BYTE: u8 = b'c';
     /// Constructor for a new openvpn proc handle
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
-        if atty::is(atty::Stream::Stdout) {
+        if !atty::is(atty::Stream::Stdout) {
             cmd = cmd.stdout_null();
         }
 
-        if atty::is(atty::Stream::Stderr) {
+        if !atty::is(atty::Stream::Stderr) {
             cmd = cmd.stderr_null();
         }
 
@@ -269,13 +270,13 @@ impl StoppableProcess for OpenVpnProcHandle {
 
     #[cfg(windows)]
     fn stop(&self) -> io::Result<()> {
+	use self::winapi::um::handleapi::CloseHandle;
+        use std::os::windows::io::AsRawHandle;
         use std::io::Error;
-        use std::os::unix::io::AsRawHandle;
-        use libc::funcs::extra::kernel32;
         let raw_handle = self.stdin.as_raw_handle();
         unsafe {
             let success = CloseHandle(raw_handle);
-            match err {
+            match success {
                 0 => Err(Error::last_os_error()),
                 _ => Ok(()),
             }
