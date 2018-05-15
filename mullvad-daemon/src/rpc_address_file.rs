@@ -27,7 +27,7 @@ error_chain! {
     }
 }
 
-/// Writes down the RPC connection info to some API to a file.
+/// Writes down the RPC connection info to the RPC file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     // Avoids opening an existing file owned by another user and writing sensitive data to it.
     remove()?;
