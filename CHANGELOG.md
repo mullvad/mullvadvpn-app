@@ -49,6 +49,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve account token hint to be the same length as an expected token.
 - The macOS installer is changed from dmg to pkg format.
 - The backend daemon is installed as a launchd daemon and started on macOS on install.
+- The `problem-report` binary now does not accept the logs to collect as input, it will instead
+  automatically collect all files with the `log` extension in a known log directory.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
