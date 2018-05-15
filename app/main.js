@@ -75,28 +75,10 @@ const appDelegate = {
     case 'darwin':
       // macOS: ~/Library/Logs/{appname}
       return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
-    case 'win32':
-      // Windows: %ALLUSERSPROFILE%\{appname}
-      return appDelegate._getSharedDataDirectory();
     default:
+      // Windows: %APPDATA%\{appname}\logs
       // Linux: ~/.config/{appname}/logs
       return path.join(app.getPath('userData'), 'logs');
-    }
-  },
-
-  _getSharedDataDirectory: () => {
-    switch(process.platform) {
-    case 'win32': {
-      // Windows: %ALLUSERSPROFILE%\{appname}
-      let programDataDirectory = process.env.ALLUSERSPROFILE;
-      if (typeof programDataDirectory === 'undefined' || programDataDirectory === null) {
-        throw new Error('Missing %ALLUSERSPROFILE% environment variable');
-      } else {
-        return path.join(programDataDirectory, appDirectoryName);
-      }
-    }
-    default:
-      throw new Error(`No shared data directory on platform: ${process.platform}`);
     }
   },
 
@@ -177,8 +159,16 @@ const appDelegate = {
     const rpcAddressFileName = '.mullvad_rpc_address';
 
     switch(process.platform) {
-    case 'win32':
-      return path.join(appDelegate._getSharedDataDirectory(), rpcAddressFileName);
+    case 'win32': {
+      // Windows: %ALLUSERSPROFILE%\{appname}
+      let programDataDirectory = process.env.ALLUSERSPROFILE;
+      if (typeof programDataDirectory === 'undefined' || programDataDirectory === null) {
+        throw new Error('Missing %ALLUSERSPROFILE% environment variable');
+      } else {
+        let appDataDirectory = path.join(programDataDirectory, appDirectoryName);
+        return path.join(appDataDirectory, rpcAddressFileName);
+      }
+    }
     default:
       return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
     }
