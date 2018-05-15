@@ -9,6 +9,13 @@ error_chain! {
         UnknownFilePath {
             description("Failed to find path for RPC connection info file")
         }
+        CreateDirFailed(path: PathBuf) {
+            description("Failed to create directory for RPC connection info file")
+            display(
+                "Failed to create directory for RPC connection info file: {}",
+                path.to_string_lossy(),
+            )
+        }
         WriteFailed(path: PathBuf) {
             description("Failed to write RPC connection info to file")
             display("Failed to write RPC connection info to {}", path.to_string_lossy())
@@ -26,6 +33,11 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     remove()?;
 
     let file_path = rpc_file_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+
+    if let Some(parent_dir) = file_path.parent() {
+        fs::create_dir_all(parent_dir)
+            .chain_err(|| ErrorKind::CreateDirFailed(parent_dir.to_owned()))?;
+    }
 
     open_file(&file_path)
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
