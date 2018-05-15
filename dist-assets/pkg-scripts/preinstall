@@ -29,3 +29,9 @@ if [ -d "$OLD_SETTINGS_DIR" ]; then
     rm -rf "$OLD_SETTINGS_DIR"
 fi
 
+# Delete logs from <=2018.1 paths
+OLD_LOG_DIR="$HOME/Library/Logs/MullvadVPN"
+if [ -d "$OLD_LOG_DIR" ]; then
+    echo "Found old log dir $OLD_LOG_DIR. Deleting"
+    rm -rf "$OLD_LOG_DIR"
+fi
