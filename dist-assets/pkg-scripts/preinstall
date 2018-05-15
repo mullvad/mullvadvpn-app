@@ -15,6 +15,7 @@ if [ -d "$OLD_INSTALL_DIR" ]; then
     echo "Found old Mullvad VPN install at $OLD_INSTALL_DIR. Stopping and uninstalling"
     pkill MullvadVPN || true
     pkill mullvad-daemon || true
+    sleep 0.5
     rm -rf "$OLD_INSTALL_DIR"
 fi
 
