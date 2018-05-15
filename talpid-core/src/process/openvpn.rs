@@ -1,17 +1,17 @@
 use duct;
-extern crate os_pipe;
 extern crate libc;
+extern crate os_pipe;
 
+use super::stoppable_process::StoppableProcess;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
-use super::stoppable_process::StoppableProcess;
+use std::sync::Mutex;
 
 use self::os_pipe::{pipe, PipeWriter};
 use atty;
 use shell_escape;
 use std::io;
-use std::sync::{Arc, Mutex};
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -224,19 +224,18 @@ pub struct OpenVpnProcHandle {
     /// Duct handle
     pub inner: duct::Handle,
     /// Standard input handle
-    pub stdin: PipeWriter,
+    pub stdin: Mutex<Option<PipeWriter>>,
 }
 
 /// Impl for proc handle
 impl OpenVpnProcHandle {
-    const KILL_BYTE: u8 = b'c';
     /// Constructor for a new openvpn proc handle
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
-        if atty::is(atty::Stream::Stdout) {
+        if !atty::is(atty::Stream::Stdout) {
             cmd = cmd.stdout_null();
         }
 
-        if atty::is(atty::Stream::Stderr) {
+        if !atty::is(atty::Stream::Stderr) {
             cmd = cmd.stderr_null();
         }
 
@@ -245,41 +244,18 @@ impl OpenVpnProcHandle {
 
         Ok(Self {
             inner: proc_handle,
-            stdin: writer,
+            stdin: Mutex::new(Some(writer)),
         })
     }
-
 }
 
 impl StoppableProcess for OpenVpnProcHandle {
-    #[cfg(unix)]
     /// Closes STDIN to stop the openvpn process
-    fn stop(&self) -> io::Result<()> {
-        use std::io::Error;
-        use std::os::unix::io::AsRawFd;
-        let raw_fd = self.stdin.as_raw_fd();
-        unsafe {
-            let err = libc::close(raw_fd);
-            match err {
-                0 => Ok(()),
-                err => Err(Error::from_raw_os_error(err)),
-            }
-        }
-    }
-
-    #[cfg(windows)]
-    fn stop(&self) -> io::Result<()> {
-        use std::io::Error;
-        use std::os::unix::io::AsRawHandle;
-        use libc::funcs::extra::kernel32;
-        let raw_handle = self.stdin.as_raw_handle();
-        unsafe {
-            let success = CloseHandle(raw_handle);
-            match err {
-                0 => Err(Error::last_os_error()),
-                _ => Ok(()),
-            }
-        }
+    fn stop(&self) {
+        let mut stdin = self.stdin.lock().unwrap();
+        // Dropping our stdin handle so that it is closed once. Closing the handle should
+        // gracefully stop our openvpn child process.
+        let _ = stdin.take();
     }
 
     fn kill(&self) -> io::Result<()> {
@@ -294,8 +270,6 @@ impl StoppableProcess for OpenVpnProcHandle {
         }
     }
 }
-
-
 
 
 #[cfg(test)]
