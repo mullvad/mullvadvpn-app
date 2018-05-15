@@ -63,6 +63,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix log newline characters on Windows.
 - Mullvad CLI can now be used with daemon instance that doesn't have the `--disable-rpc-auth`
   flag set.
+- If necessary, create parent directories for RPC connection info file.
 
 
 ## [2018.1] - 2018-03-01
