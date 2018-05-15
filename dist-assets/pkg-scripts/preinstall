@@ -35,3 +35,13 @@ if [ -d "$OLD_LOG_DIR" ]; then
     echo "Found old log dir $OLD_LOG_DIR. Deleting"
     rm -rf "$OLD_LOG_DIR"
 fi
+
+# Migrate cache files from <=2018.1 paths
+OLD_CACHE_DIR="$HOME/Library/Caches/mullvad-daemon"
+NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-daemon"
+if [ -d "$OLD_CACHE_DIR" ]; then
+    echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
+    mkdir -p "$NEW_CACHE_DIR"
+    mv "$OLD_CACHE_DIR/*" "$NEW_CACHE_DIR/" || true
+    rm -rf "$OLD_CACHE_DIR"
+fi
