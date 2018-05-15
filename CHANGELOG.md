@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve account token hint to be the same length as an expected token.
 - The macOS installer is changed from dmg to pkg format.
 - The backend daemon is installed as a launchd daemon and started on macOS on install.
+- Move logs to `/var/log/mullvad-daemon/` and settings to `/etc/mullvad-daemon/` on macOS.
 
 ### Fixed
 - Fix a bug in account input field that advanced the cursor to the end regardless its prior
