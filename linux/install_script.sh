@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
 systemctl enable mullvad-daemon.service
 systemctl start mullvad-daemon.service
