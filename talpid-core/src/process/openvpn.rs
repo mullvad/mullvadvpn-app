@@ -1,18 +1,18 @@
 use duct;
-extern crate os_pipe;
 extern crate libc;
-#[cfg(windows)]	extern crate winapi;
+extern crate os_pipe;
+#[cfg(windows)]
+extern crate winapi;
 
+use super::stoppable_process::StoppableProcess;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
-use super::stoppable_process::StoppableProcess;
 
 use self::os_pipe::{pipe, PipeWriter};
 use atty;
 use shell_escape;
 use std::io;
-use std::sync::{Arc, Mutex};
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -230,7 +230,6 @@ pub struct OpenVpnProcHandle {
 
 /// Impl for proc handle
 impl OpenVpnProcHandle {
-    const KILL_BYTE: u8 = b'c';
     /// Constructor for a new openvpn proc handle
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
         if atty::is(atty::Stream::Stdout) {
@@ -249,7 +248,6 @@ impl OpenVpnProcHandle {
             stdin: writer,
         })
     }
-
 }
 
 impl StoppableProcess for OpenVpnProcHandle {
@@ -270,9 +268,9 @@ impl StoppableProcess for OpenVpnProcHandle {
 
     #[cfg(windows)]
     fn stop(&self) -> io::Result<()> {
-	use self::winapi::um::handleapi::CloseHandle;
-        use std::os::windows::io::AsRawHandle;
+        use self::winapi::um::handleapi::CloseHandle;
         use std::io::Error;
+        use std::os::windows::io::AsRawHandle;
         let raw_handle = self.stdin.as_raw_handle();
         unsafe {
             let success = CloseHandle(raw_handle);
@@ -295,8 +293,6 @@ impl StoppableProcess for OpenVpnProcHandle {
         }
     }
 }
-
-
 
 
 #[cfg(test)]
