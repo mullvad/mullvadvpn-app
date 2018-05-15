@@ -1,5 +1,6 @@
 use duct;
 extern crate os_pipe;
+extern crate libc;
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
@@ -223,7 +224,7 @@ pub struct OpenVpnProcHandle {
     /// Duct handle
     pub inner: duct::Handle,
     /// Standard input handle
-    pub stdin: Arc<Mutex<PipeWriter>>,
+    pub stdin: PipeWriter,
 }
 
 /// Impl for proc handle
@@ -244,19 +245,41 @@ impl OpenVpnProcHandle {
 
         Ok(Self {
             inner: proc_handle,
-            stdin: Arc::new(Mutex::new(writer)),
+            stdin: writer,
         })
     }
 
 }
 
 impl StoppableProcess for OpenVpnProcHandle {
-    /// Writes a byte to the standard input of the OpenVPN process - Mullvad's OpenVPN is modified
-    /// to exit when it reads a particular byte from STDIN.
+    #[cfg(unix)]
+    /// Closes STDIN to stop the openvpn process
     fn stop(&self) -> io::Result<()> {
-        use std::io::Write;
-        let mut writer = self.stdin.lock().unwrap();
-        writer.write_all(&[Self::KILL_BYTE])
+        use std::io::Error;
+        use std::os::unix::io::AsRawFd;
+        let raw_fd = self.stdin.as_raw_fd();
+        unsafe {
+            let err = libc::close(raw_fd);
+            match err {
+                0 => Ok(()),
+                err => Err(Error::from_raw_os_error(err)),
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    fn stop(&self) -> io::Result<()> {
+        use std::io::Error;
+        use std::os::unix::io::AsRawHandle;
+        use libc::funcs::extra::kernel32;
+        let raw_handle = self.stdin.as_raw_handle();
+        unsafe {
+            let success = CloseHandle(raw_handle);
+            match err {
+                0 => Err(Error::last_os_error()),
+                _ => Ok(()),
+            }
+        }
     }
 
     fn kill(&self) -> io::Result<()> {
