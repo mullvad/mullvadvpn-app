@@ -9,13 +9,23 @@ exec 2>&1 > $LOG_DIR/preinstall.log
 
 echo "Running preinstall at $(date)"
 
+# Uninstall <=2018.1 versions of the app
 OLD_INSTALL_DIR="/Applications/MullvadVPN.app"
-
 if [ -d "$OLD_INSTALL_DIR" ]; then
     echo "Found old Mullvad VPN install at $OLD_INSTALL_DIR. Stopping and uninstalling"
     pkill MullvadVPN || true
     pkill mullvad-daemon || true
     sleep 0.5
     rm -rf "$OLD_INSTALL_DIR"
+fi
+
+# Migrate settings from <=2018.1 paths
+OLD_SETTINGS_DIR="$HOME/Library/Application Support/mullvad-daemon"
+NEW_SETTINGS_DIR="/etc/mullvad-daemon"
+if [ -d "$OLD_SETTINGS_DIR" ]; then
+    echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
+    mkdir -p "$NEW_SETTINGS_DIR"
+    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || true
+    rm -rf "$OLD_SETTINGS_DIR"
 fi
 
