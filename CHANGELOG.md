@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add `version` subcommand in the CLI to show information about current versions.
 - Add a flag to daemon to print log entries to standard output without timestamps.
 - Filter out and ignore DNS lookup results for api.mullvad.net that are bogus (private etc.)
+- Make the macOS pkg installer locate and uninstall any 2018.1 version of the app before installing
+  itself.
 
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects

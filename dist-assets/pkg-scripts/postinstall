@@ -5,7 +5,9 @@ set -eu
 LOG_DIR=/var/log/mullvad-daemon
 
 mkdir -p $LOG_DIR
-exec 2>&1 > $LOG_DIR/install.log
+exec 2>&1 > $LOG_DIR/postinstall.log
+
+echo "Running postinstall at $(date)"
 
 INSTALL_DIR=$2
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
