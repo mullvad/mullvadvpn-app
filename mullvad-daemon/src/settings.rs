@@ -1,7 +1,5 @@
 extern crate serde_json;
 
-use app_dirs;
-
 use mullvad_types::relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
@@ -18,11 +16,11 @@ error_chain! {
         }
         ReadError(path: PathBuf) {
             description("Unable to read settings file")
-            display("Unable to read settings from {}", path.to_string_lossy())
+            display("Unable to read settings from {}", path.display())
         }
         WriteError(path: PathBuf) {
             description("Unable to write settings file")
-            display("Unable to write settings to {}", path.to_string_lossy())
+            display("Unable to write settings to {}", path.display())
         }
         ParseError {
             description("Malformed settings")
@@ -88,8 +86,16 @@ impl Settings {
         serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))
     }
 
+    #[cfg(unix)]
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(app_dirs::AppDataType::UserConfig, &::APP_INFO)
+        let dir = PathBuf::from("/etc/mullvad-daemon");
+        ::std::fs::create_dir_all(&dir).chain_err(|| ErrorKind::DirectoryError)?;
+        Ok(dir.join(SETTINGS_FILE))
+    }
+
+    #[cfg(windows)]
+    fn get_settings_path() -> Result<PathBuf> {
+        let dir = ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &::APP_INFO)
             .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
