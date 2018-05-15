@@ -33,4 +33,3 @@ tokio-core = "0.1"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "0.3"
-winapi = "0.3"
