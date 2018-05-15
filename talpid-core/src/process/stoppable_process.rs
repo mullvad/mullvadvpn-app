@@ -1,6 +1,5 @@
 extern crate libc;
 
-use std::error::Error;
 use std::io;
 use std::thread;
 use std::time::{Duration, Instant};
@@ -14,7 +13,7 @@ where
     Self: Sized,
 {
     /// Gracefully stops a process.
-    fn stop(&self) -> io::Result<()>;
+    fn stop(&self);
 
     /// Kills a process unconditionally. Implementations should strive to never fail.
     fn kill(&self) -> io::Result<()>;
@@ -26,14 +25,7 @@ where
     /// process.
     fn nice_kill(&self, timeout: Duration) -> io::Result<()> {
         trace!("Trying to stop child process gracefully");
-        if let Err(e) = self.stop() {
-            error!(
-                "Failed to stop the child process gracefully: {}",
-                e.description()
-            );
-            return self.kill();
-        };
-
+        self.stop();
         if wait_timeout(self, timeout)? {
             debug!("Child process terminated gracefully");
             Ok(())
