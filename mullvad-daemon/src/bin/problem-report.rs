@@ -192,29 +192,25 @@ fn collect_report(
 ) -> Result<()> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    add_logs_from_log_directory(&mut problem_report)?;
-
+    problem_report.add_logs(logs_from_log_directory()?);
     problem_report.add_logs(extra_logs);
 
     write_problem_report(&output_path, problem_report)
         .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
 }
 
-fn add_logs_from_log_directory(problem_report: &mut ProblemReport) -> Result<()> {
+fn logs_from_log_directory() -> Result<impl Iterator<Item = PathBuf>> {
     let log_dir = &*LOG_DIRECTORY;
-    let dir_entries = fs::read_dir(&log_dir).chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
+    let dir_entries: Vec<_> = fs::read_dir(&log_dir)
+        .and_then(|entries| entries.collect())
+        .chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
+
+    let files = dir_entries.into_iter().map(|dir_entry| dir_entry.path());
+
     let log_extension = Some(OsStr::new("log"));
+    let log_files = files.filter(move |file| file.extension() == log_extension);
 
-    for dir_entry in dir_entries {
-        let file = dir_entry.chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
-        let file_path = file.path();
-
-        if file_path.extension() == log_extension {
-            problem_report.add_log(&file_path);
-        }
-    }
-
-    Ok(())
+    Ok(log_files)
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
