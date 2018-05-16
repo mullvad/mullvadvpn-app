@@ -25,9 +25,15 @@ if [[ "${1:-""}" != "--allow-dirty" ]]; then
     fi
 fi
 
-case "$(uname -s)" in
-    Darwin*)    export MACOSX_DEPLOYMENT_TARGET="10.7";;
-esac
+if [[ "$(uname -s)" = "Darwin" ]]; then
+    if [[ -z ${CSC_LINK-} || -z ${CSC_KEY_PASSWORD-} ]]; then
+        echo "The environment variables CSC_LINK and CSC_KEY_PASSWORD must be set on macOS for"
+        echo "signing to work. See README for details."
+        exit 1
+    fi
+
+    export MACOSX_DEPLOYMENT_TARGET="10.7"
+fi
 
 # Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
 cargo +stable clean
