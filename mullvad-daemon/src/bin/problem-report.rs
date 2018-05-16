@@ -87,6 +87,9 @@ error_chain!{
             description("Error writing the problem report file")
             display("Error writing the problem report file: {}", path.to_string_lossy())
         }
+        TryToAddLogError {
+            description("Failed to add a log file")
+        }
         ReadLogError(path: PathBuf) {
             description("Error reading the contents of log file")
             display("Error reading the contents of log file: {}", path.to_string_lossy())
@@ -192,25 +195,37 @@ fn collect_report(
 ) -> Result<()> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    problem_report.add_logs(logs_from_log_directory()?);
+    problem_report.try_to_add_logs(logs_from_log_directory());
     problem_report.add_logs(extra_logs);
 
     write_problem_report(&output_path, problem_report)
         .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
 }
 
-fn logs_from_log_directory() -> Result<impl Iterator<Item = PathBuf>> {
+fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
     let log_dir = &*LOG_DIRECTORY;
-    let dir_entries: Vec<_> = fs::read_dir(&log_dir)
-        .and_then(|entries| entries.collect())
-        .chain_err(|| ErrorKind::LogDirError(log_dir.clone()))?;
 
-    let files = dir_entries.into_iter().map(|dir_entry| dir_entry.path());
+    fs::read_dir(&log_dir)
+        .chain_err(|| ErrorKind::LogDirError(log_dir.clone()))
+        .map(|dir_entries| {
+            let log_extension = Some(OsStr::new("log"));
 
-    let log_extension = Some(OsStr::new("log"));
-    let log_files = files.filter(move |file| file.extension() == log_extension);
+            dir_entries.filter_map(move |dir_entry_result| match dir_entry_result {
+                Ok(dir_entry) => {
+                    let path = dir_entry.path();
 
-    Ok(log_files)
+                    if path.extension() == log_extension {
+                        Some(Ok(path))
+                    } else {
+                        None
+                    }
+                }
+                Err(cause) => Some(Err(Error::with_chain(
+                    cause,
+                    ErrorKind::LogDirError(log_dir.clone()),
+                ))),
+            })
+        })
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
@@ -266,6 +281,38 @@ impl ProblemReport {
         for path in paths {
             self.add_log(path.as_ref());
         }
+    }
+
+    /// Tries to attach some file logs to this report.
+    ///
+    /// This method receives a result with an iterator of results of file paths. If any of the
+    /// results are errors, they are collected and displayed in the final report.
+    pub fn try_to_add_logs<I, P>(&mut self, paths: Result<I>)
+    where
+        I: IntoIterator<Item = Result<P>>,
+        P: AsRef<Path>,
+    {
+        match paths {
+            Ok(paths) => {
+                for path_result in paths {
+                    match path_result {
+                        Ok(path) => self.add_log(path.as_ref()),
+                        Err(error) => self.add_error(error),
+                    }
+                }
+            }
+            Err(error) => self.add_error(error),
+        }
+    }
+
+    fn add_error<E>(&mut self, error: E)
+    where
+        E: ::std::error::Error + Send + 'static,
+    {
+        let chained_error = Error::with_chain(error, ErrorKind::TryToAddLogError);
+
+        self.logs
+            .push((String::from(""), chained_error.display_chain().to_string()));
     }
 
     /// Attach a file log to this report. This method adds the error chain instead of the log
