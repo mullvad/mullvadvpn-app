@@ -9,6 +9,13 @@ error_chain! {
         UnknownFilePath {
             description("Failed to find path for RPC connection info file")
         }
+        CreateDirFailed(path: PathBuf) {
+            description("Failed to create directory for RPC connection info file")
+            display(
+                "Failed to create directory for RPC connection info file: {}",
+                path.to_string_lossy(),
+            )
+        }
         WriteFailed(path: PathBuf) {
             description("Failed to write RPC connection info to file")
             display("Failed to write RPC connection info to {}", path.to_string_lossy())
@@ -20,12 +27,17 @@ error_chain! {
     }
 }
 
-/// Writes down the RPC connection info to some API to a file.
+/// Writes down the RPC connection info to the RPC file.
 pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     // Avoids opening an existing file owned by another user and writing sensitive data to it.
     remove()?;
 
     let file_path = rpc_file_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+
+    if let Some(parent_dir) = file_path.parent() {
+        fs::create_dir_all(parent_dir)
+            .chain_err(|| ErrorKind::CreateDirFailed(parent_dir.to_owned()))?;
+    }
 
     open_file(&file_path)
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
