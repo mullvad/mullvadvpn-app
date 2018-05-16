@@ -113,7 +113,7 @@ it and behave accordingly.
     ```
     as in `yarn run pack:linux`.
 
-    The artifact (.dmg, .deb, .msi) version is the `version` property of `package.json`.
+    The artifact (.pkg, .deb, .msi) version is the `version` property of `package.json`.
 
 
 ## Making a release
@@ -134,6 +134,19 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
     1. Add a signed tag to the current commit with the release version in it
 
     Please verify that the script did the right thing before you push the commit and tag it created.
+
+1. When building for macOS, the following environment variables must be set:
+   * `CSC_LINK` - The path to the `.p12` certificate file with the Apple application signing keys.
+     This file must contain both the "Developer ID Application" and the "Developer ID Installer"
+     certificates + private keys. If this environment variable is missing `build.sh` will skip
+     signing.
+   * `CSC_KEY_PASSWORD` - The password to the file given in `CSC_LINK`. If this is not set then
+     `build.sh` will prompt you for it. If you set it yourself, make sure to define it in such a
+     way that it's not stored in your bash history:
+     ```bash
+     export HISTCONTROL=ignorespace
+     export CSC_KEY_PASSWORD='my secret'
+     ```
 
 1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
     do the following for you:
