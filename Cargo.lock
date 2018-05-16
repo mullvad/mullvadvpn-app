@@ -832,6 +832,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-tests"
+version = "0.1.0"
+
+[[package]]
 name = "mullvad-types"
 version = "0.1.0"
 dependencies = [
