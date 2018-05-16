@@ -1,0 +1,8 @@
+[package]
+name = "mullvad-tests"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
+description = "Mullvad test specific modules and binaries"
+license = "GPL-3.0"
+
+[dependencies]
