@@ -211,8 +211,8 @@ impl ProblemReport {
         }
     }
 
-    /// Attach file log to this report. This method uses the error chain instead of log
-    /// contents if error occurred when reading log file.
+    /// Attach a file log to this report. This method adds the error chain instead of the log
+    /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
         let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
             .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
