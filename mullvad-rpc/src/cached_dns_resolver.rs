@@ -351,7 +351,7 @@ mod tests {
         let address = cache.resolve();
 
         assert_eq!(address, fallback_address);
-        let cache_file_path = cache_dir.join("api_ip_address.txt");
+        let cache_file_path = cache_dir.join(::API_IP_CACHE_FILENAME);
         assert!(!cache_file_path.exists());
     }
 
@@ -365,7 +365,7 @@ mod tests {
     }
 
     fn write_invalid_address(dir: &Path) -> PathBuf {
-        let file_path = dir.join("api_ip_address.txt");
+        let file_path = dir.join(::API_IP_CACHE_FILENAME);
         let mut file = File::create(&file_path).unwrap();
 
         writeln!(file, "400.30.12.9").unwrap();
@@ -374,7 +374,7 @@ mod tests {
     }
 
     fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
-        let file_path = dir.join("api_ip_address.txt");
+        let file_path = dir.join(::API_IP_CACHE_FILENAME);
         let mut file = File::create(&file_path).unwrap();
 
         writeln!(file, "{}", address).unwrap();
@@ -391,7 +391,7 @@ mod tests {
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {
-        let cache_file_path = cache_dir.join("api_ip_address.txt");
+        let cache_file_path = cache_dir.join(::API_IP_CACHE_FILENAME);
 
         assert!(cache_file_path.exists());
 
@@ -408,9 +408,8 @@ mod tests {
         cache_dir: &Path,
         fallback_address: Option<IpAddr>,
     ) -> CachedDnsResolver<MockDnsResolver> {
-        let hostname = "dummy.host".to_owned();
-        let filename = "api_ip_address.txt";
-        let cache_file = cache_dir.join(filename);
+        let hostname = String::from("dummy.host");
+        let cache_file = cache_dir.join(::API_IP_CACHE_FILENAME);
         let fallback_address = fallback_address.unwrap_or(IpAddr::from([10, 0, 109, 91]));
 
         CachedDnsResolver::with_dns_resolver(mock_resolver, hostname, cache_file, fallback_address)
