@@ -48,6 +48,7 @@ extern crate talpid_types;
 extern crate windows_service;
 
 mod account_history;
+mod cache;
 mod cli;
 mod geoip;
 mod logging;
@@ -67,7 +68,6 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 
-use mullvad_metadata::APP_INFO;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
@@ -223,7 +223,7 @@ impl Daemon {
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let cache_dir = get_cache_dir()?;
+        let cache_dir = cache::get_cache_dir()?;
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir);
 
         let (rpc_handle, http_handle, tokio_remote) =
@@ -921,11 +921,6 @@ fn get_resource_dir() -> PathBuf {
             PathBuf::from(".")
         }
     }
-}
-
-fn get_cache_dir() -> Result<PathBuf> {
-    app_dirs::app_root(app_dirs::AppDataType::UserCache, &APP_INFO)
-        .chain_err(|| ErrorKind::NoCacheDir)
 }
 
 #[cfg(unix)]

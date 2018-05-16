@@ -1,6 +1,5 @@
 extern crate serde_json;
 
-use app_dirs::{self, AppDataType};
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
@@ -55,8 +54,8 @@ impl AccountHistory {
         }
     }
 
-    pub fn get_accounts(&self) -> Vec<AccountToken> {
-        self.accounts.clone()
+    pub fn get_accounts(&self) -> &[AccountToken] {
+        &self.accounts
     }
 
     /// Add account token to the account history removing duplicate entries
@@ -97,8 +96,7 @@ impl AccountHistory {
     }
 
     fn get_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(AppDataType::UserCache, &::APP_INFO)
-            .chain_err(|| ErrorKind::DirectoryError)?;
+        let dir = ::cache::get_cache_dir().chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(ACCOUNT_HISTORY_FILE))
     }
 }
