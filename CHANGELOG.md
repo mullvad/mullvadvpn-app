@@ -26,7 +26,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add `tunnel` subcommand to manage tunnel specific options in the CLI.
 - Add support for passing the `--mssfix` argument to OpenVPN tunnels.
-- Add `--disable-rpc-auth` flag to daemon to make it accept unauthorized control.
 - Add colors to terminal output on macOS and Linux.
 - Add details to mullvad CLI interface error for when it doesn't trust the RPC file.
 - Warn if daemon is running as a non-root user.
@@ -61,8 +60,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix OpenVPN warning about usage of AES-256-CBC cipher.
 - Fix "Out of time" screen status icon position.
 - Fix log newline characters on Windows.
-- Mullvad CLI can now be used with daemon instance that doesn't have the `--disable-rpc-auth`
-  flag set.
 - If necessary, create parent directories for RPC connection info file.
 
 
