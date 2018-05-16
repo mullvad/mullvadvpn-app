@@ -5,7 +5,7 @@
 
 set -eu
 
-REQUIRED_RUSTC_VERSION="rustc 1.24.0 (4d90ac38c 2018-02-12)"
+REQUIRED_RUSTC_VERSION="rustc 1.26.0 (a77568041 2018-05-07)"
 RUSTC_VERSION=`rustc +stable --version`
 if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
     echo "You are running the wrong Rust compiler version."
@@ -70,7 +70,7 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    #Linux*)     yarn pack:linux;;
+    Linux*)     yarn pack:linux;;
     Darwin*)    yarn pack:mac;;
 esac
 
