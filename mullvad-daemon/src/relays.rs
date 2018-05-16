@@ -319,7 +319,7 @@ impl RelaySelector {
     fn read_relays<P: AsRef<Path>>(path: P) -> Result<(SystemTime, RelayList)> {
         debug!(
             "Trying to read relays cache from {}",
-            path.as_ref().to_string_lossy()
+            path.as_ref().display()
         );
         let (last_modified, file) =
             Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;

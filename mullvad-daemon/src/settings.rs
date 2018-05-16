@@ -62,13 +62,13 @@ impl Settings {
         let settings_path = Self::get_settings_path()?;
         match File::open(&settings_path) {
             Ok(file) => {
-                info!("Loading settings from {}", settings_path.to_string_lossy());
+                info!("Loading settings from {}", settings_path.display());
                 Self::read_settings(&mut io::BufReader::new(file))
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 info!(
                     "No settings file at {}, using defaults",
-                    settings_path.to_string_lossy()
+                    settings_path.display()
                 );
                 Ok(Settings::default())
             }
@@ -80,7 +80,7 @@ impl Settings {
     fn save(&self) -> Result<()> {
         let path = Self::get_settings_path()?;
 
-        debug!("Writing settings to {}", path.to_string_lossy());
+        debug!("Writing settings to {}", path.display());
         let file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
 
         serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))

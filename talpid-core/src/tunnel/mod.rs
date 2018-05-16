@@ -205,7 +205,7 @@ impl TunnelMonitor {
         path.push(library);
 
         if path.exists() {
-            debug!("Using OpenVPN plugin at {}", path.to_string_lossy());
+            debug!("Using OpenVPN plugin at {}", path.display());
             Ok(path)
         } else {
             Err(ErrorKind::PluginNotFound.into())
@@ -253,7 +253,7 @@ impl TunnelMonitor {
         let temp_file = mktemp::TempFile::new();
         debug!(
             "Writing user-pass credentials to {}",
-            temp_file.as_ref().to_string_lossy()
+            temp_file.as_ref().display()
         );
         let mut file = fs::File::create(&temp_file)?;
         Self::set_user_pass_file_permissions(&file)?;

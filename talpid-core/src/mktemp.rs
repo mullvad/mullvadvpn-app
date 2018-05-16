@@ -35,7 +35,7 @@ impl Drop for TempFile {
             if e.kind() != io::ErrorKind::NotFound {
                 error!(
                     "Unable to remove temp file {}: {:?}",
-                    self.path.to_string_lossy(),
+                    self.path.display(),
                     e
                 );
             }

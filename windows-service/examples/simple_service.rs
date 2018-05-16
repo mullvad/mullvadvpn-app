@@ -74,7 +74,7 @@ mod simple_service {
             }
             OpenLogFile(path: PathBuf) {
                 description("Unable to open log file for writing")
-                display("Unable to open log file for writing: {}", path.to_string_lossy())
+                display("Unable to open log file for writing: {}", path.display())
             }
             InitLogger {
                 description("Cannot initialize logger")

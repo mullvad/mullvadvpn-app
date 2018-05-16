@@ -57,11 +57,11 @@ error_chain!{
     errors {
         WriteReportError(path: PathBuf) {
             description("Error writing the problem report file")
-            display("Error writing the problem report file: {}", path.to_string_lossy())
+            display("Error writing the problem report file: {}", path.display())
         }
         ReadLogError(path: PathBuf) {
             description("Error reading the contents of log file")
-            display("Error reading the contents of log file: {}", path.to_string_lossy())
+            display("Error reading the contents of log file: {}", path.display())
         }
         RpcError {
             description("Error during RPC call")
