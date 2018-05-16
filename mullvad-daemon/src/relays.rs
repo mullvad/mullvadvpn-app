@@ -1,4 +1,3 @@
-use app_dirs;
 use chrono::{DateTime, Local};
 use error_chain::ChainedError;
 use futures::Future;
@@ -335,8 +334,7 @@ impl RelaySelector {
     }
 
     fn get_cache_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO)
-            .chain_err(|| ErrorKind::RelayCacheError)?;
+        let dir = ::cache::get_cache_dir().chain_err(|| ErrorKind::RelayCacheError)?;
         Ok(dir.join("relays.json"))
     }
 }

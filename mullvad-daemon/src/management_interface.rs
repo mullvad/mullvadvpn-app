@@ -557,7 +557,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
             AccountHistory::load()
-                .map(|account_history| account_history.get_accounts())
+                .map(|account_history| account_history.get_accounts().to_vec())
                 .map_err(|error| {
                     error!("Unable to get account history: {}", error.display_chain());
                     Error::internal_error()

@@ -95,7 +95,8 @@ impl Settings {
 
     #[cfg(windows)]
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &::APP_INFO)
+        use mullvad_metadata::APP_INFO;
+        let dir = ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &APP_INFO)
             .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
