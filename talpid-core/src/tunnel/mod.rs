@@ -79,14 +79,17 @@ impl TunnelEvent {
     ) -> Option<TunnelEvent> {
         match *event {
             OpenVpnPluginEvent::Up => {
-                let interface = env.get("dev")
+                let interface = env
+                    .get("dev")
                     .expect("No \"dev\" in tunnel up event")
                     .to_owned();
-                let ip = env.get("ifconfig_local")
+                let ip = env
+                    .get("ifconfig_local")
                     .expect("No \"ifconfig_local\" in tunnel up event")
                     .parse()
                     .expect("Tunnel IP not in valid format");
-                let gateway = env.get("route_vpn_gateway")
+                let gateway = env
+                    .get("route_vpn_gateway")
                     .expect("No \"route_vpn_gateway\" in tunnel up event")
                     .parse()
                     .expect("Tunnel gateway IP not in valid format");

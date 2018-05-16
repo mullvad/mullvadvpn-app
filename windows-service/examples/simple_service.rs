@@ -366,11 +366,13 @@ mod simple_service {
             | ServiceState::PausePending
             | ServiceState::ContinuePending => ServiceControlAccept::empty(),
             ServiceState::Running => {
-                ServiceControlAccept::STOP | ServiceControlAccept::PAUSE_CONTINUE
+                ServiceControlAccept::STOP
+                    | ServiceControlAccept::PAUSE_CONTINUE
                     | ServiceControlAccept::SHUTDOWN
             }
             ServiceState::Paused => {
-                ServiceControlAccept::STOP | ServiceControlAccept::PAUSE_CONTINUE
+                ServiceControlAccept::STOP
+                    | ServiceControlAccept::PAUSE_CONTINUE
                     | ServiceControlAccept::SHUTDOWN
             }
             ServiceState::StopPending | ServiceState::Stopped => ServiceControlAccept::empty(),

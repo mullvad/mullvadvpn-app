@@ -406,7 +406,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_account_data");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
@@ -424,7 +425,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_relay_locations");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetRelayLocations(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetRelayLocations(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -437,9 +439,9 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("set_account");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future =
-            self.send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token.clone()))
-                .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        let future = self
+            .send_command_to_daemon(TunnelCommand::SetAccount(tx, account_token.clone()))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         if let Some(new_account_token) = account_token {
             if let Err(e) = AccountHistory::load().and_then(|mut account_history| {
@@ -459,7 +461,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_account");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetAccount(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetAccount(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -474,7 +477,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let (tx, rx) = sync::oneshot::channel();
 
         let message = TunnelCommand::UpdateRelaySettings(tx, constraints_update);
-        let future = self.send_command_to_daemon(message)
+        let future = self
+            .send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -483,7 +487,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_relay_settings");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetRelaySettings(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetRelaySettings(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -492,7 +497,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("allow_lan");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetAllowLan(tx, allow_lan))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::SetAllowLan(tx, allow_lan))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -501,7 +507,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_allow_lan");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetAllowLan(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetAllowLan(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -528,7 +535,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_state");
         try_future!(self.check_auth(&meta));
         let (state_tx, state_rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetState(state_tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetState(state_tx))
             .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -537,7 +545,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_current_location");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetCurrentLocation(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetCurrentLocation(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -589,7 +598,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("set_openvpn_mssfix");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::SetOpenVpnMssfix(tx, mssfix))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::SetOpenVpnMssfix(tx, mssfix))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -599,7 +609,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_tunnel_options");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetTunnelOptions(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetTunnelOptions(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -607,7 +618,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_current_version(&self, meta: Self::Metadata) -> BoxFuture<String, Error> {
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetCurrentVersion(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetCurrentVersion(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -616,7 +628,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     fn get_version_info(&self, meta: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
-        let future = self.send_command_to_daemon(TunnelCommand::GetVersionInfo(tx))
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetVersionInfo(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|version_future| {
                 version_future.map_err(|error| {

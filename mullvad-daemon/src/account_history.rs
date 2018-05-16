@@ -70,7 +70,8 @@ impl AccountHistory {
 
         let num_accounts = self.accounts.len();
         if num_accounts > ACCOUNT_HISTORY_LIMIT {
-            self.accounts = self.accounts
+            self.accounts = self
+                .accounts
                 .split_off(num_accounts - ACCOUNT_HISTORY_LIMIT);
         }
 

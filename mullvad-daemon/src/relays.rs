@@ -135,7 +135,8 @@ impl RelaySelector {
         &mut self,
         constraints: &RelayConstraints,
     ) -> Option<(Relay, TunnelEndpoint)> {
-        let matching_relays: Vec<Relay> = self.relays
+        let matching_relays: Vec<Relay> = self
+            .relays
             .iter()
             .filter_map(|relay| Self::matching_relay(relay, constraints))
             .collect();
@@ -252,7 +253,8 @@ impl RelaySelector {
     /// Downloads the latest relay list and caches it. This operation is blocking.
     pub fn update(&mut self, timeout: Duration) -> Result<()> {
         info!("Downloading list of relays...");
-        let download_future = self.rpc_client
+        let download_future = self
+            .rpc_client
             .relay_list()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
         let relay_list = Timer::default().timeout(download_future, timeout).wait()?;

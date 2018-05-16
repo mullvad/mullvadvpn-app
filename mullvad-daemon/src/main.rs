@@ -459,7 +459,8 @@ impl Daemon {
         tx: OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         account_token: AccountToken,
     ) {
-        let rpc_call = self.accounts_proxy
+        let rpc_call = self
+            .accounts_proxy
             .get_expiry(account_token)
             .map(|expiry| AccountData { expiry });
         Self::oneshot_send(tx, Box::new(rpc_call), "account data")
@@ -501,7 +502,8 @@ impl Daemon {
         tx: OneshotSender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
     ) {
         let current_version = version::current().to_owned();
-        let fut = self.version_proxy
+        let fut = self
+            .version_proxy
             .latest_app_version()
             .join(
                 self.version_proxy
@@ -698,7 +700,8 @@ impl Daemon {
                 self.tunnel_endpoint = Some(tunnel_endpoint);
             }
             RelaySettings::Normal(constraints) => {
-                let (relay, tunnel_endpoint) = self.relay_selector
+                let (relay, tunnel_endpoint) = self
+                    .relay_selector
                     .get_tunnel_endpoint(&constraints)
                     .chain_err(|| ErrorKind::NoRelay)?;
                 self.tunnel_endpoint = Some(tunnel_endpoint);
@@ -706,7 +709,8 @@ impl Daemon {
             }
         }
 
-        let account_token = self.settings
+        let account_token = self
+            .settings
             .get_account_token()
             .ok_or(ErrorKind::InvalidSettings("No account token"))?;
 
