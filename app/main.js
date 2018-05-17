@@ -271,7 +271,9 @@ const appDelegate = {
     const contentHeight = 568;
     const options = {
       width: 320,
+      minWidth: 320,
       height: contentHeight,
+      minHeight: contentHeight,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
@@ -292,6 +294,7 @@ const appDelegate = {
         ...options,
         // 12 is the size of transparent area around arrow
         height: contentHeight + 12,
+        minHeight: contentHeight + 12,
         transparent: true
       });
 
