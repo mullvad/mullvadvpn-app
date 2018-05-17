@@ -241,7 +241,9 @@ impl Daemon {
             Self::create_relay_selector(rpc_handle.clone(), &resource_dir, &cache_dir);
 
         let (tx, rx) = mpsc::channel();
-        let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
+        let management_interface_broadcaster =
+            Self::start_management_interface(tx.clone(), cache_dir)?;
+
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -291,9 +293,10 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
+        cache_dir: PathBuf,
     ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx, cache_dir)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
@@ -301,10 +304,11 @@ impl Daemon {
 
     fn start_management_interface_server(
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
+        cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
         let shared_secret = uuid::Uuid::new_v4().to_string();
 
-        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone())
+        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone(), cache_dir)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
