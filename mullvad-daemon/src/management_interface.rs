@@ -29,7 +29,7 @@ use talpid_ipc;
 use talpid_types::net::TunnelOptions;
 use uuid;
 
-use account_history::AccountHistory;
+use account_history::{AccountHistory, Error as AccountHistoryError};
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
@@ -291,7 +291,11 @@ struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String, cache_dir: PathBuf) -> Self {
+    pub fn new(
+        tx: IntoSender<TunnelCommand, T>,
+        shared_secret: String,
+        cache_dir: PathBuf,
+    ) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
@@ -370,6 +374,12 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
             Err(Error::invalid_request())
         }
     }
+
+    fn load_history(&self) -> Result<AccountHistory, AccountHistoryError> {
+        let mut account_history = AccountHistory::new(&self.cache_dir);
+        account_history.load()?;
+        Ok(account_history)
+    }
 }
 
 /// Evaluates a Result and early returns an error.
@@ -444,8 +454,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         if let Some(new_account_token) = account_token {
-            if let Err(e) = AccountHistory::load(&self.cache_dir).and_then(|mut account_history| {
-                account_history.add_account_token(new_account_token, &self.cache_dir)
+            if let Err(e) = self.load_history().and_then(|mut account_history| {
+                account_history.add_account_token(new_account_token)
             }) {
                 error!(
                     "Unable to add an account into the account history: {}",
@@ -561,8 +571,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_account_history");
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
-            AccountHistory::load(&self.cache_dir)
-                .map(|account_history| account_history.get_accounts().to_vec())
+            self.load_history()
+                .map(|history| history.get_accounts().to_vec())
                 .map_err(|error| {
                     error!("Unable to get account history: {}", error.display_chain());
                     Error::internal_error()
@@ -578,8 +588,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("remove_account_from_history");
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
-            AccountHistory::load(&self.cache_dir)
-                .and_then(|mut history| history.remove_account_token(account_token, &self.cache_dir))
+            self.load_history()
+                .and_then(|mut history| history.remove_account_token(account_token))
                 .map_err(|error| {
                     error!(
                         "Unable to remove account from history: {}",
