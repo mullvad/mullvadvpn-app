@@ -217,13 +217,16 @@ struct Daemon {
 }
 
 impl Daemon {
-    pub fn new(tunnel_log: Option<PathBuf>, resource_dir: PathBuf) -> Result<Self> {
+    pub fn new(
+        tunnel_log: Option<PathBuf>,
+        resource_dir: PathBuf,
+        cache_dir: PathBuf,
+    ) -> Result<Self> {
         ensure!(
             !rpc_uniqueness_check::is_another_instance_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let cache_dir = cache::get_cache_dir()?;
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir);
 
         let (rpc_handle, http_handle, tokio_remote) =
@@ -243,7 +246,6 @@ impl Daemon {
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster =
             Self::start_management_interface(tx.clone(), cache_dir)?;
-
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -890,7 +892,12 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     }
 
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir)
+    let cache_dir = match config.cache_dir {
+        Some(cache_dir) => cache_dir,
+        None => cache::get_cache_dir()?,
+    };
+
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
         .chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
