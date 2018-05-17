@@ -245,7 +245,7 @@ impl Daemon {
 
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster =
-            Self::start_management_interface(tx.clone(), require_auth)?;
+            Self::start_management_interface(tx.clone(), require_auth, cache_dir.clone())?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -296,9 +296,10 @@ impl Daemon {
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
         require_auth: bool,
+        cache_dir: PathBuf,
     ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx, require_auth)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx, require_auth, cache_dir)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
@@ -307,6 +308,7 @@ impl Daemon {
     fn start_management_interface_server(
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
         require_auth: bool,
+        cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
         let shared_secret = if require_auth {
             Some(uuid::Uuid::new_v4().to_string())
@@ -315,7 +317,7 @@ impl Daemon {
             None
         };
 
-        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone())
+        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone(), cache_dir)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
