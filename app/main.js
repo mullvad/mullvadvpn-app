@@ -444,21 +444,21 @@ const appDelegate = {
     switch(placement) {
     case 'top':
       x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-      y = trayBounds.y + trayBounds.height;
+      y = workArea.y;
       break;
 
     case 'bottom':
       x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-      y = trayBounds.y - windowBounds.height;
+      y = workArea.y + workArea.height - windowBounds.height;
       break;
 
     case 'left':
-      x = trayBounds.x + trayBounds.width;
+      x = workArea.x;
       y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
       break;
 
     case 'right':
-      x = trayBounds.x - windowBounds.width;
+      x = workArea.width - windowBounds.width;
       y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
       break;
 
