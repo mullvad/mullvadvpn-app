@@ -10,7 +10,7 @@ extern crate notify;
 extern crate os_pipe;
 extern crate tempfile;
 
-use std::fs;
+use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
@@ -22,11 +22,28 @@ use self::notify::{op, RawEvent, RecursiveMode, Watcher};
 use self::os_pipe::{pipe, PipeReader};
 use self::tempfile::TempDir;
 
+use self::platform_specific::*;
+
+pub const MOCK_OPENVPN_ARGS_FILE: &str = "mock_openvpn_args";
+
 #[cfg(unix)]
-pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
+mod platform_specific {
+    pub const DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
+    pub const MOCK_OPENVPN_EXECUTABLE_PATH: &str = "../target/debug/mock_openvpn";
+    pub const OPENVPN_EXECUTABLE_FILE: &str = "openvpn";
+    #[cfg(target_os = "linux")]
+    pub const TALPID_OPENVPN_PLUGIN_FILE: &str = "libtalpid_openvpn_plugin.so";
+    #[cfg(target_os = "macos")]
+    pub const TALPID_OPENVPN_PLUGIN_FILE: &str = "libtalpid_openvpn_plugin.dylib";
+}
 
 #[cfg(not(unix))]
-pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+mod platform_specific {
+    pub const DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+    pub const MOCK_OPENVPN_EXECUTABLE_PATH: &str = "../target/debug/mock_openvpn.exe";
+    pub const OPENVPN_EXECUTABLE_FILE: &str = "openvpn.exe";
+    pub const TALPID_OPENVPN_PLUGIN_FILE: &str = "talpid_openvpn_plugin.dll";
+}
 
 pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duration) {
     let file_path = file_path.as_ref();
@@ -72,8 +89,14 @@ pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duratio
 fn prepare_test_dirs() -> (TempDir, PathBuf) {
     let temp_dir = TempDir::new().expect("Failed to create temporary daemon directory");
     let resource_dir = temp_dir.path().join("resource-dir");
+    let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
+    let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
 
     fs::create_dir(&resource_dir).expect("Failed to create resource directory");
+
+    fs::copy(MOCK_OPENVPN_EXECUTABLE_PATH, openvpn_binary)
+        .expect("Failed to copy mock OpenVPN binary");
+    File::create(talpid_openvpn_plugin).expect("Failed to create mock Talpid OpenVPN plugin");
 
     prepare_relay_list(resource_dir.join("relays.json"));
 
@@ -108,18 +131,21 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
+    mock_openvpn_args_file: PathBuf,
     _temp_dir: TempDir,
 }
 
 impl DaemonRunner {
     pub fn spawn() -> Self {
         let (temp_dir, resource_dir) = prepare_test_dirs();
+        let mock_openvpn_args_file = temp_dir.path().join(MOCK_OPENVPN_ARGS_FILE);
 
         let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
         let process = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", "./")
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
+            .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
             .stderr_to_stdout()
             .stdout_handle(writer)
             .start()
@@ -128,8 +154,13 @@ impl DaemonRunner {
         DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
+            mock_openvpn_args_file,
             _temp_dir: temp_dir,
         }
+    }
+
+    pub fn mock_openvpn_args_file(&self) -> &Path {
+        &self.mock_openvpn_args_file
     }
 
     pub fn assert_output(&mut self, pattern: &'static str, timeout: Duration) {
