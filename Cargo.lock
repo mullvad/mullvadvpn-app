@@ -751,11 +751,9 @@ name = "mullvad-daemon"
 version = "0.1.0"
 dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "assert_matches 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ctrlc 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "duct 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fern 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -770,8 +768,6 @@ dependencies = [
  "mullvad-metadata 0.1.0",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
- "notify 4.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.45 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -780,7 +776,6 @@ dependencies = [
  "talpid-core 0.1.0",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
- "tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -833,7 +828,12 @@ dependencies = [
 name = "mullvad-tests"
 version = "0.1.0"
 dependencies = [
+ "duct 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-ipc-client 0.1.0",
  "notify 4.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
