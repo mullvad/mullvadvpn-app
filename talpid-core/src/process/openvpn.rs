@@ -233,11 +233,11 @@ pub struct OpenVpnProcHandle {
 impl OpenVpnProcHandle {
     /// Constructor for a new openvpn proc handle
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
-        if atty::is(atty::Stream::Stdout) {
+        if atty::is(atty::Stream::Stdout) || cfg!(windows) {
             cmd = cmd.stdout_null();
         }
 
-        if atty::is(atty::Stream::Stderr) {
+        if atty::is(atty::Stream::Stderr) || cfg!(windows) {
             cmd = cmd.stderr_null();
         }
 
