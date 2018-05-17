@@ -45,7 +45,6 @@ impl DaemonRunner {
         let process = cmd!(
             DAEMON_EXECUTABLE_PATH,
             "-v",
-            "--disable-rpc-auth",
             "--resource-dir",
             "dist-assets"
         ).dir("..")
