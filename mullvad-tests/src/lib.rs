@@ -19,13 +19,28 @@ use notify::{op, RawEvent, RecursiveMode, Watcher};
 use os_pipe::{pipe, PipeReader};
 use tempdir::TempDir;
 
+use self::platform_specific::*;
+
 pub const MOCK_OPENVPN_COMMAND_LINE_FILE: &str = "mock_openvpn_command_line";
 
 #[cfg(unix)]
-pub const DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
+mod platform_specific {
+    pub static DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
+    pub static MOCK_OPENVPN_EXECUTABLE_PATH: &str = "../target/debug/mock_openvpn";
+    pub static OPENVPN_EXECUTABLE_FILE: &str = "openvpn";
+    #[cfg(target_os = "linux")]
+    pub static TALPID_OPENVPN_PLUGIN_FILE: &str = "libtalpid_openvpn_plugin.so";
+    #[cfg(target_os = "macos")]
+    pub static TALPID_OPENVPN_PLUGIN_FILE: &str = "libtalpid_openvpn_plugin.dylib";
+}
 
 #[cfg(not(unix))]
-pub const DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+mod platform_specific {
+    pub static DAEMON_EXECUTABLE_PATH: &str = r"..\target\debug\mullvad-daemon.exe";
+    pub static MOCK_OPENVPN_EXECUTABLE_PATH: &str = "../target/debug/mock_openvpn.exe";
+    pub static OPENVPN_EXECUTABLE_FILE: &str = "openvpn.exe";
+    pub static TALPID_OPENVPN_PLUGIN_FILE: &str = "talpid_openvpn_plugin.dll";
+}
 
 pub fn wait_for_file<P: AsRef<Path>>(file_path: P, timeout: Duration) {
     let file_path = file_path.as_ref();
@@ -66,8 +81,13 @@ fn prepare_fake_resource_dir() -> (TempDir, PathBuf) {
         TempDir::new("mullvad-daemon-test").expect("failed to create temporary directory");
     let resource_dir = temp_dir.path().join("resource-dir");
     let relay_list = resource_dir.join("relays.json");
+    let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
+    let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
 
     fs::create_dir(&resource_dir).expect("failed to resource directory");
+    fs::copy(MOCK_OPENVPN_EXECUTABLE_PATH, openvpn_binary)
+        .expect("failed to copy mock OpenVPN binary");
+    File::create(talpid_openvpn_plugin).expect("failed to create mock Talpid OpenVPN plugin");
 
     prepare_relay_list(relay_list);
 
@@ -110,6 +130,7 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
     output: Arc<Mutex<BufReader<PipeReader>>>,
+    mock_openvpn_command_line_file: PathBuf,
     _temp_dir: TempDir,
 }
 
@@ -131,11 +152,18 @@ impl DaemonRunner {
             .start()
             .expect("failed to start daemon");
 
+        let mock_openvpn_command_line_file = temp_dir.path().join(MOCK_OPENVPN_COMMAND_LINE_FILE);
+
         DaemonRunner {
             process: Some(process),
             output: Arc::new(Mutex::new(BufReader::new(reader))),
+            mock_openvpn_command_line_file,
             _temp_dir: temp_dir,
         }
+    }
+
+    pub fn mock_openvpn_command_line_file(&self) -> &Path {
+        &self.mock_openvpn_command_line_file
     }
 
     pub fn assert_output(&mut self, pattern: &'static str, timeout: Duration) {
