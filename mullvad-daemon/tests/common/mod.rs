@@ -47,7 +47,9 @@ impl DaemonRunner {
             "-v",
             "--disable-rpc-auth",
             "--resource-dir",
-            "dist-assets"
+            "./dist-assets",
+            "--cache-dir",
+            "./"
         ).dir("..")
             .stderr_to_stdout()
             .stdout_handle(writer)
