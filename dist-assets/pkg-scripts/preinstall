@@ -13,10 +13,10 @@ echo "Running preinstall at $(date)"
 OLD_INSTALL_DIR="/Applications/MullvadVPN.app"
 if [ -d "$OLD_INSTALL_DIR" ]; then
     echo "Found old Mullvad VPN install at $OLD_INSTALL_DIR. Stopping and uninstalling"
-    pkill MullvadVPN || true
-    pkill mullvad-daemon || true
+    pkill MullvadVPN || echo "Unable to kill MullvadVPN, not running?"
+    pkill mullvad-daemon || echo "Unable to kill mullvad-daemon, not running?"
     sleep 0.5
-    rm -rf "$OLD_INSTALL_DIR"
+    rm -r "$OLD_INSTALL_DIR"
 fi
 
 # Migrate settings from <=2018.1 paths
@@ -25,15 +25,16 @@ NEW_SETTINGS_DIR="/etc/mullvad-daemon"
 if [ -d "$OLD_SETTINGS_DIR" ]; then
     echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
     mkdir -p "$NEW_SETTINGS_DIR"
-    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || true
-    rm -rf "$OLD_SETTINGS_DIR"
+    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || \
+        echo "Unable to migrate settings, not present in old dir?"
+    rm -r "$OLD_SETTINGS_DIR"
 fi
 
 # Delete logs from <=2018.1 paths
 OLD_LOG_DIR="$HOME/Library/Logs/MullvadVPN"
 if [ -d "$OLD_LOG_DIR" ]; then
     echo "Found old log dir $OLD_LOG_DIR. Deleting"
-    rm -rf "$OLD_LOG_DIR"
+    rm -r "$OLD_LOG_DIR"
 fi
 
 # Migrate cache files from <=2018.1 paths
@@ -42,6 +43,6 @@ NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-daemon"
 if [ -d "$OLD_CACHE_DIR" ]; then
     echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
     mkdir -p "$NEW_CACHE_DIR"
-    mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || true
-    rm -rf "$OLD_CACHE_DIR"
+    mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
+    rm -r "$OLD_CACHE_DIR"
 fi

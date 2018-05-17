@@ -5,7 +5,7 @@
 
 set -eu
 
-REQUIRED_RUSTC_VERSION="rustc 1.24.0 (4d90ac38c 2018-02-12)"
+REQUIRED_RUSTC_VERSION="rustc 1.26.0 (a77568041 2018-05-07)"
 RUSTC_VERSION=`rustc +stable --version`
 if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
     echo "You are running the wrong Rust compiler version."
@@ -25,9 +25,25 @@ if [[ "${1:-""}" != "--allow-dirty" ]]; then
     fi
 fi
 
-case "$(uname -s)" in
-    Darwin*)    export MACOSX_DEPLOYMENT_TARGET="10.7";;
-esac
+if [[ "$(uname -s)" = "Darwin" ]]; then
+    export MACOSX_DEPLOYMENT_TARGET="10.7"
+
+    # if CSC_LINK is set, then we do signing
+    if [[ ! -z ${CSC_LINK-} ]]; then
+        echo "Building with macOS signing activated. Using certificate at $CSC_LINK"
+        if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
+            read -sp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+            echo ""
+            export CSC_KEY_PASSWORD
+        fi
+        export CSC_IDENTITY_AUTO_DISCOVERY=true
+    else
+        echo "!! CSC_LINK not set. This build will not be signed !!"
+        unset CSC_LINK CSC_KEY_PASSWORD
+        export CSC_IDENTITY_AUTO_DISCOVERY=false
+    fi
+fi
+
 
 # Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
 cargo +stable clean
@@ -54,7 +70,7 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    #Linux*)     yarn pack:linux;;
+    Linux*)     yarn pack:linux;;
     Darwin*)    yarn pack:mac;;
 esac
 
