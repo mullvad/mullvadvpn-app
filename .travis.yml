@@ -43,7 +43,7 @@ matrix:
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
         - rustup component add rustfmt-preview
         - rustfmt --version
-        - cargo fmt -- --write-mode=check --unstable-features
+        - cargo fmt -- --check --unstable-features
 
     - language: rust
       rust: beta

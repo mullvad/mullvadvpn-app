@@ -240,7 +240,8 @@ impl PacketFilter {
 
     fn remove_rules(&mut self) -> Result<()> {
         // remove_anchor() does not deactivate active rules
-        Ok(self.pf
+        Ok(self
+            .pf
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?)
     }
 

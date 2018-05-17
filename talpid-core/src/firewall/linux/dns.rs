@@ -95,7 +95,8 @@ impl State {
     fn desired_config(&self) -> Config {
         let mut config = self.backup.clone();
 
-        config.nameservers = self.desired_dns
+        config.nameservers = self
+            .desired_dns
             .iter()
             .map(|&address| ScopedIp::from(address))
             .collect();

@@ -215,7 +215,9 @@ impl Relay {
 fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
     match raw_port.to_lowercase().as_str() {
         "any" => Ok(Constraint::Any),
-        port => Ok(Constraint::Only(u16::from_str(port).chain_err(|| "Invalid port")?)),
+        port => Ok(Constraint::Only(
+            u16::from_str(port).chain_err(|| "Invalid port")?
+        )),
     }
 }
 

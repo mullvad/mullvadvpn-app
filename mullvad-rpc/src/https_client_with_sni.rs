@@ -104,7 +104,8 @@ impl<T: Connect> Service for HttpsConnectorWithSni<T> {
 
     fn call(&self, uri: Uri) -> Self::Future {
         let is_https = uri.scheme() == Some("https");
-        let maybe_host = self.sni_hostname
+        let maybe_host = self
+            .sni_hostname
             .as_ref()
             .map(String::as_str)
             .or_else(|| uri.host())

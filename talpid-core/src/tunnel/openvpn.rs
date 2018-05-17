@@ -66,7 +66,8 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
             event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
         cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
-        let child = cmd.start()
+        let child = cmd
+            .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
 
         Ok(OpenVpnMonitor {
