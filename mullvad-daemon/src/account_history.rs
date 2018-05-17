@@ -14,11 +14,11 @@ error_chain! {
         }
         ReadError(path: PathBuf) {
             description("Unable to read account history file")
-            display("Unable to read account history from {}", path.to_string_lossy())
+            display("Unable to read account history from {}", path.display())
         }
         WriteError(path: PathBuf) {
             description("Unable to write account history file")
-            display("Unable to write account history to {}", path.to_string_lossy())
+            display("Unable to write account history to {}", path.display())
         }
         ParseError {
             description("Malformed account history")
@@ -41,16 +41,13 @@ impl AccountHistory {
         let history_path = Self::get_path()?;
         match File::open(&history_path) {
             Ok(mut file) => {
-                info!(
-                    "Loading account history from {}",
-                    history_path.to_string_lossy()
-                );
+                info!("Loading account history from {}", history_path.display());
                 Self::parse(&mut file)
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 info!(
                     "No account history file at {}, using defaults",
-                    history_path.to_string_lossy()
+                    history_path.display()
                 );
                 Ok(AccountHistory::default())
             }
@@ -89,7 +86,7 @@ impl AccountHistory {
     fn save(&self) -> Result<()> {
         let path = Self::get_path()?;
 
-        debug!("Writing account history to {}", path.to_string_lossy());
+        debug!("Writing account history to {}", path.display());
         let file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
 
         serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))

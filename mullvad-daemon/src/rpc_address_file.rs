@@ -13,16 +13,16 @@ error_chain! {
             description("Failed to create directory for RPC connection info file")
             display(
                 "Failed to create directory for RPC connection info file: {}",
-                path.to_string_lossy(),
+                path.display(),
             )
         }
         WriteFailed(path: PathBuf) {
             description("Failed to write RPC connection info to file")
-            display("Failed to write RPC connection info to {}", path.to_string_lossy())
+            display("Failed to write RPC connection info to {}", path.display())
         }
         RemoveFailed(path: PathBuf) {
             description("Failed to remove file")
-            display("Failed to remove {}", path.to_string_lossy())
+            display("Failed to remove {}", path.display())
         }
     }
 }
@@ -43,10 +43,7 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
         .and_then(|mut file| write!(file, "{}\n{}\n", rpc_address, shared_secret))
         .chain_err(|| ErrorKind::WriteFailed(file_path.clone()))?;
 
-    debug!(
-        "Wrote RPC connection info to {}",
-        file_path.to_string_lossy()
-    );
+    debug!("Wrote RPC connection info to {}", file_path.display());
     Ok(())
 }
 
