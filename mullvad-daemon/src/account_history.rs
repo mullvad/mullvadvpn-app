@@ -2,15 +2,12 @@ extern crate serde_json;
 
 use std::fs::File;
 use std::io;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 use mullvad_types::account::AccountToken;
 
 error_chain! {
     errors {
-        DirectoryError {
-            description("Unable to create account history directory for program")
-        }
         ReadError(path: PathBuf) {
             description("Unable to read account history file")
             display("Unable to read account history from {}", path.display())
@@ -36,12 +33,15 @@ pub struct AccountHistory {
 
 impl AccountHistory {
     /// Loads account history from file. If no file is present it returns the defaults.
-    pub fn load() -> Result<AccountHistory> {
-        let history_path = Self::get_path()?;
+    pub fn load(cache_dir: &Path) -> Result<AccountHistory> {
+        let history_path = cache_dir.join(ACCOUNT_HISTORY_FILE);
         match File::open(&history_path) {
-            Ok(mut file) => {
-                info!("Loading account history from {}", history_path.display());
-                Self::parse(&mut file)
+            Ok(file) => {
+                info!(
+                    "Loading account history from {}",
+                    history_path.display()
+                );
+                Self::parse(&mut io::BufReader::new(file))
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 info!(
@@ -59,7 +59,7 @@ impl AccountHistory {
     }
 
     /// Add account token to the account history removing duplicate entries
-    pub fn add_account_token(&mut self, account_token: AccountToken) -> Result<()> {
+    pub fn add_account_token(&mut self, account_token: AccountToken, cache_dir: &Path) -> Result<()> {
         self.accounts
             .retain(|existing_token| existing_token != &account_token);
         self.accounts.push(account_token);
@@ -71,32 +71,27 @@ impl AccountHistory {
                 .split_off(num_accounts - ACCOUNT_HISTORY_LIMIT);
         }
 
-        self.save()
+        self.save(cache_dir)
     }
 
     /// Remove account token from the account history
-    pub fn remove_account_token(&mut self, account_token: AccountToken) -> Result<()> {
+    pub fn remove_account_token(&mut self, account_token: AccountToken, cache_dir: &Path) -> Result<()> {
         self.accounts
             .retain(|existing_token| existing_token != &account_token);
-        self.save()
+        self.save(cache_dir)
     }
 
     /// Serializes the account history and saves it to the file it was loaded from.
-    fn save(&self) -> Result<()> {
-        let path = Self::get_path()?;
+    fn save(&self, cache_dir: &Path) -> Result<()> {
+        let path = cache_dir.join(ACCOUNT_HISTORY_FILE);
 
         debug!("Writing account history to {}", path.display());
         let file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
 
-        serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))
+        serde_json::to_writer_pretty(io::BufWriter::new(file), self).chain_err(|| ErrorKind::WriteError(path))
     }
 
-    fn parse(file: &mut File) -> Result<AccountHistory> {
+    fn parse(file: &mut impl io::Read) -> Result<AccountHistory> {
         serde_json::from_reader(file).chain_err(|| ErrorKind::ParseError)
-    }
-
-    fn get_path() -> Result<PathBuf> {
-        let dir = ::cache::get_cache_dir().chain_err(|| ErrorKind::DirectoryError)?;
-        Ok(dir.join(ACCOUNT_HISTORY_FILE))
     }
 }

@@ -20,8 +20,10 @@ use serde;
 
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
+
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::net::TunnelOptions;
@@ -210,11 +212,12 @@ impl ManagementInterfaceServer {
     pub fn start<T>(
         tunnel_tx: IntoSender<TunnelCommand, T>,
         shared_secret: String,
+        cache_dir: PathBuf,
     ) -> talpid_ipc::Result<Self>
     where
         T: From<TunnelCommand> + 'static + Send,
     {
-        let rpc = ManagementInterface::new(tunnel_tx, shared_secret);
+        let rpc = ManagementInterface::new(tunnel_tx, shared_secret, cache_dir);
         let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
@@ -284,14 +287,16 @@ struct ManagementInterface<T: From<TunnelCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<TunnelCommand, T>>,
     shared_secret: String,
+    cache_dir: PathBuf,
 }
 
 impl<T: From<TunnelCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String) -> Self {
+    pub fn new(tx: IntoSender<TunnelCommand, T>, shared_secret: String, cache_dir: PathBuf) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
             shared_secret,
+            cache_dir,
         }
     }
 
@@ -439,8 +444,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         if let Some(new_account_token) = account_token {
-            if let Err(e) = AccountHistory::load().and_then(|mut account_history| {
-                account_history.add_account_token(new_account_token)
+            if let Err(e) = AccountHistory::load(&self.cache_dir).and_then(|mut account_history| {
+                account_history.add_account_token(new_account_token, &self.cache_dir)
             }) {
                 error!(
                     "Unable to add an account into the account history: {}",
@@ -556,7 +561,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("get_account_history");
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
-            AccountHistory::load()
+            AccountHistory::load(&self.cache_dir)
                 .map(|account_history| account_history.get_accounts().to_vec())
                 .map_err(|error| {
                     error!("Unable to get account history: {}", error.display_chain());
@@ -573,8 +578,8 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         trace!("remove_account_from_history");
         try_future!(self.check_auth(&meta));
         Box::new(future::result(
-            AccountHistory::load()
-                .and_then(|mut account_history| account_history.remove_account_token(account_token))
+            AccountHistory::load(&self.cache_dir)
+                .and_then(|mut history| history.remove_account_token(account_token, &self.cache_dir))
                 .map_err(|error| {
                     error!(
                         "Unable to remove account from history: {}",
