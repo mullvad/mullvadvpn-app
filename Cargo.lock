@@ -834,6 +834,9 @@ dependencies = [
 [[package]]
 name = "mullvad-tests"
 version = "0.1.0"
+dependencies = [
+ "notify 4.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "mullvad-types"

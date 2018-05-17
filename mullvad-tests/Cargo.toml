@@ -6,3 +6,4 @@ description = "Mullvad test specific modules and binaries"
 license = "GPL-3.0"
 
 [dependencies]
+notify = "4.0"
