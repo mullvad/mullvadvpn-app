@@ -26,42 +26,43 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add `tunnel` subcommand to manage tunnel specific options in the CLI.
 - Add support for passing the `--mssfix` argument to OpenVPN tunnels.
-- Add colors to terminal output on macOS and Linux.
 - Add details to mullvad CLI interface error for when it doesn't trust the RPC file.
-- Warn if daemon is running as a non-root user.
 - Include the last two OpenVPN logs in problem reports instead of only the last.
 - Prevent two instances of the daemon to run at the same time.
-- Daemon now fetches latest app versions and verifies whether the current
-  version is supported.
+- Add CLI command for fetching latest app versions and verifies whether the running version is
+  supported.
 - Add `version` subcommand in the CLI to show information about current versions.
 - Add a flag to daemon to print log entries to standard output without timestamps.
 - Filter out and ignore DNS lookup results for api.mullvad.net that are bogus (private etc.)
-- Make the macOS pkg installer locate and uninstall any 2018.1 version of the app before installing
-  itself.
+- Bundle the Mullvad API IP address with the app and introduce a disk cache fallback method for
+  when DNS resolution fails.
+
+#### macOS
+- Add colors to terminal output.
+- Warn if daemon is running as a non-root user.
+- Make the pkg installer uninstall any `<=2018.1` version of the app before installing itself.
 
 ### Changed
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
   paths and window captions etc.
-- Bundle an IP address with the app and introduce a disk cache fallback method for when the DNS
-  resolution of the Mullvad API server hostname fails.
-- Manage firewall rules on Windows depending on connection state.
 - Improve account token hint to be the same length as an expected token.
-- The macOS installer is changed from dmg to pkg format.
-- The backend daemon is installed as a launchd daemon and started on macOS on install.
-- Move logs to `/var/log/mullvad-daemon/` and settings to `/etc/mullvad-daemon/` on macOS.
 - Update `problem-report` binary to automatically collect log files in predefined known Mullvad log
   directories.
 
+#### macOS
+- The installer changed from dmg to pkg format.
+- The daemon is installed as a launchd daemon and started on install and on boot.
+- Move daemon logs to `/var/log/mullvad-daemon/`, settings to `/etc/mullvad-daemon/` and cache to
+  `/var/cache/mullvad-daemon/`.
+
 ### Fixed
-- Fix a bug in account input field that advanced the cursor to the end regardless its prior
-  position.
+- Fix bug in account input field that advanced the cursor to the end regardless its prior position.
 - Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
   account numbers.
 - Fix OpenVPN plugin search directory to be the installation directory.
 - Reduce RPC timeout to Mullvad API server.
 - Fix OpenVPN warning about usage of AES-256-CBC cipher.
 - Fix "Out of time" screen status icon position.
-- Fix log newline characters on Windows.
 - If necessary, create parent directories for RPC connection info file.
 
 
