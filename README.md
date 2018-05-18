@@ -181,11 +181,12 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
   - **transitions.js** - transition rules between views
-- **client-binaries/** - Git submodule containing binaries shipped with the client. Most notably
-  the OpenVPN binaries.
 - **init.js** - entry file for electron, points to compiled **main.js**
 - **scripts/** - support scripts for development
 - **test/** - Electron GUI tests
+- **dist-assets/** - Icons, binaries and other files used when creating the distributables
+  - **binaries/** - Git submodule containing the statically linked OpenVPN binaries
+  - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
 
 ### Building, testing and misc
 - **build.sh** - Sanity checks the working directory state and then builds release artifacts for
