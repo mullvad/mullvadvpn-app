@@ -1,6 +1,3 @@
-[submodule "client-binaries"]
-	path = client-binaries
-	url = https://github.com/mullvad/client-binaries.git
 [submodule "wfpctl/libwfp"]
 	path = wfpctl/libwfp
 	url = https://github.com/mullvad/libwfp.git
