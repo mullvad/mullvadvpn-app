@@ -28,8 +28,6 @@ extern crate jsonrpc_core;
 extern crate jsonrpc_macros;
 extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
-#[macro_use]
-extern crate lazy_static;
 extern crate rand;
 extern crate tokio_core;
 extern crate tokio_timer;
@@ -129,11 +127,9 @@ error_chain!{
     }
 }
 
-lazy_static! {
-    static ref MIN_TUNNEL_ALIVE_TIME_MS: Duration = Duration::from_millis(1000);
-    static ref MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
-    static ref RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
-}
+static MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
+static MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
+static RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -282,8 +278,8 @@ impl Daemon {
     ) -> relays::RelaySelector {
         let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir, cache_dir);
         if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
-            if elapsed > *MAX_RELAY_CACHE_AGE {
-                if let Err(e) = relay_selector.update(*RELAY_CACHE_UPDATE_TIMEOUT) {
+            if elapsed > MAX_RELAY_CACHE_AGE {
+                if let Err(e) = relay_selector.update(RELAY_CACHE_UPDATE_TIMEOUT) {
                     error!("Unable to update relay cache: {}", e.display_chain());
                 }
             }
@@ -772,7 +768,7 @@ impl Daemon {
         thread::spawn(move || {
             let start = Instant::now();
             let result = tunnel_monitor.wait();
-            if let Some(sleep_dur) = MIN_TUNNEL_ALIVE_TIME_MS.checked_sub(start.elapsed()) {
+            if let Some(sleep_dur) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
                 thread::sleep(sleep_dur);
             }
             let _ = error_tx.send(DaemonEvent::TunnelExited(result));
