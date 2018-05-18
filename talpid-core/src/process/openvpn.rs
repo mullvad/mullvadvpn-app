@@ -111,15 +111,15 @@ impl OpenVpnCommand {
         let mut cmd = duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked();
 
         // Prevent forwarding the stdio when it's not available.
-        if atty::is(atty::Stream::Stdin) {
+        if !atty::is(atty::Stream::Stdin) {
             cmd = cmd.stdin_null();
         }
 
-        if atty::is(atty::Stream::Stdout) {
+        if !atty::is(atty::Stream::Stdout) {
             cmd = cmd.stdout_null();
         }
 
-        if atty::is(atty::Stream::Stderr) {
+        if !atty::is(atty::Stream::Stderr) {
             cmd = cmd.stderr_null();
         }
 
