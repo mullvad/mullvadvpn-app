@@ -42,8 +42,8 @@ mac:
       to: .
     - from: ./target/release/libtalpid_openvpn_plugin.dylib
       to: .
-    - from: ./client-binaries/mac/include/openvpn
-      to: ./openvpn-binaries/openvpn
+    - from: ./dist-assets/binaries/macos/openvpn
+      to: .
 
 pkg:
   allowAnywhere: false
@@ -77,6 +77,8 @@ linux:
     - from: ./target/release/mullvad-daemon
       to: .
     - from: ./target/release/libtalpid_openvpn_plugin.so
+      to: .
+    - from: ./dist-assets/binaries/linux/openvpn
       to: .
 
 deb:
