@@ -720,9 +720,12 @@ impl Daemon {
 
     fn prepare_tunnel_log_file(&self) -> Result<()> {
         if let Some(ref file) = self.tunnel_log {
+            if let Some(log_dir) = file.parent() {
+                fs::create_dir_all(log_dir).chain_err(|| "Unable to create tunnel log dir")?;
+            }
+
             let mut backup = file.clone();
             backup.set_extension("old.log");
-
             fs::rename(file, backup).unwrap_or_else(|error| {
                 if error.kind() != io::ErrorKind::NotFound {
                     warn!(
