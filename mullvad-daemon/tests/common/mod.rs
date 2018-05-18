@@ -46,7 +46,9 @@ impl DaemonRunner {
             DAEMON_EXECUTABLE_PATH,
             "-v",
             "--resource-dir",
-            "dist-assets"
+            "./dist-assets",
+            "--cache-dir",
+            "./"
         ).dir("..")
             .stderr_to_stdout()
             .stdout_handle(writer)

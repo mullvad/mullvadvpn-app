@@ -52,9 +52,9 @@ use cached_dns_resolver::CachedDnsResolver;
 mod https_client_with_sni;
 use https_client_with_sni::HttpsClientWithSni;
 
-static API_HOST: &str = "api.mullvad.net";
-static RPC_TIMEOUT: Duration = Duration::from_secs(5);
-static API_IP_CACHE_FILENAME: &str = "api_ip_address.txt";
+const API_HOST: &str = "api.mullvad.net";
+const RPC_TIMEOUT: Duration = Duration::from_secs(5);
+pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 lazy_static! {
     static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 219, 46));
 }

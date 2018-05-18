@@ -72,8 +72,12 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let resource_dir = get_resource_dir();
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir)
+    let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
+    let cache_dir = match config.cache_dir {
+        Some(cache_dir) => cache_dir,
+        None => ::cache::get_cache_dir()?,
+    };
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
         .chain_err(|| "Unable to initialize daemon")?;
     let shutdown_handle = daemon.shutdown_handle();
 

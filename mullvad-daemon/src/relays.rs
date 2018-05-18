@@ -1,4 +1,3 @@
-use app_dirs;
 use chrono::{DateTime, Local};
 use error_chain::ChainedError;
 use futures::Future;
@@ -24,6 +23,7 @@ use rand::distributions::{IndependentSample, Range};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
+const RELAYS_FILENAME: &str = "relays.json";
 
 error_chain! {
     errors {
@@ -47,13 +47,15 @@ pub struct RelaySelector {
     last_updated: SystemTime,
     rng: ThreadRng,
     rpc_client: RelayListProxy<HttpHandle>,
+    cache_path: PathBuf,
 }
 
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
     /// to refresh the relay list from the internet.
-    pub fn new(rpc_handle: HttpHandle, resource_dir: &Path) -> Self {
-        let (last_updated, relay_list) = match Self::read_cached_relays(resource_dir) {
+    pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
+        let cache_path = cache_dir.join(RELAYS_FILENAME);
+        let (last_updated, relay_list) = match Self::read_cached_relays(&cache_path, resource_dir) {
             Ok(value) => value,
             Err(error) => {
                 let error = error.chain_err(|| "Unable to load cached relays");
@@ -73,6 +75,7 @@ impl RelaySelector {
             last_updated,
             rng: rand::thread_rng(),
             rpc_client: RelayListProxy::new(rpc_handle),
+            cache_path,
         }
     }
 
@@ -258,7 +261,7 @@ impl RelaySelector {
             .relay_list()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
         let relay_list = Timer::default().timeout(download_future, timeout).wait()?;
-        if let Err(e) = Self::cache_relays(&relay_list) {
+        if let Err(e) = self.cache_relays(&relay_list) {
             error!("Unable to save relays to cache: {}", e.display_chain());
         }
         let (locations, relays) = Self::process_relay_list(relay_list);
@@ -298,16 +301,21 @@ impl RelaySelector {
     }
 
     /// Write a `RelayList` to the cache file.
-    fn cache_relays(relays: &RelayList) -> Result<()> {
-        let file = File::create(Self::get_cache_path()?).chain_err(|| ErrorKind::RelayCacheError)?;
-        serde_json::to_writer_pretty(file, relays).chain_err(|| ErrorKind::SerializationError)
+    fn cache_relays(&self, relays: &RelayList) -> Result<()> {
+        debug!("Writing relays cache to {}", self.cache_path.display());
+        let file = File::create(&self.cache_path).chain_err(|| ErrorKind::RelayCacheError)?;
+        serde_json::to_writer_pretty(io::BufWriter::new(file), relays)
+            .chain_err(|| ErrorKind::SerializationError)
     }
 
     /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
-    fn read_cached_relays(resource_dir: &Path) -> Result<(SystemTime, RelayList)> {
-        match Self::get_cache_path().and_then(Self::read_relays) {
+    fn read_cached_relays(
+        cache_path: &Path,
+        resource_dir: &Path,
+    ) -> Result<(SystemTime, RelayList)> {
+        match Self::read_relays(cache_path) {
             Ok(value) => Ok(value),
-            Err(read_cache_error) => match Self::read_relays(resource_dir.join("relays.json")) {
+            Err(read_cache_error) => match Self::read_relays(resource_dir.join(RELAYS_FILENAME)) {
                 Ok(value) => Ok(value),
                 Err(read_resource_error) => Err(read_cache_error.chain_err(|| read_resource_error)),
             },
@@ -332,11 +340,5 @@ impl RelaySelector {
         let file = File::open(path)?;
         let last_modified = file.metadata()?.modified()?;
         Ok((last_modified, file))
-    }
-
-    fn get_cache_path() -> Result<PathBuf> {
-        let dir = app_dirs::app_root(app_dirs::AppDataType::UserCache, &::APP_INFO)
-            .chain_err(|| ErrorKind::RelayCacheError)?;
-        Ok(dir.join("relays.json"))
     }
 }

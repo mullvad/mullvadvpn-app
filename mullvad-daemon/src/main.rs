@@ -48,6 +48,7 @@ extern crate talpid_types;
 extern crate windows_service;
 
 mod account_history;
+mod cache;
 mod cli;
 mod geoip;
 mod logging;
@@ -67,7 +68,6 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 
-use mullvad_metadata::APP_INFO;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
@@ -217,13 +217,16 @@ struct Daemon {
 }
 
 impl Daemon {
-    pub fn new(tunnel_log: Option<PathBuf>, resource_dir: PathBuf) -> Result<Self> {
+    pub fn new(
+        tunnel_log: Option<PathBuf>,
+        resource_dir: PathBuf,
+        cache_dir: PathBuf,
+    ) -> Result<Self> {
         ensure!(
             !rpc_uniqueness_check::is_another_instance_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
 
-        let cache_dir = get_cache_dir()?;
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir);
 
         let (rpc_handle, http_handle, tokio_remote) =
@@ -237,10 +240,12 @@ impl Daemon {
         let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
         let http_handle = http_handle.chain_err(|| "Unable to create HTTP client")?;
 
-        let relay_selector = Self::create_relay_selector(rpc_handle.clone(), &resource_dir);
+        let relay_selector =
+            Self::create_relay_selector(rpc_handle.clone(), &resource_dir, &cache_dir);
 
         let (tx, rx) = mpsc::channel();
-        let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
+        let management_interface_broadcaster =
+            Self::start_management_interface(tx.clone(), cache_dir)?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -273,8 +278,9 @@ impl Daemon {
     fn create_relay_selector(
         rpc_handle: mullvad_rpc::HttpHandle,
         resource_dir: &Path,
+        cache_dir: &Path,
     ) -> relays::RelaySelector {
-        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir);
+        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir, cache_dir);
         if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
             if elapsed > *MAX_RELAY_CACHE_AGE {
                 if let Err(e) = relay_selector.update(*RELAY_CACHE_UPDATE_TIMEOUT) {
@@ -289,9 +295,10 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
+        cache_dir: PathBuf,
     ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx, cache_dir)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
@@ -299,10 +306,11 @@ impl Daemon {
 
     fn start_management_interface_server(
         event_tx: IntoSender<TunnelCommand, DaemonEvent>,
+        cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
         let shared_secret = uuid::Uuid::new_v4().to_string();
 
-        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone())
+        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone(), cache_dir)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
@@ -884,7 +892,12 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     }
 
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir)
+    let cache_dir = match config.cache_dir {
+        Some(cache_dir) => cache_dir,
+        None => cache::get_cache_dir()?,
+    };
+
+    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
         .chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
@@ -921,11 +934,6 @@ fn get_resource_dir() -> PathBuf {
             PathBuf::from(".")
         }
     }
-}
-
-fn get_cache_dir() -> Result<PathBuf> {
-    app_dirs::app_root(app_dirs::AppDataType::UserCache, &APP_INFO)
-        .chain_err(|| ErrorKind::NoCacheDir)
 }
 
 #[cfg(unix)]
