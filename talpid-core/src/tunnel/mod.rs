@@ -5,8 +5,7 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
-use std::env;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
@@ -27,6 +26,10 @@ mod errors {
             /// An error indicating there was an error listening for events from the VPN tunnel.
             TunnelMonitoringError {
                 description("Error while setting up or processing events from the VPN tunnel")
+            }
+            /// The OpenVPN binary was not found.
+            OpenVpnNotFound {
+                description("No OpenVPN binary found")
             }
             /// The OpenVPN plugin was not found.
             PluginNotFound {
@@ -139,7 +142,7 @@ impl TunnelMonitor {
             user_pass_file.as_ref(),
             log,
             resource_dir,
-        );
+        )?;
 
         let user_pass_file_path = user_pass_file.to_path_buf();
         let on_openvpn_event = move |event, env| {
@@ -153,8 +156,11 @@ impl TunnelMonitor {
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
-            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = openvpn::OpenVpnMonitor::new(
+            cmd,
+            on_openvpn_event,
+            Self::get_plugin_path(resource_dir)?,
+        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -167,8 +173,8 @@ impl TunnelMonitor {
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
-    ) -> OpenVpnCommand {
-        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir));
+    ) -> Result<OpenVpnCommand> {
+        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
         if let Some(config) = Self::get_config_path(resource_dir) {
             cmd.config(config);
         }
@@ -180,51 +186,33 @@ impl TunnelMonitor {
         if let Some(log) = log {
             cmd.log(log);
         }
-        cmd
+        Ok(cmd)
     }
 
-    fn get_openvpn_bin(resource_dir: &Path) -> OsString {
+    fn get_openvpn_bin(resource_dir: &Path) -> Result<PathBuf> {
         let bin = if cfg!(windows) {
             OsStr::new("openvpn.exe")
         } else {
             OsStr::new("openvpn")
         };
-        let bundled_path = resource_dir.join("openvpn-binaries").join(bin);
-        if bundled_path.exists() {
-            bundled_path.into_os_string()
-        } else {
-            warn!("Did not find a bundled version of OpenVPN, will rely on the PATH instead");
-            bin.to_os_string()
-        }
-    }
-
-    fn get_plugin_path() -> Result<PathBuf> {
-        let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
-        let mut path = Self::get_executable_dir();
-
-        path.push(library);
-
+        let path = resource_dir.join(bin);
         if path.exists() {
-            debug!("Using OpenVPN plugin at {}", path.display());
+            trace!("Using OpenVPN at {}", path.display());
             Ok(path)
         } else {
-            Err(ErrorKind::PluginNotFound.into())
+            bail!(ErrorKind::OpenVpnNotFound);
         }
     }
 
-    fn get_executable_dir() -> PathBuf {
-        match env::current_exe() {
-            Ok(mut path) => {
-                path.pop();
-                path
-            }
-            Err(e) => {
-                error!(
-                    "Failed finding the install directory. Using working directory: {}",
-                    e
-                );
-                PathBuf::from(".")
-            }
+    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
+        let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
+        let path = resource_dir.join(library);
+
+        if path.exists() {
+            trace!("Using OpenVPN plugin at {}", path.display());
+            Ok(path)
+        } else {
+            bail!(ErrorKind::PluginNotFound);
         }
     }
 
