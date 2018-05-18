@@ -409,7 +409,7 @@ export class Backend {
 
     const location = await this._ipc.getLocation();
 
-    log.info('Got location: ', location);
+    log.info('Got location from daemon');
 
     const locationUpdate = {
       ip: location.ip,
