@@ -11,9 +11,13 @@ Support for Linux, Windows, Android and iOS is in the making.
 
 ## Checking out the code
 
-This repository contains a submodule, so clone it recursively:
+This repository contains submodules, so clone it recursively:
 ```
 git clone --recursive https://github.com/mullvad/mullvadvpn-app.git
+```
+Or if you already cloned it non-recursively:
+```
+git submodule update --init --recursive
 ```
 
 ## Install toolchains and dependencies
@@ -181,11 +185,13 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
   - **main.js** - entry file for background process
   - **routes.js** - routes configurator
   - **transitions.js** - transition rules between views
-- **client-binaries/** - Git submodule containing binaries shipped with the client. Most notably
-  the OpenVPN binaries.
 - **init.js** - entry file for electron, points to compiled **main.js**
 - **scripts/** - support scripts for development
 - **test/** - Electron GUI tests
+- **dist-assets/** - Icons, binaries and other files used when creating the distributables
+  - **binaries/** - Git submodule containing binaries bundled with the app. For example the
+    statically linked OpenVPN binary. See the README in the submodule for details.
+  - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
 
 ### Building, testing and misc
 - **build.sh** - Sanity checks the working directory state and then builds release artifacts for
