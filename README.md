@@ -82,12 +82,12 @@ The specific build tool version that is required is `v141`.
 If you change any javascript file while the development mode is running it will automatically
 transpile and reload the file so that the changes are visible almost immediately.
 
-The app will attempt to start the daemon automatically. The exact binary being run can be
-customized with the `MULLVAD_BACKEND` environment variable.
+Please note that the GUI needs a running daemon to connect to in order to work. See
+[Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instruction on how
+to do that before starting the GUI.
 
-If the `/tmp/.mullvad_rpc_address` file exists the app will not start the daemon, so if you want
-to run a specific version of the daemon you can just start it yourself and the app will pick up on
-it and behave accordingly.
+The GUI will need to resolve the path to binaries. In development mode this defaults to
+`./target/debug/`, but can be configured with the `MULLVAD_PATH` environment variable.
 
 
 ## Packaging the app
@@ -226,6 +226,56 @@ Explanations for some common words used in the documentation and code in this re
     - **CLI** - The Rust program named `mullvad` that is a terminal based frontend for the Mullvad
       VPN app.
 
+
+## File paths used by Mullvad VPN app
+
+A list of file paths written to and read from by the various components of the Mullvad VPN app
+
+### Daemon
+
+On Windows, when a process runs as a system service the variable `%APPDATA%` expands to
+`C:\Windows\system32\config\systemprofile\AppData\Roaming`.
+
+#### Settings
+
+The directory and full path to the settings file is defined in `mullvad-daemon/src/settings.rs`
+
+| Platform | Path |
+|----------|------|
+| Linux | `/etc/mullvad-daemon/settings.json` |
+| macOS | `/etc/mullvad-daemon/settings.json` |
+| Windows | `%APPDATA%\Mullvad\Mullvad VPN\settings.json`
+
+#### Logs
+
+| Platform | Path | Defined in |
+|----------|------|------------|
+| Linux | `/var/log/mullvad-daemon/` + systemd | `linux/mullvad-daemon.service` |
+| macOS | `/var/log/mullvad-daemon/` | `dist-assets/pkg-scripts/postinstall` |
+| Windows | `C:\ProgramData\Mullvad VPN\` | `mullvad-daemon/src/system_service.rs` |
+
+The log directories are also defined in the `problem-report` source code.
+
+#### Cache
+
+The daemon caches relay server list and DNS lookups etc. The path to the cache dir is defined in
+`mullvad-daemon/src/cache.rs`
+
+| Platform | Path |
+|----------|------|
+| Linux | `/var/cache/mullvad-daemon/` |
+| macOS | `/var/root/Library/Caches/mullvad-daemon/` |
+| Windows | `%APPDATA%\Local\Mullvad\Mullvad VPN\` |
+
+#### RPC address file
+
+The path to the RPC address file is defined in `mullvad-ipc-client/src/lib.rs`
+
+| Platform | Path |
+|----------|------|
+| Linux | `/tmp/.mullvad_rpc_address` |
+| macOS | `/tmp/.mullvad_rpc_address` |
+| Windows | `C:\ProgramData\Mullvad VPN\.mullvad_rpc_address` |
 
 ## Quirks
 
