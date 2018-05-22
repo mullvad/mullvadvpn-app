@@ -86,13 +86,15 @@ pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duratio
     }
 }
 
-fn prepare_test_dirs() -> (TempDir, PathBuf) {
+fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf) {
     let temp_dir = TempDir::new().expect("Failed to create temporary daemon directory");
     let resource_dir = temp_dir.path().join("resource-dir");
+    let settings_dir = temp_dir.path().join("settings");
     let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
     let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
 
     fs::create_dir(&resource_dir).expect("Failed to create resource directory");
+    fs::create_dir(&settings_dir).expect("Failed to create settings directory");
 
     fs::copy(MOCK_OPENVPN_EXECUTABLE_PATH, openvpn_binary)
         .expect("Failed to copy mock OpenVPN binary");
@@ -100,7 +102,7 @@ fn prepare_test_dirs() -> (TempDir, PathBuf) {
 
     prepare_relay_list(resource_dir.join("relays.json"));
 
-    (temp_dir, resource_dir)
+    (temp_dir, resource_dir, settings_dir)
 }
 
 fn prepare_relay_list<T: AsRef<Path>>(path: T) {
@@ -137,7 +139,7 @@ pub struct DaemonRunner {
 
 impl DaemonRunner {
     pub fn spawn() -> Self {
-        let (temp_dir, resource_dir) = prepare_test_dirs();
+        let (temp_dir, resource_dir, settings_dir) = prepare_test_dirs();
         let mock_openvpn_args_file = temp_dir.path().join(MOCK_OPENVPN_ARGS_FILE);
 
         let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
@@ -145,6 +147,7 @@ impl DaemonRunner {
             .dir("..")
             .env("MULLVAD_CACHE_DIR", "./")
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
+            .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
             .stderr_to_stdout()
             .stdout_handle(writer)
