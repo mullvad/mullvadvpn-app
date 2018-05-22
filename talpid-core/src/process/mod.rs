@@ -1,6 +1,5 @@
 /// A module for all OpenVPN related process management.
 pub mod openvpn;
 
-/// Unix specific process management features.
-#[cfg(unix)]
-pub mod unix;
+/// A trait for stopping subprocesses gracefully.
+pub mod stoppable_process;

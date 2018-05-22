@@ -1,11 +1,17 @@
-use atty;
 use duct;
+extern crate libc;
+extern crate os_pipe;
 
+use super::stoppable_process::StoppableProcess;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
+use self::os_pipe::{pipe, PipeWriter};
+use atty;
 use shell_escape;
+use std::io;
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
@@ -107,23 +113,7 @@ impl OpenVpnCommand {
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         debug!("Building expression: {}", &self);
-
-        let mut cmd = duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked();
-
-        // Prevent forwarding the stdio when it's not available.
-        if !atty::is(atty::Stream::Stdin) {
-            cmd = cmd.stdin_null();
-        }
-
-        if !atty::is(atty::Stream::Stdout) {
-            cmd = cmd.stdout_null();
-        }
-
-        if !atty::is(atty::Stream::Stderr) {
-            cmd = cmd.stderr_null();
-        }
-
-        cmd
+        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
     }
 
     /// Sets extra options
@@ -226,6 +216,58 @@ impl fmt::Display for OpenVpnCommand {
             fmt.write_str(&shell_escape::escape(arg.to_string_lossy()))?;
         }
         Ok(())
+    }
+}
+
+/// Proc handle for an openvpn process
+pub struct OpenVpnProcHandle {
+    /// Duct handle
+    pub inner: duct::Handle,
+    /// Standard input handle
+    pub stdin: Mutex<Option<PipeWriter>>,
+}
+
+/// Impl for proc handle
+impl OpenVpnProcHandle {
+    /// Constructor for a new openvpn proc handle
+    pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
+        if !atty::is(atty::Stream::Stdout) {
+            cmd = cmd.stdout_null();
+        }
+
+        if !atty::is(atty::Stream::Stderr) {
+            cmd = cmd.stderr_null();
+        }
+
+        let (reader, writer) = pipe()?;
+        let proc_handle = cmd.stdin_handle(reader).start()?;
+
+        Ok(Self {
+            inner: proc_handle,
+            stdin: Mutex::new(Some(writer)),
+        })
+    }
+}
+
+impl StoppableProcess for OpenVpnProcHandle {
+    /// Closes STDIN to stop the openvpn process
+    fn stop(&self) {
+        let mut stdin = self.stdin.lock().unwrap();
+        // Dropping our stdin handle so that it is closed once. Closing the handle should
+        // gracefully stop our openvpn child process.
+        let _ = stdin.take();
+    }
+
+    fn kill(&self) -> io::Result<()> {
+        self.inner.kill()
+    }
+
+    fn has_stopped(&self) -> io::Result<bool> {
+        match self.inner.try_wait() {
+            Ok(None) => Ok(false),
+            Ok(Some(_)) => Ok(true),
+            Err(e) => Err(e),
+        }
     }
 }
 

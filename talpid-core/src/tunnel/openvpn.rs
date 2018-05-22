@@ -1,6 +1,6 @@
-use duct;
 use openvpn_plugin::types::OpenVpnPluginEvent;
-use process::openvpn::OpenVpnCommand;
+use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
+use process::stoppable_process::StoppableProcess;
 
 use std::collections::HashMap;
 use std::io;
@@ -9,7 +9,6 @@ use std::process::ExitStatus;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc};
 use std::thread;
-#[cfg(unix)]
 use std::time::Duration;
 
 use talpid_ipc;
@@ -32,9 +31,7 @@ mod errors {
 pub use self::errors::*;
 
 
-#[cfg(unix)]
-static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(2);
-
+static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(4);
 
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]
@@ -150,7 +147,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
 
 /// A handle to an `OpenVpnMonitor` for closing it.
 #[derive(Debug, Clone)]
-pub struct OpenVpnCloseHandle<H: ProcessHandle = duct::Handle> {
+pub struct OpenVpnCloseHandle<H: ProcessHandle = OpenVpnProcHandle> {
     child: Arc<H>,
     closed: Arc<AtomicBool>,
 }
@@ -195,31 +192,24 @@ pub trait ProcessHandle: Send + Sync + 'static {
 }
 
 impl OpenVpnBuilder for OpenVpnCommand {
-    type ProcessHandle = duct::Handle;
+    type ProcessHandle = OpenVpnProcHandle;
 
     fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self {
         self.plugin(path, args)
     }
 
-    fn start(&self) -> io::Result<duct::Handle> {
-        self.build().start()
+    fn start(&self) -> io::Result<OpenVpnProcHandle> {
+        OpenVpnProcHandle::new(self.build())
     }
 }
 
-impl ProcessHandle for duct::Handle {
+impl ProcessHandle for OpenVpnProcHandle {
     fn wait(&self) -> io::Result<ExitStatus> {
-        self.wait().map(|output| output.status)
+        self.inner.wait().map(|output| output.status)
     }
 
-    #[cfg(unix)]
     fn kill(&self) -> io::Result<()> {
-        use process::unix::HandleKillExt;
         self.nice_kill(OPENVPN_DIE_TIMEOUT)
-    }
-
-    #[cfg(not(unix))]
-    fn kill(&self) -> io::Result<()> {
-        duct::Handle::kill(self)
     }
 }
 
