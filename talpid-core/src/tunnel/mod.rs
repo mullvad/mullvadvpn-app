@@ -5,8 +5,6 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
-use std::env;
-use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
@@ -21,33 +19,48 @@ pub mod openvpn;
 
 use self::openvpn::{OpenVpnCloseHandle, OpenVpnMonitor};
 
-mod errors {
-    error_chain!{
-        errors {
-            /// An error indicating there was an error listening for events from the VPN tunnel.
-            TunnelMonitoringError {
-                description("Error while setting up or processing events from the VPN tunnel")
-            }
-            /// The OpenVPN plugin was not found.
-            PluginNotFound {
-                description("No OpenVPN plugin found")
-            }
-            /// There was an error when writing authentication credentials to temporary file.
-            CredentialsWriteError {
-                description("Error while writing credentials to temporary file")
-            }
-            /// Running on an operating system which is not supported yet.
-            UnsupportedPlatform {
-                description("Running on an unsupported operating system")
-            }
-            /// This type of VPN tunnel is not supported.
-            UnsupportedTunnelProtocol {
-                description("This tunnel protocol is not supported")
-            }
+#[cfg(target_os = "macos")]
+const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
+#[cfg(target_os = "linux")]
+const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.so";
+#[cfg(windows)]
+const OPENVPN_PLUGIN_FILENAME: &str = "talpid_openvpn_plugin.dll";
+
+#[cfg(unix)]
+const OPENVPN_BIN_FILENAME: &str = "openvpn";
+#[cfg(windows)]
+const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
+
+error_chain!{
+    errors {
+        /// An error indicating there was an error listening for events from the VPN tunnel.
+        TunnelMonitoringError {
+            description("Error while setting up or processing events from the VPN tunnel")
+        }
+        /// The OpenVPN binary was not found.
+        OpenVpnNotFound(path: PathBuf) {
+            description("No OpenVPN binary found")
+            display("No OpenVPN binary found at {}", path.display())
+        }
+        /// The OpenVPN plugin was not found.
+        PluginNotFound(path: PathBuf) {
+            description("No OpenVPN plugin found")
+            display("No OpenVPN plugin found at {}", path.display())
+        }
+        /// There was an error when writing authentication credentials to temporary file.
+        CredentialsWriteError {
+            description("Error while writing credentials to temporary file")
+        }
+        /// Running on an operating system which is not supported yet.
+        UnsupportedPlatform {
+            description("Running on an unsupported operating system")
+        }
+        /// This type of VPN tunnel is not supported.
+        UnsupportedTunnelProtocol {
+            description("This tunnel protocol is not supported")
         }
     }
 }
-pub use self::errors::*;
 
 
 /// Possible events from the VPN tunnel and the child process managing it.
@@ -139,7 +152,7 @@ impl TunnelMonitor {
             user_pass_file.as_ref(),
             log,
             resource_dir,
-        );
+        )?;
 
         let user_pass_file_path = user_pass_file.to_path_buf();
         let on_openvpn_event = move |event, env| {
@@ -153,8 +166,11 @@ impl TunnelMonitor {
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(cmd, on_openvpn_event, Self::get_plugin_path()?)
-            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = openvpn::OpenVpnMonitor::new(
+            cmd,
+            on_openvpn_event,
+            Self::get_plugin_path(resource_dir)?,
+        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -167,8 +183,8 @@ impl TunnelMonitor {
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
-    ) -> OpenVpnCommand {
-        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir));
+    ) -> Result<OpenVpnCommand> {
+        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
         if let Some(config) = Self::get_config_path(resource_dir) {
             cmd.config(config);
         }
@@ -180,63 +196,26 @@ impl TunnelMonitor {
         if let Some(log) = log {
             cmd.log(log);
         }
-        cmd
+        Ok(cmd)
     }
 
-    fn get_openvpn_bin(resource_dir: &Path) -> OsString {
-        let bin = if cfg!(windows) {
-            OsStr::new("openvpn.exe")
-        } else {
-            OsStr::new("openvpn")
-        };
-        let bundled_path = resource_dir.join("openvpn-binaries").join(bin);
-        if bundled_path.exists() {
-            bundled_path.into_os_string()
-        } else {
-            warn!("Did not find a bundled version of OpenVPN, will rely on the PATH instead");
-            bin.to_os_string()
-        }
-    }
-
-    fn get_plugin_path() -> Result<PathBuf> {
-        let library = Self::get_library_name().chain_err(|| ErrorKind::PluginNotFound)?;
-        let mut path = Self::get_executable_dir();
-
-        path.push(library);
-
+    fn get_openvpn_bin(resource_dir: &Path) -> Result<PathBuf> {
+        let path = resource_dir.join(OPENVPN_BIN_FILENAME);
         if path.exists() {
-            debug!("Using OpenVPN plugin at {}", path.display());
+            trace!("Using OpenVPN at {}", path.display());
             Ok(path)
         } else {
-            Err(ErrorKind::PluginNotFound.into())
+            bail!(ErrorKind::OpenVpnNotFound(path));
         }
     }
 
-    fn get_executable_dir() -> PathBuf {
-        match env::current_exe() {
-            Ok(mut path) => {
-                path.pop();
-                path
-            }
-            Err(e) => {
-                error!(
-                    "Failed finding the install directory. Using working directory: {}",
-                    e
-                );
-                PathBuf::from(".")
-            }
-        }
-    }
-
-    fn get_library_name() -> Result<&'static str> {
-        if cfg!(target_os = "macos") {
-            Ok("libtalpid_openvpn_plugin.dylib")
-        } else if cfg!(unix) {
-            Ok("libtalpid_openvpn_plugin.so")
-        } else if cfg!(windows) {
-            Ok("talpid_openvpn_plugin.dll")
+    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
+        let path = resource_dir.join(OPENVPN_PLUGIN_FILENAME);
+        if path.exists() {
+            trace!("Using OpenVPN plugin at {}", path.display());
+            Ok(path)
         } else {
-            bail!(ErrorKind::UnsupportedPlatform);
+            bail!(ErrorKind::PluginNotFound(path));
         }
     }
 

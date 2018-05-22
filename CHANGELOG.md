@@ -48,6 +48,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve account token hint to be the same length as an expected token.
 - Update `problem-report` binary to automatically collect log files in predefined known Mullvad log
   directories.
+- Replaced previously bundled OpenVPN 2.4.4 with statically linked 2.4.6 version containing
+  Mullvad patches for faster connect and other improvements.
 
 #### macOS
 - The installer changed from dmg to pkg format.
@@ -63,7 +65,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reduce RPC timeout to Mullvad API server.
 - Fix OpenVPN warning about usage of AES-256-CBC cipher.
 - Fix "Out of time" screen status icon position.
-- If necessary, create parent directories for RPC connection info file.
+- If necessary, create parent directories for RPC connection info file and tunnel log.
 
 
 ## [2018.1] - 2018-03-01
