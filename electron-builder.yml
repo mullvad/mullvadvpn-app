@@ -68,6 +68,7 @@ linux:
     - deb
     - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
+  category: Network
   extraResources:
     - from: ./target/release/mullvad
       to: .
@@ -80,12 +81,12 @@ linux:
 
 deb:
   fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "./linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: linux/install_script.sh
-  afterRemove: linux/uninstall_script.sh
+       "./dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+  afterInstall: ./dist-assets/linux/install_script.sh
+  afterRemove: ./dist-assets/linux/uninstall_script.sh
 
 rpm:
   fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "./linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: linux/install_script.sh
-  afterRemove: linux/uninstall_script.sh
+       "./dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+  afterInstall: ./dist-assets/linux/install_script.sh
+  afterRemove: ./dist-assets/linux/uninstall_script.sh
