@@ -1,3 +1,5 @@
+#![cfg(target_os = "linux")]
+
 extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
 
