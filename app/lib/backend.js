@@ -11,7 +11,7 @@ import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT' | 'COMMUNICATION_FAILURE' | 'UNKNOWN_ERROR' ;
+export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'NO_DAEMON' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT' | 'COMMUNICATION_FAILURE' | 'UNKNOWN_ERROR' ;
 
 export class BackendError extends Error {
   type: ErrorType;
@@ -51,6 +51,8 @@ export class BackendError extends Error {
       return 'Invalid account number';
     case 'NO_ACCOUNT':
       return 'No account was set';
+    case 'NO_DAEMON':
+      return 'Could not connect to the Mullvad daemon';
     case 'COMMUNICATION_FAILURE':
       return 'api.mullvad.net is blocked, please check your firewall';
     case 'UNKNOWN_ERROR': {
@@ -194,6 +196,10 @@ export class Backend {
   }
 
   _rpcErrorToBackendError(e) {
+    if (e instanceof BackendError) {
+      return e;
+    }
+
     const isJsonRpcError = e.hasOwnProperty('code');
     if (isJsonRpcError) {
       switch(e.code) {
@@ -525,7 +531,7 @@ export class Backend {
       }
       return this._authenticationPromise;
     } else {
-      return Promise.reject(new Error('Missing authentication credentials.'));
+      return Promise.reject(new BackendError('NO_DAEMON'));
     }
   }
 

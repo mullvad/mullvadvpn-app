@@ -66,6 +66,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix OpenVPN warning about usage of AES-256-CBC cipher.
 - Fix "Out of time" screen status icon position.
 - If necessary, create parent directories for RPC connection info file and tunnel log.
+- Fix error message when attempting to login when the daemon isn't running .
 
 
 ## [2018.1] - 2018-03-01
