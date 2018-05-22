@@ -1,3 +1,5 @@
+#![cfg(target_os = "linux")]
+
 extern crate mullvad_paths;
 extern crate mullvad_tests;
 
@@ -9,8 +11,6 @@ use mullvad_tests::DaemonRunner;
 
 use platform_specific::*;
 
-// TODO: this test fails intermittently on Windows, would be nice to fix this later
-#[cfg(not(windows))]
 #[test]
 fn rpc_info_file_permissions() {
     let rpc_file = mullvad_paths::get_rpc_address_path().unwrap();
