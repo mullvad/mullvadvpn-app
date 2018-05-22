@@ -256,7 +256,7 @@ The directory and full path to the settings file is defined in `mullvad-daemon/s
 
 | Platform | Path | Defined in |
 |----------|------|------------|
-| Linux | `/var/log/mullvad-daemon/` + systemd | `linux/mullvad-daemon.service` |
+| Linux | `/var/log/mullvad-daemon/` + systemd | `dist-assets/linux/mullvad-daemon.service` |
 | macOS | `/var/log/mullvad-daemon/` | `dist-assets/pkg-scripts/postinstall` |
 | Windows | `C:\ProgramData\Mullvad VPN\` | `mullvad-daemon/src/system_service.rs` |
 
