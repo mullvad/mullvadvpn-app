@@ -6,8 +6,8 @@ use mullvad_types::relay_constraints::{
 use talpid_types::net::TunnelOptions;
 
 use std::fs::File;
-use std::io;
 use std::path::PathBuf;
+use std::{env, io};
 
 error_chain! {
     errors {
@@ -86,19 +86,27 @@ impl Settings {
         serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))
     }
 
-    #[cfg(unix)]
     fn get_settings_path() -> Result<PathBuf> {
+        let settings_dir = match env::var_os("MULLVAD_SETTINGS_DIR") {
+            Some(settings_dir) => PathBuf::from(settings_dir),
+            None => Self::default_settings_dir()?,
+        };
+
+        Ok(settings_dir.join(SETTINGS_FILE))
+    }
+
+    #[cfg(unix)]
+    fn default_settings_dir() -> Result<PathBuf> {
         let dir = PathBuf::from("/etc/mullvad-daemon");
         ::std::fs::create_dir_all(&dir).chain_err(|| ErrorKind::DirectoryError)?;
-        Ok(dir.join(SETTINGS_FILE))
+        Ok(dir)
     }
 
     #[cfg(windows)]
-    fn get_settings_path() -> Result<PathBuf> {
+    fn default_settings_dir() -> Result<PathBuf> {
         use mullvad_metadata::APP_INFO;
-        let dir = ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &APP_INFO)
-            .chain_err(|| ErrorKind::DirectoryError)?;
-        Ok(dir.join(SETTINGS_FILE))
+        ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &APP_INFO)
+            .chain_err(|| ErrorKind::DirectoryError)
     }
 
     fn read_settings<T: io::Read>(file: &mut T) -> Result<Settings> {
