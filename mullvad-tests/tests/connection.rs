@@ -1,4 +1,4 @@
-#![cfg(target_os = "linux")]
+#![cfg(all(target_os = "linux", feature = "integration-tests"))]
 
 extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
