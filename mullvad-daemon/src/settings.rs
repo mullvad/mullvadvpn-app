@@ -14,6 +14,10 @@ error_chain! {
         DirectoryError {
             description("Unable to create settings directory for program")
         }
+        MissingDirectory(path: PathBuf) {
+            description("Missing settings directory")
+            display("Missing settings directory: {}", path.display())
+        }
         ReadError(path: PathBuf) {
             description("Unable to read settings file")
             display("Unable to read settings from {}", path.display())
@@ -91,6 +95,11 @@ impl Settings {
             Some(settings_dir) => PathBuf::from(settings_dir),
             None => Self::default_settings_dir()?,
         };
+
+        ensure!(
+            settings_dir.is_dir(),
+            ErrorKind::MissingDirectory(settings_dir.clone())
+        );
 
         Ok(settings_dir.join(SETTINGS_FILE))
     }
