@@ -6,14 +6,12 @@ description = "Mullvad test specific modules and binaries"
 license = "GPL-3.0"
 
 [dependencies]
-notify = "4.0"
-
-[dev-dependencies]
 duct = "0.10"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
+notify = "4.0"
 os_pipe = "0.6"
 tempfile = "3.0"
 
-[target.'cfg(unix)'.dev-dependencies]
+[target.'cfg(unix)'.dependencies]
 libc = "0.2"
