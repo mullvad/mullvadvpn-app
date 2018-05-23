@@ -5,6 +5,9 @@ authors = ["Mullvad VPN <admin@mullvad.net>", "Janito Vaqueiro Ferreira Filho <j
 description = "Mullvad test specific modules and binaries"
 license = "GPL-3.0"
 
+[features]
+integration-tests = []
+
 [dependencies]
 duct = "0.10"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
