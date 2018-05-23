@@ -63,7 +63,7 @@ Line wrap the file at 100 chars.                                              Th
 - The installer changed from dmg to pkg format.
 - The daemon is installed as a launchd daemon and started on install and on boot.
 - Move daemon logs to `/var/log/mullvad-daemon/`, settings to `/etc/mullvad-daemon/` and cache to
-  `/var/cache/mullvad-daemon/`.
+  `/var/root/Library/Caches/mullvad-daemon/`.
 
 ### Fixed
 - Fix bug in account input field that advanced the cursor to the end regardless its prior position.
