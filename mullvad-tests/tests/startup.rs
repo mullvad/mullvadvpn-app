@@ -1,16 +1,12 @@
-#[macro_use]
-extern crate duct;
 extern crate mullvad_ipc_client;
-
-mod common;
+extern crate mullvad_tests;
 
 use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
 
 use mullvad_ipc_client::rpc_file_path;
-
-use common::DaemonRunner;
+use mullvad_tests::DaemonRunner;
 
 use platform_specific::*;
 
