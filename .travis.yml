@@ -57,7 +57,10 @@ matrix:
       os: linux
       cache: cargo
       before_script: *rust_before_script
-      script: *rust_script
+      script:
+        - cargo build --verbose
+        - cargo test --verbose
+        - ./integration-tests.sh
 
 
 notifications:
