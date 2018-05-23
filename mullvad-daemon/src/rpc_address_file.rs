@@ -4,6 +4,9 @@ use std::path::{Path, PathBuf};
 
 use mullvad_ipc_client::rpc_file_path;
 
+#[cfg(windows)]
+extern crate winapi;
+
 error_chain! {
     errors {
         UnknownFilePath {
@@ -64,14 +67,30 @@ pub fn remove() -> Result<()> {
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
-    let file = OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .create(true)
-        .open(path)?;
+    let file = get_rpc_file_options().open(path)?;
     set_rpc_file_permissions(&file)?;
     Ok(file)
 }
+
+#[cfg(unix)]
+fn get_rpc_file_options() -> OpenOptions {
+    let mut options = OpenOptions::new();
+    options.write(true).truncate(true).create(true);
+    options
+}
+
+#[cfg(windows)]
+fn get_rpc_file_options() -> OpenOptions {
+    use std::os::windows::fs::OpenOptionsExt;
+    let mut options = OpenOptions::new();
+    options
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .share_mode(winapi::um::winnt::FILE_SHARE_READ);
+    options
+}
+
 
 #[cfg(unix)]
 fn set_rpc_file_permissions(file: &File) -> io::Result<()> {

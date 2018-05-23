@@ -42,6 +42,7 @@ simple-signal = "1.1"
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
 windows-service = { path = "../windows-service" }
+winapi = { version = "0.3", features = ["winnt"] }
 
 [dev-dependencies]
 assert_matches = "1.0"
