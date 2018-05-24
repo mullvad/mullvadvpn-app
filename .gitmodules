@@ -4,3 +4,12 @@
 [submodule "dist-assets/binaries"]
 	path = dist-assets/binaries
 	url = https://github.com/mullvad/mullvadvpn-app-binaries
+[submodule "windows/libwfp"]
+	path = windows/libwfp
+	url = git@github.com:mullvad/libwfp
+[submodule "windows/windows-libraries"]
+	path = windows/windows-libraries
+	url = git@github.com:mullvad/windows-libraries
+[submodule "windows/googletest"]
+	path = windows/googletest
+	url = git@github.com:mullvad/googletest
