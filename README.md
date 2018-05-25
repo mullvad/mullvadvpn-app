@@ -65,10 +65,10 @@ The specific build tool version that is required is `v141`.
 
 - The host has to have `bash` installed.
 
-- Before compiling the daemon, one must run `build_wfp.sh` to build a C++
+- Before compiling the daemon, one must run `build_winfw.sh` to build a C++
   library that sets firewall rules on Windows.
     ```bash
-    bash build_wfp.sh
+    bash build_winfw.sh
     ```
 
 ## Building and running the Electron GUI app
