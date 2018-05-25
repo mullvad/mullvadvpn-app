@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcommon", "..\wfpctl\libwfp\src\libcommon\libcommon.vcxproj", "{B52E2D10-A94A-4605-914A-2DCEF6A757EF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcommon", "..\windows-libraries\src\libcommon\libcommon.vcxproj", "{B52E2D10-A94A-4605-914A-2DCEF6A757EF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windns", "src\windns\windns.vcxproj", "{A5344205-FC37-4572-9C63-8564ECC410AC}"
 	ProjectSection(ProjectDependencies) = postProject
