@@ -1,7 +1,7 @@
 set -eu
 
 # List of solutions to build
-WFP_SOLUTIONS=${WFP_SOLUTIONS:-"wfpctl"}
+WFP_SOLUTIONS=${WFP_SOLUTIONS:-"winfw"}
 
 # Override this variable to set your own list of build configurations for
 # wfpctl
@@ -24,7 +24,7 @@ function build_wfpctl
   set -x
   for mode in $WFP_BUILD_MODES; do
     for target in $WFP_BUILD_TARGETS; do
-      cmd.exe "/c msbuild.exe $(to_win_path $path/wfpctl.sln) /p:Configuration=$mode /p:Platform=$target /t:$WFP_SOLUTIONS"
+      cmd.exe "/c msbuild.exe $(to_win_path $path/winfw.sln) /p:Configuration=$mode /p:Platform=$target /t:$WFP_SOLUTIONS"
 		
     done
   done
@@ -55,7 +55,7 @@ function copy_outputs
       local dll_path=$(get_wfp_output_path $wfp_root_path $target $mode)
       local cargo_target=$(get_cargo_target_dir $target $mode)
       mkdir -p $cargo_target
-      cp "$dll_path/wfpctl.dll" $cargo_target
+      cp "$dll_path/winfw.dll" $cargo_target
     done
   done
 
@@ -153,7 +153,7 @@ function rustc_host_arch
 function main
 {
 
-  local wfp_root_path=${WFP_ROOT_PATH:-"./wfpctl"}
+  local wfp_root_path=${WFP_ROOT_PATH:-"./windows/winfw"}
 
   build_wfpctl $wfp_root_path
   copy_outputs $wfp_root_path
