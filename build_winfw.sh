@@ -1,13 +1,13 @@
 set -eu
 
 # List of solutions to build
-WFP_SOLUTIONS=${WFP_SOLUTIONS:-"winfw"}
+CPP_SOLUTIONS=${CPP_SOLUTIONS:-"winfw"}
 
 # Override this variable to set your own list of build configurations for
 # wfpctl
-WFP_BUILD_MODES=${WFP_BUILD_MODES:-"Debug Release"}
+CPP_BUILD_MODES=${CPP_BUILD_MODES:-"Debug Release"}
 # Override this variable to set different target platforms for wfpctl
-WFP_BUILD_TARGETS=${WFP_BUILD_TARGETS:-"x86 x64"}
+CPP_BUILD_TARGETS=${CPP_BUILD_TARGETS:-"x86 x64"}
 # Override this to set a different cargo target directory
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"./target/"}
 
@@ -22,9 +22,9 @@ function build_wfpctl
   rm -r $path/bin/* || true
   
   set -x
-  for mode in $WFP_BUILD_MODES; do
-    for target in $WFP_BUILD_TARGETS; do
-      cmd.exe "/c msbuild.exe $(to_win_path $path/winfw.sln) /p:Configuration=$mode /p:Platform=$target /t:$WFP_SOLUTIONS"
+  for mode in $CPP_BUILD_MODES; do
+    for target in $CPP_BUILD_TARGETS; do
+      cmd.exe "/c msbuild.exe $(to_win_path $path/winfw.sln) /p:Configuration=$mode /p:Platform=$target /t:$CPP_SOLUTIONS"
 		
     done
   done
@@ -50,8 +50,8 @@ function copy_outputs
 {
   local wfp_root_path=$1
 
-  for mode in $WFP_BUILD_MODES; do
-    for target in $WFP_BUILD_TARGETS; do
+  for mode in $CPP_BUILD_MODES; do
+    for target in $CPP_BUILD_TARGETS; do
       local dll_path=$(get_wfp_output_path $wfp_root_path $target $mode)
       local cargo_target=$(get_cargo_target_dir $target $mode)
       mkdir -p $cargo_target
@@ -153,7 +153,7 @@ function rustc_host_arch
 function main
 {
 
-  local wfp_root_path=${WFP_ROOT_PATH:-"./windows/winfw"}
+  local wfp_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
 
   build_wfpctl $wfp_root_path
   copy_outputs $wfp_root_path
