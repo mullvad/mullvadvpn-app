@@ -182,10 +182,10 @@ WinFw_Reset()
 	if (nullptr == g_fwContext)
 	{
 		//
-		// This is an error.
-		// The reset instance enforces the block-all rule.
+		// This is OK because the practical difference between having no instance
+		// and having a reset instance is negligible.
 		//
-		return false;
+		return true;
 	}
 
 	try
