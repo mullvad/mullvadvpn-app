@@ -1,0 +1,9 @@
+LIBRARY winfw
+EXPORTS
+
+WinFw_Initialize
+WinFw_Deinitialize
+WinFw_ApplyPolicyConnecting
+WinFw_ApplyPolicyConnected
+WinFw_ApplyPolicyNetBlocked
+WinFw_Reset

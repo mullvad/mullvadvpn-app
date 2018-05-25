@@ -13,14 +13,14 @@ use self::widestring::WideCString;
 error_chain!{
     errors{
         #[doc = "Windows firewall module error"]
-        WfpctlFailure(desc: &'static str){
-            description("Opaque Wfpctl failure")
-            display("Wfpctl failed when {}", desc)
+        WinFwFailure(desc: &'static str){
+            description("Opaque WinFw failure")
+            display("WinFw failed when {}", desc)
         }
     }
 }
 
-const WFPCTL_TIMEOUT_SECONDS: u32 = 2;
+const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the `Firewall` trait.
 pub struct WindowsFirewall {
@@ -32,9 +32,9 @@ impl Firewall for WindowsFirewall {
 
     fn new() -> Result<Self> {
         let ok =
-            unsafe { Wfpctl_Initialize(WFPCTL_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut()) };
-        ok.into_result("initialise wfpctl").map(|_| {
-            trace!("Successfully initialized wfpctl");
+            unsafe { WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut()) };
+        ok.into_result("initialize WinFw").map(|_| {
+            trace!("Successfully initialized WinFw");
             WindowsFirewall { _unused: [] }
         })
     }
@@ -45,7 +45,7 @@ impl Firewall for WindowsFirewall {
                 relay_endpoint,
                 allow_lan,
             } => {
-                let cfg = &WfpCtlSettings::new(allow_lan);
+                let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connecting_state(&relay_endpoint, &cfg)
             }
             SecurityPolicy::Connected {
@@ -53,7 +53,7 @@ impl Firewall for WindowsFirewall {
                 tunnel,
                 allow_lan,
             } => {
-                let cfg = &WfpCtlSettings::new(allow_lan);
+                let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connected_state(&relay_endpoint, &cfg, &tunnel)
             }
         }
@@ -61,17 +61,17 @@ impl Firewall for WindowsFirewall {
 
     fn reset_policy(&mut self) -> Result<()> {
         trace!("Resetting firewall policy");
-        let ok = unsafe { Wfpctl_Reset() };
+        let ok = unsafe { WinFw_Reset() };
         ok.into_result("resetting firewall")
     }
 }
 
 impl Drop for WindowsFirewall {
     fn drop(&mut self) {
-        if unsafe { Wfpctl_Deinitialize().is_ok() } {
-            trace!("Successfully deinitialized wfpctl");
+        if unsafe { WinFw_Deinitialize().is_ok() } {
+            trace!("Successfully deinitialized WinFw");
         } else {
-            error!("Failed to deinitialize wfpctl");
+            error!("Failed to deinitialize WinFw");
         };
     }
 }
@@ -80,19 +80,19 @@ impl WindowsFirewall {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,
-        wfp_settings: &WfpCtlSettings,
+        winfw_settings: &WinFwSettings,
     ) -> Result<()> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(&endpoint.address.ip());
 
-        // ip_str has to outlive wfp_relay
-        let wfp_relay = WfpCtlRelay {
+        // ip_str has to outlive winfw_relay
+        let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
             port: endpoint.address.port(),
-            protocol: WfpCtlProt::from(endpoint.protocol),
+            protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        let ok = unsafe { Wfpctl_ApplyPolicyConnecting(wfp_settings, &wfp_relay) };
+        let ok = unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay) };
         ok.into_result("applying 'connecting' policy")
     }
 
@@ -104,7 +104,7 @@ impl WindowsFirewall {
     fn set_connected_state(
         &mut self,
         endpoint: &Endpoint,
-        wfp_settings: &WfpCtlSettings,
+        winfw_settings: &WinFwSettings,
         tunnel_metadata: &::tunnel::TunnelMetadata,
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
@@ -114,17 +114,17 @@ impl WindowsFirewall {
         let tunnel_alias =
             WideCString::new(tunnel_metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap();
 
-        // ip_str, gateway_str and tunnel_alias have to outlive wfp_relay
-        let wfp_relay = WfpCtlRelay {
+        // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
+        let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
             port: endpoint.address.port(),
-            protocol: WfpCtlProt::from(endpoint.protocol),
+            protocol: WinFwProt::from(endpoint.protocol),
         };
 
         let ok = unsafe {
-            Wfpctl_ApplyPolicyConnected(
-                wfp_settings,
-                &wfp_relay,
+            WinFw_ApplyPolicyConnected(
+                winfw_settings,
+                &winfw_relay,
                 tunnel_alias.as_wide_c_str().as_ptr(),
                 gateway_str.as_wide_c_str().as_ptr(),
             )
@@ -145,15 +145,15 @@ mod ffi {
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
-    pub struct WfpCtlResult {
+    pub struct WinFwResult {
         ok: bool,
     }
 
-    impl WfpCtlResult {
+    impl WinFwResult {
         pub fn into_result(self, description: &'static str) -> Result<()> {
             match self.ok {
                 true => Ok(()),
-                false => Err(ErrorKind::WfpctlFailure(description).into()),
+                false => Err(ErrorKind::WinFwFailure(description).into()),
             }
         }
 
@@ -166,44 +166,44 @@ mod ffi {
 
     pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut libc::c_void) {
         if msg == ptr::null() {
-            error!("log message from wfpctl is NULL");
+            error!("log message from WinFw is NULL");
         } else {
             error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
         }
     }
 
     #[repr(C)]
-    pub struct WfpCtlRelay {
+    pub struct WinFwRelay {
         pub ip: *const libc::wchar_t,
         pub port: u16,
-        pub protocol: WfpCtlProt,
+        pub protocol: WinFwProt,
     }
 
     #[repr(u8)]
     #[derive(Clone, Copy)]
-    pub enum WfpCtlProt {
+    pub enum WinFwProt {
         Tcp = 0u8,
         Udp = 1u8,
     }
 
-    impl From<TransportProtocol> for WfpCtlProt {
-        fn from(prot: TransportProtocol) -> WfpCtlProt {
+    impl From<TransportProtocol> for WinFwProt {
+        fn from(prot: TransportProtocol) -> WinFwProt {
             match prot {
-                TransportProtocol::Tcp => WfpCtlProt::Tcp,
-                TransportProtocol::Udp => WfpCtlProt::Udp,
+                TransportProtocol::Tcp => WinFwProt::Tcp,
+                TransportProtocol::Udp => WinFwProt::Udp,
             }
         }
     }
 
     #[repr(C)]
-    pub struct WfpCtlSettings {
+    pub struct WinFwSettings {
         permitDhcp: bool,
         permitLan: bool,
     }
 
-    impl WfpCtlSettings {
-        pub fn new(permit_lan: bool) -> WfpCtlSettings {
-            WfpCtlSettings {
+    impl WinFwSettings {
+        pub fn new(permit_lan: bool) -> WinFwSettings {
+            WinFwSettings {
                 permitDhcp: true,
                 permitLan: permit_lan,
             }
@@ -211,31 +211,31 @@ mod ffi {
     }
 
     extern "system" {
-        #[link_name(Wfpctl_Initialize)]
-        pub fn Wfpctl_Initialize(
+        #[link_name(WinFw_Initialize)]
+        pub fn WinFw_Initialize(
             timeout: libc::c_uint,
             sink: Option<ErrorSink>,
             sink_context: *mut libc::c_void,
-        ) -> WfpCtlResult;
+        ) -> WinFwResult;
 
-        #[link_name(Wfpctl_Deinitialize)]
-        pub fn Wfpctl_Deinitialize() -> WfpCtlResult;
+        #[link_name(WinFw_Deinitialize)]
+        pub fn WinFw_Deinitialize() -> WinFwResult;
 
-        #[link_name(Wfpctl_ApplyPolicyConnecting)]
-        pub fn Wfpctl_ApplyPolicyConnecting(
-            settings: &WfpCtlSettings,
-            relay: &WfpCtlRelay,
-        ) -> WfpCtlResult;
+        #[link_name(WinFw_ApplyPolicyConnecting)]
+        pub fn WinFw_ApplyPolicyConnecting(
+            settings: &WinFwSettings,
+            relay: &WinFwRelay,
+        ) -> WinFwResult;
 
-        #[link_name(Wfpctl_ApplyPolicyConnected)]
-        pub fn Wfpctl_ApplyPolicyConnected(
-            settings: &WfpCtlSettings,
-            relay: &WfpCtlRelay,
+        #[link_name(WinFw_ApplyPolicyConnected)]
+        pub fn WinFw_ApplyPolicyConnected(
+            settings: &WinFwSettings,
+            relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> WfpCtlResult;
+        ) -> WinFwResult;
 
-        #[link_name(Wfpctl_Reset)]
-        pub fn Wfpctl_Reset() -> WfpCtlResult;
+        #[link_name(WinFw_Reset)]
+        pub fn WinFw_Reset() -> WinFwResult;
     }
 }
