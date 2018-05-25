@@ -6,6 +6,5 @@ flow-typed
 .DS_Store
 *.log
 dist-assets/relays.json
-windows/winfw/bin/
+windows/**/bin/
 **/.vs/
-windns/bin/
