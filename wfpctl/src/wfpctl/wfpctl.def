@@ -1,9 +1,0 @@
-LIBRARY wfpctl
-EXPORTS
-
-Wfpctl_Initialize
-Wfpctl_Deinitialize
-Wfpctl_ApplyPolicyConnecting
-Wfpctl_ApplyPolicyConnected
-Wfpctl_ApplyPolicyNetBlocked
-Wfpctl_Reset
