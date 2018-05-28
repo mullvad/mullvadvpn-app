@@ -36,20 +36,6 @@
 !define BreakInstallation '!insertmacro "BreakInstallation"'
 
 #
-# ExtractOpenVpn
-#
-# Extract bundled copy of OpenVPN in a location where the daemon can find it
-#
-!macro ExtractOpenVpn
-
-	SetOutPath "$INSTDIR\resources\openvpn-binaries"
-	File "${PROJECT_DIR}\client-binaries\windows\openvpn\bin\amd64\*"
-
-!macroend
-
-!define ExtractOpenVpn '!insertmacro "ExtractOpenVpn"'
-
-#
 # ExtractDriver
 #
 # Extract the correct driver for the current platform
@@ -190,8 +176,6 @@
 !macro customInstall
 
 	Push $R0
-
-	${ExtractOpenVpn}
 
 	${ExtractDriver}
 	${InstallDriver}
