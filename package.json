@@ -74,7 +74,7 @@
     "lint": "eslint --no-ignore scripts app test *.js",
     "flow": "flow",
     "pack": "run-s pack:mac pack:win pack:linux",
-    "pack:mac": "./pre-mac-sign.sh && cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:mac && rm -r ./dist/mac",
+    "pack:mac": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:mac && rm -r ./dist/mac",
     "pack:win": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:win",
     "pack:linux": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:linux",
     "private:build:mac": "npm run private:build -- --mac",
