@@ -5618,12 +5618,6 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nseventmonitor@git+https://github.com/mullvad/NSEventMonitor.git#0.0.7":
-  version "0.0.7"
-  resolved "git+https://github.com/mullvad/NSEventMonitor.git#7c4b5bc86154e00140196fef3b5b45066283b74e"
-  dependencies:
-    node-pre-gyp "^0.6.39"
-
 "nseventmonitor@https://github.com/mullvad/NSEventMonitor.git#0.0.8":
   version "0.0.8"
   resolved "https://github.com/mullvad/NSEventMonitor.git#23d8d017282877b1863bb4f96676aead7fb72892"
@@ -8218,11 +8212,11 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
 
-"windows-security@git+https://github.com/mullvad/windows-security.git#0.0.3":
-  version "0.0.3"
-  resolved "git+https://github.com/mullvad/windows-security.git#154e52a995184f6817c260b7f58166734453ac95"
+"windows-security@https://github.com/mullvad/windows-security.git#0.0.4":
+  version "0.0.4"
+  resolved "https://github.com/mullvad/windows-security.git#066f2915054c55e1ac7cc671b9c8de6b16ccdead"
   dependencies:
-    node-pre-gyp "^0.6.39"
+    node-pre-gyp "^0.10.0"
 
 winston@*:
   version "2.4.0"
