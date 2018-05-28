@@ -34,7 +34,7 @@
   },
   "optionalDependencies": {
     "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.8",
-    "windows-security": "git+https://github.com/mullvad/windows-security.git#0.0.3"
+    "windows-security": "https://github.com/mullvad/windows-security.git#0.0.4"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
