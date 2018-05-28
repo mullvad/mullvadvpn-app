@@ -73,6 +73,8 @@ win:
       to: .
     - from: ./windows/winfw/bin/x64-Release/winfw.dll
       to: .
+    - from: ./dist-assets/binaries/windows/openvpn.exe
+      to: .
 
 linux:
   target:
