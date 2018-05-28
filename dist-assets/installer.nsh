@@ -44,12 +44,12 @@
 !macro ExtractDriver
 
 	SetOutPath "$TEMP\driver"
-	File "${PROJECT_DIR}\client-binaries\windows\openvpn\driver\amd64\*"
+	File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\*"
 
 	${If} ${IsWin7}
-		File "${PROJECT_DIR}\client-binaries\windows\openvpn\driver\amd64\ndis5\*"
+		File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\ndis5\*"
 	${Else}
-		File "${PROJECT_DIR}\client-binaries\windows\openvpn\driver\amd64\ndis6\*"
+		File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\ndis6\*"
 	${EndIf}
 	
 !macroend
