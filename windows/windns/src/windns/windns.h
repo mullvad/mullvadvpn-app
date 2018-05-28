@@ -69,7 +69,7 @@ WinDns_Set(
 //
 // Revert server settings to what they were before calling WinDns_Set.
 //
-// (Also taking into account external changes to DNS settings that have ocurred
+// (Also taking into account external changes to DNS settings that have occurred
 // during the period of enforcing specific settings.)
 //
 extern "C"
