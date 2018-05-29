@@ -2,6 +2,9 @@
 #include "netconfighelpers.h"
 #include "comhelpers.h"
 #include "wmi/methodcall.h"
+#include <cstdint>
+#include <sstream>
+#include <stdexcept>
 
 namespace nchelpers
 {
@@ -45,11 +48,33 @@ void SetDnsServers(wmi::IConnection &connection, CComPtr<IWbemClassObject> insta
 
 	auto status = methodCall.invoke(connection, instance, L"SetDNSServerSearchOrder");
 
-	//
-	// TODO check status, (type? expected value?)
-	//
+	const uint32_t STATUS_SUCCESS_NO_REBOOT_REQUIRED = 0;
 
-	return;
+	if (STATUS_SUCCESS_NO_REBOOT_REQUIRED == V_UI4(&status))
+	{
+		return;
+	}
+
+	std::string msg("Unable to update adapter configuration with new DNS servers");
+
+	try
+	{
+		auto configIndex = ComGetPropertyAlways(instance, L"Index");
+		auto interfaceIndex = ComGetPropertyAlways(instance, L"InterfaceIndex");
+
+		std::stringstream ss;
+
+		ss << "Unable to update adapter with interfaceIndex = " << V_UI4(&interfaceIndex) \
+			<< ", configuration index = " << V_UI4(&configIndex) \
+			<< " with new DNS servers. Error: " << V_UI4(&status);
+
+		msg = ss.str();
+	}
+	catch (...)
+	{
+	}
+
+	throw std::runtime_error(msg);
 }
 
 }
