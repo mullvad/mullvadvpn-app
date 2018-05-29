@@ -48,21 +48,24 @@ fi
 cargo +stable clean
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-  ./build_winfw.sh
+    ./build_winfw.sh
 fi
 
 echo "Compiling mullvad-daemon in release mode with $RUSTC_VERSION..."
 cargo +stable build --release
 
-binaries=(
-    ./target/release/mullvad-daemon
-    ./target/release/mullvad
-    ./target/release/problem-report
-)
-for binary in ${binaries[*]}; do
-    echo "Stripping debugging symbols from $binary"
-    strip $binary
-done
+# Only strip binaries on platforms other than Windows.
+if [[ "$(uname -s)" != "MINGW"* ]]; then
+    binaries=(
+        ./target/release/mullvad-daemon
+        ./target/release/mullvad
+        ./target/release/problem-report
+    )
+    for binary in ${binaries[*]}; do
+        echo "Stripping debugging symbols from $binary"
+        strip $binary
+    done
+fi
 
 echo "Updating relay list..."
 ./target/release/list-relays > dist-assets/relays.json
