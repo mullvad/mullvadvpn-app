@@ -13,16 +13,11 @@ class DnsConfig
 public:
 
 	// instance = Win32_NetworkAdapterConfiguration.
-	DnsConfig(CComPtr<IWbemClassObject> instance);
+	explicit DnsConfig(CComPtr<IWbemClassObject> instance);
 
-	DnsConfig(const DnsConfig &) = delete;
-	DnsConfig &operator=(const DnsConfig &) = delete;
-	DnsConfig(DnsConfig &&) = default;
-	DnsConfig &operator=(DnsConfig &&) = default;
-
-	const std::wstring &id() const
+	uint32_t configIndex() const
 	{
-		return m_configId;
+		return m_configIndex;
 	}
 
 	uint32_t interfaceIndex() const
@@ -30,13 +25,22 @@ public:
 		return m_interfaceIndex;
 	}
 
-	const std::vector<std::wstring> *servers() const;
+	const std::wstring &interfaceGuid() const
+	{
+		return m_interfaceGuid;
+	}
 
-//	void update(CComPtr<IWbemClassObject> instance);
+	const std::vector<std::wstring> *servers() const
+	{
+		return m_servers.get();
+	}
 
 private:
 
-	std::wstring m_configId;
+	uint32_t m_configIndex;
+
 	uint32_t m_interfaceIndex;
+	std::wstring m_interfaceGuid;
+
 	nchelpers::OptionalStringList m_servers;
 };
