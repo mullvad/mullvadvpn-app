@@ -230,8 +230,10 @@ fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
-    let report_content = normalize_newlines(read_file_lossy(report_path, REPORT_MAX_SIZE)
-        .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?);
+    let report_content = normalize_newlines(
+        read_file_lossy(report_path, REPORT_MAX_SIZE)
+            .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?,
+    );
     let metadata = collect_metadata();
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
     let mut rpc_client = mullvad_rpc::ProblemReportProxy::connect(&mut rpc_manager)
@@ -305,9 +307,11 @@ impl ProblemReport {
     /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
         if self.log_paths.insert(path.to_owned()) {
-            let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES)
-                .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
-                .unwrap_or_else(|e| e.display_chain().to_string()));
+            let content = self.redact(
+                &read_file_lossy(path, LOG_MAX_READ_BYTES)
+                    .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+                    .unwrap_or_else(|e| e.display_chain().to_string()),
+            );
             let path = self.redact(&path.to_string_lossy());
             self.logs.push((path, content));
         }
