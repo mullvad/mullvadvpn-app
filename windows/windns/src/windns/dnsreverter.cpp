@@ -15,13 +15,13 @@ void DnsReverter::revert(wmi::IConnection &connection, const DnsConfig &config)
 	std::wstringstream ss;
 
 	ss << L"SELECT * FROM Win32_NetworkAdapterConfiguration "
-		<< L"WHERE SettingID = '" << config.id() << L"'";
+		<< L"WHERE Index = '" << config.configIndex() << L"'";
 
 	auto resultSet = connection.query(ss.str().c_str());
 
 	if (false == resultSet.advance())
 	{
-		XTRACE("Unable to retrieve active configuration");
+		XTRACE("Unable to retrieve active configuration object");
 		return;
 	}
 
