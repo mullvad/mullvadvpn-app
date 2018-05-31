@@ -7,7 +7,8 @@ import { colors } from '../config';
 // @TODO: move it into types.js
 
 // ESLint issue: https://github.com/babel/babel-eslint/issues/445
-declare class ClipboardData { // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+declare class ClipboardData {
   setData(type: string, data: string): void;
   getData(type: string): string;
 }
@@ -75,7 +76,8 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
 
   render() {
     const displayString = formatAccount(this.state.value || '');
-    const { value, onChange, onEnter, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const { value, onChange, onEnter, ...otherProps } = this.props;
     return (
       <TextInput { ...otherProps }
         value={ displayString }

@@ -131,7 +131,8 @@ export default class Switch extends React.Component<SwitchProps, State> {
   }
 
   render() {
-    const { isOn, onChange, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const { isOn, onChange, ...otherProps } = this.props;
     const className = ('switch ' + (otherProps.className || '')).trim();
     return (
       <input { ...otherProps }

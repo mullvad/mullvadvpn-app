@@ -1,7 +1,8 @@
 {
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "prettier"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -12,10 +13,6 @@
   },
   "plugins": [ "react", "flowtype" ],
   "rules": {
-    "indent": [ "error", 2 ],
-    "quotes": [ "error", "single" ],
-    "linebreak-style": [ "error", "unix" ],
-    "semi": [ 2, "always" ],
     "no-console": "off",
     "no-loop-func": "warn",
     "new-cap": "off",
