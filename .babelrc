@@ -2,7 +2,7 @@
   "env": {
     "electron": {
       "presets": ["es2015", "stage-0", "react"],
-      "plugins": ["transform-runtime", "inline-react-svg", ["babel-plugin-transform-builtin-extend", { "globals": ["Error"] }]]
+      "plugins": ["transform-runtime", ["babel-plugin-transform-builtin-extend", { "globals": ["Error"] }]]
     },
     "development": {
       "presets": ["react-native", ["babel-plugin-transform-builtin-extend", { "globals": ["Error"] }]]
