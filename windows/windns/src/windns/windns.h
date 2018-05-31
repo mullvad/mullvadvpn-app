@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, void *context);
+typedef void (WINDNS_API *WinDnsConfigSink)(const void *configData, uint32_t dataLength, void *context);
 
 //
 // WinDns_Initialize:
@@ -55,13 +56,20 @@ WinDns_Deinitialize(
 //
 // Configure which DNS servers should be used and start enforcing these settings.
 //
+// The 'configSink' will receive periodic callbacks with updated config data
+// until you call WinDns_Reset.
+//
+// You should persist the config data in preparation for an eventual recovery.
+//
 extern "C"
 WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
 	const wchar_t **servers,
-	uint32_t numServers
+	uint32_t numServers,
+	WinDnsConfigSink configSink,
+	void *configContext
 );
 
 //
@@ -72,9 +80,28 @@ WinDns_Set(
 // (Also taking into account external changes to DNS settings that have occurred
 // during the period of enforcing specific settings.)
 //
+// It's safe to discard persisted config data once WinDns_Reset returns 'true'.
+//
 extern "C"
 WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Reset(
+);
+
+//
+// WinDns_Recover:
+//
+// Recover adapter configurations from a previously persisted state.
+//
+// This is useful if the machine has been abruptly powered off and
+// WINDNS did not get a chance to restore settings.
+//
+extern "C"
+WINDNS_LINKAGE
+bool
+WINDNS_API
+WinDns_Recover(
+	const void *configData,
+	uint32_t dataLength
 );
