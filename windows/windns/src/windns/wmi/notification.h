@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iconnection.h"
-#include "eventsink.h"
+#include "eventdispatcher.h"
 #include <atlbase.h>
 #include <memory>
 
@@ -12,7 +12,7 @@ class Notification
 {
 public:
 
-	Notification(std::shared_ptr<IConnection> connection, CComPtr<EventSink> eventSink);
+	Notification(std::shared_ptr<IConnection> connection, CComPtr<IEventDispatcher> dispatcher);
 	~Notification();
 
 	Notification(const Notification &) = delete;
@@ -26,7 +26,7 @@ public:
 private:
 
 	std::shared_ptr<IConnection> m_connection;
-	CComPtr<EventSink> m_eventSink;
+	CComPtr<IEventDispatcher> m_dispatcher;
 
 	CComPtr<IWbemObjectSink> m_forwarder;
 };
