@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="clientsinkinfo.h" />
     <ClInclude Include="comhelpers.h" />
     <ClInclude Include="configmanager.h" />
     <ClInclude Include="consoletracesink.h" />
@@ -189,8 +190,9 @@
     <ClInclude Include="windns.h" />
     <ClInclude Include="windnscontext.h" />
     <ClInclude Include="wmi\connection.h" />
-    <ClInclude Include="wmi\eventsink.h" />
+    <ClInclude Include="wmi\eventdispatcher.h" />
     <ClInclude Include="wmi\iconnection.h" />
+    <ClInclude Include="wmi\ieventsink.h" />
     <ClInclude Include="wmi\methodcall.h" />
     <ClInclude Include="wmi\notification.h" />
     <ClInclude Include="wmi\resultset.h" />
@@ -213,7 +215,7 @@
     <ClCompile Include="windns.cpp" />
     <ClCompile Include="windnscontext.cpp" />
     <ClCompile Include="wmi\connection.cpp" />
-    <ClCompile Include="wmi\eventsink.cpp" />
+    <ClCompile Include="wmi\eventdispatcher.cpp" />
     <ClCompile Include="wmi\methodcall.cpp" />
     <ClCompile Include="wmi\notification.cpp" />
     <ClCompile Include="wmi\resultset.cpp" />
