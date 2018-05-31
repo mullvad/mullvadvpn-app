@@ -4,6 +4,7 @@
 #include "wmi/connection.h"
 #include "wmi/notification.h"
 #include "configmanager.h"
+#include "clientsinkinfo.h"
 #include <vector>
 #include <string>
 #include <memory>
@@ -20,7 +21,7 @@ public:
 		reset();
 	}
 
-	bool set(const std::vector<std::wstring> &servers, WinDnsErrorSink errorSink, void *errorContext);
+	bool set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo);
 	bool reset();
 
 private:
@@ -28,4 +29,5 @@ private:
 	std::shared_ptr<wmi::Connection> m_connection;
 	std::shared_ptr<ConfigManager> m_configManager;
 	std::unique_ptr<wmi::Notification> m_notification;
+	ClientSinkInfo m_sinkInfo;
 };
