@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "windns.h"
 #include "windnscontext.h"
+#include "clientsinkinfo.h"
 #include <vector>
 #include <string>
 
@@ -85,7 +86,9 @@ bool
 WINDNS_API
 WinDns_Set(
 	const wchar_t **servers,
-	uint32_t numServers
+	uint32_t numServers,
+	WinDnsConfigSink configSink,
+	void *configContext
 )
 {
 	if (nullptr == g_Context)
@@ -108,7 +111,12 @@ WinDns_Set(
 		// Onwards.
 		//
 
-		return g_Context->set(MakeStringArray(servers, numServers), g_ErrorSink, g_ErrorContext);
+		ClientSinkInfo sinkInfo;
+
+		sinkInfo.errorSinkInfo = ErrorSinkInfo{ g_ErrorSink, g_ErrorContext };
+		sinkInfo.configSinkInfo = ConfigSinkInfo{ configSink, configContext };
+
+		return g_Context->set(MakeStringArray(servers, numServers), sinkInfo);
 	}
 	catch (std::exception &err)
 	{
@@ -153,4 +161,17 @@ WinDns_Reset(
 	{
 		return false;
 	}
+}
+
+WINDNS_LINKAGE
+bool
+WINDNS_API
+WinDns_Recover(
+	const void *configData,
+	uint32_t dataLength
+)
+{
+	// TODO: smart stuff
+
+	return false;
 }
