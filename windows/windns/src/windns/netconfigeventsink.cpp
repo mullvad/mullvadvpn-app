@@ -8,24 +8,23 @@ NetConfigEventSink::NetConfigEventSink(std::shared_ptr<wmi::IConnection> connect
 {
 }
 
-void NetConfigEventSink::update(CComPtr<IWbemClassObject> instance)
+void NetConfigEventSink::update(CComPtr<IWbemClassObject> previous, CComPtr<IWbemClassObject> target)
 {
-	DnsConfig config(instance);
-
 	ConfigManager::Mutex mutex(*m_configManager);
 
 	//
 	// This is OK because the config manager will reject updates
 	// that set our DNS servers.
 	//
-	auto updated = m_configManager->updateConfig(std::move(config));
-
-	if (updated)
+	if (ConfigManager::UpdateType::WinDnsEnforced == m_configManager->updateConfig(DnsConfig(previous), DnsConfig(target)))
 	{
-		//
-		// Override current settings to use our DNS servers.
-		//
-		auto servers = m_configManager->getServers();
-		nchelpers::SetDnsServers(*m_connection, instance, &servers);
+		return;
 	}
+
+	//
+	// The update was initiated from an external source.
+	// Override current settings to enforce our selected DNS servers.
+	//
+	auto servers = m_configManager->getServers();
+	nchelpers::SetDnsServers(*m_connection, target, &servers);
 }
