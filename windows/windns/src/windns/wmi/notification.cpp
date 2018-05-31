@@ -5,9 +5,9 @@
 namespace wmi
 {
 
-Notification::Notification(std::shared_ptr<IConnection> connection, CComPtr<EventSink> eventSink)
+Notification::Notification(std::shared_ptr<IConnection> connection, CComPtr<IEventDispatcher> dispatcher)
 	: m_connection(connection)
-	, m_eventSink(eventSink)
+	, m_dispatcher(dispatcher)
 {
 }
 
@@ -28,7 +28,7 @@ void Notification::activate(const std::wstring &query)
 
 	CComPtr<IUnknown> unknownEventSink;
 
-	status = m_eventSink->QueryInterface(IID_IUnknown, (void**)&unknownEventSink);
+	status = m_dispatcher->QueryInterface(IID_IUnknown, (void**)&unknownEventSink);
 	VALIDATE_COM(status, "Retrieve IUnkown interface for event sink");
 
 	CComPtr<IUnknown> unknownForwarder;
@@ -63,7 +63,7 @@ void Notification::deactivate()
 	//
 	// Using a Sleep() here is preferable to introducing a critical section in the callback.
 	//
-	while (m_eventSink->processing())
+	while (m_dispatcher->processing())
 	{
 		Sleep(100);
 	}
