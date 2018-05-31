@@ -34,30 +34,55 @@ const std::vector<std::wstring> &ConfigManager::getServers() const
 	return m_servers;
 }
 
-bool ConfigManager::updateConfig(DnsConfig &&config)
+ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous, const DnsConfig &target)
 {
-	XTRACE(L"Interface configuration update for interface =", config.interfaceIndex());
-	
-	if (false == validUpdate(config))
+	XTRACE(L"Interface configuration update for interface =", target.interfaceIndex());
+
+	//
+	// There are a few cases we need to deal with:
+	//
+	// 1/ An interface being offline and coming online.
+	// 2/ An external application changing the interface settings.
+	// 3/ Us changing the interface settings.
+	//    a. On an interface the ConfigManager hasn't seen before.
+	//    b. On an interface the ConfigManager already knows about.
+	//
+
+	const auto configIndex = target.configIndex();
+	auto iter = m_configs.find(configIndex);
+
+	if (internalUpdate(target))
 	{
-		XTRACE(L"Ignoring interface configuration update");
-		return false;
+		XTRACE(L"Update event was initiated by WINDNS");
+
+		//
+		// If we haven't seen this config id before, it means the 'previous' instance
+		// is the original configuration on the system, and as such must be recorded.
+		//
+		if (m_configs.end() == iter)
+		{
+			XTRACE(L"Creating new interface configuration entry");
+			m_configs.insert(std::make_pair(configIndex, previous));
+		}
+
+		return UpdateType::WinDnsEnforced;
 	}
 
-	auto iter = m_configs.find(config.id());
-
+	//
+	// The update was not initiated by us so store the updated configuration.
+	//
 	if (m_configs.end() == iter)
 	{
 		XTRACE(L"Creating new interface configuration entry");
-		m_configs.insert(std::make_pair(config.id(), std::move(config)));
+		m_configs.insert(std::make_pair(configIndex, target));
 	}
 	else
 	{
 		XTRACE(L"Updating interface configuration entry");
-		iter->second = std::move(config);
+		iter->second = target;
 	}
 
-	return true;
+	return UpdateType::External;
 }
 
 bool ConfigManager::processConfigs(std::function<bool(const DnsConfig &)> configSink)
@@ -73,14 +98,14 @@ bool ConfigManager::processConfigs(std::function<bool(const DnsConfig &)> config
 	return true;
 }
 
-bool ConfigManager::validUpdate(const DnsConfig &config)
+bool ConfigManager::internalUpdate(const DnsConfig &config)
 {
 	auto updatedServers = config.servers();
 
 	if (nullptr == updatedServers)
 	{
-		return true;
+		return false;
 	}
 
-	return false == std::equal(m_servers.begin(), m_servers.end(), updatedServers->begin(), updatedServers->end());
+	return std::equal(m_servers.begin(), m_servers.end(), updatedServers->begin(), updatedServers->end());
 }
