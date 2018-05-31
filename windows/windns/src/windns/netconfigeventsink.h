@@ -1,17 +1,17 @@
 #pragma once
 
-#include "windns/wmi/eventsink.h"
+#include "windns/wmi/ieventsink.h"
 #include "windns/wmi/iconnection.h"
 #include "windns/configmanager.h"
 #include <memory>
 
-class NetConfigEventSink : public wmi::IEventSink
+class NetConfigEventSink : public wmi::IModificationEventSink
 {
 public:
 
-	explicit NetConfigEventSink(std::shared_ptr<wmi::IConnection> connection, std::shared_ptr<ConfigManager> configManager);
+	NetConfigEventSink(std::shared_ptr<wmi::IConnection> connection, std::shared_ptr<ConfigManager> configManager);
 
-	void update(CComPtr<IWbemClassObject> instance) override;
+	void update(CComPtr<IWbemClassObject> previous, CComPtr<IWbemClassObject> target) override;
 
 private:
 
