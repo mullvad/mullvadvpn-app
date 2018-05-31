@@ -109,7 +109,7 @@ declare module 'electron' {
   // http://electron.atom.io/docs/api/web-frame
 
   declare class WebFrame extends EventEmitter {
-    setZoomLevelLimits(minimumLevel: number, maximumLevel: number): void;
+    setVisualZoomLevelLimits(minimumLevel: number, maximumLevel: number): void;
   }
 
   // http://electron.atom.io/docs/api/ipc-renderer
