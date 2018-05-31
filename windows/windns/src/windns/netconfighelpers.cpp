@@ -9,11 +9,6 @@
 namespace nchelpers
 {
 
-std::wstring GetConfigId(CComPtr<IWbemClassObject> instance)
-{
-	return ComConvertString(V_BSTR(&ComGetPropertyAlways(instance, L"SettingID")));
-}
-
 OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 {
 	OptionalStringList result;
@@ -25,7 +20,7 @@ OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 		return result;
 	}
 
-	result = std::make_unique<std::vector<std::wstring> >(
+	result = std::make_shared<std::vector<std::wstring> >(
 		ComConvertStringArray(V_ARRAY(&servers)));
 
 	return result;

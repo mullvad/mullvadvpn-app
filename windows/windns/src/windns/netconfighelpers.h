@@ -10,10 +10,7 @@
 namespace nchelpers
 {
 
-// instance = Win32_NetworkAdapterConfiguration
-std::wstring GetConfigId(CComPtr<IWbemClassObject> instance);
-
-using OptionalStringList = std::unique_ptr<std::vector<std::wstring> >;
+using OptionalStringList = std::shared_ptr<std::vector<std::wstring> >;
 
 // instance = Win32_NetworkAdapterConfiguration
 OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance);
