@@ -16,6 +16,7 @@ matrix:
       script:
         - yarn run lint
         - yarn run flow
+        - yarn run check-format
         - yarn test
 
 
