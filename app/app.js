@@ -102,7 +102,7 @@ updateTrayIcon();
 //////////////////////////////////////////////////////////////////////////
 
 // disable smart pinch.
-webFrame.setZoomLevelLimits(1, 1);
+webFrame.setVisualZoomLevelLimits(1, 1);
 
 ipcRenderer.send('on-browser-window-ready');
 
