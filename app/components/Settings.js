@@ -144,7 +144,7 @@ export default class Settings extends Component<SettingsProps> {
 
       <CellButton onPress={ this.props.onViewSupport }
         testName='settings__view_support'>
-        <Label>Contact support</Label>
+        <Label>Report a problem</Label>
         <Img height={12} width={7} source='icon-chevron' />
       </CellButton>
     </View>;
