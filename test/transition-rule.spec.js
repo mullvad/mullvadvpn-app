@@ -5,7 +5,7 @@ import TransitionRule from '../app/lib/transition-rule';
 describe('TransitionRule', () => {
   const testTransition = {
     forward: { name: 'forward', duration: 0.25 },
-    backward: { name: 'backward', duration: 0.25 }
+    backward: { name: 'backward', duration: 0.25 },
   };
 
   it('should match wildcard rule', () => {
@@ -13,12 +13,12 @@ describe('TransitionRule', () => {
 
     expect(rule.match(null, '/route')).to.deep.equal({
       direction: 'forward',
-      descriptor: { name: 'forward', duration: 0.25 }
+      descriptor: { name: 'forward', duration: 0.25 },
     });
 
     expect(rule.match('/somewhere', '/route')).to.deep.equal({
       direction: 'forward',
-      descriptor: { name: 'forward', duration: 0.25 }
+      descriptor: { name: 'forward', duration: 0.25 },
     });
   });
 
@@ -27,7 +27,7 @@ describe('TransitionRule', () => {
 
     expect(rule.match('/route', '/other')).to.deep.equal({
       direction: 'backward',
-      descriptor: { name: 'backward', duration: 0.25 }
+      descriptor: { name: 'backward', duration: 0.25 },
     });
   });
 
@@ -39,7 +39,7 @@ describe('TransitionRule', () => {
 
     expect(rule.match('/route1', '/route2')).to.deep.equal({
       direction: 'forward',
-      descriptor: { name: 'forward', duration: 0.25 }
+      descriptor: { name: 'forward', duration: 0.25 },
     });
   });
 
@@ -51,8 +51,7 @@ describe('TransitionRule', () => {
 
     expect(rule.match('/route2', '/route1')).to.deep.equal({
       direction: 'backward',
-      descriptor: { name: 'backward', duration: 0.25 }
+      descriptor: { name: 'backward', duration: 0.25 },
     });
   });
-
 });

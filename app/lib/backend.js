@@ -11,7 +11,14 @@ import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type ErrorType = 'NO_CREDIT' | 'NO_INTERNET' | 'NO_DAEMON' | 'INVALID_ACCOUNT' | 'NO_ACCOUNT' | 'COMMUNICATION_FAILURE' | 'UNKNOWN_ERROR' ;
+export type ErrorType =
+  | 'NO_CREDIT'
+  | 'NO_INTERNET'
+  | 'NO_DAEMON'
+  | 'INVALID_ACCOUNT'
+  | 'NO_ACCOUNT'
+  | 'COMMUNICATION_FAILURE'
+  | 'UNKNOWN_ERROR';
 
 export class BackendError extends Error {
   type: ErrorType;
@@ -28,47 +35,42 @@ export class BackendError extends Error {
   }
 
   static localizedTitle(type: ErrorType): string {
-    switch(type) {
-    case 'NO_CREDIT':
-      return 'Out of time';
-    case 'NO_INTERNET':
-      return 'Offline';
-    default:
-      return 'Something went wrong';
+    switch (type) {
+      case 'NO_CREDIT':
+        return 'Out of time';
+      case 'NO_INTERNET':
+        return 'Offline';
+      default:
+        return 'Something went wrong';
     }
   }
 
   static localizedMessage(type: ErrorType, cause: ?Error): string {
-
     // TODO: since instanceof now works, BackendError can be replaced by a set
     // of specific error types
-    switch(type) {
-    case 'NO_CREDIT':
-      return 'Buy more time, so you can continue using the internet securely';
-    case 'NO_INTERNET':
-      return 'Your internet connection will be secured when you get back online';
-    case 'INVALID_ACCOUNT':
-      return 'Invalid account number';
-    case 'NO_ACCOUNT':
-      return 'No account was set';
-    case 'NO_DAEMON':
-      return 'Could not connect to the Mullvad daemon';
-    case 'COMMUNICATION_FAILURE':
-      return 'api.mullvad.net is blocked, please check your firewall';
-    case 'UNKNOWN_ERROR': {
-      const message = cause
-        ? ', ' + cause.message
-        : '';
+    switch (type) {
+      case 'NO_CREDIT':
+        return 'Buy more time, so you can continue using the internet securely';
+      case 'NO_INTERNET':
+        return 'Your internet connection will be secured when you get back online';
+      case 'INVALID_ACCOUNT':
+        return 'Invalid account number';
+      case 'NO_ACCOUNT':
+        return 'No account was set';
+      case 'NO_DAEMON':
+        return 'Could not connect to the Mullvad daemon';
+      case 'COMMUNICATION_FAILURE':
+        return 'api.mullvad.net is blocked, please check your firewall';
+      case 'UNKNOWN_ERROR': {
+        const message = cause ? ', ' + cause.message : '';
 
-      return 'An unknown error occurred' + message;
-    }
-    default:
-      return '';
+        return 'An unknown error occurred' + message;
+      }
+      default:
+        return '';
     }
   }
-
 }
-
 
 export type IpcCredentials = {
   connectionString: string,
@@ -76,7 +78,7 @@ export type IpcCredentials = {
 };
 export function parseIpcCredentials(data: string): ?IpcCredentials {
   const [connectionString, sharedSecret] = data.split('\n', 2);
-  if(connectionString && sharedSecret !== undefined) {
+  if (connectionString && sharedSecret !== undefined) {
     return {
       connectionString,
       sharedSecret,
@@ -86,12 +88,10 @@ export function parseIpcCredentials(data: string): ?IpcCredentials {
   }
 }
 
-
 /**
  * Backend implementation
  */
 export class Backend {
-
   _ipc: IpcFacade;
   _credentials: ?IpcCredentials;
   _authenticationPromise: ?Promise<void>;
@@ -101,8 +101,7 @@ export class Backend {
     this._store = store;
     this._credentials = credentials;
 
-
-    if(ipc) {
+    if (ipc) {
       this._ipc = ipc;
 
       // force to re-authenticate when connection closed
@@ -137,19 +136,19 @@ export class Backend {
 
     try {
       await this._fetchRelayLocations();
-    } catch(e) {
+    } catch (e) {
       log.error('Failed to fetch the relay locations: ', e.message);
     }
 
     try {
       await this._fetchLocation();
-    } catch(e) {
+    } catch (e) {
       log.error('Failed to fetch the location: ', e.message);
     }
 
     try {
       await this._fetchAllowLan();
-    } catch(e) {
+    } catch (e) {
       log.error('Failed to fetch the LAN sharing policy: ', e.message);
     }
 
@@ -172,9 +171,7 @@ export class Backend {
 
       log.info('Log in complete');
 
-      this._store.dispatch(
-        accountActions.loginSuccessful(accountData.expiry)
-      );
+      this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
       await this.fetchRelaySettings();
 
       // Redirect the user after some time to allow for
@@ -186,8 +183,7 @@ export class Backend {
       }, 1000);
 
       await this._fetchAccountHistory();
-
-    } catch(e) {
+    } catch (e) {
       log.error('Failed to log in,', e.message);
 
       const err = this._rpcErrorToBackendError(e);
@@ -202,15 +198,15 @@ export class Backend {
 
     const isJsonRpcError = e.hasOwnProperty('code');
     if (isJsonRpcError) {
-      switch(e.code) {
-      case -200: // Account doesn't exist
-        return new BackendError('INVALID_ACCOUNT');
-      case -32603: // Internal error
-        // We treat all internal backend errors as the user cannot reach
-        // api.mullvad.net. This is not always true of course, but it is
-        // true so often that we choose to disregard the other edge cases
-        // for now.
-        return new BackendError('COMMUNICATION_FAILURE');
+      switch (e.code) {
+        case -200: // Account doesn't exist
+          return new BackendError('INVALID_ACCOUNT');
+        case -32603: // Internal error
+          // We treat all internal backend errors as the user cannot reach
+          // api.mullvad.net. This is not always true of course, but it is
+          // true so often that we choose to disregard the other edge cases
+          // for now.
+          return new BackendError('COMMUNICATION_FAILURE');
       }
     }
 
@@ -230,7 +226,7 @@ export class Backend {
       this._store.dispatch(accountActions.startLogin());
 
       const accountToken = await this._ipc.getAccount();
-      if(!accountToken) {
+      if (!accountToken) {
         throw new BackendError('NO_ACCOUNT');
       }
 
@@ -322,19 +318,19 @@ export class Backend {
     const relaySettings = await this._ipc.getRelaySettings();
     log.debug('Got relay settings from backend', JSON.stringify(relaySettings));
 
-    if(relaySettings.normal) {
+    if (relaySettings.normal) {
       const payload = {};
       const normal = relaySettings.normal;
       const tunnel = normal.tunnel;
       const location = normal.location;
 
-      if(location === 'any') {
+      if (location === 'any') {
         payload.location = 'any';
       } else {
         payload.location = location.only;
       }
 
-      if(tunnel === 'any') {
+      if (tunnel === 'any') {
         payload.port = 'any';
         payload.protocol = 'any';
       } else {
@@ -345,19 +341,26 @@ export class Backend {
 
       this._store.dispatch(
         settingsActions.updateRelay({
-          normal: payload
-        })
+          normal: payload,
+        }),
       );
-    } else if(relaySettings.custom_tunnel_endpoint) {
+    } else if (relaySettings.custom_tunnel_endpoint) {
       const custom_tunnel_endpoint = relaySettings.custom_tunnel_endpoint;
-      const { host, tunnel: { openvpn: { port, protocol } } } = custom_tunnel_endpoint;
+      const {
+        host,
+        tunnel: {
+          openvpn: { port, protocol },
+        },
+      } = custom_tunnel_endpoint;
 
       this._store.dispatch(
         settingsActions.updateRelay({
           custom_tunnel_endpoint: {
-            host, port, protocol
-          }
-        })
+            host,
+            port,
+            protocol,
+          },
+        }),
       );
     }
   }
@@ -367,7 +370,7 @@ export class Backend {
       await this._ensureAuthenticated();
       await this._ipc.removeAccountFromHistory(accountToken);
       await this._fetchAccountHistory();
-    } catch(e) {
+    } catch (e) {
       log.error('Failed to remove account token from history', e.message);
     }
   }
@@ -376,10 +379,8 @@ export class Backend {
     try {
       await this._ensureAuthenticated();
       const accountHistory = await this._ipc.getAccountHistory();
-      this._store.dispatch(
-        accountActions.updateAccountHistory(accountHistory)
-      );
-    } catch(e) {
+      this._store.dispatch(accountActions.updateAccountHistory(accountHistory));
+    } catch (e) {
       log.info('Failed to fetch account history,', e.message);
       throw e;
     }
@@ -402,12 +403,10 @@ export class Backend {
         latitude: city.latitude,
         longitude: city.longitude,
         hasActiveRelays: city.has_active_relays,
-      }))
+      })),
     }));
 
-    this._store.dispatch(
-      settingsActions.updateRelayLocations(storedLocations)
-    );
+    this._store.dispatch(settingsActions.updateRelayLocations(storedLocations));
   }
 
   async _fetchLocation() {
@@ -426,9 +425,7 @@ export class Backend {
       mullvadExitIp: location.mullvad_exit_ip,
     };
 
-    this._store.dispatch(
-      connectionActions.newLocation(locationUpdate)
-    );
+    this._store.dispatch(connectionActions.newLocation(locationUpdate));
   }
 
   async setAllowLan(allowLan: boolean) {
@@ -436,10 +433,8 @@ export class Backend {
       await this._ensureAuthenticated();
       await this._ipc.setAllowLan(allowLan);
 
-      this._store.dispatch(
-        settingsActions.updateAllowLan(allowLan)
-      );
-    } catch(e) {
+      this._store.dispatch(settingsActions.updateAllowLan(allowLan));
+    } catch (e) {
       log.error('Failed to change the LAN sharing policy: ', e.message);
     }
   }
@@ -448,9 +443,7 @@ export class Backend {
     await this._ensureAuthenticated();
 
     const allowLan = await this._ipc.getAllowLan();
-    this._store.dispatch(
-      settingsActions.updateAllowLan(allowLan)
-    );
+    this._store.dispatch(settingsActions.updateAllowLan(allowLan));
   }
 
   async fetchSecurityState() {
@@ -478,9 +471,7 @@ export class Backend {
 
     // update online status in background
     setTimeout(() => {
-      const action = navigator.onLine
-        ? connectionActions.online()
-        : connectionActions.offline();
+      const action = navigator.onLine ? connectionActions.online() : connectionActions.offline();
 
       this._store.dispatch(action);
     }, 0);
@@ -488,8 +479,7 @@ export class Backend {
 
   async _registerIpcListeners() {
     await this._ensureAuthenticated();
-    this._ipc.registerStateListener(newState => {
-
+    this._ipc.registerStateListener((newState) => {
       const connectionState = this._securityStateToConnectionState(newState);
       log.debug(`Got new state from backend {state: ${newState.state}, \
         target_state: ${newState.target_state}}, translated to '${connectionState}'`);
@@ -510,23 +500,23 @@ export class Backend {
   }
 
   _dispatchConnectionState(connectionState: ConnectionState) {
-    switch(connectionState) {
-    case 'connecting':
-      this._store.dispatch(connectionActions.connecting());
-      break;
-    case 'connected':
-      this._store.dispatch(connectionActions.connected());
-      break;
-    case 'disconnected':
-      this._store.dispatch(connectionActions.disconnected());
-      break;
+    switch (connectionState) {
+      case 'connecting':
+        this._store.dispatch(connectionActions.connecting());
+        break;
+      case 'connected':
+        this._store.dispatch(connectionActions.connected());
+        break;
+      case 'disconnected':
+        this._store.dispatch(connectionActions.disconnected());
+        break;
     }
   }
 
   _ensureAuthenticated(): Promise<void> {
     const credentials = this._credentials;
-    if(credentials) {
-      if(!this._authenticationPromise) {
+    if (credentials) {
+      if (!this._authenticationPromise) {
         this._authenticationPromise = this._authenticate(credentials.sharedSecret);
       }
       return this._authenticationPromise;

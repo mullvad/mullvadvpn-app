@@ -11,22 +11,22 @@ interface MockIpc {
 }
 
 export function newMockIpc() {
-
   const stateListeners = [];
   const connectionCloseListeners = [];
 
   const mockIpc: IpcFacade & MockIpc = {
-
     setConnectionString: (_str: string) => {},
 
-    getAccountData: (accountToken) => Promise.resolve({
-      accountToken: accountToken,
-      expiry: '',
-    }),
+    getAccountData: (accountToken) =>
+      Promise.resolve({
+        accountToken: accountToken,
+        expiry: '',
+      }),
 
-    getRelayLocations: () => Promise.resolve({
-      countries: [],
-    }),
+    getRelayLocations: () =>
+      Promise.resolve({
+        countries: [],
+      }),
 
     getAccount: () => Promise.resolve('1111'),
 
@@ -34,17 +34,18 @@ export function newMockIpc() {
 
     updateRelaySettings: () => Promise.resolve(),
 
-    getRelaySettings: () => Promise.resolve({
-      custom_tunnel_endpoint: {
-        host: 'www.example.com',
-        tunnel: {
-          openvpn: {
-            port: 1301,
-            protocol: 'udp',
-          }
-        }
-      },
-    }),
+    getRelaySettings: () =>
+      Promise.resolve({
+        custom_tunnel_endpoint: {
+          host: 'www.example.com',
+          tunnel: {
+            openvpn: {
+              port: 1301,
+              protocol: 'udp',
+            },
+          },
+        },
+      }),
 
     setAllowLan: (_allowLan: boolean) => Promise.resolve(),
 
@@ -56,26 +57,28 @@ export function newMockIpc() {
 
     shutdown: () => Promise.resolve(),
 
-    getLocation: () => Promise.resolve({
-      ip: '',
-      country: '',
-      city: '',
-      latitude: 0.0,
-      longitude: 0.0,
-      mullvad_exit_ip: false,
-    }),
+    getLocation: () =>
+      Promise.resolve({
+        ip: '',
+        country: '',
+        city: '',
+        latitude: 0.0,
+        longitude: 0.0,
+        mullvad_exit_ip: false,
+      }),
 
-    getState: () => Promise.resolve({
-      state: 'unsecured',
-      target_state:'unsecured',
-    }),
+    getState: () =>
+      Promise.resolve({
+        state: 'unsecured',
+        target_state: 'unsecured',
+      }),
 
     registerStateListener: (listener: (BackendState) => void) => {
       stateListeners.push(listener);
     },
 
     sendNewState: (state: BackendState) => {
-      for(const l of stateListeners) {
+      for (const l of stateListeners) {
         l(state);
       }
     },
@@ -91,10 +94,10 @@ export function newMockIpc() {
     removeAccountFromHistory: (_accountToken) => Promise.resolve(),
 
     killWebSocket: () => {
-      for(const l of connectionCloseListeners) {
+      for (const l of connectionCloseListeners) {
         l();
       }
-    }
+    },
   };
 
   return mockIpc;

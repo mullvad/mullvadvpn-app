@@ -137,7 +137,7 @@ export default {
       fontWeight: '600',
       lineHeight: 20,
       letterSpacing: -0.2,
-      color: 'rgba(255,255,255,0.8)'
-    }
-  })
+      color: 'rgba(255,255,255,0.8)',
+    },
+  }),
 };

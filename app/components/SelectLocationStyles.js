@@ -12,7 +12,7 @@ export default {
       flexDirection: 'column',
       flex: 1,
     },
-    header:{
+    header: {
       flex: 0,
       marginBottom: 16,
     },
@@ -21,7 +21,7 @@ export default {
       marginTop: 24,
       cursor: 'default',
     },
-    close_icon:{
+    close_icon: {
       width: 24,
       height: 24,
       flex: 0,

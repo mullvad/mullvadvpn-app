@@ -9,7 +9,7 @@ export type UnansweredRequest = {
   reject: (mixed) => void,
   timerId: TimeoutID,
   message: Object,
-}
+};
 
 export type JsonRpcError = {
   type: 'error',
@@ -17,9 +17,9 @@ export type JsonRpcError = {
     id: string,
     error: {
       message: string,
-    }
-  }
-}
+    },
+  },
+};
 export type JsonRpcNotification = {
   type: 'notification',
   payload: {
@@ -27,16 +27,16 @@ export type JsonRpcNotification = {
     params: {
       subscription: string,
       result: mixed,
-    }
-  }
-}
+    },
+  },
+};
 export type JsonRpcSuccess = {
   type: 'success',
   payload: {
     id: string,
     result: mixed,
-  }
-}
+  },
+};
 export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
 
 export class TimeOutError extends Error {
@@ -57,7 +57,7 @@ export class InvalidReply extends Error {
     this.name = 'InvalidReply';
     this.reply = reply;
 
-    if(msg) {
+    if (msg) {
       this.message = msg + ' - ';
     }
     this.message += JSON.stringify(reply);
@@ -67,22 +67,22 @@ export class InvalidReply extends Error {
 const DEFAULT_TIMEOUT_MILLIS = 5000;
 
 export default class Ipc {
-
   _connectionString: ?string;
-  _onConnect: Array<{resolve: ()=>void}>;
+  _onConnect: Array<{ resolve: () => void }>;
   _unansweredRequests: Map<string, UnansweredRequest>;
-  _subscriptions: Map<string|number, (mixed) => void>;
+  _subscriptions: Map<string | number, (mixed) => void>;
   _websocket: WebSocket;
   _backoff: ReconnectionBackoff;
   _websocketFactory: (string) => WebSocket;
   _closeConnectionHandler: ?() => void;
 
-  constructor(connectionString: string, websocketFactory: ?(string)=>WebSocket) {
+  constructor(connectionString: string, websocketFactory: ?(string) => WebSocket) {
     this._connectionString = connectionString;
     this._onConnect = [];
     this._unansweredRequests = new Map();
     this._subscriptions = new Map();
-    this._websocketFactory = websocketFactory || (connectionString => new WebSocket(connectionString));
+    this._websocketFactory =
+      websocketFactory || ((connectionString) => new WebSocket(connectionString));
 
     this._backoff = new ReconnectionBackoff();
     this._reconnect();
@@ -97,17 +97,19 @@ export default class Ipc {
   }
 
   on(event: string, listener: (mixed) => void): Promise<*> {
-
     log.debug('Adding a listener to', event);
     return this.send(event + '_subscribe')
-      .then(subscriptionId => {
+      .then((subscriptionId) => {
         if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
           this._subscriptions.set(subscriptionId, listener);
         } else {
-          throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
+          throw new InvalidReply(
+            subscriptionId,
+            'The subscription id was not a string or a number',
+          );
         }
       })
-      .catch(e => {
+      .catch((e) => {
         log.error('Failed adding listener to', event, ':', e);
       });
   }
@@ -116,7 +118,7 @@ export default class Ipc {
     return new Promise((resolve, reject) => {
       const id = uuid.v4();
 
-      const params  = this._prepareParams(data);
+      const params = this._prepareParams(data);
       const timerId = setTimeout(() => this._onTimeout(id), timeout);
       const jsonrpcMessage = jsonrpc.request(id, action, params);
       this._unansweredRequests.set(id, {
@@ -127,27 +129,27 @@ export default class Ipc {
       });
 
       this._getWebSocket()
-        .then(ws => {
+        .then((ws) => {
           log.debug('Sending message', id, action);
           ws.send(jsonrpcMessage);
         })
-        .catch(e => {
+        .catch((e) => {
           log.error('Failed sending RPC message "' + action + '":', e);
           reject(e);
         });
     });
   }
 
-  _prepareParams(data: mixed): Array<mixed>|Object {
+  _prepareParams(data: mixed): Array<mixed> | Object {
     // JSONRPC only accepts arrays and objects as params, but
     // this isn't very nice to use, so this method wraps other
     // types in an array. The choice of array is based on try-and-error
 
-    if(data === undefined) {
+    if (data === undefined) {
       return [];
     } else if (data === null) {
       return [null];
-    } else if (Array.isArray(data) || typeof(data) === 'object') {
+    } else if (Array.isArray(data) || typeof data === 'object') {
       return data;
     } else {
       return [data];
@@ -155,8 +157,9 @@ export default class Ipc {
   }
 
   _getWebSocket(): Promise<WebSocket> {
-    return new Promise(resolve => {
-      if (this._websocket && this._websocket.readyState === 1) { // Connected
+    return new Promise((resolve) => {
+      if (this._websocket && this._websocket.readyState === 1) {
+        // Connected
         resolve(this._websocket);
       } else {
         log.debug('Waiting for websocket to connect');
@@ -236,7 +239,7 @@ export default class Ipc {
       log.debug('Websocket is connected');
       this._backoff.successfullyConnected();
 
-      while(this._onConnect.length > 0) {
+      while (this._onConnect.length > 0) {
         this._onConnect.pop().resolve();
       }
     };
@@ -251,12 +254,16 @@ export default class Ipc {
     };
 
     this._websocket.onclose = () => {
-      if(this._closeConnectionHandler) {
+      if (this._closeConnectionHandler) {
         this._closeConnectionHandler();
       }
 
       const delay = this._backoff.getIncreasedBackoff();
-      log.warn('The websocket connetion closed, attempting to reconnect it in', delay, 'milliseconds');
+      log.warn(
+        'The websocket connetion closed, attempting to reconnect it in',
+        delay,
+        'milliseconds',
+      );
       setTimeout(() => this._reconnect(), delay);
     };
   }

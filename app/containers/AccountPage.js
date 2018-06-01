@@ -22,8 +22,11 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onClose: () => {
       pushHistory('/settings');
     },
-    onBuyMore: () => openLink(links['purchase'])
+    onBuyMore: () => openLink(links['purchase']),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Account);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Account);

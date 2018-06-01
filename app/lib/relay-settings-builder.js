@@ -5,7 +5,7 @@ import type {
   RelayProtocol,
   RelaySettingsUpdate,
   RelaySettingsNormalUpdate,
-  RelaySettingsCustom
+  RelaySettingsCustom,
 } from './ipc-facade';
 
 type LocationBuilder<Self> = {
@@ -18,16 +18,16 @@ type LocationBuilder<Self> = {
 type OpenVPNConfigurator<Self> = {
   port: {
     exact: (port: number) => Self,
-    any: () => Self
+    any: () => Self,
   },
   protocol: {
     exact: (protocol: RelayProtocol) => Self,
-    any: () => Self
-  }
+    any: () => Self,
+  },
 };
 
 type TunnelBuilder<Self> = {
-  openvpn: (configurator: (OpenVPNConfigurator<*>) => void) => Self
+  openvpn: (configurator: (OpenVPNConfigurator<*>) => void) => Self,
 };
 
 class NormalRelaySettingsBuilder {
@@ -35,7 +35,7 @@ class NormalRelaySettingsBuilder {
 
   build(): RelaySettingsUpdate {
     return {
-      normal: this._payload
+      normal: this._payload,
     };
   }
 
@@ -53,22 +53,23 @@ class NormalRelaySettingsBuilder {
         this._payload.location = 'any';
         return this;
       },
-      fromRaw: function (location: 'any' | RelayLocation) {
-        if(location === 'any') {
+      fromRaw: function(location: 'any' | RelayLocation) {
+        if (location === 'any') {
           return this.any();
         }
 
-        if(location.city) {
+        if (location.city) {
           const [country, city] = location.city;
           return this.city(country, city);
         }
 
-        if(location.country) {
+        if (location.country) {
           return this.country(location.country);
         }
 
-        throw new Error('Unsupported value of RelayLocation' +
-          (location && JSON.stringify(location)) );
+        throw new Error(
+          'Unsupported value of RelayLocation' + (location && JSON.stringify(location)),
+        );
       },
     };
   }
@@ -76,18 +77,18 @@ class NormalRelaySettingsBuilder {
   get tunnel(): TunnelBuilder<NormalRelaySettingsBuilder> {
     const updateOpenvpn = (next) => {
       const tunnel = this._payload.tunnel;
-      if(typeof(tunnel) === 'string' || typeof(tunnel) === 'undefined') {
+      if (typeof tunnel === 'string' || typeof tunnel === 'undefined') {
         this._payload.tunnel = {
           only: {
-            openvpn: next
-          }
+            openvpn: next,
+          },
         };
-      } else if(typeof(tunnel) === 'object') {
+      } else if (typeof tunnel === 'object') {
         const prev = (tunnel.only && tunnel.only.openvpn) || {};
         this._payload.tunnel = {
           only: {
-            openvpn: { ...prev, ...next }
-          }
+            openvpn: { ...prev, ...next },
+          },
         };
       }
     };
@@ -114,7 +115,7 @@ class NormalRelaySettingsBuilder {
               exact: (value: RelayProtocol) => apply({ only: value }),
               any: () => apply('any'),
             };
-          }
+          },
         };
 
         configurator(openvpnBuilder);
@@ -124,20 +125,18 @@ class NormalRelaySettingsBuilder {
       any: () => {
         this._payload.tunnel = 'any';
         return this;
-      }
+      },
     };
   }
-
 }
-
 
 type CustomOpenVPNConfigurator<Self> = {
   port: (port: number) => Self,
-  protocol: (protocol: RelayProtocol) => Self
+  protocol: (protocol: RelayProtocol) => Self,
 };
 
 type CustomTunnelBuilder<Self> = {
-  openvpn: (configurator: (CustomOpenVPNConfigurator<*>) => void) => Self
+  openvpn: (configurator: (CustomOpenVPNConfigurator<*>) => void) => Self,
 };
 
 class CustomRelaySettingsBuilder {
@@ -146,14 +145,14 @@ class CustomRelaySettingsBuilder {
     tunnel: {
       openvpn: {
         port: 0,
-        protocol: 'udp'
-      }
-    }
+        protocol: 'udp',
+      },
+    },
   };
 
   build(): RelaySettingsUpdate {
     return {
-      custom_tunnel_endpoint: this._payload
+      custom_tunnel_endpoint: this._payload,
     };
   }
 
@@ -167,24 +166,24 @@ class CustomRelaySettingsBuilder {
       const tunnel = this._payload.tunnel || {};
       const prev = tunnel.openvpn || {};
       this._payload.tunnel = {
-        openvpn: { ...prev, ...next }
+        openvpn: { ...prev, ...next },
       };
     };
 
     return {
       openvpn: (configurator) => {
         configurator({
-          port: function (port: number) {
+          port: function(port: number) {
             updateOpenvpn({ port });
             return this;
           },
-          protocol: function (protocol: RelayProtocol) {
+          protocol: function(protocol: RelayProtocol) {
             updateOpenvpn({ protocol });
             return this;
-          }
+          },
         });
         return this;
-      }
+      },
     };
   }
 }

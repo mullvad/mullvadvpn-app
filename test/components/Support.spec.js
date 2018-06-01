@@ -10,7 +10,6 @@ import sinon from 'sinon';
 import type { SupportProps } from '../../app/components/Support';
 
 describe('components/Support', () => {
-
   const makeProps = (mergeProps: $Shape<SupportProps> = {}): SupportProps => {
     const defaultProps: SupportProps = {
       account: {
@@ -23,14 +22,14 @@ describe('components/Support', () => {
       onClose: () => {},
       onViewLog: (_path) => {},
       onCollectLog: () => Promise.resolve('/tmp/mullvad_problem_report.log'),
-      onSend: (_report) => {}
+      onSend: (_report) => {},
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
 
   it('should call close callback', (done) => {
     const props = makeProps({
-      onClose: () => done()
+      onClose: () => done(),
     });
     const component = getComponent(render(props), 'support__close');
     click(component);
@@ -38,7 +37,7 @@ describe('components/Support', () => {
 
   it('should call view logs callback', (done) => {
     const props = makeProps({
-      onViewLog: (_path) => done()
+      onViewLog: (_path) => done(),
     });
     const component = getComponent(render(props), 'support__view_logs');
     click(component);
@@ -46,7 +45,7 @@ describe('components/Support', () => {
 
   it('should call send callback when description filled in', (done) => {
     const props = makeProps({
-      onSend: (_report) => done()
+      onSend: (_report) => done(),
     });
 
     const component = render(props);
@@ -68,7 +67,7 @@ describe('components/Support', () => {
   it('should not collect report twice', (done) => {
     const collectCallback = sinon.spy(() => Promise.resolve('non-falsy'));
     const props = makeProps({
-      onCollectLog: collectCallback
+      onCollectLog: collectCallback,
     });
 
     const viewLogButton = getComponent(render(props), 'support__view_logs');
@@ -99,7 +98,7 @@ describe('components/Support', () => {
         } catch (e) {
           done(e);
         }
-      }
+      },
     });
 
     const component = render(props);
@@ -108,17 +107,14 @@ describe('components/Support', () => {
     const sendButton = getComponent(component, 'support__send_logs');
     click(sendButton);
   });
-
 });
 
 function render(props) {
-  return shallow(
-    <Support {...props} />
-  );
+  return shallow(<Support {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function click(component) {

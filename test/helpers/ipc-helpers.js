@@ -19,7 +19,6 @@ export function setupIpcAndStore() {
 }
 
 export function setupBackendAndStore() {
-
   const { store, mockIpc } = setupIpcAndStore();
 
   const credentials = {
@@ -69,7 +68,6 @@ export function checkNextTick(fn: Check, done: DoneCallback) {
   }, 1);
 }
 
-
 // In async tests where we want to test a chain of IPC messages
 // we can only invoke `done` for the last message. This function
 // is for the intermediate messages.
@@ -77,7 +75,7 @@ export function failFast(fn: Check, done: DoneCallback): boolean {
   try {
     fn();
     return false;
-  } catch(e) {
+  } catch (e) {
     done(e);
     return true;
   }
@@ -89,17 +87,18 @@ export function failFastNextTick(fn: Check, done: DoneCallback) {
 }
 
 type MockStore = {
-  getActions: () => Array<{type: string, payload: Object}>,
-}
+  getActions: () => Array<{ type: string, payload: Object }>,
+};
 // Parses the action log to find out which URL we most recently navigated to
 // Note that this cannot be done with the real redux store, but rather must be
 // done with the mock store.
 export function getLocation(store: MockStore): ?string {
-  const navigations = store.getActions().filter(action => action.type === '@@router/CALL_HISTORY_METHOD');
+  const navigations = store
+    .getActions()
+    .filter((action) => action.type === '@@router/CALL_HISTORY_METHOD');
   if (navigations.length === 0) {
     return null;
   }
 
   return navigations[navigations.length - 1].payload.args[0];
 }
-

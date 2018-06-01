@@ -4,14 +4,14 @@ import fs from 'fs';
 
 export function canTrustRpcAddressFile(path: string): boolean {
   const platform = process.platform;
-  switch(platform) {
-  case 'win32':
-    return isOwnedByLocalSystem(path);
-  case 'darwin':
-  case 'linux':
-    return isOwnedAndOnlyWritableByRoot(path);
-  default:
-    throw new Error(`Unknown platform: ${platform}`);
+  switch (platform) {
+    case 'win32':
+      return isOwnedByLocalSystem(path);
+    case 'darwin':
+    case 'linux':
+      return isOwnedAndOnlyWritableByRoot(path);
+    default:
+      throw new Error(`Unknown platform: ${platform}`);
   }
 }
 
@@ -27,7 +27,10 @@ function isOwnedByLocalSystem(path: string): boolean {
   // $FlowFixMe: this module is only available on Windows
   const winsec = require('windows-security');
   const ownerSid = winsec.getFileOwnerSid(path, null);
-  const isWellKnownSid = winsec.isWellKnownSid(ownerSid, winsec.WellKnownSid.BuiltinAdministratorsSid);
+  const isWellKnownSid = winsec.isWellKnownSid(
+    ownerSid,
+    winsec.WellKnownSid.BuiltinAdministratorsSid,
+  );
 
   return isWellKnownSid;
 }

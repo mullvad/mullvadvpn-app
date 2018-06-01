@@ -50,7 +50,7 @@ describe('lib/keyframe-animation', function() {
 
     animation.play({
       startFrame: 2,
-      endFrame: 4
+      endFrame: 4,
     });
   });
 
@@ -67,7 +67,7 @@ describe('lib/keyframe-animation', function() {
     animation.reverse = true;
     animation.play({
       startFrame: 4,
-      endFrame: 2
+      endFrame: 2,
     });
   });
 
@@ -87,7 +87,7 @@ describe('lib/keyframe-animation', function() {
     animation.play({
       beginFromCurrentState: true,
       startFrame: 3,
-      endFrame: 4
+      endFrame: 4,
     });
   });
 
@@ -108,7 +108,7 @@ describe('lib/keyframe-animation', function() {
     animation.play({
       beginFromCurrentState: true,
       startFrame: 3,
-      endFrame: 4
+      endFrame: 4,
     });
   });
 
@@ -128,7 +128,7 @@ describe('lib/keyframe-animation', function() {
     animation.play({
       beginFromCurrentState: true,
       startFrame: 1,
-      endFrame: 2
+      endFrame: 2,
     });
   });
 
@@ -149,7 +149,7 @@ describe('lib/keyframe-animation', function() {
     animation.play({
       beginFromCurrentState: true,
       startFrame: 1,
-      endFrame: 3
+      endFrame: 3,
     });
   });
 
@@ -173,7 +173,7 @@ describe('lib/keyframe-animation', function() {
     const expectedFrames = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4];
 
     animation.onFrame = () => {
-      if(seq.length === expectedFrames.length) {
+      if (seq.length === expectedFrames.length) {
         animation.stop();
         expect(seq).to.be.deep.equal(expectedFrames);
         done();
@@ -192,7 +192,7 @@ describe('lib/keyframe-animation', function() {
     const expectedFrames = [4, 3, 2, 1, 0, 4, 3, 2, 1, 0];
 
     animation.onFrame = () => {
-      if(seq.length === expectedFrames.length) {
+      if (seq.length === expectedFrames.length) {
         animation.stop();
         expect(seq).to.be.deep.equal(expectedFrames);
         done();
@@ -212,7 +212,7 @@ describe('lib/keyframe-animation', function() {
     const expectedFrames = [0, 1, 2, 3, 4, 3, 2, 1, 0];
 
     animation.onFrame = () => {
-      if(seq.length === expectedFrames.length) {
+      if (seq.length === expectedFrames.length) {
         animation.stop();
         expect(seq).to.be.deep.equal(expectedFrames);
         done();
@@ -232,7 +232,7 @@ describe('lib/keyframe-animation', function() {
     const expectedFrames = [4, 3, 2, 1, 0, 1, 2, 3, 4];
 
     animation.onFrame = () => {
-      if(seq.length === expectedFrames.length) {
+      if (seq.length === expectedFrames.length) {
         animation.stop();
         expect(seq).to.be.deep.equal(expectedFrames);
         done();
@@ -246,5 +246,4 @@ describe('lib/keyframe-animation', function() {
     animation.alternate = true;
     animation.play();
   });
-
 });

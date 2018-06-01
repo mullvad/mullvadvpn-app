@@ -7,7 +7,7 @@ export default {
     login_footer: {
       backgroundColor: colors.darkBlue,
       paddingTop: 18,
-      paddingBottom:16,
+      paddingBottom: 16,
       flex: 0,
     },
     status_icon: {
@@ -16,18 +16,18 @@ export default {
       marginBottom: 30,
       justifyContent: 'center',
     },
-    login_form:{
-      flex:1,
+    login_form: {
+      flex: 1,
       flexDirection: 'column',
-      overflow:'visible',
+      overflow: 'visible',
       paddingTop: 0,
       paddingBottom: 0,
       paddingLeft: 24,
       paddingRight: 24,
       marginTop: 83,
-      marginBottom:0,
+      marginBottom: 0,
       marginRight: 0,
-      marginLeft:0,
+      marginLeft: 0,
     },
     account_input_group: {
       borderWidth: 2,
@@ -131,7 +131,7 @@ export default {
       letterSpacing: -0.7,
       color: colors.white,
       marginBottom: 7,
-      flex:0,
+      flex: 0,
     },
     subtitle: {
       fontFamily: 'Open Sans',

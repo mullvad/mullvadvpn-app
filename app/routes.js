@@ -18,30 +18,36 @@ import type { ReduxGetState } from './redux/store';
 import type { Backend } from './lib/backend';
 
 export type SharedRouteProps = {
-  backend: Backend
+  backend: Backend,
 };
 
 type CustomRouteProps = {
-  component: React.ComponentType<*>
+  component: React.ComponentType<*>,
 };
 
-export default function makeRoutes(getState: ReduxGetState, componentProps: SharedRouteProps): React.Element<*> {
-
+export default function makeRoutes(
+  getState: ReduxGetState,
+  componentProps: SharedRouteProps,
+): React.Element<*> {
   // Merge props and render component
-  const renderMergedProps = (ComponentClass: React.ComponentType<*>, ...rest: Array<Object>): React.Element<*> => {
+  const renderMergedProps = (
+    ComponentClass: React.ComponentType<*>,
+    ...rest: Array<Object>
+  ): React.Element<*> => {
     const finalProps = Object.assign({}, componentProps, ...rest);
-    return (
-      <ComponentClass { ...finalProps } />
-    );
+    return <ComponentClass {...finalProps} />;
   };
 
   // Renders public route
   // example: <PublicRoute path="/" component={ MyComponent } />
   const PublicRoute = ({ component, ...otherProps }: CustomRouteProps) => {
     return (
-      <Route { ...otherProps } render={ (routeProps) => {
-        return renderMergedProps(component, routeProps, otherProps);
-      }} />
+      <Route
+        {...otherProps}
+        render={(routeProps) => {
+          return renderMergedProps(component, routeProps, otherProps);
+        }}
+      />
     );
   };
 
@@ -49,16 +55,19 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
   // example: <PrivateRoute path="/protected" component={ MyComponent } />
   const PrivateRoute = ({ component, ...otherProps }: CustomRouteProps) => {
     return (
-      <Route { ...otherProps } render={ (routeProps) => {
-        const { account } = getState();
-        const isLoggedIn = account.status === 'ok';
+      <Route
+        {...otherProps}
+        render={(routeProps) => {
+          const { account } = getState();
+          const isLoggedIn = account.status === 'ok';
 
-        if(isLoggedIn) {
-          return renderMergedProps(component, routeProps, otherProps);
-        } else {
-          return (<Redirect to={ '/' } />);
-        }
-      }} />
+          if (isLoggedIn) {
+            return renderMergedProps(component, routeProps, otherProps);
+          } else {
+            return <Redirect to={'/'} />;
+          }
+        }}
+      />
     );
   };
 
@@ -67,16 +76,19 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
   // example: <LoginRoute path="/login" component={ MyComponent } />
   const LoginRoute = ({ component, ...otherProps }: CustomRouteProps) => {
     return (
-      <Route { ...otherProps } render={ (routeProps) => {
-        const { account } = getState();
-        const isLoggedIn = account.status === 'ok';
+      <Route
+        {...otherProps}
+        render={(routeProps) => {
+          const { account } = getState();
+          const isLoggedIn = account.status === 'ok';
 
-        if(isLoggedIn) {
-          return (<Redirect to={ '/connect' } />);
-        } else {
-          return renderMergedProps(component, routeProps, otherProps);
-        }
-      }} />
+          if (isLoggedIn) {
+            return <Redirect to={'/connect'} />;
+          } else {
+            return renderMergedProps(component, routeProps, otherProps);
+          }
+        }}
+      />
     );
   };
 
@@ -84,28 +96,30 @@ export default function makeRoutes(getState: ReduxGetState, componentProps: Shar
   let previousRoute: ?string;
 
   return (
-    <Route render={({ location }) => {
-      const toRoute = location.pathname;
-      const fromRoute = previousRoute;
-      const transitionProps = getTransitionProps(fromRoute, toRoute);
-      previousRoute = toRoute;
+    <Route
+      render={({ location }) => {
+        const toRoute = location.pathname;
+        const fromRoute = previousRoute;
+        const transitionProps = getTransitionProps(fromRoute, toRoute);
+        previousRoute = toRoute;
 
-      return (
-        <PlatformWindow>
-          <TransitionContainer { ...transitionProps }>
-            <Switch key={ location.key } location={ location }>
-              <LoginRoute exact path="/" component={ LoginPage } />
-              <PrivateRoute exact path="/connect" component={ ConnectPage } />
-              <PublicRoute exact path="/settings" component={ SettingsPage } />
-              <PrivateRoute exact path="/settings/account" component={ AccountPage } />
-              <PublicRoute exact path="/settings/preferences" component={ PreferencesPage } />
-              <PublicRoute exact path="/settings/advanced" component={ AdvancedSettingsPage } />
-              <PublicRoute exact path="/settings/support" component={ SupportPage } />
-              <PrivateRoute exact path="/select-location" component={ SelectLocationPage } />
-            </Switch>
-          </TransitionContainer>
-        </PlatformWindow>
-      );
-    }} />
+        return (
+          <PlatformWindow>
+            <TransitionContainer {...transitionProps}>
+              <Switch key={location.key} location={location}>
+                <LoginRoute exact path="/" component={LoginPage} />
+                <PrivateRoute exact path="/connect" component={ConnectPage} />
+                <PublicRoute exact path="/settings" component={SettingsPage} />
+                <PrivateRoute exact path="/settings/account" component={AccountPage} />
+                <PublicRoute exact path="/settings/preferences" component={PreferencesPage} />
+                <PublicRoute exact path="/settings/advanced" component={AdvancedSettingsPage} />
+                <PublicRoute exact path="/settings/support" component={SupportPage} />
+                <PrivateRoute exact path="/select-location" component={SelectLocationPage} />
+              </Switch>
+            </TransitionContainer>
+          </PlatformWindow>
+        );
+      }}
+    />
   );
 }

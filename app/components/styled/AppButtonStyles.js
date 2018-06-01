@@ -4,42 +4,42 @@ import { createViewStyles, createTextStyles } from '../../lib/styles';
 
 export default {
   ...createViewStyles({
-    red:{
+    red: {
       backgroundColor: colors.red95,
     },
     redHover: {
       backgroundColor: colors.red,
     },
-    green:{
+    green: {
       backgroundColor: colors.green,
     },
-    greenHover:{
+    greenHover: {
       backgroundColor: colors.green90,
     },
-    blue:{
+    blue: {
       backgroundColor: colors.blue80,
     },
-    blueHover:{
+    blueHover: {
       backgroundColor: colors.blue60,
     },
-    white80:{
+    white80: {
       color: colors.white80,
     },
     white: {
       color: colors.white,
     },
-    icon:{
+    icon: {
       position: 'absolute',
       alignSelf: 'flex-end',
       right: 8,
       marginLeft: 8,
     },
-    iconTransparent:{
+    iconTransparent: {
       position: 'absolute',
       alignSelf: 'flex-end',
       right: 42,
     },
-    common:{
+    common: {
       paddingTop: 9,
       paddingLeft: 9,
       paddingRight: 9,
@@ -56,7 +56,7 @@ export default {
     },
   }),
   ...createTextStyles({
-    label:{
+    label: {
       alignSelf: 'center',
       fontFamily: 'DINPro',
       fontSize: 20,

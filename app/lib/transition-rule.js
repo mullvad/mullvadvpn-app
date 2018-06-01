@@ -2,21 +2,20 @@
 
 export type TransitionDescriptor = {
   name: string,
-  duration: number
+  duration: number,
 };
 
 export type TransitionFork = {
   forward: TransitionDescriptor,
-  backward: TransitionDescriptor
+  backward: TransitionDescriptor,
 };
 
 export type TransitionMatch = {
   direction: 'forward' | 'backward',
-  descriptor: TransitionDescriptor
+  descriptor: TransitionDescriptor,
 };
 
 export default class TransitionRule {
-
   _from: ?string;
   _to: string;
   _fork: TransitionFork;
@@ -28,17 +27,17 @@ export default class TransitionRule {
   }
 
   match(fromRoute: ?string, toRoute: string): ?TransitionMatch {
-    if((!this._from || this._from === fromRoute) && this._to === toRoute) {
+    if ((!this._from || this._from === fromRoute) && this._to === toRoute) {
       return {
         direction: 'forward',
-        descriptor: this._fork['forward']
+        descriptor: this._fork['forward'],
       };
     }
 
-    if((!this._from || this._from === toRoute) && this._to === fromRoute) {
+    if ((!this._from || this._from === toRoute) && this._to === fromRoute) {
       return {
         direction: 'backward',
-        descriptor: this._fork['backward']
+        descriptor: this._fork['backward'],
       };
     }
 

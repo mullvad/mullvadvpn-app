@@ -4,17 +4,17 @@ import { createViewStyles } from '../../lib/styles';
 
 export default {
   ...createViewStyles({
-    transparent:{
+    transparent: {
       backgroundColor: colors.white20,
     },
-    transparentHover:{
+    transparentHover: {
       backgroundColor: colors.white40,
     },
-    redTransparent:{
+    redTransparent: {
       backgroundColor: colors.red40,
     },
-    redTransparentHover:{
+    redTransparentHover: {
       backgroundColor: colors.red45,
     },
-  })
+  }),
 };

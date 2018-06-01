@@ -12,11 +12,11 @@ const keycodes = {
   '0': { which: 48, keyCode: 48 },
   Tab: { which: 9, keyCode: 9 },
   Enter: { which: 13, keyCode: 13 },
-  Backspace: { which: 8, keyCode: 8 }
+  Backspace: { which: 8, keyCode: 8 },
 };
 
 export type Keycode = $Keys<typeof keycodes>;
 
 export function createKeyEvent(key: Keycode): Object {
-  return Object.assign({}, { key }, keycodes[key], {preventDefault: () => {}}); //preventDefault is needed to mock key events for onKeyPress in AccountInput
+  return Object.assign({}, { key }, keycodes[key], { preventDefault: () => {} }); //preventDefault is needed to mock key events for onKeyPress in AccountInput
 }

@@ -25,7 +25,7 @@ export class IpcChain {
   _addStep<R>(step: StepBuilder<R>) {
     const me = this;
     this._mockIpc[step.ipcCall] = function() {
-      return new Promise(r => me._stepPromiseCallback(step, r, arguments));
+      return new Promise((r) => me._stepPromiseCallback(step, r, arguments));
     };
   }
 

@@ -19,8 +19,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onSelect: async (relayLocation) => {
       try {
         const relayUpdate = RelaySettingsBuilder.normal()
-          .location
-          .fromRaw(relayLocation)
+          .location.fromRaw(relayLocation)
           .build();
 
         await backend.updateRelaySettings(relayUpdate);
@@ -31,8 +30,11 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       } catch (e) {
         log.error('Failed to select server: ', e.message);
       }
-    }
+    },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SelectLocation);

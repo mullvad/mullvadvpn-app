@@ -7,7 +7,6 @@ import type { Tray } from 'electron';
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
 export default class TrayIconManager {
-
   _animation: ?KeyframeAnimation;
   _iconType: TrayIconType;
 
@@ -22,7 +21,7 @@ export default class TrayIconManager {
   }
 
   destroy() {
-    if(this._animation) {
+    if (this._animation) {
       this._animation.stop();
       this._animation = null;
     }
@@ -36,7 +35,7 @@ export default class TrayIconManager {
     return animation;
   }
 
-  _isReverseAnimation(type: TrayIconType): bool {
+  _isReverseAnimation(type: TrayIconType): boolean {
     return type === 'unsecured';
   }
 
@@ -45,13 +44,14 @@ export default class TrayIconManager {
   }
 
   set iconType(type: TrayIconType) {
-    if(this._iconType === type || !this._animation) { return; }
+    if (this._iconType === type || !this._animation) {
+      return;
+    }
 
     const animation = this._animation;
     if (type === 'secured') {
       animation.reverse = true;
       animation.play({ beginFromCurrentState: true, startFrame: 8, endFrame: 9 });
-
     } else {
       animation.reverse = this._isReverseAnimation(type);
       animation.play({ beginFromCurrentState: true });

@@ -9,17 +9,16 @@ import Login from '../../app/components/Login';
 import AccountInput from '../../app/components/AccountInput';
 
 describe('components/Login', () => {
-
   it('notifies on the first change after failure', () => {
     let onFirstChange = sinon.spy();
     const props = {
       account: Object.assign({}, defaultAccount, {
-        status: 'failed'
+        status: 'failed',
       }),
       onFirstChangeAfterFailure: onFirstChange,
     };
 
-    const component = renderWithProps( props );
+    const component = renderWithProps(props);
     const accountInput = component.find(AccountInput);
 
     accountInput.simulate('change', 'foo');
@@ -61,7 +60,7 @@ describe('components/Login', () => {
     const component = renderNotLoggedIn();
     component.setProps({
       account: Object.assign({}, defaultAccount, {
-        accountToken: '12345'
+        accountToken: '12345',
       }),
       onLogin: (an) => {
         try {
@@ -82,7 +81,7 @@ const defaultAccount = {
   accountHistory: [],
   expiry: null,
   status: 'none',
-  error: null
+  error: null,
 };
 
 const defaultProps = {
@@ -122,11 +121,11 @@ function renderNotLoggedIn() {
 
 function renderWithProps(customProps) {
   const props = Object.assign({}, defaultProps, customProps);
-  return shallow( <Login { ...props } /> );
+  return shallow(<Login {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function click(component) {

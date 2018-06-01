@@ -21,11 +21,10 @@ export default {
     container: {
       flexDirection: 'column',
       flex: 1,
-      position: 'relative', /* need this for z-index to work to cover map */
+      position: 'relative' /* need this for z-index to work to cover map */,
       zIndex: 1,
-
     },
-    footer:{
+    footer: {
       flex: 0,
       marginBottom: 16,
     },
@@ -62,7 +61,7 @@ export default {
       flex: 1,
     },
     status_icon: {
-      position:'absolute',
+      position: 'absolute',
       alignSelf: 'center',
       width: 60,
       height: 60,
@@ -92,7 +91,7 @@ export default {
       letterSpacing: -0.7,
       color: colors.white,
       marginBottom: 7,
-      flex:0,
+      flex: 0,
     },
     error_title: {
       fontFamily: 'DINPro',

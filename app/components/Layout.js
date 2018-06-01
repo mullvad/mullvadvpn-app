@@ -14,7 +14,7 @@ export class Header extends Component {
   render() {
     return (
       <View style={styles.header}>
-        <HeaderBar { ...this.props } />
+        <HeaderBar {...this.props} />
       </View>
     );
   }
@@ -22,28 +22,20 @@ export class Header extends Component {
 
 export class Container extends Component {
   props: {
-    children: React.Node
-  }
+    children: React.Node,
+  };
 
   render() {
-    return (
-      <View style={styles.container}>
-        { this.props.children }
-      </View>
-    );
+    return <View style={styles.container}>{this.props.children}</View>;
   }
 }
 
 export class Layout extends Component {
   props: {
-    children: Array<React.Node> | React.Node
-  }
+    children: Array<React.Node> | React.Node,
+  };
 
   render() {
-    return (
-      <View style={styles.layout}>
-        { this.props.children }
-      </View>
-    );
+    return <View style={styles.layout}>{this.props.children}</View>;
   }
 }

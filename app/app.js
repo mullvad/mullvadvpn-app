@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { Component} from 'reactxp';
+import { Component } from 'reactxp';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { createMemoryHistory } from 'history';
@@ -31,8 +31,8 @@ ipcRenderer.on('backend-info', async (_event, args) => {
     await backend.fetchSecurityState();
     await backend.connect();
   } catch (e) {
-    if(e instanceof BackendError) {
-      if(e.type === 'NO_ACCOUNT') {
+    if (e instanceof BackendError) {
+      if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');
         ipcRenderer.send('show-window');
       }
@@ -42,25 +42,24 @@ ipcRenderer.on('backend-info', async (_event, args) => {
 
 ipcRenderer.on('shutdown', () => {
   log.info('Been told by the node process to shutdown');
-  backend.shutdown()
-    .catch( e => {
-      log.warn('Unable to shut down the backend', e.message);
-    });
+  backend.shutdown().catch((e) => {
+    log.warn('Unable to shut down the backend', e.message);
+  });
 });
 
 ipcRenderer.on('disconnect', () => {
   log.info('Been told by the node process to disconnect the tunnel');
-  backend.disconnect()
-    .catch( e => {
-      log.warn('Unable to disconnect the tunnel', e.message);
-    });
+  backend.disconnect().catch((e) => {
+    log.warn('Unable to disconnect the tunnel', e.message);
+  });
 });
 
 ipcRenderer.on('app-shutdown', () => {
   log.info('Been told by the renderer process that the app is shutting down');
   // The shutdown behaviour may have to be different on mobile platforms
-  const shutdown_func = process.platform === 'darwin' ? () => backend.shutdown() : () => backend.disconnect();
-  shutdown_func().catch( e => {
+  const shutdown_func =
+    process.platform === 'darwin' ? () => backend.shutdown() : () => backend.disconnect();
+  shutdown_func().catch((e) => {
     log.error('Failed to shutdown tunnel: ', e);
   });
 
@@ -79,10 +78,13 @@ ipcRenderer.on('app-shutdown', () => {
  * Get tray icon type based on connection state
  */
 const getIconType = (s: ConnectionState): TrayIconType => {
-  switch(s) {
-  case 'connected': return 'secured';
-  case 'connecting': return 'securing';
-  default: return 'unsecured';
+  switch (s) {
+    case 'connected':
+      return 'secured';
+    case 'connecting':
+      return 'securing';
+    default:
+      return 'unsecured';
   }
 };
 
@@ -106,13 +108,12 @@ webFrame.setZoomLevelLimits(1, 1);
 
 ipcRenderer.send('on-browser-window-ready');
 
-
-export default class App extends Component{
+export default class App extends Component {
   render() {
     return (
-      <Provider store={ store }>
-        <ConnectedRouter history={ memoryHistory }>
-          { makeRoutes(store.getState, { backend }) }
+      <Provider store={store}>
+        <ConnectedRouter history={memoryHistory}>
+          {makeRoutes(store.getState, { backend })}
         </ConnectedRouter>
       </Provider>
     );

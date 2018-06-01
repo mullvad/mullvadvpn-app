@@ -28,9 +28,6 @@ export default class CustomScrollbars extends Component<Props, State> {
   render() {
     const { autoHide: _autoHide, thumbInset: _thumbInset, children, ...otherProps } = this.props;
 
-    return (
-      <View { ...otherProps }>
-        { children }
-      </View>);
+    return <View {...otherProps}>{children}</View>;
   }
 }

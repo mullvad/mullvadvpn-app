@@ -11,13 +11,13 @@ import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => {
   const relaySettings = state.settings.relaySettings;
-  if(relaySettings.normal) {
+  if (relaySettings.normal) {
     const { protocol, port } = relaySettings.normal;
     return {
       protocol: protocol === 'any' ? 'Automatic' : protocol,
       port: port === 'any' ? 'Automatic' : port,
     };
-  } else if(relaySettings.custom_tunnel_endpoint) {
+  } else if (relaySettings.custom_tunnel_endpoint) {
     const { protocol, port } = relaySettings.custom_tunnel_endpoint;
     return { protocol, port };
   } else {
@@ -33,26 +33,30 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onUpdate: async (protocol, port) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.openvpn((openvpn) => {
-          if(protocol === 'Automatic') {
+          if (protocol === 'Automatic') {
             openvpn.protocol.any();
           } else {
             openvpn.protocol.exact(protocol.toLowerCase());
           }
-          if(port === 'Automatic') {
+          if (port === 'Automatic') {
             openvpn.port.any();
           } else {
             openvpn.port.exact(port);
           }
-        }).build();
+        })
+        .build();
 
       try {
         await backend.updateRelaySettings(relayUpdate);
         await backend.fetchRelaySettings();
-      } catch(e) {
+      } catch (e) {
         log.error('Failed to update relay settings', e.message);
       }
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AdvancedSettings);

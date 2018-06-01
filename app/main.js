@@ -15,7 +15,7 @@ import uuid from 'uuid';
 
 import type { TrayIconType } from './lib/tray-icon-manager';
 
-const isDevelopment = (process.env.NODE_ENV === 'development');
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // The name for application directory used for
 // scoping logs and user data in platform special folders
@@ -43,7 +43,6 @@ const appDelegate = {
   },
 
   _initLogging: () => {
-
     const logDirectory = appDelegate._getLogsDirectory();
     const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
 
@@ -71,14 +70,14 @@ const appDelegate = {
   // 1. https://github.com/electron/electron/issues/10118
   // 2. https://github.com/electron/electron/pull/10191
   _getLogsDirectory: () => {
-    switch(process.platform) {
-    case 'darwin':
-      // macOS: ~/Library/Logs/{appname}
-      return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
-    default:
-      // Windows: %APPDATA%\{appname}\logs
-      // Linux: ~/.config/{appname}/logs
-      return path.join(app.getPath('userData'), 'logs');
+    switch (process.platform) {
+      case 'darwin':
+        // macOS: ~/Library/Logs/{appname}
+        return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
+      default:
+        // Windows: %APPDATA%\{appname}\logs
+        // Linux: ~/.config/{appname}/logs
+        return path.join(app.getPath('userData'), 'logs');
     }
   },
 
@@ -88,7 +87,7 @@ const appDelegate = {
   },
 
   onReady: async () => {
-    const window = appDelegate._window = appDelegate._createWindow();
+    const window = (appDelegate._window = appDelegate._createWindow());
 
     ipcMain.on('on-browser-window-ready', () => {
       browserWindowReady = true;
@@ -112,21 +111,15 @@ const appDelegate = {
       const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
 
       const binPath = resolveBin('problem-report');
-      let args = [
-        'collect',
-        '--output', reportPath,
-      ];
+      let args = ['collect', '--output', reportPath];
 
       if (toRedact.length > 0) {
-        args = args.concat([
-          '--redact', ...toRedact,
-          '--',
-        ]);
+        args = args.concat(['--redact', ...toRedact, '--']);
       }
 
       args = args.concat([appDelegate._logFilePath]);
 
-      execFile(binPath, args, {windowsHide: true}, (err) => {
+      execFile(binPath, args, { windowsHide: true }, (err) => {
         if (err) {
           event.sender.send('collect-logs-reply', id, err);
         } else {
@@ -141,7 +134,7 @@ const appDelegate = {
     appDelegate._setAppMenu();
     appDelegate._addContextMenu(window);
 
-    if(isDevelopment) {
+    if (isDevelopment) {
       await appDelegate._installDevTools();
       window.openDevTools({ mode: 'detach' });
     }
@@ -158,25 +151,26 @@ const appDelegate = {
   _getRpcAddressFilePath: () => {
     const rpcAddressFileName = '.mullvad_rpc_address';
 
-    switch(process.platform) {
-    case 'win32': {
-      // Windows: %ALLUSERSPROFILE%\{appname}
-      let programDataDirectory = process.env.ALLUSERSPROFILE;
-      if (typeof programDataDirectory === 'undefined' || programDataDirectory === null) {
-        throw new Error('Missing %ALLUSERSPROFILE% environment variable');
-      } else {
-        let appDataDirectory = path.join(programDataDirectory, appDirectoryName);
-        return path.join(appDataDirectory, rpcAddressFileName);
+    switch (process.platform) {
+      case 'win32': {
+        // Windows: %ALLUSERSPROFILE%\{appname}
+        let programDataDirectory = process.env.ALLUSERSPROFILE;
+        if (typeof programDataDirectory === 'undefined' || programDataDirectory === null) {
+          throw new Error('Missing %ALLUSERSPROFILE% environment variable');
+        } else {
+          let appDataDirectory = path.join(programDataDirectory, appDirectoryName);
+          return path.join(appDataDirectory, rpcAddressFileName);
+        }
       }
-    }
-    default:
-      return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
+      default:
+        return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
     }
   },
   _pollForConnectionInfoFile: () => {
-
     if (appDelegate.connectionFilePollInterval) {
-      log.warn('Attempted to start polling for the RPC connection info file while another polling was already running');
+      log.warn(
+        'Attempted to start polling for the RPC connection info file while another polling was already running',
+      );
       return;
     }
 
@@ -184,9 +178,7 @@ const appDelegate = {
 
     const pollIntervalMs = 200;
     appDelegate.connectionFilePollInterval = setInterval(() => {
-
       if (browserWindowReady && fs.existsSync(rpcAddressFile)) {
-
         if (appDelegate.connectionFilePollInterval) {
           clearInterval(appDelegate.connectionFilePollInterval);
           appDelegate.connectionFilePollInterval = null;
@@ -194,7 +186,6 @@ const appDelegate = {
 
         appDelegate._sendBackendInfo(rpcAddressFile);
       }
-
     }, pollIntervalMs);
   },
   _sendBackendInfo: (rpcAddressFile: string) => {
@@ -211,7 +202,7 @@ const appDelegate = {
         log.error(`Not trusting the contents of "${rpcAddressFile}".`);
         return;
       }
-    } catch(e) {
+    } catch (e) {
       log.error(`Cannot verify the credibility of RPC address file: ${e.message}`);
       return;
     }
@@ -221,13 +212,13 @@ const appDelegate = {
     // permissions and read the contents of the file. We deem the chance
     // of that to be small enough to ignore.
 
-    fs.readFile(rpcAddressFile, 'utf8', function (err, data) {
+    fs.readFile(rpcAddressFile, 'utf8', function(err, data) {
       if (err) {
         return log.error('Could not find backend connection info', err);
       }
 
       const credentials = parseIpcCredentials(data);
-      if(credentials) {
+      if (credentials) {
         log.debug('Read IPC connection info', credentials.connectionString);
         window.webContents.send('backend-info', { credentials });
       } else {
@@ -240,7 +231,7 @@ const appDelegate = {
     const installer = require('electron-devtools-installer');
     const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    for(const name of extensions) {
+    for (const name of extensions) {
       try {
         await installer.default(installer[name], forceDownload);
       } catch (e) {
@@ -266,42 +257,42 @@ const appDelegate = {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
         // Enable experimental features
-        blinkFeatures: 'CSSBackdropFilter'
-      }
+        blinkFeatures: 'CSSBackdropFilter',
+      },
     };
 
-    switch(process.platform) {
-    case 'darwin': {
-      // setup window flags to mimic popover on macOS
-      const appWindow = new BrowserWindow({
-        ...options,
-        // 12 is the size of transparent area around arrow
-        height: contentHeight + 12,
-        minHeight: contentHeight + 12,
-        transparent: true
-      });
+    switch (process.platform) {
+      case 'darwin': {
+        // setup window flags to mimic popover on macOS
+        const appWindow = new BrowserWindow({
+          ...options,
+          // 12 is the size of transparent area around arrow
+          height: contentHeight + 12,
+          minHeight: contentHeight + 12,
+          transparent: true,
+        });
 
-      // make the window visible on all workspaces
-      appWindow.setVisibleOnAllWorkspaces(true);
+        // make the window visible on all workspaces
+        appWindow.setVisibleOnAllWorkspaces(true);
 
-      return appWindow;
-    }
+        return appWindow;
+      }
 
-    case 'win32':
-      // setup window flags to mimic an overlay window
-      return new BrowserWindow({
-        ...options,
-        transparent: true
-      });
+      case 'win32':
+        // setup window flags to mimic an overlay window
+        return new BrowserWindow({
+          ...options,
+          transparent: true,
+        });
 
-    case 'linux':
-      return new BrowserWindow({
-        ...options,
-        show: true,
-      });
+      case 'linux':
+        return new BrowserWindow({
+          ...options,
+          show: true,
+        });
 
-    default:
-      return new BrowserWindow(options);
+      default:
+        return new BrowserWindow(options);
     }
   },
 
@@ -309,11 +300,7 @@ const appDelegate = {
     const template = [
       {
         label: 'Mullvad',
-        submenu: [
-          { role: 'about' },
-          { type: 'separator' },
-          { role: 'quit' }
-        ]
+        submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
       },
       {
         label: 'Edit',
@@ -322,9 +309,9 @@ const appDelegate = {
           { role: 'copy' },
           { role: 'paste' },
           { type: 'separator' },
-          { role: 'selectall' }
-        ]
-      }
+          { role: 'selectall' },
+        ],
+      },
     ];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   },
@@ -335,29 +322,31 @@ const appDelegate = {
       { role: 'copy' },
       { role: 'paste' },
       { type: 'separator' },
-      { role: 'selectall' }
+      { role: 'selectall' },
     ];
 
     // add inspect element on right click menu
     window.webContents.on('context-menu', (_e: Event, props: { x: number, y: number }) => {
-      let inspectTemplate = [{
-        label: 'Inspect element',
-        click() {
-          window.openDevTools({ mode: 'detach' });
-          window.inspectElement(props.x, props.y);
-        }
-      }];
+      let inspectTemplate = [
+        {
+          label: 'Inspect element',
+          click() {
+            window.openDevTools({ mode: 'detach' });
+            window.inspectElement(props.x, props.y);
+          },
+        },
+      ];
 
-      if(props.isEditable) {
+      if (props.isEditable) {
         let inputMenu = menuTemplate;
 
         // mixin 'inspect element' into standard menu when in development mode
-        if(isDevelopment) {
-          inputMenu = menuTemplate.concat([{type: 'separator'}], inspectTemplate);
+        if (isDevelopment) {
+          inputMenu = menuTemplate.concat([{ type: 'separator' }], inspectTemplate);
         }
 
         Menu.buildFromTemplate(inputMenu).popup(window);
-      } else if(isDevelopment) {
+      } else if (isDevelopment) {
         // display inspect element for all non-editable
         // elements when in development mode
         Menu.buildFromTemplate(inspectTemplate).popup(window);
@@ -366,7 +355,7 @@ const appDelegate = {
   },
 
   _toggleWindow: (window: BrowserWindow, tray: ?Tray) => {
-    if(window.isVisible()) {
+    if (window.isVisible()) {
       window.hide();
     } else {
       appDelegate._showWindow(window, tray);
@@ -379,7 +368,7 @@ const appDelegate = {
   },
 
   _showWindow: (window: BrowserWindow, tray: ?Tray) => {
-    if(tray) {
+    if (tray) {
       appDelegate._updateWindowPosition(window, tray);
     }
 
@@ -388,28 +377,28 @@ const appDelegate = {
   },
 
   _getTrayPlacement: () => {
-    switch(process.platform) {
-    case 'darwin':
-      // macOS has menubar always placed at the top
-      return 'top';
+    switch (process.platform) {
+      case 'darwin':
+        // macOS has menubar always placed at the top
+        return 'top';
 
-    case 'win32': {
-      // taskbar occupies some part of the screen excluded from work area
-      const primaryDisplay = electron.screen.getPrimaryDisplay();
-      const displaySize = primaryDisplay.size;
-      const workArea = primaryDisplay.workArea;
+      case 'win32': {
+        // taskbar occupies some part of the screen excluded from work area
+        const primaryDisplay = electron.screen.getPrimaryDisplay();
+        const displaySize = primaryDisplay.size;
+        const workArea = primaryDisplay.workArea;
 
-      if(workArea.width < displaySize.width) {
-        return workArea.x > 0 ? 'left' : 'right';
-      } else if(workArea.height < displaySize.height) {
-        return workArea.y > 0 ? 'top' : 'bottom';
-      } else {
-        return 'none';
+        if (workArea.width < displaySize.width) {
+          return workArea.x > 0 ? 'left' : 'right';
+        } else if (workArea.height < displaySize.height) {
+          return workArea.y > 0 ? 'top' : 'bottom';
+        } else {
+          return 'none';
+        }
       }
-    }
 
-    default:
-      return 'none';
+      default:
+        return 'none';
     }
   },
 
@@ -423,32 +412,33 @@ const appDelegate = {
     const maxX = workArea.x + workArea.width - windowBounds.width;
     const maxY = workArea.y + workArea.height - windowBounds.height;
 
-    let x = 0, y = 0;
-    switch(placement) {
-    case 'top':
-      x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-      y = workArea.y;
-      break;
+    let x = 0,
+      y = 0;
+    switch (placement) {
+      case 'top':
+        x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
+        y = workArea.y;
+        break;
 
-    case 'bottom':
-      x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
-      y = workArea.y + workArea.height - windowBounds.height;
-      break;
+      case 'bottom':
+        x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
+        y = workArea.y + workArea.height - windowBounds.height;
+        break;
 
-    case 'left':
-      x = workArea.x;
-      y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
-      break;
+      case 'left':
+        x = workArea.x;
+        y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
+        break;
 
-    case 'right':
-      x = workArea.width - windowBounds.width;
-      y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
-      break;
+      case 'right':
+        x = workArea.width - windowBounds.width;
+        y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
+        break;
 
-    case 'none':
-      x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
-      y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
-      break;
+      case 'none':
+        x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
+        y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
+        break;
     }
 
     x = Math.min(Math.max(x, workArea.x), maxX);
@@ -456,7 +446,7 @@ const appDelegate = {
 
     return {
       x: Math.round(x),
-      y: Math.round(y)
+      y: Math.round(y),
     };
   },
 
@@ -469,14 +459,17 @@ const appDelegate = {
 
     // add display metrics change handler
     electron.screen.addListener('display-metrics-changed', (_event, _display, changedMetrics) => {
-      if(changedMetrics.includes('workArea') && window.isVisible()) {
+      if (changedMetrics.includes('workArea') && window.isVisible()) {
         appDelegate._updateWindowPosition(window, tray);
       }
     });
 
     // add IPC handler to change tray icon from renderer
     const trayIconManager = new TrayIconManager(tray, 'unsecured');
-    ipcMain.on('changeTrayIcon', (_: Event, type: TrayIconType) => trayIconManager.iconType = type);
+    ipcMain.on(
+      'changeTrayIcon',
+      (_: Event, type: TrayIconType) => (trayIconManager.iconType = type),
+    );
 
     // setup event handlers
     window.on('close', () => window.closeDevTools());
@@ -484,7 +477,7 @@ const appDelegate = {
       window.on('blur', () => !window.isDevToolsOpened() && window.hide());
     }
 
-    if(process.platform === 'darwin') {
+    if (process.platform === 'darwin') {
       // disable icon highlight on macOS
       tray.setHighlightMode('never');
 
@@ -506,7 +499,6 @@ const appDelegate = {
     window.on('show', () => macEventMonitor.start(eventMask, () => window.hide()));
     window.on('hide', () => macEventMonitor.stop());
   },
-
 };
 
 try {

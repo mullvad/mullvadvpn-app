@@ -26,7 +26,9 @@ function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   };
 }
 
-function updateRelayLocations(relayLocations: Array<RelayLocationRedux>): UpdateRelayLocationsAction {
+function updateRelayLocations(
+  relayLocations: Array<RelayLocationRedux>,
+): UpdateRelayLocationsAction {
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
     relayLocations: relayLocations,

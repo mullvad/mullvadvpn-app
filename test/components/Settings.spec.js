@@ -17,23 +17,23 @@ describe('components/Settings', () => {
     accountHistory: [],
     expiry: null,
     status: 'none',
-    error: null
+    error: null,
   };
 
   const loggedInAccountState: AccountReduxState = {
     accountToken: '1234',
     accountHistory: [],
-    expiry: (new Date('2038-01-01')).toISOString(),
+    expiry: new Date('2038-01-01').toISOString(),
     status: 'ok',
-    error: null
+    error: null,
   };
 
   const unpaidAccountState: AccountReduxState = {
     accountToken: '1234',
     accountHistory: [],
-    expiry: (new Date('2001-01-01')).toISOString(),
+    expiry: new Date('2001-01-01').toISOString(),
     status: 'ok',
-    error: null
+    error: null,
   };
 
   const settingsState: SettingsReduxState = {
@@ -48,7 +48,11 @@ describe('components/Settings', () => {
     allowLan: false,
   };
 
-  const makeProps = (anAccountState: AccountReduxState, aSettingsState: SettingsReduxState, mergeProps: $Shape<SettingsProps> = {}): SettingsProps => {
+  const makeProps = (
+    anAccountState: AccountReduxState,
+    aSettingsState: SettingsReduxState,
+    mergeProps: $Shape<SettingsProps> = {},
+  ): SettingsProps => {
     const defaultProps: SettingsProps = {
       account: anAccountState,
       settings: aSettingsState,
@@ -59,7 +63,7 @@ describe('components/Settings', () => {
       onViewSupport: () => {},
       onViewAdvancedSettings: () => {},
       onViewPreferences: () => {},
-      onExternalLink: (_type) => {}
+      onExternalLink: (_type) => {},
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
@@ -120,7 +124,7 @@ describe('components/Settings', () => {
 
   it('should call close callback', (done) => {
     const props = makeProps(loggedOutAccountState, settingsState, {
-      onClose: () => done()
+      onClose: () => done(),
     });
     const component = getComponent(render(props), 'settings__close');
     click(component);
@@ -128,7 +132,7 @@ describe('components/Settings', () => {
 
   it('should call quit callback', (done) => {
     const props = makeProps(loggedOutAccountState, settingsState, {
-      onQuit: () => done()
+      onQuit: () => done(),
     });
     const component = getComponent(render(props), 'settings__quit');
     click(component);
@@ -136,7 +140,7 @@ describe('components/Settings', () => {
 
   it('should call account callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
-      onViewAccount: () => done()
+      onViewAccount: () => done(),
     });
     const component = getComponent(render(props), 'settings__account_paid_until_button');
     click(component);
@@ -144,7 +148,7 @@ describe('components/Settings', () => {
 
   it('should call advanced settings callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
-      onViewAdvancedSettings: () => done()
+      onViewAdvancedSettings: () => done(),
     });
     const component = getComponent(render(props), 'settings__advanced');
     click(component);
@@ -152,7 +156,7 @@ describe('components/Settings', () => {
 
   it('should call preferences callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
-      onViewPreferences: () => done()
+      onViewPreferences: () => done(),
     });
     const component = getComponent(render(props), 'settings__preferences');
     click(component);
@@ -160,7 +164,7 @@ describe('components/Settings', () => {
 
   it('should call support callback', (done) => {
     const props = makeProps(loggedInAccountState, settingsState, {
-      onViewSupport: () => done()
+      onViewSupport: () => done(),
     });
     const component = getComponent(render(props), 'settings__view_support');
     click(component);
@@ -171,25 +175,21 @@ describe('components/Settings', () => {
     const props = makeProps(loggedOutAccountState, settingsState, {
       onExternalLink: (type) => {
         collectedExternalLinkTypes.push(type);
-      }
+      },
     });
     const container = getComponent(render(props), 'settings__external_link');
-    container.find({ testName: 'settings__external_link' })
-      .forEach((element) => click(element));
+    container.find({ testName: 'settings__external_link' }).forEach((element) => click(element));
 
     expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
-
 });
 
 function render(props) {
-  return shallow(
-    <Settings {...props} />
-  );
+  return shallow(<Settings {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function click(component) {
