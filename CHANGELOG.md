@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make the pkg installer uninstall any `<=2018.1` version of the app before installing itself.
 
 ### Changed
+- Changed "Contact support" label to "Report a problem" in settings menu
 - Change all occurrences of "MullvadVPN" into "Mullvad VPN", this affects
   paths and window captions etc.
 - Improve account token hint to be the same length as an expected token.
