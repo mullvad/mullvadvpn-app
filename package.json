@@ -33,8 +33,8 @@
     "validated": "^1.1.0"
   },
   "optionalDependencies": {
-    "nseventmonitor": "git+https://github.com/mullvad/NSEventMonitor.git#0.0.7",
-    "windows-security": "git+https://github.com/mullvad/windows-security.git#0.0.3"
+    "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.8",
+    "windows-security": "https://github.com/mullvad/windows-security.git#0.0.4"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
