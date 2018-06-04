@@ -31,7 +31,7 @@ pub fn run() -> Result<()> {
     // Start the service dispatcher.
     // This will block current thread until the service stopped and spawn `service_main` on a
     // background thread.
-    service_dispatcher::start_dispatcher(SERVICE_NAME, service_main)
+    service_dispatcher::start(SERVICE_NAME, service_main)
         .chain_err(|| "Failed to start a service dispatcher")
 }
 
@@ -64,9 +64,8 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
             _ => ServiceControlHandlerResult::NotImplemented,
         }
     };
-    let status_handle =
-        service_control_handler::register_control_handler(SERVICE_NAME, event_handler)
-            .chain_err(|| "Failed to register a service control handler")?;
+    let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)
+        .chain_err(|| "Failed to register a service control handler")?;
     let mut persistent_service_status = PersistentServiceStatus::new(status_handle);
     persistent_service_status
         .set_pending_start(Duration::from_secs(1))
