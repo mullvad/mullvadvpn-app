@@ -57,14 +57,10 @@ nsis:
   include: dist-assets/installer.nsh
       
 win:
-  "target": [
-    {
-      "target": "nsis",
-      "arch": [
-        "x64"
-      ]
-    }
-  ]
+  target:
+    - target: nsis
+      arch:
+        - x64
   artifactName: MullvadVPN-${version}.${ext}
   extraResources:
     - from: ./target/release/mullvad.exe
