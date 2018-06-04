@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
   directories.
 - Replaced previously bundled OpenVPN 2.4.4 with statically linked 2.4.6 version containing
   Mullvad patches for faster connect and other improvements.
+- Increase the OpenVPN receive and send buffers from 524288 to 999999 bytes.
 
 #### macOS
 - The installer changed from dmg to pkg format.
