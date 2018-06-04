@@ -13,7 +13,7 @@ bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 {
 	m_sinkInfo = sinkInfo;
 
-	m_configManager = std::make_shared<ConfigManager>(servers);
+	m_configManager = std::make_shared<ConfigManager>(servers, m_sinkInfo.configSinkInfo);
 
 	//
 	// Register interface configuration monitoring.

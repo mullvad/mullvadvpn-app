@@ -6,9 +6,11 @@
 ConfigManager::ConfigManager
 (
 	const std::vector<std::wstring> &servers,
+	const ConfigSinkInfo &configSinkInfo,
 	std::shared_ptr<ITraceSink> traceSink
 )
 	: m_servers(servers)
+	, m_configSinkInfo(configSinkInfo)
 	, m_traceSink(traceSink)
 {
 }
@@ -63,6 +65,8 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous,
 		{
 			XTRACE(L"Creating new interface configuration entry");
 			m_configs.insert(std::make_pair(configIndex, previous));
+
+			exportConfigs();
 		}
 
 		return UpdateType::WinDnsEnforced;
@@ -81,6 +85,8 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous,
 		XTRACE(L"Updating interface configuration entry");
 		iter->second = target;
 	}
+
+	exportConfigs();
 
 	return UpdateType::External;
 }
@@ -108,4 +114,13 @@ bool ConfigManager::internalUpdate(const DnsConfig &config)
 	}
 
 	return std::equal(m_servers.begin(), m_servers.end(), updatedServers->begin(), updatedServers->end());
+}
+
+void ConfigManager::exportConfigs()
+{
+	//
+	// TODO: Serialize all configs and send to config sink
+	//
+	// serialize as array of DnsConfig?
+	//
 }
