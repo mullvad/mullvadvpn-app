@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dnsconfig.h"
+#include "clientsinkinfo.h"
 #include "itracesink.h"
 #include <map>
 #include <string>
@@ -50,6 +51,7 @@ public:
 	ConfigManager
 	(
 		const std::vector<std::wstring> &servers,
+		const ConfigSinkInfo &configSinkInfo,
 		std::shared_ptr<ITraceSink> traceSink = std::make_shared<NullTraceSink>()
 	);
 
@@ -89,7 +91,9 @@ public:
 private:
 
 	std::mutex m_mutex;
+
 	std::vector<std::wstring> m_servers;
+	ConfigSinkInfo m_configSinkInfo;
 
 	//
 	// Organize configs based on their system assigned index.
@@ -102,4 +106,9 @@ private:
 	// Tests, by looking at the servers, whether this is an update initied by WINDNS.
 	//
 	bool internalUpdate(const DnsConfig &config);
+
+	//
+	// Bundle the current config details and send them into the config sink.
+	//
+	void exportConfigs();
 };
