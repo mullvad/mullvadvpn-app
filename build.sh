@@ -7,13 +7,17 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+
 ################################################################################
 # Platform specific configuration.
 ################################################################################
 
 case "$(uname -s)" in
     Linux*)
-        # config
+        # Use static builds of libmnl and libnftnl from the binaries submodule
+        export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
+        export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
         ;;
     Darwin*)
         export MACOSX_DEPLOYMENT_TARGET="10.7"
@@ -68,7 +72,6 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
     fi
 
     cargo +stable clean
-
 else
     echo "!! Development build. Not for general distribution !!"
     GIT_COMMIT=$(git rev-parse --short HEAD)
