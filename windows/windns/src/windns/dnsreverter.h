@@ -1,7 +1,6 @@
 #pragma once
 
-#include "wmi/iconnection.h"
-#include "dnsconfig.h"
+#include "interfaceconfig.h"
 #include "itracesink.h"
 #include <memory>
 
@@ -11,7 +10,7 @@ public:
 
 	DnsReverter(std::shared_ptr<ITraceSink> traceSink = std::make_shared<NullTraceSink>());
 
-	void revert(wmi::IConnection &connection, const DnsConfig &config);
+	void revert(const InterfaceConfig &config);
 
 private:
 
