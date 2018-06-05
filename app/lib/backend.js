@@ -365,6 +365,25 @@ export class Backend {
     }
   }
 
+  async updateAccountExpiry() {
+    const ipc = this._ipc;
+    const store = this._store;
+
+    try {
+      await this._ensureAuthenticated();
+
+      const accountToken = await this._ipc.getAccount();
+      if (!accountToken) {
+        throw new BackendError('NO_ACCOUNT');
+      }
+
+      const accountData = await ipc.getAccountData(accountToken);
+      store.dispatch(accountActions.updateAccountExpiry(accountData.expiry));
+    } catch (e) {
+      log.error(`Failed to update account expiry: ${e.message}`);
+    }
+  }
+
   async removeAccountFromHistory(accountToken: AccountToken) {
     try {
       await this._ensureAuthenticated();
