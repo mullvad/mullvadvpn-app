@@ -1,32 +1,28 @@
 #include "stdafx.h"
 #include "dnsreverter.h"
-#include "wmi/methodcall.h"
-#include <sstream>
+#include "netsh.h"
 
 DnsReverter::DnsReverter(std::shared_ptr<ITraceSink> traceSink)
 	: m_traceSink(traceSink)
 {
 }
 
-void DnsReverter::revert(wmi::IConnection &connection, const DnsConfig &config)
+void DnsReverter::revert(const InterfaceConfig &config)
 {
 	XTRACE("Reverting DNS configuration for interface with index=", config.interfaceIndex());
 
-	std::wstringstream ss;
+	auto servers = config.servers();
 
-	ss << L"SELECT * FROM Win32_NetworkAdapterConfiguration "
-		<< L"WHERE Index = '" << config.configIndex() << L"'";
-
-	auto resultSet = connection.query(ss.str().c_str());
-
-	if (false == resultSet.advance())
+	if (config.dhcp() || nullptr == servers || 0 == servers->size())
 	{
-		XTRACE("Unable to retrieve active configuration object");
+		NetSh::SetIpv4Dhcp(config.interfaceIndex());
 		return;
 	}
 
-	auto activeConfig = resultSet.result();
-	auto targetDns = config.servers();
+	NetSh::SetIpv4PrimaryDns(config.interfaceIndex(), (*servers)[0]);
 
-	nchelpers::SetDnsServers(connection, activeConfig, targetDns);
+	if (servers->size() > 1)
+	{
+		NetSh::SetIpv4SecondaryDns(config.interfaceIndex(), (*servers)[1]);
+	}
 }
