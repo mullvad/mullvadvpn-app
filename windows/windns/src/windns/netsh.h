@@ -14,8 +14,11 @@ public:
 	//
 	static void SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server);
 
+	static void SetIpv4Dhcp(uint32_t interfaceIndex);
+
 	static void SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server);
 	static void SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server);
+	static void SetIpv6Dhcp(uint32_t interfaceIndex);
 
 private:
 
