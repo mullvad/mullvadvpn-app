@@ -12,7 +12,7 @@ WinDnsContext::WinDnsContext()
 
 bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo)
 {
-	if (nullptr == m_configManager)
+	if (nullptr == m_notification)
 	{
 		m_configManager = std::make_shared<ConfigManager>(servers, sinkInfo.configSinkInfo);
 
@@ -64,6 +64,7 @@ bool WinDnsContext::reset()
 	}
 
 	m_notification->deactivate();
+	m_notification = nullptr;
 
 	//
 	// Revert configs
