@@ -85,6 +85,13 @@ export default function(
           accountHistory: action.accountHistory,
         },
       };
+    case 'UPDATE_ACCOUNT_EXPIRY':
+      return {
+        ...state,
+        ...{
+          expiry: action.expiry,
+        },
+      };
   }
 
   return state;
