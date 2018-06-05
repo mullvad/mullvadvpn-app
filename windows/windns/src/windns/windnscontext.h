@@ -14,19 +14,15 @@ class WinDnsContext
 public:
 
 	WinDnsContext();
+	~WinDnsContext();
 
-	// TODO: Review.
-	~WinDnsContext()
-	{
-		reset();
-	}
-
-	bool set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo);
-	bool reset();
+	void set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo);
+	void reset();
 
 private:
 
 	std::shared_ptr<wmi::Connection> m_connection;
 	std::shared_ptr<ConfigManager> m_configManager;
 	std::unique_ptr<wmi::Notification> m_notification;
+	ClientSinkInfo m_sinkInfo;
 };
