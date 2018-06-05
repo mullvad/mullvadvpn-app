@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <cstdint>
 #include <atlbase.h>
 #include <wbemidl.h>
 
@@ -16,7 +17,8 @@ using OptionalStringList = std::shared_ptr<std::vector<std::wstring> >;
 OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance);
 
 // instance = Win32_NetworkAdapterConfiguration
-void SetDnsServers(wmi::IConnection &connection, CComPtr<IWbemClassObject> instance,
-	const std::vector<std::wstring> *servers);
+uint32_t GetInterfaceIndex(CComPtr<IWbemClassObject> instance);
+
+void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &servers);
 
 }

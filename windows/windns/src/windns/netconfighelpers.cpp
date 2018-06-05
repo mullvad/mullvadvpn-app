@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "netconfighelpers.h"
 #include "comhelpers.h"
-#include "wmi/methodcall.h"
-#include <cstdint>
-#include <sstream>
-#include <stdexcept>
+#include "netsh.h"
 
 namespace nchelpers
 {
@@ -26,50 +23,19 @@ OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 	return result;
 }
 
-void SetDnsServers(wmi::IConnection &connection, CComPtr<IWbemClassObject> instance,
-	const std::vector<std::wstring> *servers)
+uint32_t GetInterfaceIndex(CComPtr<IWbemClassObject> instance)
 {
-	wmi::MethodCall methodCall;
+	return V_UI4(&ComGetPropertyAlways(instance, L"InterfaceIndex"));
+}
 
-	if (nullptr == servers)
+void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &servers)
+{
+	NetSh::SetIpv4PrimaryDns(interfaceIndex, servers[0]);
+
+	if (servers.size() > 1)
 	{
-		methodCall.addNullArgument(L"DNSServerSearchOrder", VT_ARRAY | VT_BSTR);
+		NetSh::SetIpv4SecondaryDns(interfaceIndex, servers[1]);
 	}
-	else
-	{
-		auto comServers = ComConvertIntoStringArray(*servers);
-		methodCall.addArgument(L"DNSServerSearchOrder", ComPackageStringArray(comServers));
-	}
-
-	auto status = methodCall.invoke(connection, instance, L"SetDNSServerSearchOrder");
-
-	const uint32_t STATUS_SUCCESS_NO_REBOOT_REQUIRED = 0;
-
-	if (STATUS_SUCCESS_NO_REBOOT_REQUIRED == V_UI4(&status))
-	{
-		return;
-	}
-
-	std::string msg("Unable to update adapter configuration with new DNS servers");
-
-	try
-	{
-		auto configIndex = ComGetPropertyAlways(instance, L"Index");
-		auto interfaceIndex = ComGetPropertyAlways(instance, L"InterfaceIndex");
-
-		std::stringstream ss;
-
-		ss << "Unable to update adapter with interfaceIndex = " << V_UI4(&interfaceIndex) \
-			<< ", configuration index = " << V_UI4(&configIndex) \
-			<< " with new DNS servers. Error: " << V_UI4(&status);
-
-		msg = ss.str();
-	}
-	catch (...)
-	{
-	}
-
-	throw std::runtime_error(msg);
 }
 
 }
