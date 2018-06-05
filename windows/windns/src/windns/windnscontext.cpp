@@ -2,6 +2,7 @@
 #include "windnscontext.h"
 #include "wmi/connection.h"
 #include "netconfigeventsink.h"
+#include "netconfighelpers.h"
 #include "dnsreverter.h"
 
 WinDnsContext::WinDnsContext()
@@ -41,7 +42,7 @@ bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 
 	while (resultSet.advance())
 	{
-		nchelpers::SetDnsServers(*m_connection, resultSet.result(), &servers);
+		nchelpers::SetDnsServers(nchelpers::GetInterfaceIndex(resultSet.result()), servers);
 	}
 
 	return true;
@@ -63,9 +64,9 @@ bool WinDnsContext::reset()
 
 	DnsReverter dnsReverter;
 
-	m_configManager->processConfigs([&](const DnsConfig &config)
+	m_configManager->processConfigs([&](const InterfaceConfig &config)
 	{
-		dnsReverter.revert(*m_connection, config);
+		dnsReverter.revert(config);
 
 		return true;
 	});
