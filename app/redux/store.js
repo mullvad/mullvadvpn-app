@@ -3,22 +3,22 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
 import thunk from 'redux-thunk';
 
-import account from './account/reducers.js';
-import accountActions from './account/actions.js';
-import connection from './connection/reducers.js';
-import connectionActions from './connection/actions.js';
-import settings from './settings/reducers.js';
-import settingsActions from './settings/actions.js';
+import account from './account/reducers';
+import accountActions from './account/actions';
+import connection from './connection/reducers';
+import connectionActions from './connection/actions';
+import settings from './settings/reducers';
+import settingsActions from './settings/actions';
 
 import type { Store } from 'redux';
 import type { History } from 'history';
-import type { AccountReduxState } from './account/reducers.js';
-import type { ConnectionReduxState } from './connection/reducers.js';
-import type { SettingsReduxState } from './settings/reducers.js';
+import type { AccountReduxState } from './account/reducers';
+import type { ConnectionReduxState } from './connection/reducers';
+import type { SettingsReduxState } from './settings/reducers';
 
-import type { ConnectionAction } from './connection/actions.js';
-import type { AccountAction } from './account/actions.js';
-import type { SettingsAction } from './settings/actions.js';
+import type { ConnectionAction } from './connection/actions';
+import type { AccountAction } from './account/actions';
+import type { SettingsAction } from './settings/actions';
 
 export type ReduxState = {
   account: AccountReduxState,
