@@ -12,27 +12,35 @@ WinDnsContext::WinDnsContext()
 
 bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo)
 {
-	m_sinkInfo = sinkInfo;
+	if (nullptr == m_configManager)
+	{
+		m_configManager = std::make_shared<ConfigManager>(servers, sinkInfo.configSinkInfo);
 
-	m_configManager = std::make_shared<ConfigManager>(servers, m_sinkInfo.configSinkInfo);
+		//
+		// Register interface configuration monitoring.
+		//
 
-	//
-	// Register interface configuration monitoring.
-	//
+		auto eventSink = std::make_shared<NetConfigEventSink>(m_connection, m_configManager);
+		auto eventDispatcher = CComPtr<wmi::IEventDispatcher>(new wmi::ModificationEventDispatcher(eventSink));
 
-	auto eventSink = std::make_shared<NetConfigEventSink>(m_connection, m_configManager);
-	auto eventDispatcher = CComPtr<wmi::IEventDispatcher>(new wmi::ModificationEventDispatcher(eventSink));
+		m_notification = std::make_unique<wmi::Notification>(m_connection, eventDispatcher);
 
-	m_notification = std::make_unique<wmi::Notification>(m_connection, eventDispatcher);
+		m_notification->activate
+		(
+			L"SELECT * "
+			L"FROM __InstanceModificationEvent "
+			L"WITHIN 1 "
+			L"WHERE TargetInstance ISA 'Win32_NetworkAdapterConfiguration'"
+			L"AND TargetInstance.IPEnabled = True"
+		);
+	}
+	else
+	{
+		ConfigManager::Mutex mutex(*m_configManager);
 
-	m_notification->activate
-	(
-		L"SELECT * "
-		L"FROM __InstanceModificationEvent "
-		L"WITHIN 1 "
-		L"WHERE TargetInstance ISA 'Win32_NetworkAdapterConfiguration'"
-		L"AND TargetInstance.IPEnabled = True"
-	);
+		m_configManager->updateServers(servers);
+		m_configManager->updateConfigSink(sinkInfo.configSinkInfo);
+	}
 
 	//
 	// Discover all active interfaces and apply our DNS settings.
