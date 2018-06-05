@@ -36,7 +36,7 @@ const std::vector<std::wstring> &ConfigManager::getServers() const
 	return m_servers;
 }
 
-ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous, const DnsConfig &target)
+ConfigManager::UpdateType ConfigManager::updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target)
 {
 	XTRACE(L"Interface configuration update for interface =", target.interfaceIndex());
 
@@ -83,7 +83,7 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous,
 	else
 	{
 		XTRACE(L"Updating interface configuration entry");
-		iter->second = target;
+		iter->second.updateServers(target);
 	}
 
 	exportConfigs();
@@ -91,7 +91,7 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const DnsConfig &previous,
 	return UpdateType::External;
 }
 
-bool ConfigManager::processConfigs(std::function<bool(const DnsConfig &)> configSink)
+bool ConfigManager::processConfigs(std::function<bool(const InterfaceConfig &)> configSink)
 {
 	for (auto it = m_configs.begin(); it != m_configs.end(); ++it)
 	{
@@ -104,7 +104,7 @@ bool ConfigManager::processConfigs(std::function<bool(const DnsConfig &)> config
 	return true;
 }
 
-bool ConfigManager::internalUpdate(const DnsConfig &config)
+bool ConfigManager::internalUpdate(const InterfaceConfig &config)
 {
 	auto updatedServers = config.servers();
 
@@ -121,6 +121,6 @@ void ConfigManager::exportConfigs()
 	//
 	// TODO: Serialize all configs and send to config sink
 	//
-	// serialize as array of DnsConfig?
+	// serialize as array of InterfaceConfig?
 	//
 }
