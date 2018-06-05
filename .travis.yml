@@ -2,6 +2,8 @@ sudo: false
 env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
+    - LIBMNL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
+    - LIBNFTNL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
 
 git:
   submodules: false
