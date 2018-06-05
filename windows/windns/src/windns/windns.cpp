@@ -91,7 +91,9 @@ WinDns_Set(
 	void *configContext
 )
 {
-	if (nullptr == g_Context)
+	if (nullptr == g_Context
+		|| 0 == numServers
+		|| nullptr == configSink)
 	{
 		return false;
 	}
