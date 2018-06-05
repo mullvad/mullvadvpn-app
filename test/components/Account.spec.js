@@ -13,9 +13,9 @@ describe('components/Account', () => {
   const state: AccountReduxState = {
     accountToken: '1234',
     accountHistory: [],
-    expiry: (new Date('2038-01-01')).toISOString(),
+    expiry: new Date('2038-01-01').toISOString(),
     status: 'none',
-    error: null
+    error: null,
   };
 
   const makeProps = (state: AccountReduxState, mergeProps: $Shape<AccountProps>): AccountProps => {
@@ -23,14 +23,14 @@ describe('components/Account', () => {
       account: state,
       onClose: () => {},
       onLogout: () => {},
-      onBuyMore: () => {}
+      onBuyMore: () => {},
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
 
   it('should call close callback', (done) => {
     const props = makeProps(state, {
-      onClose: () => done()
+      onClose: () => done(),
     });
     const component = getComponent(render(props), 'account__close');
     click(component);
@@ -38,7 +38,7 @@ describe('components/Account', () => {
 
   it('should call logout callback', (done) => {
     const props = makeProps(state, {
-      onLogout: () => done()
+      onLogout: () => done(),
     });
     const component = getComponent(render(props), 'account__logout');
     click(component);
@@ -46,7 +46,7 @@ describe('components/Account', () => {
 
   it('should call "buy more" callback', (done) => {
     const props = makeProps(state, {
-      onBuyMore: () => done()
+      onBuyMore: () => done(),
     });
     const component = getComponent(render(props), 'account__buymore');
     click(component);
@@ -56,9 +56,9 @@ describe('components/Account', () => {
     const expiredState: AccountReduxState = {
       accountToken: '1234',
       accountHistory: [],
-      expiry: (new Date('2001-01-01')).toISOString(),
+      expiry: new Date('2001-01-01').toISOString(),
       status: 'none',
-      error: null
+      error: null,
     };
     const props = makeProps(expiredState, {});
     const component = getComponent(render(props), 'account__out_of_time');
@@ -70,17 +70,14 @@ describe('components/Account', () => {
     const component = getComponent(render(props), 'account__out_of_time');
     expect(component).to.have.length(0);
   });
-
 });
 
 function render(props) {
-  return shallow(
-    <Account {...props} />
-  );
+  return shallow(<Account {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function click(component) {

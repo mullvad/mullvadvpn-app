@@ -1,11 +1,6 @@
 // @flow
 import React from 'react';
-import {
-  Component,
-  Text,
-  Button,
-  View
-} from 'reactxp';
+import { Component, Text, Button, View } from 'reactxp';
 
 import Img from './Img';
 
@@ -14,10 +9,10 @@ import platformStyles from './HeaderBarPlatformStyles';
 
 export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
 export type HeaderBarProps = {
-  style: HeaderBarStyle;
-  hidden: boolean;
-  showSettings: boolean;
-  onSettings: ?(() => void);
+  style: HeaderBarStyle,
+  hidden: boolean,
+  showSettings: boolean,
+  onSettings: ?() => void,
 };
 
 export default class HeaderBar extends Component {
@@ -26,34 +21,43 @@ export default class HeaderBar extends Component {
     style: 'default',
     hidden: false,
     showSettings: false,
-    onSettings: null
+    onSettings: null,
   };
 
   render() {
     let containerClass = [
       styles['headerbar'],
       platformStyles[process.platform],
-      styles['style_' + this.props.style]
+      styles['style_' + this.props.style],
     ];
 
-    if(this.props.hidden) {
+    if (this.props.hidden) {
       containerClass.push(styles['hidden']);
     }
 
     return (
-      <View style={ containerClass }>
-        {!this.props.hidden ?
+      <View style={containerClass}>
+        {!this.props.hidden ? (
           <View style={styles.container} testName="headerbar__container">
-            <Img height={50} width={50} source='logo-icon'/>
+            <Img height={50} width={50} source="logo-icon" />
             <Text style={styles.title}>MULLVAD VPN</Text>
           </View>
-          : null}
+        ) : null}
 
-        {this.props.showSettings ?
-          <Button style={ styles.settings } onPress={ this.props.onSettings } testName="headerbar__settings">
-            <Img height={24} width={24} source='icon-settings' style={[ styles.settings_icon, platformStyles.settings_icon ]} hoverStyle={ styles.settings_icon_hover }/>
+        {this.props.showSettings ? (
+          <Button
+            style={styles.settings}
+            onPress={this.props.onSettings}
+            testName="headerbar__settings">
+            <Img
+              height={24}
+              width={24}
+              source="icon-settings"
+              style={[styles.settings_icon, platformStyles.settings_icon]}
+              hoverStyle={styles.settings_icon_hover}
+            />
           </Button>
-          : null}
+        ) : null}
       </View>
     );
   }

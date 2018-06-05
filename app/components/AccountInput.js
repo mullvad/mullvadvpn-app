@@ -7,7 +7,8 @@ import { colors } from '../config';
 // @TODO: move it into types.js
 
 // ESLint issue: https://github.com/babel/babel-eslint/issues/445
-declare class ClipboardData { // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+declare class ClipboardData {
   setData(type: string, data: string): void;
   getData(type: string): string;
 }
@@ -17,14 +18,14 @@ declare class ClipboardEvent extends Event {
 }
 
 export type AccountInputProps = {
-  value: string;
-  onEnter: ?(() => void);
-  onChange: ?((newValue: string) => void);
+  value: string,
+  onEnter: ?() => void,
+  onChange: ?(newValue: string) => void,
 };
 
 type AccountInputState = {
-  value: string;
-  selectionRange: SelectionRange;
+  value: string,
+  selectionRange: SelectionRange,
 };
 
 type SelectionRange = [number, number];
@@ -33,12 +34,12 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   static defaultProps = {
     value: '',
     onEnter: null,
-    onChange: null
+    onChange: null,
   };
 
   state = {
     value: '',
-    selectionRange: [0, 0]
+    selectionRange: [0, 0],
   };
 
   _ref: ?TextInput;
@@ -52,44 +53,48 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
 
     this.state = {
       value: val,
-      selectionRange: [val.length, val.length]
+      selectionRange: [val.length, val.length],
     };
   }
 
   componentWillReceiveProps(nextProps: AccountInputProps) {
     const nextVal = this.sanitize(nextProps.value);
-    if(nextVal !== this.state.value) {
+    if (nextVal !== this.state.value) {
       const len = nextVal.length;
       this.setState({ value: nextVal, selectionRange: [len, len] });
     }
   }
 
   shouldComponentUpdate(nextProps: AccountInputProps, nextState: AccountInputState) {
-    return (this.props.value !== nextProps.value ||
-            this.props.onEnter !== nextProps.onEnter ||
-            this.props.onChange !== nextProps.onChange ||
-            this.state.value !== nextState.value ||
-            this.state.selectionRange[0] !== nextState.selectionRange[0] ||
-            this.state.selectionRange[1] !== nextState.selectionRange[1]);
+    return (
+      this.props.value !== nextProps.value ||
+      this.props.onEnter !== nextProps.onEnter ||
+      this.props.onChange !== nextProps.onChange ||
+      this.state.value !== nextState.value ||
+      this.state.selectionRange[0] !== nextState.selectionRange[0] ||
+      this.state.selectionRange[1] !== nextState.selectionRange[1]
+    );
   }
 
   render() {
     const displayString = formatAccount(this.state.value || '');
-    const { value, onChange, onEnter, ...otherProps } = this.props; // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const { value, onChange, onEnter, ...otherProps } = this.props;
     return (
-      <TextInput { ...otherProps }
-        value={ displayString }
-        onSelectionChange={ this.onSelect }
-        onPaste={ this.onPaste }
-        onCut={ this.onCut }
-        ref={ (ref) => this.onRef(ref) }
-        autoCorrect={ false }
-        onChangeText={ () => {} }
-        onKeyPress={ this.onKeyPress }
+      <TextInput
+        {...otherProps}
+        value={displayString}
+        onSelectionChange={this.onSelect}
+        onPaste={this.onPaste}
+        onCut={this.onCut}
+        ref={(ref) => this.onRef(ref)}
+        autoCorrect={false}
+        onChangeText={() => {}}
+        onKeyPress={this.onKeyPress}
         returnKeyType="done"
         keyboardType="numeric"
         placeholderTextColor={colors.blue20}
-        testName='AccountInput'
+        testName="AccountInput"
       />
     );
   }
@@ -121,7 +126,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     return { value: newVal, selectionRange: [selectionOffset, selectionOffset] };
   }
 
-
   /**
    * Modify string by removing single character or range of characters based on selection range.
    *
@@ -135,7 +139,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   remove(val: string, selRange: SelectionRange): AccountInputState {
     let newVal, selectionOffset;
 
-    if(selRange[0] === selRange[1]) {
+    if (selRange[0] === selRange[1]) {
       const oneOff = Math.max(0, selRange[0] - 1);
       const head = val.slice(0, oneOff);
       const tail = val.slice(selRange[0], val.length);
@@ -150,7 +154,6 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
 
     return { value: newVal, selectionRange: [selectionOffset, selectionOffset] };
   }
-
 
   /**
    * Convert DOM selection range to internal selection range
@@ -174,11 +177,10 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     const within = countSpaces(fmt.slice(start, end));
 
     start -= before;
-    end -= (before + within);
+    end -= before + within;
 
-    return [ start, end ];
+    return [start, end];
   }
-
 
   /**
    * Convert internal selection range to DOM selection range
@@ -192,7 +194,9 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
    */
   toDomSelection(val: string, selRange: SelectionRange): SelectionRange {
     const countSpaces = (val, untilIndex) => {
-      if(val.length > 12) { return 0; }
+      if (val.length > 12) {
+        return 0;
+      }
       return Math.floor(untilIndex / 4); // groups of 4 digits
     };
 
@@ -204,7 +208,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     start += startSpaces;
     end += startSpaces + (endSpaces - startSpaces);
 
-    return [ start, end ];
+    return [start, end];
   }
 
   // Events
@@ -212,40 +216,42 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   onKeyPress = (e: KeyboardEvent) => {
     const { value, selectionRange } = this.state;
 
-    if(e.which === 8) { // backspace
+    if (e.which === 8) {
+      // backspace
       this._ignoreSelect = true;
       const result = this.remove(value, selectionRange);
       e.preventDefault();
 
       this.setState(result, () => {
         this._ignoreSelect = false;
-        if(this.props.onChange) {
+        if (this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
-    } else if(/^[0-9]$/.test(e.key)) { // digits or cmd+v
+    } else if (/^[0-9]$/.test(e.key)) {
+      // digits or cmd+v
       this._ignoreSelect = true;
       const result = this.insert(value, e.key, selectionRange);
       e.preventDefault();
 
       this.setState(result, () => {
         this._ignoreSelect = false;
-        if(this.props.onChange) {
+        if (this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
-    } else if(e.which === 13 && this.props.onEnter) {
+    } else if (e.which === 13 && this.props.onEnter) {
       this.props.onEnter();
     }
-  }
+  };
 
   onSelect = (start: number, end: number) => {
-    if (this._ignoreSelect){
+    if (this._ignoreSelect) {
       return;
     }
     const selRange = this.toInternalSelectionRange(this.sanitize(this.state.value), [start, end]);
     this.setState({ selectionRange: selRange });
-  }
+  };
 
   onPaste = (e: ClipboardEvent) => {
     const { value, selectionRange } = this.state;
@@ -254,15 +260,15 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     const result = this.insert(value, filteredData, selectionRange);
     e.preventDefault();
     this.setState(result, () => {
-      if(this.props.onChange) {
+      if (this.props.onChange) {
         this.props.onChange(result.value);
       }
     });
-  }
+  };
 
   onCut = (e: ClipboardEvent) => {
     const target = e.target;
-    if(!(target instanceof HTMLInputElement)) {
+    if (!(target instanceof HTMLInputElement)) {
       throw new Error('ref must be an instance of HTMLInputElement');
     }
 
@@ -271,7 +277,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
     e.preventDefault();
 
     // range is not empty?
-    if(selectionRange[0] !== selectionRange[1]) {
+    if (selectionRange[0] !== selectionRange[1]) {
       const result = this.remove(value, selectionRange);
       const domSelectionRange = this.toDomSelection(value, selectionRange);
       const slice = target.value.slice(domSelectionRange[0], domSelectionRange[1]);
@@ -279,25 +285,27 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
       e.clipboardData.setData('text', slice);
 
       this.setState(result, () => {
-        if(this.props.onChange) {
+        if (this.props.onChange) {
           this.props.onChange(result.value);
         }
       });
     }
-  }
+  };
 
   onRef = (ref: ?TextInput) => {
     this._ref = ref;
-    if(!ref) { return; }
+    if (!ref) {
+      return;
+    }
 
     const { value, selectionRange } = this.state;
     const domRange = this.toDomSelection(value, selectionRange);
 
     ref.selectRange(domRange[0], domRange[1]);
-  }
+  };
 
   focus() {
-    if(this._ref) {
+    if (this._ref) {
       this._ref.focus();
     }
   }

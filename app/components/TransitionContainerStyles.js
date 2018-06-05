@@ -14,7 +14,7 @@ const styles = {
   transitionContainerStyle: Styles.createViewStyle({
     width: dimensions.width,
     height: dimensions.height,
-  })
+  }),
 };
 
 export default () => {

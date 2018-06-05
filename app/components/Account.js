@@ -11,10 +11,10 @@ import { formatAccount } from '../lib/formatters';
 import type { AccountReduxState } from '../redux/account/reducers';
 
 export type AccountProps = {
-  account: AccountReduxState;
-  onLogout: () => void;
-  onClose: () => void;
-  onBuyMore: () => void;
+  account: AccountReduxState,
+  onLogout: () => void,
+  onClose: () => void,
+  onBuyMore: () => void,
 };
 
 export default class Account extends Component {
@@ -30,51 +30,49 @@ export default class Account extends Component {
       <Layout>
         <Container>
           <View style={styles.account}>
-            <Button style={styles.account__close}
-              onPress={ this.props.onClose }
-              testName='account__close'>
+            <Button
+              style={styles.account__close}
+              onPress={this.props.onClose}
+              testName="account__close">
               <Img height={24} width={24} style={styles.account__close_icon} source="icon-back" />
               <Text style={styles.account__close_title}>Settings</Text>
             </Button>
             <View style={styles.account__container}>
-
               <View style={styles.account__header}>
                 <Text style={styles.account__title}>Account</Text>
               </View>
 
               <View style={styles.account__content}>
                 <View style={styles.account__main}>
-
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Account ID</Text>
-                    <Text style={styles.account__row_value}>{ formattedAccountToken }</Text>
+                    <Text style={styles.account__row_value}>{formattedAccountToken}</Text>
                   </View>
 
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Paid until</Text>
-                    { isOutOfTime ?
-                      <Text style={styles.account__out_of_time} testName='account__out_of_time'>OUT OF TIME</Text>
-                      :
-                      <Text style={styles.account__row_value}>{ formattedExpiry }</Text>
-                    }
+                    {isOutOfTime ? (
+                      <Text style={styles.account__out_of_time} testName="account__out_of_time">
+                        OUT OF TIME
+                      </Text>
+                    ) : (
+                      <Text style={styles.account__row_value}>{formattedExpiry}</Text>
+                    )}
                   </View>
 
                   <View style={styles.account__footer}>
                     <GreenButton
-                      onPress={ this.props.onBuyMore }
-                      text='Buy more credit'
-                      icon='icon-extLink'
-                      testName='account__buymore'>
+                      onPress={this.props.onBuyMore}
+                      text="Buy more credit"
+                      icon="icon-extLink"
+                      testName="account__buymore">
                       <Label>Buy more credit</Label>
-                      <Img source='icon-extLink' height={16} width={16} />
+                      <Img source="icon-extLink" height={16} width={16} />
                     </GreenButton>
-                    <RedButton
-                      onPress={ this.props.onLogout }
-                      testName='account__logout'>
+                    <RedButton onPress={this.props.onLogout} testName="account__logout">
                       Log out
                     </RedButton>
                   </View>
-
                 </View>
               </View>
             </View>

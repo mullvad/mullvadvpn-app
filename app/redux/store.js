@@ -23,7 +23,7 @@ import type { SettingsAction } from './settings/actions.js';
 export type ReduxState = {
   account: AccountReduxState,
   connection: ConnectionReduxState,
-  settings: SettingsReduxState
+  settings: SettingsReduxState,
 };
 
 export type ReduxAction = AccountAction | SettingsAction | ConnectionAction;
@@ -32,7 +32,10 @@ export type ReduxGetState = () => ReduxState;
 export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;
 export type ReduxThunk = (dispatch: ReduxDispatch, getState: ReduxGetState) => any;
 
-export default function configureStore(initialState: ?ReduxState, routerHistory: History): ReduxStore {
+export default function configureStore(
+  initialState: ?ReduxState,
+  routerHistory: History,
+): ReduxStore {
   const router = routerMiddleware(routerHistory);
 
   const actionCreators: { [string]: Function } = {
@@ -44,14 +47,17 @@ export default function configureStore(initialState: ?ReduxState, routerHistory:
   };
 
   const reducers = {
-    account, connection, settings, router: routerReducer
+    account,
+    connection,
+    settings,
+    router: routerReducer,
   };
 
-  const middlewares = [ thunk, router ];
+  const middlewares = [thunk, router];
 
   const composeEnhancers = (() => {
     const reduxCompose = window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
-    if(process.env.NODE_ENV === 'development' && reduxCompose) {
+    if (process.env.NODE_ENV === 'development' && reduxCompose) {
       return reduxCompose({ actionCreators });
     }
     return compose;
@@ -59,7 +65,7 @@ export default function configureStore(initialState: ?ReduxState, routerHistory:
 
   const enhancer = composeEnhancers(applyMiddleware(...middlewares));
   const rootReducer = combineReducers(reducers);
-  if(initialState) {
+  if (initialState) {
     return createStore(rootReducer, initialState, enhancer);
   }
   return createStore(rootReducer, enhancer);

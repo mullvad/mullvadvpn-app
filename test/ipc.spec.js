@@ -7,16 +7,14 @@ import assert from 'assert';
 import type { JsonRpcMessage } from '../app/lib/jsonrpc-ws-ipc.js';
 
 describe('The IPC server', () => {
-
   it('should send as soon as the websocket connects', () => {
     const { ws, ipc } = setupIpc();
     ws.close();
 
     let sent = false;
-    const p = ipc.send('hello')
-      .then(() => {
-        expect(sent).to.be.true;
-      });
+    const p = ipc.send('hello').then(() => {
+      expect(sent).to.be.true;
+    });
 
     ws.on('hello', (msg) => {
       sent = true;
@@ -34,11 +32,10 @@ describe('The IPC server', () => {
       ws.replyFail(msg.id, 'Method not found', -32601);
     });
 
-    return ipc.send('WHAT_IS_THIS')
-      .catch((e) => {
-        expect(e.code).to.equal(-32601);
-        expect(e.message).to.contain('Method not found');
-      });
+    return ipc.send('WHAT_IS_THIS').catch((e) => {
+      expect(e.code).to.equal(-32601);
+      expect(e.message).to.contain('Method not found');
+    });
   });
 
   it('should route reply to correct promise', () => {
@@ -46,15 +43,15 @@ describe('The IPC server', () => {
 
     ws.on('a message', (msg) => ws.replyOk(msg.id, 'a reply'));
 
-    const decoy = ipc.send('a decoy', [], 1)
+    const decoy = ipc
+      .send('a decoy', [], 1)
       .then(() => assert(false, 'Should not be called'))
-      .catch(e => {
+      .catch((e) => {
         if (e.name !== 'TimeOutError') {
           throw e;
         }
       });
-    const message = ipc.send('a message', [], 1)
-      .then((reply) => expect(reply).to.equal('a reply'));
+    const message = ipc.send('a message', [], 1).then((reply) => expect(reply).to.equal('a reply'));
 
     return Promise.all([message, decoy]);
   });
@@ -62,11 +59,10 @@ describe('The IPC server', () => {
   it('should timeout if no response is returned', () => {
     const { ipc } = setupIpc();
 
-    return ipc.send('a message', [], 1)
-      .catch((e) => {
-        expect(e.name).to.equal('TimeOutError');
-        expect(e.message).to.contain('timed out');
-      });
+    return ipc.send('a message', [], 1).catch((e) => {
+      expect(e.name).to.equal('TimeOutError');
+      expect(e.message).to.contain('timed out');
+    });
   });
 
   it('should route notifications', (done) => {
@@ -82,21 +78,22 @@ describe('The IPC server', () => {
     };
 
     ws.on('event_subscribe', (msg) => ws.replyOk(msg.id, 1));
-    ipc.on('event', eventListener)
+    ipc
+      .on('event', eventListener)
       .then(() => {
-        ws.reply(jsonrpc.notification('event', {subscription:1, result: 'an event!'}));
+        ws.reply(jsonrpc.notification('event', { subscription: 1, result: 'an event!' }));
       })
       .catch((e) => done(e));
   });
 });
 
 function mockWebsocket() {
-  const ws : any = {
+  const ws: any = {
     listeners: {},
     readyState: 1,
   };
 
-  ws.on = (event, listener) => ws.listeners[event] = listener;
+  ws.on = (event, listener) => (ws.listeners[event] = listener);
   ws.send = (data) => {
     const listener = ws.listeners[data.method];
     if (listener) {
@@ -116,7 +113,7 @@ function mockWebsocket() {
   };
 
   ws.reply = (msg: JsonRpcMessage) => {
-    ws.onmessage({data: JSON.stringify(msg)});
+    ws.onmessage({ data: JSON.stringify(msg) });
   };
   ws.replyOk = (id: string, msg) => {
     ws.reply(jsonrpc.success(id, msg || ''));
@@ -135,4 +132,3 @@ function setupIpc() {
     ipc: new Ipc('1.2.3.4', ws.factory),
   };
 }
-

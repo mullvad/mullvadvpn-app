@@ -9,13 +9,12 @@ import Connect from '../../app/components/Connect';
 import type { ConnectProps } from '../../app/components/Connect';
 
 describe('components/Connect', () => {
-
   it('shows unsecured hints when disconnected', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
         status: 'disconnected',
-      }
+      },
     });
 
     const header = getComponent(component, 'header');
@@ -31,7 +30,7 @@ describe('components/Connect', () => {
       connection: {
         ...defaultProps.connection,
         status: 'connected',
-      }
+      },
     });
 
     const header = getComponent(component, 'header');
@@ -49,7 +48,7 @@ describe('components/Connect', () => {
         status: 'connecting',
         country: 'Norway',
         city: 'Oslo',
-      }
+      },
     });
     const countryAndCity = getComponent(component, 'location');
     const ipAddr = getComponent(component, 'ipAddress');
@@ -67,7 +66,7 @@ describe('components/Connect', () => {
         country: 'Norway',
         city: 'Oslo',
         ip: '4.3.2.1',
-      }
+      },
     });
     const countryAndCity = getComponent(component, 'location');
     const ipAddr = getComponent(component, 'ipAddress');
@@ -85,7 +84,7 @@ describe('components/Connect', () => {
         country: 'Norway',
         city: 'Oslo',
         ip: '4.3.2.1',
-      }
+      },
     });
     const countryAndCity = getComponent(component, 'location');
     const ipAddr = getComponent(component, 'ipAddress');
@@ -101,7 +100,7 @@ describe('components/Connect', () => {
       connection: {
         ...defaultProps.connection,
         status: 'disconnected',
-      }
+      },
     });
     const connectButton = getComponent(component, 'secureConnection');
 
@@ -131,9 +130,9 @@ const defaultProps: ConnectProps = {
 
 function renderWithProps(customProps: $Shape<ConnectProps>) {
   const props = { ...defaultProps, ...customProps };
-  return shallow( <Connect { ...props } /> );
+  return shallow(<Connect {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }

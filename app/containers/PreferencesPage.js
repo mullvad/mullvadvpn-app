@@ -9,7 +9,7 @@ import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => ({
-  allowLan: state.settings.allowLan
+  allowLan: state.settings.allowLan,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
@@ -23,4 +23,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Preferences);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Preferences);

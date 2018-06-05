@@ -29,7 +29,7 @@ export default {
       borderWidth: 0,
       padding: 0,
       margin: 0,
-      zIndex: 1, /* part of .preferences__container covers the button */
+      zIndex: 1 /* part of .preferences__container covers the button */,
       cursor: 'default',
     },
     preferences__close_content: {
@@ -80,7 +80,7 @@ export default {
       fontSize: 32,
       fontWeight: '900',
       lineHeight: 40,
-      color: colors.white
+      color: colors.white,
     },
     preferences__cell_label: {
       fontFamily: 'DINPro',
@@ -96,7 +96,7 @@ export default {
       fontWeight: '600',
       lineHeight: 20,
       letterSpacing: -0.2,
-      color: colors.white80
-    }
-  })
+      color: colors.white80,
+    },
+  }),
 };

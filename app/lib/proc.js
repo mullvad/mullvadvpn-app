@@ -17,10 +17,10 @@ function getBasePath() {
 
 function getExtension() {
   switch (process.platform) {
-  case 'win32':
-    return '.exe';
+    case 'win32':
+      return '.exe';
 
-  default:
-    return '';
+    default:
+      return '';
   }
 }

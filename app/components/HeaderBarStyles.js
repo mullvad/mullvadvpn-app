@@ -35,7 +35,7 @@ export default {
       alignItems: 'center',
     },
     settings: {
-      padding: 0
+      padding: 0,
     },
     settings_icon: {
       color: colors.white60,
@@ -53,6 +53,6 @@ export default {
       letterSpacing: -0.5,
       color: colors.white60,
       marginLeft: 8,
-    }
-  })
+    },
+  }),
 };

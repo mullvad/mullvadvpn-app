@@ -24,29 +24,30 @@ const initialState: ConnectionReduxState = {
   city: null,
 };
 
-
-export default function(state: ConnectionReduxState = initialState, action: ReduxAction): ConnectionReduxState {
-
+export default function(
+  state: ConnectionReduxState = initialState,
+  action: ReduxAction,
+): ConnectionReduxState {
   switch (action.type) {
-  case 'NEW_LOCATION':
-    return { ...state, ...action.newLocation };
+    case 'NEW_LOCATION':
+      return { ...state, ...action.newLocation };
 
-  case 'CONNECTING':
-    return { ...state, ...{ status: 'connecting' }};
+    case 'CONNECTING':
+      return { ...state, ...{ status: 'connecting' } };
 
-  case 'CONNECTED':
-    return { ...state, ...{ status: 'connected' }};
+    case 'CONNECTED':
+      return { ...state, ...{ status: 'connected' } };
 
-  case 'DISCONNECTED':
-    return { ...state, ...{ status: 'disconnected' }};
+    case 'DISCONNECTED':
+      return { ...state, ...{ status: 'disconnected' } };
 
-  case 'ONLINE':
-    return { ...state, ...{ isOnline: true }};
+    case 'ONLINE':
+      return { ...state, ...{ isOnline: true } };
 
-  case 'OFFLINE':
-    return { ...state, ...{ isOnline: false }};
+    case 'OFFLINE':
+      return { ...state, ...{ isOnline: false } };
 
-  default:
-    return state;
+    default:
+      return state;
   }
 }

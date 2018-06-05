@@ -25,8 +25,11 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) =
 
     onSend: (email, message, savedReport) => {
       return sendProblemReport(email, message, savedReport);
-    }
+    },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Support);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Support);

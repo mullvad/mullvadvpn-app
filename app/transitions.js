@@ -8,7 +8,7 @@ export type TransitionGroupProps = {
 };
 
 type TransitionMap = {
-  [name: string]: TransitionFork
+  [name: string]: TransitionFork,
 };
 
 /**
@@ -18,23 +18,23 @@ const transitions: TransitionMap = {
   slide: {
     forward: {
       name: 'slide-up',
-      duration: 450
+      duration: 450,
     },
     backward: {
       name: 'slide-down',
-      duration: 450
-    }
+      duration: 450,
+    },
   },
   push: {
     forward: {
       name: 'push',
-      duration: 450
+      duration: 450,
     },
     backward: {
       name: 'pop',
-      duration: 450
-    }
-  }
+      duration: 450,
+    },
+  },
 };
 
 /**
@@ -47,7 +47,7 @@ const transitionRules = [
   r('/settings', '/settings/advanced', transitions.push),
   r('/settings', '/settings/support', transitions.push),
   r(null, '/settings', transitions.slide),
-  r(null, '/select-location', transitions.slide)
+  r(null, '/select-location', transitions.slide),
 ];
 
 /**
@@ -58,13 +58,13 @@ const transitionRules = [
  */
 export function getTransitionProps(fromRoute: ?string, toRoute: string): TransitionGroupProps {
   // ignore initial transition and transition between the same routes
-  if(!fromRoute || fromRoute === toRoute) {
+  if (!fromRoute || fromRoute === toRoute) {
     return noTransitionProps();
   }
 
-  for(const rule of transitionRules) {
+  for (const rule of transitionRules) {
     const match = rule.match(fromRoute, toRoute);
-    if(match) {
+    if (match) {
       return toTransitionGroupProps(match.descriptor);
     }
   }
@@ -77,7 +77,7 @@ export function getTransitionProps(fromRoute: ?string, toRoute: string): Transit
  * @param {TransitionDescriptor} descriptor
  */
 function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGroupProps {
-  const {name, duration} = descriptor;
+  const { name, duration } = descriptor;
   return {
     name: name,
     duration: duration,

@@ -2,7 +2,13 @@
 
 import { Button } from './Button';
 import CellButton, { Label, SubText } from './CellButton';
-import { RedButton, GreenButton, BlueButton, TransparentButton, RedTransparentButton } from './AppButton';
+import {
+  RedButton,
+  GreenButton,
+  BlueButton,
+  TransparentButton,
+  RedTransparentButton,
+} from './AppButton';
 
 export {
   Button,

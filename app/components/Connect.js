@@ -50,7 +50,6 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
       // shallow compare the connection
       !shallowCompare(prevConnection, nextConnection) ||
       !shallowCompare(otherPrevProps, otherNextProps) ||
-
       prevState.mapOffset[0] !== nextState.mapOffset[0] ||
       prevState.mapOffset[1] !== nextState.mapOffset[1] ||
       prevState.showCopyIPMessage !== nextState.showCopyIPMessage
@@ -58,7 +57,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   componentWillUnmount() {
-    if(this._copyTimer) {
+    if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
   }
@@ -69,10 +68,13 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
     return (
       <Layout>
-        <Header style={ this.headerStyle() } showSettings={ true } onSettings={ this.props.onSettings } testName='header'/>
-        <Container>
-          { child }
-        </Container>
+        <Header
+          style={this.headerStyle()}
+          showSettings={true}
+          onSettings={this.props.onSettings}
+          testName="header"
+        />
+        <Container>{child}</Container>
       </Layout>
     );
   }
@@ -84,21 +86,16 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           <Img source="icon-fail" height={60} width={60} alt="" />
         </View>
         <View style={styles.status}>
-          <View style={styles.error_title}>
-            { error.title }
-          </View>
-          <View style={styles.error_message}>
-            { error.message }
-          </View>
-          { error.type === 'NO_CREDIT' ?
+          <View style={styles.error_title}>{error.title}</View>
+          <View style={styles.error_message}>{error.message}</View>
+          {error.type === 'NO_CREDIT' ? (
             <View>
-              <GreenButton onPress={ this.onExternalLink.bind(this, 'purchase') }>
+              <GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
                 <Label>Buy more time</Label>
-                <Img source='icon-extLink' height={16} width={16} />
+                <Img source="icon-extLink" height={16} width={16} />
               </GreenButton>
             </View>
-            : null
-          }
+          ) : null}
         </View>
       </View>
     );
@@ -108,7 +105,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
     const { longitude, latitude, status } = this.props.connection;
 
     // when the user location is known
-    if(typeof(longitude) === 'number' && typeof(latitude) === 'number') {
+    if (typeof longitude === 'number' && typeof latitude === 'number') {
       return {
         center: [longitude, latitude],
         // do not show the marker when connecting
@@ -133,141 +130,158 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   _updateMapOffset = (spinnerNode: ?HTMLElement) => {
-    if(spinnerNode) {
+    if (spinnerNode) {
       // calculate the vertical offset from the center of the map
       // to shift the center of the map upwards to align the centers
       // of spinner and marker on the map
       const y = spinnerNode.offsetTop + spinnerNode.clientHeight * 0.5;
       this.setState({
-        mapOffset: [0, y]
+        mapOffset: [0, y],
       });
     }
-  }
+  };
 
   renderMap() {
-    let [ isConnecting, isConnected, isDisconnected ] = [false, false, false];
-    switch(this.props.connection.status) {
-    case 'connecting': isConnecting = true; break;
-    case 'connected': isConnected = true; break;
-    case 'disconnected': isDisconnected = true; break;
+    let [isConnecting, isConnected, isDisconnected] = [false, false, false];
+    switch (this.props.connection.status) {
+      case 'connecting':
+        isConnecting = true;
+        break;
+      case 'connected':
+        isConnected = true;
+        break;
+      case 'disconnected':
+        isDisconnected = true;
+        break;
     }
 
     return (
       <View style={styles.connect}>
         <View style={styles.map}>
-          <Map style={{ width: '100%', height: '100%' }} { ...this._getMapProps() } />
+          <Map style={{ width: '100%', height: '100%' }} {...this._getMapProps()} />
         </View>
         <View style={styles.container}>
+          {this._renderIsBlockingInternetMessage()}
 
-          { this._renderIsBlockingInternetMessage() }
-
-          { /* show spinner when connecting */ }
-          { isConnecting ?
-            <View style={ styles.status_icon }>
-              <Img source='icon-spinner' height={60} width={60} alt="" ref={ this._updateMapOffset } />
+          {/* show spinner when connecting */}
+          {isConnecting ? (
+            <View style={styles.status_icon}>
+              <Img
+                source="icon-spinner"
+                height={60}
+                width={60}
+                alt=""
+                ref={this._updateMapOffset}
+              />
             </View>
-            : null
-          }
+          ) : null}
 
           <View style={styles.status}>
+            <View style={this.networkSecurityStyle()} testName="networkSecurityMessage">
+              {this.networkSecurityMessage()}
+            </View>
 
-            <View style={ this.networkSecurityStyle() } testName='networkSecurityMessage'>{ this.networkSecurityMessage() }</View>
-
-            { /*
+            {/*
               **********************************
               Begin: Location block
               **********************************
-            */ }
+            */}
 
-            { /* location when connecting or disconnected */ }
-            { isConnecting || isDisconnected ?
-              <Text style={styles.status_location} testName='location'>
-                { this.props.connection.country }
+            {/* location when connecting or disconnected */}
+            {isConnecting || isDisconnected ? (
+              <Text style={styles.status_location} testName="location">
+                {this.props.connection.country}
               </Text>
-              : null
-            }
+            ) : null}
 
-            { /* location when connected */ }
-            { isConnected ?
-              <Text style={styles.status_location} testName='location'>
-                { this.props.connection.city }
-                { this.props.connection.city && <br/> }
-                { this.props.connection.country }
+            {/* location when connected */}
+            {isConnected ? (
+              <Text style={styles.status_location} testName="location">
+                {this.props.connection.city}
+                {this.props.connection.city && <br />}
+                {this.props.connection.country}
               </Text>
-              :null
-            }
+            ) : null}
 
-            { /*
+            {/*
               **********************************
               End: Location block
               **********************************
-            */ }
+            */}
 
-            <Text style={ this.ipAddressStyle() } onPress={ this.onIPAddressClick.bind(this) }>
-              { (isConnected || isDisconnected) ? (
-                <Text testName='ipAddress'>{
-                  this.state.showCopyIPMessage ?
-                    'IP copied to clipboard!' :
-                    this.props.connection.ip
-                }</Text>) : null }
+            <Text style={this.ipAddressStyle()} onPress={this.onIPAddressClick.bind(this)}>
+              {isConnected || isDisconnected ? (
+                <Text testName="ipAddress">
+                  {this.state.showCopyIPMessage
+                    ? 'IP copied to clipboard!'
+                    : this.props.connection.ip}
+                </Text>
+              ) : null}
             </Text>
           </View>
 
-
-          { /*
+          {/*
             **********************************
             Begin: Footer block
             **********************************
-          */ }
+          */}
 
-          { /* footer when disconnected */ }
-          { isDisconnected ?
+          {/* footer when disconnected */}
+          {isDisconnected ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={ this.props.onSelectLocation }>
-                <Label>{ this.props.selectedRelayName }</Label>
-                <Img height={12} width={7} source='icon-chevron' />
+              <TransparentButton onPress={this.props.onSelectLocation}>
+                <Label>{this.props.selectedRelayName}</Label>
+                <Img height={12} width={7} source="icon-chevron" />
               </TransparentButton>
-              <GreenButton onPress={ this.props.onConnect } testName='secureConnection'>Secure my connection</GreenButton>
+              <GreenButton onPress={this.props.onConnect} testName="secureConnection">
+                Secure my connection
+              </GreenButton>
             </View>
-            : null
-          }
+          ) : null}
 
-          { /* footer when connecting */ }
-          { isConnecting ?
+          {/* footer when connecting */}
+          {isConnecting ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
-              <RedTransparentButton onPress={ this.props.onDisconnect }>Cancel</RedTransparentButton>
+              <TransparentButton onPress={this.props.onSelectLocation}>
+                Switch location
+              </TransparentButton>
+              <RedTransparentButton onPress={this.props.onDisconnect}>Cancel</RedTransparentButton>
             </View>
-            : null
-          }
+          ) : null}
 
-          { /* footer when connected */ }
-          { isConnected ?
+          {/* footer when connected */}
+          {isConnected ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={ this.props.onSelectLocation }>Switch location</TransparentButton>
-              <RedTransparentButton onPress={ this.props.onDisconnect } testName='disconnect'>Disconnect</RedTransparentButton>
+              <TransparentButton onPress={this.props.onSelectLocation}>
+                Switch location
+              </TransparentButton>
+              <RedTransparentButton onPress={this.props.onDisconnect} testName="disconnect">
+                Disconnect
+              </RedTransparentButton>
             </View>
-            : null
-          }
+          ) : null}
 
-          { /*
+          {/*
             **********************************
             End: Footer block
             **********************************
-          */ }
-
+          */}
         </View>
       </View>
     );
   }
 
   _renderIsBlockingInternetMessage() {
-    return <Accordion style={styles.blocking_container} height={ (this.props.connection.status === 'connecting') ? 'auto' : 0 }>
-      <Text style={styles.blocking_message}>
-        <Text style={styles.blocking_icon}>&nbsp;</Text>
-        <Text>BLOCKING INTERNET</Text>
-      </Text>
-    </Accordion>;
+    return (
+      <Accordion
+        style={styles.blocking_container}
+        height={this.props.connection.status === 'connecting' ? 'auto' : 0}>
+        <Text style={styles.blocking_message}>
+          <Text style={styles.blocking_icon}>&nbsp;</Text>
+          <Text>BLOCKING INTERNET</Text>
+        </Text>
+      </Accordion>
+    );
   }
 
   // Handlers
@@ -286,37 +300,40 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   // Private
 
   headerStyle(): HeaderBarStyle {
-    switch(this.props.connection.status) {
-    case 'disconnected':
-      return 'error';
-    case 'connecting':
-    case 'connected':
-      return 'success';
+    switch (this.props.connection.status) {
+      case 'disconnected':
+        return 'error';
+      case 'connecting':
+      case 'connected':
+        return 'success';
     }
     throw new Error('Invalid ConnectionState');
   }
 
   networkSecurityStyle(): Types.Style {
     let classes = [styles.status_security];
-    if(this.props.connection.status === 'connected') {
+    if (this.props.connection.status === 'connected') {
       classes.push(styles.status_security__secure);
-    } else if(this.props.connection.status === 'disconnected') {
+    } else if (this.props.connection.status === 'disconnected') {
       classes.push(styles.status_security__unsecured);
     }
     return classes;
   }
 
   networkSecurityMessage(): string {
-    switch(this.props.connection.status) {
-    case 'connected': return 'SECURE CONNECTION';
-    case 'connecting': return 'CREATING SECURE CONNECTION';
-    default: return 'UNSECURED CONNECTION';
+    switch (this.props.connection.status) {
+      case 'connected':
+        return 'SECURE CONNECTION';
+      case 'connecting':
+        return 'CREATING SECURE CONNECTION';
+      default:
+        return 'UNSECURED CONNECTION';
     }
   }
 
   ipAddressStyle(): Types.Style {
     var classes = [styles.status_ipaddress];
-    if(this.props.connection.status === 'connecting') {
+    if (this.props.connection.status === 'connecting') {
       classes.push(styles.status_ipaddress__invisible);
     }
     return classes;
@@ -324,13 +341,13 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
   displayError(): ?BackendError {
     // Offline?
-    if(!this.props.connection.isOnline) {
+    if (!this.props.connection.isOnline) {
       return new BackendError('NO_INTERNET');
     }
 
     // No credit?
     const expiry = this.props.accountExpiry;
-    if(expiry && moment(expiry).isSameOrBefore(moment())) {
+    if (expiry && moment(expiry).isSameOrBefore(moment())) {
       return new BackendError('NO_CREDIT');
     }
 
@@ -340,8 +357,5 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
 function shallowCompare(lhs: Object, rhs: Object) {
   const keys = Object.keys(lhs);
-  return (
-    keys.length === Object.keys(rhs).length &&
-    keys.every(key => lhs[key] === rhs[key])
-  );
+  return keys.length === Object.keys(rhs).length && keys.every((key) => lhs[key] === rhs[key]);
 }

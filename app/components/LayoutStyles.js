@@ -15,6 +15,6 @@ export default {
       flex: 1,
       backgroundColor: colors.blue,
       overflow: 'hidden',
-    }
+    },
   }),
 };

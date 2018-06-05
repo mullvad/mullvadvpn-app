@@ -22,14 +22,16 @@ const collectProblemReport = (toRedact: Array<string>): Promise<string> => {
     }, 10000);
 
     responseListener = (_event, id, error, reportPath) => {
-      if(id !== requestId) { return; }
+      if (id !== requestId) {
+        return;
+      }
 
       clearTimeout(requestTimeout);
       removeResponseListener();
 
-      if(error) {
-        log.error(`Cannot collect a problem report: ${ error.err }`);
-        log.error(`Stdout: ${ error.stdout }`);
+      if (error) {
+        log.error(`Cannot collect a problem report: ${error.err}`);
+        log.error(`Stdout: ${error.stdout}`);
         reject(error);
       } else {
         resolve(reportPath);
@@ -45,11 +47,7 @@ const collectProblemReport = (toRedact: Array<string>): Promise<string> => {
 };
 
 const sendProblemReport = (email: string, message: string, savedReport: string) => {
-  const args = ['send',
-    '--email', email,
-    '--message', message,
-    '--report', savedReport,
-  ];
+  const args = ['send', '--email', email, '--message', message, '--report', savedReport];
 
   const binPath = resolveBin('problem-report');
 

@@ -8,7 +8,6 @@ import HeaderBar from '../../app/components/HeaderBar';
 require('../setup/enzyme');
 
 describe('components/HeaderBar', () => {
-
   it('should display headerbar', () => {
     const component = render({
       hidden: false,
@@ -44,22 +43,19 @@ describe('components/HeaderBar', () => {
   it('should call settings callback', (done) => {
     const component = render({
       showSettings: true,
-      onSettings:  () => done(),
+      onSettings: () => done(),
     });
     const settingsButton = getComponent(component, 'headerbar__settings');
     click(settingsButton);
   });
-
 });
 
 function render(props) {
-  return shallow(
-    <HeaderBar {...props} />
-  );
+  return shallow(<HeaderBar {...props} />);
 }
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function hasChild(container, testName) {

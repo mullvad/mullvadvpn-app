@@ -104,6 +104,6 @@ export default {
       lineHeight: 20,
       letterSpacing: -0.2,
       color: colors.white80,
-    }
-  })
+    },
+  }),
 };

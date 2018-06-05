@@ -36,13 +36,14 @@ type UpdateAccountHistoryAction = {
   accountHistory: Array<AccountToken>,
 };
 
-export type AccountAction = StartLoginAction
-                            | LoginSuccessfulAction
-                            | LoginFailedAction
-                            | LoggedOutAction
-                            | ResetLoginErrorAction
-                            | UpdateAccountTokenAction
-                            | UpdateAccountHistoryAction;
+export type AccountAction =
+  | StartLoginAction
+  | LoginSuccessfulAction
+  | LoginFailedAction
+  | LoggedOutAction
+  | ResetLoginErrorAction
+  | UpdateAccountTokenAction
+  | UpdateAccountHistoryAction;
 
 function startLogin(accountToken?: AccountToken): StartLoginAction {
   return {

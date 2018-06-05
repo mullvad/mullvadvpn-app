@@ -12,5 +12,5 @@ export default {
     settings_icon: {
       WebkitAppRegion: 'no-drag',
     },
-  })
+  }),
 };

@@ -15,47 +15,53 @@ describe('components/SelectLocation', () => {
         location: 'any',
         protocol: 'any',
         port: 'any',
-      }
+      },
     },
-    relayLocations: [{
-      name: 'Sweden',
-      code: 'se',
-      hasActiveRelays: true,
-      cities: [{
-        name: 'Malmö',
-        code: 'mma',
-        latitude: 0,
-        longitude: 0,
+    relayLocations: [
+      {
+        name: 'Sweden',
+        code: 'se',
         hasActiveRelays: true,
-      }, {
-        name: 'Stockholm',
-        code: 'sto',
-        latitude: 0,
-        longitude: 0,
-        hasActiveRelays: true,
-      }],
-    }],
+        cities: [
+          {
+            name: 'Malmö',
+            code: 'mma',
+            latitude: 0,
+            longitude: 0,
+            hasActiveRelays: true,
+          },
+          {
+            name: 'Stockholm',
+            code: 'sto',
+            latitude: 0,
+            longitude: 0,
+            hasActiveRelays: true,
+          },
+        ],
+      },
+    ],
     allowLan: false,
   };
 
-  const makeProps = (state: SettingsReduxState, mergeProps: $Shape<SelectLocationProps>): SelectLocationProps => {
+  const makeProps = (
+    state: SettingsReduxState,
+    mergeProps: $Shape<SelectLocationProps>,
+  ): SelectLocationProps => {
     const defaultProps: SelectLocationProps = {
       settings: state,
       onClose: () => {},
-      onSelect: (_server) => {}
+      onSelect: (_server) => {},
     };
     return Object.assign({}, defaultProps, mergeProps);
   };
 
   const render = (props: SelectLocationProps) => {
-    return shallow(
-      <SelectLocation { ...props } />
-    );
+    return shallow(<SelectLocation {...props} />);
   };
 
   it('should call close callback', (done) => {
     const props = makeProps(state, {
-      onClose: () => done()
+      onClose: () => done(),
     });
     const node = getComponent(render(props), 'close');
     click(node);
@@ -66,13 +72,13 @@ describe('components/SelectLocation', () => {
       onSelect: (location) => {
         try {
           expect(location).to.deep.equal({
-            country: 'se'
+            country: 'se',
           });
           done();
-        } catch(e) {
+        } catch (e) {
           done(e);
         }
-      }
+      },
     });
     const elements = getComponent(render(props), 'country');
     expect(elements).to.have.length(1);
@@ -84,23 +90,22 @@ describe('components/SelectLocation', () => {
       onSelect: (location) => {
         try {
           expect(location).to.deep.equal({
-            city: ['se', 'mma']
+            city: ['se', 'mma'],
           });
           done();
-        } catch(e) {
+        } catch (e) {
           done(e);
         }
-      }
+      },
     });
     const elements = getComponent(render(props), 'city');
     expect(elements).to.have.length(2);
     click(elements.at(0));
   });
-
 });
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function click(component) {

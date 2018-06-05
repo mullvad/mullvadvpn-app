@@ -18,17 +18,15 @@ describe('components/AccountInput', () => {
     const defaultProps: AccountInputProps = {
       value: '',
       onEnter: null,
-      onChange: null
+      onChange: null,
     };
     const props = Object.assign({}, defaultProps, mergeProps);
-    return shallow(
-      <AccountInput {...props} />
-    );
+    return shallow(<AccountInput {...props} />);
   };
 
   it('should call onEnter', (done) => {
     const component = render({
-      onEnter: () => done()
+      onEnter: () => done(),
     });
     keyPress(getInputRef(component), createKeyEvent('Enter'));
   });
@@ -38,7 +36,7 @@ describe('components/AccountInput', () => {
       onChange: (val) => {
         expect(val).to.be.equal('1');
         done();
-      }
+      },
     });
     keyPress(getInputRef(component), createKeyEvent('1'));
   });
@@ -58,10 +56,10 @@ describe('components/AccountInput', () => {
       '111',
       '11',
       '1',
-      ''
+      '',
     ];
 
-    for(const value of cases) {
+    for (const value of cases) {
       const component = render({ value });
       expect(getInputRef(component).prop('value')).to.be.equal(value);
     }
@@ -73,7 +71,7 @@ describe('components/AccountInput', () => {
       onChange: (val) => {
         expect(val).to.be.equal('123');
         done();
-      }
+      },
     });
     keyPress(getInputRef(component), createKeyEvent('Backspace'));
   });
@@ -84,7 +82,7 @@ describe('components/AccountInput', () => {
       onChange: (val) => {
         expect(val).to.be.equal('234');
         done();
-      }
+      },
     });
     component.setState({ selectionRange: [1, 1] }, () => {
       keyPress(getInputRef(component), createKeyEvent('Backspace'));
@@ -97,7 +95,7 @@ describe('components/AccountInput', () => {
       onChange: (val) => {
         expect(val).to.be.empty;
         done();
-      }
+      },
     });
     component.setState({ selectionRange: [0, 8] }, () => {
       keyPress(getInputRef(component), createKeyEvent('Backspace'));
@@ -110,7 +108,7 @@ describe('components/AccountInput', () => {
       onChange: (val) => {
         expect(val).to.be.equal('12349999');
         done();
-      }
+      },
     });
     component.setState({ selectionRange: [4, 8] }, () => {
       keyPress(getInputRef(component), createKeyEvent('Backspace'));
@@ -119,7 +117,7 @@ describe('components/AccountInput', () => {
 
   it('should replace selection', (done) => {
     const component = render({
-      value: '0000'
+      value: '0000',
     });
 
     component.setState({ selectionRange: [1, 3] }, () => {
@@ -136,7 +134,7 @@ describe('components/AccountInput', () => {
   it('should keep selection in the back', (done) => {
     const component = render({ value: '' });
 
-    for(let i = 0; i < 12; i++) {
+    for (let i = 0; i < 12; i++) {
       keyPress(getInputRef(component), createKeyEvent('1'));
     }
 
@@ -149,9 +147,9 @@ describe('components/AccountInput', () => {
 
   it('should advance selection on insertion', (done) => {
     const component = render({
-      value: '0000'
+      value: '0000',
     });
-    component.setState({ selectionRange: [1, 1]}, () => {
+    component.setState({ selectionRange: [1, 1] }, () => {
       keyPress(getInputRef(component), createKeyEvent('1'));
 
       component.setState({}, () => {
@@ -164,7 +162,7 @@ describe('components/AccountInput', () => {
 
   it('should not do anything when nothing to remove', (done) => {
     const component = render({
-      value: '0000'
+      value: '0000',
     });
     component.setState({ selectionRange: [0, 0] }, () => {
       keyPress(getInputRef(component), createKeyEvent('Backspace'));
@@ -176,11 +174,10 @@ describe('components/AccountInput', () => {
       });
     });
   });
-
 });
 
 function getComponent(container, testName) {
-  return container.findWhere( n => n.prop('testName') === testName);
+  return container.findWhere((n) => n.prop('testName') === testName);
 }
 
 function keyPress(component, key) {

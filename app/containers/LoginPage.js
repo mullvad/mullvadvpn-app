@@ -14,7 +14,10 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => state;
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
-  const { login, resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
+  const { login, resetLoginError, updateAccountToken } = bindActionCreators(
+    accountActions,
+    dispatch,
+  );
   const { backend } = props;
   return {
     onSettings: () => {
@@ -34,4 +37,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Login);

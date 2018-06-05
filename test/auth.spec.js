@@ -1,12 +1,16 @@
 // @flow
 
 import { expect } from 'chai';
-import { setupIpcAndStore, setupBackendAndStore, failFast, checkNextTick } from './helpers/ipc-helpers';
+import {
+  setupIpcAndStore,
+  setupBackendAndStore,
+  failFast,
+  checkNextTick,
+} from './helpers/ipc-helpers';
 import { IpcChain } from './helpers/IpcChain';
 import { Backend } from '../app/lib/backend';
 
 describe('authentication', () => {
-
   it('authenticates before ipc call if unauthenticated', (done) => {
     const { store, mockIpc } = setupIpcAndStore();
     const credentials = {
@@ -14,19 +18,17 @@ describe('authentication', () => {
       connectionString: '',
     };
 
-
     const chain = new IpcChain(mockIpc);
-    chain.require('authenticate')
-      .withInputValidation( secret => {
+    chain
+      .require('authenticate')
+      .withInputValidation((secret) => {
         expect(secret).to.equal(credentials.sharedSecret);
       })
       .done();
 
-    chain.require('connect')
-      .done();
+    chain.require('connect').done();
 
     chain.onSuccessOrFailure(done);
-
 
     const backend = new Backend(store, credentials, mockIpc);
     backend.connect();
@@ -41,12 +43,10 @@ describe('authentication', () => {
       return Promise.resolve();
     };
 
-
     mockIpc.killWebSocket();
     failFast(() => {
       expect(authCount).to.equal(0);
     }, done);
-
 
     backend.connect();
     checkNextTick(() => {

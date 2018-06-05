@@ -7,16 +7,15 @@ import ReactTestUtils, { Simulate } from 'react-dom/test-utils';
 import Switch from '../../app/components/Switch';
 
 describe('components/Switch', () => {
-
   let container: ?HTMLElement;
 
   function renderIntoDocument(instance: React.Element<*>): React.Component<*, *> {
-    if(container) {
+    if (container) {
       throw new Error('Unmount previously rendered component first.');
     }
 
     container = document.createElement('div');
-    if(!document.documentElement) {
+    if (!document.documentElement) {
       throw new Error('document.documentElement cannot be null.');
     }
 
@@ -27,7 +26,7 @@ describe('components/Switch', () => {
 
   // unmount container and clean up DOM
   afterEach(() => {
-    if(container) {
+    if (container) {
       ReactDOM.unmountComponentAtNode(container);
       container = null;
     }
@@ -38,12 +37,10 @@ describe('components/Switch', () => {
       expect(isOn).to.be.true;
       done();
     };
-    const component = renderIntoDocument(
-      <Switch isOn={ false } onChange={ onChange } />
-    );
+    const component = renderIntoDocument(<Switch isOn={false} onChange={onChange} />);
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
     // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
+    if (domNode) {
       Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
       Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
       Simulate.change(domNode, { target: { checked: true } });
@@ -55,12 +52,10 @@ describe('components/Switch', () => {
       expect(isOn).to.be.false;
       done();
     };
-    const component = renderIntoDocument(
-      <Switch isOn={ true } onChange={ onChange } />
-    );
+    const component = renderIntoDocument(<Switch isOn={true} onChange={onChange} />);
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
     // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
+    if (domNode) {
       Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
       Simulate.mouseUp(domNode, { clientX: 100, clientY: 0 });
       Simulate.change(domNode, { target: { checked: false } });
@@ -72,12 +67,10 @@ describe('components/Switch', () => {
       expect(isOn).to.be.true;
       done();
     };
-    const component = renderIntoDocument(
-      <Switch isOn={ false } onChange={ onChange } />
-    );
+    const component = renderIntoDocument(<Switch isOn={false} onChange={onChange} />);
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
     // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
+    if (domNode) {
       Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
     }
 
@@ -91,13 +84,11 @@ describe('components/Switch', () => {
       expect(isOn).to.be.false;
       done();
     };
-    const component = renderIntoDocument(
-      <Switch isOn={ true } onChange={ onChange } />
-    );
+    const component = renderIntoDocument(<Switch isOn={true} onChange={onChange} />);
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
 
     // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
+    if (domNode) {
       Simulate.mouseDown(domNode, { clientX: 150, clientY: 0 });
     }
 
@@ -111,13 +102,11 @@ describe('components/Switch', () => {
       throw new Error('onChange should not be called on timeout.');
     };
 
-    const component = renderIntoDocument(
-      <Switch isOn={ false } onChange={ onChange } />
-    );
+    const component = renderIntoDocument(<Switch isOn={false} onChange={onChange} />);
 
     const domNode = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
     // See: https://github.com/facebook/flow/pull/5841
-    if(domNode) {
+    if (domNode) {
       Simulate.mouseDown(domNode, { clientX: 100, clientY: 0 });
     }
 
@@ -127,15 +116,14 @@ describe('components/Switch', () => {
 
       try {
         // See: https://github.com/facebook/flow/pull/5841
-        if(domNode) {
+        if (domNode) {
           // should not trigger onChange()
           Simulate.change(domNode);
         }
         done();
-      } catch(e) {
+      } catch (e) {
         done(e);
       }
     }, 1000);
   });
-
 });

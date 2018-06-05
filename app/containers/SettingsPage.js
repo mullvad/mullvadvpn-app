@@ -30,4 +30,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) =
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Settings);

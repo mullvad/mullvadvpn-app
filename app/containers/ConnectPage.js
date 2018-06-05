@@ -13,30 +13,33 @@ import type { SharedRouteProps } from '../routes';
 
 import type { RelaySettingsRedux, RelayLocationRedux } from '../redux/settings/reducers';
 
-function getRelayName(relaySettings: RelaySettingsRedux, relayLocations: Array<RelayLocationRedux>): string {
-  if(relaySettings.normal) {
+function getRelayName(
+  relaySettings: RelaySettingsRedux,
+  relayLocations: Array<RelayLocationRedux>,
+): string {
+  if (relaySettings.normal) {
     const location = relaySettings.normal.location;
 
-    if(location === 'any') {
+    if (location === 'any') {
       return 'Automatic';
-    } else if(location.country) {
+    } else if (location.country) {
       const country = relayLocations.find(({ code }) => code === location.country);
-      if(country) {
+      if (country) {
         return country.name;
       }
-    } else if(location.city) {
+    } else if (location.city) {
       const [countryCode, cityCode] = location.city;
       const country = relayLocations.find(({ code }) => code === countryCode);
-      if(country) {
+      if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
-        if(city) {
+        if (city) {
           return city.name;
         }
       }
     }
 
     return 'Unknown';
-  } else if(relaySettings.custom_tunnel_endpoint) {
+  } else if (relaySettings.custom_tunnel_endpoint) {
     return 'Custom';
   } else {
     throw new Error('Unsupported relay settings.');
@@ -46,10 +49,7 @@ function getRelayName(relaySettings: RelaySettingsRedux, relayLocations: Array<R
 const mapStateToProps = (state: ReduxState) => {
   return {
     accountExpiry: state.account.expiry,
-    selectedRelayName: getRelayName(
-      state.settings.relaySettings,
-      state.settings.relayLocations
-    ),
+    selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
   };
 };
@@ -79,4 +79,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Connect);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Connect);

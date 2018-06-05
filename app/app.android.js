@@ -31,8 +31,8 @@ DeviceEventEmitter.addListener('com.mullvad.backend-info', async (_event, args) 
     await backend.fetchSecurityState();
     await backend.connect();
   } catch (e) {
-    if(e instanceof BackendError) {
-      if(e.type === 'NO_ACCOUNT') {
+    if (e instanceof BackendError) {
+      if (e.type === 'NO_ACCOUNT') {
         log.debug('No user set in the backend, showing window');
         MobileAppBridge.showWindow();
       }
@@ -40,16 +40,18 @@ DeviceEventEmitter.addListener('com.mullvad.backend-info', async (_event, args) 
   }
 });
 
-MobileAppBridge.startBackend().then(_response => {}).catch(e => {
-  log.error('Failed starting backend:', e);
-});
+MobileAppBridge.startBackend()
+  .then((_response) => {})
+  .catch((e) => {
+    log.error('Failed starting backend:', e);
+  });
 
 const _isPortrait = () => {
   const dim = RX.UserInterface.measureWindow();
   return dim.height >= dim.width;
 };
 
-export default class App extends Component{
+export default class App extends Component {
   constructor() {
     super();
 
@@ -59,17 +61,15 @@ export default class App extends Component{
 
     Dimensions.addEventListener('change', () => {
       this.setState({
-        orientation: _isPortrait() ? 'portrait' : 'landscape'
+        orientation: _isPortrait() ? 'portrait' : 'landscape',
       });
     });
   }
 
   render() {
     return (
-      <Provider store={ store }>
-        <Router history={ memoryHistory }>
-          { makeRoutes(store.getState, { backend }) }
-        </Router>
+      <Provider store={store}>
+        <Router history={memoryHistory}>{makeRoutes(store.getState, { backend })}</Router>
       </Provider>
     );
   }

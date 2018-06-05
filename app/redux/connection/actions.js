@@ -11,12 +11,11 @@ const disconnect = (backend: Backend) => () => backend.disconnect();
 const copyIPAddress = (): ReduxThunk => {
   return (_, getState) => {
     const ip = getState().connection.ip;
-    if(ip) {
+    if (ip) {
       Clipboard.setText(ip);
     }
   };
 };
-
 
 type ConnectingAction = {
   type: 'CONNECTING',
@@ -48,12 +47,13 @@ type OfflineAction = {
   type: 'OFFLINE',
 };
 
-export type ConnectionAction = NewLocationAction
-                                | ConnectingAction
-                                | ConnectedAction
-                                | DisconnectedAction
-                                | OnlineAction
-                                | OfflineAction;
+export type ConnectionAction =
+  | NewLocationAction
+  | ConnectingAction
+  | ConnectedAction
+  | DisconnectedAction
+  | OnlineAction
+  | OfflineAction;
 
 function connecting(): ConnectingAction {
   return {
@@ -92,6 +92,14 @@ function offline(): OfflineAction {
   };
 }
 
-
-export default { connect, disconnect, copyIPAddress, newLocation, connecting, connected, disconnected, online, offline };
-
+export default {
+  connect,
+  disconnect,
+  copyIPAddress,
+  newLocation,
+  connecting,
+  connected,
+  disconnected,
+  online,
+  offline,
+};

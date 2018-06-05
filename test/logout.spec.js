@@ -1,35 +1,41 @@
 // @flow
 
 import { expect } from 'chai';
-import { setupBackendAndStore, setupBackendAndMockStore, getLocation, checkNextTick, failFastNextTick } from './helpers/ipc-helpers';
+import {
+  setupBackendAndStore,
+  setupBackendAndMockStore,
+  getLocation,
+  checkNextTick,
+  failFastNextTick,
+} from './helpers/ipc-helpers';
 import { IpcChain } from './helpers/IpcChain';
 import accountActions from '../app/redux/account/actions';
 
 describe('logging out', () => {
-
   it('should set the account to null and then disconnect', (done) => {
     const { mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('setAccount')
+    chain
+      .require('setAccount')
       .withInputValidation((num) => {
         expect(num).to.be.null;
       })
       .done();
-    chain.require('disconnect')
-      .done();
+    chain.require('disconnect').done();
     chain.onSuccessOrFailure(done);
 
     backend.logout();
   });
 
-
   it('should remove the account number from the store', (done) => {
-
     const { store, backend, mockIpc } = setupBackendAndStore();
-    mockIpc.getAccountData = () => new Promise(r => r({
-      expiry: '2001-01-01T00:00:00.000Z',
-    }));
+    mockIpc.getAccountData = () =>
+      new Promise((r) =>
+        r({
+          expiry: '2001-01-01T00:00:00.000Z',
+        }),
+      );
     const action: any = accountActions.login(backend, '123');
     store.dispatch(action);
 
@@ -52,7 +58,6 @@ describe('logging out', () => {
       }, done);
     }, done);
   });
-
 
   it('should redirect to / on logout', (done) => {
     const { store, backend } = setupBackendAndMockStore();
