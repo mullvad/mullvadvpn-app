@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dnsconfig.h"
+#include "interfaceconfig.h"
 #include "clientsinkinfo.h"
 #include "itracesink.h"
 #include <map>
@@ -81,12 +81,12 @@ public:
 		External
 	};
 
-	UpdateType updateConfig(const DnsConfig &previous, const DnsConfig &target);
+	UpdateType updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target);
 
 	//
 	// Enumerate recorded configs.
 	//
-	bool processConfigs(std::function<bool(const DnsConfig &)> configSink);
+	bool processConfigs(std::function<bool(const InterfaceConfig &)> configSink);
 
 private:
 
@@ -98,14 +98,14 @@ private:
 	//
 	// Organize configs based on their system assigned index.
 	//
-	std::map<uint32_t, DnsConfig> m_configs;
+	std::map<uint32_t, InterfaceConfig> m_configs;
 
 	std::shared_ptr<ITraceSink> m_traceSink;
 
 	//
 	// Tests, by looking at the servers, whether this is an update initied by WINDNS.
 	//
-	bool internalUpdate(const DnsConfig &config);
+	bool internalUpdate(const InterfaceConfig &config);
 
 	//
 	// Bundle the current config details and send them into the config sink.
