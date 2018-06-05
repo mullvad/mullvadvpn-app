@@ -105,7 +105,7 @@ WinDns_Set(
 		sinkInfo.errorSinkInfo = ErrorSinkInfo{ g_ErrorSink, g_ErrorContext };
 		sinkInfo.configSinkInfo = ConfigSinkInfo{ configSink, configContext };
 
-		return g_Context->set(MakeStringArray(servers, numServers), sinkInfo);
+		g_Context->set(MakeStringArray(servers, numServers), sinkInfo);
 	}
 	catch (std::exception &err)
 	{
@@ -120,6 +120,8 @@ WinDns_Set(
 	{
 		return false;
 	}
+
+	return true;
 }
 
 WINDNS_LINKAGE
@@ -130,12 +132,12 @@ WinDns_Reset(
 {
 	if (nullptr == g_Context)
 	{
-		return false;
+		return true;
 	}
 
 	try
 	{
-		return g_Context->reset();
+		g_Context->reset();
 	}
 	catch (std::exception &err)
 	{
@@ -150,6 +152,8 @@ WinDns_Reset(
 	{
 		return false;
 	}
+
+	return true;
 }
 
 WINDNS_LINKAGE

@@ -10,11 +10,31 @@ WinDnsContext::WinDnsContext()
 	m_connection = std::make_shared<wmi::Connection>(wmi::Connection::Namespace::Cimv2);
 }
 
-bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo)
+WinDnsContext::~WinDnsContext()
 {
+	try
+	{
+		reset();
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != m_sinkInfo.errorSinkInfo.sink)
+		{
+			m_sinkInfo.errorSinkInfo.sink(err.what(), m_sinkInfo.errorSinkInfo.context);
+		}
+	}
+	catch (...)
+	{
+	}
+}
+
+void WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo)
+{
+	m_sinkInfo = sinkInfo;
+
 	if (nullptr == m_notification)
 	{
-		m_configManager = std::make_shared<ConfigManager>(servers, sinkInfo.configSinkInfo);
+		m_configManager = std::make_shared<ConfigManager>(servers, m_sinkInfo.configSinkInfo);
 
 		//
 		// Register interface configuration monitoring.
@@ -39,7 +59,7 @@ bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 		ConfigManager::Mutex mutex(*m_configManager);
 
 		m_configManager->updateServers(servers);
-		m_configManager->updateConfigSink(sinkInfo.configSinkInfo);
+		m_configManager->updateConfigSink(m_sinkInfo.configSinkInfo);
 	}
 
 	//
@@ -52,15 +72,13 @@ bool WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 	{
 		nchelpers::SetDnsServers(nchelpers::GetInterfaceIndex(resultSet.result()), servers);
 	}
-
-	return true;
 }
 
-bool WinDnsContext::reset()
+void WinDnsContext::reset()
 {
 	if (nullptr == m_notification)
 	{
-		return true;
+		return;
 	}
 
 	m_notification->deactivate();
@@ -76,9 +94,6 @@ bool WinDnsContext::reset()
 	m_configManager->processConfigs([&](const InterfaceConfig &config)
 	{
 		dnsReverter.revert(config);
-
 		return true;
 	});
-
-	return true;
 }
