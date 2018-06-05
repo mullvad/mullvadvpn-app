@@ -134,12 +134,13 @@ impl Formatter {
     }
 }
 
-#[cfg(not(windows))]
 fn escape_newlines(text: String) -> String {
-    text
-}
-
-#[cfg(windows)]
-fn escape_newlines(text: String) -> String {
-    text.replace("\n", LINE_SEPARATOR)
+    #[cfg(not(windows))]
+    {
+        text
+    }
+    #[cfg(windows)]
+    {
+        text.replace("\n", LINE_SEPARATOR)
+    }
 }

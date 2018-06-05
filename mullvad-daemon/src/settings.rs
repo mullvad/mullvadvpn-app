@@ -86,18 +86,19 @@ impl Settings {
         serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))
     }
 
-    #[cfg(unix)]
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = PathBuf::from("/etc/mullvad-daemon");
-        ::std::fs::create_dir_all(&dir).chain_err(|| ErrorKind::DirectoryError)?;
-        Ok(dir.join(SETTINGS_FILE))
-    }
+        #[cfg(unix)]
+        let dir = {
+            let dir = PathBuf::from("/etc/mullvad-daemon");
+            ::std::fs::create_dir_all(&dir).chain_err(|| ErrorKind::DirectoryError)?;
+            dir
+        };
+        #[cfg(windows)]
+        let dir = ::app_dirs::app_root(
+            ::app_dirs::AppDataType::UserConfig,
+            &mullvad_metadata::APP_INFO,
+        ).chain_err(|| ErrorKind::DirectoryError)?;
 
-    #[cfg(windows)]
-    fn get_settings_path() -> Result<PathBuf> {
-        use mullvad_metadata::APP_INFO;
-        let dir = ::app_dirs::app_root(::app_dirs::AppDataType::UserConfig, &APP_INFO)
-            .chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
 

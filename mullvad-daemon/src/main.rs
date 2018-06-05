@@ -862,26 +862,25 @@ fn run() -> Result<()> {
     run_platform(config)
 }
 
-#[cfg(windows)]
 fn run_platform(config: cli::Config) -> Result<()> {
-    if config.run_as_service {
-        system_service::run()
-    } else {
-        if config.register_service {
-            let install_result =
-                system_service::install_service().chain_err(|| "Unable to install the service");
-            if install_result.is_ok() {
-                println!("Installed the service.");
-            }
-            install_result
+    #[cfg(windows)]
+    {
+        if config.run_as_service {
+            system_service::run()
         } else {
-            run_standalone(config)
+            if config.register_service {
+                let install_result =
+                    system_service::install_service().chain_err(|| "Unable to install the service");
+                if install_result.is_ok() {
+                    println!("Installed the service.");
+                }
+                install_result
+            } else {
+                run_standalone(config)
+            }
         }
     }
-}
-
-#[cfg(not(windows))]
-fn run_platform(config: cli::Config) -> Result<()> {
+    #[cfg(not(windows))]
     run_standalone(config)
 }
 
@@ -935,14 +934,15 @@ fn get_resource_dir() -> PathBuf {
     }
 }
 
-#[cfg(unix)]
 fn running_as_admin() -> bool {
-    let uid = unsafe { libc::getuid() };
-    uid == 0
-}
-
-#[cfg(windows)]
-fn running_as_admin() -> bool {
-    // TODO: Check if user is administrator correctly on Windows.
-    true
+    #[cfg(unix)]
+    {
+        let uid = unsafe { libc::getuid() };
+        uid == 0
+    }
+    #[cfg(windows)]
+    {
+        // TODO: Check if user is administrator correctly on Windows.
+        true
+    }
 }
