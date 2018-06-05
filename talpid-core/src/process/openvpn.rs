@@ -24,8 +24,8 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--connect-retry-max", "1"],
     &["--comp-lzo"],
     &["--remote-cert-tls", "server"],
-    &["--rcvbuf", "524288"],
-    &["--sndbuf", "524288"],
+    &["--rcvbuf", "1048576"],
+    &["--sndbuf", "1048576"],
     &["--fast-io"],
     &["--cipher", "AES-256-CBC"],
 ];
