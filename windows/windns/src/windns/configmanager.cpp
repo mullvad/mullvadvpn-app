@@ -31,6 +31,12 @@ void ConfigManager::updateServers(const std::vector<std::wstring> &servers)
 	m_servers = servers;
 }
 
+void ConfigManager::updateConfigSink(const ConfigSinkInfo &configSinkInfo)
+{
+	XTRACE(L"Updating config sink");
+	m_configSinkInfo = configSinkInfo;
+}
+
 const std::vector<std::wstring> &ConfigManager::getServers() const
 {
 	return m_servers;

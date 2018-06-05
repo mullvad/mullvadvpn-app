@@ -29,5 +29,4 @@ private:
 	std::shared_ptr<wmi::Connection> m_connection;
 	std::shared_ptr<ConfigManager> m_configManager;
 	std::unique_ptr<wmi::Notification> m_notification;
-	ClientSinkInfo m_sinkInfo;
 };

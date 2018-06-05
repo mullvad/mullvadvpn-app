@@ -68,6 +68,11 @@ public:
 	void updateServers(const std::vector<std::wstring> &servers);
 
 	//
+	// Update the callback used for persisting settings.
+	//
+	void updateConfigSink(const ConfigSinkInfo &configSinkInfo);
+
+	//
 	// Get the current set of servers used for overriding DNS settings.
 	//
 	const std::vector<std::wstring> &getServers() const;
