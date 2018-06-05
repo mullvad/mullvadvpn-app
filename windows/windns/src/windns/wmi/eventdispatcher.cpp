@@ -61,11 +61,20 @@ HRESULT STDMETHODCALLTYPE EventDispatcherBase::Indicate
 {
 	InterlockedIncrement(&m_callbacks);
 
-	for (LONG i = 0; i < numObjects; ++i)
+	try
 	{
-		CComPtr<IWbemClassObject> eventRecord(objects[i]);
+		for (LONG i = 0; i < numObjects; ++i)
+		{
+			CComPtr<IWbemClassObject> eventRecord(objects[i]);
 
-		dispatch(eventRecord);
+			dispatch(eventRecord);
+		}
+	}
+	catch (...)
+	{
+		//
+		// There is nowhere to forward this error :-(
+		//
 	}
 
 	InterlockedDecrement(&m_callbacks);
