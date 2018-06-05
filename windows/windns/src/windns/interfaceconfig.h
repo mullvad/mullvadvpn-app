@@ -8,16 +8,26 @@
 #include <atlbase.h>
 #include <wbemidl.h>
 
-class DnsConfig
+class InterfaceConfig
 {
 public:
 
 	// instance = Win32_NetworkAdapterConfiguration.
-	explicit DnsConfig(CComPtr<IWbemClassObject> instance);
+	explicit InterfaceConfig(CComPtr<IWbemClassObject> instance);
+
+	void updateServers(const InterfaceConfig &rhs)
+	{
+		m_servers = rhs.m_servers;
+	}
 
 	uint32_t configIndex() const
 	{
 		return m_configIndex;
+	}
+
+	bool dhcp() const
+	{
+		return m_dhcp;
 	}
 
 	uint32_t interfaceIndex() const
@@ -38,6 +48,8 @@ public:
 private:
 
 	uint32_t m_configIndex;
+
+	bool m_dhcp;
 
 	uint32_t m_interfaceIndex;
 	std::wstring m_interfaceGuid;
