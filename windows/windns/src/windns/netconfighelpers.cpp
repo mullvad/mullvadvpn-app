@@ -25,7 +25,7 @@ OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 
 uint32_t GetInterfaceIndex(CComPtr<IWbemClassObject> instance)
 {
-	return V_UI4(&ComGetPropertyAlways(instance, L"InterfaceIndex"));
+	return ComGetPropertyAlways(instance, L"InterfaceIndex").ulVal;
 }
 
 void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &servers)
