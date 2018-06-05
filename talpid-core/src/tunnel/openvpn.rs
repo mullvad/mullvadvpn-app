@@ -291,16 +291,17 @@ mod tests {
     struct TestProcessHandle(i32);
 
     impl ProcessHandle for TestProcessHandle {
-        #[cfg(unix)]
         fn wait(&self) -> io::Result<ExitStatus> {
-            use std::os::unix::process::ExitStatusExt;
-            Ok(ExitStatus::from_raw(self.0))
-        }
-
-        #[cfg(windows)]
-        fn wait(&self) -> io::Result<ExitStatus> {
-            use std::os::windows::process::ExitStatusExt;
-            Ok(ExitStatus::from_raw(self.0 as u32))
+            #[cfg(unix)]
+            {
+                use std::os::unix::process::ExitStatusExt;
+                Ok(ExitStatus::from_raw(self.0))
+            }
+            #[cfg(windows)]
+            {
+                use std::os::windows::process::ExitStatusExt;
+                Ok(ExitStatus::from_raw(self.0 as u32))
+            }
         }
 
         fn kill(&self) -> io::Result<()> {
