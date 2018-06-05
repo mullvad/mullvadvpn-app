@@ -179,12 +179,13 @@
     <ClInclude Include="comhelpers.h" />
     <ClInclude Include="configmanager.h" />
     <ClInclude Include="consoletracesink.h" />
-    <ClInclude Include="dnsconfig.h" />
     <ClInclude Include="dnsreverter.h" />
+    <ClInclude Include="interfaceconfig.h" />
     <ClInclude Include="itracesink.h" />
     <ClInclude Include="macroargument.h" />
     <ClInclude Include="netconfigeventsink.h" />
     <ClInclude Include="netconfighelpers.h" />
+    <ClInclude Include="netsh.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="windns.h" />
@@ -202,10 +203,11 @@
     <ClCompile Include="configmanager.cpp" />
     <ClCompile Include="consoletracesink.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="dnsconfig.cpp" />
     <ClCompile Include="dnsreverter.cpp" />
+    <ClCompile Include="interfaceconfig.cpp" />
     <ClCompile Include="netconfigeventsink.cpp" />
     <ClCompile Include="netconfighelpers.cpp" />
+    <ClCompile Include="netsh.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
