@@ -100,19 +100,6 @@ WinDns_Set(
 
 	try
 	{
-		//
-		// TODO: This is a temporary hack to enable alpha version. Review.
-		//
-
-		delete g_Context;
-		g_Context = nullptr;
-
-		g_Context = new WinDnsContext;
-
-		//
-		// Onwards.
-		//
-
 		ClientSinkInfo sinkInfo;
 
 		sinkInfo.errorSinkInfo = ErrorSinkInfo{ g_ErrorSink, g_ErrorContext };
