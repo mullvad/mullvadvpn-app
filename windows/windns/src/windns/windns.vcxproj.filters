@@ -19,7 +19,6 @@
     </ClInclude>
     <ClInclude Include="comhelpers.h" />
     <ClInclude Include="configmanager.h" />
-    <ClInclude Include="dnsconfig.h" />
     <ClInclude Include="itracesink.h" />
     <ClInclude Include="consoletracesink.h" />
     <ClInclude Include="netconfigeventsink.h" />
@@ -36,6 +35,8 @@
     <ClInclude Include="wmi\ieventsink.h">
       <Filter>wmi</Filter>
     </ClInclude>
+    <ClInclude Include="netsh.h" />
+    <ClInclude Include="interfaceconfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -53,7 +54,6 @@
     </ClCompile>
     <ClCompile Include="comhelpers.cpp" />
     <ClCompile Include="configmanager.cpp" />
-    <ClCompile Include="dnsconfig.cpp" />
     <ClCompile Include="consoletracesink.cpp" />
     <ClCompile Include="netconfigeventsink.cpp" />
     <ClCompile Include="netconfighelpers.cpp" />
@@ -64,6 +64,8 @@
     <ClCompile Include="wmi\eventdispatcher.cpp">
       <Filter>wmi</Filter>
     </ClCompile>
+    <ClCompile Include="netsh.cpp" />
+    <ClCompile Include="interfaceconfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="wmi">
