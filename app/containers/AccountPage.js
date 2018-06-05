@@ -11,13 +11,19 @@ import { openLink } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => state;
+const mapStateToProps = (state: ReduxState) => ({
+  accountToken: state.account.accountToken,
+  accountExpiry: state.account.expiry,
+});
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+  const { backend } = props;
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   const { logout } = bindActionCreators(accountActions, dispatch);
+
   return {
+    updateAccountExpiry: () => backend.updateAccountExpiry(),
     onLogout: () => {
-      logout(props.backend);
+      logout(backend);
     },
     onClose: () => {
       pushHistory('/settings');
