@@ -75,6 +75,26 @@ void NetSh::SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 }
 
 //static
+void NetSh::SetIpv4Dhcp(uint32_t interfaceIndex)
+{
+	//
+	// netsh interface ipv4 set dnsservers name="Ethernet 2" source=dhcp
+	//
+	// Note: we're specifying the interface by index instead.
+	//
+
+	std::wstringstream ss;
+
+	ss << L"interface ipv4 set dnsservers name="
+		<< interfaceIndex
+		<< L" source=dhcp";
+
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+
+	ValidateShellOut(*netsh);
+}
+
+//static
 void NetSh::SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server)
 {
 	//
@@ -112,6 +132,26 @@ void NetSh::SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 		<< L"address ="
 		<< server
 		<< L" index=2 validate=no";
+
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+
+	ValidateShellOut(*netsh);
+}
+
+//static
+void NetSh::SetIpv6Dhcp(uint32_t interfaceIndex)
+{
+	//
+	// netsh interface ipv6 set dnsservers name="Ethernet 2" source=dhcp
+	//
+	// Note: we're specifying the interface by index instead.
+	//
+
+	std::wstringstream ss;
+
+	ss << L"interface ipv6 set dnsservers name="
+		<< interfaceIndex
+		<< L" source=dhcp";
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
 
