@@ -2696,8 +2696,8 @@ electron-builder@^19.37.2:
     yargs "^10.1.1"
 
 electron-devtools-installer@^2.2.1:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.3.tgz#58b9a4ec507377bc46e091cd43714188e0c369be"
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.4.tgz#261a50337e37121d338b966f07922eb4939a8763"
   dependencies:
     "7zip" "0.0.6"
     cross-unzip "0.0.2"
@@ -5591,9 +5591,9 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nseventmonitor@https://github.com/mullvad/NSEventMonitor.git#0.0.8":
-  version "0.0.8"
-  resolved "https://github.com/mullvad/NSEventMonitor.git#23d8d017282877b1863bb4f96676aead7fb72892"
+"nseventmonitor@https://github.com/mullvad/NSEventMonitor.git#0.0.9":
+  version "0.0.9"
+  resolved "https://github.com/mullvad/NSEventMonitor.git#ff5bad00d954b6cba7b16a1ebd013fea0bb79292"
   dependencies:
     node-pre-gyp "^0.10.0"
 
@@ -8165,9 +8165,9 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
 
-"windows-security@https://github.com/mullvad/windows-security.git#0.0.4":
-  version "0.0.4"
-  resolved "https://github.com/mullvad/windows-security.git#066f2915054c55e1ac7cc671b9c8de6b16ccdead"
+"windows-security@https://github.com/mullvad/windows-security.git#0.0.5":
+  version "0.0.5"
+  resolved "https://github.com/mullvad/windows-security.git#311fcfeb137e9e10b25929b0615f9188e118004f"
   dependencies:
     node-pre-gyp "^0.10.0"
 

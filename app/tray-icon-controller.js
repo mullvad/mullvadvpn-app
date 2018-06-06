@@ -1,12 +1,11 @@
 // @flow
 import path from 'path';
-import KeyframeAnimation from './keyframe-animation';
-
+import KeyframeAnimation from './lib/keyframe-animation';
 import type { Tray } from 'electron';
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
-export default class TrayIconManager {
+export default class TrayIconController {
   _animation: ?KeyframeAnimation;
   _iconType: TrayIconType;
 
@@ -27,23 +26,11 @@ export default class TrayIconManager {
     }
   }
 
-  _createAnimation(): KeyframeAnimation {
-    const basePath = path.join(path.resolve(__dirname, '..'), 'assets/images/menubar icons');
-    const filePath = path.join(basePath, 'lock-{}.png');
-    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 10]);
-    animation.speed = 100;
-    return animation;
-  }
-
-  _isReverseAnimation(type: TrayIconType): boolean {
-    return type === 'unsecured';
-  }
-
   get iconType(): TrayIconType {
     return this._iconType;
   }
 
-  set iconType(type: TrayIconType) {
+  animateToIcon(type: TrayIconType) {
     if (this._iconType === type || !this._animation) {
       return;
     }
@@ -58,5 +45,17 @@ export default class TrayIconManager {
     }
 
     this._iconType = type;
+  }
+
+  _createAnimation(): KeyframeAnimation {
+    const basePath = path.join(__dirname, 'assets/images/menubar icons');
+    const filePath = path.join(basePath, 'lock-{}.png');
+    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 10]);
+    animation.speed = 100;
+    return animation;
+  }
+
+  _isReverseAnimation(type: TrayIconType): boolean {
+    return type === 'unsecured';
   }
 }
