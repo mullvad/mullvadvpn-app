@@ -12,7 +12,7 @@ import configureStore from './redux/store';
 import { Backend, BackendError } from './lib/backend';
 
 import type { ConnectionState } from './redux/connection/reducers';
-import type { TrayIconType } from './lib/tray-icon-manager';
+import type { TrayIconType } from './tray-icon-controller';
 
 const initialState = null;
 const memoryHistory = createMemoryHistory();
@@ -54,14 +54,15 @@ ipcRenderer.on('disconnect', () => {
   });
 });
 
-ipcRenderer.on('app-shutdown', () => {
+ipcRenderer.on('app-shutdown', async () => {
   log.info('Been told by the renderer process that the app is shutting down');
+
   // The shutdown behaviour may have to be different on mobile platforms
-  const shutdown_func =
-    process.platform === 'darwin' ? () => backend.shutdown() : () => backend.disconnect();
-  shutdown_func().catch((e) => {
-    log.error('Failed to shutdown tunnel: ', e);
-  });
+  try {
+    await backend.disconnect();
+  } catch (e) {
+    log.error(`Failed to shutdown tunnel: ${e.message}`);
+  }
 
   // no matter what, don't block the frontend from shutting down, I guess.
   ipcRenderer.send('daemon-shutdown', true);
@@ -93,9 +94,11 @@ const getIconType = (s: ConnectionState): TrayIconType => {
  */
 const updateTrayIcon = () => {
   const { connection } = store.getState();
+
   // TODO: Only update the tray icon if the connection status changed
-  ipcRenderer.send('changeTrayIcon', getIconType(connection.status));
+  ipcRenderer.send('change-tray-icon', getIconType(connection.status));
 };
+
 store.subscribe(updateTrayIcon);
 
 // force update tray
