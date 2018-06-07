@@ -17,3 +17,46 @@ InterfaceConfig::InterfaceConfig(CComPtr<IWbemClassObject> instance)
 
 	m_servers = nchelpers::GetDnsServers(instance);
 }
+
+InterfaceConfig::InterfaceConfig(common::serialization::Deserializer &deserializer)
+{
+	common::serialization::Deserializer &d = deserializer;
+
+	d >> m_configIndex;
+	d >> (uint8_t &)m_dhcp;
+	d >> m_interfaceIndex;
+	d >> m_interfaceGuid;
+
+	bool serversAvailable;
+
+	d >> (uint8_t &)serversAvailable;
+
+	if (serversAvailable)
+	{
+		m_servers = std::make_shared<std::vector<std::wstring> >();
+		d >> *m_servers;
+	}
+}
+
+void InterfaceConfig::serialize(common::serialization::Serializer &serializer) const
+{
+	common::serialization::Serializer &s = serializer;
+
+	s << m_configIndex;
+	s << (uint8_t)m_dhcp;
+	s << m_interfaceIndex;
+	s << m_interfaceGuid;
+
+	//
+	// TODO: Encapsulate this inside a new type.
+	//
+	if (nullptr == m_servers.get())
+	{
+		s << (uint8_t)0;
+	}
+	else
+	{
+		s << (uint8_t)1;
+		s << *m_servers;
+	}
+}
