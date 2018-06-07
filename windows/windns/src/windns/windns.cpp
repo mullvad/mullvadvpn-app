@@ -2,6 +2,9 @@
 #include "windns.h"
 #include "windnscontext.h"
 #include "clientsinkinfo.h"
+#include "windns/serialization/deserializer.h"
+#include "interfaceconfig.h"
+#include "dnsreverter.h"
 #include <vector>
 #include <string>
 
@@ -164,7 +167,17 @@ WinDns_Recover(
 	uint32_t dataLength
 )
 {
-	// TODO: smart stuff
+	common::serialization::Deserializer d(reinterpret_cast<const uint8_t *>(configData), dataLength);
 
-	return false;
+	uint32_t numConfigs;
+	d >> numConfigs;
+
+	DnsReverter dnsReverter;
+
+	for (; numConfigs != 0; --numConfigs)
+	{
+		 dnsReverter.revert(InterfaceConfig(d));
+	}
+
+	return true;
 }
