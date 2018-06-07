@@ -186,6 +186,9 @@
     <ClInclude Include="netconfigeventsink.h" />
     <ClInclude Include="netconfighelpers.h" />
     <ClInclude Include="netsh.h" />
+    <ClInclude Include="serialization\deserializer.h" />
+    <ClInclude Include="serialization\serializer.h" />
+    <ClInclude Include="serialization\typetag.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="windns.h" />
@@ -208,6 +211,8 @@
     <ClCompile Include="netconfigeventsink.cpp" />
     <ClCompile Include="netconfighelpers.cpp" />
     <ClCompile Include="netsh.cpp" />
+    <ClCompile Include="serialization\deserializer.cpp" />
+    <ClCompile Include="serialization\serializer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
