@@ -2,17 +2,23 @@ extern crate notify;
 
 use std::env;
 use std::fs::File;
-use std::io::Write;
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
+use std::thread;
 
 use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
 
 fn main() {
     let (file, path) = create_args_file();
+    let (finished_tx, finished_rx) = mpsc::channel();
 
     write_command_line(file);
-    wait_for_file_to_be_deleted(path);
+
+    wait_thread(wait_for_stdin_to_be_closed, finished_tx.clone());
+    wait_thread(move || wait_for_file_to_be_deleted(path), finished_tx);
+
+    let _ = finished_rx.recv();
 }
 
 fn create_args_file() -> (File, PathBuf) {
@@ -35,23 +41,32 @@ fn write_command_line(mut file: File) {
     }
 }
 
+fn wait_thread<F>(function: F, finished_tx: mpsc::Sender<()>)
+where
+    F: FnOnce() + Send + 'static,
+{
+    thread::spawn(move || {
+        function();
+        let _ = finished_tx.send(());
+    });
+}
+
+fn wait_for_stdin_to_be_closed() {
+    let _ignore_bytes = io::stdin().bytes().last();
+}
+
 fn wait_for_file_to_be_deleted<P: AsRef<Path>>(file: P) {
     let file = file.as_ref();
     let (tx, rx) = mpsc::channel();
 
-    let mut watcher = raw_watcher(tx).expect(&format!(
-        "Failed to create file watcher for \"{}\"",
-        file.display()
-    ));
-
-    watcher
-        .watch(&file, RecursiveMode::NonRecursive)
-        .expect(&format!("Failed to watch file: {}", file.display()));
-
-    for event in rx {
-        if let RawEvent { op: Ok(op), .. } = event {
-            if op.contains(notify::op::REMOVE) {
-                break;
+    if let Ok(mut watcher) = raw_watcher(tx) {
+        if watcher.watch(&file, RecursiveMode::NonRecursive).is_ok() {
+            for event in rx {
+                if let RawEvent { op: Ok(op), .. } = event {
+                    if op.contains(notify::op::REMOVE) {
+                        break;
+                    }
+                }
             }
         }
     }
