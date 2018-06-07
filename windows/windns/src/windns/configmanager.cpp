@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "configmanager.h"
+#include "windns/serialization/serializer.h"
 #include <utility>
 #include <algorithm>
 
@@ -124,9 +125,16 @@ bool ConfigManager::internalUpdate(const InterfaceConfig &config)
 
 void ConfigManager::exportConfigs()
 {
-	//
-	// TODO: Serialize all configs and send to config sink
-	//
-	// serialize as array of InterfaceConfig?
-	//
+	common::serialization::Serializer s;
+
+	s << static_cast<uint32_t>(m_configs.size());
+
+	for (auto it = m_configs.begin(); it != m_configs.end(); ++it)
+	{
+		it->second.serialize(s);
+	}
+
+	auto data = s.blob();
+
+	m_configSinkInfo.sink(&data[0], static_cast<uint32_t>(data.size()), m_configSinkInfo.context);
 }
