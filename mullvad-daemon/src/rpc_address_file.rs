@@ -67,39 +67,31 @@ pub fn remove() -> Result<()> {
 }
 
 fn open_file(path: &Path) -> io::Result<File> {
-    let file = get_rpc_file_options().open(path)?;
+    let mut open_options = OpenOptions::new();
+    open_options.write(true)
+        .truncate(true)
+        .create(true);
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+        open_options.share_mode(winapi::um::winnt::FILE_SHARE_READ)
+    }
+
+    let file = open_options.open(path)?;
     set_rpc_file_permissions(&file)?;
     Ok(file)
 }
 
-#[cfg(unix)]
-fn get_rpc_file_options() -> OpenOptions {
-    let mut options = OpenOptions::new();
-    options.write(true).truncate(true).create(true);
-    options
-}
-
-#[cfg(windows)]
-fn get_rpc_file_options() -> OpenOptions {
-    use std::os::windows::fs::OpenOptionsExt;
-    let mut options = OpenOptions::new();
-    options
-        .write(true)
-        .truncate(true)
-        .create(true)
-        .share_mode(winapi::um::winnt::FILE_SHARE_READ);
-    options
-}
-
-
-#[cfg(unix)]
 fn set_rpc_file_permissions(file: &File) -> io::Result<()> {
-    use std::os::unix::fs::PermissionsExt;
-    file.set_permissions(PermissionsExt::from_mode(0o644))
-}
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(PermissionsExt::from_mode(0o644))
+    }
 
-#[cfg(windows)]
-fn set_rpc_file_permissions(_file: &File) -> io::Result<()> {
-    // TODO(linus): Lock permissions correctly on Windows.
-    Ok(())
+    #[cfg(windows)]
+    {
+        Ok(())
+    }
 }
