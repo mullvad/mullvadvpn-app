@@ -2,6 +2,8 @@
 #include "netconfigeventsink.h"
 #include "windns/netconfighelpers.h"
 
+using namespace common;
+
 NetConfigEventSink::NetConfigEventSink(std::shared_ptr<wmi::IConnection> connection, std::shared_ptr<ConfigManager> configManager)
 	: m_connection(connection)
 	, m_configManager(configManager)

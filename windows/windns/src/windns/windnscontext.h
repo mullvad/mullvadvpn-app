@@ -1,8 +1,8 @@
 #pragma once
 
 #include "windns.h"
-#include "wmi/connection.h"
-#include "wmi/notification.h"
+#include "libcommon/wmi/connection.h"
+#include "libcommon/wmi/notification.h"
 #include "configmanager.h"
 #include "clientsinkinfo.h"
 #include <vector>
@@ -21,8 +21,8 @@ public:
 
 private:
 
-	std::shared_ptr<wmi::Connection> m_connection;
+	std::shared_ptr<common::wmi::Connection> m_connection;
 	std::shared_ptr<ConfigManager> m_configManager;
-	std::unique_ptr<wmi::Notification> m_notification;
+	std::unique_ptr<common::wmi::Notification> m_notification;
 	ClientSinkInfo m_sinkInfo;
 };

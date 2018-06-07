@@ -2,7 +2,7 @@
 #include "windns.h"
 #include "windnscontext.h"
 #include "clientsinkinfo.h"
-#include "windns/serialization/deserializer.h"
+#include "libcommon/serialization/deserializer.h"
 #include "interfaceconfig.h"
 #include "dnsreverter.h"
 #include <vector>
