@@ -12,11 +12,13 @@ use self::system_configuration::dynamic_store::{
     SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext,
 };
 
-use error_chain::ChainedError;
-
 use std::collections::HashMap;
-use std::sync::{mpsc, Arc, Mutex};
+use std::mem;
+use std::net::IpAddr;
+use std::sync::mpsc;
 use std::thread;
+
+use dns::{DnsConfig, DnsConfigInterface, DnsConfigManager, DnsConfigMonitor, UpdateSender};
 
 error_chain! {
     errors {
@@ -31,39 +33,97 @@ const SETUP_PATH_PATTERN: &str = "Setup:/Network/Service/.*/DNS";
 type ServicePath = String;
 type DnsServer = String;
 
-struct State {
-    desired_dns: Vec<DnsServer>,
-    backup: HashMap<ServicePath, Option<Vec<DnsServer>>>,
+pub type MacOsDnsManager = DnsConfigManager<MacOsDnsInterface, MacOsDnsMonitor>;
+
+#[derive(Clone)]
+pub struct MacOsDnsConfig {
+    service_configs: HashMap<ServicePath, Option<Vec<DnsServer>>>,
 }
 
-pub struct DnsMonitor {
+impl From<HashMap<ServicePath, Option<Vec<DnsServer>>>> for MacOsDnsConfig {
+    fn from(service_configs: HashMap<ServicePath, Option<Vec<DnsServer>>>) -> Self {
+        MacOsDnsConfig { service_configs }
+    }
+}
+
+impl DnsConfig for MacOsDnsConfig {
+    fn uses_nameservers(&self, nameservers: &Vec<IpAddr>) -> bool {
+        let nameserver_strings = Some(nameservers.iter().map(IpAddr::to_string).collect());
+
+        self.service_configs
+            .values()
+            .all(|service_config| *service_config == nameserver_strings)
+    }
+
+    fn set_nameservers(&mut self, nameservers: &Vec<IpAddr>) {
+        let new_service_config = Some(nameservers.iter().map(IpAddr::to_string).collect());
+
+        for service_config in self.service_configs.values_mut() {
+            mem::replace(service_config, new_service_config.clone());
+        }
+    }
+
+    fn merge_with(&mut self, other: Self) {
+        self.service_configs.extend(other.service_configs);
+    }
+
+    fn merge_ignoring_nameservers(&mut self, _: Self) {}
+}
+
+pub struct MacOsDnsInterface {
     store: SCDynamicStore,
-
-    /// The current DNS injection state. If this is `None` it means we are not injecting any DNS.
-    /// When it's `Some(state)` we are actively making sure `state.desired_dns` is configured
-    /// on all network interfaces.
-    state: Arc<Mutex<Option<State>>>,
 }
 
-impl DnsMonitor {
-    /// Creates and returns a new `DnsMonitor`. This spawns a background thread that will monitor
-    /// DNS settings for all network interfaces. If any changes occur it will instantly reset
-    /// the DNS settings for that interface back to the last server list set to this instance
-    /// with `set_dns`.
-    pub fn new() -> Result<Self> {
-        let state = Arc::new(Mutex::new(None));
-        Self::spawn(state.clone())?;
-        Ok(DnsMonitor {
+impl DnsConfigInterface for MacOsDnsInterface {
+    type Config = MacOsDnsConfig;
+    type Update = Vec<String>;
+    type Error = Error;
+
+    fn open() -> Result<Self> {
+        Ok(MacOsDnsInterface {
             store: SCDynamicStoreBuilder::new("mullvad-dns").build(),
-            state,
         })
     }
 
-    /// Spawns the background thread running the CoreFoundation main loop and monitors the system
-    /// for DNS changes.
-    fn spawn(state: Arc<Mutex<Option<State>>>) -> Result<()> {
+    fn read_config(&mut self) -> Result<Self::Config> {
+        Ok(read_all_dns(&self.store).into())
+    }
+
+    fn write_config(&mut self, config: Self::Config) -> Result<()> {
+        for (service, service_config) in config.service_configs {
+            if let Some(service_config) = service_config {
+                set_dns(&self.store, CFString::new(&service), &service_config)?;
+            } else {
+                if !self.store.remove(CFString::new(&service)) {
+                    bail!(ErrorKind::SettingDnsFailed);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn read_update(&mut self, changed_keys: Self::Update) -> Result<Self::Config> {
+        let mut service_configs = HashMap::new();
+
+        for key in changed_keys {
+            let value = read_dns(&self.store, CFString::new(&key));
+
+            service_configs.insert(key, value);
+        }
+
+        Ok(MacOsDnsConfig { service_configs })
+    }
+}
+
+pub struct MacOsDnsMonitor;
+
+impl DnsConfigMonitor<Vec<String>> for MacOsDnsMonitor {
+    type Error = Error;
+
+    fn spawn(event_tx: UpdateSender<Vec<String>>) -> Result<Self> {
         let (result_tx, result_rx) = mpsc::channel();
-        thread::spawn(move || match create_dynamic_store(state) {
+        thread::spawn(move || match create_dynamic_store(event_tx) {
             Ok(store) => {
                 result_tx.send(Ok(())).unwrap();
                 run_dynamic_store_runloop(store);
@@ -72,64 +132,16 @@ impl DnsMonitor {
             }
             Err(e) => result_tx.send(Err(e)).unwrap(),
         });
-        result_rx.recv().unwrap()
-    }
-
-    pub fn set_dns(&self, servers: Vec<DnsServer>) -> Result<()> {
-        let mut state_lock = self.state.lock().unwrap();
-        *state_lock = Some(match state_lock.take() {
-            None => {
-                debug!("Setting DNS to [{}]", servers.join(", "));
-                let backup = read_all_dns(&self.store);
-                for service_path in backup.keys() {
-                    set_dns(&self.store, CFString::new(service_path), &servers)?;
-                }
-                State {
-                    desired_dns: servers,
-                    backup,
-                }
-            }
-            Some(state) => if servers != state.desired_dns {
-                debug!("Changing DNS to [{}]", servers.join(", "));
-                for service_path in state.backup.keys() {
-                    set_dns(&self.store, CFString::new(service_path), &servers)?;
-                }
-                State {
-                    desired_dns: servers,
-                    backup: state.backup,
-                }
-            } else {
-                debug!("No change, new DNS same as the one already set");
-                state
-            },
-        });
-        Ok(())
-    }
-
-    /// Reset all DNS settings to the latest backed up values.
-    pub fn reset(&self) -> Result<()> {
-        let mut state_lock = self.state.lock().unwrap();
-        if let Some(state) = state_lock.take() {
-            for (service_path, servers) in state.backup {
-                if let Some(servers) = servers {
-                    set_dns(&self.store, CFString::new(&service_path), &servers)?;
-                } else {
-                    debug!("Removing DNS for {}", service_path);
-                    if !self.store.remove(CFString::new(&service_path)) {
-                        bail!(ErrorKind::SettingDnsFailed);
-                    }
-                }
-            }
-        }
-        Ok(())
+        result_rx.recv().unwrap()?;
+        Ok(MacOsDnsMonitor)
     }
 }
 
 /// Creates a `SCDynamicStore` that watches all network interfaces for changes to the DNS settings.
-fn create_dynamic_store(state: Arc<Mutex<Option<State>>>) -> Result<SCDynamicStore> {
+fn create_dynamic_store(listener: UpdateSender<Vec<String>>) -> Result<SCDynamicStore> {
     let callback_context = SCDynamicStoreCallBackContext {
         callout: dns_change_callback,
-        info: state,
+        info: listener,
     };
 
     let store = SCDynamicStoreBuilder::new("mullvad-dns-monitor")
@@ -161,62 +173,24 @@ fn run_dynamic_store_runloop(store: SCDynamicStore) {
 /// This function is called by the Core Foundation event loop when there is a change to one or more
 /// watched dynamic store values. In our case we watch all DNS settings.
 fn dns_change_callback(
-    store: SCDynamicStore,
+    _store: SCDynamicStore,
     changed_keys: CFArray<CFString>,
-    state: &mut Arc<Mutex<Option<State>>>,
+    listener: &mut UpdateSender<Vec<String>>,
 ) {
-    if let Err(e) = dns_change_callback_internal(store, changed_keys, state) {
-        error!("{}", e.display_chain());
-    }
-}
+    let mut change = Vec::new();
 
-fn dns_change_callback_internal(
-    store: SCDynamicStore,
-    changed_keys: CFArray<CFString>,
-    state: &mut Arc<Mutex<Option<State>>>,
-) -> Result<()> {
-    let mut state_lock = state.lock().unwrap();
-    match *state_lock {
-        None => {
-            trace!("Not injecting DNS at this time");
+    for key in &changed_keys {
+        let state_path = key.to_string();
+        let converted_setup_path = state_to_setup_path(&state_path);
+
+        change.push(state_path);
+
+        if let Some(setup_path) = converted_setup_path {
+            change.push(setup_path);
         }
-        Some(ref mut state) => for path in changed_keys.iter() {
-            let should_set_dns = match read_dns(&store, path.clone()) {
-                None => {
-                    debug!("Detected DNS removed for {}", *path);
-                    state.backup.insert(path.to_string(), None);
-                    true
-                }
-                Some(servers) => if servers != state.desired_dns {
-                    debug!(
-                        "Detected DNS changed to [{}] for {}",
-                        servers.join(", "),
-                        *path
-                    );
-                    state.backup.insert(path.to_string(), Some(servers));
-                    true
-                } else {
-                    false
-                },
-            };
-            if should_set_dns {
-                set_dns(&store, path.clone(), &state.desired_dns)
-                    .chain_err(|| format!("Failed changing DNS for {}", *path))?;
-                // If we changed a state DNS, also set the corresponding setup DNS.
-                if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
-                    let setup_path = CFString::new(&setup_path_str);
-                    if !state.backup.contains_key(&setup_path_str) {
-                        state
-                            .backup
-                            .insert(setup_path_str, read_dns(&store, setup_path.clone()));
-                    }
-                    set_dns(&store, setup_path.clone(), &state.desired_dns)
-                        .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
-                }
-            }
-        },
     }
-    Ok(())
+
+    let _ = listener.send(change);
 }
 
 /// Set the dynamic store entry at `path` to a dictionary with the given servers under the
