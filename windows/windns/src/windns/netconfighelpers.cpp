@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "netconfighelpers.h"
-#include "comhelpers.h"
+#include "libcommon/com.h"
+#include "libcommon/wmi/wmi.h"
 #include "netsh.h"
+
+using namespace common;
 
 namespace nchelpers
 {
@@ -10,7 +13,7 @@ OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 {
 	OptionalStringList result;
 
-	auto servers = ComGetProperty(instance, L"DNSServerSearchOrder");
+	auto servers = wmi::WmiGetProperty(instance, L"DNSServerSearchOrder");
 
 	if (VT_EMPTY == V_VT(&servers) || VT_NULL == V_VT(&servers))
 	{
@@ -25,7 +28,7 @@ OptionalStringList GetDnsServers(CComPtr<IWbemClassObject> instance)
 
 uint32_t GetInterfaceIndex(CComPtr<IWbemClassObject> instance)
 {
-	return ComGetPropertyAlways(instance, L"InterfaceIndex").ulVal;
+	return wmi::WmiGetPropertyAlways(instance, L"InterfaceIndex").ulVal;
 }
 
 void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &servers)

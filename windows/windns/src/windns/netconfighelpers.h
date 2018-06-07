@@ -1,6 +1,5 @@
 #pragma once
 
-#include "wmi/iconnection.h"
 #include <string>
 #include <memory>
 #include <vector>
