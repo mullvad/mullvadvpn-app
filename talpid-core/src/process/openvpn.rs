@@ -28,6 +28,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--sndbuf", "1048576"],
     &["--fast-io"],
     &["--cipher", "AES-256-CBC"],
+    &["--verb", "3"],
 ];
 
 static ALLOWED_TLS_CIPHERS: &[&str] = &[
