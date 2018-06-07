@@ -1,6 +1,8 @@
 #pragma once
 
 #include "windns/netconfighelpers.h"
+#include "windns/serialization/deserializer.h"
+#include "windns/serialization/serializer.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -14,6 +16,9 @@ public:
 
 	// instance = Win32_NetworkAdapterConfiguration.
 	explicit InterfaceConfig(CComPtr<IWbemClassObject> instance);
+
+	explicit InterfaceConfig(common::serialization::Deserializer &deserializer);
+	void serialize(common::serialization::Serializer &serializer) const;
 
 	void updateServers(const InterfaceConfig &rhs)
 	{
