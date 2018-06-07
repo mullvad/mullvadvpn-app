@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "windnscontext.h"
-#include "wmi/connection.h"
+#include "libcommon/wmi/connection.h"
 #include "netconfigeventsink.h"
 #include "netconfighelpers.h"
 #include "dnsreverter.h"
+
+using namespace common;
 
 WinDnsContext::WinDnsContext()
 {

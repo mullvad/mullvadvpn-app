@@ -1,8 +1,8 @@
 #pragma once
 
 #include "windns/netconfighelpers.h"
-#include "windns/serialization/deserializer.h"
-#include "windns/serialization/serializer.h"
+#include "libcommon/serialization/deserializer.h"
+#include "libcommon/serialization/serializer.h"
 #include <cstdint>
 #include <string>
 #include <vector>
