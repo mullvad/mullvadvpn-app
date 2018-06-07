@@ -49,9 +49,18 @@ pkg:
   allowAnywhere: false
   allowCurrentUserHome: false
 
+nsis:
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  include: dist-assets/windows/installer.nsh
+      
 win:
   target:
-    - nsis
+    - target: nsis
+      arch:
+        - x64
   artifactName: MullvadVPN-${version}.${ext}
   extraResources:
     - from: ./target/release/mullvad.exe
@@ -61,6 +70,10 @@ win:
     - from: ./target/release/mullvad-daemon.exe
       to: .
     - from: ./target/release/talpid_openvpn_plugin.dll
+      to: .
+    - from: ./windows/winfw/bin/x64-Release/winfw.dll
+      to: .
+    - from: ./dist-assets/binaries/windows/openvpn.exe
       to: .
 
 linux:
