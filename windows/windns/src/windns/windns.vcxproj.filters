@@ -3,91 +3,30 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="wmi\connection.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
-    <ClInclude Include="wmi\resultset.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
-    <ClInclude Include="wmi\iconnection.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
     <ClInclude Include="windns.h" />
     <ClInclude Include="windnscontext.h" />
-    <ClInclude Include="wmi\methodcall.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
-    <ClInclude Include="comhelpers.h" />
     <ClInclude Include="configmanager.h" />
     <ClInclude Include="itracesink.h" />
     <ClInclude Include="consoletracesink.h" />
     <ClInclude Include="netconfigeventsink.h" />
     <ClInclude Include="netconfighelpers.h" />
     <ClInclude Include="macroargument.h" />
-    <ClInclude Include="wmi\notification.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
     <ClInclude Include="dnsreverter.h" />
     <ClInclude Include="clientsinkinfo.h" />
-    <ClInclude Include="wmi\eventdispatcher.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
-    <ClInclude Include="wmi\ieventsink.h">
-      <Filter>wmi</Filter>
-    </ClInclude>
     <ClInclude Include="netsh.h" />
     <ClInclude Include="interfaceconfig.h" />
-    <ClInclude Include="serialization\deserializer.h">
-      <Filter>serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="serialization\serializer.h">
-      <Filter>serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="serialization\typetag.h">
-      <Filter>serialization</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="wmi\connection.cpp">
-      <Filter>wmi</Filter>
-    </ClCompile>
-    <ClCompile Include="wmi\resultset.cpp">
-      <Filter>wmi</Filter>
-    </ClCompile>
     <ClCompile Include="windns.cpp" />
     <ClCompile Include="windnscontext.cpp" />
-    <ClCompile Include="wmi\methodcall.cpp">
-      <Filter>wmi</Filter>
-    </ClCompile>
-    <ClCompile Include="comhelpers.cpp" />
     <ClCompile Include="configmanager.cpp" />
     <ClCompile Include="consoletracesink.cpp" />
     <ClCompile Include="netconfigeventsink.cpp" />
     <ClCompile Include="netconfighelpers.cpp" />
-    <ClCompile Include="wmi\notification.cpp">
-      <Filter>wmi</Filter>
-    </ClCompile>
     <ClCompile Include="dnsreverter.cpp" />
-    <ClCompile Include="wmi\eventdispatcher.cpp">
-      <Filter>wmi</Filter>
-    </ClCompile>
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="interfaceconfig.cpp" />
-    <ClCompile Include="serialization\deserializer.cpp">
-      <Filter>serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="serialization\serializer.cpp">
-      <Filter>serialization</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="wmi">
-      <UniqueIdentifier>{5deb73ee-53cc-49ac-bcdd-0a4b38914f0e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="serialization">
-      <UniqueIdentifier>{94b59808-58b6-431c-9b5a-e0bd5315a7af}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>

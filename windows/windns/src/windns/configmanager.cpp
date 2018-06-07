@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "configmanager.h"
-#include "windns/serialization/serializer.h"
+#include "libcommon/serialization/serializer.h"
 #include <utility>
 #include <algorithm>
 
