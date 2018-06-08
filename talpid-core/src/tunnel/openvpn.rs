@@ -12,6 +12,7 @@ use std::thread;
 use std::time::Duration;
 
 use talpid_ipc;
+use uuid;
 
 mod errors {
     error_chain!{
@@ -59,10 +60,14 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
         P: AsRef<Path>,
     {
-        let event_dispatcher =
-            event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
+        let credentials = uuid::Uuid::new_v4().to_string();
+        let event_dispatcher = event_server::start(credentials.clone(), on_event)
+            .chain_err(|| ErrorKind::EventDispatcherError)?;
 
-        cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
+        cmd.plugin(
+            plugin_path,
+            vec![event_dispatcher.address().to_owned(), credentials],
+        );
         let child = cmd
             .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
@@ -218,14 +223,19 @@ mod event_server {
     use super::OpenVpnPluginEvent;
     use jsonrpc_core::{Compatibility, Error, MetaIoHandler, Metadata};
     use std::collections::HashMap;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
     use talpid_ipc;
 
     /// Construct and start the IPC server with the given event listener callback.
-    pub fn start<L>(on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
+    pub fn start<L>(credentials: String, on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
-        let rpc = OpenVpnEventApiImpl { on_event };
+        let rpc = OpenVpnEventApiImpl {
+            credentials,
+            on_event,
+        };
         let mut io = MetaIoHandler::with_compatibility(Compatibility::V2);
         io.extend_with(rpc.to_delegate());
         talpid_ipc::IpcServer::start(io.into())
@@ -245,6 +255,7 @@ mod event_server {
     }
 
     struct OpenVpnEventApiImpl<L> {
+        credentials: String,
         on_event: L,
     }
 
@@ -256,26 +267,54 @@ mod event_server {
 
         fn authenticate(
             &self,
-            _metadata: Self::Metadata,
-            _credentials: String,
+            metadata: Self::Metadata,
+            credentials: String,
         ) -> Result<bool, Error> {
-            Ok(true)
+            if credentials == self.credentials {
+                metadata.authenticated.store(true, Ordering::Relaxed);
+                Ok(true)
+            } else {
+                Ok(false)
+            }
         }
 
         fn openvpn_event(
             &self,
-            _metadata: Self::Metadata,
+            metadata: Self::Metadata,
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
             trace!("OpenVPN event {:?}", event);
+            metadata.check_authentication()?;
             (self.on_event)(event, env);
             Ok(())
         }
     }
 
-    #[derive(Clone, Default)]
-    struct Meta;
+    #[derive(Clone)]
+    struct Meta {
+        authenticated: Arc<AtomicBool>,
+    }
+
+    impl Default for Meta {
+        fn default() -> Self {
+            Meta {
+                authenticated: Arc::new(AtomicBool::new(false)),
+            }
+        }
+    }
+
+    impl Meta {
+        fn check_authentication(&self) -> Result<(), Error> {
+            if self.authenticated.load(Ordering::Relaxed) {
+                trace!("Authenticated");
+                Ok(())
+            } else {
+                trace!("Not authenticated");
+                Err(Error::invalid_request())
+            }
+        }
+    }
 
     impl Metadata for Meta {}
 }
