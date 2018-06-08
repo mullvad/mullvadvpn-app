@@ -1,7 +1,7 @@
 extern crate mullvad_tests;
 
 use std::env;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -14,17 +14,19 @@ const MAX_EXECUTION_TIME: Duration = Duration::from_secs(60);
 
 fn main() {
     let (file, path) = create_args_file();
+    let cloned_path = path.clone();
     let (finished_tx, finished_rx) = mpsc::channel();
 
     write_command_line(file);
 
     wait_thread(wait_for_stdin_to_be_closed, finished_tx.clone());
     wait_thread(
-        move || wait_for_file_to_be_deleted(path, MAX_EXECUTION_TIME),
+        move || wait_for_file_to_be_deleted(cloned_path, MAX_EXECUTION_TIME),
         finished_tx,
     );
 
     let _ = finished_rx.recv();
+    let _ = fs::remove_file(path);
 }
 
 fn create_args_file() -> (File, PathBuf) {
