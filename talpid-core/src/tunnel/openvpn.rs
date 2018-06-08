@@ -216,7 +216,7 @@ impl ProcessHandle for OpenVpnProcHandle {
 
 mod event_server {
     use super::OpenVpnPluginEvent;
-    use jsonrpc_core::{Error, IoHandler};
+    use jsonrpc_core::{Compatibility, Error, MetaIoHandler, Metadata};
     use std::collections::HashMap;
     use talpid_ipc;
 
@@ -226,15 +226,20 @@ mod event_server {
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
         let rpc = OpenVpnEventApiImpl { on_event };
-        let mut io = IoHandler::new();
+        let mut io = MetaIoHandler::with_compatibility(Compatibility::V2);
         io.extend_with(rpc.to_delegate());
         talpid_ipc::IpcServer::start(io.into())
     }
 
     build_rpc_trait! {
         pub trait OpenVpnEventApi {
-            #[rpc(name = "openvpn_event")]
-            fn openvpn_event(&self, OpenVpnPluginEvent, HashMap<String, String>)
+            type Metadata;
+
+            #[rpc(meta, name = "authenticate")]
+            fn authenticate(&self, Self::Metadata, String) -> Result<bool, Error>;
+
+            #[rpc(meta, name = "openvpn_event")]
+            fn openvpn_event(&self, Self::Metadata, OpenVpnPluginEvent, HashMap<String, String>)
                 -> Result<(), Error>;
         }
     }
@@ -247,8 +252,19 @@ mod event_server {
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
+        type Metadata = Meta;
+
+        fn authenticate(
+            &self,
+            _metadata: Self::Metadata,
+            _credentials: String,
+        ) -> Result<bool, Error> {
+            Ok(true)
+        }
+
         fn openvpn_event(
             &self,
+            _metadata: Self::Metadata,
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
@@ -257,6 +273,11 @@ mod event_server {
             Ok(())
         }
     }
+
+    #[derive(Clone, Default)]
+    struct Meta;
+
+    impl Metadata for Meta {}
 }
 
 
