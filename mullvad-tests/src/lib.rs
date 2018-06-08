@@ -32,6 +32,8 @@ use tempfile::TempDir;
 use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
 use self::platform_specific::*;
 
+type Result<T> = ::std::result::Result<T, String>;
+
 #[cfg(unix)]
 mod platform_specific {
     pub const DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
@@ -63,33 +65,71 @@ pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duratio
         .expect("Missing file name of file path to watch");
     let absolute_file_path = absolute_parent_dir.join(file_name);
 
+    if !absolute_file_path.exists() {
+        let _ = wait_for_file_event(absolute_parent_dir, timeout, |event| match event {
+            RawEvent {
+                path: Some(path),
+                op: Ok(op),
+                ..
+            } => op.contains(op::CLOSE_WRITE) && path == absolute_file_path,
+            _ => false,
+        });
+    }
+}
+
+pub fn wait_for_file_to_be_deleted<P: AsRef<Path>>(file_path: P, timeout: Duration) {
+    let file_path = file_path.as_ref();
+
+    if file_path.exists() {
+        let _ = wait_for_file_event(file_path, timeout, |event| match event {
+            RawEvent { op: Ok(op), .. } => op.contains(notify::op::REMOVE),
+            _ => false,
+        });
+    }
+}
+
+fn wait_for_file_event<P, F>(file_path: P, timeout: Duration, mut event_predicate: F) -> Result<()>
+where
+    P: AsRef<Path>,
+    F: FnMut(RawEvent) -> bool,
+{
+    let file_path = file_path.as_ref();
+
     let (tx, rx) = mpsc::channel();
-    let mut watcher = notify::raw_watcher(tx).expect("Failed to listen for file system events");
+    let mut watcher = notify::raw_watcher(tx).map_err(|_| {
+        format!(
+            "Failed to create watcher of file system events to watch {}",
+            file_path.display()
+        )
+    })?;
     let start = Instant::now();
     let mut remaining_time = Some(timeout);
 
     watcher
-        .watch(absolute_parent_dir, RecursiveMode::NonRecursive)
-        .expect("Failed to listen for file system events on directory");
+        .watch(file_path, RecursiveMode::NonRecursive)
+        .map_err(|_| {
+            format!(
+                "Failed to start watching for file system events from {}",
+                file_path.display()
+            )
+        })?;
 
-    if !file_path.exists() {
-        while let Some(wait_time) = remaining_time {
-            let event = rx.recv_timeout(wait_time);
+    while let Some(wait_time) = remaining_time {
+        let event = rx.recv_timeout(wait_time);
 
-            if let Ok(RawEvent {
-                path: Some(path),
-                op: Ok(op),
-                ..
-            }) = event
-            {
-                if op.contains(op::CLOSE_WRITE) && path == absolute_file_path {
-                    break;
-                }
+        if let Ok(event) = event {
+            if event_predicate(event) {
+                return Ok(());
             }
-
-            remaining_time = timeout.checked_sub(start.elapsed());
         }
+
+        remaining_time = timeout.checked_sub(start.elapsed());
     }
+
+    Err(format!(
+        "Timeout while waiting for file system events from {}",
+        file_path.display()
+    ))
 }
 
 fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
@@ -224,7 +264,7 @@ impl DaemonRunner {
         }
     }
 
-    pub fn rpc_client(&mut self) -> Result<DaemonRpcClient, String> {
+    pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
         if !self.rpc_address_file.exists() {
             wait_for_file_write_finish(&self.rpc_address_file, Duration::from_secs(10));
         }
@@ -284,7 +324,7 @@ pub struct MockOpenVpnPluginRpcClient {
 }
 
 impl MockOpenVpnPluginRpcClient {
-    pub fn new(address: String, credentials: String) -> Result<Self, String> {
+    pub fn new(address: String, credentials: String) -> Result<Self> {
         let rpc = WsIpcClient::connect(&address).map_err(|error| {
             format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
         })?;
@@ -292,19 +332,19 @@ impl MockOpenVpnPluginRpcClient {
         Ok(MockOpenVpnPluginRpcClient { rpc, credentials })
     }
 
-    pub fn authenticate(&mut self) -> Result<bool, String> {
+    pub fn authenticate(&mut self) -> Result<bool> {
         self.rpc
             .call("authenticate", &[&self.credentials])
             .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
     }
 
-    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool, String> {
+    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool> {
         self.rpc
             .call("authenticate", &[credentials])
             .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
     }
 
-    pub fn up(&mut self) -> Result<(), String> {
+    pub fn up(&mut self) -> Result<()> {
         let mut env: HashMap<String, String> = HashMap::new();
 
         env.insert("dev".to_owned(), "dummy".to_owned());
@@ -314,7 +354,7 @@ impl MockOpenVpnPluginRpcClient {
         self.send_event(OpenVpnPluginEvent::Up, env)
     }
 
-    pub fn route_predown(&mut self) -> Result<(), String> {
+    pub fn route_predown(&mut self) -> Result<()> {
         self.send_event(OpenVpnPluginEvent::RoutePredown, HashMap::new())
     }
 
@@ -322,7 +362,7 @@ impl MockOpenVpnPluginRpcClient {
         &mut self,
         event: OpenVpnPluginEvent,
         env: HashMap<String, String>,
-    ) -> Result<(), String> {
+    ) -> Result<()> {
         self.rpc
             .call("openvpn_event", &(event, env))
             .map_err(|error| format!("Failed to send mock OpenVPN event {:?}: {}", event, error))
