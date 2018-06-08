@@ -1,7 +1,7 @@
 extern crate notify;
 
 use std::env;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
@@ -11,14 +11,20 @@ use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
 
 fn main() {
     let (file, path) = create_args_file();
+    let path_to_wait_for = path;
+    let path_to_remove = path_to_wait_for.clone();
     let (finished_tx, finished_rx) = mpsc::channel();
 
     write_command_line(file);
 
     wait_thread(wait_for_stdin_to_be_closed, finished_tx.clone());
-    wait_thread(move || wait_for_file_to_be_deleted(path), finished_tx);
+    wait_thread(
+        move || wait_for_file_to_be_deleted(path_to_wait_for),
+        finished_tx,
+    );
 
     let _ = finished_rx.recv();
+    let _ = fs::remove_file(path_to_remove);
 }
 
 fn create_args_file() -> (File, PathBuf) {
