@@ -18,12 +18,14 @@ case "$(uname -s)" in
         # Use static builds of libmnl and libnftnl from the binaries submodule
         export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
         export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
+        PLATFORM="linux"
         ;;
     Darwin*)
         export MACOSX_DEPLOYMENT_TARGET="10.7"
+        PLATFORM="macos"
         ;;
     MINGW*)
-        # config
+        PLATFORM="windows"
         ;;
 esac
 
@@ -107,6 +109,10 @@ sed -i.bak \
 ################################################################################
 # Compile and link all binaries.
 ################################################################################
+
+export OPENSSL_STATIC="1"
+export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
+export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/openssl/include"
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
     CPP_BUILD_MODES="Release" ./build_windows_modules.sh $@
