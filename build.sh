@@ -5,7 +5,9 @@
 
 set -eu
 
-REQUIRED_RUSTC_VERSION="rustc 1.26.0 (a77568041 2018-05-07)"
+SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+
+REQUIRED_RUSTC_VERSION="rustc 1.26.2 (594fb253c 2018-06-01)"
 RUSTC_VERSION=`rustc +stable --version`
 if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
     echo "You are running the wrong Rust compiler version."
@@ -26,6 +28,7 @@ if [[ "${1:-""}" != "--allow-dirty" ]]; then
 fi
 
 if [[ "$(uname -s)" = "Darwin" ]]; then
+    PLATFORM="macos"
     export MACOSX_DEPLOYMENT_TARGET="10.7"
 
     # if CSC_LINK is set, then we do signing
@@ -42,7 +45,15 @@ if [[ "$(uname -s)" = "Darwin" ]]; then
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
+elif [[ "$(uname -s)" = "Linux" ]]; then
+    PLATFORM="linux"
+elif [[ "$(uname -s)" == "MINGW"* ]]; then
+    PLATFORM="windows"
 fi
+
+export OPENSSL_STATIC="1"
+export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
+export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/openssl/include"
 
 # Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
 cargo +stable clean
