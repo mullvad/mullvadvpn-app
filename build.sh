@@ -5,7 +5,7 @@
 
 set -eu
 
-REQUIRED_RUSTC_VERSION="rustc 1.26.0 (a77568041 2018-05-07)"
+REQUIRED_RUSTC_VERSION="rustc 1.26.2 (594fb253c 2018-06-01)"
 RUSTC_VERSION=`rustc +stable --version`
 if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
     echo "You are running the wrong Rust compiler version."
@@ -42,6 +42,13 @@ if [[ "$(uname -s)" = "Darwin" ]]; then
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
+elif [[ "$(uname -s)" = "Linux" ]]; then
+    # Force to link statically against the system OpenSSL.
+    # TODO: Link to our own builds of OpenSSL. This requires us to manually fiddle with the
+    # certificate chain.
+    export OPENSSL_STATIC="1"
+    export OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu"
+    export OPENSSL_INCLUDE_DIR="/usr/include"
 fi
 
 # Remove binaries. To make sure it is rebuilt with the stable toolchain and the latest changes.
