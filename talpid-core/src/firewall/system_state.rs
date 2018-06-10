@@ -103,3 +103,96 @@ impl SystemStateWriter {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate tempfile;
+    use super::*;
+    use std::env;
+    use std::fs;
+    use std::thread;
+
+    #[test]
+    fn can_create_backup() {
+        let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+
+        let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
+        let writer = SystemStateWriter::new(&temp_dir);
+        writer
+            .write_backup(&mock_system_state)
+            .expect("failed to write system state");
+
+        let backup = writer
+            .consume_state_backup()
+            .expect("error when reading system state backup")
+            .expect("expected to read system state backup");
+        assert_eq!(backup, mock_system_state);
+    }
+
+    #[test]
+    fn can_succeed_without_backup() {
+        let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+
+        let writer = SystemStateWriter::new(&temp_dir);
+        let backup = writer
+            .consume_state_backup()
+            .expect("error when reading system state backup");
+        assert_eq!(backup, None);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cant_read_without_access() {
+        let temp_dir = PathBuf::from("/dev/null");
+
+        let writer = SystemStateWriter::new(&temp_dir);
+        let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
+
+        let failure = writer
+            .write_backup(&mock_system_state)
+            .expect_err("successfully wrote backup file to a directory in /dev/null");
+        assert_eq!(failure.kind(), io::ErrorKind::Other);
+
+        let recovery_failure = writer
+            .consume_state_backup()
+            .expect_err("successfully read backup file in /dev/null");
+        assert_eq!(recovery_failure.kind(), io::ErrorKind::Other);
+    }
+
+    #[test]
+    fn can_remove_when_no_backup_exists() {
+        let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+
+        let writer = SystemStateWriter::new(&temp_dir);
+        writer
+            .remove_state_file()
+            .expect("Failed to remove state file when one did not exist");
+    }
+
+    #[test]
+    fn can_remove_backup() {
+        let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+        let writer = SystemStateWriter::new(&temp_dir);
+        let mock_system_state = b"8.8.8.8\n8.8.4.4\n".to_vec();
+
+        writer
+            .write_backup(&mock_system_state)
+            .expect("Failed to write backup");
+        writer
+            .remove_state_file()
+            .expect("Failed to remove state file when one did not exist");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn cant_remove_backup_with_io_error() {
+        let temp_dir = PathBuf::from("/dev/null");
+
+        let writer = SystemStateWriter::new(&temp_dir);
+        let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
+        let removal_failure = writer
+            .remove_state_file()
+            .expect_err("successfully removed state file in /dev/null");
+        assert_eq!(removal_failure.kind(), io::ErrorKind::Other);
+    }
+}
