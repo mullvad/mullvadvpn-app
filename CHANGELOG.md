@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Refresh account expiration when account view becomes visible.
 - Add `tunnel` subcommand to manage tunnel specific options in the CLI.
 - Add support for passing the `--mssfix` argument to OpenVPN tunnels.
 - Add details to mullvad CLI interface error for when it doesn't trust the RPC file.
