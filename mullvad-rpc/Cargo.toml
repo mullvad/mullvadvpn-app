@@ -25,4 +25,4 @@ mullvad-types = { path = "../mullvad-types" }
 
 [dev-dependencies]
 filetime = "0.1"
-tempdir = "0.3"
+tempfile = "3.0"

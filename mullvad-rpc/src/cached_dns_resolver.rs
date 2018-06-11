@@ -206,7 +206,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
 #[cfg(test)]
 mod tests {
     extern crate filetime;
-    extern crate tempdir;
+    extern crate tempfile;
 
     use std::fs::{self, File};
     use std::io::{Read, Write};
@@ -214,7 +214,7 @@ mod tests {
     use std::sync::Arc;
 
     use self::filetime::FileTime;
-    use self::tempdir::TempDir;
+    use self::tempfile::TempDir;
     use super::*;
 
     #[test]
@@ -356,7 +356,7 @@ mod tests {
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf) {
-        let temp_dir = TempDir::new("ip-cache-test").unwrap();
+        let temp_dir = TempDir::new().expect("Failed to create a temporary cache directory");
         let cache_dir = temp_dir.path().join("cache");
 
         fs::create_dir(&cache_dir).unwrap();
