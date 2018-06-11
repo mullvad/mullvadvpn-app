@@ -11,6 +11,8 @@ import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { Backend, BackendError } from './lib/backend';
 
+import { setShutdownHandler } from './shutdown-handler';
+
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './tray-icon-controller';
 
@@ -40,32 +42,15 @@ ipcRenderer.on('backend-info', async (_event, args) => {
   }
 });
 
-ipcRenderer.on('shutdown', () => {
-  log.info('Been told by the node process to shutdown');
-  backend.shutdown().catch((e) => {
-    log.warn('Unable to shut down the backend', e.message);
-  });
-});
+setShutdownHandler(async () => {
+  log.info('Executing a shutdown handler');
 
-ipcRenderer.on('disconnect', () => {
-  log.info('Been told by the node process to disconnect the tunnel');
-  backend.disconnect().catch((e) => {
-    log.warn('Unable to disconnect the tunnel', e.message);
-  });
-});
-
-ipcRenderer.on('app-shutdown', async () => {
-  log.info('Been told by the renderer process that the app is shutting down');
-
-  // The shutdown behaviour may have to be different on mobile platforms
   try {
     await backend.disconnect();
+    log.info('Disconnected the tunnel');
   } catch (e) {
     log.error(`Failed to shutdown tunnel: ${e.message}`);
   }
-
-  // no matter what, don't block the frontend from shutting down, I guess.
-  ipcRenderer.send('daemon-shutdown', true);
 });
 
 //////////////////////////////////////////////////////////////////////////
