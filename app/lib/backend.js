@@ -294,15 +294,6 @@ export class Backend {
     }
   }
 
-  async shutdown() {
-    try {
-      await this._ensureAuthenticated();
-      await this._ipc.shutdown();
-    } catch (e) {
-      log.error('Failed to shutdown: ', e.message);
-    }
-  }
-
   async updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     try {
       await this._ensureAuthenticated();
