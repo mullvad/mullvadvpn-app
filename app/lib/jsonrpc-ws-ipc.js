@@ -96,26 +96,22 @@ export default class Ipc {
     this._closeConnectionHandler = handler;
   }
 
-  on(event: string, listener: (mixed) => void): Promise<*> {
-    log.debug('Adding a listener to', event);
-    return this.send(event + '_subscribe')
-      .then((subscriptionId) => {
-        if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
-          this._subscriptions.set(subscriptionId, listener);
-        } else {
-          throw new InvalidReply(
-            subscriptionId,
-            'The subscription id was not a string or a number',
-          );
-        }
-      })
-      .catch((e) => {
-        log.error('Failed adding listener to', event, ':', e);
-      });
+  async on(event: string, listener: (mixed) => void): Promise<*> {
+    log.silly(`Adding a listener to ${event}`);
+    try {
+      const subscriptionId = await this.send(`${event}_subscribe`);
+      if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
+        this._subscriptions.set(subscriptionId, listener);
+      } else {
+        throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
+      }
+    } catch (e) {
+      log.error(`Failed adding listener to ${event}: ${e.message}`);
+    }
   }
 
   send(action: string, data: mixed, timeout: number = DEFAULT_TIMEOUT_MILLIS): Promise<mixed> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const id = uuid.v4();
 
       const params = this._prepareParams(data);
@@ -128,15 +124,14 @@ export default class Ipc {
         message: jsonrpcMessage,
       });
 
-      this._getWebSocket()
-        .then((ws) => {
-          log.debug('Sending message', id, action);
-          ws.send(jsonrpcMessage);
-        })
-        .catch((e) => {
-          log.error('Failed sending RPC message "' + action + '":', e);
-          reject(e);
-        });
+      try {
+        const ws = await this._getWebSocket();
+        log.silly('Sending message', id, action);
+        ws.send(jsonrpcMessage);
+      } catch (e) {
+        log.error(`Failed sending RPC message "${action}": ${e.message}`);
+        reject(e);
+      }
     });
   }
 
@@ -159,7 +154,6 @@ export default class Ipc {
   _getWebSocket(): Promise<WebSocket> {
     return new Promise((resolve) => {
       if (this._websocket && this._websocket.readyState === 1) {
-        // Connected
         resolve(this._websocket);
       } else {
         log.debug('Waiting for websocket to connect');
