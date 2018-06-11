@@ -218,9 +218,13 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
             .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?,
     );
     let metadata = collect_metadata();
+
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
-    let mut rpc_client = mullvad_rpc::ProblemReportProxy::connect(&mut rpc_manager)
+    let rpc_http_handle = rpc_manager
+        .new_connection()
         .chain_err(|| ErrorKind::RpcError)?;
+    let mut rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_http_handle);
+
     rpc_client
         .problem_report(user_email, user_message, &report_content, &metadata)
         .call()

@@ -137,12 +137,6 @@ jsonrpc_client!(pub struct ProblemReportProxy {
         -> RpcRequest<()>;
 });
 
-impl ProblemReportProxy<HttpHandle> {
-    pub fn connect(manager: &mut MullvadRpcFactory) -> Result<Self, HttpError> {
-        Ok(ProblemReportProxy::new(manager.new_connection()?))
-    }
-}
-
 jsonrpc_client!(pub struct RelayListProxy {
     pub fn relay_list(&mut self) -> RpcRequest<RelayList>;
 });
