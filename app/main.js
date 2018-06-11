@@ -110,7 +110,8 @@ const ApplicationMain = {
 
     tray.on('click', () => windowController.toggle());
 
-    this._registerIpcEvents();
+    this._registerWindowIpcEvents(window);
+    this._registerIpcListeners();
     this._setAppMenu();
     this._addContextMenu(window);
 
@@ -140,7 +141,13 @@ const ApplicationMain = {
     window.loadFile('build/index.html');
   },
 
-  _registerIpcEvents() {
+  _registerWindowIpcEvents(window: BrowserWindow) {
+    // Notify renderer when window visibility changes.
+    window.on('show', () => window.webContents.send('show-window'));
+    window.on('hide', () => window.webContents.send('hide-window'));
+  },
+
+  _registerIpcListeners() {
     ipcMain.on('on-browser-window-ready', () => {
       this._pollConnectionInfoFile();
     });
@@ -406,32 +413,35 @@ const ApplicationMain = {
     ];
 
     // add inspect element on right click menu
-    window.webContents.on('context-menu', (_e: Event, props: { x: number, y: number }) => {
-      let inspectTemplate = [
-        {
-          label: 'Inspect element',
-          click() {
-            window.openDevTools({ mode: 'detach' });
-            window.inspectElement(props.x, props.y);
+    window.webContents.on(
+      'context-menu',
+      (_e: Event, props: { x: number, y: number, isEditable: boolean }) => {
+        let inspectTemplate = [
+          {
+            label: 'Inspect element',
+            click() {
+              window.openDevTools({ mode: 'detach' });
+              window.inspectElement(props.x, props.y);
+            },
           },
-        },
-      ];
+        ];
 
-      if (props.isEditable) {
-        let inputMenu = menuTemplate;
+        if (props.isEditable) {
+          let inputMenu = menuTemplate;
 
-        // mixin 'inspect element' into standard menu when in development mode
-        if (process.env.NODE_ENV === 'development') {
-          inputMenu = menuTemplate.concat([{ type: 'separator' }], inspectTemplate);
+          // mixin 'inspect element' into standard menu when in development mode
+          if (process.env.NODE_ENV === 'development') {
+            inputMenu = menuTemplate.concat([{ type: 'separator' }], inspectTemplate);
+          }
+
+          Menu.buildFromTemplate(inputMenu).popup(window);
+        } else if (process.env.NODE_ENV === 'development') {
+          // display inspect element for all non-editable
+          // elements when in development mode
+          Menu.buildFromTemplate(inspectTemplate).popup(window);
         }
-
-        Menu.buildFromTemplate(inputMenu).popup(window);
-      } else if (process.env.NODE_ENV === 'development') {
-        // display inspect element for all non-editable
-        // elements when in development mode
-        Menu.buildFromTemplate(inspectTemplate).popup(window);
-      }
-    });
+      },
+    );
   },
 
   _createTray(): Tray {

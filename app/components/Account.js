@@ -7,6 +7,7 @@ import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
+import AppVisiblityObserver from '../lib/app-visibility';
 
 import type { AccountToken } from '../lib/ipc-facade';
 
@@ -28,15 +29,27 @@ export default class Account extends Component<AccountProps, AccountState> {
     isRefreshingExpiry: false,
   };
 
+  _appVisibilityObserver: ?AppVisiblityObserver;
+
   _isMounted = false;
 
   componentDidMount() {
     this._isMounted = true;
     this._refreshAccountExpiry();
+
+    this._appVisibilityObserver = new AppVisiblityObserver((isVisible) => {
+      if (isVisible) {
+        this._refreshAccountExpiry();
+      }
+    });
   }
 
   componentWillUnmount() {
     this._isMounted = false;
+
+    if (this._appVisibilityObserver) {
+      this._appVisibilityObserver.dispose();
+    }
   }
 
   render() {
