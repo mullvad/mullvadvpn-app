@@ -27,6 +27,8 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--rcvbuf", "1048576"],
     &["--sndbuf", "1048576"],
     &["--fast-io"],
+    #[cfg(windows)]
+    &["--block-outside-dns"],
     &["--cipher", "AES-256-CBC"],
 ];
 
