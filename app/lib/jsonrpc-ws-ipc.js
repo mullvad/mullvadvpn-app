@@ -175,11 +175,11 @@ export default class Ipc {
     this._unansweredRequests.delete(requestId);
 
     if (!request) {
-      log.debug(requestId, 'timed out but it seems to already have been answered');
+      log.warn(requestId, 'timed out but it seems to already have been answered');
       return;
     }
 
-    log.debug(request.message, 'timed out');
+    log.warn(request.message, 'timed out');
     request.reject(new TimeOutError(request.message));
   }
 
@@ -199,7 +199,7 @@ export default class Ipc {
     const listener = this._subscriptions.get(subscriptionId);
 
     if (listener) {
-      log.debug('Got notification', message.payload.method, message.payload.params.result);
+      log.silly('Got notification', message.payload.method, message.payload.params.result);
       listener(message.payload.params.result);
     } else {
       log.warn('Got notification for', message.payload.method, 'but no one is listening for it');
@@ -216,7 +216,7 @@ export default class Ipc {
       return;
     }
 
-    log.debug('Got answer to', id, message.type);
+    log.silly('Got answer to', id, message.type);
 
     clearTimeout(request.timerId);
 
@@ -236,7 +236,7 @@ export default class Ipc {
     this._websocket = this._websocketFactory(connectionString);
 
     this._websocket.onopen = () => {
-      log.debug('Websocket is connected');
+      log.info('Websocket is connected');
       this._backoff.successfullyConnected();
 
       while (this._onConnect.length > 0) {
