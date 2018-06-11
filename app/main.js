@@ -171,27 +171,66 @@ const ApplicationMain = {
       }
     });
 
-    ipcMain.on('collect-logs', (event, id, toRedact) => {
+    ipcMain.on('collect-logs', (event, requestId, toRedact) => {
       const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-
-      const binPath = resolveBin('problem-report');
-      let args = ['collect', '--output', reportPath];
-
+      const executable = resolveBin('problem-report');
+      const args = ['collect', '--output', reportPath];
       if (toRedact.length > 0) {
-        args = args.concat(['--redact', ...toRedact, '--']);
+        args.push('--redact', ...toRedact, '--');
       }
+      args.push(this._logFilePath);
 
-      args = args.concat([this._logFilePath]);
+      execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
+        if (error) {
+          log.error(
+            `Failed to collect a problem report: ${error.message}
+             Stdout: ${stdout.toString()}
+             Stderr: ${stderr.toString()}`,
+          );
 
-      execFile(binPath, args, { windowsHide: true }, (err) => {
-        if (err) {
-          event.sender.send('collect-logs-reply', id, err);
+          event.sender.send('collect-logs-reply', requestId, {
+            success: false,
+            error: error.message,
+          });
         } else {
-          log.debug('Report written to', reportPath);
-          event.sender.send('collect-logs-reply', id, null, reportPath);
+          log.debug(`Problem report was written to ${reportPath}`);
+
+          event.sender.send('collect-logs-reply', requestId, {
+            success: true,
+            reportPath,
+          });
         }
       });
     });
+
+    ipcMain.on(
+      'send-problem-report',
+      (event, requestId, email: string, message: string, savedReport: string) => {
+        const executable = resolveBin('problem-report');
+        const args = ['send', '--email', email, '--message', message, '--report', savedReport];
+
+        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            log.error(
+              `Failed to send a problem report: ${error.message}
+           Stdout: ${stdout.toString()}
+           Stderr: ${stderr.toString()}`,
+            );
+
+            event.sender.send('send-problem-report-reply', requestId, {
+              success: false,
+              error: error.message,
+            });
+          } else {
+            log.info('Problem report was sent.');
+
+            event.sender.send('send-problem-report-reply', requestId, {
+              success: true,
+            });
+          }
+        });
+      },
+    );
   },
 
   _getRpcAddressFilePath() {
