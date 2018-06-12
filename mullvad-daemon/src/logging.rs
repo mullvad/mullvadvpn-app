@@ -144,10 +144,7 @@ pub fn rotate_log(file: &Path) -> Result<()> {
     backup.set_extension("old.log");
     fs::rename(file, backup).unwrap_or_else(|error| {
         if error.kind() != io::ErrorKind::NotFound {
-            warn!(
-                "Failed to rotate log file ({})",
-                error
-            );
+            warn!("Failed to rotate log file ({})", error);
         }
     });
 

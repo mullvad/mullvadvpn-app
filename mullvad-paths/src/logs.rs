@@ -1,7 +1,7 @@
 use {ErrorKind, Result, ResultExt};
 
-use std::fs;
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 
 /// Creates and returns the logging directory.
@@ -26,8 +26,7 @@ fn get_default_log_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 fn get_default_log_dir() -> Result<PathBuf> {
-    let program_data_dir = Path::new(
-        ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoProgramDataDir)?,
-    );
+    let program_data_dir =
+        Path::new(env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoProgramDataDir)?);
     Ok(program_data_dir.join(::PRODUCT_NAME))
 }
