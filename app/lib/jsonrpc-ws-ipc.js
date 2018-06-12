@@ -106,7 +106,7 @@ export default class Ipc {
         throw new InvalidReply(subscriptionId, 'The subscription id was not a string or a number');
       }
     } catch (e) {
-      log.error(`Failed adding listener to ${event}: e.message`);
+      log.error(`Failed adding listener to ${event}: ${e.message}`);
     }
   }
 

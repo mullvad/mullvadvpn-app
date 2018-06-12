@@ -193,7 +193,7 @@ const ApplicationMain = {
             error: error.message,
           });
         } else {
-          log.debug(`Problem report is written to ${reportPath}`);
+          log.debug(`Problem report was written to ${reportPath}`);
 
           event.sender.send('collect-logs-reply', requestId, {
             success: true,
@@ -222,7 +222,7 @@ const ApplicationMain = {
               error: error.message,
             });
           } else {
-            log.info('Problem report is sent.');
+            log.info('Problem report was sent.');
 
             event.sender.send('send-problem-report-reply', requestId, {
               success: true,
