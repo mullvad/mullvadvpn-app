@@ -1,10 +1,10 @@
 // @flow
 
-import Ipc from '../app/lib/jsonrpc-ws-ipc.js';
+import Ipc from '../app/lib/jsonrpc-ws-ipc';
 import jsonrpc from 'jsonrpc-lite';
 import { expect } from 'chai';
 import assert from 'assert';
-import type { JsonRpcMessage } from '../app/lib/jsonrpc-ws-ipc.js';
+import type { JsonRpcMessage } from '../app/lib/jsonrpc-ws-ipc';
 
 describe('The IPC server', () => {
   it('should send as soon as the websocket connects', () => {

@@ -1,28 +1,60 @@
 // @flow
 import moment from 'moment';
-import React from 'react';
+import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { Button, RedButton, GreenButton, Label } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
+import AppVisiblityObserver from '../lib/app-visibility';
 
-import type { AccountReduxState } from '../redux/account/reducers';
+import type { AccountToken } from '../lib/ipc-facade';
 
 export type AccountProps = {
-  account: AccountReduxState,
+  accountToken: AccountToken,
+  accountExpiry: string,
+  updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
   onClose: () => void,
   onBuyMore: () => void,
 };
 
-export default class Account extends Component {
-  props: AccountProps;
+export type AccountState = {
+  isRefreshingExpiry: boolean,
+};
+
+export default class Account extends Component<AccountProps, AccountState> {
+  state = {
+    isRefreshingExpiry: false,
+  };
+
+  _appVisibilityObserver: ?AppVisiblityObserver;
+
+  _isMounted = false;
+
+  componentDidMount() {
+    this._isMounted = true;
+    this._refreshAccountExpiry();
+
+    this._appVisibilityObserver = new AppVisiblityObserver((isVisible) => {
+      if (isVisible) {
+        this._refreshAccountExpiry();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+
+    if (this._appVisibilityObserver) {
+      this._appVisibilityObserver.dispose();
+    }
+  }
 
   render() {
-    const expiry = moment(this.props.account.expiry);
-    const formattedAccountToken = formatAccount(this.props.account.accountToken || '');
+    const expiry = moment(this.props.accountExpiry);
+    const formattedAccountToken = formatAccount(this.props.accountToken || '');
     const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = expiry.isSameOrBefore(moment());
 
@@ -80,5 +112,19 @@ export default class Account extends Component {
         </Container>
       </Layout>
     );
+  }
+
+  async _refreshAccountExpiry() {
+    this.setState({ isRefreshingExpiry: true });
+
+    try {
+      await this.props.updateAccountExpiry();
+    } catch (e) {
+      // TODO: Report the error to user
+    }
+
+    if (this._isMounted) {
+      this.setState({ isRefreshingExpiry: false });
+    }
   }
 }
