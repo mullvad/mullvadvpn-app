@@ -34,7 +34,7 @@ extern crate tokio_timer;
 extern crate uuid;
 
 extern crate mullvad_ipc_client;
-extern crate mullvad_metadata;
+extern crate mullvad_paths;
 extern crate mullvad_rpc;
 extern crate mullvad_types;
 extern crate talpid_core;
@@ -46,7 +46,6 @@ extern crate talpid_types;
 extern crate windows_service;
 
 mod account_history;
-mod cache;
 mod cli;
 mod geoip;
 mod logging;
@@ -893,7 +892,7 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
     let cache_dir = match config.cache_dir {
         Some(cache_dir) => cache_dir,
-        None => cache::get_cache_dir()?,
+        None => mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?,
     };
 
     let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
