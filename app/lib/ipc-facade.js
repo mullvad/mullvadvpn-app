@@ -188,7 +188,6 @@ export interface IpcFacade {
   getAllowLan(): Promise<boolean>;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  shutdown(): Promise<void>;
   getLocation(): Promise<Location>;
   getState(): Promise<BackendState>;
   registerStateListener((BackendState) => void): void;
@@ -284,10 +283,6 @@ export class RealIpc implements IpcFacade {
 
   disconnect(): Promise<void> {
     return this._ipc.send('disconnect').then(this._ignoreResponse);
-  }
-
-  shutdown(): Promise<void> {
-    return this._ipc.send('shutdown').then(this._ignoreResponse);
   }
 
   getLocation(): Promise<Location> {

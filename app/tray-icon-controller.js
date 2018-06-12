@@ -19,7 +19,7 @@ export default class TrayIconController {
     this._iconType = initialType;
   }
 
-  destroy() {
+  dispose() {
     if (this._animation) {
       this._animation.stop();
       this._animation = null;

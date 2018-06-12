@@ -14,6 +14,7 @@ import { canTrustRpcAddressFile } from './lib/rpc-file-security';
 import { execFile } from 'child_process';
 import uuid from 'uuid';
 
+import { ShutdownCoordinator } from './shutdown-handler';
 import type { TrayIconType } from './tray-icon-controller';
 
 // The name for application directory used for
@@ -24,7 +25,6 @@ const ApplicationMain = {
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
 
-  _readyToQuit: false,
   _logFilePath: '',
   _connectionFilePollInterval: (null: ?IntervalID),
 
@@ -105,6 +105,8 @@ const ApplicationMain = {
     const window = this._createWindow();
     const tray = this._createTray();
 
+    const _shutdownCoordinator = new ShutdownCoordinator(window.webContents);
+
     const windowController = new WindowController(window, tray);
     const trayIconController = new TrayIconController(tray, 'unsecured');
 
@@ -117,13 +119,6 @@ const ApplicationMain = {
 
     this._windowController = windowController;
     this._trayIconController = trayIconController;
-
-    app.on('before-quit', (event) => {
-      if (!this._readyToQuit) {
-        event.preventDefault();
-        window.webContents.send('app-shutdown');
-      }
-    });
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
@@ -150,11 +145,6 @@ const ApplicationMain = {
   _registerIpcListeners() {
     ipcMain.on('on-browser-window-ready', () => {
       this._pollConnectionInfoFile();
-    });
-
-    ipcMain.on('daemon-shutdown', (isTunnelDown: boolean) => {
-      this._readyToQuit = isTunnelDown;
-      app.quit();
     });
 
     ipcMain.on('show-window', () => {
