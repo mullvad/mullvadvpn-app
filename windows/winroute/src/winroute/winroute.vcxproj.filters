@@ -12,4 +12,7 @@
     <ClInclude Include="winroute.h" />
     <ClInclude Include="NetworkInterfaces.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="winroute.def" />
+  </ItemGroup>
 </Project>
