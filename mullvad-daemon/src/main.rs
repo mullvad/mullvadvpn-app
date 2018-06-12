@@ -889,11 +889,8 @@ fn run_standalone(config: cli::Config) -> Result<()> {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
-    let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let cache_dir = match config.cache_dir {
-        Some(cache_dir) => cache_dir,
-        None => mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?,
-    };
+    let resource_dir = mullvad_paths::get_resource_dir();
+    let cache_dir = mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?;
 
     let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
         .chain_err(|| "Unable to initialize daemon")?;
@@ -916,22 +913,6 @@ fn log_version() {
         version::current(),
         version::commit_date(),
     )
-}
-
-fn get_resource_dir() -> PathBuf {
-    match env::current_exe() {
-        Ok(mut path) => {
-            path.pop();
-            path
-        }
-        Err(e) => {
-            error!(
-                "Failed finding the install directory. Using working directory: {}",
-                e
-            );
-            PathBuf::from(".")
-        }
-    }
 }
 
 #[cfg(unix)]
