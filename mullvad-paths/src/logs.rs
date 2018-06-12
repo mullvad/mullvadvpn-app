@@ -4,7 +4,8 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-/// Creates and returns the logging directory.
+/// Creates and returns the logging directory pointed to by `MULLVAD_LOG_DIR`, or the default
+/// one if that variable is unset.
 pub fn log_dir() -> Result<PathBuf> {
     let dir = get_log_dir()?;
     fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed)?;

@@ -3,14 +3,13 @@ extern crate duct;
 extern crate mullvad_ipc_client;
 extern crate os_pipe;
 extern crate talpid_ipc;
+extern crate mullvad_paths;
 
 mod common;
 
 use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
-
-use mullvad_ipc_client::rpc_file_path;
 
 use common::DaemonRunner;
 
@@ -20,7 +19,7 @@ use platform_specific::*;
 #[cfg(not(windows))]
 #[test]
 fn rpc_info_file_permissions() {
-    let rpc_file = rpc_file_path().unwrap();
+    let rpc_file = mullvad_paths::get_rpc_address_path().unwrap();
 
     if let Err(error) = fs::remove_file(&rpc_file) {
         if error.kind() != io::ErrorKind::NotFound {

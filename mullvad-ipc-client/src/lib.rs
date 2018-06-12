@@ -6,7 +6,7 @@ extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-use std::fs::{File, Metadata};
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
