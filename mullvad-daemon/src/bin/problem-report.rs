@@ -14,7 +14,6 @@ extern crate error_chain;
 extern crate lazy_static;
 extern crate regex;
 
-#[cfg(windows)]
 extern crate mullvad_paths;
 extern crate mullvad_rpc;
 
@@ -45,22 +44,6 @@ const LINE_SEPARATOR: &str = "\n";
 
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
-
-/// Location of log files to be collected
-#[cfg(windows)]
-lazy_static! {
-    static ref LOG_DIRECTORY: PathBuf = {
-        let program_data_dir =
-            env::var_os("ALLUSERSPROFILE").expect("Missing %ALLUSERSPROFILE% environment variable");
-
-        PathBuf::from(program_data_dir).join(mullvad_paths::PRODUCT_NAME)
-    };
-}
-
-#[cfg(unix)]
-lazy_static! {
-    static ref LOG_DIRECTORY: PathBuf = PathBuf::from("/var/log/mullvad-daemon");
-}
 
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
@@ -202,7 +185,7 @@ fn collect_report(
 }
 
 fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
-    let log_dir = &*LOG_DIRECTORY;
+    let log_dir = mullvad_paths::get_log_dir().chain_err(|| "Unable to get log directory")?;
 
     fs::read_dir(&log_dir)
         .chain_err(|| ErrorKind::LogDirError(log_dir.clone()))

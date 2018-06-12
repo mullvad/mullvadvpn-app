@@ -16,10 +16,6 @@ error_chain! {
             description("Unable to open log file for writing")
             display("Unable to open log file for writing: {}", path.display())
         }
-        CreateDirError(path: PathBuf) {
-            description("Unable to create directory for log")
-            display("Unable to create directory for log: {}", path.display())
-        }
     }
     foreign_links {
         SetLoggerError(log::SetLoggerError);

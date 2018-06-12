@@ -24,7 +24,7 @@ mod cache;
 pub use cache::get_cache_dir;
 
 mod logs;
-pub use logs::get_log_dir;
+pub use logs::{get_log_dir, log_dir};
 
 mod resources;
 pub use resources::get_resource_dir;
