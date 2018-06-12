@@ -734,7 +734,7 @@ impl Daemon {
                 TunnelEndpointData::Wireguard(_) => WIREGUARD_LOG_FILENAME,
             };
             let tunnel_log = log_dir.join(filename);
-            Self::prepare_tunnel_log_file(&tunnel_log)?;
+            logging::rotate_log(&tunnel_log).chain_err(|| "Unable to rotate tunnel log")?;
             Some(tunnel_log)
         } else {
             None
@@ -749,22 +749,6 @@ impl Daemon {
             &self.resource_dir,
             on_tunnel_event,
         ).chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
-    }
-
-    fn prepare_tunnel_log_file(file: &PathBuf) -> Result<()> {
-        let mut backup = file.clone();
-        backup.set_extension("old.log");
-        fs::rename(file, backup).unwrap_or_else(|error| {
-            if error.kind() != io::ErrorKind::NotFound {
-                warn!(
-                    "Failed to create backup of previous tunnel log file ({})",
-                    error
-                );
-            }
-        });
-
-        fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
-        Ok(())
     }
 
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {

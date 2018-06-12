@@ -8,7 +8,7 @@ use log;
 use std::fmt;
 use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 error_chain! {
     errors {
@@ -19,6 +19,7 @@ error_chain! {
     }
     foreign_links {
         SetLoggerError(log::SetLoggerError);
+        Io(io::Error);
     }
 }
 
@@ -71,9 +72,7 @@ pub fn init_logger(
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
     if let Some(ref log_file) = log_file {
-        if let Some(parent) = log_file.parent() {
-            fs::create_dir_all(parent).chain_err(|| ErrorKind::CreateDirError(parent.to_owned()))?;
-        }
+        rotate_log(log_file)?;
         let file_formatter = Formatter {
             output_timestamp: true,
             output_color: false,
@@ -138,4 +137,16 @@ fn escape_newlines(text: String) -> String {
 #[cfg(windows)]
 fn escape_newlines(text: String) -> String {
     text.replace("\n", LINE_SEPARATOR)
+}
+
+pub fn rotate_log(file: &Path) -> Result<()> {
+    let backup = file.with_extension("old.log");
+    fs::rename(file, backup).unwrap_or_else(|error| {
+        if error.kind() != io::ErrorKind::NotFound {
+            warn!("Failed to rotate log file ({})", error);
+        }
+    });
+
+    fs::File::create(file).chain_err(|| "Unable to create new log file")?;
+    Ok(())
 }
