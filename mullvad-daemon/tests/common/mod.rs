@@ -42,14 +42,10 @@ impl DaemonRunner {
         prepare_relay_list("../dist-assets/relays.json");
 
         let (reader, writer) = pipe().expect("failed to open pipe to connect to daemon");
-        let process = cmd!(
-            DAEMON_EXECUTABLE_PATH,
-            "-v",
-            "--resource-dir",
-            "./dist-assets",
-            "--cache-dir",
-            "./"
-        ).dir("..")
+        let process = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
+            .dir("..")
+            .env("MULLVAD_CACHE_DIR", "./")
+            .env("MULLVAD_RESOURCE_DIR", "./dist-assets")
             .stderr_to_stdout()
             .stdout_handle(writer)
             .start()

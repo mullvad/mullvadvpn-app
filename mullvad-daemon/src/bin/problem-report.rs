@@ -15,7 +15,7 @@ extern crate lazy_static;
 extern crate regex;
 
 #[cfg(windows)]
-extern crate mullvad_metadata;
+extern crate mullvad_paths;
 extern crate mullvad_rpc;
 
 use error_chain::ChainedError;
@@ -50,12 +50,10 @@ const LINE_SEPARATOR: &str = "\r\n";
 #[cfg(windows)]
 lazy_static! {
     static ref LOG_DIRECTORY: PathBuf = {
-        use mullvad_metadata::PRODUCT_NAME;
-
         let program_data_dir =
             env::var_os("ALLUSERSPROFILE").expect("Missing %ALLUSERSPROFILE% environment variable");
 
-        PathBuf::from(program_data_dir).join(PRODUCT_NAME)
+        PathBuf::from(program_data_dir).join(mullvad_paths::PRODUCT_NAME)
     };
 }
 
