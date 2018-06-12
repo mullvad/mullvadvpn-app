@@ -89,6 +89,36 @@ fn ignores_event_from_unauthorized_connection_from_openvpn_plugin() {
     assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
 }
 
+#[test]
+fn authentication_credentials() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+
+    assert_eq!(
+        mock_plugin_client.authenticate_with(&String::new()),
+        Ok(false)
+    );
+    assert_eq!(
+        mock_plugin_client.authenticate_with(&"fake-secret".to_owned()),
+        Ok(false)
+    );
+    assert_eq!(mock_plugin_client.authenticate(), Ok(true));
+    // Ensure it doesn't accept additional incorrect credentials
+    assert_eq!(
+        mock_plugin_client.authenticate_with(&"different-secret".to_owned()),
+        Ok(false)
+    );
+}
+
 fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
     let received_state = receiver
         .recv_timeout(Duration::from_secs(1))
@@ -118,20 +148,26 @@ fn create_mock_openvpn_plugin_client<P: AsRef<Path>>(
         args_file_path.display(),
     ));
 
-    let args = BufReader::new(args_file).lines();
-
-    let address =
-        args.skip_while(|element| {
+    let args_reader = BufReader::new(args_file).lines();
+    let mut arguments = args_reader
+        .skip_while(|element| {
             element.is_ok()
                 && !element
                     .as_ref()
                     .unwrap()
                     .contains("libtalpid_openvpn_plugin.so")
-        }).skip(1)
-            .next()
-            .expect("Missing OpenVPN plugin RPC listener address argument")
-            .expect("Failed to read from mock OpenVPN command line file");
+        })
+        .skip(1);
 
-    MockOpenVpnPluginRpcClient::with_address(address)
+    let address = arguments
+        .next()
+        .expect("Missing OpenVPN plugin RPC listener address argument")
+        .expect("Failed to read from mock OpenVPN arguments file");
+    let credentials = arguments
+        .next()
+        .expect("Missing OpenVPN plugin RPC listener credentials argument")
+        .expect("Failed to read from mock OpenVPN arguments file");
+
+    MockOpenVpnPluginRpcClient::new(address, credentials)
         .expect("Failed to create mock RPC client to connect to OpenVPN plugin event listener")
 }
