@@ -72,7 +72,6 @@ use mullvad_types::relay_list::{Relay, RelayList};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use mullvad_types::version::{AppVersion, AppVersionInfo};
 
-use std::env;
 use std::io;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
@@ -84,8 +83,6 @@ use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
-
-use std::fs;
 
 
 error_chain!{
@@ -844,7 +841,7 @@ quick_main!(run);
 fn run() -> Result<()> {
     let config = cli::get_config();
     let log_dir = if config.log_to_file {
-        Some(mullvad_paths::get_log_dir().chain_err(|| "Unable to get log directory")?)
+        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
     } else {
         None
     };
@@ -892,7 +889,7 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     }
 
     let log_dir = if config.log_to_file {
-        Some(mullvad_paths::get_log_dir().chain_err(|| "Unable to get log directory")?)
+        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
     } else {
         None
     };
