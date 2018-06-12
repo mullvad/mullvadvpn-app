@@ -32,7 +32,7 @@ extern crate tokio_timer;
 extern crate uuid;
 
 extern crate mullvad_ipc_client;
-extern crate mullvad_metadata;
+extern crate mullvad_paths;
 extern crate mullvad_rpc;
 extern crate mullvad_types;
 extern crate talpid_core;
@@ -44,7 +44,6 @@ extern crate talpid_types;
 extern crate windows_service;
 
 mod account_history;
-mod cache;
 mod cli;
 mod geoip;
 mod logging;
@@ -888,11 +887,8 @@ fn run_standalone(config: cli::Config) -> Result<()> {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
-    let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let cache_dir = match config.cache_dir {
-        Some(cache_dir) => cache_dir,
-        None => cache::get_cache_dir()?,
-    };
+    let resource_dir = mullvad_paths::get_resource_dir();
+    let cache_dir = mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?;
 
     let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
         .chain_err(|| "Unable to initialize daemon")?;
@@ -915,22 +911,6 @@ fn log_version() {
         version::current(),
         version::commit_date(),
     )
-}
-
-fn get_resource_dir() -> PathBuf {
-    match env::current_exe() {
-        Ok(mut path) => {
-            path.pop();
-            path
-        }
-        Err(e) => {
-            error!(
-                "Failed finding the install directory. Using working directory: {}",
-                e
-            );
-            PathBuf::from(".")
-        }
-    }
 }
 
 #[cfg(unix)]

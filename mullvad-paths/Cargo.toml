@@ -1,0 +1,17 @@
+[package]
+name = "mullvad-paths"
+version = "0.1.0"
+authors = [
+    "Mullvad VPN <admin@mullvad.net>",
+    "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>",
+    "Linus Färnstrand <linus@mullvad.net>"
+]
+description = "Mullvad VPN application paths and directories"
+license = "GPL-3.0"
+
+[dependencies]
+error-chain = "0.11"
+log = "0.4"
+
+[target.'cfg(any(windows, target_os = "macos"))'.dependencies]
+app_dirs = "1.2"

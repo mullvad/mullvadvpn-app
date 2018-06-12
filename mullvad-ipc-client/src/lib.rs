@@ -225,11 +225,11 @@ mod platform_specific {
 
 #[cfg(windows)]
 mod platform_specific {
-    extern crate mullvad_metadata;
+    extern crate mullvad_paths;
 
     use super::*;
 
-    use self::mullvad_metadata::PRODUCT_NAME;
+    use self::mullvad_paths::PRODUCT_NAME;
 
     pub fn rpc_file_path() -> Result<PathBuf> {
         let shared_data_directory =
