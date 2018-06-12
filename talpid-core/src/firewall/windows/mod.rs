@@ -15,6 +15,7 @@ use self::widestring::WideCString;
 mod ffi;
 mod dns;
 mod system_state;
+mod route;
 
 use self::dns::WinDns;
 
