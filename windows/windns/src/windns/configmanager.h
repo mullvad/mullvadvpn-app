@@ -2,7 +2,6 @@
 
 #include "interfaceconfig.h"
 #include "clientsinkinfo.h"
-#include "itracesink.h"
 #include <map>
 #include <string>
 #include <mutex>
@@ -51,8 +50,7 @@ public:
 	ConfigManager
 	(
 		const std::vector<std::wstring> &servers,
-		const ConfigSinkInfo &configSinkInfo,
-		std::shared_ptr<ITraceSink> traceSink = std::make_shared<NullTraceSink>()
+		const ConfigSinkInfo &configSinkInfo
 	);
 
 	//
@@ -80,13 +78,13 @@ public:
 	//
 	// Notify the ConfigManager that a live configuration has been updated.
 	//
-	enum class UpdateType
+	enum class UpdateStatus
 	{
-		WinDnsEnforced,
-		External
+		DnsApproved,
+		DnsDeviates
 	};
 
-	UpdateType updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target);
+	UpdateStatus updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target);
 
 	//
 	// Enumerate recorded configs.
@@ -105,12 +103,10 @@ private:
 	//
 	std::map<uint32_t, InterfaceConfig> m_configs;
 
-	std::shared_ptr<ITraceSink> m_traceSink;
-
 	//
-	// Tests, by looking at the servers, whether this is an update initied by WINDNS.
+	// Check DNS server list to see if it matches what we're trying to enforce.
 	//
-	bool internalUpdate(const InterfaceConfig &config);
+	bool verifyServers(const InterfaceConfig &config);
 
 	//
 	// Bundle the current config details and send them into the config sink.
