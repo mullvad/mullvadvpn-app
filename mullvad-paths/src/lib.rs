@@ -1,14 +1,17 @@
+#[cfg(windows)]
 extern crate app_dirs;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
 
-use app_dirs::AppInfo;
 
+
+#[cfg(windows)]
 const PRODUCT_NAME: &str = "Mullvad VPN";
 
-pub const APP_INFO: AppInfo = AppInfo {
+#[cfg(windows)]
+const APP_INFO: AppInfo = app_dirs::AppInfo {
     name: PRODUCT_NAME,
     author: "Mullvad",
 };

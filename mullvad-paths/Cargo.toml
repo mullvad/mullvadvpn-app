@@ -10,6 +10,8 @@ description = "Mullvad VPN application paths and directories"
 license = "GPL-3.0"
 
 [dependencies]
-app_dirs = "1.2"
 error-chain = "0.11"
 log = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+app_dirs = "1.2"
