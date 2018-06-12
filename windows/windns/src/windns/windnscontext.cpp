@@ -3,7 +3,6 @@
 #include "libcommon/wmi/connection.h"
 #include "netconfigeventsink.h"
 #include "netconfighelpers.h"
-#include "dnsreverter.h"
 
 using namespace common;
 
@@ -91,11 +90,9 @@ void WinDnsContext::reset()
 	// Safe to do without a mutex guarding the config manager
 	//
 
-	DnsReverter dnsReverter;
-
 	m_configManager->processConfigs([&](const InterfaceConfig &config)
 	{
-		dnsReverter.revert(config);
+		nchelpers::RevertDnsServers(config);
 		return true;
 	});
 }
