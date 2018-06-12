@@ -6,7 +6,7 @@ extern crate log;
 
 use app_dirs::AppInfo;
 
-pub const PRODUCT_NAME: &str = "Mullvad VPN";
+const PRODUCT_NAME: &str = "Mullvad VPN";
 
 pub const APP_INFO: AppInfo = AppInfo {
     name: PRODUCT_NAME,
@@ -28,6 +28,9 @@ pub use logs::{get_log_dir, log_dir};
 
 mod resources;
 pub use resources::get_resource_dir;
+
+mod rpc_address;
+pub use rpc_address::get_rpc_address_path;
 
 mod settings;
 pub use settings::get_settings_dir;
