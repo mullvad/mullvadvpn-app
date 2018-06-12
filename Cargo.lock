@@ -750,7 +750,6 @@ dependencies = [
 name = "mullvad-daemon"
 version = "0.1.0"
 dependencies = [
- "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "assert_matches 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -767,7 +766,7 @@ dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-ipc-client 0.1.0",
- "mullvad-metadata 0.1.0",
+ "mullvad-paths 0.1.0",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -790,7 +789,7 @@ name = "mullvad-ipc-client"
 version = "0.1.0"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "mullvad-metadata 0.1.0",
+ "mullvad-paths 0.1.0",
  "mullvad-types 0.1.0",
  "serde 1.0.45 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
@@ -798,10 +797,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mullvad-metadata"
+name = "mullvad-paths"
 version = "0.1.0"
 dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
