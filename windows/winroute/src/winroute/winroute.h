@@ -19,7 +19,7 @@ typedef void (WINROUTE_API *WinRouteErrorSink)(const char *errorMessage, void *c
 
 extern "C"
 WINROUTE_LINKAGE
-bool
+int32_t
 WINROUTE_API
 WinRoute_EnsureTopMetric(
 		const wchar_t *deviceAlias,
