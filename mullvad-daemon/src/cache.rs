@@ -1,10 +1,11 @@
 use {ErrorKind, Result, ResultExt};
 
-use std::fs;
 use std::path::PathBuf;
 
 #[cfg(target_os = "linux")]
 pub fn get_cache_dir() -> Result<PathBuf> {
+    use std::fs;
+
     let dir = PathBuf::from("/var/cache/mullvad-daemon");
     fs::create_dir_all(&dir).chain_err(|| ErrorKind::NoCacheDir)?;
     Ok(dir)
