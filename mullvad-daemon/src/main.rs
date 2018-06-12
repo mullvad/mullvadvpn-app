@@ -70,7 +70,6 @@ use mullvad_types::relay_list::{Relay, RelayList};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 use mullvad_types::version::{AppVersion, AppVersionInfo};
 
-use std::env;
 use std::io;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
@@ -81,9 +80,7 @@ use std::time::{Duration, Instant};
 use talpid_core::firewall::{Firewall, FirewallProxy, SecurityPolicy};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel::{self, TunnelEvent, TunnelMetadata, TunnelMonitor};
-use talpid_types::net::{TunnelEndpoint, TunnelOptions};
-
-use std::fs;
+use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
 
 error_chain!{
@@ -127,6 +124,10 @@ error_chain!{
 static MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 static MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
 static RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
+
+const DAEMON_LOG_FILENAME: &str = "daemon.log";
+const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
+const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -205,13 +206,13 @@ struct Daemon {
     current_relay: Option<Relay>,
     tunnel_endpoint: Option<TunnelEndpoint>,
     tunnel_metadata: Option<TunnelMetadata>,
-    tunnel_log: Option<PathBuf>,
+    log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
 }
 
 impl Daemon {
     pub fn new(
-        tunnel_log: Option<PathBuf>,
+        log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
     ) -> Result<Self> {
@@ -263,7 +264,7 @@ impl Daemon {
             current_relay: None,
             tunnel_endpoint: None,
             tunnel_metadata: None,
-            tunnel_log: tunnel_log,
+            log_dir,
             resource_dir,
         })
     }
@@ -704,37 +705,12 @@ impl Daemon {
 
         self.set_security_policy()?;
 
-        self.prepare_tunnel_log_file()?;
-
         let tunnel_monitor =
             self.spawn_tunnel_monitor(self.tunnel_endpoint.unwrap(), &account_token)?;
         self.tunnel_close_handle = Some(tunnel_monitor.close_handle());
         self.spawn_tunnel_monitor_wait_thread(tunnel_monitor);
 
         self.set_state(TunnelState::Connecting)?;
-        Ok(())
-    }
-
-    fn prepare_tunnel_log_file(&self) -> Result<()> {
-        if let Some(ref file) = self.tunnel_log {
-            if let Some(log_dir) = file.parent() {
-                fs::create_dir_all(log_dir).chain_err(|| "Unable to create tunnel log dir")?;
-            }
-
-            let mut backup = file.clone();
-            backup.set_extension("old.log");
-            fs::rename(file, backup).unwrap_or_else(|error| {
-                if error.kind() != io::ErrorKind::NotFound {
-                    warn!(
-                        "Failed to create backup of previous tunnel log file ({})",
-                        error
-                    );
-                }
-            });
-
-            fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
-        }
-
         Ok(())
     }
 
@@ -752,15 +728,43 @@ impl Daemon {
                 .send(DaemonEvent::TunnelEvent(event));
         };
 
+        let tunnel_log = if let Some(ref log_dir) = self.log_dir {
+            let filename = match tunnel_endpoint.tunnel {
+                TunnelEndpointData::OpenVpn(_) => OPENVPN_LOG_FILENAME,
+                TunnelEndpointData::Wireguard(_) => WIREGUARD_LOG_FILENAME,
+            };
+            let tunnel_log = log_dir.join(filename);
+            Self::prepare_tunnel_log_file(&tunnel_log)?;
+            Some(tunnel_log)
+        } else {
+            None
+        };
+
         let tunnel_options = self.settings.get_tunnel_options();
         TunnelMonitor::new(
             tunnel_endpoint,
             &tunnel_options,
             account_token,
-            self.tunnel_log.as_ref().map(PathBuf::as_path),
+            tunnel_log.as_ref().map(PathBuf::as_path),
             &self.resource_dir,
             on_tunnel_event,
         ).chain_err(|| ErrorKind::TunnelError("Unable to start tunnel monitor"))
+    }
+
+    fn prepare_tunnel_log_file(file: &PathBuf) -> Result<()> {
+        let mut backup = file.clone();
+        backup.set_extension("old.log");
+        fs::rename(file, backup).unwrap_or_else(|error| {
+            if error.kind() != io::ErrorKind::NotFound {
+                warn!(
+                    "Failed to create backup of previous tunnel log file ({})",
+                    error
+                );
+            }
+        });
+
+        fs::File::create(file).chain_err(|| "Unable to create the tunnel log file")?;
+        Ok(())
     }
 
     fn spawn_tunnel_monitor_wait_thread(&self, tunnel_monitor: TunnelMonitor) {
@@ -850,12 +854,23 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let config = cli::get_config();
+    let log_dir = if config.log_to_file {
+        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
+    } else {
+        None
+    };
+    let log_file = log_dir.as_ref().map(|dir| dir.join(DAEMON_LOG_FILENAME));
+
     logging::init_logger(
         config.log_level,
-        config.log_file.as_ref(),
+        log_file.as_ref(),
         config.log_stdout_timestamps,
     ).chain_err(|| "Unable to initialize logger")?;
     log_version();
+    if let Some(ref log_dir) = log_dir {
+        info!("Logging to {}", log_dir.display());
+    }
+
     run_platform(config)
 }
 
@@ -887,11 +902,16 @@ fn run_standalone(config: cli::Config) -> Result<()> {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
+    let log_dir = if config.log_to_file {
+        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
+    } else {
+        None
+    };
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?;
 
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
-        .chain_err(|| "Unable to initialize daemon")?;
+    let daemon =
+        Daemon::new(log_dir, resource_dir, cache_dir).chain_err(|| "Unable to initialize daemon")?;
 
     let shutdown_handle = daemon.shutdown_handle();
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())

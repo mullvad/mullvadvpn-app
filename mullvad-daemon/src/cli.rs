@@ -7,8 +7,7 @@ use version;
 
 pub struct Config {
     pub log_level: log::LevelFilter,
-    pub log_file: Option<PathBuf>,
-    pub tunnel_log_file: Option<PathBuf>,
+    pub log_to_file: bool,
     pub log_stdout_timestamps: bool,
     pub run_as_service: bool,
     pub register_service: bool,
@@ -23,8 +22,7 @@ pub fn get_config() -> Config {
         1 => log::LevelFilter::Debug,
         _ => log::LevelFilter::Trace,
     };
-    let log_file = matches.value_of_os("log_file").map(PathBuf::from);
-    let tunnel_log_file = matches.value_of_os("tunnel_log_file").map(PathBuf::from);
+    let log_to_file = !matches.is_present("disable_log_to_file");
     let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
 
     let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
@@ -32,8 +30,7 @@ pub fn get_config() -> Config {
 
     Config {
         log_level,
-        log_file,
-        tunnel_log_file,
+        log_to_file,
         log_stdout_timestamps,
         run_as_service,
         register_service,
@@ -52,23 +49,14 @@ fn create_app() -> App<'static, 'static> {
                 .help("Sets the level of verbosity."),
         )
         .arg(
-            Arg::with_name("log_file")
-                .long("log")
-                .takes_value(true)
-                .value_name("PATH")
-                .help("Activates file logging to the given path."),
-        )
-        .arg(
-            Arg::with_name("tunnel_log_file")
-                .long("tunnel-log")
-                .takes_value(true)
-                .value_name("PATH")
-                .help("Save log from tunnel implementation process to this file path."),
+            Arg::with_name("disable_log_to_file")
+                .long("disable-log-to-file")
+                .help("Disable logging to file"),
         )
         .arg(
             Arg::with_name("disable_stdout_timestamps")
-            .long("disable-stdout-timestamps")
-            .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
+                .long("disable-stdout-timestamps")
+                .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
             );
 
     if cfg!(windows) {
