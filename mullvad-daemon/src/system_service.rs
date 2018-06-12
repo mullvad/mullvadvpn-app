@@ -10,7 +10,6 @@ use std::{env, io, thread};
 
 use cli;
 use error_chain::ChainedError;
-use mullvad_metadata::PRODUCT_NAME;
 use windows_service::service::{
     ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
     ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
@@ -227,19 +226,6 @@ pub fn install_service() -> Result<()> {
 }
 
 fn get_service_info() -> Result<ServiceInfo> {
-    let program_data_directory_string =
-        ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoLogDir)?;
-    let program_data_directory = Path::new(&program_data_directory_string);
-    let log_directory = program_data_directory.join(PRODUCT_NAME);
-    let service_log_file = log_directory.join("daemon.log");
-    let tunnel_log_file = log_directory.join("openvpn.log");
-
-    if let Err(error) = fs::create_dir(log_directory) {
-        if error.kind() != io::ErrorKind::AlreadyExists {
-            return Err(error).chain_err(|| ErrorKind::NoLogDir);
-        }
-    }
-
     Ok(ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
@@ -248,10 +234,6 @@ fn get_service_info() -> Result<ServiceInfo> {
         error_control: ServiceErrorControl::Normal,
         executable_path: env::current_exe().unwrap(),
         launch_arguments: vec![
-            OsString::from("--log"),
-            OsString::from(service_log_file),
-            OsString::from("--tunnel-log"),
-            OsString::from(tunnel_log_file),
             OsString::from("--run-as-service"),
             OsString::from("-v"),
         ],
