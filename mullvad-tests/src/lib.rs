@@ -278,16 +278,29 @@ impl Drop for DaemonRunner {
 }
 
 pub struct MockOpenVpnPluginRpcClient {
+    credentials: String,
     rpc: WsIpcClient,
 }
 
 impl MockOpenVpnPluginRpcClient {
-    pub fn with_address(address: String) -> Result<Self, String> {
+    pub fn new(address: String, credentials: String) -> Result<Self, String> {
         let rpc = WsIpcClient::connect(&address).map_err(|error| {
             format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
         })?;
 
-        Ok(MockOpenVpnPluginRpcClient { rpc })
+        Ok(MockOpenVpnPluginRpcClient { rpc, credentials })
+    }
+
+    pub fn authenticate(&mut self) -> Result<bool, String> {
+        self.rpc
+            .call("authenticate", &[&self.credentials])
+            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
+    }
+
+    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool, String> {
+        self.rpc
+            .call("authenticate", &[credentials])
+            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
     }
 
     pub fn up(&mut self) -> Result<(), String> {
