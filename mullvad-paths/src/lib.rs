@@ -16,11 +16,15 @@ pub const APP_INFO: AppInfo = AppInfo {
 error_chain! {
     errors {
         CreateDirFailed { description("Failed to create directory") }
+        #[cfg(windows)] NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
     }
 }
 
 mod cache;
 pub use cache::get_cache_dir;
+
+mod logs;
+pub use logs::get_log_dir;
 
 mod resources;
 pub use resources::get_resource_dir;
