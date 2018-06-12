@@ -124,6 +124,30 @@ fn authentication_credentials() {
     );
 }
 
+#[test]
+fn separate_connections_have_independent_authentication() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut first_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+    let mut second_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+
+    let auth_result = first_plugin_client.authenticate();
+    let call_result = second_plugin_client.up();
+
+    assert_eq!(auth_result, Ok(true));
+    assert!(call_result.is_err());
+    assert_no_state_event(&state_events);
+    assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+}
+
 fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
     let received_state = receiver
         .recv_timeout(Duration::from_secs(1))
