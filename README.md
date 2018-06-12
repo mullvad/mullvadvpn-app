@@ -242,9 +242,11 @@ A list of file paths written to and read from by the various components of the M
 On Windows, when a process runs as a system service the variable `%APPDATA%` expands to
 `C:\Windows\system32\config\systemprofile\AppData\Roaming`.
 
+All directory paths are defined in, and fetched from, the `mullvad-paths` crate.
+
 #### Settings
 
-The directory and full path to the settings file is defined in `mullvad-daemon/src/settings.rs`
+The settings directory can be changed by setting the `MULLVAD_SETTINGS_DIR` environment variable.
 
 | Platform | Path |
 |----------|------|
@@ -254,18 +256,17 @@ The directory and full path to the settings file is defined in `mullvad-daemon/s
 
 #### Logs
 
-| Platform | Path | Defined in |
-|----------|------|------------|
-| Linux | `/var/log/mullvad-daemon/` + systemd | `dist-assets/linux/mullvad-daemon.service` |
-| macOS | `/var/log/mullvad-daemon/` | `dist-assets/pkg-scripts/postinstall` |
-| Windows | `C:\ProgramData\Mullvad VPN\` | `mullvad-daemon/src/system_service.rs` |
+The log directory can be changed by setting the `MULLVAD_LOG_DIR` environment variable.
 
-The log directories are also defined in the `problem-report` source code.
+| Platform | Path |
+|----------|------|
+| Linux | `/var/log/mullvad-daemon/` + systemd |
+| macOS | `/var/log/mullvad-daemon/` |
+| Windows | `C:\ProgramData\Mullvad VPN\` |
 
 #### Cache
 
-The daemon caches relay server list and DNS lookups etc. The path to the cache dir is defined in
-`mullvad-daemon/src/cache.rs`
+The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environment variable.
 
 | Platform | Path |
 |----------|------|
@@ -275,7 +276,8 @@ The daemon caches relay server list and DNS lookups etc. The path to the cache d
 
 #### RPC address file
 
-The path to the RPC address file is defined in `mullvad-ipc-client/src/lib.rs`
+The full path to the RPC address file can be changed by setting the `MULLVAD_RPC_ADDRESS_PATH`
+environment variable.
 
 | Platform | Path |
 |----------|------|
