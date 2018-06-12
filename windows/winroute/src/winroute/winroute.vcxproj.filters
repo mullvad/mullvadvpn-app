@@ -4,10 +4,12 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="winroute.cpp" />
+    <ClCompile Include="NetworkInterfaces.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="winroute.h" />
+    <ClInclude Include="NetworkInterfaces.h" />
   </ItemGroup>
 </Project>
