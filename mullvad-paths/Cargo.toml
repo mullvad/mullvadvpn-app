@@ -1,0 +1,14 @@
+[package]
+name = "mullvad-paths"
+version = "0.1.0"
+authors = [
+    "Mullvad VPN <admin@mullvad.net>",
+    "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>",
+    "Linus Färnstrand <linus@mullvad.net>"
+]
+description = "Mullvad VPN application paths and directories"
+license = "GPL-3.0"
+
+[dependencies]
+app_dirs = "1.2"
+error-chain = "0.11"
