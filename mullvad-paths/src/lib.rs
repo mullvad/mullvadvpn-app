@@ -6,7 +6,6 @@ extern crate error_chain;
 extern crate log;
 
 
-
 #[cfg(windows)]
 const PRODUCT_NAME: &str = "Mullvad VPN";
 

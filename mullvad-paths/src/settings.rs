@@ -1,7 +1,7 @@
 use {ErrorKind, Result, ResultExt};
 
-use std::fs;
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 
 /// Creates and returns the settings directory pointed to by `MULLVAD_SETTINGS_DIR`, or the default
