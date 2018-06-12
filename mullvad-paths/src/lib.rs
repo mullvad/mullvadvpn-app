@@ -1,4 +1,4 @@
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos")]
 extern crate app_dirs;
 #[macro_use]
 extern crate error_chain;
@@ -6,10 +6,10 @@ extern crate error_chain;
 extern crate log;
 
 
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos")]
 const PRODUCT_NAME: &str = "Mullvad VPN";
 
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos")]
 const APP_INFO: AppInfo = app_dirs::AppInfo {
     name: PRODUCT_NAME,
     author: "Mullvad",
