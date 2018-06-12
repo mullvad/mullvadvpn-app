@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "windns/windns.h"
+#include "libcommon/trace/trace.h"
+#include "libcommon/trace/consoletracesink.h"
 #include <iostream>
 #include <conio.h>
 #include <vector>
@@ -79,6 +81,8 @@ void WaitInput(const std::wstring &message)
 
 int main()
 {
+	common::trace::Trace::RegisterSink(new common::trace::ConsoleTraceSink);
+
 	if (Ask(L"Perform recovery?"))
 	{
 		Recover();
