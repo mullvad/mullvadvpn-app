@@ -4,7 +4,7 @@
 #include "clientsinkinfo.h"
 #include "libcommon/serialization/deserializer.h"
 #include "interfaceconfig.h"
-#include "dnsreverter.h"
+#include "netconfighelpers.h"
 #include <vector>
 #include <string>
 
@@ -172,11 +172,9 @@ WinDns_Recover(
 	uint32_t numConfigs;
 	d >> numConfigs;
 
-	DnsReverter dnsReverter;
-
 	for (; numConfigs != 0; --numConfigs)
 	{
-		 dnsReverter.revert(InterfaceConfig(d));
+        nchelpers::RevertDnsServers(InterfaceConfig(d));
 	}
 
 	return true;

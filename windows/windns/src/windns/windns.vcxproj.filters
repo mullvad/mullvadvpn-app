@@ -6,15 +6,12 @@
     <ClInclude Include="windns.h" />
     <ClInclude Include="windnscontext.h" />
     <ClInclude Include="configmanager.h" />
-    <ClInclude Include="itracesink.h" />
-    <ClInclude Include="consoletracesink.h" />
     <ClInclude Include="netconfigeventsink.h" />
     <ClInclude Include="netconfighelpers.h" />
-    <ClInclude Include="macroargument.h" />
-    <ClInclude Include="dnsreverter.h" />
     <ClInclude Include="clientsinkinfo.h" />
     <ClInclude Include="netsh.h" />
     <ClInclude Include="interfaceconfig.h" />
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -22,10 +19,8 @@
     <ClCompile Include="windns.cpp" />
     <ClCompile Include="windnscontext.cpp" />
     <ClCompile Include="configmanager.cpp" />
-    <ClCompile Include="consoletracesink.cpp" />
     <ClCompile Include="netconfigeventsink.cpp" />
     <ClCompile Include="netconfighelpers.cpp" />
-    <ClCompile Include="dnsreverter.cpp" />
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="interfaceconfig.cpp" />
   </ItemGroup>
