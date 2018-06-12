@@ -122,7 +122,9 @@ declare module 'electron' {
 
   declare class IpcMain extends EventEmitter {}
 
-  declare class WebContents extends EventEmitter {}
+  declare class WebContents extends EventEmitter {
+    send(channel: string, ...args: Array<mixed>): void;
+  }
 
   // http://electron.atom.io/docs/api/browser-window
 
