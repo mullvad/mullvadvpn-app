@@ -1,18 +1,17 @@
 #include "stdafx.h"
 #include "configmanager.h"
 #include "libcommon/serialization/serializer.h"
+#include "libcommon/trace/xtrace.h"
 #include <utility>
 #include <algorithm>
 
 ConfigManager::ConfigManager
 (
 	const std::vector<std::wstring> &servers,
-	const ConfigSinkInfo &configSinkInfo,
-	std::shared_ptr<ITraceSink> traceSink
+	const ConfigSinkInfo &configSinkInfo
 )
 	: m_servers(servers)
 	, m_configSinkInfo(configSinkInfo)
-	, m_traceSink(traceSink)
 {
 }
 
@@ -43,9 +42,9 @@ const std::vector<std::wstring> &ConfigManager::getServers() const
 	return m_servers;
 }
 
-ConfigManager::UpdateType ConfigManager::updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target)
+ConfigManager::UpdateStatus ConfigManager::updateConfig(const InterfaceConfig &previous, const InterfaceConfig &target)
 {
-	XTRACE(L"Interface configuration update for interface =", target.interfaceIndex());
+	XTRACE(L"Interface configuration update for interface=", target.interfaceIndex());
 
 	//
 	// There are a few cases we need to deal with:
@@ -60,9 +59,9 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const InterfaceConfig &pre
 	const auto configIndex = target.configIndex();
 	auto iter = m_configs.find(configIndex);
 
-	if (internalUpdate(target))
+	if (verifyServers(target))
 	{
-		XTRACE(L"Update event was initiated by WINDNS");
+		XTRACE(L"Update event was initiated by WINDNS or did not include DNS changes");
 
 		//
 		// If we haven't seen this config id before, it means the 'previous' instance
@@ -76,7 +75,7 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const InterfaceConfig &pre
 			exportConfigs();
 		}
 
-		return UpdateType::WinDnsEnforced;
+		return UpdateStatus::DnsApproved;
 	}
 
 	//
@@ -95,7 +94,7 @@ ConfigManager::UpdateType ConfigManager::updateConfig(const InterfaceConfig &pre
 
 	exportConfigs();
 
-	return UpdateType::External;
+	return UpdateStatus::DnsDeviates;
 }
 
 bool ConfigManager::processConfigs(std::function<bool(const InterfaceConfig &)> configSink)
@@ -111,7 +110,7 @@ bool ConfigManager::processConfigs(std::function<bool(const InterfaceConfig &)> 
 	return true;
 }
 
-bool ConfigManager::internalUpdate(const InterfaceConfig &config)
+bool ConfigManager::verifyServers(const InterfaceConfig &config)
 {
 	auto updatedServers = config.servers();
 

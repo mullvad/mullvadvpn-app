@@ -21,7 +21,7 @@ void NetConfigEventSink::update(CComPtr<IWbemClassObject> previous, CComPtr<IWbe
 	// This is OK because the config manager will reject updates
 	// that set our DNS servers.
 	//
-	if (ConfigManager::UpdateType::WinDnsEnforced == m_configManager->updateConfig(previousConfig, targetConfig))
+	if (ConfigManager::UpdateStatus::DnsApproved == m_configManager->updateConfig(previousConfig, targetConfig))
 	{
 		return;
 	}
