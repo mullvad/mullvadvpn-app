@@ -1,12 +1,11 @@
 #pragma once
 
-#include "windns/netconfighelpers.h"
+#include "types.h"
 #include "libcommon/serialization/deserializer.h"
 #include "libcommon/serialization/serializer.h"
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory>
 #include <atlbase.h>
 #include <wbemidl.h>
 
@@ -59,5 +58,5 @@ private:
 	uint32_t m_interfaceIndex;
 	std::wstring m_interfaceGuid;
 
-	nchelpers::OptionalStringList m_servers;
+	OptionalStringList m_servers;
 };

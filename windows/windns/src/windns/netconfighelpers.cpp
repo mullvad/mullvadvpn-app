@@ -2,6 +2,7 @@
 #include "netconfighelpers.h"
 #include "libcommon/com.h"
 #include "libcommon/wmi/wmi.h"
+#include "libcommon/trace/xtrace.h"
 #include "netsh.h"
 
 using namespace common;
@@ -38,6 +39,26 @@ void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &ser
 	if (servers.size() > 1)
 	{
 		NetSh::SetIpv4SecondaryDns(interfaceIndex, servers[1]);
+	}
+}
+
+void RevertDnsServers(const InterfaceConfig &config)
+{
+	XTRACE("Reverting DNS configuration for interface with index=", config.interfaceIndex());
+
+	auto servers = config.servers();
+
+	if (config.dhcp() || nullptr == servers || 0 == servers->size())
+	{
+		NetSh::SetIpv4Dhcp(config.interfaceIndex());
+		return;
+	}
+
+	NetSh::SetIpv4PrimaryDns(config.interfaceIndex(), (*servers)[0]);
+
+	if (servers->size() > 1)
+	{
+		NetSh::SetIpv4SecondaryDns(config.interfaceIndex(), (*servers)[1]);
 	}
 }
 

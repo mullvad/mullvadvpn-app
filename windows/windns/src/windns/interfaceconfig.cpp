@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "interfaceconfig.h"
+#include "netconfighelpers.h"
 #include "libcommon/com.h"
 #include "libcommon/wmi/wmi.h"
 
