@@ -1,8 +1,6 @@
 #![cfg(windows)]
 
 use std::ffi::OsString;
-use std::fs;
-use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
 use std::time::Duration;
@@ -10,7 +8,6 @@ use std::{env, io, thread};
 
 use cli;
 use error_chain::ChainedError;
-use mullvad_metadata::PRODUCT_NAME;
 use windows_service::service::{
     ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
     ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
@@ -21,7 +18,7 @@ use windows_service::service_control_handler::{
 use windows_service::service_dispatcher;
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 
-use super::{get_resource_dir, Daemon, DaemonShutdownHandle, ErrorKind, Result, ResultExt};
+use super::{DaemonShutdownHandle, Result, ResultExt};
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
@@ -71,13 +68,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let resource_dir = config.resource_dir.unwrap_or_else(|| get_resource_dir());
-    let cache_dir = match config.cache_dir {
-        Some(cache_dir) => cache_dir,
-        None => ::cache::get_cache_dir()?,
-    };
-    let daemon = Daemon::new(config.tunnel_log_file, resource_dir, cache_dir)
-        .chain_err(|| "Unable to initialize daemon")?;
+    let daemon = ::create_daemon(config)?;
     let shutdown_handle = daemon.shutdown_handle();
 
     // Register monitor that translates `ServiceControl` to Daemon events
@@ -227,19 +218,6 @@ pub fn install_service() -> Result<()> {
 }
 
 fn get_service_info() -> Result<ServiceInfo> {
-    let program_data_directory_string =
-        ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoLogDir)?;
-    let program_data_directory = Path::new(&program_data_directory_string);
-    let log_directory = program_data_directory.join(PRODUCT_NAME);
-    let service_log_file = log_directory.join("daemon.log");
-    let tunnel_log_file = log_directory.join("openvpn.log");
-
-    if let Err(error) = fs::create_dir(log_directory) {
-        if error.kind() != io::ErrorKind::AlreadyExists {
-            return Err(error).chain_err(|| ErrorKind::NoLogDir);
-        }
-    }
-
     Ok(ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
@@ -247,14 +225,7 @@ fn get_service_info() -> Result<ServiceInfo> {
         start_type: ServiceStartType::AutoStart,
         error_control: ServiceErrorControl::Normal,
         executable_path: env::current_exe().unwrap(),
-        launch_arguments: vec![
-            OsString::from("--log"),
-            OsString::from(service_log_file),
-            OsString::from("--tunnel-log"),
-            OsString::from(tunnel_log_file),
-            OsString::from("--run-as-service"),
-            OsString::from("-v"),
-        ],
+        launch_arguments: vec![OsString::from("--run-as-service"), OsString::from("-v")],
         account_name: None, // run as System
         account_password: None,
     })

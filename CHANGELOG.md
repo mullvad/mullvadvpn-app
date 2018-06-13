@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 - Filter out and ignore DNS lookup results for api.mullvad.net that are bogus (private etc.)
 - Bundle the Mullvad API IP address with the app and introduce a disk cache fallback method for
   when DNS resolution fails.
+- Automatic rotation of the daemon log. The existing log is renamed to `daemon.old.log` on daemon
+  startup.
 
 #### macOS
 - Add colors to terminal output.
@@ -53,12 +55,15 @@ Line wrap the file at 100 chars.                                              Th
 - Replaced previously bundled OpenVPN 2.4.4 with statically linked 2.4.6 version containing
   Mullvad patches for faster connect and other improvements.
 - Increase the OpenVPN receive and send buffers from 524288 to 1048576 bytes (1MiB).
+- Make the log, cache, settings and RPC address directories configurable via the following
+  environment variables: `MULLVAD_LOG_DIR`, `MULLVAD_CACHE_DIR`, `MULLVAD_SETTINGS_DIR` and
+  `MULLVAD_RPC_ADDRESS_PATH`.
 
 #### macOS
 - The installer changed from dmg to pkg format.
 - The daemon is installed as a launchd daemon and started on install and on boot.
 - Move daemon logs to `/var/log/mullvad-daemon/`, settings to `/etc/mullvad-daemon/` and cache to
-  `/var/cache/mullvad-daemon/`.
+  `/var/root/Library/Caches/mullvad-daemon/`.
 
 ### Fixed
 - Fix bug in account input field that advanced the cursor to the end regardless its prior position.

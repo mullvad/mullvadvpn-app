@@ -3,7 +3,7 @@ Description=Mullvad VPN daemon
 Wants=network.target
 
 [Service]
-ExecStart="/opt/Mullvad VPN/resources/mullvad-daemon" -v --disable-stdout-timestamps --log /var/log/mullvad-daemon/daemon.log --tunnel-log /var/log/mullvad-daemon/openvpn.log
+ExecStart="/opt/Mullvad VPN/resources/mullvad-daemon" -v --disable-stdout-timestamps
 
 [Install]
 WantedBy=multi-user.target

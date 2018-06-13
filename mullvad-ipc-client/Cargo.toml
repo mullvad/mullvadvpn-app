@@ -11,6 +11,4 @@ mullvad-types = { path = "../mullvad-types" }
 serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
-
-[target.'cfg(windows)'.dependencies]
-mullvad-metadata = { path = "../mullvad-metadata" }
+mullvad-paths = { path = "../mullvad-paths" }

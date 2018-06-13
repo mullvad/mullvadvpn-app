@@ -1,11 +1,12 @@
 #[macro_use]
 extern crate error_chain;
+extern crate mullvad_paths;
 extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-use std::fs::{File, Metadata};
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
@@ -20,7 +21,6 @@ use talpid_ipc::WsIpcClient;
 use talpid_types::net::TunnelOptions;
 
 use platform_specific::ensure_written_by_admin;
-pub use platform_specific::rpc_file_path;
 
 error_chain! {
     errors {
@@ -28,30 +28,30 @@ error_chain! {
             description("Failed to authenticate the connection with the daemon")
         }
 
-        EmptyRpcFile(file_path: String) {
+        EmptyRpcFile(path: PathBuf) {
             description("RPC connection file is empty")
-            display("RPC connection file \"{}\" is empty", file_path)
+            display("RPC connection file \"{}\" is empty", path.display())
         }
 
-        InsecureRpcFile(file_path: String) {
+        InsecureRpcFile(path: PathBuf) {
             description(
                 "RPC connection file is insecure because it might not have been written by an \
                 administrator user"
             )
             display(
                 "RPC connection file \"{}\" is insecure because it might not have been written by \
-                an administrator user", file_path
+                an administrator user", path.display()
             )
         }
 
-        MissingRpcCredentials(file_path: String) {
+        MissingRpcCredentials(path: PathBuf) {
             description("no credentials found in RPC connection file")
-            display("no credentials found in RPC connection file {}", file_path)
+            display("no credentials found in RPC connection file {}", path.display())
         }
 
-        ReadRpcFileError(file_path: String) {
+        ReadRpcFileError(path: PathBuf) {
             description("Failed to read RPC connection information")
-            display("Failed to read RPC connection information from {}", file_path)
+            display("Failed to read RPC connection information from {}", path.display())
         }
 
         RpcCallError(method: String) {
@@ -63,10 +63,9 @@ error_chain! {
             description("Failed to start RPC client")
             display("Failed to start RPC client to {}", address)
         }
-
-        UnknownRpcFilePath {
-            description("Failed to determine RPC connection information file path")
-        }
+    }
+    links {
+        UnknownRpcAddressPath(mullvad_paths::Error, mullvad_paths::ErrorKind);
     }
 }
 
@@ -91,28 +90,23 @@ impl DaemonRpcClient {
     }
 
     fn read_rpc_file() -> Result<(String, String)> {
-        let file_path = rpc_file_path()?;
-        let file_path_string = || file_path.display().to_string();
+        let file_path = mullvad_paths::get_rpc_address_path()?;
         let rpc_file =
-            File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+            File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
 
-        let file_metadata = rpc_file
-            .metadata()
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
-
-        ensure_written_by_admin(&file_path, file_metadata)?;
+        ensure_written_by_admin(&file_path)?;
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
         let address = lines
             .next()
-            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path_string()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.clone()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
         let credentials = lines
             .next()
-            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path_string()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path_string()))?;
+            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.clone()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
 
         Ok((address, credentials))
     }
@@ -206,17 +200,18 @@ mod platform_specific {
 
     use super::*;
 
-    pub fn rpc_file_path() -> Result<PathBuf> {
-        Ok(Path::new("/tmp/.mullvad_rpc_address").to_path_buf())
-    }
+    pub fn ensure_written_by_admin<P: AsRef<Path>>(path: P) -> Result<()> {
+        let path = path.as_ref();
+        let metadata = path
+            .metadata()
+            .chain_err(|| ErrorKind::ReadRpcFileError(path.to_owned()))?;
 
-    pub fn ensure_written_by_admin<P: AsRef<Path>>(file_path: P, metadata: Metadata) -> Result<()> {
         let is_owned_by_root = metadata.uid() == 0;
         let is_read_only_by_non_owner = (metadata.mode() & 0o022) == 0;
 
         ensure!(
             is_owned_by_root && is_read_only_by_non_owner,
-            ErrorKind::InsecureRpcFile(file_path.as_ref().display().to_string())
+            ErrorKind::InsecureRpcFile(path.to_owned())
         );
 
         Ok(())
@@ -225,25 +220,9 @@ mod platform_specific {
 
 #[cfg(windows)]
 mod platform_specific {
-    extern crate mullvad_metadata;
-
     use super::*;
 
-    use self::mullvad_metadata::PRODUCT_NAME;
-
-    pub fn rpc_file_path() -> Result<PathBuf> {
-        let shared_data_directory =
-            ::std::env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::UnknownRpcFilePath)?;
-
-        Ok(PathBuf::from(shared_data_directory)
-            .join(PRODUCT_NAME)
-            .join(".mullvad_rpc_address"))
-    }
-
-    pub fn ensure_written_by_admin<P: AsRef<Path>>(
-        _file_path: P,
-        _metadata: Metadata,
-    ) -> Result<()> {
+    pub fn ensure_written_by_admin<P: AsRef<Path>>(_file_path: P) -> Result<()> {
         // TODO: Check permissions correctly
         Ok(())
     }
