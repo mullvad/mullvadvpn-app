@@ -27,7 +27,5 @@ fn get_default_log_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 fn get_default_log_dir() -> Result<PathBuf> {
-    let program_data_dir =
-        Path::new(env::var_os("ALLUSERSPROFILE").ok_or_else(|| ErrorKind::NoProgramDataDir)?);
-    Ok(program_data_dir.join(::metadata::PRODUCT_NAME))
+    ::get_program_data_dir()
 }
