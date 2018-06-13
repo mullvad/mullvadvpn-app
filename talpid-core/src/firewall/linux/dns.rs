@@ -1,8 +1,7 @@
 extern crate notify;
 extern crate resolv_conf;
 
-use std::fs::File;
-use std::io::{self, Read, Write};
+use std::fs;
 use std::net::IpAddr;
 use std::ops::DerefMut;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
@@ -165,27 +164,13 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
-    let contents = read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
     Ok(config)
 }
 
-fn read_resolv_conf() -> io::Result<String> {
-    let mut file = File::open(RESOLV_CONF_PATH)?;
-    let mut contents = String::new();
-
-    file.read_to_string(&mut contents)?;
-
-    Ok(contents)
-}
-
 fn write_config(config: &Config) -> Result<()> {
-    write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
-}
-
-fn write_resolv_conf(contents: &str) -> io::Result<()> {
-    let mut file = File::create(RESOLV_CONF_PATH)?;
-
-    file.write_all(contents.as_bytes())
+    fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
+        .chain_err(|| ErrorKind::WriteResolvConf)
 }
