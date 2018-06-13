@@ -4,6 +4,7 @@ extern crate resolv_conf;
 use std::fs;
 use std::net::IpAddr;
 use std::ops::DerefMut;
+use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 
@@ -13,15 +14,24 @@ use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 
 static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+static RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
 error_chain!{
     errors {
+        BackupResolvConf {
+            description("Failed to create backup of /etc/resolv.conf")
+        }
+
         ParseResolvConf {
             description("Failed to parse contents of /etc/resolv.conf")
         }
 
         ReadResolvConf {
             description("Failed to read /etc/resolv.conf")
+        }
+
+        RestoreResolvConf {
+            description("Failed to restore /etc/resolv.conf from backup")
         }
 
         WatchResolvConf {
@@ -54,7 +64,7 @@ impl DnsSettings {
         let mut state = self.lock_state();
         let new_state = match state.take() {
             None => State {
-                backup: read_config()?,
+                backup: backup_config()?,
                 desired_dns: servers,
             },
             Some(previous_state) => State {
@@ -72,7 +82,13 @@ impl DnsSettings {
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.lock_state().take() {
-            write_config(&state.backup)
+            let backup_path = Path::new(RESOLV_CONF_BACKUP_PATH);
+
+            if backup_path.exists() {
+                fs::rename(backup_path, RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)
+            } else {
+                write_config(&state.backup)
+            }
         } else {
             Ok(())
         }
@@ -155,7 +171,7 @@ impl DnsWatcher {
                 new_config.nameservers.append(&mut state.backup.nameservers);
                 state.backup = new_config;
 
-                Ok(())
+                update_backup(&state.backup)
             }
         } else {
             Ok(())
@@ -163,14 +179,33 @@ impl DnsWatcher {
     }
 }
 
+fn backup_config() -> Result<Config> {
+    fs::rename(RESOLV_CONF_PATH, RESOLV_CONF_BACKUP_PATH)
+        .chain_err(|| ErrorKind::BackupResolvConf)?;
+
+    read_config_from(RESOLV_CONF_BACKUP_PATH)
+}
+
 fn read_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+    read_config_from(RESOLV_CONF_PATH)
+}
+
+fn read_config_from<P: AsRef<Path>>(resolv_conf_path: P) -> Result<Config> {
+    let contents = fs::read_to_string(resolv_conf_path).chain_err(|| ErrorKind::ReadResolvConf)?;
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
     Ok(config)
 }
 
+fn update_backup(config: &Config) -> Result<()> {
+    write_config_to(config, RESOLV_CONF_BACKUP_PATH)
+}
+
 fn write_config(config: &Config) -> Result<()> {
-    fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
+    write_config_to(config, RESOLV_CONF_PATH)
+}
+
+fn write_config_to<P: AsRef<Path>>(config: &Config, resolv_conf_path: P) -> Result<()> {
+    fs::write(resolv_conf_path, config.to_string().as_bytes())
         .chain_err(|| ErrorKind::WriteResolvConf)
 }
