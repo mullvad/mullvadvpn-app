@@ -104,7 +104,7 @@ sed -i.bak \
 ################################################################################
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    ./build_windows_libraries.sh $1
+    CPP_BUILD_MODES="Release" ./build_windows_libraries.sh $1
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
