@@ -30,6 +30,6 @@ fn get_default_cache_dir() -> Result<PathBuf> {
 
 #[cfg(any(target_os = "macos", windows))]
 fn get_default_cache_dir() -> Result<PathBuf> {
-    ::app_dirs::get_app_root(::app_dirs::AppDataType::UserCache, &::APP_INFO)
+    ::app_dirs::get_app_root(::app_dirs::AppDataType::UserCache, &::metadata::APP_INFO)
         .chain_err(|| ErrorKind::CreateDirFailed)
 }

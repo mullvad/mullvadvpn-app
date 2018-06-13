@@ -21,5 +21,5 @@ fn get_default_rpc_address_dir() -> Result<PathBuf> {
 fn get_default_rpc_address_dir() -> Result<PathBuf> {
     let program_data_dir =
         env::var_os("ALLUSERSPROFILE").ok_or_else(|| ::ErrorKind::NoProgramDataDir)?;
-    Ok(Path::new(program_data_dir).join(::PRODUCT_NAME))
+    Ok(Path::new(program_data_dir).join(::metadata::PRODUCT_NAME))
 }
