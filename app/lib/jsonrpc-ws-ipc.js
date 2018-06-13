@@ -11,11 +11,12 @@ export type UnansweredRequest = {
   message: Object,
 };
 
-export type JsonRpcError = {
+export type JsonRpcErrorResponse = {
   type: 'error',
   payload: {
     id: string,
     error: {
+      code: number,
       message: string,
     },
   },
@@ -37,7 +38,26 @@ export type JsonRpcSuccess = {
     result: mixed,
   },
 };
-export type JsonRpcMessage = JsonRpcError | JsonRpcNotification | JsonRpcSuccess;
+export type JsonRpcMessage = JsonRpcErrorResponse | JsonRpcNotification | JsonRpcSuccess;
+
+export class JsonRpcError extends Error {
+  _code: number;
+  _details: string;
+
+  constructor(code: number, details: string) {
+    super(`Remote JSON-RPC error ${code}: ${details}`);
+    this._code = code;
+    this._details = details;
+  }
+
+  get code(): number {
+    return this._code;
+  }
+
+  get details(): string {
+    return this._details;
+  }
+}
 
 export class TimeOutError extends Error {
   jsonRpcMessage: Object;
@@ -200,7 +220,7 @@ export default class Ipc {
     }
   }
 
-  _onReply(message: JsonRpcError | JsonRpcSuccess) {
+  _onReply(message: JsonRpcErrorResponse | JsonRpcSuccess) {
     const id = message.payload.id;
     const request = this._unansweredRequests.get(id);
     this._unansweredRequests.delete(id);
@@ -215,7 +235,8 @@ export default class Ipc {
     clearTimeout(request.timerId);
 
     if (message.type === 'error') {
-      request.reject(message.payload.error);
+      const error = message.payload.error;
+      request.reject(new JsonRpcError(error.code, error.message));
     } else {
       const reply = message.payload.result;
       request.resolve(reply);
