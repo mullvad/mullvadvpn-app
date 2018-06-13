@@ -47,18 +47,18 @@ function to_win_path
   fi
 }
 
-function get_wfp_output_path
+function get_solution_output_path
 {
-  local wfp_root=$1
+  local solution_root=$1
   local build_target=$2
   local build_mode=$3
 
   case $build_target in
     "x86")
-      echo "$wfp_root/bin/Win32-$build_mode"
+      echo "$solution_root/bin/Win32-$build_mode"
       ;;
     "x64")
-      echo "$wfp_root/bin/x64-$build_mode"
+      echo "$solution_root/bin/x64-$build_mode"
       ;;
     *)
       echo Unkown build target $build_target
@@ -87,6 +87,25 @@ function get_cargo_target_dir
 
   echo "$CARGO_TARGET_DIR/$platform_triplet/${build_mode,,}"
 }
+
+function copy_outputs
+{
+  local solution_path=$1
+  local artifacts=$2
+
+  for mode in $CPP_BUILD_MODES; do
+    for target in $CPP_BUILD_TARGETS; do
+      local dll_path=$(get_solution_output_path $solution_path $target $mode)
+      local cargo_target=$(get_cargo_target_dir $target $mode)
+      mkdir -p $cargo_target
+      for artifact in $artifacts; do
+        cp "$dll_path/$artifact" "$cargo_target"
+      done
+    done
+  done
+
+}
+
 
 # Since Microsoft likes to name their architectures differently from Rust, this
 # function tries to match microsoft names to Rust names.
@@ -126,6 +145,10 @@ function main
   build_project "$winfw_root_path/winfw.sln" "$WINFW_SOLUTIONS"
   build_project "$windns_root_path/windns.sln" "$WINDNS_SOLUTIONS"
   build_project "$winroute_root_path/winroute.sln" "$WINROUTE_SOLUTIONS"
+
+  copy_outputs $winfw_root_path "winfw.dll"
+  copy_outputs $windns_root_path "windns.dll"
+  copy_outputs $winroute_root_path "winroute.dll"
 }
 
 main
