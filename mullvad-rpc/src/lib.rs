@@ -11,7 +11,7 @@ extern crate chrono;
 extern crate error_chain;
 extern crate futures;
 extern crate hyper;
-extern crate hyper_tls;
+extern crate hyper_openssl;
 #[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
@@ -19,7 +19,6 @@ extern crate jsonrpc_client_http;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate native_tls;
 extern crate serde_json;
 extern crate tokio_core;
 
@@ -40,7 +39,7 @@ use mullvad_types::version;
 
 use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 pub mod event_loop;
@@ -50,7 +49,11 @@ mod cached_dns_resolver;
 use cached_dns_resolver::CachedDnsResolver;
 
 mod https_client_with_sni;
-use https_client_with_sni::HttpsClientWithSni;
+use https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
+
+/// Number of threads in the thread pool doing DNS resolutions.
+/// Since DNS is resolved via blocking syscall they must be run on separate threads.
+const DNS_THREADS: usize = 2;
 
 const API_HOST: &str = "api.mullvad.net";
 const RPC_TIMEOUT: Duration = Duration::from_secs(5);
@@ -63,23 +66,26 @@ lazy_static! {
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcFactory {
     address_cache: Option<CachedDnsResolver>,
+    ca_path: PathBuf,
 }
 
 impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory`.
-    pub fn new() -> Self {
+    pub fn new<P: Into<PathBuf>>(ca_path: P) -> Self {
         MullvadRpcFactory {
             address_cache: None,
+            ca_path: ca_path.into(),
         }
     }
 
     /// Create a new `MullvadRpcFactory` using the specified cache directory.
-    pub fn with_cache_dir(cache_dir: &Path) -> Self {
+    pub fn with_cache_dir<P: Into<PathBuf>>(cache_dir: &Path, ca_path: P) -> Self {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let cached_dns_resolver = CachedDnsResolver::new(API_HOST.to_owned(), cache_file, *API_IP);
 
         MullvadRpcFactory {
             address_cache: Some(cached_dns_resolver),
+            ca_path: ca_path.into(),
         }
     }
 
@@ -101,7 +107,7 @@ impl MullvadRpcFactory {
         F: FnOnce(HttpTransportBuilder<HttpsClientWithSni>)
             -> jsonrpc_client_http::Result<HttpTransport>,
     {
-        let client = HttpsClientWithSni::new(API_HOST.to_owned());
+        let client = HttpsClientWithSni::new(API_HOST.to_owned(), self.ca_path.clone());
         let transport_builder = HttpTransportBuilder::with_client(client).timeout(RPC_TIMEOUT);
 
         let transport = create_transport(transport_builder)?;
