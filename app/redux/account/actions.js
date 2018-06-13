@@ -1,7 +1,7 @@
 // @flow
 
 import type { AccountToken } from '../../lib/ipc-facade';
-import type { Backend, BackendError } from '../../lib/backend';
+import type { Backend } from '../../lib/backend';
 
 type StartLoginAction = {
   type: 'START_LOGIN',
@@ -15,7 +15,7 @@ type LoginSuccessfulAction = {
 
 type LoginFailedAction = {
   type: 'LOGIN_FAILED',
-  error: BackendError,
+  error: Error,
 };
 
 type LoggedOutAction = {
@@ -65,7 +65,7 @@ function loginSuccessful(expiry: string): LoginSuccessfulAction {
   };
 }
 
-function loginFailed(error: BackendError): LoginFailedAction {
+function loginFailed(error: Error): LoginFailedAction {
   return {
     type: 'LOGIN_FAILED',
     error: error,
