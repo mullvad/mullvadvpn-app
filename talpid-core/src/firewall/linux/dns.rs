@@ -17,19 +17,19 @@ static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 error_chain!{
     errors {
         ParseResolvConf {
-            description("failed to parse contents of /etc/resolv.conf")
+            description("Failed to parse contents of /etc/resolv.conf")
         }
 
         ReadResolvConf {
-            description("failed to read /etc/resolv.conf")
+            description("Failed to read /etc/resolv.conf")
         }
 
         WatchResolvConf {
-            description("failed to watch /etc/resolv.conf for changes")
+            description("Failed to watch /etc/resolv.conf for changes")
         }
 
         WriteResolvConf {
-            description("failed to write to /etc/resolv.conf")
+            description("Failed to write to /etc/resolv.conf")
         }
     }
 }
