@@ -6,8 +6,6 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-
-extern crate app_dirs;
 extern crate chrono;
 #[macro_use]
 extern crate clap;
