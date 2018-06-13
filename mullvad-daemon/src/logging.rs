@@ -140,8 +140,7 @@ fn escape_newlines(text: String) -> String {
 }
 
 pub fn rotate_log(file: &Path) -> Result<()> {
-    let mut backup = file.to_owned();
-    backup.set_extension("old.log");
+    let backup = file.with_extension("old.log");
     fs::rename(file, backup).unwrap_or_else(|error| {
         if error.kind() != io::ErrorKind::NotFound {
             warn!("Failed to rotate log file ({})", error);
