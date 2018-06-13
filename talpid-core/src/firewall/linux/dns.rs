@@ -11,17 +11,27 @@ use error_chain::ChainedError;
 
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
+use super::super::system_state::SystemStateWriter;
 
 static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+static RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
 error_chain!{
     errors {
+        BackupResolvConf {
+            description("Failed to create backup of /etc/resolv.conf")
+        }
+
         ParseResolvConf {
             description("Failed to parse contents of /etc/resolv.conf")
         }
 
         ReadResolvConf {
             description("Failed to read /etc/resolv.conf")
+        }
+
+        RestoreResolvConf {
+            description("Failed to restore /etc/resolv.conf from backup")
         }
 
         WatchResolvConf {
@@ -36,25 +46,44 @@ error_chain!{
 
 pub struct DnsSettings {
     state: Arc<Mutex<Option<State>>>,
+    state_writer: Arc<SystemStateWriter>,
     _watcher: DnsWatcher,
 }
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
         let state = Arc::new(Mutex::new(None));
-        let watcher = DnsWatcher::start(state.clone())?;
+        let state_writer = Arc::new(SystemStateWriter::new(RESOLV_CONF_BACKUP_PATH));
+        let watcher = DnsWatcher::start(state.clone(), state_writer.clone())?;
 
         Ok(DnsSettings {
             state,
+            state_writer,
             _watcher: watcher,
         })
+    }
+
+    pub fn restore_system_backup(&self) -> Result<bool> {
+        let backup = self
+            .state_writer
+            .consume_state_backup()
+            .chain_err(|| ErrorKind::RestoreResolvConf)?;
+
+        if let Some(backup) = backup {
+            info!("Restoring DNS state from backup");
+            fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         let mut state = self.lock_state();
         let new_state = match state.take() {
             None => State {
-                backup: read_config()?,
+                backup: backup_config(&self.state_writer)?,
                 desired_dns: servers,
             },
             Some(previous_state) => State {
@@ -72,10 +101,12 @@ impl DnsSettings {
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.lock_state().take() {
-            write_config(&state.backup)
-        } else {
-            Ok(())
+            if !self.restore_system_backup()? {
+                write_config(&state.backup)?;
+            }
         }
+
+        Ok(())
     }
 
     fn lock_state(&self) -> MutexGuard<Option<State>> {
@@ -109,7 +140,10 @@ struct DnsWatcher {
 }
 
 impl DnsWatcher {
-    fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
+    fn start(
+        state: Arc<Mutex<Option<State>>>,
+        state_writer: Arc<SystemStateWriter>,
+    ) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::channel();
         let mut watcher = notify::raw_watcher(event_tx).chain_err(|| ErrorKind::WatchResolvConf)?;
 
@@ -117,18 +151,22 @@ impl DnsWatcher {
             .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
             .chain_err(|| ErrorKind::WatchResolvConf)?;
 
-        thread::spawn(move || Self::event_loop(event_rx, state));
+        thread::spawn(move || Self::event_loop(event_rx, state, state_writer));
 
         Ok(DnsWatcher { _watcher: watcher })
     }
 
-    fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: Arc<Mutex<Option<State>>>) {
+    fn event_loop(
+        events: mpsc::Receiver<notify::RawEvent>,
+        state: Arc<Mutex<Option<State>>>,
+        state_writer: Arc<SystemStateWriter>,
+    ) {
         for _ in events {
             let locked_state = state
                 .lock()
                 .expect("a thread panicked while using the DNS configuration state");
 
-            if let Err(error) = Self::update(locked_state) {
+            if let Err(error) = Self::update(locked_state, &state_writer) {
                 let chained_error = error
                     .chain_err(|| "Failed to update DNS state after DNS settings have changed.");
                 error!("{}", chained_error.display_chain());
@@ -136,7 +174,10 @@ impl DnsWatcher {
         }
     }
 
-    fn update(mut locked_state: MutexGuard<Option<State>>) -> Result<()> {
+    fn update(
+        mut locked_state: MutexGuard<Option<State>>,
+        state_writer: &SystemStateWriter,
+    ) -> Result<()> {
         if let &mut Some(ref mut state) = locked_state.deref_mut() {
             let mut new_config = read_config()?;
             let desired_nameservers = state
@@ -155,7 +196,9 @@ impl DnsWatcher {
                 new_config.nameservers.append(&mut state.backup.nameservers);
                 state.backup = new_config;
 
-                Ok(())
+                state_writer
+                    .write_backup(state.backup.to_string().as_bytes())
+                    .chain_err(|| ErrorKind::BackupResolvConf)
             }
         } else {
             Ok(())
@@ -173,4 +216,16 @@ fn read_config() -> Result<Config> {
 fn write_config(config: &Config) -> Result<()> {
     fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
         .chain_err(|| ErrorKind::WriteResolvConf)
+}
+
+fn backup_config(state_writer: &SystemStateWriter) -> Result<Config> {
+    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+
+    state_writer
+        .write_backup(contents.as_bytes())
+        .chain_err(|| ErrorKind::BackupResolvConf)?;
+
+    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
+
+    Ok(config)
 }
