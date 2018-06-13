@@ -1,7 +1,6 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { BackendError } from '../../lib/backend';
 import type { AccountToken } from '../../lib/ipc-facade';
 
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
@@ -10,7 +9,7 @@ export type AccountReduxState = {
   accountHistory: Array<AccountToken>,
   expiry: ?string, // ISO8601
   status: LoginState,
-  error: ?BackendError,
+  error: ?Error,
 };
 
 const initialState: AccountReduxState = {
