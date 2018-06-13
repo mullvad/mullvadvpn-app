@@ -12,9 +12,7 @@ export type PreferencesProps = {
   onClose: () => void,
 };
 
-export default class Preferences extends Component {
-  props: PreferencesProps;
-
+export default class Preferences extends Component<PreferencesProps> {
   render() {
     return (
       <Layout>

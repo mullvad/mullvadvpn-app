@@ -7,8 +7,7 @@ import type { HeaderBarProps } from './HeaderBar';
 
 import styles from './LayoutStyles';
 
-export class Header extends Component {
-  props: HeaderBarProps;
+export class Header extends Component<HeaderBarProps> {
   static defaultProps = HeaderBar.defaultProps;
 
   render() {
@@ -20,21 +19,19 @@ export class Header extends Component {
   }
 }
 
-export class Container extends Component {
-  props: {
-    children: React.Node,
-  };
-
+type ContainerProps = {
+  children: React.Node,
+};
+export class Container extends Component<ContainerProps> {
   render() {
     return <View style={styles.container}>{this.props.children}</View>;
   }
 }
 
-export class Layout extends Component {
-  props: {
-    children: Array<React.Node> | React.Node,
-  };
-
+type LayoutProps = {
+  children: Array<React.Node> | React.Node,
+};
+export class Layout extends Component<LayoutProps> {
   render() {
     return <View style={styles.layout}>{this.props.children}</View>;
   }

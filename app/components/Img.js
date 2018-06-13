@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { View, Component, Types } from 'reactxp';
 
-type ImgProps = {
+type Props = {
   source: string,
   tintColor?: string,
   hoverStyle?: Types.ViewStyle,
@@ -11,7 +11,7 @@ type ImgProps = {
 
 type State = { hovered: boolean };
 
-export default class Img extends Component<ImgProps, State> {
+export default class Img extends Component<Props, State> {
   state = { hovered: false };
 
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);

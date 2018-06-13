@@ -15,9 +15,8 @@ export type HeaderBarProps = {
   onSettings: ?() => void,
 };
 
-export default class HeaderBar extends Component {
-  props: HeaderBarProps;
-  static defaultProps: $Shape<HeaderBarProps> = {
+export default class HeaderBar extends Component<HeaderBarProps> {
+  static defaultProps: HeaderBarProps = {
     style: 'default',
     hidden: false,
     showSettings: false,

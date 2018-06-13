@@ -8,14 +8,14 @@ import CustomScrollbars from './CustomScrollbars';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
-export class AdvancedSettings extends Component {
-  props: {
-    protocol: string,
-    port: string | number,
-    onUpdate: (protocol: string, port: string | number) => void,
-    onClose: () => void,
-  };
+type AdvancedSettingsProps = {
+  protocol: string,
+  port: string | number,
+  onUpdate: (protocol: string, port: string | number) => void,
+  onClose: () => void,
+};
 
+export class AdvancedSettings extends Component<AdvancedSettingsProps> {
   render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
@@ -64,14 +64,18 @@ export class AdvancedSettings extends Component {
   }
 }
 
-class Selector extends Component {
-  props: {
-    title: string,
-    values: Array<*>,
-    value: *,
-    onSelect: (*) => void,
-  };
+type SelectorProps<T> = {
+  title: string,
+  values: Array<T>,
+  value: T,
+  onSelect: (T) => void,
+};
 
+type SelectorState = {
+  hoveredButtonIndex: number,
+};
+
+class Selector extends Component<SelectorProps<*>, SelectorState> {
   state = { hoveredButtonIndex: -1 };
 
   handleButtonHover = (value) => {
