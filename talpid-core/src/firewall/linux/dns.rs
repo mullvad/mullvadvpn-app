@@ -51,6 +51,8 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
+        restore_backup_file()?;
+
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
 
@@ -82,16 +84,12 @@ impl DnsSettings {
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.lock_state().take() {
-            let backup_path = Path::new(RESOLV_CONF_BACKUP_PATH);
-
-            if backup_path.exists() {
-                fs::rename(backup_path, RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)
-            } else {
-                write_config(&state.backup)
+            if !restore_backup_file()? {
+                write_config(&state.backup)?;
             }
-        } else {
-            Ok(())
         }
+
+        Ok(())
     }
 
     fn lock_state(&self) -> MutexGuard<Option<State>> {
@@ -208,4 +206,17 @@ fn write_config(config: &Config) -> Result<()> {
 fn write_config_to<P: AsRef<Path>>(config: &Config, resolv_conf_path: P) -> Result<()> {
     fs::write(resolv_conf_path, config.to_string().as_bytes())
         .chain_err(|| ErrorKind::WriteResolvConf)
+}
+
+fn restore_backup_file() -> Result<bool> {
+    let backup_path = Path::new(RESOLV_CONF_BACKUP_PATH);
+
+    if backup_path.exists() {
+        info!("Restoring DNS state from backup");
+        fs::rename(backup_path, RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)?;
+        Ok(true)
+    } else {
+        debug!("No DNS state backup to restore");
+        Ok(false)
+    }
 }
