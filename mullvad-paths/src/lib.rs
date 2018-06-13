@@ -1,13 +1,15 @@
+#[cfg(any(windows, target_os = "macos"))]
+extern crate app_dirs;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
 
+use std::path::PathBuf;
 
 #[cfg(any(windows, target_os = "macos"))]
 mod metadata {
-    extern crate app_dirs;
-    use self::app_dirs::AppInfo;
+    use app_dirs::AppInfo;
 
     pub const PRODUCT_NAME: &str = "Mullvad VPN";
 
@@ -20,9 +22,15 @@ mod metadata {
 
 error_chain! {
     errors {
-        CreateDirFailed { description("Failed to create directory") }
+        CreateDirFailed(path: PathBuf) {
+            description("Failed to create directory")
+            display("Failed to create directory {}", path.display())
+        }
         #[cfg(windows)]
         NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
+    }
+    foreign_links {
+        AppDirs(app_dirs::AppDirsError) #[cfg(any(windows, target_os = "macos"))];
     }
 }
 

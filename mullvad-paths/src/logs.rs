@@ -8,7 +8,7 @@ use std::path::PathBuf;
 /// one if that variable is unset.
 pub fn log_dir() -> Result<PathBuf> {
     let dir = get_log_dir()?;
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed)?;
+    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
     Ok(dir)
 }
 
