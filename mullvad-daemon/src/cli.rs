@@ -1,8 +1,6 @@
 use clap::{App, Arg};
 use log;
 
-use std::path::PathBuf;
-
 use version;
 
 pub struct Config {
