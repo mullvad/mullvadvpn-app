@@ -87,7 +87,7 @@ impl Settings {
     }
 
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = ::mullvad_paths::get_settings_dir().chain_err(|| ErrorKind::DirectoryError)?;
+        let dir = ::mullvad_paths::settings_dir().chain_err(|| ErrorKind::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
 

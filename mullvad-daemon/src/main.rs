@@ -892,7 +892,7 @@ fn run_standalone(config: cli::Config) -> Result<()> {
         None
     };
     let resource_dir = mullvad_paths::get_resource_dir();
-    let cache_dir = mullvad_paths::get_cache_dir().chain_err(|| "Unable to get cache dir")?;
+    let cache_dir = mullvad_paths::cache_dir().chain_err(|| "Unable to get cache dir")?;
 
     let daemon =
         Daemon::new(log_dir, resource_dir, cache_dir).chain_err(|| "Unable to initialize daemon")?;

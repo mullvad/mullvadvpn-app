@@ -23,7 +23,7 @@ error_chain! {
 }
 
 mod cache;
-pub use cache::get_cache_dir;
+pub use cache::cache_dir;
 
 mod logs;
 pub use logs::{get_log_dir, log_dir};
@@ -35,4 +35,4 @@ mod rpc_address;
 pub use rpc_address::get_rpc_address_path;
 
 mod settings;
-pub use settings::get_settings_dir;
+pub use settings::settings_dir;
