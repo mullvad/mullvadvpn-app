@@ -6,19 +6,24 @@ extern crate error_chain;
 extern crate log;
 
 
-#[cfg(windows)]
-const PRODUCT_NAME: &str = "Mullvad VPN";
+#[cfg(any(windows, target_os = "macos"))]
+mod metadata {
+    use app_dirs::AppInfo;
 
-#[cfg(windows)]
-const APP_INFO: AppInfo = app_dirs::AppInfo {
-    name: PRODUCT_NAME,
-    author: "Mullvad",
-};
+    pub const PRODUCT_NAME: &str = "Mullvad VPN";
+
+    pub const APP_INFO: AppInfo = AppInfo {
+        name: PRODUCT_NAME,
+        author: "Mullvad",
+    };
+}
+
 
 error_chain! {
     errors {
         CreateDirFailed { description("Failed to create directory") }
-        #[cfg(windows)] NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
+        #[cfg(windows)]
+        NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
     }
 }
 
