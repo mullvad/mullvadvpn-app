@@ -1,10 +1,15 @@
 use openvpn_plugin;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use talpid_ipc::{IpcServerId, WsIpcClient};
+use talpid_ipc::WsIpcClient;
+
+use super::Arguments;
 
 error_chain! {
     errors {
+        AuthDenied {
+            description("Authentication failed with Talpid Core IPC server")
+        }
         IpcSendingError {
             description("Failed while sending an event over the IPC channel")
         }
@@ -18,10 +23,18 @@ pub struct EventProcessor {
 }
 
 impl EventProcessor {
-    pub fn new(server_id: &IpcServerId) -> Result<EventProcessor> {
+    pub fn new(arguments: &Arguments) -> Result<EventProcessor> {
         trace!("Creating EventProcessor");
-        let ipc_client =
-            WsIpcClient::connect(server_id).chain_err(|| "Unable to create IPC client")?;
+        let mut ipc_client =
+            WsIpcClient::connect(&arguments.server_id).chain_err(|| "Unable to create IPC client")?;
+
+        trace!("Authenticating EventProcessor");
+        match ipc_client.call("authenticate", &[&arguments.credentials]) {
+            Ok(true) => trace!("Credentials accepted"),
+            Ok(false) => bail!(ErrorKind::AuthDenied),
+            Err(error) => bail!(Error::with_chain(error, ErrorKind::AuthDenied)),
+        }
+
         Ok(EventProcessor {
             ipc_client: Mutex::new(ipc_client),
         })

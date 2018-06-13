@@ -57,6 +57,11 @@ openvpn_plugin!(
     ::EventProcessor
 );
 
+pub struct Arguments {
+    server_id: talpid_ipc::IpcServerId,
+    credentials: String,
+}
+
 fn openvpn_open(
     args: Vec<CString>,
     _env: HashMap<CString, CString>,
@@ -64,22 +69,30 @@ fn openvpn_open(
     env_logger::init();
     debug!("Initializing plugin");
 
-    let core_server_id = parse_args(&args)?;
-    info!("Connecting back to talpid core at {}", core_server_id);
-    let processor = EventProcessor::new(&core_server_id).chain_err(|| ErrorKind::InitHandleFailed)?;
+    let arguments = parse_args(&args)?;
+    info!("Connecting back to talpid core at {}", arguments.server_id);
+    let processor = EventProcessor::new(&arguments).chain_err(|| ErrorKind::InitHandleFailed)?;
 
     Ok((INTERESTING_EVENTS.to_vec(), processor))
 }
 
-fn parse_args(args: &[CString]) -> Result<talpid_ipc::IpcServerId> {
+fn parse_args(args: &[CString]) -> Result<Arguments> {
     let mut args_iter = openvpn_plugin::ffi::parse::string_array_utf8(args)
         .chain_err(|| ErrorKind::ParseArgsFailed)?
         .into_iter();
+
     let _plugin_path = args_iter.next();
-    let core_server_id: talpid_ipc::IpcServerId = args_iter
+    let server_id: talpid_ipc::IpcServerId = args_iter
         .next()
         .ok_or_else(|| ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
-    Ok(core_server_id)
+    let credentials = args_iter
+        .next()
+        .ok_or_else(|| ErrorKind::Msg("No IPC credentials given as second argument".to_owned()))?;
+
+    Ok(Arguments {
+        server_id,
+        credentials,
+    })
 }
 
 

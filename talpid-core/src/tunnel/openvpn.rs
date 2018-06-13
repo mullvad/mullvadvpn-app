@@ -12,6 +12,7 @@ use std::thread;
 use std::time::Duration;
 
 use talpid_ipc;
+use uuid;
 
 mod errors {
     error_chain!{
@@ -59,10 +60,14 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
         P: AsRef<Path>,
     {
-        let event_dispatcher =
-            event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
+        let credentials = uuid::Uuid::new_v4().to_string();
+        let event_dispatcher = event_server::start(credentials.clone(), on_event)
+            .chain_err(|| ErrorKind::EventDispatcherError)?;
 
-        cmd.plugin(plugin_path, vec![event_dispatcher.address().to_owned()]);
+        cmd.plugin(
+            plugin_path,
+            vec![event_dispatcher.address().to_owned(), credentials],
+        );
         let child = cmd
             .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
@@ -216,30 +221,41 @@ impl ProcessHandle for OpenVpnProcHandle {
 
 mod event_server {
     use super::OpenVpnPluginEvent;
-    use jsonrpc_core::{Error, IoHandler};
+    use jsonrpc_core::{Compatibility, Error, MetaIoHandler, Metadata};
     use std::collections::HashMap;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
     use talpid_ipc;
 
     /// Construct and start the IPC server with the given event listener callback.
-    pub fn start<L>(on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
+    pub fn start<L>(credentials: String, on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
-        let rpc = OpenVpnEventApiImpl { on_event };
-        let mut io = IoHandler::new();
+        let rpc = OpenVpnEventApiImpl {
+            credentials,
+            on_event,
+        };
+        let mut io = MetaIoHandler::with_compatibility(Compatibility::V2);
         io.extend_with(rpc.to_delegate());
         talpid_ipc::IpcServer::start(io.into())
     }
 
     build_rpc_trait! {
         pub trait OpenVpnEventApi {
-            #[rpc(name = "openvpn_event")]
-            fn openvpn_event(&self, OpenVpnPluginEvent, HashMap<String, String>)
+            type Metadata;
+
+            #[rpc(meta, name = "authenticate")]
+            fn authenticate(&self, Self::Metadata, String) -> Result<bool, Error>;
+
+            #[rpc(meta, name = "openvpn_event")]
+            fn openvpn_event(&self, Self::Metadata, OpenVpnPluginEvent, HashMap<String, String>)
                 -> Result<(), Error>;
         }
     }
 
     struct OpenVpnEventApiImpl<L> {
+        credentials: String,
         on_event: L,
     }
 
@@ -247,16 +263,60 @@ mod event_server {
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
     {
+        type Metadata = Meta;
+
+        fn authenticate(
+            &self,
+            metadata: Self::Metadata,
+            credentials: String,
+        ) -> Result<bool, Error> {
+            if credentials == self.credentials {
+                metadata.authenticated.store(true, Ordering::Relaxed);
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        }
+
         fn openvpn_event(
             &self,
+            metadata: Self::Metadata,
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
             trace!("OpenVPN event {:?}", event);
+            metadata.check_authentication()?;
             (self.on_event)(event, env);
             Ok(())
         }
     }
+
+    #[derive(Clone)]
+    struct Meta {
+        authenticated: Arc<AtomicBool>,
+    }
+
+    impl Default for Meta {
+        fn default() -> Self {
+            Meta {
+                authenticated: Arc::new(AtomicBool::new(false)),
+            }
+        }
+    }
+
+    impl Meta {
+        fn check_authentication(&self) -> Result<(), Error> {
+            if self.authenticated.load(Ordering::Relaxed) {
+                trace!("Authenticated");
+                Ok(())
+            } else {
+                trace!("Not authenticated");
+                Err(Error::invalid_request())
+            }
+        }
+    }
+
+    impl Metadata for Meta {}
 }
 
 
