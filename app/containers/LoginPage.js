@@ -11,7 +11,9 @@ import { openLink } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => state;
+const mapStateToProps = (state: ReduxState) => ({
+  account: state.account,
+});
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   const { login, resetLoginError, updateAccountToken } = bindActionCreators(

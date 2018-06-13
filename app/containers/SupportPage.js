@@ -9,7 +9,9 @@ import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => state;
+const mapStateToProps = (state: ReduxState) => ({
+  account: state.account,
+});
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);

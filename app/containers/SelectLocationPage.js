@@ -10,7 +10,9 @@ import { log } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => state;
+const mapStateToProps = (state: ReduxState) => ({
+  settings: state.settings,
+});
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   const { backend } = props;
