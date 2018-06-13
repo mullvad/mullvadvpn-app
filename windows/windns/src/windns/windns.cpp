@@ -167,15 +167,71 @@ WinDns_Recover(
 	uint32_t dataLength
 )
 {
-	common::serialization::Deserializer d(reinterpret_cast<const uint8_t *>(configData), dataLength);
+	std::vector<InterfaceConfig> configs;
 
-	uint32_t numConfigs;
-	d >> numConfigs;
-
-	for (; numConfigs != 0; --numConfigs)
+	try
 	{
-        nchelpers::RevertDnsServers(InterfaceConfig(d));
+		common::serialization::Deserializer d(reinterpret_cast<const uint8_t *>(configData), dataLength);
+
+		auto numConfigs = d.decode<uint32_t>();
+
+		if (numConfigs > 50)
+		{
+			return false;
+		}
+
+		configs.reserve(numConfigs);
+
+		for (; numConfigs != 0; --numConfigs)
+		{
+			configs.emplace_back(InterfaceConfig(d));
+		}
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != g_ErrorSink)
+		{
+			auto msg = std::string("Failed to deserialize recovery data: ").append(err.what());
+
+			g_ErrorSink(msg.c_str(), g_ErrorContext);
+		}
+
+		return false;
+	}
+	catch (...)
+	{
+		return false;
 	}
 
-	return true;
+	if (configs.empty())
+	{
+		return true;
+	}
+
+	bool success = true;
+
+	for (const auto &config : configs)
+	{
+		try
+		{
+			nchelpers::RevertDnsServers(config);
+		}
+		catch (std::exception &err)
+		{
+			if (nullptr != g_ErrorSink)
+			{
+				auto msg = std::string("Failed to restore interface settings: ").append(err.what());
+
+				g_ErrorSink(msg.c_str(), g_ErrorContext);
+			}
+
+			success = false;
+		}
+		catch (...)
+		{
+			success = false;
+		}
+	}
+
+	return success;
 }
