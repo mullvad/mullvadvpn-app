@@ -2,6 +2,7 @@
 
 import { log } from '../lib/platform';
 import { IpcFacade, RealIpc } from './ipc-facade';
+import { JsonRpcError, TimeOutError } from './jsonrpc-ws-ipc';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
@@ -194,10 +195,7 @@ export class Backend {
   _rpcErrorToBackendError(e) {
     if (e instanceof BackendError) {
       return e;
-    }
-
-    const isJsonRpcError = e.hasOwnProperty('code');
-    if (isJsonRpcError) {
+    } else if (e instanceof JsonRpcError) {
       switch (e.code) {
         case -200: // Account doesn't exist
           return new BackendError('INVALID_ACCOUNT');
@@ -208,9 +206,7 @@ export class Backend {
           // for now.
           return new BackendError('COMMUNICATION_FAILURE');
       }
-    }
-
-    if (e.name === 'TimeOutError') {
+    } else if (e instanceof TimeOutError) {
       return new BackendError('COMMUNICATION_FAILURE');
     }
 
