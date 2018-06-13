@@ -63,10 +63,6 @@ error_chain! {
             description("Failed to start RPC client")
             display("Failed to start RPC client to {}", address)
         }
-
-        UnknownRpcFilePath {
-            description("Failed to determine RPC connection information file path")
-        }
     }
     links {
         UnknownRpcAddressPath(mullvad_paths::Error, mullvad_paths::ErrorKind);
