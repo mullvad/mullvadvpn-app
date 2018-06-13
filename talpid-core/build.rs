@@ -8,9 +8,7 @@ mod win {
     pub static WINROUTE_BUILD_DIR: &'static str = "..\\windows\\winroute\\bin";
 
     pub fn default_windows_build_artifact_dir(build_dir: &str) -> PathBuf {
-    	manifest_dir()
-		.join(build_dir)
-		.join(&target_platform_dir())
+        manifest_dir().join(build_dir).join(&target_platform_dir())
     }
 
     fn target_platform_dir() -> PathBuf {
@@ -76,14 +74,11 @@ fn main() {
         .unwrap_or_else(|| default_windows_build_artifact_dir(WINROUTE_BUILD_DIR));
     println!(
         "cargo:rustc-link-search={}",
-        windns_dir
+        winroute_dir
             .to_str()
             .expect("failed to construct path for winroute include directory")
     );
     println!("cargo:rustc-link-lib=dylib=winroute");
-
-
-
 }
 
 #[cfg(not(windows))]
