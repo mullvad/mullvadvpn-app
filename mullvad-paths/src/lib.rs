@@ -7,6 +7,20 @@ extern crate log;
 
 use std::path::PathBuf;
 
+error_chain! {
+    errors {
+        CreateDirFailed(path: PathBuf) {
+            description("Failed to create directory")
+            display("Failed to create directory {}", path.display())
+        }
+        #[cfg(windows)]
+        NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
+    }
+    foreign_links {
+        AppDirs(app_dirs::AppDirsError) #[cfg(any(windows, target_os = "macos"))];
+    }
+}
+
 #[cfg(any(windows, target_os = "macos"))]
 mod metadata {
     use app_dirs::AppInfo;
@@ -19,18 +33,11 @@ mod metadata {
     };
 }
 
-
-error_chain! {
-    errors {
-        CreateDirFailed(path: PathBuf) {
-            description("Failed to create directory")
-            display("Failed to create directory {}", path.display())
-        }
-        #[cfg(windows)]
-        NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
-    }
-    foreign_links {
-        AppDirs(app_dirs::AppDirsError) #[cfg(any(windows, target_os = "macos"))];
+#[cfg(windows)]
+fn get_program_data_dir() -> Result<PathBuf> {
+    match ::std::env::var_os("ALLUSERSPROFILE") {
+        Some(dir) => Ok(dir.as_ref().join(::metadata::PRODUCT_NAME)),
+        None => bail!(ErrorKind::NoProgramDataDir),
     }
 }
 

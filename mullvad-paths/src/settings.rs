@@ -28,6 +28,6 @@ fn get_default_settings_dir() -> Result<PathBuf> {
 fn get_default_settings_dir() -> Result<PathBuf> {
     Ok(::app_dirs::get_app_root(
         ::app_dirs::AppDataType::UserConfig,
-        &::metadataAPP_INFO,
+        &::metadata::APP_INFO,
     )?)
 }
