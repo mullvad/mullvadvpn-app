@@ -3,6 +3,7 @@ set -eu
 # List of solutions to build
 WINFW_SOLUTIONS=${WINFW_SOLUTIONS:-"winfw"}
 WINDNS_SOLUTIONS=${WINDNS_SOLUTIONS:-"windns"}
+WINROUTE_SOLUTIONS=${WINROUTE_SOLUTIONS:-"winroute"}
 
 # Override this variable to set your own list of build configurations for
 # wfpctl
@@ -120,9 +121,11 @@ function main
 
   local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
   local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
+  local winroute_root_path=${CPP_ROOT_PATH:-"./windows/winroute"}
 
   build_project "$winfw_root_path/winfw.sln" "$WINFW_SOLUTIONS"
   build_project "$windns_root_path/windns.sln" "$WINDNS_SOLUTIONS"
+  build_project "$winroute_root_path/winroute.sln" "$WINROUTE_SOLUTIONS"
 }
 
 main
