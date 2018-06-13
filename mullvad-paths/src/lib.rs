@@ -35,8 +35,9 @@ mod metadata {
 
 #[cfg(windows)]
 fn get_program_data_dir() -> Result<PathBuf> {
+    use std::path::Path;
     match ::std::env::var_os("ALLUSERSPROFILE") {
-        Some(dir) => Ok(dir.as_ref().join(::metadata::PRODUCT_NAME)),
+        Some(dir) => Ok(Path::new(&dir).join(::metadata::PRODUCT_NAME)),
         None => bail!(ErrorKind::NoProgramDataDir),
     }
 }
