@@ -8,7 +8,7 @@ use std::path::PathBuf;
 /// one if that variable is unset.
 pub fn settings_dir() -> Result<PathBuf> {
     let dir = get_settings_dir()?;
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed)?;
+    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
     Ok(dir)
 }
 
@@ -26,6 +26,8 @@ fn get_default_settings_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 fn get_default_settings_dir() -> Result<PathBuf> {
-    ::app_dirs::get_app_root(::app_dirs::AppDataType::UserConfig, &::metadataAPP_INFO)
-        .chain_err(|| ErrorKind::CreateDirFailed)
+    Ok(::app_dirs::get_app_root(
+        ::app_dirs::AppDataType::UserConfig,
+        &::metadata::APP_INFO,
+    )?)
 }

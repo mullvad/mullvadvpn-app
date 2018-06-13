@@ -8,7 +8,7 @@ use std::path::PathBuf;
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
     let dir = get_cache_dir()?;
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed)?;
+    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
     Ok(dir)
 }
 
@@ -21,15 +21,13 @@ fn get_cache_dir() -> Result<PathBuf> {
 
 #[cfg(target_os = "linux")]
 fn get_default_cache_dir() -> Result<PathBuf> {
-    use std::fs;
-
-    let dir = PathBuf::from("/var/cache/mullvad-daemon");
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed)?;
-    Ok(dir)
+    Ok(PathBuf::from("/var/cache/mullvad-daemon"))
 }
 
 #[cfg(any(target_os = "macos", windows))]
 fn get_default_cache_dir() -> Result<PathBuf> {
-    ::app_dirs::get_app_root(::app_dirs::AppDataType::UserCache, &::metadata::APP_INFO)
-        .chain_err(|| ErrorKind::CreateDirFailed)
+    Ok(::app_dirs::get_app_root(
+        ::app_dirs::AppDataType::UserCache,
+        &::metadata::APP_INFO,
+    )?)
 }

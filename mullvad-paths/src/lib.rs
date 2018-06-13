@@ -5,6 +5,7 @@ extern crate error_chain;
 #[macro_use]
 extern crate log;
 
+use std::path::PathBuf;
 
 #[cfg(any(windows, target_os = "macos"))]
 mod metadata {
@@ -21,9 +22,15 @@ mod metadata {
 
 error_chain! {
     errors {
-        CreateDirFailed { description("Failed to create directory") }
+        CreateDirFailed(path: PathBuf) {
+            description("Failed to create directory")
+            display("Failed to create directory {}", path.display())
+        }
         #[cfg(windows)]
         NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
+    }
+    foreign_links {
+        AppDirs(app_dirs::AppDirsError) #[cfg(any(windows, target_os = "macos"))];
     }
 }
 
