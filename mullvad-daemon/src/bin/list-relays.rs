@@ -9,6 +9,7 @@
 #[macro_use]
 extern crate error_chain;
 
+extern crate mullvad_paths;
 extern crate mullvad_rpc;
 extern crate serde_json;
 
@@ -17,7 +18,8 @@ error_chain!{}
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
+    let ca_path = mullvad_paths::resources::get_api_ca_path();
+    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
     let rpc_http_handle = rpc_manager
         .new_connection()
         .chain_err(|| "Unable to connect RPC")?;

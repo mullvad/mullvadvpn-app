@@ -219,7 +219,9 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
     );
     let metadata = collect_metadata();
 
-    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new();
+    let ca_path = mullvad_paths::resources::get_api_ca_path();
+
+    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
     let rpc_http_handle = rpc_manager
         .new_connection()
         .chain_err(|| ErrorKind::RpcError)?;
