@@ -886,16 +886,7 @@ fn run_standalone(config: cli::Config) -> Result<()> {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
-    let log_dir = if config.log_to_file {
-        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
-    } else {
-        None
-    };
-    let resource_dir = mullvad_paths::get_resource_dir();
-    let cache_dir = mullvad_paths::cache_dir().chain_err(|| "Unable to get cache dir")?;
-
-    let daemon =
-        Daemon::new(log_dir, resource_dir, cache_dir).chain_err(|| "Unable to initialize daemon")?;
+    let daemon = create_daemon(config)?;
 
     let shutdown_handle = daemon.shutdown_handle();
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
@@ -906,6 +897,18 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     info!("Mullvad daemon is quitting");
     thread::sleep(Duration::from_millis(500));
     Ok(())
+}
+
+fn create_daemon(config: cli::Config) -> Result<Daemon> {
+    let log_dir = if config.log_to_file {
+        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
+    } else {
+        None
+    };
+    let resource_dir = mullvad_paths::get_resource_dir();
+    let cache_dir = mullvad_paths::cache_dir().chain_err(|| "Unable to get cache dir")?;
+
+    Daemon::new(log_dir, resource_dir, cache_dir).chain_err(|| "Unable to initialize daemon")
 }
 
 fn log_version() {
