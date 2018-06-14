@@ -46,7 +46,7 @@ install:
   - set PATH=%PATH%;C:\Users\appveyor\.rustup\toolchains\%RUST_VERSION%-%TARGET%\bin
   - set OPENSSL_STATIC="1"
   - set OPENSSL_LIB_DIR=%APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows
-  - set OPENSSL_INCLUDE_DIR=%APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\openssl\include
+  - set OPENSSL_INCLUDE_DIR=%APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows
   - rustc -Vv
   - rustc --print cfg
   - cargo -V
