@@ -3,9 +3,7 @@
 import { expect } from 'chai';
 import React from 'react';
 import { shallow } from 'enzyme';
-require('../setup/enzyme');
 import Account from '../../app/components/Account';
-
 import type { AccountProps } from '../../app/components/Account';
 
 describe('components/Account', () => {

@@ -5,8 +5,6 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import Preferences from '../../app/components/Preferences';
 
-require('../setup/enzyme');
-
 describe('components/Preferences', () => {
   it('Should call close handler', (done) => {
     const props = makeProps({ onClose: done });

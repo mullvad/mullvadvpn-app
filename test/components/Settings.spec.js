@@ -3,9 +3,7 @@
 import { expect } from 'chai';
 import React from 'react';
 import Settings from '../../app/components/Settings';
-
 import { shallow } from 'enzyme';
-require('../setup/enzyme');
 
 import type { AccountReduxState } from '../../app/redux/account/reducers';
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';

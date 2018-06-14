@@ -5,8 +5,6 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import HeaderBar from '../../app/components/HeaderBar';
 
-require('../setup/enzyme');
-
 describe('components/HeaderBar', () => {
   it('should display headerbar', () => {
     const component = render({
