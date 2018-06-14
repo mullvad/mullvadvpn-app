@@ -17,11 +17,11 @@ describe('Logging in', () => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('getAccountData').withInputValidation((an) => {
+    chain.expect('getAccountData').withInputValidation((an) => {
       expect(an).to.equal('123');
     });
 
-    chain.require('setAccount').withInputValidation((an) => {
+    chain.expect('setAccount').withInputValidation((an) => {
       expect(an).to.equal('123');
     });
 

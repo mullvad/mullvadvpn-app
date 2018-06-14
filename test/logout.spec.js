@@ -16,10 +16,10 @@ describe('logging out', () => {
     const { mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain.require('setAccount').withInputValidation((num) => {
+    chain.expect('setAccount').withInputValidation((num) => {
       expect(num).to.be.null;
     });
-    chain.require('disconnect');
+    chain.expect('disconnect');
     chain.onSuccessOrFailure(done);
 
     backend.logout();
