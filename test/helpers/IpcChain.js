@@ -17,7 +17,7 @@ export class IpcChain {
     this._aborted = false;
   }
 
-  require<R>(ipcCall: string): StepBuilder<R> {
+  expect<R>(ipcCall: string): StepBuilder<R> {
     const builder = new StepBuilder(ipcCall);
     this._expectedCalls.push(ipcCall);
     this._addStep(builder);
