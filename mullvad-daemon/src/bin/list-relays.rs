@@ -18,7 +18,7 @@ error_chain!{}
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let ca_path = mullvad_paths::get_resource_dir().join("api_root_ca.pem");
+    let ca_path = mullvad_paths::resources::get_api_ca_path();
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
     let rpc_http_handle = rpc_manager
         .new_connection()
