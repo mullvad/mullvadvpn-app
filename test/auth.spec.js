@@ -19,14 +19,11 @@ describe('authentication', () => {
     };
 
     const chain = new IpcChain(mockIpc);
-    chain
-      .require('authenticate')
-      .withInputValidation((secret) => {
-        expect(secret).to.equal(credentials.sharedSecret);
-      })
-      .done();
+    chain.require('authenticate').withInputValidation((secret) => {
+      expect(secret).to.equal(credentials.sharedSecret);
+    });
 
-    chain.require('connect').done();
+    chain.require('connect');
 
     chain.onSuccessOrFailure(done);
 
