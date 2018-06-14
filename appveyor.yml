@@ -44,6 +44,9 @@ install:
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   # TMP fix for https://github.com/rust-lang-nursery/rustup.rs/issues/893:
   - set PATH=%PATH%;C:\Users\appveyor\.rustup\toolchains\%RUST_VERSION%-%TARGET%\bin
+  - set OPENSSL_STATIC="1"
+  - set OPENSSL_LIB_DIR=%APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows
+  - set OPENSSL_INCLUDE_DIR=%APPVEYOR_BUILD_FOLDER%dist-assets\binaries\openssl\include
   - rustc -Vv
   - rustc --print cfg
   - cargo -V
@@ -52,12 +55,8 @@ install:
 # This is the "test phase", tweak it as you see fit
 test_script:
   - bash -x build_winfw.sh
-  - ps: >-
-      $Env:OPENSSL_STATIC = "1"
-      $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows
-      $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\openssl\include
-      cargo build
-      cargo test
+  - cargo build
+  - cargo test
 
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
