@@ -78,8 +78,8 @@ export function newMockIpc() {
     },
 
     sendNewState: (state: BackendState) => {
-      for (const l of stateListeners) {
-        l(state);
+      for (const listener of stateListeners) {
+        listener(state);
       }
     },
 
@@ -94,8 +94,8 @@ export function newMockIpc() {
     removeAccountFromHistory: (_accountToken) => Promise.resolve(),
 
     killWebSocket: () => {
-      for (const l of connectionCloseListeners) {
-        l();
+      for (const listener of connectionCloseListeners) {
+        listener();
       }
     },
   };
