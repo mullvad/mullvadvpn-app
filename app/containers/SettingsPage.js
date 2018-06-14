@@ -11,12 +11,11 @@ import { openLink, exit } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => {
-  return {
-    ...state,
-    version: version,
-  };
-};
+const mapStateToProps = (state: ReduxState) => ({
+  account: state.account,
+  settings: state.settings,
+  version: version,
+});
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   return {
