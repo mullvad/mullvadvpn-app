@@ -48,7 +48,7 @@ pub use cache::cache_dir;
 mod logs;
 pub use logs::{get_log_dir, log_dir};
 
-mod resources;
+pub mod resources;
 pub use resources::get_resource_dir;
 
 mod rpc_address;

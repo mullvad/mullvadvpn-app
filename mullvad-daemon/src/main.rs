@@ -220,7 +220,7 @@ impl Daemon {
             !rpc_uniqueness_check::is_another_instance_running(),
             ErrorKind::DaemonIsAlreadyRunning
         );
-        let ca_path = resource_dir.join("api_root_ca.pem");
+        let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
 
