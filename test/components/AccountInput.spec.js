@@ -3,9 +3,7 @@ import { expect } from 'chai';
 import { createKeyEvent } from '../helpers/dom-events';
 import * as React from 'react';
 import { shallow } from 'enzyme';
-require('../setup/enzyme');
 import AccountInput from '../../app/components/AccountInput';
-
 import type { AccountInputProps } from '../../app/components/AccountInput';
 
 describe('components/AccountInput', () => {

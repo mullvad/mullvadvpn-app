@@ -24,7 +24,7 @@ describe('components/Login', () => {
     accountInput.simulate('change', 'foo');
     expect(onFirstChange.calledOnce).to.be.true;
 
-    onFirstChange.reset();
+    onFirstChange.resetHistory();
 
     accountInput.simulate('change', 'bar');
     expect(onFirstChange.calledOnce).to.be.false;

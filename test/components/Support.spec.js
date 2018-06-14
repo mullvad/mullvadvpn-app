@@ -4,9 +4,7 @@ import { expect } from 'chai';
 import React from 'react';
 import Support from '../../app/components/Support';
 import { shallow } from 'enzyme';
-require('../setup/enzyme');
 import sinon from 'sinon';
-
 import type { SupportProps } from '../../app/components/Support';
 
 describe('components/Support', () => {

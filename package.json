@@ -62,16 +62,15 @@
     "flow-typed": "^2.4.0",
     "npm-run-all": "^4.0.1",
     "prettier": "1.13.3",
-    "react-test-renderer": "16.0.0",
     "redux-mock-store": "^1.3.0",
     "rimraf": "^2.5.4",
-    "sinon": "^3.2.1"
+    "sinon": "^6.0.0"
   },
   "scripts": {
     "android": "react-native run-android",
     "postinstall": "electron-builder install-app-deps",
     "develop": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
-    "test": "cross-env BABEL_ENV=electron electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js test/*.spec.js test/**/*.spec.js",
+    "test": "cross-env BABEL_ENV=electron electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js --preload test/setup/renderer.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
     "format": "prettier --write 'app/**/*.js' 'test/**/*.js'",
     "check-format": "prettier --list-different 'app/**/*.js' 'test/**/*.js'",
