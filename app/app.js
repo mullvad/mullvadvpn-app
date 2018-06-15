@@ -34,7 +34,7 @@ ipcRenderer.on('backend-info', async (_event, args) => {
     await backend.connect();
   } catch (e) {
     if (e instanceof NoAccountError) {
-      log.debug('No user set in the backend, showing window');
+      log.debug('No previously configured account set, showing window');
       ipcRenderer.send('show-window');
     }
   }
