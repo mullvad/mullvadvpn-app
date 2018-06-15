@@ -195,16 +195,11 @@ export class Backend {
 
   _rpcErrorToBackendError(e) {
     if (e instanceof JsonRpcError) {
-      switch (e.code) {
-        case -200: // Account doesn't exist
-          return new InvalidAccountError();
-        case -32603: // Internal error
-          // We treat all internal backend errors as the user cannot reach
-          // api.mullvad.net. This is not always true of course, but it is
-          // true so often that we choose to disregard the other edge cases
-          // for now.
-          return new CommunicationError();
-      }
+      // We treat all internal backend errors as the user cannot reach
+      // api.mullvad.net. This is not always true of course, but it is
+      // true so often that we choose to disregard the other edge cases
+      // for now.
+      return new CommunicationError();
     } else if (e instanceof TimeOutError) {
       return new CommunicationError();
     } else if (e instanceof NoDaemonError) {
