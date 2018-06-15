@@ -12,18 +12,8 @@ import { log } from './lib/platform';
 import ReconnectionBackoff from './lib/reconnection-backoff';
 import { DaemonRpc } from './lib/daemon-rpc';
 import { setShutdownHandler } from './shutdown-handler';
-import {
-  RemoteError as JsonRpcTransportRemoteError,
-  TimeOutError as JsonRpcTransportTimeOutError,
-} from './lib/jsonrpc-transport';
 
-import {
-  UnknownError,
-  NoAccountError,
-  CommunicationError,
-  InvalidAccountError,
-  NoDaemonError,
-} from './errors';
+import { NoAccountError } from './errors';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -144,7 +134,7 @@ export default class AppRenderer {
     } catch (error) {
       log.error('Failed to log in,', error.message);
 
-      actions.account.loginFailed(this._rpcErrorToBackendError(error));
+      actions.account.loginFailed(error);
     }
   }
 
@@ -534,27 +524,6 @@ export default class AppRenderer {
     }
 
     this._updateTrayIcon(connectionState);
-  }
-
-  _rpcErrorToBackendError(e) {
-    if (e instanceof JsonRpcTransportRemoteError) {
-      switch (e.code) {
-        case -200: // Account doesn't exist
-          return new InvalidAccountError();
-        case -32603: // Internal error
-          // We treat all internal backend errors as the user cannot reach
-          // api.mullvad.net. This is not always true of course, but it is
-          // true so often that we choose to disregard the other edge cases
-          // for now.
-          return new CommunicationError();
-      }
-    } else if (e instanceof JsonRpcTransportTimeOutError) {
-      return new CommunicationError();
-    } else if (e instanceof NoDaemonError) {
-      return e;
-    }
-
-    return new UnknownError(e.message);
   }
 
   async _authenticate(sharedSecret: string) {

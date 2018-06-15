@@ -1,6 +1,11 @@
 // @flow
 
-import JsonRpcTransport from './jsonrpc-transport';
+import JsonRpcTransport, {
+  RemoteError as JsonRpcRemoteError,
+  TimeOutError as JsonRpcTimeOutError,
+} from './jsonrpc-transport';
+import { UnknownError, CommunicationError, InvalidAccountError, NoDaemonError } from '../errors';
+
 import {
   object,
   maybe,
@@ -265,7 +270,23 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getAccountData(accountToken: AccountToken): Promise<AccountData> {
     // send the IPC with 30s timeout since the backend will wait
     // for a HTTP request before replying
-    const response = await this._transport.send('get_account_data', accountToken, 30000);
+    let response;
+    try {
+      response = await this._transport.send('get_account_data', accountToken, 30000);
+    } catch (error) {
+      if (error instanceof JsonRpcRemoteError) {
+        switch (error.code) {
+          case -200: // Account doesn't exist
+            throw new InvalidAccountError();
+          case -32603: // Internal error
+            throw new CommunicationError();
+        }
+      } else if (error instanceof JsonRpcTimeOutError) {
+        throw new NoDaemonError();
+      }
+      throw new UnknownError(error.message);
+    }
+
     try {
       return validate(AccountDataSchema, response);
     } catch (error) {
