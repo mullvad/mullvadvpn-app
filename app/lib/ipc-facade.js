@@ -1,6 +1,7 @@
 // @flow
 
-import JsonRpcWs, { InvalidReply } from './jsonrpc-ws-ipc';
+import JsonRpcWs, { InvalidReply, JsonRpcError } from './jsonrpc-ws-ipc';
+import { CommunicationError, InvalidAccountError, UnknownError } from './backend';
 import {
   object,
   maybe,
@@ -208,17 +209,29 @@ export class RealIpc implements IpcFacade {
     this._ipc.setConnectionString(str);
   }
 
-  getAccountData(accountToken: AccountToken): Promise<AccountData> {
-    // send the IPC with 30s timeout since the backend will wait
-    // for a HTTP request before replying
-
-    return this._ipc.send('get_account_data', accountToken, 30000).then((raw) => {
+  async getAccountData(accountToken: AccountToken): Promise<AccountData> {
+    try {
+      // send the IPC with 30s timeout since the backend will wait
+      // for a HTTP request before replying
+      const raw = await this._ipc.send('get_account_data', accountToken, 30000);
       if (typeof raw === 'object' && raw && raw.expiry) {
-        return raw;
+        return { expiry: String(raw.expiry) };
       } else {
         throw new InvalidReply(raw, 'Expected an object with expiry');
       }
-    });
+    } catch (error) {
+      if (error instanceof JsonRpcError) {
+        switch (error.code) {
+          case -200: // Account doesn't exist
+            throw new InvalidAccountError();
+          case -32603: // Internal error
+            throw new CommunicationError();
+          default:
+            throw new UnknownError(error.message);
+        }
+      }
+      throw error;
+    }
   }
 
   async getRelayLocations(): Promise<RelayList> {
