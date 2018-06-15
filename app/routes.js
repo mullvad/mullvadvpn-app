@@ -21,10 +21,6 @@ export type SharedRouteProps = {
   backend: Backend,
 };
 
-type CustomRouteProps = {
-  component: React.ComponentType<*>,
-};
-
 export default function makeRoutes(
   getState: ReduxGetState,
   componentProps: SharedRouteProps,
@@ -40,7 +36,7 @@ export default function makeRoutes(
 
   // Renders public route
   // example: <PublicRoute path="/" component={ MyComponent } />
-  const PublicRoute = ({ component, ...otherProps }: CustomRouteProps) => {
+  const PublicRoute = ({ component, ...otherProps }) => {
     return (
       // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
@@ -54,7 +50,7 @@ export default function makeRoutes(
 
   // Renders protected route that requires authentication, otherwise redirects to /
   // example: <PrivateRoute path="/protected" component={ MyComponent } />
-  const PrivateRoute = ({ component, ...otherProps }: CustomRouteProps) => {
+  const PrivateRoute = ({ component, ...otherProps }) => {
     return (
       // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
@@ -76,7 +72,7 @@ export default function makeRoutes(
   // Renders login route that is only available to non-authenticated
   // users. Otherwise this route redirects user to /connect.
   // example: <LoginRoute path="/login" component={ MyComponent } />
-  const LoginRoute = ({ component, ...otherProps }: CustomRouteProps) => {
+  const LoginRoute = ({ component, ...otherProps }) => {
     return (
       // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
