@@ -2,6 +2,7 @@
 
 import { log } from '../lib/platform';
 import { IpcFacade, RealIpc } from './ipc-facade';
+import { JsonRpcError, TimeOutError } from './jsonrpc-ws-ipc';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
@@ -11,64 +12,65 @@ import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
 
-export type ErrorType =
-  | 'NO_CREDIT'
-  | 'NO_INTERNET'
-  | 'NO_DAEMON'
-  | 'INVALID_ACCOUNT'
-  | 'NO_ACCOUNT'
-  | 'COMMUNICATION_FAILURE'
-  | 'UNKNOWN_ERROR';
-
-export class BackendError extends Error {
-  type: ErrorType;
-  title: string;
-  message: string;
-  cause: ?Error;
-
-  constructor(type: ErrorType, cause?: Error) {
-    super('');
-    this.type = type;
-    this.title = BackendError.localizedTitle(type);
-    this.message = BackendError.localizedMessage(type, cause);
-    this.cause = cause;
+export class NoCreditError extends Error {
+  constructor() {
+    super("Account doesn't have enough credit available for connection");
   }
 
-  static localizedTitle(type: ErrorType): string {
-    switch (type) {
-      case 'NO_CREDIT':
-        return 'Out of time';
-      case 'NO_INTERNET':
-        return 'Offline';
-      default:
-        return 'Something went wrong';
-    }
+  get userFriendlyTitle(): string {
+    return 'Out of time';
   }
 
-  static localizedMessage(type: ErrorType, cause: ?Error): string {
-    // TODO: since instanceof now works, BackendError can be replaced by a set
-    // of specific error types
-    switch (type) {
-      case 'NO_CREDIT':
-        return 'Buy more time, so you can continue using the internet securely';
-      case 'NO_INTERNET':
-        return 'Your internet connection will be secured when you get back online';
-      case 'INVALID_ACCOUNT':
-        return 'Invalid account number';
-      case 'NO_ACCOUNT':
-        return 'No account was set';
-      case 'NO_DAEMON':
-        return 'Could not connect to the Mullvad daemon';
-      case 'COMMUNICATION_FAILURE':
-        return 'api.mullvad.net is blocked, please check your firewall';
-      case 'UNKNOWN_ERROR': {
-        const message = cause ? ', ' + cause.message : '';
+  get userFriendlyMessage(): string {
+    return 'Buy more time, so you can continue using the internet securely';
+  }
+}
 
-        return 'An unknown error occurred' + message;
-      }
-      default:
-        return '';
-    }
+export class NoInternetError extends Error {
+  constructor() {
+    super('Internet connectivity is currently unavailable');
+  }
+
+  get userFriendlyTitle(): string {
+    return 'Offline';
+  }
+
+  get userFriendlyMessage(): string {
+    return 'Your internet connection will be secured when you get back online';
+  }
+}
+
+export class NoDaemonError extends Error {
+  constructor() {
+    super('Could not connect to Mullvad daemon');
+  }
+}
+
+export class InvalidAccountError extends Error {
+  constructor() {
+    super('Invalid account number');
+  }
+}
+
+export class NoAccountError extends Error {
+  constructor() {
+    super('No account was set');
+  }
+}
+
+export class CommunicationError extends Error {
+  constructor() {
+    super('api.mullvad.net is blocked, please check your firewall');
+  }
+}
+
+export class UnknownError extends Error {
+  constructor(cause: string) {
+    super(`An unknown error occurred, ${cause}`);
+  }
+
+  get userFriendlyTitle(): string {
+    return 'Something went wrong';
   }
 }
 
@@ -186,35 +188,30 @@ export class Backend {
     } catch (e) {
       log.error('Failed to log in,', e.message);
 
-      const err = this._rpcErrorToBackendError(e);
-      this._store.dispatch(accountActions.loginFailed(err));
+      const error = this._rpcErrorToBackendError(e);
+      this._store.dispatch(accountActions.loginFailed(error));
     }
   }
 
   _rpcErrorToBackendError(e) {
-    if (e instanceof BackendError) {
-      return e;
-    }
-
-    const isJsonRpcError = e.hasOwnProperty('code');
-    if (isJsonRpcError) {
+    if (e instanceof JsonRpcError) {
       switch (e.code) {
         case -200: // Account doesn't exist
-          return new BackendError('INVALID_ACCOUNT');
+          return new InvalidAccountError();
         case -32603: // Internal error
           // We treat all internal backend errors as the user cannot reach
           // api.mullvad.net. This is not always true of course, but it is
           // true so often that we choose to disregard the other edge cases
           // for now.
-          return new BackendError('COMMUNICATION_FAILURE');
+          return new CommunicationError();
       }
+    } else if (e instanceof TimeOutError) {
+      return new CommunicationError();
+    } else if (e instanceof NoDaemonError) {
+      return e;
     }
 
-    if (e.name === 'TimeOutError') {
-      return new BackendError('COMMUNICATION_FAILURE');
-    }
-
-    return new BackendError('UNKNOWN_ERROR', e);
+    return new UnknownError(e.message);
   }
 
   async autologin() {
@@ -227,7 +224,7 @@ export class Backend {
 
       const accountToken = await this._ipc.getAccount();
       if (!accountToken) {
-        throw new BackendError('NO_ACCOUNT');
+        throw new NoAccountError();
       }
 
       log.debug('The backend had an account number stored: ', accountToken);
@@ -365,7 +362,7 @@ export class Backend {
 
       const accountToken = await this._ipc.getAccount();
       if (!accountToken) {
-        throw new BackendError('NO_ACCOUNT');
+        throw new NoAccountError();
       }
 
       const accountData = await ipc.getAccountData(accountToken);
@@ -531,7 +528,7 @@ export class Backend {
       }
       return this._authenticationPromise;
     } else {
-      return Promise.reject(new BackendError('NO_DAEMON'));
+      return Promise.reject(new NoDaemonError());
     }
   }
 

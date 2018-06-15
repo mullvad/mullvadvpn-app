@@ -9,7 +9,7 @@ import { TransparentButton, RedTransparentButton, GreenButton, Label } from './s
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
 
-import { BackendError } from '../lib/backend';
+import { NoCreditError, NoInternetError } from '../lib/backend';
 import Map from './Map';
 
 import type { HeaderBarStyle } from './HeaderBar';
@@ -79,15 +79,18 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
     );
   }
 
-  renderError(error: BackendError) {
+  renderError(error: Error) {
+    const title = error.userFriendlyTitle || 'Something went wrong';
+    const message = error.userFriendlyMessage || error.message;
+
     return (
       <View style={styles.connect}>
         <View style={styles.status_icon}>
           <Img source="icon-fail" height={60} width={60} alt="" />
         </View>
         <View style={styles.status}>
-          <View style={styles.error_title}>{error.title}</View>
-          <View style={styles.error_message}>{error.message}</View>
+          <View style={styles.error_title}>{title}</View>
+          <View style={styles.error_message}>{message}</View>
           {error.type === 'NO_CREDIT' ? (
             <View>
               <GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
@@ -339,16 +342,16 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
     return classes;
   }
 
-  displayError(): ?BackendError {
+  displayError(): ?Error {
     // Offline?
     if (!this.props.connection.isOnline) {
-      return new BackendError('NO_INTERNET');
+      return new NoInternetError();
     }
 
     // No credit?
     const expiry = this.props.accountExpiry;
     if (expiry && moment(expiry).isSameOrBefore(moment())) {
-      return new BackendError('NO_CREDIT');
+      return new NoCreditError();
     }
 
     return null;
