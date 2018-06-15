@@ -8,7 +8,7 @@ import { createMemoryHistory } from 'history';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { log } from './lib/platform';
-import { Backend, BackendError } from './lib/backend';
+import { Backend, NoAccountError } from './lib/backend';
 import { DeviceEventEmitter } from 'react-native';
 import { MobileAppBridge } from 'NativeModules';
 import { Dimensions } from 'react-native';
@@ -31,11 +31,9 @@ DeviceEventEmitter.addListener('com.mullvad.backend-info', async (_event, args) 
     await backend.fetchSecurityState();
     await backend.connect();
   } catch (e) {
-    if (e instanceof BackendError) {
-      if (e.type === 'NO_ACCOUNT') {
-        log.debug('No user set in the backend, showing window');
-        MobileAppBridge.showWindow();
-      }
+    if (e instanceof NoAccountError) {
+      log.debug('No user set in the backend, showing window');
+      MobileAppBridge.showWindow();
     }
   }
 });
