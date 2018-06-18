@@ -13,8 +13,8 @@ use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 use super::super::system_state::SystemStateWriter;
 
-static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
-static RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
+const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
 error_chain!{
     errors {
