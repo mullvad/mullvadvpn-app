@@ -56,6 +56,10 @@ impl Firewall for PacketFilter {
             .collect::<Result<Vec<_>>>()
             .map(|_| ())
     }
+
+    fn restore_system_backup(&mut self) -> ::std::result::Result<bool, Self::Error> {
+        Ok(false)
+    }
 }
 
 impl PacketFilter {
