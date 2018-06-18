@@ -6,8 +6,6 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::slice;
 
-const STATE_BACKUP_FILENAME: &str = "system_state_backup";
-
 /// This struct is responsible for saving a binary blob to disk. The binary blob is intended to
 /// store system state that should be resotred when the security policy is reset.
 pub struct SystemStateWriter {
@@ -18,12 +16,10 @@ pub struct SystemStateWriter {
 impl SystemStateWriter {
     /// Creates a new SystemStateWriter which will use a file in the cache directory to store system
     /// state that has to be restored.
-    pub fn new<P: AsRef<Path>>(cache_dir: P) -> Self {
-        let backup_path = cache_dir
-            .as_ref()
-            .join(STATE_BACKUP_FILENAME)
-            .into_boxed_path();
-        Self { backup_path }
+    pub fn new<P: AsRef<Path>>(backup_path: P) -> Self {
+        Self {
+            backup_path: backup_path.as_ref().to_owned().into_boxed_path(),
+        }
     }
 
     /// Writes a binary blob representing the system state to the backup location before any
@@ -66,6 +62,7 @@ impl SystemStateWriter {
 #[cfg(test)]
 mod tests {
     extern crate tempfile;
+
     use super::*;
 
     #[test]
