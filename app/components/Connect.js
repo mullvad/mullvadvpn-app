@@ -63,7 +63,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   render() {
-    const error = this.displayError();
+    const error = this.checkForErrors();
     const child = error ? this.renderError(error) : this.renderMap();
 
     return (
@@ -354,7 +354,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
     return classes;
   }
 
-  displayError(): ?Error {
+  checkForErrors(): ?Error {
     // Offline?
     if (!this.props.connection.isOnline) {
       return new NoInternetError();
