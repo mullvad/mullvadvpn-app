@@ -52,12 +52,12 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIf
 		success = SetIpInterfaceEntry(iface);
 		if (success != NO_ERROR)
 		{
-			std::wstringstream ss;
+			std::stringstream ss;
 			ss << L"Failed to increment metric for interface with LUID "
 				<< &iface->InterfaceLuid.Value
 				<< ": "
 				<< success;
-			throw std::runtime_error(common::string::ToAnsi(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 
 	}
@@ -71,9 +71,9 @@ NetworkInterfaces::NetworkInterfaces()
 	 success = GetIpInterfaceTable(AF_UNSPEC, &mInterfaces);
 	 if (success != NO_ERROR)
 	 {
-		 std::wstringstream ss;
+		 std::stringstream ss;
 		 ss << L"Failed to enumerate network interfaces: " << success;
-		 throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		 throw std::runtime_error(ss.str());
 	 }
 }
 
@@ -84,12 +84,12 @@ bool NetworkInterfaces::SetTopMetricForInterfaceByAlias(const wchar_t * deviceAl
 	success = ConvertInterfaceAliasToLuid(deviceAlias, &targetIfaceLuid);
 	if (success != NO_ERROR)
 	{
-		std::wstringstream ss;
+		std::stringstream ss;
 		ss << L"Failed to convert interface alias '"
 			<< deviceAlias
 			<< "' into LUID: "
 			<< success;
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	return SetTopMetricForInterfaceWithLuid(targetIfaceLuid);
 }
@@ -102,9 +102,9 @@ bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
 	PMIB_IPINTERFACE_ROW targetIface = RowByLuid(targetIfaceId);
 	if (targetIface == nullptr)
 	{
-		std::wstringstream ss;
+		std::stringstream ss;
 		ss << L"No interface with LUID " << targetIfaceId.Value;
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	if (targetIface->Metric == MAX_METRIC)
@@ -121,14 +121,14 @@ bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
 	success = SetIpInterfaceEntry(targetIface);
 	if (success != NO_ERROR)
 	{
-		std::wstringstream ss;
+		std::stringstream ss;
 		ss << L"Failed to set metric " 
 			<< MAX_METRIC
 			<< " for interface with LUID "
 			<< targetIfaceId.Value
 			<< ". Error code - "
 			<< success;
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	EnsureIfaceMetricIsHighest(targetIface);
 	return true;
