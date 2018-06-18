@@ -44,4 +44,8 @@ impl Firewall for Netfilter {
 
         Ok(())
     }
+
+    fn restore_system_backup(&mut self) -> ::std::result::Result<bool, Self::Error> {
+        Ok(false)
+    }
 }
