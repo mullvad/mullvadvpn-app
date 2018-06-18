@@ -10,6 +10,9 @@ use talpid_types::net::Endpoint;
 
 use self::widestring::WideCString;
 
+#[macro_use]
+mod ffi;
+
 error_chain!{
     errors{
         #[doc = "Windows firewall module error"]
