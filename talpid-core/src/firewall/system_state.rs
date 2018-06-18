@@ -3,11 +3,11 @@
 //! reboots
 use std::fs;
 use std::io;
-use std::path::{Path, PathBuf};
-use std::slice;
+use std::path::Path;
 
 /// This struct is responsible for saving a binary blob to disk. The binary blob is intended to
 /// store system state that should be resotred when the security policy is reset.
+#[repr(C)]
 pub struct SystemStateWriter {
     /// Full path to the system state backup file
     pub backup_path: Box<Path>,
