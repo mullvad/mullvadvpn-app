@@ -41,6 +41,9 @@ pub trait Firewall {
     /// Remove firewall rules applied by active SecurityPolicy and
     /// revert firewall to its original state
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
+    /// Restores the system settings from a saved backup, if one exists. Returns a flag indicating
+    /// whether a backup was actually restored.
+    fn restore_system_backup(&mut self) -> ::std::result::Result<bool, Self::Error>;
 }
 
 
