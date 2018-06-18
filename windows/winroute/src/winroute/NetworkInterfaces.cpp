@@ -45,8 +45,10 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIf
 			continue;
 		}
 
-		iface->UseAutomaticMetric = false;
 		iface->Metric++;
+		if (iface->Family == AF_INET) {
+			iface->SitePrefixLength = 0;
+		}
 		success = SetIpInterfaceEntry(iface);
 		if (success != NO_ERROR)
 		{
@@ -106,12 +108,16 @@ bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
 	}
 
 	if (targetIface->Metric == MAX_METRIC)
-	{
+	{	
 		return false;
 	}
 	
-	targetIface->Metric = MAX_METRIC;
 	targetIface->UseAutomaticMetric = false;
+	targetIface->Metric = MAX_METRIC;
+	if (targetIface->Family == AF_INET){
+		targetIface->SitePrefixLength = 0;
+	}
+
 	success = SetIpInterfaceEntry(targetIface);
 	if (success != NO_ERROR)
 	{
