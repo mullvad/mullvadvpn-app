@@ -11,6 +11,7 @@ use std::net::IpAddr;
 use std::os::raw::c_void;
 use std::ptr;
 use std::slice;
+use std::path::Path;
 
 const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
 
@@ -56,10 +57,10 @@ pub struct WinDNS {
 }
 
 impl WinDNS {
-    pub fn new() -> Result<Self> {
+    pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
 
-        let backup_writer = SystemStateWriter::new(cache_dir()?.join(DNS_STATE_FILENAME));
+        let backup_writer = SystemStateWriter::new(cache_dir.join(DNS_STATE_FILENAME));
         let mut dns = WinDNS { backup_writer };
         dns.restore_system_backup()?;
         Ok(dns)

@@ -1,4 +1,5 @@
 use error_chain::ChainedError;
+use std::path::Path;
 
 use super::{Firewall, SecurityPolicy};
 
@@ -20,7 +21,7 @@ pub struct Netfilter {
 impl Firewall for Netfilter {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new<P: AsRef<Path>>(_cache_dir: P) -> Result<Self> {
         Ok(Netfilter {
             dns_settings: DnsSettings::new()?,
         })
