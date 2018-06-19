@@ -60,6 +60,8 @@ error_chain!{
 
 const WFPCTL_TIMEOUT_SECONDS: u32 = 2;
 
+const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
+
 /// The Windows implementation for the `Firewall` trait.
 pub struct WindowsFirewall {
     dns: WinDNS,
@@ -90,7 +92,7 @@ impl Firewall for WindowsFirewall {
             }
         };
 
-        let state_writer = SystemStateWriter::new(cache_dir()?);
+        let state_writer = SystemStateWriter::new(cache_dir()?.join(DNS_STATE_FILENAME));
         let mut firewall = WindowsFirewall {
             dns: windns,
             system_state_writer: state_writer,
