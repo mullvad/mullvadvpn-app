@@ -134,8 +134,10 @@ ffi_error!(RecoveringErr, ErrorKind::Recovery.into());
 pub extern "system" fn write_system_state_backup_cb(
     blob: *const u8,
     length: u32,
-    state_writer: *mut SystemStateWriter,
+    state_writer_ptr: *mut c_void,
 ) -> i32 {
+
+    let state_writer = state_writer_ptr as *mut SystemStateWriter;
     if state_writer.is_null() {
         error!("State writer pointer is null, can't save system state backup");
         return -1;
@@ -163,11 +165,10 @@ pub extern "system" fn write_system_state_backup_cb(
 }
 
 
-#[allow(improper_ctypes)]
 type DNSConfigSink =
-    extern "system" fn(data: *const u8, length: u32, state_writer: *mut SystemStateWriter) -> i32;
+    extern "system" fn(data: *const u8, length: u32, state_writer: *mut c_void) -> i32;
 
-#[allow(non_snake_case, improper_ctypes)]
+#[allow(non_snake_case)]
 extern "system" {
 
     #[link_name(WinDns_Initialize)]
