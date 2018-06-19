@@ -182,10 +182,7 @@ impl WindowsFirewall {
 
 #[allow(non_snake_case)]
 mod winfw {
-
-    use super::ffi;
-    use super::libc;
-    use super::{ErrorKind, Result};
+    use super::{ffi, libc, ErrorKind, Result};
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
@@ -226,11 +223,11 @@ mod winfw {
         }
     }
 
-    ffi_error!(init, ErrorKind::Initialization.into());
-    ffi_error!(deinit, ErrorKind::Deinitialization.into());
-    ffi_error!(apply_connected, ErrorKind::ApplyingConnectedPolicy.into());
-    ffi_error!(apply_connecting, ErrorKind::ApplyingConnectingPolicy.into());
-    ffi_error!(reset_policy, ErrorKind::ResettingPolicy.into());
+    ffi_error!(InitializationErr, ErrorKind::Initialization.into());
+    ffi_error!(DeinitializationErr, ErrorKind::Deinitialization.into());
+    ffi_error!(ApplyConnectedErr, ErrorKind::ApplyingConnectedPolicy.into());
+    ffi_error!(ApplyConnectingErr, ErrorKind::ApplyingConnectingPolicy.into());
+    ffi_error!(ResettingPolicyErr, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
         #[link_name(WinFw_Initialize)]
@@ -238,16 +235,16 @@ mod winfw {
             timeout: libc::c_uint,
             sink: Option<ffi::ErrorSink>,
             sink_context: *mut libc::c_void,
-        ) -> init::FFIResult;
+        ) -> InitializationErr;
 
         #[link_name(WinFw_Deinitialize)]
-        pub fn WinFw_Deinitialize() -> deinit::FFIResult;
+        pub fn WinFw_Deinitialize() -> DeinitializationErr;
 
         #[link_name(WinFw_ApplyPolicyConnecting)]
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
-        ) -> apply_connecting::FFIResult;
+        ) -> ApplyConnectingErr;
 
         #[link_name(WinFw_ApplyPolicyConnected)]
         pub fn WinFw_ApplyPolicyConnected(
@@ -255,9 +252,9 @@ mod winfw {
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> apply_connected::FFIResult;
+        ) -> ApplyConnectingErr;
 
         #[link_name(WinFw_Reset)]
-        pub fn WinFw_Reset() -> reset_policy::FFIResult;
+        pub fn WinFw_Reset() -> ResettingPolicyErr;
     }
 }
