@@ -223,11 +223,11 @@ mod winfw {
         }
     }
 
-    ffi_error!(InitializationErr, ErrorKind::Initialization.into());
-    ffi_error!(DeinitializationErr, ErrorKind::Deinitialization.into());
-    ffi_error!(ApplyConnectedErr, ErrorKind::ApplyingConnectedPolicy.into());
-    ffi_error!(ApplyConnectingErr, ErrorKind::ApplyingConnectingPolicy.into());
-    ffi_error!(ResettingPolicyErr, ErrorKind::ResettingPolicy.into());
+    ffi_error!(InitializationResult, ErrorKind::Initialization.into());
+    ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
+    ffi_error!(ApplyConnectedResult, ErrorKind::ApplyingConnectedPolicy.into());
+    ffi_error!(ApplyConnectingResult, ErrorKind::ApplyingConnectingPolicy.into());
+    ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
         #[link_name(WinFw_Initialize)]
@@ -235,16 +235,16 @@ mod winfw {
             timeout: libc::c_uint,
             sink: Option<ffi::ErrorSink>,
             sink_context: *mut libc::c_void,
-        ) -> InitializationErr;
+        ) -> InitializationResult;
 
         #[link_name(WinFw_Deinitialize)]
-        pub fn WinFw_Deinitialize() -> DeinitializationErr;
+        pub fn WinFw_Deinitialize() -> DeinitializationResult;
 
         #[link_name(WinFw_ApplyPolicyConnecting)]
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
-        ) -> ApplyConnectingErr;
+        ) -> ApplyConnectingResult;
 
         #[link_name(WinFw_ApplyPolicyConnected)]
         pub fn WinFw_ApplyPolicyConnected(
@@ -252,9 +252,9 @@ mod winfw {
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> ApplyConnectingErr;
+        ) -> ApplyConnectingResult;
 
         #[link_name(WinFw_Reset)]
-        pub fn WinFw_Reset() -> ResettingPolicyErr;
+        pub fn WinFw_Reset() -> ResettingPolicyResult;
     }
 }
