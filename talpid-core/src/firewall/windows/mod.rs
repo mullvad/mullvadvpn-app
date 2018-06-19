@@ -182,10 +182,7 @@ impl WindowsFirewall {
 
 #[allow(non_snake_case)]
 mod winfw {
-
-    use super::ffi;
-    use super::libc;
-    use super::{ErrorKind, Result};
+    use super::{ffi, libc, ErrorKind, Result};
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
@@ -226,11 +223,11 @@ mod winfw {
         }
     }
 
-    ffi_error!(init, ErrorKind::Initialization.into());
-    ffi_error!(deinit, ErrorKind::Deinitialization.into());
-    ffi_error!(apply_connected, ErrorKind::ApplyingConnectedPolicy.into());
-    ffi_error!(apply_connecting, ErrorKind::ApplyingConnectingPolicy.into());
-    ffi_error!(reset_policy, ErrorKind::ResettingPolicy.into());
+    ffi_error!(InitializationErr, ErrorKind::Initialization.into());
+    ffi_error!(DeinitializationErr, ErrorKind::Deinitialization.into());
+    ffi_error!(ApplyConnectedErr, ErrorKind::ApplyingConnectedPolicy.into());
+    ffi_error!(ApplyConnectingErr, ErrorKind::ApplyingConnectingPolicy.into());
+    ffi_error!(ResettingPolicyErr, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
         #[link_name(WinFw_Initialize)]

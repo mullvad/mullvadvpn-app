@@ -129,11 +129,11 @@ impl Drop for WinDNS {
 }
 
 
-ffi_error!(init, ErrorKind::Initialization.into());
-ffi_error!(deinit, ErrorKind::Deinitialization.into());
-ffi_error!(setting, ErrorKind::Setting.into());
-ffi_error!(resetting, ErrorKind::Resetting.into());
-ffi_error!(recovering, ErrorKind::Recovery.into());
+ffi_error!(InitializationErr, ErrorKind::Initialization.into());
+ffi_error!(DeinitializationErr, ErrorKind::Deinitialization.into());
+ffi_error!(SettingErr, ErrorKind::Setting.into());
+ffi_error!(ResettingErr, ErrorKind::Resetting.into());
+ffi_error!(RecoveringErr, ErrorKind::Recovery.into());
 
 
 /// A callback for writing system state data
@@ -180,13 +180,13 @@ extern "system" {
     pub fn WinDns_Initialize(
         sink: Option<ffi::ErrorSink>,
         sink_context: *mut libc::c_void,
-    ) -> init::FFIResult;
+    ) -> InitializationErr;
 
     // WinDns_Deinitialize:
     //
     // Call this function once before unloading WINDNS or exiting the process.
     #[link_name(WinDns_Deinitialize)]
-    pub fn WinDns_Deinitialize() -> deinit::FFIResult;
+    pub fn WinDns_Deinitialize() -> DeinitializationErr;
 
     // Configure which DNS servers should be used and start enforcing these settings.
     #[link_name(WinDns_Set)]
@@ -195,15 +195,15 @@ extern "system" {
         n_ips: u32,
         callback: Option<DNSConfigSink>,
         backup_writer: *const c_void,
-    ) -> setting::FFIResult;
+    ) -> SettingErr;
 
     // Revert server settings to what they were before calling WinDns_Set.
     //
     // (Also taking into account external changes to DNS settings that have ocurred
     // during the period of enforcing specific settings.)
     #[link_name(WinDns_Reset)]
-    pub fn WinDns_Reset() -> resetting::FFIResult;
+    pub fn WinDns_Reset() -> ResettingErr;
 
     #[link_name(WinDns_Recover)]
-    pub fn WinDns_Recover(data: *const u8, length: u32) -> recovering::FFIResult;
+    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringErr;
 }
