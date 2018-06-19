@@ -16,7 +16,7 @@ use self::widestring::WideCString;
 mod ffi;
 mod dns;
 
-use self::dns::WinDNS;
+use self::dns::WinDns;
 
 error_chain!{
     errors{
@@ -47,7 +47,7 @@ error_chain!{
     }
 
     links {
-        WinDNS(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
+        WinDns(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
     }
 }
 
@@ -55,7 +55,7 @@ const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the `Firewall` trait.
 pub struct WindowsFirewall {
-    dns: WinDNS,
+    dns: WinDns,
 }
 
 impl Firewall for WindowsFirewall {
@@ -70,13 +70,13 @@ impl Firewall for WindowsFirewall {
             ).into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        let windns = match WinDNS::new(cache_dir) {
+        let windns = match WinDns::new(cache_dir) {
             Ok(w) => w,
             Err(e) => {
                 unsafe { WinFw_Deinitialize() }
                     .into_result()
                     .unwrap_or_else(|_| {
-                        error!("Failed to denitialize windows firewall module after failing to initialize WinDNS")
+                        error!("Failed to denitialize windows firewall module after failing to initialize WinDns")
                     });
                 return Err(Error::from(e));
             }

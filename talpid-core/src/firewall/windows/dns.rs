@@ -15,14 +15,14 @@ const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
 
 error_chain!{
     errors{
-        #[doc = "Failure to initialize WinDNS"]
+        #[doc = "Failure to initialize WinDns"]
         Initialization{
-            description("Failed to initialize WinDNS")
+            description("Failed to initialize WinDns")
         }
 
-        #[doc = "Failure to deinitialize WinDNS"]
+        #[doc = "Failure to deinitialize WinDns"]
         Deinitialization{
-            description("Failed to deinitialize WinDNS")
+            description("Failed to deinitialize WinDns")
         }
 
         #[doc = "Failure to set new DNS servers"]
@@ -46,16 +46,16 @@ error_chain!{
     }
 }
 
-pub struct WinDNS {
+pub struct WinDns {
     backup_writer: SystemStateWriter,
 }
 
-impl WinDNS {
+impl WinDns {
     pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(cache_dir.as_ref().join(DNS_STATE_FILENAME).into_boxed_path());
-        let mut dns = WinDNS { backup_writer };
+        let mut dns = WinDns { backup_writer };
         dns.restore_system_backup()?;
         Ok(dns)
     }
@@ -112,12 +112,12 @@ impl WinDNS {
     }
 }
 
-impl Drop for WinDNS {
+impl Drop for WinDns {
     fn drop(&mut self) {
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
-            trace!("Successfully deinitialized WinDNS");
+            trace!("Successfully deinitialized WinDns");
         } else {
-            error!("Failed to deinitialize WinDNS");
+            error!("Failed to deinitialize WinDns");
         }
     }
 }
