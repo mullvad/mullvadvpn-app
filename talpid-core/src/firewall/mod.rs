@@ -1,4 +1,5 @@
 use talpid_types::net::Endpoint;
+use std::path::Path;
 
 mod system_state;
 
@@ -31,7 +32,7 @@ pub trait Firewall {
     type Error: ::std::error::Error;
 
     /// Create new instance of Firewall
-    fn new() -> ::std::result::Result<Self, Self::Error>
+    fn new<P: AsRef<Path>>(cache_dir: P) -> ::std::result::Result<Self, Self::Error>
     where
         Self: Sized;
 

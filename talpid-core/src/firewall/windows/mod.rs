@@ -4,6 +4,7 @@ extern crate widestring;
 use super::{Firewall, SecurityPolicy};
 use std::net::IpAddr;
 use std::ptr;
+use std::path::Path;
 
 use self::winfw::*;
 use talpid_types::net::Endpoint;
@@ -60,7 +61,7 @@ pub struct WindowsFirewall {
 impl Firewall for WindowsFirewall {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
@@ -69,7 +70,7 @@ impl Firewall for WindowsFirewall {
             ).into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        let windns = match WinDNS::new() {
+        let windns = match WinDNS::new(cache_dir) {
             Ok(w) => w,
             Err(e) => {
                 unsafe { WinFw_Deinitialize() }
