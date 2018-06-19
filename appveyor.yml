@@ -51,7 +51,7 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - bash -x build_winfw.sh
+  - bash -x build_windows_libraries.sh
   - cargo build
   - cargo test
 
