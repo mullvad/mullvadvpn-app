@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import { check, failFast } from './ipc-helpers';
 
 export class IpcChain {

@@ -1,7 +1,6 @@
 // @flow
 
-import { expect, spy } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import Support from '../../app/components/Support';
 import { shallow } from 'enzyme';
 import type { SupportProps } from '../../app/components/Support';

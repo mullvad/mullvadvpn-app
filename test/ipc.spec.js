@@ -2,8 +2,6 @@
 
 import Ipc from '../app/lib/jsonrpc-ws-ipc';
 import jsonrpc from 'jsonrpc-lite';
-import { expect } from 'chai';
-import assert from 'assert';
 import type { JsonRpcMessage } from '../app/lib/jsonrpc-ws-ipc';
 
 describe('The IPC server', () => {
@@ -45,7 +43,9 @@ describe('The IPC server', () => {
 
     const decoy = ipc
       .send('a decoy', [], 1)
-      .then(() => assert(false, 'Should not be called'))
+      .then(() => {
+        throw new Error('Should not be called');
+      })
       .catch((e) => {
         if (e.name !== 'TimeOutError') {
           throw e;

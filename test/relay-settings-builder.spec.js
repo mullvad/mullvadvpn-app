@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import RelaySettingsBuilder from '../app/lib/relay-settings-builder';
 
 describe('Relay settings builder', () => {
