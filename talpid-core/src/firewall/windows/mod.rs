@@ -19,27 +19,27 @@ use self::dns::WinDns;
 
 error_chain!{
     errors{
-        #[doc = "Failure to initialize windows firewall module"]
+        /// Failure to initialize windows firewall module
         Initialization{
             description("Failed to initialise windows firewall module")
         }
 
-        #[doc = "Failure to deinitialize windows firewall module"]
+        /// Failure to deinitialize windows firewall module
         Deinitialization{
             description("Failed to deinitialize windows firewall module")
         }
 
-        #[doc = "Failure to apply a firewall _connected_ policy"]
+        /// Failure to apply a firewall _connected_ policy
         ApplyingConnectedPolicy{
             description("Failed to apply firewall policy for when the daemon is connecting to a tunnel")
         }
 
-        #[doc = "Failure to apply a firewall _connecting_ policy"]
+        /// Failure to apply a firewall _connecting_ policy
         ApplyingConnectingPolicy{
             description("Failed to apply firewall policy for when the daemon is connected to a tunnel")
         }
 
-        #[doc = "Failure to reset firewall policies"]
+        /// Failure to reset firewall policies
         ResettingPolicy{
             description("Failed to reset firewall policies")
         }

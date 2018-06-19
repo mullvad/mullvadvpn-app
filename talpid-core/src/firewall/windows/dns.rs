@@ -15,27 +15,27 @@ const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
 
 error_chain!{
     errors{
-        #[doc = "Failure to initialize WinDns"]
+        /// Failure to initialize WinDns
         Initialization{
             description("Failed to initialize WinDns")
         }
 
-        #[doc = "Failure to deinitialize WinDns"]
+        /// Failure to deinitialize WinDns
         Deinitialization{
             description("Failed to deinitialize WinDns")
         }
 
-        #[doc = "Failure to set new DNS servers"]
+        /// Failure to set new DNS servers
         Setting{
             description("Failed to set new DNS servers")
         }
 
-        #[doc = "Failure to reset DNS settings"]
+        /// Failure to reset DNS settings
         Resetting{
             description("Failed to reset DNS")
         }
 
-        #[doc = "Failure to reset DNS settings from backup"]
+        /// Failure to reset DNS settings from backup
         Recovery{
             description("Failed to recover to backed up system state")
         }
