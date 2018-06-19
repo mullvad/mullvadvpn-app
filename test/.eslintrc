@@ -1,4 +1,8 @@
 {
+  "rules": {
+    "no-unused-expressions" : "off",
+    "react/no-render-return-value": "off"
+  },
   "env": {
     "mocha": true
   },

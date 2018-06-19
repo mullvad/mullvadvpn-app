@@ -21,21 +21,19 @@
     "func-names": "off",
     "comma-dangle": "off",
     "comma-spacing": "warn",
-    "no-unused-expressions" : "off", // until fixed https://github.com/babel/babel-eslint/issues/158
+    "no-unused-expressions" : "error",
     "no-unused-vars": ["error", {
       "args": "all",
       "argsIgnorePattern": "_.*",
       "varsIgnorePattern": "_.*"
     }],
-    "block-scoped-var": "off", // until fixed https://github.com/eslint/eslint/issues/2253
+    "block-scoped-var": "error",
     "react/prop-types": "off",
-    "flowtype/define-flow-type": "warn",
-    "react/no-render-return-value": "off" // see https://github.com/facebook/react/issues/10266
+    "flowtype/define-flow-type": "warn"
   },
   "env": {
     "es6": true,
     "node": true,
-    "browser": true,
-    "mocha": false
+    "browser": true
   }
 }
