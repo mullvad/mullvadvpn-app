@@ -36,7 +36,7 @@ export default class KeyframeAnimation {
     this._onFrame = newValue;
   }
   get onFrame(): ?OnFrameFn {
-    this._onFrame;
+    return this._onFrame;
   }
 
   // called when animation finished for non-repeating animations.
@@ -44,7 +44,7 @@ export default class KeyframeAnimation {
     this._onFinish = newValue;
   }
   get onFinish(): ?OnFinishFn {
-    this._onFinish;
+    return this._onFinish;
   }
 
   // pace per frame in ms
