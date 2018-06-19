@@ -1,6 +1,5 @@
 // @flow
 
-import { expect, spy } from 'chai';
 import { setupIpcAndStore, setupBackendAndStore } from './helpers/ipc-helpers';
 import { IpcChain } from './helpers/IpcChain';
 import { Backend } from '../app/lib/backend';

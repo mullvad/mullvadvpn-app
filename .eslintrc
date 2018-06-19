@@ -36,6 +36,6 @@
     "es6": true,
     "node": true,
     "browser": true,
-    "mocha": true
+    "mocha": false
   }
 }

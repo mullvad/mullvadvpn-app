@@ -1,5 +1,5 @@
 // @flow
-import { expect } from 'chai';
+
 import { createKeyEvent } from '../helpers/dom-events';
 import * as React from 'react';
 import { shallow } from 'enzyme';

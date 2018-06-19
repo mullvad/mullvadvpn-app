@@ -1,7 +1,6 @@
 // @flow
 
-import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import Settings from '../../app/components/Settings';
 import { shallow } from 'enzyme';
 

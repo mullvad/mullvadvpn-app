@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import {
   setupBackendAndStore,
   setupBackendAndMockStore,

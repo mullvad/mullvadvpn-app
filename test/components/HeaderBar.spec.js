@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import React from 'react';
 import { shallow } from 'enzyme';
 import HeaderBar from '../../app/components/HeaderBar';

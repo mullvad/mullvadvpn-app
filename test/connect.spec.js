@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import connectionActions from '../app/redux/connection/actions';
 import { setupBackendAndStore, checkNextTick } from './helpers/ipc-helpers';
 

@@ -8,3 +8,6 @@ chai.use(spies);
 Enzyme.configure({
   adapter: new Adapter(),
 });
+
+global.expect = chai.expect;
+global.spy = chai.spy;
