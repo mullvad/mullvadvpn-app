@@ -68,9 +68,10 @@ mod tests {
     #[test]
     fn can_create_backup() {
         let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+        let temp_file = temp_dir.path().join("test_file");
 
         let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
-        let writer = SystemStateWriter::new(&temp_dir);
+        let writer = SystemStateWriter::new(&temp_file);
         writer
             .write_backup(&mock_system_state)
             .expect("failed to write system state");
@@ -90,8 +91,9 @@ mod tests {
     #[test]
     fn can_succeed_without_backup() {
         let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+        let temp_file = temp_dir.path().join("test_file");
 
-        let writer = SystemStateWriter::new(&temp_dir);
+        let writer = SystemStateWriter::new(&temp_file);
         let backup = writer
             .consume_state_backup()
             .expect("error when reading system state backup");
@@ -101,7 +103,7 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn cant_read_without_access() {
-        let temp_dir = PathBuf::from("/dev/null");
+        let temp_dir = PathBuf::from("/dev/null/bogus");
 
         let writer = SystemStateWriter::new(&temp_dir);
         let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
@@ -120,8 +122,9 @@ mod tests {
     #[test]
     fn can_remove_when_no_backup_exists() {
         let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
+        let temp_file = temp_dir.path().join("test_file");
 
-        let writer = SystemStateWriter::new(&temp_dir);
+        let writer = SystemStateWriter::new(&temp_file);
         writer.remove_state_file().expect(
             "Encountered IO error when running remove_state_file when no state file exists",
         );
@@ -130,7 +133,8 @@ mod tests {
     #[test]
     fn can_remove_backup() {
         let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
-        let writer = SystemStateWriter::new(&temp_dir);
+        let temp_file = temp_dir.path().join("test_file");
+        let writer = SystemStateWriter::new(&temp_file);
         let mock_system_state = b"8.8.8.8\n8.8.4.4\n".to_vec();
 
         writer
@@ -149,7 +153,7 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn cant_remove_backup_with_io_error() {
-        let temp_dir = PathBuf::from("/dev/null");
+        let temp_dir = PathBuf::from("/dev/null/bogus");
 
         let writer = SystemStateWriter::new(&temp_dir);
         let removal_failure = writer
