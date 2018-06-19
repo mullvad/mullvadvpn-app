@@ -1,16 +1,15 @@
 extern crate libc;
-extern crate mullvad_paths;
 extern crate widestring;
 
 use super::super::system_state::SystemStateWriter;
 use super::ffi;
 
-use self::mullvad_paths::cache_dir;
 use self::widestring::WideCString;
 use std::net::IpAddr;
 use std::os::raw::c_void;
 use std::ptr;
 use std::slice;
+use std::path::Path;
 
 const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
 
@@ -42,10 +41,6 @@ error_chain!{
         }
     }
 
-    links {
-        NoCacheDir(mullvad_paths::Error, mullvad_paths::ErrorKind) #[doc = "Failure to create a cache directory"];
-    }
-
     foreign_links {
         Io(::std::io::Error) #[doc = "IO error, most probably occurs when reading system state backup"];
     }
@@ -56,10 +51,10 @@ pub struct WinDNS {
 }
 
 impl WinDNS {
-    pub fn new() -> Result<Self> {
+    pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
 
-        let backup_writer = SystemStateWriter::new(cache_dir()?.join(DNS_STATE_FILENAME));
+        let backup_writer = SystemStateWriter::new(cache_dir.as_ref().join(DNS_STATE_FILENAME).into_boxed_path());
         let mut dns = WinDNS { backup_writer };
         dns.restore_system_backup()?;
         Ok(dns)
