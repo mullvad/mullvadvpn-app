@@ -78,7 +78,7 @@ impl Firewall for WindowsFirewall {
                     .unwrap_or_else(|_| {
                         error!("Failed to denitialize windows firewall module after failing to initialize WinDns")
                     });
-                return Err(Error::from(e));
+                bail!(e);
             }
         };
 
