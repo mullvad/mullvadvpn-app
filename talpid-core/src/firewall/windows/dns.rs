@@ -6,7 +6,7 @@ use super::ffi;
 
 use self::widestring::WideCString;
 use std::net::IpAddr;
-use std::os::raw::c_void;
+use self::libc::c_void;
 use std::ptr;
 use std::slice;
 use std::path::Path;

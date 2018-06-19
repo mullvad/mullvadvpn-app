@@ -1,10 +1,10 @@
 extern crate libc;
 
-use std::os::raw::c_char;
+use self::libc::{c_char, c_void};
 
-pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut libc::c_void);
+pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
 
-pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut libc::c_void) {
+pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut c_void) {
     use std::ffi::CStr;
     if msg.is_null() {
         error!("Log message from FFI boundary is NULL");
