@@ -31,6 +31,13 @@
     "react/prop-types": "off",
     "flowtype/define-flow-type": "warn"
   },
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "16.2",
+      "flowVersion": "0.66"
+    }
+  },
   "env": {
     "es6": true,
     "node": true,
