@@ -86,13 +86,15 @@ pub fn wait_for_file_write_finish<P: AsRef<Path>>(file_path: P, timeout: Duratio
     }
 }
 
-fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf) {
+fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
     let temp_dir = TempDir::new().expect("Failed to create temporary daemon directory");
+    let cache_dir = temp_dir.path().join("cache");
     let resource_dir = temp_dir.path().join("resource-dir");
     let settings_dir = temp_dir.path().join("settings");
     let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
     let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
 
+    fs::create_dir(&cache_dir).expect("Failed to create cache directory");
     fs::create_dir(&resource_dir).expect("Failed to create resource directory");
     fs::create_dir(&settings_dir).expect("Failed to create settings directory");
 
@@ -102,7 +104,7 @@ fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf) {
 
     prepare_relay_list(resource_dir.join("relays.json"));
 
-    (temp_dir, resource_dir, settings_dir)
+    (temp_dir, cache_dir, resource_dir, settings_dir)
 }
 
 fn prepare_relay_list<T: AsRef<Path>>(path: T) {
@@ -148,7 +150,7 @@ impl DaemonRunner {
     }
 
     fn spawn_internal(mock_rpc_address_file: bool) -> Self {
-        let (temp_dir, resource_dir, settings_dir) = prepare_test_dirs();
+        let (temp_dir, cache_dir, resource_dir, settings_dir) = prepare_test_dirs();
         let mock_openvpn_args_file = temp_dir.path().join(MOCK_OPENVPN_ARGS_FILE);
         let rpc_address_file = if mock_rpc_address_file {
             temp_dir.path().join(".mullvad_rpc_address")
@@ -159,7 +161,7 @@ impl DaemonRunner {
         let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
         let mut expression = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
-            .env("MULLVAD_CACHE_DIR", "./")
+            .env("MULLVAD_CACHE_DIR", cache_dir)
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
             .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
