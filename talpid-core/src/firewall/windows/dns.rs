@@ -123,11 +123,11 @@ impl Drop for WinDns {
 }
 
 
-ffi_error!(InitializationErr, ErrorKind::Initialization.into());
-ffi_error!(DeinitializationErr, ErrorKind::Deinitialization.into());
-ffi_error!(SettingErr, ErrorKind::Setting.into());
-ffi_error!(ResettingErr, ErrorKind::Resetting.into());
-ffi_error!(RecoveringErr, ErrorKind::Recovery.into());
+ffi_error!(InitializationResult, ErrorKind::Initialization.into());
+ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
+ffi_error!(SettingResult, ErrorKind::Setting.into());
+ffi_error!(ResettingResult, ErrorKind::Resetting.into());
+ffi_error!(RecoveringResult, ErrorKind::Recovery.into());
 
 
 /// A callback for writing system state data
@@ -175,13 +175,13 @@ extern "system" {
     pub fn WinDns_Initialize(
         sink: Option<ffi::ErrorSink>,
         sink_context: *mut libc::c_void,
-    ) -> InitializationErr;
+    ) -> InitializationResult;
 
     // WinDns_Deinitialize:
     //
     // Call this function once before unloading WINDNS or exiting the process.
     #[link_name(WinDns_Deinitialize)]
-    pub fn WinDns_Deinitialize() -> DeinitializationErr;
+    pub fn WinDns_Deinitialize() -> DeinitializationResult;
 
     // Configure which DNS servers should be used and start enforcing these settings.
     #[link_name(WinDns_Set)]
@@ -190,15 +190,15 @@ extern "system" {
         n_ips: u32,
         callback: Option<DNSConfigSink>,
         backup_writer: *const c_void,
-    ) -> SettingErr;
+    ) -> SettingResult;
 
     // Revert server settings to what they were before calling WinDns_Set.
     //
     // (Also taking into account external changes to DNS settings that have ocurred
     // during the period of enforcing specific settings.)
     #[link_name(WinDns_Reset)]
-    pub fn WinDns_Reset() -> ResettingErr;
+    pub fn WinDns_Reset() -> ResettingResult;
 
     #[link_name(WinDns_Recover)]
-    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringErr;
+    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringResult;
 }
