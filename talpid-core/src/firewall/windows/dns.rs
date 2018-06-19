@@ -1,49 +1,43 @@
-extern crate libc;
-extern crate mullvad_paths;
 extern crate widestring;
 
-use super::super::system_state::SystemStateWriter;
+use super::system_state::SystemStateWriter;
 use super::ffi;
 
-use self::mullvad_paths::cache_dir;
 use self::widestring::WideCString;
 use std::net::IpAddr;
-use std::os::raw::c_void;
+use libc;
 use std::ptr;
 use std::slice;
+use std::path::Path;
 
 const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
 
 error_chain!{
     errors{
-        #[doc = "Failure to initialize WinDNS"]
+        /// Failure to initialize WinDns
         Initialization{
-            description("Failed to initialize WinDNS")
+            description("Failed to initialize WinDns")
         }
 
-        #[doc = "Failure to deinitialize WinDNS"]
+        /// Failure to deinitialize WinDns
         Deinitialization{
-            description("Failed to deinitialize WinDNS")
+            description("Failed to deinitialize WinDns")
         }
 
-        #[doc = "Failure to set new DNS servers"]
+        /// Failure to set new DNS servers
         Setting{
             description("Failed to set new DNS servers")
         }
 
-        #[doc = "Failure to reset DNS settings"]
+        /// Failure to reset DNS settings
         Resetting{
             description("Failed to reset DNS")
         }
 
-        #[doc = "Failure to reset DNS settings from backup"]
+        /// Failure to reset DNS settings from backup
         Recovery{
             description("Failed to recover to backed up system state")
         }
-    }
-
-    links {
-        NoCacheDir(mullvad_paths::Error, mullvad_paths::ErrorKind) #[doc = "Failure to create a cache directory"];
     }
 
     foreign_links {
@@ -51,22 +45,22 @@ error_chain!{
     }
 }
 
-pub struct WinDNS {
+pub struct WinDns {
     backup_writer: SystemStateWriter,
 }
 
-impl WinDNS {
-    pub fn new() -> Result<Self> {
+impl WinDns {
+    pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
 
-        let backup_writer = SystemStateWriter::new(cache_dir()?.join(DNS_STATE_FILENAME));
-        let mut dns = WinDNS { backup_writer };
+        let backup_writer = SystemStateWriter::new(cache_dir.as_ref().join(DNS_STATE_FILENAME).into_boxed_path());
+        let mut dns = WinDns { backup_writer };
         dns.restore_system_backup()?;
         Ok(dns)
     }
 
-    pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        debug!("Setting DNS servers - {:?}", servers);
+    pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
+        info!("Setting DNS servers - {}", servers.iter().map(|ip| ip.to_string()).collect::<Vec<String>>().join(", "));
         let widestring_ips = servers
             .iter()
             .map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
@@ -83,7 +77,7 @@ impl WinDNS {
                 ip_ptrs.as_mut_ptr(),
                 widestring_ips.len() as u32,
                 Some(write_system_state_backup_cb),
-                &self.backup_writer as *const _ as *const c_void,
+                &self.backup_writer as *const _ as *const libc::c_void,
             ).into_result()
         }
     }
@@ -92,7 +86,7 @@ impl WinDNS {
         trace!("Resetting DNS");
         unsafe { WinDns_Reset().into_result()? };
 
-        if let Err(e) = self.backup_writer.remove_state_file() {
+        if let Err(e) = self.backup_writer.remove_backup() {
             warn!("Failed to remove DNS state backup file: {}", e);
         }
         Ok(())
@@ -103,13 +97,14 @@ impl WinDNS {
     }
 
     fn restore_system_backup(&mut self) -> Result<()> {
-        if let Some(previous_state) = self.backup_writer.consume_state_backup()? {
+        if let Some(previous_state) = self.backup_writer.read_backup()? {
             trace!("Restoring system backed up DNS state");
-            if let Err(e) = self.restore_dns_settings(&previous_state) {
-                self.backup_writer.write_backup(&previous_state)?;
-                return Err(e.into());
-            }
-            trace!("Successfully restored DNS state");
+
+            self.restore_dns_settings(&previous_state)?;
+            info!("Successfully restored DNS state");
+	    if let Err(e) = self.backup_writer.remove_backup() {
+	    	error!("Failed to remove DNS config backup after restoring it: {}", e);
+	    }
             return Ok(());
         }
         trace!("No dns state to restore");
@@ -117,30 +112,32 @@ impl WinDNS {
     }
 }
 
-impl Drop for WinDNS {
+impl Drop for WinDns {
     fn drop(&mut self) {
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
-            trace!("Successfully deinitialized WinDNS");
+            trace!("Successfully deinitialized WinDns");
         } else {
-            error!("Failed to deinitialize WinDNS");
+            error!("Failed to deinitialize WinDns");
         }
     }
 }
 
 
-ffi_error!(init, ErrorKind::Initialization.into());
-ffi_error!(deinit, ErrorKind::Deinitialization.into());
-ffi_error!(setting, ErrorKind::Setting.into());
-ffi_error!(resetting, ErrorKind::Resetting.into());
-ffi_error!(recovering, ErrorKind::Recovery.into());
+ffi_error!(InitializationResult, ErrorKind::Initialization.into());
+ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
+ffi_error!(SettingResult, ErrorKind::Setting.into());
+ffi_error!(ResettingResult, ErrorKind::Resetting.into());
+ffi_error!(RecoveringResult, ErrorKind::Recovery.into());
 
 
 /// A callback for writing system state data
 pub extern "system" fn write_system_state_backup_cb(
     blob: *const u8,
     length: u32,
-    state_writer: *mut SystemStateWriter,
+    state_writer_ptr: *mut libc::c_void,
 ) -> i32 {
+
+    let state_writer = state_writer_ptr as *mut SystemStateWriter;
     if state_writer.is_null() {
         error!("State writer pointer is null, can't save system state backup");
         return -1;
@@ -168,24 +165,23 @@ pub extern "system" fn write_system_state_backup_cb(
 }
 
 
-#[allow(improper_ctypes)]
 type DNSConfigSink =
-    extern "system" fn(data: *const u8, length: u32, state_writer: *mut SystemStateWriter) -> i32;
+    extern "system" fn(data: *const u8, length: u32, state_writer: *mut libc::c_void) -> i32;
 
-#[allow(non_snake_case, improper_ctypes)]
+#[allow(non_snake_case)]
 extern "system" {
 
     #[link_name(WinDns_Initialize)]
     pub fn WinDns_Initialize(
         sink: Option<ffi::ErrorSink>,
         sink_context: *mut libc::c_void,
-    ) -> init::FFIResult;
+    ) -> InitializationResult;
 
     // WinDns_Deinitialize:
     //
     // Call this function once before unloading WINDNS or exiting the process.
     #[link_name(WinDns_Deinitialize)]
-    pub fn WinDns_Deinitialize() -> deinit::FFIResult;
+    pub fn WinDns_Deinitialize() -> DeinitializationResult;
 
     // Configure which DNS servers should be used and start enforcing these settings.
     #[link_name(WinDns_Set)]
@@ -193,16 +189,16 @@ extern "system" {
         ips: *mut *const u16,
         n_ips: u32,
         callback: Option<DNSConfigSink>,
-        backup_writer: *const c_void,
-    ) -> setting::FFIResult;
+        backup_writer: *const libc::c_void,
+    ) -> SettingResult;
 
     // Revert server settings to what they were before calling WinDns_Set.
     //
     // (Also taking into account external changes to DNS settings that have ocurred
     // during the period of enforcing specific settings.)
     #[link_name(WinDns_Reset)]
-    pub fn WinDns_Reset() -> resetting::FFIResult;
+    pub fn WinDns_Reset() -> ResettingResult;
 
     #[link_name(WinDns_Recover)]
-    pub fn WinDns_Recover(data: *const u8, length: u32) -> recovering::FFIResult;
+    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringResult;
 }

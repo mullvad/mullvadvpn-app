@@ -239,7 +239,7 @@ impl Daemon {
 
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster =
-            Self::start_management_interface(tx.clone(), cache_dir)?;
+            Self::start_management_interface(tx.clone(), cache_dir.clone())?;
         let state = TunnelState::NotRunning;
         let target_state = TargetState::Unsecured;
         Ok(Daemon {
@@ -260,7 +260,7 @@ impl Daemon {
             http_handle,
             tokio_remote,
             relay_selector,
-            firewall: FirewallProxy::new().chain_err(|| ErrorKind::FirewallError)?,
+            firewall: FirewallProxy::new(&cache_dir).chain_err(|| ErrorKind::FirewallError)?,
             current_relay: None,
             tunnel_endpoint: None,
             tunnel_metadata: None,

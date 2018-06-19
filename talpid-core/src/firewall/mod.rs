@@ -1,6 +1,5 @@
 use talpid_types::net::Endpoint;
-
-mod system_state;
+use std::path::Path;
 
 
 /// A enum that describes firewall rules strategy
@@ -31,7 +30,7 @@ pub trait Firewall {
     type Error: ::std::error::Error;
 
     /// Create new instance of Firewall
-    fn new() -> ::std::result::Result<Self, Self::Error>
+    fn new<P: AsRef<Path>>(cache_dir: P) -> ::std::result::Result<Self, Self::Error>
     where
         Self: Sized;
 
