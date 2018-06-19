@@ -22,6 +22,32 @@ git submodule update --init --recursive
 
 ## Install toolchains and dependencies
 
+Follow the instructions for your platform, and then the [All platforms](#all-platforms) instructions.
+
+These instructions are probably not complete. If you find something more that needs installing
+on your platform please submit an issue or a pull request.
+
+### Windows
+
+- The host has to have Microsoft's _Build Tools for Visual Studio 2017_ (a
+regular installation of Visual Studio 2017 Community edition works as well).
+
+- The host has to have `msbuild.exe` available in `%PATH%`.
+
+- The host has to have `bash` installed. The one coming with [Git for Windows] works.
+
+[Git for Windows]: https://git-scm.com/download/win
+
+### Linux
+
+For Debian based distributions, you need to install the following. For other distributions you need
+the equivalent packages:
+```bash
+sudo apt install gcc libssl-dev libappindactor1
+```
+
+### All platforms
+
 1. Get the latest stable Rust toolchain. This is easy with rustup, follow the instructions on
 [rustup.rs](https://rustup.rs/).
 
@@ -31,12 +57,13 @@ homebrew:
     brew install node yarn
     ```
 
-1. Install build dependencies if you are on Linux
-    ```bash
-    sudo apt install icnsutils graphicsmagick
-    ```
-
 ## Building and running mullvad-daemon
+
+1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon.
+   Run `build_winfw.sh` to build a C++ library that sets firewall rules on Windows.
+    ```bash
+    bash build_winfw.sh
+    ```
 
 1. Build the daemon without optimizations (debug mode) with:
     ```
@@ -50,26 +77,10 @@ homebrew:
 
 1. Run the daemon debug binary with verbose logging to the terminal with:
     ```
-    sudo ./target/debug/mullvad-daemon -vv --resource-dir dist-assets/
+    sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
     ```
     It must run as root since it it modifies the firewall and sets up virtual network interfaces
     etc.
-
-### Prerequisites for Windows
-There are some extra steps to build the daemon on Windows:
-- The host has to have Microsoft's _Build Tools for Visual Studio 2017_ (a
-regular installation of Visual Studio 2017 Community edition works as well).
-The specific build tool version that is required is `v141`.
-
-- The host has to have `msbuild.exe` available in `%PATH%`.
-
-- The host has to have `bash` installed.
-
-- Before compiling the daemon, one must run `build_winfw.sh` to build a C++
-  library that sets firewall rules on Windows.
-    ```bash
-    bash build_winfw.sh
-    ```
 
 ## Building and running the Electron GUI app
 
