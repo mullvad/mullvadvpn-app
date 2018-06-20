@@ -47,7 +47,7 @@ install:
   - rustc -Vv
   - rustc --print cfg
   - cargo -V
-  - git submodule update --init --recursive
+  - git submodule update --init
 
 # This is the "test phase", tweak it as you see fit
 test_script:

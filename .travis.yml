@@ -3,6 +3,12 @@ env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
 
+git:
+  submodules: false
+
+before_install:
+  - git submodule update --init
+
 matrix:
   include:
     - language: node_js
