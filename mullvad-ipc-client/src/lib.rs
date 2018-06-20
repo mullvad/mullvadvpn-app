@@ -263,10 +263,83 @@ mod platform_specific {
 
 #[cfg(windows)]
 mod platform_specific {
+    extern crate winapi;
+
+    use std::iter::once;
+    use std::os::windows::ffi::OsStrExt;
+    use std::ptr;
+
+    use self::winapi::shared::winerror::ERROR_SUCCESS;
+    use self::winapi::um::accctrl::SE_FILE_OBJECT;
+    use self::winapi::um::aclapi::GetNamedSecurityInfoW;
+    use self::winapi::um::securitybaseapi::IsWellKnownSid;
+    use self::winapi::um::winbase::LocalFree;
+    use self::winapi::um::winnt::{
+        WinBuiltinAdministratorsSid, OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, PSID,
+    };
+
     use super::*;
 
-    pub fn ensure_written_by_admin<P: AsRef<Path>>(_file_path: P) -> Result<()> {
-        // TODO: Check permissions correctly
+    mod errors {
+        error_chain! {
+            errors {
+                GetSecurityInfoError {
+                    description("Failed to get security information of RPC address file")
+                }
+
+                OwnerNotAdmin {
+                    description("Owner of RPC address file is not an administrator")
+                }
+            }
+        }
+    }
+    use self::errors::{ErrorKind as WinErrorKind, Result as WinResult};
+
+    pub fn ensure_written_by_admin<P: AsRef<Path>>(file_path: P) -> Result<()> {
+        let path = file_path.as_ref();
+
+        ensure_owned_by_admin(&path).chain_err(|| ErrorKind::InsecureRpcFile(path.to_owned()))?;
+
         Ok(())
+    }
+
+    fn ensure_owned_by_admin<P: AsRef<Path>>(path: P) -> WinResult<()> {
+        let file_path: Vec<u16> = path
+            .as_ref()
+            .as_os_str()
+            .encode_wide()
+            .chain(once(0))
+            .collect();
+
+        unsafe {
+            let mut owner_sid: PSID = ptr::null_mut();
+            let mut security_descriptor: PSECURITY_DESCRIPTOR = ptr::null_mut();
+
+            let get_security_info_result = GetNamedSecurityInfoW(
+                file_path.as_ptr(),
+                SE_FILE_OBJECT,
+                OWNER_SECURITY_INFORMATION,
+                &mut owner_sid,
+                ptr::null_mut(),
+                ptr::null_mut(),
+                ptr::null_mut(),
+                &mut security_descriptor,
+            );
+
+            ensure!(
+                get_security_info_result == ERROR_SUCCESS,
+                WinErrorKind::GetSecurityInfoError
+            );
+
+            let sid_check_result = IsWellKnownSid(owner_sid, WinBuiltinAdministratorsSid);
+
+            if !LocalFree(security_descriptor as *mut _).is_null() {
+                panic!("Failed to deallocate security descriptor");
+            }
+
+            ensure!(sid_check_result != 0, WinErrorKind::OwnerNotAdmin);
+
+            Ok(())
+        }
     }
 }
