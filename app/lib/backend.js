@@ -8,6 +8,7 @@ import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
 import { push } from 'react-router-redux';
 
+import type { RpcCredentials } from './rpc-address-file';
 import type { ReduxStore } from '../redux/store';
 import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
 import type { ConnectionState } from '../redux/connection/reducers';
@@ -74,32 +75,16 @@ export class UnknownError extends Error {
   }
 }
 
-export type IpcCredentials = {
-  connectionString: string,
-  sharedSecret: string,
-};
-export function parseIpcCredentials(data: string): ?IpcCredentials {
-  const [connectionString, sharedSecret] = data.split('\n', 2);
-  if (connectionString && sharedSecret !== undefined) {
-    return {
-      connectionString,
-      sharedSecret,
-    };
-  } else {
-    return null;
-  }
-}
-
 /**
  * Backend implementation
  */
 export class Backend {
   _ipc: IpcFacade;
-  _credentials: ?IpcCredentials;
+  _credentials: ?RpcCredentials;
   _authenticationPromise: ?Promise<void>;
   _store: ReduxStore;
 
-  constructor(store: ReduxStore, credentials?: IpcCredentials, ipc: ?IpcFacade) {
+  constructor(store: ReduxStore, credentials?: RpcCredentials, ipc: ?IpcFacade) {
     this._store = store;
     this._credentials = credentials;
 
@@ -116,7 +101,7 @@ export class Backend {
     }
   }
 
-  setCredentials(credentials: IpcCredentials) {
+  setCredentials(credentials: RpcCredentials) {
     log.debug('Got connection info to backend', credentials.connectionString);
     this._credentials = credentials;
 
