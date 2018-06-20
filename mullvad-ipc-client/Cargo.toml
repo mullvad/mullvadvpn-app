@@ -12,3 +12,6 @@ serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 mullvad-paths = { path = "../mullvad-paths" }
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.5", features = ["accctrl", "aclapi"] }
