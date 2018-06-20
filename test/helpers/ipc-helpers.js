@@ -12,7 +12,6 @@ type Check = () => void;
 export function setupIpcAndStore() {
   const memoryHistory = createMemoryHistory();
   const store = configureStore(null, memoryHistory);
-
   const mockIpc = newMockIpc();
 
   return { store, mockIpc };
@@ -20,12 +19,7 @@ export function setupIpcAndStore() {
 
 export function setupBackendAndStore() {
   const { store, mockIpc } = setupIpcAndStore();
-
-  const credentials = {
-    sharedSecret: '',
-    connectionString: '',
-  };
-  const backend = new Backend(store, credentials, mockIpc);
+  const backend = new Backend(store, mockIpc);
 
   return { store, mockIpc, backend };
 }
@@ -33,11 +27,7 @@ export function setupBackendAndStore() {
 export function setupBackendAndMockStore() {
   const store = mockStore(_initialState());
   const mockIpc = newMockIpc();
-  const credentials = {
-    sharedSecret: '',
-    connectionString: '',
-  };
-  const backend = new Backend(store, credentials, mockIpc);
+  const backend = new Backend(store, mockIpc);
   return { store, mockIpc, backend };
 }
 

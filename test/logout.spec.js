@@ -19,7 +19,7 @@ describe('logging out', () => {
       expect(num).to.be.null;
     });
     chain.expect('disconnect');
-    chain.onSuccessOrFailure(done);
+    chain.end(done);
 
     backend.logout();
   });

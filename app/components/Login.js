@@ -11,7 +11,7 @@ import styles from './LoginStyles';
 import { colors } from '../config';
 
 import type { AccountReduxState } from '../redux/account/reducers';
-import type { AccountToken } from '../lib/ipc-facade';
+import type { AccountToken } from '../lib/daemon-rpc';
 
 export type Props = {
   account: AccountReduxState,

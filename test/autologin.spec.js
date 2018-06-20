@@ -16,7 +16,7 @@ describe('autologin', () => {
       expect(num).to.equal(randomAccountToken);
     });
 
-    chain.onSuccessOrFailure(done);
+    chain.end(done);
 
     backend.autologin();
   });

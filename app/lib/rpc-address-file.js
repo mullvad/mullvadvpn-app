@@ -29,7 +29,7 @@ export class RpcAddressFile {
     return this._filePath;
   }
 
-  poll(): Promise<void> {
+  waitUntilExists(): Promise<void> {
     let promise = this._pollPromise;
 
     if (!promise) {
@@ -52,20 +52,7 @@ export class RpcAddressFile {
     return promise;
   }
 
-  isTrusted() {
-    const filePath = this._filePath;
-    switch (process.platform) {
-      case 'win32':
-        return isOwnedByLocalSystem(filePath);
-      case 'darwin':
-      case 'linux':
-        return isOwnedAndOnlyWritableByRoot(filePath);
-      default:
-        throw new Error(`Unknown platform: ${process.platform}`);
-    }
-  }
-
-  async waitUntilExists(): Promise<RpcCredentials> {
+  async parse(): Promise<RpcCredentials> {
     const data = await fsReadFileAsync(this._filePath, 'utf8');
     const [connectionString, sharedSecret] = data.split('\n', 2);
 
@@ -76,6 +63,19 @@ export class RpcAddressFile {
       };
     } else {
       throw new Error('Cannot parse the RPC address file');
+    }
+  }
+
+  isTrusted() {
+    const filePath = this._filePath;
+    switch (process.platform) {
+      case 'win32':
+        return isOwnedByLocalSystem(filePath);
+      case 'darwin':
+      case 'linux':
+        return isOwnedAndOnlyWritableByRoot(filePath);
+      default:
+        throw new Error(`Unknown platform: ${process.platform}`);
     }
   }
 }

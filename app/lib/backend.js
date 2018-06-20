@@ -1,16 +1,23 @@
 // @flow
 
-import { log } from '../lib/platform';
-import { IpcFacade, RealIpc } from './ipc-facade';
-import { JsonRpcError, TimeOutError } from './jsonrpc-ws-ipc';
+import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
+import {
+  RemoteError as JsonRpcTransportRemoteError,
+  TimeOutError as JsonRpcTransportTimeOutError,
+} from './jsonrpc-transport';
 import accountActions from '../redux/account/actions';
 import connectionActions from '../redux/connection/actions';
 import settingsActions from '../redux/settings/actions';
-import { push } from 'react-router-redux';
+import { log } from '../lib/platform';
 
-import type { RpcCredentials } from './rpc-address-file';
+import type { RpcCredentials as OriginalRpcCredentials } from './rpc-address-file';
+import type {
+  DaemonRpcProtocol,
+  ConnectionObserver as DaemonConnectionObserver,
+} from './daemon-rpc';
 import type { ReduxStore } from '../redux/store';
-import type { AccountToken, BackendState, RelaySettingsUpdate } from './ipc-facade';
+import type { AccountToken, BackendState, RelaySettingsUpdate } from './daemon-rpc';
 import type { ConnectionState } from '../redux/connection/reducers';
 
 export class NoCreditError extends Error {
@@ -75,71 +82,80 @@ export class UnknownError extends Error {
   }
 }
 
+export class CredentialsRequestError extends Error {
+  _reason: Error;
+
+  constructor(reason: Error) {
+    super('Failed to request the RPC credentials');
+    this._reason = reason;
+  }
+
+  get reason(): Error {
+    return this._reason;
+  }
+}
+
+export type RpcCredentials = OriginalRpcCredentials;
+export interface RpcCredentialsProvider {
+  request(): Promise<RpcCredentials>;
+}
+
 /**
  * Backend implementation
  */
 export class Backend {
-  _ipc: IpcFacade;
+  _store: ReduxStore;
+  _daemonRpc: DaemonRpcProtocol;
+  _credentialsProvider: RpcCredentialsProvider;
+  _reconnectBackoff = new ReconnectionBackoff();
+
   _credentials: ?RpcCredentials;
   _authenticationPromise: ?Promise<void>;
-  _store: ReduxStore;
 
-  constructor(store: ReduxStore, credentials?: RpcCredentials, ipc: ?IpcFacade) {
+  _openConnectionObserver: ?DaemonConnectionObserver;
+  _closeConnectionObserver: ?DaemonConnectionObserver;
+
+  constructor(
+    store: ReduxStore,
+    rpc: DaemonRpcProtocol,
+    credentialsProvider: RpcCredentialsProvider,
+  ) {
     this._store = store;
-    this._credentials = credentials;
+    this._daemonRpc = rpc;
+    this._credentialsProvider = credentialsProvider;
 
-    if (ipc) {
-      this._ipc = ipc;
+    this._openConnectionObserver = rpc.addOpenConnectionObserver(() => {
+      this._onOpenConnection();
+    });
 
-      // force to re-authenticate when connection closed
-      this._ipc.setCloseConnectionHandler(() => {
-        this._authenticationPromise = null;
-      });
+    this._closeConnectionObserver = rpc.addCloseConnectionObserver((error) => {
+      this._onCloseConnection(error);
+    });
 
-      this._registerIpcListeners();
-      this._startReachability();
+    this._setupReachability();
+  }
+
+  dispose() {
+    const openConnectionObserver = this._openConnectionObserver;
+    const closeConnectionObserver = this._closeConnectionObserver;
+
+    if (openConnectionObserver) {
+      openConnectionObserver.unsubscribe();
+      this._openConnectionObserver = null;
+    }
+
+    if (closeConnectionObserver) {
+      closeConnectionObserver.unsubscribe();
+      this._closeConnectionObserver = null;
     }
   }
 
-  setCredentials(credentials: RpcCredentials) {
-    log.debug('Got connection info to backend', credentials.connectionString);
-    this._credentials = credentials;
-
-    if (this._ipc) {
-      this._credentials = credentials;
-    } else {
-      this._ipc = new RealIpc(credentials.connectionString);
-
-      // force to re-authenticate when connection closed
-      this._ipc.setCloseConnectionHandler(() => {
-        this._authenticationPromise = null;
-      });
-    }
-    this._registerIpcListeners();
+  connect() {
+    this._connectToDaemon();
   }
 
-  async sync() {
-    log.info('Syncing with the backend...');
-
-    try {
-      await this._fetchRelayLocations();
-    } catch (e) {
-      log.error('Failed to fetch the relay locations: ', e.message);
-    }
-
-    try {
-      await this._fetchLocation();
-    } catch (e) {
-      log.error('Failed to fetch the location: ', e.message);
-    }
-
-    try {
-      await this._fetchAllowLan();
-    } catch (e) {
-      log.error('Failed to fetch the LAN sharing policy: ', e.message);
-    }
-
-    await this._fetchAccountHistory();
+  disconnect() {
+    this._daemonRpc.disconnect();
   }
 
   async login(accountToken: AccountToken) {
@@ -150,11 +166,11 @@ export class Backend {
     try {
       await this._ensureAuthenticated();
 
-      const accountData = await this._ipc.getAccountData(accountToken);
+      const accountData = await this._daemonRpc.getAccountData(accountToken);
 
       log.debug('Account exists', accountData);
 
-      await this._ipc.setAccount(accountToken);
+      await this._daemonRpc.setAccount(accountToken);
 
       log.info('Log in complete');
 
@@ -166,37 +182,16 @@ export class Backend {
       setTimeout(() => {
         this._store.dispatch(push('/connect'));
         log.debug('Autoconnecting...');
-        this.connect();
+        this.connectTunnel();
       }, 1000);
 
-      await this._fetchAccountHistory();
+      await this.fetchAccountHistory();
     } catch (e) {
       log.error('Failed to log in,', e.message);
 
       const error = this._rpcErrorToBackendError(e);
       this._store.dispatch(accountActions.loginFailed(error));
     }
-  }
-
-  _rpcErrorToBackendError(e) {
-    if (e instanceof JsonRpcError) {
-      switch (e.code) {
-        case -200: // Account doesn't exist
-          return new InvalidAccountError();
-        case -32603: // Internal error
-          // We treat all internal backend errors as the user cannot reach
-          // api.mullvad.net. This is not always true of course, but it is
-          // true so often that we choose to disregard the other edge cases
-          // for now.
-          return new CommunicationError();
-      }
-    } else if (e instanceof TimeOutError) {
-      return new CommunicationError();
-    } else if (e instanceof NoDaemonError) {
-      return e;
-    }
-
-    return new UnknownError(e.message);
   }
 
   async autologin() {
@@ -207,7 +202,7 @@ export class Backend {
 
       this._store.dispatch(accountActions.startLogin());
 
-      const accountToken = await this._ipc.getAccount();
+      const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
@@ -215,7 +210,7 @@ export class Backend {
       log.debug('The backend had an account number stored: ', accountToken);
       this._store.dispatch(accountActions.startLogin(accountToken));
 
-      const accountData = await this._ipc.getAccountData(accountToken);
+      const accountData = await this._daemonRpc.getAccountData(accountToken);
       log.debug('The stored account number still exists', accountData);
 
       this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
@@ -234,12 +229,12 @@ export class Backend {
     // @TODO: What does it mean for a logout to be successful or failed?
     try {
       await this._ensureAuthenticated();
-      await this._ipc.setAccount(null);
+      await this._daemonRpc.setAccount(null);
 
       this._store.dispatch(accountActions.loggedOut());
 
       // disconnect user during logout
-      await this.disconnect();
+      await this.disconnectTunnel();
 
       this._store.dispatch(push('/'));
     } catch (e) {
@@ -247,9 +242,9 @@ export class Backend {
     }
   }
 
-  async connect() {
+  async connectTunnel() {
     try {
-      const currentState = await this._ipc.getState();
+      const currentState = await this._daemonRpc.getState();
       if (currentState.state === 'secured') {
         log.debug('Refusing to connect as connection is already secured');
         this._store.dispatch(connectionActions.connected());
@@ -259,18 +254,18 @@ export class Backend {
       this._store.dispatch(connectionActions.connecting());
 
       await this._ensureAuthenticated();
-      await this._ipc.connect();
+      await this._daemonRpc.connectTunnel();
     } catch (e) {
       log.error('Failed to connect: ', e.message);
       this._store.dispatch(connectionActions.disconnected());
     }
   }
 
-  async disconnect() {
+  async disconnectTunnel() {
     // @TODO: Failure modes
     try {
       await this._ensureAuthenticated();
-      await this._ipc.disconnect();
+      await this._daemonRpc.disconnectTunnel();
     } catch (e) {
       log.error('Failed to disconnect: ', e.message);
     }
@@ -279,7 +274,7 @@ export class Backend {
   async updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     try {
       await this._ensureAuthenticated();
-      await this._ipc.updateRelaySettings(relaySettings);
+      await this._daemonRpc.updateRelaySettings(relaySettings);
     } catch (e) {
       log.error('Failed to update relay settings: ', e.message);
     }
@@ -288,7 +283,7 @@ export class Backend {
   async fetchRelaySettings() {
     await this._ensureAuthenticated();
 
-    const relaySettings = await this._ipc.getRelaySettings();
+    const relaySettings = await this._daemonRpc.getRelaySettings();
     log.debug('Got relay settings from backend', JSON.stringify(relaySettings));
 
     if (relaySettings.normal) {
@@ -339,13 +334,13 @@ export class Backend {
   }
 
   async updateAccountExpiry() {
-    const ipc = this._ipc;
+    const ipc = this._daemonRpc;
     const store = this._store;
 
     try {
       await this._ensureAuthenticated();
 
-      const accountToken = await this._ipc.getAccount();
+      const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
@@ -357,31 +352,22 @@ export class Backend {
     }
   }
 
-  async removeAccountFromHistory(accountToken: AccountToken) {
-    try {
-      await this._ensureAuthenticated();
-      await this._ipc.removeAccountFromHistory(accountToken);
-      await this._fetchAccountHistory();
-    } catch (e) {
-      log.error('Failed to remove account token from history', e.message);
-    }
+  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    await this._ensureAuthenticated();
+    await this._daemonRpc.removeAccountFromHistory(accountToken);
+    await this.fetchAccountHistory();
   }
 
-  async _fetchAccountHistory() {
-    try {
-      await this._ensureAuthenticated();
-      const accountHistory = await this._ipc.getAccountHistory();
-      this._store.dispatch(accountActions.updateAccountHistory(accountHistory));
-    } catch (e) {
-      log.info('Failed to fetch account history,', e.message);
-      throw e;
-    }
+  async fetchAccountHistory(): Promise<void> {
+    await this._ensureAuthenticated();
+    const accountHistory = await this._daemonRpc.getAccountHistory();
+    this._store.dispatch(accountActions.updateAccountHistory(accountHistory));
   }
 
-  async _fetchRelayLocations() {
+  async fetchRelayLocations() {
     await this._ensureAuthenticated();
 
-    const locations = await this._ipc.getRelayLocations();
+    const locations = await this._daemonRpc.getRelayLocations();
 
     log.info('Got relay locations');
 
@@ -401,10 +387,10 @@ export class Backend {
     this._store.dispatch(settingsActions.updateRelayLocations(storedLocations));
   }
 
-  async _fetchLocation() {
+  async fetchLocation() {
     await this._ensureAuthenticated();
 
-    const location = await this._ipc.getLocation();
+    const location = await this._daemonRpc.getLocation();
 
     log.info('Got location from daemon');
 
@@ -421,29 +407,80 @@ export class Backend {
   }
 
   async setAllowLan(allowLan: boolean) {
-    try {
-      await this._ensureAuthenticated();
-      await this._ipc.setAllowLan(allowLan);
+    await this._ensureAuthenticated();
+    await this._daemonRpc.setAllowLan(allowLan);
 
-      this._store.dispatch(settingsActions.updateAllowLan(allowLan));
-    } catch (e) {
-      log.error('Failed to change the LAN sharing policy: ', e.message);
-    }
+    this._store.dispatch(settingsActions.updateAllowLan(allowLan));
   }
 
-  async _fetchAllowLan() {
+  async fetchAllowLan() {
     await this._ensureAuthenticated();
 
-    const allowLan = await this._ipc.getAllowLan();
+    const allowLan = await this._daemonRpc.getAllowLan();
     this._store.dispatch(settingsActions.updateAllowLan(allowLan));
   }
 
   async fetchSecurityState() {
     await this._ensureAuthenticated();
 
-    const securityState = await this._ipc.getState();
+    const securityState = await this._daemonRpc.getState();
     const connectionState = this._securityStateToConnectionState(securityState);
     this._dispatchConnectionState(connectionState);
+  }
+
+  async _requestCredentials(): Promise<RpcCredentials> {
+    try {
+      return await this._credentialsProvider.request();
+    } catch (providerError) {
+      throw new CredentialsRequestError(providerError);
+    }
+  }
+
+  async _connectToDaemon(): Promise<void> {
+    let credentials;
+    try {
+      credentials = await this._requestCredentials();
+    } catch (error) {
+      log.error(`Cannot request the RPC credentials: ${error.message}`);
+      return;
+    }
+
+    this._credentials = credentials;
+    this._daemonRpc.connect(credentials.connectionString);
+  }
+
+  async _onOpenConnection() {
+    this._reconnectBackoff.reset();
+
+    // make sure to re-subscribe to state notifications when connection is re-established.
+    try {
+      await this._subscribeStateListener();
+    } catch (error) {
+      log.error(`Cannot subscribe for RPC notifications: ${error.message}`);
+    }
+
+    this._fetchInitialState();
+  }
+
+  async _onCloseConnection(error: ?Error) {
+    // force to re-authenticate when connection closed
+    this._authenticationPromise = null;
+
+    if (error) {
+      log.debug(`Lost connection to daemon: ${error.message}`);
+
+      const recover = async () => {
+        try {
+          await this.connect();
+        } catch (error) {
+          log.error(`Failed to reconnect: ${error.message}`);
+        }
+      };
+
+      this._reconnectBackoff.attempt(() => {
+        recover();
+      });
+    }
   }
 
   /**
@@ -451,33 +488,65 @@ export class Backend {
    * This is currently done via HTML5 APIs but will be replaced later
    * with proper backend integration.
    */
-  _startReachability() {
+  _setupReachability() {
+    const { online, offline } = bindActionCreators(connectionActions, this._store.dispatch);
+
     window.addEventListener('online', () => {
-      this._store.dispatch(connectionActions.online());
+      online();
     });
     window.addEventListener('offline', () => {
-      // force disconnect since there is no real connection anyway.
-      this.disconnect();
-      this._store.dispatch(connectionActions.offline());
+      offline();
     });
 
-    // update online status in background
-    setTimeout(() => {
-      const action = navigator.onLine ? connectionActions.online() : connectionActions.offline();
-
-      this._store.dispatch(action);
-    }, 0);
+    if (navigator.onLine) {
+      online();
+    } else {
+      offline();
+    }
   }
 
-  async _registerIpcListeners() {
+  async _subscribeStateListener() {
     await this._ensureAuthenticated();
-    this._ipc.registerStateListener((newState) => {
-      const connectionState = this._securityStateToConnectionState(newState);
-      log.debug(`Got new state from backend {state: ${newState.state}, \
-        target_state: ${newState.target_state}}, translated to '${connectionState}'`);
-      this._dispatchConnectionState(connectionState);
-      this.sync();
+    await this._daemonRpc.subscribeStateListener((newState, error) => {
+      if (error) {
+        log.error(`Received an error when processing the incoming state change: ${error.message}`);
+      }
+
+      if (newState) {
+        const connectionState = this._securityStateToConnectionState(newState);
+
+        log.debug(
+          `Got new state from backend {state: ${newState.state}, target_state: ${
+            newState.target_state
+          }}, translated to '${connectionState}'`,
+        );
+
+        this._dispatchConnectionState(connectionState);
+        this._refreshStateOnChange();
+      }
     });
+  }
+
+  async _fetchInitialState() {
+    try {
+      await Promise.all([
+        this.fetchSecurityState(),
+        this.fetchRelaySettings(),
+        this.fetchRelayLocations(),
+        this.fetchAllowLan(),
+        this.fetchLocation(),
+      ]);
+    } catch (error) {
+      log.error(`Cannot prefetch data: ${error.message}`);
+    }
+  }
+
+  async _refreshStateOnChange() {
+    try {
+      await this.fetchLocation();
+    } catch (error) {
+      log.error(`Failed to fetch the location: ${error.message}`);
+    }
   }
 
   _securityStateToConnectionState(backendState: BackendState): ConnectionState {
@@ -492,17 +561,42 @@ export class Backend {
   }
 
   _dispatchConnectionState(connectionState: ConnectionState) {
+    const { connecting, connected, disconnected } = bindActionCreators(
+      connectionActions,
+      this._store.dispatch,
+    );
     switch (connectionState) {
       case 'connecting':
-        this._store.dispatch(connectionActions.connecting());
+        connecting();
         break;
       case 'connected':
-        this._store.dispatch(connectionActions.connected());
+        connected();
         break;
       case 'disconnected':
-        this._store.dispatch(connectionActions.disconnected());
+        disconnected();
         break;
     }
+  }
+
+  _rpcErrorToBackendError(e) {
+    if (e instanceof JsonRpcTransportRemoteError) {
+      switch (e.code) {
+        case -200: // Account doesn't exist
+          return new InvalidAccountError();
+        case -32603: // Internal error
+          // We treat all internal backend errors as the user cannot reach
+          // api.mullvad.net. This is not always true of course, but it is
+          // true so often that we choose to disregard the other edge cases
+          // for now.
+          return new CommunicationError();
+      }
+    } else if (e instanceof JsonRpcTransportTimeOutError) {
+      return new CommunicationError();
+    } else if (e instanceof NoDaemonError) {
+      return e;
+    }
+
+    return new UnknownError(e.message);
   }
 
   _ensureAuthenticated(): Promise<void> {
@@ -519,11 +613,41 @@ export class Backend {
 
   async _authenticate(sharedSecret: string) {
     try {
-      await this._ipc.authenticate(sharedSecret);
+      await this._daemonRpc.authenticate(sharedSecret);
       log.info('Authenticated with backend');
     } catch (e) {
-      log.error('Failed to authenticate with backend: ', e.message);
+      log.error(`Failed to authenticate with backend: ${e.message}`);
       throw e;
     }
+  }
+}
+
+/*
+ * Used to calculate the time to wait before reconnecting
+ * the websocket.
+ *
+ * It uses a linear backoff function that goes from 500ms
+ * to 3000ms
+ */
+class ReconnectionBackoff {
+  _attempt: number;
+
+  constructor() {
+    this._attempt = 0;
+  }
+
+  attempt(handler: () => void) {
+    setTimeout(handler, this._getIncreasedBackoff());
+  }
+
+  reset() {
+    this._attempt = 0;
+  }
+
+  _getIncreasedBackoff() {
+    if (this._attempt < 6) {
+      this._attempt++;
+    }
+    return this._attempt * 500;
   }
 }

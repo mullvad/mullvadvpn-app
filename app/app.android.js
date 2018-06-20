@@ -29,7 +29,7 @@ DeviceEventEmitter.addListener('com.mullvad.daemon-connection', async (_event, a
     await backend.autologin();
     await backend.fetchRelaySettings();
     await backend.fetchSecurityState();
-    await backend.connect();
+    await backend.connectTunnel();
   } catch (e) {
     if (e instanceof NoAccountError) {
       log.debug('No previously configured account set, showing window');

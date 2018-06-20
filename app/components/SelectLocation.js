@@ -14,7 +14,7 @@ import type {
   RelayLocationRedux,
   RelayLocationCityRedux,
 } from '../redux/settings/reducers';
-import type { RelayLocation } from '../lib/ipc-facade';
+import type { RelayLocation } from '../lib/daemon-rpc';
 
 export type SelectLocationProps = {
   settings: SettingsReduxState,
