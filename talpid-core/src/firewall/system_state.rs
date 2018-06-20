@@ -64,6 +64,7 @@ mod tests {
     extern crate tempfile;
 
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn can_create_backup() {
