@@ -4,6 +4,7 @@ extern crate resolv_conf;
 use std::fs;
 use std::net::IpAddr;
 use std::ops::DerefMut;
+use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 
@@ -54,6 +55,8 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
+        Self::restore_persisted_state()?;
+
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
 
@@ -96,6 +99,21 @@ impl DnsSettings {
         self.state
             .lock()
             .expect("a thread panicked while using the DNS configuration state")
+    }
+
+    fn restore_persisted_state() -> Result<()> {
+        let backup_file = PathBuf::from(RESOLV_CONF_BACKUP_PATH);
+
+        if backup_file.exists() {
+            info!("Restoring DNS state from backup");
+            let backup =
+                fs::read_to_string(&backup_file).chain_err(|| ErrorKind::RestoreResolvConf)?;
+
+            fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+            fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
+        }
+
+        Ok(())
     }
 }
 
