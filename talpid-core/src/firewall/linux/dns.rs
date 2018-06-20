@@ -1,11 +1,11 @@
 extern crate notify;
 extern crate resolv_conf;
 
-use std::fs;
 use std::net::IpAddr;
 use std::ops::DerefMut;
+use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::thread;
+use std::{fs, io, thread};
 
 use error_chain::ChainedError;
 
@@ -54,6 +54,8 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
+        Self::restore_persisted_state()?;
+
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
 
@@ -96,6 +98,24 @@ impl DnsSettings {
         self.state
             .lock()
             .expect("a thread panicked while using the DNS configuration state")
+    }
+
+    fn restore_persisted_state() -> Result<()> {
+        let backup_file = Path::new(RESOLV_CONF_BACKUP_PATH);
+
+        match fs::read(&backup_file) {
+            Ok(backup) => {
+                info!("Restoring DNS state from backup");
+                fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
+            }
+            Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
+                trace!("No DNS state backup to restore")
+            }
+            Err(error) => return Err(Error::with_chain(error, ErrorKind::RestoreResolvConf)),
+        }
+
+        Ok(())
     }
 }
 
