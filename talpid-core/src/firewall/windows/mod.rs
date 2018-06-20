@@ -127,19 +127,19 @@ impl WindowsFirewall {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,
-        wfp_settings: &WinFwSettings,
+        winfw_settings: &WinFwSettings,
     ) -> Result<()> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(&endpoint.address.ip());
 
-        // ip_str has to outlive wfp_relay
-        let wfp_relay = WinFwRelay {
+        // ip_str has to outlive winfw_relay
+        let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        unsafe { WinFw_ApplyPolicyConnecting(wfp_settings, &wfp_relay).into_result() }
+        unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay).into_result() }
     }
 
     fn widestring_ip(ip: &IpAddr) -> WideCString {
@@ -150,7 +150,7 @@ impl WindowsFirewall {
     fn set_connected_state(
         &mut self,
         endpoint: &Endpoint,
-        wfp_settings: &WinFwSettings,
+        winfw_settings: &WinFwSettings,
         tunnel_metadata: &::tunnel::TunnelMetadata,
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
@@ -160,8 +160,8 @@ impl WindowsFirewall {
         let tunnel_alias =
             WideCString::new(tunnel_metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap();
 
-        // ip_str, gateway_str and tunnel_alias have to outlive wfp_relay
-        let wfp_relay = WinFwRelay {
+        // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
+        let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
@@ -170,8 +170,8 @@ impl WindowsFirewall {
         self.dns.set_dns(vec![tunnel_metadata.gateway.into()])?;
         unsafe {
             WinFw_ApplyPolicyConnected(
-                wfp_settings,
-                &wfp_relay,
+                winfw_settings,
+                &winfw_relay,
                 tunnel_alias.as_wide_c_str().as_ptr(),
                 gateway_str.as_wide_c_str().as_ptr(),
             ).into_result()
