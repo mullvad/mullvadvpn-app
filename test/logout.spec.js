@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import {
   setupBackendAndStore,
   setupBackendAndMockStore,
@@ -16,13 +15,10 @@ describe('logging out', () => {
     const { mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain
-      .require('setAccount')
-      .withInputValidation((num) => {
-        expect(num).to.be.null;
-      })
-      .done();
-    chain.require('disconnect').done();
+    chain.expect('setAccount').withInputValidation((num) => {
+      expect(num).to.be.null;
+    });
+    chain.expect('disconnect');
     chain.onSuccessOrFailure(done);
 
     backend.logout();

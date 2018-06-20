@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import { setupBackendAndStore, setupBackendAndMockStore, getLocation } from './helpers/ipc-helpers';
 import { IpcChain } from './helpers/IpcChain';
 
@@ -11,17 +10,11 @@ describe('autologin', () => {
     const randomAccountToken = '12345';
 
     const chain = new IpcChain(mockIpc);
-    chain
-      .require('getAccount')
-      .withReturnValue(randomAccountToken)
-      .done();
+    chain.expect('getAccount').withReturnValue(randomAccountToken);
 
-    chain
-      .require('getAccountData')
-      .withInputValidation((num) => {
-        expect(num).to.equal(randomAccountToken);
-      })
-      .done();
+    chain.expect('getAccountData').withInputValidation((num) => {
+      expect(num).to.equal(randomAccountToken);
+    });
 
     chain.onSuccessOrFailure(done);
 

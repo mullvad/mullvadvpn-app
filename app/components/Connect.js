@@ -294,7 +294,9 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   onIPAddressClick() {
-    this._copyTimer && clearTimeout(this._copyTimer);
+    if (this._copyTimer) {
+      clearTimeout(this._copyTimer);
+    }
     this._copyTimer = setTimeout(() => this.setState({ showCopyIPMessage: false }), 3000);
     this.setState({ showCopyIPMessage: true });
     this.props.onCopyIP();

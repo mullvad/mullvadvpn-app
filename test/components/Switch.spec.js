@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils, { Simulate } from 'react-dom/test-utils';

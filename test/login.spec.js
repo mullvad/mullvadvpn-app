@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import {
   setupBackendAndStore,
   setupBackendAndMockStore,
@@ -17,19 +16,13 @@ describe('Logging in', () => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
     const chain = new IpcChain(mockIpc);
-    chain
-      .require('getAccountData')
-      .withInputValidation((an) => {
-        expect(an).to.equal('123');
-      })
-      .done();
+    chain.expect('getAccountData').withInputValidation((an) => {
+      expect(an).to.equal('123');
+    });
 
-    chain
-      .require('setAccount')
-      .withInputValidation((an) => {
-        expect(an).to.equal('123');
-      })
-      .done();
+    chain.expect('setAccount').withInputValidation((an) => {
+      expect(an).to.equal('123');
+    });
 
     chain.onSuccessOrFailure(done);
 

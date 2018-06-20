@@ -1,6 +1,5 @@
 // @flow
 
-import { expect } from 'chai';
 import { check, failFast } from './ipc-helpers';
 
 export class IpcChain {
@@ -17,15 +16,17 @@ export class IpcChain {
     this._aborted = false;
   }
 
-  require<R>(ipcCall: string): StepBuilder<R> {
+  expect<R>(ipcCall: string): StepBuilder<R> {
+    const builder = new StepBuilder(ipcCall);
     this._expectedCalls.push(ipcCall);
-    return new StepBuilder(ipcCall, this._addStep.bind(this));
+    this._addStep(builder);
+
+    return builder;
   }
 
   _addStep<R>(step: StepBuilder<R>) {
-    const me = this;
-    this._mockIpc[step.ipcCall] = function() {
-      return new Promise((r) => me._stepPromiseCallback(step, r, arguments));
+    this._mockIpc[step.ipcCall] = (...args: Array<mixed>) => {
+      return new Promise((r) => this._stepPromiseCallback(step, r, args));
     };
   }
 
@@ -80,16 +81,14 @@ export class IpcChain {
 
 class StepBuilder<R> {
   ipcCall: string;
-  inputValidation: ?() => void;
+  inputValidation: ?(...args: Array<mixed>) => void;
   returnValue: ?R;
-  _cb: (StepBuilder<R>) => void;
 
-  constructor(ipcCall: string, cb: (StepBuilder<R>) => void) {
+  constructor(ipcCall: string) {
     this.ipcCall = ipcCall;
-    this._cb = cb;
   }
 
-  withInputValidation(iv: () => void): this {
+  withInputValidation(iv: (...args: Array<mixed>) => void): this {
     this.inputValidation = iv;
     return this;
   }
@@ -97,9 +96,5 @@ class StepBuilder<R> {
   withReturnValue(rv: R): this {
     this.returnValue = rv;
     return this;
-  }
-
-  done() {
-    this._cb(this);
   }
 }

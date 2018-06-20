@@ -1,10 +1,8 @@
 // @flow
 
-import { expect } from 'chai';
-import React from 'react';
+import * as React from 'react';
 import Support from '../../app/components/Support';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import type { SupportProps } from '../../app/components/Support';
 
 describe('components/Support', () => {
@@ -63,7 +61,7 @@ describe('components/Support', () => {
   });
 
   it('should not collect report twice', (done) => {
-    const collectCallback = sinon.spy(() => Promise.resolve('non-falsy'));
+    const collectCallback = spy(() => Promise.resolve('non-falsy'));
     const props = makeProps({
       onCollectLog: collectCallback,
     });
@@ -77,7 +75,7 @@ describe('components/Support', () => {
 
     setTimeout(() => {
       try {
-        expect(collectCallback.callCount).to.equal(1);
+        expect(collectCallback).to.have.been.called.once;
         done();
       } catch (e) {
         done(e);
@@ -86,12 +84,12 @@ describe('components/Support', () => {
   });
 
   it('should collect report on submission', (done) => {
-    const collectCallback = sinon.spy(() => Promise.resolve(''));
+    const collectCallback = spy(() => Promise.resolve(''));
     const props = makeProps({
       onCollectLog: collectCallback,
       onSend: (_report) => {
         try {
-          expect(collectCallback.calledOnce).to.be.true;
+          expect(collectCallback).to.have.been.called.once;
           done();
         } catch (e) {
           done(e);

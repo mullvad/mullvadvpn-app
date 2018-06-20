@@ -1,5 +1,5 @@
 // @flow
-import { expect } from 'chai';
+
 import TransitionRule from '../app/lib/transition-rule';
 
 describe('TransitionRule', () => {

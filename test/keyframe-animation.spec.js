@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+// @flow
+
 import KeyframeAnimation from '../app/lib/keyframe-animation';
 import { nativeImage } from 'electron';
 
@@ -15,7 +16,9 @@ describe('lib/keyframe-animation', function() {
   it('should play sequence', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
       expect(animation._currentFrame).to.be.equal(4);
@@ -28,7 +31,9 @@ describe('lib/keyframe-animation', function() {
   it('should play one frame', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([3]);
       expect(animation._currentFrame).to.be.equal(3);
@@ -41,7 +46,9 @@ describe('lib/keyframe-animation', function() {
   it('should play sequence with custom frames', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([2, 3, 4]);
       expect(animation._currentFrame).to.be.equal(4);
@@ -57,7 +64,9 @@ describe('lib/keyframe-animation', function() {
   it('should play sequence with custom frames in reverse', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2]);
       expect(animation._currentFrame).to.be.equal(2);
@@ -74,7 +83,9 @@ describe('lib/keyframe-animation', function() {
   it('should begin from current state starting below range', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
       expect(animation._currentFrame).to.be.equal(4);
@@ -94,7 +105,9 @@ describe('lib/keyframe-animation', function() {
   it('should begin from current state starting below range reverse', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([0, 1, 2, 3]);
       expect(animation._currentFrame).to.be.equal(3);
@@ -115,7 +128,9 @@ describe('lib/keyframe-animation', function() {
   it('should begin from current state starting above range', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2]);
       expect(animation._currentFrame).to.be.equal(2);
@@ -135,7 +150,9 @@ describe('lib/keyframe-animation', function() {
   it('should begin from current state starting above range reverse', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2, 1]);
       expect(animation._currentFrame).to.be.equal(1);
@@ -156,7 +173,9 @@ describe('lib/keyframe-animation', function() {
   it('should play sequence in reverse', (done) => {
     let seq = [];
     const animation = newAnimation();
-    animation.onFrame = () => seq.push(animation._currentFrame);
+    animation.onFrame = () => {
+      seq.push(animation._currentFrame);
+    };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2, 1, 0]);
       expect(animation._currentFrame).to.be.equal(0);
