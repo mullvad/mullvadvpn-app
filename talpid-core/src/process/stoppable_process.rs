@@ -1,5 +1,3 @@
-extern crate libc;
-
 use std::io;
 use std::thread;
 use std::time::{Duration, Instant};

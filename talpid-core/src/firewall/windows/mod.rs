@@ -1,4 +1,3 @@
-extern crate libc;
 extern crate widestring;
 
 use super::{Firewall, SecurityPolicy};
@@ -137,7 +136,7 @@ impl WindowsFirewall {
 #[allow(non_snake_case)]
 mod ffi {
 
-    use super::libc;
+    extern crate libc;
     use super::{ErrorKind, Result};
     use std::ffi::CStr;
     use std::os::raw::c_char;
