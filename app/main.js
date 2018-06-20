@@ -136,7 +136,7 @@ const ApplicationMain = {
     ipcMain.on('daemon-connection', async (event) => {
       const addressFile = new RpcAddressFile();
 
-      log.debug(`Reading the RPC connection info from "${addressFile.filePath}"`);
+      log.debug(`Waiting for RPC address file: "${addressFile.filePath}"`);
 
       try {
         await addressFile.waitUntilExists();
@@ -165,7 +165,7 @@ const ApplicationMain = {
 
         log.debug('Read RPC connection info', credentials.connectionString);
 
-        event.sender.send('daemon-connection', { credentials });
+        event.sender.send('daemon-connection', credentials);
       } catch (error) {
         log.error(`Cannot parse the RPC address file: ${error.message}`);
         return;

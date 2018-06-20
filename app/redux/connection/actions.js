@@ -4,10 +4,10 @@ import { Clipboard } from 'reactxp';
 
 import type { Backend } from '../../lib/backend';
 import type { ReduxThunk } from '../store';
-import type { Ip } from '../../lib/ipc-facade';
+import type { Ip } from '../../lib/daemon-rpc';
 
-const connect = (backend: Backend): ReduxThunk => () => backend.connect();
-const disconnect = (backend: Backend) => () => backend.disconnect();
+const connect = (backend: Backend): ReduxThunk => () => backend.connectTunnel();
+const disconnect = (backend: Backend) => () => backend.disconnectTunnel();
 const copyIPAddress = (): ReduxThunk => {
   return (_, getState) => {
     const ip = getState().connection.ip;
