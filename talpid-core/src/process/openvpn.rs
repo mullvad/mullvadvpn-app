@@ -1,5 +1,4 @@
 use duct;
-extern crate libc;
 extern crate os_pipe;
 
 use super::stoppable_process::StoppableProcess;
