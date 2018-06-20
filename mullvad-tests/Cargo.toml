@@ -1,0 +1,21 @@
+[package]
+name = "mullvad-tests"
+version = "0.1.0"
+authors = ["Mullvad VPN <admin@mullvad.net>", "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>"]
+description = "Mullvad test specific modules and binaries"
+license = "GPL-3.0"
+
+[features]
+integration-tests = []
+
+[dependencies]
+duct = "0.10"
+mullvad-ipc-client = { path = "../mullvad-ipc-client" }
+mullvad-paths = { path = "../mullvad-paths" }
+mullvad-types = { path = "../mullvad-types" }
+notify = "4.0"
+os_pipe = "0.6"
+tempfile = "3.0"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

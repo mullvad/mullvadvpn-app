@@ -52,20 +52,24 @@ matrix:
         - rustup component add rustfmt-preview
         - rustfmt --version
         - cargo fmt -- --check --unstable-features
+        - ./integration-tests.sh
 
     - language: rust
       rust: beta
       os: linux
       cache: cargo
       before_script: *rust_before_script
-      script: *rust_script
+      script: &rust_linux_script
+        - cargo build --verbose
+        - cargo test --verbose
+        - ./integration-tests.sh
 
     - language: rust
       rust: stable
       os: linux
       cache: cargo
       before_script: *rust_before_script
-      script: *rust_script
+      script: *rust_linux_script
 
 
 notifications:

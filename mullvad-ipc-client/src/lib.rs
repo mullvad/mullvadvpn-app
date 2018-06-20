@@ -9,6 +9,7 @@ extern crate talpid_types;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
 
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
@@ -59,6 +60,11 @@ error_chain! {
             display("Failed to call RPC method \"{}\"", method)
         }
 
+        RpcSubscribeError(event: String) {
+            description("Failed to subscribe to RPC event")
+            display("Failed to subscribe to RPC event \"{}\"", event)
+        }
+
         StartRpcClient(address: String) {
             description("Failed to start RPC client")
             display("Failed to start RPC client to {}", address)
@@ -77,7 +83,24 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn new() -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file()?;
+        Self::with_rpc_address_file(mullvad_paths::get_rpc_address_path()?)
+    }
+
+    pub fn with_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        ensure_written_by_admin(&file_path)?;
+
+        let (address, credentials) = Self::read_rpc_file(file_path)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    pub fn with_insecure_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
+        let (address, credentials) = Self::read_rpc_file(file_path)?;
+
+        Self::with_address_and_credentials(address, credentials)
+    }
+
+    fn with_address_and_credentials(address: String, credentials: String) -> Result<Self> {
         let rpc_client =
             WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
         let mut instance = DaemonRpcClient { rpc_client };
@@ -89,24 +112,25 @@ impl DaemonRpcClient {
         Ok(instance)
     }
 
-    fn read_rpc_file() -> Result<(String, String)> {
-        let file_path = mullvad_paths::get_rpc_address_path()?;
+    fn read_rpc_file<P>(file_path: P) -> Result<(String, String)>
+    where
+        P: AsRef<Path>,
+    {
+        let file_path = file_path.as_ref();
         let rpc_file =
-            File::open(&file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
-
-        ensure_written_by_admin(&file_path)?;
+            File::open(file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();
 
         let address = lines
             .next()
-            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.clone()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
+            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.to_owned()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
         let credentials = lines
             .next()
-            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.clone()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.clone()))?;
+            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.to_owned()))?
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
 
         Ok((address, credentials))
     }
@@ -191,6 +215,25 @@ impl DaemonRpcClient {
         self.rpc_client
             .call(method, args)
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
+    }
+
+    pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<DaemonState>> {
+        self.subscribe("new_state")
+    }
+
+    pub fn subscribe<T>(&mut self, event: &str) -> Result<mpsc::Receiver<T>>
+    where
+        T: for<'de> serde::Deserialize<'de> + Send + 'static,
+    {
+        let (event_tx, event_rx) = mpsc::channel();
+        let subscribe_method = format!("{}_subscribe", event);
+        let unsubscribe_method = format!("{}_unsubscribe", event);
+
+        self.rpc_client
+            .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
+            .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
+
+        Ok(event_rx)
     }
 }
 
