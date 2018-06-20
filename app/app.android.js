@@ -22,7 +22,7 @@ const store = configureStore(initialState, memoryHistory);
 //////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
 
-DeviceEventEmitter.addListener('com.mullvad.backend-info', async (_event, args) => {
+DeviceEventEmitter.addListener('com.mullvad.daemon-connection', async (_event, args) => {
   backend.setCredentials(args.credentials);
   backend.sync();
   try {
