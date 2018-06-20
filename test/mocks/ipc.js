@@ -1,39 +1,39 @@
 // @flow
-import type { IpcFacade, AccountToken, AccountData, BackendState } from '../../app/lib/ipc-facade';
+import type {
+  DaemonRpcProtocol,
+  AccountToken,
+  AccountData,
+  BackendState,
+} from '../../app/lib/daemon-rpc';
 
 interface MockIpc {
   sendNewState: (BackendState) => void;
   killWebSocket: () => void;
   -getAccountData: (AccountToken) => Promise<AccountData>;
-  -connect: () => Promise<void>;
+  -connectTunnel: () => Promise<void>;
   -getAccount: () => Promise<?AccountToken>;
   -authenticate: (string) => Promise<void>;
 }
 
 export function newMockIpc() {
   const stateListeners = [];
-  const connectionCloseListeners = [];
+  let connectionOpenListener: ?() => void;
+  let connectionCloseListener: ?(error: ?Error) => void;
 
-  const mockIpc: IpcFacade & MockIpc = {
+  const mockIpc: DaemonRpcProtocol & MockIpc = {
     setConnectionString: (_str: string) => {},
-
     getAccountData: (accountToken) =>
       Promise.resolve({
         accountToken: accountToken,
         expiry: '',
       }),
-
     getRelayLocations: () =>
       Promise.resolve({
         countries: [],
       }),
-
     getAccount: () => Promise.resolve('1111'),
-
     setAccount: () => Promise.resolve(),
-
     updateRelaySettings: () => Promise.resolve(),
-
     getRelaySettings: () =>
       Promise.resolve({
         custom_tunnel_endpoint: {
@@ -46,17 +46,16 @@ export function newMockIpc() {
           },
         },
       }),
-
     setAllowLan: (_allowLan: boolean) => Promise.resolve(),
-
     getAllowLan: () => Promise.resolve(true),
-
-    connect: () => Promise.resolve(),
-
-    disconnect: () => Promise.resolve(),
-
-    shutdown: () => Promise.resolve(),
-
+    connect: () => {
+      if (connectionOpenListener) {
+        connectionOpenListener();
+      }
+    },
+    disconnect: () => {},
+    connectTunnel: () => Promise.resolve(),
+    disconnectTunnel: () => Promise.resolve(),
     getLocation: () =>
       Promise.resolve({
         ip: '',
@@ -66,36 +65,33 @@ export function newMockIpc() {
         longitude: 0.0,
         mullvad_exit_ip: false,
       }),
-
     getState: () =>
       Promise.resolve({
         state: 'unsecured',
         target_state: 'unsecured',
       }),
-
-    registerStateListener: (listener: (BackendState) => void) => {
+    subscribeStateListener: (listener: (state: ?BackendState, error: ?Error) => void) => {
       stateListeners.push(listener);
+      return Promise.resolve();
     },
-
     sendNewState: (state: BackendState) => {
       for (const listener of stateListeners) {
         listener(state);
       }
     },
-
-    setCloseConnectionHandler: (listener: () => void) => {
-      connectionCloseListeners.push(listener);
+    addOpenConnectionObserver: (listener: () => void) => {
+      connectionOpenListener = listener;
     },
-
+    addCloseConnectionObserver: (listener: (error: ?Error) => void) => {
+      connectionCloseListener = listener;
+    },
     authenticate: (_secret: string) => Promise.resolve(),
-
     getAccountHistory: () => Promise.resolve([]),
-
     removeAccountFromHistory: (_accountToken) => Promise.resolve(),
 
     killWebSocket: () => {
-      for (const listener of connectionCloseListeners) {
-        listener();
+      if (connectionCloseListener) {
+        connectionCloseListener();
       }
     },
   };
