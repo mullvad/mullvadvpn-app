@@ -1,7 +1,5 @@
 // @flow
 
-import { check, failFast } from './ipc-helpers';
-
 export class IpcChain {
   _expectedCalls: Array<string>;
   _recordedCalls: Array<string>;
@@ -39,12 +37,11 @@ export class IpcChain {
 
     const inputValidation = step.inputValidation;
     if (inputValidation) {
-      const failedInputValidation = failFast(() => {
+      try {
         inputValidation(...args);
-      }, this._done);
-
-      if (failedInputValidation) {
+      } catch (error) {
         this._abort();
+        this._done(error);
         return;
       }
     }
@@ -65,16 +62,19 @@ export class IpcChain {
   }
 
   _ensureChainCalledCorrectly() {
-    check(() => {
+    try {
       expect(this._expectedCalls).to.deep.equal(this._recordedCalls);
-    }, this._done);
+      this._done();
+    } catch (error) {
+      this._done(error);
+    }
   }
 
   _registerCall(ipcCall: string) {
     this._recordedCalls.push(ipcCall);
   }
 
-  onSuccessOrFailure(done: (*) => void) {
+  end(done: (?Error) => void) {
     this._done = done;
   }
 }

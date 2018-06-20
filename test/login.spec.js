@@ -24,7 +24,7 @@ describe('Logging in', () => {
       expect(an).to.equal('123');
     });
 
-    chain.onSuccessOrFailure(done);
+    chain.end(done);
 
     store.dispatch(accountActions.login(backend, '123'));
   });

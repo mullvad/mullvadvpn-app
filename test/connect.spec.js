@@ -7,7 +7,7 @@ describe('connect', () => {
   it("should set the connection state to 'disconnected' on failed attempts", (done) => {
     const { store, mockIpc, backend } = setupBackendAndStore();
 
-    mockIpc.connect = () => new Promise((_, reject) => reject('Some error'));
+    mockIpc.connectTunnel = () => new Promise((_, reject) => reject('Some error'));
 
     store.dispatch(connectionActions.connected());
 
@@ -23,7 +23,7 @@ describe('connect', () => {
   it('should update the state with the server address', () => {
     const { store, backend } = setupBackendAndStore();
 
-    return backend.connect().then(() => {
+    return backend.connectTunnel().then(() => {
       const state = store.getState().connection;
       expect(state.status).to.equal('connecting');
     });

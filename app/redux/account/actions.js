@@ -1,6 +1,6 @@
 // @flow
 
-import type { AccountToken } from '../../lib/ipc-facade';
+import type { AccountToken } from '../../lib/daemon-rpc';
 import type { Backend } from '../../lib/backend';
 
 type StartLoginAction = {
