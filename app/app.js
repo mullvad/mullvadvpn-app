@@ -10,7 +10,6 @@ import { log } from './lib/platform';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
 import { Backend, NoAccountError } from './lib/backend';
-
 import { setShutdownHandler } from './shutdown-handler';
 
 import type { ConnectionState } from './redux/connection/reducers';
@@ -20,11 +19,8 @@ const initialState = null;
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
 
-//////////////////////////////////////////////////////////////////////////
-// Backend
-//////////////////////////////////////////////////////////////////////////
 const backend = new Backend(store);
-ipcRenderer.on('backend-info', async (_event, args) => {
+ipcRenderer.on('daemon-connection', async (_event, args) => {
   backend.setCredentials(args.credentials);
   backend.sync();
   try {
@@ -40,6 +36,8 @@ ipcRenderer.on('backend-info', async (_event, args) => {
   }
 });
 
+ipcRenderer.send('daemon-connection');
+
 setShutdownHandler(async () => {
   log.info('Executing a shutdown handler');
 
@@ -50,13 +48,6 @@ setShutdownHandler(async () => {
     log.error(`Failed to shutdown tunnel: ${e.message}`);
   }
 });
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Tray icon
-//////////////////////////////////////////////////////////////////////////
 
 /**
  * Get tray icon type based on connection state
@@ -86,13 +77,9 @@ store.subscribe(updateTrayIcon);
 
 // force update tray
 updateTrayIcon();
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 
 // disable smart pinch.
 webFrame.setVisualZoomLevelLimits(1, 1);
-
-ipcRenderer.send('on-browser-window-ready');
 
 export default class App extends Component {
   render() {
