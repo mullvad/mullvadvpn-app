@@ -10,7 +10,7 @@ use std::ptr;
 use std::slice;
 use std::path::Path;
 
-const DNS_STATE_FILENAME: &'static str = "dns_state_backup";
+const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
 error_chain!{
     errors{
