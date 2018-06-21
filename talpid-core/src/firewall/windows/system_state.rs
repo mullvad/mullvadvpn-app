@@ -35,7 +35,6 @@ impl SystemStateWriter {
 			io::ErrorKind::NotFound => Ok(None),
 			_ => Err(e),
 		}
-	
 	}
     }
 
@@ -60,7 +59,6 @@ mod tests {
     extern crate tempfile;
 
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn can_create_backup() {
@@ -92,25 +90,6 @@ mod tests {
         assert_eq!(backup, None);
     }
 
-    #[cfg(unix)]
-    #[test]
-    fn cant_read_without_access() {
-        let temp_dir = PathBuf::from("/dev/null/bogus");
-
-        let writer = SystemStateWriter::new(&temp_dir);
-        let mock_system_state: Vec<_> = b"8.8.8.8\n8.8.4.4\n".to_vec();
-
-        let failure = writer
-            .write_backup(&mock_system_state)
-            .expect_err("successfully wrote backup file to a directory in /dev/null");
-        assert_eq!(failure.kind(), io::ErrorKind::Other);
-
-        let recovery_failure = writer
-            .read_backup()
-            .expect_err("successfully read backup file in /dev/null");
-        assert_eq!(recovery_failure.kind(), io::ErrorKind::Other);
-    }
-
     #[test]
     fn can_remove_when_no_backup_exists() {
         let temp_dir = tempfile::tempdir().expect("failed to crate temp dir");
@@ -140,17 +119,5 @@ mod tests {
             .read_backup()
             .expect("Encountered IO error when no backup file exists");
         assert_eq!(empty_backup, None);
-    }
-
-    #[cfg(unix)]
-    #[test]
-    fn cant_remove_backup_with_io_error() {
-        let temp_dir = PathBuf::from("/dev/null/bogus");
-
-        let writer = SystemStateWriter::new(&temp_dir);
-        let removal_failure = writer
-            .remove_backup()
-            .expect_err("successfully removed state file in /dev/null");
-        assert_eq!(removal_failure.kind(), io::ErrorKind::Other);
     }
 }

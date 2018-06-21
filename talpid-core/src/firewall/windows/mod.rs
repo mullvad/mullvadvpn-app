@@ -14,6 +14,7 @@ use self::widestring::WideCString;
 #[macro_use]
 mod ffi;
 mod dns;
+mod system_state;
 
 use self::dns::WinDns;
 
