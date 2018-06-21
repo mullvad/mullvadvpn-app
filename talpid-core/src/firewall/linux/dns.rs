@@ -1,36 +1,48 @@
 extern crate notify;
 extern crate resolv_conf;
 
-use std::fs::File;
-use std::io::{self, Read, Write};
 use std::net::IpAddr;
 use std::ops::DerefMut;
+use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::thread;
+use std::{fs, io, thread};
 
 use error_chain::ChainedError;
 
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use self::resolv_conf::{Config, ScopedIp};
 
-static RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
 error_chain!{
     errors {
+        BackupResolvConf {
+            description("Failed to create backup of /etc/resolv.conf")
+        }
+
         ParseResolvConf {
-            description("failed to parse contents of /etc/resolv.conf")
+            description("Failed to parse contents of /etc/resolv.conf")
         }
 
         ReadResolvConf {
-            description("failed to read /etc/resolv.conf")
+            description("Failed to read /etc/resolv.conf")
+        }
+
+        RemoveBackup {
+            description("Failed to remove stale backup of /etc/resolv.conf")
+        }
+
+        RestoreResolvConf {
+            description("Failed to restore /etc/resolv.conf from backup")
         }
 
         WatchResolvConf {
-            description("failed to watch /etc/resolv.conf for changes")
+            description("Failed to watch /etc/resolv.conf for changes")
         }
 
         WriteResolvConf {
-            description("failed to write to /etc/resolv.conf")
+            description("Failed to write to /etc/resolv.conf")
         }
     }
 }
@@ -42,6 +54,8 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
+        Self::restore_persisted_state()?;
+
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
 
@@ -55,7 +69,7 @@ impl DnsSettings {
         let mut state = self.lock_state();
         let new_state = match state.take() {
             None => State {
-                backup: read_config()?,
+                backup: backup_config()?,
                 desired_dns: servers,
             },
             Some(previous_state) => State {
@@ -73,16 +87,35 @@ impl DnsSettings {
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(state) = self.lock_state().take() {
-            write_config(&state.backup)
-        } else {
-            Ok(())
+            write_config(&state.backup)?;
+            let _ = fs::remove_file(RESOLV_CONF_BACKUP_PATH);
         }
+
+        Ok(())
     }
 
     fn lock_state(&self) -> MutexGuard<Option<State>> {
         self.state
             .lock()
             .expect("a thread panicked while using the DNS configuration state")
+    }
+
+    fn restore_persisted_state() -> Result<()> {
+        let backup_file = Path::new(RESOLV_CONF_BACKUP_PATH);
+
+        match fs::read(&backup_file) {
+            Ok(backup) => {
+                info!("Restoring DNS state from backup");
+                fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
+            }
+            Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
+                trace!("No DNS state backup to restore")
+            }
+            Err(error) => return Err(Error::with_chain(error, ErrorKind::RestoreResolvConf)),
+        }
+
+        Ok(())
     }
 }
 
@@ -156,7 +189,7 @@ impl DnsWatcher {
                 new_config.nameservers.append(&mut state.backup.nameservers);
                 state.backup = new_config;
 
-                Ok(())
+                update_backup(&state.backup)
             }
         } else {
             Ok(())
@@ -165,27 +198,29 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
-    let contents = read_resolv_conf().chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
     Ok(config)
 }
 
-fn read_resolv_conf() -> io::Result<String> {
-    let mut file = File::open(RESOLV_CONF_PATH)?;
-    let mut contents = String::new();
-
-    file.read_to_string(&mut contents)?;
-
-    Ok(contents)
-}
-
 fn write_config(config: &Config) -> Result<()> {
-    write_resolv_conf(&config.to_string()).chain_err(|| ErrorKind::WriteResolvConf)
+    fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
+        .chain_err(|| ErrorKind::WriteResolvConf)
 }
 
-fn write_resolv_conf(contents: &str) -> io::Result<()> {
-    let mut file = File::create(RESOLV_CONF_PATH)?;
+fn backup_config() -> Result<Config> {
+    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
 
-    file.write_all(contents.as_bytes())
+    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes())
+        .chain_err(|| ErrorKind::BackupResolvConf)?;
+
+    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
+
+    Ok(config)
+}
+
+fn update_backup(backup: &Config) -> Result<()> {
+    fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
+        .chain_err(|| ErrorKind::BackupResolvConf)
 }
