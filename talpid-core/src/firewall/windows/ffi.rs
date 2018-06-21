@@ -1,6 +1,5 @@
-extern crate libc;
 
-use self::libc::{c_char, c_void};
+use libc::{c_char, c_void};
 
 pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
 

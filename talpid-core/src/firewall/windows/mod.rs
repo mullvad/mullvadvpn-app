@@ -181,7 +181,8 @@ impl WindowsFirewall {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{ffi, libc, ErrorKind, Result};
+    use libc;
+    use super::{ffi, ErrorKind, Result};
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]

@@ -1,4 +1,3 @@
-extern crate libc;
 extern crate widestring;
 
 use super::super::system_state::SystemStateWriter;
@@ -6,7 +5,7 @@ use super::ffi;
 
 use self::widestring::WideCString;
 use std::net::IpAddr;
-use self::libc::c_void;
+use libc;
 use std::ptr;
 use std::slice;
 use std::path::Path;
@@ -78,7 +77,7 @@ impl WinDns {
                 ip_ptrs.as_mut_ptr(),
                 widestring_ips.len() as u32,
                 Some(write_system_state_backup_cb),
-                &self.backup_writer as *const _ as *const c_void,
+                &self.backup_writer as *const _ as *const libc::c_void,
             ).into_result()
         }
     }
@@ -134,7 +133,7 @@ ffi_error!(RecoveringResult, ErrorKind::Recovery.into());
 pub extern "system" fn write_system_state_backup_cb(
     blob: *const u8,
     length: u32,
-    state_writer_ptr: *mut c_void,
+    state_writer_ptr: *mut libc::c_void,
 ) -> i32 {
 
     let state_writer = state_writer_ptr as *mut SystemStateWriter;
@@ -166,7 +165,7 @@ pub extern "system" fn write_system_state_backup_cb(
 
 
 type DNSConfigSink =
-    extern "system" fn(data: *const u8, length: u32, state_writer: *mut c_void) -> i32;
+    extern "system" fn(data: *const u8, length: u32, state_writer: *mut libc::c_void) -> i32;
 
 #[allow(non_snake_case)]
 extern "system" {
@@ -189,7 +188,7 @@ extern "system" {
         ips: *mut *const u16,
         n_ips: u32,
         callback: Option<DNSConfigSink>,
-        backup_writer: *const c_void,
+        backup_writer: *const libc::c_void,
     ) -> SettingResult;
 
     // Revert server settings to what they were before calling WinDns_Set.
