@@ -2,20 +2,52 @@ extern crate widestring;
 
 use super::{Firewall, SecurityPolicy};
 use std::net::IpAddr;
+use std::path::Path;
 use std::ptr;
 
-use self::ffi::*;
+use self::winfw::*;
 use talpid_types::net::Endpoint;
 
 use self::widestring::WideCString;
 
+
+#[macro_use]
+mod ffi;
+mod dns;
+mod system_state;
+
+use self::dns::WinDns;
+
 error_chain!{
     errors{
-        #[doc = "Windows firewall module error"]
-        WinFwFailure(desc: &'static str){
-            description("Opaque WinFw failure")
-            display("WinFw failed when {}", desc)
+        /// Failure to initialize windows firewall module
+        Initialization{
+            description("Failed to initialise windows firewall module")
         }
+
+        /// Failure to deinitialize windows firewall module
+        Deinitialization{
+            description("Failed to deinitialize windows firewall module")
+        }
+
+        /// Failure to apply a firewall _connected_ policy
+        ApplyingConnectedPolicy{
+            description("Failed to apply firewall policy for when the daemon is connecting to a tunnel")
+        }
+
+        /// Failure to apply a firewall _connecting_ policy
+        ApplyingConnectingPolicy{
+            description("Failed to apply firewall policy for when the daemon is connected to a tunnel")
+        }
+
+        /// Failure to reset firewall policies
+        ResettingPolicy{
+            description("Failed to reset firewall policies")
+        }
+    }
+
+    links {
+        WinDns(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
     }
 }
 
@@ -23,19 +55,23 @@ const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the `Firewall` trait.
 pub struct WindowsFirewall {
-    _unused: [u8; 0],
+    dns: WinDns,
 }
 
 impl Firewall for WindowsFirewall {
     type Error = Error;
 
-    fn new() -> Result<Self> {
-        let ok =
-            unsafe { WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut()) };
-        ok.into_result("initialize WinFw").map(|_| {
-            trace!("Successfully initialized WinFw");
-            WindowsFirewall { _unused: [] }
-        })
+    fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
+        let windns = WinDns::new(cache_dir)?;
+        unsafe {
+            WinFw_Initialize(
+                WINFW_TIMEOUT_SECONDS,
+                Some(ffi::error_sink),
+                ptr::null_mut(),
+            ).into_result()?
+        };
+        trace!("Successfully initialized windows firewall module");
+        Ok(WindowsFirewall { dns: windns })
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
@@ -60,17 +96,18 @@ impl Firewall for WindowsFirewall {
 
     fn reset_policy(&mut self) -> Result<()> {
         trace!("Resetting firewall policy");
-        let ok = unsafe { WinFw_Reset() };
-        ok.into_result("resetting firewall")
+        self.dns.reset_dns()?;
+        unsafe { WinFw_Reset().into_result() }?;
+        Ok(())
     }
 }
 
 impl Drop for WindowsFirewall {
     fn drop(&mut self) {
-        if unsafe { WinFw_Deinitialize().is_ok() } {
-            trace!("Successfully deinitialized WinFw");
+        if unsafe { WinFw_Deinitialize().into_result().is_ok() } {
+            trace!("Successfully deinitialized windows firewall module");
         } else {
-            error!("Failed to deinitialize WinFw");
+            error!("Failed to deinitialize windows firewall module");
         };
     }
 }
@@ -91,8 +128,7 @@ impl WindowsFirewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        let ok = unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay) };
-        ok.into_result("applying 'connecting' policy")
+        unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay).into_result() }
     }
 
     fn widestring_ip(ip: &IpAddr) -> WideCString {
@@ -120,56 +156,24 @@ impl WindowsFirewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        let ok = unsafe {
+        self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
+        unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
                 tunnel_alias.as_wide_c_str().as_ptr(),
                 gateway_str.as_wide_c_str().as_ptr(),
-            )
-        };
-        ok.into_result("applying 'connected' policy")
+            ).into_result()
+        }
     }
 }
 
 
 #[allow(non_snake_case)]
-mod ffi {
-
-    extern crate libc;
-    use super::{ErrorKind, Result};
-    use std::ffi::CStr;
-    use std::os::raw::c_char;
-    use std::ptr;
+mod winfw {
+    use super::{ffi, ErrorKind, Result};
+    use libc;
     use talpid_types::net::TransportProtocol;
-
-    #[repr(C)]
-    pub struct WinFwResult {
-        ok: bool,
-    }
-
-    impl WinFwResult {
-        pub fn into_result(self, description: &'static str) -> Result<()> {
-            match self.ok {
-                true => Ok(()),
-                false => Err(ErrorKind::WinFwFailure(description).into()),
-            }
-        }
-
-        pub fn is_ok(&self) -> bool {
-            self.ok
-        }
-    }
-
-    pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut libc::c_void);
-
-    pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut libc::c_void) {
-        if msg == ptr::null() {
-            error!("log message from WinFw is NULL");
-        } else {
-            error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
-        }
-    }
 
     #[repr(C)]
     pub struct WinFwRelay {
@@ -209,22 +213,34 @@ mod ffi {
         }
     }
 
+    ffi_error!(InitializationResult, ErrorKind::Initialization.into());
+    ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
+    ffi_error!(
+        ApplyConnectedResult,
+        ErrorKind::ApplyingConnectedPolicy.into()
+    );
+    ffi_error!(
+        ApplyConnectingResult,
+        ErrorKind::ApplyingConnectingPolicy.into()
+    );
+    ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
+
     extern "system" {
         #[link_name(WinFw_Initialize)]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
-            sink: Option<ErrorSink>,
+            sink: Option<ffi::ErrorSink>,
             sink_context: *mut libc::c_void,
-        ) -> WinFwResult;
+        ) -> InitializationResult;
 
         #[link_name(WinFw_Deinitialize)]
-        pub fn WinFw_Deinitialize() -> WinFwResult;
+        pub fn WinFw_Deinitialize() -> DeinitializationResult;
 
         #[link_name(WinFw_ApplyPolicyConnecting)]
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
-        ) -> WinFwResult;
+        ) -> ApplyConnectingResult;
 
         #[link_name(WinFw_ApplyPolicyConnected)]
         pub fn WinFw_ApplyPolicyConnected(
@@ -232,9 +248,9 @@ mod ffi {
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> WinFwResult;
+        ) -> ApplyConnectedResult;
 
         #[link_name(WinFw_Reset)]
-        pub fn WinFw_Reset() -> WinFwResult;
+        pub fn WinFw_Reset() -> ResettingPolicyResult;
     }
 }

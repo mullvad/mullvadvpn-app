@@ -5,6 +5,7 @@ use self::pfctl::ipnetwork::{IpNetwork, Ipv4Network};
 use super::{Firewall, SecurityPolicy};
 
 use std::net::Ipv4Addr;
+use std::path::Path;
 
 use talpid_types::net;
 
@@ -32,7 +33,7 @@ pub struct PacketFilter {
 impl Firewall for PacketFilter {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new<P: AsRef<Path>>(_cache_dir: P) -> Result<Self> {
         Ok(PacketFilter {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
