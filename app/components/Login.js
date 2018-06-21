@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import { Component, Text, View, Animated, Styles } from 'reactxp';
+import { Component, Text, View, Animated, Styles, UserInterface } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
 import AccountInput from './AccountInput';
 import Accordion from './Accordion';
@@ -13,7 +13,7 @@ import { colors } from '../config';
 import type { AccountReduxState } from '../redux/account/reducers';
 import type { AccountToken } from '../lib/ipc-facade';
 
-export type LoginPropTypes = {
+export type Props = {
   account: AccountReduxState,
   onLogin: (accountToken: AccountToken) => void,
   onSettings: ?() => void,
@@ -24,54 +24,65 @@ export type LoginPropTypes = {
 };
 
 type State = {
-  notifyOnFirstChangeAfterFailure: boolean,
   isActive: boolean,
-  footerHeight: number,
-  animatedFooterValue: Animated.Value,
-  animatedLoginButtonValue: Animated.Value,
-  animation: ?Animated.CompositeAnimation,
-  footerAnimationStyle: ?Animated.Style,
-  loginButtonAnimationStyle: ?Animated.Style,
 };
 
-export default class Login extends Component<LoginPropTypes, State> {
+export default class Login extends Component<Props, State> {
   state = {
-    notifyOnFirstChangeAfterFailure: false,
     isActive: true,
-    footerHeight: 0,
-    animatedFooterValue: Animated.createValue(0),
-    animatedLoginButtonValue: Animated.createValue(0),
-    animation: null,
-    footerAnimationStyle: {},
-    loginButtonAnimationStyle: {},
   };
 
-  constructor(props: LoginPropTypes) {
+  _accountInput: ?AccountInput;
+  _notifyOnFirstChangeAfterFailure = false;
+
+  _showsFooter = true;
+  _footerAnimatedValue = Animated.createValue(0);
+  _footerAnimation: ?Animated.Animation;
+  _footerAnimationStyle: Animated.Style;
+  _footerRef: ?React.Node;
+
+  _isLoginButtonActive = false;
+  _loginButtonAnimatedValue = Animated.createValue(0);
+  _loginButtonAnimation: ?Animated.Animation;
+  _loginButtonAnimationStyle: Animated.Style;
+
+  constructor(props: Props) {
     super(props);
+
     if (props.account.status === 'failed') {
-      this.state.notifyOnFirstChangeAfterFailure = true;
+      this._notifyOnFirstChangeAfterFailure = true;
     }
-    this.state.footerAnimationStyle = Styles.createAnimatedViewStyle({
-      transform: [{ translateY: this.state.animatedFooterValue }],
+
+    this._footerAnimationStyle = Styles.createAnimatedViewStyle({
+      transform: [{ translateY: this._footerAnimatedValue }],
     });
-    this.state.loginButtonAnimationStyle = Styles.createAnimatedViewStyle({
+
+    this._loginButtonAnimationStyle = Styles.createAnimatedViewStyle({
       backgroundColor: Animated.interpolate(
-        this.state.animatedLoginButtonValue,
+        this._loginButtonAnimatedValue,
         [0.0, 1.0],
         [colors.white, colors.green],
       ),
     });
   }
 
-  componentWillReceiveProps(nextProps: LoginPropTypes) {
-    const prev = this.props.account || {};
-    const next = nextProps.account || {};
+  componentDidUpdate(prevProps: Props, _prevState: State) {
+    if (
+      this.props.account.status !== prevProps.account.status &&
+      this.props.account.status === 'failed' &&
+      !this._notifyOnFirstChangeAfterFailure
+    ) {
+      this._notifyOnFirstChangeAfterFailure = true;
 
-    if (prev.status !== next.status && next.status === 'failed') {
-      this.setState({ notifyOnFirstChangeAfterFailure: true });
+      // focus on login field when failed to log in
+      const accountInput = this._accountInput;
+      if (accountInput) {
+        accountInput.focus();
+      }
     }
 
-    this._animate(nextProps);
+    this._setLoginButtonActive(this._shouldActivateLoginButton());
+    this._setFooterVisibility(this._shouldShowFooter());
   }
 
   render() {
@@ -87,9 +98,11 @@ export default class Login extends Component<LoginPropTypes, State> {
           </View>
 
           <Animated.View
-            onLayout={this._onFooterLayout}
-            style={[styles.login_footer, this.state.footerAnimationStyle]}
-            testName={'footerVisibility ' + this._shouldShowFooter(this.props).toString()}>
+            ref={(ref) => {
+              this._footerRef = ref;
+            }}
+            style={[styles.login_footer, this._footerAnimationStyle]}
+            testName={'footerVisibility ' + this._shouldShowFooter().toString()}>
             {this._createFooter()}
           </Animated.View>
         </Container>
@@ -99,10 +112,9 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _onCreateAccount = () => this.props.onExternalLink('createAccount');
 
-  _onFocus = () =>
-    this.setState({ isActive: true }, () => {
-      this._animate(this.props);
-    });
+  _onFocus = () => {
+    this.setState({ isActive: true });
+  };
 
   _onBlur = (e) => {
     const relatedTarget = e.relatedTarget;
@@ -113,38 +125,56 @@ export default class Login extends Component<LoginPropTypes, State> {
       return;
     }
 
-    this.setState({ isActive: false }, () => {
-      this._animate(this.props);
-    });
+    this.setState({ isActive: false });
   };
 
-  _animate = (props: LoginPropTypes) => {
-    if (this.state.animation) {
-      this.state.animation.stop();
+  async _setLoginButtonActive(isActive: boolean) {
+    if (this._isLoginButtonActive === isActive) {
+      return;
     }
-    const accountToken = props.account.accountToken || [];
 
-    const footerPosition = this._shouldShowFooter(props) ? 0 : this.state.footerHeight;
-    const loginButtonValue = accountToken.length > 0 ? 1 : 0;
-    this._setAnimation(
-      this._getFooterAnimation(footerPosition),
-      this._getLoginButtonAnimation(loginButtonValue),
-    );
-  };
-
-  _setAnimation = (
-    footerAnimation: Animated.CompositeAnimation,
-    loginButtonAnimation: Animated.CompositeAnimation,
-  ) => {
-    let compositeAnimation = Animated.parallel([footerAnimation, loginButtonAnimation]);
-    this.setState({ animation: compositeAnimation }, () => {
-      compositeAnimation.start(() =>
-        this.setState({
-          animation: null,
-        }),
-      );
+    const animation = Animated.timing(this._loginButtonAnimatedValue, {
+      toValue: isActive ? 1 : 0,
+      easing: Animated.Easing.Linear(),
+      duration: 250,
     });
-  };
+
+    const oldAnimation = this._loginButtonAnimation;
+    if (oldAnimation) {
+      oldAnimation.stop();
+    }
+
+    animation.start();
+
+    this._loginButtonAnimation = animation;
+    this._isLoginButtonActive = isActive;
+  }
+
+  async _setFooterVisibility(show: boolean) {
+    if (this._showsFooter === show) {
+      return;
+    }
+
+    this._showsFooter = show;
+
+    const layout = await UserInterface.measureLayoutRelativeToWindow(this._footerRef);
+    const value = show ? 0 : layout.height;
+
+    const animation = Animated.timing(this._footerAnimatedValue, {
+      toValue: value,
+      easing: Animated.Easing.InOut(),
+      duration: 250,
+    });
+
+    const oldAnimation = this._footerAnimation;
+    if (oldAnimation) {
+      oldAnimation.stop();
+    }
+
+    animation.start();
+
+    this._footerAnimation = animation;
+  }
 
   _onLogin = () => {
     const accountToken = this.props.account.accountToken;
@@ -155,8 +185,8 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _onInputChange = (value: string) => {
     // notify delegate on first change after login failure
-    if (this.state.notifyOnFirstChangeAfterFailure) {
-      this.setState({ notifyOnFirstChangeAfterFailure: false });
+    if (this._notifyOnFirstChangeAfterFailure) {
+      this._notifyOnFirstChangeAfterFailure = false;
       this.props.onFirstChangeAfterFailure();
     }
     this.props.onAccountTokenChange(value);
@@ -235,7 +265,7 @@ export default class Login extends Component<LoginPropTypes, State> {
       classes.push(styles.input_button__invisible);
     }
 
-    classes.push(this.state.loginButtonAnimationStyle);
+    classes.push(this._loginButtonAnimationStyle);
 
     return classes;
   }
@@ -255,16 +285,21 @@ export default class Login extends Component<LoginPropTypes, State> {
     return classes;
   }
 
-  _shouldEnableAccountInput(props: LoginPropTypes) {
-    // enable account input always except when "logging in"
-    return props.account.status !== 'logging in';
+  _shouldActivateLoginButton() {
+    const { accountToken } = this.props.account;
+    return accountToken && accountToken.length > 0;
   }
 
-  _shouldShowAccountHistory(props: LoginPropTypes) {
+  _shouldEnableAccountInput() {
+    // enable account input always except when "logging in"
+    return this.props.account.status !== 'logging in';
+  }
+
+  _shouldShowAccountHistory() {
     return (
-      this._shouldEnableAccountInput(props) &&
+      this._shouldEnableAccountInput() &&
       this.state.isActive &&
-      props.account.accountHistory.length > 0
+      this.props.account.accountHistory.length > 0
     );
   }
 
@@ -272,31 +307,9 @@ export default class Login extends Component<LoginPropTypes, State> {
     return this.props.account.status !== 'ok';
   }
 
-  _shouldShowFooter(props: LoginPropTypes) {
-    const { status } = props.account;
-    return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory(props);
-  }
-
-  _getFooterAnimation(toValue: number) {
-    return Animated.timing(this.state.animatedFooterValue, {
-      toValue: toValue,
-      easing: Animated.Easing.InOut(),
-      duration: 250,
-      useNativeDriver: false,
-    });
-  }
-
-  _onFooterLayout = (layout) => {
-    this.setState({ footerHeight: layout.height });
-  };
-
-  _getLoginButtonAnimation(toValue: number) {
-    return Animated.timing(this.state.animatedLoginButtonValue, {
-      toValue: toValue,
-      easing: Animated.Easing.Linear(),
-      duration: 250,
-      useNativeDriver: false,
-    });
+  _shouldShowFooter() {
+    const { status } = this.props.account;
+    return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory();
   }
 
   _onSelectAccountFromHistory = (accountToken) => {
@@ -306,15 +319,6 @@ export default class Login extends Component<LoginPropTypes, State> {
 
   _createLoginForm() {
     const { accountHistory, accountToken } = this.props.account;
-
-    // auto-focus on account input when failed to log in
-    // do not refactor this into instance method,
-    // it has to be new function each time to be called on each render
-    const autoFocusOnFailure = (input) => {
-      if (this.props.account.status === 'failed' && input) {
-        input.focus();
-      }
-    };
 
     return (
       <View>
@@ -331,9 +335,9 @@ export default class Login extends Component<LoginPropTypes, State> {
               onChange={this._onInputChange}
               onEnter={this._onLogin}
               value={accountToken || ''}
-              disabled={!this._shouldEnableAccountInput(this.props)}
+              disabled={!this._shouldEnableAccountInput()}
               autoFocus={true}
-              ref={autoFocusOnFailure}
+              ref={(ref) => (this._accountInput = ref)}
               testName="AccountInput"
             />
             <Animated.View
@@ -349,7 +353,7 @@ export default class Login extends Component<LoginPropTypes, State> {
               />
             </Animated.View>
           </View>
-          <Accordion height={this._shouldShowAccountHistory(this.props) ? 'auto' : 0}>
+          <Accordion height={this._shouldShowAccountHistory() ? 'auto' : 0}>
             {
               <AccountDropdown
                 items={accountHistory.slice().reverse()}
