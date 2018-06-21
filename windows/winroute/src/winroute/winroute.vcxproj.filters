@@ -15,4 +15,7 @@
   <ItemGroup>
     <None Include="winroute.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="winroute.rc" />
+  </ItemGroup>
 </Project>

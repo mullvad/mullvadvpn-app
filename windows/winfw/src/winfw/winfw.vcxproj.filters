@@ -86,4 +86,7 @@
   <ItemGroup>
     <None Include="winfw.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="winfw.rc" />
+  </ItemGroup>
 </Project>
