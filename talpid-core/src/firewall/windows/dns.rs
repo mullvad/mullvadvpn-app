@@ -110,10 +110,9 @@ impl WinDns {
 
     fn restore_system_backup(&mut self) -> Result<()> {
         if let Some(previous_state) = self.backup_writer.read_backup()? {
-            trace!("Restoring system backed up DNS state");
-
+            info!("Restoring DNS state from backup");
             self.restore_dns_settings(&previous_state)?;
-            info!("Successfully restored DNS state");
+            trace!("Successfully restored DNS state");
             if let Err(e) = self.backup_writer.remove_backup() {
                 error!(
                     "Failed to remove DNS config backup after restoring it: {}",
