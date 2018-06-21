@@ -1,6 +1,6 @@
 extern crate widestring;
 
-use super::super::system_state::SystemStateWriter;
+use super::system_state::SystemStateWriter;
 use super::ffi;
 
 use self::widestring::WideCString;
@@ -99,12 +99,11 @@ impl WinDns {
     fn restore_system_backup(&mut self) -> Result<()> {
         if let Some(previous_state) = self.backup_writer.read_backup()? {
             trace!("Restoring system backed up DNS state");
-            if let Err(e) = self.restore_dns_settings(&previous_state) {
-                return Err(e.into());
-            }
+
+            self.restore_dns_settings(&previous_state)?;
             info!("Successfully restored DNS state");
 	    if let Err(e) = self.backup_writer.remove_backup() {
-	    	error!("Failed to remove DNS config backup after restoring it");
+	    	error!("Failed to remove DNS config backup after restoring it: {}", e);
 	    }
             return Ok(());
         }

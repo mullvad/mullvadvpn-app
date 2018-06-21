@@ -1,8 +1,6 @@
 use talpid_types::net::Endpoint;
 use std::path::Path;
 
-mod system_state;
-
 
 /// A enum that describes firewall rules strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
