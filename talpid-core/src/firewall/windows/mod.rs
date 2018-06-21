@@ -248,7 +248,7 @@ mod winfw {
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> ApplyConnectingResult;
+        ) -> ApplyConnectedResult;
 
         #[link_name(WinFw_Reset)]
         pub fn WinFw_Reset() -> ResettingPolicyResult;
