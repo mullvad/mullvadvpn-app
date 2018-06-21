@@ -29,12 +29,12 @@ impl SystemStateWriter {
 
     pub fn read_backup(&self) -> io::Result<Option<Vec<u8>>> {
         match fs::read(&self.backup_path).map(|blob| Some(blob)) {
-		Ok(b) => Ok(b),
-		Err(e) => match e.kind() {
-			io::ErrorKind::NotFound => Ok(None),
-			_ => Err(e),
-		}
-	}
+            Ok(b) => Ok(b),
+            Err(e) => match e.kind() {
+                io::ErrorKind::NotFound => Ok(None),
+                _ => Err(e),
+            },
+        }
     }
 
 
@@ -95,9 +95,9 @@ mod tests {
         let temp_file = temp_dir.path().join("test_file");
 
         let writer = SystemStateWriter::new(&temp_file);
-        writer.remove_backup().expect(
-            "Encountered IO error when running remove_backup when no state file exists",
-        );
+        writer
+            .remove_backup()
+            .expect("Encountered IO error when running remove_backup when no state file exists");
     }
 
     #[test]
@@ -110,9 +110,7 @@ mod tests {
         writer
             .write_backup(&mock_system_state)
             .expect("Failed to write backup");
-        writer
-            .remove_backup()
-            .expect("Failed to remove state file");
+        writer.remove_backup().expect("Failed to remove state file");
 
         let empty_backup = writer
             .read_backup()
