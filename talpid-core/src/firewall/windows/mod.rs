@@ -2,8 +2,8 @@ extern crate widestring;
 
 use super::{Firewall, SecurityPolicy};
 use std::net::IpAddr;
-use std::ptr;
 use std::path::Path;
+use std::ptr;
 
 use self::winfw::*;
 use talpid_types::net::Endpoint;
@@ -171,8 +171,8 @@ impl WindowsFirewall {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use libc;
     use super::{ffi, ErrorKind, Result};
+    use libc;
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
@@ -215,8 +215,14 @@ mod winfw {
 
     ffi_error!(InitializationResult, ErrorKind::Initialization.into());
     ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
-    ffi_error!(ApplyConnectedResult, ErrorKind::ApplyingConnectedPolicy.into());
-    ffi_error!(ApplyConnectingResult, ErrorKind::ApplyingConnectingPolicy.into());
+    ffi_error!(
+        ApplyConnectedResult,
+        ErrorKind::ApplyingConnectedPolicy.into()
+    );
+    ffi_error!(
+        ApplyConnectingResult,
+        ErrorKind::ApplyingConnectingPolicy.into()
+    );
     ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
@@ -242,7 +248,7 @@ mod winfw {
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
-        ) -> ApplyConnectingResult;
+        ) -> ApplyConnectedResult;
 
         #[link_name(WinFw_Reset)]
         pub fn WinFw_Reset() -> ResettingPolicyResult;

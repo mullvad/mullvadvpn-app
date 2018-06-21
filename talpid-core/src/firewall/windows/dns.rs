@@ -1,14 +1,14 @@
 extern crate widestring;
 
-use super::system_state::SystemStateWriter;
 use super::ffi;
+use super::system_state::SystemStateWriter;
 
 use self::widestring::WideCString;
-use std::net::IpAddr;
 use libc;
+use std::net::IpAddr;
+use std::path::Path;
 use std::ptr;
 use std::slice;
-use std::path::Path;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
@@ -53,14 +53,26 @@ impl WinDns {
     pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
 
-        let backup_writer = SystemStateWriter::new(cache_dir.as_ref().join(DNS_STATE_FILENAME).into_boxed_path());
+        let backup_writer = SystemStateWriter::new(
+            cache_dir
+                .as_ref()
+                .join(DNS_STATE_FILENAME)
+                .into_boxed_path(),
+        );
         let mut dns = WinDns { backup_writer };
         dns.restore_system_backup()?;
         Ok(dns)
     }
 
     pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
-        info!("Setting DNS servers - {}", servers.iter().map(|ip| ip.to_string()).collect::<Vec<String>>().join(", "));
+        info!(
+            "Setting DNS servers - {}",
+            servers
+                .iter()
+                .map(|ip| ip.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        );
         let widestring_ips = servers
             .iter()
             .map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
@@ -98,13 +110,15 @@ impl WinDns {
 
     fn restore_system_backup(&mut self) -> Result<()> {
         if let Some(previous_state) = self.backup_writer.read_backup()? {
-            trace!("Restoring system backed up DNS state");
-
+            info!("Restoring DNS state from backup");
             self.restore_dns_settings(&previous_state)?;
-            info!("Successfully restored DNS state");
-	    if let Err(e) = self.backup_writer.remove_backup() {
-	    	error!("Failed to remove DNS config backup after restoring it: {}", e);
-	    }
+            trace!("Successfully restored DNS state");
+            if let Err(e) = self.backup_writer.remove_backup() {
+                error!(
+                    "Failed to remove DNS config backup after restoring it: {}",
+                    e
+                );
+            }
             return Ok(());
         }
         trace!("No dns state to restore");
@@ -136,7 +150,6 @@ pub extern "system" fn write_system_state_backup_cb(
     length: u32,
     state_writer_ptr: *mut libc::c_void,
 ) -> i32 {
-
     let state_writer = state_writer_ptr as *mut SystemStateWriter;
     if state_writer.is_null() {
         error!("State writer pointer is null, can't save system state backup");

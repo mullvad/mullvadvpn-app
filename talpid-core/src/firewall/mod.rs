@@ -1,5 +1,5 @@
-use talpid_types::net::Endpoint;
 use std::path::Path;
+use talpid_types::net::Endpoint;
 
 
 /// A enum that describes firewall rules strategy
