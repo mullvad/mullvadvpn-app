@@ -60,7 +60,7 @@ impl WinDns {
     }
 
     pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
-        info!("Setting DNS servers - {:?}", servers.join(", ");
+        info!("Setting DNS servers - {}", servers.iter().map(|ip| ip.to_string()).collect::<Vec<String>>().join(", "));
         let widestring_ips = servers
             .iter()
             .map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
@@ -86,7 +86,7 @@ impl WinDns {
         trace!("Resetting DNS");
         unsafe { WinDns_Reset().into_result()? };
 
-        if let Err(e) = self.backup_writer.remove_state_file() {
+        if let Err(e) = self.backup_writer.remove_backup() {
             warn!("Failed to remove DNS state backup file: {}", e);
         }
         Ok(())
@@ -97,13 +97,15 @@ impl WinDns {
     }
 
     fn restore_system_backup(&mut self) -> Result<()> {
-        if let Some(previous_state) = self.backup_writer.consume_state_backup()? {
+        if let Some(previous_state) = self.backup_writer.read_backup()? {
             trace!("Restoring system backed up DNS state");
             if let Err(e) = self.restore_dns_settings(&previous_state) {
-                self.backup_writer.write_backup(&previous_state)?;
                 return Err(e.into());
             }
-            trace!("Successfully restored DNS state");
+            info!("Successfully restored DNS state");
+	    if let Err(e) = self.backup_writer.remove_backup() {
+	    	error!("Failed to remove DNS config backup after restoring it");
+	    }
             return Ok(());
         }
         trace!("No dns state to restore");

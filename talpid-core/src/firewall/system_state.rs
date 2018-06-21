@@ -28,24 +28,20 @@ impl SystemStateWriter {
         fs::write(&self.backup_path, &data)
     }
 
-    /// Tries to read a previously saved backup and deletes it after reading it if it exists.
-    pub fn consume_state_backup(&self) -> io::Result<Option<Vec<u8>>> {
-        match fs::read(&self.backup_path) {
-            Ok(blob) => {
-                if let Err(e) = self.remove_state_file() {
-                    error!("Failed to remove system state backup: {}", e)
-                };
-                Ok(Some(blob))
-            }
-            Err(e) => match e.kind() {
-                io::ErrorKind::NotFound => Ok(None),
-                _ => Err(e),
-            },
-        }
+    pub fn read_backup(&self) -> io::Result<Option<Vec<u8>>> {
+        match fs::read(&self.backup_path).map(|blob| Some(blob)) {
+		Ok(b) => Ok(b),
+		Err(e) => match e.kind() {
+			io::ErrorKind::NotFound => Ok(None),
+			_ => Err(e),
+		}
+	
+	}
     }
 
+
     /// Removes a previously created state backup if it exists.
-    pub fn remove_state_file(&self) -> io::Result<()> {
+    pub fn remove_backup(&self) -> io::Result<()> {
         match fs::remove_file(&self.backup_path) {
             Err(e) => {
                 if e.kind() != io::ErrorKind::NotFound {
@@ -78,15 +74,10 @@ mod tests {
             .expect("failed to write system state");
 
         let backup = writer
-            .consume_state_backup()
+            .read_backup()
             .expect("error when reading system state backup")
             .expect("expected to read system state backup");
         assert_eq!(backup, mock_system_state);
-
-        let empty_read = writer
-            .consume_state_backup()
-            .expect("error when reading system state backup");
-        assert_eq!(empty_read, None);
     }
 
     #[test]
@@ -96,7 +87,7 @@ mod tests {
 
         let writer = SystemStateWriter::new(&temp_file);
         let backup = writer
-            .consume_state_backup()
+            .read_backup()
             .expect("error when reading system state backup");
         assert_eq!(backup, None);
     }
@@ -115,7 +106,7 @@ mod tests {
         assert_eq!(failure.kind(), io::ErrorKind::Other);
 
         let recovery_failure = writer
-            .consume_state_backup()
+            .read_backup()
             .expect_err("successfully read backup file in /dev/null");
         assert_eq!(recovery_failure.kind(), io::ErrorKind::Other);
     }
@@ -126,8 +117,8 @@ mod tests {
         let temp_file = temp_dir.path().join("test_file");
 
         let writer = SystemStateWriter::new(&temp_file);
-        writer.remove_state_file().expect(
-            "Encountered IO error when running remove_state_file when no state file exists",
+        writer.remove_backup().expect(
+            "Encountered IO error when running remove_backup when no state file exists",
         );
     }
 
@@ -142,11 +133,11 @@ mod tests {
             .write_backup(&mock_system_state)
             .expect("Failed to write backup");
         writer
-            .remove_state_file()
+            .remove_backup()
             .expect("Failed to remove state file");
 
         let empty_backup = writer
-            .consume_state_backup()
+            .read_backup()
             .expect("Encountered IO error when no backup file exists");
         assert_eq!(empty_backup, None);
     }
@@ -158,7 +149,7 @@ mod tests {
 
         let writer = SystemStateWriter::new(&temp_dir);
         let removal_failure = writer
-            .remove_state_file()
+            .remove_backup()
             .expect_err("successfully removed state file in /dev/null");
         assert_eq!(removal_failure.kind(), io::ErrorKind::Other);
     }
