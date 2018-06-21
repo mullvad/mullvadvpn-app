@@ -39,7 +39,9 @@ fn main() {
     use std::path::PathBuf;
     use win::*;
 
-    let winfw_dir = env::var_os("WINFW_INCLUDE_DIR")
+    const WINFW_LIB_DIR_VAR: &str = "WINFW_LIB_DIR";
+    println!("cargo:rerun-if-env-changed={}", WINFW_LIB_DIR_VAR);
+    let winfw_dir = env::var_os(WINFW_LIB_DIR_VAR)
         .map(PathBuf::from)
         .unwrap_or_else(default_winfw_output_dir);
 
