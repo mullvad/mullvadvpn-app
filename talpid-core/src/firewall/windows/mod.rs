@@ -166,7 +166,7 @@ impl WindowsFirewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        self.dns.set_dns(vec![tunnel_metadata.gateway.into()])?;
+        self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,

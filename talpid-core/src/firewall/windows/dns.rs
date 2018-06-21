@@ -59,8 +59,8 @@ impl WinDns {
         Ok(dns)
     }
 
-    pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        debug!("Setting DNS servers - {:?}", servers);
+    pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
+        info!("Setting DNS servers - {:?}", servers.join(", ");
         let widestring_ips = servers
             .iter()
             .map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
