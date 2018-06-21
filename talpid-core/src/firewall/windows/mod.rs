@@ -61,6 +61,7 @@ impl Firewall for WindowsFirewall {
     type Error = Error;
 
     fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
+        let windns = WinDns::new(cache_dir)?;
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
@@ -69,18 +70,6 @@ impl Firewall for WindowsFirewall {
             ).into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        let windns = match WinDns::new(cache_dir) {
-            Ok(w) => w,
-            Err(e) => {
-                unsafe { WinFw_Deinitialize() }
-                    .into_result()
-                    .unwrap_or_else(|_| {
-                        error!("Failed to denitialize windows firewall module after failing to initialize WinDns")
-                    });
-                bail!(e);
-            }
-        };
-
         Ok(WindowsFirewall { dns: windns })
     }
 
