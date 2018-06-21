@@ -33,6 +33,9 @@
   <ItemGroup>
     <None Include="winroute.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="winroute.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}</ProjectGuid>

@@ -24,4 +24,7 @@
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="interfaceconfig.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="windns.rc" />
+  </ItemGroup>
 </Project>
