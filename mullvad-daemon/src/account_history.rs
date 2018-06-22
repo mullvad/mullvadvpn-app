@@ -94,11 +94,15 @@ impl AccountHistory {
     /// Serializes the account history and saves it to the file it was loaded from.
     fn save(&self) -> Result<()> {
         debug!("Writing account history to {}", self.cache_path.display());
-        let file = File::create(&self.cache_path)
+        let mut file = File::create(&self.cache_path)
             .map(io::BufWriter::new)
             .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))?;
 
-        serde_json::to_writer_pretty(file, self)
+        serde_json::to_writer_pretty(&mut file, self)
+            .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))?;
+
+        file.get_mut()
+            .sync_all()
             .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))
     }
 }
