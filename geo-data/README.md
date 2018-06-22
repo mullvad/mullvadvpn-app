@@ -2,16 +2,16 @@ This is a folder with python 2 and node scripts to produce geographical
 data for the Mullvad VPN app.
 
 
-= Dependency installation notes =
+## Dependency installation notes
 
 1. Run the following command in terminal to install python dependencies:
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 2. Run `npm install -g topojson-server` to install `geo2topo` tool which is
 used by python scripts to convert GeoJSON to TopoJSON
 
 
-= Geo data installation notes =
+## Geo data installation notes
 
 Go to http://www.naturalearthdata.com/downloads/50m-cultural-vectors/ and
 download ZIP files with the following shapes:
@@ -47,7 +47,7 @@ unzip ne_50m_admin_1_states_provinces_lines.zip -d ne_50m_admin_1_states_provinc
 unzip ne_50m_populated_places_simple.zip -d ne_50m_populated_places_simple
 ```
 
-= Geo data extraction notes =
+## Geo data extraction notes
 
 Run the following script to produce a TopoJSON data used by the app:
 
@@ -61,12 +61,12 @@ and finally generate the R-Tree cache:
 npx babel-node prepare-rtree.js
 ```
 
-At this point all of the data should be saved in geo-data/out folder.
+At this point all of the data should be saved in `geo-data/out` folder.
 
-= App integration notes =
+## App integration notes
 
 Once you've extracted all the geo data, run the integration script that will
-copy all files ignoring intermediate ones into the app/assets/geo folder:
+copy all files ignoring intermediate ones into the `app/assets/geo` folder:
 
 ```
 python integrate-into-app.py
