@@ -222,7 +222,11 @@ export class Backend {
     const actions = this._reduxActions;
 
     try {
-      await Promise.all([this.disconnectTunnel(), this._daemonRpc.setAccount(null)]);
+      await Promise.all([
+        this.disconnectTunnel(),
+        this._daemonRpc.setAccount(null),
+        this.fetchAccountHistory(),
+      ]);
       actions.account.loggedOut();
       actions.history.push('/');
     } catch (e) {
@@ -526,6 +530,7 @@ export class Backend {
       this.fetchRelayLocations(),
       this.fetchAllowLan(),
       this.fetchLocation(),
+      this.fetchAccountHistory(),
     ]);
   }
 

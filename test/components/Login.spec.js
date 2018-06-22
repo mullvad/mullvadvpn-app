@@ -73,7 +73,6 @@ const defaultProps = {
   login: (_accountToken) => {},
   resetLoginError: () => {},
   updateAccountToken: (_accountToken) => {},
-  fetchAccountTokenHistory: () => Promise.resolve(),
   removeAccountTokenFromHistory: (_accountToken) => Promise.resolve(),
 };
 
