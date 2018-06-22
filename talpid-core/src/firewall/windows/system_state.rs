@@ -1,8 +1,8 @@
 //! A writer for a blob that would persistently store the system state. Useful
 //! for when the application of a secuirty policy proves to be persistent across
 //! reboots
-use std::fs;
-use std::io;
+use std::fs::{self, File};
+use std::io::{self, Write};
 use std::path::Path;
 
 /// This struct is responsible for saving a binary blob to disk. The binary blob is intended to
@@ -24,7 +24,7 @@ impl SystemStateWriter {
     /// Writes a binary blob representing the system state to the backup location before any
     /// security policies are applied.
     pub fn write_backup(&self, data: &[u8]) -> io::Result<()> {
-        let mut backup_file = File::create(&self.backup_path)?;
+        let mut backup_file = File::open(&self.backup_path)?;
         backup_file.write_all(data)?;
         backup_file.sync_all()
     }
