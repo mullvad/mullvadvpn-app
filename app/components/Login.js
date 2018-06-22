@@ -10,17 +10,20 @@ import { BlueButton, Label, CellButton } from './styled';
 import styles from './LoginStyles';
 import { colors } from '../config';
 
-import type { AccountReduxState } from '../redux/account/reducers';
+import type { LoginState } from '../redux/account/reducers';
 import type { AccountToken } from '../lib/daemon-rpc';
 
 export type Props = {
-  account: AccountReduxState,
-  onLogin: (accountToken: AccountToken) => void,
-  onSettings: ?() => void,
-  onFirstChangeAfterFailure: () => void,
-  onExternalLink: (type: string) => void,
-  onAccountTokenChange: (accountToken: AccountToken) => void,
-  onRemoveAccountTokenFromHistory: (accountToken: AccountToken) => void,
+  accountToken: ?AccountToken,
+  accountHistory: Array<AccountToken>,
+  loginError: ?Error,
+  loginState: LoginState,
+  openSettings: ?() => void,
+  openExternalLink: (type: string) => void,
+  login: (accountToken: AccountToken) => void,
+  resetLoginError: () => void,
+  updateAccountToken: (accountToken: AccountToken) => void,
+  removeAccountTokenFromHistory: (accountToken: AccountToken) => Promise<void>,
 };
 
 type State = {
@@ -33,7 +36,7 @@ export default class Login extends Component<Props, State> {
   };
 
   _accountInput: ?AccountInput;
-  _notifyOnFirstChangeAfterFailure = false;
+  _shouldResetLoginError = false;
 
   _showsFooter = true;
   _footerAnimatedValue = Animated.createValue(0);
@@ -49,8 +52,8 @@ export default class Login extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    if (props.account.status === 'failed') {
-      this._notifyOnFirstChangeAfterFailure = true;
+    if (props.loginState === 'failed') {
+      this._shouldResetLoginError = true;
     }
 
     this._footerAnimationStyle = Styles.createAnimatedViewStyle({
@@ -68,11 +71,11 @@ export default class Login extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props, _prevState: State) {
     if (
-      this.props.account.status !== prevProps.account.status &&
-      this.props.account.status === 'failed' &&
-      !this._notifyOnFirstChangeAfterFailure
+      this.props.loginState !== prevProps.loginState &&
+      this.props.loginState === 'failed' &&
+      !this._shouldResetLoginError
     ) {
-      this._notifyOnFirstChangeAfterFailure = true;
+      this._shouldResetLoginError = true;
 
       // focus on login field when failed to log in
       const accountInput = this._accountInput;
@@ -88,7 +91,7 @@ export default class Login extends Component<Props, State> {
   render() {
     return (
       <Layout>
-        <Header showSettings={true} onSettings={this.props.onSettings} />
+        <Header showSettings={true} onSettings={this.props.openSettings} />
         <Container>
           <View style={styles.login_form}>
             {this._getStatusIcon()}
@@ -110,7 +113,7 @@ export default class Login extends Component<Props, State> {
     );
   }
 
-  _onCreateAccount = () => this.props.onExternalLink('createAccount');
+  _onCreateAccount = () => this.props.openExternalLink('createAccount');
 
   _onFocus = () => {
     this.setState({ isActive: true });
@@ -177,23 +180,24 @@ export default class Login extends Component<Props, State> {
   }
 
   _onLogin = () => {
-    const accountToken = this.props.account.accountToken;
+    const accountToken = this.props.accountToken;
     if (accountToken && accountToken.length > 0) {
-      this.props.onLogin(accountToken);
+      this.props.login(accountToken);
     }
   };
 
   _onInputChange = (value: string) => {
-    // notify delegate on first change after login failure
-    if (this._notifyOnFirstChangeAfterFailure) {
-      this._notifyOnFirstChangeAfterFailure = false;
-      this.props.onFirstChangeAfterFailure();
+    // reset error when user types in the new account number
+    if (this._shouldResetLoginError) {
+      this._shouldResetLoginError = false;
+      this.props.resetLoginError();
     }
-    this.props.onAccountTokenChange(value);
+
+    this.props.updateAccountToken(value);
   };
 
   _formTitle() {
-    switch (this.props.account.status) {
+    switch (this.props.loginState) {
       case 'logging in':
         return 'Logging in...';
       case 'failed':
@@ -206,10 +210,10 @@ export default class Login extends Component<Props, State> {
   }
 
   _formSubtitle() {
-    const { status, error } = this.props.account;
-    switch (status) {
+    const { loginState, loginError } = this.props;
+    switch (loginState) {
       case 'failed':
-        return (error && error.message) || 'Unknown error';
+        return (loginError && loginError.message) || 'Unknown error';
       case 'logging in':
         return 'Checking account number';
       default:
@@ -227,7 +231,7 @@ export default class Login extends Component<Props, State> {
   }
 
   _getStatusIconPath(): ?string {
-    switch (this.props.account.status) {
+    switch (this.props.loginState) {
       case 'logging in':
         return 'icon-spinner';
       case 'failed':
@@ -245,7 +249,7 @@ export default class Login extends Component<Props, State> {
       classes.push(styles.account_input_group__active);
     }
 
-    switch (this.props.account.status) {
+    switch (this.props.loginState) {
       case 'logging in':
         classes.push(styles.account_input_group__inactive);
         break;
@@ -258,10 +262,9 @@ export default class Login extends Component<Props, State> {
   }
 
   _accountInputButtonStyles(): Array<Object> {
-    const { status } = this.props.account;
     const classes = [styles.input_button];
 
-    if (status === 'logging in') {
+    if (this.props.loginState === 'logging in') {
       classes.push(styles.input_button__invisible);
     }
 
@@ -271,14 +274,14 @@ export default class Login extends Component<Props, State> {
   }
 
   _accountInputArrowStyles(): Array<Object> {
-    const { accountToken, status } = this.props.account;
+    const { accountToken, loginState } = this.props;
     const classes = [styles.input_arrow];
 
     if (accountToken && accountToken.length > 0) {
       classes.push(styles.input_arrow__active);
     }
 
-    if (status === 'logging in') {
+    if (loginState === 'logging in') {
       classes.push(styles.input_arrow__invisible);
     }
 
@@ -286,40 +289,54 @@ export default class Login extends Component<Props, State> {
   }
 
   _shouldActivateLoginButton() {
-    const { accountToken } = this.props.account;
+    const { accountToken } = this.props;
     return accountToken && accountToken.length > 0;
   }
 
   _shouldEnableAccountInput() {
     // enable account input always except when "logging in"
-    return this.props.account.status !== 'logging in';
+    return this.props.loginState !== 'logging in';
   }
 
   _shouldShowAccountHistory() {
     return (
       this._shouldEnableAccountInput() &&
       this.state.isActive &&
-      this.props.account.accountHistory.length > 0
+      this.props.accountHistory.length > 0
     );
   }
 
   _shouldShowLoginForm() {
-    return this.props.account.status !== 'ok';
+    return this.props.loginState !== 'ok';
   }
 
   _shouldShowFooter() {
-    const { status } = this.props.account;
-    return (status === 'none' || status === 'failed') && !this._shouldShowAccountHistory();
+    return (
+      (this.props.loginState === 'none' || this.props.loginState === 'failed') &&
+      !this._shouldShowAccountHistory()
+    );
   }
 
   _onSelectAccountFromHistory = (accountToken) => {
-    this.props.onAccountTokenChange(accountToken);
-    this.props.onLogin(accountToken);
+    this.props.updateAccountToken(accountToken);
+    this.props.login(accountToken);
   };
 
-  _createLoginForm() {
-    const { accountHistory, accountToken } = this.props.account;
+  _onRemoveAccountFromHistory = (accountToken) => {
+    this._removeAccountFromHistory(accountToken);
+  };
 
+  async _removeAccountFromHistory(accountToken: AccountToken) {
+    try {
+      await this.props.removeAccountTokenFromHistory(accountToken);
+
+      // TODO: Remove account from memory
+    } catch (error) {
+      // TODO: Show error
+    }
+  }
+
+  _createLoginForm() {
     return (
       <View>
         <Text style={styles.subtitle}>{this._formSubtitle()}</Text>
@@ -334,7 +351,7 @@ export default class Login extends Component<Props, State> {
               onBlur={this._onBlur}
               onChange={this._onInputChange}
               onEnter={this._onLogin}
-              value={accountToken || ''}
+              value={this.props.accountToken || ''}
               disabled={!this._shouldEnableAccountInput()}
               autoFocus={true}
               ref={(ref) => (this._accountInput = ref)}
@@ -356,9 +373,9 @@ export default class Login extends Component<Props, State> {
           <Accordion height={this._shouldShowAccountHistory() ? 'auto' : 0}>
             {
               <AccountDropdown
-                items={accountHistory.slice().reverse()}
+                items={this.props.accountHistory.slice().reverse()}
                 onSelect={this._onSelectAccountFromHistory}
-                onRemove={this.props.onRemoveAccountTokenFromHistory}
+                onRemove={this._onRemoveAccountFromHistory}
               />
             }
           </Accordion>
