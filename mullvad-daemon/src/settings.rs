@@ -6,7 +6,7 @@ use mullvad_types::relay_constraints::{
 use talpid_types::net::TunnelOptions;
 
 use std::fs::File;
-use std::io;
+use std::io::{self, Write};
 use std::path::PathBuf;
 
 error_chain! {
@@ -81,9 +81,11 @@ impl Settings {
         let path = Self::get_settings_path()?;
 
         debug!("Writing settings to {}", path.display());
-        let file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
+        let mut file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
 
-        serde_json::to_writer_pretty(file, self).chain_err(|| ErrorKind::WriteError(path))
+        serde_json::to_writer_pretty(&mut file, self)
+            .chain_err(|| ErrorKind::WriteError(path.clone()))?;
+        file.sync_all().chain_err(|| ErrorKind::WriteError(path))
     }
 
     fn get_settings_path() -> Result<PathBuf> {

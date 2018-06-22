@@ -1,11 +1,12 @@
 extern crate notify;
 extern crate resolv_conf;
 
+use std::io::{self, Write};
 use std::net::IpAddr;
 use std::ops::DerefMut;
 use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::{fs, io, thread};
+use std::{fs, thread};
 
 use error_chain::ChainedError;
 
@@ -106,7 +107,14 @@ impl DnsSettings {
         match fs::read(&backup_file) {
             Ok(backup) => {
                 info!("Restoring DNS state from backup");
-                fs::write(RESOLV_CONF_PATH, &backup).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                let mut conf_file =
+                    fs::File::create(RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                conf_file
+                    .write_all(&backup)
+                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
+                conf_file
+                    .sync_all()
+                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
                 fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
             }
             Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
