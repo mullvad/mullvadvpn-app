@@ -11,23 +11,18 @@ environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
-    RUST_VERSION: stable
-    RUST_BACKTRACE: "1"
+    TARGET: x86_64-pc-windows-msvc
     CPP_BUILD_MODES: "Debug"
+    CPP_BUILD_TARGETS: "x64"
+    RUST_BACKTRACE: "1"
+    MULLVAD_PRODUCT_VERSION: "CI run"
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
-    - TARGET: x86_64-pc-windows-msvc
-      CPP_BUILD_TARGETS: "x64"
-
-    # Testing other channels
-    - TARGET: x86_64-pc-windows-msvc
-      CPP_BUILD_TARGETS: "x64"
-      RUST_VERSION: beta
-    - TARGET: x86_64-pc-windows-msvc
-      CPP_BUILD_TARGETS: "x64"
-      RUST_VERSION: nightly
+    - RUST_VERSION: stable
+    - RUST_VERSION: beta
+    - RUST_VERSION: nightly
 
 install:
   - ps: >-

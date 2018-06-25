@@ -2,6 +2,7 @@ sudo: false
 env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
+    - MULLVAD_PRODUCT_VERSION="CI run"
 
 git:
   submodules: false
