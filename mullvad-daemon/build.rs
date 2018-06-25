@@ -6,27 +6,16 @@ use std::process::Command;
 
 
 fn main() {
-    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    println!("cargo:rerun-if-env-changed=MULLVAD_PRODUCT_VERSION");
+    if env::var_os("MULLVAD_PRODUCT_VERSION").is_none() {
+        panic!("the environment variable MULLVAD_PRODUCT_VERSION must be set");
+    }
 
-    File::create(out_dir.join("git-commit-desc.txt"))
-        .unwrap()
-        .write_all(commit_description().as_bytes())
-        .unwrap();
+    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     File::create(out_dir.join("git-commit-date.txt"))
         .unwrap()
         .write_all(commit_date().as_bytes())
         .unwrap();
-}
-
-fn commit_description() -> String {
-    let output = Command::new("git")
-        .args(&["describe", "--dirty"])
-        .output()
-        .expect("Unable to get git commit description");
-    ::std::str::from_utf8(&output.stdout)
-        .unwrap()
-        .trim()
-        .to_owned()
 }
 
 fn commit_date() -> String {
