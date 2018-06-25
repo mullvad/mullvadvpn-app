@@ -10,7 +10,7 @@ description = "Mullvad VPN application paths and directories"
 license = "GPL-3.0"
 
 [dependencies]
-error-chain = "0.11"
+error-chain = "0.12"
 log = "0.4"
 
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
