@@ -48,6 +48,7 @@ mac:
 pkg:
   allowAnywhere: false
   allowCurrentUserHome: false
+  isRelocatable: false
 
 nsis:
   oneClick: false
