@@ -29,12 +29,19 @@ if [[ $(grep $VERSION CHANGELOG.md) == "" ]]; then
     exit 1
 fi
 
-echo "Updating version in package.json..."
+echo "Updating version in metadata files..."
 SEMVER_VERSION=`echo $VERSION | sed -re 's/($|-.*)/.0\1/g'`
-sed -i -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" package.json
+sed -i -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+    package.json
+sed -i -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+    mullvad-daemon/Cargo.toml \
+    mullvad-cli/Cargo.toml
 
-echo "Commiting package.json change to git..."
-git commit -S package.json -m "Updating version in package.json"
+echo "Commiting metadata changes to git..."
+git commit -S -m "Updating version in package.json" \
+    package.json \
+    mullvad-daemon/Cargo.toml \
+    mullvad-cli/Cargo.toml
 
 echo "Tagging current git commit with release tag $VERSION..."
 git tag -s $VERSION -m $VERSION
