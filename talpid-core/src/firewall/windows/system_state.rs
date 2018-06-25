@@ -1,8 +1,8 @@
 //! A writer for a blob that would persistently store the system state. Useful
 //! for when the application of a secuirty policy proves to be persistent across
 //! reboots
-use std::fs;
-use std::io;
+use std::fs::{self, File};
+use std::io::{self, Write};
 use std::path::Path;
 
 /// This struct is responsible for saving a binary blob to disk. The binary blob is intended to
