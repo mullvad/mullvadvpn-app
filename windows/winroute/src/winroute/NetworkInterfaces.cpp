@@ -1,10 +1,6 @@
 #include "stdafx.h"
 
 #include <windows.h>
-#include <winsock2.h>
-#include <ws2ipdef.h>
-#include <iphlpapi.h>
-#include <netioapi.h>
 
 #include "NetworkInterfaces.h"
 
@@ -23,13 +19,15 @@ PMIB_IPINTERFACE_ROW NetworkInterfaces::RowByLuid(NET_LUID rowId)
 {
 	for (int i = 0; i < (int)mInterfaces->NumEntries; ++i)
 	{
-		if (mInterfaces->Table[i].InterfaceLuid.Value == rowId.Value)
+		PMIB_IPINTERFACE_ROW row = &mInterfaces->Table[i];
+		// Currnetly, only IPv4 is supported
+		if (row->InterfaceLuid.Value == rowId.Value && row->Family == AF_INET)
 		{
-			return &mInterfaces->Table[i];
+			return row;
 		}
 	}
 	return nullptr;
-}
+} 
 
 
 void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIface)
@@ -45,6 +43,10 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIf
 			continue;
 		}
 
+		if (iface->UseAutomaticMetric)
+		{
+			continue;
+		}
 		iface->Metric++;
 		if (iface->Family == AF_INET) {
 			iface->SitePrefixLength = 0;
@@ -84,12 +86,12 @@ bool NetworkInterfaces::SetTopMetricForInterfaceByAlias(const wchar_t * deviceAl
 	success = ConvertInterfaceAliasToLuid(deviceAlias, &targetIfaceLuid);
 	if (success != NO_ERROR)
 	{
-		std::stringstream ss;
+		std::wstringstream ss;
 		ss << L"Failed to convert interface alias '"
 			<< deviceAlias
 			<< "' into LUID: "
 			<< success;
-		throw std::runtime_error(ss.str());
+		throw std::runtime_error(common::string::ToAnsi(ss.str()));
 	}
 	return SetTopMetricForInterfaceWithLuid(targetIfaceLuid);
 }

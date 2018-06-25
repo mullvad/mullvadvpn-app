@@ -1,10 +1,6 @@
 #pragma once
 #include <cstdint>
 
-//
-// WINFW public API
-//
-
 #ifdef WINROUTE_EXPORTS
 #define WINROUTE_LINKAGE __declspec(dllexport)
 #else
@@ -13,7 +9,6 @@
 
 #define WINROUTE_API __stdcall
 
-// Callback for logging.
 typedef void (WINROUTE_API *WinRouteErrorSink)(const char *errorMessage, void *context);
 
 
