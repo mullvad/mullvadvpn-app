@@ -8,7 +8,6 @@ use std::fs;
 use std::sync::mpsc;
 use std::time::Duration;
 
-use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_tests::{wait_for_file_write_finish, DaemonRunner};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
