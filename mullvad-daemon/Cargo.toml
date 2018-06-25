@@ -9,7 +9,7 @@ build = "build.rs"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2.25"
-error-chain = "0.11"
+error-chain = "0.12"
 fern = { version = "0.5", features = ["colored"] }
 futures = "0.1"
 serde = { version = "1.0", features = ["derive"] }
