@@ -5,6 +5,8 @@
 #
 # Invoke the script with --dev-build in order to skip checks, cleaning and signing.
 
+set -eu
+
 ################################################################################
 # Platform specific configuration.
 ################################################################################
@@ -26,6 +28,7 @@ esac
 ################################################################################
 
 RUSTC_VERSION=`rustc +stable --version`
+export MULLVAD_PRODUCT_VERSION=$(npx -c 'echo "$npm_package_version"' | sed -re 's/\.0//g')
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
@@ -68,9 +71,14 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
 
 else
     echo "!! Development build. Not for general distribution !!"
+    GIT_COMMIT=$(git rev-parse --short HEAD)
+    export MULLVAD_PRODUCT_VERSION="$MULLVAD_PRODUCT_VERSION-dev-$GIT_COMMIT"
+
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
+
+echo "Building Mullvad VPN $MULLVAD_PRODUCT_VERSION"
 
 ################################################################################
 # Compile and link all binaries.
@@ -110,6 +118,9 @@ yarn install
 # Package release.
 ################################################################################
 
+SEMVER_VERSION=$(echo $MULLVAD_PRODUCT_VERSION | sed -re 's/($|-.*)/.0\1/g')
+sed --in-place=.bak -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" package.json
+
 echo "Packing final release artifact..."
 case "$(uname -s)" in
     Linux*)     yarn pack:linux;;
@@ -117,12 +128,13 @@ case "$(uname -s)" in
     MINGW*)     yarn pack:win;;
 esac
 
-RELEASE_VERSION=`./target/release/mullvad-daemon --version | cut -f2 -d' '`
+mv package.json.bak package.json
+
 echo "**********************************"
 echo ""
 echo " The build finished successfully! "
 echo " You have built:"
 echo ""
-echo " $RELEASE_VERSION"
+echo " $MULLVAD_PRODUCT_VERSION"
 echo ""
 echo "**********************************"
