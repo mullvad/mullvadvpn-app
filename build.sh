@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-# This script is used to build, and sign a release artifact. See `README.md` for instructions on
-# how to just build a development/testing version.
+# This script is used to build, and sign a release artifact. See `README.md` for further
+# instructions.
 #
 # Invoke the script with --dev-build in order to skip checks, cleaning and signing.
+
+set -eu
 
 ################################################################################
 # Platform specific configuration.
@@ -26,6 +28,7 @@ esac
 ################################################################################
 
 RUSTC_VERSION=`rustc +stable --version`
+PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
@@ -68,9 +71,33 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
 
 else
     echo "!! Development build. Not for general distribution !!"
+    GIT_COMMIT=$(git rev-parse --short HEAD)
+    PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
+
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
+
+echo "Building Mullvad VPN $PRODUCT_VERSION"
+SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
+
+function restore_metadata_backups() {
+    mv package.json.bak package.json || true
+    mv Cargo.lock.bak Cargo.lock || true
+    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
+    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
+}
+trap 'restore_metadata_backups' EXIT
+
+sed -i.bak \
+    -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+    package.json
+
+cp Cargo.lock Cargo.lock.bak
+sed -i.bak \
+    -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+    mullvad-daemon/Cargo.toml \
+    mullvad-cli/Cargo.toml
 
 ################################################################################
 # Compile and link all binaries.
@@ -117,12 +144,17 @@ case "$(uname -s)" in
     MINGW*)     yarn pack:win;;
 esac
 
-RELEASE_VERSION=`./target/release/mullvad-daemon --version | cut -f2 -d' '`
+for semver_path in dist/*$SEMVER_VERSION*; do
+    product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    echo "Moving $semver_path -> $product_path"
+    mv $semver_path $product_path
+done
+
 echo "**********************************"
 echo ""
 echo " The build finished successfully! "
 echo " You have built:"
 echo ""
-echo " $RELEASE_VERSION"
+echo " $PRODUCT_VERSION"
 echo ""
 echo "**********************************"
