@@ -18,9 +18,6 @@ environment:
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
-    - TARGET: i686-pc-windows-msvc
-      CPP_BUILD_TARGETS: "x86"
-
     - TARGET: x86_64-pc-windows-msvc
       CPP_BUILD_TARGETS: "x64"
 
