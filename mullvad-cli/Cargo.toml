@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-cli"
-version = "0.1.0"
+version = "2018.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
 description = "Run Talpid easily from the command line"
 license = "GPL-3.0"
