@@ -1,6 +1,6 @@
 /// Returns a string that identifies the current version of the application
 pub fn current() -> &'static str {
-    include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt"))
+    include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"))
 }
 
 /// Current description returns the current build date

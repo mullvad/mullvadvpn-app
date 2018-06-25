@@ -449,7 +449,7 @@ fn collect_metadata() -> HashMap<String, String> {
 fn daemon_version() -> String {
     format!(
         "{} {}",
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt")),
+        include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
     )
 }
