@@ -490,7 +490,7 @@ impl Daemon {
         &mut self,
         tx: OneshotSender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
     ) {
-        let current_version = version::current().to_owned();
+        let current_version = version::CURRENT.to_owned();
         let fut = self
             .version_proxy
             .latest_app_version()
@@ -506,7 +506,7 @@ impl Daemon {
     }
 
     fn on_get_current_version(&mut self, tx: OneshotSender<AppVersion>) {
-        let current_version = version::current().to_owned();
+        let current_version = version::CURRENT.to_owned();
         Self::oneshot_send(tx, current_version, "get_current_version response");
     }
 
@@ -915,8 +915,8 @@ fn log_version() {
     info!(
         "Starting {} - {} {}",
         env!("CARGO_PKG_NAME"),
-        version::current(),
-        version::commit_date(),
+        version::CURRENT,
+        version::COMMIT_DATE,
     )
 }
 
