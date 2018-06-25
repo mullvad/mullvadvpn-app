@@ -6,7 +6,7 @@ pushd "$MULLVAD_DIR"
 
 cargo build \
     && cd mullvad-tests \
-    && cargo test --features "integration-tests"
+    && cargo test --features "integration-tests" -- --test-threads=1
 
 RESULT="$?"
 popd
