@@ -24,7 +24,9 @@ impl SystemStateWriter {
     /// Writes a binary blob representing the system state to the backup location before any
     /// security policies are applied.
     pub fn write_backup(&self, data: &[u8]) -> io::Result<()> {
-        fs::write(&self.backup_path, &data)
+        let mut backup_file = File::create(&self.backup_path)?;
+        backup_file.write_all(data)?;
+        backup_file.sync_all()
     }
 
     pub fn read_backup(&self) -> io::Result<Option<Vec<u8>>> {
