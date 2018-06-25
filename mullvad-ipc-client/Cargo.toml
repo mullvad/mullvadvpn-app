@@ -6,7 +6,7 @@ description = "RPC client for Mullvad daemon"
 license = "GPL-3.0"
 
 [dependencies]
-error-chain = "0.11"
+error-chain = "0.12"
 mullvad-types = { path = "../mullvad-types" }
 serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
