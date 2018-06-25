@@ -161,10 +161,12 @@ impl WindowsFirewall {
         self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
 
         let metrics_set = route::ensure_top_metric_for_interface(&tunnel_metadata.interface)?;
-        debug!(
-            "Network interface metrics were {} changed",
-            if metrics_set { " " } else { "not " }
-        );
+        if metrics_set {
+            debug!("Network interface metrics were changed");
+        } else {
+            debug!("Network interface metrics were not changed");
+        }
+
 
         unsafe {
             WinFw_ApplyPolicyConnected(
