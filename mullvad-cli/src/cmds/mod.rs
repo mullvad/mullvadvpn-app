@@ -16,9 +16,6 @@ pub use self::disconnect::Disconnect;
 mod relay;
 pub use self::relay::Relay;
 
-mod shutdown;
-pub use self::shutdown::Shutdown;
-
 mod lan;
 pub use self::lan::Lan;
 
@@ -35,7 +32,6 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
         Box::new(Status),
         Box::new(Connect),
         Box::new(Disconnect),
-        Box::new(Shutdown),
         Box::new(Relay),
         Box::new(Lan),
         Box::new(Tunnel),
