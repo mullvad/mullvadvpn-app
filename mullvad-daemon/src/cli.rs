@@ -37,7 +37,7 @@ pub fn get_config() -> Config {
 
 fn create_app() -> App<'static, 'static> {
     let app = App::new(crate_name!())
-        .version(version::current())
+        .version(version::CURRENT)
         .author(crate_authors!())
         .about(crate_description!())
         .arg(
