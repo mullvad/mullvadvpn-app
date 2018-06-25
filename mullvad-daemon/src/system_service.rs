@@ -9,8 +9,8 @@ use std::{env, io, thread};
 use cli;
 use error_chain::ChainedError;
 use windows_service::service::{
-    ServiceAccess, ServiceControl, ServiceControlAccept, ServiceErrorControl, ServiceExitCode,
-    ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
+    ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency, ServiceErrorControl,
+    ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
 };
 use windows_service::service_control_handler::{
     self, ServiceControlHandlerResult, ServiceStatusHandle,
@@ -226,6 +226,12 @@ fn get_service_info() -> Result<ServiceInfo> {
         error_control: ServiceErrorControl::Normal,
         executable_path: env::current_exe().unwrap(),
         launch_arguments: vec![OsString::from("--run-as-service"), OsString::from("-v")],
+        dependencies: vec![
+            // Base Filter Engine
+            ServiceDependency::Service(OsString::from("BFE")),
+            // Windows Management Instrumentation (WMI)
+            ServiceDependency::Service(OsString::from("winmgmt")),
+        ],
         account_name: None, // run as System
         account_password: None,
     })
