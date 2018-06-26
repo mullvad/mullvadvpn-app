@@ -15,17 +15,19 @@ jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", tag = "v8.0.1"
 lazy_static = "1.0"
 libc = "0.2.20"
 log = "0.4"
-os_pipe = "0.6"
-uuid = { version = "0.6", features = ["v4"] }
-shell-escape = "0.1"
-
 openvpn-plugin = { version = "0.3", features = ["serde"] }
+os_pipe = "0.6"
+shell-escape = "0.1"
+uuid = { version = "0.6", features = ["v4"] }
+
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 notify = "4.0"
 resolv-conf = "0.6.1"
+nftnl = { git = "https://github.com/mullvad/nftnl-rs", features = ["nftnl-1-1-0"] }
+mnl = { git = "https://github.com/mullvad/mnl-rs", features = ["mnl-1-0-4"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.2"
@@ -34,7 +36,6 @@ core-foundation = "0.5"
 tokio-core = "0.1"
 
 [target.'cfg(windows)'.dependencies]
-libc = "0.2.20"
 widestring = "0.3"
 
 [dev-dependencies]
