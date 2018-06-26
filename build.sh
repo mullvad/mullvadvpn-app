@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# This script is used to build, and sign a release artifact. See `README.md` for instructions on
-# how to just build a development/testing version.
+# This script is used to build, and sign a release artifact. See `README.md` for further
+# instructions.
 #
 # Invoke the script with --dev-build in order to skip checks, cleaning and signing.
 
@@ -84,6 +84,24 @@ fi
 echo "Building Mullvad VPN $PRODUCT_VERSION"
 SEMVER_VERSION=$(echo $PRODUCT_VERSION | $SED -re 's/($|-.*)/.0\1/g')
 
+function restore_metadata_backups() {
+    mv package.json.bak package.json || true
+    mv Cargo.lock.bak Cargo.lock || true
+    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
+    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
+}
+trap 'restore_metadata_backups' EXIT
+
+$SED --in-place=.bak \
+    -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+    package.json
+
+cp Cargo.lock Cargo.lock.bak
+$SED --in-place=.bak \
+    -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+    mullvad-daemon/Cargo.toml \
+    mullvad-cli/Cargo.toml
+
 ################################################################################
 # Compile and link all binaries.
 ################################################################################
@@ -93,17 +111,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
-$SED --in-place=.bak \
-    -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
-    mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml
-cp Cargo.lock Cargo.lock.bak
-
 cargo +stable build --release
-
-mv Cargo.lock.bak Cargo.lock
-mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml
-mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml
 
 ################################################################################
 # Other work to prepare the release.
@@ -132,19 +140,12 @@ yarn install
 # Package release.
 ################################################################################
 
-
-$SED --in-place=.bak \
-    -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    package.json
-
 echo "Packing final release artifact..."
 case "$(uname -s)" in
     Linux*)     yarn pack:linux;;
     Darwin*)    yarn pack:mac;;
     MINGW*)     yarn pack:win;;
 esac
-
-mv package.json.bak package.json
 
 for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | $SED -re "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
