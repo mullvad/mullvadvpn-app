@@ -44,6 +44,7 @@ export default {
       flexGrow: 1,
       flexShrink: 0,
       flexBasis: 'auto',
+      overflow: 'visible',
     },
     advanced_settings__cell: {
       backgroundColor: '#44AD4D',

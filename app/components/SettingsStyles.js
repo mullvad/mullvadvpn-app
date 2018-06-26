@@ -24,6 +24,7 @@ export default Object.assign(
       flexDirection: 'column',
       flex: 1,
       justifyContent: 'space-between',
+      overflow: 'visible',
     },
     settings__scrollview: {
       flexGrow: 1,
