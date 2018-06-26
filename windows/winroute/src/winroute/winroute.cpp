@@ -4,9 +4,10 @@
 #include <cstdint>
 #include <stdexcept>
 
+
 extern "C"
 WINROUTE_LINKAGE
-int32_t
+WINROUTE_STATUS
 WINROUTE_API
 WinRoute_EnsureTopMetric(
 	const wchar_t *deviceAlias,
@@ -17,7 +18,7 @@ WinRoute_EnsureTopMetric(
 	{
 		NetworkInterfaces interfaces;
 		bool metrics_set = interfaces.SetTopMetricForInterfaceByAlias(deviceAlias);
-		return metrics_set ? 1 : 0;
+		return metrics_set ? WINROUTE_STATUS::METRIC_SET : WINROUTE_STATUS::METRIC_NO_CHANGE;
 	}
 	catch (std::exception &err) 
 	{
@@ -25,11 +26,12 @@ WinRoute_EnsureTopMetric(
 		{
 			errorSink(err.what(), errorSinkContext);
 		}
-		return -1;
+		return WINROUTE_STATUS::FAILURE;
+
 	}
 	catch (...)
 	{
-		return -1;
+		return WINROUTE_STATUS::FAILURE;
 	}
 };
 
