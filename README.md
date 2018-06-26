@@ -118,16 +118,10 @@ The GUI will need to resolve the path to binaries. In development mode this defa
 1. Install all JavaScript dependencies (unless you already have) and package the application with:
     ```bash
     yarn install
-    yarn run pack
+    yarn run pack:<OS>  # <OS> can be linux, mac or win
     ```
-    This will create installation packages for windows, linux and MacOS. Note that you have to have
+    This will create installation packages for windows, linux or macOS. Note that you have to have
     run `yarn install` at least once before this step to download the javascript dependencies.
-
-    If you only want to build for a specific OS you run
-    ```bash
-    yarn run pack:OS
-    ```
-    as in `yarn run pack:linux`.
 
     The artifact (.pkg, .deb, .msi) version is the `version` property of `package.json`.
 
@@ -185,8 +179,8 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 - `$ yarn run develop` - develop app with live-reload enabled
 - `$ yarn run flow` - type-check the code
 - `$ yarn run lint` - lint code
-- `$ yarn run pack` - prepare app for distribution for macOS, Windows, Linux. Use `pack:mac`,
-   `pack:win` or `pack:linux` to generate package for single target.
+- `$ yarn run pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
+  `linux`, `mac` or `win`
 - `$ yarn run test` - run tests
 
 ## Repository structure
