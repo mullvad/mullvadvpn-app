@@ -145,10 +145,6 @@ bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
 			<< success;
 		throw std::runtime_error(ss.str());
 	}
-	if (!HasHighestMetric(targetIface))
-	{
-		EnsureIfaceMetricIsHighest(targetIface);
-	}
 	return true;
 }
 

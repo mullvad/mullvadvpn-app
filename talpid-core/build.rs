@@ -42,7 +42,7 @@ mod win {
         let lib_dir = env::var_os(env_var)
             .map(PathBuf::from)
             .unwrap_or_else(|| default_windows_build_artifact_dir(default_dir));
-        println!("cargo:rustc-link-search={}",lib_dir.display());
+        println!("cargo:rustc-link-search={}", lib_dir.display());
         println!("cargo:rustc-link-lib=dylib={}", lib_name);
     }
 }
