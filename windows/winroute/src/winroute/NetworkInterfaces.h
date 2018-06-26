@@ -13,6 +13,7 @@ class NetworkInterfaces
 private:
 	PMIB_IPINTERFACE_TABLE mInterfaces;
 	PMIB_IPINTERFACE_ROW RowByLuid(NET_LUID rowId);
+	bool HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface);
 	void EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW iface);
 
 public:
