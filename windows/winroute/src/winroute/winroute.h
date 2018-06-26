@@ -11,10 +11,17 @@
 
 typedef void (WINROUTE_API *WinRouteErrorSink)(const char *errorMessage, void *context);
 
+enum class WINROUTE_STATUS : uint32_t
+{
+	METRIC_NO_CHANGE = 0,
+	METRIC_SET = 1,
+	FAILURE = 2,
+};
+
 
 extern "C"
 WINROUTE_LINKAGE
-int32_t
+WINROUTE_STATUS
 WINROUTE_API
 WinRoute_EnsureTopMetric(
 		const wchar_t *deviceAlias,

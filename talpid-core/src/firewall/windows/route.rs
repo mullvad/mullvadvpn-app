@@ -9,35 +9,55 @@ error_chain!{
         MetricApplication{
             description("Failed to set the metrics for a network interface")
         }
+        InvalidInterfaceAlias{
+            description("Supplied interface alias is invalid")
+        }
     }
 }
 
-// Returns true if metrics were changed, false otherwise
+/// Returns true if metrics were changed, false otherwise
 pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool> {
     let interface_alias_ws =
-        WideCString::new(interface_alias.encode_utf16().collect::<Vec<_>>()).unwrap();
-    match unsafe {
+        WideCString::from_str(interface_alias).chain_err(|| ErrorKind::InvalidInterfaceAlias)?;
+    unsafe {
         WinRoute_EnsureTopMetric(
             interface_alias_ws.as_wide_c_str().as_ptr(),
             Some(ffi::error_sink),
             ptr::null_mut(),
-        )
-    } {
-        0 => Ok(false),
-        1 => Ok(true),
-        -1 => Err(Error::from(ErrorKind::MetricApplication)),
-        _ => {
-            error!("Unexpected return code from WinRoute_EnsureTopMetric");
-            Err(Error::from(ErrorKind::MetricApplication))
+        ).into()
+    }
+}
+
+// Allowing dead code here as this type should only ever be constructed by an
+// FFI function.
+#[allow(dead_code)]
+#[repr(u32)]
+enum MetricResult {
+    MetricsUnchanged = 0u32,
+    MetricsChanged = 1u32,
+    Failure = 2u32,
+    UnexpectedValue,
+}
+
+impl Into<Result<bool>> for MetricResult {
+    fn into(self) -> Result<bool> {
+        match self {
+            MetricResult::MetricsUnchanged => Ok(false),
+            MetricResult::MetricsChanged => Ok(true),
+            MetricResult::Failure => Err(Error::from(ErrorKind::MetricApplication)),
+            MetricResult::UnexpectedValue => {
+                error!("Unexpected return code from WinRoute_EnsureTopMetric");
+                Err(Error::from(ErrorKind::MetricApplication))
+            }
         }
     }
 }
 
 extern "system" {
     #[link_name(WinRoute_EnsureTopMetric)]
-    pub fn WinRoute_EnsureTopMetric(
+    fn WinRoute_EnsureTopMetric(
         tunnel_interface_alias: *const libc::wchar_t,
         sink: Option<ffi::ErrorSink>,
         sink_context: *mut libc::c_void,
-    ) -> i32;
+    ) -> MetricResult;
 }
