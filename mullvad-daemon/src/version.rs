@@ -1,9 +1,5 @@
-/// Returns a string that identifies the current version of the application
-pub fn current() -> &'static str {
-    include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt"))
-}
+/// A string that identifies the current version of the application
+pub const CURRENT: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
-/// Current description returns the current build date
-pub fn commit_date() -> &'static str {
-    include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
-}
+/// Contains the date of the git commit this was built from
+pub const COMMIT_DATE: &str = include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"));

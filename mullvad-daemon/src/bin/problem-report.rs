@@ -82,7 +82,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
-        .version(crate_version!())
+        .version(daemon_version())
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
@@ -441,15 +441,18 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
 
 fn collect_metadata() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
-    metadata.insert(String::from("mullvad-daemon-version"), daemon_version());
+    metadata.insert(
+        String::from("mullvad-daemon-version"),
+        daemon_version().to_owned(),
+    );
     metadata.insert(String::from("os"), os_version());
     metadata
 }
 
-fn daemon_version() -> String {
-    format!(
-        "{} {}",
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-desc.txt")),
+fn daemon_version() -> &'static str {
+    concat!(
+        include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
+        " ",
         include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
     )
 }
