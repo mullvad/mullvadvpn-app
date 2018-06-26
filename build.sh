@@ -31,7 +31,7 @@ esac
 ################################################################################
 
 RUSTC_VERSION=`rustc +stable --version`
-PRODUCT_VERSION=$(npx -c 'echo "$npm_package_version"' | $SED -re 's/\.0//g')
+PRODUCT_VERSION=$(node -p "require('./package.json').version" | $SED -re 's/\.0//g')
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
@@ -145,6 +145,12 @@ case "$(uname -s)" in
 esac
 
 mv package.json.bak package.json
+
+for semver_path in dist/*$SEMVER_VERSION*; do
+    product_path=$(echo $semver_path | $SED -re "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    echo "Moving $semver_path -> $product_path"
+    mv $semver_path $product_path
+done
 
 echo "**********************************"
 echo ""
