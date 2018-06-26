@@ -7,9 +7,12 @@ extern crate libc;
 extern crate mullvad_ipc_client;
 extern crate mullvad_paths;
 extern crate notify;
+extern crate openvpn_plugin;
 extern crate os_pipe;
+extern crate talpid_ipc;
 extern crate tempfile;
 
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -17,10 +20,12 @@ use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use self::mullvad_ipc_client::DaemonRpcClient;
-use self::notify::{op, RawEvent, RecursiveMode, Watcher};
-use self::os_pipe::{pipe, PipeReader};
-use self::tempfile::TempDir;
+use mullvad_ipc_client::DaemonRpcClient;
+use notify::{op, RawEvent, RecursiveMode, Watcher};
+use openvpn_plugin::types::OpenVpnPluginEvent;
+use os_pipe::{pipe, PipeReader};
+use talpid_ipc::WsIpcClient;
+use tempfile::TempDir;
 
 use self::platform_specific::*;
 
@@ -269,5 +274,52 @@ impl Drop for DaemonRunner {
         }
 
         let _ = fs::remove_file(&self.rpc_address_file);
+    }
+}
+
+pub struct MockOpenVpnPluginRpcClient {
+    credentials: String,
+    rpc: WsIpcClient,
+}
+
+impl MockOpenVpnPluginRpcClient {
+    pub fn new(address: String, credentials: String) -> Result<Self, String> {
+        let rpc = WsIpcClient::connect(&address).map_err(|error| {
+            format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
+        })?;
+
+        Ok(MockOpenVpnPluginRpcClient { rpc, credentials })
+    }
+
+    pub fn authenticate(&mut self) -> Result<bool, String> {
+        self.rpc
+            .call("authenticate", &[&self.credentials])
+            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
+    }
+
+    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool, String> {
+        self.rpc
+            .call("authenticate", &[credentials])
+            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
+    }
+
+    pub fn up(&mut self) -> Result<(), String> {
+        let mut env: HashMap<String, String> = HashMap::new();
+
+        env.insert("dev".to_owned(), "dummy".to_owned());
+        env.insert("ifconfig_local".to_owned(), "10.0.0.10".to_owned());
+        env.insert("route_vpn_gateway".to_owned(), "10.0.0.1".to_owned());
+
+        self.send_event(OpenVpnPluginEvent::Up, env)
+    }
+
+    fn send_event(
+        &mut self,
+        event: OpenVpnPluginEvent,
+        env: HashMap<String, String>,
+    ) -> Result<(), String> {
+        self.rpc
+            .call("openvpn_event", &(event, env))
+            .map_err(|error| format!("Failed to send mock OpenVPN event {:?}: {}", event, error))
     }
 }
