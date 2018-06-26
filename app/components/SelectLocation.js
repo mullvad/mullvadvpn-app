@@ -76,7 +76,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
               </View>
 
               <CustomScrollbars autoHide={true} ref={(ref) => (this._scrollView = ref)}>
-                <View>
+                <View style={styles.content}>
                   <Text style={styles.subtitle}>
                     While connected, your real location is masked with a private and secure location
                     in the selected region

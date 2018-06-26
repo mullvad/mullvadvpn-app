@@ -66,6 +66,7 @@ Line wrap the file at 100 chars.                                              Th
   `/var/root/Library/Caches/mullvad-daemon/`.
 
 ### Fixed
+- Fix scroll flickering.
 - Fix bug in account input field that advanced the cursor to the end regardless its prior position.
 - Redact all 16 digit numbers from problem report logs. Extra safety against accidentally sending
   account numbers.

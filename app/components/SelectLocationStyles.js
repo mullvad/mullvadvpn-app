@@ -27,6 +27,9 @@ export default {
       flex: 0,
       opacity: 0.6,
     },
+    content: {
+      overflow: 'visible',
+    },
     relay_status: {
       width: 16,
       height: 16,
