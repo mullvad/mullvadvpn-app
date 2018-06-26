@@ -11,12 +11,15 @@ set -eu
 # Platform specific configuration.
 ################################################################################
 
+SED=$(which sed)
+
 case "$(uname -s)" in
     Linux*)
         # config
         ;;
     Darwin*)
         export MACOSX_DEPLOYMENT_TARGET="10.7"
+        SED=$(which gsed)
         ;;
     MINGW*)
         # config
@@ -28,7 +31,7 @@ esac
 ################################################################################
 
 RUSTC_VERSION=`rustc +stable --version`
-PRODUCT_VERSION=$(npx -c 'echo "$npm_package_version"' | sed -re 's/\.0//g')
+PRODUCT_VERSION=$(npx -c 'echo "$npm_package_version"' | $SED -re 's/\.0//g')
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
@@ -79,7 +82,7 @@ else
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
-SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -re 's/($|-.*)/.0\1/g')
+SEMVER_VERSION=$(echo $PRODUCT_VERSION | $SED -re 's/($|-.*)/.0\1/g')
 
 ################################################################################
 # Compile and link all binaries.
@@ -90,7 +93,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
-sed --in-place=.bak \
+$SED --in-place=.bak \
     -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml
@@ -130,7 +133,7 @@ yarn install
 ################################################################################
 
 
-sed --in-place=.bak \
+$SED --in-place=.bak \
     -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     package.json
 
