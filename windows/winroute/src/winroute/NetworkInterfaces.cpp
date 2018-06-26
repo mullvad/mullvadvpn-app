@@ -27,12 +27,25 @@ PMIB_IPINTERFACE_ROW NetworkInterfaces::RowByLuid(NET_LUID rowId)
 		}
 	}
 	return nullptr;
-} 
+}
+
+bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
+{
+	for (unsigned int i = 0; i < mInterfaces->NumEntries; ++i)
+	{
+		PMIB_IPINTERFACE_ROW iface = &mInterfaces->Table[i];
+
+		if (iface->InterfaceLuid.Value != targetIface->InterfaceLuid.Value
+			&& targetIface->Metric >= iface->Metric)
+			return false;
+	}
+	return true;
+}
 
 
 void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIface)
 {
-	MIB_IPINTERFACE_ROW *iface;
+	PMIB_IPINTERFACE_ROW iface;
 	DWORD success = 0;
 	for (int i = 0; i < (int)mInterfaces->NumEntries; ++i)
 	{
@@ -132,7 +145,10 @@ bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
 			<< success;
 		throw std::runtime_error(ss.str());
 	}
-	EnsureIfaceMetricIsHighest(targetIface);
+	if (!HasHighestMetric(targetIface))
+	{
+		EnsureIfaceMetricIsHighest(targetIface);
+	}
 	return true;
 }
 
