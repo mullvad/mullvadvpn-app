@@ -11,15 +11,12 @@ set -eu
 # Platform specific configuration.
 ################################################################################
 
-SED=$(which sed)
-
 case "$(uname -s)" in
     Linux*)
         # config
         ;;
     Darwin*)
         export MACOSX_DEPLOYMENT_TARGET="10.7"
-        SED=$(which gsed)
         ;;
     MINGW*)
         # config
@@ -31,7 +28,7 @@ esac
 ################################################################################
 
 RUSTC_VERSION=`rustc +stable --version`
-PRODUCT_VERSION=$(node -p "require('./package.json').version" | $SED -re 's/\.0//g')
+PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
@@ -82,7 +79,7 @@ else
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
-SEMVER_VERSION=$(echo $PRODUCT_VERSION | $SED -re 's/($|-.*)/.0\1/g')
+SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     mv package.json.bak package.json || true
@@ -92,13 +89,13 @@ function restore_metadata_backups() {
 }
 trap 'restore_metadata_backups' EXIT
 
-$SED --in-place=.bak \
-    -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+sed --in-place=.bak \
+    -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     package.json
 
 cp Cargo.lock Cargo.lock.bak
-$SED --in-place=.bak \
-    -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+sed --in-place=.bak \
+    -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml
 
@@ -148,7 +145,7 @@ case "$(uname -s)" in
 esac
 
 for semver_path in dist/*$SEMVER_VERSION*; do
-    product_path=$(echo $semver_path | $SED -re "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+    product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     echo "Moving $semver_path -> $product_path"
     mv $semver_path $product_path
 done
