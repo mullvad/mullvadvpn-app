@@ -93,6 +93,12 @@ homebrew:
     It must run as root since it it modifies the firewall and sets up virtual network interfaces
     etc.
 
+### Environment variables controlling the execution
+
+* `TALPID_NFTABLES_COUNTERS` - Set to `"1"` to add packet counters to all firewall rules on
+  Linux.
+
+
 ## Building and running the Electron GUI app
 
 1. Install all the JavaScript dependencies by running:

@@ -21,6 +21,8 @@ error_chain! {
     }
 }
 
+/// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
+/// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &'static str = "mullvad";
 
 /// The macOS firewall implementation. Acting as converter between the `Firewall` trait API

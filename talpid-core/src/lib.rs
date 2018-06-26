@@ -31,8 +31,9 @@ extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-#[cfg(windows)]
-extern crate libc;
+#[cfg(target_os = "linux")]
+#[macro_use]
+extern crate nftnl;
 
 /// Working with processes.
 pub mod process;
