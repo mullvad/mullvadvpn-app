@@ -36,49 +36,32 @@ mod win {
             "Debug"
         }
     }
+
+    pub fn declare_library(env_var: &str, default_dir: &str, lib_name: &str) {
+        println!("cargo:rerun-if-env-changed={}", env_var);
+        let lib_dir = env::var_os(env_var)
+            .map(PathBuf::from)
+            .unwrap_or_else(|| default_windows_build_artifact_dir(default_dir));
+        println!(
+            "cargo:rustc-link-search={}",
+            lib_dir
+                .to_str()
+                .expect("failed to construct path for windns include directory")
+        );
+        println!("cargo:rustc-link-lib=dylib={}", lib_name);
+    }
 }
 
 #[cfg(windows)]
 fn main() {
-    use std::env;
-    use std::path::PathBuf;
     use win::*;
 
-    const WINFW_LIB_DIR_VAR: &str = "WINFW_LIB_DIR";
-    println!("cargo:rerun-if-env-changed={}", WINFW_LIB_DIR_VAR);
-    let winfw_dir = env::var_os(WINFW_LIB_DIR_VAR)
-        .map(PathBuf::from)
-        .unwrap_or_else(|| default_windows_build_artifact_dir(WINFW_BUILD_DIR));
-
-    println!(
-        "cargo:rustc-link-search={}",
-        winfw_dir
-            .to_str()
-            .expect("failed to construct path for winfw include directory")
-    );
-    println!("cargo:rustc-link-lib=dylib=winfw");
-
-    let windns_dir = env::var_os("WINDNS_INCLUDE_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| default_windows_build_artifact_dir(WINDNS_BUILD_DIR));
-    println!(
-        "cargo:rustc-link-search={}",
-        windns_dir
-            .to_str()
-            .expect("failed to construct path for windns include directory")
-    );
-    println!("cargo:rustc-link-lib=dylib=windns");
-
-    let winroute_dir = env::var_os("WINROUTE_INCLUDE_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| default_windows_build_artifact_dir(WINROUTE_BUILD_DIR));
-    println!(
-        "cargo:rustc-link-search={}",
-        winroute_dir
-            .to_str()
-            .expect("failed to construct path for winroute include directory")
-    );
-    println!("cargo:rustc-link-lib=dylib=winroute");
+    const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
+    const WINDNS_DIR_VAR: &str = "WINDNS_LIB_DIR";
+    const WINROUTE_DIR_VAR: &str = "WINROUTE_LIB_DIR";
+    declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
+    declare_library(WINDNS_DIR_VAR, WINDNS_BUILD_DIR, "windns");
+    declare_library(WINROUTE_DIR_VAR, WINROUTE_BUILD_DIR, "winroute");
 }
 
 #[cfg(not(windows))]
