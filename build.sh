@@ -89,12 +89,12 @@ function restore_metadata_backups() {
 }
 trap 'restore_metadata_backups' EXIT
 
-sed --in-place=.bak \
+sed -i.bak \
     -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     package.json
 
 cp Cargo.lock Cargo.lock.bak
-sed --in-place=.bak \
+sed -i.bak \
     -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml
