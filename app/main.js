@@ -112,7 +112,6 @@ const ApplicationMain = {
 
     tray.on('click', () => windowController.toggle());
 
-    this._registerWindowIpcEvents(window);
     this._registerIpcListeners();
     this._setAppMenu();
     this._addContextMenu(window);
@@ -134,12 +133,6 @@ const ApplicationMain = {
     }
 
     window.loadFile('build/index.html');
-  },
-
-  _registerWindowIpcEvents(window: BrowserWindow) {
-    // Notify renderer when window visibility changes.
-    window.on('show', () => window.webContents.send('show-window'));
-    window.on('hide', () => window.webContents.send('hide-window'));
   },
 
   _registerIpcListeners() {
