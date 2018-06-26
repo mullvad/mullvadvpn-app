@@ -7,3 +7,4 @@ wrap_comments = true
 # Heavily subjective style choices
 comment_width = 100
 blank_lines_upper_bound = 2
+newline_style = "Native"
