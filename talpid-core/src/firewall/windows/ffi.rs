@@ -19,7 +19,7 @@ macro_rules! ffi_error {
         pub struct $result {
             success: bool,
         }
-
+        
         impl $result {
             pub fn into_result(self) -> Result<()> {
                 match self.success {
@@ -28,7 +28,7 @@ macro_rules! ffi_error {
                 }
             }
         }
-
+        
         impl Into<Result<()>> for $result {
             fn into(self) -> Result<()> {
                 self.into_result()

@@ -3,6 +3,7 @@ use_try_shorthand = true
 condense_wildcard_suffixes = true
 normalize_comments = true
 wrap_comments = true
+newline_style = "Native"
 
 # Heavily subjective style choices
 comment_width = 100
