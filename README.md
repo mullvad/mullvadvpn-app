@@ -34,7 +34,8 @@ regular installation of Visual Studio 2017 Community edition works as well).
 
 - The host has to have `msbuild.exe` available in `%PATH%`.
 
-- The host has to have `bash` installed. The one coming with [Git for Windows] works.
+- The host has to have `bash` installed as well as a few base unix utilities, including `sed` and
+  `tail`. The environment coming with [Git for Windows] works fine.
 
 [Git for Windows]: https://git-scm.com/download/win
 
