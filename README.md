@@ -27,6 +27,14 @@ Follow the instructions for your platform, and then the [All platforms](#all-pla
 These instructions are probably not complete. If you find something more that needs installing
 on your platform please submit an issue or a pull request.
 
+### macOS
+
+The default `sed` version shipped with macOS won't work because it is lacking regex support. For
+`build.sh` to work you need to install `gsed`:
+```bash
+brew install gnu-sed
+```
+
 ### Windows
 
 - The host has to have Microsoft's _Build Tools for Visual Studio 2017_ (a
@@ -34,7 +42,8 @@ regular installation of Visual Studio 2017 Community edition works as well).
 
 - The host has to have `msbuild.exe` available in `%PATH%`.
 
-- The host has to have `bash` installed. The one coming with [Git for Windows] works.
+- The host has to have `bash` installed as well as a few base unix utilities, including `sed` and
+  `tail`. The environment coming with [Git for Windows] works fine.
 
 [Git for Windows]: https://git-scm.com/download/win
 
