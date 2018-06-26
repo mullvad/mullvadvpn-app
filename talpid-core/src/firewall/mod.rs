@@ -1,6 +1,6 @@
-use std::path::Path;
 use ipnetwork::Ipv4Network;
 use std::net::Ipv4Addr;
+use std::path::Path;
 use talpid_types::net::Endpoint;
 
 #[cfg(unix)]
