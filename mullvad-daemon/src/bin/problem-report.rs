@@ -28,6 +28,7 @@ use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 /// Maximum number of bytes to read from each log file
 const LOG_MAX_READ_BYTES: usize = 1 * 1024 * 1024;
@@ -477,14 +478,34 @@ fn os_version() -> String {
 
 #[cfg(windows)]
 fn os_version() -> String {
-    String::from("Windows")
+    let system_info =
+        command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
+
+    let mut os_name = None;
+    let mut os_version = None;
+
+    for info_line in system_info.lines() {
+        let mut info_parts = info_line.split(":");
+
+        match info_parts.next() {
+            Some("OS Name") => os_name = info_parts.next(),
+            Some("OS Version") => os_version = info_parts.next(),
+            _ => {}
+        }
+    }
+
+    match (os_name, os_version) {
+        (None, None) => String::from("Windows [Failed to detect version]"),
+        (Some(os_name), None) => os_name.trim().to_owned(),
+        (None, Some(os_version)) => format!("Windows version {}", os_version.trim()),
+        (Some(os_name), Some(os_version)) => {
+            format!("{} version {}", os_name.trim(), os_version.trim())
+        }
+    }
 }
 
 /// Helper for getting stdout of some command as a String. Ignores the exit code of the command.
-#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
-    use std::process::Command;
-
     Command::new(cmd)
         .args(args)
         .output()
