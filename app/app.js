@@ -9,7 +9,7 @@ import { webFrame, ipcRenderer } from 'electron';
 import { log } from './lib/platform';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
-import { Backend, NoAccountError } from './lib/backend';
+import { Backend } from './lib/backend';
 import { DaemonRpc } from './lib/daemon-rpc';
 import { setShutdownHandler } from './shutdown-handler';
 
@@ -25,7 +25,6 @@ class CredentialsProvider implements RpcCredentialsProvider {
   async request(): Promise<RpcCredentials> {
     return new Promise((resolve, _reject) => {
       ipcRenderer.once('daemon-connection', async (_event, credentials: RpcCredentials) => {
-        log.debug('Got credentials: ', credentials);
         resolve(credentials);
       });
       ipcRenderer.send('daemon-connection');
@@ -36,23 +35,7 @@ class CredentialsProvider implements RpcCredentialsProvider {
 const rpc = new DaemonRpc();
 const credentialsProvider = new CredentialsProvider();
 const backend = new Backend(store, rpc, credentialsProvider);
-
-(async function() {
-  backend.connect();
-
-  try {
-    await backend.autologin();
-  } catch (error) {
-    if (error instanceof NoAccountError) {
-      log.debug('No previously configured account set, showing window');
-      ipcRenderer.send('show-window');
-    } else {
-      log.error(`Failed to autologin: ${error.message}`);
-    }
-  }
-
-  backend.connectTunnel();
-})();
+backend.connect();
 
 setShutdownHandler(async () => {
   log.info('Executing a shutdown handler');
