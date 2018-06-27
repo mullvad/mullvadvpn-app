@@ -6,21 +6,20 @@ import type {
   BackendState,
 } from '../../app/lib/daemon-rpc';
 
-interface MockIpc {
+interface MockRpc {
   sendNewState: (BackendState) => void;
-  killWebSocket: () => void;
   -getAccountData: (AccountToken) => Promise<AccountData>;
   -connectTunnel: () => Promise<void>;
   -getAccount: () => Promise<?AccountToken>;
   -authenticate: (string) => Promise<void>;
 }
 
-export function newMockIpc() {
+export function newMockRpc() {
   const stateListeners = [];
-  let connectionOpenListener: ?() => void;
-  let connectionCloseListener: ?(error: ?Error) => void;
+  const openListeners = [];
+  const closeListeners = [];
 
-  const mockIpc: DaemonRpcProtocol & MockIpc = {
+  const mockIpc: DaemonRpcProtocol & MockRpc = {
     setConnectionString: (_str: string) => {},
     getAccountData: (accountToken) =>
       Promise.resolve({
@@ -49,11 +48,15 @@ export function newMockIpc() {
     setAllowLan: (_allowLan: boolean) => Promise.resolve(),
     getAllowLan: () => Promise.resolve(true),
     connect: () => {
-      if (connectionOpenListener) {
-        connectionOpenListener();
+      for (const listener of openListeners) {
+        listener();
       }
     },
-    disconnect: () => {},
+    disconnect: () => {
+      for (const listener of closeListeners) {
+        listener();
+      }
+    },
     connectTunnel: () => Promise.resolve(),
     disconnectTunnel: () => Promise.resolve(),
     getLocation: () =>
@@ -80,20 +83,20 @@ export function newMockIpc() {
       }
     },
     addOpenConnectionObserver: (listener: () => void) => {
-      connectionOpenListener = listener;
+      openListeners.push(listener);
+      return {
+        unsubscribe: () => {},
+      };
     },
     addCloseConnectionObserver: (listener: (error: ?Error) => void) => {
-      connectionCloseListener = listener;
+      closeListeners.push(listener);
+      return {
+        unsubscribe: () => {},
+      };
     },
     authenticate: (_secret: string) => Promise.resolve(),
     getAccountHistory: () => Promise.resolve([]),
     removeAccountFromHistory: (_accountToken) => Promise.resolve(),
-
-    killWebSocket: () => {
-      if (connectionCloseListener) {
-        connectionCloseListener();
-      }
-    },
   };
 
   return mockIpc;
