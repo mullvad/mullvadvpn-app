@@ -48,7 +48,7 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - bash -x build_windows_libraries.sh
+  - bash -x build_windows_modules.sh
   - cargo build
   - cargo test
 
