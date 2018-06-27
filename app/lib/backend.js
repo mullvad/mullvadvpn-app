@@ -2,7 +2,7 @@
 
 import { ipcRenderer } from 'electron';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push as pushHistory } from 'react-router-redux';
 import {
   RemoteError as JsonRpcTransportRemoteError,
   TimeOutError as JsonRpcTransportTimeOutError,
@@ -105,22 +105,28 @@ export interface RpcCredentialsProvider {
  * Backend implementation
  */
 export class Backend {
-  _store: ReduxStore;
   _daemonRpc: DaemonRpcProtocol;
   _credentialsProvider: RpcCredentialsProvider;
   _reconnectBackoff = new ReconnectionBackoff();
   _credentials: ?RpcCredentials;
   _openConnectionObserver: ?DaemonConnectionObserver;
   _closeConnectionObserver: ?DaemonConnectionObserver;
+  _reduxActions: *;
 
   constructor(
     store: ReduxStore,
     rpc: DaemonRpcProtocol,
     credentialsProvider: RpcCredentialsProvider,
   ) {
-    this._store = store;
     this._daemonRpc = rpc;
     this._credentialsProvider = credentialsProvider;
+
+    this._reduxActions = {
+      account: bindActionCreators(accountActions, store.dispatch),
+      connection: bindActionCreators(connectionActions, store.dispatch),
+      settings: bindActionCreators(settingsActions, store.dispatch),
+      history: bindActionCreators({ push: pushHistory }, store.dispatch)
+    };
 
     this._openConnectionObserver = rpc.addOpenConnectionObserver(() => {
       this._onOpenConnection();
@@ -157,118 +163,105 @@ export class Backend {
   }
 
   async login(accountToken: AccountToken) {
+    const actions = this._reduxActions;
+    actions.account.startLogin(accountToken);
+
     log.debug('Attempting to login');
-
-    const { startLogin, loginSuccessful, loginFailed } = bindActionCreators(
-      accountActions,
-      this._store.dispatch,
-    );
-
-    startLogin(accountToken);
 
     try {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
 
-      loginSuccessful(accountData.expiry);
+      actions.account.loginSuccessful(accountData.expiry);
 
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
       setTimeout(() => {
-        this._store.dispatch(push('/connect'));
+        actions.history.push('/connect');
         log.debug('Autoconnecting...');
         this.connectTunnel();
       }, 1000);
     } catch (error) {
       log.error('Failed to log in,', error.message);
 
-      const backendError = this._rpcErrorToBackendError(e);
-      loginFailed(backendError);
+      actions.account.loginFailed(
+        this._rpcErrorToBackendError(error)
+      );
     }
   }
 
   async autologin() {
+    const actions = this._reduxActions;
+    actions.account.startLogin();
+
+    log.debug('Attempting to log in automatically');
+
     try {
-      log.debug('Attempting to log in automatically');
-
-      this._store.dispatch(accountActions.startLogin());
-
       const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
 
       log.debug(`The backend had an account number stored: ${accountToken}`);
-      this._store.dispatch(accountActions.startLogin(accountToken));
+      actions.account.startLogin(accountToken);
 
       const accountData = await this._daemonRpc.getAccountData(accountToken);
-      log.debug('The stored account number still exists', accountData);
+      log.debug('The stored account number still exists:', accountData);
 
-      this._store.dispatch(accountActions.loginSuccessful(accountData.expiry));
-      this._store.dispatch(push('/connect'));
+      actions.account.loginSuccessful(accountData.expiry);
+      actions.history.push('/connect');
     } catch (e) {
       log.warn('Unable to autologin,', e.message);
 
-      this._store.dispatch(accountActions.autoLoginFailed());
-      this._store.dispatch(push('/'));
+      actions.account.autoLoginFailed();
+      actions.history.push('/');
 
       throw e;
     }
   }
 
   async logout() {
-    // @TODO: What does it mean for a logout to be successful or failed?
+    const actions = this._reduxActions;
+
     try {
-      await this._daemonRpc.setAccount(null);
-
-      this._store.dispatch(accountActions.loggedOut());
-
-      // disconnect user during logout
-      await this.disconnectTunnel();
-
-      this._store.dispatch(push('/'));
+      await Promise.all([this.disconnectTunnel(), this._daemonRpc.setAccount(null)]);
+      actions.account.loggedOut();
+      actions.history.push('/');
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
   }
 
   async connectTunnel() {
+    const actions = this._reduxActions;
+
     try {
       const currentState = await this._daemonRpc.getState();
       if (currentState.state === 'secured') {
         log.debug('Refusing to connect as connection is already secured');
-        this._store.dispatch(connectionActions.connected());
-        return;
+        actions.connection.connected();
+      } else {
+        actions.connection.connecting();
+        await this._daemonRpc.connectTunnel();
       }
-
-      this._store.dispatch(connectionActions.connecting());
-
-      await this._daemonRpc.connectTunnel();
-    } catch (e) {
-      log.error('Failed to connect: ', e.message);
-      this._store.dispatch(connectionActions.disconnected());
+    } catch (error) {
+      actions.connection.disconnected();
+      throw error;
     }
   }
 
-  async disconnectTunnel() {
-    // @TODO: Failure modes
-    try {
-      await this._daemonRpc.disconnectTunnel();
-    } catch (e) {
-      log.error('Failed to disconnect: ', e.message);
-    }
+  disconnectTunnel() {
+    return this._daemonRpc.disconnectTunnel();
   }
 
-  async updateRelaySettings(relaySettings: RelaySettingsUpdate) {
-    try {
-      await this._daemonRpc.updateRelaySettings(relaySettings);
-    } catch (e) {
-      log.error('Failed to update relay settings: ', e.message);
-    }
+  updateRelaySettings(relaySettings: RelaySettingsUpdate) {
+    return this._daemonRpc.updateRelaySettings(relaySettings);
   }
 
   async fetchRelaySettings() {
+    const actions = this._reduxActions;
     const relaySettings = await this._daemonRpc.getRelaySettings();
+
     log.debug('Got relay settings from backend', JSON.stringify(relaySettings));
 
     if (relaySettings.normal) {
@@ -292,11 +285,9 @@ export class Backend {
         payload.protocol = protocol === 'any' ? protocol : protocol.only;
       }
 
-      this._store.dispatch(
-        settingsActions.updateRelay({
-          normal: payload,
-        }),
-      );
+      actions.settings.updateRelay({
+        normal: payload,
+      });
     } else if (relaySettings.custom_tunnel_endpoint) {
       const custom_tunnel_endpoint = relaySettings.custom_tunnel_endpoint;
       const {
@@ -306,30 +297,25 @@ export class Backend {
         },
       } = custom_tunnel_endpoint;
 
-      this._store.dispatch(
-        settingsActions.updateRelay({
-          custom_tunnel_endpoint: {
-            host,
-            port,
-            protocol,
-          },
-        }),
-      );
+      actions.settings.updateRelay({
+        custom_tunnel_endpoint: {
+          host,
+          port,
+          protocol,
+        },
+      });
     }
   }
 
   async updateAccountExpiry() {
-    const ipc = this._daemonRpc;
-    const store = this._store;
-
+    const actions = this._reduxActions;
     try {
       const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
-
-      const accountData = await ipc.getAccountData(accountToken);
-      store.dispatch(accountActions.updateAccountExpiry(accountData.expiry));
+      const accountData = await this._daemonRpc.getAccountData(accountToken);
+      actions.account.updateAccountExpiry(accountData.expiry);
     } catch (e) {
       log.error(`Failed to update account expiry: ${e.message}`);
     }
@@ -341,11 +327,14 @@ export class Backend {
   }
 
   async fetchAccountHistory(): Promise<void> {
+    const actions = this._reduxActions;
+
     const accountHistory = await this._daemonRpc.getAccountHistory();
-    this._store.dispatch(accountActions.updateAccountHistory(accountHistory));
+    actions.account.updateAccountHistory(accountHistory);
   }
 
   async fetchRelayLocations() {
+    const actions = this._reduxActions;
     const locations = await this._daemonRpc.getRelayLocations();
 
     log.info('Got relay locations');
@@ -363,10 +352,11 @@ export class Backend {
       })),
     }));
 
-    this._store.dispatch(settingsActions.updateRelayLocations(storedLocations));
+    actions.settings.updateRelayLocations(storedLocations)
   }
 
   async fetchLocation() {
+    const actions = this._reduxActions;
     const location = await this._daemonRpc.getLocation();
 
     log.info('Got location from daemon');
@@ -380,24 +370,25 @@ export class Backend {
       mullvadExitIp: location.mullvad_exit_ip,
     };
 
-    this._store.dispatch(connectionActions.newLocation(locationUpdate));
+    actions.connection.newLocation(locationUpdate);
   }
 
   async setAllowLan(allowLan: boolean) {
+    const actions = this._reduxActions;
     await this._daemonRpc.setAllowLan(allowLan);
-
-    this._store.dispatch(settingsActions.updateAllowLan(allowLan));
+    actions.settings.updateAllowLan(allowLan);
   }
 
   async fetchAllowLan() {
+    const actions = this._reduxActions;
     const allowLan = await this._daemonRpc.getAllowLan();
-    this._store.dispatch(settingsActions.updateAllowLan(allowLan));
+    actions.settings.updateAllowLan(allowLan);
   }
 
   async fetchSecurityState() {
     const securityState = await this._daemonRpc.getState();
     const connectionState = this._securityStateToConnectionState(securityState);
-    this._dispatchConnectionState(connectionState);
+    this._updateConnectionState(connectionState);
   }
 
   async _requestCredentials(): Promise<RpcCredentials> {
@@ -493,19 +484,19 @@ export class Backend {
    * with proper backend integration.
    */
   _setupReachability() {
-    const { online, offline } = bindActionCreators(connectionActions, this._store.dispatch);
+    const actions = this._reduxActions;
 
     window.addEventListener('online', () => {
-      online();
+      actions.connection.online();
     });
     window.addEventListener('offline', () => {
-      offline();
+      actions.connection.offline();
     });
 
     if (navigator.onLine) {
-      online();
+      actions.connection.online();
     } else {
-      offline();
+      actions.connection.offline();
     }
   }
 
@@ -524,7 +515,7 @@ export class Backend {
           }}, translated to '${connectionState}'`,
         );
 
-        this._dispatchConnectionState(connectionState);
+        this._updateConnectionState(connectionState);
         this._refreshStateOnChange();
       }
     });
@@ -559,20 +550,17 @@ export class Backend {
     throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
   }
 
-  _dispatchConnectionState(connectionState: ConnectionState) {
-    const { connecting, connected, disconnected } = bindActionCreators(
-      connectionActions,
-      this._store.dispatch,
-    );
+  _updateConnectionState(connectionState: ConnectionState) {
+    const actions = this._reduxActions;
     switch (connectionState) {
       case 'connecting':
-        connecting();
+        actions.connection.connecting();
         break;
       case 'connected':
-        connected();
+        actions.connection.connected();
         break;
       case 'disconnected':
-        disconnected();
+        actions.connection.disconnected();
         break;
     }
   }
