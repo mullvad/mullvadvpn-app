@@ -5,12 +5,14 @@ import { shallow } from 'enzyme';
 import Login from '../../app/components/Login';
 
 describe('components/Login', () => {
-
   it('does not show the footer when logging in', () => {
     const component = shallow(
-      <Login { ...{ ...defaultProps,
-        loginState: 'logging in'
-      }} />
+      <Login
+        {...{
+          ...defaultProps,
+          loginState: 'logging in',
+        }}
+      />,
     );
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
@@ -19,9 +21,7 @@ describe('components/Login', () => {
   });
 
   it('shows the footer and account input when not logged in', () => {
-    const component = shallow(
-      <Login {...defaultProps} />
-    );
+    const component = shallow(<Login {...defaultProps} />);
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
     expect(visibleFooters.length).to.equal(1);
@@ -31,9 +31,12 @@ describe('components/Login', () => {
 
   it('does not show the footer nor account input when logged in', () => {
     const component = shallow(
-      <Login {...{ ...defaultProps,
-        loginState: 'ok'
-      }} />
+      <Login
+        {...{
+          ...defaultProps,
+          loginState: 'ok',
+        }}
+      />,
     );
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
@@ -43,9 +46,7 @@ describe('components/Login', () => {
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
-    const component = shallow(
-      <Login {...defaultProps } />
-    );
+    const component = shallow(<Login {...defaultProps} />);
     component.setProps({
       accountToken: '12345',
       login: (accountToken) => {

@@ -2,11 +2,11 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push as pushHistory } from 'react-router-redux';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
-import { openLink } from '../lib/platform';
+import { openLink, log } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -55,25 +55,33 @@ const mapStateToProps = (state: ReduxState) => {
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
-  const { connect, disconnect, copyIPAddress } = bindActionCreators(connectActions, dispatch);
-  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+  const { copyIPAddress } = bindActionCreators(connectActions, dispatch);
+  const history = bindActionCreators({ push: pushHistory }, dispatch);
   const { backend } = props;
 
   return {
     onSettings: () => {
-      pushHistory('/settings');
+      history.push('/settings');
     },
     onSelectLocation: () => {
-      pushHistory('/select-location');
+      history.push('/select-location');
     },
     onConnect: () => {
-      connect(backend);
+      try {
+        backend.connectTunnel();
+      } catch (error) {
+        log.error(`Failed to connect the tunnel: ${error.message}`);
+      }
     },
     onCopyIP: () => {
       copyIPAddress();
     },
     onDisconnect: () => {
-      disconnect(backend);
+      try {
+        backend.disconnectTunnel();
+      } catch (error) {
+        log.error(`Failed to disconnect the tunnel: ${error.message}`);
+      }
     },
     onExternalLink: (type) => openLink(links[type]),
   };
