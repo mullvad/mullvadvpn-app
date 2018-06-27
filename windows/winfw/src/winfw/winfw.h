@@ -75,7 +75,7 @@ WinFw_Initialize(
 //
 // Deinitialize:
 //
-// Call this function once before unloading WFPCTL or exiting the process.
+// Call this function once before unloading WINFW or exiting the process.
 //
 extern "C"
 WINFW_LINKAGE
