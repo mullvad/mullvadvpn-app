@@ -1,13 +1,12 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, Text, View, App, Types } from 'reactxp';
 import { Button, RedButton, GreenButton, Label } from './styled';
 import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
-import AppVisiblityObserver from '../lib/app-visibility';
 
 import type { AccountToken } from '../lib/ipc-facade';
 
@@ -29,7 +28,7 @@ export default class Account extends Component<AccountProps, AccountState> {
     isRefreshingExpiry: false,
   };
 
-  _appVisibilityObserver: ?AppVisiblityObserver;
+  _activationStateToken: ?Types.SubscriptionToken;
 
   _isMounted = false;
 
@@ -37,8 +36,8 @@ export default class Account extends Component<AccountProps, AccountState> {
     this._isMounted = true;
     this._refreshAccountExpiry();
 
-    this._appVisibilityObserver = new AppVisiblityObserver((isVisible) => {
-      if (isVisible) {
+    this._activationStateToken = App.activationStateChangedEvent.subscribe((activationState) => {
+      if (activationState === Types.AppActivationState.Active) {
         this._refreshAccountExpiry();
       }
     });
@@ -47,8 +46,10 @@ export default class Account extends Component<AccountProps, AccountState> {
   componentWillUnmount() {
     this._isMounted = false;
 
-    if (this._appVisibilityObserver) {
-      this._appVisibilityObserver.dispose();
+    const activationStateToken = this._activationStateToken;
+    if (activationStateToken) {
+      activationStateToken.unsubscribe();
+      this._activationStateToken = null;
     }
   }
 
