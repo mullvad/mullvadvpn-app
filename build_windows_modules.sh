@@ -14,20 +14,26 @@ CPP_BUILD_TARGETS=${CPP_BUILD_TARGETS:-"x64"}
 # Override this to set a different cargo target directory
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"./target/"}
 
+if [[ "${1:-""}" == "--dev-build" ]]; then
+  DEV_BUILD=true
+fi
 
 # Builds visual studio projects
 function build_project
 {
   local path="$1"
-  local solutions="$2"
+  local sln="$1/$2"
+  local solutions="$3"
 
-  # Sometimes the build output needs to be cleaned up
-  rm -r $path/bin/* || true
+  if [[ -z "${DEV_BUILD+x}" ]]; then
+    # Clean all intermediate and output files
+    rm -r $path/bin/* || true
+  fi
 
   set -x
   for mode in $CPP_BUILD_MODES; do
     for target in $CPP_BUILD_TARGETS; do
-      cmd.exe "/c msbuild.exe $(to_win_path $path) /p:Configuration=$mode /p:Platform=$target /t:$solutions"
+      cmd.exe "/c msbuild.exe $(to_win_path $sln) /p:Configuration=$mode /p:Platform=$target /t:$solutions"
     done
   done
   set +x
@@ -107,7 +113,6 @@ function copy_outputs
 
 }
 
-
 # Since Microsoft likes to name their architectures differently from Rust, this
 # function tries to match microsoft names to Rust names.
 function arch_from_build_target
@@ -135,7 +140,6 @@ function rustc_host_arch
    | tr -d '"'
 }
 
-
 function main
 {
 
@@ -143,9 +147,9 @@ function main
   local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
   local winroute_root_path=${CPP_ROOT_PATH:-"./windows/winroute"}
 
-  build_project "$winfw_root_path/winfw.sln" "$WINFW_SOLUTIONS"
-  build_project "$windns_root_path/windns.sln" "$WINDNS_SOLUTIONS"
-  build_project "$winroute_root_path/winroute.sln" "$WINROUTE_SOLUTIONS"
+  build_project "$winfw_root_path" "winfw.sln" "$WINFW_SOLUTIONS"
+  build_project "$windns_root_path" "windns.sln" "$WINDNS_SOLUTIONS"
+  build_project "$winroute_root_path" "winroute.sln" "$WINROUTE_SOLUTIONS"
 
   copy_outputs $winfw_root_path "winfw.dll"
   copy_outputs $windns_root_path "windns.dll"
