@@ -33,7 +33,7 @@ function build_project
   set -x
   for mode in $CPP_BUILD_MODES; do
     for target in $CPP_BUILD_TARGETS; do
-      cmd.exe "/c msbuild.exe $(to_win_path $sln) /p:Configuration=$mode /p:Platform=$target /t:$solutions"
+      cmd.exe "/c msbuild.exe /m $(to_win_path $sln) /p:Configuration=$mode /p:Platform=$target /t:$solutions"
     done
   done
   set +x
