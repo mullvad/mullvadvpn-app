@@ -3,19 +3,12 @@ mod win {
     use std::env;
     use std::path::PathBuf;
 
-    static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
-    static WINDNS_BUILD_DIR: &'static str = "..\\windows\\windns\\bin";
+    pub static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
+    pub static WINDNS_BUILD_DIR: &'static str = "..\\windows\\windns\\bin";
+    pub static WINROUTE_BUILD_DIR: &'static str = "..\\windows\\winroute\\bin";
 
-    pub fn default_winfw_output_dir() -> PathBuf {
-        manifest_dir()
-            .join(WINFW_BUILD_DIR)
-            .join(&target_platform_dir())
-    }
-
-    pub fn default_windns_output_dir() -> PathBuf {
-        manifest_dir()
-            .join(WINDNS_BUILD_DIR)
-            .join(&target_platform_dir())
+    pub fn default_windows_build_artifact_dir(build_dir: &str) -> PathBuf {
+        manifest_dir().join(build_dir).join(&target_platform_dir())
     }
 
     fn target_platform_dir() -> PathBuf {
@@ -43,39 +36,27 @@ mod win {
             "Debug"
         }
     }
+
+    pub fn declare_library(env_var: &str, default_dir: &str, lib_name: &str) {
+        println!("cargo:rerun-if-env-changed={}", env_var);
+        let lib_dir = env::var_os(env_var)
+            .map(PathBuf::from)
+            .unwrap_or_else(|| default_windows_build_artifact_dir(default_dir));
+        println!("cargo:rustc-link-search={}", lib_dir.display());
+        println!("cargo:rustc-link-lib=dylib={}", lib_name);
+    }
 }
 
 #[cfg(windows)]
 fn main() {
-    use std::env;
-    use std::path::PathBuf;
     use win::*;
 
-    const WINFW_LIB_DIR_VAR: &str = "WINFW_LIB_DIR";
-    println!("cargo:rerun-if-env-changed={}", WINFW_LIB_DIR_VAR);
-    let winfw_dir = env::var_os(WINFW_LIB_DIR_VAR)
-        .map(PathBuf::from)
-        .unwrap_or_else(default_winfw_output_dir);
-
-    println!(
-        "cargo:rustc-link-search={}",
-        winfw_dir
-            .to_str()
-            .expect("failed to construct path for winfw include directory")
-    );
-    println!("cargo:rustc-link-lib=dylib=winfw");
-
-    let windns_dir = env::var_os("WINDNS_INCLUDE_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(default_windns_output_dir);
-    println!(
-        "cargo:rustc-link-search={}",
-        windns_dir
-            .to_str()
-            .expect("failed to construct path for windns include directory")
-    );
-
-    println!("cargo:rustc-link-lib=dylib=windns");
+    const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
+    const WINDNS_DIR_VAR: &str = "WINDNS_LIB_DIR";
+    const WINROUTE_DIR_VAR: &str = "WINROUTE_LIB_DIR";
+    declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
+    declare_library(WINDNS_DIR_VAR, WINDNS_BUILD_DIR, "windns");
+    declare_library(WINROUTE_DIR_VAR, WINROUTE_BUILD_DIR, "winroute");
 }
 
 #[cfg(not(windows))]

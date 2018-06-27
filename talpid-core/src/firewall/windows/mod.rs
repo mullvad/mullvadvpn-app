@@ -14,6 +14,7 @@ use self::widestring::WideCString;
 #[macro_use]
 mod ffi;
 mod dns;
+mod route;
 mod system_state;
 
 use self::dns::WinDns;
@@ -48,6 +49,7 @@ error_chain!{
 
     links {
         WinDns(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
+        WinRoute(route::Error, route::ErrorKind) #[doc = "Failure to modify system routing metrics"];
     }
 }
 
@@ -157,6 +159,15 @@ impl WindowsFirewall {
         };
 
         self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
+
+        let metrics_set = route::ensure_top_metric_for_interface(&tunnel_metadata.interface)?;
+        if metrics_set {
+            debug!("Network interface metrics were changed");
+        } else {
+            debug!("Network interface metrics were not changed");
+        }
+
+
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
