@@ -2,32 +2,16 @@
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-
 import Login from '../../app/components/Login';
-import AccountInput from '../../app/components/AccountInput';
 
 describe('components/Login', () => {
-  it('notifies on the first change after failure', () => {
-    const onFirstChange = spy();
-    const props = {
-      account: Object.assign({}, defaultAccount, {
-        status: 'failed',
-      }),
-      onFirstChangeAfterFailure: onFirstChange,
-    };
-
-    const component = renderWithProps(props);
-    const accountInput = component.find(AccountInput);
-
-    accountInput.simulate('change', 'foo');
-    expect(onFirstChange).to.have.been.called.once;
-
-    accountInput.simulate('change', 'bar');
-    expect(onFirstChange).to.have.been.called.once;
-  });
 
   it('does not show the footer when logging in', () => {
-    const component = renderLoggingIn();
+    const component = shallow(
+      <Login { ...{ ...defaultProps,
+        loginState: 'logging in'
+      }} />
+    );
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
     expect(visibleFooters.length).to.equal(0);
@@ -35,7 +19,9 @@ describe('components/Login', () => {
   });
 
   it('shows the footer and account input when not logged in', () => {
-    const component = renderNotLoggedIn();
+    const component = shallow(
+      <Login {...defaultProps} />
+    );
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
     expect(visibleFooters.length).to.equal(1);
@@ -44,7 +30,11 @@ describe('components/Login', () => {
   });
 
   it('does not show the footer nor account input when logged in', () => {
-    const component = renderLoggedIn();
+    const component = shallow(
+      <Login {...{ ...defaultProps,
+        loginState: 'ok'
+      }} />
+    );
     const visibleFooters = getComponent(component, 'footerVisibility true');
     const invisibleFooters = getComponent(component, 'footerVisibility false');
     expect(visibleFooters.length).to.equal(0);
@@ -53,14 +43,14 @@ describe('components/Login', () => {
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
-    const component = renderNotLoggedIn();
+    const component = shallow(
+      <Login {...defaultProps } />
+    );
     component.setProps({
-      account: Object.assign({}, defaultAccount, {
-        accountToken: '12345',
-      }),
-      onLogin: (an) => {
+      accountToken: '12345',
+      login: (accountToken) => {
         try {
-          expect(an).to.equal('12345');
+          expect(accountToken).to.equal('12345');
           done();
         } catch (e) {
           done(e);
@@ -72,53 +62,19 @@ describe('components/Login', () => {
   });
 });
 
-const defaultAccount = {
+const defaultProps = {
   accountToken: null,
   accountHistory: [],
-  expiry: null,
-  status: 'none',
-  error: null,
+  loginError: null,
+  loginState: 'none',
+  openSettings: () => {},
+  openExternalLink: (_type) => {},
+  login: (_accountToken) => {},
+  resetLoginError: () => {},
+  updateAccountToken: (_accountToken) => {},
+  fetchAccountTokenHistory: () => Promise.resolve(),
+  removeAccountTokenFromHistory: (_accountToken) => Promise.resolve(),
 };
-
-const defaultProps = {
-  account: defaultAccount,
-  onLogin: () => {},
-  onSettings: () => {},
-  onChange: () => {},
-  onFirstChangeAfterFailure: () => {},
-  onExternalLink: () => {},
-  onAccountTokenChange: (_accountToken) => {},
-  onRemoveAccountTokenFromHistory: (_accountToken) => {},
-};
-
-function renderLoggedIn() {
-  return renderWithProps({
-    account: Object.assign(defaultAccount, {
-      status: 'ok',
-    }),
-  });
-}
-
-function renderLoggingIn() {
-  return renderWithProps({
-    account: Object.assign(defaultAccount, {
-      status: 'logging in',
-    }),
-  });
-}
-
-function renderNotLoggedIn() {
-  return renderWithProps({
-    account: Object.assign(defaultAccount, {
-      status: 'none',
-    }),
-  });
-}
-
-function renderWithProps(customProps) {
-  const props = Object.assign({}, defaultProps, customProps);
-  return shallow(<Login {...props} />);
-}
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
