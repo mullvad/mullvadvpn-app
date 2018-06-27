@@ -125,7 +125,7 @@ export class Backend {
       account: bindActionCreators(accountActions, store.dispatch),
       connection: bindActionCreators(connectionActions, store.dispatch),
       settings: bindActionCreators(settingsActions, store.dispatch),
-      history: bindActionCreators({ push: pushHistory }, store.dispatch)
+      history: bindActionCreators({ push: pushHistory }, store.dispatch),
     };
 
     this._openConnectionObserver = rpc.addOpenConnectionObserver(() => {
@@ -184,9 +184,7 @@ export class Backend {
     } catch (error) {
       log.error('Failed to log in,', error.message);
 
-      actions.account.loginFailed(
-        this._rpcErrorToBackendError(error)
-      );
+      actions.account.loginFailed(this._rpcErrorToBackendError(error));
     }
   }
 
@@ -352,7 +350,7 @@ export class Backend {
       })),
     }));
 
-    actions.settings.updateRelayLocations(storedLocations)
+    actions.settings.updateRelayLocations(storedLocations);
   }
 
   async fetchLocation() {
