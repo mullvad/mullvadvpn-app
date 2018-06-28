@@ -19,6 +19,11 @@ const OPENVPN_PLUGIN_NAME: &str = "libtalpid_openvpn_plugin.so";
 #[cfg(windows)]
 const OPENVPN_PLUGIN_NAME: &str = "talpid_openvpn_plugin.dll";
 
+const DISCONNECTED_STATE: DaemonState = DaemonState {
+    state: SecurityState::Unsecured,
+    target_state: TargetState::Unsecured,
+};
+
 const CONNECTING_STATE: DaemonState = DaemonState {
     state: SecurityState::Unsecured,
     target_state: TargetState::Secured,
@@ -27,6 +32,11 @@ const CONNECTING_STATE: DaemonState = DaemonState {
 const CONNECTED_STATE: DaemonState = DaemonState {
     state: SecurityState::Secured,
     target_state: TargetState::Secured,
+};
+
+const DISCONNECTING_STATE: DaemonState = DaemonState {
+    state: SecurityState::Secured,
+    target_state: TargetState::Unsecured,
 };
 
 #[test]
@@ -172,6 +182,60 @@ fn changes_to_connected_state() {
 
     assert_state_event(&state_events, CONNECTED_STATE);
     assert_eq!(rpc_client.get_state().unwrap(), CONNECTED_STATE);
+}
+
+#[test]
+fn returns_to_connecting_state() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+
+    mock_plugin_client.authenticate().unwrap();
+    mock_plugin_client.up().unwrap();
+
+    assert_state_event(&state_events, CONNECTED_STATE);
+
+    mock_plugin_client.route_predown().unwrap();
+
+    // Wait for new OpenVPN instance
+    wait_for_file_write_finish(&openvpn_args_file, Duration::from_secs(5));
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+    assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+}
+
+#[test]
+fn disconnects() {
+    let mut daemon = DaemonRunner::spawn();
+    let mut rpc_client = daemon.rpc_client().unwrap();
+    let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let state_events = rpc_client.new_state_subscribe().unwrap();
+
+    rpc_client.set_account(Some("123456".to_owned())).unwrap();
+    rpc_client.connect().unwrap();
+
+    assert_state_event(&state_events, CONNECTING_STATE);
+
+    let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
+
+    mock_plugin_client.authenticate().unwrap();
+    mock_plugin_client.up().unwrap();
+
+    assert_state_event(&state_events, CONNECTED_STATE);
+
+    rpc_client.disconnect().unwrap();
+
+    assert_state_event(&state_events, DISCONNECTING_STATE);
+    assert_state_event(&state_events, DISCONNECTED_STATE);
+    assert_eq!(rpc_client.get_state().unwrap(), DISCONNECTED_STATE);
 }
 
 fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
