@@ -85,12 +85,12 @@ use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
 error_chain!{
     errors {
+        LogError(msg: &'static str) {
+            description("Error setting up log")
+            display("Error setting up log: {}", msg)
+        }
         NoCacheDir {
             description("Unable to create cache directory")
-        }
-        #[cfg(windows)]
-        NoLogDir {
-            description("Unable to create log directory")
         }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
@@ -834,12 +834,27 @@ impl Drop for Daemon {
 }
 
 
-quick_main!(run);
+fn main() {
+    ::std::process::exit(match run() {
+        Ok(_) => 0,
+        Err(error) => {
+            if let &ErrorKind::LogError(_) = error.kind() {
+                eprintln!("{}", error.display_chain());
+            } else {
+                error!("{}", error.display_chain());
+            }
+            1
+        }
+    });
+}
 
 fn run() -> Result<()> {
     let config = cli::get_config();
     let log_dir = if config.log_to_file {
-        Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
+        Some(
+            mullvad_paths::log_dir()
+                .chain_err(|| ErrorKind::LogError("Unable to get log directory"))?,
+        )
     } else {
         None
     };
@@ -849,7 +864,7 @@ fn run() -> Result<()> {
         config.log_level,
         log_file.as_ref(),
         config.log_stdout_timestamps,
-    ).chain_err(|| "Unable to initialize logger")?;
+    ).chain_err(|| ErrorKind::LogError("Unable to initialize logger"))?;
     log_version();
     if let Some(ref log_dir) = log_dir {
         info!("Logging to {}", log_dir.display());
