@@ -98,7 +98,7 @@ fn start_event_monitor(
             match event {
                 ServiceControl::Stop | ServiceControl::Preshutdown => {
                     persistent_service_status
-                        .set_pending_stop(Duration::from_secs(3))
+                        .set_pending_stop(Duration::from_secs(10))
                         .unwrap();
 
                     shutdown_handle.shutdown();
