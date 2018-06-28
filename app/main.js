@@ -7,7 +7,6 @@ import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
 import { version } from '../package.json';
-import { parseIpcCredentials } from './lib/backend';
 import { resolveBin } from './lib/proc';
 import { getSystemTemporaryDirectory } from './lib/tempdir';
 import { canTrustRpcAddressFile } from './lib/rpc-file-security';
@@ -16,6 +15,33 @@ import uuid from 'uuid';
 
 import { ShutdownCoordinator } from './shutdown-handler';
 import type { TrayIconType } from './tray-icon-controller';
+
+/*
+HOTFIX
+We had an issue importing this stuff from backend.js but
+since it's going away in one of already open PRs,
+there is no point in trying to make it any nicer,
+
+Hence duplicating this piece in here
+TODO: Remove during merge
+ */
+export type IpcCredentials = {
+  connectionString: string,
+  sharedSecret: string,
+};
+export function parseIpcCredentials(data: string): ?IpcCredentials {
+  const [connectionString, sharedSecret] = data.split('\n', 2);
+  if (connectionString && sharedSecret !== undefined) {
+    return {
+      connectionString,
+      sharedSecret,
+    };
+  } else {
+    return null;
+  }
+}
+
+/** / HOTFIX  */
 
 // The name for application directory used for
 // scoping logs and user data in platform special folders
