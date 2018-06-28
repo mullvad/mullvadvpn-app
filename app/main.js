@@ -14,33 +14,6 @@ import uuid from 'uuid';
 import { ShutdownCoordinator } from './shutdown-handler';
 import type { TrayIconType } from './tray-icon-controller';
 
-/*
-HOTFIX
-We had an issue importing this stuff from backend.js but
-since it's going away in one of already open PRs,
-there is no point in trying to make it any nicer,
-
-Hence duplicating this piece in here
-TODO: Remove during merge
- */
-export type IpcCredentials = {
-  connectionString: string,
-  sharedSecret: string,
-};
-export function parseIpcCredentials(data: string): ?IpcCredentials {
-  const [connectionString, sharedSecret] = data.split('\n', 2);
-  if (connectionString && sharedSecret !== undefined) {
-    return {
-      connectionString,
-      sharedSecret,
-    };
-  } else {
-    return null;
-  }
-}
-
-/** / HOTFIX  */
-
 // The name for application directory used for
 // scoping logs and user data in platform special folders
 const appDirectoryName = 'Mullvad VPN';
