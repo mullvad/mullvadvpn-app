@@ -53,7 +53,7 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
             // control manager. Always return NO_ERROR even if not implemented.
             ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
 
-            ServiceControl::Shutdown | ServiceControl::Stop => {
+            ServiceControl::Stop | ServiceControl::Preshutdown => {
                 event_tx.send(control_event).unwrap();
                 ServiceControlHandlerResult::NoError
             }
@@ -96,7 +96,7 @@ fn start_event_monitor(
     thread::spawn(move || {
         for event in event_rx {
             match event {
-                ServiceControl::Stop | ServiceControl::Shutdown => {
+                ServiceControl::Stop | ServiceControl::Preshutdown => {
                     persistent_service_status
                         .set_pending_stop(Duration::from_secs(3))
                         .unwrap();
@@ -201,8 +201,8 @@ fn accepted_controls_by_state(state: ServiceState) -> ServiceControlAccept {
         ServiceState::StartPending | ServiceState::PausePending | ServiceState::ContinuePending => {
             ServiceControlAccept::empty()
         }
-        ServiceState::Running => ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN,
-        ServiceState::Paused => ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN,
+        ServiceState::Running => ServiceControlAccept::STOP | ServiceControlAccept::PRESHUTDOWN,
+        ServiceState::Paused => ServiceControlAccept::STOP | ServiceControlAccept::PRESHUTDOWN,
         ServiceState::StopPending | ServiceState::Stopped => ServiceControlAccept::empty(),
     }
 }
