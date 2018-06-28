@@ -11,31 +11,41 @@ Support for Linux, Windows, Android and iOS is in the making.
 
 ## Checking out the code
 
-This repository contains submodules, so clone it recursively:
-```
-git clone --recursive https://github.com/mullvad/mullvadvpn-app.git
-```
-Or if you already cloned it non-recursively:
-```
-git submodule update --init --recursive
+This repository contains submodules needed for building the app. However, some of those submodules
+also have further submodules that are quite large and not needed to build the app. So unless
+you want the source code for OpenSSL, OpenVPN and a few other projects you should avoid a recursive
+clone of the repository. Instead clone the repository normally and then get one level of submodules:
+```bash
+git clone https://github.com/mullvad/mullvadvpn-app.git
+cd mullvadvpn-app
+git submodule update --init
 ```
 
 ## Install toolchains and dependencies
 
-Follow the instructions for your platform, and then the [All platforms](#all-platforms) instructions.
+Follow the instructions for your platform, and then the [All platforms](#all-platforms)
+instructions.
 
 These instructions are probably not complete. If you find something more that needs installing
 on your platform please submit an issue or a pull request.
 
 ### Windows
 
-- The host has to have Microsoft's _Build Tools for Visual Studio 2017_ (a
-regular installation of Visual Studio 2017 Community edition works as well).
+The host has to have the following installed:
 
-- The host has to have `msbuild.exe` available in `%PATH%`.
+- Microsoft's _Build Tools for Visual Studio 2017_ (a regular installation of Visual Studio 2017
+  Community edition works as well).
 
-- The host has to have `bash` installed as well as a few base unix utilities, including `sed` and
-  `tail`. The environment coming with [Git for Windows] works fine.
+- Windows SDK *10.0.16299.0* (This exact version required)
+
+- `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
+  binary can be found under:
+  ```
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\<VERSION>\Bin\amd64
+  ```
+
+- `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
+  The environment coming with [Git for Windows] works fine.
 
 [Git for Windows]: https://git-scm.com/download/win
 
