@@ -22,12 +22,12 @@ const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
 
 class CredentialsProvider implements RpcCredentialsProvider {
-  async request(): Promise<RpcCredentials> {
+  request(): Promise<RpcCredentials> {
     return new Promise((resolve, _reject) => {
-      ipcRenderer.once('daemon-connection', async (_event, credentials: RpcCredentials) => {
+      ipcRenderer.once('daemon-connection-ready', (_event, credentials: RpcCredentials) => {
         resolve(credentials);
       });
-      ipcRenderer.send('daemon-connection');
+      ipcRenderer.send('discover-daemon-connection');
     });
   }
 }
