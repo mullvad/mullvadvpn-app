@@ -14,7 +14,6 @@ use tunnel;
 
 use std::env;
 use std::ffi::CString;
-use std::io;
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::Path;
 
@@ -25,19 +24,18 @@ use self::dns::DnsSettings;
 
 error_chain! {
     errors {
-        /// Error when opening a netlink socket to netfilter
-        NetlinkOpenError { description("Unable to open netlink socket") }
-        /// Error when writing to netlink socket
+        /// Unable to open netlink socket to netfilter
+        NetlinkOpenError { description("Unable to open netlink socket to netfilter") }
+        /// Unable to send netlink command to netfilter
         NetlinkSendError { description("Unable to send netlink command to netfilter") }
-        /// Error when reading from netlink socket
+        /// Error while reading from netlink socket
         NetlinkRecvError { description("Error while reading from netlink socket") }
+        /// Error while processing an incoming netlink message
+        ProcessNetlinkError { description("Error while processing an incoming netlink message") }
     }
     links {
         DnsSettings(self::dns::Error, self::dns::ErrorKind) #[doc = "DNS error"];
         Nftnl(nftnl::Error, nftnl::ErrorKind) #[doc = "Error in nftnl"];
-    }
-    foreign_links {
-        Netlink(io::Error) #[doc = "Error in mnl"];
     }
 }
 
@@ -124,7 +122,7 @@ impl Netfilter {
 
 
         while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
-            match mnl::cb_run(message, 2, portid)? {
+            match mnl::cb_run(message, 2, portid).chain_err(|| ErrorKind::ProcessNetlinkError)? {
                 mnl::CbResult::Stop => {
                     trace!("cb_run STOP");
                     break;
