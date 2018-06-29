@@ -163,7 +163,7 @@ export default class Support extends Component<SupportProps, SupportState> {
           <View style={styles.support__form_row}>
             <TextInput
               style={styles.support__form_email}
-              placeholder="Your email"
+              placeholder="Your email (optional)"
               defaultValue={this.state.email}
               onChangeText={this.onChangeEmail}
               keyboardType="email-address"
