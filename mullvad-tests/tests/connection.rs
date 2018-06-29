@@ -260,13 +260,6 @@ fn assert_no_state_event(receiver: &mpsc::Receiver<DaemonState>) {
 fn create_mock_openvpn_plugin_client<P: AsRef<Path>>(
     openvpn_args_file_path: P,
 ) -> MockOpenVpnPluginRpcClient {
-    let (address, credentials) = get_plugin_arguments(openvpn_args_file_path);
-
-    MockOpenVpnPluginRpcClient::new(address, credentials)
-        .expect("Failed to create mock RPC client to connect to OpenVPN plugin event listener")
-}
-
-fn get_plugin_arguments<P: AsRef<Path>>(openvpn_args_file_path: P) -> (String, String) {
     let args_file_path = openvpn_args_file_path.as_ref();
 
     if !args_file_path.exists() {
@@ -274,7 +267,14 @@ fn get_plugin_arguments<P: AsRef<Path>>(openvpn_args_file_path: P) -> (String, S
             .map(|mut events| events.find(|&event| event == watch_event::CLOSE_WRITE));
     }
 
-    let mut arguments = search_openvpn_args(&args_file_path, OPENVPN_PLUGIN_NAME).skip(1);
+    let (address, credentials) = get_plugin_arguments(&args_file_path);
+
+    MockOpenVpnPluginRpcClient::new(address, credentials)
+        .expect("Failed to create mock RPC client to connect to OpenVPN plugin event listener")
+}
+
+fn get_plugin_arguments<P: AsRef<Path>>(openvpn_args_file_path: P) -> (String, String) {
+    let mut arguments = search_openvpn_args(openvpn_args_file_path, OPENVPN_PLUGIN_NAME).skip(1);
 
     let address = arguments
         .next()
