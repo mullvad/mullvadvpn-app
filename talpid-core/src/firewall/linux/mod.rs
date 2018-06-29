@@ -88,27 +88,8 @@ impl Firewall for Netfilter {
             self.dns_settings.set_dns(vec![tunnel.gateway.into()])?;
         }
 
-        // First try to set the new policy with a batch starting with a command to delete the table
-        let batch_with_delete_table = self.policy_batch(&policy, true)?;
-        if let Err(e) = self.send_and_process(&batch_with_delete_table) {
-            let is_not_found = {
-                if let ErrorKind::Netlink(netlink_e) = e.kind() {
-                    netlink_e.kind() == io::ErrorKind::NotFound
-                } else {
-                    false
-                }
-            };
-            if is_not_found {
-                debug!("No table present to remove");
-                // If the batch fails because the table did not exist then we try again, but without
-                // deleting the table the first thing we do, just create it instead.
-                let batch_without_delete_table = self.policy_batch(&policy, false)?;
-                self.send_and_process(&batch_without_delete_table)?;
-            } else {
-                bail!(e);
-            }
-        }
-        Ok(())
+        let batch = PolicyBatch::new(&self.table)?.finalize(&policy)?;
+        self.send_and_process(&batch)
     }
 
     fn reset_policy(&mut self) -> Result<()> {
@@ -131,14 +112,6 @@ impl Firewall for Netfilter {
 }
 
 impl Netfilter {
-    fn policy_batch(
-        &self,
-        policy: &SecurityPolicy,
-        delete_table_first: bool,
-    ) -> Result<FinalizedBatch> {
-        PolicyBatch::new(&self.table, delete_table_first)?.finalize(policy)
-    }
-
     fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
         let socket =
             mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;
@@ -147,28 +120,30 @@ impl Netfilter {
             .chain_err(|| ErrorKind::NetlinkSendError)?;
 
         let portid = socket.portid();
-        let mut buf = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+        let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
-        let mut ret = socket
-            .recv(&mut buf[..])
-            .chain_err(|| ErrorKind::NetlinkRecvError)?;
-        trace!("Read {} bytes from netlink", ret);
-        while ret > 0 {
-            match mnl::cb_run(&buf[..ret], 2, portid) {
-                Err(e) => bail!(e),
-                Ok(mnl::CbResult::Stop) => {
+
+        while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
+            match mnl::cb_run(message, 2, portid)? {
+                mnl::CbResult::Stop => {
                     trace!("cb_run STOP");
                     break;
                 }
-                Ok(mnl::CbResult::Ok) => trace!("cb_run OK"),
+                mnl::CbResult::Ok => trace!("cb_run OK"),
             }
-            ret = socket
-                .recv(&mut buf[..])
-                .chain_err(|| ErrorKind::NetlinkRecvError)?;
-            trace!("Read {} bytes from netlink", ret);
         }
 
         Ok(())
+    }
+
+    fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> Result<Option<&'a [u8]>> {
+        let ret = socket.recv(buf).chain_err(|| ErrorKind::NetlinkRecvError)?;
+        trace!("Read {} bytes from netlink", ret);
+        if ret > 0 {
+            Ok(Some(&buf[..ret]))
+        } else {
+            Ok(None)
+        }
     }
 }
 
@@ -181,7 +156,7 @@ struct PolicyBatch<'a> {
 impl<'a> PolicyBatch<'a> {
     /// Bootstrap a new nftnl message batch object and add the initial messages creating the
     /// table and chains.
-    pub fn new(table: &'a Table, delete_table_first: bool) -> Result<Self> {
+    pub fn new(table: &'a Table) -> Result<Self> {
         let mut batch = Batch::new()?;
         let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, table)?;
         let mut in_chain = Chain::new(&*IN_CHAIN_NAME, table)?;
@@ -190,10 +165,8 @@ impl<'a> PolicyBatch<'a> {
         out_chain.set_policy(nftnl::Policy::Drop);
         in_chain.set_policy(nftnl::Policy::Drop);
 
-        if delete_table_first {
-            debug!("Removing netfilter table before re-adding it");
-            batch.add(table, nftnl::MsgType::Del)?;
-        }
+        batch.add(table, nftnl::MsgType::Add)?;
+        batch.add(table, nftnl::MsgType::Del)?;
         batch.add(table, nftnl::MsgType::Add)?;
         batch.add(&out_chain, nftnl::MsgType::Add)?;
         batch.add(&in_chain, nftnl::MsgType::Add)?;
