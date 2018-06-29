@@ -24,7 +24,7 @@ export default class HeaderBar extends Component<HeaderBarProps> {
   };
 
   render() {
-    let containerClass = [
+    const containerClass = [
       styles['headerbar'],
       platformStyles[process.platform],
       styles['style_' + this.props.style],

@@ -168,7 +168,7 @@ describe('components/Settings', () => {
   });
 
   it('should call external links callback', () => {
-    let collectedExternalLinkTypes: Array<string> = [];
+    const collectedExternalLinkTypes: Array<string> = [];
     const props = makeProps(loggedOutAccountState, settingsState, {
       onExternalLink: (type) => {
         collectedExternalLinkTypes.push(type);

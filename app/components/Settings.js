@@ -67,10 +67,10 @@ export default class Settings extends Component<SettingsProps> {
 
     let isOutOfTime = false,
       formattedExpiry = '';
-    let expiryIso = this.props.account.expiry;
+    const expiryIso = this.props.account.expiry;
 
     if (isLoggedIn && expiryIso) {
-      let expiry = moment(this.props.account.expiry);
+      const expiry = moment(this.props.account.expiry);
       isOutOfTime = expiry.isSameOrBefore(moment());
       formattedExpiry = (expiry.fromNow(true) + ' left').toUpperCase();
     }
