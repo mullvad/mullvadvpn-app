@@ -1,17 +1,15 @@
 // @flow
 import path from 'path';
+import { execFile } from 'child_process';
 import mkdirp from 'mkdirp';
-import { log } from './lib/platform';
+import uuid from 'uuid';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
-import { version } from '../package.json';
-import { resolveBin } from './lib/proc';
 import { RpcAddressFile } from './lib/rpc-address-file';
-import { execFile } from 'child_process';
-import uuid from 'uuid';
-
 import { ShutdownCoordinator } from './shutdown-handler';
+import { log } from './lib/platform';
+import { resolveBin } from './lib/proc';
 import type { TrayIconType } from './tray-icon-controller';
 
 const ApplicationMain = {
@@ -28,7 +26,7 @@ const ApplicationMain = {
 
     this._initLogging();
 
-    log.info('Running version', version);
+    log.info(`Running version ${app.getVersion()}`);
 
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
