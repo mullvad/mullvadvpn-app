@@ -16,34 +16,38 @@ use self::resolv_conf::{Config, ScopedIp};
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
-error_chain!{
+error_chain! {
     errors {
-        BackupResolvConf {
-            description("Failed to create backup of /etc/resolv.conf")
-        }
-
-        ParseResolvConf {
-            description("Failed to parse contents of /etc/resolv.conf")
-        }
-
-        ReadResolvConf {
-            description("Failed to read /etc/resolv.conf")
-        }
-
-        RemoveBackup {
-            description("Failed to remove stale backup of /etc/resolv.conf")
-        }
-
-        RestoreResolvConf {
-            description("Failed to restore /etc/resolv.conf from backup")
-        }
-
         WatchResolvConf {
             description("Failed to watch /etc/resolv.conf for changes")
         }
 
         WriteResolvConf {
             description("Failed to write to /etc/resolv.conf")
+        }
+
+        ParseResolvConf {
+            description("Failed to parse contents of /etc/resolv.conf")
+        }
+
+        BackupResolvConf {
+            description("Failed to create backup of /etc/resolv.conf")
+        }
+
+        RestoreResolvConf {
+            description("Failed to restore /etc/resolv.conf from backup")
+        }
+
+        ReadBackup {
+            description("Failed to read /etc/resolv.conf backup")
+        }
+
+        RemoveBackup {
+            description("Failed to remove stale backup of /etc/resolv.conf")
+        }
+
+        WriteBackup {
+            description("Failed to write to /etc/resolv.conf backup file")
         }
     }
 }
@@ -55,7 +59,7 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
-        Self::restore_persisted_state()?;
+        Self::restore_persisted_state().chain_err(|| ErrorKind::RestoreResolvConf)?;
 
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
@@ -70,7 +74,7 @@ impl DnsSettings {
         let mut state = self.lock_state();
         let new_state = match state.take() {
             None => State {
-                backup: backup_config()?,
+                backup: backup_config().chain_err(|| ErrorKind::BackupResolvConf)?,
                 desired_dns: servers,
             },
             Some(previous_state) => State {
@@ -107,23 +111,22 @@ impl DnsSettings {
         match fs::read(&backup_file) {
             Ok(backup) => {
                 info!("Restoring DNS state from backup");
-                let mut conf_file =
-                    fs::File::create(RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)?;
+                let mut conf_file = fs::File::create(RESOLV_CONF_PATH)
+                    .chain_err(|| "Failed to create backup file for /etc/resolv.conf")?;
+
                 conf_file
                     .write_all(&backup)
-                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
-                conf_file
-                    .sync_all()
-                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
-                fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
+                    .and_then(|_| conf_file.sync_all())
+                    .chain_err(|| ErrorKind::WriteBackup)?;
+
+                fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)
             }
             Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
-                trace!("No DNS state backup to restore")
+                trace!("No DNS state backup to restore");
+                Ok(())
             }
-            Err(error) => return Err(Error::with_chain(error, ErrorKind::RestoreResolvConf)),
+            Err(error) => Err(Error::with_chain(error, ErrorKind::ReadBackup)),
         }
-
-        Ok(())
     }
 }
 
@@ -206,7 +209,8 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents =
+        fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| "Failed to read /etc/resolv.conf")?;
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
     Ok(config)
@@ -218,10 +222,10 @@ fn write_config(config: &Config) -> Result<()> {
 }
 
 fn backup_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
+    let contents =
+        fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| "Failed to read /etc/resolv.conf")?;
 
-    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes())
-        .chain_err(|| ErrorKind::BackupResolvConf)?;
+    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes()).chain_err(|| ErrorKind::WriteBackup)?;
 
     let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
 
@@ -230,5 +234,5 @@ fn backup_config() -> Result<Config> {
 
 fn update_backup(backup: &Config) -> Result<()> {
     fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
-        .chain_err(|| ErrorKind::BackupResolvConf)
+        .chain_err(|| "Failed to update /etc/resolv.conf backup")
 }
