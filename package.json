@@ -1,5 +1,6 @@
 {
   "name": "mullvad-vpn",
+  "productName": "Mullvad VPN",
   "version": "2018.1.0",
   "description": "Mullvad VPN client",
   "main": "init.js",
