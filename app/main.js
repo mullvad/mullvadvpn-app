@@ -14,10 +14,6 @@ import uuid from 'uuid';
 import { ShutdownCoordinator } from './shutdown-handler';
 import type { TrayIconType } from './tray-icon-controller';
 
-// The name for application directory used for
-// scoping logs and user data in platform special folders
-const appDirectoryName = 'Mullvad VPN';
-
 const ApplicationMain = {
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
@@ -30,8 +26,6 @@ const ApplicationMain = {
       return;
     }
 
-    // Override userData path, i.e on macOS: ~/Library/Application Support/Mullvad VPN
-    app.setPath('userData', path.join(app.getPath('appData'), appDirectoryName));
     this._initLogging();
 
     log.info('Running version', version);
@@ -78,6 +72,8 @@ const ApplicationMain = {
       log.transports.file.file = this._logFilePath;
     }
 
+    log.debug(`Logging to ${this._logFilePath}`);
+
     // create log folder
     mkdirp.sync(logDirectory);
   },
@@ -90,7 +86,7 @@ const ApplicationMain = {
     switch (process.platform) {
       case 'darwin':
         // macOS: ~/Library/Logs/{appname}
-        return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
+        return path.join(app.getPath('home'), 'Library/Logs', app.getName());
       default:
         // Windows: %APPDATA%\{appname}\logs
         // Linux: ~/.config/{appname}/logs

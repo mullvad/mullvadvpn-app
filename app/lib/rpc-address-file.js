@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { app } from 'electron';
 import { promisify } from 'util';
 import { getSystemTemporaryDirectory } from './tempdir';
 
@@ -9,21 +10,15 @@ const fsReadFileAsync = promisify(fs.readFile);
 
 const POLL_INTERVAL = 200;
 
-const appDirectoryName = 'Mullvad VPN';
-
 export type RpcCredentials = {
   connectionString: string,
   sharedSecret: string,
 };
 
 export class RpcAddressFile {
-  _filePath: string;
+  _filePath = getRpcAddressFilePath();
   _pollIntervalId: ?IntervalID;
   _pollPromise: ?Promise<void>;
-
-  constructor() {
-    this._filePath = getRpcAddressFilePath();
-  }
 
   get filePath(): string {
     return this._filePath;
@@ -88,7 +83,7 @@ function getRpcAddressFilePath() {
       // Windows: %ALLUSERSPROFILE%\{appname}
       const programDataDirectory = process.env.ALLUSERSPROFILE;
       if (programDataDirectory) {
-        const appDataDirectory = path.join(programDataDirectory, appDirectoryName);
+        const appDataDirectory = path.join(programDataDirectory, app.getName());
         return path.join(appDataDirectory, rpcAddressFileName);
       } else {
         throw new Error('Missing %ALLUSERSPROFILE% environment variable');
