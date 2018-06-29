@@ -17,10 +17,12 @@ extern crate log;
 
 #[macro_use]
 extern crate error_chain;
+#[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+#[cfg(unix)]
 #[macro_use]
 extern crate lazy_static;
 extern crate libc;
