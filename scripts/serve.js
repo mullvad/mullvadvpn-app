@@ -1,3 +1,4 @@
+import electron from 'electron';
 import { spawn } from 'child_process';
 import browserSync from 'browser-sync';
 import browserSyncConnectUtils from 'browser-sync/dist/connect-utils';
@@ -30,7 +31,7 @@ bsync.init({
 }, (err, bs) => {
   if (err) return console.error(err);
 
-  const child = spawn('electron', ['.'], {
+  const child = spawn(electron, ['.'], {
     env: {
       ...{
         NODE_ENV: 'development',
