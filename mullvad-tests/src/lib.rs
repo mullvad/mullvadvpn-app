@@ -32,6 +32,8 @@ use tempfile::TempDir;
 use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
 use self::platform_specific::*;
 
+type Result<T> = ::std::result::Result<T, String>;
+
 #[cfg(unix)]
 mod platform_specific {
     pub const DAEMON_EXECUTABLE_PATH: &str = "../target/debug/mullvad-daemon";
@@ -228,7 +230,7 @@ impl DaemonRunner {
         }
     }
 
-    pub fn rpc_client(&mut self) -> Result<DaemonRpcClient, String> {
+    pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
         if !self.rpc_address_file.exists() {
             wait_for_file_write_finish(&self.rpc_address_file, Duration::from_secs(10));
         }
@@ -288,7 +290,7 @@ pub struct MockOpenVpnPluginRpcClient {
 }
 
 impl MockOpenVpnPluginRpcClient {
-    pub fn new(address: String, credentials: String) -> Result<Self, String> {
+    pub fn new(address: String, credentials: String) -> Result<Self> {
         let rpc = WsIpcClient::connect(&address).map_err(|error| {
             format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
         })?;
@@ -296,19 +298,19 @@ impl MockOpenVpnPluginRpcClient {
         Ok(MockOpenVpnPluginRpcClient { rpc, credentials })
     }
 
-    pub fn authenticate(&mut self) -> Result<bool, String> {
+    pub fn authenticate(&mut self) -> Result<bool> {
         self.rpc
             .call("authenticate", &[&self.credentials])
             .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
     }
 
-    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool, String> {
+    pub fn authenticate_with(&mut self, credentials: &str) -> Result<bool> {
         self.rpc
             .call("authenticate", &[credentials])
             .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
     }
 
-    pub fn up(&mut self) -> Result<(), String> {
+    pub fn up(&mut self) -> Result<()> {
         let mut env: HashMap<String, String> = HashMap::new();
 
         env.insert("dev".to_owned(), "lo".to_owned());
@@ -318,7 +320,7 @@ impl MockOpenVpnPluginRpcClient {
         self.send_event(OpenVpnPluginEvent::Up, env)
     }
 
-    pub fn route_predown(&mut self) -> Result<(), String> {
+    pub fn route_predown(&mut self) -> Result<()> {
         self.send_event(OpenVpnPluginEvent::RoutePredown, HashMap::new())
     }
 
@@ -326,7 +328,7 @@ impl MockOpenVpnPluginRpcClient {
         &mut self,
         event: OpenVpnPluginEvent,
         env: HashMap<String, String>,
-    ) -> Result<(), String> {
+    ) -> Result<()> {
         self.rpc
             .call("openvpn_event", &(event, env))
             .map_err(|error| format!("Failed to send mock OpenVPN event {:?}: {}", event, error))
