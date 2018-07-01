@@ -117,21 +117,25 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
         path,
         r#"{
             "countries": [{
-                "name": "Mockland",
-                "code": "fake",
-                "latitude": -91,
-                "longitude": 0,
-                "relays": [{
-                    "hostname": "fake-mockland",
-                    "ipv4_addr_in": "192.168.0.100",
-                    "ipv4_addr_exit": "192.168.0.101",
-                    "include_in_country": true,
-                    "weight": 100,
-                    "tunnels": {
-                        "openvpn": [ { "port": 10000, "protocol": "udp" } ],
-                        "wireguard": [],
-                    },
-                }],
+                "name": "Sweden",
+                "code": "se",
+                "cities": [{
+                    "name": "Gothenburg",
+                    "code": "got",
+                    "latitude": 57.70887,
+                    "longitude": 11.97456,
+                    "relays": [{
+                        "hostname": "fakehost",
+                        "ipv4_addr_in": "192.168.0.100",
+                        "ipv4_addr_exit": "192.168.0.101",
+                        "include_in_country": true,
+                        "weight": 100,
+                        "tunnels": {
+                            "openvpn": [ { "port": 1000, "protocol": "udp" } ],
+                            "wireguard": []
+                        }
+                    }]
+                }]
             }]
         }"#,
     ).expect("Failed to create mock relay list file");
