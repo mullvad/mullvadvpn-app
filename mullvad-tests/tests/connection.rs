@@ -240,7 +240,7 @@ fn disconnects() {
 
 fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
     let received_state = receiver
-        .recv_timeout(Duration::from_secs(1))
+        .recv_timeout(Duration::from_secs(3))
         .expect("Failed to receive new state event from daemon");
 
     assert_eq!(received_state, expected_state);
