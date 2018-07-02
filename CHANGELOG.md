@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.2-beta1] - 2018-07-02
 ### Added
 - Refresh account expiration when account view becomes visible.
 - Add `tunnel` subcommand to manage tunnel specific options in the CLI.
