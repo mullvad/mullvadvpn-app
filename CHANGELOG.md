@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 - Automatic rotation of the daemon log. The existing log is renamed to `daemon.old.log` on daemon
   startup.
 - Add `status listen` subcommand in the CLI to continuously monitor the tunnel state.
+- Log errors present in initialization sequence to the log file.
 
 #### macOS
 - Add colors to terminal output.
