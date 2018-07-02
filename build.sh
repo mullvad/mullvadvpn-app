@@ -87,8 +87,9 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 function restore_metadata_backups() {
     mv package.json.bak package.json || true
     mv Cargo.lock.bak Cargo.lock || true
-    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
+    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
+    mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
 }
 trap 'restore_metadata_backups' EXIT
 
@@ -100,7 +101,8 @@ cp Cargo.lock Cargo.lock.bak
 sed -i.bak \
     -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml
+    mullvad-cli/Cargo.toml \
+    mullvad-problem-report/Cargo.toml
 
 ################################################################################
 # Compile and link all binaries.
