@@ -35,13 +35,15 @@ sed -i -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     package.json
 sed -i -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml
+    mullvad-cli/Cargo.toml \
+    mullvad-problem-report/Cargo.toml
 
 echo "Commiting metadata changes to git..."
 git commit -S -m "Updating version in package.json" \
     package.json \
     mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml
+    mullvad-cli/Cargo.toml \
+    mullvad-problem-report/Cargo.toml
 
 echo "Tagging current git commit with release tag $VERSION..."
 git tag -s $VERSION -m $VERSION
