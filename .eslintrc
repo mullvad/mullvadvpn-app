@@ -13,6 +13,7 @@
   },
   "plugins": [ "react", "flowtype" ],
   "rules": {
+    "prefer-const": "warn",
     "no-console": "off",
     "no-loop-func": "warn",
     "new-cap": "off",

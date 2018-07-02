@@ -264,7 +264,7 @@ export class Backend {
 
   async connect() {
     try {
-      let currentState = await this._ipc.getState();
+      const currentState = await this._ipc.getState();
       if (currentState.state === 'secured') {
         log.debug('Refusing to connect as connection is already secured');
         this._store.dispatch(connectionActions.connected());

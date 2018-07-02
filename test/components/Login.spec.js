@@ -8,7 +8,7 @@ import AccountInput from '../../app/components/AccountInput';
 
 describe('components/Login', () => {
   it('notifies on the first change after failure', () => {
-    let onFirstChange = spy();
+    const onFirstChange = spy();
     const props = {
       account: Object.assign({}, defaultAccount, {
         status: 'failed',

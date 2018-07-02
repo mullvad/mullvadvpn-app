@@ -316,7 +316,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   networkSecurityStyle(): Types.Style {
-    let classes = [styles.status_security];
+    const classes = [styles.status_security];
     if (this.props.connection.status === 'connected') {
       classes.push(styles.status_security__secure);
     } else if (this.props.connection.status === 'disconnected') {

@@ -124,7 +124,7 @@ export default class KeyframeAnimation {
   }
 
   play(options: KeyframeAnimationOptions = {}) {
-    let { startFrame, endFrame, beginFromCurrentState, advanceTo } = options;
+    const { startFrame, endFrame, beginFromCurrentState, advanceTo } = options;
 
     if (startFrame !== undefined && endFrame !== undefined) {
       if (startFrame < 0 || startFrame >= this._numFrames) {
@@ -216,7 +216,7 @@ export default class KeyframeAnimation {
       return;
     }
 
-    let lastFrame = this._frameRange[this._reverse ? 0 : 1];
+    const lastFrame = this._frameRange[this._reverse ? 0 : 1];
     if (this._currentFrame === lastFrame) {
       // mark animation as finished if it's not repeating
       if (!this._repeat) {

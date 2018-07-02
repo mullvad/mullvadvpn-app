@@ -255,9 +255,9 @@ const ApplicationMain = {
     switch (process.platform) {
       case 'win32': {
         // Windows: %ALLUSERSPROFILE%\{appname}
-        let programDataDirectory = process.env.ALLUSERSPROFILE;
+        const programDataDirectory = process.env.ALLUSERSPROFILE;
         if (programDataDirectory) {
-          let appDataDirectory = path.join(programDataDirectory, appDirectoryName);
+          const appDataDirectory = path.join(programDataDirectory, appDirectoryName);
           return path.join(appDataDirectory, rpcAddressFileName);
         } else {
           throw new Error('Missing %ALLUSERSPROFILE% environment variable');
@@ -413,7 +413,7 @@ const ApplicationMain = {
   },
 
   _addContextMenu(window: BrowserWindow) {
-    let menuTemplate = [
+    const menuTemplate = [
       { role: 'cut' },
       { role: 'copy' },
       { role: 'paste' },
@@ -425,7 +425,7 @@ const ApplicationMain = {
     window.webContents.on(
       'context-menu',
       (_e: Event, props: { x: number, y: number, isEditable: boolean }) => {
-        let inspectTemplate = [
+        const inspectTemplate = [
           {
             label: 'Inspect element',
             click() {
