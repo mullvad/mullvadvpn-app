@@ -29,7 +29,7 @@
 #
 !macro BreakInstallation
 
-	Delete "$INSTDIR\mullvadvpn.exe"
+	Delete "$INSTDIR\mullvad vpn.exe"
 
 !macroend
 
