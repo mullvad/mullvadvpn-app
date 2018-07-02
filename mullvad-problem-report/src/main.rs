@@ -83,7 +83,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
-        .version(daemon_version())
+        .version(product_version())
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
@@ -444,13 +444,13 @@ fn collect_metadata() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
     metadata.insert(
         String::from("mullvad-daemon-version"),
-        daemon_version().to_owned(),
+        product_version().to_owned(),
     );
     metadata.insert(String::from("os"), os_version());
     metadata
 }
 
-fn daemon_version() -> &'static str {
+fn product_version() -> &'static str {
     concat!(
         include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
         " ",
