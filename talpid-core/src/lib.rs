@@ -17,9 +17,15 @@ extern crate log;
 
 #[macro_use]
 extern crate error_chain;
+#[cfg(unix)]
+extern crate ipnetwork;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+#[cfg(unix)]
+#[macro_use]
+extern crate lazy_static;
+extern crate libc;
 extern crate shell_escape;
 extern crate uuid;
 
@@ -27,8 +33,9 @@ extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-#[cfg(windows)]
-extern crate libc;
+#[cfg(target_os = "linux")]
+#[macro_use]
+extern crate nftnl;
 
 /// Working with processes.
 pub mod process;

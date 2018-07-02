@@ -1,8 +1,9 @@
 extern crate pfctl;
 extern crate tokio_core;
 
-use self::pfctl::ipnetwork::{IpNetwork, Ipv4Network};
 use super::{Firewall, SecurityPolicy};
+
+use ipnetwork::IpNetwork;
 
 use std::net::Ipv4Addr;
 use std::path::Path;
@@ -20,6 +21,8 @@ error_chain! {
     }
 }
 
+/// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
+/// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &'static str = "mullvad";
 
 /// The macOS firewall implementation. Acting as converter between the `Firewall` trait API
@@ -183,25 +186,21 @@ impl PacketFilter {
     }
 
     fn get_allow_lan_rules() -> Result<Vec<pfctl::FilterRule>> {
-        let private_nets = [
-            Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap(),
-            Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
-            Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
-        ];
-        let multicast_net = Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
         let mut rules = vec![];
-        for net in &private_nets {
+        for net in &*super::PRIVATE_NETS {
             let mut rule_builder = pfctl::FilterRuleBuilder::default();
             rule_builder
                 .action(pfctl::FilterRuleAction::Pass)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(IpNetwork::V4(*net)));
+                .from(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(*net))));
             let allow_net = rule_builder
-                .to(pfctl::Ip::from(IpNetwork::V4(*net)))
+                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(*net))))
                 .build()?;
             let allow_multicast = rule_builder
-                .to(pfctl::Ip::from(IpNetwork::V4(multicast_net)))
+                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(
+                    *super::MULTICAST_NET,
+                ))))
                 .build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
@@ -287,4 +286,10 @@ fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
         net::TransportProtocol::Udp => pfctl::Proto::Udp,
         net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
     }
+}
+
+/// Converts a network from the struct version that talpid-core uses to the version pfctl uses.
+fn ipnetwork_compat(net: ::ipnetwork::IpNetwork) -> pfctl::ipnetwork::IpNetwork {
+    pfctl::ipnetwork::IpNetwork::new(net.ip(), net.prefix())
+        .expect("IpNetwork versions not compatible")
 }

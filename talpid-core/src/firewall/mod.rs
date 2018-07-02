@@ -1,6 +1,20 @@
+#[cfg(unix)]
+use ipnetwork::Ipv4Network;
+#[cfg(unix)]
+use std::net::Ipv4Addr;
 use std::path::Path;
 use talpid_types::net::Endpoint;
 
+#[cfg(unix)]
+lazy_static! {
+    static ref PRIVATE_NETS: [Ipv4Network; 3] = [
+        Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap(),
+        Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
+        Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
+    ];
+    static ref MULTICAST_NET: Ipv4Network =
+        Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
+}
 
 /// A enum that describes firewall rules strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
