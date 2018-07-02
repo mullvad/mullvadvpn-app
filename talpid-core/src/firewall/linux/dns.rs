@@ -26,10 +26,6 @@ error_chain! {
             description("Failed to write to /etc/resolv.conf")
         }
 
-        ParseResolvConf {
-            description("Failed to parse contents of /etc/resolv.conf")
-        }
-
         BackupResolvConf {
             description("Failed to create backup of /etc/resolv.conf")
         }
@@ -73,10 +69,15 @@ impl DnsSettings {
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         let mut state = self.lock_state();
         let new_state = match state.take() {
-            None => State {
-                backup: backup_config().chain_err(|| ErrorKind::BackupResolvConf)?,
-                desired_dns: servers,
-            },
+            None => {
+                let backup = read_config().chain_err(|| ErrorKind::BackupResolvConf)?;
+                write_backup(&backup).chain_err(|| ErrorKind::BackupResolvConf)?;
+
+                State {
+                    backup,
+                    desired_dns: servers,
+                }
+            }
             Some(previous_state) => State {
                 backup: previous_state.backup,
                 desired_dns: servers,
@@ -200,7 +201,7 @@ impl DnsWatcher {
                 new_config.nameservers.append(&mut state.backup.nameservers);
                 state.backup = new_config;
 
-                update_backup(&state.backup)
+                write_backup(&state.backup).chain_err(|| "Failed to update /etc/resolv.conf backup")
             }
         } else {
             Ok(())
@@ -211,7 +212,8 @@ impl DnsWatcher {
 fn read_config() -> Result<Config> {
     let contents =
         fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| "Failed to read /etc/resolv.conf")?;
-    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
+    let config =
+        Config::parse(&contents).chain_err(|| "Failed to parse contents of /etc/resolv.conf")?;
 
     Ok(config)
 }
@@ -221,18 +223,7 @@ fn write_config(config: &Config) -> Result<()> {
         .chain_err(|| ErrorKind::WriteResolvConf)
 }
 
-fn backup_config() -> Result<Config> {
-    let contents =
-        fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| "Failed to read /etc/resolv.conf")?;
-
-    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes()).chain_err(|| ErrorKind::WriteBackup)?;
-
-    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
-
-    Ok(config)
-}
-
-fn update_backup(backup: &Config) -> Result<()> {
+fn write_backup(backup: &Config) -> Result<()> {
     fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
-        .chain_err(|| "Failed to update /etc/resolv.conf backup")
+        .chain_err(|| ErrorKind::WriteBackup)
 }
