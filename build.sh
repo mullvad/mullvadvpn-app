@@ -115,7 +115,9 @@ export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
 export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/openssl/include"
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    CPP_BUILD_MODES="Release" ./build_windows_modules.sh $@
+    CPP_BUILD_MODES="Release" ./build_windows_libraries.sh $@
+    export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/msvc-openssl"
+    export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/msvc-openssl/include"
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
