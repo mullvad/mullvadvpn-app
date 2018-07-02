@@ -7,32 +7,11 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-
-################################################################################
-# Platform specific configuration.
-################################################################################
-
-case "$(uname -s)" in
-    Linux*)
-        # Use static builds of libmnl and libnftnl from the binaries submodule
-        export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-        export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-        PLATFORM="linux"
-        ;;
-    Darwin*)
-        export MACOSX_DEPLOYMENT_TARGET="10.7"
-        PLATFORM="macos"
-        ;;
-    MINGW*)
-        PLATFORM="windows"
-        ;;
-esac
-
 ################################################################################
 # Verify and configure environment.
 ################################################################################
 
+SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
 
@@ -110,12 +89,8 @@ sed -i.bak \
 # Compile and link all binaries.
 ################################################################################
 
-export OPENSSL_STATIC="1"
-export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
-export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/openssl/include"
-
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    CPP_BUILD_MODES="Release" ./build_windows_modules.sh $@
+    CPP_BUILD_MODES="Release" ./build_windows_libraries.sh $@
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
@@ -139,7 +114,7 @@ if [[ "$(uname -s)" != "MINGW"* ]]; then
 fi
 
 echo "Updating relay list..."
-./target/release/list-relays > dist-assets/relays.json
+MULLVAD_RESOURCE_DIR="$SCRIPT_DIR/dist-assets/" ./target/release/list-relays > dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
 yarn install
