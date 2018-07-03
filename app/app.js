@@ -9,54 +9,44 @@ import { webFrame, ipcRenderer } from 'electron';
 import { log } from './lib/platform';
 import makeRoutes from './routes';
 import configureStore from './redux/store';
-import { Backend, NoAccountError } from './lib/backend';
-
+import { Backend } from './lib/backend';
+import { DaemonRpc } from './lib/daemon-rpc';
 import { setShutdownHandler } from './shutdown-handler';
 
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './tray-icon-controller';
+import type { RpcCredentialsProvider, RpcCredentials } from './lib/backend';
 
 const initialState = null;
 const memoryHistory = createMemoryHistory();
 const store = configureStore(initialState, memoryHistory);
 
-//////////////////////////////////////////////////////////////////////////
-// Backend
-//////////////////////////////////////////////////////////////////////////
-const backend = new Backend(store);
-ipcRenderer.on('backend-info', async (_event, args) => {
-  backend.setCredentials(args.credentials);
-  backend.sync();
-  try {
-    await backend.autologin();
-    await backend.fetchRelaySettings();
-    await backend.fetchSecurityState();
-    await backend.connect();
-  } catch (e) {
-    if (e instanceof NoAccountError) {
-      log.debug('No previously configured account set, showing window');
-      ipcRenderer.send('show-window');
-    }
+class CredentialsProvider implements RpcCredentialsProvider {
+  request(): Promise<RpcCredentials> {
+    return new Promise((resolve, _reject) => {
+      ipcRenderer.once('daemon-connection-ready', (_event, credentials: RpcCredentials) => {
+        resolve(credentials);
+      });
+      ipcRenderer.send('discover-daemon-connection');
+    });
   }
-});
+}
+
+const rpc = new DaemonRpc();
+const credentialsProvider = new CredentialsProvider();
+const backend = new Backend(store, rpc, credentialsProvider);
+backend.connect();
 
 setShutdownHandler(async () => {
   log.info('Executing a shutdown handler');
 
   try {
-    await backend.disconnect();
+    await backend.disconnectTunnel();
     log.info('Disconnected the tunnel');
   } catch (e) {
     log.error(`Failed to shutdown tunnel: ${e.message}`);
   }
 });
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Tray icon
-//////////////////////////////////////////////////////////////////////////
 
 /**
  * Get tray icon type based on connection state
@@ -86,13 +76,9 @@ store.subscribe(updateTrayIcon);
 
 // force update tray
 updateTrayIcon();
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 
 // disable smart pinch.
 webFrame.setVisualZoomLevelLimits(1, 1);
-
-ipcRenderer.send('on-browser-window-ready');
 
 export default class App extends Component {
   render() {

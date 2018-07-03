@@ -1,51 +1,16 @@
 // @flow
 import path from 'path';
-import fs from 'fs';
+import { execFile } from 'child_process';
 import mkdirp from 'mkdirp';
-import { log } from './lib/platform';
+import uuid from 'uuid';
 import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
-import { version } from '../package.json';
-import { resolveBin } from './lib/proc';
-import { getSystemTemporaryDirectory } from './lib/tempdir';
-import { canTrustRpcAddressFile } from './lib/rpc-file-security';
-import { execFile } from 'child_process';
-import uuid from 'uuid';
-
+import { RpcAddressFile } from './lib/rpc-address-file';
 import { ShutdownCoordinator } from './shutdown-handler';
+import { log } from './lib/platform';
+import { resolveBin } from './lib/proc';
 import type { TrayIconType } from './tray-icon-controller';
-
-/*
-HOTFIX
-We had an issue importing this stuff from backend.js but
-since it's going away in one of already open PRs,
-there is no point in trying to make it any nicer,
-
-Hence duplicating this piece in here
-TODO: Remove during merge
- */
-export type IpcCredentials = {
-  connectionString: string,
-  sharedSecret: string,
-};
-export function parseIpcCredentials(data: string): ?IpcCredentials {
-  const [connectionString, sharedSecret] = data.split('\n', 2);
-  if (connectionString && sharedSecret !== undefined) {
-    return {
-      connectionString,
-      sharedSecret,
-    };
-  } else {
-    return null;
-  }
-}
-
-/** / HOTFIX  */
-
-// The name for application directory used for
-// scoping logs and user data in platform special folders
-const appDirectoryName = 'Mullvad VPN';
 
 const ApplicationMain = {
   _windowController: (null: ?WindowController),
@@ -59,11 +24,9 @@ const ApplicationMain = {
       return;
     }
 
-    // Override userData path, i.e on macOS: ~/Library/Application Support/Mullvad VPN
-    app.setPath('userData', path.join(app.getPath('appData'), appDirectoryName));
     this._initLogging();
 
-    log.info('Running version', version);
+    log.info(`Running version ${app.getVersion()}`);
 
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
@@ -107,6 +70,8 @@ const ApplicationMain = {
       log.transports.file.file = this._logFilePath;
     }
 
+    log.debug(`Logging to ${this._logFilePath}`);
+
     // create log folder
     mkdirp.sync(logDirectory);
   },
@@ -119,7 +84,7 @@ const ApplicationMain = {
     switch (process.platform) {
       case 'darwin':
         // macOS: ~/Library/Logs/{appname}
-        return path.join(app.getPath('home'), 'Library/Logs', appDirectoryName);
+        return path.join(app.getPath('home'), 'Library/Logs', app.getName());
       default:
         // Windows: %APPDATA%\{appname}\logs
         // Linux: ~/.config/{appname}/logs
@@ -162,8 +127,43 @@ const ApplicationMain = {
   },
 
   _registerIpcListeners() {
-    ipcMain.on('on-browser-window-ready', () => {
-      this._pollConnectionInfoFile();
+    ipcMain.on('discover-daemon-connection', async (event) => {
+      const addressFile = new RpcAddressFile();
+
+      log.debug(`Waiting for RPC address file: "${addressFile.filePath}"`);
+
+      try {
+        await addressFile.waitUntilExists();
+      } catch (error) {
+        log.error(`Cannot finish polling the RPC address file: ${error.message}`);
+        return;
+      }
+
+      try {
+        if (!addressFile.isTrusted()) {
+          log.error(`Cannot verify the credibility of RPC address file`);
+          return;
+        }
+      } catch (error) {
+        log.error(`An error occurred during the credibility check: ${error.message}`);
+        return;
+      }
+
+      // There is a race condition here where the owner and permissions of
+      // the file can change in the time between we validate the owner and
+      // permissions and read the contents of the file. We deem the chance
+      // of that to be small enough to ignore.
+
+      try {
+        const credentials = await addressFile.parse();
+
+        log.debug('Read RPC connection info', credentials.connectionString);
+
+        event.sender.send('daemon-connection-ready', credentials);
+      } catch (error) {
+        log.error(`Cannot parse the RPC address file: ${error.message}`);
+        return;
+      }
     });
 
     ipcMain.on('show-window', () => {
@@ -247,84 +247,6 @@ const ApplicationMain = {
         });
       },
     );
-  },
-
-  _getRpcAddressFilePath() {
-    const rpcAddressFileName = '.mullvad_rpc_address';
-
-    switch (process.platform) {
-      case 'win32': {
-        // Windows: %ALLUSERSPROFILE%\{appname}
-        const programDataDirectory = process.env.ALLUSERSPROFILE;
-        if (programDataDirectory) {
-          const appDataDirectory = path.join(programDataDirectory, appDirectoryName);
-          return path.join(appDataDirectory, rpcAddressFileName);
-        } else {
-          throw new Error('Missing %ALLUSERSPROFILE% environment variable');
-        }
-      }
-      default:
-        return path.join(getSystemTemporaryDirectory(), rpcAddressFileName);
-    }
-  },
-
-  _pollConnectionInfoFile() {
-    if (this._connectionFilePollInterval) {
-      log.warn(
-        'Attempted to start polling for the RPC connection info file while another polling was already running',
-      );
-      return;
-    }
-
-    const pollIntervalMs = 200;
-    const rpcAddressFile = this._getRpcAddressFilePath();
-
-    this._connectionFilePollInterval = setInterval(() => {
-      if (fs.existsSync(rpcAddressFile)) {
-        if (this._connectionFilePollInterval) {
-          clearInterval(this._connectionFilePollInterval);
-          this._connectionFilePollInterval = null;
-        }
-
-        this._sendDaemonConnectionInfo(rpcAddressFile);
-      }
-    }, pollIntervalMs);
-  },
-
-  _sendDaemonConnectionInfo(rpcAddressFile: string) {
-    log.debug(`Reading the ipc connection info from "${rpcAddressFile}"`);
-
-    try {
-      if (!canTrustRpcAddressFile(rpcAddressFile)) {
-        log.error(`Not trusting the contents of "${rpcAddressFile}".`);
-        return;
-      }
-    } catch (e) {
-      log.error(`Cannot verify the credibility of RPC address file: ${e.message}`);
-      return;
-    }
-
-    // There is a race condition here where the owner and permissions of
-    // the file can change in the time between we validate the owner and
-    // permissions and read the contents of the file. We deem the chance
-    // of that to be small enough to ignore.
-
-    fs.readFile(rpcAddressFile, 'utf8', (err, data) => {
-      if (err) {
-        return log.error('Could not find backend connection info', err);
-      }
-
-      const credentials = parseIpcCredentials(data);
-      if (credentials) {
-        log.debug('Read IPC connection info', credentials.connectionString);
-        const windowController = this._windowController;
-        if (windowController) {
-          windowController.window.webContents.send('backend-info', { credentials });
-        }
-      } else {
-        log.error('Could not parse IPC credentials.');
-      }
-    });
   },
 
   async _installDevTools() {

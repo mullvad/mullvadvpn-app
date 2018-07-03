@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { Ip } from '../../lib/ipc-facade';
+import type { Ip } from '../../lib/daemon-rpc';
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected';
 export type ConnectionReduxState = {

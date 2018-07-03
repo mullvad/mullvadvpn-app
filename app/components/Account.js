@@ -8,7 +8,7 @@ import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
 
-import type { AccountToken } from '../lib/ipc-facade';
+import type { AccountToken } from '../lib/daemon-rpc';
 
 export type AccountProps = {
   accountToken: AccountToken,

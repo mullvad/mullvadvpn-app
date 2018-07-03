@@ -11,9 +11,15 @@ import { openLink } from '../lib/platform';
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
-  account: state.account,
-});
+const mapStateToProps = (state: ReduxState) => {
+  const { accountToken, accountHistory, error, status } = state.account;
+  return {
+    accountToken,
+    accountHistory,
+    loginError: error,
+    loginState: status,
+  };
+};
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   const { login, resetLoginError, updateAccountToken } = bindActionCreators(
@@ -22,20 +28,18 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   );
   const { backend } = props;
   return {
-    onSettings: () => {
+    openSettings: () => {
       pushHistory('/settings');
     },
-    onLogin: (account) => {
+    login: (account) => {
       login(backend, account);
     },
-    onFirstChangeAfterFailure: () => {
+    resetLoginError: () => {
       resetLoginError();
     },
-    onExternalLink: (type) => openLink(links[type]),
-    onAccountTokenChange: (token) => {
-      updateAccountToken(token);
-    },
-    onRemoveAccountTokenFromHistory: (token) => backend.removeAccountFromHistory(token),
+    openExternalLink: (type) => openLink(links[type]),
+    updateAccountToken: updateAccountToken,
+    removeAccountTokenFromHistory: (token) => backend.removeAccountFromHistory(token),
   };
 };
 
