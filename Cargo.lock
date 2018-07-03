@@ -765,7 +765,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2018.1.0"
+version = "2018.2.0-beta1"
 dependencies = [
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.5.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -779,7 +779,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2018.1.0"
+version = "2018.2.0-beta1"
 dependencies = [
  "chrono 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2018.1.0"
+version = "2018.2.0-beta1"
 dependencies = [
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
