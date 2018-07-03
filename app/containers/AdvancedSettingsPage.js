@@ -26,7 +26,6 @@ const mapStateToProps = (state: ReduxState) => {
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
-  const { backend } = props;
   return {
     onClose: () => dispatch(push('/settings')),
 
@@ -47,8 +46,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         .build();
 
       try {
-        await backend.updateRelaySettings(relayUpdate);
-        await backend.fetchRelaySettings();
+        await props.app.updateRelaySettings(relayUpdate);
+        await props.app.fetchRelaySettings();
       } catch (e) {
         log.error('Failed to update relay settings', e.message);
       }

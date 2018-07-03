@@ -22,24 +22,20 @@ const mapStateToProps = (state: ReduxState) => {
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
-  const { login, resetLoginError, updateAccountToken } = bindActionCreators(
-    accountActions,
-    dispatch,
-  );
-  const { backend } = props;
+  const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {
     openSettings: () => {
       pushHistory('/settings');
     },
     login: (account) => {
-      login(backend, account);
+      props.app.login(account);
     },
     resetLoginError: () => {
       resetLoginError();
     },
     openExternalLink: (type) => openLink(links[type]),
     updateAccountToken: updateAccountToken,
-    removeAccountTokenFromHistory: (token) => backend.removeAccountFromHistory(token),
+    removeAccountTokenFromHistory: (token) => props.app.removeAccountFromHistory(token),
   };
 };
 

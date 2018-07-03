@@ -9,7 +9,7 @@ import { TransparentButton, RedTransparentButton, GreenButton, Label } from './s
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
 
-import { NoCreditError, NoInternetError } from '../lib/backend';
+import { NoCreditError, NoInternetError } from '../errors';
 import Map from './Map';
 
 import type { HeaderBarStyle } from './HeaderBar';
