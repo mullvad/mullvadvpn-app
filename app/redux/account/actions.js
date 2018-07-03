@@ -1,7 +1,6 @@
 // @flow
 
 import type { AccountToken } from '../../lib/daemon-rpc';
-import type { Backend } from '../../lib/backend';
 
 type StartLoginAction = {
   type: 'START_LOGIN',
@@ -109,12 +108,7 @@ function updateAccountExpiry(expiry: string): UpdateAccountExpiryAction {
   };
 }
 
-const login = (backend: Backend, account: string) => () => backend.login(account);
-const logout = (backend: Backend) => () => backend.logout();
-
 export default {
-  login,
-  logout,
   startLogin,
   loginSuccessful,
   loginFailed,

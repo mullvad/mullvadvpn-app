@@ -15,7 +15,6 @@ const mapStateToProps = (state: ReduxState) => ({
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
-  const { backend } = props;
   return {
     onClose: () => pushHistory('/connect'),
     onSelect: async (relayLocation) => {
@@ -24,9 +23,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
           .location.fromRaw(relayLocation)
           .build();
 
-        await backend.updateRelaySettings(relayUpdate);
-        await backend.fetchRelaySettings();
-        await backend.connectTunnel();
+        await props.app.updateRelaySettings(relayUpdate);
+        await props.app.fetchRelaySettings();
+        await props.app.connectTunnel();
 
         pushHistory('/connect');
       } catch (e) {
