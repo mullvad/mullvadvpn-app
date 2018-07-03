@@ -141,6 +141,7 @@ if [[ "$(uname -s)" != "MINGW"* ]]; then
 fi
 
 echo "Updating relay list..."
+cp dist-assets/api_root_ca.pem target/release/
 ./target/release/list-relays > dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
