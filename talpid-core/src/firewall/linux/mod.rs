@@ -74,7 +74,7 @@ enum End {
 /// The Linux implementation for the `Firewall` trait.
 pub struct Netfilter {
     dns_settings: DnsSettings,
-    table: Table,
+    table_name: CString,
 }
 
 impl Firewall for Netfilter {
@@ -83,7 +83,7 @@ impl Firewall for Netfilter {
     fn new<P: AsRef<Path>>(_cache_dir: P) -> Result<Self> {
         Ok(Netfilter {
             dns_settings: DnsSettings::new()?,
-            table: Table::new(&*TABLE_NAME, ProtoFamily::Inet)?,
+            table_name: TABLE_NAME.clone(),
         })
     }
 
@@ -92,7 +92,8 @@ impl Firewall for Netfilter {
             self.dns_settings.set_dns(vec![tunnel.gateway.into()])?;
         }
 
-        let batch = PolicyBatch::new(&self.table)?.finalize(&policy)?;
+        let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
+        let batch = PolicyBatch::new(&table)?.finalize(&policy)?;
         self.send_and_process(&batch)
     }
 
@@ -101,12 +102,13 @@ impl Firewall for Netfilter {
             error!("Failed to reset DNS settings: {}", error.display_chain());
         }
 
+        let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
         let batch = {
             let mut batch = Batch::new()?;
             // Our batch will add and remove the table even though the goal is just to remove it.
             // This because only removing it throws a strange error if the table does not exist.
-            batch.add(&self.table, nftnl::MsgType::Add)?;
-            batch.add(&self.table, nftnl::MsgType::Del)?;
+            batch.add(&table, nftnl::MsgType::Add)?;
+            batch.add(&table, nftnl::MsgType::Del)?;
             batch.finalize()?
         };
 
