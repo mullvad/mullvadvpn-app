@@ -31,9 +31,10 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Maximum number of bytes to read from each log file
-const LOG_MAX_READ_BYTES: usize = 1 * 1024 * 1024;
-/// Fit two logs plus some system information in the report.
-const REPORT_MAX_SIZE: usize = 2 * LOG_MAX_READ_BYTES + 16 * 1024;
+const LOG_MAX_READ_BYTES: usize = 512 * 1024;
+const EXTRA_BYTES: usize = 32 * 1024;
+/// Fit five logs plus some system information in the report.
+const REPORT_MAX_SIZE: usize = (5 * LOG_MAX_READ_BYTES) + EXTRA_BYTES;
 
 
 /// Field delimeter in generated problem report
@@ -83,7 +84,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
-        .version(daemon_version())
+        .version(product_version())
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
@@ -443,14 +444,14 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
 fn collect_metadata() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
     metadata.insert(
-        String::from("mullvad-daemon-version"),
-        daemon_version().to_owned(),
+        String::from("mullvad-product-version"),
+        product_version().to_owned(),
     );
     metadata.insert(String::from("os"), os_version());
     metadata
 }
 
-fn daemon_version() -> &'static str {
+fn product_version() -> &'static str {
     concat!(
         include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
         " ",
