@@ -352,7 +352,7 @@ export default class Login extends Component<Props, State> {
               onChange={this._onInputChange}
               onEnter={this._onLogin}
               value={this.props.accountToken || ''}
-              disabled={!this._shouldEnableAccountInput()}
+              editable={this._shouldEnableAccountInput()}
               autoFocus={true}
               ref={(ref) => (this._accountInput = ref)}
               testName="AccountInput"

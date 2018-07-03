@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
-import { formatAccount } from '../lib/formatters';
 import { TextInput } from 'reactxp';
+import { formatAccount } from '../lib/formatters';
 import { colors } from '../config';
 
 // @TODO: move it into types.js
@@ -66,10 +66,13 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
   }
 
   shouldComponentUpdate(nextProps: AccountInputProps, nextState: AccountInputState) {
+    const mergedProps = { ...this.props, ...nextProps };
+    const hasPropChanges = Object.keys(mergedProps).some((key) => {
+      return this.props[key] !== nextProps[key];
+    });
+
     return (
-      this.props.value !== nextProps.value ||
-      this.props.onEnter !== nextProps.onEnter ||
-      this.props.onChange !== nextProps.onChange ||
+      hasPropChanges ||
       this.state.value !== nextState.value ||
       this.state.selectionRange[0] !== nextState.selectionRange[0] ||
       this.state.selectionRange[1] !== nextState.selectionRange[1]
@@ -78,8 +81,7 @@ export default class AccountInput extends React.Component<AccountInputProps, Acc
 
   render() {
     const displayString = formatAccount(this.state.value || '');
-    // eslint-disable-next-line no-unused-vars
-    const { value, onChange, onEnter, ...otherProps } = this.props;
+    const { value: _value, onChange: _onChange, onEnter: _onEnter, ...otherProps } = this.props;
     return (
       <TextInput
         {...otherProps}
