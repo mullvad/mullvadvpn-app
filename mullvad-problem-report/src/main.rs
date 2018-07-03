@@ -444,7 +444,7 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
 fn collect_metadata() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
     metadata.insert(
-        String::from("mullvad-daemon-version"),
+        String::from("mullvad-product-version"),
         product_version().to_owned(),
     );
     metadata.insert(String::from("os"), os_version());
