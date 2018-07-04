@@ -15,8 +15,6 @@ environment:
     RUST_BACKTRACE: "1"
     CPP_BUILD_MODES: "Debug"
     OPENSSL_STATIC: "1"
-    OPENSSL_LIB_DIR: %APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows
-    OPENSSL_INCLUDE_DIR: %APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows\include
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
@@ -39,6 +37,9 @@ install:
       } ElseIf ($Env:TARGET -eq 'i686-pc-windows-gnu') {
         $Env:PATH += ';C:\msys64\mingw32\bin'
       }
+  - ps: $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER + "\dist-assets\binaries\windows"
+  - ps: $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER + "\dist-assets\binaries\windows\include"
+
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
   - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
@@ -52,9 +53,8 @@ install:
 # This is the "test phase", tweak it as you see fit
 test_script:
   - bash -x build_windows_modules.sh
-  - ps: >-
-      cargo build
-      cargo test
+  - cargo build
+  - cargo test
 
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
