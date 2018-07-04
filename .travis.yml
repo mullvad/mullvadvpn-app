@@ -52,7 +52,7 @@ matrix:
       cache: cargo
       before_script: &rust_before_script
         - env
-        - sudo apt-get -y install binutils-gold
+        - 'sudo update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20'
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
