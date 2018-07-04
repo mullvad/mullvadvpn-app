@@ -41,7 +41,6 @@ matrix:
       before_script:
         - env
       script: &rust_script
-        - export PATH=/usr/lib/binutils-2.26/bin:${PATH}
         - cargo build --verbose
         - cargo test --verbose
 
@@ -52,23 +51,26 @@ matrix:
       addons: &rust_linux_addons
         apt:
          sources:
-          - ubuntu-toolchain-r-test
+          - jonathonf-gcc-7.3
          packages:
-          - g++-7
+          - binutils
       cache: cargo
       before_script: &rust_before_script
         - env
+        - sudo add-apt-repository ppa:jonathonf/gcc-7.3 -y
+        - sudo apt-get update -q
+        - sudo apt-get install gcc-7 binutils -y
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       script:
+        - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
         - rustup component add rustfmt-preview
         - rustfmt --version
         - cargo fmt -- --check --unstable-features
-        - echo "LD VERSION -> $(ld --version)"
 
     - language: rust
       rust: beta
