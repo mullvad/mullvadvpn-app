@@ -55,6 +55,7 @@ matrix:
           - ubuntu-toolchain-r-test
          packages:
           - g++-7
+          - binutils-2.27-9
       cache: cargo
       before_script: &rust_before_script
         - env
