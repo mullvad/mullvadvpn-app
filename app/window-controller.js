@@ -1,6 +1,6 @@
 // @flow
 
-import electron, { screen } from 'electron';
+import { screen } from 'electron';
 import type { BrowserWindow, Tray, Display } from 'electron';
 
 export default class WindowController {
@@ -62,7 +62,7 @@ export default class WindowController {
 
       case 'win32': {
         // taskbar occupies some part of the screen excluded from work area
-        const primaryDisplay = electron.screen.getPrimaryDisplay();
+        const primaryDisplay = screen.getPrimaryDisplay();
         const displaySize = primaryDisplay.size;
         const workArea = primaryDisplay.workArea;
 
@@ -84,7 +84,7 @@ export default class WindowController {
     const windowBounds = this._window.getBounds();
     const trayBounds = this._tray.getBounds();
 
-    const primaryDisplay = electron.screen.getPrimaryDisplay();
+    const primaryDisplay = screen.getPrimaryDisplay();
     const workArea = primaryDisplay.workArea;
     const placement = this._getTrayPlacement();
     const maxX = workArea.x + workArea.width - windowBounds.width;
