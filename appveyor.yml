@@ -14,6 +14,9 @@ environment:
     RUST_VERSION: stable
     RUST_BACKTRACE: "1"
     CPP_BUILD_MODES: "Debug"
+    OPENSSL_STATIC: "1"
+    OPENSSL_LIB_DIR: %APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows
+    OPENSSL_INCLUDE_DIR: %APPVEYOR_BUILD_FOLDER%\dist-assets\binaries\windows\include
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
@@ -50,9 +53,6 @@ install:
 test_script:
   - bash -x build_windows_modules.sh
   - ps: >-
-      $Env:OPENSSL_STATIC = "1"
-      $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows
-      $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows\include
       cargo build
       cargo test
 
