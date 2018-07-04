@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Disable account input when logging in.
 
+#### Windows
+- Hide the app icon from taskbar.
+- Autohide the main window on focus loss.
 
 ## [2018.2-beta1] - 2018-07-02
 ### Added
