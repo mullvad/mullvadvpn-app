@@ -47,7 +47,18 @@ The host has to have the following installed:
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   The environment coming with [Git for Windows] works fine.
 
+To build certain parts of the app which require OpenSSL, one has to set some
+[environment variables], as instructed by the `openssl-sys` crate. By default,
+one should use statically compiled OpenSSL libraries that should be checked out
+in the `dist-assets\binaries` submodule:
+```powershell
+$env::OPENSSL_STATIC=1
+$env:OPENSSL_LIB_DIR=$pwd.Path+".\dist-assets\binaries\windows\"
+$env:OPENSSL_INCLUDE_DIR=$pwd.Path+".\dist-assets\binaries\windows\include\"
+```
+
 [Git for Windows]: https://git-scm.com/download/win
+[environment variables]: https://github.com/sfackler/rust-openssl/#manual-configuration
 
 ### Linux
 
