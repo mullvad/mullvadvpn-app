@@ -23,7 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- App now ships it's own CA, limiting the amount of servers it can connect to.
 
+### Changed
+- App now uses statically linked OpenSSL on all platforms.
 
 ## [2018.2-beta1] - 2018-07-02
 ### Added
