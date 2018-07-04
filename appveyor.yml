@@ -52,7 +52,7 @@ test_script:
   - ps: >-
       $Env:OPENSSL_STATIC = "1"
       $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows
-      $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\openssl\include
+      $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows\include
       cargo build
       cargo test
 
