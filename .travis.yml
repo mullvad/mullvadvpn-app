@@ -40,6 +40,10 @@ matrix:
 
       before_script: &rust_before_script
         - env
+        - sudo apt-get install g++-7 binutils-2.26
+        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
+        - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
+      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
