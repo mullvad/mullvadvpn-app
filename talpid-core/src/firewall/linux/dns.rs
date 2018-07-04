@@ -1,12 +1,10 @@
 extern crate notify;
 extern crate resolv_conf;
 
-use std::io::{self, Write};
 use std::net::IpAddr;
 use std::ops::DerefMut;
-use std::path::Path;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::{fs, thread};
+use std::{fs, io, thread};
 
 use error_chain::ChainedError;
 
@@ -16,34 +14,22 @@ use self::resolv_conf::{Config, ScopedIp};
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
-error_chain!{
+error_chain! {
     errors {
-        BackupResolvConf {
-            description("Failed to create backup of /etc/resolv.conf")
-        }
-
-        ParseResolvConf {
-            description("Failed to parse contents of /etc/resolv.conf")
-        }
-
-        ReadResolvConf {
-            description("Failed to read /etc/resolv.conf")
-        }
-
-        RemoveBackup {
-            description("Failed to remove stale backup of /etc/resolv.conf")
-        }
-
-        RestoreResolvConf {
-            description("Failed to restore /etc/resolv.conf from backup")
-        }
-
         WatchResolvConf {
             description("Failed to watch /etc/resolv.conf for changes")
         }
 
         WriteResolvConf {
             description("Failed to write to /etc/resolv.conf")
+        }
+
+        BackupResolvConf {
+            description("Failed to create backup of /etc/resolv.conf")
+        }
+
+        RestoreResolvConf {
+            description("Failed to restore /etc/resolv.conf from backup")
         }
     }
 }
@@ -55,7 +41,7 @@ pub struct DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
-        Self::restore_persisted_state()?;
+        restore_from_backup().chain_err(|| ErrorKind::RestoreResolvConf)?;
 
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
@@ -69,10 +55,15 @@ impl DnsSettings {
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
         let mut state = self.lock_state();
         let new_state = match state.take() {
-            None => State {
-                backup: backup_config()?,
-                desired_dns: servers,
-            },
+            None => {
+                let backup = read_config().chain_err(|| ErrorKind::BackupResolvConf)?;
+                write_backup(&backup).chain_err(|| ErrorKind::BackupResolvConf)?;
+
+                State {
+                    backup,
+                    desired_dns: servers,
+                }
+            }
             Some(previous_state) => State {
                 backup: previous_state.backup,
                 desired_dns: servers,
@@ -99,31 +90,6 @@ impl DnsSettings {
         self.state
             .lock()
             .expect("a thread panicked while using the DNS configuration state")
-    }
-
-    fn restore_persisted_state() -> Result<()> {
-        let backup_file = Path::new(RESOLV_CONF_BACKUP_PATH);
-
-        match fs::read(&backup_file) {
-            Ok(backup) => {
-                info!("Restoring DNS state from backup");
-                let mut conf_file =
-                    fs::File::create(RESOLV_CONF_PATH).chain_err(|| ErrorKind::RestoreResolvConf)?;
-                conf_file
-                    .write_all(&backup)
-                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
-                conf_file
-                    .sync_all()
-                    .chain_err(|| ErrorKind::RestoreResolvConf)?;
-                fs::remove_file(&backup_file).chain_err(|| ErrorKind::RemoveBackup)?;
-            }
-            Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
-                trace!("No DNS state backup to restore")
-            }
-            Err(error) => return Err(Error::with_chain(error, ErrorKind::RestoreResolvConf)),
-        }
-
-        Ok(())
     }
 }
 
@@ -197,7 +163,7 @@ impl DnsWatcher {
                 new_config.nameservers.append(&mut state.backup.nameservers);
                 state.backup = new_config;
 
-                update_backup(&state.backup)
+                write_backup(&state.backup).chain_err(|| "Failed to update /etc/resolv.conf backup")
             }
         } else {
             Ok(())
@@ -206,8 +172,10 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
-    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
+    let contents =
+        fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| "Failed to read /etc/resolv.conf")?;
+    let config =
+        Config::parse(&contents).chain_err(|| "Failed to parse contents of /etc/resolv.conf")?;
 
     Ok(config)
 }
@@ -217,18 +185,30 @@ fn write_config(config: &Config) -> Result<()> {
         .chain_err(|| ErrorKind::WriteResolvConf)
 }
 
-fn backup_config() -> Result<Config> {
-    let contents = fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::ReadResolvConf)?;
-
-    fs::write(RESOLV_CONF_BACKUP_PATH, contents.as_bytes())
-        .chain_err(|| ErrorKind::BackupResolvConf)?;
-
-    let config = Config::parse(&contents).chain_err(|| ErrorKind::ParseResolvConf)?;
-
-    Ok(config)
+fn write_backup(backup: &Config) -> Result<()> {
+    fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
+        .chain_err(|| "Failed to write to /etc/resolv.conf backup file")
 }
 
-fn update_backup(backup: &Config) -> Result<()> {
-    fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
-        .chain_err(|| ErrorKind::BackupResolvConf)
+fn restore_from_backup() -> Result<()> {
+    match fs::read_to_string(RESOLV_CONF_BACKUP_PATH) {
+        Ok(backup) => {
+            info!("Restoring DNS state from backup");
+            let config = Config::parse(&backup)
+                .chain_err(|| "Backup of /etc/resolv.conf could not be parsed")?;
+
+            write_config(&config)?;
+
+            fs::remove_file(RESOLV_CONF_BACKUP_PATH)
+                .chain_err(|| "Failed to remove stale backup of /etc/resolv.conf")
+        }
+        Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
+            debug!("No DNS state backup to restore");
+            Ok(())
+        }
+        Err(error) => Err(Error::with_chain(
+            error,
+            "Failed to read /etc/resolv.conf backup",
+        )),
+    }
 }
