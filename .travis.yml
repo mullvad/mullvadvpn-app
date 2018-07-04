@@ -49,9 +49,14 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
+      addons: &rust_linux_addons
+        apt:
+         sources:
+          - ubuntu-toolchain-r-test
+         packages:
+          - g++-7
       cache: cargo
       before_script: &rust_before_script
-        - echo MY BINUTILS VERSION IS -> $(dpkg -l | grep binutils)
         - env
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
@@ -71,6 +76,7 @@ matrix:
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: &rust_linux_script
         - cargo build --verbose
@@ -83,6 +89,7 @@ matrix:
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_linux_script
 
