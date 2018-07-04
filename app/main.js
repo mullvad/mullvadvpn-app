@@ -391,12 +391,12 @@ const ApplicationMain = {
   _isMenubarApp() {
     const platform = process.platform;
 
-    return platform === 'windows' || platform === 'darwin';
+    return platform === 'win32' || platform === 'darwin';
   },
 
   _installMenubarAppEventHandlers(windowController: WindowController) {
     switch (process.platform) {
-      case 'windows':
+      case 'win32':
         windowController.window.on('blur', () => windowController.hide());
         break;
 
