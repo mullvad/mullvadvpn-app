@@ -38,12 +38,8 @@ matrix:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos/include"
 
-      before_script: &rust_before_script
+      before_script:
         - env
-        - sudo apt-get install g++-7 binutils-2.26
-        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
-        - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
-      export PATH=/usr/lib/binutils-2.26/bin:${PATH}
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
@@ -52,12 +48,21 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
+      addons: &rust_linux_addons
+        apt:
+         sources:
+          - sourceline: "ppa:jonathonf/gcc-7.3"
+            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
+         packages:
+          - binutils
       cache: cargo
-      before_script: *rust_before_script
+      before_script: &rust_before_script
+        - env
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       script:
+        - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
@@ -72,6 +77,7 @@ matrix:
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: &rust_linux_script
         - cargo build --verbose
@@ -84,6 +90,7 @@ matrix:
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_linux_script
 
