@@ -307,6 +307,7 @@ const ApplicationMain = {
         return new BrowserWindow({
           ...options,
           transparent: true,
+          skipTaskbar: true,
         });
 
       default:
