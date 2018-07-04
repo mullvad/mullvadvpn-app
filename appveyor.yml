@@ -49,8 +49,12 @@ install:
 # This is the "test phase", tweak it as you see fit
 test_script:
   - bash -x build_windows_modules.sh
-  - cargo build
-  - cargo test
+  - ps: >-
+      $Env:OPENSSL_STATIC = "1"
+      $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows
+      $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER\dist-assets\binaries\windows\include
+      cargo build
+      cargo test
 
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
