@@ -73,18 +73,18 @@ matrix:
     - language: rust
       rust: beta
       os: linux
+      addons: *rust_linux_addons
       cache: cargo
       env: *rust_linux_env
-      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
     - language: rust
       rust: stable
       os: linux
+      addons: *rust_linux_addons
       cache: cargo
       env: *rust_linux_env
-      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
