@@ -15,10 +15,10 @@ import SelectLocationPage from './containers/SelectLocationPage';
 import { getTransitionProps } from './transitions';
 
 import type { ReduxGetState } from './redux/store';
-import type { Backend } from './lib/backend';
+import type App from './app';
 
 export type SharedRouteProps = {
-  backend: Backend,
+  app: App,
 };
 
 export default function makeRoutes(

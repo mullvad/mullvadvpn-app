@@ -57,7 +57,6 @@ const mapStateToProps = (state: ReduxState) => {
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { copyIPAddress } = bindActionCreators(connectActions, dispatch);
   const history = bindActionCreators({ push: pushHistory }, dispatch);
-  const { backend } = props;
 
   return {
     onSettings: () => {
@@ -68,7 +67,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     },
     onConnect: () => {
       try {
-        backend.connectTunnel();
+        props.app.connectTunnel();
       } catch (error) {
         log.error(`Failed to connect the tunnel: ${error.message}`);
       }
@@ -78,7 +77,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     },
     onDisconnect: () => {
       try {
-        backend.disconnectTunnel();
+        props.app.disconnectTunnel();
       } catch (error) {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }

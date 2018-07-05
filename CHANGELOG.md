@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+- Disable account input when logging in.
+
 
 ## [2018.2-beta1] - 2018-07-02
 ### Added
