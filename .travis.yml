@@ -37,7 +37,6 @@ matrix:
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos/include"
-
       before_script:
         - env
       script: &rust_script
@@ -56,11 +55,11 @@ matrix:
          packages:
           - binutils
       cache: cargo
-      before_script: &rust_before_script
-        - env
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      before_script: &rust_before_script
+        - env
       script:
         - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
