@@ -14,9 +14,9 @@ use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
     CloseHandle, ConnectedState, ConnectedStateBootstrap, DisconnectedState, DisconnectingState,
-    EventConsequence, ReconnectingState, Result, ResultExt, StateEntryResult, TunnelCommand,
-    TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper, OPENVPN_LOG_FILENAME,
-    WIREGUARD_LOG_FILENAME,
+    EventConsequence, ReconnectingState, Result, ResultExt, SharedTunnelStateValues,
+    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper, OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME,
 };
 use logging;
 
@@ -142,46 +142,55 @@ impl ConnectingState {
     fn handle_commands(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::Connect(parameters)) => {
                 if parameters != self.tunnel_parameters {
-                    NewState(ReconnectingState::enter((
-                        self.close_handle.close(),
-                        parameters,
-                    )))
+                    NewState(ReconnectingState::enter(
+                        shared_values,
+                        (self.close_handle.close(), parameters),
+                    ))
                 } else {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::Reconnect(parameters)) => NewState(ReconnectingState::enter((
+            Ok(TunnelCommand::Reconnect(parameters)) => NewState(ReconnectingState::enter(
+                shared_values,
+                (self.close_handle.close(), parameters),
+            )),
+            Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter(
+                shared_values,
                 self.close_handle.close(),
-                parameters,
-            ))),
-            Ok(TunnelCommand::Disconnect) | Err(_) => {
-                NewState(DisconnectingState::enter(self.close_handle.close()))
-            }
+            )),
         }
     }
 
-    fn handle_tunnel_events(mut self) -> EventConsequence<Self> {
+    fn handle_tunnel_events(
+        mut self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
             Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
+                shared_values,
                 self.into_connected_state_bootstrap(metadata),
             )),
             Ok(_) => SameState(self),
-            Err(_) => NewState(ReconnectingState::enter((
-                self.close_handle.close(),
-                self.tunnel_parameters,
-            ))),
+            Err(_) => NewState(ReconnectingState::enter(
+                shared_values,
+                (self.close_handle.close(), self.tunnel_parameters),
+            )),
         }
     }
 
-    fn handle_tunnel_close_event(mut self) -> EventConsequence<Self> {
+    fn handle_tunnel_close_event(
+        mut self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
         match self.tunnel_close_event.poll() {
@@ -191,21 +200,27 @@ impl ConnectingState {
         }
 
         info!("Tunnel closed. Reconnecting.");
-        NewState(ConnectingState::enter(self.tunnel_parameters))
+        NewState(ConnectingState::enter(
+            shared_values,
+            self.tunnel_parameters,
+        ))
     }
 }
 
 impl TunnelState for ConnectingState {
     type Bootstrap = TunnelParameters;
 
-    fn enter(parameters: Self::Bootstrap) -> StateEntryResult {
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        parameters: Self::Bootstrap,
+    ) -> StateEntryResult {
         Self::new(parameters)
             .map(TunnelStateWrapper::from)
             .chain_err(|| "Failed to start tunnel")
             .map_err(|error| {
                 (
                     error,
-                    DisconnectedState::enter(())
+                    DisconnectedState::enter(shared_values, ())
                         .expect("Failed to transition to fallback disconnected state"),
                 )
             })
@@ -214,9 +229,10 @@ impl TunnelState for ConnectingState {
     fn handle_event(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        self.handle_commands(commands)
-            .or_else(Self::handle_tunnel_events)
-            .or_else(Self::handle_tunnel_close_event)
+        self.handle_commands(commands, shared_values)
+            .or_else(Self::handle_tunnel_events, shared_values)
+            .or_else(Self::handle_tunnel_close_event, shared_values)
     }
 }

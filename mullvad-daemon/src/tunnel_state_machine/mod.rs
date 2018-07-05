@@ -108,16 +108,19 @@ pub enum TunnelStateTransition {
 struct TunnelStateMachine {
     current_state: Option<TunnelStateWrapper>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
+    shared_values: SharedTunnelStateValues,
 }
 
 impl TunnelStateMachine {
     fn new(commands: mpsc::UnboundedReceiver<TunnelCommand>) -> Self {
-        let initial_state =
-            TunnelStateWrapper::enter(()).expect("Failed to create initial tunnel state");
+        let mut shared_values = SharedTunnelStateValues;
+        let initial_state = TunnelStateWrapper::enter(&mut shared_values, ())
+            .expect("Failed to create initial tunnel state");
 
         TunnelStateMachine {
             current_state: Some(initial_state),
             commands,
+            shared_values,
         }
     }
 }
@@ -137,7 +140,7 @@ impl Stream for TunnelStateMachine {
         let mut event_was_ignored = true;
 
         while event_was_ignored {
-            let transition = state.handle_event(&mut self.commands);
+            let transition = state.handle_event(&mut self.commands, &mut self.shared_values);
 
             event_was_ignored = match transition {
                 SameState(_) => true,
@@ -175,6 +178,9 @@ impl Stream for TunnelStateMachine {
     }
 }
 
+/// Values that are common to all tunnel states.
+struct SharedTunnelStateValues;
+
 /// Asynchronous result of an attempt to progress a state.
 enum EventConsequence<T: TunnelState> {
     /// Transition to a new state.
@@ -193,14 +199,14 @@ where
     /// Helper method to chain handling multiple different event types.
     ///
     /// The `handle_event` is only called if no events were handled so far.
-    pub fn or_else<F>(self, handle_event: F) -> Self
+    pub fn or_else<F>(self, handle_event: F, shared_values: &mut SharedTunnelStateValues) -> Self
     where
-        F: FnOnce(T) -> Self,
+        F: FnOnce(T, &mut SharedTunnelStateValues) -> Self,
     {
         use self::EventConsequence::*;
 
         match self {
-            NoEvents(state) => handle_event(state),
+            NoEvents(state) => handle_event(state, shared_values),
             consequence => consequence,
         }
     }
@@ -221,7 +227,10 @@ trait TunnelState: Sized {
     ///
     /// This is the state entry point. It attempts to enter the state, and may fail by entering an
     /// error or fallback state instead.
-    fn enter(bootstrap: Self::Bootstrap) -> StateEntryResult;
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        bootstrap: Self::Bootstrap,
+    ) -> StateEntryResult;
 
     /// Main state function.
     ///
@@ -236,6 +245,7 @@ trait TunnelState: Sized {
     fn handle_event(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self>;
 }
 
@@ -283,13 +293,17 @@ impl_from_for_tunnel_state!(Reconnecting(ReconnectingState));
 impl TunnelState for TunnelStateWrapper {
     type Bootstrap = <DisconnectedState as TunnelState>::Bootstrap;
 
-    fn enter(bootstrap: Self::Bootstrap) -> StateEntryResult {
-        DisconnectedState::enter(bootstrap)
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        bootstrap: Self::Bootstrap,
+    ) -> StateEntryResult {
+        DisconnectedState::enter(shared_values, bootstrap)
     }
 
     fn handle_event(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<TunnelStateWrapper> {
         use self::EventConsequence::*;
 
@@ -297,11 +311,13 @@ impl TunnelState for TunnelStateWrapper {
             ( $($state:ident),* $(,)* ) => {
                 match self {
                     $(
-                        TunnelStateWrapper::$state(state) => match state.handle_event(commands) {
-                            NewState(tunnel_state) => NewState(tunnel_state),
-                            SameState(state) => SameState(TunnelStateWrapper::$state(state)),
-                            NoEvents(state) => NoEvents(TunnelStateWrapper::$state(state)),
-                        },
+                        TunnelStateWrapper::$state(state) => {
+                            match state.handle_event(commands, shared_values) {
+                                NewState(tunnel_state) => NewState(tunnel_state),
+                                SameState(state) => SameState(TunnelStateWrapper::$state(state)),
+                                NoEvents(state) => NoEvents(TunnelStateWrapper::$state(state)),
+                            }
+                        }
                     )*
                 }
             }
