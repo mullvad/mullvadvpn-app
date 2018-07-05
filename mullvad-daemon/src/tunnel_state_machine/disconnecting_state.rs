@@ -3,8 +3,8 @@ use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
 use super::{
-    ConnectingState, DisconnectedState, EventConsequence, StateEntryResult, TunnelCommand,
-    TunnelParameters, TunnelState, TunnelStateWrapper,
+    ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues,
+    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -39,20 +39,23 @@ impl DisconnectingState {
         EventConsequence::SameState(self)
     }
 
-    fn handle_exit_event(mut self) -> EventConsequence<Self> {
+    fn handle_exit_event(
+        mut self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
         match self.exited.poll() {
             Ok(Async::NotReady) => NoEvents(self),
-            Ok(Async::Ready(_)) | Err(_) => NewState(self.after_disconnect()),
+            Ok(Async::Ready(_)) | Err(_) => NewState(self.after_disconnect(shared_values)),
         }
     }
 
-    fn after_disconnect(self) -> StateEntryResult {
+    fn after_disconnect(self, shared_values: &mut SharedTunnelStateValues) -> StateEntryResult {
         match self.after_disconnect {
-            AfterDisconnect::Nothing => DisconnectedState::enter(()),
+            AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
-                ConnectingState::enter(tunnel_parameters)
+                ConnectingState::enter(shared_values, tunnel_parameters)
             }
         }
     }
@@ -61,7 +64,10 @@ impl DisconnectingState {
 impl TunnelState for DisconnectingState {
     type Bootstrap = (Shared<oneshot::Receiver<()>>, AfterDisconnect);
 
-    fn enter((exited, after_disconnect): Self::Bootstrap) -> StateEntryResult {
+    fn enter(
+        _: &mut SharedTunnelStateValues,
+        (exited, after_disconnect): Self::Bootstrap,
+    ) -> StateEntryResult {
         Ok(TunnelStateWrapper::from(DisconnectingState {
             exited,
             after_disconnect,
@@ -71,9 +77,10 @@ impl TunnelState for DisconnectingState {
     fn handle_event(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         self.handle_commands(commands)
-            .or_else(Self::handle_exit_event)
+            .or_else(Self::handle_exit_event, shared_values)
     }
 }
 
