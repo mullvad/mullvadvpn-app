@@ -81,6 +81,9 @@ homebrew:
 
 ## Building and running mullvad-daemon
 
+1. Firstly, one should source `env.sh` or `env.ps1` to set the default
+   environment variables.
+
 1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon.
    Run `build_winfw.sh` to build a C++ library that sets firewall rules on Windows.
     ```bash
