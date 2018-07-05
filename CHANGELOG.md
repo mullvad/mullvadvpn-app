@@ -24,7 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- App now ships it's own CA, limiting the amount of servers it can connect to.
+- Bundle the root CA signing the API and only trust that single one, limiting
+  trust to a single root CA
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
