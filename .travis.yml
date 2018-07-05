@@ -61,7 +61,6 @@ matrix:
       before_script: &rust_before_script
         - env
       script:
-        - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
