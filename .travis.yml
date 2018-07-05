@@ -51,15 +51,14 @@ matrix:
       addons: &rust_linux_addons
         apt:
          sources:
-          - jonathonf-gcc-7.3
+          - sourceline: "ppa:jonathonf/gcc-7.3"
+            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
          packages:
           - binutils
+          - gcc-7
       cache: cargo
       before_script: &rust_before_script
         - env
-        - sudo add-apt-repository ppa:jonathonf/gcc-7.3 -y
-        - sudo apt-get update -q
-        - sudo apt-get install gcc-7 binutils -y
       env:
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
