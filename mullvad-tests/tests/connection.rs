@@ -95,12 +95,14 @@ fn ignores_event_from_unauthorized_connection_from_openvpn_plugin() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
     let state_events = rpc_client.new_state_subscribe().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
     assert_state_event(&state_events, CONNECTING_STATE);
+    openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
     let call_result = mock_plugin_client.up();
@@ -115,12 +117,14 @@ fn authentication_credentials() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
     let state_events = rpc_client.new_state_subscribe().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
     assert_state_event(&state_events, CONNECTING_STATE);
+    openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
@@ -145,12 +149,14 @@ fn separate_connections_have_independent_authentication() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
     let state_events = rpc_client.new_state_subscribe().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
     assert_state_event(&state_events, CONNECTING_STATE);
+    openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut first_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
     let mut second_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
@@ -169,12 +175,14 @@ fn changes_to_connected_state() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
     let state_events = rpc_client.new_state_subscribe().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
     assert_state_event(&state_events, CONNECTING_STATE);
+    openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
@@ -221,12 +229,14 @@ fn disconnects() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
+    let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
     let state_events = rpc_client.new_state_subscribe().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
     assert_state_event(&state_events, CONNECTING_STATE);
+    openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
@@ -260,14 +270,7 @@ fn assert_no_state_event(receiver: &mpsc::Receiver<DaemonState>) {
 fn create_mock_openvpn_plugin_client<P: AsRef<Path>>(
     openvpn_args_file_path: P,
 ) -> MockOpenVpnPluginRpcClient {
-    let args_file_path = openvpn_args_file_path.as_ref();
-
-    if !args_file_path.exists() {
-        let _wait_for_args_file = PathWatcher::watch(&args_file_path)
-            .map(|mut events| events.find(|&event| event == watch_event::CLOSE_WRITE));
-    }
-
-    let (address, credentials) = get_plugin_arguments(&args_file_path);
+    let (address, credentials) = get_plugin_arguments(openvpn_args_file_path);
 
     MockOpenVpnPluginRpcClient::new(address, credentials)
         .expect("Failed to create mock RPC client to connect to OpenVPN plugin event listener")
