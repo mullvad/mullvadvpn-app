@@ -55,7 +55,7 @@ matrix:
          packages:
           - binutils
       cache: cargo
-      env:
+      env: &rust_linux_env
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       before_script: &rust_before_script
@@ -73,9 +73,7 @@ matrix:
       rust: beta
       os: linux
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      env: *rust_linux_env
       addons: *rust_linux_addons
       before_script: *rust_before_script
       script: &rust_linux_script
@@ -86,9 +84,7 @@ matrix:
       rust: stable
       os: linux
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      env: *rust_linux_env
       addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_linux_script
