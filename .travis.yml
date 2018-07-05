@@ -40,6 +40,7 @@ matrix:
       before_script:
         - env
       script: &rust_script
+        - source env.sh
         - cargo build --verbose
         - cargo test --verbose
 
@@ -61,6 +62,7 @@ matrix:
       before_script: &rust_before_script
         - env
       script:
+        - source env.sh
         - cargo build --verbose
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
@@ -75,9 +77,7 @@ matrix:
       env: *rust_linux_env
       addons: *rust_linux_addons
       before_script: *rust_before_script
-      script: &rust_linux_script
-        - cargo build --verbose
-        - cargo test --verbose
+      script: *rust_script
 
     - language: rust
       rust: stable
@@ -86,7 +86,7 @@ matrix:
       env: *rust_linux_env
       addons: *rust_linux_addons
       before_script: *rust_before_script
-      script: *rust_linux_script
+      script: *rust_script
 
 
 notifications:
