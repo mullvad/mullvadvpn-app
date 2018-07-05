@@ -40,7 +40,6 @@ matrix:
       before_script:
         - env
       script: &rust_script
-        - source env.sh
         - cargo build --verbose
         - cargo test --verbose
 
