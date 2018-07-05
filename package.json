@@ -64,7 +64,7 @@
     "flow-typed": "^2.4.0",
     "mock-socket": "^7.1.0",
     "npm-run-all": "^4.0.1",
-    "prettier": "1.13.3",
+    "prettier": "1.13.7",
     "rimraf": "^2.5.4"
   },
   "scripts": {
@@ -73,8 +73,8 @@
     "develop": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
     "test": "cross-env BABEL_ENV=electron electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js --preload test/setup/renderer.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
-    "format": "prettier --write 'app/**/*.js' 'test/**/*.js'",
-    "check-format": "prettier --list-different 'app/**/*.js' 'test/**/*.js'",
+    "format": "cross-env prettier --write 'app/**/*.js' 'test/**/*.js'",
+    "check-format": "cross-env prettier --list-different 'app/**/*.js' 'test/**/*.js'",
     "flow": "flow",
     "pack:mac": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:mac && rm -r ./dist/mac",
     "pack:win": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:win",

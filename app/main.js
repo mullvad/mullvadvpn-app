@@ -3,7 +3,7 @@ import path from 'path';
 import { execFile } from 'child_process';
 import mkdirp from 'mkdirp';
 import uuid from 'uuid';
-import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
 import { RpcAddressFile } from './lib/rpc-address-file';
@@ -101,8 +101,6 @@ const ApplicationMain = {
     const windowController = new WindowController(window, tray);
     const trayIconController = new TrayIconController(tray, 'unsecured');
 
-    tray.on('click', () => windowController.toggle());
-
     this._registerIpcListeners();
     this._setAppMenu();
     this._addContextMenu(window);
@@ -117,10 +115,19 @@ const ApplicationMain = {
       window.openDevTools({ mode: 'detach' });
     }
 
-    if (this._isMenubarApp()) {
-      this._installMenubarAppEventHandlers(windowController);
-    } else {
-      windowController.show();
+    switch (process.platform) {
+      case 'win32':
+        this._installWindowsMenubarAppWindowHandlers(tray, windowController);
+        break;
+      case 'darwin':
+        this._installMacOsMenubarAppWindowHandlers(tray, windowController);
+        break;
+      default:
+        tray.on('click', () => {
+          windowController.toggle();
+        });
+        windowController.show();
+        break;
     }
 
     window.loadFile('build/index.html');
@@ -307,6 +314,7 @@ const ApplicationMain = {
         return new BrowserWindow({
           ...options,
           transparent: true,
+          skipTaskbar: true,
         });
 
       default:
@@ -387,30 +395,28 @@ const ApplicationMain = {
     return tray;
   },
 
-  _isMenubarApp() {
-    const platform = process.platform;
+  _installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => windowController.toggle());
+    tray.on('right-click', () => windowController.hide());
 
-    return platform === 'windows' || platform === 'darwin';
-  },
-
-  _installMenubarAppEventHandlers(windowController: WindowController) {
-    switch (process.platform) {
-      case 'windows':
-        windowController.window.on('blur', () => windowController.hide());
-        break;
-
-      case 'darwin':
-        this._installMacOsMenubarAppWindowHandlers(windowController);
-        break;
-
-      default:
-        break;
-    }
+    windowController.window.on('blur', () => {
+      // Detect if blur happened when user had a cursor above the tray icon.
+      const trayBounds = tray.getBounds();
+      const cursorPos = screen.getCursorScreenPoint();
+      const isCursorInside =
+        cursorPos.x >= trayBounds.x &&
+        cursorPos.y >= trayBounds.y &&
+        cursorPos.x <= trayBounds.x + trayBounds.width &&
+        cursorPos.y <= trayBounds.y + trayBounds.height;
+      if (!isCursorInside) {
+        windowController.hide();
+      }
+    });
   },
 
   // setup NSEvent monitor to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
-  _installMacOsMenubarAppWindowHandlers(windowController: WindowController) {
+  _installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
     // $FlowFixMe: this module is only available on macOS
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const macEventMonitor = new NSEventMonitor();
@@ -419,6 +425,7 @@ const ApplicationMain = {
 
     window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
     window.on('hide', () => macEventMonitor.stop());
+    tray.on('click', () => windowController.toggle());
   },
 };
 
