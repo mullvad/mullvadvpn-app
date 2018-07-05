@@ -2,8 +2,6 @@ sudo: false
 env:
   global:
     - MACOSX_DEPLOYMENT_TARGET="10.7"
-    - LIBMNL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-    - LIBNFTNL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
 
 git:
   submodules: false
@@ -34,11 +32,9 @@ matrix:
       rust: stable
       os: osx
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos/include"
-      before_script:
+      before_script: &rust_before_script
         - env
+        - source env.sh
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
@@ -55,11 +51,7 @@ matrix:
          packages:
           - binutils
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
-      before_script: &rust_before_script
-        - env
+      before_script: *rust_before_script
       script:
         - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
@@ -73,9 +65,6 @@ matrix:
       rust: beta
       os: linux
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       addons: *rust_linux_addons
       before_script: *rust_before_script
       script: &rust_linux_script
@@ -86,9 +75,6 @@ matrix:
       rust: stable
       os: linux
       cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_linux_script
