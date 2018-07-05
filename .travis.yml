@@ -55,13 +55,12 @@ matrix:
          packages:
           - binutils
       cache: cargo
-      env:
+      env: &rust_linux_env
       - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
       - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       before_script: &rust_before_script
         - env
       script:
-        - echo "LD VERSION -> $(ld --version)"
         - cargo build --verbose
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
@@ -72,26 +71,20 @@ matrix:
     - language: rust
       rust: beta
       os: linux
-      cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       addons: *rust_linux_addons
+      cache: cargo
+      env: *rust_linux_env
       before_script: *rust_before_script
-      script: &rust_linux_script
-        - cargo build --verbose
-        - cargo test --verbose
+      script: *rust_script
 
     - language: rust
       rust: stable
       os: linux
-      cache: cargo
-      env:
-      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
-      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
       addons: *rust_linux_addons
+      cache: cargo
+      env: *rust_linux_env
       before_script: *rust_before_script
-      script: *rust_linux_script
+      script: *rust_script
 
 
 notifications:
