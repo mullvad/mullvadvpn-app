@@ -99,6 +99,7 @@ pub enum TunnelStateInfo {
 struct TunnelStateMachine {
     current_state: Option<TunnelState>,
     requests: mpsc::UnboundedReceiver<TunnelRequest>,
+    shared_data: SharedTunnelStateData,
 }
 
 impl TunnelStateMachine {
@@ -106,6 +107,7 @@ impl TunnelStateMachine {
         TunnelStateMachine {
             current_state: Some(TunnelState::from(NotConnectedState)),
             requests,
+            shared_data: SharedTunnelStateData,
         }
     }
 }
@@ -125,7 +127,7 @@ impl Stream for TunnelStateMachine {
         let mut event_was_ignored = true;
 
         while event_was_ignored {
-            let transition = state.handle_event(&mut self.requests);
+            let transition = state.handle_event(&mut self.requests, &mut self.shared_data);
 
             event_was_ignored = match transition {
                 SameState(_) => true,
@@ -146,6 +148,9 @@ impl Stream for TunnelStateMachine {
         result
     }
 }
+
+/// Data that's common to all tunnel states.
+struct SharedTunnelStateData;
 
 /// Asynchronous result of an attempt to progress a state.
 enum TunnelStateTransition<T: TunnelStateProgress> {
@@ -207,6 +212,7 @@ trait TunnelStateProgress: Sized {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self>;
 }
 
@@ -284,6 +290,7 @@ impl TunnelStateProgress for TunnelState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<TunnelState> {
         use self::TunnelStateTransition::*;
 
@@ -291,11 +298,13 @@ impl TunnelStateProgress for TunnelState {
             ( $($state:ident),* $(,)* ) => {
                 match self {
                     $(
-                        TunnelState::$state(state) => match state.handle_event(requests) {
-                            NewState(tunnel_state) => NewState(tunnel_state),
-                            SameState(state) => SameState(TunnelState::$state(state)),
-                            NoEvents(state) => NoEvents(TunnelState::$state(state)),
-                        },
+                        TunnelState::$state(state) => {
+                            match state.handle_event(requests, shared_data) {
+                                NewState(tunnel_state) => NewState(tunnel_state),
+                                SameState(state) => SameState(TunnelState::$state(state)),
+                                NoEvents(state) => NoEvents(TunnelState::$state(state)),
+                            }
+                        }
                     )*
                 }
             }
@@ -349,6 +358,7 @@ impl TunnelStateProgress for NotConnectedState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        _shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self> {
         use self::TunnelStateTransition::*;
 
@@ -529,6 +539,7 @@ impl TunnelStateProgress for ConnectingState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        _shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_tunnel_events)
@@ -621,6 +632,7 @@ impl TunnelStateProgress for ConnectedState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        _shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_tunnel_events)
@@ -671,6 +683,7 @@ impl TunnelStateProgress for ExitingState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        _shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_exit_event)
@@ -721,6 +734,7 @@ impl TunnelStateProgress for RestartingState {
     fn handle_event(
         self,
         requests: &mut mpsc::UnboundedReceiver<TunnelRequest>,
+        _shared_data: &mut SharedTunnelStateData,
     ) -> TunnelStateTransition<Self> {
         self.handle_requests(requests)
             .or_else(Self::handle_exit_event)
