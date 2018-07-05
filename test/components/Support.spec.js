@@ -6,113 +6,115 @@ import { shallow } from 'enzyme';
 import type { SupportProps } from '../../app/components/Support';
 
 describe('components/Support', () => {
-  const makeProps = (mergeProps: $Shape<SupportProps> = {}): SupportProps => {
-    const defaultProps: SupportProps = {
-      account: {
-        accountToken: null,
-        accountHistory: [],
-        error: null,
-        expiry: null,
-        status: 'none',
-      },
-      onClose: () => {},
-      onViewLog: (_path) => {},
-      onCollectLog: () => Promise.resolve('/tmp/mullvad_problem_report.log'),
-      onSend: (_report) => {},
-    };
-    return Object.assign({}, defaultProps, mergeProps);
-  };
+  it('should call close callback', () => {
+    const props = makeProps({ onClose: spy() });
+    const component = shallow(<Support {...props} />);
+    const closeButton = component.find({ testName: 'support__close' });
 
-  it('should call close callback', (done) => {
-    const props = makeProps({
-      onClose: () => done(),
-    });
-    const component = getComponent(render(props), 'support__close');
-    click(component);
+    click(closeButton);
+    expect(props.onClose).to.have.been.called.once;
   });
 
-  it('should call view logs callback', (done) => {
-    const props = makeProps({
-      onViewLog: (_path) => done(),
-    });
-    const component = getComponent(render(props), 'support__view_logs');
-    click(component);
+  it('should call view logs callback', async () => {
+    const props = makeProps({ viewLog: spy() });
+    const component = shallow(<Support {...props} />);
+    const viewButton = component.find({ testName: 'support__view_logs' });
+
+    await click(viewButton);
+    expect(props.viewLog).to.have.been.called.once;
   });
 
-  it('should call send callback when description filled in', (done) => {
+  it('should call send callback when description filled in', async () => {
     const props = makeProps({
-      onSend: (_report) => done(),
+      defaultEmail: 'foo',
+      defaultMessage: 'abc',
+      sendProblemReport: spy((_report) => Promise.resolve()),
     });
+    const component = shallow(<Support {...props} />);
+    const sendButton = component.find({ testName: 'support__send_logs' });
 
-    const component = render(props);
-    component.setState({ message: 'abc', email: 'foo' });
-
-    const sendButton = getComponent(component, 'support__send_logs');
     expect(sendButton.prop('disabled')).to.be.false;
-    click(sendButton);
+    await click(sendButton);
+    expect(props.sendProblemReport).to.have.been.called.once;
   });
 
   it('should not call send callback when description is empty', () => {
-    const component = render(makeProps());
-    component.setState({ message: '' });
+    const props = makeProps({ defaultMessage: '' });
+    const component = shallow(<Support {...props} />);
+    const sendButton = component.find({ testName: 'support__send_logs' });
 
-    const sendButton = getComponent(render(makeProps()), 'support__send_logs');
     expect(sendButton.prop('disabled')).to.be.true;
   });
 
-  it('should not collect report twice', (done) => {
-    const collectCallback = spy(() => Promise.resolve('non-falsy'));
+  it('should not collect report twice', async () => {
     const props = makeProps({
-      onCollectLog: collectCallback,
+      collectProblemReport: spy(() => Promise.resolve('/path/to/problem/report')),
     });
+    const component = shallow(<Support {...props} />);
+    const viewButton = component.find({ testName: 'support__view_logs' });
 
-    const viewLogButton = getComponent(render(props), 'support__view_logs');
-    click(viewLogButton);
-
-    setTimeout(() => {
-      click(viewLogButton);
-    });
-
-    setTimeout(() => {
-      try {
-        expect(collectCallback).to.have.been.called.once;
-        done();
-      } catch (e) {
-        done(e);
-      }
-    });
+    await Promise.all([click(viewButton), click(viewButton)]);
+    expect(props.collectProblemReport).to.have.been.called.once;
   });
 
-  it('should collect report on submission', (done) => {
-    const collectCallback = spy(() => Promise.resolve(''));
+  it('should collect report on submission', async () => {
     const props = makeProps({
-      onCollectLog: collectCallback,
-      onSend: (_report) => {
-        try {
-          expect(collectCallback).to.have.been.called.once;
-          done();
-        } catch (e) {
-          done(e);
-        }
-      },
+      defaultMessage: '',
+      defaultEmail: 'foo',
+      collectProblemReport: spy(() => Promise.resolve('/path/to/problem/report')),
+      sendProblemReport: spy(() => Promise.resolve()),
     });
+    const component = shallow(<Support {...props} />);
+    const sendButton = component.find({ testName: 'support__send_logs' });
 
-    const component = render(props);
-    component.setState({ message: '', email: 'foo' });
+    await click(sendButton);
+    expect(props.collectProblemReport).to.have.been.called.once;
+    expect(props.sendProblemReport).to.have.been.called.once;
+  });
 
-    const sendButton = getComponent(component, 'support__send_logs');
-    click(sendButton);
+  it('should save the report form on change', () => {
+    const props = makeProps({
+      defaultEmail: 'email@domain',
+      defaultMessage: 'test message',
+      sendProblemReport: () => Promise.reject(new Error('Simulation')),
+      saveReportForm: spy(),
+    });
+    const component = shallow(<Support {...props} />);
+    const input = component.find({ testName: 'support__form_message' });
+    input.simulate('changeText', 'new message');
+    expect(props.saveReportForm).to.have.been.called.once;
+  });
+
+  it('should clear the report form upon successful submission', async () => {
+    const props = makeProps({
+      defaultEmail: 'email@domain',
+      defaultMessage: 'test message',
+      sendProblemReport: () => Promise.resolve(),
+      clearReportForm: spy(),
+    });
+    const component = shallow(<Support {...props} />);
+    const sendButton = component.find({ testName: 'support__send_logs' });
+
+    await click(sendButton);
+    expect(props.clearReportForm).to.have.been.called.once;
   });
 });
 
-function render(props) {
-  return shallow(<Support {...props} />);
-}
-
-function getComponent(container, testName) {
-  return container.findWhere((n) => n.prop('testName') === testName);
+function makeProps(mergeProps: $Shape<SupportProps> = {}): SupportProps {
+  const defaultProps: SupportProps = {
+    defaultEmail: '',
+    defaultMessage: '',
+    accountHistory: [],
+    onClose: () => {},
+    viewLog: (_path) => {},
+    collectProblemReport: () => Promise.resolve('/path/to/problem/report'),
+    sendProblemReport: (_report) => Promise.resolve(),
+    saveReportForm: (_form) => {},
+    clearReportForm: () => {},
+  };
+  return { ...defaultProps, ...mergeProps };
 }
 
 function click(component) {
-  component.prop('onPress')();
+  return component.prop('onPress')();
 }

@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Disable account input when logging in.
+- Keep the user input in problem report form while the app runs, or until the report is successfully
+  submitted.
 
 #### Windows
 - Hide the app icon from taskbar.

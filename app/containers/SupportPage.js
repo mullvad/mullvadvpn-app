@@ -8,26 +8,25 @@ import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
+import supportActions from '../redux/support/actions';
 
 const mapStateToProps = (state: ReduxState) => ({
-  account: state.account,
+  defaultEmail: state.support.email,
+  defaultMessage: state.support.message,
+  accountHistory: state.account.accountHistory,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
+  const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
 
   return {
     onClose: () => pushHistory('/settings'),
-
-    onCollectLog: (toRedact) => {
-      return collectProblemReport(toRedact);
-    },
-
-    onViewLog: (path) => openItem(path),
-
-    onSend: (email, message, savedReport) => {
-      return sendProblemReport(email, message, savedReport);
-    },
+    viewLog: (path) => openItem(path),
+    saveReportForm,
+    clearReportForm,
+    collectProblemReport,
+    sendProblemReport,
   };
 };
 

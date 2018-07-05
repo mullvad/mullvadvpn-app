@@ -6,14 +6,8 @@ import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
 
-import type { AccountReduxState } from '../redux/account/reducers';
-
-export type SupportReport = {
-  email: string,
-  message: string,
-  savedReport: ?string,
-};
-
+import type { AccountToken } from '../lib/daemon-rpc';
+import type { SupportReportForm } from '../redux/support/actions';
 type SupportState = {
   email: string,
   message: string,
@@ -22,11 +16,15 @@ type SupportState = {
 };
 
 export type SupportProps = {
-  account: AccountReduxState,
+  defaultEmail: string,
+  defaultMessage: string,
+  accountHistory: Array<AccountToken>,
   onClose: () => void,
-  onViewLog: (string) => void,
-  onCollectLog: (Array<string>) => Promise<string>,
-  onSend: (email: string, message: string, savedReport: string) => void,
+  viewLog: (path: string) => void,
+  saveReportForm: (form: SupportReportForm) => void,
+  clearReportForm: () => void,
+  collectProblemReport: (accountsToRedact: Array<string>) => Promise<string>,
+  sendProblemReport: (email: string, message: string, savedReport: string) => Promise<void>,
 };
 
 export default class Support extends Component<SupportProps, SupportState> {
@@ -37,68 +35,102 @@ export default class Support extends Component<SupportProps, SupportState> {
     sendState: 'INITIAL',
   };
 
+  _collectLogPromise: ?Promise<string>;
+
+  constructor(props: SupportProps) {
+    super(props);
+
+    // seed initial data from props
+    this.state.email = props.defaultEmail;
+    this.state.message = props.defaultMessage;
+  }
+
   validate() {
     return this.state.message.trim().length > 0;
   }
 
   onChangeEmail = (email: string) => {
-    this.setState({ email: email });
-  };
-
-  onChangeDescription = (description: string) => {
-    this.setState({ message: description });
-  };
-
-  onViewLog = () => {
-    this._getLog().then((path) => {
-      this.props.onViewLog(path);
+    this.setState({ email: email }, () => {
+      this._saveFormData();
     });
   };
 
-  _getLog(): Promise<string> {
-    const accountsToRedact = this.props.account.accountHistory;
-    const { savedReport } = this.state;
-    return savedReport
-      ? Promise.resolve(savedReport)
-      : this.props.onCollectLog(accountsToRedact).then((path) => {
-          return new Promise((resolve) =>
-            this.setState({ savedReport: path }, () => resolve(path)),
-          );
-        });
-  }
+  onChangeDescription = (description: string) => {
+    this.setState({ message: description }, () => {
+      this._saveFormData();
+    });
+  };
 
-  onSend = () => {
-    if (this.state.sendState === 'INITIAL' && this.state.email.length === 0) {
-      this.setState({
-        sendState: 'CONFIRM_NO_EMAIL',
-      });
-    } else {
-      this._sendProblemReport();
+  onViewLog = async (): Promise<void> => {
+    try {
+      const reportPath = await this._collectLog();
+      this.props.viewLog(reportPath);
+    } catch (error) {
+      // TODO: handle error
     }
   };
 
-  _sendProblemReport() {
-    this.setState(
-      {
-        sendState: 'LOADING',
-      },
-      () => {
-        this._getLog()
-          .then((path) => {
-            return this.props.onSend(this.state.email, this.state.message, path);
-          })
-          .then(() => {
-            this.setState({
-              sendState: 'SUCCESS',
-            });
-          })
-          .catch(() => {
-            this.setState({
-              sendState: 'FAILED',
-            });
+  _saveFormData() {
+    this.props.saveReportForm({
+      email: this.state.email,
+      message: this.state.message,
+    });
+  }
+
+  async _collectLog(): Promise<string> {
+    if (this._collectLogPromise) {
+      return this._collectLogPromise;
+    } else {
+      const collectPromise = this.props.collectProblemReport(this.props.accountHistory);
+
+      // save promise to prevent subsequent requests
+      this._collectLogPromise = collectPromise;
+
+      try {
+        const reportPath = await collectPromise;
+        return new Promise((resolve) => {
+          this.setState({ savedReport: reportPath }, () => resolve(reportPath));
+        });
+      } catch (error) {
+        this._collectLogPromise = null;
+
+        throw error;
+      }
+    }
+  }
+
+  onSend = async (): Promise<void> => {
+    if (this.state.sendState === 'INITIAL' && this.state.email.length === 0) {
+      return new Promise((resolve) => {
+        this.setState({ sendState: 'CONFIRM_NO_EMAIL' }, () => resolve());
+      });
+    } else {
+      try {
+        await this._sendReport();
+      } catch (error) {
+        // No-op
+      }
+    }
+  };
+
+  _sendReport(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.setState({ sendState: 'LOADING' }, async () => {
+        try {
+          const { email, message } = this.state;
+          const reportPath = await this._collectLog();
+          await this.props.sendProblemReport(email, message, reportPath);
+          this.props.clearReportForm();
+          this.setState({ sendState: 'SUCCESS' }, () => {
+            resolve();
           });
-      },
-    );
+        } catch (error) {
+          this.setState({ sendState: 'FAILED' }, () => {
+            reject(error);
+          });
+        }
+      });
+    });
   }
 
   render() {
