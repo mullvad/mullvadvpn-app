@@ -14,6 +14,7 @@ environment:
     RUST_VERSION: stable
     RUST_BACKTRACE: "1"
     CPP_BUILD_MODES: "Debug"
+    OPENSSL_STATIC: "1"
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
@@ -36,6 +37,9 @@ install:
       } ElseIf ($Env:TARGET -eq 'i686-pc-windows-gnu') {
         $Env:PATH += ';C:\msys64\mingw32\bin'
       }
+  - ps: $Env:OPENSSL_LIB_DIR = $Env:APPVEYOR_BUILD_FOLDER + "\dist-assets\binaries\windows"
+  - ps: $Env:OPENSSL_INCLUDE_DIR = $Env:APPVEYOR_BUILD_FOLDER + "\dist-assets\binaries\windows\include"
+
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
   - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin

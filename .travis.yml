@@ -34,8 +34,10 @@ matrix:
       rust: stable
       os: osx
       cache: cargo
-
-      before_script: &rust_before_script
+      env:
+      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos"
+      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/macos/include"
+      before_script:
         - env
       script: &rust_script
         - cargo build --verbose
@@ -45,8 +47,19 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
+      addons: &rust_linux_addons
+        apt:
+         sources:
+          - sourceline: "ppa:jonathonf/gcc-7.3"
+            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
+         packages:
+          - binutils
       cache: cargo
-      before_script: *rust_before_script
+      env: &rust_linux_env
+      - OPENSSL_LIB_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux"
+      - OPENSSL_INCLUDE_DIR="$TRAVIS_BUILD_DIR/dist-assets/binaries/linux/include"
+      before_script: &rust_before_script
+        - env
       script:
         - cargo build --verbose
         - cargo test --verbose
@@ -58,18 +71,20 @@ matrix:
     - language: rust
       rust: beta
       os: linux
+      addons: *rust_linux_addons
       cache: cargo
+      env: *rust_linux_env
       before_script: *rust_before_script
-      script: &rust_linux_script
-        - cargo build --verbose
-        - cargo test --verbose
+      script: *rust_script
 
     - language: rust
       rust: stable
       os: linux
+      addons: *rust_linux_addons
       cache: cargo
+      env: *rust_linux_env
       before_script: *rust_before_script
-      script: *rust_linux_script
+      script: *rust_script
 
 
 notifications:

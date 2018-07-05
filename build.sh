@@ -7,30 +7,11 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-
-################################################################################
-# Platform specific configuration.
-################################################################################
-
-case "$(uname -s)" in
-    Linux*)
-        # Use static builds of libmnl and libnftnl from the binaries submodule
-        export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-        export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-        ;;
-    Darwin*)
-        export MACOSX_DEPLOYMENT_TARGET="10.7"
-        ;;
-    MINGW*)
-        # config
-        ;;
-esac
-
 ################################################################################
 # Verify and configure environment.
 ################################################################################
 
+SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
 
@@ -133,7 +114,7 @@ if [[ "$(uname -s)" != "MINGW"* ]]; then
 fi
 
 echo "Updating relay list..."
-./target/release/list-relays > dist-assets/relays.json
+MULLVAD_RESOURCE_DIR="$SCRIPT_DIR/dist-assets/" ./target/release/list-relays > dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
 yarn install

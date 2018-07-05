@@ -23,6 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Bundle the root CA signing the API and only trust that single one, limiting
+  trust to a single root CA
+
+### Changed
+- App now uses statically linked OpenSSL on all platforms.
 
 ### Fixed
 - Disable account input when logging in.
