@@ -25,7 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Bundle the root CA signing the API and only trust that single one, limiting
-  trust to a single root CA
+  trust to a single root CA.
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Hide the app icon from taskbar.
 - Autohide the main window on focus loss.
+
 
 ## [2018.2-beta1] - 2018-07-02
 ### Added
