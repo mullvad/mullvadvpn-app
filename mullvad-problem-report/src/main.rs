@@ -64,7 +64,7 @@ error_chain!{
             description("Error listing the files in the mullvad-daemon log directory")
             display(
                 "Error listing the files in the mullvad-daemon log directory: {}",
-                path.to_string_lossy()
+                path.display()
             )
         }
         WriteReportError(path: PathBuf) {
@@ -177,9 +177,24 @@ fn collect_report(
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
     match logs_from_log_directory() {
-        Ok(logs) => problem_report.try_add_logs(logs),
+        Ok(logs) => {
+            let mut other_logs = Vec::new();
+            for log in logs {
+                match log {
+                    Ok(path) => if is_tunnel_log(&path) {
+                        problem_report.add_log(&path);
+                    } else {
+                        other_logs.push(path);
+                    },
+                    Err(error) => problem_report.add_error("Unable to get log path", error),
+                }
+            }
+            for other_log in other_logs {
+                problem_report.add_log(&other_log);
+            }
+        }
         Err(error) => problem_report.add_error("Failed to list logs in log directory", error),
-    }
+    };
 
     problem_report.add_logs(extra_logs);
 
@@ -211,6 +226,13 @@ fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
                 ))),
             })
         })
+}
+
+fn is_tunnel_log(path: &Path) -> bool {
+    match path.file_name() {
+        Some(file_name) => file_name.to_string_lossy().contains("openvpn"),
+        None => false,
+    }
 }
 
 fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
@@ -273,23 +295,6 @@ impl ProblemReport {
     {
         for path in paths {
             self.add_log(path.as_ref());
-        }
-    }
-
-    /// Tries to attach some file logs to this report.
-    ///
-    /// This method receives a result with an iterator of results of file paths. If any of the
-    /// results are errors, they are collected and displayed in the final report.
-    pub fn try_add_logs<I, P>(&mut self, paths: I)
-    where
-        I: IntoIterator<Item = Result<P>>,
-        P: AsRef<Path>,
-    {
-        for path_result in paths {
-            match path_result {
-                Ok(path) => self.add_log(path.as_ref()),
-                Err(error) => self.add_error("Error getting next log file", error),
-            }
         }
     }
 
