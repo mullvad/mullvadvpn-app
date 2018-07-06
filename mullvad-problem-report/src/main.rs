@@ -32,7 +32,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Maximum number of bytes to read from each log file
-const LOG_MAX_READ_BYTES: usize = 512 * 1024;
+const LOG_MAX_READ_BYTES: usize = 128 * 1024;
 const EXTRA_BYTES: usize = 32 * 1024;
 /// Fit five logs plus some system information in the report.
 const REPORT_MAX_SIZE: usize = (5 * LOG_MAX_READ_BYTES) + EXTRA_BYTES;
