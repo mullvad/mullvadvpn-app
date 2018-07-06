@@ -1,6 +1,6 @@
 # Sourcing this file should set up the environment to build the app
 
-SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 case "$(uname -s)" in
   Linux*)
