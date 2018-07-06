@@ -14,6 +14,7 @@ set -eu
 SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
+source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
