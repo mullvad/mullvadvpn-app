@@ -129,6 +129,8 @@ const DAEMON_LOG_FILENAME: &str = "daemon.log";
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
+#[cfg(windows)]
+const TUNNEL_INTERFACE_ALIAS: &str = "Mullvad";
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub enum DaemonEvent {
@@ -742,9 +744,20 @@ impl Daemon {
         };
 
         let tunnel_options = self.settings.get_tunnel_options();
+        let tunnel_alias = {
+            #[cfg(windows)]
+            {
+                Some(TUNNEL_INTERFACE_ALIAS.into())
+            }
+            #[cfg(not(windows))]
+            {
+                None
+            }
+        };
         TunnelMonitor::new(
             tunnel_endpoint,
             &tunnel_options,
+            tunnel_alias,
             account_token,
             tunnel_log.as_ref().map(PathBuf::as_path),
             &self.resource_dir,
