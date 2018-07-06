@@ -1,10 +1,5 @@
 set -eu
 
-# List of solutions to build
-WINFW_SOLUTIONS=${WINFW_SOLUTIONS:-"winfw"}
-WINDNS_SOLUTIONS=${WINDNS_SOLUTIONS:-"windns"}
-WINROUTE_SOLUTIONS=${WINROUTE_SOLUTIONS:-"winroute"}
-
 # Override this variable to set your own list of build configurations. Set this
 # to "Release" to build release versions.
 CPP_BUILD_MODES=${CPP_BUILD_MODES:-"Debug"}
@@ -23,7 +18,6 @@ function build_project
 {
   local path="$1"
   local sln="$1/$2"
-  local solutions="$3"
 
   if [[ -z "${DEV_BUILD+x}" ]]; then
     # Clean all intermediate and output files
@@ -33,7 +27,7 @@ function build_project
   set -x
   for mode in $CPP_BUILD_MODES; do
     for target in $CPP_BUILD_TARGETS; do
-      cmd.exe "/c msbuild.exe /m $(to_win_path $sln) /p:Configuration=$mode /p:Platform=$target /t:$solutions"
+      cmd.exe "/c msbuild.exe /m $(to_win_path $sln) /p:Configuration=$mode /p:Platform=$target"
     done
   done
   set +x
@@ -110,7 +104,6 @@ function copy_outputs
       done
     done
   done
-
 }
 
 # Since Microsoft likes to name their architectures differently from Rust, this
@@ -147,9 +140,9 @@ function main
   local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
   local winroute_root_path=${CPP_ROOT_PATH:-"./windows/winroute"}
 
-  build_project "$winfw_root_path" "winfw.sln" "$WINFW_SOLUTIONS"
-  build_project "$windns_root_path" "windns.sln" "$WINDNS_SOLUTIONS"
-  build_project "$winroute_root_path" "winroute.sln" "$WINROUTE_SOLUTIONS"
+  build_project "$winfw_root_path" "winfw.sln"
+  build_project "$windns_root_path" "windns.sln"
+  build_project "$winroute_root_path" "winroute.sln"
 
   copy_outputs $winfw_root_path "winfw.dll"
   copy_outputs $windns_root_path "windns.dll"
