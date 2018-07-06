@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
+- Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
+- Lower per log size limit in the problem report to 128 kiB.
 
 ### Fixed
 - Disable account input when logging in.
