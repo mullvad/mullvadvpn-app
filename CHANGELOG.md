@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - App now uses statically linked OpenSSL on all platforms.
 - Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
 - Lower per log size limit in the problem report to 128 kiB.
+- Relay list is now updated periodically automatically, not only when the daemon starts.
 
 #### Windows
 - Rename tunnel interface to "Mullvad".
