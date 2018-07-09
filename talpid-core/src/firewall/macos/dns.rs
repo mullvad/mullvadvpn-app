@@ -37,7 +37,7 @@ struct State {
 }
 
 pub struct DnsMonitor {
-    store: SCDynamicStore,
+    store: Arc<SCDynamicStore>,
 
     /// The current DNS injection state. If this is `None` it means we are not injecting any DNS.
     /// When it's `Some(state)` we are actively making sure `state.desired_dns` is configured
@@ -54,7 +54,7 @@ impl DnsMonitor {
         let state = Arc::new(Mutex::new(None));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
-            store: SCDynamicStoreBuilder::new("mullvad-dns").build(),
+            store: Arc::new(SCDynamicStoreBuilder::new("mullvad-dns").build()),
             state,
         })
     }
