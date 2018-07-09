@@ -43,13 +43,21 @@ impl<F> From<TimeoutError<F>> for Error {
 }
 
 struct LocationsAndRelays {
+    last_updated: SystemTime,
     locations: RelayList,
     relays: Vec<Relay>,
 }
 
-/// Separates a relay list into the list of relays and the list of locations.
-impl From<RelayList> for LocationsAndRelays {
-    fn from(mut relay_list: RelayList) -> Self {
+impl LocationsAndRelays {
+    pub fn empty() -> Self {
+        LocationsAndRelays {
+            last_updated: time::UNIX_EPOCH,
+            locations: RelayList::empty(),
+            relays: Vec::new(),
+        }
+    }
+
+    pub fn from_relay_list(mut relay_list: RelayList, last_updated: SystemTime) -> Self {
         let mut relays = Vec::new();
         for country in &mut relay_list.countries {
             let country_name = country.name.clone();
@@ -74,13 +82,35 @@ impl From<RelayList> for LocationsAndRelays {
             }
         }
         LocationsAndRelays {
+            last_updated,
             locations: relay_list,
             relays,
         }
     }
-}
 
-impl LocationsAndRelays {
+    pub fn read_from<P: AsRef<Path>>(path: P) -> Result<Self> {
+        debug!(
+            "Trying to read relays cache from {}",
+            path.as_ref().display()
+        );
+        let (last_modified, file) =
+            Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
+        let relay_list = serde_json::from_reader(io::BufReader::new(file))
+            .chain_err(|| ErrorKind::SerializationError)?;
+
+        Ok(Self::from_relay_list(relay_list, last_modified))
+    }
+
+    fn read_file(path: &Path) -> io::Result<(SystemTime, File)> {
+        let file = File::open(path)?;
+        let last_modified = file.metadata()?.modified()?;
+        Ok((last_modified, file))
+    }
+
+    pub fn last_updated(&self) -> SystemTime {
+        self.last_updated
+    }
+
     pub fn locations(&self) -> &RelayList {
         &self.locations
     }
@@ -92,7 +122,6 @@ impl LocationsAndRelays {
 
 pub struct RelaySelector {
     locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
-    last_updated: SystemTime,
     rng: ThreadRng,
     rpc_client: RelayListProxy<HttpHandle>,
     cache_path: PathBuf,
@@ -103,23 +132,22 @@ impl RelaySelector {
     /// to refresh the relay list from the internet.
     pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
-        let (last_updated, relay_list) = match Self::read_cached_relays(&cache_path, resource_dir) {
+        let locations_and_relays = match Self::read_cached_relays(&cache_path, resource_dir) {
             Ok(value) => value,
             Err(error) => {
                 let error = error.chain_err(|| "Unable to load cached relays");
                 error!("{}", error.display_chain());
-                (time::UNIX_EPOCH, RelayList::empty())
+                LocationsAndRelays::empty()
             }
         };
-        let locations_and_relays = LocationsAndRelays::from(relay_list);
         info!(
             "Initialized with {} cached relays from {}",
             locations_and_relays.relays().len(),
-            DateTime::<Local>::from(last_updated).format(::logging::DATE_TIME_FORMAT_STR)
+            DateTime::<Local>::from(locations_and_relays.last_updated())
+                .format(::logging::DATE_TIME_FORMAT_STR)
         );
         RelaySelector {
             locations_and_relays: Arc::new(Mutex::new(locations_and_relays)),
-            last_updated,
             rng: rand::thread_rng(),
             rpc_client: RelayListProxy::new(rpc_handle),
             cache_path,
@@ -141,7 +169,7 @@ impl RelaySelector {
     /// Returns the time when the relay list backing this selector was last fetched from the
     /// internet.
     pub fn get_last_updated(&self) -> SystemTime {
-        self.last_updated
+        self.lock_locations_and_relays().last_updated()
     }
 
     /// Returns a random relay and relay endpoint matching the given constraints and with
@@ -318,12 +346,12 @@ impl RelaySelector {
         if let Err(e) = self.cache_relays(&relay_list) {
             error!("Unable to save relays to cache: {}", e.display_chain());
         }
-        let locations_and_relays = LocationsAndRelays::from(relay_list);
+        let locations_and_relays =
+            LocationsAndRelays::from_relay_list(relay_list, SystemTime::now());
         info!(
             "Downloaded relay inventory has {} relays",
             locations_and_relays.relays().len()
         );
-        self.last_updated = SystemTime::now();
         *self.lock_locations_and_relays() = locations_and_relays;
         Ok(())
     }
@@ -337,36 +365,15 @@ impl RelaySelector {
     }
 
     /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
-    fn read_cached_relays(
-        cache_path: &Path,
-        resource_dir: &Path,
-    ) -> Result<(SystemTime, RelayList)> {
-        match Self::read_relays(cache_path) {
+    fn read_cached_relays(cache_path: &Path, resource_dir: &Path) -> Result<LocationsAndRelays> {
+        match LocationsAndRelays::read_from(cache_path) {
             Ok(value) => Ok(value),
-            Err(read_cache_error) => match Self::read_relays(resource_dir.join(RELAYS_FILENAME)) {
+            Err(read_cache_error) => match LocationsAndRelays::read_from(
+                resource_dir.join(RELAYS_FILENAME),
+            ) {
                 Ok(value) => Ok(value),
                 Err(read_resource_error) => Err(read_cache_error.chain_err(|| read_resource_error)),
             },
         }
-    }
-
-    /// Read and deserialize a `RelayList` from a given path.
-    /// Returns the file modification time and the relays.
-    fn read_relays<P: AsRef<Path>>(path: P) -> Result<(SystemTime, RelayList)> {
-        debug!(
-            "Trying to read relays cache from {}",
-            path.as_ref().display()
-        );
-        let (last_modified, file) =
-            Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
-        let relay_list = serde_json::from_reader(io::BufReader::new(file))
-            .chain_err(|| ErrorKind::SerializationError)?;
-        Ok((last_modified, relay_list))
-    }
-
-    fn read_file(path: &Path) -> io::Result<(SystemTime, File)> {
-        let file = File::open(path)?;
-        let last_modified = file.metadata()?.modified()?;
-        Ok((last_modified, file))
     }
 }
