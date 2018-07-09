@@ -17,6 +17,7 @@ use std::fs::File;
 use std::io;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{self, Duration, SystemTime};
 
 use rand::distributions::{IndependentSample, Range};
@@ -90,7 +91,7 @@ impl LocationsAndRelays {
 }
 
 pub struct RelaySelector {
-    locations_and_relays: LocationsAndRelays,
+    locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
     last_updated: SystemTime,
     rng: ThreadRng,
     rpc_client: RelayListProxy<HttpHandle>,
@@ -117,7 +118,7 @@ impl RelaySelector {
             DateTime::<Local>::from(last_updated).format(::logging::DATE_TIME_FORMAT_STR)
         );
         RelaySelector {
-            locations_and_relays,
+            locations_and_relays: Arc::new(Mutex::new(locations_and_relays)),
             last_updated,
             rng: rand::thread_rng(),
             rpc_client: RelayListProxy::new(rpc_handle),
@@ -127,8 +128,14 @@ impl RelaySelector {
 
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
-    pub fn get_locations(&mut self) -> &RelayList {
-        self.locations_and_relays.locations()
+    pub fn get_locations(&mut self) -> RelayList {
+        self.lock_locations_and_relays().locations().clone()
+    }
+
+    fn lock_locations_and_relays(&self) -> MutexGuard<LocationsAndRelays> {
+        self.locations_and_relays.lock().expect(
+            "Relay updater thread crashed while it held a lock to the list of locations and relays",
+        )
     }
 
     /// Returns the time when the relay list backing this selector was last fetched from the
@@ -185,7 +192,7 @@ impl RelaySelector {
         constraints: &RelayConstraints,
     ) -> Option<(Relay, TunnelEndpoint)> {
         let matching_relays: Vec<Relay> = self
-            .locations_and_relays
+            .lock_locations_and_relays()
             .relays()
             .iter()
             .filter_map(|relay| Self::matching_relay(relay, constraints))
@@ -317,7 +324,7 @@ impl RelaySelector {
             locations_and_relays.relays().len()
         );
         self.last_updated = SystemTime::now();
-        self.locations_and_relays = locations_and_relays;
+        *self.lock_locations_and_relays() = locations_and_relays;
         Ok(())
     }
 
