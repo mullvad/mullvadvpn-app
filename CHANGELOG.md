@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Hide the app icon from taskbar.
 - Autohide the main window on focus loss.
+- Loosen up firewall rules to allow incoming requests on tunnel interface.
 
 
 ## [2018.2-beta1] - 2018-07-02
