@@ -378,3 +378,31 @@ const GUID &MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6()
 
 	return g;
 }
+
+//static
+const GUID &MullvadGuids::FilterPermitVpnTunnelService_Ipv4()
+{
+	static const GUID g =
+	{
+		0xf11a9ab4,
+		0x3dd6,
+		0x4cd9,
+		{ 0x9d, 0x95, 0xb0, 0x36, 0x22, 0x71, 0x6b, 0x3d }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitVpnTunnelService_Ipv6()
+{
+	static const GUID g =
+	{
+		0xe902e448,
+		0x1845,
+		0x42e5,
+		{ 0xad, 0xf3, 0x33, 0xb2, 0x7a, 0xd, 0x5d, 0x38 }
+	};
+
+	return g;
+}

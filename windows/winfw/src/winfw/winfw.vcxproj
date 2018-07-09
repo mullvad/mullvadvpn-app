@@ -27,6 +27,7 @@
     <ClCompile Include="rules\permitlan.cpp" />
     <ClCompile Include="rules\permitlanservice.cpp" />
     <ClCompile Include="rules\permitloopback.cpp" />
+    <ClCompile Include="rules\permitvpntunnelservice.cpp" />
     <ClCompile Include="rules\permitvpnrelay.cpp" />
     <ClCompile Include="rules\permitvpntunnel.cpp" />
     <ClCompile Include="rules\restrictdns.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="rules\permitlan.h" />
     <ClInclude Include="rules\permitlanservice.h" />
     <ClInclude Include="rules\permitloopback.h" />
+    <ClInclude Include="rules\permitvpntunnelservice.h" />
     <ClInclude Include="rules\permitvpnrelay.h" />
     <ClInclude Include="rules\permitvpntunnel.h" />
     <ClInclude Include="rules\restrictdns.h" />
