@@ -4,6 +4,9 @@ use Command;
 mod account;
 pub use self::account::Account;
 
+mod autoconnect;
+pub use self::autoconnect::Autoconnect;
+
 mod status;
 pub use self::status::Status;
 
@@ -29,6 +32,7 @@ pub use self::version::Version;
 pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
     let commands: Vec<Box<Command>> = vec![
         Box::new(Account),
+        Box::new(Autoconnect),
         Box::new(Status),
         Box::new(Connect),
         Box::new(Disconnect),

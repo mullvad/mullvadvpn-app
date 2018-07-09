@@ -155,8 +155,20 @@ impl DaemonRpcClient {
         self.call("get_account_data", &[account])
     }
 
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<()> {
+        self.call("set_allow_lan", &[allow_lan])
+    }
+
     pub fn get_allow_lan(&mut self) -> Result<bool> {
         self.call("get_allow_lan", &NO_ARGS)
+    }
+
+    pub fn set_autoconnect(&mut self, autoconnect: bool) -> Result<()> {
+        self.call("set_autoconnect", &[autoconnect])
+    }
+
+    pub fn get_autoconnect(&mut self) -> Result<bool> {
+        self.call("get_autoconnect", &NO_ARGS)
     }
 
     pub fn get_current_location(&mut self) -> Result<GeoIpLocation> {
@@ -189,10 +201,6 @@ impl DaemonRpcClient {
 
     pub fn set_account(&mut self, account: Option<AccountToken>) -> Result<()> {
         self.call("set_account", &[account])
-    }
-
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<()> {
-        self.call("set_allow_lan", &[allow_lan])
     }
 
     pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
