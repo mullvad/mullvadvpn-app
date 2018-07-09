@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Bundle the root CA signing the API and only trust that single one, limiting
   trust to a single root CA
+- Add a unique UUID to problem reports. Makes it easier for Mullvad support staff to find reports.
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
