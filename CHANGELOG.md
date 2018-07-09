@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
+- Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
+- Lower per log size limit in the problem report to 128 kiB.
 
 ### Fixed
 - Disable account input when logging in.
@@ -39,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Hide the app icon from taskbar.
 - Autohide the main window on focus loss.
+
 
 ## [2018.2-beta1] - 2018-07-02
 ### Added
