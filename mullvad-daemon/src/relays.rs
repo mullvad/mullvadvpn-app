@@ -14,17 +14,20 @@ use serde_json;
 use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
 
 use std::fs::File;
-use std::io;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::time::{self, Duration, SystemTime};
+use std::{io, thread};
 
 use rand::distributions::{IndependentSample, Range};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
 const RELAYS_FILENAME: &str = "relays.json";
+const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(3);
+const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 24);
 
 error_chain! {
     errors {
@@ -123,8 +126,7 @@ impl LocationsAndRelays {
 pub struct RelaySelector {
     locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
     rng: ThreadRng,
-    rpc_client: RelayListProxy<HttpHandle>,
-    cache_path: PathBuf,
+    _updater: RelayListUpdaterHandle,
 }
 
 impl RelaySelector {
@@ -132,25 +134,27 @@ impl RelaySelector {
     /// to refresh the relay list from the internet.
     pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
-        let locations_and_relays = match Self::read_cached_relays(&cache_path, resource_dir) {
-            Ok(value) => value,
-            Err(error) => {
-                let error = error.chain_err(|| "Unable to load cached relays");
-                error!("{}", error.display_chain());
-                LocationsAndRelays::empty()
-            }
-        };
+        let unsynchronized_locations_and_relays =
+            match Self::read_cached_relays(&cache_path, resource_dir) {
+                Ok(value) => value,
+                Err(error) => {
+                    let error = error.chain_err(|| "Unable to load cached relays");
+                    error!("{}", error.display_chain());
+                    LocationsAndRelays::empty()
+                }
+            };
         info!(
             "Initialized with {} cached relays from {}",
-            locations_and_relays.relays().len(),
-            DateTime::<Local>::from(locations_and_relays.last_updated())
+            unsynchronized_locations_and_relays.relays().len(),
+            DateTime::<Local>::from(unsynchronized_locations_and_relays.last_updated())
                 .format(::logging::DATE_TIME_FORMAT_STR)
         );
+        let locations_and_relays = Arc::new(Mutex::new(unsynchronized_locations_and_relays));
+        let updater = RelayListUpdater::spawn(rpc_handle, cache_path, locations_and_relays.clone());
         RelaySelector {
-            locations_and_relays: Arc::new(Mutex::new(locations_and_relays)),
+            locations_and_relays,
             rng: rand::thread_rng(),
-            rpc_client: RelayListProxy::new(rpc_handle),
-            cache_path,
+            _updater: updater,
         }
     }
 
@@ -164,12 +168,6 @@ impl RelaySelector {
         self.locations_and_relays.lock().expect(
             "Relay updater thread crashed while it held a lock to the list of locations and relays",
         )
-    }
-
-    /// Returns the time when the relay list backing this selector was last fetched from the
-    /// internet.
-    pub fn get_last_updated(&self) -> SystemTime {
-        self.lock_locations_and_relays().last_updated()
     }
 
     /// Returns a random relay and relay endpoint matching the given constraints and with
@@ -335,35 +333,6 @@ impl RelaySelector {
             .map(|openvpn_endpoint| TunnelEndpointData::OpenVpn(openvpn_endpoint))
     }
 
-    /// Downloads the latest relay list and caches it. This operation is blocking.
-    pub fn update(&mut self, timeout: Duration) -> Result<()> {
-        info!("Downloading list of relays...");
-        let download_future = self
-            .rpc_client
-            .relay_list()
-            .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
-        let relay_list = Timer::default().timeout(download_future, timeout).wait()?;
-        if let Err(e) = self.cache_relays(&relay_list) {
-            error!("Unable to save relays to cache: {}", e.display_chain());
-        }
-        let locations_and_relays =
-            LocationsAndRelays::from_relay_list(relay_list, SystemTime::now());
-        info!(
-            "Downloaded relay inventory has {} relays",
-            locations_and_relays.relays().len()
-        );
-        *self.lock_locations_and_relays() = locations_and_relays;
-        Ok(())
-    }
-
-    /// Write a `RelayList` to the cache file.
-    fn cache_relays(&self, relays: &RelayList) -> Result<()> {
-        debug!("Writing relays cache to {}", self.cache_path.display());
-        let file = File::create(&self.cache_path).chain_err(|| ErrorKind::RelayCacheError)?;
-        serde_json::to_writer_pretty(io::BufWriter::new(file), relays)
-            .chain_err(|| ErrorKind::SerializationError)
-    }
-
     /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
     fn read_cached_relays(cache_path: &Path, resource_dir: &Path) -> Result<LocationsAndRelays> {
         match LocationsAndRelays::read_from(cache_path) {
@@ -375,5 +344,125 @@ impl RelaySelector {
                 Err(read_resource_error) => Err(read_cache_error.chain_err(|| read_resource_error)),
             },
         }
+    }
+}
+
+type RelayListUpdaterHandle = mpsc::Sender<()>;
+
+struct RelayListUpdater {
+    rpc_client: RelayListProxy<HttpHandle>,
+    cache_path: PathBuf,
+    locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
+    close_handle: mpsc::Receiver<()>,
+}
+
+impl RelayListUpdater {
+    pub fn spawn(
+        rpc_handle: HttpHandle,
+        cache_path: PathBuf,
+        locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
+    ) -> RelayListUpdaterHandle {
+        let (tx, rx) = mpsc::channel();
+
+        thread::spawn(move || Self::new(rpc_handle, cache_path, locations_and_relays, rx).run());
+
+        tx
+    }
+
+    fn new(
+        rpc_handle: HttpHandle,
+        cache_path: PathBuf,
+        locations_and_relays: Arc<Mutex<LocationsAndRelays>>,
+        close_handle: mpsc::Receiver<()>,
+    ) -> Self {
+        let rpc_client = RelayListProxy::new(rpc_handle);
+
+        RelayListUpdater {
+            rpc_client,
+            cache_path,
+            locations_and_relays,
+            close_handle,
+        }
+    }
+
+    fn run(&mut self) {
+        debug!("Starting relay list updater thread");
+        while self.should_run_iteration() {
+            trace!("Relay list updater iteration");
+            if self.should_update() {
+                match self
+                    .update()
+                    .chain_err(|| "Failed to update list of relays")
+                {
+                    Ok(()) => trace!("Updated list of locations and relays"),
+                    Err(error) => error!("{}", error),
+                }
+            }
+        }
+        debug!("Relay list updater thread has finished");
+    }
+
+    fn should_run_iteration(&mut self) -> bool {
+        use self::mpsc::RecvTimeoutError::*;
+
+        match self.close_handle.recv_timeout(UPDATE_INTERVAL) {
+            Ok(()) => true,
+            Err(Timeout) => true,
+            Err(Disconnected) => false,
+        }
+    }
+
+    fn should_update(&mut self) -> bool {
+        match SystemTime::now().duration_since(self.lock_locations_and_relays().last_updated()) {
+            Ok(duration) => duration > MAX_CACHE_AGE,
+            Err(_) => false,
+        }
+    }
+
+    fn update(&mut self) -> Result<()> {
+        let new_relay_list = self
+            .download_new_relay_list()
+            .chain_err(|| "Failed to download relay list")?;
+
+        self.cache_relays(&new_relay_list)?;
+
+        let new_locations_and_relays =
+            LocationsAndRelays::from_relay_list(new_relay_list, SystemTime::now());
+        info!(
+            "Downloaded relay inventory has {} relays",
+            new_locations_and_relays.relays().len()
+        );
+
+        *self.lock_locations_and_relays() = new_locations_and_relays;
+
+        Ok(())
+    }
+
+    fn download_new_relay_list(&mut self) -> Result<RelayList> {
+        info!("Downloading list of relays...");
+
+        let download_future = self
+            .rpc_client
+            .relay_list()
+            .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
+        let relay_list = Timer::default()
+            .timeout(download_future, DOWNLOAD_TIMEOUT)
+            .wait()?;
+
+        Ok(relay_list)
+    }
+
+    /// Write a `RelayList` to the cache file.
+    fn cache_relays(&self, relays: &RelayList) -> Result<()> {
+        debug!("Writing relays cache to {}", self.cache_path.display());
+        let file = File::create(&self.cache_path).chain_err(|| ErrorKind::RelayCacheError)?;
+        serde_json::to_writer_pretty(io::BufWriter::new(file), relays)
+            .chain_err(|| ErrorKind::SerializationError)
+    }
+
+    fn lock_locations_and_relays(&self) -> MutexGuard<LocationsAndRelays> {
+        self.locations_and_relays
+            .lock()
+            .expect("A thread crashed while it held a lock to the list of locations and relays")
     }
 }
