@@ -13,6 +13,7 @@ extern crate error_chain;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
+extern crate uuid;
 
 extern crate mullvad_paths;
 extern crate mullvad_rpc;
@@ -449,11 +450,12 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
 
 fn collect_metadata() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
+    metadata.insert("id".to_owned(), uuid::Uuid::new_v4().to_string());
     metadata.insert(
-        String::from("mullvad-product-version"),
+        "mullvad-product-version".to_owned(),
         product_version().to_owned(),
     );
-    metadata.insert(String::from("os"), os_version());
+    metadata.insert("os".to_owned(), os_version());
     metadata
 }
 
