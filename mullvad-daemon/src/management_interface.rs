@@ -84,9 +84,13 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_allow_lan")]
         fn get_allow_lan(&self, Self::Metadata) -> BoxFuture<bool, Error>;
 
-        /// Set if the client should automatically establish a tunnel on start or not.
-        #[rpc(meta, name = "set_autoconnect")]
-        fn set_autoconnect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
+        /// Set if the daemon should automatically establish a tunnel on start or not.
+        #[rpc(meta, name = "set_auto_connect")]
+        fn set_auto_connect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
+
+        /// Get if the daemon should automatically establish a tunnel on start or not.
+        #[rpc(meta, name = "get_auto_connect")]
+        fn get_auto_connect(&self, Self::Metadata) -> BoxFuture<bool, Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
         #[rpc(meta, name = "connect")]
@@ -181,10 +185,14 @@ pub enum TunnelCommand {
     UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
     /// Read the constraints put on the tunnel and relay
     GetRelaySettings(OneshotSender<RelaySettings>),
-    /// Setting if communication with LAN networks should be possible.
+    /// Set the allow LAN setting.
     SetAllowLan(OneshotSender<()>, bool),
-    /// Request the current allow LAN setting.
+    /// Get the current allow LAN setting.
     GetAllowLan(OneshotSender<bool>),
+    /// Set the auto-connect setting.
+    SetAutoConnect(OneshotSender<()>, bool),
+    /// Get the current auto-connect setting.
+    GetAutoConnect(OneshotSender<bool>),
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Get the mssfix argument for OpenVPN
@@ -504,7 +512,7 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
     }
 
     fn set_allow_lan(&self, meta: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
-        trace!("allow_lan");
+        trace!("set_allow_lan");
         try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
@@ -523,10 +531,24 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         Box::new(future)
     }
 
-    fn set_autoconnect(&self, meta: Self::Metadata, _autoconnect: bool) -> BoxFuture<(), Error> {
-        trace!("set_autoconnect");
+    fn set_auto_connect(&self, meta: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
+        trace!("set_auto_connect");
         try_future!(self.check_auth(&meta));
-        Box::new(future::ok(()))
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(TunnelCommand::SetAutoConnect(tx, auto_connect))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn get_auto_connect(&self, meta: Self::Metadata) -> BoxFuture<bool, Error> {
+        trace!("get_auto_connect");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(TunnelCommand::GetAutoConnect(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn connect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
