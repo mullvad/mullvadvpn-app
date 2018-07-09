@@ -402,6 +402,8 @@ impl Daemon {
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
+            SetAutoconnect(tx, autoconnect) => self.on_set_autoconnect(tx, autoconnect),
+            GetAutoconnect(tx) => Ok(self.on_get_autoconnect(tx)),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
@@ -564,6 +566,23 @@ impl Daemon {
 
     fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
         Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
+    }
+
+    fn on_set_autoconnect(&mut self, tx: OneshotSender<()>, autoconnect: bool) -> Result<()> {
+        let save_result = self.settings.set_autoconnect(autoconnect);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(_settings_changed) => Self::oneshot_send(tx, (), "set autoconnect response"),
+            Err(e) => error!("{}", e.display_chain()),
+        }
+        Ok(())
+    }
+
+    fn on_get_autoconnect(&self, tx: OneshotSender<bool>) {
+        Self::oneshot_send(
+            tx,
+            self.settings.get_autoconnect(),
+            "get autoconnect response",
+        )
     }
 
     fn on_set_openvpn_mssfix(
