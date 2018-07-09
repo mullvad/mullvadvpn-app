@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Bundle the root CA signing the API and only trust that single one, limiting
   trust to a single root CA
 - Add a unique UUID to problem reports. Makes it easier for Mullvad support staff to find reports.
+- Add "auto-connect" setting in daemon, and make it configurable from CLI. Determines if the daemon
+  should secure the network and start establishing a tunnel directly when it starts on boot.
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
