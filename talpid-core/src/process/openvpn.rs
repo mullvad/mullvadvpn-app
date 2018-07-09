@@ -122,14 +122,14 @@ impl OpenVpnCommand {
     }
 
     /// Sets extra options
-    pub fn set_tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
+    pub fn tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
         self.tunnel_options = *tunnel_options;
         self
     }
 
     /// Sets the tunnel alias which will be used to identify a tunnel device that will be used by
     /// OpenVPN.
-    pub fn set_tunnel_alias(&mut self, tunnel_alias: Option<OsString>) -> &mut Self {
+    pub fn tunnel_alias(&mut self, tunnel_alias: Option<OsString>) -> &mut Self {
         self.tunnel_alias = tunnel_alias;
         self
     }

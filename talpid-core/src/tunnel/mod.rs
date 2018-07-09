@@ -194,10 +194,10 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .set_tunnel_options(&options)
+            .tunnel_options(&options)
+            .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
-        cmd.set_tunnel_alias(tunnel_alias);
         if let Some(log) = log {
             cmd.log(log);
         }
