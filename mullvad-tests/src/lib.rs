@@ -23,6 +23,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use os_pipe::{pipe, PipeReader};
@@ -35,6 +36,8 @@ use self::platform_specific::*;
 pub use self::notify::op::{self as watch_event, Op as WatchEvent};
 
 type Result<T> = ::std::result::Result<T, String>;
+
+pub const ASSETS_DIR: &str = "../dist-assets";
 
 #[cfg(unix)]
 mod platform_specific {
@@ -154,20 +157,29 @@ fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
     let cache_dir = temp_dir.path().join("cache");
     let resource_dir = temp_dir.path().join("resource-dir");
     let settings_dir = temp_dir.path().join("settings");
-    let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
-    let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
 
     fs::create_dir(&cache_dir).expect("Failed to create cache directory");
     fs::create_dir(&resource_dir).expect("Failed to create resource directory");
     fs::create_dir(&settings_dir).expect("Failed to create settings directory");
 
+    prepare_resource_dir(&resource_dir);
+
+    (temp_dir, cache_dir, resource_dir, settings_dir)
+}
+
+fn prepare_resource_dir(resource_dir: &Path) {
+    let assets_dir = PathBuf::from(ASSETS_DIR);
+    let api_certificate_src = assets_dir.join(API_CA_FILENAME);
+    let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
+    let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
+    let api_certificate_dst = resource_dir.join(API_CA_FILENAME);
+
+    fs::copy(api_certificate_src, api_certificate_dst).expect("Failed to copy API certificate");
     fs::copy(MOCK_OPENVPN_EXECUTABLE_PATH, openvpn_binary)
         .expect("Failed to copy mock OpenVPN binary");
     File::create(talpid_openvpn_plugin).expect("Failed to create mock Talpid OpenVPN plugin");
 
     prepare_relay_list(resource_dir.join("relays.json"));
-
-    (temp_dir, cache_dir, resource_dir, settings_dir)
 }
 
 fn prepare_relay_list<T: AsRef<Path>>(path: T) {
