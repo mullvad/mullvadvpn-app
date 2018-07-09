@@ -41,9 +41,56 @@ impl<F> From<TimeoutError<F>> for Error {
     }
 }
 
-pub struct RelaySelector {
+struct ParsedRelays {
     locations: RelayList,
     relays: Vec<Relay>,
+}
+
+/// Separates a relay list into the list of relays and the list of locations.
+impl From<RelayList> for ParsedRelays {
+    fn from(mut relay_list: RelayList) -> Self {
+        let mut relays = Vec::new();
+        for country in &mut relay_list.countries {
+            let country_name = country.name.clone();
+            let country_code = country.code.clone();
+            for city in &mut country.cities {
+                city.has_active_relays = !city.relays.is_empty();
+                let city_name = city.name.clone();
+                let city_code = city.code.clone();
+                let latitude = city.latitude;
+                let longitude = city.longitude;
+                relays.extend(city.relays.drain(..).map(|mut relay| {
+                    relay.location = Some(Location {
+                        country: country_name.clone(),
+                        country_code: country_code.clone(),
+                        city: city_name.clone(),
+                        city_code: city_code.clone(),
+                        latitude,
+                        longitude,
+                    });
+                    relay
+                }));
+            }
+        }
+        ParsedRelays {
+            locations: relay_list,
+            relays,
+        }
+    }
+}
+
+impl ParsedRelays {
+    pub fn locations(&self) -> &RelayList {
+        &self.locations
+    }
+
+    pub fn relays(&self) -> &Vec<Relay> {
+        &self.relays
+    }
+}
+
+pub struct RelaySelector {
+    parsed_relays: ParsedRelays,
     last_updated: SystemTime,
     rng: ThreadRng,
     rpc_client: RelayListProxy<HttpHandle>,
@@ -63,15 +110,14 @@ impl RelaySelector {
                 (time::UNIX_EPOCH, RelayList::empty())
             }
         };
-        let (locations, relays) = Self::process_relay_list(relay_list);
+        let parsed_relays = ParsedRelays::from(relay_list);
         info!(
             "Initialized with {} cached relays from {}",
-            relays.len(),
+            parsed_relays.relays().len(),
             DateTime::<Local>::from(last_updated).format(::logging::DATE_TIME_FORMAT_STR)
         );
         RelaySelector {
-            locations,
-            relays,
+            parsed_relays,
             last_updated,
             rng: rand::thread_rng(),
             rpc_client: RelayListProxy::new(rpc_handle),
@@ -82,7 +128,7 @@ impl RelaySelector {
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_locations(&mut self) -> &RelayList {
-        &self.locations
+        self.parsed_relays.locations()
     }
 
     /// Returns the time when the relay list backing this selector was last fetched from the
@@ -139,7 +185,8 @@ impl RelaySelector {
         constraints: &RelayConstraints,
     ) -> Option<(Relay, TunnelEndpoint)> {
         let matching_relays: Vec<Relay> = self
-            .relays
+            .parsed_relays
+            .relays()
             .iter()
             .filter_map(|relay| Self::matching_relay(relay, constraints))
             .collect();
@@ -264,40 +311,14 @@ impl RelaySelector {
         if let Err(e) = self.cache_relays(&relay_list) {
             error!("Unable to save relays to cache: {}", e.display_chain());
         }
-        let (locations, relays) = Self::process_relay_list(relay_list);
-        info!("Downloaded relay inventory has {} relays", relays.len());
-        self.locations = locations;
-        self.relays = relays;
+        let parsed_relays = ParsedRelays::from(relay_list);
+        info!(
+            "Downloaded relay inventory has {} relays",
+            parsed_relays.relays().len()
+        );
         self.last_updated = SystemTime::now();
+        self.parsed_relays = parsed_relays;
         Ok(())
-    }
-
-    // Extracts all relays from their corresponding cities and return them as a separate vector.
-    fn process_relay_list(mut relay_list: RelayList) -> (RelayList, Vec<Relay>) {
-        let mut relays = Vec::new();
-        for country in &mut relay_list.countries {
-            let country_name = country.name.clone();
-            let country_code = country.code.clone();
-            for city in &mut country.cities {
-                city.has_active_relays = !city.relays.is_empty();
-                let city_name = city.name.clone();
-                let city_code = city.code.clone();
-                let latitude = city.latitude;
-                let longitude = city.longitude;
-                relays.extend(city.relays.drain(..).map(|mut relay| {
-                    relay.location = Some(Location {
-                        country: country_name.clone(),
-                        country_code: country_code.clone(),
-                        city: city_name.clone(),
-                        city_code: city_code.clone(),
-                        latitude,
-                        longitude,
-                    });
-                    relay
-                }));
-            }
-        }
-        (relay_list, relays)
     }
 
     /// Write a `RelayList` to the cache file.
