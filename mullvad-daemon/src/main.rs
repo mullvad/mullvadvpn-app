@@ -459,11 +459,7 @@ impl Daemon {
     }
 
     fn on_get_relay_locations(&mut self, tx: OneshotSender<RelayList>) {
-        Self::oneshot_send(
-            tx,
-            self.relay_selector.get_locations().clone(),
-            "relay locations",
-        );
+        Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
     }
 
 
