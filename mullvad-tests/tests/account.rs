@@ -1,4 +1,9 @@
-#![cfg(all(target_os = "linux", feature = "integration-tests"))]
+#![cfg(
+    all(
+        feature = "integration-tests",
+        any(target_os = "linux", target_os = "windows")
+    )
+)]
 
 extern crate mullvad_tests;
 
