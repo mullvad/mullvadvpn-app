@@ -37,6 +37,8 @@ pub struct Settings {
     relay_settings: RelaySettings,
     /// If the app should allow communication with private (LAN) networks.
     allow_lan: bool,
+    /// If the daemon should go to secured state and try to connect directly on start or not.
+    autoconnect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     tunnel_options: TunnelOptions,
@@ -51,6 +53,7 @@ impl Default for Settings {
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
+            autoconnect: false,
             tunnel_options: TunnelOptions::default(),
         }
     }
@@ -149,6 +152,19 @@ impl Settings {
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
         if allow_lan != self.allow_lan {
             self.allow_lan = allow_lan;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_autoconnect(&self) -> bool {
+        self.autoconnect
+    }
+
+    pub fn set_autoconnect(&mut self, autoconnect: bool) -> Result<bool> {
+        if autoconnect != self.autoconnect {
+            self.autoconnect = autoconnect;
             self.save().map(|_| true)
         } else {
             Ok(false)
