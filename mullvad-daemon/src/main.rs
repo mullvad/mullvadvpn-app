@@ -334,8 +334,8 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
-        if self.settings.get_autoconnect() {
-            info!("Automatically connecting since autoconnect is turned on");
+        if self.settings.get_auto_connect() {
+            info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured)?;
         }
         while let Ok(event) = self.rx.recv() {
@@ -404,6 +404,8 @@ impl Daemon {
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             GetAllowLan(tx) => Ok(self.on_get_allow_lan(tx)),
+            SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
+            GetAutoConnect(tx) => Ok(self.on_get_auto_connect(tx)),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
@@ -566,6 +568,23 @@ impl Daemon {
 
     fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
         Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
+    }
+
+    fn on_set_auto_connect(&mut self, tx: OneshotSender<()>, auto_connect: bool) -> Result<()> {
+        let save_result = self.settings.set_auto_connect(auto_connect);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(_settings_changed) => Self::oneshot_send(tx, (), "set auto-connect response"),
+            Err(e) => error!("{}", e.display_chain()),
+        }
+        Ok(())
+    }
+
+    fn on_get_auto_connect(&self, tx: OneshotSender<bool>) {
+        Self::oneshot_send(
+            tx,
+            self.settings.get_auto_connect(),
+            "get auto-connect response",
+        )
     }
 
     fn on_set_openvpn_mssfix(
