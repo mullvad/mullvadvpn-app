@@ -9,6 +9,7 @@
 #include "rules/permitloopback.h"
 #include "rules/permitvpnrelay.h"
 #include "rules/permitvpntunnel.h"
+#include "rules/permitvpntunnelservice.h"
 #include "rules/restrictdns.h"
 #include "libwfp/transaction.h"
 #include "libwfp/filterengine.h"
@@ -102,6 +103,10 @@ bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwR
 	));
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnTunnel>(
+		tunnelInterfaceAlias
+	));
+
+	ruleset.emplace_back(std::make_unique<rules::PermitVpnTunnelService>(
 		tunnelInterfaceAlias
 	));
 
