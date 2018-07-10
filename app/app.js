@@ -402,13 +402,6 @@ export default class AppRenderer {
     } catch (error) {
       log.error(`Cannot fetch initial state: ${error.message}`);
     }
-
-    // auto connect the tunnel
-    try {
-      await this.connectTunnel();
-    } catch (error) {
-      log.error(`Cannot autoconnect the tunnel: ${error.message}`);
-    }
   }
 
   async _onCloseConnection(error: ?Error) {
