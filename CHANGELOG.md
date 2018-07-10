@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add a unique UUID to problem reports. Makes it easier for Mullvad support staff to find reports.
 - Add "auto-connect" setting in daemon, and make it configurable from CLI. Determines if the daemon
   should secure the network and start establishing a tunnel directly when it starts on boot.
+- Add "auto-connect" and "auto-start" options to the application preferences view.
 
 #### Windows
 - Include version information (meta data) in executables and DLLs.
