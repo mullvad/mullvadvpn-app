@@ -49,8 +49,8 @@ export default {
     advanced_settings__cell: {
       backgroundColor: '#44AD4D',
       flexDirection: 'row',
-      paddingTop: 15,
-      paddingBottom: 15,
+      paddingTop: 14,
+      paddingBottom: 14,
       paddingLeft: 24,
       paddingRight: 24,
       marginBottom: 1,
@@ -73,8 +73,8 @@ export default {
       color: 'rgba(255, 255, 255, 0.8)',
     },
     advanced_settings__cell_dimmed: {
-      paddingTop: 15,
-      paddingBottom: 15,
+      paddingTop: 14,
+      paddingBottom: 14,
       paddingLeft: 24,
       paddingRight: 24,
       marginBottom: 1,
@@ -89,9 +89,9 @@ export default {
       paddingLeft: 24,
     },
     advanced_settings__cell_label_container: {
-      paddingTop: 15,
+      paddingTop: 14,
       paddingRight: 12,
-      paddingBottom: 15,
+      paddingBottom: 14,
       paddingLeft: 24,
       flexGrow: 1,
     },
@@ -99,8 +99,8 @@ export default {
   ...createTextStyles({
     advanced_settings__section_title: {
       backgroundColor: 'rgb(41, 71, 115)',
-      paddingTop: 15,
-      paddingBottom: 15,
+      paddingTop: 14,
+      paddingBottom: 14,
       paddingLeft: 24,
       paddingRight: 24,
       marginBottom: 1,

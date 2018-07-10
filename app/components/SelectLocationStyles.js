@@ -36,8 +36,8 @@ export default {
       borderRadius: 8,
       marginLeft: 4,
       marginRight: 4,
-      marginTop: 19.5,
-      marginBottom: 19.5,
+      marginTop: 20,
+      marginBottom: 20,
     },
     relay_status__inactive: {
       backgroundColor: colors.red95,

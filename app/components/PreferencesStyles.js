@@ -61,9 +61,9 @@ export default {
       paddingLeft: 24,
     },
     preferences__cell_label_container: {
-      paddingTop: 15,
+      paddingTop: 14,
       paddingRight: 12,
-      paddingBottom: 15,
+      paddingBottom: 14,
       paddingLeft: 24,
       flexGrow: 1,
     },
