@@ -35,8 +35,10 @@ static SETTINGS_FILE: &str = "settings.json";
 pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
-    /// If the app should allow communication with private (LAN) networks.
+    /// If the daemon should allow communication with private (LAN) networks.
     allow_lan: bool,
+    /// If the daemon should connect the VPN tunnel directly on start or not.
+    auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     tunnel_options: TunnelOptions,
@@ -51,6 +53,7 @@ impl Default for Settings {
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
+            auto_connect: false,
             tunnel_options: TunnelOptions::default(),
         }
     }
@@ -149,6 +152,19 @@ impl Settings {
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
         if allow_lan != self.allow_lan {
             self.allow_lan = allow_lan;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_auto_connect(&self) -> bool {
+        self.auto_connect
+    }
+
+    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool> {
+        if auto_connect != self.auto_connect {
+            self.auto_connect = auto_connect;
             self.save().map(|_| true)
         } else {
             Ok(false)
