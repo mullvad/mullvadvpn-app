@@ -24,18 +24,6 @@ const styles = {
     cellHover: {
       backgroundColor: colors.blue80,
     },
-    white40: {
-      color: colors.white40,
-    },
-    white60: {
-      color: colors.white60,
-    },
-    white80: {
-      color: colors.white80,
-    },
-    white: {
-      color: colors.white,
-    },
     icon: {
       color: colors.white60,
       marginLeft: 8,
