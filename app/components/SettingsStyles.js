@@ -18,7 +18,7 @@ export default Object.assign(
       paddingTop: 16,
       paddingRight: 24,
       paddingLeft: 24,
-      paddingBottom: 16,
+      paddingBottom: 24,
     },
     settings__content: {
       flexDirection: 'column',
