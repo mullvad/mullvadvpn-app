@@ -39,6 +39,7 @@ describe('components/SelectLocation', () => {
         ],
       },
     ],
+    autoConnect: false,
     allowLan: false,
   };
 

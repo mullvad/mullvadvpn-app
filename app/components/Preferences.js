@@ -7,12 +7,29 @@ import Switch from './Switch';
 import styles from './PreferencesStyles';
 
 export type PreferencesProps = {
+  autoConnect: boolean,
   allowLan: boolean,
-  onChangeAllowLan: (boolean) => void,
+  getAutoStart: () => boolean,
+  setAutoStart: (boolean) => void,
+  setAutoConnect: (boolean) => void,
+  setAllowLan: (boolean) => void,
   onClose: () => void,
 };
 
-export default class Preferences extends Component<PreferencesProps> {
+type State = {
+  autoStart: boolean,
+};
+
+export default class Preferences extends Component<PreferencesProps, State> {
+  state = {
+    autoStart: false,
+  };
+
+  constructor(props: PreferencesProps) {
+    super();
+    this.state.autoStart = props.getAutoStart();
+  }
+
   render() {
     return (
       <Layout>
@@ -39,15 +56,12 @@ export default class Preferences extends Component<PreferencesProps> {
                     <Text style={styles.preferences__cell_label}>Auto-connect</Text>
                   </View>
                   <View style={styles.preferences__cell_accessory}>
-                    <Switch
-                      isOn={this.props.autoConnect}
-                      onChange={this.props.onChangeAutoConnect}
-                    />
+                    <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
                   </View>
                 </View>
                 <View style={styles.preferences__cell_footer}>
                   <Text style={styles.preferences__cell_footer_label}>
-                    {'When your device connects to the internet, your connection will be secured.'}
+                    {'Automatically connect the VPN at login to the system.'}
                   </Text>
                 </View>
 
@@ -56,12 +70,12 @@ export default class Preferences extends Component<PreferencesProps> {
                     <Text style={styles.preferences__cell_label}>Auto-start</Text>
                   </View>
                   <View style={styles.preferences__cell_accessory}>
-                    <Switch isOn={this.props.autoStart} onChange={this.props.onChangeAutoStart} />
+                    <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
                   </View>
                 </View>
                 <View style={styles.preferences__cell_footer}>
                   <Text style={styles.preferences__cell_footer_label}>
-                    {'When your device starts up, Mullvad VPN is automatically opened.'}
+                    {'Automatically open Mullvad VPN at login to the system.'}
                   </Text>
                 </View>
 
@@ -70,7 +84,7 @@ export default class Preferences extends Component<PreferencesProps> {
                     <Text style={styles.preferences__cell_label}>Local network sharing</Text>
                   </View>
                   <View style={styles.preferences__cell_accessory}>
-                    <Switch isOn={this.props.allowLan} onChange={this.props.onChangeAllowLan} />
+                    <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                   </View>
                 </View>
                 <View style={styles.preferences__cell_footer}>
@@ -87,4 +101,9 @@ export default class Preferences extends Component<PreferencesProps> {
       </Layout>
     );
   }
+
+  _onChangeAutoStart = (autoStart: boolean) => {
+    this.props.setAutoStart(autoStart);
+    this.setState({ autoStart });
+  };
 }
