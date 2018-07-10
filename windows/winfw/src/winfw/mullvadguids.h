@@ -42,4 +42,7 @@ public:
 	static const GUID &FilterRestrictDns_Outbound_Ipv6();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv4();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv6();
+
+	static const GUID &FilterPermitVpnTunnelService_Ipv4();
+	static const GUID &FilterPermitVpnTunnelService_Ipv6();
 };
