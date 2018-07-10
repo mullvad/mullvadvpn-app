@@ -1,11 +1,12 @@
 // @flow
 
 import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({
     advanced_settings: {
-      backgroundColor: '#192E45',
+      backgroundColor: colors.darkBlue,
       flex: 1,
     },
     advanced_settings__container: {
@@ -47,7 +48,7 @@ export default {
       overflow: 'visible',
     },
     advanced_settings__cell: {
-      backgroundColor: '#44AD4D',
+      backgroundColor: colors.green,
       flexDirection: 'row',
       paddingTop: 14,
       paddingBottom: 14,
@@ -57,10 +58,10 @@ export default {
       justifyContent: 'flex-start',
     },
     advanced_settings__cell_hover: {
-      backgroundColor: 'rgba(41, 71, 115, 0.9)',
+      backgroundColor: colors.blue80,
     },
     advanced_settings__cell_selected_hover: {
-      backgroundColor: '#44AD4D',
+      backgroundColor: colors.green,
     },
     advanced_settings__cell_spacer: {
       height: 24,
@@ -70,7 +71,7 @@ export default {
       height: 24,
       marginRight: 8,
       flex: 0,
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: colors.white80,
     },
     advanced_settings__cell_dimmed: {
       paddingTop: 14,
@@ -78,7 +79,7 @@ export default {
       paddingLeft: 24,
       paddingRight: 24,
       marginBottom: 1,
-      backgroundColor: 'rgb(36, 57, 84)',
+      backgroundColor: colors.blue40,
       flexDirection: 'row',
       justifyContent: 'flex-start',
     },
@@ -98,7 +99,7 @@ export default {
   }),
   ...createTextStyles({
     advanced_settings__section_title: {
-      backgroundColor: 'rgb(41, 71, 115)',
+      backgroundColor: colors.blue,
       paddingTop: 14,
       paddingBottom: 14,
       paddingLeft: 24,
@@ -108,20 +109,20 @@ export default {
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
-      color: '#fff',
+      color: colors.white,
     },
     advanced_settings__close_title: {
       fontFamily: 'Open Sans',
       fontSize: 13,
       fontWeight: '600',
-      color: 'rgba(255, 255, 255, 0.6)',
+      color: colors.white60,
     },
     advanced_settings__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
       fontWeight: '900',
       lineHeight: 40,
-      color: '#fff',
+      color: colors.white,
     },
     advanced_settings__cell_label: {
       fontFamily: 'DINPro',
@@ -129,7 +130,7 @@ export default {
       fontWeight: '900',
       lineHeight: 26,
       letterSpacing: -0.2,
-      color: '#fff',
+      color: colors.white,
       flex: 0,
     },
     advanced_settings__cell_footer_label: {
@@ -138,7 +139,7 @@ export default {
       fontWeight: '600',
       lineHeight: 20,
       letterSpacing: -0.2,
-      color: 'rgba(255,255,255,0.8)',
+      color: colors.white80,
     },
   }),
 };
