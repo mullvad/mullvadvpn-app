@@ -116,7 +116,12 @@ impl PathWatcher {
             match self.next() {
                 Some(watch_event::WRITE) => continue,
                 event => {
+                    #[cfg(target_os = "linux")]
                     assert_eq!(event, Some(watch_event::CLOSE_WRITE));
+
+                    #[cfg(not(target_os = "linux"))]
+                    assert_eq!(event, None);
+
                     break;
                 }
             }
@@ -298,9 +303,16 @@ impl DaemonRunner {
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
         if !self.rpc_address_file.exists() {
             let _ = PathWatcher::watch(&self.rpc_address_file).map(|mut events| {
-                events
-                    .set_timeout(Duration::from_secs(10))
-                    .find(|&event| event == watch_event::CLOSE_WRITE)
+                let events_with_timeout = events.set_timeout(Duration::from_secs(10));
+
+                #[cfg(target_os = "linux")]
+                {
+                    events_with_timeout.find(|&event| event == watch_event::CLOSE_WRITE)
+                }
+                #[cfg(not(target_os = "linux"))]
+                {
+                    events_with_timeout.count()
+                }
             });
         }
 
