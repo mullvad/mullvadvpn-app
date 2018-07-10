@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
 - Lower per log size limit in the problem report to 128 kiB.
 
+#### Windows
+- Rename tunnel interface to "Mullvad".
+
 ### Fixed
 - Disable account input when logging in.
 - Keep the user input in problem report form while the app runs, or until the report is successfully
