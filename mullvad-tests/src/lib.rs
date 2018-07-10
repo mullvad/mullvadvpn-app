@@ -113,7 +113,12 @@ impl PathWatcher {
             match self.next() {
                 Some(watch_event::WRITE) => continue,
                 event => {
+                    #[cfg(target_os = "linux")]
                     assert_eq!(event, Some(watch_event::CLOSE_WRITE));
+
+                    #[cfg(not(target_os = "linux"))]
+                    assert_eq!(event, None);
+
                     break;
                 }
             }
