@@ -9,6 +9,14 @@ const getAppVersion = () => {
   return version;
 };
 
+const getOpenAtLogin = () => {
+  throw new Error('Not implemented');
+};
+
+const setOpenAtLogin = (_autoStart: boolean) => {
+  throw new Error('Not implemented');
+};
+
 const exit = () => {
   BackHandler.exitApp();
 };
@@ -21,4 +29,4 @@ const openItem = (path: string) => {
   MobileAppBridge.openItem(path);
 };
 
-export { log, exit, openLink, openItem, getAppVersion };
+export { log, exit, openLink, openItem, getAppVersion, getOpenAtLogin, setOpenAtLogin };
