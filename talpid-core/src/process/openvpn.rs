@@ -16,7 +16,10 @@ use talpid_types::net;
 static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
     &["--nobind"],
+    #[cfg(not(windows))]
     &["--dev", "tun"],
+    #[cfg(windows)]
+    &["--dev-type", "tun"],
     &["--ping", "3"],
     &["--ping-exit", "15"],
     &["--connect-retry", "0", "0"],
@@ -48,6 +51,7 @@ pub struct OpenVpnCommand {
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
     tunnel_options: net::OpenVpnTunnelOptions,
+    tunnel_alias: Option<OsString>,
 }
 
 impl OpenVpnCommand {
@@ -64,6 +68,7 @@ impl OpenVpnCommand {
             plugin: None,
             log: None,
             tunnel_options: net::OpenVpnTunnelOptions::default(),
+            tunnel_alias: None,
         }
     }
 
@@ -117,8 +122,15 @@ impl OpenVpnCommand {
     }
 
     /// Sets extra options
-    pub fn set_tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
+    pub fn tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
         self.tunnel_options = *tunnel_options;
+        self
+    }
+
+    /// Sets the tunnel alias which will be used to identify a tunnel device that will be used by
+    /// OpenVPN.
+    pub fn tunnel_alias(&mut self, tunnel_alias: Option<OsString>) -> &mut Self {
+        self.tunnel_alias = tunnel_alias;
         self
     }
 
@@ -157,6 +169,11 @@ impl OpenVpnCommand {
         if let Some(mssfix) = self.tunnel_options.mssfix {
             args.push(OsString::from("--mssfix"));
             args.push(OsString::from(mssfix.to_string()));
+        }
+
+        if let Some(ref tunnel_device) = self.tunnel_alias {
+            args.push(OsString::from("--dev-node"));
+            args.push(tunnel_device.clone());
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));

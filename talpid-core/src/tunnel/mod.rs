@@ -5,6 +5,7 @@ use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
@@ -132,6 +133,7 @@ impl TunnelMonitor {
     pub fn new<L>(
         tunnel_endpoint: TunnelEndpoint,
         tunnel_options: &TunnelOptions,
+        tunnel_alias: Option<OsString>,
         account_token: &str,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -148,6 +150,7 @@ impl TunnelMonitor {
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
+            tunnel_alias,
             &tunnel_options.openvpn,
             user_pass_file.as_ref(),
             log,
@@ -179,6 +182,7 @@ impl TunnelMonitor {
 
     fn create_openvpn_cmd(
         remote: Endpoint,
+        tunnel_alias: Option<OsString>,
         options: &OpenVpnTunnelOptions,
         user_pass_file: &Path,
         log: Option<&Path>,
@@ -190,7 +194,8 @@ impl TunnelMonitor {
         }
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .set_tunnel_options(&options)
+            .tunnel_options(&options)
+            .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
         if let Some(log) = log {

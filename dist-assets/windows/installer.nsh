@@ -1,6 +1,7 @@
 !include stdutils.nsh
 !include winver.nsh
-#!include strcontains.nsh
+
+!addplugindir "${PROJECT_DIR}\windows\nsis-plugins\bin\Win32-Release"
 
 #
 # NOTES
@@ -18,6 +19,16 @@
 !define SERVICE_STARTED 0
 !define SERVICE_START_PENDING 2
 
+# Return codes from driverlogic::EstablishBaseline
+!define EB_GENERAL_ERROR 0
+!define EB_NO_INTERFACES_PRESENT 1
+!define EB_SOME_INTERFACES_PRESENT 2
+!define EB_MULLVAD_INTERFACE_PRESENT 3
+
+# Return codes from driverlogic::IdentifyNewInterface
+!define INI_GENERAL_ERROR 0
+!define INI_SUCCESS 1
+
 #
 # BreakInstallation
 #
@@ -29,7 +40,7 @@
 #
 !macro BreakInstallation
 
-	Delete "$INSTDIR\mullvadvpn.exe"
+	Delete "$INSTDIR\mullvad vpn.exe"
 
 !macroend
 
@@ -65,6 +76,8 @@
 #
 !macro InstallDriver
 
+	Var /GLOBAL InstallDriver_BaselineStatus
+
 	Push $0
 	Push $1
 
@@ -74,16 +87,29 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to list hardware IDs: error $0"
+		StrCpy $R0 "Failed to list virtual adapters: error $0"
 		Goto InstallDriver_return
 	${EndIf}
 
-	# If the driver is already installed, the hardware ID will be echoed in the command output
-	# $1 holds the output from "tapinstall hwids"
-	${StrContains} $0 ${TAP_HARDWARE_ID} $1
-	StrCmp $0 "" InstallDriver_install_driver
+	driverlogic::EstablishBaseline $1
 
-	# Update driver
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${EB_GENERAL_ERROR}
+		StrCpy $R0 "Failed to parse virtual adapter data: $1"
+		Goto InstallDriver_return
+	${EndIf}
+
+	Push $0
+	Pop $InstallDriver_BaselineStatus
+	
+	IntCmp $0 ${EB_NO_INTERFACES_PRESENT} InstallDriver_install_driver
+
+	#
+	# Driver is already installed and there are one or several virtual adapters present.
+	# Update driver.
+	#
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" update "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 
 	Pop $0
@@ -94,10 +120,14 @@
 		Goto InstallDriver_return
 	${EndIf}
 	
-	Goto InstallDriver_return_success
+	IntCmp $InstallDriver_BaselineStatus ${EB_MULLVAD_INTERFACE_PRESENT} InstallDriver_return_success
 
 	InstallDriver_install_driver:
 
+	#
+	# Install driver and create a virtual adapter.
+	# If the driver is already installed, this just creates another virtual adapter.
+	#
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 	
 	Pop $0
@@ -107,7 +137,40 @@
 		StrCpy $R0 "Failed to install TAP driver: error $0"
 		Goto InstallDriver_return
 	${EndIf}
+
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to list virtual adapters: error $0"
+		Goto InstallDriver_return
+	${EndIf}
+
+	driverlogic::IdentifyNewInterface $1
 	
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${INI_SUCCESS}
+		StrCpy $R0 "Failed to identify virtual adapter: $1"
+		Goto InstallDriver_return
+	${EndIf}
+
+	#
+	# Rename the newly added virtual adapter to "Mullvad".
+	#
+	nsExec::ExecToStack '"netsh.exe" interface set interface name = "$1" newname = "Mullvad"'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to rename virtual adapter: error $0"
+		Goto InstallDriver_return
+	${EndIf}
+
 	InstallDriver_return_success:
 
 	Push 0
