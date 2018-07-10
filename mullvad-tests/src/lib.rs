@@ -109,6 +109,10 @@ impl PathWatcher {
         assert_eq!(self.next(), Some(watch_event::CREATE));
         assert_eq!(self.next(), Some(watch_event::WRITE));
 
+        #[cfg(not(target_os = "linux"))]
+        self.wait_for_burst_of_events(Duration::from_secs(1));
+
+        #[cfg(target_os = "linux")]
         loop {
             match self.next() {
                 Some(watch_event::WRITE) => continue,
