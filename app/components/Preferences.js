@@ -36,6 +36,37 @@ export default class Preferences extends Component<PreferencesProps> {
               <View style={styles.preferences__content}>
                 <View style={styles.preferences__cell}>
                   <View style={styles.preferences__cell_label_container}>
+                    <Text style={styles.preferences__cell_label}>Auto-connect</Text>
+                  </View>
+                  <View style={styles.preferences__cell_accessory}>
+                    <Switch
+                      isOn={this.props.autoConnect}
+                      onChange={this.props.onChangeAutoConnect}
+                    />
+                  </View>
+                </View>
+                <View style={styles.preferences__cell_footer}>
+                  <Text style={styles.preferences__cell_footer_label}>
+                    {'When your device connects to the internet, your connection will be secured.'}
+                  </Text>
+                </View>
+
+                <View style={styles.preferences__cell}>
+                  <View style={styles.preferences__cell_label_container}>
+                    <Text style={styles.preferences__cell_label}>Auto-start</Text>
+                  </View>
+                  <View style={styles.preferences__cell_accessory}>
+                    <Switch isOn={this.props.autoStart} onChange={this.props.onChangeAutoStart} />
+                  </View>
+                </View>
+                <View style={styles.preferences__cell_footer}>
+                  <Text style={styles.preferences__cell_footer_label}>
+                    {'When your device starts up, Mullvad VPN is automatically opened.'}
+                  </Text>
+                </View>
+
+                <View style={styles.preferences__cell}>
+                  <View style={styles.preferences__cell_label_container}>
                     <Text style={styles.preferences__cell_label}>Local network sharing</Text>
                   </View>
                   <View style={styles.preferences__cell_accessory}>
