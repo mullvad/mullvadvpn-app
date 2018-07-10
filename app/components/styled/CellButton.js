@@ -10,7 +10,7 @@ import { createViewStyles, createTextStyles } from '../../lib/styles';
 const styles = {
   ...createViewStyles({
     cell: {
-      backgroundColor: colors.blue80,
+      backgroundColor: colors.blue,
       paddingTop: 14,
       paddingBottom: 14,
       paddingLeft: 16,
@@ -21,11 +21,8 @@ const styles = {
       alignItems: 'center',
       alignContent: 'center',
     },
-    blue: {
+    cellHover: {
       backgroundColor: colors.blue80,
-    },
-    blueHover: {
-      backgroundColor: colors.blue60,
     },
     white40: {
       color: colors.white40,
@@ -85,7 +82,7 @@ export default class CellButton extends Component<CellButtonProps, State> {
   iconStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
   subtextStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
   backgroundStyle = (cellHoverStyle?: Types.ViewStyle) =>
-    this.state.hovered ? cellHoverStyle || styles.blueHover : null;
+    this.state.hovered ? cellHoverStyle || styles.cellHover : null;
 
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
   onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
