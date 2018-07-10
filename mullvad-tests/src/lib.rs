@@ -394,7 +394,11 @@ impl MockOpenVpnPluginRpcClient {
     pub fn up(&mut self) -> Result<()> {
         let mut env: HashMap<String, String> = HashMap::new();
 
+        #[cfg(target_os = "linux")]
         env.insert("dev".to_owned(), "lo".to_owned());
+        #[cfg(target_os = "windows")]
+        env.insert("dev".to_owned(), "loopback".to_owned());
+
         env.insert("ifconfig_local".to_owned(), "10.0.0.10".to_owned());
         env.insert("route_vpn_gateway".to_owned(), "10.0.0.1".to_owned());
 
