@@ -343,10 +343,22 @@ export default class AppRenderer {
     actions.settings.updateAllowLan(allowLan);
   }
 
+  async setAutoConnect(autoConnect: boolean) {
+    const actions = this._reduxActions;
+    await this._daemonRpc.setAutoConnect(autoConnect);
+    actions.settings.updateAutoConnect(autoConnect);
+  }
+
   async _fetchAllowLan() {
     const actions = this._reduxActions;
     const allowLan = await this._daemonRpc.getAllowLan();
     actions.settings.updateAllowLan(allowLan);
+  }
+
+  async _fetchAutoConnect() {
+    const actions = this._reduxActions;
+    const autoConnect = await this._daemonRpc.getAutoConnect();
+    actions.settings.updateAutoConnect(autoConnect);
   }
 
   async _fetchSecurityState() {
@@ -485,6 +497,7 @@ export default class AppRenderer {
       this.fetchRelaySettings(),
       this._fetchRelayLocations(),
       this._fetchAllowLan(),
+      this._fetchAutoConnect(),
       this._fetchLocation(),
       this._fetchAccountHistory(),
     ]);
