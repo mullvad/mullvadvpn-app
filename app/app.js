@@ -133,10 +133,15 @@ export default class AppRenderer {
 
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
-      setTimeout(() => {
+      setTimeout(async () => {
         actions.history.push('/connect');
-        log.debug('Autoconnecting...');
-        this.connectTunnel();
+
+        try {
+          log.debug('Auto-connecting the tunnel...');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+        }
       }, 1000);
     } catch (error) {
       log.error('Failed to log in,', error.message);
