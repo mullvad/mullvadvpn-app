@@ -198,6 +198,8 @@ export interface DaemonRpcProtocol {
   getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
   getAllowLan(): Promise<boolean>;
+  setAutoConnect(boolean): Promise<void>;
+  getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
@@ -329,6 +331,19 @@ export class DaemonRpc implements DaemonRpcProtocol {
       return response;
     } else {
       throw new ResponseParseError('Invalid response from get_allow_lan', null);
+    }
+  }
+
+  async setAutoConnect(autoConnect: boolean): Promise<void> {
+    await this._transport.send('set_auto_connect', [autoConnect]);
+  }
+
+  async getAutoConnect(): Promise<boolean> {
+    const response = await this._transport.send('get_auto_connect');
+    if (typeof response === 'boolean') {
+      return response;
+    } else {
+      throw new ResponseParseError('Invalid response from get_auto_connect', null);
     }
   }
 
