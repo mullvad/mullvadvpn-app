@@ -1,8 +1,8 @@
 import { createViewStyles, createTextStyles } from '../lib/styles';
 import { colors } from '../config';
 
-export default Object.assign(
-  createViewStyles({
+export default {
+  ...createViewStyles({
     settings: {
       backgroundColor: colors.darkBlue,
       flex: 1,
@@ -51,7 +51,7 @@ export default Object.assign(
       paddingBottom: 16,
     },
   }),
-  createTextStyles({
+  ...createTextStyles({
     settings__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
@@ -63,4 +63,4 @@ export default Object.assign(
       color: colors.red,
     },
   }),
-);
+};
