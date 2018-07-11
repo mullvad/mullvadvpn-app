@@ -1,0 +1,25 @@
+#include "../dist-assets/windows/version.h"
+
+1 VERSIONINFO
+FILEVERSION     MAJOR_VERSION,MINOR_VERSION,PATCH_VERSION,0
+PRODUCTVERSION  MAJOR_VERSION,MINOR_VERSION,PATCH_VERSION,0
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+    BLOCK "040904E4"
+    BEGIN
+        VALUE "CompanyName", "Amagicom AB"
+        VALUE "FileDescription", "Mullvad VPN OpenVPN plugin"
+        VALUE "FileVersion", PRODUCT_VERSION
+        VALUE "InternalName", "talpid-openvpn-plugin"
+        VALUE "LegalCopyright", "(c) 2018 Amagicom AB"
+        VALUE "OriginalFilename", "talpid_openvpn_plugin.dll"
+        VALUE "ProductName", "Mullvad VPN"
+        VALUE "ProductVersion", PRODUCT_VERSION
+    END
+END
+BLOCK "VarFileInfo"
+BEGIN
+    VALUE "Translation", 0x409, 1252
+END
+END
