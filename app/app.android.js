@@ -39,7 +39,9 @@ DeviceEventEmitter.addListener('com.mullvad.daemon-connection-ready', async (_ev
 });
 
 MobileAppBridge.startBackend()
-  .then((_response) => {})
+  .then((_response) => {
+    return;
+  })
   .catch((e) => {
     log.error('Failed starting backend:', e);
   });

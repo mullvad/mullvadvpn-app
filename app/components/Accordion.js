@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Component, View, Styles, Animated, UserInterface } from 'reactxp';
+import { log } from '../lib/platform';
 
 export type AccordionProps = {
   height: number | 'auto',
@@ -89,7 +90,7 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
     );
   }
 
-  _animateHeightChanges() {
+  async _animateHeightChanges() {
     const containerView = this._containerView;
     if (!containerView) {
       return;
@@ -100,7 +101,8 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
       this._animation = null;
     }
 
-    UserInterface.measureLayoutRelativeToWindow(containerView).then((layout) => {
+    try {
+      const layout = await UserInterface.measureLayoutRelativeToWindow(containerView);
       const fromValue = this.state.animatedValue || Animated.createValue(layout.height);
       const toValue = this.props.height === 'auto' ? this._contentHeight : this.props.height;
 
@@ -119,7 +121,9 @@ export default class Accordion extends Component<AccordionProps, AccordionState>
       this.setState({ animatedValue: fromValue }, () => {
         animation.start(this._onAnimationEnd);
       });
-    });
+    } catch (error) {
+      log.error(`Failed to measure the layout of Accordion: ${error.message}`);
+    }
   }
 
   _onAnimationEnd = ({ finished }) => {

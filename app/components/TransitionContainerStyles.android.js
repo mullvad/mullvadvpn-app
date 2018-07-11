@@ -9,6 +9,7 @@ let menuBarHeight;
 MobileAppBridge.getMenuBarHeight()
   .then((_response) => {
     menuBarHeight = _response;
+    return;
   })
   .catch((e) => {
     log.error('Failed getting menuBarHeight:', e);
