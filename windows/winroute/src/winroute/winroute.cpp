@@ -17,7 +17,7 @@ WinRoute_EnsureTopMetric(
 	try
 	{
 		NetworkInterfaces interfaces;
-		bool metrics_set = interfaces.SetTopMetricForInterfaceByAlias(deviceAlias);
+		bool metrics_set = interfaces.SetTopMetricForInterfacesByAlias(deviceAlias);
 		return metrics_set ? WINROUTE_STATUS::METRIC_SET : WINROUTE_STATUS::METRIC_NO_CHANGE;
 	}
 	catch (std::exception &err) 
