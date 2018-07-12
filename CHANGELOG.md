@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add "auto-connect" setting in daemon, and make it configurable from CLI. Determines if the daemon
   should secure the network and start establishing a tunnel directly when it starts on boot.
 
+#### Windows
+- Include version information (meta data) in executables and DLLs.
+
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
 - Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
