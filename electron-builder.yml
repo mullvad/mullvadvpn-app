@@ -113,3 +113,8 @@ rpm:
        "./dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
   afterInstall: ./dist-assets/linux/install_script.sh
   afterRemove: ./dist-assets/linux/uninstall_script.sh
+  depends:
+      - libXScrnSaver
+      - libappindicator
+      - libnotify
+      - libnsl
