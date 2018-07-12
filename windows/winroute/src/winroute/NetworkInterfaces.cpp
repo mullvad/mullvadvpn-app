@@ -1,8 +1,7 @@
 #include "stdafx.h"
 
-#include <windows.h>
-
 #include "NetworkInterfaces.h"
+#include "InterfacePair.h"
 
 #include <memory>
 #include <sstream>
@@ -13,21 +12,6 @@
 
 
 
-
-
-PMIB_IPINTERFACE_ROW NetworkInterfaces::RowByLuid(NET_LUID rowId)
-{
-	for (int i = 0; i < (int)mInterfaces->NumEntries; ++i)
-	{
-		PMIB_IPINTERFACE_ROW row = &mInterfaces->Table[i];
-		// Currnetly, only IPv4 is supported
-		if (row->InterfaceLuid.Value == rowId.Value && row->Family == AF_INET)
-		{
-			return row;
-		}
-	}
-	return nullptr;
-}
 
 bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 {
@@ -43,7 +27,7 @@ bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 }
 
 
-void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIface)
+void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
 {
 	PMIB_IPINTERFACE_ROW iface;
 	DWORD success = 0;
@@ -51,15 +35,11 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW targetIf
 	{
 		iface = &mInterfaces->Table[i];
 		// Ignoring the target interface.
-		if (iface->InterfaceLuid.Value == targetIface->InterfaceLuid.Value)
+		if (iface->InterfaceLuid.Value == interfaceLuid.Value || iface->UseAutomaticMetric || iface->Metric > MAX_METRIC)
 		{
 			continue;
 		}
 
-		if (iface->UseAutomaticMetric)
-		{
-			continue;
-		}
 		iface->Metric++;
 		if (iface->Family == AF_INET) {
 			iface->SitePrefixLength = 0;
@@ -92,7 +72,7 @@ NetworkInterfaces::NetworkInterfaces()
 	}
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfaceByAlias(const wchar_t * deviceAlias)
+bool NetworkInterfaces::SetTopMetricForInterfacesByAlias(const wchar_t * deviceAlias)
 {
 	NET_LUID targetIfaceLuid;
 	DWORD success = 0;
@@ -106,45 +86,19 @@ bool NetworkInterfaces::SetTopMetricForInterfaceByAlias(const wchar_t * deviceAl
 			<< success;
 		throw std::runtime_error(common::string::ToAnsi(ss.str()));
 	}
-	return SetTopMetricForInterfaceWithLuid(targetIfaceLuid);
+	return SetTopMetricForInterfacesWithLuid(targetIfaceLuid);
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfaceWithLuid(NET_LUID targetIfaceId)
+bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
 {
+	InterfacePair targetInterfaces = InterfacePair(targetIfaceId);
 
-	DWORD success = 0;
-
-	PMIB_IPINTERFACE_ROW targetIface = RowByLuid(targetIfaceId);
-	if (targetIface == nullptr)
-	{
-		std::stringstream ss;
-		ss << L"No interface with LUID " << targetIfaceId.Value;
-		throw std::runtime_error(ss.str());
-	}
-
-	if (targetIface->Metric == MAX_METRIC)
+	if (targetInterfaces.HighestMetric() == MAX_METRIC)
 	{
 		return false;
 	}
 
-	targetIface->UseAutomaticMetric = false;
-	targetIface->Metric = MAX_METRIC;
-	if (targetIface->Family == AF_INET) {
-		targetIface->SitePrefixLength = 0;
-	}
-
-	success = SetIpInterfaceEntry(targetIface);
-	if (success != NO_ERROR)
-	{
-		std::stringstream ss;
-		ss << L"Failed to set metric "
-			<< MAX_METRIC
-			<< " for interface with LUID "
-			<< targetIfaceId.Value
-			<< ". Error code - "
-			<< success;
-		throw std::runtime_error(ss.str());
-	}
+	targetInterfaces.SetMetric(MAX_METRIC);
 	return true;
 }
 

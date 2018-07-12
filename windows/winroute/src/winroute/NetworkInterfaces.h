@@ -12,14 +12,13 @@ class NetworkInterfaces
 
 private:
 	PMIB_IPINTERFACE_TABLE mInterfaces;
-	PMIB_IPINTERFACE_ROW RowByLuid(NET_LUID rowId);
 	bool HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface);
-	void EnsureIfaceMetricIsHighest(PMIB_IPINTERFACE_ROW iface);
 
 public:
+	void EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid);
 	NetworkInterfaces();
-	bool SetTopMetricForInterfaceByAlias (const wchar_t *deviceAlias);
-	bool SetTopMetricForInterfaceWithLuid(NET_LUID targetIface);
+	bool SetTopMetricForInterfacesByAlias(const wchar_t *deviceAlias);
+	bool SetTopMetricForInterfacesWithLuid(NET_LUID targetIface);
 	~NetworkInterfaces();
 };
 

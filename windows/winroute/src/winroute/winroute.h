@@ -24,7 +24,7 @@ WINROUTE_LINKAGE
 WINROUTE_STATUS
 WINROUTE_API
 WinRoute_EnsureTopMetric(
-		const wchar_t *deviceAlias,
-		WinRouteErrorSink errorSink,
-	    void* errorSinkContext
+	const wchar_t *deviceAlias,
+	WinRouteErrorSink errorSink,
+	void* errorSinkContext
 );

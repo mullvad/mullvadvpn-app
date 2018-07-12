@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Rename tunnel interface to "Mullvad".
+- Change tunnel interface metric for both IPv4 and IPv6.
 
 ### Fixed
 - Disable account input when logging in.
