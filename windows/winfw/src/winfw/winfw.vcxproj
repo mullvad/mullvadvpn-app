@@ -66,6 +66,9 @@
   <ItemGroup>
     <None Include="winfw.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="winfw.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{801E7DEB-2BD0-4E60-9E4B-74A5CA12ADCB}</ProjectGuid>

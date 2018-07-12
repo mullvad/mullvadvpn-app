@@ -72,6 +72,7 @@ function restore_metadata_backups() {
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
     mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
+    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
 }
 trap 'restore_metadata_backups' EXIT
 
@@ -85,6 +86,21 @@ sed -i.bak \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
+	
+SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -r 's/[.-]+/ /g'))
+
+SEMVER_MAJOR=${SEMVER_ARRAY[0]}
+SEMVER_MINOR=${SEMVER_ARRAY[1]}
+SEMVER_PATCH=${SEMVER_ARRAY[2]}
+
+cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
+
+cat <<EOF > dist-assets/windows/version.h
+#define MAJOR_VERSION $SEMVER_MAJOR
+#define MINOR_VERSION $SEMVER_MINOR
+#define PATCH_VERSION $SEMVER_PATCH
+#define PRODUCT_VERSION "$PRODUCT_VERSION"
+EOF
 
 ################################################################################
 # Compile and link all binaries.
