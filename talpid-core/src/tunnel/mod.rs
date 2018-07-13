@@ -11,6 +11,11 @@ use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 
+#[cfg(target_os = "linux")]
+use failure::ResultExt as FailureResultExt;
+#[cfg(target_os = "linux")]
+use which;
+
 use talpid_types::net::{
     Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData, TunnelOptions,
 };
@@ -42,6 +47,11 @@ error_chain!{
         OpenVpnNotFound(path: PathBuf) {
             description("No OpenVPN binary found")
             display("No OpenVPN binary found at {}", path.display())
+        }
+        /// The IP routing program was not found.
+        #[cfg(target_os = "linux")]
+        IpRouteNotFound {
+            description("The IP routing program `ip` was not found.")
         }
         /// The OpenVPN plugin was not found.
         PluginNotFound(path: PathBuf) {
@@ -192,6 +202,12 @@ impl TunnelMonitor {
         if let Some(config) = Self::get_config_path(resource_dir) {
             cmd.config(config);
         }
+        #[cfg(target_os = "linux")]
+        cmd.iproute_bin(
+            which::which("ip")
+                .compat()
+                .chain_err(|| ErrorKind::IpRouteNotFound)?,
+        );
         cmd.remote(remote)
             .user_pass(user_pass_file)
             .tunnel_options(&options)
