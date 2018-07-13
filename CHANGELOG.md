@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Include version information (meta data) in executables and DLLs.
+- Include manifest in daemon so it always runs with administrator privileges.
 
 ### Changed
 - App now uses statically linked OpenSSL on all platforms.
