@@ -12,7 +12,7 @@ fn main() {
     let product_version = env!("CARGO_PKG_VERSION").replacen(".0", "", 1);
     fs::write(out_dir.join("product-version.txt"), product_version).unwrap();
     fs::write(out_dir.join("git-commit-date.txt"), commit_date()).unwrap();
-	
+
     #[cfg(windows)]
     {
         windres::Build::new().compile("version.rc").unwrap();
