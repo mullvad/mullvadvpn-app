@@ -58,6 +58,7 @@ nsis:
   allowElevation: true
   allowToChangeInstallationDirectory: true
   include: dist-assets/windows/installer.nsh
+  installerSidebar: dist-assets/windows/installersidebar.bmp
 
 win:
   target:
