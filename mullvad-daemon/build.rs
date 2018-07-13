@@ -15,7 +15,7 @@ fn main() {
 
     #[cfg(windows)]
     {
-        windres::Build::new().compile("version.rc").unwrap();
+        windres::Build::new().compile("resources.rc").unwrap();
     }
 }
 
