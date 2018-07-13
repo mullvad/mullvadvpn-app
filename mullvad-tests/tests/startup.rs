@@ -8,7 +8,7 @@ use std::fs::{self, Metadata};
 use std::io;
 use std::time::Duration;
 
-use mullvad_tests::DaemonRunner;
+use mullvad_tests::{DaemonRunner, PathWatcher};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 use platform_specific::*;
@@ -25,9 +25,10 @@ fn rpc_info_file_permissions() {
 
     assert!(!rpc_file.exists());
 
-    let mut daemon = DaemonRunner::spawn_with_real_rpc_address_file();
+    let mut rpc_file_watcher = PathWatcher::watch(&rpc_file).unwrap();
+    let _daemon = DaemonRunner::spawn_with_real_rpc_address_file();
 
-    daemon.assert_output("Wrote RPC connection info to", Duration::from_secs(10));
+    rpc_file_watcher.wait_for_burst_of_events(Duration::from_secs(10));
 
     assert!(rpc_file.exists());
 

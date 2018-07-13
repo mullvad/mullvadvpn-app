@@ -6,7 +6,6 @@ extern crate mullvad_ipc_client;
 extern crate mullvad_paths;
 extern crate notify;
 extern crate openvpn_plugin;
-extern crate os_pipe;
 extern crate talpid_ipc;
 extern crate tempfile;
 
@@ -14,9 +13,8 @@ pub mod mock_openvpn;
 
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{mpsc, Arc};
 use std::time::{Duration, Instant};
 use std::{cmp, thread};
 
@@ -24,7 +22,6 @@ use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use openvpn_plugin::types::OpenVpnPluginEvent;
-use os_pipe::{pipe, PipeReader};
 use talpid_ipc::WsIpcClient;
 use tempfile::TempDir;
 
@@ -259,7 +256,6 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
 
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
-    output: Arc<Mutex<BufReader<PipeReader>>>,
     mock_openvpn_args_file: PathBuf,
     rpc_address_file: PathBuf,
     _temp_dir: TempDir,
@@ -283,15 +279,14 @@ impl DaemonRunner {
             mullvad_paths::get_rpc_address_path().expect("Failed to build RPC connection file path")
         };
 
-        let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
         let mut expression = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", cache_dir)
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
             .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
-            .stderr_to_stdout()
-            .stdout_handle(writer);
+            .stdout_null()
+            .stderr_null();
 
         if mock_rpc_address_file {
             expression = expression.env(
@@ -304,7 +299,6 @@ impl DaemonRunner {
 
         DaemonRunner {
             process: Some(process),
-            output: Arc::new(Mutex::new(BufReader::new(reader))),
             mock_openvpn_args_file,
             rpc_address_file,
             _temp_dir: temp_dir,
@@ -313,34 +307,6 @@ impl DaemonRunner {
 
     pub fn mock_openvpn_args_file(&self) -> &Path {
         &self.mock_openvpn_args_file
-    }
-
-    pub fn assert_output(&mut self, pattern: &'static str, timeout: Duration) {
-        let (tx, rx) = mpsc::channel();
-        let stdout = self.output.clone();
-
-        thread::spawn(move || {
-            Self::wait_for_output(stdout, pattern);
-            tx.send(()).expect("Failed to report search result");
-        });
-
-        rx.recv_timeout(timeout)
-            .expect(&format!("failed to search for {:?}", pattern));
-    }
-
-    fn wait_for_output(output: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) {
-        let mut output = output
-            .lock()
-            .expect("Another thread panicked while holding a lock to the process output");
-
-        let mut line = String::new();
-
-        while !line.contains(pattern) {
-            line.clear();
-            output
-                .read_line(&mut line)
-                .expect("Failed to read line from daemon stdout");
-        }
     }
 
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
