@@ -72,7 +72,7 @@ use mullvad_types::version::{AppVersion, AppVersionInfo};
 
 use std::io;
 use std::net::IpAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -122,8 +122,6 @@ error_chain!{
 }
 
 static MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
-static MAX_RELAY_CACHE_AGE: Duration = Duration::from_secs(3600);
-static RELAY_CACHE_UPDATE_TIMEOUT: Duration = Duration::from_millis(3000);
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
@@ -238,7 +236,7 @@ impl Daemon {
         let https_handle = https_handle.chain_err(|| "Unable to create am.i.mullvad client")?;
 
         let relay_selector =
-            Self::create_relay_selector(rpc_handle.clone(), &resource_dir, &cache_dir);
+            relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
 
         let (tx, rx) = mpsc::channel();
         let management_interface_broadcaster =
@@ -270,22 +268,6 @@ impl Daemon {
             log_dir,
             resource_dir,
         })
-    }
-
-    fn create_relay_selector(
-        rpc_handle: mullvad_rpc::HttpHandle,
-        resource_dir: &Path,
-        cache_dir: &Path,
-    ) -> relays::RelaySelector {
-        let mut relay_selector = relays::RelaySelector::new(rpc_handle, &resource_dir, cache_dir);
-        if let Ok(elapsed) = relay_selector.get_last_updated().elapsed() {
-            if elapsed > MAX_RELAY_CACHE_AGE {
-                if let Err(e) = relay_selector.update(RELAY_CACHE_UPDATE_TIMEOUT) {
-                    error!("Unable to update relay cache: {}", e.display_chain());
-                }
-            }
-        }
-        relay_selector
     }
 
     // Starts the management interface and spawns a thread that will process it.
@@ -465,11 +447,7 @@ impl Daemon {
     }
 
     fn on_get_relay_locations(&mut self, tx: OneshotSender<RelayList>) {
-        Self::oneshot_send(
-            tx,
-            self.relay_selector.get_locations().clone(),
-            "relay locations",
-        );
+        Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
     }
 
 
