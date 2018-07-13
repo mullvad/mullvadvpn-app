@@ -17,8 +17,8 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
 use std::time::{Duration, Instant};
+use std::{cmp, thread};
 
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_paths::resources::API_CA_FILENAME;
@@ -121,6 +121,37 @@ impl PathWatcher {
                 }
             }
         }
+    }
+
+    /// Waits for a burst of file events.
+    ///
+    /// Here, a burst of events is defined as a series of events that are emitted with less than one
+    /// second between each of them.
+    ///
+    /// The `max_wait_time` defines the maximum time to wait for all of the events. If a burst of
+    /// events is emitted that is longer than the specified time, the function will return before
+    /// all events have been received.
+    pub fn wait_for_burst_of_events(&mut self, max_wait_time: Duration) {
+        const EVENT_INTERVAL: Duration = Duration::from_secs(1);
+
+        let start = Instant::now();
+        let original_timeout = self.timeout;
+
+        // We wait at most for the maximum waiting time for the first event to arrive
+        self.timeout = max_wait_time;
+
+        if self.next().is_some() {
+            while let Some(remaining_time) = max_wait_time.checked_sub(start.elapsed()) {
+                // Avoid exceeding the maximum wait time
+                self.timeout = cmp::min(EVENT_INTERVAL, remaining_time);
+
+                if self.next().is_none() {
+                    break;
+                }
+            }
+        }
+
+        self.timeout = original_timeout;
     }
 }
 
@@ -296,13 +327,16 @@ impl DaemonRunner {
     }
 
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
-        if !self.rpc_address_file.exists() {
-            let _ = PathWatcher::watch(&self.rpc_address_file).map(|mut events| {
-                events
-                    .set_timeout(Duration::from_secs(10))
-                    .find(|&event| event == watch_event::CLOSE_WRITE)
-            });
-        }
+        let _wait_for_rpc_file = PathWatcher::watch(&self.rpc_address_file).map(|mut watcher| {
+            if !self.rpc_address_file.exists() {
+                // No event has been emitted yet. Wait for a longer amount of time.
+                watcher.wait_for_burst_of_events(Duration::from_secs(10));
+            } else {
+                // The file was created, so at least one event was emitted. Assume the burst has
+                // started and wait for a shorter amount of time.
+                watcher.wait_for_burst_of_events(Duration::from_secs(1));
+            }
+        });
 
         DaemonRpcClient::with_insecure_rpc_address_file(&self.rpc_address_file)
             .map_err(|error| format!("Failed to create RPC client: {}", error))
