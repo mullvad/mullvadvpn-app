@@ -25,7 +25,7 @@ use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
 const RELAYS_FILENAME: &str = "relays.json";
-const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(3);
+const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 24);
 
