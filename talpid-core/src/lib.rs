@@ -17,6 +17,7 @@ extern crate log;
 
 #[macro_use]
 extern crate error_chain;
+extern crate failure;
 #[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
@@ -28,6 +29,7 @@ extern crate lazy_static;
 extern crate libc;
 extern crate shell_escape;
 extern crate uuid;
+extern crate which;
 
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
