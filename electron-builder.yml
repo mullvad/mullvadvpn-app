@@ -66,6 +66,7 @@ win:
       arch:
         - x64
   artifactName: MullvadVPN-${version}.${ext}
+  signDlls: true
   extraResources:
     - from: ./target/release/mullvad.exe
       to: .
