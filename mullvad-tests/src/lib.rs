@@ -396,6 +396,8 @@ impl MockOpenVpnPluginRpcClient {
 
         #[cfg(target_os = "linux")]
         env.insert("dev".to_owned(), "lo".to_owned());
+        #[cfg(target_os = "macos")]
+        env.insert("dev".to_owned(), "lo0".to_owned());
         #[cfg(target_os = "windows")]
         env.insert("dev".to_owned(), "loopback".to_owned());
 
