@@ -440,7 +440,7 @@ export default class AppRenderer {
   }
 
   _requestCredentials(): Promise<RpcCredentials> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       ipcRenderer.once('daemon-connection-ready', (_event, credentials: RpcCredentials) => {
         resolve(credentials);
       });

@@ -19,7 +19,7 @@ describe('JSON RPC transport', () => {
     server.close();
   });
 
-  it('should send as soon as the websocket connects', (done) => {
+  it('should send as soon as the websocket connects', () => {
     server.on('message', (msg) => {
       const { payload } = jsonrpc.parse(msg);
 
@@ -28,19 +28,14 @@ describe('JSON RPC transport', () => {
       }
     });
 
-    transport
-      .send('hello')
-      .then(() => {
-        done();
-      })
-      .catch((error) => {
-        done(error);
-      });
+    const sendPromise = transport.send('hello');
 
     transport.connect(WEBSOCKET_URL);
+
+    return expect(sendPromise).to.eventually.be.fulfilled;
   });
 
-  it('should reject failed jsonrpc requests', (done) => {
+  it('should reject failed jsonrpc requests', () => {
     server.on('message', (msg) => {
       const { payload } = jsonrpc.parse(msg);
 
@@ -53,17 +48,11 @@ describe('JSON RPC transport', () => {
       }
     });
 
-    transport.send('invalid-method').catch((error) => {
-      try {
-        expect(error.code).to.equal(-32601);
-        expect(error.message).to.contain('Method not found');
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
+    const sendPromise = transport.send('invalid-method');
 
     transport.connect(WEBSOCKET_URL);
+
+    return expect(sendPromise).to.eventually.be.rejectedWith('Method not found');
   });
 
   it('should route reply to correct promise', () => {
@@ -75,44 +64,29 @@ describe('JSON RPC transport', () => {
       }
     });
 
-    const decoy = transport
-      .send('a decoy', [], 100)
-      .then(() => {
-        throw new Error('Should not be called');
-      })
-      .catch((error) => {
-        expect(error).to.be.an.instanceof(JsonRpcTransportTimeOutError);
-      });
-
-    const message = transport.send('a message', [], 100).then((reply) => {
-      expect(reply).to.equal('a reply');
-    });
+    const decoyPromise = transport.send('a decoy', [], 100);
+    const messagePromise = transport.send('a message', [], 100);
 
     transport.connect(WEBSOCKET_URL);
 
-    return Promise.all([message, decoy]);
+    return Promise.all([
+      expect(messagePromise).to.eventually.be.equal('a reply'),
+      expect(decoyPromise).to.eventually.be.rejectedWith(JsonRpcTransportTimeOutError),
+    ]);
   });
 
-  it('should timeout if no response is returned', (done) => {
-    transport
-      .send('timeout-message', {}, 1)
-      .then(() => {
-        done(new Error('Should not be called'));
-      })
-      .catch((error) => {
-        try {
-          expect(error).to.be.an.instanceof(JsonRpcTransportTimeOutError);
-          expect(error.message).to.contain('Request timed out');
-          done();
-        } catch (error) {
-          done(error);
-        }
-      });
+  it('should timeout if no response is returned', () => {
+    const sendPromise = transport.send('timeout-message', {}, 1);
 
     transport.connect(WEBSOCKET_URL);
+
+    return expect(sendPromise).to.eventually.be.rejectedWith(
+      JsonRpcTransportTimeOutError,
+      'Request timed out',
+    );
   });
 
-  it('should route notifications', (done) => {
+  it('should route notifications', () => {
     server.on('message', (msg) => {
       const { payload } = jsonrpc.parse(msg);
 
@@ -121,24 +95,21 @@ describe('JSON RPC transport', () => {
       }
     });
 
-    transport
-      .subscribe('event', (event) => {
-        try {
-          expect(event).to.equal('an event!');
-          done();
-        } catch (error) {
-          done(error);
-        }
-      })
-      .then(() => {
-        server.send(
-          JSON.stringify(jsonrpc.notification('event', { subscription: 1, result: 'an event!' })),
-        );
-      })
-      .catch((error) => {
-        done(error);
-      });
-
     transport.connect(WEBSOCKET_URL);
+
+    let subscribePromise;
+    const eventPromise = new Promise((resolve) => {
+      subscribePromise = transport.subscribe('event', resolve).then((value) => {
+        server.send(
+          JSON.stringify(jsonrpc.notification('event', { subscription: 1, result: 'beacon' })),
+        );
+        return value;
+      });
+    });
+
+    return Promise.all([
+      expect(subscribePromise).to.eventually.be.fulfilled,
+      expect(eventPromise).to.eventually.be.equal('beacon'),
+    ]);
   });
 });

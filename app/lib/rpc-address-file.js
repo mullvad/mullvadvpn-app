@@ -28,7 +28,7 @@ export class RpcAddressFile {
     let promise = this._pollPromise;
 
     if (!promise) {
-      promise = new Promise((resolve, _reject) => {
+      promise = new Promise((resolve) => {
         const timer = setInterval(() => {
           fs.exists(this._filePath, (exists) => {
             if (exists) {

@@ -2,6 +2,7 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:promise/recommended",
     "prettier"
   ],
   "parser": "babel-eslint",
@@ -11,23 +12,24 @@
       "modules": true
     }
   },
-  "plugins": [ "react", "flowtype" ],
+  "plugins": ["react", "flowtype", "promise"],
   "rules": {
     "prefer-const": "warn",
     "no-console": "off",
     "no-loop-func": "warn",
     "new-cap": "off",
-    "no-trailing-spaces": [ "error", { "skipBlankLines": true } ],
     "no-param-reassign": "warn",
     "func-names": "off",
-    "comma-dangle": "off",
     "comma-spacing": "warn",
-    "no-unused-expressions" : "error",
-    "no-unused-vars": ["error", {
-      "args": "all",
-      "argsIgnorePattern": "_.*",
-      "varsIgnorePattern": "_.*"
-    }],
+    "no-unused-expressions": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "_.*",
+        "varsIgnorePattern": "_.*"
+      }
+    ],
     "block-scoped-var": "error",
     "react/prop-types": "off",
     "flowtype/define-flow-type": "warn"

@@ -12,8 +12,10 @@
   "license": "GPL-3.0",
   "dependencies": {
     "babel-runtime": "^6.22.0",
+    "chai-as-promised": "^7.1.1",
     "d3-geo-projection": "^2.3.2",
     "electron-log": "^2.2.8",
+    "eslint-plugin-promise": "^3.8.0",
     "history": "^4.6.1",
     "jsonrpc-lite": "^1.2.3",
     "mkdirp": "^0.5.1",
@@ -73,19 +75,21 @@
     "develop": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true && run-p -r private:watch private:serve",
     "test": "cross-env BABEL_ENV=electron electron-mocha --renderer -R spec --require babel-core/register --require-main test/setup/main.js --preload test/setup/renderer.js test/*.spec.js test/**/*.spec.js",
     "lint": "eslint --no-ignore scripts app test *.js",
-    "format": "cross-env prettier --write 'app/**/*.js' 'test/**/*.js'",
-    "check-format": "cross-env prettier --list-different 'app/**/*.js' 'test/**/*.js'",
+    "format": "npm run private:format -- --write",
+    "check-format": "npm run private:format -- --list-different",
     "flow": "flow",
-    "pack:mac": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:mac && rm -r ./dist/mac",
+    "pack:mac": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:mac private:postbuild:mac",
     "pack:win": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:win",
     "pack:linux": "cross-env BABEL_ENV=electron run-s private:clean private:compile private:build:linux",
     "private:build:mac": "npm run private:build -- --mac",
+    "private:postbuild:mac": "rimraf ./dist/mac",
     "private:build:win": "npm run private:build -- --win",
     "private:build:linux": "npm run private:build -- --linux",
     "private:build": "electron-builder",
     "private:watch": "cross-env BABEL_ENV=electron npm run private:compile -- --source-maps true --watch --skip-initial-build",
     "private:serve": "cross-env BABEL_ENV=electron babel-node scripts/serve.js",
     "private:compile": "babel app/ --copy-files --out-dir build",
-    "private:clean": "rimraf build"
+    "private:clean": "rimraf build",
+    "private:format": "cross-env prettier 'app/**/*.js' 'test/**/*.js'"
   }
 }
