@@ -1,11 +1,16 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
-image:
-- Visual Studio 2017
-
+image: Visual Studio 2017
 platform:
-- x64
+  - x64
+
+cache:
+  - windows\nsis-plugins\bin
+  - windows\windns\bin
+  - windows\winfw\bin
+  - windows\winroute\bin
+  - .mtime_cache
 
 environment:
   global:
@@ -47,11 +52,12 @@ install:
   - rustc --print cfg
   - cargo -V
   - git submodule update --init
+  - ruby ci/mtime_cache windows/**/*.{cpp,h} --verbose --cache .mtime_cache/cache.json
 
 # This is the "test phase", tweak it as you see fit
 test_script:
   - ps: . .\env.ps1
-  - bash -x build_windows_modules.sh
+  - bash -x build_windows_modules.sh --dev-build
   - cargo build
   - cargo test
 
