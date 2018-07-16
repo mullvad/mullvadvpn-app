@@ -36,9 +36,9 @@ define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(arguments: Vec<OsString>) {
     info!("Service started.");
-    match run_service(arguments) {
+    match run_service(arguments).chain_err(|| "Error when running service") {
         Ok(_) => info!("Service stopped."),
-        Err(ref e) => error!("Service stopped with error: {}", e.display_chain()),
+        Err(ref e) => error!("{}", e.display_chain()),
     };
 }
 
