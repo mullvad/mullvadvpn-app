@@ -37,6 +37,7 @@ export type RelayLocationRedux = {
 export type SettingsReduxState = {
   relaySettings: RelaySettingsRedux,
   relayLocations: Array<RelayLocationRedux>,
+  autoConnect: boolean,
   allowLan: boolean,
 };
 
@@ -49,6 +50,7 @@ const initialState: SettingsReduxState = {
     },
   },
   relayLocations: [],
+  autoConnect: false,
   allowLan: false,
 };
 
@@ -73,6 +75,12 @@ export default function(
       return {
         ...state,
         allowLan: action.allowLan,
+      };
+
+    case 'UPDATE_AUTO_CONNECT':
+      return {
+        ...state,
+        autoConnect: action.autoConnect,
       };
 
     default:

@@ -17,7 +17,11 @@ describe('components/Preferences', () => {
 function makeProps(props) {
   return {
     onClose: () => {},
-    onChangeAllowLan: () => {},
+    setAutoConnect: () => {},
+    setAutoStart: (_autoStart) => Promise.resolve(),
+    getAutoStart: () => false,
+    setAllowLan: () => {},
+    allowAutoConnect: false,
     allowLan: false,
     ...props,
   };

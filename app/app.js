@@ -133,10 +133,15 @@ export default class AppRenderer {
 
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
-      setTimeout(() => {
+      setTimeout(async () => {
         actions.history.push('/connect');
-        log.debug('Autoconnecting...');
-        this.connectTunnel();
+
+        try {
+          log.debug('Auto-connecting the tunnel...');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+        }
       }, 1000);
     } catch (error) {
       log.error('Failed to log in,', error.message);
@@ -338,10 +343,22 @@ export default class AppRenderer {
     actions.settings.updateAllowLan(allowLan);
   }
 
+  async setAutoConnect(autoConnect: boolean) {
+    const actions = this._reduxActions;
+    await this._daemonRpc.setAutoConnect(autoConnect);
+    actions.settings.updateAutoConnect(autoConnect);
+  }
+
   async _fetchAllowLan() {
     const actions = this._reduxActions;
     const allowLan = await this._daemonRpc.getAllowLan();
     actions.settings.updateAllowLan(allowLan);
+  }
+
+  async _fetchAutoConnect() {
+    const actions = this._reduxActions;
+    const autoConnect = await this._daemonRpc.getAutoConnect();
+    actions.settings.updateAutoConnect(autoConnect);
   }
 
   async _fetchSecurityState() {
@@ -401,13 +418,6 @@ export default class AppRenderer {
       await this._fetchInitialState();
     } catch (error) {
       log.error(`Cannot fetch initial state: ${error.message}`);
-    }
-
-    // auto connect the tunnel
-    try {
-      await this.connectTunnel();
-    } catch (error) {
-      log.error(`Cannot autoconnect the tunnel: ${error.message}`);
     }
   }
 
@@ -487,6 +497,7 @@ export default class AppRenderer {
       this.fetchRelaySettings(),
       this._fetchRelayLocations(),
       this._fetchAllowLan(),
+      this._fetchAutoConnect(),
       this._fetchLocation(),
       this._fetchAccountHistory(),
     ]);

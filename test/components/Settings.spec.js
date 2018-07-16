@@ -42,6 +42,7 @@ describe('components/Settings', () => {
       },
     },
     relayLocations: [],
+    autoConnect: false,
     allowLan: false,
   };
 
