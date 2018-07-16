@@ -55,6 +55,8 @@ Line wrap the file at 100 chars.                                              Th
 - Hide the app icon from taskbar.
 - Autohide the main window on focus loss.
 - Loosen up firewall rules to allow incoming requests on tunnel interface.
+- Properly stop the service, announcing errors to the system, in the event of initialization or
+  runtime error.
 
 
 ## [2018.2-beta1] - 2018-07-02
