@@ -2,10 +2,15 @@
 # https://github.com/japaric/trust/tree/v0.1.1
 
 image:
-- Visual Studio 2017
-
+  - Visual Studio 2017
 platform:
-- x64
+  - x64
+
+cache:
+  - windows/nsis-plugins/bin
+  - windows/windns/bin
+  - windows/winfw/bin
+  - windows/winroute/bin
 
 environment:
   global:
