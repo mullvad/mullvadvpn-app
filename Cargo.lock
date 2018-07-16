@@ -255,6 +255,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "dirs"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "dtoa"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -852,6 +861,7 @@ name = "mullvad-problem-report"
 version = "2018.2.0-beta1"
 dependencies = [
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dirs 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-paths 0.1.0",
@@ -1940,6 +1950,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum ctrlc 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "653abc99aa905f693d89df4797fadc08085baee379db92be9f2496cefe8a6f2c"
 "checksum derive_builder 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8c998e6ab02a828dd9735c18f154e14100e674ed08cb4e1938f0e4177543f439"
 "checksum derive_builder_core 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "735e24ee9e5fa8e16b86da5007856e97d592e11867e45d76e0c0d0a164a0b757"
+"checksum dirs 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "37a76dd8b997af7107d0bb69d43903cf37153a18266f8b3fdb9911f28efb5444"
 "checksum dtoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "09c3753c3db574d215cba4ea76018483895d7bff25a31b49ba45db21c48e50ab"
 "checksum duct 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "166298c17c5b4fe5997b962c2f22e887c7c5adc44308eb9103ce5b66af45a423"
 "checksum env_logger 0.5.9 (registry+https://github.com/rust-lang/crates.io-index)" = "00c45cec4cde3daac5f036c74098b4956151525cdf360cff5ee0092c98823e54"

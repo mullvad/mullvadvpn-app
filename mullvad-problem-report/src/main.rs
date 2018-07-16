@@ -8,6 +8,7 @@
 
 #[macro_use]
 extern crate clap;
+extern crate dirs;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
@@ -24,7 +25,6 @@ use regex::Regex;
 use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
-use std::env;
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
@@ -301,14 +301,15 @@ impl ProblemReport {
     /// Attach a file log to this report. This method adds the error chain instead of the log
     /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
-        if self.log_paths.insert(path.to_owned()) {
+        let expanded_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
+        if self.log_paths.insert(expanded_path.clone()) {
+            let redacted_path = self.redact(&expanded_path.to_string_lossy());
             let content = self.redact(
                 &read_file_lossy(path, LOG_MAX_READ_BYTES)
-                    .chain_err(|| ErrorKind::ReadLogError(path.to_path_buf()))
+                    .chain_err(|| ErrorKind::ReadLogError(expanded_path))
                     .unwrap_or_else(|e| e.display_chain().to_string()),
             );
-            let path = self.redact(&path.to_string_lossy());
-            self.logs.push((path, content));
+            self.logs.push((redacted_path, content));
         }
     }
 
@@ -338,7 +339,7 @@ impl ProblemReport {
     }
 
     fn redact_home_dir(input: &str) -> Cow<str> {
-        match env::home_dir() {
+        match dirs::home_dir() {
             Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
             None => Cow::from(input),
         }
