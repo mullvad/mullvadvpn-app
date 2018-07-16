@@ -850,7 +850,7 @@ impl Drop for Daemon {
 
 
 fn main() {
-    ::std::process::exit(match run() {
+    let exit_code = match run() {
         Ok(_) => 0,
         Err(error) => {
             if let &ErrorKind::LogError(_) = error.kind() {
@@ -860,7 +860,9 @@ fn main() {
             }
             1
         }
-    });
+    };
+    debug!("Process exiting with code {}", exit_code);
+    ::std::process::exit(exit_code);
 }
 
 fn run() -> Result<()> {

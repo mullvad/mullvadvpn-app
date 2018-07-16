@@ -38,7 +38,7 @@ pub fn handle_service_main(arguments: Vec<OsString>) {
     info!("Service started.");
     match run_service(arguments) {
         Ok(_) => info!("Service stopped."),
-        Err(ref e) => error!("Service stopped with error: {}", e.display_chain()),
+        Err(ref e) => error!("{}", e.display_chain()),
     };
 }
 
