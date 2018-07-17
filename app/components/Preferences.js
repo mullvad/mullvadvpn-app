@@ -61,7 +61,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
                 </View>
                 <View style={styles.preferences__cell_footer}>
                   <Text style={styles.preferences__cell_footer_label}>
-                    {'Automatically connect the VPN at login to the system.'}
+                    {'Automatically connect the VPN when the computer starts.'}
                   </Text>
                 </View>
 
