@@ -43,7 +43,6 @@ pub fn handle_service_main(arguments: Vec<OsString>) {
 }
 
 fn run_service(_arguments: Vec<OsString>) -> Result<()> {
-    let config = cli::get_config();
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -68,20 +67,24 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
-    let daemon = ::create_daemon(config)?;
-    let shutdown_handle = daemon.shutdown_handle();
+    let config = cli::get_config();
+    let result = ::create_daemon(config).and_then(|daemon| {
+        let shutdown_handle = daemon.shutdown_handle();
 
-    // Register monitor that translates `ServiceControl` to Daemon events
-    start_event_monitor(persistent_service_status.clone(), shutdown_handle, event_rx);
+        // Register monitor that translates `ServiceControl` to Daemon events
+        start_event_monitor(persistent_service_status.clone(), shutdown_handle, event_rx);
 
-    persistent_service_status.set_running().unwrap();
+        persistent_service_status.set_running().unwrap();
 
-    let result = daemon.run();
+        daemon.run()
+    });
 
-    // TODO: report correct exit code back after running a daemon.
-    persistent_service_status
-        .set_stopped(ServiceExitCode::default())
-        .unwrap();
+    let exit_code = match result {
+        Ok(_) => ServiceExitCode::default(),
+        Err(_) => ServiceExitCode::ServiceSpecific(1),
+    };
+
+    persistent_service_status.set_stopped(exit_code).unwrap();
 
     result
 }
