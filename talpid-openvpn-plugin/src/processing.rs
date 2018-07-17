@@ -8,7 +8,7 @@ use super::Arguments;
 error_chain! {
     errors {
         AuthDenied {
-            description("Authentication failed with Talpid Core IPC server")
+            description("Failed to authenticate with Talpid IPC server")
         }
         IpcSendingError {
             description("Failed while sending an event over the IPC channel")

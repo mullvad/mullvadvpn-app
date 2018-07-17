@@ -1,5 +1,6 @@
 use error_chain::ChainedError;
 
+use log::Level;
 use mullvad_ipc_client::DaemonRpcClient;
 
 
@@ -9,21 +10,15 @@ use mullvad_ipc_client::DaemonRpcClient;
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
     match DaemonRpcClient::new() {
-        Ok(mut client) => match client.get_state() {
-            Ok(_) => true,
-            Err(error) => {
-                let chained_error = error.chain_err(|| {
-                    "Failed to communicate with another daemon instance, assuming it has stopped"
-                });
-                info!("{}", chained_error.display_chain());
-                false
-            }
-        },
+        Ok(_) => true,
         Err(error) => {
-            let chained_error = error.chain_err(|| {
-                "Failed to load RPC address for another daemon instance, assuming there isn't one"
-            });
-            debug!("{}", chained_error.display_chain());
+            let msg =
+                "Failed to locate/connect to another daemon instance, assuming there isn't one";
+            if log_enabled!(Level::Debug) {
+                debug!("{}\n{}", msg, error.display_chain());
+            } else {
+                info!("{}", msg);
+            }
             false
         }
     }
