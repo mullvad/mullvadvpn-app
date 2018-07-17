@@ -18,7 +18,7 @@ source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
-    REQUIRED_RUSTC_VERSION="rustc 1.26.2 (594fb253c 2018-06-01)"
+    REQUIRED_RUSTC_VERSION="rustc 1.27.1 (5f2b325f6 2018-07-07)"
 
     if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
         echo "You are running the wrong Rust compiler version."
@@ -87,8 +87,7 @@ sed -i.bak \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
 
-SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -r 's/[.-]+/ /g'))
-
+SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -Ee 's/[.-]+/ /g'))
 SEMVER_MAJOR=${SEMVER_ARRAY[0]}
 SEMVER_MINOR=${SEMVER_ARRAY[1]}
 SEMVER_PATCH=${SEMVER_ARRAY[2]}
