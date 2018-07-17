@@ -181,6 +181,21 @@ impl Iterator for PathWatcher {
     }
 }
 
+pub fn wait_for_file<P: AsRef<Path>>(file_path: P) {
+    let file_path = file_path.as_ref();
+
+    let _ = PathWatcher::watch(&file_path).map(|mut watcher| {
+        if !file_path.exists() {
+            // No event has been emitted yet. Wait for a longer amount of time.
+            watcher.wait_for_burst_of_events(Duration::from_secs(10));
+        } else {
+            // The file was created, so at least one event was emitted. Assume the burst has
+            // started and wait for a shorter amount of time.
+            watcher.wait_for_burst_of_events(Duration::from_secs(1));
+        }
+    });
+}
+
 fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
     let temp_dir = TempDir::new().expect("Failed to create temporary daemon directory");
     let cache_dir = temp_dir.path().join("cache");
@@ -327,16 +342,7 @@ impl DaemonRunner {
     }
 
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
-        let _wait_for_rpc_file = PathWatcher::watch(&self.rpc_address_file).map(|mut watcher| {
-            if !self.rpc_address_file.exists() {
-                // No event has been emitted yet. Wait for a longer amount of time.
-                watcher.wait_for_burst_of_events(Duration::from_secs(10));
-            } else {
-                // The file was created, so at least one event was emitted. Assume the burst has
-                // started and wait for a shorter amount of time.
-                watcher.wait_for_burst_of_events(Duration::from_secs(1));
-            }
-        });
+        wait_for_file(&self.rpc_address_file);
 
         DaemonRpcClient::with_insecure_rpc_address_file(&self.rpc_address_file)
             .map_err(|error| format!("Failed to create RPC client: {}", error))
