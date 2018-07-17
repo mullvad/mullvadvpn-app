@@ -43,7 +43,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
     ];
     let mut map = HashMap::new();
     for cmd in commands {
-        if let Some(_) = map.insert(cmd.name(), cmd) {
+        if map.insert(cmd.name(), cmd).is_some() {
             panic!("Multiple commands with the same name");
         }
     }
