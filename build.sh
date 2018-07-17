@@ -86,7 +86,7 @@ sed -i.bak \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
-	
+
 SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -r 's/[.-]+/ /g'))
 
 SEMVER_MAJOR=${SEMVER_ARRAY[0]}
@@ -131,7 +131,11 @@ if [[ "$(uname -s)" != "MINGW"* ]]; then
 fi
 
 echo "Updating relay list..."
-MULLVAD_RESOURCE_DIR="$SCRIPT_DIR/dist-assets/" ./target/release/list-relays > dist-assets/relays.json
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list"}' \
+     https://api.mullvad.net/rpc/ \
+     -o dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
 yarn install
