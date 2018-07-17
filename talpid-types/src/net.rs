@@ -34,15 +34,15 @@ pub enum TunnelEndpointData {
 }
 
 impl TunnelEndpointData {
-    pub fn port(&self) -> u16 {
-        match *self {
+    pub fn port(self) -> u16 {
+        match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.port,
             TunnelEndpointData::Wireguard(metadata) => metadata.port,
         }
     }
 
-    pub fn transport_protocol(&self) -> TransportProtocol {
-        match *self {
+    pub fn transport_protocol(self) -> TransportProtocol {
+        match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
             TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
         }
@@ -72,10 +72,10 @@ pub struct Endpoint {
 
 impl Endpoint {
     /// Constructs a new `Endpoint` from the given parameters.
-    pub fn new<T: Into<IpAddr>>(address: T, port: u16, protocol: TransportProtocol) -> Self {
+    pub fn new(address: impl Into<IpAddr>, port: u16, protocol: TransportProtocol) -> Self {
         Endpoint {
             address: SocketAddr::new(address.into(), port),
-            protocol: protocol,
+            protocol,
         }
     }
 }
