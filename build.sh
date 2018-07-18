@@ -130,11 +130,25 @@ if [[ "$(uname -s)" != "MINGW"* ]]; then
 fi
 
 echo "Updating relay list..."
+set +e
+read -d '' JSONRPC_CODE <<-JSONRPC_CODE
+var buff = "";
+process.stdin.on('data', function (chunk) {
+    buff += chunk;
+})
+process.stdin.on('end', function () {
+    var obj = JSON.parse(buff);
+    var output = JSON.stringify(obj.result, null, '    ');
+    process.stdout.write(output);
+})
+JSONRPC_CODE
+set -e
+
 curl -X POST \
      -H "Content-Type: application/json" \
      -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list"}' \
-     https://api.mullvad.net/rpc/ \
-     -o dist-assets/relays.json
+     https://api.mullvad.net/rpc/  | \
+node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
 yarn install
