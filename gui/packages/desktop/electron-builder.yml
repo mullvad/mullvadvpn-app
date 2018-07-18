@@ -1,0 +1,128 @@
+appId: net.mullvad.vpn
+copyright: Amagicom AB
+productName: Mullvad VPN
+
+asar: true
+compression: maximum
+
+# Electron-builder does not expand env.PROJECT_ROOT for icon :/
+# https://github.com/electron-userland/electron-builder/issues/3232
+icon: ../../../dist-assets/icon.icns
+
+# assets bundled on all platforms
+extraResources:
+  # master.mullvad.net certificate used by mullvad-daemon
+  - from: ${env.PROJECT_ROOT}/dist-assets/ca.crt
+    to: .
+  - from: ${env.PROJECT_ROOT}/dist-assets/crl.pem
+    to: .
+  - from: ${env.PROJECT_ROOT}/dist-assets/api_root_ca.pem
+    to: .
+  - from: ${env.PROJECT_ROOT}/dist-assets/relays.json
+    to: .
+  - from: ${env.PROJECT_ROOT}/CHANGELOG.md
+    to: .
+
+directories:
+  buildResources: ${env.PROJECT_ROOT}/dist-assets/
+  output: ${env.PROJECT_ROOT}/dist/
+
+files:
+  - package.json
+  - init.js
+  - build/
+  - node_modules/
+
+mac:
+  target: pkg
+  artifactName: MullvadVPN-${version}.${ext}
+  category: public.app-category.tools
+  extendInfo:
+    LSUIElement: true
+  extraResources:
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/problem-report
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad-daemon
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/libtalpid_openvpn_plugin.dylib
+      to: .
+    - from: ${env.PROJECT_ROOT}/dist-assets/binaries/macos/openvpn
+      to: .
+
+pkg:
+  allowAnywhere: false
+  allowCurrentUserHome: false
+  isRelocatable: false
+
+nsis:
+  oneClick: false
+  perMachine: true
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  include: ${env.PROJECT_ROOT}/dist-assets/windows/installer.nsh
+  installerSidebar: ${env.PROJECT_ROOT}/dist-assets/windows/installersidebar.bmp
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: MullvadVPN-${version}.${ext}
+  signDlls: true
+  extraResources:
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad.exe
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/problem-report.exe
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad-daemon.exe
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/talpid_openvpn_plugin.dll
+      to: .
+    - from: ${env.PROJECT_ROOT}/windows/winfw/bin/x64-Release/winfw.dll
+      to: .
+    - from: ${env.PROJECT_ROOT}/windows/windns/bin/x64-Release/windns.dll
+      to: .
+    - from: ${env.PROJECT_ROOT}/windows/winroute/bin/x64-Release/winroute.dll
+      to: .
+    - from: ${env.PROJECT_ROOT}/dist-assets/binaries/windows/openvpn.exe
+      to: .
+  publisherName: Amagicom AB
+  signingHashAlgorithms:
+    - sha256
+
+linux:
+  target:
+    - deb
+    - rpm
+  artifactName: MullvadVPN-${version}_${arch}.${ext}
+  category: Network
+  extraResources:
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/problem-report
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/mullvad-daemon
+      to: .
+    - from: ${env.PROJECT_ROOT}/target/release/libtalpid_openvpn_plugin.so
+      to: .
+    - from: ${env.PROJECT_ROOT}/dist-assets/binaries/linux/openvpn
+      to: .
+
+deb:
+  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+       "${env.PROJECT_ROOT}/dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+  afterInstall: ${env.PROJECT_ROOT}/dist-assets/linux/install_script.sh
+  afterRemove: ${env.PROJECT_ROOT}/dist-assets/linux/uninstall_script.sh
+
+rpm:
+  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+       "${env.PROJECT_ROOT}/dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+  afterInstall: ${env.PROJECT_ROOT}/dist-assets/linux/install_script.sh
+  afterRemove: ${env.PROJECT_ROOT}/dist-assets/linux/uninstall_script.sh
+  depends:
+      - libXScrnSaver
+      - libappindicator
+      - libnotify
+      - libnsl

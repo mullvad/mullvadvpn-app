@@ -1,8 +1,10 @@
 /target/
-/node_modules
+/gui/node_modules
+/gui/packages/**/node_modules
+/gui/packages/**/build
+/gui/packages/mobile/android
+/gui/packages/mobile/ios
 /dist
-/build
-/flow-typed
 .DS_Store
 *.log
 /dist-assets/relays.json
