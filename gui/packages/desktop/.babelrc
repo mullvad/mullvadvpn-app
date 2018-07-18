@@ -1,0 +1,13 @@
+{
+  "presets": [
+    ["env", {
+      "targets": { "electron": "2.0" },
+      "useBuiltIns": true
+    }], "react"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    ["transform-builtin-extend", { "globals": ["Error"] }]
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:promise/recommended",
+    "plugin:flowtype/recommended",
+    "prettier",
+    "prettier/flowtype",
+    "prettier/react",
+    "prettier/standard"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
+  },
+  "plugins": [
+    "react", 
+    "flowtype", 
+    "promise"
+  ],
+  "rules": {
+    "prefer-const": "warn",
+    "no-console": "off",
+    "no-loop-func": "warn",
+    "no-param-reassign": "warn",
+    "func-names": "off",
+    "no-unused-expressions": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "_.*",
+        "varsIgnorePattern": "_.*"
+      }
+    ],
+    "block-scoped-var": "error",
+    "react/prop-types": "off",
+    "flowtype/define-flow-type": "warn"
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  }
+}

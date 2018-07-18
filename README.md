@@ -107,7 +107,7 @@ homebrew:
 
 1. Start the GUI in development mode by running:
     ```bash
-    yarn run develop
+    yarn workspace desktop develop
     ```
 
 If you change any javascript file while the development mode is running it will automatically
@@ -132,8 +132,9 @@ The GUI will need to resolve the path to binaries. In development mode this defa
 
 1. Install all JavaScript dependencies (unless you already have) and package the application with:
     ```bash
+    cd gui
     yarn install
-    yarn run pack:<OS>  # <OS> can be linux, mac or win
+    yarn pack:<OS>  # <OS> can be linux, mac or win
     ```
     This will create installation packages for windows, linux or macOS. Note that you have to have
     run `yarn install` at least once before this step to download the javascript dependencies.
@@ -191,12 +192,12 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 
 ## Command line tools for Electron GUI app development
 
-- `$ yarn run develop` - develop app with live-reload enabled
-- `$ yarn run flow` - type-check the code
-- `$ yarn run lint` - lint code
-- `$ yarn run pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
+- `$ yarn workspace desktop develop` - develop app with live-reload enabled
+- `$ yarn flow` - type-check the code
+- `$ yarn lint` - lint code
+- `$ yarn pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
   `linux`, `mac` or `win`
-- `$ yarn run test` - run tests
+- `$ yarn workspace desktop test` - run tests
 
 ## Repository structure
 

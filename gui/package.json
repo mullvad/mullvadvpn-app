@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "flow": "flow",
+    "lint": "eslint \"packages/**/*.js\"",
+    "format": "yarn run private:format --write",
+    "check-format": "yarn run private:format --list-different",
+    "private:format": "prettier \"packages/**/*.{js,css}\"",
+    "pack:mac": "yarn workspace desktop pack:mac",
+    "pack:win": "yarn workspace desktop pack:win",
+    "pack:linux": "yarn workspace desktop pack:linux"
+  },
+  "devDependencies": {
+    "eslint": "^5.2.0",
+    "flow-bin": "0.78",
+    "flow-typed": "^2.5.1",
+    "prettier": "1.13.7"
+  }
+}
