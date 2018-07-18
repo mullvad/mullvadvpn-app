@@ -17,6 +17,8 @@ extern crate log;
 
 #[macro_use]
 extern crate error_chain;
+#[cfg(target_os = "linux")]
+extern crate failure;
 #[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
@@ -28,6 +30,8 @@ extern crate lazy_static;
 extern crate libc;
 extern crate shell_escape;
 extern crate uuid;
+#[cfg(target_os = "linux")]
+extern crate which;
 
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
