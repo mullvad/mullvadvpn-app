@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Button, Text, Component } from 'reactxp';
 import styles from './AppButtonStyles';
 import blurStyles from './BlurAppButtonStyles';
+import Img from './Img';
 
 export class Label extends Text {}
 
@@ -32,11 +33,11 @@ class BaseButton extends Component {
           if (React.isValidElement(node)) {
             let updatedProps = {};
 
-            if (node.type.name === 'Label') {
+            if (node.type === Label) {
               updatedProps = { style: [styles.label, this.textStyle()] };
             }
 
-            if (node.type.name === 'Img') {
+            if (node.type === Img) {
               updatedProps = { tintColor: 'currentColor', style: [styles.icon, this.iconStyle()] };
             }
 
