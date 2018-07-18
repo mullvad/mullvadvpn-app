@@ -85,15 +85,6 @@ homebrew:
     cargo build
     ```
 
-1. Get the latest list of Mullvad relays:
-    ```bash
-    curl -X POST \
-         -H "Content-Type: application/json" \
-         -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list"}' \
-         https://api.mullvad.net/rpc/ \
-         -o dist-assets/relays.json
-    ```
-
 1. Run the daemon debug binary with verbose logging to the terminal with:
     ```
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
