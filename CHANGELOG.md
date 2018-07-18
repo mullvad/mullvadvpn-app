@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.2-beta2] - 2018-07-18
 ### Added
 - Bundle the root CA signing the API and only trust that single one, limiting
   trust to a single root CA
