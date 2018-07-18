@@ -1,11 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Component, Types } from 'reactxp';
-import { Button } from './Button';
-import { colors } from '../../config';
+import { Button, Text, Component, Types } from 'reactxp';
+import { colors } from '../config';
 
-import { createViewStyles, createTextStyles } from '../../lib/styles';
+import { createViewStyles, createTextStyles } from '../lib/styles';
 
 const styles = {
   ...createViewStyles({
@@ -63,7 +62,7 @@ type CellButtonProps = {
 
 type State = { hovered: boolean };
 
-export default class CellButton extends Component<CellButtonProps, State> {
+export class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
   textStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);

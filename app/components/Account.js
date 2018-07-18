@@ -1,8 +1,8 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View, App, Types } from 'reactxp';
-import { Button, RedButton, GreenButton, Label } from './styled';
+import { Button, Component, Text, View, App, Types } from 'reactxp';
+import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import styles from './AccountStyles';
 import Img from './Img';
@@ -94,17 +94,17 @@ export default class Account extends Component<AccountProps, AccountState> {
                   </View>
 
                   <View style={styles.account__footer}>
-                    <GreenButton
+                    <AppButton.GreenButton
                       onPress={this.props.onBuyMore}
                       text="Buy more credit"
                       icon="icon-extLink"
                       testName="account__buymore">
-                      <Label>Buy more credit</Label>
+                      <AppButton.Label>Buy more credit</AppButton.Label>
                       <Img source="icon-extLink" height={16} width={16} />
-                    </GreenButton>
-                    <RedButton onPress={this.props.onLogout} testName="account__logout">
+                    </AppButton.GreenButton>
+                    <AppButton.RedButton onPress={this.props.onLogout} testName="account__logout">
                       Log out
-                    </RedButton>
+                    </AppButton.RedButton>
                   </View>
                 </View>
               </View>

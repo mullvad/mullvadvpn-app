@@ -1,8 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
-import { Button } from './styled';
+import { Button, Component, Text, View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './AdvancedSettingsStyles';

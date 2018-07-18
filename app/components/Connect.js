@@ -4,8 +4,8 @@ import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
 import { Component, Text, View, Types } from 'reactxp';
+import * as AppButton from './AppButton';
 import Img from './Img';
-import { TransparentButton, RedTransparentButton, GreenButton, Label } from './styled';
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
 
@@ -93,10 +93,10 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           <View style={styles.error_message}>{message}</View>
           {error.type === 'NO_CREDIT' ? (
             <View>
-              <GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
-                <Label>Buy more time</Label>
+              <AppButton.GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
+                <AppButton.Label>Buy more time</AppButton.Label>
                 <Img source="icon-extLink" height={16} width={16} />
-              </GreenButton>
+              </AppButton.GreenButton>
             </View>
           ) : null}
         </View>
@@ -232,35 +232,39 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           {/* footer when disconnected */}
           {isDisconnected ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={this.props.onSelectLocation}>
-                <Label>{this.props.selectedRelayName}</Label>
+              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+                <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
                 <Img height={12} width={7} source="icon-chevron" />
-              </TransparentButton>
-              <GreenButton onPress={this.props.onConnect} testName="secureConnection">
-                Secure my connection
-              </GreenButton>
+              </AppButton.TransparentButton>
+              <AppButton.GreenButton onPress={this.props.onConnect} testName="secureConnection">
+                {'Secure my connection'}
+              </AppButton.GreenButton>
             </View>
           ) : null}
 
           {/* footer when connecting */}
           {isConnecting ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={this.props.onSelectLocation}>
-                Switch location
-              </TransparentButton>
-              <RedTransparentButton onPress={this.props.onDisconnect}>Cancel</RedTransparentButton>
+              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+                {'Switch location'}
+              </AppButton.TransparentButton>
+              <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+                {'Cancel'}
+              </AppButton.RedTransparentButton>
             </View>
           ) : null}
 
           {/* footer when connected */}
           {isConnected ? (
             <View style={styles.footer}>
-              <TransparentButton onPress={this.props.onSelectLocation}>
-                Switch location
-              </TransparentButton>
-              <RedTransparentButton onPress={this.props.onDisconnect} testName="disconnect">
-                Disconnect
-              </RedTransparentButton>
+              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+                {'Switch location'}
+              </AppButton.TransparentButton>
+              <AppButton.RedTransparentButton
+                onPress={this.props.onDisconnect}
+                testName="disconnect">
+                {'Disconnect'}
+              </AppButton.RedTransparentButton>
             </View>
           ) : null}
 

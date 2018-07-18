@@ -1,7 +1,6 @@
 // @flow
 import * as React from 'react';
-import { Text, Component } from 'reactxp';
-import { Button } from './Button';
+import { Button, Text, Component } from 'reactxp';
 import styles from './AppButtonStyles';
 import blurStyles from './BlurAppButtonStyles';
 

@@ -1,6 +1,5 @@
-import { colors } from '../../config';
-
-import { createViewStyles, createTextStyles } from '../../lib/styles';
+import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({
@@ -40,6 +39,7 @@ export default {
       right: 42,
     },
     common: {
+      cursor: 'default',
       paddingTop: 9,
       paddingLeft: 9,
       paddingRight: 9,
