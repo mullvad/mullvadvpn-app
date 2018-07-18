@@ -43,6 +43,9 @@ extern crate talpid_types;
 #[macro_use]
 extern crate windows_service;
 
+#[cfg(windows)]
+extern crate winapi;
+
 mod account_history;
 mod cli;
 mod geoip;
@@ -129,6 +132,27 @@ const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 #[cfg(windows)]
 const TUNNEL_INTERFACE_ALIAS: &str = "Mullvad";
+
+// This function calls WSAStartup, it's intended to be called from the main thread so as to make it
+// outlive all other threads. This has a sideffect of supressing errors about us not calling
+// WSAStartup, as by default the standard library calls it once per the lifetime of the
+// application, whilst it's deinitialized when the calling thread is exited, which usually happens
+// during the shutdown of the daemon.
+#[cfg(windows)]
+fn call_wsastartup() {
+    use std::mem;
+    use winapi::um::winsock2::WSAStartup;
+    unsafe {
+        let mut data = mem::uninitialized();
+        let ret = WSAStartup(
+            0x202, // Version 2.2, as supported since Vista
+            &mut data,
+        );
+        if ret != 0 {
+            error!("WSAStartup returned a non-zero status - {}", ret);
+        }
+    }
+}
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub enum DaemonEvent {
@@ -316,6 +340,8 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
+        #[cfg(windows)]
+        call_wsastartup();
         if self.settings.get_auto_connect() {
             info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured)?;
