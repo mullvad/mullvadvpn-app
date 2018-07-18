@@ -1,0 +1,23 @@
+@font-face {
+  font-family: DINPro;
+  font-weight: bold;
+  src: url('../fonts/DINPro-Bold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: DINPro;
+  font-weight: 900;
+  src: url('../fonts/DINPro-Black.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 800;
+  src: url('../fonts/OpenSans-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 600;
+  src: url('../fonts/OpenSans-Semibold.ttf') format('truetype');
+}

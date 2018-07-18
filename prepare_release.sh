@@ -30,10 +30,10 @@ if [[ $(grep $VERSION CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-SEMVER_VERSION=`echo $VERSION | sed -re 's/($|-.*)/.0\1/g'`
-sed -i -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    package.json
-sed -i -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+SEMVER_VERSION=`echo $VERSION | sed -Ee 's/($|-.*)/.0\1/g'`
+sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+    gui/packages/desktop/package.json
+sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
@@ -42,8 +42,8 @@ echo "Syncing Cargo.lock with new version numbers"
 cargo update --package mullvad-daemon
 
 echo "Commiting metadata changes to git..."
-git commit -S -m "Updating version in package.json" \
-    package.json \
+git commit -S -m "Updating version in package files" \
+    gui/packages/desktop/package.json \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
