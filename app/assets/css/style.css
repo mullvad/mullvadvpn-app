@@ -1,8 +1,0 @@
-/* global */
-@import 'reset.css';
-@import 'fonts.css';
-@import 'global.css';
-
-/* app */
-@import '../../components/CustomScrollbars.css';
-@import '../../components/Switch.css';
