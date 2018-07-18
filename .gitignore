@@ -1,7 +1,10 @@
 /target/
-/node_modules
+/app/node_modules
+/app/packages/**/node_modules
+/app/packages/**/build
+/app/packages/mobile/android
+/app/packages/mobile/ios
 /dist
-/build
 /flow-typed
 .DS_Store
 *.log
