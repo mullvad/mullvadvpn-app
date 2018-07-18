@@ -1,9 +1,9 @@
 // @flow
 import * as React from 'react';
+import { Button, Text, View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
-import { Text, View } from 'reactxp';
-import { Button, CellButton, Label } from './styled';
+import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 import Img from './Img';
 
@@ -27,7 +27,7 @@ type State = {
 };
 
 export default class SelectLocation extends React.Component<SelectLocationProps, State> {
-  _selectedCell: ?CellButton;
+  _selectedCell: ?Cell.CellButton;
   _scrollView: ?CustomScrollbars;
 
   state = {
@@ -163,7 +163,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
 
     return (
       <View key={relayCountry.code} style={styles.country}>
-        <CellButton
+        <Cell.CellButton
           cellHoverStyle={isSelected ? styles.cell_selected : null}
           style={isSelected ? styles.cell_selected : styles.cell}
           onPress={handleSelect}
@@ -171,7 +171,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           testName="country">
           {this._relayStatusIndicator(relayCountry.hasActiveRelays, isSelected)}
 
-          <Label>{relayCountry.name}</Label>
+          <Cell.Label>{relayCountry.name}</Cell.Label>
 
           {relayCountry.cities.length > 1 ? (
             <Img
@@ -183,7 +183,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
               width={24}
             />
           ) : null}
-        </CellButton>
+        </Cell.CellButton>
 
         {relayCountry.cities.length > 1 && (
           <Accordion height={isExpanded ? 'auto' : 0}>
@@ -213,7 +213,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         : undefined;
 
     return (
-      <CellButton
+      <Cell.CellButton
         key={`${countryCode}_${relayCity.code}`}
         onPress={handleSelect}
         disabled={!relayCity.hasActiveRelays}
@@ -223,8 +223,8 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         ref={onRef}>
         {this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected)}
 
-        <Label>{relayCity.name}</Label>
-      </CellButton>
+        <Cell.Label>{relayCity.name}</Cell.Label>
+      </Cell.CellButton>
     );
   }
 }

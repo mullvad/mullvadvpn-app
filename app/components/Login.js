@@ -6,7 +6,8 @@ import AccountInput from './AccountInput';
 import Accordion from './Accordion';
 import { formatAccount } from '../lib/formatters';
 import Img from './Img';
-import { BlueButton, Label, CellButton } from './styled';
+import * as Cell from './Cell';
+import * as AppButton from './AppButton';
 import styles from './LoginStyles';
 import { colors } from '../config';
 
@@ -388,10 +389,10 @@ export default class Login extends Component<Props, State> {
     return (
       <View>
         <Text style={styles.login_footer__prompt}>{"Don't have an account number?"}</Text>
-        <BlueButton onPress={this._onCreateAccount}>
-          <Label>Create account</Label>
+        <AppButton.BlueButton onPress={this._onCreateAccount}>
+          <AppButton.Label>Create account</AppButton.Label>
           <Img source="icon-extLink" height={16} width={16} />
-        </BlueButton>
+        </AppButton.BlueButton>
       </View>
     );
   }
@@ -434,15 +435,15 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
     return (
       <View>
         <View style={styles.account_dropdown__spacer} />
-        <CellButton
+        <Cell.CellButton
           style={styles.account_dropdown__item}
           cellHoverStyle={styles.account_dropdown__item_hover}>
-          <Label
+          <Cell.Label
             style={styles.account_dropdown__label}
             cellHoverStyle={styles.account_dropdown__label_hover}
             onPress={() => this.props.onSelect(this.props.value)}>
             {this.props.label}
-          </Label>
+          </Cell.Label>
           <Img
             style={styles.account_dropdown__remove}
             cellHoverStyle={styles.account_dropdown__remove_cell_hover}
@@ -452,7 +453,7 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
             width={16}
             onPress={() => this.props.onRemove(this.props.value)}
           />
-        </CellButton>
+        </Cell.CellButton>
       </View>
     );
   }

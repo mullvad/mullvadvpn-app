@@ -48,6 +48,7 @@ export default {
       overflow: 'visible',
     },
     advanced_settings__cell: {
+      cursor: 'default',
       backgroundColor: colors.green,
       flexDirection: 'row',
       paddingTop: 14,
@@ -74,6 +75,7 @@ export default {
       color: colors.white80,
     },
     advanced_settings__cell_dimmed: {
+      cursor: 'default',
       paddingTop: 14,
       paddingBottom: 14,
       paddingLeft: 24,

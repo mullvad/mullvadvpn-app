@@ -20,6 +20,7 @@ export default Object.assign(
       paddingRight: 24,
     },
     support__close: {
+      cursor: 'default',
       paddingLeft: 12,
       paddingTop: 24,
       flexDirection: 'row',

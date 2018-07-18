@@ -1,11 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Component, Types } from 'reactxp';
-import { Button } from './Button';
-import { colors } from '../../config';
-
-import { createViewStyles, createTextStyles } from '../../lib/styles';
+import { Button, Text, Component, Types } from 'reactxp';
+import Img from './Img';
+import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 const styles = {
   ...createViewStyles({
@@ -63,7 +62,7 @@ type CellButtonProps = {
 
 type State = { hovered: boolean };
 
-export default class CellButton extends Component<CellButtonProps, State> {
+export class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
   textStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
@@ -87,20 +86,20 @@ export default class CellButton extends Component<CellButtonProps, State> {
           if (React.isValidElement(node)) {
             let updatedProps = {};
 
-            if (node.type.name === 'Label') {
+            if (node.type === Label) {
               updatedProps = {
                 style: [styles.label, node.props.style, this.textStyle(node.props.cellHoverStyle)],
               };
             }
 
-            if (node.type.name === 'Img') {
+            if (node.type === Img) {
               updatedProps = {
                 tintColor: 'currentColor',
                 style: [styles.icon, node.props.style, this.iconStyle(node.props.cellHoverStyle)],
               };
             }
 
-            if (node.type.name === 'SubText') {
+            if (node.type === SubText) {
               updatedProps = {
                 style: [
                   styles.subtext,

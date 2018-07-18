@@ -35,6 +35,7 @@ export default {
       alignItems: 'center',
     },
     settings: {
+      cursor: 'default',
       padding: 0,
     },
     settings_icon: {

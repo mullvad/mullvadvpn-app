@@ -1,9 +1,9 @@
 // @flow
 import * as React from 'react';
-import { Text, Component } from 'reactxp';
-import { Button } from './Button';
+import { Button, Text, Component } from 'reactxp';
 import styles from './AppButtonStyles';
 import blurStyles from './BlurAppButtonStyles';
+import Img from './Img';
 
 export class Label extends Text {}
 
@@ -15,8 +15,8 @@ class BaseButton extends Component {
 
   state = { hovered: false };
 
-  textStyle = () => (this.state.hovered ? styles.white80 : styles.white);
-  iconStyle = () => (this.state.hovered ? styles.white80 : styles.white);
+  textStyle = () => styles.white;
+  iconStyle = () => styles.white;
   backgroundStyle = () => (this.state.hovered ? styles.white80 : styles.white);
 
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
@@ -33,11 +33,11 @@ class BaseButton extends Component {
           if (React.isValidElement(node)) {
             let updatedProps = {};
 
-            if (node.type.name === 'Label') {
+            if (node.type === Label) {
               updatedProps = { style: [styles.label, this.textStyle()] };
             }
 
-            if (node.type.name === 'Img') {
+            if (node.type === Img) {
               updatedProps = { tintColor: 'currentColor', style: [styles.icon, this.iconStyle()] };
             }
 

@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
-import { Component, Text, View, TextInput } from 'reactxp';
-import { Button, BlueButton, GreenButton, Label } from './styled';
+import { Button, Component, Text, View, TextInput } from 'reactxp';
+import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import styles from './SupportStyles';
 import Img from './Img';
@@ -230,29 +230,29 @@ export default class Support extends Component<SupportProps, SupportState> {
           You are about to send the problem report without a way for us to get back to you. If you
           want an answer to your report you will have to enter an email address.
         </Text>
-        <GreenButton
+        <AppButton.GreenButton
           disabled={!this.validate()}
           onPress={this.onSend}
           testName="support__send_logs">
           Send anyway
-        </GreenButton>
+        </AppButton.GreenButton>
       </View>
     );
   }
 
   _renderActionButtons() {
     return [
-      <BlueButton key={1} onPress={this.onViewLog} testName="support__view_logs">
-        <Label>View app logs</Label>
+      <AppButton.BlueButton key={1} onPress={this.onViewLog} testName="support__view_logs">
+        <AppButton.Label>View app logs</AppButton.Label>
         <Img source="icon-extLink" height={16} width={16} />
-      </BlueButton>,
-      <GreenButton
+      </AppButton.BlueButton>,
+      <AppButton.GreenButton
         key={2}
         disabled={!this.validate()}
         onPress={this.onSend}
         testName="support__send_logs">
         Send
-      </GreenButton>,
+      </AppButton.GreenButton>,
     ];
   }
 
@@ -309,12 +309,12 @@ export default class Support extends Component<SupportProps, SupportState> {
           </View>
         </View>
         <View style={styles.support__footer}>
-          <BlueButton onPress={() => this.setState({ sendState: 'INITIAL' })}>
+          <AppButton.BlueButton onPress={() => this.setState({ sendState: 'INITIAL' })}>
             Edit message
-          </BlueButton>
-          <GreenButton onPress={this.onSend} testName="support__send_logs">
+          </AppButton.BlueButton>
+          <AppButton.GreenButton onPress={this.onSend} testName="support__send_logs">
             Try again
-          </GreenButton>
+          </AppButton.GreenButton>
         </View>
       </View>
     );

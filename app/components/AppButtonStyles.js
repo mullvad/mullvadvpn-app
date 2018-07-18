@@ -1,14 +1,13 @@
-import { colors } from '../../config';
-
-import { createViewStyles, createTextStyles } from '../../lib/styles';
+import { createViewStyles, createTextStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({
     red: {
-      backgroundColor: colors.red95,
+      backgroundColor: colors.red,
     },
     redHover: {
-      backgroundColor: colors.red,
+      backgroundColor: colors.red95,
     },
     green: {
       backgroundColor: colors.green,
@@ -40,6 +39,7 @@ export default {
       right: 42,
     },
     common: {
+      cursor: 'default',
       paddingTop: 9,
       paddingLeft: 9,
       paddingRight: 9,

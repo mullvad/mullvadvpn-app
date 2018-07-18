@@ -1,6 +1,5 @@
-import { colors } from '../../config';
-
-import { createViewStyles } from '../../lib/styles';
+import { createViewStyles } from '../lib/styles';
+import { colors } from '../config';
 
 export default {
   ...createViewStyles({

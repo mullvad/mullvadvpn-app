@@ -1,8 +1,9 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
-import { Button, CellButton, RedButton, Label, SubText } from './styled';
+import { Button, Component, Text, View } from 'reactxp';
+import * as AppButton from './AppButton';
+import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -79,37 +80,39 @@ export default class Settings extends Component<SettingsProps> {
       <View>
         <View style={styles.settings_account} testName="settings__account">
           {isOutOfTime ? (
-            <CellButton
+            <Cell.CellButton
               onPress={this.props.onViewAccount}
               testName="settings__account_paid_until_button">
-              <Label>Account</Label>
-              <SubText
+              <Cell.Label>Account</Cell.Label>
+              <Cell.SubText
                 testName="settings__account_paid_until_subtext"
                 style={styles.settings__account_paid_until_Label__error}>
                 OUT OF TIME
-              </SubText>
+              </Cell.SubText>
               <Img height={12} width={7} source="icon-chevron" />
-            </CellButton>
+            </Cell.CellButton>
           ) : (
-            <CellButton
+            <Cell.CellButton
               onPress={this.props.onViewAccount}
               testName="settings__account_paid_until_button">
-              <Label>Account</Label>
-              <SubText testName="settings__account_paid_until_subtext">{formattedExpiry}</SubText>
+              <Cell.Label>Account</Cell.Label>
+              <Cell.SubText testName="settings__account_paid_until_subtext">
+                {formattedExpiry}
+              </Cell.SubText>
               <Img height={12} width={7} source="icon-chevron" />
-            </CellButton>
+            </Cell.CellButton>
           )}
         </View>
 
-        <CellButton onPress={this.props.onViewPreferences} testName="settings__preferences">
-          <Label>Preferences</Label>
+        <Cell.CellButton onPress={this.props.onViewPreferences} testName="settings__preferences">
+          <Cell.Label>Preferences</Cell.Label>
           <Img height={12} width={7} source="icon-chevron" />
-        </CellButton>
+        </Cell.CellButton>
 
-        <CellButton onPress={this.props.onViewAdvancedSettings} testName="settings__advanced">
-          <Label>Advanced</Label>
+        <Cell.CellButton onPress={this.props.onViewAdvancedSettings} testName="settings__advanced">
+          <Cell.Label>Advanced</Cell.Label>
           <Img height={12} width={7} source="icon-chevron" />
-        </CellButton>
+        </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
     );
@@ -118,13 +121,13 @@ export default class Settings extends Component<SettingsProps> {
   _renderMiddleButtons() {
     return (
       <View>
-        <CellButton
+        <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'download')}
           testName="settings__version">
-          <Label>App version</Label>
-          <SubText>{this._formattedVersion()}</SubText>
+          <Cell.Label>App version</Cell.Label>
+          <Cell.SubText>{this._formattedVersion()}</Cell.SubText>
           <Img height={16} width={16} source="icon-extLink" />
-        </CellButton>
+        </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
     );
@@ -142,24 +145,24 @@ export default class Settings extends Component<SettingsProps> {
   _renderBottomButtons() {
     return (
       <View>
-        <CellButton
+        <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'faq')}
           testName="settings__external_link">
-          <Label>FAQs</Label>
+          <Cell.Label>FAQs</Cell.Label>
           <Img height={16} width={16} source="icon-extLink" />
-        </CellButton>
+        </Cell.CellButton>
 
-        <CellButton
+        <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'guides')}
           testName="settings__external_link">
-          <Label>Guides</Label>
+          <Cell.Label>Guides</Cell.Label>
           <Img height={16} width={16} source="icon-extLink" />
-        </CellButton>
+        </Cell.CellButton>
 
-        <CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
-          <Label>Report a problem</Label>
+        <Cell.CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
+          <Cell.Label>Report a problem</Cell.Label>
           <Img height={12} width={7} source="icon-chevron" />
-        </CellButton>
+        </Cell.CellButton>
       </View>
     );
   }
@@ -167,9 +170,9 @@ export default class Settings extends Component<SettingsProps> {
   _renderQuitButton() {
     return (
       <View style={styles.settings__footer}>
-        <RedButton onPress={this.props.onQuit} testName="settings__quit">
-          <Label>Quit app</Label>
-        </RedButton>
+        <AppButton.RedButton onPress={this.props.onQuit} testName="settings__quit">
+          <AppButton.Label>Quit app</AppButton.Label>
+        </AppButton.RedButton>
       </View>
     );
   }
