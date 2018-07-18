@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "no-unused-expressions" : "off",
+    "react/no-render-return-value": "off"
+  },
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "globals": {
+    "expect": true,
+    "spy": true
+  }
+}

@@ -151,6 +151,7 @@ curl -X POST \
 node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
+cd gui
 yarn install
 
 ################################################################################
@@ -159,10 +160,12 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    Linux*)     yarn pack:linux;;
-    Darwin*)    yarn pack:mac;;
-    MINGW*)     yarn pack:win;;
+    Linux*)     yarn workspace desktop pack:linux;;
+    Darwin*)    yarn workspace desktop pack:mac;;
+    MINGW*)     yarn workspace desktop pack:win;;
 esac
+
+cd ..
 
 for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
