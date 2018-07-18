@@ -91,17 +91,17 @@ impl ParsedRelays {
         }
     }
 
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub fn from_file(path: impl AsRef<Path>) -> Result<Self> {
         debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
-            Self::read_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
+            Self::open_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
         let relay_list = serde_json::from_reader(io::BufReader::new(file))
             .chain_err(|| ErrorKind::SerializationError)?;
 
         Ok(Self::from_relay_list(relay_list, last_modified))
     }
 
-    fn read_file(path: &Path) -> io::Result<(SystemTime, File)> {
+    fn open_file(path: &Path) -> io::Result<(SystemTime, File)> {
         let file = File::open(path)?;
         let last_modified = file.metadata()?.modified()?;
         Ok((last_modified, file))
@@ -131,7 +131,8 @@ impl RelaySelector {
     /// to refresh the relay list from the internet.
     pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
-        let unsynchronized_parsed_relays = Self::read_cached_relays(&cache_path, resource_dir)
+        let resource_path = resource_dir.join(RELAYS_FILENAME);
+        let unsynchronized_parsed_relays = Self::read_cached_relays(&cache_path, &resource_path)
             .unwrap_or_else(|error| {
                 let chained_error = error.chain_err(|| "Unable to load cached relays");
                 error!("{}", chained_error.display_chain());
@@ -327,16 +328,14 @@ impl RelaySelector {
             .map(|openvpn_endpoint| TunnelEndpointData::OpenVpn(openvpn_endpoint))
     }
 
-    /// Try to read the relays, first from cache and if that fails from the `resource_dir`.
-    fn read_cached_relays(cache_path: &Path, resource_dir: &Path) -> Result<ParsedRelays> {
-        match ParsedRelays::from_file(cache_path) {
+    /// Try to read the relays, first from cache and if that fails from the resources.
+    fn read_cached_relays(cache_path: &Path, resource_path: &Path) -> Result<ParsedRelays> {
+        match ParsedRelays::from_file(cache_path).chain_err(|| "Unable to read relays from cache") {
             Ok(value) => Ok(value),
-            Err(read_cache_error) => match ParsedRelays::from_file(
-                resource_dir.join(RELAYS_FILENAME),
-            ) {
-                Ok(value) => Ok(value),
-                Err(read_resource_error) => Err(read_cache_error.chain_err(|| read_resource_error)),
-            },
+            Err(error) => {
+                debug!("{}", error.display_chain());
+                ParsedRelays::from_file(resource_path)
+            }
         }
     }
 }
