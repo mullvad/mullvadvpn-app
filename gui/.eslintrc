@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "16.2",
+      "flowVersion": "0.78"
+    }
+  }
+}
