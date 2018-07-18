@@ -419,6 +419,17 @@ export default class AppRenderer {
     } catch (error) {
       log.error(`Cannot fetch initial state: ${error.message}`);
     }
+
+    // auto connect the tunnel on startup
+    // note: disabled when developing
+    if (process.env.NODE_ENV !== 'development') {
+      try {
+        log.debug('Auto-connecting the tunnel...');
+        await this.connectTunnel();
+      } catch (error) {
+        log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+      }
+    }
   }
 
   async _onCloseConnection(error: ?Error) {
