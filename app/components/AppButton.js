@@ -15,8 +15,8 @@ class BaseButton extends Component {
 
   state = { hovered: false };
 
-  textStyle = () => (this.state.hovered ? styles.white80 : styles.white);
-  iconStyle = () => (this.state.hovered ? styles.white80 : styles.white);
+  textStyle = () => styles.white;
+  iconStyle = () => styles.white;
   backgroundStyle = () => (this.state.hovered ? styles.white80 : styles.white);
 
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
