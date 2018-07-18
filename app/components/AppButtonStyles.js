@@ -4,10 +4,10 @@ import { colors } from '../config';
 export default {
   ...createViewStyles({
     red: {
-      backgroundColor: colors.red95,
+      backgroundColor: colors.red,
     },
     redHover: {
-      backgroundColor: colors.red,
+      backgroundColor: colors.red95,
     },
     green: {
       backgroundColor: colors.green,
