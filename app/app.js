@@ -70,8 +70,6 @@ export default class AppRenderer {
       this._onCloseConnection(error);
     });
 
-    this._setupReachability();
-
     setShutdownHandler(async () => {
       log.info('Executing a shutdown handler');
       try {
@@ -457,28 +455,6 @@ export default class AppRenderer {
       });
       ipcRenderer.send('discover-daemon-connection');
     });
-  }
-
-  /**
-   * Start reachability monitoring for online/offline detection
-   * This is currently done via HTML5 APIs but will be replaced later
-   * with proper mullvad-daemon integration.
-   */
-  _setupReachability() {
-    const actions = this._reduxActions;
-
-    window.addEventListener('online', () => {
-      actions.connection.online();
-    });
-    window.addEventListener('offline', () => {
-      actions.connection.offline();
-    });
-
-    if (navigator.onLine) {
-      actions.connection.online();
-    } else {
-      actions.connection.offline();
-    }
   }
 
   async _subscribeStateListener() {
