@@ -205,7 +205,7 @@ impl Relay {
                     city.name, city.code, city.latitude, city.longitude
                 );
             }
-            println!("");
+            println!();
         }
         Ok(())
     }
