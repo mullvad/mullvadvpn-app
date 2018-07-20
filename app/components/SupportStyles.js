@@ -19,19 +19,6 @@ export default Object.assign(
       paddingLeft: 24,
       paddingRight: 24,
     },
-    support__close: {
-      cursor: 'default',
-      paddingLeft: 12,
-      paddingTop: 24,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-    },
-    support__close_icon: {
-      flex: 0,
-      opacity: 0.6,
-      marginRight: 8,
-    },
     support__content: {
       flex: 1,
       display: 'flex',
@@ -75,12 +62,6 @@ export default Object.assign(
     },
   }),
   createTextStyles({
-    support__close_title: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      color: colors.white60,
-    },
     support__title: {
       fontFamily: 'DINPro',
       fontSize: 32,

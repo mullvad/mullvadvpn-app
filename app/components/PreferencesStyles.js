@@ -17,28 +17,10 @@ export default {
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: 'auto',
-      paddingTop: 40,
+      paddingTop: 16,
       paddingRight: 24,
       paddingLeft: 24,
       paddingBottom: 24,
-    },
-    preferences__close: {
-      position: 'absolute',
-      top: 0,
-      left: 12,
-      borderWidth: 0,
-      padding: 0,
-      margin: 0,
-      zIndex: 1 /* part of .preferences__container covers the button */,
-      cursor: 'default',
-    },
-    preferences__close_content: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    preferences__close_icon: {
-      opacity: 0.6,
-      marginRight: 8,
     },
     preferences__content: {
       flexDirection: 'column',
@@ -69,12 +51,6 @@ export default {
     },
   }),
   ...createTextStyles({
-    preferences__close_title: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      color: colors.white60,
-    },
     preferences__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
