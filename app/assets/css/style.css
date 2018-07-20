@@ -4,6 +4,5 @@
 @import 'global.css';
 
 /* app */
-@import '../../components/PlatformWindow.css';
 @import '../../components/CustomScrollbars.css';
 @import '../../components/Switch.css';

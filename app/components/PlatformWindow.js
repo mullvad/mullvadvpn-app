@@ -1,13 +1,15 @@
 // @flow
 import * as React from 'react';
+import { Component, View, Styles } from 'reactxp';
 
-type Props = {
-  children?: React.Node,
-};
+const platformWindowStyle = Styles.createViewStyle({
+  WebkitMask: `
+    url(./assets/images/app-triangle.svg) 50% 0% no-repeat,
+    url(./assets/images/app-header-backdrop.svg) no-repeat`,
+});
 
-export default class PlatformWindow extends React.Component<Props> {
+export default class PlatformWindow extends Component {
   render() {
-    const chromeClass = ['window-chrome', 'window-chrome--' + process.platform];
-    return <div className={chromeClass.join(' ')}>{this.props.children}</div>;
+    return <View style={platformWindowStyle}>{this.props.children}</View>;
   }
 }
