@@ -22,19 +22,6 @@ export default {
       paddingLeft: 24,
       paddingBottom: 24,
     },
-    advanced_settings__close: {
-      cursor: 'default',
-    },
-    advanced_settings__close_content: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingLeft: 12,
-      paddingTop: 24,
-    },
-    advanced_settings__close_icon: {
-      opacity: 0.6,
-      marginRight: 8,
-    },
     advanced_settings__scrollview: {
       flexGrow: 1,
       flexShrink: 1,
@@ -112,12 +99,6 @@ export default {
       fontWeight: '900',
       lineHeight: 26,
       color: colors.white,
-    },
-    advanced_settings__close_title: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      color: colors.white60,
     },
     advanced_settings__title: {
       fontFamily: 'DINPro',

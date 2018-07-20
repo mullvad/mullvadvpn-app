@@ -1,9 +1,10 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Button, Component, Text, View, App, Types } from 'reactxp';
+import { Component, Text, View, App, Types } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
+import NavigationBar, { BackBarItem } from './NavigationBar';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
@@ -63,13 +64,10 @@ export default class Account extends Component<AccountProps, AccountState> {
       <Layout>
         <Container>
           <View style={styles.account}>
-            <Button
-              style={styles.account__close}
-              onPress={this.props.onClose}
-              testName="account__close">
-              <Img height={24} width={24} style={styles.account__close_icon} source="icon-back" />
-              <Text style={styles.account__close_title}>Settings</Text>
-            </Button>
+            <NavigationBar>
+              <BackBarItem action={this.props.onClose} title={'Settings'} />
+            </NavigationBar>
+
             <View style={styles.account__container}>
               <View style={styles.account__header}>
                 <Text style={styles.account__title}>Account</Text>

@@ -31,17 +31,6 @@ export default {
       flexShrink: 1,
       flexBasis: '100%',
     },
-    settings__close: {
-      marginLeft: 12,
-      marginTop: 24,
-      cursor: 'default',
-    },
-    settings__close_icon: {
-      width: 24,
-      height: 24,
-      flex: 0,
-      opacity: 0.6,
-    },
     settings__cell_spacer: {
       height: 24,
       flex: 0,

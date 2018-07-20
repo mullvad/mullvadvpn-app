@@ -1,8 +1,9 @@
 // @flow
 import * as React from 'react';
-import { Button, Component, Text, View, TextInput } from 'reactxp';
+import { Component, Text, View, TextInput } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
+import NavigationBar, { BackBarItem } from './NavigationBar';
 import styles from './SupportStyles';
 import Img from './Img';
 
@@ -154,13 +155,10 @@ export default class Support extends Component<SupportProps, SupportState> {
       <Layout>
         <Container>
           <View style={styles.support}>
-            <Button
-              style={styles.support__close}
-              onPress={this.props.onClose}
-              testName="support__close">
-              <Img height={24} width={24} style={styles.support__close_icon} source="icon-back" />
-              <Text style={styles.support__close_title}>Settings</Text>
-            </Button>
+            <NavigationBar>
+              <BackBarItem action={this.props.onClose} title={'Settings'} />
+            </NavigationBar>
+
             <View style={styles.support__container}>
               {header}
 

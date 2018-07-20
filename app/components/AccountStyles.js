@@ -23,20 +23,6 @@ export default {
       paddingLeft: 24,
       paddingBottom: 12,
     },
-    account__close: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignSelf: 'flex-start',
-      marginLeft: 12,
-      marginTop: 24,
-      cursor: 'default',
-    },
-    account__close_icon: {
-      width: 24,
-      height: 24,
-      opacity: 0.6,
-      marginRight: 8,
-    },
     account__scrollview: {
       flexGrow: 1,
       flexShrink: 1,
@@ -63,12 +49,6 @@ export default {
     },
   }),
   ...createTextStyles({
-    account__close_title: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      color: colors.white60,
-    },
     account__title: {
       fontFamily: 'DINPro',
       fontSize: 32,
