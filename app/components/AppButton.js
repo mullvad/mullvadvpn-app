@@ -7,12 +7,17 @@ import Img from './Img';
 
 export class Label extends Text {}
 
-class BaseButton extends Component {
-  props: {
-    children?: React.Node,
-    disabled: boolean,
-  };
+type Props = {
+  children?: React.Node,
+  style?: Object,
+  disabled: boolean,
+};
 
+type State = {
+  hovered: boolean,
+};
+
+class BaseButton extends Component<Props, State> {
   state = { hovered: false };
 
   textStyle = () => styles.white;
@@ -22,13 +27,13 @@ class BaseButton extends Component {
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
   onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
   render() {
-    const { children, ...otherProps } = this.props;
+    const { children, style, ...otherProps } = this.props;
     return (
       <Button
-        style={[styles.common, this.backgroundStyle()]}
+        {...otherProps}
+        style={[styles.common, this.backgroundStyle(), style]}
         onHoverStart={this.onHoverStart}
-        onHoverEnd={this.onHoverEnd}
-        {...otherProps}>
+        onHoverEnd={this.onHoverEnd}>
         {React.Children.map(children, (node) => {
           if (React.isValidElement(node)) {
             let updatedProps = {};

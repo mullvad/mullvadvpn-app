@@ -232,7 +232,9 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           {/* footer when disconnected */}
           {isDisconnected ? (
             <View style={styles.footer}>
-              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+              <AppButton.TransparentButton
+                style={styles.switch_location_button}
+                onPress={this.props.onSelectLocation}>
                 <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
                 <Img height={12} width={7} source="icon-chevron" />
               </AppButton.TransparentButton>
@@ -245,7 +247,9 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           {/* footer when connecting */}
           {isConnecting ? (
             <View style={styles.footer}>
-              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+              <AppButton.TransparentButton
+                style={styles.switch_location_button}
+                onPress={this.props.onSelectLocation}>
                 {'Switch location'}
               </AppButton.TransparentButton>
               <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
@@ -257,7 +261,9 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
           {/* footer when connected */}
           {isConnected ? (
             <View style={styles.footer}>
-              <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
+              <AppButton.TransparentButton
+                style={styles.switch_location_button}
+                onPress={this.props.onSelectLocation}>
                 {'Switch location'}
               </AppButton.TransparentButton>
               <AppButton.RedTransparentButton

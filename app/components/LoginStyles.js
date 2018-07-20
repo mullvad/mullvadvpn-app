@@ -5,10 +5,12 @@ import { colors } from '../config';
 export default {
   ...createViewStyles({
     login_footer: {
-      backgroundColor: colors.darkBlue,
-      paddingTop: 18,
-      paddingBottom: 16,
       flex: 0,
+      paddingTop: 16,
+      paddingBottom: 24,
+      paddingLeft: 24,
+      paddingRight: 24,
+      backgroundColor: colors.darkBlue,
     },
     status_icon: {
       flex: 0,
@@ -81,7 +83,6 @@ export default {
       color: colors.white,
       opacity: 0,
     },
-
     account_dropdown__spacer: {
       height: 1,
       backgroundColor: colors.darkBlue,
@@ -120,8 +121,7 @@ export default {
       fontWeight: '600',
       lineHeight: 18,
       letterSpacing: -0.2,
-      marginLeft: 24,
-      marginRight: 24,
+      marginBottom: 8,
     },
     title: {
       fontFamily: 'DINPro',

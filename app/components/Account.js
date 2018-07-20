@@ -93,6 +93,7 @@ export default class Account extends Component<AccountProps, AccountState> {
 
                   <View style={styles.account__footer}>
                     <AppButton.GreenButton
+                      style={styles.account__buy_button}
                       onPress={this.props.onBuyMore}
                       text="Buy more credit"
                       icon="icon-extLink"
@@ -101,7 +102,7 @@ export default class Account extends Component<AccountProps, AccountState> {
                       <Img source="icon-extLink" height={16} width={16} />
                     </AppButton.GreenButton>
                     <AppButton.RedButton onPress={this.props.onLogout} testName="account__logout">
-                      Log out
+                      {'Log out'}
                     </AppButton.RedButton>
                   </View>
                 </View>
