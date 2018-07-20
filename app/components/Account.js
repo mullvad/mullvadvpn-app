@@ -100,6 +100,7 @@ export default class Account extends Component<AccountProps, AccountState> {
                       <AppButton.Label>Buy more credit</AppButton.Label>
                       <Img source="icon-extLink" height={16} width={16} />
                     </AppButton.GreenButton>
+                    <View style={styles.account__footer_spacer} />
                     <AppButton.RedButton onPress={this.props.onLogout} testName="account__logout">
                       Log out
                     </AppButton.RedButton>

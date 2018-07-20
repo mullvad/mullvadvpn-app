@@ -26,7 +26,12 @@ export default {
     },
     footer: {
       flex: 0,
-      marginBottom: 16,
+      paddingBottom: 16,
+      paddingLeft: 24,
+      paddingRight: 24,
+    },
+    footerItemSpacer: {
+      height: 16,
     },
     blocking_container: {
       width: '100%',

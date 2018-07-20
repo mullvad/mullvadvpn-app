@@ -236,6 +236,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
                 <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
                 <Img height={12} width={7} source="icon-chevron" />
               </AppButton.TransparentButton>
+              <View style={styles.footerItemSpacer} />
               <AppButton.GreenButton onPress={this.props.onConnect} testName="secureConnection">
                 {'Secure my connection'}
               </AppButton.GreenButton>
@@ -248,6 +249,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
               <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
                 {'Switch location'}
               </AppButton.TransparentButton>
+              <View style={styles.footerItemSpacer} />
               <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
                 {'Cancel'}
               </AppButton.RedTransparentButton>
@@ -260,6 +262,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
               <AppButton.TransparentButton onPress={this.props.onSelectLocation}>
                 {'Switch location'}
               </AppButton.TransparentButton>
+              <View style={styles.footerItemSpacer} />
               <AppButton.RedTransparentButton
                 onPress={this.props.onDisconnect}
                 testName="disconnect">
