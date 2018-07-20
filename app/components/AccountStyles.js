@@ -21,7 +21,7 @@ export default {
       paddingTop: 16,
       paddingRight: 24,
       paddingLeft: 24,
-      paddingBottom: 12,
+      paddingBottom: 24,
     },
     account__scrollview: {
       flexGrow: 1,
@@ -42,10 +42,14 @@ export default {
       paddingBottom: 0,
       paddingLeft: 24,
       paddingRight: 24,
-      marginTop: 24,
+      marginBottom: 24,
     },
     account__footer: {
-      marginTop: 12,
+      paddingLeft: 24,
+      paddingRight: 24,
+    },
+    account__buy_button: {
+      marginBottom: 24,
     },
   }),
   ...createTextStyles({
