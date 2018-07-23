@@ -84,6 +84,9 @@ win:
       to: .
     - from: ./dist-assets/binaries/windows/openvpn.exe
       to: .
+  publisherName: Amagicom AB
+  signingHashAlgorithms:
+    - sha256
 
 linux:
   target:
