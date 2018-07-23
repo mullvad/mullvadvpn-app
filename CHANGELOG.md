@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add "auto-connect" setting in daemon, and make it configurable from CLI. Determines if the daemon
   should secure the network and start establishing a tunnel directly when it starts on boot.
 - Add "auto-connect" and "auto-start" options to the application preferences view.
+- Create a new UI log file for every UI execution session, and preserve the log from the previous
+  session.
 
 #### Windows
 - Include version information (meta data) in executables and DLLs.

@@ -1,4 +1,5 @@
 // @flow
+import fs from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
 import mkdirp from 'mkdirp';
@@ -17,6 +18,7 @@ const ApplicationMain = {
   _trayIconController: (null: ?TrayIconController),
 
   _logFilePath: '',
+  _oldLogFilePath: (null: ?string),
   _connectionFilePollInterval: (null: ?IntervalID),
 
   run() {
@@ -65,6 +67,14 @@ const ApplicationMain = {
       // Disable log file in development
       log.transports.file.level = false;
     } else {
+      try {
+        fs.accessSync(this._logFilePath);
+        this._oldLogFilePath = path.join(logDirectory, 'frontend.old.log');
+        fs.renameSync(this._logFilePath, this._oldLogFilePath);
+      } catch (error) {
+        // No previous log file exists
+      }
+
       log.transports.console.level = 'debug';
       log.transports.file.level = 'debug';
       log.transports.file.file = this._logFilePath;
@@ -202,6 +212,9 @@ const ApplicationMain = {
         args.push('--redact', ...toRedact, '--');
       }
       args.push(this._logFilePath);
+      if (this._oldLogFilePath) {
+        args.push(this._oldLogFilePath);
+      }
 
       execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
         if (error) {
