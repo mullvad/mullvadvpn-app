@@ -923,7 +923,6 @@ dependencies = [
  "mullvad-types 0.1.0",
  "notify 4.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "os_pipe 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
  "tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 #[macro_use]
 extern crate duct;
 #[cfg(unix)]
@@ -8,7 +6,6 @@ extern crate mullvad_ipc_client;
 extern crate mullvad_paths;
 extern crate notify;
 extern crate openvpn_plugin;
-extern crate os_pipe;
 extern crate talpid_ipc;
 extern crate tempfile;
 
@@ -16,17 +13,15 @@ pub mod mock_openvpn;
 
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
+use std::sync::{mpsc, Arc};
 use std::time::{Duration, Instant};
+use std::{cmp, thread};
 
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use openvpn_plugin::types::OpenVpnPluginEvent;
-use os_pipe::{pipe, PipeReader};
 use talpid_ipc::WsIpcClient;
 use tempfile::TempDir;
 
@@ -114,6 +109,10 @@ impl PathWatcher {
         assert_eq!(self.next(), Some(watch_event::CREATE));
         assert_eq!(self.next(), Some(watch_event::WRITE));
 
+        #[cfg(not(target_os = "linux"))]
+        self.wait_for_burst_of_events(Duration::from_secs(1));
+
+        #[cfg(target_os = "linux")]
         loop {
             match self.next() {
                 Some(watch_event::WRITE) => continue,
@@ -123,6 +122,37 @@ impl PathWatcher {
                 }
             }
         }
+    }
+
+    /// Waits for a burst of file events.
+    ///
+    /// Here, a burst of events is defined as a series of events that are emitted with less than one
+    /// second between each of them.
+    ///
+    /// The `max_wait_time` defines the maximum time to wait for all of the events. If a burst of
+    /// events is emitted that is longer than the specified time, the function will return before
+    /// all events have been received.
+    pub fn wait_for_burst_of_events(&mut self, max_wait_time: Duration) {
+        const EVENT_INTERVAL: Duration = Duration::from_secs(1);
+
+        let start = Instant::now();
+        let original_timeout = self.timeout;
+
+        // We wait at most for the maximum waiting time for the first event to arrive
+        self.timeout = max_wait_time;
+
+        if self.next().is_some() {
+            while let Some(remaining_time) = max_wait_time.checked_sub(start.elapsed()) {
+                // Avoid exceeding the maximum wait time
+                self.timeout = cmp::min(EVENT_INTERVAL, remaining_time);
+
+                if self.next().is_none() {
+                    break;
+                }
+            }
+        }
+
+        self.timeout = original_timeout;
     }
 }
 
@@ -150,6 +180,23 @@ impl Iterator for PathWatcher {
 
         None
     }
+}
+
+pub fn wait_for_file<P: AsRef<Path>>(file_path: P) {
+    let file_path = file_path.as_ref();
+    let mut watcher = PathWatcher::watch(&file_path).expect(&format!(
+        "Failed to watch file for changes: {}",
+        file_path.display()
+    ));
+
+    if !file_path.exists() {
+        // No event has been emitted yet. Wait for the initial create event.
+        assert_eq!(watcher.next(), Some(watch_event::CREATE));
+    }
+
+    // The file was created, so at least one event was emitted. Assume the write burst has started
+    // and wait for a short amount of time until it completes.
+    watcher.wait_for_burst_of_events(Duration::from_secs(1));
 }
 
 fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
@@ -213,7 +260,6 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
 
 pub struct DaemonRunner {
     process: Option<duct::Handle>,
-    output: Arc<Mutex<BufReader<PipeReader>>>,
     mock_openvpn_args_file: PathBuf,
     rpc_address_file: PathBuf,
     _temp_dir: TempDir,
@@ -237,15 +283,14 @@ impl DaemonRunner {
             mullvad_paths::get_rpc_address_path().expect("Failed to build RPC connection file path")
         };
 
-        let (reader, writer) = pipe().expect("Failed to open pipe to connect to daemon");
         let mut expression = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", cache_dir)
             .env("MULLVAD_RESOURCE_DIR", resource_dir)
             .env("MULLVAD_SETTINGS_DIR", settings_dir)
             .env("MOCK_OPENVPN_ARGS_FILE", mock_openvpn_args_file.clone())
-            .stderr_to_stdout()
-            .stdout_handle(writer);
+            .stdout_null()
+            .stderr_null();
 
         if mock_rpc_address_file {
             expression = expression.env(
@@ -258,7 +303,6 @@ impl DaemonRunner {
 
         DaemonRunner {
             process: Some(process),
-            output: Arc::new(Mutex::new(BufReader::new(reader))),
             mock_openvpn_args_file,
             rpc_address_file,
             _temp_dir: temp_dir,
@@ -269,42 +313,8 @@ impl DaemonRunner {
         &self.mock_openvpn_args_file
     }
 
-    pub fn assert_output(&mut self, pattern: &'static str, timeout: Duration) {
-        let (tx, rx) = mpsc::channel();
-        let stdout = self.output.clone();
-
-        thread::spawn(move || {
-            Self::wait_for_output(stdout, pattern);
-            tx.send(()).expect("Failed to report search result");
-        });
-
-        rx.recv_timeout(timeout)
-            .expect(&format!("failed to search for {:?}", pattern));
-    }
-
-    fn wait_for_output(output: Arc<Mutex<BufReader<PipeReader>>>, pattern: &str) {
-        let mut output = output
-            .lock()
-            .expect("Another thread panicked while holding a lock to the process output");
-
-        let mut line = String::new();
-
-        while !line.contains(pattern) {
-            line.clear();
-            output
-                .read_line(&mut line)
-                .expect("Failed to read line from daemon stdout");
-        }
-    }
-
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
-        if !self.rpc_address_file.exists() {
-            let _ = PathWatcher::watch(&self.rpc_address_file).map(|mut events| {
-                events
-                    .set_timeout(Duration::from_secs(10))
-                    .find(|&event| event == watch_event::CLOSE_WRITE)
-            });
-        }
+        wait_for_file(&self.rpc_address_file);
 
         DaemonRpcClient::with_insecure_rpc_address_file(&self.rpc_address_file)
             .map_err(|error| format!("Failed to create RPC client: {}", error))
@@ -384,7 +394,13 @@ impl MockOpenVpnPluginRpcClient {
     pub fn up(&mut self) -> Result<()> {
         let mut env: HashMap<String, String> = HashMap::new();
 
+        #[cfg(target_os = "linux")]
         env.insert("dev".to_owned(), "lo".to_owned());
+        #[cfg(target_os = "macos")]
+        env.insert("dev".to_owned(), "lo0".to_owned());
+        #[cfg(target_os = "windows")]
+        env.insert("dev".to_owned(), "loopback".to_owned());
+
         env.insert("ifconfig_local".to_owned(), "10.0.0.10".to_owned());
         env.insert("route_vpn_gateway".to_owned(), "10.0.0.1".to_owned());
 
