@@ -3,12 +3,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Preferences from '../../app/components/Preferences';
+import { BackBarItem } from '../../app/components/NavigationBar';
 
 describe('components/Preferences', () => {
   it('Should call close handler', (done) => {
     const props = makeProps({ onClose: done });
     const component = shallow(<Preferences {...props} />);
-    const button = component.find({ testName: 'closeButton' });
+    const button = component.find(BackBarItem).dive();
     expect(button).to.have.length(1);
     button.simulate('press');
   });
