@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
 import { Layout, Container } from './Layout';
+import NavigationBar, { BackBarItem } from './NavigationBar';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
@@ -26,20 +27,37 @@ export class AdvancedSettings extends Component<AdvancedSettingsProps> {
     }
 
     return (
-      <BaseLayout onClose={this.props.onClose}>
-        <Selector
-          title={'Network protocols'}
-          values={['Automatic', 'UDP', 'TCP']}
-          value={protocol}
-          onSelect={(protocol) => {
-            this.props.onUpdate(protocol, 'Automatic');
-          }}
-        />
+      <Layout>
+        <Container>
+          <View style={styles.advanced_settings}>
+            <NavigationBar>
+              <BackBarItem action={this.props.onClose} title={'Settings'} />
+            </NavigationBar>
 
-        <View style={styles.advanced_settings__cell_spacer} />
+            <View style={styles.advanced_settings__container}>
+              <View style={styles.advanced_settings__header}>
+                <Text style={styles.advanced_settings__title}>Advanced</Text>
+              </View>
+              <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
+                <View style={styles.advanced_settings__content}>
+                  <Selector
+                    title={'Network protocols'}
+                    values={['Automatic', 'UDP', 'TCP']}
+                    value={protocol}
+                    onSelect={(protocol) => {
+                      this.props.onUpdate(protocol, 'Automatic');
+                    }}
+                  />
 
-        {portSelector}
-      </BaseLayout>
+                  <View style={styles.advanced_settings__cell_spacer} />
+
+                  {portSelector}
+                </View>
+              </CustomScrollbars>
+            </View>
+          </View>
+        </Container>
+      </Layout>
     );
   }
 
@@ -139,37 +157,4 @@ class Selector extends Component<SelectorProps<*>, SelectorState> {
       </Button>
     );
   }
-}
-
-function BaseLayout(props) {
-  return (
-    <Layout>
-      <Container>
-        <View style={styles.advanced_settings}>
-          <Button
-            style={styles.advanced_settings__close}
-            onPress={props.onClose}
-            testName="closeButton">
-            <View style={styles.advanced_settings__close_content}>
-              <Img
-                height={24}
-                width={24}
-                style={styles.advanced_settings__close_icon}
-                source="icon-back"
-              />
-              <Text style={styles.advanced_settings__close_title}>Settings</Text>
-            </View>
-          </Button>
-          <View style={styles.advanced_settings__container}>
-            <View style={styles.advanced_settings__header}>
-              <Text style={styles.advanced_settings__title}>Advanced</Text>
-            </View>
-            <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
-              <View style={styles.advanced_settings__content}>{props.children}</View>
-            </CustomScrollbars>
-          </View>
-        </View>
-      </Container>
-    </Layout>
-  );
 }

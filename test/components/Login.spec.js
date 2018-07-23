@@ -59,7 +59,8 @@ describe('components/Login', () => {
       },
     });
 
-    click(getComponent(component, 'account-input-button'));
+    const accountInputButton = getComponent(component, 'account-input-button');
+    accountInputButton.simulate('press');
   });
 });
 
@@ -78,8 +79,4 @@ const defaultProps = {
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
-}
-
-function click(component) {
-  component.prop('onPress')();
 }

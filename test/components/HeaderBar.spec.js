@@ -43,7 +43,7 @@ describe('components/HeaderBar', () => {
       onSettings: () => done(),
     });
     const settingsButton = getComponent(component, 'headerbar__settings');
-    click(settingsButton);
+    settingsButton.simulate('press');
   });
 });
 
@@ -57,8 +57,4 @@ function getComponent(container, testName) {
 
 function hasChild(container, testName) {
   return getComponent(container, testName).length > 0;
-}
-
-function click(component) {
-  component.prop('onPress')();
 }

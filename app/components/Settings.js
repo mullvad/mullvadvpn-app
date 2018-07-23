@@ -1,10 +1,11 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Button, Component, Text, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
+import NavigationBar, { CloseBarItem } from './NavigationBar';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';
@@ -31,12 +32,9 @@ export default class Settings extends Component<SettingsProps> {
       <Layout>
         <Container>
           <View style={styles.settings}>
-            <Button
-              style={styles.settings__close}
-              onPress={this.props.onClose}
-              testName="settings__close">
-              <Img height={24} width={24} style={styles.settings__close_icon} source="icon-close" />
-            </Button>
+            <NavigationBar>
+              <CloseBarItem action={this.props.onClose} />
+            </NavigationBar>
 
             <View style={styles.settings__container}>
               <View style={styles.settings__header}>

@@ -1,8 +1,8 @@
 // @flow
 import React from 'react';
-import { Component, Text, Button, View } from 'reactxp';
-import { Layout, Container, Header } from './Layout';
-import Img from './Img';
+import { Component, Text, View } from 'reactxp';
+import { Layout, Container } from './Layout';
+import NavigationBar, { BackBarItem } from './NavigationBar';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
 
@@ -33,18 +33,12 @@ export default class Preferences extends Component<PreferencesProps, State> {
   render() {
     return (
       <Layout>
-        <Header hidden={true} style={'defaultDark'} />
         <Container>
           <View style={styles.preferences}>
-            <Button
-              style={styles.preferences__close}
-              onPress={this.props.onClose}
-              testName="closeButton">
-              <View style={styles.preferences__close_content}>
-                <Img style={styles.preferences__close_icon} source="icon-back" />
-                <Text style={styles.preferences__close_title}>Settings</Text>
-              </View>
-            </Button>
+            <NavigationBar>
+              <BackBarItem action={this.props.onClose} title={'Settings'} />
+            </NavigationBar>
+
             <View style={styles.preferences__container}>
               <View style={styles.preferences__header}>
                 <Text style={styles.preferences__title}>Preferences</Text>

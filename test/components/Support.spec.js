@@ -4,14 +4,16 @@ import * as React from 'react';
 import Support from '../../app/components/Support';
 import { shallow } from 'enzyme';
 import type { SupportProps } from '../../app/components/Support';
+import { BackBarItem } from '../../app/components/NavigationBar';
 
 describe('components/Support', () => {
   it('should call close callback', () => {
     const props = makeProps({ onClose: spy() });
     const component = shallow(<Support {...props} />);
-    const closeButton = component.find({ testName: 'support__close' });
 
-    click(closeButton);
+    const closeButton = component.find(BackBarItem).dive();
+    closeButton.simulate('press');
+
     expect(props.onClose).to.have.been.called.once;
   });
 

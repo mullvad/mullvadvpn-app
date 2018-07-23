@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Account from '../../app/components/Account';
+import { BackBarItem } from '../../app/components/NavigationBar';
 import type { AccountProps } from '../../app/components/Account';
 
 describe('components/Account', () => {
@@ -25,8 +26,10 @@ describe('components/Account', () => {
     const props = makeProps({
       onClose: () => done(),
     });
-    const component = getComponent(render(props), 'account__close');
-    click(component);
+    const component = render(props)
+      .find(BackBarItem)
+      .dive();
+    component.simulate('press');
   });
 
   it('should call logout callback', (done) => {
@@ -34,7 +37,7 @@ describe('components/Account', () => {
       onLogout: () => done(),
     });
     const component = getComponent(render(props), 'account__logout');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call "buy more" callback', (done) => {
@@ -42,7 +45,7 @@ describe('components/Account', () => {
       onBuyMore: () => done(),
     });
     const component = getComponent(render(props), 'account__buymore');
-    click(component);
+    component.simulate('press');
   });
 
   it('should display "out of time" message when account expired', () => {
@@ -66,8 +69,4 @@ function render(props) {
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
-}
-
-function click(component) {
-  component.prop('onPress')();
 }

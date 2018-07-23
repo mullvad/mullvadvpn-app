@@ -1,8 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import Settings from '../../app/components/Settings';
 import { shallow } from 'enzyme';
+import Settings from '../../app/components/Settings';
+import { CloseBarItem } from '../../app/components/NavigationBar';
 
 import type { AccountReduxState } from '../../app/redux/account/reducers';
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
@@ -124,8 +125,10 @@ describe('components/Settings', () => {
     const props = makeProps(loggedOutAccountState, settingsState, {
       onClose: () => done(),
     });
-    const component = getComponent(render(props), 'settings__close');
-    click(component);
+    const component = render(props)
+      .find(CloseBarItem)
+      .dive();
+    component.simulate('press');
   });
 
   it('should call quit callback', (done) => {
@@ -133,7 +136,7 @@ describe('components/Settings', () => {
       onQuit: () => done(),
     });
     const component = getComponent(render(props), 'settings__quit');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call account callback', (done) => {
@@ -141,7 +144,7 @@ describe('components/Settings', () => {
       onViewAccount: () => done(),
     });
     const component = getComponent(render(props), 'settings__account_paid_until_button');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call advanced settings callback', (done) => {
@@ -149,7 +152,7 @@ describe('components/Settings', () => {
       onViewAdvancedSettings: () => done(),
     });
     const component = getComponent(render(props), 'settings__advanced');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call preferences callback', (done) => {
@@ -157,7 +160,7 @@ describe('components/Settings', () => {
       onViewPreferences: () => done(),
     });
     const component = getComponent(render(props), 'settings__preferences');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call support callback', (done) => {
@@ -165,7 +168,7 @@ describe('components/Settings', () => {
       onViewSupport: () => done(),
     });
     const component = getComponent(render(props), 'settings__view_support');
-    click(component);
+    component.simulate('press');
   });
 
   it('should call external links callback', () => {
@@ -176,7 +179,9 @@ describe('components/Settings', () => {
       },
     });
     const container = getComponent(render(props), 'settings__external_link');
-    container.find({ testName: 'settings__external_link' }).forEach((element) => click(element));
+    container
+      .find({ testName: 'settings__external_link' })
+      .forEach((element) => element.simulate('press'));
 
     expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
@@ -188,8 +193,4 @@ function render(props) {
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
-}
-
-function click(component) {
-  component.prop('onPress')();
 }

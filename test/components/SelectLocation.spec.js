@@ -64,7 +64,7 @@ describe('components/SelectLocation', () => {
       onClose: () => done(),
     });
     const node = getComponent(render(props), 'close');
-    click(node);
+    node.simulate('press');
   });
 
   it('should call select callback for country', (done) => {
@@ -82,7 +82,7 @@ describe('components/SelectLocation', () => {
     });
     const elements = getComponent(render(props), 'country');
     expect(elements).to.have.length(1);
-    click(elements.at(0));
+    elements.at(0).simulate('press');
   });
 
   it('should call select callback for city', (done) => {
@@ -100,14 +100,10 @@ describe('components/SelectLocation', () => {
     });
     const elements = getComponent(render(props), 'city');
     expect(elements).to.have.length(2);
-    click(elements.at(0));
+    elements.at(0).simulate('press');
   });
 });
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
-}
-
-function click(component) {
-  component.prop('onPress')();
 }
