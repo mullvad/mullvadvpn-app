@@ -84,6 +84,7 @@ win:
       to: .
     - from: ./dist-assets/binaries/windows/openvpn.exe
       to: .
+  publisherName: Amagicom AB
 
 linux:
   target:
