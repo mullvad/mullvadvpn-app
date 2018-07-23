@@ -14,12 +14,6 @@ export default {
       justifyContent: 'space-between',
       alignItems: 'center',
     },
-    hidden: {
-      paddingTop: 24,
-      paddingBottom: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
     style_defaultDark: {
       backgroundColor: colors.darkBlue,
     },

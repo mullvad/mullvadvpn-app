@@ -5,22 +5,6 @@ import { shallow } from 'enzyme';
 import HeaderBar from '../../app/components/HeaderBar';
 
 describe('components/HeaderBar', () => {
-  it('should display headerbar', () => {
-    const component = render({
-      hidden: false,
-    });
-    const hasChildMatching = hasChild(component, 'headerbar__container');
-    expect(hasChildMatching).to.be.true;
-  });
-
-  it('should not display headerbar', () => {
-    const component = render({
-      hidden: true,
-    });
-    const hasChildMatching = hasChild(component, 'headerbar__container');
-    expect(hasChildMatching).to.be.false;
-  });
-
   it('should display settings button', () => {
     const component = render({
       showSettings: true,

@@ -10,7 +10,6 @@ import platformStyles from './HeaderBarPlatformStyles';
 export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
 export type HeaderBarProps = {
   style: HeaderBarStyle,
-  hidden: boolean,
   showSettings: boolean,
   onSettings: ?() => void,
 };
@@ -18,7 +17,6 @@ export type HeaderBarProps = {
 export default class HeaderBar extends Component<HeaderBarProps> {
   static defaultProps: HeaderBarProps = {
     style: 'default',
-    hidden: false,
     showSettings: false,
     onSettings: null,
   };
@@ -30,18 +28,12 @@ export default class HeaderBar extends Component<HeaderBarProps> {
       styles['style_' + this.props.style],
     ];
 
-    if (this.props.hidden) {
-      containerClass.push(styles['hidden']);
-    }
-
     return (
       <View style={containerClass}>
-        {!this.props.hidden ? (
-          <View style={styles.container} testName="headerbar__container">
-            <Img height={50} width={50} source="logo-icon" />
-            <Text style={styles.title}>MULLVAD VPN</Text>
-          </View>
-        ) : null}
+        <View style={styles.container} testName="headerbar__container">
+          <Img height={50} width={50} source="logo-icon" />
+          <Text style={styles.title}>MULLVAD VPN</Text>
+        </View>
 
         {this.props.showSettings ? (
           <Button
