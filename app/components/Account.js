@@ -1,4 +1,5 @@
 // @flow
+import { remote } from 'electron';
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, App, Types } from 'reactxp';
@@ -56,9 +57,18 @@ export default class Account extends Component<AccountProps, AccountState> {
 
   render() {
     const expiry = moment(this.props.accountExpiry);
-    const formattedAccountToken = formatAccount(this.props.accountToken || '');
-    const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = expiry.isSameOrBefore(moment());
+    const formattedAccountToken = formatAccount(this.props.accountToken || '');
+    const formattedExpiry = new Date(this.props.accountExpiry).toLocaleString(
+      remote.app.getLocale(),
+      {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      },
+    );
 
     return (
       <Layout>
