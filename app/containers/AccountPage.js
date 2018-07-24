@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import Account from '../components/Account';
+import accountActions from '../redux/account/actions';
 import { links } from '../config';
 import { openLink } from '../lib/platform';
 
@@ -15,9 +16,11 @@ const mapStateToProps = (state: ReduxState) => ({
   accountExpiry: state.account.expiry,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+  const { copyAccountToken } = bindActionCreators(accountActions, dispatch);
   const { push: pushHistory } = bindActionCreators({ push }, dispatch);
   return {
     updateAccountExpiry: () => props.app.updateAccountExpiry(),
+    onCopyAccountToken: () => copyAccountToken(),
     onLogout: () => {
       props.app.logout();
     },

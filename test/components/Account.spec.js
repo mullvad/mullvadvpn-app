@@ -12,6 +12,7 @@ describe('components/Account', () => {
       accountToken: '1234',
       accountExpiry: new Date('2038-01-01').toISOString(),
       updateAccountExpiry: () => Promise.resolve(),
+      onCopyAccountToken: () => {},
       onClose: () => {},
       onLogout: () => {},
       onBuyMore: () => {},

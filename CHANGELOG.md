@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add "auto-connect" and "auto-start" options to the application preferences view.
 - Create a new UI log file for every UI execution session, and preserve the log from the previous
   session.
+- Account token can be copied to the clipboard by clicking on it in the account settings screen.
 
 #### Windows
 - Include version information (meta data) in executables and DLLs.

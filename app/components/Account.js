@@ -17,6 +17,7 @@ export type AccountProps = {
   updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
   onClose: () => void,
+  onCopyAccountToken: () => void,
   onBuyMore: () => void,
 };
 
@@ -27,11 +28,14 @@ export type AccountState = {
 export default class Account extends Component<AccountProps, AccountState> {
   state = {
     isRefreshingExpiry: false,
+    showAccountCopiedMessage: false,
   };
 
   _activationStateToken: ?Types.SubscriptionToken;
 
   _isMounted = false;
+
+  _copyTimer: ?TimeoutID;
 
   componentDidMount() {
     this._isMounted = true;
@@ -47,11 +51,27 @@ export default class Account extends Component<AccountProps, AccountState> {
   componentWillUnmount() {
     this._isMounted = false;
 
+    if (this._copyTimer) {
+      clearTimeout(this._copyTimer);
+    }
+
     const activationStateToken = this._activationStateToken;
     if (activationStateToken) {
       activationStateToken.unsubscribe();
       this._activationStateToken = null;
     }
+  }
+
+  onAccountTokenClick() {
+    if (this._copyTimer) {
+      clearTimeout(this._copyTimer);
+    }
+    this._copyTimer = setTimeout(
+      () => this.setState({ showAccountTokenCopiedMessage: false }),
+      3000,
+    );
+    this.setState({ showAccountTokenCopiedMessage: true });
+    this.props.onCopyAccountToken();
   }
 
   render() {
@@ -77,7 +97,13 @@ export default class Account extends Component<AccountProps, AccountState> {
                 <View style={styles.account__main}>
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Account ID</Text>
-                    <Text style={styles.account__row_value}>{formattedAccountToken}</Text>
+                    <Text
+                      style={styles.account__row_value}
+                      onPress={this.onAccountTokenClick.bind(this)}>
+                      {this.state.showAccountTokenCopiedMessage
+                        ? 'COPIED TO CLIPBOARD!'
+                        : formattedAccountToken}
+                    </Text>
                   </View>
 
                   <View style={styles.account__row}>
