@@ -190,7 +190,7 @@ export default class Support extends Component<SupportProps, SupportState> {
     return (
       <View style={styles.support__content}>
         <View style={styles.support__form}>
-          <View style={styles.support__form_row}>
+          <View style={styles.support__form_row_email}>
             <TextInput
               style={styles.support__form_email}
               placeholder="Your email (optional)"
@@ -232,26 +232,30 @@ export default class Support extends Component<SupportProps, SupportState> {
           disabled={!this.validate()}
           onPress={this.onSend}
           testName="support__send_logs">
-          Send anyway
+          {'Send anyway'}
         </AppButton.GreenButton>
       </View>
     );
   }
 
   _renderActionButtons() {
-    return [
-      <AppButton.BlueButton key={1} onPress={this.onViewLog} testName="support__view_logs">
-        <AppButton.Label>View app logs</AppButton.Label>
-        <Img source="icon-extLink" height={16} width={16} />
-      </AppButton.BlueButton>,
-      <AppButton.GreenButton
-        key={2}
-        disabled={!this.validate()}
-        onPress={this.onSend}
-        testName="support__send_logs">
-        Send
-      </AppButton.GreenButton>,
-    ];
+    return (
+      <View>
+        <AppButton.BlueButton
+          style={styles.view_logs_button}
+          onPress={this.onViewLog}
+          testName="support__view_logs">
+          <AppButton.Label>View app logs</AppButton.Label>
+          <Img source="icon-extLink" height={16} width={16} />
+        </AppButton.BlueButton>
+        <AppButton.GreenButton
+          disabled={!this.validate()}
+          onPress={this.onSend}
+          testName="support__send_logs">
+          Send
+        </AppButton.GreenButton>
+      </View>
+    );
   }
 
   _renderLoading() {

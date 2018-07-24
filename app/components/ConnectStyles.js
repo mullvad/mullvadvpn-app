@@ -5,7 +5,6 @@ import { colors } from '../config';
 export default {
   ...createViewStyles({
     connect: {
-      height: '100%',
       flex: 1,
     },
     map: {
@@ -26,7 +25,9 @@ export default {
     },
     footer: {
       flex: 0,
-      marginBottom: 16,
+      paddingBottom: 16,
+      paddingLeft: 24,
+      paddingRight: 24,
     },
     blocking_container: {
       width: '100%',
@@ -42,16 +43,6 @@ export default {
       marginRight: 8,
       backgroundColor: colors.red,
     },
-    server: {
-      paddingTop: 7,
-      paddingLeft: 12,
-      paddingRight: 12,
-      paddingBottom: 9,
-      backgroundColor: colors.white20,
-      borderRadius: 4,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
     status: {
       paddingTop: 0,
       paddingLeft: 24,
@@ -66,6 +57,9 @@ export default {
       width: 60,
       height: 60,
       marginTop: 94,
+    },
+    switch_location_button: {
+      marginBottom: 16,
     },
   }),
   ...createTextStyles({

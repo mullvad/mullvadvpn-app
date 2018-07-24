@@ -36,8 +36,10 @@ export default {
       flex: 0,
     },
     settings__footer: {
-      paddingTop: 16,
-      paddingBottom: 16,
+      paddingTop: 24,
+      paddingBottom: 24,
+      paddingLeft: 24,
+      paddingRight: 24,
     },
   }),
   ...createTextStyles({

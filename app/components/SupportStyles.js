@@ -15,7 +15,7 @@ export default Object.assign(
     support__header: {
       flex: 0,
       paddingTop: 12,
-      paddingBottom: 12,
+      paddingBottom: 24,
       paddingLeft: 24,
       paddingRight: 24,
     },
@@ -31,15 +31,17 @@ export default Object.assign(
       flexDirection: 'column',
     },
     support__form_row: {
-      paddingTop: 0,
-      paddingBottom: 8,
       paddingLeft: 22,
       paddingRight: 22,
+      marginBottom: 12,
+    },
+    support__form_row_email: {
+      paddingLeft: 22,
+      paddingRight: 22,
+      marginBottom: 12,
     },
     support__form_row_message: {
       flex: 1,
-      paddingTop: 0,
-      paddingBottom: 8,
       paddingLeft: 22,
       paddingRight: 22,
     },
@@ -50,15 +52,19 @@ export default Object.assign(
       overflow: 'hidden',
     },
     support__footer: {
-      paddingTop: 0,
+      paddingTop: 16,
       paddingBottom: 16,
-      display: 'flex',
+      paddingLeft: 24,
+      paddingRight: 24,
       flexDirection: 'column',
       flex: 0,
     },
     support__status_icon: {
       textAlign: 'center',
       marginBottom: 32,
+    },
+    view_logs_button: {
+      marginBottom: 16,
     },
   }),
   createTextStyles({
@@ -68,7 +74,7 @@ export default Object.assign(
       fontWeight: '900',
       lineHeight: 40,
       color: colors.white,
-      marginBottom: 16,
+      marginBottom: 4,
     },
     support__subtitle: {
       fontFamily: 'Open Sans',
@@ -133,10 +139,7 @@ export default Object.assign(
       fontSize: 13,
       lineHeight: 16,
       color: colors.white80,
-      paddingTop: 8,
-      paddingLeft: 24,
-      paddingRight: 24,
-      paddingBottom: 8,
+      marginBottom: 12,
     },
   }),
 );
