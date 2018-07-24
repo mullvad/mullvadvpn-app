@@ -57,6 +57,8 @@ Line wrap the file at 100 chars.                                              Th
 - Disable account input when logging in.
 - Keep the user input in problem report form while the app runs, or until the report is successfully
   submitted.
+- Ignore empty strings as redaction requests, to avoid adding redacted messages between every
+  character of the log message.
 
 #### Windows
 - Hide the app icon from taskbar.
