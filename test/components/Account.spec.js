@@ -11,6 +11,7 @@ describe('components/Account', () => {
     const defaultProps: AccountProps = {
       accountToken: '1234',
       accountExpiry: new Date('2038-01-01').toISOString(),
+      expiryLocale: 'en-US',
       updateAccountExpiry: () => Promise.resolve(),
       onCopyAccountToken: () => {},
       onClose: () => {},

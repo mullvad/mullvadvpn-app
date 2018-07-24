@@ -14,6 +14,7 @@ import type { AccountToken } from '../lib/daemon-rpc';
 export type AccountProps = {
   accountToken: AccountToken,
   accountExpiry: string,
+  expiryLocale: string,
   updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
   onClose: () => void,
@@ -76,9 +77,15 @@ export default class Account extends Component<AccountProps, AccountState> {
 
   render() {
     const expiry = moment(this.props.accountExpiry);
-    const formattedAccountToken = formatAccount(this.props.accountToken || '');
-    const formattedExpiry = expiry.format('hA, D MMMM YYYY').toUpperCase();
     const isOutOfTime = expiry.isSameOrBefore(moment());
+    const formattedAccountToken = formatAccount(this.props.accountToken || '');
+    const formattedExpiry = expiry.toDate().toLocaleString(this.props.expiryLocale, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    });
 
     return (
       <Layout>
