@@ -182,7 +182,7 @@ export default class Login extends Component<Props, State> {
 
   _onLogin = () => {
     const accountToken = this.props.accountToken;
-    if (accountToken && accountToken.length > 0) {
+    if (accountToken && accountToken.length > 9) {
       this.props.login(accountToken);
     }
   };
@@ -278,7 +278,7 @@ export default class Login extends Component<Props, State> {
     const { accountToken, loginState } = this.props;
     const classes = [styles.input_arrow];
 
-    if (accountToken && accountToken.length > 0) {
+    if (accountToken && accountToken.length > 9) {
       classes.push(styles.input_arrow__active);
     }
 
@@ -291,7 +291,7 @@ export default class Login extends Component<Props, State> {
 
   _shouldActivateLoginButton() {
     const { accountToken } = this.props;
-    return accountToken && accountToken.length > 0;
+    return accountToken && accountToken.length > 9;
   }
 
   _shouldEnableAccountInput() {
