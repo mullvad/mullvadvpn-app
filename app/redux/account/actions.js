@@ -1,6 +1,17 @@
 // @flow
 
+import { Clipboard } from 'reactxp';
 import type { AccountToken } from '../../lib/daemon-rpc';
+import type { ReduxThunk } from '../store';
+
+const copyAccountToken = (): ReduxThunk => {
+  return (_, getState) => {
+    const accountToken = getState().account.accountToken;
+    if (accountToken) {
+      Clipboard.setText(accountToken);
+    }
+  };
+};
 
 type StartLoginAction = {
   type: 'START_LOGIN',
@@ -109,6 +120,7 @@ function updateAccountExpiry(expiry: string): UpdateAccountExpiryAction {
 }
 
 export default {
+  copyAccountToken,
   startLogin,
   loginSuccessful,
   loginFailed,
