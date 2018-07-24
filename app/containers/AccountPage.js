@@ -1,5 +1,6 @@
 // @flow
 
+import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
@@ -14,6 +15,7 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
+  expiryLocale: remote.app.getLocale(),
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { copyAccountToken } = bindActionCreators(accountActions, dispatch);
