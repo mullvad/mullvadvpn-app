@@ -27,7 +27,7 @@ use std::cmp::min;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -475,8 +475,52 @@ fn os_version() -> String {
     format!(
         "Linux, {}",
         command_stdout_lossy("lsb_release", &["-ds"])
-            .unwrap_or(String::from("[Failed to get LSB release]"))
+            .or_else(read_os_release_file)
+            .unwrap_or(String::from("[Failed to get Linux distribution/version]"))
     )
+}
+
+#[cfg(target_os = "linux")]
+fn read_os_release_file() -> Option<String> {
+    let mut os_release_file = Path::new("/etc/os-release");
+    let mut os_name = None;
+    let mut os_version = None;
+
+    if !os_release_file.exists() {
+        os_release_file = Path::new("/usr/lib/os-release");
+    }
+
+    if os_release_file.exists() {
+        let file = BufReader::new(File::open(os_release_file).ok()?);
+
+        for line in file.lines().filter_map(|line| line.ok()) {
+            let mut parts = line.splitn(2, "=");
+            let key = parts.next();
+            let value = parts.next();
+
+            if let (Some(key), Some(value)) = (key, value) {
+                if key == "NAME" {
+                    os_name = Some(value.to_owned());
+                } else if key == "VERSION" {
+                    os_version = Some(value.to_owned());
+                }
+
+                if os_name.is_some() && os_version.is_some() {
+                    break;
+                }
+            }
+        }
+    }
+
+    if os_name.is_some() || os_version.is_some() {
+        Some(format!(
+            "{} {}",
+            os_name.unwrap_or_else(|| "[unknown distribution]".to_owned()),
+            os_version.unwrap_or_else(|| "[unknown version]".to_owned())
+        ))
+    } else {
+        None
+    }
 }
 
 #[cfg(target_os = "macos")]
