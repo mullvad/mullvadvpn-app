@@ -13,15 +13,6 @@ export default {
       flexDirection: 'column',
       flex: 1,
     },
-    advanced_settings__header: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      paddingTop: 16,
-      paddingRight: 24,
-      paddingLeft: 24,
-      paddingBottom: 24,
-    },
     advanced_settings__scrollview: {
       flexGrow: 1,
       flexShrink: 1,
@@ -98,13 +89,6 @@ export default {
       fontSize: 20,
       fontWeight: '900',
       lineHeight: 26,
-      color: colors.white,
-    },
-    advanced_settings__title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
       color: colors.white,
     },
     advanced_settings__cell_label: {

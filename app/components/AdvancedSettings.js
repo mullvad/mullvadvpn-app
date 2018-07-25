@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
@@ -35,9 +36,9 @@ export class AdvancedSettings extends Component<AdvancedSettingsProps> {
             </NavigationBar>
 
             <View style={styles.advanced_settings__container}>
-              <View style={styles.advanced_settings__header}>
-                <Text style={styles.advanced_settings__title}>Advanced</Text>
-              </View>
+              <SettingsHeader>
+                <HeaderTitle>Advanced</HeaderTitle>
+              </SettingsHeader>
               <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
                 <View style={styles.advanced_settings__content}>
                   <Selector

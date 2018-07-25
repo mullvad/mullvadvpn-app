@@ -14,15 +14,6 @@ export default {
       flex: 1,
       paddingBottom: 48,
     },
-    account__header: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      paddingTop: 16,
-      paddingRight: 24,
-      paddingLeft: 24,
-      paddingBottom: 24,
-    },
     account__scrollview: {
       flexGrow: 1,
       flexShrink: 1,
@@ -53,13 +44,6 @@ export default {
     },
   }),
   ...createTextStyles({
-    account__title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
-      color: colors.white,
-    },
     account__row_label: {
       fontFamily: 'Open Sans',
       fontSize: 13,

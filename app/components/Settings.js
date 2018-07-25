@@ -1,11 +1,12 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import NavigationBar, { CloseBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';
@@ -37,9 +38,9 @@ export default class Settings extends Component<SettingsProps> {
             </NavigationBar>
 
             <View style={styles.settings__container}>
-              <View style={styles.settings__header}>
-                <Text style={styles.settings__title}>Settings</Text>
-              </View>
+              <SettingsHeader>
+                <HeaderTitle>Settings</HeaderTitle>
+              </SettingsHeader>
 
               <CustomScrollbars style={styles.settings__scrollview} autoHide={true}>
                 <View style={styles.settings__content}>
