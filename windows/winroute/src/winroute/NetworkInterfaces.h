@@ -16,6 +16,9 @@ private:
 	bool HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface);
 
 public:
+	NetworkInterfaces(const NetworkInterfaces &) = delete;
+	NetworkInterfaces &operator=(const NetworkInterfaces &) = delete;
+
 	void EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid);
 	NetworkInterfaces();
 	bool SetTopMetricForInterfacesByAlias(const wchar_t *deviceAlias);
