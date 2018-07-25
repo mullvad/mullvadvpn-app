@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 - Relay list is now updated periodically automatically, not only when the daemon starts.
 - Format the expiry date and time using the system locale.
 - Account tokens are now required to have at least ten digits.
+- Settings pages now have their top part (including the headers) draggable.
 
 #### Windows
 - Rename tunnel interface to "Mullvad".
