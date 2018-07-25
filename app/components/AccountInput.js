@@ -4,17 +4,9 @@ import { TextInput } from 'reactxp';
 import { formatAccount } from '../lib/formatters';
 import { colors } from '../config';
 
-// @TODO: move it into types.js
-
 // ESLint issue: https://github.com/babel/babel-eslint/issues/445
-// eslint-disable-next-line no-unused-vars
-declare class ClipboardData {
-  setData(type: string, data: string): void;
-  getData(type: string): string;
-}
-
 declare class ClipboardEvent extends Event {
-  clipboardData: ClipboardData;
+  clipboardData: DataTransfer;
 }
 
 export type AccountInputProps = {
