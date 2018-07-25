@@ -20,11 +20,13 @@ const styles = {
     }),
     linux: Styles.createViewStyle({
       marginTop: 12,
+      WebkitAppRegion: 'drag',
     }),
   },
   closeBarItem: {
     default: Styles.createViewStyle({
       cursor: 'default',
+      WebkitAppRegion: 'no-drag',
     }),
     icon: Styles.createViewStyle({
       flex: 0,
@@ -37,6 +39,7 @@ const styles = {
       padding: 0,
       margin: 0,
       cursor: 'default',
+      WebkitAppRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
