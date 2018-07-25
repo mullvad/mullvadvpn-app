@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "winroute.h"
 #include "NetworkInterfaces.h"
+#include "libcommon/error.h"
 #include <cstdint>
 #include <stdexcept>
 
@@ -35,3 +36,47 @@ WinRoute_EnsureTopMetric(
 	}
 };
 
+extern "C"
+WINROUTE_LINKAGE
+TAP_IPV6_STATUS
+WINROUTE_API
+GetTapInterfaceIpv6Status(
+	WinRouteErrorSink errorSink,
+	void* errorSinkContext
+)
+{
+	try
+	{
+		MIB_IPINTERFACE_ROW interface = { 0 };
+
+		interface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(L"Mullvad");
+		interface.Family = AF_INET6;
+
+		const auto status = GetIpInterfaceEntry(&interface);
+
+		if (NO_ERROR == status)
+		{
+			return TAP_IPV6_STATUS::ENABLED;
+		}
+
+		if (ERROR_NOT_FOUND == status)
+		{
+			return TAP_IPV6_STATUS::DISABLED;
+		}
+
+		common::error::Throw("Resolve TAP IPv6 interface", status);
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != errorSink)
+		{
+			errorSink(err.what(), errorSinkContext);
+		}
+
+		return TAP_IPV6_STATUS::FAILURE;
+	}
+	catch (...)
+	{
+		return TAP_IPV6_STATUS::FAILURE;
+	}
+}
