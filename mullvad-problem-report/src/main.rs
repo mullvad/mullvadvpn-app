@@ -277,7 +277,9 @@ struct ProblemReport {
 impl ProblemReport {
     /// Creates a new problem report with system information. Logs can be added with `add_log`.
     /// Logs will have all strings in `redact_custom_strings` removed from them.
-    pub fn new(redact_custom_strings: Vec<String>) -> Self {
+    pub fn new(mut redact_custom_strings: Vec<String>) -> Self {
+        redact_custom_strings.retain(|redact| !redact.is_empty());
+
         ProblemReport {
             metadata: collect_metadata(),
             logs: Vec::new(),
