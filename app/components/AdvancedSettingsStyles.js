@@ -21,6 +21,7 @@ export default {
       paddingRight: 24,
       paddingLeft: 24,
       paddingBottom: 24,
+      WebkitAppRegion: 'drag',
     },
     advanced_settings__scrollview: {
       flexGrow: 1,

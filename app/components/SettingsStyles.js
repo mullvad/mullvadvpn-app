@@ -19,6 +19,7 @@ export default {
       paddingRight: 24,
       paddingLeft: 24,
       paddingBottom: 24,
+      WebkitAppRegion: 'drag'
     },
     settings__content: {
       flexDirection: 'column',

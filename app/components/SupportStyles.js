@@ -18,6 +18,7 @@ export default Object.assign(
       paddingBottom: 24,
       paddingLeft: 24,
       paddingRight: 24,
+      WebkitAppRegion: 'drag',
     },
     support__content: {
       flex: 1,
