@@ -28,3 +28,23 @@ WinRoute_EnsureTopMetric(
 	WinRouteErrorSink errorSink,
 	void* errorSinkContext
 );
+
+enum class TAP_IPV6_STATUS : uint32_t
+{
+	ENABLED = 0,
+	DISABLED = 1,
+	FAILURE = 2,
+};
+
+//
+// This has nothing to do with routing.
+// We should probably rename this module and use it to gather one-off network functions.
+//
+extern "C"
+WINROUTE_LINKAGE
+TAP_IPV6_STATUS
+WINROUTE_API
+GetTapInterfaceIpv6Status(
+	WinRouteErrorSink errorSink,
+	void* errorSinkContext
+);
