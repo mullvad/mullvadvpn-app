@@ -74,19 +74,7 @@ NetworkInterfaces::NetworkInterfaces()
 
 bool NetworkInterfaces::SetTopMetricForInterfacesByAlias(const wchar_t * deviceAlias)
 {
-	NET_LUID targetIfaceLuid;
-	DWORD success = 0;
-	success = ConvertInterfaceAliasToLuid(deviceAlias, &targetIfaceLuid);
-	if (success != NO_ERROR)
-	{
-		std::wstringstream ss;
-		ss << L"Failed to convert interface alias '"
-			<< deviceAlias
-			<< "' into LUID: "
-			<< success;
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
-	}
-	return SetTopMetricForInterfacesWithLuid(targetIfaceLuid);
+	return SetTopMetricForInterfacesWithLuid(GetInterfaceLuid(deviceAlias));
 }
 
 bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
@@ -106,4 +94,42 @@ bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId
 NetworkInterfaces::~NetworkInterfaces()
 {
 	FreeMibTable(mInterfaces);
+}
+
+//static
+NET_LUID NetworkInterfaces::GetInterfaceLuid(const std::wstring &interfaceAlias)
+{
+	NET_LUID interfaceLuid;
+
+	const auto status = ConvertInterfaceAliasToLuid(interfaceAlias.c_str(), &interfaceLuid);
+
+	if (status != NO_ERROR)
+	{
+		std::wstringstream ss;
+
+		ss << L"Failed to convert interface alias '"
+			<< interfaceAlias
+			<< "' into LUID. Error: "
+			<< status;
+
+		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+	}
+
+	return interfaceLuid;
+}
+
+const MIB_IPINTERFACE_ROW *NetworkInterfaces::GetInterface(NET_LUID interfaceLuid, ADDRESS_FAMILY interfaceFamily)
+{
+	for (unsigned int i = 0; i < mInterfaces->NumEntries; ++i)
+	{
+		MIB_IPINTERFACE_ROW &candidateInterface = mInterfaces->Table[i];
+
+		if (candidateInterface.InterfaceLuid.Value == interfaceLuid.Value
+			&& candidateInterface.Family == interfaceFamily)
+		{
+			return &candidateInterface;
+		}
+	}
+
+	return nullptr;
 }
