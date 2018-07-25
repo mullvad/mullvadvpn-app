@@ -48,10 +48,10 @@ describe('components/Login', () => {
   it('logs in with the entered account number when clicking the login icon', (done) => {
     const component = shallow(<Login {...defaultProps} />);
     component.setProps({
-      accountToken: '12345',
+      accountToken: '1234567890',
       login: (accountToken) => {
         try {
-          expect(accountToken).to.equal('12345');
+          expect(accountToken).to.equal('1234567890');
           done();
         } catch (e) {
           done(e);
