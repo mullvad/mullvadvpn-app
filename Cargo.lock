@@ -886,6 +886,7 @@ dependencies = [
  "mullvad-paths 0.1.0",
  "mullvad-rpc 0.1.0",
  "regex 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rs-release 0.1.7 (git+https://github.com/mullvad/rs-release?rev=88b2afb04c3b2b1b76f27d8b8d48cd52facd292a)",
  "uuid 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "windres 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1257,6 +1258,14 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "quick-error 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "rs-release"
+version = "0.1.7"
+source = "git+https://github.com/mullvad/rs-release?rev=88b2afb04c3b2b1b76f27d8b8d48cd52facd292a#88b2afb04c3b2b1b76f27d8b8d48cd52facd292a"
+dependencies = [
+ "snailquote 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2084,6 +2093,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum relay 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1576e382688d7e9deecea24417e350d3062d97e32e45d70b1cde65994ff1489a"
 "checksum remove_dir_all 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3488ba1b9a2084d38645c4c08276a1752dcbf2c7130d74f1569681ad5d2799c5"
 "checksum resolv-conf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c62bd95a41841efdf7fca2ae9951e64a8d8eae7e5da196d8ce489a2241491a92"
+"checksum rs-release 0.1.7 (git+https://github.com/mullvad/rs-release?rev=88b2afb04c3b2b1b76f27d8b8d48cd52facd292a)" = "<none>"
 "checksum rustc-demangle 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "76d7ba1feafada44f2d38eed812bd2489a03c0f5abb975799251518b68848649"
 "checksum safemem 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e27a8b19b835f7aea908818e871f5cc3a5a186550c30773be987e155e8163d8f"
 "checksum same-file 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cfb6eded0b06a0b512c8ddbcf04089138c9b4362c2f696f3c3d76039d68f3637"
