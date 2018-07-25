@@ -14,6 +14,8 @@ extern crate error_chain;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
+#[cfg(target_os = "linux")]
+extern crate rs_release;
 extern crate uuid;
 
 extern crate mullvad_paths;
@@ -472,11 +474,57 @@ fn product_version() -> &'static str {
 
 #[cfg(target_os = "linux")]
 fn os_version() -> String {
-    format!(
-        "Linux, {}",
-        command_stdout_lossy("lsb_release", &["-ds"])
-            .unwrap_or(String::from("[Failed to get LSB release]"))
-    )
+    // The OS version information is obtained first from the os-release file. If that information
+    // is incomplete or unavailable, an attempt is made to obtain the version information from the
+    // lsb_release command. If that fails, any partial information from os-release is used if
+    // available, or a fallback message if reading from the os-release file produced no version
+    // information.
+    let os_version = read_os_release_file().unwrap_or_else(|incomplete_info| {
+        parse_lsb_release().unwrap_or_else(|| {
+            incomplete_info
+                .unwrap_or_else(|| String::from("[failed to get Linux distribution/version]"))
+        })
+    });
+
+    format!("Linux, {}", os_version)
+}
+
+#[cfg(target_os = "linux")]
+fn read_os_release_file() -> std::result::Result<String, Option<String>> {
+    let mut os_release_info = rs_release::get_os_release().map_err(|_| None)?;
+    let os_name = os_release_info.remove("NAME");
+    let os_version = os_release_info.remove("VERSION");
+
+    if os_name.is_some() || os_version.is_some() {
+        let full_info_available = os_name.is_some() && os_version.is_some();
+
+        let gathered_info = format!(
+            "{} {}",
+            os_name.unwrap_or_else(|| "[unknown distribution]".to_owned()),
+            os_version.unwrap_or_else(|| "[unknown version]".to_owned())
+        );
+
+        if full_info_available {
+            Ok(gathered_info)
+        } else {
+            // Partial version information
+            Err(Some(gathered_info))
+        }
+    } else {
+        // No information was obtained
+        Err(None)
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn parse_lsb_release() -> Option<String> {
+    command_stdout_lossy("lsb_release", &["-ds"]).and_then(|output| {
+        if output.is_empty() {
+            None
+        } else {
+            Some(output)
+        }
+    })
 }
 
 #[cfg(target_os = "macos")]

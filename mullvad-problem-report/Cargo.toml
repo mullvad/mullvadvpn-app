@@ -20,5 +20,8 @@ uuid = { version = "0.6", features = ["v4"] }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+rs-release = { git = "https://github.com/mullvad/rs-release", branch = "snailquote-unescape" }
+
 [target.'cfg(windows)'.build-dependencies]
 windres = "0.1"
