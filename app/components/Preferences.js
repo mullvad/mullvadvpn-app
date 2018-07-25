@@ -3,6 +3,7 @@ import React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
 
@@ -40,9 +41,9 @@ export default class Preferences extends Component<PreferencesProps, State> {
             </NavigationBar>
 
             <View style={styles.preferences__container}>
-              <View style={styles.preferences__header}>
-                <Text style={styles.preferences__title}>Preferences</Text>
-              </View>
+              <SettingsHeader>
+                <HeaderTitle>Preferences</HeaderTitle>
+              </SettingsHeader>
 
               <View style={styles.preferences__content}>
                 <View style={styles.preferences__cell}>

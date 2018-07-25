@@ -4,6 +4,7 @@ import { Component, Text, View, TextInput } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import styles from './SupportStyles';
 import Img from './Img';
 
@@ -137,16 +138,16 @@ export default class Support extends Component<SupportProps, SupportState> {
   render() {
     const { sendState } = this.state;
     const header = (
-      <View style={styles.support__header}>
-        <Text style={styles.support__title}>Report a problem</Text>
+      <SettingsHeader>
+        <HeaderTitle>Report a problem</HeaderTitle>
         {(sendState === 'INITIAL' || sendState === 'CONFIRM_NO_EMAIL') && (
-          <Text style={styles.support__subtitle}>
+          <HeaderSubTitle>
             {
               "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
             }
-          </Text>
+          </HeaderSubTitle>
         )}
-      </View>
+      </SettingsHeader>
     );
 
     const content = this._renderContent();

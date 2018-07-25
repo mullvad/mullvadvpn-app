@@ -11,15 +11,6 @@ export default {
       flexDirection: 'column',
       flex: 1,
     },
-    settings__header: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      paddingTop: 16,
-      paddingRight: 24,
-      paddingLeft: 24,
-      paddingBottom: 24,
-    },
     settings__content: {
       flexDirection: 'column',
       flex: 1,
@@ -43,13 +34,6 @@ export default {
     },
   }),
   ...createTextStyles({
-    settings__title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
-      color: colors.white,
-    },
     settings__account_paid_until_label__error: {
       color: colors.red,
     },
