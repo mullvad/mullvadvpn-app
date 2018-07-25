@@ -14,8 +14,8 @@ public:
 
 
 private:
-	MIB_IPINTERFACE_ROW IPv4Iface;
-	MIB_IPINTERFACE_ROW IPv6Iface;
+	MIB_IPINTERFACE_ROW IPv4Iface = { 0 };
+	MIB_IPINTERFACE_ROW IPv6Iface = { 0 };
 
 	void InitializeInterface(PMIB_IPINTERFACE_ROW iface);
 	bool HasIPv4();
