@@ -13,15 +13,6 @@ export default {
       flexDirection: 'column',
       flex: 1,
     },
-    preferences__header: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
-      paddingTop: 16,
-      paddingRight: 24,
-      paddingLeft: 24,
-      paddingBottom: 24,
-    },
     preferences__content: {
       flexDirection: 'column',
       flexGrow: 1,
@@ -51,13 +42,6 @@ export default {
     },
   }),
   ...createTextStyles({
-    preferences__title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
-      color: colors.white,
-    },
     preferences__cell_label: {
       fontFamily: 'DINPro',
       fontSize: 20,

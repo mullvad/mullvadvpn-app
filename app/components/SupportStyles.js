@@ -12,13 +12,6 @@ export default Object.assign(
       flexDirection: 'column',
       flex: 1,
     },
-    support__header: {
-      flex: 0,
-      paddingTop: 12,
-      paddingBottom: 24,
-      paddingLeft: 24,
-      paddingRight: 24,
-    },
     support__content: {
       flex: 1,
       display: 'flex',
@@ -68,23 +61,6 @@ export default Object.assign(
     },
   }),
   createTextStyles({
-    support__title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
-      color: colors.white,
-      marginBottom: 4,
-    },
-    support__subtitle: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      overflow: 'visible',
-      color: colors.white80,
-      lineHeight: 20,
-      letterSpacing: -0.2,
-    },
     support__form_email: {
       flex: 1,
       borderRadius: 4,
