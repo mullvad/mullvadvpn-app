@@ -1,8 +1,10 @@
 // @flow
 import * as React from 'react';
-import { Button, Text, View } from 'reactxp';
+import { View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
+import NavigationBar, { CloseBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 import Img from './Img';
@@ -67,20 +69,22 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
       <Layout>
         <Container>
           <View style={styles.select_location}>
-            <Button style={styles.close} onPress={this.props.onClose} testName="close">
-              <Img style={styles.close_icon} source="icon-close" />
-            </Button>
+            <NavigationBar>
+              <CloseBarItem action={this.props.onClose} />
+            </NavigationBar>
             <View style={styles.container}>
-              <View style={styles.header}>
-                <Text style={styles.title}>Select location</Text>
-              </View>
+              <SettingsHeader style={styles.title_header}>
+                <HeaderTitle>Select location</HeaderTitle>
+              </SettingsHeader>
 
               <CustomScrollbars autoHide={true} ref={(ref) => (this._scrollView = ref)}>
                 <View style={styles.content}>
-                  <Text style={styles.subtitle}>
-                    While connected, your real location is masked with a private and secure location
-                    in the selected region
-                  </Text>
+                  <SettingsHeader style={styles.subtitle_header}>
+                    <HeaderSubTitle>
+                      While connected, your real location is masked with a private and secure
+                      location in the selected region
+                    </HeaderSubTitle>
+                  </SettingsHeader>
 
                   {this.props.settings.relayLocations.map((relayCountry) => {
                     return this._renderCountry(relayCountry);
