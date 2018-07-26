@@ -15,7 +15,7 @@ const styles = {
     darwin: Styles.createViewStyle({
       marginTop: 24,
     }),
-    windows: Styles.createViewStyle({
+    win32: Styles.createViewStyle({
       marginTop: 24,
     }),
     linux: Styles.createViewStyle({
