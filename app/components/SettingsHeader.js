@@ -41,7 +41,7 @@ const styles = {
 export default class SettingsHeader extends Component {
   render() {
     return (
-      <View style={[styles.header.default, styles.header[process.platform]]}>
+      <View style={[styles.header.default, styles.header[process.platform], this.props.style]}>
         {this.props.children}
       </View>
     );

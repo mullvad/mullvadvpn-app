@@ -1,5 +1,5 @@
 // @flow
-import { createViewStyles, createTextStyles } from '../lib/styles';
+import { createViewStyles } from '../lib/styles';
 import { colors } from '../config';
 
 export default {
@@ -12,20 +12,11 @@ export default {
       flexDirection: 'column',
       flex: 1,
     },
-    header: {
-      flex: 0,
-      marginBottom: 16,
+    title_header: {
+      paddingBottom: 0,
     },
-    close: {
-      marginLeft: 12,
-      marginTop: 24,
-      cursor: 'default',
-    },
-    close_icon: {
-      width: 24,
-      height: 24,
-      flex: 0,
-      opacity: 0.6,
+    subtitle_header: {
+      paddingTop: 0,
     },
     content: {
       overflow: 'visible',
@@ -92,31 +83,6 @@ export default {
     },
     expand_chevron_hover: {
       color: colors.white,
-    },
-  }),
-  ...createTextStyles({
-    title: {
-      fontFamily: 'DINPro',
-      fontSize: 32,
-      fontWeight: '900',
-      lineHeight: 40,
-      color: colors.white,
-      paddingTop: 16,
-      paddingLeft: 24,
-      paddingRight: 24,
-    },
-    subtitle: {
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      lineHeight: 20,
-      color: colors.white60,
-      letterSpacing: -0.2,
-      paddingTop: 0,
-      paddingLeft: 24,
-      paddingRight: 24,
-      paddingBottom: 24,
-      flex: 0,
     },
   }),
 };
