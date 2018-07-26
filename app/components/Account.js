@@ -5,6 +5,7 @@ import { Component, Text, View, App, Types } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
@@ -96,9 +97,9 @@ export default class Account extends Component<AccountProps, AccountState> {
             </NavigationBar>
 
             <View style={styles.account__container}>
-              <View style={styles.account__header}>
-                <Text style={styles.account__title}>Account</Text>
-              </View>
+              <SettingsHeader>
+                <HeaderTitle>Account</HeaderTitle>
+              </SettingsHeader>
 
               <View style={styles.account__content}>
                 <View style={styles.account__main}>

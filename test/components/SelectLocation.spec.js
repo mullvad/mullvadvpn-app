@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { CloseBarItem } from '../../app/components/NavigationBar';
 import SelectLocation from '../../app/components/SelectLocation';
 
 import type { SettingsReduxState } from '../../app/redux/settings/reducers';
@@ -63,8 +64,10 @@ describe('components/SelectLocation', () => {
     const props = makeProps(state, {
       onClose: () => done(),
     });
-    const node = getComponent(render(props), 'close');
-    node.simulate('press');
+    const component = render(props)
+      .find(CloseBarItem)
+      .dive();
+    component.simulate('press');
   });
 
   it('should call select callback for country', (done) => {

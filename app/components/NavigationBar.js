@@ -10,21 +10,23 @@ const styles = {
     default: Styles.createViewStyle({
       flex: 0,
       alignItems: 'flex-start',
-      marginLeft: 12,
+      paddingLeft: 12,
     }),
     darwin: Styles.createViewStyle({
-      marginTop: 24,
+      paddingTop: 24,
     }),
     win32: Styles.createViewStyle({
-      marginTop: 12,
+      paddingTop: 12,
     }),
     linux: Styles.createViewStyle({
-      marginTop: 12,
+      paddingTop: 12,
+      WebkitAppRegion: 'drag',
     }),
   },
   closeBarItem: {
     default: Styles.createViewStyle({
       cursor: 'default',
+      WebkitAppRegion: 'no-drag',
     }),
     icon: Styles.createViewStyle({
       flex: 0,
@@ -37,6 +39,7 @@ const styles = {
       padding: 0,
       margin: 0,
       cursor: 'default',
+      WebkitAppRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
