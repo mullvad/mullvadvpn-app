@@ -14,6 +14,8 @@ extern crate error_chain;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
+#[cfg(target_os = "linux")]
+extern crate snailquote;
 extern crate uuid;
 
 extern crate mullvad_paths;
@@ -500,9 +502,11 @@ fn read_os_release_file() -> Option<String> {
 
             if let (Some(key), Some(value)) = (key, value) {
                 if key == "NAME" {
-                    os_name = Some(value.to_owned());
+                    os_name =
+                        Some(snailquote::unescape(value).unwrap_or_else(|_| value.to_owned()));
                 } else if key == "VERSION" {
-                    os_version = Some(value.to_owned());
+                    os_version =
+                        Some(snailquote::unescape(value).unwrap_or_else(|_| value.to_owned()));
                 }
 
                 if os_name.is_some() && os_version.is_some() {
