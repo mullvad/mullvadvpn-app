@@ -10,16 +10,16 @@ const styles = {
     default: Styles.createViewStyle({
       flex: 0,
       alignItems: 'flex-start',
-      marginLeft: 12,
+      paddingLeft: 12,
     }),
     darwin: Styles.createViewStyle({
-      marginTop: 24,
+      paddingTop: 24,
     }),
     win32: Styles.createViewStyle({
-      marginTop: 12,
+      paddingTop: 12,
     }),
     linux: Styles.createViewStyle({
-      marginTop: 12,
+      paddingTop: 12,
       WebkitAppRegion: 'drag',
     }),
   },
