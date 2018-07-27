@@ -26,6 +26,7 @@ const ApplicationMain = {
       return;
     }
 
+    this._overrideAppPaths();
     this._initLogging();
 
     log.info(`Running version ${app.getVersion()}`);
@@ -51,6 +52,20 @@ const ApplicationMain = {
     }
 
     return shouldQuit;
+  },
+
+  _overrideAppPaths() {
+    // This ensures that on Windows the %LOCALAPPDATA% directory is used instead of the %ADDDATA%
+    // directory that has roaming contents
+    if (process.platform == 'win32') {
+      const appDataDir = process.env.LOCALAPPDATA;
+      if (appDataDir) {
+        app.setPath('appData', appDataDir);
+        app.setPath('userData', path.join(appDataDir, app.getName()));
+      } else {
+        throw new Error('Missing %LOCALAPPDATA% environment variable');
+      }
+    }
   },
 
   _initLogging() {
@@ -98,7 +113,7 @@ const ApplicationMain = {
         // macOS: ~/Library/Logs/{appname}
         return path.join(app.getPath('home'), 'Library/Logs', app.getName());
       default:
-        // Windows: %APPDATA%\{appname}\logs
+        // Windows: %LOCALAPPDATA%\{appname}\logs
         // Linux: ~/.config/{appname}/logs
         return path.join(app.getPath('userData'), 'logs');
     }
