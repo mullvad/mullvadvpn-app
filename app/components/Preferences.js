@@ -99,6 +99,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
 
   _onChangeAutoStart = (autoStart: boolean) => {
     this.props.setAutoStart(autoStart);
+    // TODO: Handle failure to set auto-start
     this.setState({ autoStart });
   };
 }
