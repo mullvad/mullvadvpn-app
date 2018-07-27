@@ -53,6 +53,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Rename tunnel interface to "Mullvad".
 - Change tunnel interface metric for both IPv4 and IPv6.
+- Use local user directory to store settings and electron cache, instead of the roaming user
+  directory.
 
 ### Fixed
 - Disable account input when logging in.
