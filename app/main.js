@@ -30,6 +30,14 @@ const ApplicationMain = {
 
     log.info(`Running version ${app.getVersion()}`);
 
+    if (process.platform == 'win32') {
+      const appDataDir = process.env.LOCALAPPDATA;
+      if (appDataDir) {
+        app.setPath('appData', appDataDir);
+        app.setPath('userData', path.join(appDataDir, app.getName()));
+      }
+    }
+
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
   },
