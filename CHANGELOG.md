@@ -32,6 +32,10 @@ Line wrap the file at 100 chars.                                              Th
 - Format the expiry date and time using the system locale.
 - Account tokens are now required to have at least ten digits.
 
+#### Windows
+- Use local user directory to store settings and electron cache, instead of the roaming user
+  directory.
+
 ### Fixed
 - Ignore empty strings as redaction requests in the problem report tool, to avoid adding redacted
   markers between every character of the log message.
