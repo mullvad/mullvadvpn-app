@@ -267,8 +267,8 @@ A list of file paths written to and read from by the various components of the M
 
 ### Daemon
 
-On Windows, when a process runs as a system service the variable `%APPDATA%` expands to
-`C:\Windows\system32\config\systemprofile\AppData\Roaming`.
+On Windows, when a process runs as a system service the variable `%LOCALAPPDATA%` expands to
+`C:\Windows\system32\config\systemprofile\AppData\Local`.
 
 All directory paths are defined in, and fetched from, the `mullvad-paths` crate.
 
@@ -300,7 +300,7 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 |----------|------|
 | Linux | `/var/cache/mullvad-daemon/` |
 | macOS | `/var/root/Library/Caches/mullvad-daemon/` |
-| Windows | `%APPDATA%\Local\Mullvad\Mullvad VPN\` |
+| Windows | `%LOCALAPPDATA%\Mullvad\Mullvad VPN\` |
 
 #### RPC address file
 
