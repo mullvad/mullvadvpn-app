@@ -23,6 +23,18 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Create a new UI log file for every UI execution session, and preserve the log from the previous
+  session.
+- Account token can be copied to the clipboard by clicking on it in the account settings screen.
+
+### Changed
+- Format the expiry date and time using the system locale.
+- Account tokens are now required to have at least ten digits.
+
+### Fixed
+- Ignore empty strings as redaction requests, to avoid adding redacted messages between every
+  character of the log message.
 
 
 ## [2018.2-beta2] - 2018-07-18
@@ -33,9 +45,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add "auto-connect" setting in daemon, and make it configurable from CLI. Determines if the daemon
   should secure the network and start establishing a tunnel directly when it starts on boot.
 - Add "auto-connect" and "auto-start" options to the application preferences view.
-- Create a new UI log file for every UI execution session, and preserve the log from the previous
-  session.
-- Account token can be copied to the clipboard by clicking on it in the account settings screen.
 
 #### Windows
 - Include version information (meta data) in executables and DLLs.
@@ -47,8 +56,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add OpenVPN logs at the top of the problem report instead of middle, to aid support work.
 - Lower per log size limit in the problem report to 128 kiB.
 - Relay list is now updated periodically automatically, not only when the daemon starts.
-- Format the expiry date and time using the system locale.
-- Account tokens are now required to have at least ten digits.
 
 #### Windows
 - Rename tunnel interface to "Mullvad".
@@ -58,8 +65,6 @@ Line wrap the file at 100 chars.                                              Th
 - Disable account input when logging in.
 - Keep the user input in problem report form while the app runs, or until the report is successfully
   submitted.
-- Ignore empty strings as redaction requests, to avoid adding redacted messages between every
-  character of the log message.
 
 #### Windows
 - Hide the app icon from taskbar.
