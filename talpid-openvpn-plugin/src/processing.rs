@@ -25,8 +25,8 @@ pub struct EventProcessor {
 impl EventProcessor {
     pub fn new(arguments: &Arguments) -> Result<EventProcessor> {
         trace!("Creating EventProcessor");
-        let mut ipc_client =
-            WsIpcClient::connect(&arguments.server_id).chain_err(|| "Unable to create IPC client")?;
+        let mut ipc_client = WsIpcClient::connect(&arguments.server_id)
+            .chain_err(|| "Unable to create IPC client")?;
 
         trace!("Authenticating EventProcessor");
         match ipc_client.call("authenticate", &[&arguments.credentials]) {

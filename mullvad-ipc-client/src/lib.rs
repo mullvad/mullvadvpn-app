@@ -117,8 +117,8 @@ impl DaemonRpcClient {
         P: AsRef<Path>,
     {
         let file_path = file_path.as_ref();
-        let rpc_file =
-            File::open(file_path).chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
+        let rpc_file = File::open(file_path)
+            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
 
         let reader = BufReader::new(rpc_file);
         let mut lines = reader.lines();

@@ -65,7 +65,7 @@ matrix:
         - cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
         - rustup component add rustfmt-preview
-        - rustfmt --version
+        - cargo fmt --version || true
         - cargo fmt -- --check --unstable-features
 
     - language: rust

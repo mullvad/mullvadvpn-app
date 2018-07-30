@@ -35,7 +35,8 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
     // Avoids opening an existing file owned by another user and writing sensitive data to it.
     remove()?;
 
-    let file_path = mullvad_paths::get_rpc_address_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+    let file_path =
+        mullvad_paths::get_rpc_address_path().chain_err(|| ErrorKind::UnknownFilePath)?;
 
     if let Some(parent_dir) = file_path.parent() {
         fs::create_dir_all(parent_dir)
@@ -52,7 +53,8 @@ pub fn write(rpc_address: &str, shared_secret: &str) -> Result<()> {
 
 /// Removes the RPC file, if it exists.
 pub fn remove() -> Result<()> {
-    let file_path = mullvad_paths::get_rpc_address_path().chain_err(|| ErrorKind::UnknownFilePath)?;
+    let file_path =
+        mullvad_paths::get_rpc_address_path().chain_err(|| ErrorKind::UnknownFilePath)?;
 
     if let Err(error) = fs::remove_file(&file_path) {
         if error.kind() == io::ErrorKind::NotFound {

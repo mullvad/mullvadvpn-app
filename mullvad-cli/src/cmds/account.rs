@@ -23,12 +23,10 @@ impl Command for Account {
                             .help("The Mullvad account token to configure the client with")
                             .required(true),
                     ),
-            )
-            .subcommand(
+            ).subcommand(
                 clap::SubCommand::with_name("get")
                     .about("Display information about the currently configured account"),
-            )
-            .subcommand(
+            ).subcommand(
                 clap::SubCommand::with_name("unset")
                     .about("Removes the account number from the settings"),
             )
