@@ -280,7 +280,7 @@ The settings directory can be changed by setting the `MULLVAD_SETTINGS_DIR` envi
 |----------|------|
 | Linux | `/etc/mullvad-daemon/settings.json` |
 | macOS | `/etc/mullvad-daemon/settings.json` |
-| Windows | `%APPDATA%\Mullvad\Mullvad VPN\settings.json`
+| Windows | `%LOCALAPPDATA%\Mullvad\Mullvad VPN\settings.json`
 
 #### Logs
 
