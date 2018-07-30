@@ -312,8 +312,10 @@ export default class Support extends Component<SupportProps, SupportState> {
           </View>
         </View>
         <View style={styles.support__footer}>
-          <AppButton.BlueButton onPress={() => this.setState({ sendState: 'INITIAL' })}>
-            Edit message
+          <AppButton.BlueButton
+            style={styles.edit_message_button}
+            onPress={() => this.setState({ sendState: 'INITIAL' })}>
+            {'Edit message'}
           </AppButton.BlueButton>
           <AppButton.GreenButton onPress={this.onSend} testName="support__send_logs">
             Try again

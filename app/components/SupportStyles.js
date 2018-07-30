@@ -59,6 +59,9 @@ export default Object.assign(
     view_logs_button: {
       marginBottom: 16,
     },
+    edit_message_button: {
+      marginBottom: 16,
+    },
   }),
   createTextStyles({
     support__form_email: {
