@@ -67,6 +67,10 @@ const ApplicationMain = {
       // Disable log file in development
       log.transports.file.level = false;
     } else {
+      // Create log folder
+      mkdirp.sync(logDirectory);
+
+      // Backup previous log file if it exists
       try {
         fs.accessSync(this._logFilePath);
         this._oldLogFilePath = path.join(logDirectory, 'frontend.old.log');
@@ -75,15 +79,13 @@ const ApplicationMain = {
         // No previous log file exists
       }
 
+      // Configure logging to file
       log.transports.console.level = 'debug';
       log.transports.file.level = 'debug';
       log.transports.file.file = this._logFilePath;
+
+      log.debug(`Logging to ${this._logFilePath}`);
     }
-
-    log.debug(`Logging to ${this._logFilePath}`);
-
-    // create log folder
-    mkdirp.sync(logDirectory);
   },
 
   // Returns platform specific logs folder for application
