@@ -57,8 +57,8 @@ impl Firewall for PacketFilter {
             self.restore_state(),
             self.restore_dns(),
         ].into_iter()
-            .collect::<Result<Vec<_>>>()
-            .map(|_| ())
+        .collect::<Result<Vec<_>>>()
+        .map(|_| ())
     }
 }
 
@@ -200,8 +200,7 @@ impl PacketFilter {
             let allow_multicast = rule_builder
                 .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(
                     *super::MULTICAST_NET,
-                ))))
-                .build()?;
+                )))).build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
         }

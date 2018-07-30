@@ -281,8 +281,7 @@ fn read_dns(store: &SCDynamicStore, path: CFString) -> Option<Vec<DnsServer>> {
             dictionary
                 .find2(&CFString::from_static_string("ServerAddresses"))
                 .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(array_ptr) })
-        })
-        .and_then(|addresses| {
+        }).and_then(|addresses| {
             if let Some(array) = addresses.downcast::<CFArray<CFType>>() {
                 parse_cf_array_to_strings(array)
             } else {

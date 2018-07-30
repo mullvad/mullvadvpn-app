@@ -34,50 +34,42 @@ impl Command for Relay {
                                     .required(true)
                                     .index(1)
                                     .possible_values(&["openvpn", "wireguard"]),
-                            )
-                            .arg(
+                            ).arg(
                                 clap::Arg::with_name("host")
                                     .help("Hostname or IP")
                                     .required(true)
                                     .index(2),
-                            )
-                            .arg(
+                            ).arg(
                                 clap::Arg::with_name("port")
                                     .help("Remote network port")
                                     .required(true)
                                     .index(3),
-                            )
-                            .arg(
+                            ).arg(
                                 clap::Arg::with_name("protocol")
                                     .help("Transport protocol. For Wireguard this is ignored.")
                                     .index(4)
                                     .default_value("udp")
                                     .possible_values(&["udp", "tcp"]),
                             ),
-                    )
-                    .subcommand(
+                    ).subcommand(
                         clap::SubCommand::with_name("location")
                             .about(
                                 "Set country or city to select relays from. Use the 'list' \
                                  command to show available alternatives.",
-                            )
-                            .arg(
+                            ).arg(
                                 clap::Arg::with_name("country")
                                     .help(
                                         "The two letter country code, or 'any' for no preference.",
-                                    )
-                                    .required(true)
+                                    ).required(true)
                                     .index(1)
                                     .validator(country_code_validator),
-                            )
-                            .arg(
+                            ).arg(
                                 clap::Arg::with_name("city")
                                     .help("The three letter city code")
                                     .index(2)
                                     .validator(city_code_validator),
                             ),
-                    )
-                    .subcommand(
+                    ).subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set tunnel constraints")
                             .arg(clap::Arg::with_name("port").required(true).index(1))
@@ -88,8 +80,7 @@ impl Command for Relay {
                                     .possible_values(&["any", "udp", "tcp"]),
                             ),
                     ),
-            )
-            .subcommand(clap::SubCommand::with_name("get"))
+            ).subcommand(clap::SubCommand::with_name("get"))
             .subcommand(
                 clap::SubCommand::with_name("list")
                     .setting(clap::AppSettings::SubcommandRequired)

@@ -315,8 +315,7 @@ impl RelaySelector {
                     .find(|relay| {
                         i = i.saturating_sub(relay.weight);
                         i == 0
-                    })
-                    .unwrap(),
+                    }).unwrap(),
             )
         }
     }

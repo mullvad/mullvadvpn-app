@@ -257,11 +257,12 @@ impl Handler {
     ) -> Result<(SubscriptionId, JsonValue)> {
         match notification.remove("params") {
             Some(JsonValue::Object(mut parameters)) => {
-                let raw_id = parameters
-                    .remove("subscription")
-                    .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Missing subscription ID"))?;
-                let id = SubscriptionId::parse_value(&raw_id)
-                    .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Invalid subscription ID"))?;
+                let raw_id = parameters.remove("subscription").ok_or_else(|| {
+                    ErrorKind::InvalidSubscriptionEvent("Missing subscription ID")
+                })?;
+                let id = SubscriptionId::parse_value(&raw_id).ok_or_else(|| {
+                    ErrorKind::InvalidSubscriptionEvent("Invalid subscription ID")
+                })?;
                 let event = parameters
                     .remove("result")
                     .ok_or_else(|| ErrorKind::InvalidSubscriptionEvent("Missing event data"))?;
@@ -385,8 +386,7 @@ impl WsIpcClient {
                 id,
                 handler: Box::new(handler),
                 unsubscribe_method,
-            })
-            .chain_err(|| ErrorKind::ConnectionHandlerStopped)
+            }).chain_err(|| ErrorKind::ConnectionHandlerStopped)
     }
 
     pub fn call<S, T, O>(&mut self, method: S, params: &T) -> Result<O>
@@ -408,9 +408,12 @@ impl WsIpcClient {
             .send(command)
             .chain_err(|| ErrorKind::ConnectionHandlerStopped)?;
 
-        let json_result = response_rx.recv().chain_err(|| ErrorKind::MissingResponse)?;
+        let json_result = response_rx
+            .recv()
+            .chain_err(|| ErrorKind::MissingResponse)?;
 
-        Ok(serde_json::from_value(json_result?).chain_err(|| ErrorKind::DeserializeResponseError)?)
+        Ok(serde_json::from_value(json_result?)
+            .chain_err(|| ErrorKind::DeserializeResponseError)?)
     }
 }
 

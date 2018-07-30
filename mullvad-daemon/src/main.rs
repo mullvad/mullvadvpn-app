@@ -484,8 +484,7 @@ impl Daemon {
             .join(
                 self.version_proxy
                     .is_app_version_supported(&current_version),
-            )
-            .map(|(latest_versions, is_supported)| AppVersionInfo {
+            ).map(|(latest_versions, is_supported)| AppVersionInfo {
                 current_is_supported: is_supported,
                 latest: latest_versions,
             });

@@ -27,13 +27,10 @@ impl Command for Tunnel {
                                         .help(
                                             "Sets the optional  mssfix parameter. \
                                              Set an empty string to clear it.",
-                                        )
-                                        .required(true),
+                                        ).required(true),
                                 ),
-                            )
-                            .setting(clap::AppSettings::SubcommandRequired),
-                    )
-                    .subcommand(
+                            ).setting(clap::AppSettings::SubcommandRequired),
+                    ).subcommand(
                         clap::SubCommand::with_name("get")
                             .help("Retrieves the current setting for mssfix"),
                     ),

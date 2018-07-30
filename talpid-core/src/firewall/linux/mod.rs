@@ -373,7 +373,8 @@ fn check_iface(rule: &mut Rule, direction: Direction, iface: &str) -> Result<()>
 }
 
 fn iface_index(name: &str) -> Result<libc::c_uint> {
-    let c_name = CString::new(name).chain_err(|| ErrorKind::InvalidInterfaceName(name.to_owned()))?;
+    let c_name =
+        CString::new(name).chain_err(|| ErrorKind::InvalidInterfaceName(name.to_owned()))?;
     let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
     if index == 0 {
         let error = io::Error::last_os_error();

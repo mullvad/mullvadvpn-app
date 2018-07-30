@@ -67,8 +67,7 @@ impl IpcServer {
             .map(|server| IpcServer {
                 address: format!("ws://{}", server.addr()),
                 server: server,
-            })
-            .chain_err(|| ErrorKind::IpcServerError)
+            }).chain_err(|| ErrorKind::IpcServerError)
     }
 
     /// Returns the localhost address this `IpcServer` is listening on.
