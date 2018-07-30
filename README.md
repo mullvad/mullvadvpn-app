@@ -300,7 +300,7 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 |----------|------|
 | Linux | `/var/cache/mullvad-daemon/` |
 | macOS | `/var/root/Library/Caches/mullvad-daemon/` |
-| Windows | `%APPDATA%\Local\Mullvad\Mullvad VPN\` |
+| Windows | `%LOCALAPPDATA%\Mullvad\Mullvad VPN\` |
 
 #### RPC address file
 
