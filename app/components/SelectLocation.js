@@ -1,5 +1,6 @@
 // @flow
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { View } from 'reactxp';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
@@ -59,8 +60,12 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     const scrollView = this._scrollView;
 
     if (scrollView && cell) {
-      //TODO: fix this when repairing the auto-scroll in customscrollbars.
-      //scrollView.scrollToElement(cell, 'middle');
+      // eslint-disable-next-line react/no-find-dom-node
+      const cellDOMNode = ReactDOM.findDOMNode(cell);
+
+      if (cellDOMNode instanceof HTMLElement) {
+        scrollView.scrollToElement(cellDOMNode, 'middle');
+      }
     }
   }
 
@@ -150,6 +155,12 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   _renderCountry(relayCountry: RelayLocationRedux) {
     const isSelected = this._isSelected({ country: relayCountry.code });
 
+    const onRef = isSelected
+      ? (element) => {
+          this._selectedCell = element;
+        }
+      : undefined;
+
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
 
@@ -172,7 +183,8 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           style={isSelected ? styles.cell_selected : styles.cell}
           onPress={handleSelect}
           disabled={!relayCountry.hasActiveRelays}
-          testName="country">
+          testName="country"
+          ref={onRef}>
           {this._relayStatusIndicator(relayCountry.hasActiveRelays, isSelected)}
 
           <Cell.Label>{relayCountry.name}</Cell.Label>

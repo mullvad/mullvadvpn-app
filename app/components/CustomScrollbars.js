@@ -56,7 +56,6 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       }
 
       const scrollTop = this._computeScrollTop(scrollable, child, scrollPosition);
-
       this.scrollTo(0, scrollTop);
     }
   }
@@ -147,16 +146,34 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }
   }
 
+  // Computes the position of child element within scrollable container
+  _computeOffsetTop(scrollable: HTMLElement, child: HTMLElement) {
+    let offsetTop = 0;
+    let node = child;
+
+    while (node && scrollable.contains(node)) {
+      offsetTop += node.offsetTop;
+
+      // Flow bug in offsetParent definition:
+      // https://github.com/facebook/flow/issues/4407
+      node = ((node.offsetParent: any): HTMLElement);
+    }
+
+    return offsetTop;
+  }
+
   _computeScrollTop(scrollable: HTMLElement, child: HTMLElement, scrollPosition: ScrollPosition) {
+    const offsetTop = this._computeOffsetTop(scrollable, child);
+
     switch (scrollPosition) {
       case 'top':
-        return child.offsetTop;
+        return offsetTop;
 
       case 'bottom':
-        return child.offsetTop - (scrollable.offsetHeight - child.clientHeight);
+        return offsetTop - (scrollable.offsetHeight - child.clientHeight);
 
       case 'middle':
-        return child.offsetTop - (scrollable.offsetHeight - child.clientHeight) * 0.5;
+        return offsetTop - (scrollable.offsetHeight - child.clientHeight) * 0.5;
 
       default:
         throw new Error(`Unknown enum type for ScrollPosition: ${scrollPosition}`);

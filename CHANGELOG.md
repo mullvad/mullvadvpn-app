@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Create a new UI log file for every UI execution session, and preserve the log from the previous
   session.
 - Account token can be copied to the clipboard by clicking on it in the account settings screen.
+- Automatically scroll to selected country/city in locations view.
 
 ### Changed
 - Format the expiry date and time using the system locale.
