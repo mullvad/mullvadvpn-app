@@ -12,12 +12,13 @@ pub fn get_rpc_address_path() -> Result<PathBuf> {
     }
 }
 
-#[cfg(unix)]
 fn get_default_rpc_address_dir() -> Result<PathBuf> {
-    Ok(PathBuf::from("/tmp"))
-}
-
-#[cfg(windows)]
-fn get_default_rpc_address_dir() -> Result<PathBuf> {
-    ::get_program_data_dir()
+    #[cfg(unix)]
+    {
+        Ok(PathBuf::from("/tmp"))
+    }
+    #[cfg(windows)]
+    {
+        ::get_allusersprofile_dir().map(|dir| dir.join(::PRODUCT_NAME))
+    }
 }
