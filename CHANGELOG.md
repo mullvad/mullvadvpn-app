@@ -33,8 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Account tokens are now required to have at least ten digits.
 
 ### Fixed
-- Ignore empty strings as redaction requests, to avoid adding redacted messages between every
-  character of the log message.
+- Ignore empty strings as redaction requests in the problem report tool, to avoid adding redacted
+  markers between every character of the log message.
 
 
 ## [2018.2-beta2] - 2018-07-18
