@@ -14,4 +14,4 @@ error-chain = "0.12"
 log = "0.4"
 
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
-app_dirs = "1.2"
+dirs = "1.0"
