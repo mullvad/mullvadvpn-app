@@ -27,7 +27,7 @@ fn get_default_settings_dir() -> Result<PathBuf> {
 #[cfg(windows)]
 fn get_default_settings_dir() -> Result<PathBuf> {
     Ok(::app_dirs::get_app_root(
-        ::app_dirs::AppDataType::UserConfig,
+        ::app_dirs::AppDataType::UserData,
         &::metadata::APP_INFO,
     )?)
 }

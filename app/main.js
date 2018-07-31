@@ -26,6 +26,7 @@ const ApplicationMain = {
       return;
     }
 
+    this._overrideAppPaths();
     this._initLogging();
 
     log.info(`Running version ${app.getVersion()}`);
@@ -53,6 +54,20 @@ const ApplicationMain = {
     return shouldQuit;
   },
 
+  _overrideAppPaths() {
+    // This ensures that on Windows the %LOCALAPPDATA% directory is used instead of the %ADDDATA%
+    // directory that has roaming contents
+    if (process.platform == 'win32') {
+      const appDataDir = process.env.LOCALAPPDATA;
+      if (appDataDir) {
+        app.setPath('appData', appDataDir);
+        app.setPath('userData', path.join(appDataDir, app.getName()));
+      } else {
+        throw new Error('Missing %LOCALAPPDATA% environment variable');
+      }
+    }
+  },
+
   _initLogging() {
     const logDirectory = this._getLogsDirectory();
     const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
@@ -67,6 +82,10 @@ const ApplicationMain = {
       // Disable log file in development
       log.transports.file.level = false;
     } else {
+      // Create log folder
+      mkdirp.sync(logDirectory);
+
+      // Backup previous log file if it exists
       try {
         fs.accessSync(this._logFilePath);
         this._oldLogFilePath = path.join(logDirectory, 'frontend.old.log');
@@ -75,15 +94,13 @@ const ApplicationMain = {
         // No previous log file exists
       }
 
+      // Configure logging to file
       log.transports.console.level = 'debug';
       log.transports.file.level = 'debug';
       log.transports.file.file = this._logFilePath;
+
+      log.debug(`Logging to ${this._logFilePath}`);
     }
-
-    log.debug(`Logging to ${this._logFilePath}`);
-
-    // create log folder
-    mkdirp.sync(logDirectory);
   },
 
   // Returns platform specific logs folder for application
@@ -96,7 +113,7 @@ const ApplicationMain = {
         // macOS: ~/Library/Logs/{appname}
         return path.join(app.getPath('home'), 'Library/Logs', app.getName());
       default:
-        // Windows: %APPDATA%\{appname}\logs
+        // Windows: %LOCALAPPDATA%\{appname}\logs
         // Linux: ~/.config/{appname}/logs
         return path.join(app.getPath('userData'), 'logs');
     }
