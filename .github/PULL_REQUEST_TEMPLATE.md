@@ -1,3 +1,6 @@
-Checklist for a PR:
+Describe **what** this PR changes. **Why** this is wanted. And, if needed, **how** it does it.
 
-* [ ] Describe the change in **`CHANGELOG.md`**. Only applicable if the change has any impact for a user.
+Git checklist:
+
+* [ ] Describe the change in **`CHANGELOG.md`** under the `[Unreleased]` header.
+* [ ] Check that commits follow the [Mullvad coding guidelines](https://github.com/mullvad/coding-guidelines)
