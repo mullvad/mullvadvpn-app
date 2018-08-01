@@ -15,7 +15,7 @@ import Map from './Map';
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 
-export type ConnectProps = {
+type Props = {
   connection: ConnectionReduxState,
   accountExpiry: string,
   selectedRelayName: string,
@@ -25,14 +25,15 @@ export type ConnectProps = {
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
+  updateAccountExpiry: () => Promise<void>,
 };
 
-type ConnectState = {
+type State = {
   showCopyIPMessage: boolean,
   mapOffset: [number, number],
 };
 
-export default class Connect extends Component<ConnectProps, ConnectState> {
+export default class Connect extends Component<Props, State> {
   state = {
     showCopyIPMessage: false,
     mapOffset: [0, 0],
@@ -40,7 +41,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
   _copyTimer: ?TimeoutID;
 
-  shouldComponentUpdate(nextProps: ConnectProps, nextState: ConnectState) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { connection: prevConnection, ...otherPrevProps } = this.props;
     const { connection: nextConnection, ...otherNextProps } = nextProps;
 
@@ -54,6 +55,10 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
       prevState.mapOffset[1] !== nextState.mapOffset[1] ||
       prevState.showCopyIPMessage !== nextState.showCopyIPMessage
     );
+  }
+
+  componentDidMount() {
+    this.props.updateAccountExpiry();
   }
 
   componentWillUnmount() {

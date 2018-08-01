@@ -5,7 +5,7 @@ import { shallow } from 'enzyme';
 
 import Connect from '../../app/components/Connect';
 
-import type { ConnectProps } from '../../app/components/Connect';
+type ConnectProps = React.ElementProps<typeof Connect>;
 
 describe('components/Connect', () => {
   it('shows unsecured hints when disconnected', () => {
@@ -125,6 +125,7 @@ const defaultProps: ConnectProps = {
     country: null,
     city: null,
   },
+  updateAccountExpiry: () => Promise.resolve(),
 };
 
 function renderWithProps(customProps: $Shape<ConnectProps>) {

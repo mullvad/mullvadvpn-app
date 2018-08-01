@@ -12,7 +12,7 @@ import { formatAccount } from '../lib/formatters';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 
-export type AccountProps = {
+type Props = {
   accountToken: AccountToken,
   accountExpiry: string,
   expiryLocale: string,
@@ -28,7 +28,7 @@ type State = {
   showAccountTokenCopiedMessage: boolean,
 };
 
-export default class Account extends Component<AccountProps, State> {
+export default class Account extends Component<Props, State> {
   state = {
     isRefreshingExpiry: false,
     showAccountTokenCopiedMessage: false,
@@ -119,7 +119,7 @@ export default class Account extends Component<AccountProps, State> {
                     <Text style={styles.account__row_label}>Paid until</Text>
                     {isOutOfTime ? (
                       <Text style={styles.account__out_of_time} testName="account__out_of_time">
-                        OUT OF TIME
+                        {'OUT OF TIME'}
                       </Text>
                     ) : (
                       <Text style={styles.account__row_value}>{formattedExpiry}</Text>
