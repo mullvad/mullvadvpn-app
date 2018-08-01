@@ -136,6 +136,7 @@ export default {
     subtitle: {
       fontFamily: 'Open Sans',
       fontSize: 13,
+      lineHeight: 15,
       fontWeight: '600',
       letterSpacing: -0.2,
       color: colors.white80,
