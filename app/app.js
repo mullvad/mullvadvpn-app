@@ -49,6 +49,7 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
+  _lastNotification: Notification;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -534,6 +535,29 @@ export default class AppRenderer {
     }
 
     this._updateTrayIcon(connectionState);
+    this._showNotification(connectionState);
+  }
+
+  _showNotification(connectionState: ConnectionState) {
+    let message = '';
+    switch (connectionState) {
+      case 'connecting':
+        message = 'Securing';
+        break;
+      case 'connected':
+        message = 'Connected';
+        break;
+      case 'disconnected':
+        message = 'Unsecured';
+        break;
+    }
+
+    const lastNotification = this._lastNotification;
+    if (lastNotification) {
+      lastNotification.close();
+    }
+
+    this._lastNotification = new Notification(message);
   }
 
   _rpcErrorToBackendError(e) {
