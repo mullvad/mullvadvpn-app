@@ -80,8 +80,18 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
   }
 
   renderError(error: Error) {
-    const title = error.userFriendlyTitle || 'Something went wrong';
-    const message = error.userFriendlyMessage || error.message;
+    let title = '';
+    let message = '';
+
+    if (error instanceof NoCreditError) {
+      title = 'Out of time';
+      message = 'Buy more time, so you can continue using the internet securely';
+    }
+
+    if (error instanceof NoInternetError) {
+      title = 'Offline';
+      message = 'Your internet connection will be secured when you get back online';
+    }
 
     return (
       <View style={styles.connect}>
@@ -91,7 +101,7 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
         <View style={styles.status}>
           <View style={styles.error_title}>{title}</View>
           <View style={styles.error_message}>{message}</View>
-          {error.type === 'NO_CREDIT' ? (
+          {error instanceof NoCreditError ? (
             <View>
               <AppButton.GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
                 <AppButton.Label>Buy more time</AppButton.Label>
