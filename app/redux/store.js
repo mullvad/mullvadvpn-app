@@ -12,7 +12,7 @@ import settingsActions from './settings/actions';
 import support from './support/reducers';
 import supportActions from './support/actions';
 
-import type { Store } from 'redux';
+import type { Store, StoreEnhancer } from 'redux';
 import type { History } from 'history';
 import type { AccountReduxState } from './account/reducers';
 import type { ConnectionReduxState } from './connection/reducers';
@@ -69,7 +69,9 @@ export default function configureStore(
     return compose;
   })();
 
-  const enhancer = composeEnhancers(applyMiddleware(...middlewares));
+  const enhancer: StoreEnhancer<ReduxState, ReduxAction, ReduxDispatch> = composeEnhancers(
+    applyMiddleware(...middlewares),
+  );
   const rootReducer = combineReducers(reducers);
   const rootReducerWithRouter = connectRouter(routerHistory)(rootReducer);
   if (initialState) {
