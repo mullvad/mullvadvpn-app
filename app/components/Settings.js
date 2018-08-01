@@ -11,13 +11,12 @@ import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';
 
-import type { AccountReduxState } from '../redux/account/reducers';
-import type { SettingsReduxState } from '../redux/settings/reducers';
+import type { LoginState } from '../redux/account/reducers';
 
-export type SettingsProps = {
-  account: AccountReduxState,
-  settings: SettingsReduxState,
-  version: string,
+type Props = {
+  loginState: LoginState,
+  accountExpiry: ?string,
+  appVersion: string,
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
@@ -25,9 +24,14 @@ export type SettingsProps = {
   onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
   onExternalLink: (type: string) => void,
+  updateAccountExpiry: () => Promise<void>,
 };
 
-export default class Settings extends Component<SettingsProps> {
+export default class Settings extends Component<Props> {
+  componentDidMount() {
+    this.props.updateAccountExpiry();
+  }
+
   render() {
     return (
       <Layout>
@@ -60,17 +64,17 @@ export default class Settings extends Component<SettingsProps> {
   }
 
   _renderTopButtons() {
-    const isLoggedIn = this.props.account.status === 'ok';
+    const isLoggedIn = this.props.loginState === 'ok';
     if (!isLoggedIn) {
       return null;
     }
 
-    let isOutOfTime = false,
-      formattedExpiry = '';
-    const expiryIso = this.props.account.expiry;
+    let isOutOfTime = false;
+    let formattedExpiry = '';
 
+    const expiryIso = this.props.accountExpiry;
     if (isLoggedIn && expiryIso) {
-      const expiry = moment(this.props.account.expiry);
+      const expiry = moment(expiryIso);
       isOutOfTime = expiry.isSameOrBefore(moment());
       formattedExpiry = (expiry.fromNow(true) + ' left').toUpperCase();
     }
@@ -86,7 +90,7 @@ export default class Settings extends Component<SettingsProps> {
               <Cell.SubText
                 testName="settings__account_paid_until_subtext"
                 style={styles.settings__account_paid_until_Label__error}>
-                OUT OF TIME
+                {'OUT OF TIME'}
               </Cell.SubText>
               <Img height={12} width={7} source="icon-chevron" />
             </Cell.CellButton>
@@ -136,7 +140,7 @@ export default class Settings extends Component<SettingsProps> {
     // the version in package.json has to be semver, but we use a YEAR.release-channel
     // version scheme. in package.json we thus have to write YEAR.release.X-channel and
     // this function is responsible for removing .X part.
-    return this.props.version
+    return this.props.appVersion
       .replace('.0-', '-') // remove the .0 in 2018.1.0-beta9
       .replace(/\.0$/, ''); // remove the .0 in 2018.1.0
   }
