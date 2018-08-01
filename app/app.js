@@ -49,6 +49,7 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
+  _lastNotification: *;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -534,6 +535,31 @@ export default class AppRenderer {
     }
 
     this._updateTrayIcon(connectionState);
+    this._showNotification(connectionState);
+  }
+
+  _showNotification(connectionState: ConnectionState) {
+    let message;
+    switch (connectionState) {
+      case 'connecting':
+        message = 'Securing';
+        break;
+      case 'connected':
+        message = 'Connected';
+        break;
+      case 'disconnected':
+        message = 'Unsecured';
+        break;
+    }
+
+    const lastNotification = this._lastNotification;
+    if (lastNotification) {
+      // $FlowFixMe: need to specify the type of _lastNotification
+      lastNotification.close();
+    }
+
+    // $FlowFixMe: where should Notification be imported from?
+    this._lastNotification = new Notification(message);
   }
 
   _rpcErrorToBackendError(e) {
