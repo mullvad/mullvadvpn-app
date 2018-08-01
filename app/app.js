@@ -3,7 +3,11 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { Provider } from 'react-redux';
-import { ConnectedRouter, push as pushHistory } from 'connected-react-router';
+import {
+  ConnectedRouter,
+  push as pushHistory,
+  replace as replaceHistory,
+} from 'connected-react-router';
 import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
 
@@ -50,7 +54,13 @@ export default class AppRenderer {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
-      history: bindActionCreators({ push: pushHistory }, dispatch),
+      history: bindActionCreators(
+        {
+          push: pushHistory,
+          replace: replaceHistory,
+        },
+        dispatch,
+      ),
     };
 
     this._openConnectionObserver = this._daemonRpc.addOpenConnectionObserver(() => {
@@ -110,23 +120,27 @@ export default class AppRenderer {
 
   async login(accountToken: AccountToken) {
     const actions = this._reduxActions;
+    const history = this._memoryHistory;
     actions.account.startLogin(accountToken);
 
-    log.debug('Attempting to login');
+    log.debug('Logging in');
 
     try {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
 
-      actions.account.loginSuccessful(accountData.expiry);
+      actions.account.updateAccountExpiry(accountData.expiry);
+      actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
       setTimeout(async () => {
-        actions.history.push('/connect');
+        if (history.location.pathname === '/') {
+          actions.history.replace('/connect');
+        }
 
         try {
-          log.debug('Auto-connecting the tunnel...');
+          log.debug('Auto-connecting the tunnel');
           await this.connectTunnel();
         } catch (error) {
           log.error(`Failed to auto-connect the tunnel: ${error.message}`);
@@ -139,33 +153,29 @@ export default class AppRenderer {
     }
   }
 
-  async _autologin() {
+  async _restoreSession() {
     const actions = this._reduxActions;
-    actions.account.startLogin();
+    const history = this._memoryHistory;
 
-    log.debug('Attempting to log in automatically');
+    log.debug('Restoring session');
 
-    try {
-      const accountToken = await this._daemonRpc.getAccount();
-      if (!accountToken) {
-        throw new NoAccountError();
+    const accountToken = await this._daemonRpc.getAccount();
+
+    if (accountToken) {
+      log.debug(`Got account token: ${accountToken}`);
+      actions.account.updateAccountToken(accountToken);
+      actions.account.loginSuccessful();
+
+      if (history.location.pathname === '/') {
+        actions.history.replace('/connect');
       }
+    } else {
+      log.debug('No account set, showing login view.');
+      ipcRenderer.send('show-window');
 
-      log.debug(`The daemon had an account number stored: ${accountToken}`);
-      actions.account.startLogin(accountToken);
-
-      const accountData = await this._daemonRpc.getAccountData(accountToken);
-      log.debug('The stored account number still exists:', accountData);
-
-      actions.account.loginSuccessful(accountData.expiry);
-      actions.history.push('/connect');
-    } catch (e) {
-      log.warn('Unable to autologin,', e.message);
-
-      actions.account.autoLoginFailed();
-      actions.history.push('/');
-
-      throw e;
+      if (history.location.pathname !== '/') {
+        actions.history.replace('/');
+      }
     }
   }
 
@@ -179,7 +189,7 @@ export default class AppRenderer {
         this._fetchAccountHistory(),
       ]);
       actions.account.loggedOut();
-      actions.history.push('/');
+      actions.history.replace('/');
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -383,16 +393,11 @@ export default class AppRenderer {
       log.error(`Cannot authenticate: ${error.message}`);
     }
 
-    // autologin
+    // attempt to restore the session
     try {
-      await this._autologin();
+      await this._restoreSession();
     } catch (error) {
-      if (error instanceof NoAccountError) {
-        log.debug('No previously configured account set, showing window');
-        ipcRenderer.send('show-window');
-      } else {
-        log.error(`Failed to autologin: ${error.message}`);
-      }
+      log.error(`Failed to restore session: ${error.message}`);
     }
 
     // make sure to re-subscribe to state notifications when connection is re-established.
