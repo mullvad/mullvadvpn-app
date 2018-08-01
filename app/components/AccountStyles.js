@@ -56,6 +56,7 @@ export default {
     account__row_value: {
       fontFamily: 'Open Sans',
       fontSize: 16,
+      lineHeight: 19,
       fontWeight: '800',
       color: colors.white,
     },
