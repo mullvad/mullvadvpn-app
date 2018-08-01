@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import Preferences from '../components/Preferences';
 import { log, getOpenAtLogin, setOpenAtLogin } from '../lib/platform';
 
