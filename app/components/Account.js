@@ -1,7 +1,7 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View, App, Types } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
@@ -34,8 +34,6 @@ export default class Account extends Component<Props, State> {
     showAccountTokenCopiedMessage: false,
   };
 
-  _activationStateToken: ?Types.SubscriptionToken;
-
   _isMounted = false;
 
   _copyTimer: ?TimeoutID;
@@ -43,12 +41,6 @@ export default class Account extends Component<Props, State> {
   componentDidMount() {
     this._isMounted = true;
     this._refreshAccountExpiry();
-
-    this._activationStateToken = App.activationStateChangedEvent.subscribe((activationState) => {
-      if (activationState === Types.AppActivationState.Active) {
-        this._refreshAccountExpiry();
-      }
-    });
   }
 
   componentWillUnmount() {
@@ -56,12 +48,6 @@ export default class Account extends Component<Props, State> {
 
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
-    }
-
-    const activationStateToken = this._activationStateToken;
-    if (activationStateToken) {
-      activationStateToken.unsubscribe();
-      this._activationStateToken = null;
     }
   }
 
