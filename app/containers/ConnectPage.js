@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push as pushHistory } from 'react-router-redux';
+import { push as pushHistory } from 'connected-react-router';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';

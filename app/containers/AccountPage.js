@@ -3,7 +3,7 @@
 import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import Account from '../components/Account';
 import accountActions from '../redux/account/actions';
 import { links } from '../config';
