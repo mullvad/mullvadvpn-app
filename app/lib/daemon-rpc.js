@@ -4,7 +4,7 @@ import JsonRpcTransport, {
   RemoteError as JsonRpcRemoteError,
   TimeOutError as JsonRpcTimeOutError,
 } from './jsonrpc-transport';
-import { UnknownError, CommunicationError, InvalidAccountError, NoDaemonError } from '../errors';
+import { CommunicationError, InvalidAccountError, NoDaemonError } from '../errors';
 
 import {
   object,
@@ -283,8 +283,9 @@ export class DaemonRpc implements DaemonRpcProtocol {
         }
       } else if (error instanceof JsonRpcTimeOutError) {
         throw new NoDaemonError();
+      } else {
+        throw error;
       }
-      throw new UnknownError(error.message);
     }
 
     try {
