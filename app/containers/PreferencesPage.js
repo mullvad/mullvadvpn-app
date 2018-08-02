@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import Preferences from '../components/Preferences';
 import { log, getOpenAtLogin, setOpenAtLogin } from '../lib/platform';
 
@@ -15,9 +15,11 @@ const mapStateToProps = (state: ReduxState) => ({
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
-  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+  const history = bindActionCreators({ goBack }, dispatch);
   return {
-    onClose: () => pushHistory('/settings'),
+    onClose: () => {
+      history.goBack();
+    },
     getAutoStart: () => {
       return getOpenAtLogin();
     },

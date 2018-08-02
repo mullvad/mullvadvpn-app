@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import SelectLocation from '../components/SelectLocation';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import { log } from '../lib/platform';
@@ -14,9 +14,9 @@ const mapStateToProps = (state: ReduxState) => ({
   settings: state.settings,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
-  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+  const history = bindActionCreators({ goBack }, dispatch);
   return {
-    onClose: () => pushHistory('/connect'),
+    onClose: () => history.goBack(),
     onSelect: async (relayLocation) => {
       try {
         const relayUpdate = RelaySettingsBuilder.normal()
@@ -27,9 +27,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         await props.app.fetchRelaySettings();
         await props.app.connectTunnel();
 
-        pushHistory('/connect');
+        history.goBack();
       } catch (e) {
-        log.error('Failed to select server: ', e.message);
+        log.error(`Failed to select server: ${e.message}`);
       }
     },
   };
