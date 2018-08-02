@@ -2,7 +2,7 @@
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push as pushHistory } from 'connected-react-router';
+import { push } from 'connected-react-router';
 import { links } from '../config';
 import Connect from '../components/Connect';
 import connectActions from '../redux/connection/actions';
@@ -56,7 +56,7 @@ const mapStateToProps = (state: ReduxState) => {
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { copyIPAddress } = bindActionCreators(connectActions, dispatch);
-  const history = bindActionCreators({ push: pushHistory }, dispatch);
+  const history = bindActionCreators({ push }, dispatch);
 
   return {
     onSettings: () => {

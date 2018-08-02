@@ -3,7 +3,7 @@
 import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import Account from '../components/Account';
 import accountActions from '../redux/account/actions';
 import { links } from '../config';
@@ -19,7 +19,7 @@ const mapStateToProps = (state: ReduxState) => ({
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const { copyAccountToken } = bindActionCreators(accountActions, dispatch);
-  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+  const history = bindActionCreators({ goBack }, dispatch);
   return {
     updateAccountExpiry: () => props.app.updateAccountExpiry(),
     onCopyAccountToken: () => copyAccountToken(),
@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       props.app.logout();
     },
     onClose: () => {
-      pushHistory('/settings');
+      history.goBack();
     },
     onBuyMore: () => openLink(links['purchase']),
   };
