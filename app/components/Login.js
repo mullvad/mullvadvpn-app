@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Component, Text, View, Animated, Styles, UserInterface } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
+import { SettingsBarButton, Brand } from './HeaderBar';
 import AccountInput from './AccountInput';
 import Accordion from './Accordion';
 import { formatAccount } from '../lib/formatters';
@@ -94,7 +95,10 @@ export default class Login extends Component<Props, State> {
   render() {
     return (
       <Layout>
-        <Header showSettings={true} onSettings={this.props.openSettings} />
+        <Header>
+          <Brand />
+          <SettingsBarButton onPress={this.props.openSettings} />
+        </Header>
         <Container>
           <View style={styles.login_form}>
             {this._getStatusIcon()}
