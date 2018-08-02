@@ -3,6 +3,7 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
+import { SettingsBarButton, Brand } from './HeaderBar';
 import { Component, Text, View, Types } from 'reactxp';
 import * as AppButton from './AppButton';
 import Img from './Img';
@@ -73,12 +74,10 @@ export default class Connect extends Component<Props, State> {
 
     return (
       <Layout>
-        <Header
-          style={this.headerStyle()}
-          showSettings={true}
-          onSettings={this.props.onSettings}
-          testName="header"
-        />
+        <Header barStyle={this.headerBarStyle()} testName="header">
+          <Brand />
+          <SettingsBarButton onPress={this.props.onSettings} />
+        </Header>
         <Container>{child}</Container>
       </Layout>
     );
@@ -329,15 +328,17 @@ export default class Connect extends Component<Props, State> {
 
   // Private
 
-  headerStyle(): HeaderBarStyle {
-    switch (this.props.connection.status) {
+  headerBarStyle(): HeaderBarStyle {
+    const { status } = this.props.connection;
+    switch (status) {
       case 'disconnected':
         return 'error';
       case 'connecting':
       case 'connected':
         return 'success';
+      default:
+        throw new Error(`Invalid ConnectionState: ${status}`);
     }
-    throw new Error('Invalid ConnectionState');
   }
 
   networkSecurityStyle(): Types.Style {
