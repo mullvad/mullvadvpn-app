@@ -33,6 +33,10 @@ const ApplicationMain = {
 
     log.info(`Running version ${app.getVersion()}`);
 
+    if (process.platform === 'win32') {
+      app.setAppUserModelId('net.mullvad.vpn');
+    }
+
     app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
