@@ -1,7 +1,8 @@
 // @flow
 
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
+import { bindActionCreators } from 'redux';
 import { AdvancedSettings } from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import { log } from '../lib/platform';
@@ -26,9 +27,11 @@ const mapStateToProps = (state: ReduxState) => {
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+  const history = bindActionCreators({ goBack }, dispatch);
   return {
-    onClose: () => dispatch(push('/settings')),
-
+    onClose: () => {
+      history.goBack();
+    },
     onUpdate: async (protocol, port) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.openvpn((openvpn) => {
