@@ -135,7 +135,7 @@ export default class AppRenderer {
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
       setTimeout(async () => {
-        if (history.location.pathname === '/') {
+        if (history.location.pathname === '/login') {
           actions.history.replace('/connect');
         }
 
@@ -166,15 +166,19 @@ export default class AppRenderer {
       actions.account.updateAccountToken(accountToken);
       actions.account.loginSuccessful();
 
+      // take user to main view if user is still at launch screen `/`
       if (history.location.pathname === '/') {
         actions.history.replace('/connect');
       }
     } else {
       log.debug('No account set, showing login view.');
+
+      // show window when account is not set
       ipcRenderer.send('show-window');
 
-      if (history.location.pathname !== '/') {
-        actions.history.replace('/');
+      // take user to `/login` screen if user is at launch screen `/`
+      if (history.location.pathname === '/') {
+        actions.history.replace('/login');
       }
     }
   }
@@ -189,7 +193,7 @@ export default class AppRenderer {
         this._fetchAccountHistory(),
       ]);
       actions.account.loggedOut();
-      actions.history.replace('/');
+      actions.history.replace('/login');
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -383,6 +387,7 @@ export default class AppRenderer {
     // save to redux that the app connected to daemon
     this._reduxActions.daemon.connected();
 
+    // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
     // authenticate once connected
@@ -450,6 +455,9 @@ export default class AppRenderer {
       this._reconnectBackoff.attempt(() => {
         recover();
       });
+
+      // take user back to the launch screen `/`.
+      actions.history.replace('/');
     }
   }
 
