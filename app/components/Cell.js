@@ -19,6 +19,7 @@ const styles = {
       flexDirection: 'row',
       alignItems: 'center',
       alignContent: 'center',
+      cursor: 'default',
     },
     cellHover: {
       backgroundColor: colors.blue80,
