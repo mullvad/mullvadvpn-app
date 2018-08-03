@@ -49,13 +49,3 @@ export class CommunicationError extends Error {
     super('api.mullvad.net is blocked, please check your firewall');
   }
 }
-
-export class UnknownError extends Error {
-  constructor(cause: string) {
-    super(`An unknown error occurred, ${cause}`);
-  }
-
-  get userFriendlyTitle(): string {
-    return 'Something went wrong';
-  }
-}
