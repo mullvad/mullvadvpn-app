@@ -88,6 +88,15 @@ export default Object.assign(
       backgroundColor: colors.white,
       flex: 1,
     },
+    support__sent_message: {
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '600',
+      overflow: 'visible',
+      color: colors.white60,
+      lineHeight: 20,
+      letterSpacing: -0.2,
+    },
     support__sent_email: {
       fontWeight: '900',
       color: colors.white,
