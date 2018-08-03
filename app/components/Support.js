@@ -286,9 +286,9 @@ export default class Support extends Component<SupportProps, SupportState> {
             <Text style={styles.support__status_security__secure}>Secure Connection</Text>
             <Text style={styles.support__send_status}>Sent</Text>
 
-            <Text style={styles.support__subtitle}>Thanks! We will look into this.</Text>
+            <Text style={styles.support__sent_message}>Thanks! We will look into this.</Text>
             {this.state.email.trim().length > 0 ? (
-              <Text style={styles.support__subtitle}>
+              <Text style={styles.support__sent_message}>
                 If needed we will contact you on {'\u00A0'}
                 <Text style={styles.support__sent_email}>{this.state.email}</Text>
               </Text>
