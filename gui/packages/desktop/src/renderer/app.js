@@ -10,7 +10,7 @@ import {
   replace as replaceHistory,
 } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
-import { webFrame, ipcRenderer } from 'electron';
+import { remote, webFrame, ipcRenderer } from 'electron';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
@@ -23,6 +23,7 @@ import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
+import versionActions from './redux/version/actions';
 import daemonActions from './redux/daemon/actions';
 
 import type { RpcCredentials } from '../common/types';
@@ -57,6 +58,7 @@ export default class AppRenderer {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
+      version: bindActionCreators(versionActions, dispatch),
       daemon: bindActionCreators(daemonActions, dispatch),
       history: bindActionCreators(
         {
@@ -405,6 +407,17 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(tunnelOptions.openvpn.enableIpv6);
   }
 
+  async _fetchVersionInfo() {
+    const actions = this._reduxActions;
+    const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
+    const versionFromGui = remote.app
+      .getVersion()
+      .replace('.0-', '-') // remove the .0 in yyyy.x.0-zzz
+      .replace(/\.0$/, ''); // remove the .0 in yyyy.x.0
+
+    actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
+  }
+
   async _connectToDaemon(): Promise<void> {
     let credentials;
     try {
@@ -536,6 +549,7 @@ export default class AppRenderer {
       this._fetchLocation(),
       this._fetchAccountHistory(),
       this._fetchTunnelOptions(),
+      this._fetchVersionInfo(),
     ]);
   }
 

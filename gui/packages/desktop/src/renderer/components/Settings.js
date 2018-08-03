@@ -5,12 +5,14 @@ import * as React from 'react';
 import { Component, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import Img from './Img';
 import { Layout, Container } from './Layout';
 import NavigationBar, { CloseBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import WindowStateObserver from '../lib/window-state-observer';
+import { colors } from '../../config';
 
 import type { LoginState } from '../redux/account/reducers';
 
@@ -18,6 +20,7 @@ type Props = {
   loginState: LoginState,
   accountExpiry: ?string,
   appVersion: string,
+  consistentVersion: boolean,
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
@@ -133,27 +136,22 @@ export default class Settings extends Component<Props> {
   }
 
   _renderMiddleButtons() {
+    const icon = this.props.consistentVersion ? null : (
+      <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
+    );
     return (
       <View>
         <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'download')}
           testName="settings__version">
+          {icon}
           <Cell.Label>App version</Cell.Label>
-          <Cell.SubText>{this._formattedVersion()}</Cell.SubText>
+          <Cell.SubText>{this.props.appVersion}</Cell.SubText>
           <Cell.Img height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
     );
-  }
-
-  _formattedVersion() {
-    // the version in package.json has to be semver, but we use a YEAR.release-channel
-    // version scheme. in package.json we thus have to write YEAR.release.X-channel and
-    // this function is responsible for removing .X part.
-    return this.props.appVersion
-      .replace('.0-', '-') // remove the .0 in 2018.1.0-beta9
-      .replace(/\.0$/, ''); // remove the .0 in 2018.1.0
   }
 
   _renderBottomButtons() {
