@@ -14,9 +14,8 @@ export default {
     },
     status_icon: {
       flex: 0,
-      height: 48,
       marginBottom: 30,
-      justifyContent: 'center',
+      alignItems: 'center',
     },
     login_form: {
       flex: 1,
