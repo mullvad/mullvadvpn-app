@@ -95,6 +95,7 @@ export default {
       marginBottom: 0,
       flexDirection: 'row',
       backgroundColor: colors.white60,
+      cursor: 'default',
     },
     account_dropdown__item_hover: {
       backgroundColor: colors.white40,
