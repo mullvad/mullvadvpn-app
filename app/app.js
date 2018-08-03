@@ -22,6 +22,7 @@ import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
+import daemonActions from './redux/daemon/actions';
 
 import type { RpcCredentials } from './lib/rpc-address-file';
 import type {
@@ -52,6 +53,7 @@ export default class AppRenderer {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
+      daemon: bindActionCreators(daemonActions, dispatch),
       history: bindActionCreators(
         {
           push: pushHistory,
@@ -378,6 +380,9 @@ export default class AppRenderer {
   }
 
   async _onOpenConnection() {
+    // save to redux that the app connected to daemon
+    this._reduxActions.daemon.connected();
+
     this._reconnectBackoff.reset();
 
     // authenticate once connected
@@ -425,6 +430,12 @@ export default class AppRenderer {
   }
 
   async _onCloseConnection(error: ?Error) {
+    const actions = this._reduxActions;
+
+    // save to redux that the app disconnected from daemon
+    actions.daemon.disconnected();
+
+    // recover connection on error
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
