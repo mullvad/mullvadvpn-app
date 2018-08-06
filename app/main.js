@@ -20,6 +20,7 @@ const ApplicationMain = {
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
   _connectionFilePollInterval: (null: ?IntervalID),
+  _shouldQuit: false,
 
   run() {
     if (this._ensureSingleInstance()) {
@@ -33,6 +34,7 @@ const ApplicationMain = {
 
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
+    app.on('before-quit', () => this._onBeforeQuit());
   },
 
   _ensureSingleInstance() {
@@ -119,6 +121,11 @@ const ApplicationMain = {
     }
   },
 
+  _onBeforeQuit() {
+    this._shouldQuit = true;
+    return true;
+  },
+
   async _onReady() {
     const window = this._createWindow();
     const tray = this._createTray();
@@ -148,6 +155,10 @@ const ApplicationMain = {
         break;
       case 'darwin':
         this._installMacOsMenubarAppWindowHandlers(tray, windowController);
+        break;
+      case 'linux':
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
+        this._installLinuxWindowCloseHandler(windowController);
         break;
       default:
         this._installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -460,6 +471,18 @@ const ApplicationMain = {
       windowController.toggle();
     });
     windowController.show();
+  },
+
+  _installLinuxWindowCloseHandler(windowController: WindowController) {
+    windowController.window.on('close', (closeEvent) => {
+      if (process.platform === 'linux' && !this._shouldQuit) {
+        closeEvent.preventDefault();
+        windowController.hide();
+        return false;
+      } else {
+        return true;
+      }
+    });
   },
 };
 
