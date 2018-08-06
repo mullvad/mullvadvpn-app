@@ -23,11 +23,12 @@ const ApplicationMain = {
   _shouldQuit: false,
 
   run() {
+    this._overrideAppPaths();
+
     if (this._ensureSingleInstance()) {
       return;
     }
 
-    this._overrideAppPaths();
     this._initLogging();
 
     log.info(`Running version ${app.getVersion()}`);
