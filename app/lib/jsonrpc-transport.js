@@ -123,7 +123,7 @@ const DEFAULT_TIMEOUT_MILLIS = 5000;
 export default class JsonRpcTransport extends EventEmitter {
   _unansweredRequests: Map<string, UnansweredRequest> = new Map();
   _subscriptions: Map<string | number, (mixed) => void> = new Map();
-  _websocket: ?WebSocket;
+  _webSocket: ?WebSocket;
   _websocketFactory: (string) => WebSocket;
 
   constructor(websocketFactory: ?(string) => WebSocket) {
@@ -133,46 +133,60 @@ export default class JsonRpcTransport extends EventEmitter {
   }
 
   /// Connect websocket
-  connect(connectionString: string) {
-    this.disconnect();
+  connect(connectionString: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.disconnect();
 
-    log.info('Connecting to websocket', connectionString);
+      log.info('Connecting to websocket', connectionString);
 
-    const websocket = this._websocketFactory(connectionString);
+      const webSocket = this._websocketFactory(connectionString);
 
-    websocket.onopen = () => {
-      log.info('Websocket is connected');
-      this.emit('open');
-    };
+      // A flag used to determine if Promise was resolved.
+      let isPromiseResolved = false;
 
-    websocket.onmessage = (event) => {
-      const data = event.data;
-      if (typeof data === 'string') {
-        this._onMessage(data);
-      } else {
-        log.error('Got invalid reply from the server', event);
-      }
-    };
+      webSocket.onopen = () => {
+        log.info('Websocket is connected');
+        this.emit('open');
 
-    websocket.onclose = (event) => {
-      log.info(`The websocket connection closed with code: ${event.code}`);
+        // Resolve the Promise
+        resolve();
+        isPromiseResolved = true;
+      };
 
-      // Remove all subscriptions since they are connection based
-      this._subscriptions.clear();
+      webSocket.onmessage = (event) => {
+        const data = event.data;
+        if (typeof data === 'string') {
+          this._onMessage(data);
+        } else {
+          log.error('Got invalid reply from the server', event);
+        }
+      };
 
-      // 1000 is a code used for normal connection closure.
-      const connectionError = event.code === 1000 ? null : new ConnectionError(event.code);
+      webSocket.onclose = (event) => {
+        log.info(`The websocket connection closed with code: ${event.code}`);
 
-      this.emit('close', connectionError);
-    };
+        // Remove all subscriptions since they are connection based
+        this._subscriptions.clear();
 
-    this._websocket = websocket;
+        // 1000 is a code used for normal connection closure.
+        const connectionError = event.code === 1000 ? null : new ConnectionError(event.code);
+
+        this.emit('close', connectionError);
+
+        // Prevent rejecting a previously resolved Promise.
+        if (!isPromiseResolved) {
+          reject(connectionError);
+        }
+      };
+
+      this._webSocket = webSocket;
+    });
   }
 
   disconnect() {
-    if (this._websocket) {
-      this._websocket.close();
-      this._websocket = null;
+    if (this._webSocket) {
+      this._webSocket.close();
+      this._webSocket = null;
     }
   }
 
@@ -195,19 +209,14 @@ export default class JsonRpcTransport extends EventEmitter {
     }
   }
 
-  async send(
-    action: string,
-    data: mixed,
-    timeout: number = DEFAULT_TIMEOUT_MILLIS,
-  ): Promise<mixed> {
-    let socket: WebSocket;
-    try {
-      socket = await this._getWebSocket();
-    } catch (error) {
-      throw error;
-    }
-
+  send(action: string, data: mixed, timeout: number = DEFAULT_TIMEOUT_MILLIS): Promise<mixed> {
     return new Promise((resolve, reject) => {
+      const webSocket = this._webSocket;
+      if (!webSocket) {
+        reject(new Error('Websocket is not connected.'));
+        return;
+      }
+
       const id = uuid.v4();
       const payload = this._prepareParams(data);
       const timerId = setTimeout(() => this._onTimeout(id), timeout);
@@ -221,9 +230,14 @@ export default class JsonRpcTransport extends EventEmitter {
 
       try {
         log.silly('Sending message', id, action);
-        socket.send(JSON.stringify(message));
+        webSocket.send(JSON.stringify(message));
       } catch (error) {
         log.error(`Failed sending RPC message "${action}": ${error.message}`);
+
+        // clean up on error
+        this._unansweredRequests.delete(id);
+        clearTimeout(timerId);
+
         throw error;
       }
     });
@@ -242,25 +256,6 @@ export default class JsonRpcTransport extends EventEmitter {
       return data;
     } else {
       return [data];
-    }
-  }
-
-  _getWebSocket(): Promise<WebSocket> {
-    if (this._websocket && this._websocket.readyState === 1) {
-      return Promise.resolve(this._websocket);
-    } else {
-      return new Promise((resolve, reject) => {
-        log.debug('Waiting for websocket to connect');
-
-        this.once('open', () => {
-          const ws = this._websocket;
-          if (ws) {
-            resolve(ws);
-          } else {
-            reject(new Error('Internal error'));
-          }
-        });
-      });
     }
   }
 
