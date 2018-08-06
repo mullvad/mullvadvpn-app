@@ -32,6 +32,7 @@ const ApplicationMain = {
 
     log.info(`Running version ${app.getVersion()}`);
 
+    app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
     app.on('before-quit', () => this._onBeforeQuit());
@@ -118,6 +119,13 @@ const ApplicationMain = {
         // Windows: %LOCALAPPDATA%\{appname}\logs
         // Linux: ~/.config/{appname}/logs
         return path.join(app.getPath('userData'), 'logs');
+    }
+  },
+
+  _onActivate() {
+    const windowController = this._windowController;
+    if (windowController) {
+      windowController.show();
     }
   },
 
