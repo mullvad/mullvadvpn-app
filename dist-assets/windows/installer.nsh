@@ -240,6 +240,16 @@
 
 	Push $R0
 
+	#
+	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,
+	# makes a copy of the installer file:
+	# C:\Users\%CURRENTUSER%\AppData\Roaming\${PRODUCT_NAME}\__installer.exe
+	#
+	# Let's undo this and remove the entire "Mullvad" folder under "Roaming".
+	#
+	SetShellVarContext current
+	RMDir /r "$APPDATA\${PRODUCT_NAME}"
+
 	${ExtractDriver}
 	${InstallDriver}
 
