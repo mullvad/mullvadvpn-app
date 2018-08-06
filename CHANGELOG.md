@@ -33,9 +33,14 @@ Line wrap the file at 100 chars.                                              Th
 - Format the expiry date and time using the system locale.
 - Account tokens are now required to have at least ten digits.
 
+### macOS
+- Rename directores for settings, logs and cache from `mullvad-daemon` to `mullvad-vpn`.
+
 #### Windows
-- Use local user directory to store settings and electron cache, instead of the roaming user
-  directory.
+- Use local user directory to store system service settings and GUI electron cache, instead of the
+  roaming user directory.
+- Where the system service would use `%LOCALAPPDATA%\Mullvad\Mullvad VPN\` it now just uses
+  `%LOCALAPPDATA%\Mullvad VPN\`
 
 ### Fixed
 - Ignore empty strings as redaction requests in the problem report tool, to avoid adding redacted
