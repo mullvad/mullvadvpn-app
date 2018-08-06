@@ -150,10 +150,7 @@ const ApplicationMain = {
         this._installMacOsMenubarAppWindowHandlers(tray, windowController);
         break;
       default:
-        tray.on('click', () => {
-          windowController.toggle();
-        });
-        windowController.show();
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
         break;
     }
 
@@ -456,6 +453,13 @@ const ApplicationMain = {
     window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
     window.on('hide', () => macEventMonitor.stop());
     tray.on('click', () => windowController.toggle());
+  },
+
+  _installGenericMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => {
+      windowController.toggle();
+    });
+    windowController.show();
   },
 };
 
