@@ -278,9 +278,9 @@ The settings directory can be changed by setting the `MULLVAD_SETTINGS_DIR` envi
 
 | Platform | Path |
 |----------|------|
-| Linux | `/etc/mullvad-daemon/settings.json` |
-| macOS | `/etc/mullvad-daemon/settings.json` |
-| Windows | `%LOCALAPPDATA%\Mullvad\Mullvad VPN\settings.json`
+| Linux | `/etc/mullvad-vpn/` |
+| macOS | `/etc/mullvad-vpn/` |
+| Windows | `%LOCALAPPDATA%\Mullvad VPN\`
 
 #### Logs
 
@@ -288,8 +288,8 @@ The log directory can be changed by setting the `MULLVAD_LOG_DIR` environment va
 
 | Platform | Path |
 |----------|------|
-| Linux | `/var/log/mullvad-daemon/` + systemd |
-| macOS | `/var/log/mullvad-daemon/` |
+| Linux | `/var/log/mullvad-vpn/` + systemd |
+| macOS | `/var/log/mullvad-vpn/` |
 | Windows | `C:\ProgramData\Mullvad VPN\` |
 
 #### Cache
@@ -298,9 +298,9 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 
 | Platform | Path |
 |----------|------|
-| Linux | `/var/cache/mullvad-daemon/` |
-| macOS | `/var/root/Library/Caches/mullvad-daemon/` |
-| Windows | `%LOCALAPPDATA%\Mullvad\Mullvad VPN\` |
+| Linux | `/var/cache/mullvad-vpn/` |
+| macOS | `/var/root/Library/Caches/mullvad-vpn/` |
+| Windows | `%LOCALAPPDATA%\Mullvad VPN\` |
 
 #### RPC address file
 

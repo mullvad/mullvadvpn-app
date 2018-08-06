@@ -2,7 +2,7 @@
 
 set -eu
 
-LOG_DIR=/var/log/mullvad-daemon
+LOG_DIR=/var/log/mullvad-vpn
 
 mkdir -p $LOG_DIR
 exec 2>&1 > $LOG_DIR/postinstall.log

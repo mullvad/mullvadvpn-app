@@ -1,10 +1,11 @@
 #[cfg(any(windows, target_os = "macos"))]
-extern crate app_dirs;
+extern crate dirs;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
 
+use std::fs;
 use std::path::PathBuf;
 
 error_chain! {
@@ -13,33 +14,32 @@ error_chain! {
             description("Failed to create directory")
             display("Failed to create directory {}", path.display())
         }
+        #[cfg(any(windows, target_os = "macos"))]
+        FindDirError { description("Not able to find requested directory" )}
         #[cfg(windows)]
         NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
     }
-    foreign_links {
-        AppDirs(app_dirs::AppDirsError) #[cfg(any(windows, target_os = "macos"))];
-    }
 }
 
-#[cfg(any(windows, target_os = "macos"))]
-mod metadata {
-    use app_dirs::AppInfo;
-
-    pub const PRODUCT_NAME: &str = "Mullvad VPN";
-
-    pub const APP_INFO: AppInfo = AppInfo {
-        name: PRODUCT_NAME,
-        author: "Mullvad",
-    };
-}
+#[cfg(unix)]
+const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
-fn get_program_data_dir() -> Result<PathBuf> {
-    use std::{env, path::Path};
-    match env::var_os("ALLUSERSPROFILE") {
-        Some(dir) => Ok(Path::new(&dir).join(::metadata::PRODUCT_NAME)),
+const PRODUCT_NAME: &str = "Mullvad VPN";
+
+
+#[cfg(windows)]
+fn get_allusersprofile_dir() -> Result<PathBuf> {
+    match std::env::var_os("ALLUSERSPROFILE") {
+        Some(dir) => Ok(PathBuf::from(&dir)),
         None => bail!(ErrorKind::NoProgramDataDir),
     }
+}
+
+fn create_and_return(dir_fn: fn() -> Result<PathBuf>) -> Result<PathBuf> {
+    let dir = dir_fn()?;
+    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
+    Ok(dir)
 }
 
 mod cache;

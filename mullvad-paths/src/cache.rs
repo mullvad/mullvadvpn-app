@@ -1,33 +1,28 @@
-use {ErrorKind, Result, ResultExt};
+use Result;
 
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
-    let dir = get_cache_dir()?;
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
-    Ok(dir)
+    ::create_and_return(get_cache_dir)
 }
 
 fn get_cache_dir() -> Result<PathBuf> {
     match env::var_os("MULLVAD_CACHE_DIR") {
         Some(path) => Ok(PathBuf::from(path)),
-        None => get_default_cache_dir(),
+        None => get_default_cache_dir().map(|dir| dir.join(::PRODUCT_NAME)),
     }
 }
 
-#[cfg(target_os = "linux")]
 fn get_default_cache_dir() -> Result<PathBuf> {
-    Ok(PathBuf::from("/var/cache/mullvad-daemon"))
-}
-
-#[cfg(any(target_os = "macos", windows))]
-fn get_default_cache_dir() -> Result<PathBuf> {
-    Ok(::app_dirs::get_app_root(
-        ::app_dirs::AppDataType::UserCache,
-        &::metadata::APP_INFO,
-    )?)
+    #[cfg(target_os = "linux")]
+    {
+        Ok(PathBuf::from("/var/cache"))
+    }
+    #[cfg(any(target_os = "macos", windows))]
+    {
+        ::dirs::cache_dir().ok_or_else(|| ::ErrorKind::FindDirError.into())
+    }
 }
