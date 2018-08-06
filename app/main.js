@@ -131,6 +131,14 @@ const ApplicationMain = {
 
   _onBeforeQuit() {
     this._shouldQuit = true;
+
+    if (process.env.NODE_ENV === 'development') {
+      const windowController = this._windowController;
+      if (windowController) {
+        windowController.window.closeDevTools();
+      }
+    }
+
     return true;
   },
 
@@ -152,8 +160,6 @@ const ApplicationMain = {
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
-
-      window.on('close', () => window.closeDevTools());
       window.openDevTools({ mode: 'detach' });
     }
 
