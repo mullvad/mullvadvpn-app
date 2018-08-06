@@ -2,7 +2,7 @@
 
 set -eux
 
-LOG_DIR=/var/log/mullvad-daemon
+LOG_DIR=/var/log/mullvad-vpn
 
 mkdir -p $LOG_DIR
 exec 2>&1 > $LOG_DIR/preinstall.log
@@ -21,28 +21,56 @@ fi
 
 # Migrate settings from <=2018.1 paths
 OLD_SETTINGS_DIR="$HOME/Library/Application Support/mullvad-daemon"
-NEW_SETTINGS_DIR="/etc/mullvad-daemon"
+NEW_SETTINGS_DIR="/etc/mullvad-vpn"
 if [ -d "$OLD_SETTINGS_DIR" ]; then
     echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
     mkdir -p "$NEW_SETTINGS_DIR"
     mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || \
         echo "Unable to migrate settings, not present in old dir?"
-    rm -r "$OLD_SETTINGS_DIR"
+    rm -rf "$OLD_SETTINGS_DIR"
+fi
+
+# Migrate settings from <=2018.2-betaX paths
+OLD_SETTINGS_DIR="/etc/mullvad-daemon"
+NEW_SETTINGS_DIR="/etc/mullvad-vpn"
+if [ -d "$OLD_SETTINGS_DIR" ]; then
+    echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
+    mkdir -p "$NEW_SETTINGS_DIR"
+    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || \
+        echo "Unable to migrate settings, not present in old dir?"
+    rm -rf "$OLD_SETTINGS_DIR"
 fi
 
 # Delete logs from <=2018.1 paths
 OLD_LOG_DIR="$HOME/Library/Logs/MullvadVPN"
 if [ -d "$OLD_LOG_DIR" ]; then
     echo "Found old log dir $OLD_LOG_DIR. Deleting"
-    rm -r "$OLD_LOG_DIR"
+    rm -rf "$OLD_LOG_DIR"
+fi
+
+# Delete logs from <=2018.2-betaX paths
+OLD_LOG_DIR="/var/log/mullvad-daemon"
+if [ -d "$OLD_LOG_DIR" ]; then
+    echo "Found old log dir $OLD_LOG_DIR. Deleting"
+    rm -rf "$OLD_LOG_DIR"
 fi
 
 # Migrate cache files from <=2018.1 paths
 OLD_CACHE_DIR="$HOME/Library/Caches/mullvad-daemon"
-NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-daemon"
+NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
 if [ -d "$OLD_CACHE_DIR" ]; then
     echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
     mkdir -p "$NEW_CACHE_DIR"
     mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
-    rm -r "$OLD_CACHE_DIR"
+    rm -rf "$OLD_CACHE_DIR"
+fi
+
+# Migrate cache files from <=2018.2-betaX paths
+OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-daemon"
+NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
+if [ -d "$OLD_CACHE_DIR" ]; then
+    echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
+    mkdir -p "$NEW_CACHE_DIR"
+    mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
+    rm -rf "$OLD_CACHE_DIR"
 fi
