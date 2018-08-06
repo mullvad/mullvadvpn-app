@@ -20,6 +20,7 @@ const ApplicationMain = {
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
   _connectionFilePollInterval: (null: ?IntervalID),
+  _shouldQuit: (false: boolean),
 
   run() {
     if (this._ensureSingleInstance()) {
@@ -33,6 +34,10 @@ const ApplicationMain = {
 
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
+    app.on('before-quit', () => {
+      this._shouldQuit = true;
+      return true;
+    });
   },
 
   _ensureSingleInstance() {
@@ -141,6 +146,16 @@ const ApplicationMain = {
       window.on('close', () => window.closeDevTools());
       window.openDevTools({ mode: 'detach' });
     }
+
+    window.on('close', (closeEvent) => {
+      if (process.platform === 'linux' && !this._shouldQuit) {
+        closeEvent.preventDefault();
+        window.hide();
+        return false;
+      } else {
+        return true;
+      }
+    });
 
     switch (process.platform) {
       case 'win32':
