@@ -22,6 +22,13 @@ impl Command for Tunnel {
                     .subcommand(
                         clap::SubCommand::with_name("set")
                             .subcommand(
+                                clap::SubCommand::with_name("ipv6").arg(
+                                    clap::Arg::with_name("enable")
+                                        .required(true)
+                                        .takes_value(true)
+                                        .possible_values(&["on", "off"]),
+                                ),
+                            ).subcommand(
                                 clap::SubCommand::with_name("mssfix").arg(
                                     clap::Arg::with_name("mssfix")
                                         .help(
@@ -60,21 +67,36 @@ impl Tunnel {
     }
 
     fn set_openvpn_option(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(mssfix_args) = matches.subcommand_matches("mssfix") {
-            let mssfix_str = mssfix_args.value_of("mssfix").unwrap();
-            let mssfix: Option<u16> = if mssfix_str == "" {
-                None
-            } else {
-                Some(mssfix_str.parse()?)
-            };
-
-            let mut rpc = DaemonRpcClient::new()?;
-            rpc.set_openvpn_mssfix(mssfix)?;
-            println!("mssfix parameter updated");
-            Ok(())
+        if let Some(ipv6_args) = matches.subcommand_matches("ipv6") {
+            Self::set_openvpn_enable_ipv6_option(ipv6_args)
+        } else if let Some(mssfix_args) = matches.subcommand_matches("mssfix") {
+            Self::set_openvpn_mssfix_option(mssfix_args)
         } else {
             unreachable!("Invalid option passed to 'openvpn set'");
         }
+    }
+
+    fn set_openvpn_enable_ipv6_option(args: &clap::ArgMatches) -> Result<()> {
+        let enabled = args.value_of("enable").unwrap() == "on";
+
+        let mut rpc = DaemonRpcClient::new()?;
+        rpc.set_openvpn_enable_ipv6(enabled)?;
+        println!("enable_ipv6 parameter updated");
+        Ok(())
+    }
+
+    fn set_openvpn_mssfix_option(args: &clap::ArgMatches) -> Result<()> {
+        let mssfix_str = args.value_of("mssfix").unwrap();
+        let mssfix: Option<u16> = if mssfix_str == "" {
+            None
+        } else {
+            Some(mssfix_str.parse()?)
+        };
+
+        let mut rpc = DaemonRpcClient::new()?;
+        rpc.set_openvpn_mssfix(mssfix)?;
+        println!("mssfix parameter updated");
+        Ok(())
     }
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
@@ -89,6 +111,10 @@ impl Tunnel {
             options
                 .mssfix
                 .map_or_else(|| "UNSET".to_string(), |v| v.to_string())
+        );
+        println!(
+            "\tIPv6:   {}",
+            if options.enable_ipv6 { "on" } else { "off" }
         );
     }
 }
