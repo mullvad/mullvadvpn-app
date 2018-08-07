@@ -8,10 +8,16 @@ import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import { log } from '../lib/platform';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
+import type { RelaySettingsRedux } from '../redux/settings/reducers';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => {
-  const relaySettings = state.settings.relaySettings;
+  const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
+
+  return { enableIpv6: state.settings.enableIpv6, ...protocolAndPort };
+};
+
+const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
   if (relaySettings.normal) {
     const { protocol, port } = relaySettings.normal;
     return {
@@ -53,6 +59,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         await props.app.fetchRelaySettings();
       } catch (e) {
         log.error('Failed to update relay settings', e.message);
+      }
+    },
+
+    setEnableIpv6: async (enableIpv6) => {
+      try {
+        await props.app.setEnableIpv6(enableIpv6);
+      } catch (e) {
+        log.error('Failed to update enable IPv6', e.message);
       }
     },
   };
