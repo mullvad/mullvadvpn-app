@@ -25,6 +25,7 @@ extern crate serde_json;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
 extern crate jsonrpc_ws_server;
 extern crate rand;
@@ -125,8 +126,9 @@ pub enum DaemonEvent {
     TunnelStateTransition(TunnelStateTransition),
     /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(ManagementCommand),
+    // TODO(emilsp): try and get an error from the management interface
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
-    ManagementInterfaceExited(talpid_ipc::Result<()>),
+    ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
 }
@@ -308,7 +310,7 @@ impl Daemon {
         thread::spawn(move || {
             let result = server.wait();
             error!("Mullvad management interface shut down");
-            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
+            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited);
         });
     }
 
@@ -333,7 +335,7 @@ impl Daemon {
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
-            ManagementInterfaceExited(result) => self.handle_management_interface_exited(result),
+            ManagementInterfaceExited => self.handle_management_interface_exited(),
             TriggerShutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -599,12 +601,17 @@ impl Daemon {
         }
     }
 
-    fn handle_management_interface_exited(&self, result: talpid_ipc::Result<()>) -> Result<()> {
-        let error = ErrorKind::ManagementInterfaceError("Server exited unexpectedly");
-        match result {
-            Ok(()) => Err(error.into()),
-            Err(e) => Err(e).chain_err(|| error),
-        }
+    // TODO: (emilsp) fix this
+    // fn handle_management_interface_exited(&self, result: talpid_ipc_ws::Result<()>) ->
+    // Result<()> {     let error = ErrorKind::ManagementInterfaceError("Server exited
+    // unexpectedly");     match result {
+    //         Ok(()) => Err(error.into()),
+    //         Err(e) => Err(e).chain_err(|| error),
+    //     }
+    // }
+
+    fn handle_management_interface_exited(&self) -> Result<()> {
+        Err(ErrorKind::ManagementInterfaceError("Server exited unexpectedly").into())
     }
 
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
