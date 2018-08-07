@@ -49,16 +49,16 @@ export type BackendState = {
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
 
-type OpenVpnParameters = {
+type OpenVpnConstraints = {
   port: 'any' | { only: number },
   protocol: 'any' | { only: RelayProtocol },
 };
 
-type TunnelOptions<TOpenVpnParameters> = {
-  openvpn: TOpenVpnParameters,
+type TunnelConstraints<TOpenVpnConstraints> = {
+  openvpn: TOpenVpnConstraints,
 };
 
-type RelaySettingsNormal<TTunnelOptions> = {
+type RelaySettingsNormal<TTunnelConstraints> = {
   location:
     | 'any'
     | {
@@ -67,7 +67,7 @@ type RelaySettingsNormal<TTunnelOptions> = {
   tunnel:
     | 'any'
     | {
-        only: TTunnelOptions,
+        only: TTunnelConstraints,
       },
 };
 
@@ -83,7 +83,7 @@ export type RelaySettingsCustom = {
 };
 export type RelaySettings =
   | {|
-      normal: RelaySettingsNormal<TunnelOptions<OpenVpnParameters>>,
+      normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>,
     |}
   | {|
       custom_tunnel_endpoint: RelaySettingsCustom,
@@ -91,7 +91,7 @@ export type RelaySettings =
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = $Shape<
-  RelaySettingsNormal<TunnelOptions<$Shape<OpenVpnParameters>>>,
+  RelaySettingsNormal<TunnelConstraints<$Shape<OpenVpnConstraints>>>,
 >;
 export type RelaySettingsUpdate =
   | {|
