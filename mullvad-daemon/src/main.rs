@@ -389,6 +389,9 @@ impl Daemon {
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             GetAutoConnect(tx) => Ok(self.on_get_auto_connect(tx)),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
+            SetOpenVpnEnableIpv6(tx, enable_ipv6) => {
+                self.on_set_openvpn_enable_ipv6(tx, enable_ipv6)
+            }
             GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             GetVersionInfo(tx) => Ok(self.on_get_version_info(tx)),
@@ -572,6 +575,19 @@ impl Daemon {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_mssfix response"),
+            Err(e) => error!("{}", e.display_chain()),
+        };
+        Ok(())
+    }
+
+    fn on_set_openvpn_enable_ipv6(
+        &mut self,
+        tx: OneshotSender<()>,
+        enable_ipv6: bool,
+    ) -> Result<()> {
+        let save_result = self.settings.set_openvpn_enable_ipv6(enable_ipv6);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_enable_ipv6 response"),
             Err(e) => error!("{}", e.display_chain()),
         };
         Ok(())

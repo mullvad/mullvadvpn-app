@@ -127,6 +127,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_openvpn_mssfix")]
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
+        /// Set if IPv6 is enabled in the tunnel
+        #[rpc(meta, name = "set_openvpn_enable_ipv6")]
+        fn set_openvpn_enable_ipv6(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
+
         /// Gets tunnel specific options
         #[rpc(meta, name = "get_tunnel_options")]
         fn get_tunnel_options(&self, Self::Metadata) -> BoxFuture<TunnelOptions, Error>;
@@ -195,7 +199,9 @@ pub enum TunnelCommand {
     GetAutoConnect(OneshotSender<bool>),
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
-    /// Get the mssfix argument for OpenVPN
+    /// Set if IPv6 should be enabled in the tunnel
+    SetOpenVpnEnableIpv6(OneshotSender<()>, bool),
+    /// Get the tunnel options
     GetTunnelOptions(OneshotSender<TunnelOptions>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
@@ -632,6 +638,21 @@ impl<T: From<TunnelCommand> + 'static + Send> ManagementInterfaceApi for Managem
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(TunnelCommand::SetOpenVpnMssfix(tx, mssfix))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+
+        Box::new(future)
+    }
+
+    fn set_openvpn_enable_ipv6(
+        &self,
+        meta: Self::Metadata,
+        enable_ipv6: bool,
+    ) -> BoxFuture<(), Error> {
+        trace!("set_openvpn_enable_ipv6");
+        try_future!(self.check_auth(&meta));
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(TunnelCommand::SetOpenVpnEnableIpv6(tx, enable_ipv6))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
