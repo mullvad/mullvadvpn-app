@@ -29,12 +29,13 @@ Line wrap the file at 100 chars.                                              Th
 - Account token can be copied to the clipboard by clicking on it in the account settings screen.
 - Automatically scroll to selected country/city in locations view.
 - Show system notifications when connection state changes.
+- Add launch view displayed when connecting to system service.
 
 ### Changed
 - Format the expiry date and time using the system locale.
 - Account tokens are now required to have at least ten digits.
 
-### macOS
+#### macOS
 - Rename directores for settings, logs and cache from `mullvad-daemon` to `mullvad-vpn`.
 
 #### Windows
@@ -46,7 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Ignore empty strings as redaction requests in the problem report tool, to avoid adding redacted
   markers between every character of the log message.
-
+- Previously logged in users won't be going through login view when restarting the app, instead 
+  will be taken straight to main view.
 
 ## [2018.2-beta2] - 2018-07-18
 ### Added
