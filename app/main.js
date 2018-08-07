@@ -20,6 +20,7 @@ const ApplicationMain = {
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
   _connectionFilePollInterval: (null: ?IntervalID),
+  _shouldQuit: false,
 
   run() {
     if (this._ensureSingleInstance()) {
@@ -31,8 +32,10 @@ const ApplicationMain = {
 
     log.info(`Running version ${app.getVersion()}`);
 
+    app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
+    app.on('before-quit', () => this._onBeforeQuit());
   },
 
   _ensureSingleInstance() {
@@ -119,6 +122,26 @@ const ApplicationMain = {
     }
   },
 
+  _onActivate() {
+    const windowController = this._windowController;
+    if (windowController) {
+      windowController.show();
+    }
+  },
+
+  _onBeforeQuit() {
+    this._shouldQuit = true;
+
+    if (process.env.NODE_ENV === 'development') {
+      const windowController = this._windowController;
+      if (windowController) {
+        windowController.window.closeDevTools();
+      }
+    }
+
+    return true;
+  },
+
   async _onReady() {
     const window = this._createWindow();
     const tray = this._createTray();
@@ -137,8 +160,6 @@ const ApplicationMain = {
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
-
-      window.on('close', () => window.closeDevTools());
       window.openDevTools({ mode: 'detach' });
     }
 
@@ -149,11 +170,12 @@ const ApplicationMain = {
       case 'darwin':
         this._installMacOsMenubarAppWindowHandlers(tray, windowController);
         break;
+      case 'linux':
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
+        this._installLinuxWindowCloseHandler(windowController);
+        break;
       default:
-        tray.on('click', () => {
-          windowController.toggle();
-        });
-        windowController.show();
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
         break;
     }
 
@@ -456,6 +478,25 @@ const ApplicationMain = {
     window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
     window.on('hide', () => macEventMonitor.stop());
     tray.on('click', () => windowController.toggle());
+  },
+
+  _installGenericMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => {
+      windowController.toggle();
+    });
+    windowController.show();
+  },
+
+  _installLinuxWindowCloseHandler(windowController: WindowController) {
+    windowController.window.on('close', (closeEvent) => {
+      if (process.platform === 'linux' && !this._shouldQuit) {
+        closeEvent.preventDefault();
+        windowController.hide();
+        return false;
+      } else {
+        return true;
+      }
+    });
   },
 };
 
