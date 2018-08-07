@@ -28,6 +28,7 @@ import daemonActions from './redux/daemon/actions';
 import type { RpcCredentials } from './lib/rpc-address-file';
 import type {
   DaemonRpcProtocol,
+  AccountData,
   ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
@@ -45,6 +46,7 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
+  _accountDataState = new AccountDataState();
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -196,6 +198,9 @@ export default class AppRenderer {
       ]);
       actions.account.loggedOut();
       actions.history.replace('/login');
+
+      // reset account data state on log out
+      this._accountDataState = new AccountDataState();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -278,13 +283,29 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const actions = this._reduxActions;
+    const accountDataState = this._accountDataState;
+
+    // Bail if something else requested an update to account data
+    // or if account data cache was updated recently.
+    if (accountDataState.isUpdating() || !accountDataState.needsUpdate()) {
+      return;
+    }
+
     try {
       const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
-      const accountData = await this._daemonRpc.getAccountData(accountToken);
-      actions.account.updateAccountExpiry(accountData.expiry);
+
+      const accountData = await accountDataState.update(() => {
+        return this._daemonRpc.getAccountData(accountToken);
+      });
+
+      // Check if account token is still the same after receiving account data
+      const currentAccountToken = this._reduxStore.getState().account.accountToken;
+      if (currentAccountToken === accountToken) {
+        actions.account.updateAccountExpiry(accountData.expiry);
+      }
     } catch (e) {
       log.error(`Failed to update account expiry: ${e.message}`);
     }
@@ -576,6 +597,35 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to authenticate with backend: ${e.message}`);
       throw e;
+    }
+  }
+}
+
+// Helper class to keep track of account data updates
+class AccountDataState {
+  _expiresAt: ?Date;
+  _isUpdating = false;
+
+  isUpdating() {
+    return this._isUpdating;
+  }
+
+  needsUpdate() {
+    return !this._expiresAt || this._expiresAt < new Date();
+  }
+
+  async update(fn: () => Promise<AccountData>): Promise<AccountData> {
+    this._isUpdating = true;
+
+    try {
+      const accountData = await fn();
+      this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+
+      return accountData;
+    } catch (error) {
+      throw error;
+    } finally {
+      this._isUpdating = false;
     }
   }
 }
