@@ -28,10 +28,15 @@ Line wrap the file at 100 chars.                                              Th
   session.
 - Account token can be copied to the clipboard by clicking on it in the account settings screen.
 - Automatically scroll to selected country/city in locations view.
+- Add launch view displayed when connecting to system service.
 
 ### Changed
 - Format the expiry date and time using the system locale.
 - Account tokens are now required to have at least ten digits.
+
+### Fixed
+- Previously logged in users won't be going through login view when restarting the app, instead 
+  will be taken straight to main view.
 
 ### macOS
 - Rename directores for settings, logs and cache from `mullvad-daemon` to `mullvad-vpn`.
