@@ -203,6 +203,10 @@ impl DaemonRpcClient {
         self.call("set_account", &[account])
     }
 
+    pub fn set_openvpn_enable_ipv6(&mut self, enabled: bool) -> Result<()> {
+        self.call("set_openvpn_enable_ipv6", &[enabled])
+    }
+
     pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
