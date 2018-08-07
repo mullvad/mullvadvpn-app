@@ -4,13 +4,14 @@ use error_chain::ChainedError;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
+use jsonrpc_ipc_server;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
-use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 
+use mullvad_paths;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::{DaemonState, TargetState};
@@ -237,7 +238,12 @@ impl ManagementInterfaceServer {
         let mut io = PubSubHandler::default();
         io.extend_with(rpc.to_delegate());
         let meta_io: MetaIoHandler<Meta> = io.into();
-        let server = talpid_ipc::IpcServer::start_with_metadata(meta_io, meta_extractor)?;
+        let path = mullvad_paths::get_rpc_socket_path();
+        let server = talpid_ipc::IpcServer::start_with_metadata(
+            meta_io,
+            meta_extractor,
+            path.to_string_lossy().to_string(),
+        )?;
         Ok(ManagementInterfaceServer {
             server,
             subscriptions,
@@ -245,7 +251,7 @@ impl ManagementInterfaceServer {
     }
 
     pub fn address(&self) -> &str {
-        self.server.address()
+        self.server.path()
     }
 
     pub fn event_broadcaster(&self) -> EventBroadcaster {
@@ -256,8 +262,16 @@ impl ManagementInterfaceServer {
 
     /// Consumes the server and waits for it to finish. Returns an error if the server exited
     /// due to an error.
-    pub fn wait(self) -> talpid_ipc::Result<()> {
+    pub fn wait(self) {
         self.server.wait()
+    }
+}
+
+fn ipc_path() -> String {
+    if cfg!(windows) {
+        "//./pipe/mullvad_daemon_socket".to_owned()
+    } else {
+        "/tmp/mullvad_daemon_socket".to_owned()
     }
 }
 
@@ -380,13 +394,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if meta.authenticated.load(Ordering::SeqCst) {
-            trace!("auth success");
-            Ok(())
-        } else {
-            trace!("auth failed");
-            Err(Error::invalid_request())
-        }
+        Ok(())
+        // if meta.authenticated.load(Ordering::SeqCst) {
+        //     trace!("auth success");
+        //     Ok(())
+        // } else {
+        //     trace!("auth failed");
+        //     Err(Error::invalid_request())
+        // }
     }
 
     fn load_history(&self) -> Result<AccountHistory, AccountHistoryError> {
@@ -751,9 +766,9 @@ impl PubSubMetadata for Meta {
 }
 
 /// Metadata extractor function for `Meta`.
-fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
+fn meta_extractor(context: &jsonrpc_ipc_server::RequestContext) -> Meta {
     Meta {
-        session: Some(Arc::new(Session::new(context.sender()))),
+        session: Some(Arc::new(Session::new(context.sender.clone()))),
         authenticated: Arc::new(AtomicBool::new(false)),
     }
 }
