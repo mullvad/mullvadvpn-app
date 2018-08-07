@@ -24,6 +24,14 @@ export default {
     flexBasis: 'auto',
     overflow: 'visible',
   }),
+  advanced_settings__ipv6: Styles.createViewStyle({
+    backgroundColor: colors.blue,
+    flexDirection: 'row',
+    alignItems: 'center',
+  }),
+  advanced_settings__ipv6_accessory: Styles.createViewStyle({
+    marginRight: 12,
+  }),
   advanced_settings__cell: Styles.createViewStyle({
     cursor: 'default',
     backgroundColor: colors.green,

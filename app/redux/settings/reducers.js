@@ -39,6 +39,7 @@ export type SettingsReduxState = {
   relayLocations: Array<RelayLocationRedux>,
   autoConnect: boolean,
   allowLan: boolean,
+  enableIpv6: boolean,
 };
 
 const initialState: SettingsReduxState = {
@@ -52,6 +53,7 @@ const initialState: SettingsReduxState = {
   relayLocations: [],
   autoConnect: false,
   allowLan: false,
+  enableIpv6: true,
 };
 
 export default function(
@@ -81,6 +83,12 @@ export default function(
       return {
         ...state,
         autoConnect: action.autoConnect,
+      };
+
+    case 'UPDATE_ENABLE_IPV6':
+      return {
+        ...state,
+        enableIpv6: action.enableIpv6,
       };
 
     default:
