@@ -10,6 +10,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import Img from './Img';
+import WindowStateObserver from '../lib/window-state-observer';
 
 import type { LoginState } from '../redux/account/reducers';
 
@@ -28,8 +29,18 @@ type Props = {
 };
 
 export default class Settings extends Component<Props> {
+  _windowStateObserver = new WindowStateObserver();
+
   componentDidMount() {
     this.props.updateAccountExpiry();
+
+    this._windowStateObserver.onShow = () => {
+      this.props.updateAccountExpiry();
+    };
+  }
+
+  componentWillUnmount() {
+    this._windowStateObserver.dispose();
   }
 
   render() {
