@@ -369,6 +369,12 @@ export default class AppRenderer {
     actions.settings.updateAllowLan(allowLan);
   }
 
+  async setEnableIpv6(enableIpv6: boolean) {
+    const actions = this._reduxActions;
+    await this._daemonRpc.setOpenVpnEnableIpv6(enableIpv6);
+    actions.settings.updateEnableIpv6(enableIpv6);
+  }
+
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
     await this._daemonRpc.setAutoConnect(autoConnect);
@@ -391,6 +397,12 @@ export default class AppRenderer {
     const securityState = await this._daemonRpc.getState();
     const connectionState = this._securityStateToConnectionState(securityState);
     this._updateConnectionState(connectionState);
+  }
+
+  async _fetchTunnelOptions() {
+    const actions = this._reduxActions;
+    const tunnelOptions = await this._daemonRpc.getTunnelOptions();
+    actions.settings.updateEnableIpv6(tunnelOptions.openvpn.enableIpv6);
   }
 
   async _connectToDaemon(): Promise<void> {
@@ -523,6 +535,7 @@ export default class AppRenderer {
       this._fetchAutoConnect(),
       this._fetchLocation(),
       this._fetchAccountHistory(),
+      this._fetchTunnelOptions(),
     ]);
   }
 

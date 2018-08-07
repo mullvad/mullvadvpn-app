@@ -182,6 +182,19 @@ const RelayListSchema = object({
   ),
 });
 
+export type TunnelOptions = {
+  openvpn: {
+    enableIpv6: boolean,
+  },
+};
+
+const TunnelOptionsSchema = object({
+  openvpn: object({
+    enable_ipv6: boolean,
+    mssfix: maybe(number),
+  }),
+});
+
 const AccountDataSchema = object({
   expiry: string,
 });
@@ -203,6 +216,8 @@ export interface DaemonRpcProtocol {
   getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
   getAllowLan(): Promise<boolean>;
+  setOpenVpnEnableIpv6(boolean): Promise<void>;
+  getTunnelOptions(): Promise<TunnelOptions>;
   setAutoConnect(boolean): Promise<void>;
   getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
@@ -353,6 +368,25 @@ export class DaemonRpc implements DaemonRpcProtocol {
       return response;
     } else {
       throw new ResponseParseError('Invalid response from get_allow_lan', null);
+    }
+  }
+
+  async setOpenVpnEnableIpv6(enableIpv6: boolean): Promise<void> {
+    await this._transport.send('set_openvpn_enable_ipv6', [enableIpv6]);
+  }
+
+  async getTunnelOptions(): Promise<TunnelOptions> {
+    const response = await this._transport.send('get_tunnel_options');
+    try {
+      const validatedObject = validate(TunnelOptionsSchema, response);
+
+      return {
+        openvpn: {
+          enableIpv6: validatedObject.openvpn.enable_ipv6,
+        },
+      };
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_tunnel_options', error);
     }
   }
 

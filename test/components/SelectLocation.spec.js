@@ -42,6 +42,7 @@ describe('components/SelectLocation', () => {
     ],
     autoConnect: false,
     allowLan: false,
+    enableIpv6: true,
   };
 
   const makeProps = (

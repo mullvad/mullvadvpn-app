@@ -6,12 +6,15 @@ import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
+import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
 type AdvancedSettingsProps = {
+  enableIpv6: boolean,
   protocol: string,
   port: string | number,
+  setEnableIpv6: (boolean) => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
 };
@@ -40,6 +43,20 @@ export class AdvancedSettings extends Component<AdvancedSettingsProps> {
                 <HeaderTitle>Advanced</HeaderTitle>
               </SettingsHeader>
               <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
+                <View style={styles.advanced_settings__ipv6}>
+                  <View style={styles.advanced_settings__cell_label_container}>
+                    <Text style={styles.advanced_settings__cell_label}>Enable IPv6</Text>
+                  </View>
+                  <View style={styles.advanced_settings__ipv6_accessory}>
+                    <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                  </View>
+                </View>
+                <View style={styles.advanced_settings__cell_footer}>
+                  <Text style={styles.advanced_settings__cell_footer_label}>
+                    {'Enable IPv6 communication through the tunnel.'}
+                  </Text>
+                </View>
+
                 <View style={styles.advanced_settings__content}>
                   <Selector
                     title={'Network protocols'}
