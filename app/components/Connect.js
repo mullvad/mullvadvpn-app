@@ -9,9 +9,9 @@ import * as AppButton from './AppButton';
 import Img from './Img';
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
-
 import { NoCreditError, NoInternetError } from '../errors';
 import Map from './Map';
+import WindowStateObserver from '../lib/window-state-observer';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
@@ -41,6 +41,7 @@ export default class Connect extends Component<Props, State> {
   };
 
   _copyTimer: ?TimeoutID;
+  _windowStateObserver = new WindowStateObserver();
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { connection: prevConnection, ...otherPrevProps } = this.props;
@@ -60,12 +61,18 @@ export default class Connect extends Component<Props, State> {
 
   componentDidMount() {
     this.props.updateAccountExpiry();
+
+    this._windowStateObserver.onShow = () => {
+      this.props.updateAccountExpiry();
+    };
   }
 
   componentWillUnmount() {
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
+
+    this._windowStateObserver.dispose();
   }
 
   render() {
