@@ -9,6 +9,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
+import WindowStateObserver from '../lib/window-state-observer';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 
@@ -35,12 +36,16 @@ export default class Account extends Component<Props, State> {
   };
 
   _isMounted = false;
-
   _copyTimer: ?TimeoutID;
+  _windowStateObserver = new WindowStateObserver();
 
   componentDidMount() {
     this._isMounted = true;
     this._refreshAccountExpiry();
+
+    this._windowStateObserver.onShow = () => {
+      this._refreshAccountExpiry();
+    };
   }
 
   componentWillUnmount() {
@@ -49,6 +54,8 @@ export default class Account extends Component<Props, State> {
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
+
+    this._windowStateObserver.dispose();
   }
 
   onAccountTokenClick() {
