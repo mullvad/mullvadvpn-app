@@ -1,28 +1,14 @@
+// @flow
+
 export class NoCreditError extends Error {
   constructor() {
     super("Account doesn't have enough credit available for connection");
-  }
-
-  get userFriendlyTitle(): string {
-    return 'Out of time';
-  }
-
-  get userFriendlyMessage(): string {
-    return 'Buy more time, so you can continue using the internet securely';
   }
 }
 
 export class NoInternetError extends Error {
   constructor() {
     super('Internet connectivity is currently unavailable');
-  }
-
-  get userFriendlyTitle(): string {
-    return 'Offline';
-  }
-
-  get userFriendlyMessage(): string {
-    return 'Your internet connection will be secured when you get back online';
   }
 }
 

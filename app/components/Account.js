@@ -23,14 +23,15 @@ export type AccountProps = {
   onBuyMore: () => void,
 };
 
-export type AccountState = {
+type State = {
   isRefreshingExpiry: boolean,
+  showAccountTokenCopiedMessage: boolean,
 };
 
-export default class Account extends Component<AccountProps, AccountState> {
+export default class Account extends Component<AccountProps, State> {
   state = {
     isRefreshingExpiry: false,
-    showAccountCopiedMessage: false,
+    showAccountTokenCopiedMessage: false,
   };
 
   _activationStateToken: ?Types.SubscriptionToken;

@@ -12,7 +12,6 @@ import { log } from './lib/platform';
 import ReconnectionBackoff from './lib/reconnection-backoff';
 import { DaemonRpc } from './lib/daemon-rpc';
 import { setShutdownHandler } from './shutdown-handler';
-
 import { NoAccountError } from './errors';
 
 import configureStore from './redux/store';
