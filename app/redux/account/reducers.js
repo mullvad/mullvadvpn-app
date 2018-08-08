@@ -40,7 +40,6 @@ export default function(
         ...{
           status: 'ok',
           error: null,
-          expiry: action.expiry,
         },
       };
     case 'LOGIN_FAILED':

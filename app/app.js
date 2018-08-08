@@ -3,7 +3,11 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { Provider } from 'react-redux';
-import { ConnectedRouter, push as pushHistory } from 'connected-react-router';
+import {
+  ConnectedRouter,
+  push as pushHistory,
+  replace as replaceHistory,
+} from 'connected-react-router';
 import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
 
@@ -19,10 +23,12 @@ import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
+import daemonActions from './redux/daemon/actions';
 
 import type { RpcCredentials } from './lib/rpc-address-file';
 import type {
   DaemonRpcProtocol,
+  AccountData,
   ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
@@ -40,6 +46,7 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
+  _accountDataState = new AccountDataState();
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -50,7 +57,14 @@ export default class AppRenderer {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
-      history: bindActionCreators({ push: pushHistory }, dispatch),
+      daemon: bindActionCreators(daemonActions, dispatch),
+      history: bindActionCreators(
+        {
+          push: pushHistory,
+          replace: replaceHistory,
+        },
+        dispatch,
+      ),
     };
 
     this._openConnectionObserver = this._daemonRpc.addOpenConnectionObserver(() => {
@@ -110,23 +124,27 @@ export default class AppRenderer {
 
   async login(accountToken: AccountToken) {
     const actions = this._reduxActions;
+    const history = this._memoryHistory;
     actions.account.startLogin(accountToken);
 
-    log.debug('Attempting to login');
+    log.debug('Logging in');
 
     try {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
 
-      actions.account.loginSuccessful(accountData.expiry);
+      actions.account.updateAccountExpiry(accountData.expiry);
+      actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
       // the 'Login Successful' screen to be visible
       setTimeout(async () => {
-        actions.history.push('/connect');
+        if (history.location.pathname === '/login') {
+          actions.history.replace('/connect');
+        }
 
         try {
-          log.debug('Auto-connecting the tunnel...');
+          log.debug('Auto-connecting the tunnel');
           await this.connectTunnel();
         } catch (error) {
           log.error(`Failed to auto-connect the tunnel: ${error.message}`);
@@ -139,33 +157,33 @@ export default class AppRenderer {
     }
   }
 
-  async _autologin() {
+  async _restoreSession() {
     const actions = this._reduxActions;
-    actions.account.startLogin();
+    const history = this._memoryHistory;
 
-    log.debug('Attempting to log in automatically');
+    log.debug('Restoring session');
 
-    try {
-      const accountToken = await this._daemonRpc.getAccount();
-      if (!accountToken) {
-        throw new NoAccountError();
+    const accountToken = await this._daemonRpc.getAccount();
+
+    if (accountToken) {
+      log.debug(`Got account token: ${accountToken}`);
+      actions.account.updateAccountToken(accountToken);
+      actions.account.loginSuccessful();
+
+      // take user to main view if user is still at launch screen `/`
+      if (history.location.pathname === '/') {
+        actions.history.replace('/connect');
       }
+    } else {
+      log.debug('No account set, showing login view.');
 
-      log.debug(`The daemon had an account number stored: ${accountToken}`);
-      actions.account.startLogin(accountToken);
+      // show window when account is not set
+      ipcRenderer.send('show-window');
 
-      const accountData = await this._daemonRpc.getAccountData(accountToken);
-      log.debug('The stored account number still exists:', accountData);
-
-      actions.account.loginSuccessful(accountData.expiry);
-      actions.history.push('/connect');
-    } catch (e) {
-      log.warn('Unable to autologin,', e.message);
-
-      actions.account.autoLoginFailed();
-      actions.history.push('/');
-
-      throw e;
+      // take user to `/login` screen if user is at launch screen `/`
+      if (history.location.pathname === '/') {
+        actions.history.replace('/login');
+      }
     }
   }
 
@@ -179,7 +197,10 @@ export default class AppRenderer {
         this._fetchAccountHistory(),
       ]);
       actions.account.loggedOut();
-      actions.history.push('/');
+      actions.history.replace('/login');
+
+      // reset account data state on log out
+      this._accountDataState = new AccountDataState();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -262,13 +283,29 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const actions = this._reduxActions;
+    const accountDataState = this._accountDataState;
+
+    // Bail if something else requested an update to account data
+    // or if account data cache was updated recently.
+    if (accountDataState.isUpdating() || !accountDataState.needsUpdate()) {
+      return;
+    }
+
     try {
       const accountToken = await this._daemonRpc.getAccount();
       if (!accountToken) {
         throw new NoAccountError();
       }
-      const accountData = await this._daemonRpc.getAccountData(accountToken);
-      actions.account.updateAccountExpiry(accountData.expiry);
+
+      const accountData = await accountDataState.update(() => {
+        return this._daemonRpc.getAccountData(accountToken);
+      });
+
+      // Check if account token is still the same after receiving account data
+      const currentAccountToken = this._reduxStore.getState().account.accountToken;
+      if (currentAccountToken === accountToken) {
+        actions.account.updateAccountExpiry(accountData.expiry);
+      }
     } catch (e) {
       log.error(`Failed to update account expiry: ${e.message}`);
     }
@@ -370,6 +407,10 @@ export default class AppRenderer {
   }
 
   async _onOpenConnection() {
+    // save to redux that the app connected to daemon
+    this._reduxActions.daemon.connected();
+
+    // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
     // authenticate once connected
@@ -383,16 +424,11 @@ export default class AppRenderer {
       log.error(`Cannot authenticate: ${error.message}`);
     }
 
-    // autologin
+    // attempt to restore the session
     try {
-      await this._autologin();
+      await this._restoreSession();
     } catch (error) {
-      if (error instanceof NoAccountError) {
-        log.debug('No previously configured account set, showing window');
-        ipcRenderer.send('show-window');
-      } else {
-        log.error(`Failed to autologin: ${error.message}`);
-      }
+      log.error(`Failed to restore session: ${error.message}`);
     }
 
     // make sure to re-subscribe to state notifications when connection is re-established.
@@ -422,6 +458,12 @@ export default class AppRenderer {
   }
 
   async _onCloseConnection(error: ?Error) {
+    const actions = this._reduxActions;
+
+    // save to redux that the app disconnected from daemon
+    actions.daemon.disconnected();
+
+    // recover connection on error
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
@@ -436,6 +478,9 @@ export default class AppRenderer {
       this._reconnectBackoff.attempt(() => {
         recover();
       });
+
+      // take user back to the launch screen `/`.
+      actions.history.replace('/');
     }
   }
 
@@ -552,6 +597,35 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to authenticate with backend: ${e.message}`);
       throw e;
+    }
+  }
+}
+
+// Helper class to keep track of account data updates
+class AccountDataState {
+  _expiresAt: ?Date;
+  _isUpdating = false;
+
+  isUpdating() {
+    return this._isUpdating;
+  }
+
+  needsUpdate() {
+    return !this._expiresAt || this._expiresAt < new Date();
+  }
+
+  async update(fn: () => Promise<AccountData>): Promise<AccountData> {
+    this._isUpdating = true;
+
+    try {
+      const accountData = await fn();
+      this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+
+      return accountData;
+    } catch (error) {
+      throw error;
+    } finally {
+      this._isUpdating = false;
     }
   }
 }

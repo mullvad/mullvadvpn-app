@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import TransitionContainer from './components/TransitionContainer';
 import PlatformWindow from './components/PlatformWindow';
+import LaunchPage from './containers/LaunchPage';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
 import SettingsPage from './containers/SettingsPage';
@@ -38,7 +39,6 @@ export default function makeRoutes(
   // example: <PublicRoute path="/" component={ MyComponent } />
   const PublicRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -52,7 +52,6 @@ export default function makeRoutes(
   // example: <PrivateRoute path="/protected" component={ MyComponent } />
   const PrivateRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -62,7 +61,7 @@ export default function makeRoutes(
           if (isLoggedIn) {
             return renderMergedProps(component, routeProps, otherProps);
           } else {
-            return <Redirect to={'/'} />;
+            return <Redirect to={'/login'} />;
           }
         }}
       />
@@ -74,7 +73,6 @@ export default function makeRoutes(
   // example: <LoginRoute path="/login" component={ MyComponent } />
   const LoginRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -91,11 +89,29 @@ export default function makeRoutes(
     );
   };
 
+  // Renders launch route that is only available when daemon is not connected.
+  // Otherwise this route redirects user to /login.
+  // example: <LaunchRoute path="/" component={ MyComponent } />
+  const LaunchRoute = ({ component, ...otherProps }) => {
+    return (
+      <Route
+        {...otherProps}
+        render={(routeProps) => {
+          const { daemon } = getState();
+          if (daemon.isConnected) {
+            return <Redirect to={'/login'} />;
+          } else {
+            return renderMergedProps(component, routeProps, otherProps);
+          }
+        }}
+      />
+    );
+  };
+
   // store previous route
   let previousRoute: ?string;
 
   return (
-    // $FlowFixMe: This has been fixed in Flow 0.71
     <Route
       render={({ location }) => {
         const toRoute = location.pathname;
@@ -107,7 +123,8 @@ export default function makeRoutes(
           <PlatformWindow>
             <TransitionContainer {...transitionProps}>
               <Switch key={location.key} location={location}>
-                <LoginRoute exact path="/" component={LoginPage} />
+                <LaunchRoute exact path="/" component={LaunchPage} />
+                <LoginRoute exact path="/login" component={LoginPage} />
                 <PrivateRoute exact path="/connect" component={ConnectPage} />
                 <PublicRoute exact path="/settings" component={SettingsPage} />
                 <PrivateRoute exact path="/settings/account" component={AccountPage} />

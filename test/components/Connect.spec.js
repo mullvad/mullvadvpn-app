@@ -5,7 +5,7 @@ import { shallow } from 'enzyme';
 
 import Connect from '../../app/components/Connect';
 
-import type { ConnectProps } from '../../app/components/Connect';
+type ConnectProps = React.ElementProps<typeof Connect>;
 
 describe('components/Connect', () => {
   it('shows unsecured hints when disconnected', () => {
@@ -19,7 +19,7 @@ describe('components/Connect', () => {
     const header = getComponent(component, 'header');
     const securityMessage = getComponent(component, 'networkSecurityMessage');
     const connectButton = getComponent(component, 'secureConnection');
-    expect(header.prop('style')).to.equal('error');
+    expect(header.prop('barStyle')).to.equal('error');
     expect(securityMessage.html()).to.contain('UNSECURED');
     expect(connectButton.html()).to.contain('Secure my connection');
   });
@@ -35,7 +35,7 @@ describe('components/Connect', () => {
     const header = getComponent(component, 'header');
     const securityMessage = getComponent(component, 'networkSecurityMessage');
     const disconnectButton = getComponent(component, 'disconnect');
-    expect(header.prop('style')).to.equal('success');
+    expect(header.prop('barStyle')).to.equal('success');
     expect(securityMessage.html()).to.contain('SECURE ');
     expect(disconnectButton.html()).to.contain('Disconnect');
   });
@@ -125,6 +125,7 @@ const defaultProps: ConnectProps = {
     country: null,
     city: null,
   },
+  updateAccountExpiry: () => Promise.resolve(),
 };
 
 function renderWithProps(customProps: $Shape<ConnectProps>) {

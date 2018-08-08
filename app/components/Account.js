@@ -1,7 +1,7 @@
 // @flow
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View, App, Types } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
@@ -9,10 +9,11 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
 import Img from './Img';
 import { formatAccount } from '../lib/formatters';
+import WindowStateObserver from '../lib/window-state-observer';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 
-export type AccountProps = {
+type Props = {
   accountToken: AccountToken,
   accountExpiry: string,
   expiryLocale: string,
@@ -28,27 +29,23 @@ type State = {
   showAccountTokenCopiedMessage: boolean,
 };
 
-export default class Account extends Component<AccountProps, State> {
+export default class Account extends Component<Props, State> {
   state = {
     isRefreshingExpiry: false,
     showAccountTokenCopiedMessage: false,
   };
 
-  _activationStateToken: ?Types.SubscriptionToken;
-
   _isMounted = false;
-
   _copyTimer: ?TimeoutID;
+  _windowStateObserver = new WindowStateObserver();
 
   componentDidMount() {
     this._isMounted = true;
     this._refreshAccountExpiry();
 
-    this._activationStateToken = App.activationStateChangedEvent.subscribe((activationState) => {
-      if (activationState === Types.AppActivationState.Active) {
-        this._refreshAccountExpiry();
-      }
-    });
+    this._windowStateObserver.onShow = () => {
+      this._refreshAccountExpiry();
+    };
   }
 
   componentWillUnmount() {
@@ -58,11 +55,7 @@ export default class Account extends Component<AccountProps, State> {
       clearTimeout(this._copyTimer);
     }
 
-    const activationStateToken = this._activationStateToken;
-    if (activationStateToken) {
-      activationStateToken.unsubscribe();
-      this._activationStateToken = null;
-    }
+    this._windowStateObserver.dispose();
   }
 
   onAccountTokenClick() {
@@ -119,7 +112,7 @@ export default class Account extends Component<AccountProps, State> {
                     <Text style={styles.account__row_label}>Paid until</Text>
                     {isOutOfTime ? (
                       <Text style={styles.account__out_of_time} testName="account__out_of_time">
-                        OUT OF TIME
+                        {'OUT OF TIME'}
                       </Text>
                     ) : (
                       <Text style={styles.account__row_value}>{formattedExpiry}</Text>

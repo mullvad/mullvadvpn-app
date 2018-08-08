@@ -3,19 +3,20 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Layout, Container, Header } from './Layout';
+import { SettingsBarButton, Brand } from './HeaderBar';
 import { Component, Text, View, Types } from 'reactxp';
 import * as AppButton from './AppButton';
 import Img from './Img';
 import Accordion from './Accordion';
 import styles from './ConnectStyles';
-
 import { NoCreditError, NoInternetError } from '../errors';
 import Map from './Map';
+import WindowStateObserver from '../lib/window-state-observer';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 
-export type ConnectProps = {
+type Props = {
   connection: ConnectionReduxState,
   accountExpiry: string,
   selectedRelayName: string,
@@ -25,22 +26,24 @@ export type ConnectProps = {
   onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
+  updateAccountExpiry: () => Promise<void>,
 };
 
-type ConnectState = {
+type State = {
   showCopyIPMessage: boolean,
   mapOffset: [number, number],
 };
 
-export default class Connect extends Component<ConnectProps, ConnectState> {
+export default class Connect extends Component<Props, State> {
   state = {
     showCopyIPMessage: false,
     mapOffset: [0, 0],
   };
 
   _copyTimer: ?TimeoutID;
+  _windowStateObserver = new WindowStateObserver();
 
-  shouldComponentUpdate(nextProps: ConnectProps, nextState: ConnectState) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { connection: prevConnection, ...otherPrevProps } = this.props;
     const { connection: nextConnection, ...otherNextProps } = nextProps;
 
@@ -56,10 +59,20 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
     );
   }
 
+  componentDidMount() {
+    this.props.updateAccountExpiry();
+
+    this._windowStateObserver.onShow = () => {
+      this.props.updateAccountExpiry();
+    };
+  }
+
   componentWillUnmount() {
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
+
+    this._windowStateObserver.dispose();
   }
 
   render() {
@@ -68,12 +81,10 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
     return (
       <Layout>
-        <Header
-          style={this.headerStyle()}
-          showSettings={true}
-          onSettings={this.props.onSettings}
-          testName="header"
-        />
+        <Header barStyle={this.headerBarStyle()} testName="header">
+          <Brand />
+          <SettingsBarButton onPress={this.props.onSettings} />
+        </Header>
         <Container>{child}</Container>
       </Layout>
     );
@@ -324,15 +335,17 @@ export default class Connect extends Component<ConnectProps, ConnectState> {
 
   // Private
 
-  headerStyle(): HeaderBarStyle {
-    switch (this.props.connection.status) {
+  headerBarStyle(): HeaderBarStyle {
+    const { status } = this.props.connection;
+    switch (status) {
       case 'disconnected':
         return 'error';
       case 'connecting':
       case 'connected':
         return 'success';
+      default:
+        throw new Error(`Invalid ConnectionState: ${(status: empty)}`);
     }
-    throw new Error('Invalid ConnectionState');
   }
 
   networkSecurityStyle(): Types.Style {

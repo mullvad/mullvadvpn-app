@@ -14,9 +14,8 @@ export default {
     },
     status_icon: {
       flex: 0,
-      height: 48,
       marginBottom: 30,
-      justifyContent: 'center',
+      alignItems: 'center',
     },
     login_form: {
       flex: 1,
@@ -88,13 +87,15 @@ export default {
       backgroundColor: colors.darkBlue,
     },
     account_dropdown__item: {
-      paddingTop: 10,
-      paddingRight: 12,
-      paddingLeft: 12,
-      paddingBottom: 12,
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingLeft: 0,
+      paddingBottom: 0,
       marginBottom: 0,
       flexDirection: 'row',
+      alignItems: 'stretch',
       backgroundColor: colors.white60,
+      cursor: 'default',
     },
     account_dropdown__item_hover: {
       backgroundColor: colors.white40,
@@ -102,6 +103,11 @@ export default {
     account_dropdown__remove: {
       justifyContent: 'center',
       color: colors.blue40,
+      paddingTop: 10,
+      paddingRight: 12,
+      paddingBottom: 12,
+      paddingLeft: 12,
+      marginLeft: 0,
     },
     account_dropdown__remove_cell_hover: {
       color: colors.blue60,
@@ -136,6 +142,7 @@ export default {
     subtitle: {
       fontFamily: 'Open Sans',
       fontSize: 13,
+      lineHeight: 15,
       fontWeight: '600',
       letterSpacing: -0.2,
       color: colors.white80,
@@ -165,6 +172,11 @@ export default {
       borderWidth: 0,
       textAlign: 'left',
       marginLeft: 0,
+      paddingTop: 10,
+      paddingRight: 0,
+      paddingLeft: 12,
+      paddingBottom: 12,
+      cursor: 'default',
     },
   }),
 };

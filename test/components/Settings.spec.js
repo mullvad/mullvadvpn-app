@@ -5,180 +5,201 @@ import { shallow } from 'enzyme';
 import Settings from '../../app/components/Settings';
 import { CloseBarItem } from '../../app/components/NavigationBar';
 
-import type { AccountReduxState } from '../../app/redux/account/reducers';
-import type { SettingsReduxState } from '../../app/redux/settings/reducers';
-import type { SettingsProps } from '../../app/components/Settings';
+type SettingsProps = React.ElementProps<typeof Settings>;
 
 describe('components/Settings', () => {
-  const loggedOutAccountState: AccountReduxState = {
-    accountToken: null,
-    accountHistory: [],
-    expiry: null,
-    status: 'none',
-    error: null,
-  };
-
-  const loggedInAccountState: AccountReduxState = {
-    accountToken: '1234',
-    accountHistory: [],
-    expiry: new Date('2038-01-01').toISOString(),
-    status: 'ok',
-    error: null,
-  };
-
-  const unpaidAccountState: AccountReduxState = {
-    accountToken: '1234',
-    accountHistory: [],
-    expiry: new Date('2001-01-01').toISOString(),
-    status: 'ok',
-    error: null,
-  };
-
-  const settingsState: SettingsReduxState = {
-    relaySettings: {
-      normal: {
-        location: 'any',
-        protocol: 'udp',
-        port: 1301,
-      },
-    },
-    relayLocations: [],
-    autoConnect: false,
-    allowLan: false,
-  };
-
-  const makeProps = (
-    anAccountState: AccountReduxState,
-    aSettingsState: SettingsReduxState,
-    mergeProps: $Shape<SettingsProps> = {},
-  ): SettingsProps => {
-    const defaultProps: SettingsProps = {
-      account: anAccountState,
-      settings: aSettingsState,
-      version: '',
-      onQuit: () => {},
-      onClose: () => {},
-      onViewAccount: () => {},
-      onViewSupport: () => {},
-      onViewAdvancedSettings: () => {},
-      onViewPreferences: () => {},
-      onExternalLink: (_type) => {},
-    };
-    return Object.assign({}, defaultProps, mergeProps);
+  const defaultProps: SettingsProps = {
+    loginState: 'none',
+    accountExpiry: null,
+    appVersion: '',
+    onQuit: () => {},
+    onClose: () => {},
+    onViewAccount: () => {},
+    onViewSupport: () => {},
+    onViewAdvancedSettings: () => {},
+    onViewPreferences: () => {},
+    onExternalLink: (_type) => {},
+    updateAccountExpiry: () => Promise.resolve(),
   };
 
   it('should show quit button when logged out', () => {
-    const props = makeProps(loggedOutAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__quit');
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     expect(component).to.have.length(1);
   });
 
   it('should show quit button when logged in', () => {
-    const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__quit');
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     expect(component).to.have.length(1);
   });
 
   it('should show external links when logged out', () => {
-    const props = makeProps(loggedOutAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__external_link');
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     expect(component.length).to.be.above(0);
   });
 
   it('should show external links when logged in', () => {
-    const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__external_link');
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     expect(component.length).to.be.above(0);
   });
 
   it('should show account section when logged in', () => {
-    const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__account');
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__account');
     expect(component).to.have.length(1);
   });
 
   it('should hide account section when logged out', () => {
-    const props = makeProps(loggedOutAccountState, settingsState);
-    const elements = getComponent(render(props), 'settings__account');
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
+    };
+    const elements = getComponent(shallow(<Settings {...props} />), 'settings__account');
     expect(elements).to.have.length(0);
   });
 
   it('should hide account link when not logged in', () => {
-    const props = makeProps(loggedOutAccountState, settingsState);
-    const elements = getComponent(render(props), 'settings__view_account');
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
+    };
+    const elements = getComponent(shallow(<Settings {...props} />), 'settings__view_account');
     expect(elements).to.have.length(0);
   });
 
   it('should show out-of-time message for unpaid account', () => {
-    const props = makeProps(unpaidAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2001-01-01').toISOString(),
+    };
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_subtext',
+    );
     expect(component.children().text()).to.equal('OUT OF TIME');
   });
 
   it('should hide out-of-time message for paid account', () => {
-    const props = makeProps(loggedInAccountState, settingsState);
-    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
+    };
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_subtext',
+    );
     expect(component.children().text()).not.to.equal('OUT OF TIME');
   });
 
   it('should call close callback', (done) => {
-    const props = makeProps(loggedOutAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
       onClose: () => done(),
-    });
-    const component = render(props)
+    };
+    const component = shallow(<Settings {...props} />)
       .find(CloseBarItem)
       .dive();
     component.simulate('press');
   });
 
   it('should call quit callback', (done) => {
-    const props = makeProps(loggedOutAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
       onQuit: () => done(),
-    });
-    const component = getComponent(render(props), 'settings__quit');
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     component.simulate('press');
   });
 
   it('should call account callback', (done) => {
-    const props = makeProps(loggedInAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
       onViewAccount: () => done(),
-    });
-    const component = getComponent(render(props), 'settings__account_paid_until_button');
+    };
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_button',
+    );
     component.simulate('press');
   });
 
   it('should call advanced settings callback', (done) => {
-    const props = makeProps(loggedInAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
       onViewAdvancedSettings: () => done(),
-    });
-    const component = getComponent(render(props), 'settings__advanced');
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__advanced');
     component.simulate('press');
   });
 
   it('should call preferences callback', (done) => {
-    const props = makeProps(loggedInAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
       onViewPreferences: () => done(),
-    });
-    const component = getComponent(render(props), 'settings__preferences');
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__preferences');
     component.simulate('press');
   });
 
   it('should call support callback', (done) => {
-    const props = makeProps(loggedInAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'ok',
+      accountExpiry: new Date('2038-01-01').toISOString(),
       onViewSupport: () => done(),
-    });
-    const component = getComponent(render(props), 'settings__view_support');
+    };
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__view_support');
     component.simulate('press');
   });
 
   it('should call external links callback', () => {
     const collectedExternalLinkTypes: Array<string> = [];
-    const props = makeProps(loggedOutAccountState, settingsState, {
+    const props = {
+      ...defaultProps,
+      loginState: 'none',
+      accountExpiry: null,
       onExternalLink: (type) => {
         collectedExternalLinkTypes.push(type);
       },
-    });
-    const container = getComponent(render(props), 'settings__external_link');
+    };
+    const container = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     container
       .find({ testName: 'settings__external_link' })
       .forEach((element) => element.simulate('press'));
@@ -186,10 +207,6 @@ describe('components/Settings', () => {
     expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
 });
-
-function render(props) {
-  return shallow(<Settings {...props} />);
-}
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);

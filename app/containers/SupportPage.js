@@ -1,7 +1,7 @@
 // @flow
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import Support from '../components/Support';
 import { openItem } from '../lib/platform';
 import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
@@ -18,10 +18,10 @@ const mapStateToProps = (state: ReduxState) => ({
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
-  const { push: pushHistory } = bindActionCreators({ push }, dispatch);
+  const history = bindActionCreators({ goBack }, dispatch);
 
   return {
-    onClose: () => pushHistory('/settings'),
+    onClose: () => history.goBack(),
     viewLog: (path) => openItem(path),
     saveReportForm,
     clearReportForm,

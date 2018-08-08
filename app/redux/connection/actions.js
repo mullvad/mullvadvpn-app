@@ -4,21 +4,14 @@ import { Clipboard } from 'reactxp';
 import type { ReduxThunk } from '../store';
 import type { Ip } from '../../lib/daemon-rpc';
 
-const copyIPAddress = (): ReduxThunk => {
-  return (_, getState) => {
-    const ip = getState().connection.ip;
-    if (ip) {
-      Clipboard.setText(ip);
-    }
-  };
-};
-
 type ConnectingAction = {
   type: 'CONNECTING',
 };
+
 type ConnectedAction = {
   type: 'CONNECTED',
 };
+
 type DisconnectedAction = {
   type: 'DISCONNECTED',
 };
@@ -88,12 +81,21 @@ function offline(): OfflineAction {
   };
 }
 
+function copyIPAddress(): ReduxThunk {
+  return (_, getState) => {
+    const ip = getState().connection.ip;
+    if (ip) {
+      Clipboard.setText(ip);
+    }
+  };
+}
+
 export default {
-  copyIPAddress,
   newLocation,
   connecting,
   connected,
   disconnected,
   online,
   offline,
+  copyIPAddress,
 };

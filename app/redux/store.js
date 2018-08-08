@@ -11,6 +11,8 @@ import settings from './settings/reducers';
 import settingsActions from './settings/actions';
 import support from './support/reducers';
 import supportActions from './support/actions';
+import daemon from './daemon/reducers';
+import daemonActions from './daemon/actions';
 
 import type { Store, StoreEnhancer } from 'redux';
 import type { History } from 'history';
@@ -18,20 +20,28 @@ import type { AccountReduxState } from './account/reducers';
 import type { ConnectionReduxState } from './connection/reducers';
 import type { SettingsReduxState } from './settings/reducers';
 import type { SupportReduxState } from './support/reducers';
+import type { DaemonReduxState } from './daemon/reducers';
 
 import type { AccountAction } from './account/actions';
 import type { ConnectionAction } from './connection/actions';
 import type { SettingsAction } from './settings/actions';
 import type { SupportAction } from './support/actions';
+import type { DaemonAction } from './daemon/actions';
 
 export type ReduxState = {
   account: AccountReduxState,
   connection: ConnectionReduxState,
   settings: SettingsReduxState,
   support: SupportReduxState,
+  daemon: DaemonReduxState,
 };
 
-export type ReduxAction = AccountAction | ConnectionAction | SettingsAction | SupportAction;
+export type ReduxAction =
+  | AccountAction
+  | ConnectionAction
+  | SettingsAction
+  | SupportAction
+  | DaemonAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
 export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;
@@ -48,6 +58,7 @@ export default function configureStore(
     ...connectionActions,
     ...settingsActions,
     ...supportActions,
+    ...daemonActions,
     pushRoute: (route) => push(route),
     replaceRoute: (route) => replace(route),
   };
@@ -57,6 +68,7 @@ export default function configureStore(
     connection,
     settings,
     support,
+    daemon,
   };
 
   const middlewares = [thunk, router];

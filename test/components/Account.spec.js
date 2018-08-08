@@ -4,7 +4,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Account from '../../app/components/Account';
 import { BackBarItem } from '../../app/components/NavigationBar';
-import type { AccountProps } from '../../app/components/Account';
+
+type AccountProps = React.ElementProps<typeof Account>;
 
 describe('components/Account', () => {
   const makeProps = (mergeProps: $Shape<AccountProps>): AccountProps => {

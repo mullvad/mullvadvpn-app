@@ -1,19 +1,16 @@
 // @flow
 import * as React from 'react';
-import HeaderBar from './HeaderBar';
 import { View, Component } from 'reactxp';
-
-import type { HeaderBarProps } from './HeaderBar';
-
+import HeaderBar from './HeaderBar';
 import styles from './LayoutStyles';
 
-export class Header extends Component<HeaderBarProps> {
+export class Header extends Component<React.ElementProps<typeof HeaderBar>> {
   static defaultProps = HeaderBar.defaultProps;
 
   render() {
     return (
-      <View style={styles.header}>
-        <HeaderBar {...this.props} />
+      <View style={[styles.header, this.props.style]}>
+        <HeaderBar barStyle={this.props.barStyle}>{this.props.children}</HeaderBar>
       </View>
     );
   }

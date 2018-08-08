@@ -327,7 +327,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
       const validatedObject = validate(RelaySettingsSchema, response);
 
       /* $FlowFixMe:
-        There is no way to express the constraints with string literals, i.e:
+        There is no way to express constraints with string literals, i.e:
 
         RelaySettingsSchema constraint:
           oneOf(string, object)

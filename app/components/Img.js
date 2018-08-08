@@ -4,6 +4,8 @@ import { View, Component, Types } from 'reactxp';
 
 type Props = {
   source: string,
+  width?: number,
+  heigth?: number,
   tintColor?: string,
   hoverStyle?: Types.ViewStyle,
   disabled?: boolean,
@@ -20,7 +22,7 @@ export default class Img extends Component<Props, State> {
   getHoverStyle = () => (this.state.hovered ? this.props.hoverStyle || null : null);
 
   render() {
-    const { source, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;
+    const { source, width, heigth, style, onMouseEnter, onMouseLeave, ...otherProps } = this.props;
     const tintColor = this.props.tintColor;
     const url = './assets/images/' + source + '.svg';
     let image;
@@ -36,6 +38,8 @@ export default class Img extends Component<Props, State> {
           }}>
           <img
             src={url}
+            width={width}
+            height={heigth}
             style={{
               visibility: 'hidden',
             }}
@@ -43,7 +47,7 @@ export default class Img extends Component<Props, State> {
         </div>
       );
     } else {
-      image = <img src={url} />;
+      image = <img src={url} width={width} height={heigth} />;
     }
 
     return (
