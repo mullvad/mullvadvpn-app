@@ -1,4 +1,5 @@
 // @flow
+
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { goBack } from 'connected-react-router';

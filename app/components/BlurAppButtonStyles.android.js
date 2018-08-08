@@ -1,3 +1,5 @@
+// @flow
+
 import { colors } from '../../config';
 
 import { createViewStyles } from '../../lib/styles';

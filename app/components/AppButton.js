@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { Button, Text, Component } from 'reactxp';
 import styles from './AppButtonStyles';

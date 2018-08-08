@@ -1,4 +1,5 @@
 // @flow
+
 import React from 'react';
 import { Component, Text, Button, View, Styles } from 'reactxp';
 import Img from './Img';

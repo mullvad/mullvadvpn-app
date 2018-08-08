@@ -1,4 +1,5 @@
 // @flow
+
 import { Styles, UserInterface } from 'reactxp';
 
 const dimensions = UserInterface.measureWindow();

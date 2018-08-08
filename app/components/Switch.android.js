@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { Switch as _Switch } from 'react-native';
 
