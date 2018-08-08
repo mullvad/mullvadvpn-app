@@ -11,6 +11,7 @@ import makeRoutes from './routes';
 import { log } from './lib/platform';
 import ReconnectionBackoff from './lib/reconnection-backoff';
 import { DaemonRpc } from './lib/daemon-rpc';
+import NotificationController from './notification-controller';
 import { setShutdownHandler } from './shutdown-handler';
 import { NoAccountError } from './errors';
 
@@ -30,6 +31,7 @@ import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from './tray-icon-controller';
 
 export default class AppRenderer {
+  _notificationController = new NotificationController();
   _daemonRpc: DaemonRpcProtocol = new DaemonRpc();
   _reconnectBackoff = new ReconnectionBackoff();
   _credentials: ?RpcCredentials;
@@ -523,6 +525,24 @@ export default class AppRenderer {
     }
 
     this._updateTrayIcon(connectionState);
+    this._showNotification(connectionState);
+  }
+
+  _showNotification(connectionState: ConnectionState) {
+    switch (connectionState) {
+      case 'connecting':
+        this._notificationController.show('Connecting');
+        break;
+      case 'connected':
+        this._notificationController.show('Secured');
+        break;
+      case 'disconnected':
+        this._notificationController.show('Unsecured');
+        break;
+      default:
+        log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
+        return;
+    }
   }
 
   async _authenticate(sharedSecret: string) {

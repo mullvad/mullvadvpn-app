@@ -33,6 +33,10 @@ const ApplicationMain = {
 
     log.info(`Running version ${app.getVersion()}`);
 
+    if (process.platform === 'win32') {
+      app.setAppUserModelId('net.mullvad.vpn');
+    }
+
     app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
@@ -61,7 +65,7 @@ const ApplicationMain = {
   _overrideAppPaths() {
     // This ensures that on Windows the %LOCALAPPDATA% directory is used instead of the %ADDDATA%
     // directory that has roaming contents
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const appDataDir = process.env.LOCALAPPDATA;
       if (appDataDir) {
         app.setPath('appData', appDataDir);
