@@ -81,7 +81,7 @@ void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
 	DWORD status = GetIpInterfaceEntry(iface);
 
 	if (status != NO_ERROR) {
-		if (status == STATUS_NOT_FOUND) {
+		if (status == STATUS_NOT_FOUND || status == ERROR_NOT_FOUND) {
 			iface->Family = AF_UNSPEC;
 		}
 		else {
