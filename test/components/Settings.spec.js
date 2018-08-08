@@ -30,7 +30,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const component = getComponent(render(props), 'settings__quit');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     expect(component).to.have.length(1);
   });
 
@@ -39,7 +39,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__quit');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     expect(component).to.have.length(1);
   });
 
@@ -48,7 +48,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const component = getComponent(render(props), 'settings__external_link');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     expect(component.length).to.be.above(0);
   });
 
@@ -57,7 +57,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__external_link');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     expect(component.length).to.be.above(0);
   });
 
@@ -66,7 +66,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__account');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__account');
     expect(component).to.have.length(1);
   });
 
@@ -75,7 +75,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const elements = getComponent(render(props), 'settings__account');
+    const elements = getComponent(shallow(<Settings {...props} />), 'settings__account');
     expect(elements).to.have.length(0);
   });
 
@@ -84,7 +84,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const elements = getComponent(render(props), 'settings__view_account');
+    const elements = getComponent(shallow(<Settings {...props} />), 'settings__view_account');
     expect(elements).to.have.length(0);
   });
 
@@ -93,7 +93,10 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2001-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_subtext',
+    );
     expect(component.children().text()).to.equal('OUT OF TIME');
   });
 
@@ -102,7 +105,10 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__account_paid_until_subtext');
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_subtext',
+    );
     expect(component.children().text()).not.to.equal('OUT OF TIME');
   });
 
@@ -112,7 +118,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const component = render(props)
+    const component = shallow(<Settings {...props} />)
       .find(CloseBarItem)
       .dive();
     component.simulate('press');
@@ -125,7 +131,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const component = getComponent(render(props), 'settings__quit');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__quit');
     component.simulate('press');
   });
 
@@ -135,7 +141,10 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__account_paid_until_button');
+    const component = getComponent(
+      shallow(<Settings {...props} />),
+      'settings__account_paid_until_button',
+    );
     component.simulate('press');
   });
 
@@ -145,7 +154,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__advanced');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__advanced');
     component.simulate('press');
   });
 
@@ -155,7 +164,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__preferences');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__preferences');
     component.simulate('press');
   });
 
@@ -165,7 +174,7 @@ describe('components/Settings', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       loginState: 'ok',
     });
-    const component = getComponent(render(props), 'settings__view_support');
+    const component = getComponent(shallow(<Settings {...props} />), 'settings__view_support');
     component.simulate('press');
   });
 
@@ -179,7 +188,7 @@ describe('components/Settings', () => {
       loginState: 'none',
       accountExpiry: null,
     });
-    const container = getComponent(render(props), 'settings__external_link');
+    const container = getComponent(shallow(<Settings {...props} />), 'settings__external_link');
     container
       .find({ testName: 'settings__external_link' })
       .forEach((element) => element.simulate('press'));
@@ -187,10 +196,6 @@ describe('components/Settings', () => {
     expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
   });
 });
-
-function render(props) {
-  return shallow(<Settings {...props} />);
-}
 
 function getComponent(container, testName) {
   return container.findWhere((n) => n.prop('testName') === testName);
