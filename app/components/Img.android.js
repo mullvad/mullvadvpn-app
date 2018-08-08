@@ -1,4 +1,5 @@
 // @flow
+
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Image, Styles } from 'reactxp';

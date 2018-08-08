@@ -1,4 +1,5 @@
 // @flow
+
 import { BackHandler, Linking } from 'react-native';
 import { MobileAppBridge } from 'NativeModules';
 import { version } from '../../package.json';

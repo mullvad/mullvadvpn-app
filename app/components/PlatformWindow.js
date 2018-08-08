@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { Component, View, Styles } from 'reactxp';
 

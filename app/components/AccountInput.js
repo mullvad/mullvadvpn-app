@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { TextInput } from 'reactxp';
 import { formatAccount } from '../lib/formatters';

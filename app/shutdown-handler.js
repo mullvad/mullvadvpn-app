@@ -1,4 +1,5 @@
 // @flow
+
 import { app, ipcMain, ipcRenderer } from 'electron';
 import { log } from './lib/platform';
 import type { WebContents } from 'electron';

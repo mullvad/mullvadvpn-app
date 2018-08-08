@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 

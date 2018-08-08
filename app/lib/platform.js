@@ -1,4 +1,5 @@
 // @flow
+
 import fs from 'fs';
 import { remote, shell } from 'electron';
 import electronLog from 'electron-log';

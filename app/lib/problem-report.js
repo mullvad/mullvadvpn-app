@@ -1,4 +1,5 @@
 // @flow
+
 import { ipcRenderer } from 'electron';
 import uuid from 'uuid';
 

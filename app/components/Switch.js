@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 
 const CLICK_TIMEOUT = 1000;

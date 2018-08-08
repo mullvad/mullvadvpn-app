@@ -1,4 +1,5 @@
 // @flow
+
 import path from 'path';
 import KeyframeAnimation from './lib/keyframe-animation';
 import type { Tray } from 'electron';

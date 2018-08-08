@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { Component, Styles, View, Text } from 'reactxp';
 import { Layout, Container, Header } from './Layout';

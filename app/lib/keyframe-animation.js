@@ -1,4 +1,5 @@
 // @flow
+
 import { nativeImage } from 'electron';
 import type { NativeImage } from 'electron';
 

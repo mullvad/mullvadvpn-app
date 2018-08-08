@@ -1,4 +1,5 @@
 // @flow
+
 import moment from 'moment';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
@@ -92,7 +93,7 @@ export default class Settings extends Component<Props> {
 
     return (
       <View>
-        <View style={styles.settings_account} testName="settings__account">
+        <View testName="settings__account">
           {isOutOfTime ? (
             <Cell.CellButton
               onPress={this.props.onViewAccount}
