@@ -101,7 +101,7 @@ export default class Settings extends Component<Props> {
               <Cell.Label>Account</Cell.Label>
               <Cell.SubText
                 testName="settings__account_paid_until_subtext"
-                style={styles.settings__account_paid_until_Label__error}>
+                style={styles.settings__account_paid_until_label__error}>
                 {'OUT OF TIME'}
               </Cell.SubText>
               <Img height={12} width={7} source="icon-chevron" />
