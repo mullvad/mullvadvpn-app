@@ -55,7 +55,7 @@ export default class HeaderBar extends Component<HeaderBarProps> {
   };
 
   render() {
-    const containerClass = [
+    const style = [
       headerBarStyles.container.base,
       headerBarStyles.container.platformOverride[process.platform],
       headerBarStyles.barStyle[this.props.barStyle],
@@ -63,7 +63,7 @@ export default class HeaderBar extends Component<HeaderBarProps> {
     ];
 
     return (
-      <View style={containerClass}>
+      <View style={style}>
         <View style={headerBarStyles.content}>{this.props.children}</View>
       </View>
     );
