@@ -1,9 +1,14 @@
 {
+  "root": true,
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:promise/recommended",
-    "prettier"
+    "plugin:flowtype/recommended",
+    "prettier",
+    "prettier/flowtype",
+    "prettier/react",
+    "prettier/standard"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -12,15 +17,17 @@
       "modules": true
     }
   },
-  "plugins": ["react", "flowtype", "promise"],
+  "plugins": [
+    "react", 
+    "flowtype", 
+    "promise"
+  ],
   "rules": {
     "prefer-const": "warn",
     "no-console": "off",
     "no-loop-func": "warn",
-    "new-cap": "off",
     "no-param-reassign": "warn",
     "func-names": "off",
-    "comma-spacing": "warn",
     "no-unused-expressions": "error",
     "no-unused-vars": [
       "error",

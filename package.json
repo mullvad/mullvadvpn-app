@@ -90,6 +90,6 @@
     "private:serve": "cross-env BABEL_ENV=electron babel-node scripts/serve.js",
     "private:compile": "babel app/ --copy-files --out-dir build",
     "private:clean": "rimraf build",
-    "private:format": "cross-env prettier 'app/**/*.js' 'test/**/*.js'"
+    "private:format": "cross-env prettier 'app/**/*.js' 'test/**/*.js' 'scripts/*.js'"
   }
 }
