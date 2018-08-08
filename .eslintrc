@@ -3,7 +3,11 @@
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:promise/recommended",
-    "prettier"
+    "plugin:flowtype/recommended",
+    "plugin:prettier/recommended",
+    "prettier/flowtype",
+    "prettier/react",
+    "prettier/standard"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -12,7 +16,12 @@
       "modules": true
     }
   },
-  "plugins": ["react", "flowtype", "promise"],
+  "plugins": [
+    "react", 
+    "flowtype", 
+    "promise",
+    "prettier"
+  ],
   "rules": {
     "prefer-const": "warn",
     "no-console": "off",

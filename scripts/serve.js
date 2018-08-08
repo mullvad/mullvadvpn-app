@@ -15,38 +15,39 @@ const getClientUrl = (options) => {
   return getRootUrl(options) + pathname;
 };
 
-bsync.init({
-  ui: false,
-  // Port 35829 = LiveReload's default port 35729 + 100.
-  // If the port is occupied, Browsersync uses next free port automatically.
-  port: 35829,
-  ghostMode: false,
-  open: false,
-  notify: false,
-  logSnippet: false,
-  socket: {
-    // Use the actual port here.
-    domain: getRootUrl
-  }
-}, (err, bs) => {
-  if (err) return console.error(err);
-
-  const child = spawn(electron, ['.'], {
-    env: {
-      ...{
-        NODE_ENV: 'development',
-        BROWSER_SYNC_CLIENT_URL: getClientUrl(bs.options)
-      },
-      ...process.env
+bsync.init(
+  {
+    ui: false,
+    // Port 35829 = LiveReload's default port 35729 + 100.
+    // If the port is occupied, Browsersync uses next free port automatically.
+    port: 35829,
+    ghostMode: false,
+    open: false,
+    notify: false,
+    logSnippet: false,
+    socket: {
+      // Use the actual port here.
+      domain: getRootUrl,
     },
-    stdio: 'inherit'
-  });
+  },
+  (err, bs) => {
+    if (err) return console.error(err);
 
-  child.on('close', () => {
-    process.exit();
-  });
+    const child = spawn(electron, ['.'], {
+      env: {
+        ...{
+          NODE_ENV: 'development',
+          BROWSER_SYNC_CLIENT_URL: getClientUrl(bs.options),
+        },
+        ...process.env,
+      },
+      stdio: 'inherit',
+    });
 
-  bsync
-    .watch('build/**/*')
-    .on('change', bsync.reload);
-});
+    child.on('close', () => {
+      process.exit();
+    });
+
+    bsync.watch('build/**/*').on('change', bsync.reload);
+  },
+);
