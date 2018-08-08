@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { View } from 'reactxp';

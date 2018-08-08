@@ -1,4 +1,5 @@
 // @flow
+
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, connectRouter, push, replace } from 'connected-react-router';
 import thunk from 'redux-thunk';

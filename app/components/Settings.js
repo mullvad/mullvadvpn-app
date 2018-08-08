@@ -1,4 +1,5 @@
 // @flow
+
 import moment from 'moment';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
@@ -92,7 +93,7 @@ export default class Settings extends Component<Props> {
 
     return (
       <View>
-        <View style={styles.settings_account} testName="settings__account">
+        <View testName="settings__account">
           {isOutOfTime ? (
             <Cell.CellButton
               onPress={this.props.onViewAccount}
@@ -100,7 +101,7 @@ export default class Settings extends Component<Props> {
               <Cell.Label>Account</Cell.Label>
               <Cell.SubText
                 testName="settings__account_paid_until_subtext"
-                style={styles.settings__account_paid_until_Label__error}>
+                style={styles.settings__account_paid_until_label__error}>
                 {'OUT OF TIME'}
               </Cell.SubText>
               <Img height={12} width={7} source="icon-chevron" />

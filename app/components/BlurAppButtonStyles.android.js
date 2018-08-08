@@ -1,20 +1,19 @@
+// @flow
+
+import { Styles } from 'reactxp';
 import { colors } from '../../config';
 
-import { createViewStyles } from '../../lib/styles';
-
 export default {
-  ...createViewStyles({
-    transparent: {
-      backgroundColor: colors.white20,
-    },
-    transparentHover: {
-      backgroundColor: colors.white40,
-    },
-    redTransparent: {
-      backgroundColor: colors.red40,
-    },
-    redTransparentHover: {
-      backgroundColor: colors.red45,
-    },
+  transparent: Styles.createViewStyle({
+    backgroundColor: colors.white20,
+  }),
+  transparentHover: Styles.createViewStyle({
+    backgroundColor: colors.white40,
+  }),
+  redTransparent: Styles.createViewStyle({
+    backgroundColor: colors.red40,
+  }),
+  redTransparentHover: Styles.createViewStyle({
+    backgroundColor: colors.red45,
   }),
 };

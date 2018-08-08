@@ -1,53 +1,49 @@
 // @flow
 
 import * as React from 'react';
-import { Button, Text, Component, Types } from 'reactxp';
+import { Button, Text, Component, Styles, Types } from 'reactxp';
 import Img from './Img';
-import { createViewStyles, createTextStyles } from '../lib/styles';
 import { colors } from '../config';
 
 const styles = {
-  ...createViewStyles({
-    cell: {
-      backgroundColor: colors.blue,
-      paddingTop: 14,
-      paddingBottom: 14,
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginBottom: 1,
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignContent: 'center',
-      cursor: 'default',
-    },
-    cellHover: {
-      backgroundColor: colors.blue80,
-    },
-    icon: {
-      color: colors.white60,
-      marginLeft: 8,
-    },
+  cell: Styles.createViewStyle({
+    backgroundColor: colors.blue,
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginBottom: 1,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    cursor: 'default',
   }),
-  ...createTextStyles({
-    label: {
-      color: colors.white,
-      alignSelf: 'center',
-      fontFamily: 'DINPro',
-      fontSize: 20,
-      fontWeight: '900',
-      lineHeight: 26,
-      flex: 1,
-      marginLeft: 8,
-    },
-    subtext: {
-      color: colors.white60,
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '800',
-      flex: 0,
-      textAlign: 'right',
-    },
+  cellHover: Styles.createViewStyle({
+    backgroundColor: colors.blue80,
+  }),
+  icon: Styles.createViewStyle({
+    color: colors.white60,
+    marginLeft: 8,
+  }),
+
+  label: Styles.createTextStyle({
+    color: colors.white,
+    alignSelf: 'center',
+    fontFamily: 'DINPro',
+    fontSize: 20,
+    fontWeight: '900',
+    lineHeight: 26,
+    flex: 1,
+    marginLeft: 8,
+  }),
+  subtext: Styles.createTextStyle({
+    color: colors.white60,
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '800',
+    flex: 0,
+    textAlign: 'right',
   }),
 };
 

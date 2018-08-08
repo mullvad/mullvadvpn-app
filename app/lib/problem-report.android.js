@@ -1,4 +1,5 @@
 // @flow
+
 import { MobileAppBridge } from 'NativeModules';
 
 const collectProblemReport = (toRedact: string) => {

@@ -1,4 +1,5 @@
 // @flow
+
 import TransitionRule from './lib/transition-rule';
 import type { TransitionFork, TransitionDescriptor } from './lib/transition-rule';
 

@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { View, Component } from 'reactxp';
 import HeaderBar from './HeaderBar';

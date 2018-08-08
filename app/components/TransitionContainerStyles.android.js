@@ -1,4 +1,5 @@
 // @flow
+
 import { Styles, UserInterface } from 'reactxp';
 import { MobileAppBridge } from 'NativeModules';
 import { log } from '../lib/platform';

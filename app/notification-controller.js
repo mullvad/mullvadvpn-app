@@ -1,4 +1,5 @@
 // @flow
+
 import { remote } from 'electron';
 
 export default class NotificationController {

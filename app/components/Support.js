@@ -1,4 +1,5 @@
 // @flow
+
 import * as React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
 import * as AppButton from './AppButton';
