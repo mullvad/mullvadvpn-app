@@ -78,8 +78,13 @@ describe('JSON RPC transport', () => {
     await transport.connect(WEBSOCKET_URL);
 
     const eventPromiseHelper = (() => {
-      let borrowedResolve: (any) => void;
+      let borrowedResolve: ?(mixed) => void;
       const promise = new Promise((resolve) => (borrowedResolve = resolve));
+      /* Flow does not understand that the body of Promise runs immediately.
+         see https://github.com/facebook/flow/issues/6711 */
+      if (!borrowedResolve) {
+        throw new Error();
+      }
       return {
         resolve: borrowedResolve,
         promise,
