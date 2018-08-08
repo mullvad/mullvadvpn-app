@@ -189,6 +189,16 @@ impl OpenVpnCommand {
             args.push(tunnel_device.clone());
         }
 
+        if !self.tunnel_options.enable_ipv6 {
+            args.push(OsString::from("--pull-filter"));
+            args.push(OsString::from("ignore"));
+            args.push(OsString::from("route-ipv6"));
+
+            args.push(OsString::from("--pull-filter"));
+            args.push(OsString::from("ignore"));
+            args.push(OsString::from("ifconfig-ipv6"));
+        }
+
         args.extend(Self::security_arguments().iter().map(OsString::from));
 
         args
@@ -219,9 +229,16 @@ impl OpenVpnCommand {
                 net::TransportProtocol::Udp => "udp".to_owned(),
                 net::TransportProtocol::Tcp => "tcp-client".to_owned(),
             });
+
             args.push("--remote".to_owned());
             args.push(endpoint.address.ip().to_string());
             args.push(endpoint.address.port().to_string());
+            if !self.tunnel_options.enable_ipv6 {
+                args.push(match endpoint.protocol {
+                    net::TransportProtocol::Udp => "udp4".to_owned(),
+                    net::TransportProtocol::Tcp => "tcp4".to_owned(),
+                });
+            }
         }
         args
     }
