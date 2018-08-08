@@ -86,7 +86,7 @@ void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
 		}
 		else {
 			std::stringstream ss;
-			ss << "Failed get network interface with LUID "
+			ss << "Failed to get network interface with LUID "
 				<< &iface->InterfaceLuid.Value
 				<< ": "
 				<< status;
