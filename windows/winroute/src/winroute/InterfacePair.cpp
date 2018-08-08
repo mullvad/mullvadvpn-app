@@ -20,7 +20,7 @@ InterfacePair::InterfacePair(NET_LUID interface_luid)
 
 	if (!(HasIPv4() || HasIPv6())) {
 		std::stringstream ss;
-		ss << L"LUID "
+		ss << "LUID "
 			<< interface_luid.Value
 			<< " does not specify any IPv4 or IPv6 interfaces";
 		throw std::runtime_error(ss.str());
@@ -56,7 +56,7 @@ void InterfacePair::SetInterface(PMIB_IPINTERFACE_ROW iface) {
     if (status != NO_ERROR) 
     {
         std::stringstream ss;
-        ss << L"Failed to set metric for "
+        ss << "Failed to set metric for "
 			<< (iface->Family == AF_INET ? "IPv4" : "IPv6")
             << " interface with LUID"
             << iface->InterfaceLuid.Value
@@ -86,7 +86,7 @@ void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
 		}
 		else {
 			std::stringstream ss;
-			ss << L"Failed get network interface with LUID "
+			ss << "Failed get network interface with LUID "
 				<< &iface->InterfaceLuid.Value
 				<< ": "
 				<< status;

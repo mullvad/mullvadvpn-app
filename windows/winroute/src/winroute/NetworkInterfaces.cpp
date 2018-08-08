@@ -48,7 +48,7 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
 		if (success != NO_ERROR)
 		{
 			std::stringstream ss;
-			ss << L"Failed to increment metric for interface with LUID "
+			ss << "Failed to increment metric for interface with LUID "
 				<< &iface->InterfaceLuid.Value
 				<< ": "
 				<< success;
@@ -67,7 +67,7 @@ NetworkInterfaces::NetworkInterfaces()
 	if (success != NO_ERROR)
 	{
 		std::stringstream ss;
-		ss << L"Failed to enumerate network interfaces: " << success;
+		ss << "Failed to enumerate network interfaces: " << success;
 		throw std::runtime_error(ss.str());
 	}
 }
