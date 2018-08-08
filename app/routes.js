@@ -39,7 +39,6 @@ export default function makeRoutes(
   // example: <PublicRoute path="/" component={ MyComponent } />
   const PublicRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -53,7 +52,6 @@ export default function makeRoutes(
   // example: <PrivateRoute path="/protected" component={ MyComponent } />
   const PrivateRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -75,7 +73,6 @@ export default function makeRoutes(
   // example: <LoginRoute path="/login" component={ MyComponent } />
   const LoginRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -97,7 +94,6 @@ export default function makeRoutes(
   // example: <LaunchRoute path="/" component={ MyComponent } />
   const LaunchRoute = ({ component, ...otherProps }) => {
     return (
-      // $FlowFixMe: This has been fixed in Flow 0.71
       <Route
         {...otherProps}
         render={(routeProps) => {
@@ -116,7 +112,6 @@ export default function makeRoutes(
   let previousRoute: ?string;
 
   return (
-    // $FlowFixMe: This has been fixed in Flow 0.71
     <Route
       render={({ location }) => {
         const toRoute = location.pathname;
