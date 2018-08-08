@@ -53,10 +53,13 @@ export default Object.assign(
       flex: 0,
     },
     support__status_icon: {
-      textAlign: 'center',
+      alignItems: 'center',
       marginBottom: 32,
     },
     view_logs_button: {
+      marginBottom: 16,
+    },
+    edit_message_button: {
       marginBottom: 16,
     },
   }),

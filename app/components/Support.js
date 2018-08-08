@@ -267,8 +267,8 @@ export default class Support extends Component<SupportProps, SupportState> {
             <View style={styles.support__status_icon}>
               <Img source="icon-spinner" height={60} width={60} alt="" />
             </View>
-            <View style={styles.support__status_security__secure}>Secure Connection</View>
-            <Text style={styles.support__send_status}>Sending...</Text>
+            <View style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</View>
+            <Text style={styles.support__send_status}>{'Sending...'}</Text>
           </View>
         </View>
       </View>
@@ -283,8 +283,8 @@ export default class Support extends Component<SupportProps, SupportState> {
             <View style={styles.support__status_icon}>
               <Img source="icon-success" height={60} width={60} alt="" />
             </View>
-            <Text style={styles.support__status_security__secure}>Secure Connection</Text>
-            <Text style={styles.support__send_status}>Sent</Text>
+            <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
+            <Text style={styles.support__send_status}>{'Sent'}</Text>
 
             <Text style={styles.support__sent_message}>Thanks! We will look into this.</Text>
             {this.state.email.trim().length > 0 ? (
@@ -307,13 +307,15 @@ export default class Support extends Component<SupportProps, SupportState> {
             <View style={styles.support__status_icon}>
               <Img source="icon-fail" height={60} width={60} alt="" />
             </View>
-            <Text style={styles.support__status_security__secure}>Secure Connection</Text>
-            <Text style={styles.support__send_status}>Failed to send</Text>
+            <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
+            <Text style={styles.support__send_status}>{'Failed to send'}</Text>
           </View>
         </View>
         <View style={styles.support__footer}>
-          <AppButton.BlueButton onPress={() => this.setState({ sendState: 'INITIAL' })}>
-            Edit message
+          <AppButton.BlueButton
+            style={styles.edit_message_button}
+            onPress={() => this.setState({ sendState: 'INITIAL' })}>
+            {'Edit message'}
           </AppButton.BlueButton>
           <AppButton.GreenButton onPress={this.onSend} testName="support__send_logs">
             Try again
