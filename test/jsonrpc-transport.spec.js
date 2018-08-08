@@ -78,13 +78,15 @@ describe('JSON RPC transport', () => {
     await transport.connect(WEBSOCKET_URL);
 
     const eventPromiseHelper = (() => {
-      let stolenResolve: (any) => void;
-      const eventHandler = (...args) => stolenResolve(...args);
-      eventHandler.promise = new Promise((resolve) => (stolenResolve = resolve));
-      return eventHandler;
+      let borrowedResolve: (any) => void;
+      const promise = new Promise((resolve) => (borrowedResolve = resolve));
+      return {
+        resolve: borrowedResolve,
+        promise,
+      };
     })();
 
-    await transport.subscribe('event', eventPromiseHelper);
+    await transport.subscribe('event', eventPromiseHelper.resolve);
 
     server.emit(
       'message',
