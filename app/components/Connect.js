@@ -344,6 +344,7 @@ export default class Connect extends Component<Props, State> {
       case 'connected':
         return 'success';
       default:
+        (status: empty);
         throw new Error(`Invalid ConnectionState: ${status}`);
     }
   }
