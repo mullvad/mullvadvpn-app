@@ -176,7 +176,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
         return offsetTop - (scrollable.offsetHeight - child.clientHeight) * 0.5;
 
       default:
-        throw new Error(`Unknown enum type for ScrollPosition: ${scrollPosition}`);
+        throw new Error(`Unknown enum type for ScrollPosition: ${(scrollPosition: empty)}`);
     }
   }
 
