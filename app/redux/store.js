@@ -1,6 +1,6 @@
 // @flow
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
-import { routerMiddleware, routerReducer, push, replace } from 'react-router-redux';
+import { routerMiddleware, connectRouter, push, replace } from 'connected-react-router';
 import thunk from 'redux-thunk';
 
 import account from './account/reducers';
@@ -12,7 +12,7 @@ import settingsActions from './settings/actions';
 import support from './support/reducers';
 import supportActions from './support/actions';
 
-import type { Store } from 'redux';
+import type { Store, StoreEnhancer } from 'redux';
 import type { History } from 'history';
 import type { AccountReduxState } from './account/reducers';
 import type { ConnectionReduxState } from './connection/reducers';
@@ -57,7 +57,6 @@ export default function configureStore(
     connection,
     settings,
     support,
-    router: routerReducer,
   };
 
   const middlewares = [thunk, router];
@@ -70,10 +69,14 @@ export default function configureStore(
     return compose;
   })();
 
-  const enhancer = composeEnhancers(applyMiddleware(...middlewares));
+  const enhancer: StoreEnhancer<ReduxState, ReduxAction, ReduxDispatch> = composeEnhancers(
+    applyMiddleware(...middlewares),
+  );
   const rootReducer = combineReducers(reducers);
+  const rootReducerWithRouter = connectRouter(routerHistory)(rootReducer);
   if (initialState) {
-    return createStore(rootReducer, initialState, enhancer);
+    return createStore(rootReducerWithRouter, initialState, enhancer);
+  } else {
+    return createStore(rootReducerWithRouter, enhancer);
   }
-  return createStore(rootReducer, enhancer);
 }

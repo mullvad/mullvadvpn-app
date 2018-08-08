@@ -1,7 +1,7 @@
 // @flow
 
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { AdvancedSettings } from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 import { log } from '../lib/platform';

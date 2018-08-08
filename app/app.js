@@ -3,7 +3,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { Provider } from 'react-redux';
-import { ConnectedRouter, push as pushHistory } from 'react-router-redux';
+import { ConnectedRouter, push as pushHistory } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
 import { webFrame, ipcRenderer } from 'electron';
 
