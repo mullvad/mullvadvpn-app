@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.2-beta3] - 2018-08-09
 ### Added
 - Create a new UI log file for every UI execution session, and preserve the log from the previous
   session.
@@ -47,8 +50,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Ignore empty strings as redaction requests in the problem report tool, to avoid adding redacted
   markers between every character of the log message.
-- Previously logged in users won't be going through login view when restarting the app, instead 
+- Previously logged in users won't be going through login view when restarting the app, instead
   will be taken straight to main view.
+
 
 ## [2018.2-beta2] - 2018-07-18
 ### Added
