@@ -28,7 +28,7 @@ Line wrap the file at 100 chars.                                              Th
   session.
 - Account token can be copied to the clipboard by clicking on it in the account settings screen.
 - Automatically scroll to selected country/city in locations view.
-- Show system notifications when connection state changes.
+- Show system notifications when connection state changes and the window is not visible.
 - Add launch view displayed when connecting to system service.
 
 ### Changed
