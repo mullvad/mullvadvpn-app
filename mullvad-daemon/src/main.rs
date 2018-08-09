@@ -586,10 +586,22 @@ impl Daemon {
         enable_ipv6: bool,
     ) -> Result<()> {
         let save_result = self.settings.set_openvpn_enable_ipv6(enable_ipv6);
+
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_enable_ipv6 response"),
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_openvpn_enable_ipv6 response");
+
+                let tunnel_needs_restart =
+                    self.state == TunnelState::Connecting || self.state == TunnelState::Connected;
+
+                if settings_changed && tunnel_needs_restart {
+                    info!("Initiating tunnel restart because the enable IPv6 setting changed");
+                    self.kill_tunnel()?;
+                }
+            }
             Err(e) => error!("{}", e.display_chain()),
         };
+
         Ok(())
     }
 
