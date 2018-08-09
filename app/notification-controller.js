@@ -7,6 +7,12 @@ export default class NotificationController {
 
   show(message: string) {
     const lastNotification = this._activeNotification;
+    const sameAsLastNotification = lastNotification && lastNotification.body === message;
+
+    if (sameAsLastNotification) {
+      return;
+    }
+
     const newNotification = new Notification(remote.app.getName(), { body: message, silent: true });
 
     this._activeNotification = newNotification;
