@@ -9,7 +9,7 @@ export default class NotificationController {
     const lastNotification = this._activeNotification;
     const sameAsLastNotification = lastNotification && lastNotification.body === message;
 
-    if (sameAsLastNotification) {
+    if (sameAsLastNotification || remote.getCurrentWindow().isVisible()) {
       return;
     }
 
