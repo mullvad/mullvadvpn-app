@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add option to enable or disable IPv6 support on the tunnel.
 
 
 ## [2018.2-beta3] - 2018-08-09
