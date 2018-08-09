@@ -581,7 +581,12 @@ impl Daemon {
     fn on_set_enable_ipv6(&mut self, tx: OneshotSender<()>, enable_ipv6: bool) -> Result<()> {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(_) => Self::oneshot_send(tx, (), "set_enable_ipv6 response"),
+            Ok(settings_changed) => {
+                if settings_changed && self.target_state == TargetState::Secured {
+                    self.kill_tunnel()?;
+                }
+                Self::oneshot_send(tx, (), "set_enable_ipv6 response");
+            }
             Err(e) => error!("{}", e.display_chain()),
         };
         Ok(())
