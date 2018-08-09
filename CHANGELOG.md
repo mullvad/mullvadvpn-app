@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add option to enable or disable IPv6 on the tunnel interface.
+
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.
