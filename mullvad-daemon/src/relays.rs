@@ -32,7 +32,7 @@ error_chain! {
     errors {
         RelayCacheError { description("Error with relay cache on disk") }
         DownloadError { description("Error when trying to download the list of relays") }
-        DeadlineError { description("Timed out when trying to download the list of relays") }
+        DownloadTimeoutError { description("Timed out when trying to download the list of relays") }
         NoRelay { description("No relays matching current constraints") }
         SerializationError { description("Error in serialization of relaylist") }
     }
@@ -42,7 +42,7 @@ impl From<DeadlineError<Error>> for Error {
     fn from(e: DeadlineError<Error>) -> Error {
         match e.into_inner() {
             Some(inner_e) => inner_e,
-            None => Error::from_kind(ErrorKind::DeadlineError),
+            None => Error::from_kind(ErrorKind::DownloadTimeoutError),
         }
     }
 }
