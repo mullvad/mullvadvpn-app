@@ -9,7 +9,7 @@ license = "GPL-3.0"
 integration-tests = []
 
 [dependencies]
-duct = "0.10"
+duct = "0.11"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
