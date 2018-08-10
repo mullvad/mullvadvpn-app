@@ -332,7 +332,9 @@ fn is_ipv6_enabled_in_os() -> bool {
     }
     #[cfg(target_os = "linux")]
     {
-        true
+        fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
+            .map(|disable_ipv6| disable_ipv6.trim() == "0")
+            .unwrap_or(false)
     }
     #[cfg(target_os = "macos")]
     {
