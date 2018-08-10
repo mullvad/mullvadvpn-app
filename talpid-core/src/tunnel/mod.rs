@@ -60,6 +60,10 @@ error_chain!{
         CredentialsWriteError {
             description("Error while writing credentials to temporary file")
         }
+        /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
+        EnableIpv6Error {
+            description("Can't enable IPv6 on tunnel interface because IPv6 is disabled")
+        }
         /// Running on an operating system which is not supported yet.
         UnsupportedPlatform {
             description("Running on an unsupported operating system")
@@ -151,6 +155,7 @@ impl TunnelMonitor {
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         Self::ensure_endpoint_is_openvpn(&tunnel_endpoint)?;
+        Self::ensure_ipv6_can_be_used_if_enabled(tunnel_options)?;
 
         let user_pass_file =
             Self::create_user_pass_file(username).chain_err(|| ErrorKind::CredentialsWriteError)?;
@@ -190,6 +195,14 @@ impl TunnelMonitor {
         match endpoint.tunnel {
             TunnelEndpointData::OpenVpn(_) => Ok(()),
             TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+        }
+    }
+
+    fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &TunnelOptions) -> Result<()> {
+        if tunnel_options.enable_ipv6 && !is_ipv6_enabled_in_os() {
+            bail!(ErrorKind::EnableIpv6Error);
+        } else {
+            Ok(())
         }
     }
 
@@ -301,4 +314,8 @@ impl CloseHandle {
     pub fn close(self) -> io::Result<()> {
         self.0.close()
     }
+}
+
+fn is_ipv6_enabled_in_os() -> bool {
+    true
 }
