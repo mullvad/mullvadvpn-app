@@ -43,6 +43,7 @@ tokio-core = "0.1"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "0.3"
+winreg = "0.5"
 
 [dev-dependencies]
 tempfile = "3.0"
