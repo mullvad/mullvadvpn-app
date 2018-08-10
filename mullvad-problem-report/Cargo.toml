@@ -24,4 +24,4 @@ mullvad-rpc = { path = "../mullvad-rpc" }
 rs-release = { git = "https://github.com/mullvad/rs-release", branch = "snailquote-unescape" }
 
 [target.'cfg(windows)'.build-dependencies]
-windres = "0.1"
+windres = "0.2"

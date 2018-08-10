@@ -21,4 +21,4 @@ talpid-types = { path = "../talpid-types" }
 talpid-ipc = { path = "../talpid-ipc" }
 
 [target.'cfg(windows)'.build-dependencies]
-windres = "0.1"
+windres = "0.2"
