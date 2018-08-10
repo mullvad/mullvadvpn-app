@@ -152,10 +152,8 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        match tunnel_endpoint.tunnel {
-            TunnelEndpointData::OpenVpn(_) => (),
-            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
-        }
+        Self::ensure_endpoint_is_openvpn(&tunnel_endpoint)?;
+
         let user_pass_file =
             Self::create_user_pass_file(username).chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
@@ -188,6 +186,13 @@ impl TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
         })
+    }
+
+    fn ensure_endpoint_is_openvpn(endpoint: &TunnelEndpoint) -> Result<()> {
+        match endpoint.tunnel {
+            TunnelEndpointData::OpenVpn(_) => Ok(()),
+            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+        }
     }
 
     fn create_openvpn_cmd(
