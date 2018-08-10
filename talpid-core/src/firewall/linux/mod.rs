@@ -248,10 +248,10 @@ impl<'a> PolicyBatch<'a> {
         let mut in_rule = Rule::new(&self.in_chain)?;
         check_endpoint(&mut in_rule, End::Src, endpoint)?;
 
-        in_rule.add_expr(nft_expr!(ct state))?;
+        in_rule.add_expr(&nft_expr!(ct state))?;
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
-        in_rule.add_expr(nft_expr!(bitwise mask allowed_states, xor 0u32))?;
-        in_rule.add_expr(nft_expr!(cmp != 0u32))?;
+        in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32))?;
+        in_rule.add_expr(&nft_expr!(cmp != 0u32))?;
         add_verdict(&mut in_rule, Verdict::Accept)?;
 
         self.batch.add(&in_rule, nftnl::MsgType::Add)?;
@@ -277,8 +277,8 @@ impl<'a> PolicyBatch<'a> {
         check_port(&mut rule, protocol, End::Dst, 53)?;
         check_l3proto(&mut rule, IpAddr::V4(tunnel.gateway))?;
 
-        rule.add_expr(nft_expr!(payload ipv4 daddr))?;
-        rule.add_expr(nft_expr!(cmp != tunnel.gateway))?;
+        rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
+        rule.add_expr(&nft_expr!(cmp != tunnel.gateway))?;
 
         add_verdict(&mut rule, Verdict::Drop)?;
 
@@ -364,11 +364,11 @@ fn allow_interface_rule<'a>(
 
 fn check_iface(rule: &mut Rule, direction: Direction, iface: &str) -> Result<()> {
     let iface_index = iface_index(iface)?;
-    rule.add_expr(match direction {
+    rule.add_expr(&match direction {
         Direction::In => nft_expr!(meta iif),
         Direction::Out => nft_expr!(meta oif),
     })?;
-    rule.add_expr(nft_expr!(cmp == iface_index))?;
+    rule.add_expr(&nft_expr!(cmp == iface_index))?;
     Ok(())
 }
 
@@ -388,14 +388,14 @@ fn check_net(rule: &mut Rule, end: End, net: IpNetwork) -> Result<()> {
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, net.ip())?;
 
-    rule.add_expr(match (net, end) {
+    rule.add_expr(&match (net, end) {
         (IpNetwork::V4(_), End::Src) => nft_expr!(payload ipv4 saddr),
         (IpNetwork::V4(_), End::Dst) => nft_expr!(payload ipv4 daddr),
         (IpNetwork::V6(_), End::Src) => nft_expr!(payload ipv6 saddr),
         (IpNetwork::V6(_), End::Dst) => nft_expr!(payload ipv6 daddr),
     })?;
-    rule.add_expr(nft_expr!(bitwise mask net.mask(), xor 0))?;
-    rule.add_expr(nft_expr!(cmp == net.ip()))?;
+    rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor 0))?;
+    rule.add_expr(&nft_expr!(cmp == net.ip()))?;
 
     Ok(())
 }
@@ -411,15 +411,15 @@ fn check_ip(rule: &mut Rule, end: End, ip: IpAddr) -> Result<()> {
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, ip)?;
 
-    rule.add_expr(match (ip, end) {
+    rule.add_expr(&match (ip, end) {
         (IpAddr::V4(..), End::Src) => nft_expr!(payload ipv4 saddr),
         (IpAddr::V4(..), End::Dst) => nft_expr!(payload ipv4 daddr),
         (IpAddr::V6(..), End::Src) => nft_expr!(payload ipv6 saddr),
         (IpAddr::V6(..), End::Dst) => nft_expr!(payload ipv6 daddr),
     })?;
     match ip {
-        IpAddr::V4(addr) => rule.add_expr(nft_expr!(cmp == addr))?,
-        IpAddr::V6(addr) => rule.add_expr(nft_expr!(cmp == addr))?,
+        IpAddr::V4(addr) => rule.add_expr(&nft_expr!(cmp == addr))?,
+        IpAddr::V6(addr) => rule.add_expr(&nft_expr!(cmp == addr))?,
     }
     Ok(())
 }
@@ -428,19 +428,19 @@ fn check_port(rule: &mut Rule, protocol: TransportProtocol, end: End, port: u16)
     // Must check transport layer protocol before loading transport layer payload
     check_l4proto(rule, protocol)?;
 
-    rule.add_expr(match (protocol, end) {
+    rule.add_expr(&match (protocol, end) {
         (TransportProtocol::Udp, End::Src) => nft_expr!(payload udp sport),
         (TransportProtocol::Udp, End::Dst) => nft_expr!(payload udp dport),
         (TransportProtocol::Tcp, End::Src) => nft_expr!(payload tcp sport),
         (TransportProtocol::Tcp, End::Dst) => nft_expr!(payload tcp dport),
     })?;
-    rule.add_expr(nft_expr!(cmp == port.to_be()))?;
+    rule.add_expr(&nft_expr!(cmp == port.to_be()))?;
     Ok(())
 }
 
 fn check_l3proto(rule: &mut Rule, ip: IpAddr) -> Result<()> {
-    rule.add_expr(nft_expr!(meta nfproto))?;
-    rule.add_expr(nft_expr!(cmp == l3proto(ip)))?;
+    rule.add_expr(&nft_expr!(meta nfproto))?;
+    rule.add_expr(&nft_expr!(cmp == l3proto(ip)))?;
     Ok(())
 }
 
@@ -452,8 +452,8 @@ fn l3proto(addr: IpAddr) -> u8 {
 }
 
 fn check_l4proto(rule: &mut Rule, protocol: TransportProtocol) -> Result<()> {
-    rule.add_expr(nft_expr!(meta l4proto))?;
-    rule.add_expr(nft_expr!(cmp == l4proto(protocol)))?;
+    rule.add_expr(&nft_expr!(meta l4proto))?;
+    rule.add_expr(&nft_expr!(cmp == l4proto(protocol)))?;
     Ok(())
 }
 
@@ -466,7 +466,7 @@ fn l4proto(protocol: TransportProtocol) -> u8 {
 
 fn add_verdict(rule: &mut Rule, verdict: expr::Verdict) -> Result<()> {
     if *ADD_COUNTERS {
-        rule.add_expr(nft_expr!(counter))?;
+        rule.add_expr(&nft_expr!(counter))?;
     }
-    Ok(rule.add_expr(verdict)?)
+    Ok(rule.add_expr(&verdict)?)
 }
