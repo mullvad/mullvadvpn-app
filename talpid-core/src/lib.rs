@@ -34,6 +34,8 @@ extern crate tokio_core;
 extern crate uuid;
 #[cfg(target_os = "linux")]
 extern crate which;
+#[cfg(windows)]
+extern crate winreg;
 
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
