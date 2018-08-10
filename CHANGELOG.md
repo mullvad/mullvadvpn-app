@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- The "Buy more credit" button is changed to open a dedicated account login page instead of one
+  having a create account form first.
 
 
 ## [2018.2-beta3] - 2018-08-09
