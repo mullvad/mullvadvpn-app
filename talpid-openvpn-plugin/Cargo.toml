@@ -17,4 +17,4 @@ openvpn-plugin = { version = "0.3", features = ["serde", "log"] }
 talpid-ipc = { path = "../talpid-ipc" }
 
 [target.'cfg(windows)'.build-dependencies]
-windres = "0.1"
+windres = "0.2"

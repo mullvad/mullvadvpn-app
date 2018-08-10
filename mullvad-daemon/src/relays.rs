@@ -17,12 +17,11 @@ use std::fs::File;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::time::{self, Duration, SystemTime};
+use std::time::{self, Duration, Instant, SystemTime};
 use std::{io, thread};
 
-use rand::distributions::{IndependentSample, Range};
 use rand::{self, Rng, ThreadRng};
-use tokio_timer::{TimeoutError, Timer};
+use tokio_timer::{Deadline, DeadlineError};
 
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
@@ -33,15 +32,18 @@ error_chain! {
     errors {
         RelayCacheError { description("Error with relay cache on disk") }
         DownloadError { description("Error when trying to download the list of relays") }
-        TimeoutError { description("Timed out when trying to download the list of relays") }
+        DownloadTimeoutError { description("Timed out when trying to download the list of relays") }
         NoRelay { description("No relays matching current constraints") }
         SerializationError { description("Error in serialization of relaylist") }
     }
 }
 
-impl<F> From<TimeoutError<F>> for Error {
-    fn from(_: TimeoutError<F>) -> Error {
-        Error::from_kind(ErrorKind::TimeoutError)
+impl From<DeadlineError<Error>> for Error {
+    fn from(e: DeadlineError<Error>) -> Error {
+        match e.into_inner() {
+            Some(inner_e) => inner_e,
+            None => Error::from_kind(ErrorKind::DownloadTimeoutError),
+        }
     }
 }
 
@@ -308,7 +310,7 @@ impl RelaySelector {
             None
         } else {
             // Pick a random number in the range 0 - total_weight. This choses the relay.
-            let mut i: u64 = Range::new(0, total_weight + 1).ind_sample(&mut self.rng);
+            let mut i: u64 = self.rng.gen_range(0, total_weight + 1);
             Some(
                 relays
                     .iter()
@@ -435,13 +437,12 @@ impl RelayListUpdater {
     fn download_relay_list(&mut self) -> Result<RelayList> {
         info!("Downloading list of relays...");
 
+        let timeout_instant = Instant::now() + DOWNLOAD_TIMEOUT;
         let download_future = self
             .rpc_client
             .relay_list()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
-        let relay_list = Timer::default()
-            .timeout(download_future, DOWNLOAD_TIMEOUT)
-            .wait()?;
+        let relay_list = Deadline::new(download_future, timeout_instant).wait()?;
 
         Ok(relay_list)
     }
