@@ -14,6 +14,9 @@ error_chain!{
         InvalidInterfaceAlias{
             description("Supplied interface alias is invalid")
         }
+        GetIpv6Status {
+            description("Failed to read IPv6 status on the TAP network interface")
+        }
     }
 }
 
@@ -49,6 +52,35 @@ extern "system" {
     #[link_name(WinRoute_EnsureTopMetric)]
     fn WinRoute_EnsureTopMetric(
         tunnel_interface_alias: *const libc::wchar_t,
+        sink: Option<ffi::ErrorSink>,
+        sink_context: *mut libc::c_void,
+    ) -> u32;
+}
+
+
+/// Checks if IPv6 is enabled for the TAP interface
+pub fn get_tap_interface_ipv6_status() -> Result<bool> {
+    let tap_ipv6_status =
+        unsafe { GetTapInterfaceIpv6Status(Some(ffi::error_sink), ptr::null_mut()) };
+
+    match tap_ipv6_status {
+        // Enabled
+        0 => Ok(true),
+        // Disabled
+        1 => Ok(true),
+        // Failure
+        2 => Err(Error::from(ErrorKind::GetIpv6Status)),
+        // Unexpected value
+        _ => {
+            error!("Unexpected return code from GetTapInterfaceIpv6Status");
+            Err(Error::from(ErrorKind::GetIpv6Status))
+        }
+    }
+}
+
+extern "system" {
+    #[link_name(GetTapInterfaceIpv6Status)]
+    fn GetTapInterfaceIpv6Status(
         sink: Option<ffi::ErrorSink>,
         sink_context: *mut libc::c_void,
     ) -> u32;
