@@ -336,7 +336,10 @@ fn is_ipv6_enabled() -> bool {
     }
     #[cfg(target_os = "linux")]
     {
-        true
+        cmd!("sysctl", "net.ipv6.conf.all.disable_ipv6")
+            .read()
+            .map(|output| output.trim().ends_with("= 0"))
+            .unwrap_or(false)
     }
     #[cfg(target_os = "macos")]
     {
