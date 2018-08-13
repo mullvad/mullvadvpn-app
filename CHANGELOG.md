@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2018.2] - 2018-08-13
+This release is identical to 2018.2-beta3
+
+
 ## [2018.2-beta3] - 2018-08-09
 ### Added
 - Create a new UI log file for every UI execution session, and preserve the log from the previous
