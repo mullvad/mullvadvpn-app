@@ -2,12 +2,15 @@
 
 The system service/daemon, GUI and CLI for the Mullvad VPN app.
 
-## Status
+## Releases
 
-There are built and signed releases for macOS available on
+There are built and signed releases for macOS, Windows and Linux available on
 [our website](https://mullvad.net/download/) and on
-[github](https://github.com/mullvad/mullvadvpn-app/releases/).
-Support for Linux, Windows, Android and iOS is in the making.
+[Github](https://github.com/mullvad/mullvadvpn-app/releases/).
+Support for Android and iOS is in the making.
+
+You can find our code signing keys as well as instructions for how to cryptographically verify
+your download on [Mullvad's Open Source page].
 
 ## Checking out the code
 
@@ -20,6 +23,9 @@ git clone https://github.com/mullvad/mullvadvpn-app.git
 cd mullvadvpn-app
 git submodule update --init
 ```
+
+We sign every commit on the master branch as well as our release tags. If you would like to verify
+your checkout, you can find our developer keys on [Mullvad's Open Source page].
 
 ## Install toolchains and dependencies
 
@@ -327,3 +333,6 @@ GNU General Public License as published by the Free Software Foundation, either 
 the License, or (at your option) any later version.
 
 For the full license agreement, see the LICENSE.md file
+
+
+[Mullvad's Open Source page]: https://mullvad.net/en/guides/open-source/
