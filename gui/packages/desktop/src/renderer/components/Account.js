@@ -73,7 +73,6 @@ export default class Account extends Component<Props, State> {
   render() {
     const expiry = moment(this.props.accountExpiry);
     const isOutOfTime = expiry.isSameOrBefore(moment());
-    const formattedAccountToken = formatAccount(this.props.accountToken || '');
     const formattedExpiry = expiry.toDate().toLocaleString(this.props.expiryLocale, {
       day: 'numeric',
       month: 'long',
@@ -104,7 +103,7 @@ export default class Account extends Component<Props, State> {
                       onPress={this.onAccountTokenClick.bind(this)}>
                       {this.state.showAccountTokenCopiedMessage
                         ? 'COPIED TO CLIPBOARD!'
-                        : formattedAccountToken}
+                        : this.props.accountToken}
                     </Text>
                   </View>
 
@@ -154,16 +153,5 @@ export default class Account extends Component<Props, State> {
     if (this._isMounted) {
       this.setState({ isRefreshingExpiry: false });
     }
-  }
-}
-
-// TODO: DRY
-function formatAccount(val: string) {
-  // display number altogether when longer than 12
-  if (val.length > 12) {
-    return val;
-  } else {
-    // display quartets
-    return val.replace(/([0-9]{4})/g, '$1 ').trim();
   }
 }
