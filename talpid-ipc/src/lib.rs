@@ -20,9 +20,6 @@ extern crate jsonrpc_pubsub;
 
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
-extern crate tokio_core;
-extern crate url;
-extern crate ws;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
@@ -65,8 +62,10 @@ impl IpcServer {
         M: Metadata + Default,
         E: MetaExtractor<M>,
     {
+        let security_attributes = SecurityAttributes::allow_everyone_create()
+            .chain_err(|| ErrorKind::PermissionsError)?;
         let server = ServerBuilder::with_meta_extractor(handler, meta_extractor)
-            .set_security_attributes(SecurityAttributes::allow_everyone_create())
+            .set_security_attributes(security_attributes)
             .start(&path)
             .chain_err(|| ErrorKind::IpcServerError)
             .map(|server| IpcServer {
