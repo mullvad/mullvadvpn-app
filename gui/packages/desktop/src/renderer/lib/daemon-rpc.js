@@ -230,6 +230,7 @@ export interface DaemonRpcProtocol {
   authenticate(sharedSecret: string): Promise<void>;
   getAccountHistory(): Promise<Array<AccountToken>>;
   removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
+  getCurrentVersion(): Promise<string>;
 }
 
 export class ResponseParseError extends Error {
@@ -454,5 +455,14 @@ export class DaemonRpc implements DaemonRpcProtocol {
 
   async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     await this._transport.send('remove_account_from_history', accountToken);
+  }
+
+  async getCurrentVersion(): Promise<string> {
+    const response = await this._transport.send('get_current_version');
+    try {
+      return validate(string, response);
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_current_version', null);
+    }
   }
 }
