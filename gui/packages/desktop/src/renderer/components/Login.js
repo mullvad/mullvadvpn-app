@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { Component, Text, View, Animated, Styles, UserInterface } from 'reactxp';
+import { Component, Text, TextInput, View, Animated, Styles, UserInterface } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
-import { AccountInput, Accordion } from '@mullvad/components';
+import { Accordion } from '@mullvad/components';
 import Img from './Img';
 import * as Cell from './Cell';
 import * as AppButton from './AppButton';
@@ -14,7 +14,7 @@ import { colors } from '../../config';
 import type { LoginState } from '../redux/account/reducers';
 import type { AccountToken } from '../lib/daemon-rpc';
 
-export type Props = {
+type Props = {
   accountToken: ?AccountToken,
   accountHistory: Array<AccountToken>,
   loginError: ?Error,
@@ -38,7 +38,7 @@ export default class Login extends Component<Props, State> {
     isActive: true,
   };
 
-  _accountInput: ?AccountInput;
+  _accountInput: ?TextInput;
   _shouldResetLoginError = false;
 
   _showsFooter = true;
@@ -185,7 +185,7 @@ export default class Login extends Component<Props, State> {
     this._footerAnimation = animation;
   }
 
-  _onLogin = () => {
+  _onSubmit = () => {
     const accountToken = this.props.accountToken;
     if (accountToken && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH) {
       this.props.login(accountToken);
@@ -199,7 +199,9 @@ export default class Login extends Component<Props, State> {
       this.props.resetLoginError();
     }
 
-    this.props.updateAccountToken(value);
+    const accountToken = value.replace(/[^0-9]/g, '');
+
+    this.props.updateAccountToken(accountToken);
   };
 
   _formTitle() {
@@ -348,24 +350,26 @@ export default class Login extends Component<Props, State> {
         <Text style={styles.subtitle}>{this._formSubtitle()}</Text>
         <View style={this._accountInputGroupStyles()}>
           <View style={styles.account_input_backdrop}>
-            <AccountInput
+            <TextInput
               style={styles.account_input_textfield}
-              type="text"
               placeholder="0000 0000 0000 0000"
               placeholderTextColor={colors.blue40}
+              value={this.props.accountToken || ''}
+              autoCorrect={false}
+              editable={this._shouldEnableAccountInput()}
               onFocus={this._onFocus}
               onBlur={this._onBlur}
-              onChange={this._onInputChange}
-              onEnter={this._onLogin}
-              value={this.props.accountToken || ''}
-              editable={this._shouldEnableAccountInput()}
+              onChangeText={this._onInputChange}
+              onSubmitEditing={this._onSubmit}
+              returnKeyType="done"
+              keyboardType="numeric"
               autoFocus={true}
               ref={(ref) => (this._accountInput = ref)}
               testName="AccountInput"
             />
             <Animated.View
               style={this._accountInputButtonStyles()}
-              onPress={this._onLogin}
+              onPress={this._onSubmit}
               testName="account-input-button">
               <Img
                 style={this._accountInputArrowStyles()}
@@ -418,7 +422,7 @@ class AccountDropdown extends React.Component<AccountDropdownProps> {
           <AccountDropdownItem
             key={token}
             value={token}
-            label={formatAccount(token)}
+            label={token}
             onSelect={this.props.onSelect}
             onRemove={this.props.onRemove}
           />
@@ -461,16 +465,5 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
         </Cell.CellButton>
       </View>
     );
-  }
-}
-
-// TODO: DRY
-function formatAccount(val: string) {
-  // display number altogether when longer than 12
-  if (val.length > 12) {
-    return val;
-  } else {
-    // display quartets
-    return val.replace(/([0-9]{4})/g, '$1 ').trim();
   }
 }
