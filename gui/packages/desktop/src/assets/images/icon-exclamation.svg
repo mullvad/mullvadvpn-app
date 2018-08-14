@@ -1,0 +1,14 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+    width="24px" height="24px"
+    viewBox="-12 -12 24 24">
+    <title>icon-exclamation</title>
+    <desc>Mullvad VPN app</desc>
+    <defs>
+        <mask id="exclamation">
+            <rect x="-12" y="-12" width="24" height="24" style="stroke: none; fill: white"/>
+            <path d="M0 -6 V 1" style="stroke: black; stroke-width: 3; stroke-linecap: round"/>
+            <path d="M0 6 h0" style="stroke: black; stroke-width: 3; stroke-linecap: round"/>
+        </mask>
+    </defs>
+    <circle r="12" style="stroke: none; fill: #d0021b" mask="url(#exclamation)"/>
+</svg>
