@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.
+- The CLI command to list relays is now shorter, `mullvad relay list` instead of
+  `mullvad relay list locations`.
 
 
 ## [2018.2] - 2018-08-13
