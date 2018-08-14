@@ -16,6 +16,7 @@ export default {
     flex: 0,
     marginBottom: 30,
     alignItems: 'center',
+    height: 48,
   }),
   login_form: Styles.createViewStyle({
     flex: 1,
