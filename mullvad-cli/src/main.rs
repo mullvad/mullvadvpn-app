@@ -9,6 +9,7 @@
 #[macro_use]
 extern crate clap;
 extern crate env_logger;
+extern crate futures;
 #[macro_use]
 extern crate error_chain;
 extern crate mullvad_ipc_client;
@@ -28,7 +29,8 @@ error_chain! {
     }
 
     links {
-        RpcError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
+        RpcError(mullvad_ipc_client::RpcError, mullvad_ipc_client::RpcErrorKind);
+        RpcClientError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
     }
 }
 

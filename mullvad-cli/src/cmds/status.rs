@@ -2,7 +2,7 @@ use clap;
 use Command;
 use Result;
 
-use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 const DISCONNECTED: DaemonState = DaemonState {
@@ -31,7 +31,7 @@ impl Command for Status {
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_standalone_ipc_client()?;
         let state = rpc.get_state()?;
 
         print_state(state);
