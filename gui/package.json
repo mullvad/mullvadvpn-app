@@ -1,6 +1,8 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "flow": "flow",
     "lint": "eslint \"packages/**/*.js\"",
@@ -12,7 +14,12 @@
     "pack:linux": "yarn workspace desktop pack:linux"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.6",
     "eslint": "^5.2.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-react": "^7.10.0",
     "flow-bin": "0.78",
     "flow-typed": "^2.5.1",
     "prettier": "1.13.7"
