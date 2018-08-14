@@ -184,6 +184,16 @@ impl OpenVpnCommand {
             args.push(OsString::from(mssfix.to_string()));
         }
 
+        if !self.tunnel_options.enable_ipv6 {
+            args.push(OsString::from("--pull-filter"));
+            args.push(OsString::from("ignore"));
+            args.push(OsString::from("route-ipv6"));
+
+            args.push(OsString::from("--pull-filter"));
+            args.push(OsString::from("ignore"));
+            args.push(OsString::from("ifconfig-ipv6"));
+        }
+
         if let Some(ref tunnel_device) = self.tunnel_alias {
             args.push(OsString::from("--dev-node"));
             args.push(tunnel_device.clone());

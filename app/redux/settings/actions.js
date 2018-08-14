@@ -22,11 +22,17 @@ export type UpdateAllowLanAction = {
   allowLan: boolean,
 };
 
+export type UpdateEnableIpv6Action = {
+  type: 'UPDATE_ENABLE_IPV6',
+  enableIpv6: boolean,
+};
+
 export type SettingsAction =
   | UpdateRelayAction
   | UpdateRelayLocationsAction
   | UpdateAutoConnectAction
-  | UpdateAllowLanAction;
+  | UpdateAllowLanAction
+  | UpdateEnableIpv6Action;
 
 function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   return {
@@ -58,4 +64,17 @@ function updateAllowLan(allowLan: boolean): UpdateAllowLanAction {
   };
 }
 
-export default { updateRelay, updateRelayLocations, updateAutoConnect, updateAllowLan };
+function updateEnableIpv6(enableIpv6: boolean): UpdateEnableIpv6Action {
+  return {
+    type: 'UPDATE_ENABLE_IPV6',
+    enableIpv6,
+  };
+}
+
+export default {
+  updateRelay,
+  updateRelayLocations,
+  updateAutoConnect,
+  updateAllowLan,
+  updateEnableIpv6,
+};

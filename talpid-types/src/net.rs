@@ -138,9 +138,22 @@ pub struct TunnelOptions {
 /// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
 /// of the relay parameters - i.e. have nothing to do with the particular OpenVPN server, but do
 /// affect the connection.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(default)]
 pub struct OpenVpnTunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
+    /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
+    /// forwarded through the tunnel. By default, this is set to `true`.
+    pub enable_ipv6: bool,
+}
+
+impl Default for OpenVpnTunnelOptions {
+    fn default() -> Self {
+        OpenVpnTunnelOptions {
+            mssfix: None,
+            enable_ipv6: true,
+        }
+    }
 }

@@ -49,16 +49,16 @@ export type BackendState = {
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
 
-type OpenVpnParameters = {
+type OpenVpnConstraints = {
   port: 'any' | { only: number },
   protocol: 'any' | { only: RelayProtocol },
 };
 
-type TunnelOptions<TOpenVpnParameters> = {
-  openvpn: TOpenVpnParameters,
+type TunnelConstraints<TOpenVpnConstraints> = {
+  openvpn: TOpenVpnConstraints,
 };
 
-type RelaySettingsNormal<TTunnelOptions> = {
+type RelaySettingsNormal<TTunnelConstraints> = {
   location:
     | 'any'
     | {
@@ -67,7 +67,7 @@ type RelaySettingsNormal<TTunnelOptions> = {
   tunnel:
     | 'any'
     | {
-        only: TTunnelOptions,
+        only: TTunnelConstraints,
       },
 };
 
@@ -83,7 +83,7 @@ export type RelaySettingsCustom = {
 };
 export type RelaySettings =
   | {|
-      normal: RelaySettingsNormal<TunnelOptions<OpenVpnParameters>>,
+      normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>,
     |}
   | {|
       custom_tunnel_endpoint: RelaySettingsCustom,
@@ -91,7 +91,7 @@ export type RelaySettings =
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = $Shape<
-  RelaySettingsNormal<TunnelOptions<$Shape<OpenVpnParameters>>>,
+  RelaySettingsNormal<TunnelConstraints<$Shape<OpenVpnConstraints>>>,
 >;
 export type RelaySettingsUpdate =
   | {|
@@ -182,6 +182,19 @@ const RelayListSchema = object({
   ),
 });
 
+export type TunnelOptions = {
+  openvpn: {
+    enableIpv6: boolean,
+  },
+};
+
+const TunnelOptionsSchema = object({
+  openvpn: object({
+    enable_ipv6: boolean,
+    mssfix: maybe(number),
+  }),
+});
+
 const AccountDataSchema = object({
   expiry: string,
 });
@@ -203,6 +216,8 @@ export interface DaemonRpcProtocol {
   getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
   getAllowLan(): Promise<boolean>;
+  setOpenVpnEnableIpv6(boolean): Promise<void>;
+  getTunnelOptions(): Promise<TunnelOptions>;
   setAutoConnect(boolean): Promise<void>;
   getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
@@ -353,6 +368,25 @@ export class DaemonRpc implements DaemonRpcProtocol {
       return response;
     } else {
       throw new ResponseParseError('Invalid response from get_allow_lan', null);
+    }
+  }
+
+  async setOpenVpnEnableIpv6(enableIpv6: boolean): Promise<void> {
+    await this._transport.send('set_openvpn_enable_ipv6', [enableIpv6]);
+  }
+
+  async getTunnelOptions(): Promise<TunnelOptions> {
+    const response = await this._transport.send('get_tunnel_options');
+    try {
+      const validatedObject = validate(TunnelOptionsSchema, response);
+
+      return {
+        openvpn: {
+          enableIpv6: validatedObject.openvpn.enable_ipv6,
+        },
+      };
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_tunnel_options', error);
     }
   }
 
