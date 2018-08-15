@@ -82,12 +82,7 @@ impl Command for Relay {
                     ),
             ).subcommand(clap::SubCommand::with_name("get"))
             .subcommand(
-                clap::SubCommand::with_name("list")
-                    .setting(clap::AppSettings::SubcommandRequired)
-                    .subcommand(
-                        clap::SubCommand::with_name("locations")
-                            .about("List available countries and cities"),
-                    ),
+                clap::SubCommand::with_name("list").about("List available countries and cities"),
             )
     }
 
