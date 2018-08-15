@@ -13,7 +13,7 @@ set -eu
 
 SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 RUSTC_VERSION=`rustc +stable --version`
-PRODUCT_VERSION=$(node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
+PRODUCT_VERSION=$(node -p "require('./gui/packages/desktop/package.json').version" | sed -Ee 's/\.0//g')
 source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
@@ -67,7 +67,7 @@ echo "Building Mullvad VPN $PRODUCT_VERSION"
 SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
-    mv package.json.bak package.json || true
+    mv gui/packages/desktop/package.json.bak gui/packages/desktop/package.json || true
     mv Cargo.lock.bak Cargo.lock || true
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
@@ -78,7 +78,7 @@ trap 'restore_metadata_backups' EXIT
 
 sed -i.bak \
     -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    package.json
+    gui/packages/desktop/package.json
 
 cp Cargo.lock Cargo.lock.bak
 sed -i.bak \
@@ -151,6 +151,7 @@ curl -X POST \
 node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
+cd gui
 yarn install
 
 ################################################################################
@@ -163,6 +164,8 @@ case "$(uname -s)" in
     Darwin*)    yarn pack:mac;;
     MINGW*)     yarn pack:win;;
 esac
+
+cd ..
 
 for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
