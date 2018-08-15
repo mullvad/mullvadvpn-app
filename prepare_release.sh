@@ -42,7 +42,7 @@ echo "Syncing Cargo.lock with new version numbers"
 cargo update --package mullvad-daemon
 
 echo "Commiting metadata changes to git..."
-git commit -S -m "Updating version in gui/packages/desktop/package.json" \
+git commit -S -m "Updating version in package files" \
     gui/packages/desktop/package.json \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
