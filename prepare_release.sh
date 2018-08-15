@@ -30,10 +30,10 @@ if [[ $(grep $VERSION CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-SEMVER_VERSION=`echo $VERSION | sed -re 's/($|-.*)/.0\1/g'`
-sed -i -re "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+SEMVER_VERSION=`echo $VERSION | sed -Ee 's/($|-.*)/.0\1/g'`
+sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     gui/packages/desktop/package.json
-sed -i -re "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
