@@ -10,7 +10,6 @@ import NavigationBar, { CloseBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
-import Img from './Img';
 
 import type {
   SettingsReduxState,
@@ -146,7 +145,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
     return isSelected ? (
-      <Img style={styles.tick_icon} source="icon-tick" height={24} width={24} />
+      <Cell.Img style={styles.tick_icon} source="icon-tick" height={24} width={24} />
     ) : (
       <View style={[styles.relay_status, statusClass]} />
     );
@@ -190,7 +189,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           <Cell.Label>{relayCountry.name}</Cell.Label>
 
           {relayCountry.cities.length > 1 ? (
-            <Img
+            <Cell.Img
               style={styles.collapse_button}
               hoverStyle={styles.expand_chevron_hover}
               onPress={handleCollapse}

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Button, Text, Component, Styles, Types } from 'reactxp';
-import Img from './Img';
+import PlainImg from './Img';
 import { colors } from '../../config';
 
 const styles = {
@@ -49,6 +49,7 @@ const styles = {
 
 export class SubText extends Text {}
 export class Label extends Text {}
+export class Img extends PlainImg {}
 
 type CellButtonProps = {
   children?: React.Node,

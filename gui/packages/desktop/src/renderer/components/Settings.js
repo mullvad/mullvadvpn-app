@@ -10,7 +10,6 @@ import NavigationBar, { CloseBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
-import Img from './Img';
 import WindowStateObserver from '../lib/window-state-observer';
 
 import type { LoginState } from '../redux/account/reducers';
@@ -104,7 +103,7 @@ export default class Settings extends Component<Props> {
                 style={styles.settings__account_paid_until_label__error}>
                 {'OUT OF TIME'}
               </Cell.SubText>
-              <Img height={12} width={7} source="icon-chevron" />
+              <Cell.Img height={12} width={7} source="icon-chevron" />
             </Cell.CellButton>
           ) : (
             <Cell.CellButton
@@ -114,19 +113,19 @@ export default class Settings extends Component<Props> {
               <Cell.SubText testName="settings__account_paid_until_subtext">
                 {formattedExpiry}
               </Cell.SubText>
-              <Img height={12} width={7} source="icon-chevron" />
+              <Cell.Img height={12} width={7} source="icon-chevron" />
             </Cell.CellButton>
           )}
         </View>
 
         <Cell.CellButton onPress={this.props.onViewPreferences} testName="settings__preferences">
           <Cell.Label>Preferences</Cell.Label>
-          <Img height={12} width={7} source="icon-chevron" />
+          <Cell.Img height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewAdvancedSettings} testName="settings__advanced">
           <Cell.Label>Advanced</Cell.Label>
-          <Img height={12} width={7} source="icon-chevron" />
+          <Cell.Img height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
@@ -141,7 +140,7 @@ export default class Settings extends Component<Props> {
           testName="settings__version">
           <Cell.Label>App version</Cell.Label>
           <Cell.SubText>{this._formattedVersion()}</Cell.SubText>
-          <Img height={16} width={16} source="icon-extLink" />
+          <Cell.Img height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
@@ -164,19 +163,19 @@ export default class Settings extends Component<Props> {
           onPress={this.props.onExternalLink.bind(this, 'faq')}
           testName="settings__external_link">
           <Cell.Label>FAQs</Cell.Label>
-          <Img height={16} width={16} source="icon-extLink" />
+          <Cell.Img height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
 
         <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'guides')}
           testName="settings__external_link">
           <Cell.Label>Guides</Cell.Label>
-          <Img height={16} width={16} source="icon-extLink" />
+          <Cell.Img height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
           <Cell.Label>Report a problem</Cell.Label>
-          <Img height={12} width={7} source="icon-chevron" />
+          <Cell.Img height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
       </View>
     );
