@@ -160,9 +160,9 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    Linux*)     yarn workspace desktop pack:linux;;
-    Darwin*)    yarn workspace desktop pack:mac;;
-    MINGW*)     yarn workspace desktop pack:win;;
+    Linux*)     yarn pack:linux;;
+    Darwin*)    yarn pack:mac;;
+    MINGW*)     yarn pack:win;;
 esac
 
 cd ..
