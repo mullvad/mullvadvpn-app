@@ -21,6 +21,7 @@ type Props = {
   accountExpiry: ?string,
   appVersion: string,
   consistentVersion: boolean,
+  upToDateVersion: boolean,
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
@@ -138,15 +139,17 @@ export default class Settings extends Component<Props> {
   _renderMiddleButtons() {
     let icon;
     let footer;
-    if (!this.props.consistentVersion) {
+    if (!this.props.consistentVersion || !this.props.upToDateVersion) {
+      const message = !this.props.consistentVersion
+        ? 'Inconsistent internal version information, please restart the app.'
+        : 'This is not the latest version, download the update to remain safe.';
+
       icon = (
         <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
       );
       footer = (
         <View style={styles.settings__cell_footer}>
-          <Text style={styles.settings__cell_footer_label}>
-            {'Inconsistent internal version information, please restart the app.'}
-          </Text>
+          <Text style={styles.settings__cell_footer_label}>{message}</Text>
         </View>
       );
     } else {
