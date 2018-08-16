@@ -16,6 +16,7 @@ extern crate futures;
 extern crate libc;
 #[macro_use]
 extern crate log;
+extern crate log_panics;
 
 #[macro_use]
 extern crate serde;
@@ -909,6 +910,7 @@ fn run() -> Result<()> {
         log_file.as_ref(),
         config.log_stdout_timestamps,
     ).chain_err(|| ErrorKind::LogError("Unable to initialize logger"))?;
+    log_panics::init();
     log_version();
     if let Some(ref log_dir) = log_dir {
         info!("Logging to {}", log_dir.display());
