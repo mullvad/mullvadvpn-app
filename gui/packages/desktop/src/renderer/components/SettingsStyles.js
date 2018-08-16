@@ -27,6 +27,12 @@ export default {
     height: 24,
     flex: 0,
   }),
+  settings__cell_footer: Styles.createViewStyle({
+    paddingTop: 8,
+    paddingRight: 24,
+    paddingBottom: 24,
+    paddingLeft: 24,
+  }),
   settings__footer: Styles.createViewStyle({
     paddingTop: 24,
     paddingBottom: 24,
@@ -39,5 +45,13 @@ export default {
 
   settings__account_paid_until_label__error: Styles.createTextStyle({
     color: colors.red,
+  }),
+  settings__cell_footer_label: Styles.createTextStyle({
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '600',
+    lineHeight: 20,
+    letterSpacing: -0.2,
+    color: colors.white60,
   }),
 };
