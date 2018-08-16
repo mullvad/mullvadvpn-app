@@ -409,6 +409,7 @@ export default class AppRenderer {
 
   async _fetchVersionInfo() {
     const actions = this._reduxActions;
+    const latestVersionInfo = await this._daemonRpc.getVersionInfo();
     const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
     const versionFromGui = remote.app
       .getVersion()
@@ -416,6 +417,7 @@ export default class AppRenderer {
       .replace(/\.0$/, ''); // remove the .0 in yyyy.x.0
 
     actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
+    actions.version.updateLatest(latestVersionInfo);
   }
 
   async _connectToDaemon(): Promise<void> {

@@ -15,6 +15,7 @@ const mapStateToProps = (state: ReduxState) => ({
   accountExpiry: state.account.expiry,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
+  upToDateVersion: state.version.upToDate,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
