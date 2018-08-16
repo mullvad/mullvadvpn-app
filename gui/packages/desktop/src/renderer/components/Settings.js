@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import Img from './Img';
@@ -136,9 +136,23 @@ export default class Settings extends Component<Props> {
   }
 
   _renderMiddleButtons() {
-    const icon = this.props.consistentVersion ? null : (
-      <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
-    );
+    let icon;
+    let footer;
+    if (!this.props.consistentVersion) {
+      icon = (
+        <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
+      );
+      footer = (
+        <View style={styles.settings__cell_footer}>
+          <Text style={styles.settings__cell_footer_label}>
+            {'Inconsistent internal version information, please restart the app.'}
+          </Text>
+        </View>
+      );
+    } else {
+      footer = <View style={styles.settings__cell_spacer} />;
+    }
+
     return (
       <View>
         <Cell.CellButton
@@ -149,7 +163,7 @@ export default class Settings extends Component<Props> {
           <Cell.SubText>{this.props.appVersion}</Cell.SubText>
           <Cell.Img height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
-        <View style={styles.settings__cell_spacer} />
+        {footer}
       </View>
     );
   }
