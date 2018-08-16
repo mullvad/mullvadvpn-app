@@ -1,7 +1,5 @@
 // @flow
 
-import { Clipboard } from 'reactxp';
-import type { ReduxThunk } from '../store';
 import type { Ip } from '../../lib/daemon-rpc';
 
 type ConnectingAction = {
@@ -81,15 +79,6 @@ function offline(): OfflineAction {
   };
 }
 
-function copyIPAddress(): ReduxThunk {
-  return (_, getState) => {
-    const ip = getState().connection.ip;
-    if (ip) {
-      Clipboard.setText(ip);
-    }
-  };
-}
-
 export default {
   newLocation,
   connecting,
@@ -97,5 +86,4 @@ export default {
   disconnected,
   online,
   offline,
-  copyIPAddress,
 };

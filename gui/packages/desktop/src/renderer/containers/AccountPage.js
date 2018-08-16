@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { goBack } from 'connected-react-router';
 import Account from '../components/Account';
-import accountActions from '../redux/account/actions';
 import { links } from '../../config';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
@@ -17,11 +16,9 @@ const mapStateToProps = (state: ReduxState) => ({
   expiryLocale: remote.app.getLocale(),
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
-  const { copyAccountToken } = bindActionCreators(accountActions, dispatch);
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     updateAccountExpiry: () => props.app.updateAccountExpiry(),
-    onCopyAccountToken: () => copyAccountToken(),
     onLogout: () => {
       props.app.logout();
     },

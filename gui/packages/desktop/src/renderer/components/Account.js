@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, Clipboard, Text, View } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
@@ -20,7 +20,6 @@ type Props = {
   updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
   onClose: () => void,
-  onCopyAccountToken: () => void,
   onBuyMore: () => void,
 };
 
@@ -67,7 +66,7 @@ export default class Account extends Component<Props, State> {
       3000,
     );
     this.setState({ showAccountTokenCopiedMessage: true });
-    this.props.onCopyAccountToken();
+    Clipboard.setText(this.props.accountToken);
   }
 
   render() {
