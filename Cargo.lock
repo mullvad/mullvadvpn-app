@@ -701,6 +701,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "log-panics"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "matches"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -841,6 +849,7 @@ dependencies = [
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-ipc-client 0.1.0",
  "mullvad-paths 0.1.0",
  "mullvad-rpc 0.1.0",
@@ -2096,6 +2105,7 @@ source = "git+https://github.com/mullvad/rust-openssl#4dbd237fe1f6454d8a0042ccf4
 "checksum linked_hash_set 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3c7c91c4c7bbeb4f2f7c4e5be11e6a05bd6830bc37249c47ce1ad86ad453ff9c"
 "checksum log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e19e8d5c34a3e0e2223db8e060f9e8264aeeb5c5fc64a4ee9965c062211c024b"
 "checksum log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "61bd98ae7f7b754bc53dca7d44b604f733c6bba044ea6f41bc8d89272d8161d2"
+"checksum log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ae0136257df209261daa18d6c16394757c63e032e27aafd8b07788b051082bef"
 "checksum matches 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "835511bab37c34c47da5cb44844bea2cfde0236db0b506f90ea4224482c9774a"
 "checksum memchr 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "148fab2e51b4f1cfc66da2a7c32981d1d3c083a803978268bb11fe4b86925e7a"
 "checksum memchr 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "796fba70e76612589ed2ce7f45282f5af869e0fdd7cc6199fa1aa1f1d591ba9d"
