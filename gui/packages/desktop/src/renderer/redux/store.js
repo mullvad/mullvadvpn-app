@@ -2,7 +2,6 @@
 
 import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { routerMiddleware, connectRouter, push, replace } from 'connected-react-router';
-import thunk from 'redux-thunk';
 
 import account from './account/reducers';
 import accountActions from './account/actions';
@@ -45,8 +44,7 @@ export type ReduxAction =
   | DaemonAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
-export type ReduxDispatch = (action: ReduxAction | ReduxThunk) => any;
-export type ReduxThunk = (dispatch: ReduxDispatch, getState: ReduxGetState) => any;
+export type ReduxDispatch = (action: ReduxAction) => any;
 
 export default function configureStore(
   initialState: ?ReduxState,
@@ -72,7 +70,7 @@ export default function configureStore(
     daemon,
   };
 
-  const middlewares = [thunk, router];
+  const middlewares = [router];
 
   const composeEnhancers = (() => {
     const reduxCompose = window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;

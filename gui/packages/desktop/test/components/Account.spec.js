@@ -14,7 +14,6 @@ describe('components/Account', () => {
       accountExpiry: new Date('2038-01-01').toISOString(),
       expiryLocale: 'en-US',
       updateAccountExpiry: () => Promise.resolve(),
-      onCopyAccountToken: () => {},
       onClose: () => {},
       onLogout: () => {},
       onBuyMore: () => {},

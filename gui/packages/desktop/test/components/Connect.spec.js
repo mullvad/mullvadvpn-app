@@ -111,7 +111,6 @@ const defaultProps: ConnectProps = {
   onSettings: () => {},
   onSelectLocation: () => {},
   onConnect: () => {},
-  onCopyIP: () => {},
   onDisconnect: () => {},
   onExternalLink: () => {},
   accountExpiry: '',

@@ -2,15 +2,15 @@
 
 import moment from 'moment';
 import * as React from 'react';
+import { Component, Clipboard, Text, View, Types } from 'reactxp';
+import { Accordion } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
-import { Component, Text, View, Types } from 'reactxp';
 import * as AppButton from './AppButton';
 import Img from './Img';
-import { Accordion } from '@mullvad/components';
+import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
-import Map from './Map';
 import WindowStateObserver from '../lib/window-state-observer';
 
 import type { HeaderBarStyle } from './HeaderBar';
@@ -23,7 +23,6 @@ type Props = {
   onSettings: () => void,
   onSelectLocation: () => void,
   onConnect: () => void,
-  onCopyIP: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
   updateAccountExpiry: () => Promise<void>,
@@ -330,7 +329,11 @@ export default class Connect extends Component<Props, State> {
     }
     this._copyTimer = setTimeout(() => this.setState({ showCopyIPMessage: false }), 3000);
     this.setState({ showCopyIPMessage: true });
-    this.props.onCopyIP();
+
+    const { ip } = this.props.connection;
+    if (ip) {
+      Clipboard.setText(ip);
+    }
   }
 
   // Private
