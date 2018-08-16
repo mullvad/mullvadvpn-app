@@ -231,6 +231,48 @@
 !define InstallService '!insertmacro "InstallService"'
 
 #
+# RemoveLogsAndCache
+#
+# Call into helper DLL instructing it to remove all logs and cache
+# for the current user, other regular users and the SYSTEM (service) user.
+#
+!macro RemoveLogsAndCache
+
+	Push $0
+
+	cleanup::RemoveLogsAndCache
+
+	# Discard return value
+	Pop $0
+
+	Pop $0
+
+!macroend
+
+!define RemoveLogsAndCache '!insertmacro "RemoveLogsAndCache"'
+
+#
+# RemoveSettings
+#
+# Call into helper DLL instructing it to remove all settings
+# for the current user, other regular users and the SYSTEM (service) user.
+#
+!macro RemoveSettings
+
+	Push $0
+
+	cleanup::RemoveSettings
+
+	# Discard return value
+	Pop $0
+
+	Pop $0
+
+!macroend
+
+!define RemoveSettings '!insertmacro "RemoveSettings"'
+
+#
 # customInstall
 #
 # This macro is activated towards the end of the installation
@@ -286,6 +328,7 @@
 !macro customRemoveFiles
 
 	Push $0
+	Push $1
 
 	nsExec::ExecToStack '"sc.exe" stop mullvadvpn'
 
@@ -303,7 +346,20 @@
 
 	# Original removal functionality provided by Electron-builder
     RMDir /r $INSTDIR
-	
+
+	# Check command line arguments
+	${GetParameters} $0
+	${GetOptions} $0 "/S" $1
+
+	# If not ran silently
+	${If} ${Errors}
+		${RemoveLogsAndCache}
+		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
+		${RemoveSettings}
+		customRemoveFiles_after_remove_settings:
+	${EndIf}
+
+	Pop $1
 	Pop $0
 
 !macroend
