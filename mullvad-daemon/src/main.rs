@@ -61,7 +61,7 @@ use error_chain::ChainedError;
 use futures::Future;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 
-use management_interface::{BoxFuture, ManagementInterfaceServer, TunnelCommand};
+use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 
 use mullvad_types::account::{AccountData, AccountToken};
@@ -142,7 +142,7 @@ pub enum DaemonEvent {
     /// result of trying to kill the tunnel.
     TunnelKillResult(io::Result<()>),
     /// An event coming from the JSONRPC-2.0 management interface.
-    ManagementInterfaceEvent(TunnelCommand),
+    ManagementInterfaceEvent(ManagementCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
     ManagementInterfaceExited(talpid_ipc::Result<()>),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
@@ -155,9 +155,9 @@ impl From<TunnelEvent> for DaemonEvent {
     }
 }
 
-impl From<TunnelCommand> for DaemonEvent {
-    fn from(tunnel_command: TunnelCommand) -> Self {
-        DaemonEvent::ManagementInterfaceEvent(tunnel_command)
+impl From<ManagementCommand> for DaemonEvent {
+    fn from(command: ManagementCommand) -> Self {
+        DaemonEvent::ManagementInterfaceEvent(command)
     }
 }
 
@@ -285,7 +285,7 @@ impl Daemon {
     }
 
     fn start_management_interface_server(
-        event_tx: IntoSender<TunnelCommand, DaemonEvent>,
+        event_tx: IntoSender<ManagementCommand, DaemonEvent>,
         cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
         let shared_secret = uuid::Uuid::new_v4().to_string();
@@ -374,8 +374,8 @@ impl Daemon {
         result.chain_err(|| "Error while trying to close tunnel")
     }
 
-    fn handle_management_interface_event(&mut self, event: TunnelCommand) -> Result<()> {
-        use TunnelCommand::*;
+    fn handle_management_interface_event(&mut self, event: ManagementCommand) -> Result<()> {
+        use ManagementCommand::*;
         match event {
             SetTargetState(state) => self.on_set_target_state(state),
             GetState(tx) => Ok(self.on_get_state(tx)),
