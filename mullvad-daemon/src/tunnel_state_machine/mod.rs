@@ -190,7 +190,7 @@ impl Stream for TunnelStateMachine {
 
             result = match transition {
                 NewState(Ok(ref state)) | NewState(Err((_, ref state))) => {
-                    Ok(Async::Ready(Some(state.info())))
+                    Ok(Async::Ready(state.info()))
                 }
                 SameState(_) => result,
                 NoEvents(_) => Ok(Async::NotReady),
@@ -307,17 +307,19 @@ enum TunnelStateWrapper {
     Connected(ConnectedState),
     Disconnecting(DisconnectingState),
     Reconnecting(ReconnectingState),
+    Finished,
 }
 
 impl TunnelStateWrapper {
     /// Returns information describing the state.
-    fn info(&self) -> TunnelStateTransition {
+    fn info(&self) -> Option<TunnelStateTransition> {
         match *self {
-            TunnelStateWrapper::Disconnected(_) => TunnelStateTransition::Disconnected,
-            TunnelStateWrapper::Connecting(_) => TunnelStateTransition::Connecting,
-            TunnelStateWrapper::Connected(_) => TunnelStateTransition::Connected,
-            TunnelStateWrapper::Disconnecting(_) => TunnelStateTransition::Disconnecting,
-            TunnelStateWrapper::Reconnecting(_) => TunnelStateTransition::Reconnecting,
+            TunnelStateWrapper::Disconnected(_) => Some(TunnelStateTransition::Disconnected),
+            TunnelStateWrapper::Connecting(_) => Some(TunnelStateTransition::Connecting),
+            TunnelStateWrapper::Connected(_) => Some(TunnelStateTransition::Connected),
+            TunnelStateWrapper::Disconnecting(_) => Some(TunnelStateTransition::Disconnecting),
+            TunnelStateWrapper::Reconnecting(_) => Some(TunnelStateTransition::Reconnecting),
+            TunnelStateWrapper::Finished => None,
         }
     }
 }
@@ -367,6 +369,7 @@ impl TunnelState for TunnelStateWrapper {
                             }
                         }
                     )*
+                    TunnelStateWrapper::Finished => NewState(Ok(TunnelStateWrapper::Finished)),
                 }
             }
         }
@@ -391,6 +394,7 @@ impl Debug for TunnelStateWrapper {
             Connected(_) => write!(formatter, "TunnelStateWrapper::Connected(_)"),
             Disconnecting(_) => write!(formatter, "TunnelStateWrapper::Disconnecting(_)"),
             Reconnecting(_) => write!(formatter, "TunnelStateWrapper::Reconnecting(_)"),
+            Finished => write!(formatter, "TunnelStateWrapper::Finished"),
         }
     }
 }
