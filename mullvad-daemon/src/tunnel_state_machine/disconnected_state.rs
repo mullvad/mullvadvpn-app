@@ -42,7 +42,8 @@ impl TunnelState for DisconnectedState {
             Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ConnectingState::enter(shared_values, parameters))
             }
-            _ => SameState(self),
+            Ok(_) => SameState(self),
+            Err(_) => Finished,
         }
     }
 }
