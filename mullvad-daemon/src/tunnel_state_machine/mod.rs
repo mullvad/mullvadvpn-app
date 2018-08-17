@@ -216,6 +216,7 @@ impl From<EventConsequence<TunnelStateWrapper>> for TunnelStateMachineAction {
             }
             SameState(state) => Repeat(state),
             NoEvents(state) => Notify(Some(state), Ok(Async::NotReady)),
+            Finished => Notify(None, Ok(Async::Ready(None))),
         }
     }
 }
@@ -233,6 +234,8 @@ enum EventConsequence<T: TunnelState> {
     SameState(T),
     /// No events were received, the event loop should block until one becomes available.
     NoEvents(T),
+    /// The state machine has finished its execution.
+    Finished,
 }
 
 impl<T> EventConsequence<T>
@@ -356,6 +359,7 @@ impl TunnelState for TunnelStateWrapper {
                                 NewState(tunnel_state) => NewState(tunnel_state),
                                 SameState(state) => SameState(TunnelStateWrapper::$state(state)),
                                 NoEvents(state) => NoEvents(TunnelStateWrapper::$state(state)),
+                                Finished => Finished,
                             }
                         }
                     )*
