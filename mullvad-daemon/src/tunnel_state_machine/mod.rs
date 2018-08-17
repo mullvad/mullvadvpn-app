@@ -173,19 +173,23 @@ impl Stream for TunnelStateMachine {
     fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
         use self::EventConsequence::*;
 
-        let mut state = self
-            .current_state
-            .take()
-            .expect("State machine lost track of its state!");
         let mut result = Ok(Async::Ready(None));
         let mut event_was_ignored = true;
+
+        let mut state = match self.current_state.take() {
+            Some(state) => state,
+            None => {
+                // State machine has halted
+                return Ok(Async::Ready(None));
+            }
+        };
 
         while event_was_ignored {
             let transition = state.handle_event(&mut self.commands, &mut self.shared_values);
 
             event_was_ignored = match transition {
                 SameState(_) => true,
-                NewState(_) | NoEvents(_) => false,
+                NewState(_) | NoEvents(_) | Finished => false,
             };
 
             // These temporary bindings are here to guarantee that the result and state will be set.
@@ -206,6 +210,10 @@ impl Stream for TunnelStateMachine {
                 NoEvents(state) => {
                     updated_result = Ok(Async::NotReady);
                     updated_state = TunnelStateWrapper::from(state);
+                }
+                Finished => {
+                    // Leaving `self.current_state` as `None`
+                    return Ok(Async::Ready(None));
                 }
             };
 
@@ -232,6 +240,8 @@ enum EventConsequence<T: TunnelState> {
     SameState(T),
     /// No events were received, the event loop should block until one becomes available.
     NoEvents(T),
+    /// The state machine has finished its execution.
+    Finished,
 }
 
 impl<T> EventConsequence<T>
@@ -359,6 +369,7 @@ impl TunnelState for TunnelStateWrapper {
                                 NewState(tunnel_state) => NewState(tunnel_state),
                                 SameState(state) => SameState(TunnelStateWrapper::$state(state)),
                                 NoEvents(state) => NoEvents(TunnelStateWrapper::$state(state)),
+                                Finished => Finished,
                             }
                         }
                     )*
