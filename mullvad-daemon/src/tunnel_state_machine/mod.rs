@@ -7,18 +7,17 @@ mod disconnected_state;
 mod disconnecting_state;
 
 use std::fmt::{Debug, Formatter, Result as FmtResult};
-use std::io;
 use std::path::PathBuf;
 use std::thread;
 
 use error_chain::ChainedError;
-use futures::sync::{mpsc, oneshot};
+use futures::sync::mpsc;
 use futures::{Async, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use mullvad_types::account::AccountToken;
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel::{self, TunnelMetadata, TunnelMonitor};
+use talpid_core::tunnel::TunnelMetadata;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
@@ -325,29 +324,5 @@ impl Debug for TunnelStateWrapper {
             Connected(_) => write!(formatter, "TunnelStateWrapper::Connected(_)"),
             Disconnecting(_) => write!(formatter, "TunnelStateWrapper::Disconnecting(_)"),
         }
-    }
-}
-
-/// Internal handle to request tunnel to be closed.
-pub struct CloseHandle {
-    tunnel_close_handle: tunnel::CloseHandle,
-}
-
-impl CloseHandle {
-    fn new(tunnel_monitor: &TunnelMonitor) -> Self {
-        CloseHandle {
-            tunnel_close_handle: tunnel_monitor.close_handle(),
-        }
-    }
-
-    fn close(self) -> oneshot::Receiver<io::Result<()>> {
-        let (close_tx, close_rx) = oneshot::channel();
-
-        thread::spawn(move || {
-            let _ = close_tx.send(self.tunnel_close_handle.close());
-            trace!("Tunnel kill thread exit");
-        });
-
-        close_rx
     }
 }

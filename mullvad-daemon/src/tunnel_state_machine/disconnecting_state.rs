@@ -1,17 +1,18 @@
-use std::io;
-
+use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
+use talpid_core::tunnel::CloseHandle;
+
 use super::{
-    ConnectingState, DisconnectedState, EventConsequence, StateEntryResult, TunnelCommand,
-    TunnelParameters, TunnelState, TunnelStateWrapper,
+    ConnectingState, DisconnectedState, EventConsequence, ResultExt, StateEntryResult,
+    TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: oneshot::Receiver<io::Result<()>>,
+    exited: oneshot::Receiver<()>,
     after_disconnect: AfterDisconnect,
 }
 
@@ -50,9 +51,17 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (oneshot::Receiver<io::Result<()>>, AfterDisconnect);
+    type Bootstrap = (CloseHandle, oneshot::Receiver<()>, AfterDisconnect);
 
-    fn enter((exited, after_disconnect): Self::Bootstrap) -> StateEntryResult {
+    fn enter((close_handle, exited, after_disconnect): Self::Bootstrap) -> StateEntryResult {
+        let close_result = close_handle
+            .close()
+            .chain_err(|| "Failed to request tunnel monitor to close the tunnel");
+
+        if let Err(error) = close_result {
+            error!("{}", error.display_chain());
+        }
+
         Ok(TunnelStateWrapper::from(DisconnectingState {
             exited,
             after_disconnect,
