@@ -1,13 +1,14 @@
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
+use talpid_core::firewall::{Firewall, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 use talpid_types::net::TunnelEndpoint;
 
 use super::{
-    AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence,
+    AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
     SharedTunnelStateValues, StateEntryResult, TunnelCommand, TunnelParameters, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    TunnelStateWrapper,
 };
 
 pub struct ConnectedStateBootstrap {
@@ -41,12 +42,22 @@ impl ConnectedState {
         }
     }
 
-    pub fn info(&self) -> TunnelStateTransition {
-        TunnelStateTransition::Connected(self.tunnel_endpoint, self.metadata.clone())
+    fn set_security_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+        let policy = SecurityPolicy::Connected {
+            relay_endpoint: self.tunnel_endpoint.to_endpoint(),
+            tunnel: self.metadata.clone(),
+            allow_lan: self.tunnel_parameters.allow_lan,
+        };
+
+        debug!("Set security policy: {:?}", policy);
+        shared_values
+            .firewall
+            .apply_policy(policy)
+            .chain_err(|| "Failed to apply security policy for connected state")
     }
 
     fn handle_commands(
-        self,
+        mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
@@ -75,6 +86,24 @@ impl ConnectedState {
                     AfterDisconnect::Nothing,
                 ),
             )),
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                self.tunnel_parameters.allow_lan = allow_lan;
+
+                match self.set_security_policy(shared_values) {
+                    Ok(()) => SameState(self),
+                    Err(error) => {
+                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        NewState(DisconnectingState::enter(
+                            shared_values,
+                            (
+                                self.close_handle,
+                                self.tunnel_close_event,
+                                AfterDisconnect::Nothing,
+                            ),
+                        ))
+                    }
+                }
+            }
         }
     }
 
@@ -120,8 +149,26 @@ impl ConnectedState {
 impl TunnelState for ConnectedState {
     type Bootstrap = ConnectedStateBootstrap;
 
-    fn enter(_: &mut SharedTunnelStateValues, bootstrap: Self::Bootstrap) -> StateEntryResult {
-        Ok(TunnelStateWrapper::from(ConnectedState::from(bootstrap)))
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        bootstrap: Self::Bootstrap,
+    ) -> StateEntryResult {
+        let connected_state = ConnectedState::from(bootstrap);
+
+        match connected_state.set_security_policy(shared_values) {
+            Ok(()) => Ok(TunnelStateWrapper::from(connected_state)),
+            Err(error) => Err((
+                error,
+                DisconnectingState::enter(
+                    shared_values,
+                    (
+                        connected_state.close_handle,
+                        connected_state.tunnel_close_event,
+                        AfterDisconnect::Nothing,
+                    ),
+                ).expect("Failed to disconnect after failed transition to connected state"),
+            )),
+        }
     }
 
     fn handle_event(

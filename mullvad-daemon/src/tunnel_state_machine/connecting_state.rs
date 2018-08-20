@@ -8,14 +8,15 @@ use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
+use talpid_core::firewall::{Firewall, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
     AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
     DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
-    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper, OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME,
+    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME,
 };
 use logging;
 
@@ -36,7 +37,12 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn new(parameters: TunnelParameters) -> Result<Self> {
+    fn new(
+        shared_values: &mut SharedTunnelStateValues,
+        parameters: TunnelParameters,
+    ) -> Result<Self> {
+        Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)?;
+
         let tunnel_endpoint = parameters.endpoint;
         let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
@@ -47,6 +53,23 @@ impl ConnectingState {
             tunnel_close_event,
             close_handle,
         })
+    }
+
+    fn set_security_policy(
+        shared_values: &mut SharedTunnelStateValues,
+        endpoint: TunnelEndpoint,
+        allow_lan: bool,
+    ) -> Result<()> {
+        let policy = SecurityPolicy::Connecting {
+            relay_endpoint: endpoint.to_endpoint(),
+            allow_lan,
+        };
+
+        debug!("Set security policy: {:?}", policy);
+        shared_values
+            .firewall
+            .apply_policy(policy)
+            .chain_err(|| "Failed to apply security policy for connecting state")
     }
 
     fn start_tunnel(
@@ -145,12 +168,8 @@ impl ConnectingState {
         }
     }
 
-    pub fn info(&self) -> TunnelStateTransition {
-        TunnelStateTransition::Connecting(self.tunnel_endpoint)
-    }
-
     fn handle_commands(
-        self,
+        mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
@@ -179,6 +198,23 @@ impl ConnectingState {
                     AfterDisconnect::Nothing,
                 ),
             )),
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                self.tunnel_parameters.allow_lan = allow_lan;
+                match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
+                    Ok(()) => SameState(self),
+                    Err(error) => {
+                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        NewState(DisconnectingState::enter(
+                            shared_values,
+                            (
+                                self.close_handle,
+                                self.tunnel_close_event,
+                                AfterDisconnect::Nothing,
+                            ),
+                        ))
+                    }
+                }
+            }
         }
     }
 
@@ -232,7 +268,7 @@ impl TunnelState for ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
     ) -> StateEntryResult {
-        Self::new(parameters)
+        Self::new(shared_values, parameters)
             .map(TunnelStateWrapper::from)
             .chain_err(|| "Failed to start tunnel")
             .map_err(|error| {
