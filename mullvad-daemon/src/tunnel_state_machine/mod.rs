@@ -7,7 +7,7 @@ mod disconnected_state;
 mod disconnecting_state;
 
 use std::fmt::{Debug, Formatter, Result as FmtResult};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc as sync_mpsc;
 use std::thread;
 
@@ -17,8 +17,8 @@ use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use mullvad_types::account::AccountToken;
+use talpid_core::firewall::{Firewall, FirewallProxy};
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel::TunnelMetadata;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
@@ -29,6 +29,9 @@ use super::{OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME};
 
 error_chain! {
     errors {
+        FirewallError {
+            description("Firewall error")
+        }
         ReactorError {
             description("Failed to initialize tunnel state machine event loop executor")
         }
@@ -36,17 +39,19 @@ error_chain! {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
-pub fn spawn<T>(
+pub fn spawn<P, T>(
+    cache_dir: P,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
 ) -> Result<mpsc::UnboundedSender<TunnelCommand>>
 where
+    P: AsRef<Path> + Send + 'static,
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
 
     thread::spawn(
-        move || match create_event_loop(command_rx, state_change_listener) {
+        move || match create_event_loop(cache_dir, command_rx, state_change_listener) {
             Ok((mut reactor, event_loop)) => {
                 startup_result_tx.send(Ok(())).expect(
                     "Tunnel state machine won't be started because the owner thread crashed",
@@ -72,15 +77,17 @@ where
         .map(|_| command_tx)
 }
 
-fn create_event_loop<T>(
+fn create_event_loop<P, T>(
+    cache_dir: P,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>)>
 where
+    P: AsRef<Path>,
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
-    let state_machine = TunnelStateMachine::new(commands);
+    let state_machine = TunnelStateMachine::new(&cache_dir, commands)?;
 
     let future = state_machine.for_each(move |state_change_event| {
         state_change_listener
@@ -93,6 +100,8 @@ where
 
 /// Representation of external commands for the tunnel state machine.
 pub enum TunnelCommand {
+    /// Enable or disable LAN access in the firewall.
+    AllowLan(bool),
     /// Open tunnel connection.
     Connect(TunnelParameters),
     /// Close tunnel connection.
@@ -107,14 +116,15 @@ pub struct TunnelParameters {
     pub log_dir: Option<PathBuf>,
     pub resource_dir: PathBuf,
     pub account_token: AccountToken,
+    pub allow_lan: bool,
 }
 
 /// Event resulting from a transition to a new tunnel state.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TunnelStateTransition {
     Disconnected,
-    Connecting(TunnelEndpoint),
-    Connected(TunnelEndpoint, TunnelMetadata),
+    Connecting,
+    Connected,
     Disconnecting,
 }
 
@@ -131,16 +141,21 @@ struct TunnelStateMachine {
 }
 
 impl TunnelStateMachine {
-    fn new(commands: mpsc::UnboundedReceiver<TunnelCommand>) -> Self {
-        let mut shared_values = SharedTunnelStateValues;
+    fn new<P: AsRef<Path>>(
+        cache_dir: P,
+        commands: mpsc::UnboundedReceiver<TunnelCommand>,
+    ) -> Result<Self> {
+        let firewall = FirewallProxy::new(cache_dir).chain_err(|| ErrorKind::FirewallError)?;
+        let mut shared_values = SharedTunnelStateValues { firewall };
+
         let initial_state = TunnelStateWrapper::enter(&mut shared_values, ())
             .expect("Failed to create initial tunnel state");
 
-        TunnelStateMachine {
+        Ok(TunnelStateMachine {
             current_state: Some(initial_state),
             commands,
             shared_values,
-        }
+        })
     }
 }
 
@@ -206,7 +221,9 @@ impl From<EventConsequence<TunnelStateWrapper>> for TunnelStateMachineAction {
 }
 
 /// Values that are common to all tunnel states.
-struct SharedTunnelStateValues;
+struct SharedTunnelStateValues {
+    firewall: FirewallProxy,
+}
 
 /// Asynchronous result of an attempt to progress a state.
 enum EventConsequence<T: TunnelState> {
@@ -291,8 +308,8 @@ impl TunnelStateWrapper {
     fn info(&self) -> TunnelStateTransition {
         match *self {
             TunnelStateWrapper::Disconnected(_) => TunnelStateTransition::Disconnected,
-            TunnelStateWrapper::Connecting(ref state) => state.info(),
-            TunnelStateWrapper::Connected(ref state) => state.info(),
+            TunnelStateWrapper::Connecting(_) => TunnelStateTransition::Connecting,
+            TunnelStateWrapper::Connected(_) => TunnelStateTransition::Connected,
             TunnelStateWrapper::Disconnecting(_) => TunnelStateTransition::Disconnecting,
         }
     }
