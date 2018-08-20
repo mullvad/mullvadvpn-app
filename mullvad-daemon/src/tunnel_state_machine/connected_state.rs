@@ -1,12 +1,14 @@
-use futures::sync::mpsc;
-use futures::Stream;
+use futures::future::Shared;
+use futures::sync::{mpsc, oneshot};
+use futures::{Async, Future, Stream};
 
 use talpid_core::tunnel::{TunnelEvent, TunnelMetadata};
 use talpid_types::net::TunnelEndpoint;
 
 use super::{
-    AfterDisconnect, CloseHandle, DisconnectingState, EventConsequence, StateEntryResult,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    AfterDisconnect, CloseHandle, ConnectingState, DisconnectingState, EventConsequence,
+    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 
 pub struct ConnectedStateBootstrap {
@@ -14,6 +16,7 @@ pub struct ConnectedStateBootstrap {
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_endpoint: TunnelEndpoint,
     pub tunnel_parameters: TunnelParameters,
+    pub tunnel_close_event: Shared<oneshot::Receiver<()>>,
     pub close_handle: CloseHandle,
 }
 
@@ -23,6 +26,7 @@ pub struct ConnectedState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_endpoint: TunnelEndpoint,
     tunnel_parameters: TunnelParameters,
+    tunnel_close_event: Shared<oneshot::Receiver<()>>,
     close_handle: CloseHandle,
 }
 
@@ -33,6 +37,7 @@ impl ConnectedState {
             tunnel_events: bootstrap.tunnel_events,
             tunnel_endpoint: bootstrap.tunnel_endpoint,
             tunnel_parameters: bootstrap.tunnel_parameters,
+            tunnel_close_event: bootstrap.tunnel_close_event,
             close_handle: bootstrap.close_handle,
         }
     }
@@ -80,6 +85,19 @@ impl ConnectedState {
             Ok(_) => SameState(self),
         }
     }
+
+    fn handle_tunnel_close_event(mut self) -> EventConsequence<Self> {
+        use self::EventConsequence::*;
+
+        match self.tunnel_close_event.poll() {
+            Ok(Async::Ready(_)) => {}
+            Ok(Async::NotReady) => return NoEvents(self),
+            Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
+        }
+
+        info!("Tunnel closed. Reconnecting.");
+        NewState(ConnectingState::enter(self.tunnel_parameters))
+    }
 }
 
 impl TunnelState for ConnectedState {
@@ -95,5 +113,6 @@ impl TunnelState for ConnectedState {
     ) -> EventConsequence<Self> {
         self.handle_commands(commands)
             .or_else(Self::handle_tunnel_events)
+            .or_else(Self::handle_tunnel_close_event)
     }
 }

@@ -1,5 +1,4 @@
-use std::io;
-
+use futures::future::Shared;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
@@ -11,7 +10,7 @@ use super::{
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: oneshot::Receiver<io::Result<()>>,
+    exited: Shared<oneshot::Receiver<()>>,
     after_disconnect: AfterDisconnect,
 }
 
@@ -60,7 +59,7 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (oneshot::Receiver<io::Result<()>>, AfterDisconnect);
+    type Bootstrap = (Shared<oneshot::Receiver<()>>, AfterDisconnect);
 
     fn enter((exited, after_disconnect): Self::Bootstrap) -> StateEntryResult {
         Ok(TunnelStateWrapper::from(DisconnectingState {
