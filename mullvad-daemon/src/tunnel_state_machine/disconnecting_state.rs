@@ -25,13 +25,17 @@ impl DisconnectingState {
         let after_disconnect = self.after_disconnect;
 
         self.after_disconnect = match after_disconnect {
-            Nothing => match event {
+            AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 _ => Nothing,
             },
-            Reconnect(_) => match event {
+            AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
                 Ok(TunnelCommand::Connect(parameters))
                 | Ok(TunnelCommand::Reconnect(parameters)) => Reconnect(parameters),
+                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                    tunnel_parameters.allow_lan = allow_lan;
+                    Reconnect(tunnel_parameters)
+                }
                 Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
             },
         };
