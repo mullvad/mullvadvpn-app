@@ -38,18 +38,30 @@ pub struct ConnectingState {
 impl ConnectingState {
     fn new(parameters: TunnelParameters) -> Result<Self> {
         let tunnel_endpoint = parameters.endpoint;
-        let (event_tx, event_rx) = mpsc::unbounded();
-        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
-        let close_handle = monitor.close_handle();
-        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
+        let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
         Ok(ConnectingState {
-            tunnel_events: event_rx,
+            tunnel_events,
             tunnel_endpoint,
             tunnel_parameters: parameters,
             tunnel_close_event,
             close_handle,
         })
+    }
+
+    fn start_tunnel(
+        parameters: &TunnelParameters,
+    ) -> Result<(
+        mpsc::UnboundedReceiver<TunnelEvent>,
+        oneshot::Receiver<()>,
+        CloseHandle,
+    )> {
+        let (event_tx, event_rx) = mpsc::unbounded();
+        let monitor = Self::spawn_tunnel_monitor(&parameters, event_tx.wait())?;
+        let close_handle = monitor.close_handle();
+        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
+
+        Ok((event_rx, tunnel_close_event, close_handle))
     }
 
     fn spawn_tunnel_monitor(
