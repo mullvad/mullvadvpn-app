@@ -25,7 +25,6 @@ use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
-use super::{OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME};
 
 error_chain! {
     errors {
