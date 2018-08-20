@@ -29,6 +29,10 @@ impl ReconnectingState {
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectingState::enter(shared_values, self.exited))
             }
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                self.parameters.allow_lan = allow_lan;
+                SameState(self)
+            }
         }
     }
 
