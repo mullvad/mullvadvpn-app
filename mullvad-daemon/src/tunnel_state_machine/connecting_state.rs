@@ -16,11 +16,13 @@ use super::{
     AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
     DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
     StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
-    OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME,
 };
 use logging;
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
+
+const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
+const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 #[cfg(windows)]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
