@@ -1,5 +1,4 @@
-use std::io;
-
+use futures::future::Shared;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
@@ -10,7 +9,7 @@ use super::{
 
 /// This state is active when the tunnel is being closed but will be reopened shortly afterwards.
 pub struct ReconnectingState {
-    exited: oneshot::Receiver<io::Result<()>>,
+    exited: Shared<oneshot::Receiver<()>>,
     parameters: TunnelParameters,
 }
 
@@ -43,7 +42,7 @@ impl ReconnectingState {
 }
 
 impl TunnelState for ReconnectingState {
-    type Bootstrap = (oneshot::Receiver<io::Result<()>>, TunnelParameters);
+    type Bootstrap = (Shared<oneshot::Receiver<()>>, TunnelParameters);
 
     fn enter((exited, parameters): Self::Bootstrap) -> StateEntryResult {
         Ok(TunnelStateWrapper::from(ReconnectingState {
