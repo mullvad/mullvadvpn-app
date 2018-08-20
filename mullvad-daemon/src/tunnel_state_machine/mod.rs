@@ -29,7 +29,6 @@ use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::DisconnectingState;
 use self::reconnecting_state::ReconnectingState;
-use super::{OPENVPN_LOG_FILENAME, WIREGUARD_LOG_FILENAME};
 
 error_chain! {
     errors {
