@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "yarn-fixes",
+  "version": "0.1.0",
+  "scripts": {
+    "preinstall": "patch-yarn.bat"
+  },
+  "os": ["win32"]
+}
