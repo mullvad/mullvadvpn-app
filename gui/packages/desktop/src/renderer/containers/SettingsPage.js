@@ -13,7 +13,9 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => ({
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
-  appVersion: remote.app.getVersion(),
+  appVersion: state.version.current,
+  consistentVersion: state.version.consistent,
+  upToDateVersion: state.version.upToDate,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);

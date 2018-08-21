@@ -11,6 +11,8 @@ import settings from './settings/reducers';
 import settingsActions from './settings/actions';
 import support from './support/reducers';
 import supportActions from './support/actions';
+import version from './version/reducers';
+import versionActions from './version/actions';
 import daemon from './daemon/reducers';
 import daemonActions from './daemon/actions';
 
@@ -20,12 +22,14 @@ import type { AccountReduxState } from './account/reducers';
 import type { ConnectionReduxState } from './connection/reducers';
 import type { SettingsReduxState } from './settings/reducers';
 import type { SupportReduxState } from './support/reducers';
+import type { VersionReduxState } from './version/reducers';
 import type { DaemonReduxState } from './daemon/reducers';
 
 import type { AccountAction } from './account/actions';
 import type { ConnectionAction } from './connection/actions';
 import type { SettingsAction } from './settings/actions';
 import type { SupportAction } from './support/actions';
+import type { VersionAction } from './version/actions';
 import type { DaemonAction } from './daemon/actions';
 
 export type ReduxState = {
@@ -33,6 +37,7 @@ export type ReduxState = {
   connection: ConnectionReduxState,
   settings: SettingsReduxState,
   support: SupportReduxState,
+  version: VersionReduxState,
   daemon: DaemonReduxState,
 };
 
@@ -41,6 +46,7 @@ export type ReduxAction =
   | ConnectionAction
   | SettingsAction
   | SupportAction
+  | VersionAction
   | DaemonAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
@@ -57,6 +63,7 @@ export default function configureStore(
     ...connectionActions,
     ...settingsActions,
     ...supportActions,
+    ...versionActions,
     ...daemonActions,
     pushRoute: (route) => push(route),
     replaceRoute: (route) => replace(route),
@@ -67,6 +74,7 @@ export default function configureStore(
     connection,
     settings,
     support,
+    version,
     daemon,
   };
 

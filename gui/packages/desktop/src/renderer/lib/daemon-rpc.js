@@ -205,6 +205,22 @@ const BackendStateSchema = object({
   target_state: enumeration(...allSecurityStates),
 });
 
+export type AppVersionInfo = {
+  currentIsSupported: boolean,
+  latest: {
+    latestStable: string,
+    latest: string,
+  },
+};
+
+const AppVersionInfoSchema = object({
+  current_is_supported: boolean,
+  latest: object({
+    latest_stable: string,
+    latest: string,
+  }),
+});
+
 export interface DaemonRpcProtocol {
   connect(string): void;
   disconnect(): void;
@@ -230,6 +246,8 @@ export interface DaemonRpcProtocol {
   authenticate(sharedSecret: string): Promise<void>;
   getAccountHistory(): Promise<Array<AccountToken>>;
   removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
+  getCurrentVersion(): Promise<string>;
+  getVersionInfo(): Promise<AppVersionInfo>;
 }
 
 export class ResponseParseError extends Error {
@@ -454,5 +472,30 @@ export class DaemonRpc implements DaemonRpcProtocol {
 
   async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     await this._transport.send('remove_account_from_history', accountToken);
+  }
+
+  async getCurrentVersion(): Promise<string> {
+    const response = await this._transport.send('get_current_version');
+    try {
+      return validate(string, response);
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_current_version', null);
+    }
+  }
+
+  async getVersionInfo(): Promise<AppVersionInfo> {
+    const response = await this._transport.send('get_version_info');
+    try {
+      const versionInfo = validate(AppVersionInfoSchema, response);
+      return {
+        currentIsSupported: versionInfo.current_is_supported,
+        latest: {
+          latestStable: versionInfo.latest.latest_stable,
+          latest: versionInfo.latest.latest,
+        },
+      };
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_version_info', null);
+    }
   }
 }
