@@ -386,7 +386,7 @@ impl RelayListUpdater {
                     .chain_err(|| "Failed to update list of relays")
                 {
                     Ok(()) => info!("Updated list of relays"),
-                    Err(error) => error!("{}", error),
+                    Err(error) => error!("{}", error.display_chain()),
                 }
             }
         }
