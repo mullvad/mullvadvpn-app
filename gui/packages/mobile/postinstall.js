@@ -22,7 +22,11 @@ try {
 
 try {
   console.log('Adding a symlink to react-native');
-  fs.symlinkSync(sourcePath, symlinkPath);
+
+  // create a junction on Windows does not require elevated privileges
+  const type = process.platform === 'win32' ? 'junction' : undefined;
+
+  fs.symlinkSync(sourcePath, symlinkPath, type);
   console.log('Done');
 } catch (error) {
   console.error('Cannot symlink react-native: ' + error.message);
