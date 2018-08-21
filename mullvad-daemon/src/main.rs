@@ -335,9 +335,13 @@ impl Daemon {
 
         debug!("New tunnel state: {:?}", tunnel_state);
 
-        if tunnel_state == Disconnected {
-            self.state.disconnected();
-            self.current_relay = None;
+        match tunnel_state {
+            Disconnected => {
+                self.state.disconnected();
+                self.current_relay = None;
+            }
+            Blocked(ref reason) => info!("Blocking all network connections, reason: {}", reason),
+            _ => {}
         }
 
         self.tunnel_state = tunnel_state;
