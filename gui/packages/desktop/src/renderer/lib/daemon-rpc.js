@@ -41,7 +41,7 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
-export type TunnelState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting';
+export type TunnelState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'blocked';
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
@@ -201,6 +201,7 @@ const allTunnelStates: Array<TunnelState> = [
   'connecting',
   'connected',
   'disconnecting',
+  'blocked',
 ];
 const TunnelStateSchema = enumeration(...allTunnelStates);
 
