@@ -1,6 +1,7 @@
 #[macro_use]
 mod macros;
 
+mod blocked_state;
 mod connected_state;
 mod connecting_state;
 mod disconnected_state;
@@ -21,6 +22,7 @@ use talpid_core::firewall::{Firewall, FirewallProxy};
 use talpid_core::mpsc::IntoSender;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
+use self::blocked_state::BlockedState;
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
@@ -125,6 +127,7 @@ pub enum TunnelStateTransition {
     Connecting,
     Connected,
     Disconnecting,
+    Blocked,
 }
 
 /// Asynchronous handling of the tunnel state machine.
@@ -295,6 +298,7 @@ enum TunnelStateWrapper {
     Connecting(ConnectingState),
     Connected(ConnectedState),
     Disconnecting(DisconnectingState),
+    Blocked(BlockedState),
 }
 
 macro_rules! impl_from_for_tunnel_state {
@@ -311,6 +315,7 @@ impl_from_for_tunnel_state!(Disconnected(DisconnectedState));
 impl_from_for_tunnel_state!(Connecting(ConnectingState));
 impl_from_for_tunnel_state!(Connected(ConnectedState));
 impl_from_for_tunnel_state!(Disconnecting(DisconnectingState));
+impl_from_for_tunnel_state!(Blocked(BlockedState));
 
 impl TunnelState for TunnelStateWrapper {
     type Bootstrap = <DisconnectedState as TunnelState>::Bootstrap;
@@ -351,6 +356,7 @@ impl TunnelState for TunnelStateWrapper {
             Connecting,
             Connected,
             Disconnecting,
+            Blocked,
         }
     }
 }
@@ -364,6 +370,7 @@ impl Debug for TunnelStateWrapper {
             Connecting(_) => write!(formatter, "TunnelStateWrapper::Connecting(_)"),
             Connected(_) => write!(formatter, "TunnelStateWrapper::Connected(_)"),
             Disconnecting(_) => write!(formatter, "TunnelStateWrapper::Disconnecting(_)"),
+            Blocked(_) => write!(formatter, "TunnelStateWrapper::Blocked(_)"),
         }
     }
 }
