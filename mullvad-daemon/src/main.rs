@@ -345,8 +345,13 @@ impl Daemon {
 
         debug!("New tunnel state: {:?}", tunnel_state);
 
-        if let Disconnected = tunnel_state {
-            self.state.disconnected();
+        match tunnel_state {
+            Disconnected => self.state.disconnected(),
+            Blocked(ref cause) => {
+                info!("Blocking all network connections");
+                error!("{}", cause.display_chain());
+            }
+            _ => {}
         }
 
         self.tunnel_state = tunnel_state;
