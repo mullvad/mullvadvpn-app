@@ -15,13 +15,15 @@ use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
 
 use std::fs::File;
 use std::net::IpAddr;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::time::{self, Duration, Instant, SystemTime};
 use std::{io, thread};
 
 use rand::{self, Rng, ThreadRng};
-use tokio_timer::{Deadline, DeadlineError};
+use tokio_timer::{timer, DeadlineError, Timer};
 
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
@@ -348,6 +350,7 @@ struct RelayListUpdater {
     cache_path: PathBuf,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     close_handle: mpsc::Receiver<()>,
+    timer: TimerHandle,
 }
 
 impl RelayListUpdater {
@@ -356,11 +359,32 @@ impl RelayListUpdater {
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
     ) -> RelayListUpdaterHandle {
+        let timer = Self::start_timer();
         let (tx, rx) = mpsc::channel();
 
-        thread::spawn(move || Self::new(rpc_handle, cache_path, parsed_relays, rx).run());
+        thread::spawn(move || Self::new(rpc_handle, cache_path, parsed_relays, rx, timer).run());
 
         tx
+    }
+
+    fn start_timer() -> TimerHandle {
+        let (tx, rx) = mpsc::channel();
+
+        thread::spawn(move || {
+            let mut timer = Timer::default();
+            let alive = Arc::new(AtomicBool::new(true));
+
+            let _ = tx.send(TimerHandle {
+                handle: timer.handle(),
+                alive: alive.clone(),
+            });
+
+            while alive.load(Ordering::Relaxed) {
+                timer.turn(None).expect("Timer failed to run iteration");
+            }
+        });
+
+        rx.recv().expect("Failed to create timer")
     }
 
     fn new(
@@ -368,6 +392,7 @@ impl RelayListUpdater {
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
         close_handle: mpsc::Receiver<()>,
+        timer: TimerHandle,
     ) -> Self {
         let rpc_client = RelayListProxy::new(rpc_handle);
 
@@ -376,6 +401,7 @@ impl RelayListUpdater {
             cache_path,
             parsed_relays,
             close_handle,
+            timer,
         }
     }
 
@@ -389,7 +415,7 @@ impl RelayListUpdater {
                     .chain_err(|| "Failed to update list of relays")
                 {
                     Ok(()) => info!("Updated list of relays"),
-                    Err(error) => error!("{}", error),
+                    Err(error) => error!("{}", error.display_chain()),
                 }
             }
         }
@@ -442,7 +468,10 @@ impl RelayListUpdater {
             .rpc_client
             .relay_list()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
-        let relay_list = Deadline::new(download_future, timeout_instant).wait()?;
+        let relay_list = self
+            .timer
+            .deadline(download_future, timeout_instant)
+            .wait()?;
 
         Ok(relay_list)
     }
@@ -459,5 +488,24 @@ impl RelayListUpdater {
         self.parsed_relays
             .lock()
             .expect("A thread crashed while it held a lock to the list of relays")
+    }
+}
+
+struct TimerHandle {
+    handle: timer::Handle,
+    alive: Arc<AtomicBool>,
+}
+
+impl Deref for TimerHandle {
+    type Target = timer::Handle;
+
+    fn deref(&self) -> &Self::Target {
+        &self.handle
+    }
+}
+
+impl Drop for TimerHandle {
+    fn drop(&mut self) {
+        self.alive.store(false, Ordering::Relaxed);
     }
 }
