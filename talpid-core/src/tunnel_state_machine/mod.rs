@@ -1,6 +1,7 @@
 #[macro_use]
 mod macros;
 
+mod blocked_state;
 mod connected_state;
 mod connecting_state;
 mod disconnected_state;
@@ -19,6 +20,7 @@ use tokio_core::reactor::Core;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 use talpid_types::tunnel::TunnelStateTransition;
 
+use self::blocked_state::BlockedState;
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
@@ -286,6 +288,7 @@ enum TunnelStateWrapper {
     Connecting(ConnectingState),
     Connected(ConnectedState),
     Disconnecting(DisconnectingState),
+    Blocked(BlockedState),
 }
 
 impl TunnelStateWrapper {
@@ -321,6 +324,7 @@ impl TunnelStateWrapper {
             Connecting,
             Connected,
             Disconnecting,
+            Blocked,
         }
     }
 }
@@ -339,6 +343,7 @@ impl_from_for_tunnel_state!(Disconnected(DisconnectedState));
 impl_from_for_tunnel_state!(Connecting(ConnectingState));
 impl_from_for_tunnel_state!(Connected(ConnectedState));
 impl_from_for_tunnel_state!(Disconnecting(DisconnectingState));
+impl_from_for_tunnel_state!(Blocked(BlockedState));
 
 impl Debug for TunnelStateWrapper {
     fn fmt(&self, formatter: &mut Formatter) -> FmtResult {
@@ -349,6 +354,7 @@ impl Debug for TunnelStateWrapper {
             Connecting(_) => write!(formatter, "TunnelStateWrapper::Connecting(_)"),
             Connected(_) => write!(formatter, "TunnelStateWrapper::Connected(_)"),
             Disconnecting(_) => write!(formatter, "TunnelStateWrapper::Disconnecting(_)"),
+            Blocked(_) => write!(formatter, "TunnelStateWrapper::Blocked(_)"),
         }
     }
 }
