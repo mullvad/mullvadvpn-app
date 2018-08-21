@@ -121,7 +121,7 @@ pub struct TunnelParameters {
 }
 
 /// Event resulting from a transition to a new tunnel state.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum TunnelStateTransition {
     Disconnected,
     Connecting,
