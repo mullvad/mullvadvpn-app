@@ -345,7 +345,7 @@ impl Daemon {
 
         debug!("New tunnel state: {:?}", tunnel_state);
 
-        if tunnel_state == Disconnected {
+        if let Disconnected = tunnel_state {
             self.state.disconnected();
         }
 
