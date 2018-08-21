@@ -7,10 +7,10 @@ platform:
   - x64
 
 cache:
-  - windows/nsis-plugins/bin
-  - windows/windns/bin
-  - windows/winfw/bin
-  - windows/winroute/bin
+  - windows\nsis-plugins\bin
+  - windows\windns\bin
+  - windows\winfw\bin
+  - windows\winroute\bin
 
 environment:
   global:
