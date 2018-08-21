@@ -547,6 +547,8 @@ export default class AppRenderer {
   _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
     if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
       return 'disconnected';
+    } else if (tunnelState === 'blocked') {
+      return 'connecting';
     } else if (tunnelState === 'connected' || tunnelState === 'connecting') {
       return tunnelState;
     }

@@ -10,4 +10,6 @@ pub enum TunnelStateTransition {
     Connected,
     /// Disconnecting tunnel.
     Disconnecting,
+    /// Tunnel is disconnected but secured by blocking all connections.
+    Blocked,
 }
