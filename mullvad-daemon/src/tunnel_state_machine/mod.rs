@@ -121,37 +121,59 @@ impl Stream for TunnelStateMachine {
     type Error = Error;
 
     fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
-        use self::EventConsequence::*;
+        let mut state = match self.current_state.take() {
+            Some(state) => state,
+            None => {
+                // State machine has halted
+                return Ok(Async::Ready(None));
+            }
+        };
 
-        let mut state = self
-            .current_state
-            .take()
-            .expect("State machine lost track of its state!");
-        let mut result = Ok(Async::Ready(None));
-        let mut event_was_ignored = true;
+        loop {
+            let event_consequence = state.handle_event(&mut self.commands);
+            let action = TunnelStateMachineAction::from(event_consequence);
 
-        while event_was_ignored {
-            let transition = state.handle_event(&mut self.commands);
-
-            event_was_ignored = match transition {
-                SameState(_) => true,
-                NewState(_) | NoEvents(_) => false,
-            };
-
-            result = match transition {
-                NewState(Ok(ref state)) | NewState(Err((_, ref state))) => {
-                    Ok(Async::Ready(Some(state.info())))
+            match action {
+                TunnelStateMachineAction::Repeat(returned_state) => {
+                    state = returned_state;
                 }
-                SameState(_) => result,
-                NoEvents(_) => Ok(Async::NotReady),
-            };
-
-            state = transition.into_wrapped_tunnel_state();
+                TunnelStateMachineAction::Notify(state, result) => {
+                    self.current_state = state;
+                    return result;
+                }
+            }
         }
+    }
+}
 
-        self.current_state = Some(state);
+/// Action the state machine should take, which is discovered base on an event consequence.
+///
+/// The action can be to execute another iteration or to notify that something happened. Executing
+/// another iteration happens when an event is received and ignored, which causes the tunnel state
+/// machine to stay in the same state. The state machine can notify its caller that a state
+/// transition has occurred, that it has finished, or that it has paused to wait for new events.
+enum TunnelStateMachineAction {
+    Repeat(TunnelStateWrapper),
+    Notify(
+        Option<TunnelStateWrapper>,
+        Poll<Option<TunnelStateTransition>, Error>,
+    ),
+}
 
-        result
+impl From<EventConsequence<TunnelStateWrapper>> for TunnelStateMachineAction {
+    fn from(event_consequence: EventConsequence<TunnelStateWrapper>) -> Self {
+        use self::EventConsequence::*;
+        use self::TunnelStateMachineAction::*;
+
+        match event_consequence {
+            NewState(Ok(state)) | NewState(Err((_, state))) => {
+                let transition = state.info();
+
+                Notify(Some(state), Ok(Async::Ready(Some(transition))))
+            }
+            SameState(state) => Repeat(state),
+            NoEvents(state) => Notify(Some(state), Ok(Async::NotReady)),
+        }
     }
 }
 
@@ -181,22 +203,6 @@ where
         match self {
             NoEvents(state) => handle_event(state),
             consequence => consequence,
-        }
-    }
-
-    /// Extracts the destination state as a `TunnelStateWrapper`.
-    ///
-    /// If the destination state isn't the original target state, an error is logged.
-    pub fn into_wrapped_tunnel_state(self) -> TunnelStateWrapper {
-        use self::EventConsequence::*;
-
-        match self {
-            NewState(Ok(wrapped_tunnel_state)) => wrapped_tunnel_state,
-            NewState(Err((error, wrapped_tunnel_state))) => {
-                error!("{}", error.chain_err(|| "Tunnel state transition failed"));
-                wrapped_tunnel_state
-            }
-            SameState(tunnel_state) | NoEvents(tunnel_state) => tunnel_state.into(),
         }
     }
 }
