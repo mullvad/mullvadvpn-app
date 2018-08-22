@@ -141,15 +141,29 @@ impl Stream for TunnelStateMachine {
                 NewState(_) | NoEvents(_) => false,
             };
 
-            result = match transition {
-                NewState(Ok(ref state)) | NewState(Err((_, ref state))) => {
-                    Ok(Async::Ready(Some(state.info())))
+            // These temporary bindings are here to guarantee that the result and state will be set.
+            // If the temporary bindings are not set the compiler will complain about using them
+            // at the end of the iteration without having them initialized.
+            let updated_result;
+            let updated_state;
+
+            match transition {
+                NewState(Ok(wrapped_state)) | NewState(Err((_, wrapped_state))) => {
+                    updated_result = Ok(Async::Ready(Some(wrapped_state.info())));
+                    updated_state = wrapped_state;
                 }
-                SameState(_) => result,
-                NoEvents(_) => Ok(Async::NotReady),
+                SameState(state) => {
+                    updated_result = result;
+                    updated_state = TunnelStateWrapper::from(state);
+                }
+                NoEvents(state) => {
+                    updated_result = Ok(Async::NotReady);
+                    updated_state = TunnelStateWrapper::from(state);
+                }
             };
 
-            state = transition.into_wrapped_tunnel_state();
+            result = updated_result;
+            state = updated_state;
         }
 
         self.current_state = Some(state);
@@ -185,24 +199,6 @@ where
         match self {
             NoEvents(state) => handle_event(state),
             consequence => consequence,
-        }
-    }
-
-    /// Extracts the destination state as a `TunnelStateWrapper`.
-    ///
-    /// If the destination state isn't the original target state, an error is logged.
-    pub fn into_wrapped_tunnel_state(self) -> TunnelStateWrapper {
-        use self::EventConsequence::*;
-
-        match self {
-            NewState(Ok(wrapped_tunnel_state)) => wrapped_tunnel_state,
-            NewState(Err((error, wrapped_tunnel_state))) => {
-                error!("{}", error.chain_err(|| "Tunnel state transition failed"));
-                wrapped_tunnel_state
-            }
-            SameState(tunnel_state) | NoEvents(tunnel_state) => {
-                TunnelStateWrapper::from(tunnel_state)
-            }
         }
     }
 }
