@@ -20,7 +20,6 @@ use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::time::{self, Duration, SystemTime};
 use std::{io, thread};
 
-use rand::distributions::{IndependentSample, Range};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
@@ -308,7 +307,7 @@ impl RelaySelector {
             None
         } else {
             // Pick a random number in the range 0 - total_weight. This choses the relay.
-            let mut i: u64 = Range::new(0, total_weight + 1).ind_sample(&mut self.rng);
+            let mut i: u64 = self.rng.gen_range(0, total_weight + 1);
             Some(
                 relays
                     .iter()
