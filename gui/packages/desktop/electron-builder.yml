@@ -93,6 +93,7 @@ linux:
     - deb
     - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
+  executableName: mullvad-vpn
   category: Network
   extraResources:
     - from: ../../../target/release/mullvad
