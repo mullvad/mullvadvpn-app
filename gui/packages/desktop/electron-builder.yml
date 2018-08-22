@@ -23,6 +23,10 @@ directories:
   buildResources: ../../../dist-assets/
   output: ../../../dist/
 
+# override package.json
+extraMetadata:
+  name: mullvad-vpn
+
 files:
   - package.json
   - init.js
