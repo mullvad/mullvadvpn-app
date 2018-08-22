@@ -1,7 +1,7 @@
 !include stdutils.nsh
 !include winver.nsh
 
-!addplugindir "${PROJECT_DIR}\windows\nsis-plugins\bin\Win32-Release"
+!addplugindir "${BUILD_RESOURCES_DIR}\..\windows\nsis-plugins\bin\Win32-Release"
 
 #
 # NOTES
@@ -55,12 +55,12 @@
 !macro ExtractDriver
 
 	SetOutPath "$TEMP\driver"
-	File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\*"
+	File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\*"
 
 	${If} ${IsWin7}
-		File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\ndis5\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\ndis5\*"
 	${Else}
-		File "${PROJECT_DIR}\dist-assets\binaries\windows\driver\ndis6\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\ndis6\*"
 	${EndIf}
 	
 !macroend
