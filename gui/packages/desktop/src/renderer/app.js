@@ -411,10 +411,7 @@ export default class AppRenderer {
     const actions = this._reduxActions;
     const latestVersionInfo = await this._daemonRpc.getVersionInfo();
     const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
-    const versionFromGui = remote.app
-      .getVersion()
-      .replace('.0-', '-') // remove the .0 in yyyy.x.0-zzz
-      .replace(/\.0$/, ''); // remove the .0 in yyyy.x.0
+    const versionFromGui = remote.app.getVersion().replace('.0', '');
 
     actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
     actions.version.updateLatest(latestVersionInfo);
