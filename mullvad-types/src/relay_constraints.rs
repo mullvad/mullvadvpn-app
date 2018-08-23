@@ -1,4 +1,4 @@
-use location::{CityCode, CountryCode};
+use location::{CityCode, CountryCode, Hostname};
 use CustomTunnelEndpoint;
 
 use std::fmt;
@@ -96,6 +96,8 @@ pub enum LocationConstraint {
     Country(CountryCode),
     /// A city is composed of a country code and a city code.
     City(CountryCode, CityCode),
+    /// An single hostname in a given city.
+    Hostname(CountryCode, CityCode, Hostname),
 }
 
 
