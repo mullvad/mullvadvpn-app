@@ -71,12 +71,15 @@ export default class WindowController {
         } else if (workArea.height < displaySize.height) {
           return workArea.y > 0 ? 'top' : 'bottom';
         } else {
-          return 'none';
+          return 'center';
         }
       }
 
+      case 'linux':
+        return this._isWindowReady ? 'last' : 'center';
+
       default:
-        return 'none';
+        return 'center';
     }
   }
 
@@ -113,19 +116,21 @@ export default class WindowController {
         y = trayBounds.y + (trayBounds.height - windowBounds.height) * 0.5;
         break;
 
-      case 'none':
+      case 'center':
         x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
         y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
+        break;
+
+      case 'last':
+        x = windowBounds.x;
+        y = windowBounds.y;
         break;
     }
 
     x = Math.min(Math.max(x, workArea.x), maxX);
     y = Math.min(Math.max(y, workArea.y), maxY);
 
-    return {
-      x: Math.round(x),
-      y: Math.round(y),
-    };
+    return { x, y };
   }
 
   // Installs display event handlers to update the window position on any changes in the display or workarea dimensions.
