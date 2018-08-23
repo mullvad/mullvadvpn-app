@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "target": "es2017",
+    "module": "commonjs",
+    "jsx": "react",
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "./src/*.ts",
+    "./src/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "test"
+  ]
+}
