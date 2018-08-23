@@ -24,7 +24,9 @@ impl Command for Relay {
             .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(
                 clap::SubCommand::with_name("set")
-                    .setting(clap::AppSettings::SubcommandRequired)
+                    .about(
+                        "Set relay server selection parameters. Such as location and port/protocol",
+                    ).setting(clap::AppSettings::SubcommandRequired)
                     .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a custom VPN relay")
@@ -67,6 +69,10 @@ impl Command for Relay {
                                     .help("The three letter city code")
                                     .index(2)
                                     .validator(city_code_validator),
+                            ).arg(
+                                clap::Arg::with_name("hostname")
+                                    .help("The relay hostname")
+                                    .index(3),
                             ),
                     ).subcommand(
                         clap::SubCommand::with_name("tunnel")
@@ -137,18 +143,32 @@ impl Relay {
     fn set_location(&self, matches: &clap::ArgMatches) -> Result<()> {
         let country = matches.value_of("country").unwrap();
         let city = matches.value_of("city");
+        let hostname = matches.value_of("hostname");
 
-        let location_constraint = match (country, city) {
-            ("any", None) => Constraint::Any,
-            ("any", _) => clap::Error::with_description(
+        let location_constraint = match (country, city, hostname) {
+            ("any", None, None) => Constraint::Any,
+            ("any", ..) => clap::Error::with_description(
                 "City can't be given when selecting 'any' country",
                 clap::ErrorKind::InvalidValue,
             ).exit(),
-            (country, None) => Constraint::Only(LocationConstraint::Country(country.to_owned())),
-            (country, Some(city)) => Constraint::Only(LocationConstraint::City(
+            (country, None, None) => {
+                Constraint::Only(LocationConstraint::Country(country.to_owned()))
+            }
+            (country, Some(city), None) => Constraint::Only(LocationConstraint::City(
                 country.to_owned(),
                 city.to_owned(),
             )),
+            (country, Some(city), Some(hostname)) => {
+                Constraint::Only(LocationConstraint::Hostname(
+                    country.to_owned(),
+                    city.to_owned(),
+                    hostname.to_owned(),
+                ))
+            }
+            (..) => clap::Error::with_description(
+                "Invalid country, city and hostname combination given",
+                clap::ErrorKind::InvalidValue,
+            ).exit(),
         };
 
         self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
