@@ -60,6 +60,13 @@ export default {
     paddingLeft: 20,
     paddingRight: 0,
   }),
+  cell_selected: Styles.createViewStyle({
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 20,
+    paddingRight: 0,
+    backgroundColor: colors.green,
+  }),
   sub_cell: Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
@@ -74,11 +81,18 @@ export default {
     paddingLeft: 40,
     backgroundColor: colors.green,
   }),
-  cell_selected: Styles.createViewStyle({
+  sub_sub_cell: Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
-    paddingLeft: 20,
     paddingRight: 0,
+    paddingLeft: 60,
+    backgroundColor: colors.blue20,
+  }),
+  sub_sub_cell__selected: Styles.createViewStyle({
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingRight: 0,
+    paddingLeft: 60,
     backgroundColor: colors.green,
   }),
   expand_chevron_hover: Styles.createViewStyle({
