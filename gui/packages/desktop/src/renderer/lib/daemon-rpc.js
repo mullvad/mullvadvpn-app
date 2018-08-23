@@ -199,6 +199,15 @@ const RelayListSchema = object({
           latitude: number,
           longitude: number,
           has_active_relays: boolean,
+          relays: arrayOf(
+            object({
+              hostname: string,
+              ipv4_addr_in: string,
+              ipv4_addr_exit: string,
+              include_in_country: boolean,
+              weight: number,
+            }),
+          ),
         }),
       ),
     }),
