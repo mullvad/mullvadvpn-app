@@ -70,8 +70,9 @@ impl ParsedRelays {
                 let city_code = city.code.clone();
                 let latitude = city.latitude;
                 let longitude = city.longitude;
-                relays.extend(city.relays.drain(..).map(|mut relay| {
-                    relay.location = Some(Location {
+                for relay in &mut city.relays {
+                    let mut relay_with_location = relay.clone();
+                    relay_with_location.location = Some(Location {
                         country: country_name.clone(),
                         country_code: country_code.clone(),
                         city: city_name.clone(),
@@ -79,8 +80,9 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
-                    relay
-                }));
+                    relays.push(relay_with_location);
+                    relay.tunnels.clear();
+                }
             }
         }
         ParsedRelays {

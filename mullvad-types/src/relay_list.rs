@@ -44,6 +44,7 @@ pub struct Relay {
     pub ipv4_addr_exit: Ipv4Addr,
     pub include_in_country: bool,
     pub weight: u64,
+    #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
     pub tunnels: RelayTunnels,
     #[serde(skip)]
     pub location: Option<Location>,
@@ -54,4 +55,15 @@ pub struct Relay {
 pub struct RelayTunnels {
     pub openvpn: Vec<OpenVpnEndpointData>,
     pub wireguard: Vec<WireguardEndpointData>,
+}
+
+impl RelayTunnels {
+    pub fn is_empty(&self) -> bool {
+        self.openvpn.is_empty() && self.wireguard.is_empty()
+    }
+
+    pub fn clear(&mut self) {
+        self.openvpn.clear();
+        self.wireguard.clear();
+    }
 }
