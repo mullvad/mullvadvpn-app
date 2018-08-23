@@ -3,7 +3,10 @@
 import { screen } from 'electron';
 import type { BrowserWindow, Tray, Display } from 'electron';
 
+type Position = { x: number, y: number };
+
 export default class WindowController {
+  _lastPosition: ?Position = null;
   _window: BrowserWindow;
   _tray: Tray;
   _isWindowReady = false;
@@ -29,6 +32,9 @@ export default class WindowController {
   }
 
   hide() {
+    const windowBounds = this._window.getBounds();
+
+    this._lastPosition = { x: windowBounds.x, y: windowBounds.y };
     this._window.hide();
   }
 
@@ -80,7 +86,7 @@ export default class WindowController {
     }
   }
 
-  _getWindowPosition(): { x: number, y: number } {
+  _getWindowPosition(): Position {
     const windowBounds = this._window.getBounds();
     const trayBounds = this._tray.getBounds();
 
@@ -114,18 +120,22 @@ export default class WindowController {
         break;
 
       case 'none':
-        x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
-        y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
+        if (this._lastPosition) {
+          x = this._lastPosition.x;
+          y = this._lastPosition.y;
+        } else {
+          x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
+          y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
+        }
         break;
     }
 
     x = Math.min(Math.max(x, workArea.x), maxX);
     y = Math.min(Math.max(y, workArea.y), maxY);
 
-    return {
-      x: Math.round(x),
-      y: Math.round(y),
-    };
+    this._lastPosition = { x: Math.round(x), y: Math.round(y) };
+
+    return { ...this._lastPosition };
   }
 
   // Installs display event handlers to update the window position on any changes in the display or workarea dimensions.
