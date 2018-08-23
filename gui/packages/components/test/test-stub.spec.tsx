@@ -1,3 +1,2 @@
-// @flow
 
 describe('No tests', () => {});
