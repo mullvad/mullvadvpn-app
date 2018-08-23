@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "allowJs": true,
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",
+    "strict": true,
+    "types": [
+      "mocha",
+      "chai",
+      "node"
+    ]
+  },
+  "include": [
+    "./src/*.ts",
+    "./src/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "test"
+  ]
+}
