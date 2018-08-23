@@ -2,6 +2,7 @@ use std::net::IpAddr;
 
 pub type CountryCode = String;
 pub type CityCode = String;
+pub type Hostname = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location {
