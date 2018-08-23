@@ -19,12 +19,21 @@ export type RelaySettingsRedux =
       },
     |};
 
+export type RelayLocationRelayRedux = {
+  hostname: string,
+  ipv4AddrIn: string,
+  ipv4AddrExit: string,
+  includeInCountry: boolean,
+  weight: number,
+};
+
 export type RelayLocationCityRedux = {
   name: string,
   code: string,
   latitude: number,
   longitude: number,
   hasActiveRelays: boolean,
+  relays: Array<RelayLocationRelayRedux>,
 };
 
 export type RelayLocationRedux = {
