@@ -114,6 +114,7 @@ export default class WindowController {
   _window: BrowserWindow;
   _windowPositioning: WindowPositioning;
   _isWindowReady = false;
+  _tray: Tray;
 
   get window(): BrowserWindow {
     return this._window;
@@ -121,6 +122,7 @@ export default class WindowController {
 
   constructor(window: BrowserWindow, tray: Tray) {
     this._window = window;
+    this._tray = tray;
 
     if (process.platform === 'linux') {
       this._windowPositioning = new StandaloneWindowPositioning();
@@ -156,6 +158,7 @@ export default class WindowController {
     const window = this._window;
 
     this._updatePosition();
+    this._notifyUpdateWindowShape();
 
     window.show();
     window.focus();
@@ -166,7 +169,15 @@ export default class WindowController {
     this._window.setPosition(x, y, false);
   }
 
-  // Installs display event handlers to update the window position on any changes in the display or workarea dimensions.
+  _notifyUpdateWindowShape() {
+    this._window.webContents.send('update-window-shape', {
+      trayBounds: this._tray.getBounds(),
+      windowBounds: this._window.getBounds(),
+    });
+  }
+
+  // Installs display event handlers to update the window position on any changes in the display or
+  // workarea dimensions.
   _installDisplayMetricsHandler() {
     screen.addListener('display-metrics-changed', this._onDisplayMetricsChanged);
     this._window.once('closed', () => {
@@ -177,6 +188,7 @@ export default class WindowController {
   _onDisplayMetricsChanged = (_event: any, _display: Display, changedMetrics: Array<string>) => {
     if (changedMetrics.includes('workArea') && this._window.isVisible()) {
       this._updatePosition();
+      this._notifyUpdateWindowShape();
     }
   };
 

@@ -1,6 +1,7 @@
 // @flow
 
 import log from 'electron-log';
+import { remote, webFrame, ipcRenderer } from 'electron';
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { Provider } from 'react-redux';
@@ -10,7 +11,6 @@ import {
   replace as replaceHistory,
 } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
-import { remote, webFrame, ipcRenderer } from 'electron';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
@@ -25,7 +25,9 @@ import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
 import daemonActions from './redux/daemon/actions';
+import windowActions from './redux/window/actions';
 
+import type { Rectangle } from 'electron';
 import type { RpcCredentials } from '../common/types';
 import type {
   DaemonRpcProtocol,
@@ -60,6 +62,7 @@ export default class AppRenderer {
       settings: bindActionCreators(settingsActions, dispatch),
       version: bindActionCreators(versionActions, dispatch),
       daemon: bindActionCreators(daemonActions, dispatch),
+      window: bindActionCreators(windowActions, dispatch),
       history: bindActionCreators(
         {
           push: pushHistory,
@@ -86,6 +89,17 @@ export default class AppRenderer {
         log.error(`Failed to shutdown tunnel: ${e.message}`);
       }
     });
+
+    ipcRenderer.on(
+      'update-window-shape',
+      (event, data: { trayBounds: Rectangle, windowBounds: Rectangle }) => {
+        const { trayBounds, windowBounds } = data;
+        const arrowPosition =
+          ((trayBounds.x - windowBounds.x) / (windowBounds.width - trayBounds.width)) * 100;
+
+        this._reduxActions.window.updateWindowArrowPosition(arrowPosition);
+      },
+    );
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
