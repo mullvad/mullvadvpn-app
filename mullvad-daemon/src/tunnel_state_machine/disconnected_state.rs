@@ -6,7 +6,7 @@ use talpid_core::firewall::Firewall;
 
 use super::{
     ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState,
-    TunnelStateWrapper,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 
 /// No tunnel is running.
@@ -28,10 +28,13 @@ impl TunnelState for DisconnectedState {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         _: Self::Bootstrap,
-    ) -> TunnelStateWrapper {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         Self::reset_security_policy(shared_values);
 
-        TunnelStateWrapper::from(DisconnectedState)
+        (
+            TunnelStateWrapper::from(DisconnectedState),
+            TunnelStateTransition::Disconnected,
+        )
     }
 
     fn handle_event(

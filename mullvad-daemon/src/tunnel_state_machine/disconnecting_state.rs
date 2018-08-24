@@ -6,7 +6,7 @@ use talpid_core::tunnel::CloseHandle;
 
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -56,7 +56,10 @@ impl DisconnectingState {
         }
     }
 
-    fn after_disconnect(self, shared_values: &mut SharedTunnelStateValues) -> TunnelStateWrapper {
+    fn after_disconnect(
+        self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
@@ -72,7 +75,7 @@ impl TunnelState for DisconnectingState {
     fn enter(
         _: &mut SharedTunnelStateValues,
         (close_handle, exited, after_disconnect): Self::Bootstrap,
-    ) -> TunnelStateWrapper {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let close_result = close_handle
             .close()
             .chain_err(|| "Failed to request tunnel monitor to close the tunnel");
@@ -81,10 +84,13 @@ impl TunnelState for DisconnectingState {
             error!("{}", error.display_chain());
         }
 
-        TunnelStateWrapper::from(DisconnectingState {
-            exited,
-            after_disconnect,
-        })
+        (
+            TunnelStateWrapper::from(DisconnectingState {
+                exited,
+                after_disconnect,
+            }),
+            TunnelStateTransition::Disconnecting,
+        )
     }
 
     fn handle_event(
