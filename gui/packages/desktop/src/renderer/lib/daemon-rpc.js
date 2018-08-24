@@ -185,6 +185,15 @@ export type RelayListCity = {
   latitude: number,
   longitude: number,
   has_active_relays: boolean,
+  relays: Array<RelayListHostname>,
+};
+
+export type RelayListHostname = {
+  hostname: string,
+  ipv4_addr_in: string,
+  ipv4_addr_exit: string,
+  include_in_country: boolean,
+  weight: number,
 };
 
 const RelayListSchema = object({
