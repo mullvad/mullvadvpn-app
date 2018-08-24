@@ -40,12 +40,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        parameters: TunnelParameters,
-    ) -> Result<Self> {
-        Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)?;
-
+    fn new(parameters: TunnelParameters) -> Result<Self> {
         let tunnel_endpoint = parameters.endpoint;
         let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
@@ -205,17 +200,17 @@ impl ConnectingState {
                 self.tunnel_parameters.allow_lan = allow_lan;
                 match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
                     Ok(()) => SameState(self),
-                    Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
-                        NewState(DisconnectingState::enter(
-                            shared_values,
-                            (
-                                self.close_handle,
-                                self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
-                            ),
-                        ))
-                    }
+                    Err(error) => NewState(DisconnectingState::enter(
+                        shared_values,
+                        (
+                            self.close_handle,
+                            self.tunnel_close_event,
+                            AfterDisconnect::Block(BlockCause::with_chain(
+                                error,
+                                BlockReason::SetSecurityPolicyError,
+                            )),
+                        ),
+                    )),
                 }
             }
         }
@@ -271,7 +266,16 @@ impl TunnelState for ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        match Self::new(shared_values, parameters) {
+        if let Err(error) =
+            Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)
+        {
+            return BlockedState::enter(
+                shared_values,
+                BlockCause::with_chain(error, BlockReason::SetSecurityPolicyError),
+            );
+        }
+
+        match Self::new(parameters) {
             Ok(connecting_state) => (
                 TunnelStateWrapper::from(connecting_state),
                 TunnelStateTransition::Connecting,

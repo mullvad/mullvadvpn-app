@@ -6,9 +6,9 @@ use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 use talpid_types::net::TunnelEndpoint;
 
 use super::{
-    AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
-    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper,
+    AfterDisconnect, BlockCause, BlockReason, ConnectingState, DisconnectingState,
+    EventConsequence, Result, ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 
 pub struct ConnectedStateBootstrap {
@@ -91,17 +91,17 @@ impl ConnectedState {
 
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
-                    Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
-                        NewState(DisconnectingState::enter(
-                            shared_values,
-                            (
-                                self.close_handle,
-                                self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
-                            ),
-                        ))
-                    }
+                    Err(error) => NewState(DisconnectingState::enter(
+                        shared_values,
+                        (
+                            self.close_handle,
+                            self.tunnel_close_event,
+                            AfterDisconnect::Block(BlockCause::with_chain(
+                                error,
+                                BlockReason::SetSecurityPolicyError,
+                            )),
+                        ),
+                    )),
                 }
             }
         }
