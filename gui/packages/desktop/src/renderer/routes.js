@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import TransitionContainer from './components/TransitionContainer';
-import PlatformWindow from './components/PlatformWindow';
+import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import LaunchPage from './containers/LaunchPage';
 import LoginPage from './containers/LoginPage';
 import ConnectPage from './containers/ConnectPage';
@@ -120,7 +120,7 @@ export default function makeRoutes(
         previousRoute = toRoute;
 
         return (
-          <PlatformWindow>
+          <PlatformWindowContainer>
             <TransitionContainer {...transitionProps}>
               <Switch key={location.key} location={location}>
                 <LaunchRoute exact path="/" component={LaunchPage} />
@@ -134,7 +134,7 @@ export default function makeRoutes(
                 <PrivateRoute exact path="/select-location" component={SelectLocationPage} />
               </Switch>
             </TransitionContainer>
-          </PlatformWindow>
+          </PlatformWindowContainer>
         );
       }}
     />
