@@ -36,6 +36,15 @@ function getRelayName(
           return city.name;
         }
       }
+    } else if (location.hostname) {
+      const [countryCode, cityCode, hostname] = location.hostname;
+      const country = relayLocations.find(({ code }) => code === countryCode);
+      if (country) {
+        const city = country.cities.find(({ code }) => code === cityCode);
+        if (city) {
+          return `${city.name} (${hostname})`;
+        }
+      }
     }
 
     return 'Unknown';
