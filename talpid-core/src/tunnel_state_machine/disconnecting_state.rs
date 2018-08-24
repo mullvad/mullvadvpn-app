@@ -4,9 +4,12 @@ use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
+use talpid_types::tunnel::BlockReason;
+
 use super::{
-    ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
+    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use tunnel::CloseHandle;
 
@@ -31,6 +34,11 @@ impl DisconnectingState {
             AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 _ => Nothing,
+            },
+            AfterDisconnect::Block(reason) => match event {
+                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
+                Ok(TunnelCommand::Disconnect) => Nothing,
+                _ => AfterDisconnect::Block(reason),
             },
             AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
@@ -63,6 +71,7 @@ impl DisconnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
+            AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
                 ConnectingState::enter(shared_values, tunnel_parameters)
             }
@@ -109,5 +118,6 @@ impl TunnelState for DisconnectingState {
 /// Which state should be transitioned to after disconnection is complete.
 pub enum AfterDisconnect {
     Nothing,
+    Block(BlockReason),
     Reconnect(TunnelParameters),
 }
