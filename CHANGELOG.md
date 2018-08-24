@@ -28,6 +28,10 @@ Line wrap the file at 100 chars.                                              Th
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
 
+### Fixed
+#### Linux
+- The app window is now shown in its previous location, instead of at the center of the screen.
+
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.
