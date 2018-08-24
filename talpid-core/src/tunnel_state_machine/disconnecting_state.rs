@@ -6,7 +6,7 @@ use futures::{Async, Future, Stream};
 
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
 use tunnel::CloseHandle;
 
@@ -57,7 +57,7 @@ impl DisconnectingState {
         }
     }
 
-    fn after_disconnect(self, shared_values: &mut SharedTunnelStateValues) -> StateEntryResult {
+    fn after_disconnect(self, shared_values: &mut SharedTunnelStateValues) -> TunnelStateWrapper {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
@@ -73,7 +73,7 @@ impl TunnelState for DisconnectingState {
     fn enter(
         _: &mut SharedTunnelStateValues,
         (close_handle, exited, after_disconnect): Self::Bootstrap,
-    ) -> StateEntryResult {
+    ) -> TunnelStateWrapper {
         thread::spawn(move || {
             let close_result = close_handle
                 .close()
@@ -84,10 +84,10 @@ impl TunnelState for DisconnectingState {
             }
         });
 
-        Ok(TunnelStateWrapper::from(DisconnectingState {
+        TunnelStateWrapper::from(DisconnectingState {
             exited,
             after_disconnect,
-        }))
+        })
     }
 
     fn handle_event(

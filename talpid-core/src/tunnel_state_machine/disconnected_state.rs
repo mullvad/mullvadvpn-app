@@ -3,8 +3,8 @@ use futures::sync::mpsc;
 use futures::Stream;
 
 use super::{
-    ConnectingState, Error, EventConsequence, SharedTunnelStateValues, StateEntryResult,
-    TunnelCommand, TunnelState, TunnelStateWrapper,
+    ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState,
+    TunnelStateWrapper,
 };
 use security::NetworkSecurity;
 
@@ -24,10 +24,13 @@ impl DisconnectedState {
 impl TunnelState for DisconnectedState {
     type Bootstrap = ();
 
-    fn enter(shared_values: &mut SharedTunnelStateValues, _: Self::Bootstrap) -> StateEntryResult {
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        _: Self::Bootstrap,
+    ) -> TunnelStateWrapper {
         Self::reset_security_policy(shared_values);
 
-        Ok(TunnelStateWrapper::from(DisconnectedState))
+        TunnelStateWrapper::from(DisconnectedState)
     }
 
     fn handle_event(
