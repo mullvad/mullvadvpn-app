@@ -49,6 +49,10 @@ class NormalRelaySettingsBuilder {
         this._payload.location = { only: { city: [country, city] } };
         return this;
       },
+      hostname: (country: string, city: string, hostname: string) => {
+        this._payload.location = { only: { hostname: [country, city, hostname] } };
+        return this;
+      },
       any: () => {
         this._payload.location = 'any';
         return this;
@@ -56,6 +60,11 @@ class NormalRelaySettingsBuilder {
       fromRaw: function(location: 'any' | RelayLocation) {
         if (location === 'any') {
           return this.any();
+        }
+
+        if (location.hostname) {
+          const [country, city, hostname] = location.hostname;
+          return this.hostname(country, city, hostname);
         }
 
         if (location.city) {
