@@ -15,6 +15,8 @@ import version from './version/reducers';
 import versionActions from './version/actions';
 import daemon from './daemon/reducers';
 import daemonActions from './daemon/actions';
+import windowReducer from './window/reducers';
+import windowActions from './window/actions';
 
 import type { Store, StoreEnhancer } from 'redux';
 import type { History } from 'history';
@@ -24,6 +26,7 @@ import type { SettingsReduxState } from './settings/reducers';
 import type { SupportReduxState } from './support/reducers';
 import type { VersionReduxState } from './version/reducers';
 import type { DaemonReduxState } from './daemon/reducers';
+import type { WindowReduxState } from './window/reducers';
 
 import type { AccountAction } from './account/actions';
 import type { ConnectionAction } from './connection/actions';
@@ -31,6 +34,7 @@ import type { SettingsAction } from './settings/actions';
 import type { SupportAction } from './support/actions';
 import type { VersionAction } from './version/actions';
 import type { DaemonAction } from './daemon/actions';
+import type { WindowAction } from './window/actions';
 
 export type ReduxState = {
   account: AccountReduxState,
@@ -39,6 +43,7 @@ export type ReduxState = {
   support: SupportReduxState,
   version: VersionReduxState,
   daemon: DaemonReduxState,
+  window: WindowReduxState,
 };
 
 export type ReduxAction =
@@ -47,7 +52,8 @@ export type ReduxAction =
   | SettingsAction
   | SupportAction
   | VersionAction
-  | DaemonAction;
+  | DaemonAction
+  | WindowAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
 export type ReduxDispatch = (action: ReduxAction) => any;
@@ -65,6 +71,7 @@ export default function configureStore(
     ...supportActions,
     ...versionActions,
     ...daemonActions,
+    ...windowActions,
     pushRoute: (route) => push(route),
     replaceRoute: (route) => replace(route),
   };
@@ -76,6 +83,7 @@ export default function configureStore(
     support,
     version,
     daemon,
+    window: windowReducer,
   };
 
   const middlewares = [router];
