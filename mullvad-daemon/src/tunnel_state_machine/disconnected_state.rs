@@ -14,7 +14,7 @@ pub struct DisconnectedState;
 
 impl DisconnectedState {
     fn reset_security_policy(shared_values: &mut SharedTunnelStateValues) {
-        debug!("Reset security policy");
+        debug!("Resetting security policy");
         if let Err(error) = shared_values.firewall.reset_policy() {
             let chained_error = Error::with_chain(error, "Failed to reset security policy");
             error!("{}", chained_error.display_chain());

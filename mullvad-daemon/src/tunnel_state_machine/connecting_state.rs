@@ -67,7 +67,7 @@ impl ConnectingState {
             allow_lan,
         };
 
-        debug!("Set security policy: {:?}", policy);
+        debug!("Setting security policy: {:?}", policy);
         shared_values
             .firewall
             .apply_policy(policy)
