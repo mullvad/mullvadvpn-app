@@ -13,9 +13,10 @@ use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonito
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
-    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
-    DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    AfterDisconnect, BlockCause, BlockReason, BlockedState, ConnectedState,
+    ConnectedStateBootstrap, DisconnectingState, EventConsequence, Result, ResultExt,
+    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use logging;
 
@@ -275,10 +276,10 @@ impl TunnelState for ConnectingState {
                 TunnelStateWrapper::from(connecting_state),
                 TunnelStateTransition::Connecting,
             ),
-            Err(error) => {
-                error!("{}", error.chain_err(|| "Failed to start tunnel"));
-                DisconnectedState::enter(shared_values, ())
-            }
+            Err(error) => BlockedState::enter(
+                shared_values,
+                BlockCause::with_chain(error, BlockReason::StartTunnelError),
+            ),
         }
     }
 

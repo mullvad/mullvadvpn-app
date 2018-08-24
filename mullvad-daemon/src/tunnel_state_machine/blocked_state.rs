@@ -7,7 +7,13 @@ use super::{
 };
 
 mod block_cause {
-    error_chain!{}
+    error_chain!{
+        errors {
+            StartTunnelError {
+                description("Failed to start connection to remote server")
+            }
+        }
+    }
 }
 
 pub use self::block_cause::Error as BlockCause;
