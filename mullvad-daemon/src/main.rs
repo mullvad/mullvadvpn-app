@@ -150,7 +150,7 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
-    pub fn shutdown(&mut self, tunnel_state: TunnelStateTransition) {
+    pub fn shutdown(&mut self, tunnel_state: &TunnelStateTransition) {
         use self::DaemonExecutionState::*;
 
         match self {
@@ -350,7 +350,7 @@ impl Daemon {
         }
 
         self.tunnel_state = tunnel_state;
-        self.security_state = match tunnel_state {
+        self.security_state = match self.tunnel_state {
             Disconnected | Connecting => SecurityState::Unsecured,
             Connected | Blocked | Disconnecting => SecurityState::Secured,
         };
@@ -607,7 +607,7 @@ impl Daemon {
     }
 
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
-        self.state.shutdown(self.tunnel_state);
+        self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
 
         Ok(())
