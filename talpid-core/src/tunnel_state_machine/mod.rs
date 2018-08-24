@@ -148,8 +148,7 @@ impl TunnelStateMachine {
             NetworkSecurityImpl::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
         let mut shared_values = SharedTunnelStateValues { security };
 
-        let initial_state = TunnelStateWrapper::new(&mut shared_values, ())
-            .expect("Failed to create initial tunnel state");
+        let initial_state = TunnelStateWrapper::new(&mut shared_values, ());
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
@@ -199,7 +198,7 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
         use self::TunnelStateMachineAction::*;
 
         match event_consequence {
-            NewState(Ok(state_wrapper)) | NewState(Err((_, state_wrapper))) => {
+            NewState(state_wrapper) => {
                 let transition = state_wrapper.info();
                 Notify(Some(state_wrapper), Ok(Async::Ready(Some(transition))))
             }
@@ -218,7 +217,7 @@ struct SharedTunnelStateValues {
 /// Asynchronous result of an attempt to progress a state.
 enum EventConsequence<T: TunnelState> {
     /// Transition to a new state.
-    NewState(StateEntryResult),
+    NewState(TunnelStateWrapper),
     /// An event was received, but it was ignored by the state so no transition is performed.
     SameState(T),
     /// No events were received, the event loop should block until one becomes available.
@@ -247,11 +246,6 @@ where
     }
 }
 
-/// Result of entering a `T: TunnelState`.
-///
-/// It is either the state itself when successful, or an error paired with a fallback state.
-type StateEntryResult = ::std::result::Result<TunnelStateWrapper, (Error, TunnelStateWrapper)>;
-
 /// Trait that contains the method all states should implement to handle an event and advance the
 /// state machine.
 trait TunnelState: Into<TunnelStateWrapper> + Sized {
@@ -265,7 +259,7 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
-    ) -> StateEntryResult;
+    ) -> TunnelStateWrapper;
 
     /// Main state function.
     ///
@@ -299,7 +293,7 @@ impl TunnelStateWrapper {
     fn new(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: <DisconnectedState as TunnelState>::Bootstrap,
-    ) -> StateEntryResult {
+    ) -> TunnelStateWrapper {
         DisconnectedState::enter(shared_values, bootstrap)
     }
 
