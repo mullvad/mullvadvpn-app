@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - The CLI command to list relays is now shorter, `mullvad relay list` instead of
   `mullvad relay list locations`.
 
+### Fixed
+- Fix incorrect window position when using external display.
+
 
 ## [2018.2] - 2018-08-13
 This release is identical to 2018.2-beta3
