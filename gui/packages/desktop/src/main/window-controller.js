@@ -84,8 +84,8 @@ export default class WindowController {
     const windowBounds = this._window.getBounds();
     const trayBounds = this._tray.getBounds();
 
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const workArea = primaryDisplay.workArea;
+    const activeDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const workArea = activeDisplay.workArea;
     const placement = this._getTrayPlacement();
     const maxX = workArea.x + workArea.width - windowBounds.width;
     const maxY = workArea.y + workArea.height - windowBounds.height;
