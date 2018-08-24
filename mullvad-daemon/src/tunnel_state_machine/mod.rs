@@ -147,7 +147,7 @@ impl TunnelStateMachine {
         let firewall = FirewallProxy::new(cache_dir).chain_err(|| ErrorKind::FirewallError)?;
         let mut shared_values = SharedTunnelStateValues { firewall };
 
-        let initial_state = TunnelStateWrapper::enter(&mut shared_values, ());
+        let (initial_state, _transition) = TunnelStateWrapper::enter(&mut shared_values, ());
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
@@ -207,9 +207,7 @@ impl From<EventConsequence<TunnelStateWrapper>> for TunnelStateMachineAction {
         use self::TunnelStateMachineAction::*;
 
         match event_consequence {
-            NewState(state) => {
-                let transition = state.info();
-
+            NewState((state, transition)) => {
                 Notify(Some(state), Ok(Async::Ready(Some(transition))))
             }
             SameState(state) => Repeat(state),
@@ -227,7 +225,7 @@ struct SharedTunnelStateValues {
 /// Asynchronous result of an attempt to progress a state.
 enum EventConsequence<T: TunnelState> {
     /// Transition to a new state.
-    NewState(TunnelStateWrapper),
+    NewState((TunnelStateWrapper, TunnelStateTransition)),
     /// An event was received, but it was ignored by the state so no transition is performed.
     SameState(T),
     /// No events were received, the event loop should block until one becomes available.
@@ -269,7 +267,7 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
-    ) -> TunnelStateWrapper;
+    ) -> (TunnelStateWrapper, TunnelStateTransition);
 
     /// Main state function.
     ///
@@ -299,18 +297,6 @@ enum TunnelStateWrapper {
     Disconnecting(DisconnectingState),
 }
 
-impl TunnelStateWrapper {
-    /// Returns information describing the state.
-    fn info(&self) -> TunnelStateTransition {
-        match *self {
-            TunnelStateWrapper::Disconnected(_) => TunnelStateTransition::Disconnected,
-            TunnelStateWrapper::Connecting(_) => TunnelStateTransition::Connecting,
-            TunnelStateWrapper::Connected(_) => TunnelStateTransition::Connected,
-            TunnelStateWrapper::Disconnecting(_) => TunnelStateTransition::Disconnecting,
-        }
-    }
-}
-
 macro_rules! impl_from_for_tunnel_state {
     ($state_variant:ident($state_type:ident)) => {
         impl From<$state_type> for TunnelStateWrapper {
@@ -332,7 +318,7 @@ impl TunnelState for TunnelStateWrapper {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
-    ) -> TunnelStateWrapper {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         DisconnectedState::enter(shared_values, bootstrap)
     }
 
