@@ -23,6 +23,7 @@ use talpid_core::mpsc::IntoSender;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use self::blocked_state::BlockedState;
+pub use self::blocked_state::{BlockCause, BlockReason};
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
@@ -127,7 +128,7 @@ pub enum TunnelStateTransition {
     Connecting,
     Connected,
     Disconnecting,
-    Blocked,
+    Blocked(BlockCause),
 }
 
 /// Asynchronous handling of the tunnel state machine.
