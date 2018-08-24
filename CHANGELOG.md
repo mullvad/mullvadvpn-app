@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
+- Ability to expand cities with multiple servers and configure the app to use a specific server.
 
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
