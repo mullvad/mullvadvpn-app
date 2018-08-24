@@ -5,8 +5,9 @@ use futures::{Async, Future, Stream};
 use talpid_core::tunnel::CloseHandle;
 
 use super::{
-    ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    BlockCause, BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
+    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -31,6 +32,7 @@ impl DisconnectingState {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 _ => Nothing,
             },
+            AfterDisconnect::Block(block_cause) => AfterDisconnect::Block(block_cause),
             AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
@@ -62,6 +64,7 @@ impl DisconnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
+            AfterDisconnect::Block(block_cause) => BlockedState::enter(shared_values, block_cause),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
                 ConnectingState::enter(shared_values, tunnel_parameters)
             }
@@ -106,5 +109,6 @@ impl TunnelState for DisconnectingState {
 /// Which state should be transitioned to after disconnection is complete.
 pub enum AfterDisconnect {
     Nothing,
+    Block(BlockCause),
     Reconnect(TunnelParameters),
 }
