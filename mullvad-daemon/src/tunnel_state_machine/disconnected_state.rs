@@ -5,8 +5,8 @@ use futures::Stream;
 use talpid_core::firewall::Firewall;
 
 use super::{
-    ConnectingState, Error, EventConsequence, SharedTunnelStateValues, StateEntryResult,
-    TunnelCommand, TunnelState, TunnelStateWrapper,
+    ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState,
+    TunnelStateWrapper,
 };
 
 /// No tunnel is running.
@@ -25,10 +25,13 @@ impl DisconnectedState {
 impl TunnelState for DisconnectedState {
     type Bootstrap = ();
 
-    fn enter(shared_values: &mut SharedTunnelStateValues, _: Self::Bootstrap) -> StateEntryResult {
+    fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        _: Self::Bootstrap,
+    ) -> TunnelStateWrapper {
         Self::reset_security_policy(shared_values);
 
-        Ok(TunnelStateWrapper::from(DisconnectedState))
+        TunnelStateWrapper::from(DisconnectedState)
     }
 
     fn handle_event(
