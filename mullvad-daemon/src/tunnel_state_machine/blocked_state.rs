@@ -6,19 +6,26 @@ use super::{
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 
+mod block_cause {
+    error_chain!{}
+}
+
+pub use self::block_cause::Error as BlockCause;
+pub use self::block_cause::ErrorKind as BlockReason;
+
 /// No tunnel is running.
 pub struct BlockedState;
 
 impl TunnelState for BlockedState {
-    type Bootstrap = ();
+    type Bootstrap = BlockCause;
 
     fn enter(
         _: &mut SharedTunnelStateValues,
-        _: Self::Bootstrap,
+        block_cause: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         (
             TunnelStateWrapper::from(BlockedState),
-            TunnelStateTransition::Blocked,
+            TunnelStateTransition::Blocked(block_cause),
         )
     }
 

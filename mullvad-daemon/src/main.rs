@@ -352,7 +352,7 @@ impl Daemon {
         self.tunnel_state = tunnel_state;
         self.security_state = match self.tunnel_state {
             Disconnected | Connecting => SecurityState::Unsecured,
-            Connected | Blocked | Disconnecting => SecurityState::Secured,
+            Connected | Blocked(_) | Disconnecting => SecurityState::Secured,
         };
 
         self.broadcast_state();
