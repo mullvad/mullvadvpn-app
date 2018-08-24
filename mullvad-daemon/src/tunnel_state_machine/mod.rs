@@ -147,7 +147,7 @@ impl TunnelStateMachine {
         let firewall = FirewallProxy::new(cache_dir).chain_err(|| ErrorKind::FirewallError)?;
         let mut shared_values = SharedTunnelStateValues { firewall };
 
-        let initial_state = TunnelStateWrapper::enter(&mut shared_values, ())
+        let initial_state = TunnelStateWrapper::new(&mut shared_values, ())
             .expect("Failed to create initial tunnel state");
 
         Ok(TunnelStateMachine {
@@ -163,28 +163,18 @@ impl Stream for TunnelStateMachine {
     type Error = Error;
 
     fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
-        let mut state = match self.current_state.take() {
-            Some(state) => state,
-            None => {
-                // State machine has halted
-                return Ok(Async::Ready(None));
-            }
-        };
-
-        loop {
-            let event_consequence = state.handle_event(&mut self.commands, &mut self.shared_values);
-            let action = TunnelStateMachineAction::from(event_consequence);
-
-            match action {
-                TunnelStateMachineAction::Repeat(returned_state) => {
-                    state = returned_state;
+        while let Some(state_wrapper) = self.current_state.take() {
+            match state_wrapper.handle_event(&mut self.commands, &mut self.shared_values) {
+                TunnelStateMachineAction::Repeat(repeat_state_wrapper) => {
+                    self.current_state = Some(repeat_state_wrapper);
                 }
-                TunnelStateMachineAction::Notify(state, result) => {
-                    self.current_state = state;
+                TunnelStateMachineAction::Notify(state_wrapper, result) => {
+                    self.current_state = state_wrapper;
                     return result;
                 }
             }
         }
+        Ok(Async::Ready(None))
     }
 }
 
@@ -202,19 +192,18 @@ enum TunnelStateMachineAction {
     ),
 }
 
-impl From<EventConsequence<TunnelStateWrapper>> for TunnelStateMachineAction {
-    fn from(event_consequence: EventConsequence<TunnelStateWrapper>) -> Self {
+impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
+    fn from(event_consequence: EventConsequence<T>) -> Self {
         use self::EventConsequence::*;
         use self::TunnelStateMachineAction::*;
 
         match event_consequence {
-            NewState(Ok(state)) | NewState(Err((_, state))) => {
-                let transition = state.info();
-
-                Notify(Some(state), Ok(Async::Ready(Some(transition))))
+            NewState(Ok(state_wrapper)) | NewState(Err((_, state_wrapper))) => {
+                let transition = state_wrapper.info();
+                Notify(Some(state_wrapper), Ok(Async::Ready(Some(transition))))
             }
-            SameState(state) => Repeat(state),
-            NoEvents(state) => Notify(Some(state), Ok(Async::NotReady)),
+            SameState(state) => Repeat(state.into()),
+            NoEvents(state) => Notify(Some(state.into()), Ok(Async::NotReady)),
             Finished => Notify(None, Ok(Async::Ready(None))),
         }
     }
@@ -306,6 +295,39 @@ enum TunnelStateWrapper {
 }
 
 impl TunnelStateWrapper {
+    fn new(
+        shared_values: &mut SharedTunnelStateValues,
+        bootstrap: <DisconnectedState as TunnelState>::Bootstrap,
+    ) -> StateEntryResult {
+        DisconnectedState::enter(shared_values, bootstrap)
+    }
+
+    fn handle_event(
+        self,
+        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> TunnelStateMachineAction {
+        macro_rules! handle_event {
+            ( $($state:ident),* $(,)* ) => {
+                match self {
+                    $(
+                        TunnelStateWrapper::$state(state) => {
+                            let event_consequence = state.handle_event(commands, shared_values);
+                            TunnelStateMachineAction::from(event_consequence)
+                        }
+                    )*
+                }
+            }
+        }
+
+        handle_event! {
+            Disconnected,
+            Connecting,
+            Connected,
+            Disconnecting,
+        }
+    }
+
     /// Returns information describing the state.
     fn info(&self) -> TunnelStateTransition {
         match *self {
@@ -331,49 +353,6 @@ impl_from_for_tunnel_state!(Disconnected(DisconnectedState));
 impl_from_for_tunnel_state!(Connecting(ConnectingState));
 impl_from_for_tunnel_state!(Connected(ConnectedState));
 impl_from_for_tunnel_state!(Disconnecting(DisconnectingState));
-
-impl TunnelState for TunnelStateWrapper {
-    type Bootstrap = <DisconnectedState as TunnelState>::Bootstrap;
-
-    fn enter(
-        shared_values: &mut SharedTunnelStateValues,
-        bootstrap: Self::Bootstrap,
-    ) -> StateEntryResult {
-        DisconnectedState::enter(shared_values, bootstrap)
-    }
-
-    fn handle_event(
-        self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<TunnelStateWrapper> {
-        use self::EventConsequence::*;
-
-        macro_rules! handle_event {
-            ( $($state:ident),* $(,)* ) => {
-                match self {
-                    $(
-                        TunnelStateWrapper::$state(state) => {
-                            match state.handle_event(commands, shared_values) {
-                                NewState(tunnel_state) => NewState(tunnel_state),
-                                SameState(state) => SameState(TunnelStateWrapper::$state(state)),
-                                NoEvents(state) => NoEvents(TunnelStateWrapper::$state(state)),
-                                Finished => Finished,
-                            }
-                        }
-                    )*
-                }
-            }
-        }
-
-        handle_event! {
-            Disconnected,
-            Connecting,
-            Connected,
-            Disconnecting,
-        }
-    }
-}
 
 impl Debug for TunnelStateWrapper {
     fn fmt(&self, formatter: &mut Formatter) -> FmtResult {
