@@ -5,7 +5,8 @@ use talpid_types::net::TunnelEndpoint;
 
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
-    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use security::{NetworkSecurity, SecurityPolicy};
 use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
@@ -151,11 +152,14 @@ impl TunnelState for ConnectedState {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
-    ) -> TunnelStateWrapper {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let connected_state = ConnectedState::from(bootstrap);
 
         match connected_state.set_security_policy(shared_values) {
-            Ok(()) => TunnelStateWrapper::from(connected_state),
+            Ok(()) => (
+                TunnelStateWrapper::from(connected_state),
+                TunnelStateTransition::Connected,
+            ),
             Err(error) => {
                 error!("{}", error.chain_err(|| "Failed to set security policy"));
                 DisconnectingState::enter(

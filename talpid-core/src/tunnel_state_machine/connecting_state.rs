@@ -13,7 +13,7 @@ use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 use super::{
     AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
     DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
 use security::{NetworkSecurity, SecurityPolicy};
@@ -269,9 +269,12 @@ impl TunnelState for ConnectingState {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
-    ) -> TunnelStateWrapper {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match Self::new(shared_values, parameters) {
-            Ok(connecting_state) => TunnelStateWrapper::from(connecting_state),
+            Ok(connecting_state) => (
+                TunnelStateWrapper::from(connecting_state),
+                TunnelStateTransition::Connecting,
+            ),
             Err(error) => {
                 error!("{}", error.chain_err(|| "Failed to start tunnel"));
                 DisconnectedState::enter(shared_values, ())
