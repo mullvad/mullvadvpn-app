@@ -9,6 +9,9 @@ use super::{
 mod block_cause {
     error_chain!{
         errors {
+            SetSecurityPolicyError {
+                description("Failed to set security policy")
+            }
             StartTunnelError {
                 description("Failed to start connection to remote server")
             }
