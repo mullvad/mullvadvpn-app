@@ -47,7 +47,10 @@ export type BackendState = {
 };
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type RelayLocation = {| city: [string, string] |} | {| country: string |};
+export type RelayLocation =
+  | {| hostname: [string, string, string] |}
+  | {| city: [string, string] |}
+  | {| country: string |};
 
 type OpenVpnConstraints = {
   port: 'any' | { only: number },
@@ -115,6 +118,9 @@ const RelaySettingsSchema = oneOf(
     normal: object({
       location: constraint(
         oneOf(
+          object({
+            hostname: arrayOf(string),
+          }),
           object({
             city: arrayOf(string),
           }),
