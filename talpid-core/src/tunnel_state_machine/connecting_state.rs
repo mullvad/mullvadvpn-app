@@ -14,12 +14,15 @@ use talpid_types::tunnel::BlockReason;
 
 use super::{
     AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
-    EventConsequence, Result, ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
 use security::{NetworkSecurity, SecurityPolicy};
-use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
+use tunnel::{
+    CloseHandle, Error as TunnelError, ErrorKind as TunnelErrorKind, TunnelEvent, TunnelMetadata,
+    TunnelMonitor,
+};
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
@@ -30,6 +33,17 @@ const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
 #[cfg(not(windows))]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
+
+error_chain! {
+    errors {
+        EnableIpv6Error {
+            description("Failed to enable IPv6")
+        }
+        StartTunnelError {
+            description("Failed to start tunnel")
+        }
+    }
+}
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -101,7 +115,8 @@ impl ConnectingState {
                 warn!("Tunnel state machine stopped before tunnel event was received");
             }
         };
-        let log_file = Self::prepare_tunnel_log_file(&parameters)?;
+        let log_file =
+            Self::prepare_tunnel_log_file(&parameters).chain_err(|| ErrorKind::StartTunnelError)?;
 
         TunnelMonitor::new(
             parameters.endpoint,
@@ -111,7 +126,12 @@ impl ConnectingState {
             log_file.as_ref().map(PathBuf::as_path),
             &parameters.resource_dir,
             on_tunnel_event,
-        ).chain_err(|| "Unable to start tunnel monitor")
+        ).map_err(|error| match error {
+            error @ TunnelError(TunnelErrorKind::EnableIpv6Error, _) => {
+                Error::with_chain(error, ErrorKind::EnableIpv6Error)
+            }
+            error => Error::with_chain(error, ErrorKind::StartTunnelError),
+        })
     }
 
     fn prepare_tunnel_log_file(parameters: &TunnelParameters) -> Result<Option<PathBuf>> {
@@ -293,9 +313,14 @@ impl TunnelState for ConnectingState {
                 TunnelStateTransition::Connecting,
             ),
             Err(error) => {
-                let chained_error = error.chain_err(|| "Failed to start tunnel");
-                error!("{}", chained_error.display_chain());
-                BlockedState::enter(shared_values, (BlockReason::StartTunnelError, allow_lan))
+                error!("{}", error.display_chain());
+
+                let block_reason = match *error.kind() {
+                    ErrorKind::EnableIpv6Error => BlockReason::Ipv6Unavailable,
+                    ErrorKind::StartTunnelError | _ => BlockReason::StartTunnelError,
+                };
+
+                BlockedState::enter(shared_values, (block_reason, allow_lan))
             }
         }
     }
