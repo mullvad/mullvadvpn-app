@@ -5,6 +5,9 @@ import type { BlockReason } from './lib/daemon-rpc';
 export class BlockedError extends Error {
   constructor(reason: BlockReason) {
     switch (reason) {
+      case 'enable_ipv6_error':
+        super('Could not configure IPv6, please enable it on your system or disable it in the app');
+        break;
       case 'set_security_policy_error':
         super('Failed to apply security policy');
         break;
