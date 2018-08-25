@@ -42,6 +42,7 @@ const LocationSchema = object({
 });
 
 export type BlockReason =
+  | 'enable_ipv6_error'
   | 'set_security_policy_error'
   | 'start_tunnel_error'
   | 'no_matching_relay'
@@ -221,6 +222,7 @@ const AccountDataSchema = object({
 });
 
 const allBlockReasons: Array<BlockReason> = [
+  'enable_ipv6_error',
   'set_security_policy_error',
   'start_tunnel_error',
   'no_matching_relay',
