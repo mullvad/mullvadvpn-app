@@ -25,10 +25,10 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
-use mullvad_types::states::DaemonState;
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
 use talpid_types::net::TunnelOptions;
+use talpid_types::tunnel::TunnelStateTransition;
 
 use futures::stream::{self, Stream};
 use futures::sync::oneshot;
@@ -177,7 +177,7 @@ impl DaemonRpcClient {
         self.call("get_relay_settings", &NO_ARGS)
     }
 
-    pub fn get_state(&mut self) -> Result<DaemonState> {
+    pub fn get_state(&mut self) -> Result<TunnelStateTransition> {
         self.call("get_state", &NO_ARGS)
     }
 
@@ -220,7 +220,7 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
 
-    pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<DaemonState>> {
+    pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<TunnelStateTransition>> {
         let client = self.rpc_client.clone();
         let mut current_state = self.get_state()?;
         let first_message = stream::once(Ok(current_state.clone()));
