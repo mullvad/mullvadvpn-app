@@ -1,7 +1,7 @@
 extern crate pfctl;
 extern crate tokio_core;
 
-use super::{Firewall, SecurityPolicy};
+use super::{NetworkSecurity, SecurityPolicy};
 
 use ipnetwork::IpNetwork;
 
@@ -25,19 +25,18 @@ error_chain! {
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &'static str = "mullvad";
 
-/// The macOS firewall implementation. Acting as converter between the `Firewall` trait API
-/// and actual PF firewall rules and other protective measures to keep the `SecurityPolicy`.
-pub struct PacketFilter {
+/// The macOS firewall and DNS implementation.
+pub struct MacosNetworkSecurity {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     dns_monitor: DnsMonitor,
 }
 
-impl Firewall for PacketFilter {
+impl NetworkSecurity for MacosNetworkSecurity {
     type Error = Error;
 
-    fn new<P: AsRef<Path>>(_cache_dir: P) -> Result<Self> {
-        Ok(PacketFilter {
+    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
+        Ok(MacosNetworkSecurity {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             dns_monitor: DnsMonitor::new()?,
@@ -62,7 +61,7 @@ impl Firewall for PacketFilter {
     }
 }
 
-impl PacketFilter {
+impl MacosNetworkSecurity {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
