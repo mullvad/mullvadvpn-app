@@ -6,9 +6,10 @@ use chrono;
 use log;
 
 use std::fmt;
-use std::fs;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+
+use talpid_core::logging::rotate_log;
 
 error_chain! {
     errors {
@@ -16,6 +17,9 @@ error_chain! {
             description("Unable to open log file for writing")
             display("Unable to open log file for writing: {}", path.display())
         }
+    }
+    links {
+        RotateLog(::talpid_core::logging::Error, ::talpid_core::logging::ErrorKind);
     }
     foreign_links {
         SetLoggerError(log::SetLoggerError);
@@ -137,16 +141,4 @@ fn escape_newlines(text: String) -> String {
 #[cfg(windows)]
 fn escape_newlines(text: String) -> String {
     text.replace("\n", LINE_SEPARATOR)
-}
-
-pub fn rotate_log(file: &Path) -> Result<()> {
-    let backup = file.with_extension("old.log");
-    fs::rename(file, backup).unwrap_or_else(|error| {
-        if error.kind() != io::ErrorKind::NotFound {
-            warn!("Failed to rotate log file ({})", error);
-        }
-    });
-
-    fs::File::create(file).chain_err(|| "Unable to create new log file")?;
-    Ok(())
 }

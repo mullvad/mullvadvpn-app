@@ -47,6 +47,9 @@ pub mod process;
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;
 
+/// Helper function to preserve previous log files.
+pub mod logging;
+
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
 
