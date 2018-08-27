@@ -49,7 +49,7 @@ impl ConnectedState {
             allow_lan: self.tunnel_parameters.allow_lan,
         };
 
-        debug!("Set security policy: {:?}", policy);
+        debug!("Setting security policy: {:?}", policy);
         shared_values
             .firewall
             .apply_policy(policy)
