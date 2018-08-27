@@ -9,10 +9,8 @@ license = "GPL-3.0"
 atty = "0.2"
 duct = "0.11"
 error-chain = "0.12"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-# jsonrpc-core = { path = "../../jsonrpc/core" }
-# jsonrpc-macros = { path = "../../jsonrpc/macros" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "construct-ipc-server-from-endpoint" }
+jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "construct-ipc-server-from-endpoint" }
 libc = "0.2.20"
 log = "0.4"
 openvpn-plugin = { version = "0.3", features = ["serde"] }
