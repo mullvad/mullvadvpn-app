@@ -52,7 +52,7 @@ pub mod resources;
 pub use resources::get_resource_dir;
 
 mod rpc_address;
-pub use rpc_address::get_rpc_address_path;
+pub use rpc_address::get_rpc_socket_path;
 
 mod settings;
 pub use settings::settings_dir;
