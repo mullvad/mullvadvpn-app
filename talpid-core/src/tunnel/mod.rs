@@ -144,7 +144,7 @@ impl TunnelMonitor {
         tunnel_endpoint: TunnelEndpoint,
         tunnel_options: &TunnelOptions,
         tunnel_alias: Option<OsString>,
-        account_token: &str,
+        username: &str,
         log: Option<&Path>,
         resource_dir: &Path,
         on_event: L,
@@ -156,8 +156,8 @@ impl TunnelMonitor {
             TunnelEndpointData::OpenVpn(_) => (),
             TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
         }
-        let user_pass_file = Self::create_user_pass_file(account_token)
-            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+        let user_pass_file =
+            Self::create_user_pass_file(username).chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
             tunnel_alias,
@@ -249,7 +249,7 @@ impl TunnelMonitor {
         }
     }
 
-    fn create_user_pass_file(account_token: &str) -> io::Result<mktemp::TempFile> {
+    fn create_user_pass_file(username: &str) -> io::Result<mktemp::TempFile> {
         let temp_file = mktemp::TempFile::new();
         debug!(
             "Writing user-pass credentials to {}",
@@ -257,7 +257,7 @@ impl TunnelMonitor {
         );
         let mut file = fs::File::create(&temp_file)?;
         Self::set_user_pass_file_permissions(&file)?;
-        write!(file, "{}\n-\n", account_token)?;
+        write!(file, "{}\n-\n", username)?;
         Ok(temp_file)
     }
 
