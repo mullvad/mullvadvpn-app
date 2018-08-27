@@ -1,10 +1,21 @@
 #[macro_use]
+extern crate log;
+
+#[macro_use]
 extern crate error_chain;
+
+
+#[macro_use]
+extern crate jsonrpc_client_core;
+extern crate jsonrpc_client_ipc;
+
+extern crate futures;
 extern crate mullvad_paths;
 extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
+extern crate tokio_core;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -18,41 +29,19 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::DaemonState;
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
-use talpid_ipc::WsIpcClient;
 use talpid_types::net::TunnelOptions;
 
-use platform_specific::ensure_written_by_admin;
+use jsonrpc_client_core::{Client, ClientHandle, Future};
+pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
+use jsonrpc_client_ipc::IpcTransport;
+use tokio_core::reactor;
+
+mod reader;
 
 error_chain! {
     errors {
         AuthenticationError {
             description("Failed to authenticate the connection with the daemon")
-        }
-
-        EmptyRpcFile(path: PathBuf) {
-            description("RPC connection file is empty")
-            display("RPC connection file \"{}\" is empty", path.display())
-        }
-
-        InsecureRpcFile(path: PathBuf) {
-            description(
-                "RPC connection file is insecure because it might not have been written by an \
-                administrator user"
-            )
-            display(
-                "RPC connection file \"{}\" is insecure because it might not have been written by \
-                an administrator user", path.display()
-            )
-        }
-
-        MissingRpcCredentials(path: PathBuf) {
-            description("no credentials found in RPC connection file")
-            display("no credentials found in RPC connection file {}", path.display())
-        }
-
-        ReadRpcFileError(path: PathBuf) {
-            description("Failed to read RPC connection information")
-            display("Failed to read RPC connection information from {}", path.display())
         }
 
         RpcCallError(method: String) {
@@ -69,73 +58,96 @@ error_chain! {
             description("Failed to start RPC client")
             display("Failed to start RPC client to {}", address)
         }
+
+        TokioError {
+            description("Failed to setup a standalone event loop")
+        }
+
+        TransportError {
+            description("Failed to setup a transport")
+        }
     }
     links {
         UnknownRpcAddressPath(mullvad_paths::Error, mullvad_paths::ErrorKind);
+        RpcFileError(reader::Error, reader::ErrorKind);
     }
 }
 
 static NO_ARGS: [u8; 0] = [];
 
-pub struct DaemonRpcClient {
-    rpc_client: WsIpcClient,
+fn new_standalone_transport<
+    P: AsRef<Path> + Send,
+    F: Send + 'static + FnOnce(String, reactor::Handle) -> Result<T>,
+    T: jsonrpc_client_core::Transport,
+>(
+    path: P,
+    transport_func: F,
+) -> Result<DaemonRpcClient> {
+    use futures::sync::oneshot;
+    use reader::RpcCredentialsReader;
+    use std::thread;
+    use tokio_core::reactor;
+    let (address, credentials) = RpcCredentialsReader::new(path).read()?;
+    let (tx, rx) = oneshot::channel();
+    thread::spawn(move || match spawn_transport(address, transport_func) {
+        Err(e) => tx
+            .send(Err(e))
+            .expect("Failed to send error back to caller"),
+        Ok((mut core, client, client_handle)) => {
+            tx.send(Ok(client_handle))
+                .expect("Failed to send client handle");
+            if let Err(e) = core.run(client) {
+                error!("JSON-RPC client failed: {}", e.description());
+            }
+        }
+    });
+
+    let client_handle = rx.wait().chain_err(|| ErrorKind::TransportError)??;
+    DaemonRpcClient::new(client_handle, credentials)
 }
 
+pub fn new_standalone_ipc_client() -> Result<DaemonRpcClient> {
+    new_standalone_transport(&mullvad_paths::get_rpc_address_path()?, |path, handle| {
+        IpcTransport::new(&path, &handle).chain_err(|| ErrorKind::TransportError)
+    })
+}
+
+fn spawn_transport<
+    F: Send + FnOnce(String, reactor::Handle) -> Result<T>,
+    T: jsonrpc_client_core::Transport,
+>(
+    address: String,
+    transport_func: F,
+) -> Result<(reactor::Core, Client<T>, ClientHandle)> {
+    let core = reactor::Core::new().chain_err(|| ErrorKind::TokioError)?;
+    let (client, client_handle) = transport_func(address, core.handle())?.into_client();
+    Ok((core, client, client_handle))
+}
+
+pub struct DaemonRpcClient {
+    rpc_client: jsonrpc_client_core::ClientHandle,
+    methods: DaemonMethods,
+}
+
+
 impl DaemonRpcClient {
-    pub fn new() -> Result<Self> {
-        Self::with_rpc_address_file(mullvad_paths::get_rpc_address_path()?)
-    }
-
-    pub fn with_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
-        ensure_written_by_admin(&file_path)?;
-
-        let (address, credentials) = Self::read_rpc_file(file_path)?;
-
-        Self::with_address_and_credentials(address, credentials)
-    }
-
-    pub fn with_insecure_rpc_address_file<P: AsRef<Path>>(file_path: P) -> Result<Self> {
-        let (address, credentials) = Self::read_rpc_file(file_path)?;
-
-        Self::with_address_and_credentials(address, credentials)
-    }
-
-    fn with_address_and_credentials(address: String, credentials: String) -> Result<Self> {
-        let rpc_client =
-            WsIpcClient::connect(&address).chain_err(|| ErrorKind::StartRpcClient(address))?;
-        let mut instance = DaemonRpcClient { rpc_client };
+    pub fn new(rpc_client: ClientHandle, credentials: String) -> Result<Self> {
+        let methods = DaemonMethods::new(rpc_client.clone());
+        let mut instance = DaemonRpcClient {
+            rpc_client,
+            methods,
+        };
 
         instance
-            .auth(&credentials)
+            .methods()
+            .auth(credentials)
+            .wait()
             .chain_err(|| ErrorKind::AuthenticationError)?;
 
         Ok(instance)
     }
 
-    fn read_rpc_file<P>(file_path: P) -> Result<(String, String)>
-    where
-        P: AsRef<Path>,
-    {
-        let file_path = file_path.as_ref();
-        let rpc_file = File::open(file_path)
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
-
-        let reader = BufReader::new(rpc_file);
-        let mut lines = reader.lines();
-
-        let address = lines
-            .next()
-            .ok_or_else(|| ErrorKind::EmptyRpcFile(file_path.to_owned()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
-        let credentials = lines
-            .next()
-            .ok_or_else(|| ErrorKind::MissingRpcCredentials(file_path.to_owned()))?
-            .chain_err(|| ErrorKind::ReadRpcFileError(file_path.to_owned()))?;
-
-        Ok((address, credentials))
-    }
-
-    pub fn auth(&mut self, credentials: &str) -> Result<()> {
+    pub fn auth(&mut self, credentials: String) -> Result<()> {
         self.call("auth", &[credentials])
     }
 
@@ -211,6 +223,14 @@ impl DaemonRpcClient {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
+    pub fn from_client_handle(rpc_client: ClientHandle) -> Self {
+        let methods = DaemonMethods::new(rpc_client.clone());
+        DaemonRpcClient {
+            rpc_client,
+            methods,
+        }
+    }
+
     pub fn shutdown(&mut self) -> Result<()> {
         self.call("shutdown", &NO_ARGS)
     }
@@ -219,13 +239,19 @@ impl DaemonRpcClient {
         self.call("update_relay_settings", &[update])
     }
 
-    pub fn call<A, O>(&mut self, method: &str, args: &A) -> Result<O>
+
+    pub fn methods(&mut self) -> &mut DaemonMethods {
+        &mut self.methods
+    }
+
+    pub fn call<A, O>(&mut self, method: &'static str, args: &A) -> Result<O>
     where
-        A: Serialize,
-        O: for<'de> Deserialize<'de>,
+        A: Serialize + Send + 'static,
+        O: for<'de> Deserialize<'de> + Send + 'static,
     {
         self.rpc_client
-            .call(method, args)
+            .call_method(method, args)
+            .wait()
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
 
@@ -241,117 +267,53 @@ impl DaemonRpcClient {
         let subscribe_method = format!("{}_subscribe", event);
         let unsubscribe_method = format!("{}_unsubscribe", event);
 
-        self.rpc_client
-            .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
-            .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
+        // TODO Add subscription support back
+        // self.rpc_client
+        //     .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
+        //     .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
 
         Ok(event_rx)
     }
 }
+jsonrpc_client!{pub struct DaemonMethods{
 
-#[cfg(unix)]
-mod platform_specific {
-    use std::os::unix::fs::MetadataExt;
+    pub fn auth(&mut self, credentials: String) -> Future<()>;
 
-    use super::*;
+    pub fn connect(&mut self) -> Future<()>;
 
-    pub fn ensure_written_by_admin<P: AsRef<Path>>(path: P) -> Result<()> {
-        let path = path.as_ref();
-        let metadata = path
-            .metadata()
-            .chain_err(|| ErrorKind::ReadRpcFileError(path.to_owned()))?;
+    pub fn disconnect(&mut self) -> Future<()>;
 
-        let is_owned_by_root = metadata.uid() == 0;
-        let is_read_only_by_non_owner = (metadata.mode() & 0o022) == 0;
+    pub fn get_account(&mut self) -> Future<Option<AccountToken>>;
 
-        ensure!(
-            is_owned_by_root && is_read_only_by_non_owner,
-            ErrorKind::InsecureRpcFile(path.to_owned())
-        );
+    pub fn get_account_data(&mut self, account: AccountToken) -> Future<AccountData>;
 
-        Ok(())
-    }
-}
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Future<()>;
 
-#[cfg(windows)]
-mod platform_specific {
-    extern crate winapi;
+    pub fn get_allow_lan(&mut self) -> Future<bool>;
 
-    use std::iter::once;
-    use std::os::windows::ffi::OsStrExt;
-    use std::ptr;
+    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Future<()>;
 
-    use self::winapi::shared::winerror::ERROR_SUCCESS;
-    use self::winapi::um::accctrl::SE_FILE_OBJECT;
-    use self::winapi::um::aclapi::GetNamedSecurityInfoW;
-    use self::winapi::um::securitybaseapi::IsWellKnownSid;
-    use self::winapi::um::winbase::LocalFree;
-    use self::winapi::um::winnt::{
-        WinBuiltinAdministratorsSid, OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR, PSID,
-    };
+    pub fn get_auto_connect(&mut self) -> Future<bool>;
 
-    use super::*;
+    pub fn get_current_location(&mut self) -> Future<GeoIpLocation>;
 
-    mod errors {
-        error_chain! {
-            errors {
-                GetSecurityInfoError {
-                    description("Failed to get security information of RPC address file")
-                }
+    pub fn get_current_version(&mut self) -> Future<String>;
 
-                OwnerNotAdmin {
-                    description("Owner of RPC address file is not an administrator")
-                }
-            }
-        }
-    }
-    use self::errors::{ErrorKind as WinErrorKind, Result as WinResult};
+    pub fn get_relay_locations(&mut self) -> Future<RelayList>;
 
-    pub fn ensure_written_by_admin<P: AsRef<Path>>(file_path: P) -> Result<()> {
-        let path = file_path.as_ref();
+    pub fn get_relay_settings(&mut self) -> Future<RelaySettings>;
 
-        ensure_owned_by_admin(&path).chain_err(|| ErrorKind::InsecureRpcFile(path.to_owned()))?;
+    pub fn get_state(&mut self) -> Future<DaemonState>;
 
-        Ok(())
-    }
+    pub fn get_tunnel_options(&mut self) -> Future<TunnelOptions>;
 
-    fn ensure_owned_by_admin<P: AsRef<Path>>(path: P) -> WinResult<()> {
-        let file_path: Vec<u16> = path
-            .as_ref()
-            .as_os_str()
-            .encode_wide()
-            .chain(once(0))
-            .collect();
+    pub fn get_version_info(&mut self) -> Future<AppVersionInfo>;
 
-        unsafe {
-            let mut owner_sid: PSID = ptr::null_mut();
-            let mut security_descriptor: PSECURITY_DESCRIPTOR = ptr::null_mut();
+    pub fn set_account(&mut self, account: Option<AccountToken>) ->  Future<()>;
 
-            let get_security_info_result = GetNamedSecurityInfoW(
-                file_path.as_ptr(),
-                SE_FILE_OBJECT,
-                OWNER_SECURITY_INFORMATION,
-                &mut owner_sid,
-                ptr::null_mut(),
-                ptr::null_mut(),
-                ptr::null_mut(),
-                &mut security_descriptor,
-            );
+    pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Future<()>;
 
-            ensure!(
-                get_security_info_result == ERROR_SUCCESS,
-                WinErrorKind::GetSecurityInfoError
-            );
+    pub fn shutdown(&mut self) -> Future<()>;
 
-            let sid_check_result = IsWellKnownSid(owner_sid, WinBuiltinAdministratorsSid);
-
-            if !LocalFree(security_descriptor as *mut _).is_null() {
-                panic!("Failed to deallocate security descriptor");
-            }
-
-            ensure!(sid_check_result != 0, WinErrorKind::OwnerNotAdmin);
-
-            Ok(())
-        }
-    }
-}
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Future<()>;
+}}
