@@ -37,9 +37,14 @@ Line wrap the file at 100 chars.                                              Th
   having a create account form first.
 - The CLI command to list relays is now shorter, `mullvad relay list` instead of
   `mullvad relay list locations`.
+- Replaced Websockets with IPC connections for JSON-RPC, with the hope of
+  improving reliability on windows.
 
 ### Fixed
 - Fix incorrect window position when using external display.
+
+### Broken
+- The CLI command `status listen` is currently broken.
 
 
 ## [2018.2] - 2018-08-13
