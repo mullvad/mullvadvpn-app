@@ -8,6 +8,7 @@ use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
+use talpid_core::logging;
 use talpid_core::security::{NetworkSecurity, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
@@ -17,7 +18,6 @@ use super::{
     DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
     StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
-use logging;
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
