@@ -15,9 +15,6 @@ jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", branch = "mast
 jsonrpc-ipc-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
-tokio-core = "0.1"
-ws = { git = "https://github.com/tomusdrw/ws-rs" }
-url = "1.4"
 
 [dev-dependencies]
 assert_matches = "1.0"
@@ -25,3 +22,4 @@ env_logger = "0.5"
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 uuid = { version = "0.6", features = ["v4"] }
 futures = "0.1.23"
+tokio-core = "0.1"

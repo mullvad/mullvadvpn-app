@@ -10,28 +10,22 @@
 
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
-extern crate log;
 
 extern crate serde;
-#[macro_use]
 extern crate serde_json;
 
 extern crate jsonrpc_core;
 extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
-#[macro_use]
+
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
-extern crate tokio_core;
-extern crate url;
-extern crate ws;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
-use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
+use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
+
 
 use std::fmt;
-
 
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
@@ -40,6 +34,10 @@ error_chain!{
     errors {
         IpcServerError {
             description("Error in IPC server")
+        }
+
+        PermissionsError {
+            description("Unable to set permissions for IPC endpoint")
         }
     }
 }
@@ -64,13 +62,25 @@ impl IpcServer {
         M: Metadata + Default,
         E: MetaExtractor<M>,
     {
-        ServerBuilder::new(handler)
-            .session_meta_extractor(meta_extractor)
+        let security_attributes = SecurityAttributes::allow_everyone_create()
+            .chain_err(|| ErrorKind::PermissionsError)?;
+        let server = ServerBuilder::with_meta_extractor(handler, meta_extractor)
+            .set_security_attributes(security_attributes)
             .start(&path)
+            .chain_err(|| ErrorKind::IpcServerError)
             .map(|server| IpcServer {
                 path: path.to_owned(),
-                server: server,
-            }).chain_err(|| ErrorKind::IpcServerError)
+                server,
+            })?;
+
+        #[cfg(unix)]
+        {
+            use std::fs;
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&path, PermissionsExt::from_mode(0o766))
+                .chain_err(|| ErrorKind::PermissionsError)?;
+        }
+        Ok(server)
     }
 
     /// Returns the uds/named pipe path this `IpcServer` is listening on.
@@ -86,7 +96,7 @@ impl IpcServer {
     /// Consumes the server and waits for it to finish. Get a `CloseHandle` before calling this
     /// if you want to be able to shut the server down.
     pub fn wait(self) {
-        self.server.wait()
+        self.server.wait();
     }
 }
 
@@ -99,7 +109,6 @@ impl fmt::Debug for IpcServer {
             .finish()
     }
 }
-
 
 #[derive(Clone)]
 pub struct CloseHandle(jsonrpc_ipc_server::CloseHandle);

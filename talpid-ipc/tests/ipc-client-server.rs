@@ -16,7 +16,7 @@ use futures::sync::oneshot;
 use futures::Future;
 use tokio_core::reactor::Core;
 
-use jsonrpc_client_core::Error as ClientError;
+use jsonrpc_client_core::{Error as ClientError, Transport};
 use jsonrpc_core::{Error, IoHandler};
 use std::sync::{mpsc, Mutex};
 use std::time::Duration;
@@ -47,7 +47,7 @@ fn can_call_rpcs_on_server() {
 
     let (server, rx) = create_server();
     let server_path = server.path().to_owned();
-    let mut client = create_client(server_path);
+    let client = create_client(server_path);
 
     let _result: () = client.call_method("foo", &[97]).wait().unwrap();
     assert_eq!(Ok(97), rx.recv_timeout(Duration::from_millis(500)));
@@ -62,7 +62,7 @@ fn can_call_rpcs_on_server() {
 #[test]
 #[should_panic]
 fn ipc_client_invalid_url() {
-    create_client("INVALID ID".to_owned());
+    let _client = create_client("INVALID ID".to_owned());
 }
 
 fn create_server() -> (talpid_ipc::IpcServer, mpsc::Receiver<i64>) {
@@ -91,8 +91,8 @@ fn create_client(ipc_path: String) -> jsonrpc_client_core::ClientHandle {
             jsonrpc_client_ipc::IpcTransport::new(&ipc_path, &core.handle())
                 .expect("failed to construct a transport")
                 .into_client();
-        tx.send(client_handle);
-        core.run(client);
+        tx.send(client_handle).unwrap();
+        core.run(client).unwrap();
     });
 
     let handle = rx.wait().expect("Failed to construct a valid client");
