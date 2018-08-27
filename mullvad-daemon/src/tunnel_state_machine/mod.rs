@@ -28,9 +28,12 @@ use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
 
 error_chain! {
     errors {
+        /// An error occurred while setting up the network security.
         NetworkSecurityError {
             description("Network security error")
         }
+        /// An error occurred while attempting to set up the event loop for the tunnel state
+        /// machine.
         ReactorError {
             description("Failed to initialize tunnel state machine event loop executor")
         }
