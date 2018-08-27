@@ -13,6 +13,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@mullvad/components": "0.1.0",
+    "JSONStream": "^1.3.4",
     "babel-runtime": "^6.26.0",
     "connected-react-router": "^4.3.0",
     "d3-geo-projection": "^2.3.2",
