@@ -1,15 +1,19 @@
 // @flow
 import jsonrpc from 'jsonrpc-lite';
-import { Server, WebSocket as MockWebSocket } from 'mock-socket';
-import JsonRpcTransport, { TimeOutError } from '../src/renderer/lib/jsonrpc-transport';
+import { Server } from 'mock-socket';
+import JsonRpcTransport, {
+  WebsocketTransport,
+  TimeOutError,
+} from '../src/renderer/lib/jsonrpc-transport';
 
 describe('JSON RPC transport', () => {
   const WEBSOCKET_URL = 'ws://localhost:8080';
+  const CONN_PARAMS = { address: WEBSOCKET_URL };
   let server: Server, transport: JsonRpcTransport;
 
   beforeEach(() => {
     server = new Server(WEBSOCKET_URL);
-    transport = new JsonRpcTransport((url) => new MockWebSocket(url));
+    transport = new JsonRpcTransport(new WebsocketTransport());
   });
 
   afterEach(() => {
@@ -30,7 +34,7 @@ describe('JSON RPC transport', () => {
       });
     });
 
-    await transport.connect(WEBSOCKET_URL);
+    await transport.connect(CONN_PARAMS);
     const sendPromise = transport.send('invalid-method');
 
     return expect(sendPromise).to.eventually.be.rejectedWith('Method not found');
@@ -46,7 +50,7 @@ describe('JSON RPC transport', () => {
       });
     });
 
-    await transport.connect(WEBSOCKET_URL);
+    await transport.connect(CONN_PARAMS);
 
     const decoyPromise = transport.send('a decoy', [], 100);
     const messagePromise = transport.send('a message', [], 100);
@@ -58,7 +62,7 @@ describe('JSON RPC transport', () => {
   });
 
   it('should timeout if no response is returned', async () => {
-    await transport.connect(WEBSOCKET_URL);
+    await transport.connect(CONN_PARAMS);
     const sendPromise = transport.send('timeout-message', {}, 1);
 
     return expect(sendPromise).to.eventually.be.rejectedWith(TimeOutError, 'Request timed out');
@@ -74,7 +78,7 @@ describe('JSON RPC transport', () => {
       });
     });
 
-    await transport.connect(WEBSOCKET_URL);
+    await transport.connect(CONN_PARAMS);
 
     const eventPromiseHelper = (() => {
       let borrowedResolve: ?(mixed) => void;
