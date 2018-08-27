@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "node unpatch-yarn.js",
     "flow": "flow",
     "lint": "eslint \"packages/**/*.js\"",
     "format": "yarn run private:format --write",
