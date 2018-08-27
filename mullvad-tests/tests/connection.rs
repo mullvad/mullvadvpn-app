@@ -129,17 +129,17 @@ fn authentication_credentials() {
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
     assert_eq!(
-        mock_plugin_client.authenticate_with(&String::new()),
+        mock_plugin_client.authenticate_with(String::new()),
         Ok(false)
     );
     assert_eq!(
-        mock_plugin_client.authenticate_with(&"fake-secret".to_owned()),
+        mock_plugin_client.authenticate_with("fake-secret".to_owned()),
         Ok(false)
     );
     assert_eq!(mock_plugin_client.authenticate(), Ok(true));
     // Ensure it doesn't accept additional incorrect credentials
     assert_eq!(
-        mock_plugin_client.authenticate_with(&"different-secret".to_owned()),
+        mock_plugin_client.authenticate_with("different-secret".to_owned()),
         Ok(false)
     );
 }
