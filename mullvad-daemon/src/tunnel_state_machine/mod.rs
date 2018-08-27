@@ -17,8 +17,8 @@ use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use mullvad_types::account::AccountToken;
-use talpid_core::firewall::{NetworkSecurity, NetworkSecurityImpl};
 use talpid_core::mpsc::IntoSender;
+use talpid_core::security::{NetworkSecurity, NetworkSecurityImpl};
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};

@@ -8,7 +8,7 @@ use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
-use talpid_core::firewall::{NetworkSecurity, SecurityPolicy};
+use talpid_core::security::{NetworkSecurity, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
