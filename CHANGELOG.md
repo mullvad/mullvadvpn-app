@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
   having a create account form first.
 - The CLI command to list relays is now shorter, `mullvad relay list` instead of
   `mullvad relay list locations`.
+- Replace WebSockets with Unix domain sockets/Named pipes for IPC. The location
+  of the socket can be controlled with `MULLVAD_RPC_SOCKET_PATH`.
 
 ### Fixed
 - Fix incorrect window position when using external display.
