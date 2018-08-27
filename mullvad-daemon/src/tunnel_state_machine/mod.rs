@@ -113,11 +113,17 @@ pub enum TunnelCommand {
 /// Information necessary to open a tunnel.
 #[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
+    /// Tunnel enpoint to connect to.
     pub endpoint: TunnelEndpoint,
+    /// Tunnel connection options.
     pub options: TunnelOptions,
+    /// Directory to store tunnel log file.
     pub log_dir: Option<PathBuf>,
+    /// Resource directory path.
     pub resource_dir: PathBuf,
+    /// Account token to use for setting up the tunnel.
     pub account_token: AccountToken,
+    /// Should LAN access be allowed outside the tunnel.
     pub allow_lan: bool,
 }
 
