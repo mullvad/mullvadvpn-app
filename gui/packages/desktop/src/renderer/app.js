@@ -418,16 +418,7 @@ export default class AppRenderer {
   }
 
   async _connectToDaemon(): Promise<void> {
-    let credentials;
-    try {
-      credentials = await this._requestCredentials();
-    } catch (error) {
-      log.error(`Cannot request the RPC credentials: ${error.message}`);
-      return;
-    }
-
-    this._credentials = credentials;
-    this._daemonRpc.connect(credentials.connectionString);
+    this._daemonRpc.connect({ path: getIpcPath() });
   }
 
   async _onOpenConnection() {
@@ -436,17 +427,6 @@ export default class AppRenderer {
 
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
-
-    // authenticate once connected
-    const credentials = this._credentials;
-    try {
-      if (!credentials) {
-        throw new Error('Credentials cannot be unset after connection is established.');
-      }
-      await this._authenticate(credentials.sharedSecret);
-    } catch (error) {
-      log.error(`Cannot authenticate: ${error.message}`);
-    }
 
     // attempt to restore the session
     try {
@@ -506,15 +486,6 @@ export default class AppRenderer {
       // take user back to the launch screen `/`.
       actions.history.replace('/');
     }
-  }
-
-  _requestCredentials(): Promise<RpcCredentials> {
-    return new Promise((resolve) => {
-      ipcRenderer.once('daemon-connection-ready', (_event, credentials: RpcCredentials) => {
-        resolve(credentials);
-      });
-      ipcRenderer.send('discover-daemon-connection');
-    });
   }
 
   async _subscribeStateListener() {
@@ -655,3 +626,11 @@ class AccountDataState {
     }
   }
 }
+
+const getIpcPath = (): string => {
+  if (process.platform === 'win32') {
+    return '//./pipe/mullvad_rpc_socket';
+  } else {
+    return '/tmp/mullvad_rpc_socket';
+  }
+};
