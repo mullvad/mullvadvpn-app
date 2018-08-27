@@ -4,6 +4,8 @@ import { EventEmitter } from 'events';
 import log from 'electron-log';
 import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
+import net from 'net';
+import JSONStream from 'JSONStream';
 
 export type UnansweredRequest = {
   resolve: (mixed) => void,
@@ -90,11 +92,11 @@ export class SubscriptionError extends Error {
   }
 }
 
-export class ConnectionError extends Error {
+export class WebSocketError extends Error {
   _code: number;
 
   constructor(code: number) {
-    super(ConnectionError.reason(code));
+    super(WebSocketError.reason(code));
     this._code = code;
   }
 
@@ -123,70 +125,59 @@ const DEFAULT_TIMEOUT_MILLIS = 5000;
 export default class JsonRpcTransport extends EventEmitter {
   _unansweredRequests: Map<string, UnansweredRequest> = new Map();
   _subscriptions: Map<string | number, (mixed) => void> = new Map();
-  _webSocket: ?WebSocket;
-  _websocketFactory: (string) => WebSocket;
+  _transport: Transport;
 
-  constructor(websocketFactory: ?(string) => WebSocket) {
+  constructor(transport: Transport) {
     super();
-    this._websocketFactory =
-      websocketFactory || ((connectionString) => new WebSocket(connectionString));
+
+    this._transport = transport;
   }
 
   /// Connect websocket
-  connect(connectionString: string): Promise<void> {
+  connect(connectionParams: Object): Promise<void> {
     return new Promise((resolve, reject) => {
       this.disconnect();
 
-      log.info('Connecting to websocket', connectionString);
-
-      const webSocket = this._websocketFactory(connectionString);
+      log.info('Connecting to transport with params', connectionParams);
 
       // A flag used to determine if Promise was resolved.
       let isPromiseResolved = false;
 
-      webSocket.onopen = () => {
-        log.info('Websocket is connected');
+      const transport = this._transport;
+
+      transport.set_on_open(() => {
+        log.info('Transport is connected');
         this.emit('open');
 
         // Resolve the Promise
         resolve();
         isPromiseResolved = true;
-      };
+      });
 
-      webSocket.onmessage = (event) => {
-        const data = event.data;
-        if (typeof data === 'string') {
-          this._onMessage(data);
-        } else {
-          log.error('Got invalid reply from the server', event);
-        }
-      };
+      transport.set_on_message((obj) => {
+        this._onMessage(obj);
+      });
 
-      webSocket.onclose = (event) => {
-        log.info(`The websocket connection closed with code: ${event.code}`);
-
+      transport.set_on_close((error: ?Error) => {
         // Remove all subscriptions since they are connection based
         this._subscriptions.clear();
 
-        // 1000 is a code used for normal connection closure.
-        const connectionError = event.code === 1000 ? null : new ConnectionError(event.code);
-
-        this.emit('close', connectionError);
+        this.emit('close', error);
 
         // Prevent rejecting a previously resolved Promise.
         if (!isPromiseResolved) {
-          reject(connectionError);
+          reject(error);
         }
-      };
+      });
+      transport.connect(connectionParams);
 
-      this._webSocket = webSocket;
+      this._transport = transport;
     });
   }
 
   disconnect() {
-    if (this._webSocket) {
-      this._webSocket.close();
-      this._webSocket = null;
+    if (this._transport) {
+      this._transport.close();
     }
   }
 
@@ -211,8 +202,8 @@ export default class JsonRpcTransport extends EventEmitter {
 
   send(action: string, data: mixed, timeout: number = DEFAULT_TIMEOUT_MILLIS): Promise<mixed> {
     return new Promise((resolve, reject) => {
-      const webSocket = this._webSocket;
-      if (!webSocket) {
+      const transport = this._transport;
+      if (!transport) {
         reject(new Error('Websocket is not connected.'));
         return;
       }
@@ -230,7 +221,7 @@ export default class JsonRpcTransport extends EventEmitter {
 
       try {
         log.silly('Sending message', id, action);
-        webSocket.send(JSON.stringify(message));
+        transport.send(JSON.stringify(message));
       } catch (error) {
         log.error(`Failed sending RPC message "${action}": ${error.message}`);
 
@@ -272,9 +263,14 @@ export default class JsonRpcTransport extends EventEmitter {
     }
   }
 
-  _onMessage(message: string) {
-    const result = jsonrpc.parse(message);
-    const messages = Array.isArray(result) ? result : [result];
+  _onMessage(obj: Object) {
+    let messages = [];
+    try {
+      const message = jsonrpc.parseObject(obj);
+      messages = Array.isArray(message) ? message : [message];
+    } catch (error) {
+      log.error(`Failed to parse JSON-RPC message: ${error} for object`);
+    }
 
     for (const message of messages) {
       if (message.type === 'notification') {
@@ -317,5 +313,182 @@ export default class JsonRpcTransport extends EventEmitter {
     } else {
       log.warn(`Got reply to ${id} but no one was waiting for it`);
     }
+  }
+}
+
+interface Transport {
+  close(): void;
+  set_on_open(callback: (event: Event) => any): void;
+  set_on_message(callback: (Object) => void): void;
+  set_on_close(callback: (error: ?Error) => void): void;
+  send(message: string): void;
+  connect(params: Object): void;
+}
+
+export class WebsocketTransport implements Transport {
+  ws: ?WebSocket;
+  open_cb: any;
+  message_cb: (Object) => void;
+  close_cb: (event: ?Error) => void;
+
+  constructor(ws: ?WebSocket) {
+    this.ws = ws;
+  }
+
+  close() {
+    if (this.ws) this.ws.close();
+  }
+
+  set_on_open(cb: (ev: Event) => void): void {
+    this.open_cb = cb;
+    if (this.ws) this.ws.onopen = cb;
+  }
+
+  set_on_message(cb: (Object) => void): void {
+    this.message_cb = cb;
+  }
+
+  set_on_close(cb: (event: ?Error) => void): void {
+    this.close_cb = cb;
+  }
+
+  send(msg: string) {
+    this.ws && this.ws.send(msg);
+  }
+
+  connect(params: Object): void {
+    if (!this.ws) {
+      this.ws = new WebSocket(params.address);
+    }
+    this.ws.close();
+    this.ws = new WebSocket(params.address);
+    this.ws.onopen = (ev) => {
+      this.open_cb && this.open_cb(ev);
+    };
+    this.ws.onmessage = (event) => {
+      if (!this.message_cb) {
+        return;
+      }
+
+      try {
+        const data = event.data;
+        if (typeof data === 'string') {
+          const msg = JSON.parse(data);
+          this.message_cb(msg);
+        } else {
+          throw event;
+        }
+      } catch (error) {
+        log.error('Got invalid reply from server: ', error);
+      }
+    };
+    this.ws.onclose = (event) => {
+      if (!this.close_cb) {
+        log.warn('No callback for capturing websocket closure set');
+        return;
+      }
+      log.info(`The websocket connection closed with code: ${event.code}`);
+      const error = event.code === 1000 ? null : new WebSocketError(event.code);
+      this.close_cb(error);
+    };
+  }
+}
+
+// Given the correct parameters, this transport supports named pipes/unix
+// domain sockets, and also TCP/UDP sockets
+export class SocketTransport implements Transport {
+  connection: net.Socket;
+  message_cb: (message: Object) => void;
+  close_cb: (error: ?Error) => void;
+  open_cb: (event: Event) => void;
+  // I guess I don't have type annotations for this
+  json_stream: Object;
+  error: ?Error;
+
+  // Address can either be port number or
+  constructor() {
+    this.json_stream = JSONStream.parse();
+  }
+
+  async _connect(options: Object): Promise<void> {
+    const connection = new net.Socket();
+
+    connection.on('error', (err) => {
+      if (this.close_cb !== null) {
+        this.close_cb(err);
+      }
+      this.close();
+    });
+
+    connection.on('connect', (event) => {
+      if (this.open_cb !== null) {
+        this.open_cb(event);
+      }
+    });
+
+    connection.connect(options);
+    connection.pipe(this.json_stream);
+
+    this.json_stream.on('data', (msg) => this._on_message(msg));
+
+    this.json_stream.on('error', (err) => {
+      if (this.close_cb !== null) {
+        this.close_cb(err);
+      }
+      this.close();
+    });
+
+    this.connection = connection;
+  }
+
+  _on_error(error: ?Error) {
+    this.close_cb(error);
+    this.close();
+  }
+
+  _on_message(data: Object) {
+    if (this.message_cb !== null) {
+      this.message_cb(data);
+    }
+    try {
+    } catch (error) {
+      log.error('failed to parse JSON-RPC object: ', error);
+    }
+  }
+  close() {
+    if (this.connection) {
+      this.connection.end();
+      // resetting the parser
+      this.json_stream = JSONStream.parse();
+    }
+  }
+
+  set_on_open(cb: (event: Event) => void): void {
+    this.open_cb = cb;
+  }
+
+  set_on_message(cb: (Object) => void): void {
+    this.message_cb = cb;
+  }
+
+  set_on_close(cb: (event: ?Error) => void): void {
+    this.close_cb = cb;
+  }
+
+  send(msg: string) {
+    if (this.connection) {
+      this.connection.write(msg);
+    }
+  }
+
+  connect(options: Object): void {
+    try {
+      if (this.connection) {
+        this.connection.end();
+      }
+    } catch (error) {
+      log.error('failed to close the connection: ', error);
+    }
+    this._connect(options);
   }
 }
