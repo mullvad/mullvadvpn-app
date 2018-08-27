@@ -1,7 +1,7 @@
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_core::firewall::{NetworkSecurity, SecurityPolicy};
+use talpid_core::security::{NetworkSecurity, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 use talpid_types::net::TunnelEndpoint;
 

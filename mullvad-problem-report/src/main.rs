@@ -628,8 +628,8 @@ mod tests {
     #[test]
     fn doesnt_redact_not_ipv6() {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact("[talpid_core::firewall]");
-        assert_eq!("[talpid_core::firewall]", actual);
+        let actual = report.redact("[talpid_core::security]");
+        assert_eq!("[talpid_core::security]", actual);
     }
 
     fn assert_redacts_ipv6(input: &str) {
