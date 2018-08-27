@@ -17,7 +17,7 @@ use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use mullvad_types::account::AccountToken;
-use talpid_core::firewall::{Firewall, FirewallProxy};
+use talpid_core::firewall::{NetworkSecurity, NetworkSecurityImpl};
 use talpid_core::mpsc::IntoSender;
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
@@ -28,8 +28,8 @@ use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
 
 error_chain! {
     errors {
-        FirewallError {
-            description("Firewall error")
+        NetworkSecurityError {
+            description("Network security error")
         }
         ReactorError {
             description("Failed to initialize tunnel state machine event loop executor")
@@ -144,8 +144,9 @@ impl TunnelStateMachine {
         cache_dir: P,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
-        let firewall = FirewallProxy::new(cache_dir).chain_err(|| ErrorKind::FirewallError)?;
-        let mut shared_values = SharedTunnelStateValues { firewall };
+        let security =
+            NetworkSecurityImpl::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
+        let mut shared_values = SharedTunnelStateValues { security };
 
         let initial_state = TunnelStateWrapper::new(&mut shared_values, ())
             .expect("Failed to create initial tunnel state");
@@ -211,7 +212,7 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
-    firewall: FirewallProxy,
+    security: NetworkSecurityImpl,
 }
 
 /// Asynchronous result of an attempt to progress a state.

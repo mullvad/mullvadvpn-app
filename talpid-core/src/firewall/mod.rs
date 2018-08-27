@@ -16,7 +16,7 @@ lazy_static! {
         Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
 }
 
-/// A enum that describes firewall rules strategy
+/// A enum that describes network security strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum SecurityPolicy {
     /// Allow traffic only to relay server
@@ -39,20 +39,18 @@ pub enum SecurityPolicy {
 }
 
 /// Abstract firewall interaction trait
-pub trait Firewall {
+pub trait NetworkSecurity: Sized {
     /// The error type thrown by the implementer of this trait
     type Error: ::std::error::Error;
 
-    /// Create new instance of Firewall
-    fn new<P: AsRef<Path>>(cache_dir: P) -> ::std::result::Result<Self, Self::Error>
-    where
-        Self: Sized;
+    /// Create new instance
+    fn new(cache_dir: impl AsRef<Path>) -> ::std::result::Result<Self, Self::Error>;
 
-    /// Enable firewall and set firewall rules based on SecurityPolicy
+    /// Enable the given SecurityPolicy
     fn apply_policy(&mut self, policy: SecurityPolicy) -> ::std::result::Result<(), Self::Error>;
 
-    /// Remove firewall rules applied by active SecurityPolicy and
-    /// revert firewall to its original state
+    /// Revert the system network security state to what it was before this instance started
+    /// modifying the system.
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
 }
 
@@ -60,14 +58,14 @@ pub trait Firewall {
 #[cfg(target_os = "macos")]
 mod macos;
 #[cfg(target_os = "macos")]
-pub use self::macos::{Error, ErrorKind, PacketFilter as FirewallProxy, Result};
+pub use self::macos::{Error, ErrorKind, MacosNetworkSecurity as NetworkSecurityImpl, Result};
 
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use self::linux::{Error, ErrorKind, Netfilter as FirewallProxy, Result};
+pub use self::linux::{Error, ErrorKind, LinuxNetworkSecurity as NetworkSecurityImpl, Result};
 
 #[cfg(windows)]
 mod windows;
 #[cfg(windows)]
-pub use self::windows::{Error, ErrorKind, Result, WindowsFirewall as FirewallProxy};
+pub use self::windows::{Error, ErrorKind, Result, WindowsNetworkSecurity as NetworkSecurityImpl};

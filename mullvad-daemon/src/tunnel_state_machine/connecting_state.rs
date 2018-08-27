@@ -8,7 +8,7 @@ use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
-use talpid_core::firewall::{Firewall, SecurityPolicy};
+use talpid_core::firewall::{NetworkSecurity, SecurityPolicy};
 use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
@@ -69,7 +69,7 @@ impl ConnectingState {
 
         debug!("Setting security policy: {:?}", policy);
         shared_values
-            .firewall
+            .security
             .apply_policy(policy)
             .chain_err(|| "Failed to apply security policy for connecting state")
     }
