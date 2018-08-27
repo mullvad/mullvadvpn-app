@@ -74,7 +74,10 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
     x = Math.min(Math.max(x, workArea.x), maxX);
     y = Math.min(Math.max(y, workArea.y), maxY);
 
-    return { x, y };
+    return {
+      x: Math.round(x),
+      y: Math.round(y),
+    };
   }
 
   _getTrayPlacement() {
