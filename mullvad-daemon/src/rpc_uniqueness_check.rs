@@ -1,7 +1,7 @@
 use error_chain::ChainedError;
 
 use log::Level;
-use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_ipc_client::new_standalone_ipc_client;
 
 
 /// Checks if there is another instance of the daemon running.
@@ -9,7 +9,7 @@ use mullvad_ipc_client::DaemonRpcClient;
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
-    match DaemonRpcClient::new() {
+    match new_standalone_ipc_client() {
         Ok(_) => true,
         Err(error) => {
             let msg =
