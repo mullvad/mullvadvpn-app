@@ -17,9 +17,6 @@ extern crate talpid_ipc;
 extern crate talpid_types;
 extern crate tokio_core;
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 
 use mullvad_types::account::{AccountData, AccountToken};
@@ -35,8 +32,6 @@ use jsonrpc_client_core::{Client, ClientHandle, Future};
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 use jsonrpc_client_ipc::IpcTransport;
 use tokio_core::reactor;
-
-mod reader;
 
 error_chain! {
     errors {
@@ -69,27 +64,22 @@ error_chain! {
     }
     links {
         UnknownRpcAddressPath(mullvad_paths::Error, mullvad_paths::ErrorKind);
-        RpcFileError(reader::Error, reader::ErrorKind);
     }
 }
 
 static NO_ARGS: [u8; 0] = [];
 
 fn new_standalone_transport<
-    P: AsRef<Path> + Send,
     F: Send + 'static + FnOnce(String, reactor::Handle) -> Result<T>,
     T: jsonrpc_client_core::Transport,
 >(
-    path: P,
+    rpc_path: String,
     transport_func: F,
 ) -> Result<DaemonRpcClient> {
     use futures::sync::oneshot;
-    use reader::RpcCredentialsReader;
     use std::thread;
-    use tokio_core::reactor;
-    let (address, credentials) = RpcCredentialsReader::new(path).read()?;
     let (tx, rx) = oneshot::channel();
-    thread::spawn(move || match spawn_transport(address, transport_func) {
+    thread::spawn(move || match spawn_transport(rpc_path, transport_func) {
         Err(e) => tx
             .send(Err(e))
             .expect("Failed to send error back to caller"),
@@ -103,12 +93,27 @@ fn new_standalone_transport<
     });
 
     let client_handle = rx.wait().chain_err(|| ErrorKind::TransportError)??;
-    DaemonRpcClient::new(client_handle, credentials)
+    DaemonRpcClient::new(client_handle)
 }
 
 pub fn new_standalone_ipc_client() -> Result<DaemonRpcClient> {
-    new_standalone_transport(&mullvad_paths::get_rpc_address_path()?, |path, handle| {
-        IpcTransport::new(&path, &handle).chain_err(|| ErrorKind::TransportError)
+    let path = mullvad_paths::get_rpc_socket_path()
+        .to_string_lossy()
+        .to_string();
+    new_standalone_transport(path, |path, handle| {
+        let result = IpcTransport::new(&path, &handle);
+        match result {
+            Ok(t) => Ok(t),
+            Err(e) => {
+                use std::error::Error;
+                println!("path - {}", &path);
+                println!(
+                    "encountered error whilst setting up transport - {}",
+                    e.description()
+                );
+                Err(e).chain_err(|| ErrorKind::TransportError)
+            }
+        }
     })
 }
 
@@ -131,24 +136,13 @@ pub struct DaemonRpcClient {
 
 
 impl DaemonRpcClient {
-    pub fn new(rpc_client: ClientHandle, credentials: String) -> Result<Self> {
+    pub fn new(rpc_client: ClientHandle) -> Result<Self> {
         let methods = DaemonMethods::new(rpc_client.clone());
-        let mut instance = DaemonRpcClient {
+
+        Ok(DaemonRpcClient {
             rpc_client,
             methods,
-        };
-
-        instance
-            .methods()
-            .auth(credentials)
-            .wait()
-            .chain_err(|| ErrorKind::AuthenticationError)?;
-
-        Ok(instance)
-    }
-
-    pub fn auth(&mut self, credentials: String) -> Result<()> {
-        self.call("auth", &[credentials])
+        })
     }
 
     pub fn connect(&mut self) -> Result<()> {
@@ -259,15 +253,15 @@ impl DaemonRpcClient {
         self.subscribe("new_state")
     }
 
-    pub fn subscribe<T>(&mut self, event: &str) -> Result<mpsc::Receiver<T>>
+    pub fn subscribe<T>(&mut self, _event: &str) -> Result<mpsc::Receiver<T>>
     where
         T: for<'de> serde::Deserialize<'de> + Send + 'static,
     {
-        let (event_tx, event_rx) = mpsc::channel();
-        let subscribe_method = format!("{}_subscribe", event);
-        let unsubscribe_method = format!("{}_unsubscribe", event);
+        let (_event_tx, event_rx) = mpsc::channel();
+        // TODO Add subscription support back. Currently subscription stream will be always empty
+        // let subscribe_method = format!("{}_subscribe", event);
+        // let unsubscribe_method = format!("{}_unsubscribe", event);
 
-        // TODO Add subscription support back
         // self.rpc_client
         //     .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
         //     .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
@@ -276,8 +270,6 @@ impl DaemonRpcClient {
     }
 }
 jsonrpc_client!{pub struct DaemonMethods{
-
-    pub fn auth(&mut self, credentials: String) -> Future<()>;
 
     pub fn connect(&mut self) -> Future<()>;
 
