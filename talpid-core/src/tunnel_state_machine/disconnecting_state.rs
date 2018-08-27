@@ -2,12 +2,11 @@ use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_core::tunnel::CloseHandle;
-
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
     StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
+use tunnel::CloseHandle;
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.

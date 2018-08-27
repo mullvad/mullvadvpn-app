@@ -1,8 +1,6 @@
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_core::security::{NetworkSecurity, SecurityPolicy};
-use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 use talpid_types::net::TunnelEndpoint;
 
 use super::{
@@ -10,6 +8,8 @@ use super::{
     SharedTunnelStateValues, StateEntryResult, TunnelCommand, TunnelParameters, TunnelState,
     TunnelStateWrapper,
 };
+use security::{NetworkSecurity, SecurityPolicy};
+use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,

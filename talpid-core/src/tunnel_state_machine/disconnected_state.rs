@@ -2,12 +2,11 @@ use error_chain::ChainedError;
 use futures::sync::mpsc;
 use futures::Stream;
 
-use talpid_core::security::NetworkSecurity;
-
 use super::{
     ConnectingState, Error, EventConsequence, SharedTunnelStateValues, StateEntryResult,
     TunnelCommand, TunnelState, TunnelStateWrapper,
 };
+use security::NetworkSecurity;
 
 /// No tunnel is running.
 pub struct DisconnectedState;
