@@ -4,17 +4,7 @@ use Command;
 use Result;
 
 use mullvad_ipc_client::DaemonRpcClient;
-use mullvad_types::states::{DaemonState, SecurityState, TargetState};
-
-const DISCONNECTED: DaemonState = DaemonState {
-    state: SecurityState::Unsecured,
-    target_state: TargetState::Unsecured,
-};
-
-const CONNECTED: DaemonState = DaemonState {
-    state: SecurityState::Secured,
-    target_state: TargetState::Secured,
-};
+use talpid_types::tunnel::TunnelStateTransition::{self, *};
 
 pub struct Status;
 
@@ -41,7 +31,7 @@ impl Command for Status {
             for new_state in rpc.new_state_subscribe()? {
                 print_state(new_state);
 
-                if new_state == CONNECTED || new_state == DISCONNECTED {
+                if new_state == Connected || new_state == Disconnected {
                     print_location(&mut rpc)?;
                 }
             }
@@ -50,13 +40,13 @@ impl Command for Status {
     }
 }
 
-fn print_state(state: DaemonState) {
+fn print_state(state: TunnelStateTransition) {
     print!("Tunnel status: ");
-    match (state.state, state.target_state) {
-        (SecurityState::Unsecured, TargetState::Unsecured) => println!("Disconnected"),
-        (SecurityState::Unsecured, TargetState::Secured) => println!("Connecting..."),
-        (SecurityState::Secured, TargetState::Unsecured) => println!("Disconnecting..."),
-        (SecurityState::Secured, TargetState::Secured) => println!("Connected"),
+    match state {
+        Connected => println!("Connected"),
+        Connecting => println!("Connecting..."),
+        Disconnected => println!("Disconnected"),
+        Disconnecting => println!("Disconnecting..."),
     }
 }
 

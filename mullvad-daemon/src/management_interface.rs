@@ -14,7 +14,7 @@ use mullvad_types::location::GeoIpLocation;
 use mullvad_paths;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
-use mullvad_types::states::{DaemonState, TargetState};
+use mullvad_types::states::TargetState;
 use mullvad_types::version;
 
 use serde;
@@ -27,6 +27,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::net::TunnelOptions;
+use talpid_types::tunnel::TunnelStateTransition;
 use uuid;
 
 use account_history::{AccountHistory, Error as AccountHistoryError};
@@ -100,7 +101,7 @@ build_rpc_trait! {
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
         #[rpc(meta, name = "get_state")]
-        fn get_state(&self, Self::Metadata) -> BoxFuture<DaemonState, Error>;
+        fn get_state(&self, Self::Metadata) -> BoxFuture<TunnelStateTransition, Error>;
 
         /// Performs a geoIP lookup and returns the current location as perceived by the public
         /// internet.
@@ -142,7 +143,11 @@ build_rpc_trait! {
         #[pubsub(name = "new_state")] {
             /// Subscribes to the `new_state` event notifications.
             #[rpc(name = "new_state_subscribe")]
-            fn new_state_subscribe(&self, Self::Metadata, pubsub::Subscriber<DaemonState>);
+            fn new_state_subscribe(
+                &self,
+                Self::Metadata,
+                pubsub::Subscriber<TunnelStateTransition>
+            );
 
             /// Unsubscribes from the `new_state` event notifications.
             #[rpc(name = "new_state_unsubscribe")]
@@ -167,7 +172,7 @@ pub enum ManagementCommand {
     /// Change target state.
     SetTargetState(TargetState),
     /// Request the current state.
-    GetState(OneshotSender<DaemonState>),
+    GetState(OneshotSender<TunnelStateTransition>),
     /// Get the current geographical location.
     GetCurrentLocation(OneshotSender<GeoIpLocation>),
     /// Request the metadata for an account.
@@ -209,7 +214,7 @@ pub enum ManagementCommand {
 
 #[derive(Default)]
 struct ActiveSubscriptions {
-    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonState>>>,
+    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>,
     error_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<Vec<String>>>>,
 }
 
@@ -268,7 +273,7 @@ pub struct EventBroadcaster {
 
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
-    pub fn notify_new_state(&self, new_state: DaemonState) {
+    pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
         debug!("Broadcasting new state to listeners: {:?}", new_state);
         self.notify(&self.subscriptions.new_state_subscriptions, new_state);
     }
@@ -519,7 +524,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Unsecured))
     }
 
-    fn get_state(&self, _: Self::Metadata) -> BoxFuture<DaemonState, Error> {
+    fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelStateTransition, Error> {
         trace!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self
@@ -633,7 +638,11 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn new_state_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<DaemonState>) {
+    fn new_state_subscribe(
+        &self,
+        _: Self::Metadata,
+        subscriber: pubsub::Subscriber<TunnelStateTransition>,
+    ) {
         trace!("new_state_subscribe");
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }

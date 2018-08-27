@@ -41,11 +41,7 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
-export type SecurityState = 'secured' | 'unsecured';
-export type BackendState = {
-  state: SecurityState,
-  target_state: SecurityState,
-};
+export type TunnelState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting';
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
@@ -200,11 +196,13 @@ const AccountDataSchema = object({
   expiry: string,
 });
 
-const allSecurityStates: Array<SecurityState> = ['secured', 'unsecured'];
-const BackendStateSchema = object({
-  state: enumeration(...allSecurityStates),
-  target_state: enumeration(...allSecurityStates),
-});
+const allTunnelStates: Array<TunnelState> = [
+  'disconnected',
+  'connecting',
+  'connected',
+  'disconnecting',
+];
+const TunnelStateSchema = enumeration(...allTunnelStates);
 
 export type AppVersionInfo = {
   currentIsSupported: boolean,
@@ -240,8 +238,8 @@ export interface DaemonRpcProtocol {
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
-  getState(): Promise<BackendState>;
-  subscribeStateListener((state: ?BackendState, error: ?Error) => void): Promise<void>;
+  getState(): Promise<TunnelState>;
+  subscribeStateListener((state: ?TunnelState, error: ?Error) => void): Promise<void>;
   addOpenConnectionObserver(() => void): ConnectionObserver;
   addCloseConnectionObserver((error: ?Error) => void): ConnectionObserver;
   authenticate(sharedSecret: string): Promise<void>;
@@ -442,19 +440,19 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
-  async getState(): Promise<BackendState> {
+  async getState(): Promise<TunnelState> {
     const response = await this._transport.send('get_state');
     try {
-      return validate(BackendStateSchema, response);
+      return validate(TunnelStateSchema, response);
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
   }
 
-  subscribeStateListener(listener: (state: ?BackendState, error: ?Error) => void): Promise<void> {
+  subscribeStateListener(listener: (state: ?TunnelState, error: ?Error) => void): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
-        const newState = validate(BackendStateSchema, payload);
+        const newState = validate(TunnelStateSchema, payload);
         listener(newState, null);
       } catch (error) {
         listener(null, new ResponseParseError('Invalid payload from new_state', error));
