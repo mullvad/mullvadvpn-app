@@ -50,7 +50,7 @@ pub mod tunnel;
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
 
-/// Abstractions over different firewalls
-pub mod firewall;
+/// Abstractions over operating system network security settings.
+pub mod security;
 
 mod mktemp;
