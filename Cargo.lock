@@ -898,6 +898,7 @@ dependencies = [
  "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-ipc-client 0.1.0",
+ "mullvad-paths 0.1.0",
  "mullvad-types 0.1.0",
  "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",

@@ -1,8 +1,8 @@
 use clap;
 use std::str::FromStr;
 use {Command, Result, ResultExt};
+use cmds::client::new_client;
 
-use mullvad_ipc_client::new_standalone_ipc_client;
 use mullvad_types::relay_constraints::{
     Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
     RelaySettingsUpdate, TunnelConstraints,
@@ -101,7 +101,7 @@ impl Command for Relay {
 
 impl Relay {
     fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         rpc.update_relay_settings(update)?;
         println!("Relay constraints updated");
         Ok(())
@@ -171,7 +171,7 @@ impl Relay {
     }
 
     fn get(&self) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         let constraints = rpc.get_relay_settings()?;
         println!("Current constraints: {:#?}", constraints);
 
@@ -179,7 +179,7 @@ impl Relay {
     }
 
     fn list(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         let mut locations = rpc.get_relay_locations()?;
         locations.countries.sort_by(|c1, c2| c1.name.cmp(&c2.name));
         for mut country in locations.countries {

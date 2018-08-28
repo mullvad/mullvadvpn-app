@@ -1,8 +1,7 @@
 use clap;
 use {Command, Result};
 
-use futures::future::Future;
-use mullvad_ipc_client::new_standalone_ipc_client;
+use super::client::new_client;
 
 pub struct Lan;
 
@@ -43,14 +42,14 @@ impl Command for Lan {
 
 impl Lan {
     fn set(&self, allow_lan: bool) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
-        rpc.methods().set_allow_lan(allow_lan).wait()?;
+        let mut rpc = new_client()?;
+        rpc.set_allow_lan(allow_lan)?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
     fn get(&self) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         let allow_lan = rpc.get_allow_lan()?;
         println!(
             "Local network sharing setting: {}",

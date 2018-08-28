@@ -1,7 +1,7 @@
 use clap;
 use {Command, Result};
+use cmds::client::new_client;
 
-use mullvad_ipc_client::new_standalone_ipc_client;
 use mullvad_types::account::AccountToken;
 
 pub struct Account;
@@ -48,7 +48,7 @@ impl Command for Account {
 
 impl Account {
     fn set(&self, token: Option<AccountToken>) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         rpc.set_account(token.clone())?;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
@@ -59,7 +59,7 @@ impl Account {
     }
 
     fn get(&self) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         let account_token = rpc.get_account()?;
         if let Some(account_token) = account_token {
             println!("Mullvad account: {}", account_token);

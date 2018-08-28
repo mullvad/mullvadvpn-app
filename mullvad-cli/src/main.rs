@@ -14,6 +14,7 @@ extern crate futures;
 extern crate error_chain;
 extern crate mullvad_ipc_client;
 extern crate mullvad_types;
+extern crate mullvad_paths;
 extern crate serde;
 extern crate talpid_types;
 
@@ -29,7 +30,6 @@ error_chain! {
     }
 
     links {
-        RpcError(mullvad_ipc_client::RpcError, mullvad_ipc_client::RpcErrorKind);
         RpcClientError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
     }
 }

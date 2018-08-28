@@ -1,8 +1,8 @@
 use clap;
 use Command;
 use Result;
+use cmds::client::new_client;
 
-use mullvad_ipc_client::new_standalone_ipc_client;
 
 pub struct Disconnect;
 
@@ -17,7 +17,7 @@ impl Command for Disconnect {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_standalone_ipc_client()?;
+        let mut rpc = new_client()?;
         rpc.disconnect()?;
         Ok(())
     }
