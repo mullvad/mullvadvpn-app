@@ -609,7 +609,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-core"
 version = "8.0.2"
-source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#744bfacecb25d9afba75ed2e6b8b236045617478"
+source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#a614001e37cb9d76ffcecd04f67d797747f2d860"
 dependencies = [
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -621,12 +621,12 @@ dependencies = [
 [[package]]
 name = "jsonrpc-ipc-server"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#744bfacecb25d9afba75ed2e6b8b236045617478"
+source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#a614001e37cb9d76ffcecd04f67d797747f2d860"
 dependencies = [
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint)",
  "jsonrpc-server-utils 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint)",
  "log 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "parity-tokio-ipc 0.1.5 (git+https://github.com/nikvolf/parity-tokio-ipc)",
+ "parity-tokio-ipc 0.1.5 (git+https://github.com/nikvolf/parity-tokio-ipc?branch=stable)",
  "parking_lot 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-service 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -634,7 +634,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-macros"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#744bfacecb25d9afba75ed2e6b8b236045617478"
+source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#a614001e37cb9d76ffcecd04f67d797747f2d860"
 dependencies = [
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint)",
  "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint)",
@@ -644,7 +644,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-pubsub"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#744bfacecb25d9afba75ed2e6b8b236045617478"
+source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#a614001e37cb9d76ffcecd04f67d797747f2d860"
 dependencies = [
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint)",
  "log 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-server-utils"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#744bfacecb25d9afba75ed2e6b8b236045617478"
+source = "git+https://github.com/mullvad/jsonrpc?branch=construct-ipc-server-from-endpoint#a614001e37cb9d76ffcecd04f67d797747f2d860"
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "globset 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1198,7 +1198,7 @@ dependencies = [
 [[package]]
 name = "parity-tokio-ipc"
 version = "0.1.5"
-source = "git+https://github.com/nikvolf/parity-tokio-ipc#fe3de17621eee402ceac31fc77fb0dbf9feb5125"
+source = "git+https://github.com/nikvolf/parity-tokio-ipc?branch=stable#b4a6cdf7d9b1e51c5d744d7f47d391a69a943232"
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1208,7 +1208,7 @@ dependencies = [
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-io 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "tokio-named-pipes 0.1.0 (git+https://github.com/nikvolf/tokio-named-pipes)",
+ "tokio-named-pipes 0.1.0 (git+https://github.com/nikvolf/tokio-named-pipes?branch=stable)",
  "tokio-uds 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1226,7 +1226,7 @@ dependencies = [
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-io 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "tokio-named-pipes 0.1.0 (git+https://github.com/nikvolf/tokio-named-pipes)",
+ "tokio-named-pipes 0.2.0 (git+https://github.com/nikvolf/tokio-named-pipes)",
  "tokio-uds 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1842,13 +1842,25 @@ dependencies = [
 [[package]]
 name = "tokio-named-pipes"
 version = "0.1.0"
-source = "git+https://github.com/nikvolf/tokio-named-pipes#0b9b728eaeb0a6673c287ac7692be398fd651752"
+source = "git+https://github.com/nikvolf/tokio-named-pipes?branch=stable#9a9372618552d2c25c2ee4511e5e0fb4eef318e3"
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-io 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "tokio-named-pipes"
+version = "0.2.0"
+source = "git+https://github.com/nikvolf/tokio-named-pipes#a607e28346423c35a3c4169a50c27f698f3195b5"
+dependencies = [
+ "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mio 0.6.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
+ "tokio 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2306,7 +2318,7 @@ source = "git+https://github.com/mullvad/rust-openssl#4dbd237fe1f6454d8a0042ccf4
 "checksum os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cd9d339267cdef39ee54ef165fdfaa2c7289a7465f0188ebe1c8a63872ca64c7"
 "checksum owning_ref 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "cdf84f41639e037b484f93433aa3897863b561ed65c6e59c7073d7c561710f37"
 "checksum parity-tokio-ipc 0.1.5 (git+https://github.com/mullvad/parity-tokio-ipc?rev=add-client-support)" = "<none>"
-"checksum parity-tokio-ipc 0.1.5 (git+https://github.com/nikvolf/parity-tokio-ipc)" = "<none>"
+"checksum parity-tokio-ipc 0.1.5 (git+https://github.com/nikvolf/parity-tokio-ipc?branch=stable)" = "<none>"
 "checksum parking_lot 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)" = "69376b761943787ebd5cc85a5bc95958651a22609c5c1c2b65de21786baec72b"
 "checksum parking_lot_core 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)" = "4db1a8ccf734a7bce794cc19b3df06ed87ab2f3907036b693c68f56b4d4537fa"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
@@ -2370,7 +2382,8 @@ source = "git+https://github.com/mullvad/rust-openssl#4dbd237fe1f6454d8a0042ccf4
 "checksum tokio-executor 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "84823b932d566bc3c6aa644df4ca36cb38593c50b7db06011fd4e12e31e4047e"
 "checksum tokio-fs 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)" = "b5cbe4ca6e71cb0b62a66e4e6f53a8c06a6eefe46cc5f665ad6f274c9906f135"
 "checksum tokio-io 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "8d6cc2de7725863c86ac71b0b9068476fec50834f055a243558ef1655bbd34cb"
-"checksum tokio-named-pipes 0.1.0 (git+https://github.com/nikvolf/tokio-named-pipes)" = "<none>"
+"checksum tokio-named-pipes 0.1.0 (git+https://github.com/nikvolf/tokio-named-pipes?branch=stable)" = "<none>"
+"checksum tokio-named-pipes 0.2.0 (git+https://github.com/nikvolf/tokio-named-pipes)" = "<none>"
 "checksum tokio-openssl 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4646ae1fd623393de3d796ea53af75acd02938dd5579544fbd6d236d041978a6"
 "checksum tokio-proto 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8fbb47ae81353c63c487030659494b295f6cb6576242f907f203473b191b0389"
 "checksum tokio-reactor 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "df6a7ea7d65e0fc1398de28959de8be96909986a7d2e01d4f86d3433dfb91aed"
