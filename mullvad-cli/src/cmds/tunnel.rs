@@ -1,7 +1,7 @@
 use clap;
+use cmds::client::new_client;
 use {Command, Result};
 
-use mullvad_ipc_client::DaemonRpcClient;
 use talpid_types::net::{OpenVpnTunnelOptions, TunnelOptions};
 
 pub struct Tunnel;
@@ -79,7 +79,7 @@ impl Tunnel {
     fn set_openvpn_enable_ipv6_option(args: &clap::ArgMatches) -> Result<()> {
         let enabled = args.value_of("enable").unwrap() == "on";
 
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_client()?;
         rpc.set_openvpn_enable_ipv6(enabled)?;
         println!("enable_ipv6 parameter updated");
         Ok(())
@@ -93,14 +93,14 @@ impl Tunnel {
             Some(mssfix_str.parse()?)
         };
 
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_client()?;
         rpc.set_openvpn_mssfix(mssfix)?;
         println!("mssfix parameter updated");
         Ok(())
     }
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_client()?;
         Ok(rpc.get_tunnel_options()?)
     }
 
