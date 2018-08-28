@@ -629,8 +629,8 @@ class AccountDataState {
 
 const getIpcPath = (): string => {
   if (process.platform === 'win32') {
-    return '//./pipe/mullvad_rpc_socket';
+    return '//./pipe/Mullvad VPN';
   } else {
-    return '/tmp/mullvad_rpc_socket';
+    return '/var/run/mullvad-vpn';
   }
 };
