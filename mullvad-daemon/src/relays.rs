@@ -24,18 +24,15 @@ use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
 const RELAYS_FILENAME: &str = "relays.json";
-const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(30);
-const UPDATE_INTERVAL: Duration = Duration::from_secs(15);
+const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
+const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 24);
 
 error_chain! {
     errors {
         RelayCacheError { description("Error with relay cache on disk") }
         DownloadError { description("Error when trying to download the list of relays") }
-        DownloadTimeoutError(error: tokio_timer::Error) {
-            display("Timer error - {}", error)
-            description("Timed out when trying to download the list of relays")
-        }
+        DownloadTimeoutError { description("Timed out when trying to download the list of relays") }
         NoRelay { description("No relays matching current constraints") }
         SerializationError { description("Error in serialization of relaylist") }
     }
