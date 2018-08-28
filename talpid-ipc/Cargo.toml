@@ -13,8 +13,8 @@ log = "0.4"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "construct-ipc-server-from-endpoint" }
 jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "construct-ipc-server-from-endpoint" }
 jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "construct-ipc-server-from-endpoint" }
-jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
-jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
+jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
 
 [dev-dependencies]
 assert_matches = "1.0"
