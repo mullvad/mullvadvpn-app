@@ -18,7 +18,6 @@ log-panics = "2.0.0"
 jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-ws-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 jsonrpc-ipc-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
 uuid = { version = "0.6", features = ["v4"] }
 lazy_static = "1.0"
