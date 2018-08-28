@@ -17,8 +17,8 @@ notify = "4.0"
 openvpn-plugin = { version = "0.3", features = ["serde"] }
 talpid-ipc = { path = "../talpid-ipc" }
 tempfile = "3.0"
-jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
-jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "depend-on-upstream-ipc-lib" }
+jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "depend-on-upstream-ipc-lib" }
 tokio-core = "0.1"
 futures = "0.1.23"
 
