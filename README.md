@@ -311,14 +311,14 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 
 #### RPC address file
 
-The full path to the RPC address file can be changed by setting the `MULLVAD_RPC_ADDRESS_PATH`
+The full path to the RPC address file can be changed by setting the `MULLVAD_RPC_SOCKET_PATH`
 environment variable.
 
 | Platform | Path |
 |----------|------|
-| Linux | `/tmp/.mullvad_rpc_address` |
-| macOS | `/tmp/.mullvad_rpc_address` |
-| Windows | `C:\ProgramData\Mullvad VPN\.mullvad_rpc_address` |
+| Linux | `/var/run/mullvad-vpn` |
+| macOS | `/var/run/mullvad-vpn` |
+| Windows | `//./pipe/Mullvad VPN` |
 
 ## Quirks
 
