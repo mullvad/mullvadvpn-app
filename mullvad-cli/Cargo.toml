@@ -14,9 +14,11 @@ clap = "2.20"
 error-chain = "0.12"
 env_logger = "0.5"
 serde = "1.0"
+futures = "0.1"
 
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-types = { path = "../mullvad-types" }
+mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
 talpid-ipc = { path = "../talpid-ipc" }
 
