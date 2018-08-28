@@ -1,7 +1,5 @@
 use clap;
-use {Command, Result};
-
-use mullvad_ipc_client::DaemonRpcClient;
+use {Command, Result, new_rpc_client};
 
 pub struct Version;
 
@@ -16,7 +14,7 @@ impl Command for Version {
     }
 
     fn run(&self, _: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_rpc_client()?;
         let current_version = rpc.get_current_version()?;
         println!("Current version: {}", current_version);
         let version_info = rpc.get_version_info()?;
