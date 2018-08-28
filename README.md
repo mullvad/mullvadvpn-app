@@ -316,9 +316,9 @@ environment variable.
 
 | Platform | Path |
 |----------|------|
-| Linux | `/tmp/mullvad_rpc_socket` |
-| macOS | `/tmp/mullvad_rpc_socket` |
-| Windows | `//./pipe/mullvad_rpc_socket` |
+| Linux | `/var/run/mullvad-vpn` |
+| macOS | `/var/run/mullvad-vpn` |
+| Windows | `//./pipe/Mullvad VPN` |
 
 ## Quirks
 
