@@ -23,14 +23,15 @@ use std::sync::{mpsc, Arc};
 use std::time::{Duration, Instant};
 use std::{cmp, thread};
 
-use jsonrpc_client_core::Future;
-use jsonrpc_client_core::Transport;
+use futures::sync::oneshot;
+use jsonrpc_client_core::{Future, Transport};
 use jsonrpc_client_ipc::IpcTransport;
-use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_ipc_client::{DaemonRpcClient, ResultExt};
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use tempfile::TempDir;
+use tokio_core::reactor::Core;
 
 use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
 use self::platform_specific::*;
@@ -314,9 +315,11 @@ impl DaemonRunner {
 
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
         wait_for_file(&self.rpc_socket_path);
-        ::std::env::set_var("MULLVAD_RPC_SOCKET_PATH", &self.rpc_socket_path);
-        mullvad_ipc_client::new_standalone_ipc_client()
-            .map_err(|error| format!("Failed to create RPC client: {}", error))
+        let socket_path: String = self.rpc_socket_path.to_string_lossy().to_string();
+        mullvad_ipc_client::new_standalone_transport(socket_path, |path, handle| {
+            IpcTransport::new(&path, &handle)
+                .chain_err(|| mullvad_ipc_client::ErrorKind::TransportError)
+        }).map_err(|e| format!("Failed to construct an RPC client - {}", e))
     }
 
     #[cfg(unix)]
@@ -363,16 +366,11 @@ impl Drop for DaemonRunner {
 }
 
 pub struct MockOpenVpnPluginRpcClient {
-    credentials: String,
     rpc: jsonrpc_client_core::ClientHandle,
 }
 
 impl MockOpenVpnPluginRpcClient {
     fn spawn_event_loop(address: String) -> Result<jsonrpc_client_core::ClientHandle> {
-        use futures::sync::oneshot;
-        use futures::Future;
-        use std::thread;
-        use tokio_core::reactor::Core;
         let (tx, rx) = oneshot::channel();
         thread::spawn(move || {
             let mut core = Core::new().expect("failed to spawn an event loop");
@@ -393,24 +391,9 @@ impl MockOpenVpnPluginRpcClient {
         rx.wait().unwrap()
     }
 
-    pub fn new(address: String, credentials: String) -> Result<Self> {
+    pub fn new(address: String) -> Result<Self> {
         let rpc = Self::spawn_event_loop(address)?;
-
-        Ok(MockOpenVpnPluginRpcClient { rpc, credentials })
-    }
-
-    pub fn authenticate(&mut self) -> Result<bool> {
-        self.rpc
-            .call_method("authenticate", &[self.credentials.clone()])
-            .wait()
-            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
-    }
-
-    pub fn authenticate_with(&mut self, credentials: String) -> Result<bool> {
-        self.rpc
-            .call_method("authenticate", &[credentials])
-            .wait()
-            .map_err(|error| format!("Failed to authenticate mock OpenVPN IPC client: {}", error))
+        Ok(MockOpenVpnPluginRpcClient { rpc })
     }
 
     pub fn up(&mut self) -> Result<()> {
