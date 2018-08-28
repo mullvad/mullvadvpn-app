@@ -4,8 +4,6 @@ extern crate log;
 #[macro_use]
 extern crate error_chain;
 
-
-#[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
 
@@ -16,8 +14,12 @@ extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
 extern crate tokio_core;
+extern crate tokio_timer;
 
+use std::path::Path;
 use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
@@ -28,6 +30,8 @@ use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
 use talpid_types::net::TunnelOptions;
 
+use futures::stream::{self, Stream};
+use futures::sync::oneshot;
 use jsonrpc_client_core::{Client, ClientHandle, Future};
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 use jsonrpc_client_ipc::IpcTransport;
@@ -69,15 +73,13 @@ error_chain! {
 
 static NO_ARGS: [u8; 0] = [];
 
-fn new_standalone_transport<
+pub fn new_standalone_transport<
     F: Send + 'static + FnOnce(String, reactor::Handle) -> Result<T>,
     T: jsonrpc_client_core::Transport,
 >(
     rpc_path: String,
     transport_func: F,
 ) -> Result<DaemonRpcClient> {
-    use futures::sync::oneshot;
-    use std::thread;
     let (tx, rx) = oneshot::channel();
     thread::spawn(move || match spawn_transport(rpc_path, transport_func) {
         Err(e) => tx
@@ -92,28 +94,16 @@ fn new_standalone_transport<
         }
     });
 
-    let client_handle = rx.wait().chain_err(|| ErrorKind::TransportError)??;
-    DaemonRpcClient::new(client_handle)
+    rx.wait()
+        .chain_err(|| ErrorKind::TransportError)?
+        .map(|client_handle| DaemonRpcClient::new(client_handle))
 }
 
-pub fn new_standalone_ipc_client() -> Result<DaemonRpcClient> {
-    let path = mullvad_paths::get_rpc_socket_path()
-        .to_string_lossy()
-        .to_string();
+pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
+    let path = path.as_ref().to_string_lossy().to_string();
+
     new_standalone_transport(path, |path, handle| {
-        let result = IpcTransport::new(&path, &handle);
-        match result {
-            Ok(t) => Ok(t),
-            Err(e) => {
-                use std::error::Error;
-                println!("path - {}", &path);
-                println!(
-                    "encountered error whilst setting up transport - {}",
-                    e.description()
-                );
-                Err(e).chain_err(|| ErrorKind::TransportError)
-            }
-        }
+        IpcTransport::new(&path, &handle).chain_err(|| ErrorKind::TransportError)
     })
 }
 
@@ -131,18 +121,12 @@ fn spawn_transport<
 
 pub struct DaemonRpcClient {
     rpc_client: jsonrpc_client_core::ClientHandle,
-    methods: DaemonMethods,
 }
 
 
 impl DaemonRpcClient {
-    pub fn new(rpc_client: ClientHandle) -> Result<Self> {
-        let methods = DaemonMethods::new(rpc_client.clone());
-
-        Ok(DaemonRpcClient {
-            rpc_client,
-            methods,
-        })
+    pub fn new(rpc_client: ClientHandle) -> Self {
+        DaemonRpcClient { rpc_client }
     }
 
     pub fn connect(&mut self) -> Result<()> {
@@ -217,25 +201,12 @@ impl DaemonRpcClient {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn from_client_handle(rpc_client: ClientHandle) -> Self {
-        let methods = DaemonMethods::new(rpc_client.clone());
-        DaemonRpcClient {
-            rpc_client,
-            methods,
-        }
-    }
-
     pub fn shutdown(&mut self) -> Result<()> {
         self.call("shutdown", &NO_ARGS)
     }
 
     pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<()> {
         self.call("update_relay_settings", &[update])
-    }
-
-
-    pub fn methods(&mut self) -> &mut DaemonMethods {
-        &mut self.methods
     }
 
     pub fn call<A, O>(&mut self, method: &'static str, args: &A) -> Result<O>
@@ -250,62 +221,31 @@ impl DaemonRpcClient {
     }
 
     pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<DaemonState>> {
-        self.subscribe("new_state")
-    }
+        let client = self.rpc_client.clone();
+        let mut current_state = self.get_state()?;
+        let first_message = stream::once(Ok(current_state.clone()));
 
-    pub fn subscribe<T>(&mut self, _event: &str) -> Result<mpsc::Receiver<T>>
-    where
-        T: for<'de> serde::Deserialize<'de> + Send + 'static,
-    {
-        let (_event_tx, event_rx) = mpsc::channel();
-        // TODO Add subscription support back. Currently subscription stream will be always empty
-        // let subscribe_method = format!("{}_subscribe", event);
-        // let unsubscribe_method = format!("{}_unsubscribe", event);
+        let (tx, rx) = mpsc::channel();
 
-        // self.rpc_client
-        //     .subscribe::<T, T>(subscribe_method, unsubscribe_method, event_tx)
-        //     .chain_err(|| ErrorKind::RpcSubscribeError(event.to_owned()))?;
+        let polled = tokio_timer::wheel()
+            .build()
+            .interval(Duration::from_secs(1))
+            .then(move |_| client.call_method("get_state", &NO_ARGS));
 
-        Ok(event_rx)
+        thread::spawn(move || {
+            let _ = first_message
+                .chain(polled)
+                .for_each(move |state| {
+                    if state != current_state {
+                        current_state = state;
+                        if tx.send(state).is_err() {
+                            trace!("can't send new state to subscriber");
+                            return Err(jsonrpc_client_core::ErrorKind::Shutdown.into());
+                        };
+                    }
+                    Ok(())
+                }).wait();
+        });
+        Ok(rx)
     }
 }
-jsonrpc_client!{pub struct DaemonMethods{
-
-    pub fn connect(&mut self) -> Future<()>;
-
-    pub fn disconnect(&mut self) -> Future<()>;
-
-    pub fn get_account(&mut self) -> Future<Option<AccountToken>>;
-
-    pub fn get_account_data(&mut self, account: AccountToken) -> Future<AccountData>;
-
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Future<()>;
-
-    pub fn get_allow_lan(&mut self) -> Future<bool>;
-
-    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Future<()>;
-
-    pub fn get_auto_connect(&mut self) -> Future<bool>;
-
-    pub fn get_current_location(&mut self) -> Future<GeoIpLocation>;
-
-    pub fn get_current_version(&mut self) -> Future<String>;
-
-    pub fn get_relay_locations(&mut self) -> Future<RelayList>;
-
-    pub fn get_relay_settings(&mut self) -> Future<RelaySettings>;
-
-    pub fn get_state(&mut self) -> Future<DaemonState>;
-
-    pub fn get_tunnel_options(&mut self) -> Future<TunnelOptions>;
-
-    pub fn get_version_info(&mut self) -> Future<AppVersionInfo>;
-
-    pub fn set_account(&mut self, account: Option<AccountToken>) ->  Future<()>;
-
-    pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Future<()>;
-
-    pub fn shutdown(&mut self) -> Future<()>;
-
-    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Future<()>;
-}}
