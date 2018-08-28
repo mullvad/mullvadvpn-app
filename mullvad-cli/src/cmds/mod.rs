@@ -28,6 +28,8 @@ pub use self::tunnel::Tunnel;
 mod version;
 pub use self::version::Version;
 
+mod client;
+
 /// Returns a map of all available subcommands with their name as key.
 pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
     let commands: Vec<Box<Command>> = vec![

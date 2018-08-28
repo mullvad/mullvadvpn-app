@@ -1,7 +1,7 @@
 use clap;
 use {Command, Result};
 
-use mullvad_ipc_client::DaemonRpcClient;
+use super::client::new_client;
 
 pub struct Lan;
 
@@ -42,14 +42,14 @@ impl Command for Lan {
 
 impl Lan {
     fn set(&self, allow_lan: bool) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_client()?;
         rpc.set_allow_lan(allow_lan)?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
     fn get(&self) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_client()?;
         let allow_lan = rpc.get_allow_lan()?;
         println!(
             "Local network sharing setting: {}",
