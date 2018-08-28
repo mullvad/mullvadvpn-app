@@ -1,4 +1,5 @@
 use clap;
+use new_rpc_client;
 use Command;
 use Result;
 
@@ -31,12 +32,11 @@ impl Command for Status {
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_rpc_client()?;
         let state = rpc.get_state()?;
 
         print_state(state);
         print_location(&mut rpc)?;
-
         if matches.subcommand_matches("listen").is_some() {
             for new_state in rpc.new_state_subscribe()? {
                 print_state(new_state);
@@ -46,7 +46,6 @@ impl Command for Status {
                 }
             }
         }
-
         Ok(())
     }
 }
