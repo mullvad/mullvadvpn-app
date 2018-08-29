@@ -243,6 +243,9 @@ impl Daemon {
         let management_interface_broadcaster =
             Self::start_management_interface(tx.clone(), cache_dir.clone())?;
 
+        // Attempt to download a fresh relay list
+        relay_selector.update();
+
         Ok(Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
             tunnel_state: TunnelStateTransition::Disconnected,
