@@ -1,15 +1,18 @@
 // @flow
 import jsonrpc from 'jsonrpc-lite';
-import { Server, WebSocket as MockWebSocket } from 'mock-socket';
-import JsonRpcTransport, { TimeOutError } from '../src/renderer/lib/jsonrpc-transport';
+import { Server } from 'mock-socket';
+import JsonRpcClient, {
+  WebsocketTransport,
+  TimeOutError,
+} from '../src/renderer/lib/jsonrpc-client';
 
 describe('JSON RPC transport', () => {
   const WEBSOCKET_URL = 'ws://localhost:8080';
-  let server: Server, transport: JsonRpcTransport;
+  let server: Server, transport: JsonRpcClient<string>;
 
   beforeEach(() => {
     server = new Server(WEBSOCKET_URL);
-    transport = new JsonRpcTransport((url) => new MockWebSocket(url));
+    transport = new JsonRpcClient(new WebsocketTransport());
   });
 
   afterEach(() => {
