@@ -4,6 +4,8 @@ import { EventEmitter } from 'events';
 import log from 'electron-log';
 import jsonrpc from 'jsonrpc-lite';
 import uuid from 'uuid';
+import net from 'net';
+import JSONStream from 'JSONStream';
 
 export type UnansweredRequest = {
   resolve: (mixed) => void,
@@ -90,11 +92,11 @@ export class SubscriptionError extends Error {
   }
 }
 
-export class ConnectionError extends Error {
+export class WebSocketError extends Error {
   _code: number;
 
   constructor(code: number) {
-    super(ConnectionError.reason(code));
+    super(WebSocketError.reason(code));
     this._code = code;
   }
 
@@ -118,34 +120,39 @@ export class ConnectionError extends Error {
   }
 }
 
+export class TransportError extends Error {
+  constructor(reason: string) {
+    super(reason);
+  }
+}
+
 const DEFAULT_TIMEOUT_MILLIS = 5000;
 
-export default class JsonRpcTransport extends EventEmitter {
+export default class JsonRpcClient<T> extends EventEmitter {
   _unansweredRequests: Map<string, UnansweredRequest> = new Map();
   _subscriptions: Map<string | number, (mixed) => void> = new Map();
-  _webSocket: ?WebSocket;
-  _websocketFactory: (string) => WebSocket;
+  _transport: Transport<T>;
 
-  constructor(websocketFactory: ?(string) => WebSocket) {
+  constructor(transport: Transport<T>) {
     super();
-    this._websocketFactory =
-      websocketFactory || ((connectionString) => new WebSocket(connectionString));
+
+    this._transport = transport;
   }
 
   /// Connect websocket
-  connect(connectionString: string): Promise<void> {
+  connect(connectionParams: T): Promise<void> {
     return new Promise((resolve, reject) => {
       this.disconnect();
 
-      log.info('Connecting to websocket', connectionString);
-
-      const webSocket = this._websocketFactory(connectionString);
+      log.info('Connecting to transport with params', connectionParams);
 
       // A flag used to determine if Promise was resolved.
       let isPromiseResolved = false;
 
-      webSocket.onopen = () => {
-        log.info('Websocket is connected');
+      const transport = this._transport;
+
+      transport.onOpen = () => {
+        log.info('Transport is connected');
         this.emit('open');
 
         // Resolve the Promise
@@ -153,40 +160,30 @@ export default class JsonRpcTransport extends EventEmitter {
         isPromiseResolved = true;
       };
 
-      webSocket.onmessage = (event) => {
-        const data = event.data;
-        if (typeof data === 'string') {
-          this._onMessage(data);
-        } else {
-          log.error('Got invalid reply from the server', event);
-        }
+      transport.onMessage = (obj) => {
+        this._onMessage(obj);
       };
 
-      webSocket.onclose = (event) => {
-        log.info(`The websocket connection closed with code: ${event.code}`);
-
+      transport.onClose = (error: ?Error) => {
         // Remove all subscriptions since they are connection based
         this._subscriptions.clear();
 
-        // 1000 is a code used for normal connection closure.
-        const connectionError = event.code === 1000 ? null : new ConnectionError(event.code);
-
-        this.emit('close', connectionError);
+        this.emit('close', error);
 
         // Prevent rejecting a previously resolved Promise.
         if (!isPromiseResolved) {
-          reject(connectionError);
+          reject(error);
         }
       };
+      transport.connect(connectionParams);
 
-      this._webSocket = webSocket;
+      this._transport = transport;
     });
   }
 
   disconnect() {
-    if (this._webSocket) {
-      this._webSocket.close();
-      this._webSocket = null;
+    if (this._transport) {
+      this._transport.close();
     }
   }
 
@@ -211,8 +208,8 @@ export default class JsonRpcTransport extends EventEmitter {
 
   send(action: string, data: mixed, timeout: number = DEFAULT_TIMEOUT_MILLIS): Promise<mixed> {
     return new Promise((resolve, reject) => {
-      const webSocket = this._webSocket;
-      if (!webSocket) {
+      const transport = this._transport;
+      if (!transport) {
         reject(new Error('Websocket is not connected.'));
         return;
       }
@@ -230,7 +227,7 @@ export default class JsonRpcTransport extends EventEmitter {
 
       try {
         log.silly('Sending message', id, action);
-        webSocket.send(JSON.stringify(message));
+        transport.send(JSON.stringify(message));
       } catch (error) {
         log.error(`Failed sending RPC message "${action}": ${error.message}`);
 
@@ -272,9 +269,14 @@ export default class JsonRpcTransport extends EventEmitter {
     }
   }
 
-  _onMessage(message: string) {
-    const result = jsonrpc.parse(message);
-    const messages = Array.isArray(result) ? result : [result];
+  _onMessage(obj: Object) {
+    let messages = [];
+    try {
+      const message = jsonrpc.parseObject(obj);
+      messages = Array.isArray(message) ? message : [message];
+    } catch (error) {
+      log.error(`Failed to parse JSON-RPC message: ${error} for object`);
+    }
 
     for (const message of messages) {
       if (message.type === 'notification') {
@@ -317,5 +319,130 @@ export default class JsonRpcTransport extends EventEmitter {
     } else {
       log.warn(`Got reply to ${id} but no one was waiting for it`);
     }
+  }
+}
+
+interface Transport<T> {
+  close(): void;
+  onOpen: (event: Event) => void;
+  onMessage: (Object) => void;
+  onClose: (error: ?Error) => void;
+  send(message: string): void;
+  connect(params: T): void;
+}
+
+export class WebsocketTransport implements Transport<string> {
+  ws: ?WebSocket;
+  onOpen: (event: Event) => void;
+  onMessage: (Object) => void;
+  onClose: (error: ?Error) => void;
+
+  constructor(ws: ?WebSocket) {
+    this.ws = ws;
+    this.onOpen = () => {};
+    this.onMessage = () => {};
+    this.onClose = () => {};
+  }
+
+  close() {
+    if (this.ws) this.ws.close();
+  }
+
+  send(msg: string) {
+    if (this.ws) {
+      this.ws.send(msg);
+    }
+  }
+
+  connect(params: string): void {
+    if (this.ws) {
+      this.ws.close();
+    }
+    this.ws = new WebSocket(params);
+    this.ws.onopen = this.onOpen;
+    this.ws.onmessage = (event) => {
+      try {
+        const data = event.data;
+        if (typeof data === 'string') {
+          const msg = JSON.parse(data);
+          this.onMessage(msg);
+        } else {
+          throw event;
+        }
+      } catch (error) {
+        log.error('Got invalid reply from server: ', error);
+      }
+    };
+
+    this.ws.onclose = (event) => {
+      log.info(`The websocket connection closed with code: ${event.code}`);
+      const error = event.code === 1000 ? null : new WebSocketError(event.code);
+      this.onClose(error);
+    };
+  }
+}
+
+// Given the correct parameters, this transport supports named pipes/unix
+// domain sockets, and also TCP/UDP sockets
+export class SocketTransport implements Transport<{ path: string }> {
+  connection: ?net.Socket;
+  onMessage: (message: Object) => void;
+  onClose: (error: ?Error) => void;
+  onOpen: (event: Event) => void;
+
+  constructor() {
+    this.connection = null;
+    this.onMessage = () => {};
+    this.onClose = () => {};
+    this.onOpen = () => {};
+  }
+
+  _connect(options: { path: string }) {
+    const connection = new net.Socket();
+    connection.on('error', (err) => {
+      this.onClose(err);
+      this.close();
+    });
+
+    connection.on('connect', (event) => {
+      this.connection = connection;
+      this.onOpen(event);
+    });
+
+    const jsonStream = JSONStream.parse();
+
+    connection.pipe(jsonStream);
+
+    jsonStream.on('data', this.onMessage);
+
+    jsonStream.on('error', (err) => {
+      this.onClose(err);
+      this.close();
+    });
+
+    connection.connect(options);
+  }
+
+  close() {
+    try {
+      if (this.connection) {
+        this.connection.end();
+      }
+    } catch (error) {
+      log.error('failed to close the connection: ', error);
+    }
+    this.connection = null;
+  }
+
+  send(msg: string) {
+    if (this.connection) {
+      this.connection.write(msg);
+    } else {
+      throw new TransportError('Socket not connected');
+    }
+  }
+
+  connect(options: { path: string }): void {
+    this._connect(options);
   }
 }
