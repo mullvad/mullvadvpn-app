@@ -1,7 +1,6 @@
 use clap;
+use new_rpc_client;
 use {Command, Result};
-
-use mullvad_ipc_client::DaemonRpcClient;
 
 pub struct AutoConnect;
 
@@ -42,14 +41,14 @@ impl Command for AutoConnect {
 
 impl AutoConnect {
     fn set(&self, auto_connect: bool) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_rpc_client()?;
         rpc.set_auto_connect(auto_connect)?;
         println!("Changed auto-connect sharing setting");
         Ok(())
     }
 
     fn get(&self) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_rpc_client()?;
         let auto_connect = rpc.get_auto_connect()?;
         println!("Autoconnect: {}", if auto_connect { "on" } else { "off" });
         Ok(())

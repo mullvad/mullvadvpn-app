@@ -25,8 +25,8 @@ extern crate serde_json;
 extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
+extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
-extern crate jsonrpc_ws_server;
 extern crate rand;
 extern crate tokio_core;
 extern crate tokio_timer;
@@ -50,7 +50,6 @@ mod geoip;
 mod logging;
 mod management_interface;
 mod relays;
-mod rpc_address_file;
 mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
@@ -126,7 +125,7 @@ pub enum DaemonEvent {
     /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(ManagementCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
-    ManagementInterfaceExited(talpid_ipc::Result<()>),
+    ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
 }
@@ -286,18 +285,13 @@ impl Daemon {
         event_tx: IntoSender<ManagementCommand, DaemonEvent>,
         cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
-        let shared_secret = uuid::Uuid::new_v4().to_string();
-
-        let server = ManagementInterfaceServer::start(event_tx, shared_secret.clone(), cache_dir)
+        let server = ManagementInterfaceServer::start(event_tx, cache_dir)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
-            server.address()
+            server.socket_path()
         );
 
-        rpc_address_file::write(server.address(), &shared_secret).chain_err(|| {
-            ErrorKind::ManagementInterfaceError("Failed to write RPC connection info to file")
-        })?;
         Ok(server)
     }
 
@@ -306,9 +300,9 @@ impl Daemon {
         exit_tx: mpsc::Sender<DaemonEvent>,
     ) {
         thread::spawn(move || {
-            let result = server.wait();
+            server.wait();
             error!("Mullvad management interface shut down");
-            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited(result));
+            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited);
         });
     }
 
@@ -333,7 +327,7 @@ impl Daemon {
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
-            ManagementInterfaceExited(result) => self.handle_management_interface_exited(result),
+            ManagementInterfaceExited => self.handle_management_interface_exited(),
             TriggerShutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -599,12 +593,8 @@ impl Daemon {
         }
     }
 
-    fn handle_management_interface_exited(&self, result: talpid_ipc::Result<()>) -> Result<()> {
-        let error = ErrorKind::ManagementInterfaceError("Server exited unexpectedly");
-        match result {
-            Ok(()) => Err(error.into()),
-            Err(e) => Err(e).chain_err(|| error),
-        }
+    fn handle_management_interface_exited(&self) -> Result<()> {
+        Err(ErrorKind::ManagementInterfaceError("Server exited unexpectedly").into())
     }
 
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
@@ -721,10 +711,12 @@ impl DaemonShutdownHandle {
 
 impl Drop for Daemon {
     fn drop(self: &mut Daemon) {
-        if let Err(e) =
-            rpc_address_file::remove().chain_err(|| "Unable to clean up rpc address file")
+        #[cfg(unix)]
         {
-            error!("{}", e.display_chain());
+            use std::fs;
+            if let Err(e) = fs::remove_file(mullvad_paths::get_rpc_socket_path()) {
+                error!("Failed to remove RPC socket: {}", e);
+            }
         }
     }
 }

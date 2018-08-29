@@ -10,28 +10,22 @@
 
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
-extern crate log;
 
 extern crate serde;
-#[macro_use]
 extern crate serde_json;
 
 extern crate jsonrpc_core;
+extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
-extern crate jsonrpc_ws_server;
-extern crate url;
-extern crate ws;
+
+extern crate jsonrpc_client_core;
+extern crate jsonrpc_client_ipc;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
-use jsonrpc_ws_server::{MetaExtractor, NoopExtractor, Server, ServerBuilder};
+use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
+
 
 use std::fmt;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-
-
-mod client;
-pub use client::*;
 
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
@@ -41,38 +35,57 @@ error_chain!{
         IpcServerError {
             description("Error in IPC server")
         }
+
+        PermissionsError {
+            description("Unable to set permissions for IPC endpoint")
+        }
     }
 }
 
 
 pub struct IpcServer {
-    address: String,
+    path: String,
     server: Server,
 }
 
 impl IpcServer {
-    pub fn start<M: Metadata>(handler: MetaIoHandler<M>) -> Result<Self> {
-        Self::start_with_metadata(handler, NoopExtractor)
+    pub fn start<M: Metadata + Default>(handler: MetaIoHandler<M>, path: String) -> Result<Self> {
+        Self::start_with_metadata(handler, NoopExtractor, path)
     }
 
-    pub fn start_with_metadata<M, E>(handler: MetaIoHandler<M>, meta_extractor: E) -> Result<Self>
+    pub fn start_with_metadata<M, E>(
+        handler: MetaIoHandler<M>,
+        meta_extractor: E,
+        path: String,
+    ) -> Result<Self>
     where
-        M: Metadata,
+        M: Metadata + Default,
         E: MetaExtractor<M>,
     {
-        let listen_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
-        ServerBuilder::new(handler)
-            .session_meta_extractor(meta_extractor)
-            .start(&listen_addr)
+        let security_attributes = SecurityAttributes::allow_everyone_create()
+            .chain_err(|| ErrorKind::PermissionsError)?;
+        let server = ServerBuilder::with_meta_extractor(handler, meta_extractor)
+            .set_security_attributes(security_attributes)
+            .start(&path)
+            .chain_err(|| ErrorKind::IpcServerError)
             .map(|server| IpcServer {
-                address: format!("ws://{}", server.addr()),
-                server: server,
-            }).chain_err(|| ErrorKind::IpcServerError)
+                path: path.to_owned(),
+                server,
+            })?;
+
+        #[cfg(unix)]
+        {
+            use std::fs;
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&path, PermissionsExt::from_mode(0o766))
+                .chain_err(|| ErrorKind::PermissionsError)?;
+        }
+        Ok(server)
     }
 
-    /// Returns the localhost address this `IpcServer` is listening on.
-    pub fn address(&self) -> &str {
-        &self.address
+    /// Returns the uds/named pipe path this `IpcServer` is listening on.
+    pub fn path(&self) -> &str {
+        &self.path
     }
 
     /// Creates a handle bound to this `IpcServer` that can be used to shut it down.
@@ -80,10 +93,10 @@ impl IpcServer {
         CloseHandle(self.server.close_handle())
     }
 
-    /// Consumes the server and waits for it to finish. Get an `CloseHandle` before calling this
+    /// Consumes the server and waits for it to finish. Get a `CloseHandle` before calling this
     /// if you want to be able to shut the server down.
-    pub fn wait(self) -> Result<()> {
-        self.server.wait().chain_err(|| ErrorKind::IpcServerError)
+    pub fn wait(self) {
+        self.server.wait();
     }
 }
 
@@ -92,14 +105,13 @@ impl IpcServer {
 impl fmt::Debug for IpcServer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("IpcServer")
-            .field("address", &self.address)
+            .field("path", &self.path)
             .finish()
     }
 }
 
-
 #[derive(Clone)]
-pub struct CloseHandle(jsonrpc_ws_server::CloseHandle);
+pub struct CloseHandle(jsonrpc_ipc_server::CloseHandle);
 
 impl CloseHandle {
     pub fn close(self) {

@@ -1,8 +1,8 @@
 use clap;
+use new_rpc_client;
 use Command;
 use Result;
 
-use mullvad_ipc_client::DaemonRpcClient;
 
 pub struct Connect;
 
@@ -17,7 +17,7 @@ impl Command for Connect {
     }
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = DaemonRpcClient::new()?;
+        let mut rpc = new_rpc_client()?;
         rpc.connect()?;
         Ok(())
     }

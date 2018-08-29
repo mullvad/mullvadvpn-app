@@ -4,13 +4,14 @@ use error_chain::ChainedError;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
+use jsonrpc_ipc_server;
 use jsonrpc_macros::pubsub;
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
-use jsonrpc_ws_server;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 
+use mullvad_paths;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::{DaemonState, TargetState};
@@ -21,7 +22,6 @@ use serde;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 
 use talpid_core::mpsc::IntoSender;
@@ -40,10 +40,6 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
-        /// Authenticate the client towards this daemon instance. This method must be called once
-        /// before any other call based on the same connection will work.
-        #[rpc(meta, name = "auth")]
-        fn auth(&self, Self::Metadata, String) -> BoxFuture<(), Error>;
 
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
@@ -225,27 +221,31 @@ pub struct ManagementInterfaceServer {
 impl ManagementInterfaceServer {
     pub fn start<T>(
         tunnel_tx: IntoSender<ManagementCommand, T>,
-        shared_secret: String,
         cache_dir: PathBuf,
     ) -> talpid_ipc::Result<Self>
     where
         T: From<ManagementCommand> + 'static + Send,
     {
-        let rpc = ManagementInterface::new(tunnel_tx, shared_secret, cache_dir);
+        let rpc = ManagementInterface::new(tunnel_tx, cache_dir);
         let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
         io.extend_with(rpc.to_delegate());
         let meta_io: MetaIoHandler<Meta> = io.into();
-        let server = talpid_ipc::IpcServer::start_with_metadata(meta_io, meta_extractor)?;
+        let path = mullvad_paths::get_rpc_socket_path();
+        let server = talpid_ipc::IpcServer::start_with_metadata(
+            meta_io,
+            meta_extractor,
+            path.to_string_lossy().to_string(),
+        )?;
         Ok(ManagementInterfaceServer {
             server,
             subscriptions,
         })
     }
 
-    pub fn address(&self) -> &str {
-        self.server.address()
+    pub fn socket_path(&self) -> &str {
+        self.server.path()
     }
 
     pub fn event_broadcaster(&self) -> EventBroadcaster {
@@ -256,11 +256,10 @@ impl ManagementInterfaceServer {
 
     /// Consumes the server and waits for it to finish. Returns an error if the server exited
     /// due to an error.
-    pub fn wait(self) -> talpid_ipc::Result<()> {
+    pub fn wait(self) {
         self.server.wait()
     }
 }
-
 
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 pub struct EventBroadcaster {
@@ -300,20 +299,14 @@ impl EventBroadcaster {
 struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<ManagementCommand, T>>,
-    shared_secret: String,
     cache_dir: PathBuf,
 }
 
 impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(
-        tx: IntoSender<ManagementCommand, T>,
-        shared_secret: String,
-        cache_dir: PathBuf,
-    ) -> Self {
+    pub fn new(tx: IntoSender<ManagementCommand, T>, cache_dir: PathBuf) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
-            shared_secret,
             cache_dir,
         }
     }
@@ -379,16 +372,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
         }
     }
 
-    fn check_auth(&self, meta: &Meta) -> Result<(), Error> {
-        if meta.authenticated.load(Ordering::SeqCst) {
-            trace!("auth success");
-            Ok(())
-        } else {
-            trace!("auth failed");
-            Err(Error::invalid_request())
-        }
-    }
-
     fn load_history(&self) -> Result<AccountHistory, AccountHistoryError> {
         let mut account_history = AccountHistory::new(&self.cache_dir);
         account_history.load()?;
@@ -396,41 +379,17 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     }
 }
 
-/// Evaluates a Result and early returns an error.
-/// If it is `Ok(val)`, evaluates to `val`.
-/// If it is `Err(e)` it early returns `Box<Future>` where the future will result in `e`.
-macro_rules! try_future {
-    ($result:expr) => {
-        match $result {
-            ::std::result::Result::Ok(val) => val,
-            ::std::result::Result::Err(e) => return Box::new(future::err(e)),
-        }
-    };
-}
-
 impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     for ManagementInterface<T>
 {
     type Metadata = Meta;
 
-    fn auth(&self, meta: Self::Metadata, shared_secret: String) -> BoxFuture<(), Error> {
-        let authenticated = shared_secret == self.shared_secret;
-        meta.authenticated.store(authenticated, Ordering::SeqCst);
-        debug!("authenticated: {}", authenticated);
-        if authenticated {
-            Box::new(future::ok(()))
-        } else {
-            Box::new(future::err(Error::internal_error()))
-        }
-    }
-
     fn get_account_data(
         &self,
-        meta: Self::Metadata,
+        _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<AccountData, Error> {
         trace!("get_account_data");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccountData(tx, account_token))
@@ -447,9 +406,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_relay_locations(&self, meta: Self::Metadata) -> BoxFuture<RelayList, Error> {
+    fn get_relay_locations(&self, _: Self::Metadata) -> BoxFuture<RelayList, Error> {
         trace!("get_relay_locations");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetRelayLocations(tx))
@@ -459,11 +417,10 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn set_account(
         &self,
-        meta: Self::Metadata,
+        _: Self::Metadata,
         account_token: Option<AccountToken>,
     ) -> BoxFuture<(), Error> {
         trace!("set_account");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token.clone()))
@@ -483,9 +440,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_account(&self, meta: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
+    fn get_account(&self, _: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
         trace!("get_account");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccount(tx))
@@ -495,11 +451,10 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn update_relay_settings(
         &self,
-        meta: Self::Metadata,
+        _: Self::Metadata,
         constraints_update: RelaySettingsUpdate,
     ) -> BoxFuture<(), Error> {
         trace!("update_relay_settings");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
 
         let message = ManagementCommand::UpdateRelaySettings(tx, constraints_update);
@@ -509,9 +464,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_relay_settings(&self, meta: Self::Metadata) -> BoxFuture<RelaySettings, Error> {
+    fn get_relay_settings(&self, _: Self::Metadata) -> BoxFuture<RelaySettings, Error> {
         trace!("get_relay_settings");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetRelaySettings(tx))
@@ -519,9 +473,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn set_allow_lan(&self, meta: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
+    fn set_allow_lan(&self, _: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
         trace!("set_allow_lan");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAllowLan(tx, allow_lan))
@@ -529,9 +482,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_allow_lan(&self, meta: Self::Metadata) -> BoxFuture<bool, Error> {
+    fn get_allow_lan(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
         trace!("get_allow_lan");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAllowLan(tx))
@@ -539,9 +491,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn set_auto_connect(&self, meta: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
+    fn set_auto_connect(&self, _: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
         trace!("set_auto_connect");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAutoConnect(tx, auto_connect))
@@ -549,9 +500,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_auto_connect(&self, meta: Self::Metadata) -> BoxFuture<bool, Error> {
+    fn get_auto_connect(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
         trace!("get_auto_connect");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAutoConnect(tx))
@@ -559,21 +509,18 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn connect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
+    fn connect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("connect");
-        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Secured))
     }
 
-    fn disconnect(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
+    fn disconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("disconnect");
-        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Unsecured))
     }
 
-    fn get_state(&self, meta: Self::Metadata) -> BoxFuture<DaemonState, Error> {
+    fn get_state(&self, _: Self::Metadata) -> BoxFuture<DaemonState, Error> {
         trace!("get_state");
-        try_future!(self.check_auth(&meta));
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetState(state_tx))
@@ -581,9 +528,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_current_location(&self, meta: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
+    fn get_current_location(&self, _: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
         trace!("get_current_location");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentLocation(tx))
@@ -591,15 +537,13 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn shutdown(&self, meta: Self::Metadata) -> BoxFuture<(), Error> {
+    fn shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         trace!("shutdown");
-        try_future!(self.check_auth(&meta));
         self.send_command_to_daemon(ManagementCommand::Shutdown)
     }
 
-    fn get_account_history(&self, meta: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
+    fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
         trace!("get_account_history");
-        try_future!(self.check_auth(&meta));
         Box::new(future::result(
             self.load_history()
                 .map(|history| history.get_accounts().to_vec())
@@ -612,11 +556,10 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn remove_account_from_history(
         &self,
-        meta: Self::Metadata,
+        _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<(), Error> {
         trace!("remove_account_from_history");
-        try_future!(self.check_auth(&meta));
         Box::new(future::result(
             self.load_history()
                 .and_then(|mut history| history.remove_account_token(account_token))
@@ -630,13 +573,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         ))
     }
 
-    fn set_openvpn_mssfix(
-        &self,
-        meta: Self::Metadata,
-        mssfix: Option<u16>,
-    ) -> BoxFuture<(), Error> {
+    fn set_openvpn_mssfix(&self, _: Self::Metadata, mssfix: Option<u16>) -> BoxFuture<(), Error> {
         trace!("set_openvpn_mssfix");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnMssfix(tx, mssfix))
@@ -647,11 +585,10 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn set_openvpn_enable_ipv6(
         &self,
-        meta: Self::Metadata,
+        _: Self::Metadata,
         enable_ipv6: bool,
     ) -> BoxFuture<(), Error> {
         trace!("set_openvpn_enable_ipv6");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnEnableIpv6(tx, enable_ipv6))
@@ -660,9 +597,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_tunnel_options(&self, meta: Self::Metadata) -> BoxFuture<TunnelOptions, Error> {
+    fn get_tunnel_options(&self, _: Self::Metadata) -> BoxFuture<TunnelOptions, Error> {
         trace!("get_tunnel_options");
-        try_future!(self.check_auth(&meta));
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetTunnelOptions(tx))
@@ -670,8 +606,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_current_version(&self, meta: Self::Metadata) -> BoxFuture<String, Error> {
-        try_future!(self.check_auth(&meta));
+    fn get_current_version(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentVersion(tx))
@@ -680,8 +615,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_version_info(&self, meta: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
-        try_future!(self.check_auth(&meta));
+    fn get_version_info(&self, _: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetVersionInfo(tx))
@@ -699,15 +633,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn new_state_subscribe(
-        &self,
-        meta: Self::Metadata,
-        subscriber: pubsub::Subscriber<DaemonState>,
-    ) {
+    fn new_state_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<DaemonState>) {
         trace!("new_state_subscribe");
-        if self.check_auth(&meta).is_err() {
-            return;
-        }
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
 
@@ -716,11 +643,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
     }
 
-    fn error_subscribe(&self, meta: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
+    fn error_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
         trace!("error_subscribe");
-        if self.check_auth(&meta).is_err() {
-            return;
-        }
         Self::subscribe(subscriber, &self.subscriptions.error_subscriptions);
     }
 
@@ -737,7 +661,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 #[derive(Clone, Debug, Default)]
 pub struct Meta {
     session: Option<Arc<Session>>,
-    authenticated: Arc<AtomicBool>,
 }
 
 /// Make the `Meta` type possible to use as jsonrpc metadata type.
@@ -751,9 +674,8 @@ impl PubSubMetadata for Meta {
 }
 
 /// Metadata extractor function for `Meta`.
-fn meta_extractor(context: &jsonrpc_ws_server::RequestContext) -> Meta {
+fn meta_extractor(context: &jsonrpc_ipc_server::RequestContext) -> Meta {
     Meta {
-        session: Some(Arc::new(Session::new(context.sender()))),
-        authenticated: Arc::new(AtomicBool::new(false)),
+        session: Some(Arc::new(Session::new(context.sender.clone()))),
     }
 }

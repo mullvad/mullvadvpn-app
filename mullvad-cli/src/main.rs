@@ -9,9 +9,11 @@
 #[macro_use]
 extern crate clap;
 extern crate env_logger;
+extern crate futures;
 #[macro_use]
 extern crate error_chain;
 extern crate mullvad_ipc_client;
+extern crate mullvad_paths;
 extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_types;
@@ -19,6 +21,7 @@ extern crate talpid_types;
 mod cmds;
 
 
+use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use std::io;
 
 error_chain! {
@@ -28,8 +31,12 @@ error_chain! {
     }
 
     links {
-        RpcError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
+        RpcClientError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
     }
+}
+
+pub fn new_rpc_client() -> Result<DaemonRpcClient> {
+    new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()).map_err(|e| Error::from(e))
 }
 
 quick_main!(run);
