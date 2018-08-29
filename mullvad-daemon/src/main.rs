@@ -342,6 +342,7 @@ impl Daemon {
 
         if tunnel_state == Disconnected {
             self.state.disconnected();
+            self.current_relay = None;
         }
 
         self.tunnel_state = tunnel_state;
