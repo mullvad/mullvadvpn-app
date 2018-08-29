@@ -1,9 +1,10 @@
 // @flow
 
-import JsonRpcTransport, {
+import JsonRpcClient, {
   RemoteError as JsonRpcRemoteError,
   TimeOutError as JsonRpcTimeOutError,
-} from './jsonrpc-transport';
+  SocketTransport,
+} from './jsonrpc-client';
 import { CommunicationError, InvalidAccountError, NoDaemonError } from '../errors';
 
 import {
@@ -222,7 +223,7 @@ const AppVersionInfoSchema = object({
 });
 
 export interface DaemonRpcProtocol {
-  connect(string): void;
+  connect({ path: string }): void;
   disconnect(): void;
   getAccountData(AccountToken): Promise<AccountData>;
   getRelayLocations(): Promise<RelayList>;
@@ -268,14 +269,14 @@ export type ConnectionObserver = {
 };
 
 export class DaemonRpc implements DaemonRpcProtocol {
-  _transport = new JsonRpcTransport();
+  _transport = new JsonRpcClient(new SocketTransport());
 
   async authenticate(sharedSecret: string): Promise<void> {
     await this._transport.send('auth', sharedSecret);
   }
 
-  connect(connectionString: string) {
-    this._transport.connect(connectionString);
+  connect(connectionParams: { path: string }) {
+    this._transport.connect(connectionParams);
   }
 
   disconnect() {

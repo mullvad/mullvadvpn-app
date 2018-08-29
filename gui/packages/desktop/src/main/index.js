@@ -10,7 +10,6 @@ import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'el
 
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
-import RpcAddressFile from './rpc-address-file';
 import ShutdownCoordinator from './shutdown-coordinator';
 import { resolveBin } from './proc';
 
@@ -191,45 +190,6 @@ const ApplicationMain = {
   },
 
   _registerIpcListeners() {
-    ipcMain.on('discover-daemon-connection', async (event) => {
-      const addressFile = new RpcAddressFile();
-
-      log.debug(`Waiting for RPC address file: "${addressFile.filePath}"`);
-
-      try {
-        await addressFile.waitUntilExists();
-      } catch (error) {
-        log.error(`Cannot finish polling the RPC address file: ${error.message}`);
-        return;
-      }
-
-      try {
-        if (!addressFile.isTrusted()) {
-          log.error(`Cannot verify the credibility of RPC address file`);
-          return;
-        }
-      } catch (error) {
-        log.error(`An error occurred during the credibility check: ${error.message}`);
-        return;
-      }
-
-      // There is a race condition here where the owner and permissions of
-      // the file can change in the time between we validate the owner and
-      // permissions and read the contents of the file. We deem the chance
-      // of that to be small enough to ignore.
-
-      try {
-        const credentials = await addressFile.parse();
-
-        log.debug('Read RPC connection info', credentials.connectionString);
-
-        event.sender.send('daemon-connection-ready', credentials);
-      } catch (error) {
-        log.error(`Cannot parse the RPC address file: ${error.message}`);
-        return;
-      }
-    });
-
     ipcMain.on('show-window', () => {
       const windowController = this._windowController;
       if (windowController) {
