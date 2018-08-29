@@ -122,7 +122,7 @@ impl ParsedRelays {
 pub struct RelaySelector {
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     rng: ThreadRng,
-    _updater: RelayListUpdaterHandle,
+    updater: RelayListUpdaterHandle,
 }
 
 impl RelaySelector {
@@ -148,8 +148,15 @@ impl RelaySelector {
         RelaySelector {
             parsed_relays,
             rng: rand::thread_rng(),
-            _updater: updater,
+            updater,
         }
+    }
+
+    /// Download the newest relay list.
+    pub fn update(&self) {
+        self.updater
+            .send(())
+            .expect("Relay list updated thread has stopped unexpectedly");
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
