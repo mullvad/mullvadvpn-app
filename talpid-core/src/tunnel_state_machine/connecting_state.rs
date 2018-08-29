@@ -8,8 +8,6 @@ use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
-use talpid_core::security::{NetworkSecurity, SecurityPolicy};
-use talpid_core::tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 use super::{
@@ -18,6 +16,8 @@ use super::{
     StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
 };
 use logging;
+use security::{NetworkSecurity, SecurityPolicy};
+use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
@@ -110,7 +110,7 @@ impl ConnectingState {
             parameters.endpoint,
             &parameters.options,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
-            &parameters.account_token,
+            &parameters.username,
             log_file.as_ref().map(PathBuf::as_path),
             &parameters.resource_dir,
             on_tunnel_event,

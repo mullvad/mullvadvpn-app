@@ -19,6 +19,7 @@ extern crate log;
 extern crate error_chain;
 #[cfg(target_os = "linux")]
 extern crate failure;
+extern crate futures;
 #[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
@@ -29,6 +30,7 @@ extern crate jsonrpc_macros;
 extern crate lazy_static;
 extern crate libc;
 extern crate shell_escape;
+extern crate tokio_core;
 extern crate uuid;
 #[cfg(target_os = "linux")]
 extern crate which;
@@ -47,10 +49,16 @@ pub mod process;
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;
 
+/// Helper function to preserve previous log files.
+pub mod logging;
+
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
 
 /// Abstractions over operating system network security settings.
 pub mod security;
+
+/// State machine to handle tunnel configuration.
+pub mod tunnel_state_machine;
 
 mod mktemp;

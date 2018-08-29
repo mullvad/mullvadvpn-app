@@ -55,7 +55,6 @@ mod rpc_uniqueness_check;
 mod settings;
 mod shutdown;
 mod system_service;
-mod tunnel_state_machine;
 mod version;
 
 use error_chain::ChainedError;
@@ -65,7 +64,6 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 
 use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
-use tunnel_state_machine::{TunnelCommand, TunnelParameters, TunnelStateTransition};
 
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
@@ -81,6 +79,9 @@ use std::time::Duration;
 use std::{mem, thread};
 
 use talpid_core::mpsc::IntoSender;
+use talpid_core::tunnel_state_machine::{
+    self, TunnelCommand, TunnelParameters, TunnelStateTransition,
+};
 use talpid_types::net::TunnelOptions;
 
 
@@ -696,7 +697,7 @@ impl Daemon {
             options: self.settings.get_tunnel_options().clone(),
             log_dir: self.log_dir.clone(),
             resource_dir: self.resource_dir.clone(),
-            account_token,
+            username: account_token,
             allow_lan: self.settings.get_allow_lan(),
         })
     }

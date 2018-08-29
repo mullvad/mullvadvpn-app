@@ -16,21 +16,23 @@ use futures::sync::mpsc;
 use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
-use mullvad_types::account::AccountToken;
-use talpid_core::mpsc::IntoSender;
-use talpid_core::security::{NetworkSecurity, NetworkSecurityImpl};
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
+use super::mpsc::IntoSender;
+use super::security::{NetworkSecurity, NetworkSecurityImpl};
 
 error_chain! {
     errors {
+        /// An error occurred while setting up the network security.
         NetworkSecurityError {
             description("Network security error")
         }
+        /// An error occurred while attempting to set up the event loop for the tunnel state
+        /// machine.
         ReactorError {
             description("Failed to initialize tunnel state machine event loop executor")
         }
@@ -110,20 +112,30 @@ pub enum TunnelCommand {
 /// Information necessary to open a tunnel.
 #[derive(Debug, PartialEq)]
 pub struct TunnelParameters {
+    /// Tunnel enpoint to connect to.
     pub endpoint: TunnelEndpoint,
+    /// Tunnel connection options.
     pub options: TunnelOptions,
+    /// Directory to store tunnel log file.
     pub log_dir: Option<PathBuf>,
+    /// Resource directory path.
     pub resource_dir: PathBuf,
-    pub account_token: AccountToken,
+    /// Username to use for setting up the tunnel.
+    pub username: String,
+    /// Should LAN access be allowed outside the tunnel.
     pub allow_lan: bool,
 }
 
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TunnelStateTransition {
+    /// No connection is established and network is unsecured.
     Disconnected,
+    /// Network is secured but tunnel is still connecting.
     Connecting,
+    /// Tunnel is connected.
     Connected,
+    /// Disconnecting tunnel.
     Disconnecting,
 }
 
