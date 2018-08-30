@@ -78,10 +78,9 @@ use std::time::Duration;
 use std::{mem, thread};
 
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel_state_machine::{
-    self, TunnelCommand, TunnelParameters, TunnelStateTransition,
-};
+use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
 use talpid_types::net::TunnelOptions;
+use talpid_types::tunnel::TunnelStateTransition;
 
 
 error_chain!{

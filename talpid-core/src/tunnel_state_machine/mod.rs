@@ -17,6 +17,7 @@ use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
+use talpid_types::tunnel::TunnelStateTransition;
 
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
@@ -124,19 +125,6 @@ pub struct TunnelParameters {
     pub username: String,
     /// Should LAN access be allowed outside the tunnel.
     pub allow_lan: bool,
-}
-
-/// Event resulting from a transition to a new tunnel state.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum TunnelStateTransition {
-    /// No connection is established and network is unsecured.
-    Disconnected,
-    /// Network is secured but tunnel is still connecting.
-    Connecting,
-    /// Tunnel is connected.
-    Connected,
-    /// Disconnecting tunnel.
-    Disconnecting,
 }
 
 /// Asynchronous handling of the tunnel state machine.
