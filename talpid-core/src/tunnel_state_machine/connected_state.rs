@@ -2,6 +2,7 @@ use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
 use talpid_types::net::TunnelEndpoint;
+use talpid_types::tunnel::BlockReason;
 
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
@@ -92,13 +93,15 @@ impl ConnectedState {
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        let chained_error = error.chain_err(|| "Failed to update security policy");
+                        error!("{}", chained_error);
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -161,13 +164,15 @@ impl TunnelState for ConnectedState {
                 TunnelStateTransition::Connected,
             ),
             Err(error) => {
-                error!("{}", error.chain_err(|| "Failed to set security policy"));
+                let chained_error = error.chain_err(|| "Failed to set security policy");
+                error!("{}", chained_error);
+
                 DisconnectingState::enter(
                     shared_values,
                     (
                         connected_state.close_handle,
                         connected_state.tunnel_close_event,
-                        AfterDisconnect::Nothing,
+                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                     ),
                 )
             }

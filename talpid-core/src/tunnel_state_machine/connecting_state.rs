@@ -40,12 +40,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        parameters: TunnelParameters,
-    ) -> Result<Self> {
-        Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)?;
-
+    fn new(parameters: TunnelParameters) -> Result<Self> {
         let tunnel_endpoint = parameters.endpoint;
         let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
@@ -206,13 +201,15 @@ impl ConnectingState {
                 match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        let chained_error = error.chain_err(|| "Failed to update security policy");
+                        error!("{}", chained_error);
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -271,7 +268,16 @@ impl TunnelState for ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        match Self::new(shared_values, parameters) {
+        if let Err(error) =
+            Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)
+        {
+            let chained_error = error.chain_err(|| "Failed to set security policy");
+            error!("{}", chained_error);
+
+            return BlockedState::enter(shared_values, BlockReason::StartTunnelError);
+        }
+
+        match Self::new(parameters) {
             Ok(connecting_state) => (
                 TunnelStateWrapper::from(connecting_state),
                 TunnelStateTransition::Connecting,

@@ -41,7 +41,7 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
-export type BlockReason = 'start_tunnel_error';
+export type BlockReason = 'set_security_policy_error' | 'start_tunnel_error';
 export type TunnelState =
   | 'disconnected'
   | 'connecting'
@@ -202,7 +202,7 @@ const AccountDataSchema = object({
   expiry: string,
 });
 
-const allBlockReasons: Array<BlockReason> = ['start_tunnel_error'];
+const allBlockReasons: Array<BlockReason> = ['set_security_policy_error', 'start_tunnel_error'];
 const BlockedStateSchema = object({ blocked: enumeration(...allBlockReasons) });
 
 const allSimpleTunnelStates: Array<TunnelState> = [
