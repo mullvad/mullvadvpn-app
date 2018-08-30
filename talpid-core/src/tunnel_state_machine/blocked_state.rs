@@ -1,6 +1,8 @@
 use futures::sync::mpsc;
 use futures::Stream;
 
+use talpid_types::tunnel::BlockReason;
+
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
@@ -10,15 +12,15 @@ use super::{
 pub struct BlockedState;
 
 impl TunnelState for BlockedState {
-    type Bootstrap = ();
+    type Bootstrap = BlockReason;
 
     fn enter(
         _: &mut SharedTunnelStateValues,
-        _: Self::Bootstrap,
+        block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         (
             TunnelStateWrapper::from(BlockedState),
-            TunnelStateTransition::Blocked,
+            TunnelStateTransition::Blocked(block_reason),
         )
     }
 
