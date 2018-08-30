@@ -32,14 +32,13 @@ mod os {
         // information from os-release is used if available, or a fallback message if
         // reading from the os-release file produced
         // no version information.
-        let os_version = read_os_release_file().unwrap_or_else(|incomplete_info| {
+        let version = read_os_release_file().unwrap_or_else(|incomplete_info| {
             parse_lsb_release().unwrap_or_else(|| {
-                incomplete_info
-                    .unwrap_or_else(|| String::from("[Failed to detect version]"))
+                incomplete_info.unwrap_or_else(|| String::from("[Failed to detect version]"))
             })
         });
 
-        format!("Linux, {}", os_version)
+        format!("Linux {}", version)
     }
 
     fn read_os_release_file() -> Result<String, Option<String>> {
@@ -96,27 +95,26 @@ mod os {
         let system_info =
             super::command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
 
-        let mut os_name = None;
-        let mut os_version = None;
+        let mut version = None;
+        let mut full_version = None;
 
         for info_line in system_info.lines() {
             let mut info_parts = info_line.split(":");
 
             match info_parts.next() {
-                Some("OS Name") => os_name = info_parts.next().trim(),
-                Some("OS Version") => os_version = info_parts.next().trim(),
+                Some("OS Name") => {
+                    version = info_parts
+                        .next()
+                        .map(|s| s.trim().trim_left_matches("Microsoft Windows "))
+                }
+                Some("OS Version") => full_version = info_parts.next().map(str::trim),
                 _ => {}
             }
         }
 
-        match (os_name, os_version) {
-            (None, None) => String::from("Windows [Failed to detect version]"),
-            (Some(os_name), None) => os_name.to_owned(),
-            (None, Some(os_version)) => format!("Windows version {}", os_version),
-            (Some(os_name), Some(os_version)) => {
-                format!("{} version {}", os_name, os_version)
-            }
-        }
+        let version = version.unwrap_or("N/A");
+        let full_version = full_version.unwrap_or("N/A");
+        format!("Windows {} ({})", version, full_version)
     }
 }
 
