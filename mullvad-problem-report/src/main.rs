@@ -14,8 +14,6 @@ extern crate error_chain;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
-#[cfg(target_os = "linux")]
-extern crate rs_release;
 extern crate uuid;
 
 extern crate mullvad_paths;
@@ -31,7 +29,8 @@ use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+
+mod metadata;
 
 /// Maximum number of bytes to read from each log file
 const LOG_MAX_READ_BYTES: usize = 128 * 1024;
@@ -87,7 +86,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
-        .version(product_version())
+        .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)
@@ -237,7 +236,7 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
         read_file_lossy(report_path, REPORT_MAX_SIZE)
             .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?,
     );
-    let metadata = collect_metadata();
+    let metadata = metadata::collect();
 
     let ca_path = mullvad_paths::resources::get_api_ca_path();
 
@@ -278,7 +277,7 @@ impl ProblemReport {
         redact_custom_strings.retain(|redact| !redact.is_empty());
 
         ProblemReport {
-            metadata: collect_metadata(),
+            metadata: metadata::collect(),
             logs: Vec::new(),
             log_paths: HashSet::new(),
             redact_custom_strings,
@@ -451,126 +450,6 @@ fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
     let mut buffer = Vec::with_capacity(capacity);
     file.take(max_bytes as u64).read_to_end(&mut buffer)?;
     Ok(String::from_utf8_lossy(&buffer).into_owned())
-}
-
-fn collect_metadata() -> HashMap<String, String> {
-    let mut metadata = HashMap::new();
-    metadata.insert("id".to_owned(), uuid::Uuid::new_v4().to_string());
-    metadata.insert(
-        "mullvad-product-version".to_owned(),
-        product_version().to_owned(),
-    );
-    metadata.insert("os".to_owned(), os_version());
-    metadata
-}
-
-fn product_version() -> &'static str {
-    concat!(
-        include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
-        " ",
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
-    )
-}
-
-#[cfg(target_os = "linux")]
-fn os_version() -> String {
-    // The OS version information is obtained first from the os-release file. If that information
-    // is incomplete or unavailable, an attempt is made to obtain the version information from the
-    // lsb_release command. If that fails, any partial information from os-release is used if
-    // available, or a fallback message if reading from the os-release file produced no version
-    // information.
-    let os_version = read_os_release_file().unwrap_or_else(|incomplete_info| {
-        parse_lsb_release().unwrap_or_else(|| {
-            incomplete_info
-                .unwrap_or_else(|| String::from("[failed to get Linux distribution/version]"))
-        })
-    });
-
-    format!("Linux, {}", os_version)
-}
-
-#[cfg(target_os = "linux")]
-fn read_os_release_file() -> std::result::Result<String, Option<String>> {
-    let mut os_release_info = rs_release::get_os_release().map_err(|_| None)?;
-    let os_name = os_release_info.remove("NAME");
-    let os_version = os_release_info.remove("VERSION");
-
-    if os_name.is_some() || os_version.is_some() {
-        let full_info_available = os_name.is_some() && os_version.is_some();
-
-        let gathered_info = format!(
-            "{} {}",
-            os_name.unwrap_or_else(|| "[unknown distribution]".to_owned()),
-            os_version.unwrap_or_else(|| "[unknown version]".to_owned())
-        );
-
-        if full_info_available {
-            Ok(gathered_info)
-        } else {
-            // Partial version information
-            Err(Some(gathered_info))
-        }
-    } else {
-        // No information was obtained
-        Err(None)
-    }
-}
-
-#[cfg(target_os = "linux")]
-fn parse_lsb_release() -> Option<String> {
-    command_stdout_lossy("lsb_release", &["-ds"]).and_then(|output| {
-        if output.is_empty() {
-            None
-        } else {
-            Some(output)
-        }
-    })
-}
-
-#[cfg(target_os = "macos")]
-fn os_version() -> String {
-    format!(
-        "macOS {}",
-        command_stdout_lossy("sw_vers", &["-productVersion"])
-            .unwrap_or(String::from("[Failed to detect version]"))
-    )
-}
-
-#[cfg(windows)]
-fn os_version() -> String {
-    let system_info =
-        command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
-
-    let mut os_name = None;
-    let mut os_version = None;
-
-    for info_line in system_info.lines() {
-        let mut info_parts = info_line.split(":");
-
-        match info_parts.next() {
-            Some("OS Name") => os_name = info_parts.next(),
-            Some("OS Version") => os_version = info_parts.next(),
-            _ => {}
-        }
-    }
-
-    match (os_name, os_version) {
-        (None, None) => String::from("Windows [Failed to detect version]"),
-        (Some(os_name), None) => os_name.trim().to_owned(),
-        (None, Some(os_version)) => format!("Windows version {}", os_version.trim()),
-        (Some(os_name), Some(os_version)) => {
-            format!("{} version {}", os_name.trim(), os_version.trim())
-        }
-    }
-}
-
-/// Helper for getting stdout of some command as a String. Ignores the exit code of the command.
-fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
-    Command::new(cmd)
-        .args(args)
-        .output()
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
-        .ok()
 }
 
 #[cfg(not(windows))]
