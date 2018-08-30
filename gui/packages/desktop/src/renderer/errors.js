@@ -4,7 +4,13 @@ import type { BlockReason } from './lib/daemon-rpc';
 
 export class BlockedError extends Error {
   constructor(reason: BlockReason) {
-    super(reason);
+    switch (reason) {
+      case 'start_tunnel_error':
+        super('Failed to start tunnel connection');
+        break;
+      default:
+        super(`Unknown error: ${(reason: empty)}`);
+    }
   }
 }
 

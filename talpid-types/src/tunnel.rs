@@ -20,10 +20,17 @@ pub enum TunnelStateTransition {
 /// Reason for entering the blocked state.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum BlockReason {}
+pub enum BlockReason {
+    /// Failed to start connection to remote server
+    StartTunnelError,
+}
 
 impl fmt::Display for BlockReason {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        Ok(())
+        let description = match *self {
+            BlockReason::StartTunnelError => "Failed to start connection to remote server",
+        };
+
+        write!(formatter, "{}", description)
     }
 }
