@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter, Result as FmtResult};
+
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -11,5 +13,16 @@ pub enum TunnelStateTransition {
     /// Disconnecting tunnel.
     Disconnecting,
     /// Tunnel is disconnected but secured by blocking all connections.
-    Blocked,
+    Blocked(BlockReason),
+}
+
+/// Reason for entering the blocked state.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BlockReason {}
+
+impl Display for BlockReason {
+    fn fmt(&self, _: &mut Formatter) -> FmtResult {
+        Ok(())
+    }
 }
