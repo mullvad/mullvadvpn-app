@@ -10,11 +10,12 @@ use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
+use talpid_types::tunnel::BlockReason;
 
 use super::{
-    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
-    DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
+    EventConsequence, Result, ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
 use security::{NetworkSecurity, SecurityPolicy};
@@ -278,8 +279,10 @@ impl TunnelState for ConnectingState {
                 TunnelStateTransition::Connecting,
             ),
             Err(error) => {
-                error!("{}", error.chain_err(|| "Failed to start tunnel"));
-                DisconnectedState::enter(shared_values, ())
+                let chained_error = error.chain_err(|| "Failed to start tunnel");
+                error!("{}", chained_error.display_chain());
+
+                BlockedState::enter(shared_values, BlockReason::StartTunnelError)
             }
         }
     }
