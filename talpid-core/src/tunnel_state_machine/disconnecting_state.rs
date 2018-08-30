@@ -1,3 +1,5 @@
+use std::thread;
+
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
@@ -72,13 +74,15 @@ impl TunnelState for DisconnectingState {
         _: &mut SharedTunnelStateValues,
         (close_handle, exited, after_disconnect): Self::Bootstrap,
     ) -> StateEntryResult {
-        let close_result = close_handle
-            .close()
-            .chain_err(|| "Failed to request tunnel monitor to close the tunnel");
+        thread::spawn(move || {
+            let close_result = close_handle
+                .close()
+                .chain_err(|| "Failed to close the tunnel");
 
-        if let Err(error) = close_result {
-            error!("{}", error.display_chain());
-        }
+            if let Err(error) = close_result {
+                error!("{}", error.display_chain());
+            }
+        });
 
         Ok(TunnelStateWrapper::from(DisconnectingState {
             exited,
