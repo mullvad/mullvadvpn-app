@@ -41,12 +41,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        parameters: TunnelParameters,
-    ) -> Result<Self> {
-        Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)?;
-
+    fn new(parameters: TunnelParameters) -> Result<Self> {
         let tunnel_endpoint = parameters.endpoint;
         let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
@@ -214,7 +209,7 @@ impl ConnectingState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -273,7 +268,15 @@ impl TunnelState for ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        match Self::new(shared_values, parameters) {
+        if let Err(error) =
+            Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)
+        {
+            error!("{}", error.display_chain());
+
+            return BlockedState::enter(shared_values, BlockReason::StartTunnelError);
+        }
+
+        match Self::new(parameters) {
             Ok(connecting_state) => (
                 TunnelStateWrapper::from(connecting_state),
                 TunnelStateTransition::Connecting,
