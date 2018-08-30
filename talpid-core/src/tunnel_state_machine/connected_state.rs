@@ -3,6 +3,7 @@ use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
 use talpid_types::net::TunnelEndpoint;
+use talpid_types::tunnel::BlockReason;
 
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
@@ -100,7 +101,7 @@ impl ConnectedState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -170,7 +171,7 @@ impl TunnelState for ConnectedState {
                     (
                         connected_state.close_handle,
                         connected_state.tunnel_close_event,
-                        AfterDisconnect::Nothing,
+                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                     ),
                 )
             }
