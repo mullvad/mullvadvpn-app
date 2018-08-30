@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Warn in the Settings screen if a new version is available.
 - Enter a "blocked" state in case of connection error, which prevents leaking connections until the
   user specifically requests to disconnect.
+- Make scrollbar thumb draggable.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
