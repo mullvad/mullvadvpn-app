@@ -41,7 +41,29 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
-export type TunnelState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'blocked';
+export type BlockReason = string;
+export type DisconnectedState = {
+  state: 'disconnected',
+};
+export type ConnectingState = {
+  state: 'connecting',
+};
+export type ConnectedState = {
+  state: 'connected',
+};
+export type DisconnectingState = {
+  state: 'disconnecting',
+};
+export type BlockedState = {
+  state: 'blocked',
+  details: BlockReason,
+};
+export type TunnelState =
+  | DisconnectedState
+  | ConnectingState
+  | ConnectedState
+  | DisconnectingState
+  | BlockedState;
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
@@ -196,14 +218,22 @@ const AccountDataSchema = object({
   expiry: string,
 });
 
-const allTunnelStates: Array<TunnelState> = [
-  'disconnected',
-  'connecting',
-  'connected',
-  'disconnecting',
-  'blocked',
-];
-const TunnelStateSchema = enumeration(...allTunnelStates);
+const BlockedStateSchema = object({
+  state: enumeration('blocked'),
+  details: string,
+});
+const ConnectedStateSchema = object({ state: enumeration('connected') });
+const ConnectingStateSchema = object({ state: enumeration('connecting') });
+const DisconnectedStateSchema = object({ state: enumeration('disconnected') });
+const DisconnectingStateSchema = object({ state: enumeration('disconnecting') });
+
+const TunnelStateSchema = oneOf(
+  BlockedStateSchema,
+  ConnectedStateSchema,
+  ConnectingStateSchema,
+  DisconnectedStateSchema,
+  DisconnectingStateSchema,
+);
 
 export type AppVersionInfo = {
   currentIsSupported: boolean,
