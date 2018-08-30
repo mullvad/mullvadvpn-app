@@ -86,7 +86,7 @@ quick_main!(run);
 
 fn run() -> Result<()> {
     let app = clap::App::new("problem-report")
-        .version(metadata::product_version())
+        .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
         .setting(clap::AppSettings::SubcommandRequired)

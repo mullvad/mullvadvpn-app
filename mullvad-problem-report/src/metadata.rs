@@ -2,23 +2,21 @@ use std::collections::HashMap;
 use std::process::Command;
 use uuid;
 
+pub const PRODUCT_VERSION: &str = concat!(
+    include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
+    " ",
+    include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
+);
+
 pub fn collect() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
     metadata.insert("id".to_owned(), uuid::Uuid::new_v4().to_string());
     metadata.insert(
         "mullvad-product-version".to_owned(),
-        product_version().to_owned(),
+        PRODUCT_VERSION.to_owned(),
     );
     metadata.insert("os".to_owned(), os::version());
     metadata
-}
-
-pub fn product_version() -> &'static str {
-    concat!(
-        include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
-        " ",
-        include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
-    )
 }
 
 #[cfg(target_os = "linux")]
