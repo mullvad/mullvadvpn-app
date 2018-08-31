@@ -111,13 +111,15 @@ linux:
       to: .
 
 deb:
-  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+  fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
+       "--config-files", "/etc/systemd/system/mullvad-daemon.service",
        "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
-  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
+  fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
+       "--config-files", "/etc/systemd/system/mullvad-daemon.service",
        "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
