@@ -27,12 +27,16 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
+- Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
+
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
 
 ### Fixed
 #### Linux
 - The app window is now shown in its previous location, instead of at the center of the screen.
+- Remove daemon log, cache and configuration directories during full uninstallation of the app.
+- Restart the daemon automatically on upgrade.
 
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
