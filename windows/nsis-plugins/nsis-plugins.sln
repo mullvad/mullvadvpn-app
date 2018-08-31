@@ -5,19 +5,20 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "driverlogic", "src\driverlogic\driverlogic.vcxproj", "{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
+		{1344152F-2BAD-4198-8E51-31AAC32BFBB2} = {1344152F-2BAD-4198-8E51-31AAC32BFBB2}
 	EndProjectSection
 EndProject
-Project("{54BCC44A-7EAA-4BB3-8CF5-564137999875}") = "cleanup", "src\cleanup\cleanup.vcxproj", "{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cleanup", "src\cleanup\cleanup.vcxproj", "{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
 	EndProjectSection
 EndProject
-Project("{714F8F19-E50B-4920-9BC3-479EC443B3F5}") = "log", "src\log\log.vcxproj", "{1344152F-2BAD-4198-8E51-31AAC32BFBB2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "log", "src\log\log.vcxproj", "{1344152F-2BAD-4198-8E51-31AAC32BFBB2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
 	EndProjectSection
 EndProject
-Project("{EC315746-5E73-42EB-B79B-CC019245EDBC}") = "libcommon", "..\windows-libraries\src\libcommon\libcommon.vcxproj", "{B52E2D10-A94A-4605-914A-2DCEF6A757EF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcommon", "..\windows-libraries\src\libcommon\libcommon.vcxproj", "{B52E2D10-A94A-4605-914A-2DCEF6A757EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
