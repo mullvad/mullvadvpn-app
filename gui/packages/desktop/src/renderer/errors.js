@@ -1,8 +1,10 @@
 // @flow
 
+import type { BlockReason } from './lib/daemon-rpc';
+
 export class BlockedError extends Error {
-  constructor() {
-    super('Network connections blocked due to an internal error');
+  constructor(reason: BlockReason) {
+    super(reason);
   }
 }
 

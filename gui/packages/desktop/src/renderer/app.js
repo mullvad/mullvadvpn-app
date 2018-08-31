@@ -404,8 +404,7 @@ export default class AppRenderer {
 
   async _fetchTunnelState() {
     const tunnelState = await this._daemonRpc.getState();
-    const connectionState = this._tunnelStateToConnectionState(tunnelState);
-    this._updateConnectionState(connectionState);
+    this._updateConnectionState(tunnelState);
   }
 
   async _fetchTunnelOptions() {
@@ -502,15 +501,9 @@ export default class AppRenderer {
       }
 
       if (newState) {
-        const connectionState = this._tunnelStateToConnectionState(newState);
+        log.debug(`Got new state from daemon '${JSON.stringify(newState)}'`);
 
-        log.debug(
-          `Got new state from daemon '${JSON.stringify(
-            newState,
-          )}', translated to '${connectionState}'`,
-        );
-
-        this._updateConnectionState(connectionState);
+        this._updateConnectionState(newState);
         this._refreshStateOnChange();
       }
     });
@@ -566,25 +559,28 @@ export default class AppRenderer {
     }
   }
 
-  _updateConnectionState(connectionState: ConnectionState) {
+  _updateConnectionState(tunnelState: TunnelState) {
     const actions = this._reduxActions;
-    switch (connectionState) {
+    switch (tunnelState.state) {
       case 'connecting':
         actions.connection.connecting();
         break;
       case 'connected':
         actions.connection.connected();
         break;
+      case 'disconnecting':
+      // Fall through
       case 'disconnected':
         actions.connection.disconnected();
         break;
       case 'blocked':
-        actions.connection.blocked();
+        actions.connection.blocked(tunnelState.details);
         break;
       default:
-        log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
+        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
     }
 
+    const connectionState = this._tunnelStateToConnectionState(tunnelState);
     this._updateTrayIcon(connectionState);
     this._showNotification(connectionState);
   }
