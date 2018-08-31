@@ -394,8 +394,8 @@ export default class AppRenderer {
   }
 
   async _fetchSecurityState() {
-    const securityState = await this._daemonRpc.getState();
-    const connectionState = this._tunnelStateToConnectionState(securityState);
+    const tunnelState = await this._daemonRpc.getState();
+    const connectionState = this._tunnelStateToConnectionState(tunnelState);
     this._updateConnectionState(connectionState);
   }
 
@@ -521,6 +521,7 @@ export default class AppRenderer {
     const iconTypes: { [ConnectionState]: TrayIconType } = {
       connected: 'secured',
       connecting: 'securing',
+      blocked: 'securing',
     };
     const type = iconTypes[connectionState] || 'unsecured';
 
@@ -536,14 +537,20 @@ export default class AppRenderer {
   }
 
   _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
-    if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
-      return 'disconnected';
-    } else if (tunnelState === 'blocked') {
-      return 'connecting';
-    } else if (tunnelState === 'connected' || tunnelState === 'connecting') {
-      return tunnelState;
+    switch (tunnelState) {
+      case 'disconnected':
+      // Fall through
+      case 'disconnecting':
+        return 'disconnected';
+      case 'connected':
+        return 'connected';
+      case 'connecting':
+        return 'connecting';
+      case 'blocked':
+        return 'blocked';
+      default:
+        throw new Error('Unknown tunnel state: ' + (tunnelState: empty));
     }
-    throw new Error('Unsupported state/target state combination: ' + JSON.stringify(tunnelState));
   }
 
   _updateConnectionState(connectionState: ConnectionState) {
@@ -558,6 +565,11 @@ export default class AppRenderer {
       case 'disconnected':
         actions.connection.disconnected();
         break;
+      case 'blocked':
+        actions.connection.blocked();
+        break;
+      default:
+        log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
     }
 
     this._updateTrayIcon(connectionState);
@@ -574,6 +586,9 @@ export default class AppRenderer {
         break;
       case 'disconnected':
         this._notificationController.show('Unsecured');
+        break;
+      case 'blocked':
+        this._notificationController.show('Blocked all connections');
         break;
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
