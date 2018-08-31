@@ -9,15 +9,15 @@ function remove_systemd_unit {
 }
 
 function remove_logs_and_cache {
-  rm -rf /var/log/mullvad-daemon/ || \
-    echo "Failed to remove mullvad-daemon logs"
-  rm -rf /var/cache/mullvad-daemon/ || \
-    echo "Failed to remove mullvad-daemon cache"
+  rm -rf /var/log/mullvad-vpn/ || \
+    echo "Failed to remove mullvad-vpn logs"
+  rm -rf /var/cache/mullvad-vpn/ || \
+    echo "Failed to remove mullvad-vpn cache"
 }
 
 function remove_config {
-  rm -rf /etc/mullvad-daemon || \
-    echo "Failed to remove mullvad-daemon config"
+  rm -rf /etc/mullvad-vpn || \
+    echo "Failed to remove mullvad-vpn config"
 }
 
 # checking what kind of an action is taking place
