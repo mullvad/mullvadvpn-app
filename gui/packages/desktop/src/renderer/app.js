@@ -495,7 +495,11 @@ export default class AppRenderer {
       if (newState) {
         const connectionState = this._tunnelStateToConnectionState(newState);
 
-        log.debug(`Got new state from daemon '${newState}', translated to '${connectionState}'`);
+        log.debug(
+          `Got new state from daemon '${JSON.stringify(
+            newState,
+          )}', translated to '${connectionState}'`,
+        );
 
         this._updateConnectionState(connectionState);
         this._refreshStateOnChange();
@@ -538,10 +542,10 @@ export default class AppRenderer {
   _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
     if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
       return 'disconnected';
-    } else if (tunnelState === 'blocked') {
-      return 'connecting';
     } else if (tunnelState === 'connected' || tunnelState === 'connecting') {
       return tunnelState;
+    } else if (typeof tunnelState.blocked === 'string') {
+      return 'connecting';
     }
     throw new Error('Unsupported state/target state combination: ' + JSON.stringify(tunnelState));
   }

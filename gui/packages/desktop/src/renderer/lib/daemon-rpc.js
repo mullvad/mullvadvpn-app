@@ -41,7 +41,13 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
-export type TunnelState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'blocked';
+export type BlockReason = string;
+export type TunnelState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'disconnecting'
+  | { blocked: BlockReason };
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation = {| city: [string, string] |} | {| country: string |};
@@ -196,14 +202,15 @@ const AccountDataSchema = object({
   expiry: string,
 });
 
-const allTunnelStates: Array<TunnelState> = [
+const BlockedStateSchema = object({ blocked: string });
+
+const allSimpleTunnelStates: Array<TunnelState> = [
   'disconnected',
   'connecting',
   'connected',
   'disconnecting',
-  'blocked',
 ];
-const TunnelStateSchema = enumeration(...allTunnelStates);
+const TunnelStateSchema = oneOf(enumeration(...allSimpleTunnelStates), BlockedStateSchema);
 
 export type AppVersionInfo = {
   currentIsSupported: boolean,
