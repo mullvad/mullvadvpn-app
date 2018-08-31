@@ -52,7 +52,15 @@ void PinDll()
 		throw std::runtime_error("Failed to pin plugin module");
 	}
 
-	LoadLibraryW(self);
+	//
+	// NSIS sometimes frees a plugin module more times than it loads it.
+	// This hasn't been observed for this particular plugin but let's up the
+	// reference count a bit extra anyway.
+	//
+	for (int i = 0; i < 100; ++i)
+	{
+		LoadLibraryW(self);
+	}
 }
 
 } // anonymous namespace
