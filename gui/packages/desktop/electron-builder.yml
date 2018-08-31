@@ -115,14 +115,16 @@ linux:
       to: .
 
 deb:
-  fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
+  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
+       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
-  fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
+  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
+       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
