@@ -2,8 +2,10 @@
 set -eu
 
 if which systemctl &> /dev/null; then
-    systemctl enable mullvad-daemon.service
+    systemctl enable "/opt/Mullvad VPN/resources/mullvad-daemon.service"
     systemctl start mullvad-daemon.service
 elif /sbin/init --version | grep upstart &> /dev/null; then
+    ln -s "/opt/Mullvad VPN/resources/mullvad-daemon.conf" /etc/init/
+    initctl reload-configuration
     start mullvad-daemon
 fi
