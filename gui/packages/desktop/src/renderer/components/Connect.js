@@ -400,7 +400,7 @@ export default class Connect extends Component<Props, State> {
 
     // Tunnel is blocked due to an error?
     if (this.props.connection.status === 'blocked') {
-      return new BlockedError();
+      return new BlockedError(this.props.connection.blockReason);
     }
 
     return null;
