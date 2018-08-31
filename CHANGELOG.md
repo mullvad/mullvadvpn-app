@@ -34,6 +34,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - The app window is now shown in its previous location, instead of at the center of the screen.
 
+#### macOS
+- Allow the app to use the integrated GPU for rendering. This saves battery and keeps the computer
+  cooler.
+
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.
