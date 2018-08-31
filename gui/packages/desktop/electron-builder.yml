@@ -113,14 +113,14 @@ linux:
 deb:
   fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
        "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: ../../../dist-assets/linux/install_script.sh
-  afterRemove: ../../../dist-assets/linux/uninstall_script.sh
+  afterInstall: ../../../dist-assets/linux/after-install.sh
+  afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
   fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
        "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: ../../../dist-assets/linux/install_script.sh
-  afterRemove: ../../../dist-assets/linux/uninstall_script.sh
+  afterInstall: ../../../dist-assets/linux/after-install.sh
+  afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
       - libXScrnSaver
       - libappindicator
