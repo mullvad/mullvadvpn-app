@@ -1,5 +1,11 @@
 // @flow
 
+export class BlockedError extends Error {
+  constructor() {
+    super('Network connections blocked due to an internal error');
+  }
+}
+
 export class NoCreditError extends Error {
   constructor() {
     super("Account doesn't have enough credit available for connection");
