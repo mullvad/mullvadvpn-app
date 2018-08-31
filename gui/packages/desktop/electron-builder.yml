@@ -113,14 +113,18 @@ linux:
 deb:
   fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+       "--config-files", "/etc/init/mullvad-daemon.conf",
+       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/",
+       "../../../dist-assets/linux/mullvad-daemon.conf=/etc/init/"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
   fpm: ["--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
+       "--config-files", "/etc/init/mullvad-daemon.conf",
+       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/",
+       "../../../dist-assets/linux/mullvad-daemon.conf=/etc/init/"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
