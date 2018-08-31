@@ -16,6 +16,7 @@ type DisconnectedAction = {
 
 type BlockedAction = {
   type: 'BLOCKED',
+  reason: string,
 };
 
 type NewLocationAction = {
@@ -65,9 +66,10 @@ function disconnected(): DisconnectedAction {
   };
 }
 
-function blocked(): BlockedAction {
+function blocked(reason: string): BlockedAction {
   return {
     type: 'BLOCKED',
+    reason,
   };
 }
 
