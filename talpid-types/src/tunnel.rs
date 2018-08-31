@@ -1,6 +1,6 @@
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
     Disconnected,
