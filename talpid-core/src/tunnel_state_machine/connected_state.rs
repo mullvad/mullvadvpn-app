@@ -1,3 +1,4 @@
+use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
@@ -92,7 +93,8 @@ impl ConnectedState {
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        error!("{}", error.display_chain());
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
@@ -161,7 +163,8 @@ impl TunnelState for ConnectedState {
                 TunnelStateTransition::Connected,
             ),
             Err(error) => {
-                error!("{}", error.chain_err(|| "Failed to set security policy"));
+                error!("{}", error.display_chain());
+
                 DisconnectingState::enter(
                     shared_values,
                     (
