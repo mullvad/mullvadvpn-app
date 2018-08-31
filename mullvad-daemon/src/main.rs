@@ -450,7 +450,7 @@ impl Daemon {
                         self.set_target_state(TargetState::Unsecured)?;
                     } else {
                         info!("Initiating tunnel restart because the account token changed");
-                        self.connect_tunnel()?;
+                        self.reconnect_tunnel()?;
                     }
                 }
             }
@@ -499,7 +499,7 @@ impl Daemon {
 
                 if changed {
                     info!("Initiating tunnel restart because the relay settings changed");
-                    self.connect_tunnel()?;
+                    self.reconnect_tunnel()?;
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
@@ -575,7 +575,7 @@ impl Daemon {
 
                 if settings_changed {
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
-                    self.connect_tunnel()?;
+                    self.reconnect_tunnel()?;
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
@@ -650,6 +650,13 @@ impl Daemon {
         self.tunnel_command_tx
             .send(TunnelCommand::Disconnect)
             .expect("Tunnel state machine has stopped");
+    }
+
+    fn reconnect_tunnel(&mut self) -> Result<()> {
+        match self.target_state {
+            TargetState::Secured => self.connect_tunnel(),
+            TargetState::Unsecured => Ok(()),
+        }
     }
 
     fn build_tunnel_parameters(&mut self) -> Result<TunnelParameters> {
