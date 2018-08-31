@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Warn in the Settings screen if a new version is available.
 - Enter a "blocked" state in case of connection error, which prevents leaking connections until the
   user specifically requests to disconnect.
+- Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
@@ -38,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - The app window is now shown in its previous location, instead of at the center of the screen.
+- Remove daemon log, cache and configuration directories during full uninstallation of the app.
+- Restart the daemon automatically on upgrade.
 
 #### macOS
 - Fix edge cases when window's arrow appeared misaligned and pointed to the wrong menubar item.
