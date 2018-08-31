@@ -4,6 +4,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
 
+use error_chain::ChainedError;
 use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
@@ -141,7 +142,7 @@ impl ConnectingState {
                 Ok(_) => debug!("Tunnel has finished without errors"),
                 Err(error) => {
                     let chained_error = error.chain_err(|| "Tunnel has stopped unexpectedly");
-                    warn!("{}", chained_error);
+                    warn!("{}", chained_error.display_chain());
                 }
             }
 
@@ -205,7 +206,8 @@ impl ConnectingState {
                 match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        error!("{}", error.display_chain());
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
