@@ -438,14 +438,20 @@ impl Daemon {
         tx: OneshotSender<()>,
         account_token: Option<String>,
     ) -> Result<()> {
+        let account_token_cleared = account_token.is_none();
         let save_result = self.settings.set_account_token(account_token);
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
                 Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
-                    info!("Initiating tunnel restart because the account token changed");
-                    self.connect_tunnel()?;
+                    if account_token_cleared {
+                        info!("Disconnecting because account token was cleared");
+                        self.set_target_state(TargetState::Unsecured)?;
+                    } else {
+                        info!("Initiating tunnel restart because the account token changed");
+                        self.connect_tunnel()?;
+                    }
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
