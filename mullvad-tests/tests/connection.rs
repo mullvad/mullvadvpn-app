@@ -2,37 +2,23 @@
 
 extern crate mullvad_ipc_client;
 extern crate mullvad_tests;
-extern crate mullvad_types;
+extern crate talpid_types;
 
 use std::fs;
 use std::path::Path;
 use std::sync::mpsc;
 use std::time::Duration;
 
+use talpid_types::tunnel::TunnelStateTransition;
+
 use mullvad_tests::mock_openvpn::search_openvpn_args;
 use mullvad_tests::{watch_event, DaemonRunner, MockOpenVpnPluginRpcClient, PathWatcher};
-use mullvad_types::states::{DaemonState, SecurityState, TargetState};
 
 #[cfg(target_os = "linux")]
 const OPENVPN_PLUGIN_NAME: &str = "libtalpid_openvpn_plugin.so";
 
 #[cfg(windows)]
 const OPENVPN_PLUGIN_NAME: &str = "talpid_openvpn_plugin.dll";
-
-const DISCONNECTED_STATE: DaemonState = DaemonState {
-    state: SecurityState::Unsecured,
-    target_state: TargetState::Unsecured,
-};
-
-const CONNECTING_STATE: DaemonState = DaemonState {
-    state: SecurityState::Unsecured,
-    target_state: TargetState::Secured,
-};
-
-const CONNECTED_STATE: DaemonState = DaemonState {
-    state: SecurityState::Secured,
-    target_state: TargetState::Secured,
-};
 
 #[test]
 fn spawns_openvpn() {
@@ -81,8 +67,11 @@ fn changes_to_connecting_state() {
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
-    assert_state_event(&state_events, CONNECTING_STATE);
-    assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connecting);
+    assert_eq!(
+        rpc_client.get_state().unwrap(),
+        TunnelStateTransition::Connecting
+    );
 }
 
 #[test]
@@ -96,15 +85,18 @@ fn changes_to_connected_state() {
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
-    assert_state_event(&state_events, CONNECTING_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connecting);
     openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
     mock_plugin_client.up().unwrap();
 
-    assert_state_event(&state_events, CONNECTED_STATE);
-    assert_eq!(rpc_client.get_state().unwrap(), CONNECTED_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connected);
+    assert_eq!(
+        rpc_client.get_state().unwrap(),
+        TunnelStateTransition::Connected
+    );
 }
 
 #[test]
@@ -118,14 +110,14 @@ fn returns_to_connecting_state() {
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
-    assert_state_event(&state_events, CONNECTING_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connecting);
     openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
     mock_plugin_client.up().unwrap();
 
-    assert_state_event(&state_events, CONNECTED_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connected);
 
     mock_plugin_client.route_predown().unwrap();
 
@@ -133,8 +125,11 @@ fn returns_to_connecting_state() {
     assert_eq!(openvpn_args_file_events.next(), Some(watch_event::REMOVE));
     openvpn_args_file_events.assert_create_write_close_sequence();
 
-    assert_state_event(&state_events, CONNECTING_STATE);
-    assert_eq!(rpc_client.get_state().unwrap(), CONNECTING_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connecting);
+    assert_eq!(
+        rpc_client.get_state().unwrap(),
+        TunnelStateTransition::Connecting
+    );
 }
 
 #[test]
@@ -148,22 +143,28 @@ fn disconnects() {
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
 
-    assert_state_event(&state_events, CONNECTING_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connecting);
     openvpn_args_file_events.assert_create_write_close_sequence();
 
     let mut mock_plugin_client = create_mock_openvpn_plugin_client(openvpn_args_file);
 
     mock_plugin_client.up().unwrap();
 
-    assert_state_event(&state_events, CONNECTED_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Connected);
 
     rpc_client.disconnect().unwrap();
 
-    assert_state_event(&state_events, DISCONNECTED_STATE);
-    assert_eq!(rpc_client.get_state().unwrap(), DISCONNECTED_STATE);
+    assert_state_event(&state_events, TunnelStateTransition::Disconnected);
+    assert_eq!(
+        rpc_client.get_state().unwrap(),
+        TunnelStateTransition::Disconnected
+    );
 }
 
-fn assert_state_event(receiver: &mpsc::Receiver<DaemonState>, expected_state: DaemonState) {
+fn assert_state_event(
+    receiver: &mpsc::Receiver<TunnelStateTransition>,
+    expected_state: TunnelStateTransition,
+) {
     let received_state = receiver
         .recv_timeout(Duration::from_secs(3))
         .expect("Failed to receive new state event from daemon");

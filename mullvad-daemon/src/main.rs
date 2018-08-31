@@ -68,7 +68,7 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::{Relay, RelayList};
-use mullvad_types::states::{DaemonState, SecurityState, TargetState};
+use mullvad_types::states::TargetState;
 use mullvad_types::version::{AppVersion, AppVersionInfo};
 
 use std::net::IpAddr;
@@ -78,10 +78,9 @@ use std::time::Duration;
 use std::{mem, thread};
 
 use talpid_core::mpsc::IntoSender;
-use talpid_core::tunnel_state_machine::{
-    self, TunnelCommand, TunnelParameters, TunnelStateTransition,
-};
+use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
 use talpid_types::net::TunnelOptions;
+use talpid_types::tunnel::TunnelStateTransition;
 
 
 error_chain!{
@@ -189,8 +188,6 @@ impl DaemonExecutionState {
 struct Daemon {
     tunnel_command_tx: SyncUnboundedSender<TunnelCommand>,
     tunnel_state: TunnelStateTransition,
-    security_state: SecurityState,
-    last_broadcasted_state: DaemonState,
     target_state: TargetState,
     state: DaemonExecutionState,
     rx: mpsc::Receiver<DaemonEvent>,
@@ -249,12 +246,7 @@ impl Daemon {
         Ok(Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
             tunnel_state: TunnelStateTransition::Disconnected,
-            security_state: SecurityState::Unsecured,
             target_state,
-            last_broadcasted_state: DaemonState {
-                state: SecurityState::Unsecured,
-                target_state,
-            },
             state: DaemonExecutionState::Running,
             rx,
             tx,
@@ -349,12 +341,9 @@ impl Daemon {
         }
 
         self.tunnel_state = tunnel_state;
-        self.security_state = match tunnel_state {
-            Disconnected | Connecting => SecurityState::Unsecured,
-            Connected | Disconnecting => SecurityState::Secured,
-        };
 
-        self.broadcast_state();
+        self.management_interface_broadcaster
+            .notify_new_state(self.tunnel_state);
 
         Ok(())
     }
@@ -395,8 +384,8 @@ impl Daemon {
         }
     }
 
-    fn on_get_state(&self, tx: OneshotSender<DaemonState>) {
-        Self::oneshot_send(tx, self.last_broadcasted_state, "current state");
+    fn on_get_state(&self, tx: OneshotSender<TunnelStateTransition>) {
+        Self::oneshot_send(tx, self.tunnel_state, "current state");
     }
 
     fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
@@ -608,25 +597,12 @@ impl Daemon {
         Ok(())
     }
 
-    fn broadcast_state(&mut self) {
-        let new_daemon_state = DaemonState {
-            state: self.security_state,
-            target_state: self.target_state,
-        };
-        if self.last_broadcasted_state != new_daemon_state {
-            self.last_broadcasted_state = new_daemon_state;
-            self.management_interface_broadcaster
-                .notify_new_state(new_daemon_state);
-        }
-    }
-
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
         if new_state != self.target_state {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
-            self.broadcast_state();
             self.apply_target_state()
         } else {
             Ok(())

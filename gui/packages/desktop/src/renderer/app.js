@@ -32,7 +32,7 @@ import type {
   ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
-import type { AccountToken, BackendState, RelaySettingsUpdate } from './lib/daemon-rpc';
+import type { AccountToken, TunnelState, RelaySettingsUpdate } from './lib/daemon-rpc';
 import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from '../main/tray-icon-controller';
 
@@ -211,7 +211,7 @@ export default class AppRenderer {
 
     try {
       const currentState = await this._daemonRpc.getState();
-      if (currentState.state === 'secured') {
+      if (currentState === 'connected' || currentState === 'connecting') {
         log.debug('Refusing to connect as connection is already secured');
         actions.connection.connected();
       } else {
@@ -395,7 +395,7 @@ export default class AppRenderer {
 
   async _fetchSecurityState() {
     const securityState = await this._daemonRpc.getState();
-    const connectionState = this._securityStateToConnectionState(securityState);
+    const connectionState = this._tunnelStateToConnectionState(securityState);
     this._updateConnectionState(connectionState);
   }
 
@@ -493,13 +493,9 @@ export default class AppRenderer {
       }
 
       if (newState) {
-        const connectionState = this._securityStateToConnectionState(newState);
+        const connectionState = this._tunnelStateToConnectionState(newState);
 
-        log.debug(
-          `Got new state from daemon {state: ${newState.state}, target_state: ${
-            newState.target_state
-          }}, translated to '${connectionState}'`,
-        );
+        log.debug(`Got new state from daemon '${newState}', translated to '${connectionState}'`);
 
         this._updateConnectionState(connectionState);
         this._refreshStateOnChange();
@@ -539,15 +535,13 @@ export default class AppRenderer {
     }
   }
 
-  _securityStateToConnectionState(backendState: BackendState): ConnectionState {
-    if (backendState.state === 'unsecured' && backendState.target_state === 'secured') {
-      return 'connecting';
-    } else if (backendState.state === 'secured' && backendState.target_state === 'secured') {
-      return 'connected';
-    } else if (backendState.target_state === 'unsecured') {
+  _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
+    if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
       return 'disconnected';
+    } else if (tunnelState === 'connected' || tunnelState === 'connecting') {
+      return tunnelState;
     }
-    throw new Error('Unsupported state/target state combination: ' + JSON.stringify(backendState));
+    throw new Error('Unsupported state/target state combination: ' + JSON.stringify(tunnelState));
   }
 
   _updateConnectionState(connectionState: ConnectionState) {

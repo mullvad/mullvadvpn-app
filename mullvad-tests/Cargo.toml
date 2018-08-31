@@ -12,10 +12,10 @@ integration-tests = []
 duct = "0.11"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-types = { path = "../mullvad-types" }
 notify = "4.0"
 openvpn-plugin = { version = "0.3", features = ["serde"] }
 talpid-ipc = { path = "../talpid-ipc" }
+talpid-types = { path = "../talpid-types" }
 tempfile = "3.0"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
