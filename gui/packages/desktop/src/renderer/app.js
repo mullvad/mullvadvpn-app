@@ -489,8 +489,10 @@ export default class AppRenderer {
         recover();
       });
 
-      // take user back to the launch screen `/`.
-      actions.history.replace('/');
+      // take user back to the launch screen `/` except when user is in settings.
+      if (!history.location.pathname.startsWith('/settings')) {
+        actions.history.replace('/');
+      }
     }
   }
 
