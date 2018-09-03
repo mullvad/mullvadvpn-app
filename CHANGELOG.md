@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Warn in the Settings screen if a new version is available.
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
+- Add installation log (%PROGRAMDATA%\Mullvad VPN\install.log).
 
 ### Fixed
 #### Linux
