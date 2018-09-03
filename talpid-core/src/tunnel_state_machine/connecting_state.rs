@@ -246,13 +246,15 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::AuthFailed) => NewState(DisconnectingState::enter(
+            Ok(TunnelEvent::AuthFailed(reason)) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
                     self.close_handle,
                     self.tunnel_close_event,
                     AfterDisconnect::Block(
-                        BlockReason::AuthFailed,
+                        BlockReason::AuthFailed(
+                            reason.unwrap_or_else(|| String::from("No reason provided")),
+                        ),
                         self.tunnel_parameters.allow_lan,
                     ),
                 ),
