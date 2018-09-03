@@ -237,6 +237,14 @@ impl ConnectingState {
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
             )),
+            Ok(TunnelEvent::AuthFailed) => NewState(DisconnectingState::enter(
+                shared_values,
+                (
+                    self.close_handle,
+                    self.tunnel_close_event,
+                    AfterDisconnect::Block(BlockReason::AuthFailed),
+                ),
+            )),
             Ok(_) => SameState(self),
             Err(_) => NewState(DisconnectingState::enter(
                 shared_values,
