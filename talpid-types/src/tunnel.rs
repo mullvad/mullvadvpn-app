@@ -1,7 +1,7 @@
 use std::fmt;
 
 /// Event resulting from a transition to a new tunnel state.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "state", content = "details")]
 pub enum TunnelStateTransition {
@@ -18,7 +18,7 @@ pub enum TunnelStateTransition {
 }
 
 /// Reason for entering the blocked state.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BlockReason {
     /// Authentication with remote server failed.

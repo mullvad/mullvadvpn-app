@@ -25,11 +25,11 @@ impl Command for Status {
         let mut rpc = new_rpc_client()?;
         let state = rpc.get_state()?;
 
-        print_state(state);
+        print_state(&state);
         print_location(&mut rpc)?;
         if matches.subcommand_matches("listen").is_some() {
             for new_state in rpc.new_state_subscribe()? {
-                print_state(new_state);
+                print_state(&new_state);
 
                 if new_state == Connected || new_state == Disconnected {
                     print_location(&mut rpc)?;
@@ -40,7 +40,7 @@ impl Command for Status {
     }
 }
 
-fn print_state(state: TunnelStateTransition) {
+fn print_state(state: &TunnelStateTransition) {
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => println!("Blocked ({})", reason),
