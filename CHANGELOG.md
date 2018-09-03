@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 - Warn in the Settings screen if a new version is available.
 - Enter a "blocked" state in case of connection error, which prevents leaking connections until the
   user specifically requests to disconnect.
+- Block connections if IPv6 is enabled in the app but disabled in the underlying system, because the
+  tunnel connection won't be able to be configured correctly.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
