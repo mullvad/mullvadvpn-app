@@ -46,13 +46,13 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     isWide: false,
   };
 
-  _scrollableElement: ?HTMLElement;
-  _trackElement: ?HTMLElement;
-  _thumbElement: ?HTMLElement;
+  _scrollableRef = React.createRef();
+  _trackRef = React.createRef();
+  _thumbRef = React.createRef();
   _autoHideTimer: ?TimeoutID;
 
   scrollTo(x: number, y: number) {
-    const scrollable = this._scrollableElement;
+    const scrollable = this._scrollableRef.current;
     if (scrollable) {
       scrollable.scrollLeft = x;
       scrollable.scrollTop = y;
@@ -60,7 +60,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   }
 
   scrollToElement(child: HTMLElement, scrollPosition: ScrollPosition) {
-    const scrollable = this._scrollableElement;
+    const scrollable = this._scrollableRef.current;
     if (scrollable) {
       // throw if child is not a descendant of scroll view
       if (!scrollable.contains(child)) {
@@ -127,7 +127,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   };
 
   handleMouseDown = (event: MouseEvent) => {
-    const thumb = this._thumbElement;
+    const thumb = this._thumbRef.current;
     const cursorPosition = {
       x: event.clientX,
       y: event.clientY,
@@ -151,7 +151,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       isDragging: false,
     });
 
-    const track = this._trackElement;
+    const track = this._trackRef.current;
     if (track) {
       // Make sure to auto-hide the scrollbar if cursor ended up outside of scroll track
       const cursorPosition = {
@@ -166,9 +166,9 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   };
 
   handleMouseMove = (event: MouseEvent) => {
-    const scrollable = this._scrollableElement;
-    const thumb = this._thumbElement;
-    const track = this._trackElement;
+    const scrollable = this._scrollableRef.current;
+    const thumb = this._thumbRef.current;
+    const track = this._trackRef.current;
 
     const cursorPosition = {
       x: event.clientX,
@@ -191,7 +191,8 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       // calculate the thumb boundary to make sure that the visual appearance of
       // a thumb at the lowest point matches the bottom of scrollable view
       const thumbBoundary = this._computeTrackLength(scrollable) - thumb.clientHeight;
-      const thumbTop = pointInScrollContainer.y - this.state.dragStart.y - this.props.trackPadding.y;
+      const thumbTop =
+        pointInScrollContainer.y - this.state.dragStart.y - this.props.trackPadding.y;
       const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
 
       scrollable.scrollTop = newScrollTop;
@@ -209,7 +210,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   };
 
   render() {
-    const { autoHide: _autoHide, trackPadding: _trackPadding, children, ...otherProps } = this.props;
+    const {
+      autoHide: _autoHide,
+      trackPadding: _trackPadding,
+      children,
+      ...otherProps
+    } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
     const thumbAnimationClass = showScrollbars ? ' custom-scrollbars__thumb--visible' : '';
     const thumbActiveClass =
@@ -220,34 +226,22 @@ export default class CustomScrollbars extends React.Component<Props, State> {
 
     return (
       <div {...otherProps} className="custom-scrollbars">
-        <div className={`custom-scrollbars__track ${trackClass}`} ref={this._onTrackRef} />
+        <div className={`custom-scrollbars__track ${trackClass}`} ref={this._trackRef} />
         <div
           className={`custom-scrollbars__thumb ${thumbWideClass} ${thumbActiveClass} ${thumbAnimationClass}`}
           style={{ position: 'absolute', top: 0, right: 0 }}
-          ref={this._onThumbRef}
+          ref={this._thumbRef}
         />
         <div
           className="custom-scrollbars__scrollable"
           style={{ overflow: 'auto' }}
           onScroll={this._onScroll}
-          ref={this._onScrollableRef}>
+          ref={this._scrollableRef}>
           {children}
         </div>
       </div>
     );
   }
-
-  _onScrollableRef = (ref) => {
-    this._scrollableElement = ref;
-  };
-
-  _onTrackRef = (ref) => {
-    this._trackElement = ref;
-  };
-
-  _onThumbRef = (ref) => {
-    this._thumbElement = ref;
-  };
 
   _onScroll = () => {
     this._updateScrollbarsHelper({ position: true });
@@ -385,8 +379,8 @@ export default class CustomScrollbars extends React.Component<Props, State> {
   }
 
   _updateScrollbarsHelper(updateFlags: $Shape<ScrollbarUpdateContext>) {
-    const scrollable = this._scrollableElement;
-    const thumb = this._thumbElement;
+    const scrollable = this._scrollableRef.current;
+    const thumb = this._thumbRef.current;
     if (scrollable && thumb) {
       this._updateScrollbars(scrollable, thumb, updateFlags);
     }
