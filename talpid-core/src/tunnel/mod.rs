@@ -77,6 +77,8 @@ error_chain!{
 /// Possible events from the VPN tunnel and the child process managing it.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
+    /// Sent when the tunnel fails to connect due to an authentication error.
+    AuthFailed,
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
     /// Sent when the tunnel goes down.
@@ -102,6 +104,7 @@ impl TunnelEvent {
         env: &HashMap<String, String>,
     ) -> Option<TunnelEvent> {
         match *event {
+            OpenVpnPluginEvent::AuthFailed => Some(TunnelEvent::AuthFailed),
             OpenVpnPluginEvent::Up => {
                 let interface = env
                     .get("dev")
