@@ -78,9 +78,12 @@
 
 	Var /GLOBAL InstallDriver_BaselineStatus
 
+	log::Log "InstallDriver()"
+	
 	Push $0
 	Push $1
 
+	log::Log "Listing virtual adapters"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
 
 	Pop $0
@@ -88,16 +91,21 @@
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to list virtual adapters: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
 	${EndIf}
 
+	log::LogWithDetails "Virtual adapters listing" $1
+
+	log::Log "Calling on plugin to parse adapter data"
 	driverlogic::EstablishBaseline $1
 
 	Pop $0
 	Pop $1
 
 	${If} $0 == ${EB_GENERAL_ERROR}
-		StrCpy $R0 "Failed to parse virtual adapter data: $1"
+		StrCpy $R0 "Failed to parse adapter data: $1"
+		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
 
@@ -110,6 +118,7 @@
 	# Driver is already installed and there are one or several virtual adapters present.
 	# Update driver.
 	#
+	log::Log "TAP driver is already installed - Updating to latest version"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" update "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 
 	Pop $0
@@ -117,10 +126,14 @@
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to update TAP driver: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
 	${EndIf}
-	
-	IntCmp $InstallDriver_BaselineStatus ${EB_MULLVAD_INTERFACE_PRESENT} InstallDriver_return_success
+
+	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_INTERFACE_PRESENT}
+		log::Log "Virtual adapter named $\"Mullvad$\" already present on system"
+		Goto InstallDriver_return_success
+	${EndIf}
 
 	InstallDriver_install_driver:
 
@@ -128,16 +141,19 @@
 	# Install driver and create a virtual adapter.
 	# If the driver is already installed, this just creates another virtual adapter.
 	#
+	log::Log "Creating new virtual adapter (this also installs the TAP driver, as necessary)"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 	
 	Pop $0
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to install TAP driver: error $0"
+		StrCpy $R0 "Failed to create virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
 	${EndIf}
 
+	log::Log "Listing virtual adapters"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
 
 	Pop $0
@@ -145,22 +161,27 @@
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to list virtual adapters: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
 	${EndIf}
 
+	log::LogWithDetails "Updated virtual adapters listing" $1
+
+	log::Log "Calling on plugin to diff adapter listings"
 	driverlogic::IdentifyNewInterface $1
 	
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${INI_SUCCESS}
-		StrCpy $R0 "Failed to identify virtual adapter: $1"
+		StrCpy $R0 "Failed to identify new virtual adapter: $1"
+		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
 
-	#
-	# Rename the newly added virtual adapter to "Mullvad".
-	#
+	log::Log "New virtual adapter is named $\"$1$\""
+	
+	log::Log "Renaming adapter to $\"Mullvad$\""
 	nsExec::ExecToStack '"netsh.exe" interface set interface name = "$1" newname = "Mullvad"'
 
 	Pop $0
@@ -168,11 +189,14 @@
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to rename virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
 	${EndIf}
 
 	InstallDriver_return_success:
 
+	log::Log "InstallDriver() completed successfully"
+	
 	Push 0
 	Pop $R0
 	
@@ -194,9 +218,12 @@
 #
 !macro InstallService
 
+	log::Log "InstallService()"
+
 	Push $0
 	Push $1
 
+	log::Log "Running $\"mullvad-daemon$\" for it to self-register as a service"
 	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
 
 	Pop $0
@@ -204,9 +231,11 @@
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to install Mullvad service: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallService_return
 	${EndIf}
 
+	log::Log "Starting service"
 	nsExec::ExecToStack '"sc.exe" start mullvadvpn'
 
 	Pop $0
@@ -215,9 +244,12 @@
 	${If} $0 != ${SERVICE_STARTED}
 	${AndIf} $0 != ${SERVICE_START_PENDING}
 		StrCpy $R0 "Failed to start Mullvad service: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallService_return
 	${EndIf}
 
+	log::Log "InstallService() completed successfully"
+	
 	Push 0
 	Pop $R0
 	
@@ -282,6 +314,9 @@
 
 	Push $R0
 
+	log::Initialize
+	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
+	
 	#
 	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,
 	# makes a copy of the installer file:
