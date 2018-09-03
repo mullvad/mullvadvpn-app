@@ -39,10 +39,10 @@ type State = {
   showCopyIPMessage: boolean,
 };
 
-function getBlockReasonMessage(reason: BlockReason): string {
-  switch (reason) {
+function getBlockReasonMessage(blockReason: BlockReason): string {
+  switch (blockReason.reason) {
     case 'auth_failed':
-      return 'Authentication failed';
+      return `Authentication failed: ${blockReason.details}`;
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
     case 'set_security_policy_error':
@@ -52,7 +52,7 @@ function getBlockReasonMessage(reason: BlockReason): string {
     case 'no_matching_relay':
       return 'No relay server matches the current settings';
     default:
-      return `Unknown error: ${(reason: empty)}`;
+      return `Unknown error: ${(blockReason.reason: empty)}`;
   }
 }
 
