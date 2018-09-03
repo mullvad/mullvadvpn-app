@@ -41,12 +41,29 @@ const LocationSchema = object({
   mullvad_exit_ip: boolean,
 });
 
+export type AuthFailedBlockReason = {
+  reason: 'auth_failed',
+  details: string,
+};
+export type SetSecurityPolicyErrorBlockReason = {
+  reason: 'set_security_policy_error',
+};
+export type StartTunnelErrorBlockReason = {
+  reason: 'start_tunnel_error',
+};
+export type NoMatchingRelayBlockReason = {
+  reason: 'no_matching_relay',
+};
+export type NoAccountTokenBlockReason = {
+  reason: 'no_account_token',
+};
 export type BlockReason =
-  | 'auth_failed'
-  | 'set_security_policy_error'
-  | 'start_tunnel_error'
-  | 'no_matching_relay'
-  | 'no_account_token';
+  | AuthFailedBlockReason
+  | SetSecurityPolicyErrorBlockReason
+  | StartTunnelErrorBlockReason
+  | NoMatchingRelayBlockReason
+  | NoAccountTokenBlockReason;
+
 export type DisconnectedState = {
   state: 'disconnected',
 };
@@ -223,16 +240,34 @@ const AccountDataSchema = object({
   expiry: string,
 });
 
-const allBlockReasons: Array<BlockReason> = [
-  'auth_failed',
-  'set_security_policy_error',
-  'start_tunnel_error',
-  'no_matching_relay',
-  'no_account_token',
-];
+const AuthFailedBlockReasonSchema = object({
+  reason: enumeration('auth_failed'),
+  details: string,
+});
+const SetSecurityPolicyErrorBlockReasonSchema = object({
+  reason: enumeration('set_security_policy_error'),
+});
+const StartTunnelErrorBlockReasonSchema = object({
+  reason: enumeration('start_tunnel_error'),
+});
+const NoMatchingRelayBlockReasonSchema = object({
+  reason: enumeration('no_matching_relay'),
+});
+const NoAccountTokenBlockReasonSchema = object({
+  reason: enumeration('no_account_token'),
+});
+
+const BlockReasonSchema = oneOf(
+  AuthFailedBlockReasonSchema,
+  SetSecurityPolicyErrorBlockReasonSchema,
+  StartTunnelErrorBlockReasonSchema,
+  NoMatchingRelayBlockReasonSchema,
+  NoAccountTokenBlockReasonSchema,
+);
+
 const BlockedStateSchema = object({
   state: enumeration('blocked'),
-  details: enumeration(...allBlockReasons),
+  details: BlockReasonSchema,
 });
 const ConnectedStateSchema = object({ state: enumeration('connected') });
 const ConnectingStateSchema = object({ state: enumeration('connecting') });

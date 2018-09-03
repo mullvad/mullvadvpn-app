@@ -3,10 +3,10 @@
 import type { BlockReason } from './lib/daemon-rpc';
 
 export class BlockedError extends Error {
-  constructor(reason: BlockReason) {
-    switch (reason) {
+  constructor(block_reason: BlockReason) {
+    switch (block_reason.reason) {
       case 'auth_failed':
-        super('Authentication failed');
+        super(`Authentication failed: ${block_reason.details}`);
         break;
       case 'set_security_policy_error':
         super('Failed to apply security policy');
@@ -21,7 +21,7 @@ export class BlockedError extends Error {
         super('No account token configured');
         break;
       default:
-        super(`Unknown error: ${(reason: empty)}`);
+        super(`Unknown error: ${(block_reason: empty)}`);
     }
   }
 }
