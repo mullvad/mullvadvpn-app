@@ -10,7 +10,7 @@ import * as AppButton from './AppButton';
 import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
-import { NoCreditError, NoInternetError } from '../errors';
+import { BlockedError, NoCreditError, NoInternetError } from '../errors';
 import WindowStateObserver from '../lib/window-state-observer';
 
 import type { HeaderBarStyle } from './HeaderBar';
@@ -101,6 +101,11 @@ export default class Connect extends Component<Props, State> {
     if (error instanceof NoInternetError) {
       title = 'Offline';
       message = 'Your internet connection will be secured when you get back online';
+    }
+
+    if (error instanceof BlockedError) {
+      title = 'Blocked';
+      message = error.message;
     }
 
     return (
@@ -345,6 +350,7 @@ export default class Connect extends Component<Props, State> {
         return 'error';
       case 'connecting':
       case 'connected':
+      case 'blocked':
         return 'success';
       default:
         throw new Error(`Invalid ConnectionState: ${(status: empty)}`);
@@ -390,6 +396,11 @@ export default class Connect extends Component<Props, State> {
     const expiry = this.props.accountExpiry;
     if (expiry && moment(expiry).isSameOrBefore(moment())) {
       return new NoCreditError();
+    }
+
+    // Tunnel is blocked due to an error?
+    if (this.props.connection.status === 'blocked') {
+      return new BlockedError(this.props.connection.blockReason);
     }
 
     return null;

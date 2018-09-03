@@ -43,6 +43,7 @@ impl Command for Status {
 fn print_state(state: TunnelStateTransition) {
     print!("Tunnel status: ");
     match state {
+        Blocked(reason) => println!("Blocked ({})", reason),
         Connected => println!("Connected"),
         Connecting => println!("Connecting..."),
         Disconnected => println!("Disconnected"),

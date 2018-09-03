@@ -1,11 +1,13 @@
+use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
 use talpid_types::net::TunnelEndpoint;
+use talpid_types::tunnel::BlockReason;
 
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
-    SharedTunnelStateValues, StateEntryResult, TunnelCommand, TunnelParameters, TunnelState,
+    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
     TunnelStateWrapper,
 };
 use security::{NetworkSecurity, SecurityPolicy};
@@ -92,13 +94,14 @@ impl ConnectedState {
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        error!("{}", error.display_chain());
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -152,22 +155,26 @@ impl TunnelState for ConnectedState {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
-    ) -> StateEntryResult {
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let connected_state = ConnectedState::from(bootstrap);
 
         match connected_state.set_security_policy(shared_values) {
-            Ok(()) => Ok(TunnelStateWrapper::from(connected_state)),
-            Err(error) => Err((
-                error,
+            Ok(()) => (
+                TunnelStateWrapper::from(connected_state),
+                TunnelStateTransition::Connected,
+            ),
+            Err(error) => {
+                error!("{}", error.display_chain());
+
                 DisconnectingState::enter(
                     shared_values,
                     (
                         connected_state.close_handle,
                         connected_state.tunnel_close_event,
-                        AfterDisconnect::Nothing,
+                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                     ),
-                ).expect("Failed to disconnect after failed transition to connected state"),
-            )),
+                )
+            }
         }
     }
 

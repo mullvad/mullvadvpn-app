@@ -402,10 +402,9 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
-  async _fetchSecurityState() {
-    const securityState = await this._daemonRpc.getState();
-    const connectionState = this._tunnelStateToConnectionState(securityState);
-    this._updateConnectionState(connectionState);
+  async _fetchTunnelState() {
+    const tunnelState = await this._daemonRpc.getState();
+    this._updateConnectionState(tunnelState);
   }
 
   async _fetchTunnelOptions() {
@@ -502,11 +501,9 @@ export default class AppRenderer {
       }
 
       if (newState) {
-        const connectionState = this._tunnelStateToConnectionState(newState);
+        log.debug(`Got new state from daemon '${JSON.stringify(newState)}'`);
 
-        log.debug(`Got new state from daemon '${newState}', translated to '${connectionState}'`);
-
-        this._updateConnectionState(connectionState);
+        this._updateConnectionState(newState);
         this._refreshStateOnChange();
       }
     });
@@ -514,7 +511,7 @@ export default class AppRenderer {
 
   _fetchInitialState() {
     return Promise.all([
-      this._fetchSecurityState(),
+      this._fetchTunnelState(),
       this.fetchRelaySettings(),
       this._fetchRelayLocations(),
       this._fetchAllowLan(),
@@ -530,6 +527,7 @@ export default class AppRenderer {
     const iconTypes: { [ConnectionState]: TrayIconType } = {
       connected: 'secured',
       connecting: 'securing',
+      blocked: 'securing',
     };
     const type = iconTypes[connectionState] || 'unsecured';
 
@@ -545,28 +543,44 @@ export default class AppRenderer {
   }
 
   _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
-    if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
-      return 'disconnected';
-    } else if (tunnelState === 'connected' || tunnelState === 'connecting') {
-      return tunnelState;
+    switch (tunnelState.state) {
+      case 'disconnected':
+      // Fall through
+      case 'disconnecting':
+        return 'disconnected';
+      case 'connected':
+        return 'connected';
+      case 'connecting':
+        return 'connecting';
+      case 'blocked':
+        return 'blocked';
+      default:
+        throw new Error('Unknown tunnel state: ' + (tunnelState: empty));
     }
-    throw new Error('Unsupported state/target state combination: ' + JSON.stringify(tunnelState));
   }
 
-  _updateConnectionState(connectionState: ConnectionState) {
+  _updateConnectionState(tunnelState: TunnelState) {
     const actions = this._reduxActions;
-    switch (connectionState) {
+    switch (tunnelState.state) {
       case 'connecting':
         actions.connection.connecting();
         break;
       case 'connected':
         actions.connection.connected();
         break;
+      case 'disconnecting':
+      // Fall through
       case 'disconnected':
         actions.connection.disconnected();
         break;
+      case 'blocked':
+        actions.connection.blocked(tunnelState.details);
+        break;
+      default:
+        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
     }
 
+    const connectionState = this._tunnelStateToConnectionState(tunnelState);
     this._updateTrayIcon(connectionState);
     this._showNotification(connectionState);
   }
@@ -581,6 +595,9 @@ export default class AppRenderer {
         break;
       case 'disconnected':
         this._notificationController.show('Unsecured');
+        break;
+      case 'blocked':
+        this._notificationController.show('Blocked all connections');
         break;
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);

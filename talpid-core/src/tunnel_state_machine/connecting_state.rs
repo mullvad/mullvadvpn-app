@@ -4,16 +4,18 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
 
+use error_chain::ChainedError;
 use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Sink, Stream};
 
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
+use talpid_types::tunnel::BlockReason;
 
 use super::{
-    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectedState,
-    DisconnectingState, EventConsequence, Result, ResultExt, SharedTunnelStateValues,
-    StateEntryResult, TunnelCommand, TunnelParameters, TunnelState, TunnelStateWrapper,
+    AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
+    EventConsequence, Result, ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
 use security::{NetworkSecurity, SecurityPolicy};
@@ -39,12 +41,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        parameters: TunnelParameters,
-    ) -> Result<Self> {
-        Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)?;
-
+    fn new(parameters: TunnelParameters) -> Result<Self> {
         let tunnel_endpoint = parameters.endpoint;
         let (tunnel_events, tunnel_close_event, close_handle) = Self::start_tunnel(&parameters)?;
 
@@ -141,7 +138,7 @@ impl ConnectingState {
                 Ok(_) => debug!("Tunnel has finished without errors"),
                 Err(error) => {
                     let chained_error = error.chain_err(|| "Tunnel has stopped unexpectedly");
-                    warn!("{}", chained_error);
+                    warn!("{}", chained_error.display_chain());
                 }
             }
 
@@ -205,13 +202,14 @@ impl ConnectingState {
                 match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.chain_err(|| "Failed to update security policy"));
+                        error!("{}", error.display_chain());
+
                         NewState(DisconnectingState::enter(
                             shared_values,
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Nothing,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -269,17 +267,27 @@ impl TunnelState for ConnectingState {
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
-    ) -> StateEntryResult {
-        Self::new(shared_values, parameters)
-            .map(TunnelStateWrapper::from)
-            .chain_err(|| "Failed to start tunnel")
-            .map_err(|error| {
-                (
-                    error,
-                    DisconnectedState::enter(shared_values, ())
-                        .expect("Failed to transition to fallback disconnected state"),
-                )
-            })
+    ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        if let Err(error) =
+            Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)
+        {
+            error!("{}", error.display_chain());
+
+            return BlockedState::enter(shared_values, BlockReason::StartTunnelError);
+        }
+
+        match Self::new(parameters) {
+            Ok(connecting_state) => (
+                TunnelStateWrapper::from(connecting_state),
+                TunnelStateTransition::Connecting,
+            ),
+            Err(error) => {
+                let chained_error = error.chain_err(|| "Failed to start tunnel");
+                error!("{}", chained_error.display_chain());
+
+                BlockedState::enter(shared_values, BlockReason::StartTunnelError)
+            }
+        }
     }
 
     fn handle_event(

@@ -1,5 +1,22 @@
 // @flow
 
+import type { BlockReason } from './lib/daemon-rpc';
+
+export class BlockedError extends Error {
+  constructor(reason: BlockReason) {
+    switch (reason) {
+      case 'set_security_policy_error':
+        super('Failed to apply security policy');
+        break;
+      case 'start_tunnel_error':
+        super('Failed to start tunnel connection');
+        break;
+      default:
+        super(`Unknown error: ${(reason: empty)}`);
+    }
+  }
+}
+
 export class NoCreditError extends Error {
   constructor() {
     super("Account doesn't have enough credit available for connection");
