@@ -42,6 +42,7 @@ const LocationSchema = object({
 });
 
 export type BlockReason =
+  | 'auth_failed'
   | 'ipv6_unavailable'
   | 'set_security_policy_error'
   | 'start_tunnel_error'
@@ -230,6 +231,7 @@ const AccountDataSchema = object({
 });
 
 const allBlockReasons: Array<BlockReason> = [
+  'auth_failed',
   'ipv6_unavailable',
   'set_security_policy_error',
   'start_tunnel_error',

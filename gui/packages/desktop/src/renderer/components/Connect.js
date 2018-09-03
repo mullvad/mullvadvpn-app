@@ -41,6 +41,8 @@ type State = {
 
 function getBlockReasonMessage(reason: BlockReason): string {
   switch (reason) {
+    case 'auth_failed':
+      return 'Authentication failed';
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
     case 'set_security_policy_error':
