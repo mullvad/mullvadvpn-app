@@ -110,24 +110,24 @@ linux:
     - from: ../../../dist-assets/binaries/linux/openvpn
       to: .
   extraFiles:
-    - from: ../../../dist-assets/linux/mullvad-daemon.conf
-      to: .
-    - from: ../../../dist-assets/linux/mullvad-daemon.service
-      to: .
+    - from: ../../../dist-assets/linux/mullvad-daemon.upstart
+      to: init/upstart/mullvad-daemon.conf
+    - from: ../../../dist-assets/linux/mullvad-daemon.systemd
+      to: init/systemd/mullvad-daemon.service
 
 deb:
   fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
-       "--config-files", "/opt/Mullvad VPN/mullvad-daemon.service",
-       "--config-files", "/opt/Mullvad VPN/mullvad-daemon.conf"]
+       "--config-files", "/opt/Mullvad VPN/init/systemd/mullvad-daemon.service",
+       "--config-files", "/opt/Mullvad VPN/init/upstart/mullvad-daemon.conf"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
   fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
-       "--config-files", "/opt/Mullvad VPN/mullvad-daemon.service",
-       "--config-files", "/opt/Mullvad VPN/mullvad-daemon.conf"]
+       "--config-files", "/opt/Mullvad VPN/init/systemd/mullvad-daemon.service",
+       "--config-files", "/opt/Mullvad VPN/init/upstart/mullvad-daemon.conf"]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
