@@ -200,11 +200,9 @@ export default class AppRenderer {
     const actions = this._reduxActions;
 
     try {
-      await Promise.all([
-        this.disconnectTunnel(),
-        this._daemonRpc.setAccount(null),
-        this._fetchAccountHistory(),
-      ]);
+      await this._daemonRpc.setAccount(null);
+      await this._fetchAccountHistory();
+
       actions.account.loggedOut();
       actions.history.replace('/login');
 
