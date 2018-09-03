@@ -20,9 +20,10 @@ pub enum TunnelStateTransition {
 /// Reason for entering the blocked state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[serde(tag = "reason", content = "details")]
 pub enum BlockReason {
     /// Authentication with remote server failed.
-    AuthFailed,
+    AuthFailed(String),
     /// Failed to set security policy.
     SetSecurityPolicyError,
     /// Failed to start connection to remote server.
@@ -36,7 +37,13 @@ pub enum BlockReason {
 impl fmt::Display for BlockReason {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let description = match *self {
-            BlockReason::AuthFailed => "Authentication with remote server failed",
+            BlockReason::AuthFailed(ref reason) => {
+                return write!(
+                    formatter,
+                    "Authentication with remote server failed: {}",
+                    reason
+                );
+            }
             BlockReason::SetSecurityPolicyError => "Failed to set security policy",
             BlockReason::StartTunnelError => "Failed to start connection to remote server",
             BlockReason::NoMatchingRelay => "No relay server matches the current settings",
