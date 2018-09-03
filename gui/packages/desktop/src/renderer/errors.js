@@ -5,6 +5,9 @@ import type { BlockReason } from './lib/daemon-rpc';
 export class BlockedError extends Error {
   constructor(reason: BlockReason) {
     switch (reason) {
+      case 'auth_failed':
+        super('Authentication failed');
+        break;
       case 'set_security_policy_error':
         super('Failed to apply security policy');
         break;
