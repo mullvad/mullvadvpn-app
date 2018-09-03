@@ -32,9 +32,11 @@ const SILENCED_CRATES: &[&str] = &[
     // jsonrpc_core does some logging under the "rpc" target as well.
     "rpc",
     "tokio_core",
+    "tokio_io",
     "tokio_proto",
     "tokio_reactor",
     "jsonrpc_ws_server",
+    "want",
     "ws",
     "mio",
     "hyper",
