@@ -30,6 +30,8 @@ impl TunnelStateTransition {
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BlockReason {
+    /// Authentication with remote server failed.
+    AuthFailed,
     /// Failed to configure IPv6 because it's disabled in the platform.
     Ipv6Unavailable,
     /// Failed to set security policy.
@@ -43,6 +45,7 @@ pub enum BlockReason {
 impl fmt::Display for BlockReason {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let description = match *self {
+            BlockReason::AuthFailed => "Authentication with remote server failed",
             BlockReason::Ipv6Unavailable => {
                 "Failed to configure IPv6 because it's disabled in the platform"
             }
