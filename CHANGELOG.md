@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
+- Enter a "blocked" state in case of connection error, which prevents leaking connections until the
+  user specifically requests to disconnect.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
