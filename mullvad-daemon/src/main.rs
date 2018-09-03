@@ -339,7 +339,7 @@ impl Daemon {
         self.tunnel_state = tunnel_state;
 
         self.management_interface_broadcaster
-            .notify_new_state(self.tunnel_state);
+            .notify_new_state(self.tunnel_state.clone());
 
         Ok(())
     }
@@ -378,7 +378,7 @@ impl Daemon {
     }
 
     fn on_get_state(&self, tx: OneshotSender<TunnelStateTransition>) {
-        Self::oneshot_send(tx, self.tunnel_state, "current state");
+        Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
     fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
@@ -584,7 +584,7 @@ impl Daemon {
     }
 
     fn handle_trigger_shutdown_event(&mut self) -> Result<()> {
-        self.state.shutdown(self.tunnel_state);
+        self.state.shutdown(self.tunnel_state.clone());
         self.disconnect_tunnel();
 
         Ok(())

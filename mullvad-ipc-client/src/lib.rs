@@ -234,7 +234,7 @@ impl DaemonRpcClient {
                 .chain(polled)
                 .for_each(move |state| {
                     if state != current_state {
-                        current_state = state;
+                        current_state = state.clone();
                         if tx.send(state).is_err() {
                             trace!("can't send new state to subscriber");
                             return Err(jsonrpc_client_core::ErrorKind::Shutdown.into());
