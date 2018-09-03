@@ -27,12 +27,18 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
+
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
 
 ### Fixed
+- Fix incorrect window position when using external display.
+
 #### Linux
 - The app window is now shown in its previous location, instead of at the center of the screen.
+
+#### macOS
+- Fix edge cases when window's arrow appeared misaligned and pointed to the wrong menubar item.
 
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
@@ -42,9 +48,6 @@ Line wrap the file at 100 chars.                                              Th
 - Replace WebSockets with Unix domain sockets/Named pipes for IPC. The location
   of the socket can be controlled with `MULLVAD_RPC_SOCKET_PATH`.
 - Update the relay list if it's out of date when the daemon starts.
-
-### Fixed
-- Fix incorrect window position when using external display.
 
 
 ## [2018.2] - 2018-08-13

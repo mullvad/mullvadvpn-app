@@ -5,8 +5,13 @@ import type { BrowserWindow, Tray, Display } from 'electron';
 
 type Position = { x: number, y: number };
 
+export type WindowShapeParameters = {
+  arrowPosition?: number,
+};
+
 interface WindowPositioning {
   getPosition(window: BrowserWindow): Position;
+  getWindowShapeParameters(window: BrowserWindow): WindowShapeParameters;
 }
 
 class StandaloneWindowPositioning implements WindowPositioning {
@@ -22,6 +27,10 @@ class StandaloneWindowPositioning implements WindowPositioning {
     const y = Math.min(Math.max(windowBounds.y, workArea.y), maxY);
 
     return { x, y };
+  }
+
+  getWindowShapeParameters(_window: BrowserWindow): WindowShapeParameters {
+    return {};
   }
 }
 
@@ -80,6 +89,15 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
     return {
       x: Math.round(x),
       y: Math.round(y),
+    };
+  }
+
+  getWindowShapeParameters(window: BrowserWindow): WindowShapeParameters {
+    const trayBounds = this._tray.getBounds();
+    const windowBounds = window.getBounds();
+    const arrowPosition = trayBounds.x - windowBounds.x + trayBounds.width * 0.5;
+    return {
+      arrowPosition,
     };
   }
 
@@ -156,6 +174,7 @@ export default class WindowController {
     const window = this._window;
 
     this._updatePosition();
+    this._notifyUpdateWindowShape();
 
     window.show();
     window.focus();
@@ -166,7 +185,13 @@ export default class WindowController {
     this._window.setPosition(x, y, false);
   }
 
-  // Installs display event handlers to update the window position on any changes in the display or workarea dimensions.
+  _notifyUpdateWindowShape() {
+    const shapeParameters = this._windowPositioning.getWindowShapeParameters(this._window);
+    this._window.webContents.send('update-window-shape', shapeParameters);
+  }
+
+  // Installs display event handlers to update the window position on any changes in the display or
+  // workarea dimensions.
   _installDisplayMetricsHandler() {
     screen.addListener('display-metrics-changed', this._onDisplayMetricsChanged);
     this._window.once('closed', () => {
@@ -177,6 +202,7 @@ export default class WindowController {
   _onDisplayMetricsChanged = (_event: any, _display: Display, changedMetrics: Array<string>) => {
     if (changedMetrics.includes('workArea') && this._window.isVisible()) {
       this._updatePosition();
+      this._notifyUpdateWindowShape();
     }
   };
 
