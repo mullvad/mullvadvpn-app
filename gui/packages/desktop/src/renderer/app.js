@@ -469,6 +469,7 @@ export default class AppRenderer {
 
   async _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
+    const history = this._memoryHistory;
 
     // save to redux that the app disconnected from daemon
     actions.daemon.disconnected();
@@ -489,8 +490,10 @@ export default class AppRenderer {
         recover();
       });
 
-      // take user back to the launch screen `/`.
-      actions.history.replace('/');
+      // take user back to the launch screen `/` except when user is in settings.
+      if (!history.location.pathname.startsWith('/settings')) {
+        actions.history.replace('/');
+      }
     }
   }
 
