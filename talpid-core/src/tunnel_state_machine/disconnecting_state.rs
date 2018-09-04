@@ -33,14 +33,16 @@ impl DisconnectingState {
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-                Ok(TunnelCommand::Block(reason)) => Block(reason),
+                Ok(TunnelCommand::Block(reason, allow_lan)) => Block(reason, allow_lan),
                 _ => Nothing,
             },
-            AfterDisconnect::Block(reason) => match event {
+            AfterDisconnect::Block(reason, allow_lan) => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) => Nothing,
-                Ok(TunnelCommand::Block(new_reason)) => Block(new_reason),
-                _ => AfterDisconnect::Block(reason),
+                Ok(TunnelCommand::Block(new_reason, new_allow_lan)) => {
+                    Block(new_reason, new_allow_lan)
+                }
+                _ => Block(reason, allow_lan),
             },
             AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
@@ -49,7 +51,7 @@ impl DisconnectingState {
                 }
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
-                Ok(TunnelCommand::Block(reason)) => Block(reason),
+                Ok(TunnelCommand::Block(reason, allow_lan)) => Block(reason, allow_lan),
             },
         };
 
@@ -74,7 +76,9 @@ impl DisconnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
-            AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
+            AfterDisconnect::Block(reason, allow_lan) => {
+                BlockedState::enter(shared_values, (reason, allow_lan))
+            }
             AfterDisconnect::Reconnect(tunnel_parameters) => {
                 ConnectingState::enter(shared_values, tunnel_parameters)
             }
@@ -121,6 +125,6 @@ impl TunnelState for DisconnectingState {
 /// Which state should be transitioned to after disconnection is complete.
 pub enum AfterDisconnect {
     Nothing,
-    Block(BlockReason),
+    Block(BlockReason, bool),
     Reconnect(TunnelParameters),
 }

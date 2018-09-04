@@ -111,7 +111,7 @@ pub enum TunnelCommand {
     /// Close tunnel connection.
     Disconnect,
     /// Disconnect any open tunnel and block all network access
-    Block(BlockReason),
+    Block(BlockReason, bool),
 }
 
 /// Information necessary to open a tunnel.
