@@ -21,10 +21,14 @@ pub enum TunnelStateTransition {
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BlockReason {
-    /// Failed to set security policy
+    /// Failed to set security policy.
     SetSecurityPolicyError,
-    /// Failed to start connection to remote server
+    /// Failed to start connection to remote server.
     StartTunnelError,
+    /// No relay server matching the current filter parameters.
+    NoMatchingRelay,
+    /// No account token configured.
+    NoAccountToken,
 }
 
 impl fmt::Display for BlockReason {
@@ -32,6 +36,8 @@ impl fmt::Display for BlockReason {
         let description = match *self {
             BlockReason::SetSecurityPolicyError => "Failed to set security policy",
             BlockReason::StartTunnelError => "Failed to start connection to remote server",
+            BlockReason::NoMatchingRelay => "No relay server matches the current settings",
+            BlockReason::NoAccountToken => "No account token configured",
         };
 
         write!(formatter, "{}", description)

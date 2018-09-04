@@ -80,7 +80,7 @@ use std::{mem, thread};
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
 use talpid_types::net::TunnelOptions;
-use talpid_types::tunnel::TunnelStateTransition;
+use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
 
 error_chain!{
@@ -99,15 +99,13 @@ error_chain!{
             description("Error in the management interface")
             display("Management interface error: {}", msg)
         }
-        InvalidSettings(msg: &'static str) {
-            description("Invalid settings")
-            display("Invalid Settings: {}", msg)
+        NoAccountToken {
+            description("No account token configured")
         }
-        NoRelay {
-            description("Found no valid relays to connect to")
+        NoMatchingRelay {
+            description("No valid relay servers match the current settings")
         }
     }
-
     links {
         TunnelError(tunnel_state_machine::Error, tunnel_state_machine::ErrorKind);
     }
@@ -306,7 +304,7 @@ impl Daemon {
     pub fn run(mut self) -> Result<()> {
         if self.settings.get_auto_connect() {
             info!("Automatically connecting since auto-connect is turned on");
-            self.set_target_state(TargetState::Secured)?;
+            self.set_target_state(TargetState::Secured);
         }
         while let Ok(event) = self.rx.recv() {
             self.handle_event(event)?;
@@ -355,7 +353,7 @@ impl Daemon {
     fn handle_management_interface_event(&mut self, event: ManagementCommand) -> Result<()> {
         use ManagementCommand::*;
         match event {
-            SetTargetState(state) => self.on_set_target_state(state),
+            SetTargetState(state) => Ok(self.on_set_target_state(state)),
             GetState(tx) => Ok(self.on_get_state(tx)),
             GetCurrentLocation(tx) => Ok(self.on_get_current_location(tx)),
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
@@ -379,12 +377,11 @@ impl Daemon {
         }
     }
 
-    fn on_set_target_state(&mut self, new_target_state: TargetState) -> Result<()> {
+    fn on_set_target_state(&mut self, new_target_state: TargetState) {
         if self.state.is_running() {
-            self.set_target_state(new_target_state)
+            self.set_target_state(new_target_state);
         } else {
             warn!("Ignoring target state change request due to shutdown");
-            Ok(())
         }
     }
 
@@ -447,10 +444,10 @@ impl Daemon {
                 if account_changed {
                     if account_token_cleared {
                         info!("Disconnecting because account token was cleared");
-                        self.set_target_state(TargetState::Unsecured)?;
+                        self.set_target_state(TargetState::Unsecured);
                     } else {
                         info!("Initiating tunnel restart because the account token changed");
-                        self.reconnect_tunnel()?;
+                        self.reconnect_tunnel();
                     }
                 }
             }
@@ -499,7 +496,7 @@ impl Daemon {
 
                 if changed {
                     info!("Initiating tunnel restart because the relay settings changed");
-                    self.reconnect_tunnel()?;
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
@@ -517,9 +514,7 @@ impl Daemon {
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
                 if settings_changed {
-                    self.tunnel_command_tx
-                        .send(TunnelCommand::AllowLan(allow_lan))
-                        .expect("Tunnel state machine has stopped");
+                    self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
                 Self::oneshot_send(tx, (), "set_allow_lan response");
             }
@@ -575,7 +570,7 @@ impl Daemon {
 
                 if settings_changed {
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
-                    self.reconnect_tunnel()?;
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
@@ -609,75 +604,69 @@ impl Daemon {
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
-    fn set_target_state(&mut self, new_state: TargetState) -> Result<()> {
+    fn set_target_state(&mut self, new_state: TargetState) {
         if new_state != self.target_state {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
-            self.apply_target_state()
-        } else {
-            Ok(())
-        }
-    }
-
-    fn apply_target_state(&mut self) -> Result<()> {
-        match self.target_state {
-            TargetState::Secured => {
-                debug!("Triggering tunnel start");
-                if let Err(e) = self.connect_tunnel().chain_err(|| "Failed to start tunnel") {
-                    error!("{}", e.display_chain());
-                    self.current_relay = None;
-                    self.management_interface_broadcaster.notify_error(&e);
-                    self.set_target_state(TargetState::Unsecured)?;
-                }
+            match self.target_state {
+                TargetState::Secured => self.connect_tunnel(),
+                TargetState::Unsecured => self.disconnect_tunnel(),
             }
-            TargetState::Unsecured => self.disconnect_tunnel(),
         }
-
-        Ok(())
     }
 
-    fn connect_tunnel(&mut self) -> Result<()> {
-        let parameters = self.build_tunnel_parameters()?;
-
-        self.tunnel_command_tx
-            .send(TunnelCommand::Connect(parameters))
-            .expect("Tunnel state machine has stopped");
-
-        Ok(())
+    fn connect_tunnel(&mut self) {
+        debug!("Triggering tunnel start");
+        let command = match self.build_tunnel_parameters() {
+            Ok(parameters) => TunnelCommand::Connect(parameters),
+            Err(error) => {
+                error!("{}", error.display_chain());
+                let reason = match error.kind() {
+                    ErrorKind::NoMatchingRelay => BlockReason::NoMatchingRelay,
+                    ErrorKind::NoAccountToken => BlockReason::NoAccountToken,
+                    _ => {
+                        error!(
+                            "Invalid error from build_tunnel_parameters: {}",
+                            error.display_chain()
+                        );
+                        BlockReason::NoMatchingRelay
+                    }
+                };
+                TunnelCommand::Block(reason)
+            }
+        };
+        self.send_tunnel_command(command);
     }
 
     fn disconnect_tunnel(&mut self) {
-        self.tunnel_command_tx
-            .send(TunnelCommand::Disconnect)
-            .expect("Tunnel state machine has stopped");
+        self.send_tunnel_command(TunnelCommand::Disconnect);
     }
 
-    fn reconnect_tunnel(&mut self) -> Result<()> {
-        match self.target_state {
-            TargetState::Secured => self.connect_tunnel(),
-            TargetState::Unsecured => Ok(()),
+    fn reconnect_tunnel(&mut self) {
+        if self.target_state == TargetState::Secured {
+            self.connect_tunnel()
         }
     }
 
     fn build_tunnel_parameters(&mut self) -> Result<TunnelParameters> {
+        let account_token = self
+            .settings
+            .get_account_token()
+            .ok_or(ErrorKind::NoAccountToken)?;
+
         let endpoint = match self.settings.get_relay_settings() {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
                 .to_tunnel_endpoint()
-                .chain_err(|| ErrorKind::NoRelay)?,
+                .chain_err(|| ErrorKind::NoMatchingRelay)?,
             RelaySettings::Normal(constraints) => {
                 let (relay, tunnel_endpoint) = self
                     .relay_selector
                     .get_tunnel_endpoint(&constraints)
-                    .chain_err(|| ErrorKind::NoRelay)?;
+                    .chain_err(|| ErrorKind::NoMatchingRelay)?;
                 self.current_relay = Some(relay);
                 tunnel_endpoint
             }
         };
-
-        let account_token = self
-            .settings
-            .get_account_token()
-            .ok_or(ErrorKind::InvalidSettings("No account token"))?;
 
         Ok(TunnelParameters {
             endpoint,
@@ -687,6 +676,12 @@ impl Daemon {
             username: account_token,
             allow_lan: self.settings.get_allow_lan(),
         })
+    }
+
+    fn send_tunnel_command(&mut self, command: TunnelCommand) {
+        self.tunnel_command_tx
+            .send(command)
+            .expect("Tunnel state machine has stopped");
     }
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
