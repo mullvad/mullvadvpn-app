@@ -147,6 +147,13 @@ impl MacosNetworkSecurity {
                 }
                 Ok(rules)
             }
+            SecurityPolicy::Blocked { allow_lan } => {
+                let mut rules = Vec::new();
+                if allow_lan {
+                    rules.append(&mut Self::get_allow_lan_rules()?);
+                }
+                Ok(rules)
+            }
         }
     }
 
