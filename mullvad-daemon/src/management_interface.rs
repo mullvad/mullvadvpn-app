@@ -1,5 +1,3 @@
-use error_chain;
-
 use error_chain::ChainedError;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
@@ -16,8 +14,6 @@ use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
-
-use serde;
 
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -153,16 +149,6 @@ build_rpc_trait! {
             #[rpc(name = "new_state_unsubscribe")]
             fn new_state_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
         }
-
-        #[pubsub(name = "error")] {
-            /// Subscribes to the `error` event notifications.
-            #[rpc(name = "error_subscribe")]
-            fn error_subscribe(&self, Self::Metadata, pubsub::Subscriber<Vec<String>>);
-
-            /// Unsubscribes from the `error` event notifications.
-            #[rpc(name = "error_unsubscribe")]
-            fn error_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
-        }
     }
 }
 
@@ -212,15 +198,9 @@ pub enum ManagementCommand {
     Shutdown,
 }
 
-#[derive(Default)]
-struct ActiveSubscriptions {
-    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>,
-    error_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<Vec<String>>>>,
-}
-
 pub struct ManagementInterfaceServer {
     server: talpid_ipc::IpcServer,
-    subscriptions: Arc<ActiveSubscriptions>,
+    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
 }
 
 impl ManagementInterfaceServer {
@@ -268,41 +248,22 @@ impl ManagementInterfaceServer {
 
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 pub struct EventBroadcaster {
-    subscriptions: Arc<ActiveSubscriptions>,
+    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
 }
 
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
         debug!("Broadcasting new state to listeners: {:?}", new_state);
-        self.notify(&self.subscriptions.new_state_subscriptions, new_state);
-    }
-
-    /// Sends an error to all `error` subscribers of the management interface.
-    pub fn notify_error<E>(&self, error: &E)
-    where
-        E: error_chain::ChainedError,
-    {
-        let error_strings = error.iter().map(|e| e.to_string()).collect();
-        self.notify(&self.subscriptions.error_subscriptions, error_strings);
-    }
-
-    fn notify<T>(
-        &self,
-        subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<T>>>,
-        value: T,
-    ) where
-        T: serde::Serialize + Clone,
-    {
-        let subscriptions = subscriptions_lock.read().unwrap();
+        let subscriptions = self.subscriptions.read().unwrap();
         for sink in subscriptions.values() {
-            let _ = sink.notify(Ok(value.clone())).wait();
+            let _ = sink.notify(Ok(new_state.clone())).wait();
         }
     }
 }
 
 struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
-    subscriptions: Arc<ActiveSubscriptions>,
+    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
     tx: Mutex<IntoSender<ManagementCommand, T>>,
     cache_dir: PathBuf,
 }
@@ -644,22 +605,12 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         subscriber: pubsub::Subscriber<TunnelStateTransition>,
     ) {
         trace!("new_state_subscribe");
-        Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
+        Self::subscribe(subscriber, &self.subscriptions);
     }
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         trace!("new_state_unsubscribe");
-        Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
-    }
-
-    fn error_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<Vec<String>>) {
-        trace!("error_subscribe");
-        Self::subscribe(subscriber, &self.subscriptions.error_subscriptions);
-    }
-
-    fn error_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
-        trace!("error_unsubscribe");
-        Self::unsubscribe(id, &self.subscriptions.error_subscriptions)
+        Self::unsubscribe(id, &self.subscriptions)
     }
 }
 

@@ -27,8 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
-- Enter a "blocked" state in case of connection error, which prevents leaking connections until the
-  user specifically requests to disconnect.
+- Enter a "blocked" state in case of connection error, relay server unavailability or invalid
+  configuration, which prevents leaking traffic until the user specifically requests to disconnect.
 - Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
 
 #### Windows

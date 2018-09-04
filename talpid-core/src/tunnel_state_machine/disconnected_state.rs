@@ -3,8 +3,8 @@ use futures::sync::mpsc;
 use futures::Stream;
 
 use super::{
-    ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    BlockedState, ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use security::NetworkSecurity;
 
@@ -46,6 +46,9 @@ impl TunnelState for DisconnectedState {
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ConnectingState::enter(shared_values, parameters))
+            }
+            Ok(TunnelCommand::Block(reason)) => {
+                NewState(BlockedState::enter(shared_values, reason))
             }
             Ok(_) => SameState(self),
             Err(_) => Finished,

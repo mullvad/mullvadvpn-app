@@ -11,6 +11,12 @@ export class BlockedError extends Error {
       case 'start_tunnel_error':
         super('Failed to start tunnel connection');
         break;
+      case 'no_matching_relay':
+        super('No relay server matches the current settings');
+        break;
+      case 'no_account_token':
+        super('No account token configured');
+        break;
       default:
         super(`Unknown error: ${(reason: empty)}`);
     }
