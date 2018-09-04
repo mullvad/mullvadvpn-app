@@ -66,9 +66,6 @@ error_chain! {
             description("Failed to setup a transport")
         }
     }
-    links {
-        UnknownRpcAddressPath(mullvad_paths::Error, mullvad_paths::ErrorKind);
-    }
 }
 
 static NO_ARGS: [u8; 0] = [];

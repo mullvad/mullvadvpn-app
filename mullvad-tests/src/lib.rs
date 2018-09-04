@@ -274,10 +274,6 @@ pub struct DaemonRunner {
 }
 
 impl DaemonRunner {
-    pub fn spawn_with_real_rpc_address_file() -> Self {
-        Self::spawn_internal()
-    }
-
     pub fn spawn() -> Self {
         Self::spawn_internal()
     }
