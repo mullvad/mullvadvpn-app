@@ -78,7 +78,7 @@ impl Tunnel {
 
         let mut rpc = new_rpc_client()?;
         rpc.set_enable_ipv6(enabled)?;
-        println!("enable_ipv6 parameter updated");
+        println!("IPv6 {}", if enabled { "on" } else { "off" });
         Ok(())
     }
 
