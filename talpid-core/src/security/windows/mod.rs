@@ -277,9 +277,7 @@ mod winfw {
         ) -> ApplyConnectedResult;
 
         #[link_name(WinFw_ApplyPolicyBlocked)]
-        pub fn WinFw_ApplyPolicyBlocked(
-            settings: &WinFwSettings,
-        ) -> ApplyBlockedResult;
+        pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> ApplyBlockedResult;
 
         #[link_name(WinFw_Reset)]
         pub fn WinFw_Reset() -> ResettingPolicyResult;
