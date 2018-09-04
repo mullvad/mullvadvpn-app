@@ -28,7 +28,7 @@ private:
 
 	void processConnecting(const KeyValuePairs &arguments);
 	void processConnected(const KeyValuePairs &arguments);
-	void processNetBlocked();
+	void processBlocked(const KeyValuePairs &arguments);
 	void processReset();
 };
 

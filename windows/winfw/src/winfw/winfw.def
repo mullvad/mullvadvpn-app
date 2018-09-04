@@ -5,5 +5,5 @@ WinFw_Initialize
 WinFw_Deinitialize
 WinFw_ApplyPolicyConnecting
 WinFw_ApplyPolicyConnected
-WinFw_ApplyPolicyNetBlocked
+WinFw_ApplyPolicyBlocked
 WinFw_Reset
