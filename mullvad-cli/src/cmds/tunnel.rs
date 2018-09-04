@@ -77,7 +77,7 @@ impl Tunnel {
         let enabled = args.value_of("enable").unwrap() == "on";
 
         let mut rpc = new_rpc_client()?;
-        rpc.set_openvpn_enable_ipv6(enabled)?;
+        rpc.set_enable_ipv6(enabled)?;
         println!("enable_ipv6 parameter updated");
         Ok(())
     }
