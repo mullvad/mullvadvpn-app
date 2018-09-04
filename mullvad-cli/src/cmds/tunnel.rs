@@ -21,13 +21,6 @@ impl Command for Tunnel {
                     .subcommand(
                         clap::SubCommand::with_name("set")
                             .subcommand(
-                                clap::SubCommand::with_name("ipv6").arg(
-                                    clap::Arg::with_name("enable")
-                                        .required(true)
-                                        .takes_value(true)
-                                        .possible_values(&["on", "off"]),
-                                ),
-                            ).subcommand(
                                 clap::SubCommand::with_name("mssfix").arg(
                                     clap::Arg::with_name("mssfix")
                                         .help(
@@ -40,12 +33,24 @@ impl Command for Tunnel {
                         clap::SubCommand::with_name("get")
                             .help("Retrieves the current setting for mssfix"),
                     ),
+            ).subcommand(
+                clap::SubCommand::with_name("set")
+                    .subcommand(
+                        clap::SubCommand::with_name("ipv6").arg(
+                            clap::Arg::with_name("enable")
+                                .required(true)
+                                .takes_value(true)
+                                .possible_values(&["on", "off"]),
+                        ),
+                    ).setting(clap::AppSettings::SubcommandRequired),
             )
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(openvpn_matches) = matches.subcommand_matches("openvpn") {
             Self::handle_openvpn_cmd(openvpn_matches)
+        } else if let Some(set_matches) = matches.subcommand_matches("set") {
+            Self::set_tunnel_option(set_matches)
         } else {
             unreachable!("No tunnel command given")
         }
@@ -53,6 +58,23 @@ impl Command for Tunnel {
 }
 
 impl Tunnel {
+    fn set_tunnel_option(matches: &clap::ArgMatches) -> Result<()> {
+        if let Some(ipv6_args) = matches.subcommand_matches("ipv6") {
+            Self::set_enable_ipv6_option(ipv6_args)
+        } else {
+            unreachable!("Invalid option passed to 'tunnel set'");
+        }
+    }
+
+    fn set_enable_ipv6_option(args: &clap::ArgMatches) -> Result<()> {
+        let enabled = args.value_of("enable").unwrap() == "on";
+
+        let mut rpc = new_rpc_client()?;
+        rpc.set_openvpn_enable_ipv6(enabled)?;
+        println!("enable_ipv6 parameter updated");
+        Ok(())
+    }
+
     fn handle_openvpn_cmd(matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             Self::set_openvpn_option(set_matches)
@@ -67,22 +89,11 @@ impl Tunnel {
     }
 
     fn set_openvpn_option(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(ipv6_args) = matches.subcommand_matches("ipv6") {
-            Self::set_openvpn_enable_ipv6_option(ipv6_args)
-        } else if let Some(mssfix_args) = matches.subcommand_matches("mssfix") {
+        if let Some(mssfix_args) = matches.subcommand_matches("mssfix") {
             Self::set_openvpn_mssfix_option(mssfix_args)
         } else {
             unreachable!("Invalid option passed to 'openvpn set'");
         }
-    }
-
-    fn set_openvpn_enable_ipv6_option(args: &clap::ArgMatches) -> Result<()> {
-        let enabled = args.value_of("enable").unwrap() == "on";
-
-        let mut rpc = new_rpc_client()?;
-        rpc.set_openvpn_enable_ipv6(enabled)?;
-        println!("enable_ipv6 parameter updated");
-        Ok(())
     }
 
     fn set_openvpn_mssfix_option(args: &clap::ArgMatches) -> Result<()> {
