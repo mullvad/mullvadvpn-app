@@ -53,6 +53,7 @@ pub struct OpenVpnCommand {
     log: Option<PathBuf>,
     tunnel_options: net::OpenVpnTunnelOptions,
     tunnel_alias: Option<OsString>,
+    enable_ipv6: bool,
 }
 
 impl OpenVpnCommand {
@@ -71,6 +72,7 @@ impl OpenVpnCommand {
             log: None,
             tunnel_options: net::OpenVpnTunnelOptions::default(),
             tunnel_alias: None,
+            enable_ipv6: true,
         }
     }
 
@@ -142,6 +144,12 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Configures if IPv6 should be allowed in the tunnel.
+    pub fn enable_ipv6(&mut self, enable_ipv6: bool) -> &mut Self {
+        self.enable_ipv6 = enable_ipv6;
+        self
+    }
+
     /// Returns all arguments that the subprocess would be spawned with.
     pub fn get_arguments(&self) -> Vec<OsString> {
         let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();
@@ -184,7 +192,7 @@ impl OpenVpnCommand {
             args.push(OsString::from(mssfix.to_string()));
         }
 
-        if !self.tunnel_options.enable_ipv6 {
+        if !self.enable_ipv6 {
             args.push(OsString::from("--pull-filter"));
             args.push(OsString::from("ignore"));
             args.push(OsString::from("route-ipv6"));
