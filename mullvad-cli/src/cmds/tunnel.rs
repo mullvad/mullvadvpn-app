@@ -125,11 +125,7 @@ impl Tunnel {
         println!("Common tunnel options");
         println!(
             "\tIPv6:   {}",
-            if options.openvpn.enable_ipv6 {
-                "on"
-            } else {
-                "off"
-            }
+            if options.enable_ipv6 { "on" } else { "off" }
         );
     }
 
