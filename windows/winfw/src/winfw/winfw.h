@@ -127,15 +127,17 @@ WinFw_ApplyPolicyConnected(
 );
 
 //
-// ApplyPolicyNetBlocked:
+// ApplyPolicyBlocked:
 //
-// Apply restrictions in the firewall that block all traffic.
+// Apply restrictions in the firewall that block all traffic, except:
+// - What is specified by settings
 //
 extern "C"
 WINFW_LINKAGE
 bool
 WINFW_API
-WinFw_ApplyPolicyNetBlocked(
+WinFw_ApplyPolicyBlocked(
+	const WinFwSettings &settings
 );
 
 //

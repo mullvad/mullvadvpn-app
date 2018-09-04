@@ -118,11 +118,12 @@ bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwR
 	return applyRuleset(ruleset);
 }
 
-bool FwContext::applyPolicyNetBlocked()
+bool FwContext::applyPolicyBlocked(const WinFwSettings &settings)
 {
 	Ruleset ruleset;
 
 	AppendNetBlockedRules(ruleset);
+	AppendSettingsRules(ruleset, settings);
 
 	return applyRuleset(ruleset);
 }

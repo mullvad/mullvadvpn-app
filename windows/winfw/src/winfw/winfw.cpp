@@ -147,7 +147,8 @@ WinFw_ApplyPolicyConnected(
 WINFW_LINKAGE
 bool
 WINFW_API
-WinFw_ApplyPolicyNetBlocked(
+WinFw_ApplyPolicyBlocked(
+	const WinFwSettings &settings
 )
 {
 	if (nullptr == g_fwContext)
@@ -157,7 +158,7 @@ WinFw_ApplyPolicyNetBlocked(
 
 	try
 	{
-		return g_fwContext->applyPolicyNetBlocked();
+		return g_fwContext->applyPolicyBlocked(settings);
 	}
 	catch (std::exception &err)
 	{

@@ -55,8 +55,8 @@ Policy::Policy(MessageSink messageSink)
 
 	m_dispatcher.addSubcommand
 	(
-		L"netblocked",
-		std::bind(&Policy::processNetBlocked, this)
+		L"blocked",
+		std::bind(&Policy::processBlocked, this, std::placeholders::_1)
 	);
 
 	m_dispatcher.addSubcommand
@@ -149,9 +149,15 @@ void Policy::processConnected(const KeyValuePairs &arguments)
 		: L"Failed to apply policy."));
 }
 
-void Policy::processNetBlocked()
+void Policy::processBlocked(const KeyValuePairs &arguments)
 {
-	auto success = WinFw_ApplyPolicyNetBlocked();
+	auto settings = detail::CreateSettings
+	(
+		GetArgumentValue(arguments, L"dhcp"),
+		GetArgumentValue(arguments, L"lan")
+	);
+
+	auto success = WinFw_ApplyPolicyBlocked(settings);
 
 	m_messageSink((success
 		? L"Successfully applied policy."
