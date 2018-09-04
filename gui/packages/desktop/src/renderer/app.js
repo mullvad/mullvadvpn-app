@@ -380,7 +380,7 @@ export default class AppRenderer {
 
   async setEnableIpv6(enableIpv6: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setOpenVpnEnableIpv6(enableIpv6);
+    await this._daemonRpc.setEnableIpv6(enableIpv6);
     actions.settings.updateEnableIpv6(enableIpv6);
   }
 
