@@ -206,14 +206,12 @@ const RelayListSchema = object({
 });
 
 export type TunnelOptions = {
-  openvpn: {
-    enableIpv6: boolean,
-  },
+  enableIpv6: boolean,
 };
 
 const TunnelOptionsSchema = object({
+  enable_ipv6: boolean,
   openvpn: object({
-    enable_ipv6: boolean,
     mssfix: maybe(number),
   }),
 });
@@ -439,9 +437,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
       const validatedObject = validate(TunnelOptionsSchema, response);
 
       return {
-        openvpn: {
-          enableIpv6: validatedObject.openvpn.enable_ipv6,
-        },
+        enableIpv6: validatedObject.enable_ipv6,
       };
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_tunnel_options', error);
