@@ -550,7 +550,7 @@ impl Daemon {
     }
 
     fn on_set_enable_ipv6(&mut self, tx: OneshotSender<()>, enable_ipv6: bool) -> Result<()> {
-        let save_result = self.settings.set_openvpn_enable_ipv6(enable_ipv6);
+        let save_result = self.settings.set_enable_ipv6(enable_ipv6);
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
