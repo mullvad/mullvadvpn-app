@@ -57,8 +57,9 @@ impl Tunnel {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             Self::set_openvpn_option(set_matches)
         } else if let Some(_) = matches.subcommand_matches("get") {
-            let openvpn_options = Self::get_tunnel_options()?.openvpn;
-            Self::print_openvpn_tunnel_options(openvpn_options);
+            let tunnel_options = Self::get_tunnel_options()?;
+            Self::print_common_tunnel_options(&tunnel_options);
+            Self::print_openvpn_tunnel_options(tunnel_options.openvpn);
             Ok(())
         } else {
             unreachable!("Unrecognized subcommand");
@@ -103,6 +104,18 @@ impl Tunnel {
         Ok(rpc.get_tunnel_options()?)
     }
 
+    fn print_common_tunnel_options(options: &TunnelOptions) {
+        println!("Common tunnel options");
+        println!(
+            "\tIPv6:   {}",
+            if options.openvpn.enable_ipv6 {
+                "on"
+            } else {
+                "off"
+            }
+        );
+    }
+
     fn print_openvpn_tunnel_options(options: OpenVpnTunnelOptions) {
         println!("OpenVPN tunnel options");
         println!(
@@ -110,10 +123,6 @@ impl Tunnel {
             options
                 .mssfix
                 .map_or_else(|| "UNSET".to_string(), |v| v.to_string())
-        );
-        println!(
-            "\tIPv6:   {}",
-            if options.enable_ipv6 { "on" } else { "off" }
         );
     }
 }
