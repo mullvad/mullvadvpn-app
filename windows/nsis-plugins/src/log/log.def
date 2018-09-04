@@ -1,0 +1,10 @@
+LIBRARY log
+
+EXPORTS
+
+Initialize
+Log
+LogWithDetails
+
+PluginLog
+PluginLogWithDetails

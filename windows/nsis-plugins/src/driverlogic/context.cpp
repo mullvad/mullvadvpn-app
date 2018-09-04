@@ -4,6 +4,7 @@
 #include <libcommon/wmi/connection.h>
 #include <libcommon/wmi/resultset.h>
 #include <libcommon/wmi/wmi.h>
+#include <log/log.h>
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
@@ -24,6 +25,81 @@ std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)
 	// empty lines for this usage.
 	//
 	return common::string::Tokenize(textBlock, L"\r\n");
+}
+
+void LogAllAdapters(wmi::Connection &connection)
+{
+	auto resultset = connection.query(L"SELECT * from Win32_NetworkAdapter");
+
+	struct NetworkAdapter
+	{
+		size_t interfaceIndex;
+		std::wstring manufacturer;
+		std::wstring name;
+		std::wstring pnpDeviceId;
+		std::wstring alias;
+	};
+
+	std::vector<NetworkAdapter> adapters;
+
+	//
+	// Find all adapters and extract the most important data.
+	//
+
+	auto StringOrNa = [](const _variant_t &variant)
+	{
+		if (VT_BSTR == V_VT(&variant))
+		{
+			return std::wstring(V_BSTR(&variant));
+		}
+
+		return std::wstring(L"n/a");
+	};
+
+	while(resultset.advance())
+	{
+		auto interfaceIndex = wmi::WmiGetPropertyAlways(resultset.result(), L"InterfaceIndex");
+		auto manufacturer = wmi::WmiGetProperty(resultset.result(), L"Manufacturer");
+		auto name = wmi::WmiGetProperty(resultset.result(), L"Name");
+		auto pnpDeviceId = wmi::WmiGetProperty(resultset.result(), L"PNPDeviceID");
+		auto alias = wmi::WmiGetProperty(resultset.result(), L"NetConnectionID");
+
+		NetworkAdapter adapter;
+
+		adapter.interfaceIndex = static_cast<size_t>(V_UI8(&interfaceIndex));
+		adapter.manufacturer = StringOrNa(manufacturer);
+		adapter.name = StringOrNa(name);
+		adapter.pnpDeviceId = StringOrNa(pnpDeviceId);
+		adapter.alias = StringOrNa(alias);
+
+		adapters.emplace_back(adapter);
+	}
+
+	//
+	// Flatten the adapter information so we can log it more easily.
+	//
+
+	std::vector<std::wstring> details;
+
+	for (const auto &adapter : adapters)
+	{
+		details.emplace_back(L"Adapter");
+
+		{
+			std::wstringstream ss;
+
+			ss << L"    InterfaceIndex: " << adapter.interfaceIndex;
+
+			details.emplace_back(ss.str());
+		}
+
+		details.emplace_back(std::wstring(L"    Manufacturer: ").append(adapter.manufacturer));
+		details.emplace_back(std::wstring(L"    Name: ").append(adapter.name));
+		details.emplace_back(std::wstring(L"    PnpDeviceId: ").append(adapter.pnpDeviceId));
+		details.emplace_back(std::wstring(L"    Alias: ").append(adapter.alias));
+	}
+
+	PluginLogWithDetails(L"Adapters known to WMI", details);
 }
 
 } // anonymous namespace
@@ -123,6 +199,9 @@ std::wstring Context::GetNicAlias(const std::wstring &name)
 
 	if (false == resultset.advance())
 	{
+		PluginLog(std::wstring(L"WMI query failed for adapter: ").append(name));
+		LogAllAdapters(connection);
+
 		throw std::runtime_error("Unable to look up virtual adapter using WMI");
 	}
 

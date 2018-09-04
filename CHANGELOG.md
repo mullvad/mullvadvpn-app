@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
+- Add installation log (%PROGRAMDATA%\Mullvad VPN\install.log).
 
 ### Fixed
 - Fix incorrect window position when using external display.
