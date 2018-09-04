@@ -79,7 +79,7 @@ use std::{mem, thread};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
-use talpid_types::net::TunnelOptions;
+use talpid_types::net::{TunnelEndpoint, TunnelOptions};
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
 
@@ -98,12 +98,6 @@ error_chain!{
         ManagementInterfaceError(msg: &'static str) {
             description("Error in the management interface")
             display("Management interface error: {}", msg)
-        }
-        NoAccountToken {
-            description("No account token configured")
-        }
-        NoMatchingRelay {
-            description("No valid relay servers match the current settings")
         }
     }
     links {
@@ -616,24 +610,26 @@ impl Daemon {
     }
 
     fn connect_tunnel(&mut self) {
-        debug!("Triggering tunnel start");
-        let command = match self.build_tunnel_parameters() {
-            Ok(parameters) => TunnelCommand::Connect(parameters),
-            Err(error) => {
+        let command = match self.settings.get_account_token() {
+            None => TunnelCommand::Block(BlockReason::NoAccountToken),
+            Some(account_token) => match self.settings.get_relay_settings() {
+                RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
+                    .to_tunnel_endpoint()
+                    .chain_err(|| "Custom tunnel endpoint could not be resolved"),
+                RelaySettings::Normal(constraints) => self
+                    .relay_selector
+                    .get_tunnel_endpoint(&constraints)
+                    .chain_err(|| "No valid relay servers match the current settings")
+                    .map(|(relay, endpoint)| {
+                        self.current_relay = Some(relay);
+                        endpoint
+                    }),
+            }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
+            .map(|parameters| TunnelCommand::Connect(parameters))
+            .unwrap_or_else(|error| {
                 error!("{}", error.display_chain());
-                let reason = match error.kind() {
-                    ErrorKind::NoMatchingRelay => BlockReason::NoMatchingRelay,
-                    ErrorKind::NoAccountToken => BlockReason::NoAccountToken,
-                    _ => {
-                        error!(
-                            "Invalid error from build_tunnel_parameters: {}",
-                            error.display_chain()
-                        );
-                        BlockReason::NoMatchingRelay
-                    }
-                };
-                TunnelCommand::Block(reason)
-            }
+                TunnelCommand::Block(BlockReason::NoMatchingRelay)
+            }),
         };
         self.send_tunnel_command(command);
     }
@@ -648,34 +644,19 @@ impl Daemon {
         }
     }
 
-    fn build_tunnel_parameters(&mut self) -> Result<TunnelParameters> {
-        let account_token = self
-            .settings
-            .get_account_token()
-            .ok_or(ErrorKind::NoAccountToken)?;
-
-        let endpoint = match self.settings.get_relay_settings() {
-            RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                .to_tunnel_endpoint()
-                .chain_err(|| ErrorKind::NoMatchingRelay)?,
-            RelaySettings::Normal(constraints) => {
-                let (relay, tunnel_endpoint) = self
-                    .relay_selector
-                    .get_tunnel_endpoint(&constraints)
-                    .chain_err(|| ErrorKind::NoMatchingRelay)?;
-                self.current_relay = Some(relay);
-                tunnel_endpoint
-            }
-        };
-
-        Ok(TunnelParameters {
+    fn build_tunnel_parameters(
+        &self,
+        account_token: AccountToken,
+        endpoint: TunnelEndpoint,
+    ) -> TunnelParameters {
+        TunnelParameters {
             endpoint,
             options: self.settings.get_tunnel_options().clone(),
             log_dir: self.log_dir.clone(),
             resource_dir: self.resource_dir.clone(),
             username: account_token,
             allow_lan: self.settings.get_allow_lan(),
-        })
+        }
     }
 
     fn send_tunnel_command(&mut self, command: TunnelCommand) {
