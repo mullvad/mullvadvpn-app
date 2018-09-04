@@ -43,6 +43,9 @@ impl Command for Tunnel {
                                 .possible_values(&["on", "off"]),
                         ),
                     ).setting(clap::AppSettings::SubcommandRequired),
+            ).subcommand(
+                clap::SubCommand::with_name("get")
+                    .help("Retrieves the current setting for common tunnel options"),
             )
     }
 
@@ -51,6 +54,10 @@ impl Command for Tunnel {
             Self::handle_openvpn_cmd(openvpn_matches)
         } else if let Some(set_matches) = matches.subcommand_matches("set") {
             Self::set_tunnel_option(set_matches)
+        } else if let Some(_) = matches.subcommand_matches("get") {
+            let tunnel_options = Self::get_tunnel_options()?;
+            Self::print_common_tunnel_options(&tunnel_options);
+            Ok(())
         } else {
             unreachable!("No tunnel command given")
         }
@@ -80,7 +87,6 @@ impl Tunnel {
             Self::set_openvpn_option(set_matches)
         } else if let Some(_) = matches.subcommand_matches("get") {
             let tunnel_options = Self::get_tunnel_options()?;
-            Self::print_common_tunnel_options(&tunnel_options);
             Self::print_openvpn_tunnel_options(tunnel_options.openvpn);
             Ok(())
         } else {
