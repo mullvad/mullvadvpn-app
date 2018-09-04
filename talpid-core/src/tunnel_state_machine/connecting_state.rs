@@ -175,6 +175,24 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                self.tunnel_parameters.allow_lan = allow_lan;
+                match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
+                    Ok(()) => SameState(self),
+                    Err(error) => {
+                        error!("{}", error.display_chain());
+
+                        NewState(DisconnectingState::enter(
+                            shared_values,
+                            (
+                                self.close_handle,
+                                self.tunnel_close_event,
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                            ),
+                        ))
+                    }
+                }
+            }
             Ok(TunnelCommand::Connect(parameters)) => {
                 if parameters != self.tunnel_parameters {
                     NewState(DisconnectingState::enter(
@@ -197,24 +215,14 @@ impl ConnectingState {
                     AfterDisconnect::Nothing,
                 ),
             )),
-            Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                self.tunnel_parameters.allow_lan = allow_lan;
-                match Self::set_security_policy(shared_values, self.tunnel_endpoint, allow_lan) {
-                    Ok(()) => SameState(self),
-                    Err(error) => {
-                        error!("{}", error.display_chain());
-
-                        NewState(DisconnectingState::enter(
-                            shared_values,
-                            (
-                                self.close_handle,
-                                self.tunnel_close_event,
-                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
-                            ),
-                        ))
-                    }
-                }
-            }
+            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
+                shared_values,
+                (
+                    self.close_handle,
+                    self.tunnel_close_event,
+                    AfterDisconnect::Block(reason),
+                ),
+            )),
         }
     }
 
