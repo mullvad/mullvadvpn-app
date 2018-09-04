@@ -1,3 +1,5 @@
+# Systemd service unit file for the Mullvad VPN daemon
+
 [Unit]
 Description=Mullvad VPN daemon
 Wants=network.target

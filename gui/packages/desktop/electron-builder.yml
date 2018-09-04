@@ -109,18 +109,26 @@ linux:
       to: .
     - from: ../../../dist-assets/binaries/linux/openvpn
       to: .
+    - from: ../../../dist-assets/linux/mullvad-daemon.conf
+      to: .
+    - from: ../../../dist-assets/linux/mullvad-daemon.service
+      to: .
 
 deb:
-  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: ../../../dist-assets/linux/install_script.sh
-  afterRemove: ../../../dist-assets/linux/uninstall_script.sh
+  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
+       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
+  afterInstall: ../../../dist-assets/linux/after-install.sh
+  afterRemove: ../../../dist-assets/linux/after-remove.sh
 
 rpm:
-  fpm: ["--config-files", "/etc/systemd/system/mullvad-daemon.service",
-       "../../../dist-assets/linux/mullvad-daemon.service=/etc/systemd/system/"]
-  afterInstall: ../../../dist-assets/linux/install_script.sh
-  afterRemove: ../../../dist-assets/linux/uninstall_script.sh
+  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
+       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
+  afterInstall: ../../../dist-assets/linux/after-install.sh
+  afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
       - libXScrnSaver
       - libappindicator
