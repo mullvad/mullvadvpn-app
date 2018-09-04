@@ -410,7 +410,7 @@ export default class AppRenderer {
   async _fetchTunnelOptions() {
     const actions = this._reduxActions;
     const tunnelOptions = await this._daemonRpc.getTunnelOptions();
-    actions.settings.updateEnableIpv6(tunnelOptions.openvpn.enableIpv6);
+    actions.settings.updateEnableIpv6(tunnelOptions.enableIpv6);
   }
 
   async _fetchVersionInfo() {
