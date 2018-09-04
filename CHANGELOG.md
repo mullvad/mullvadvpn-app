@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enter a "blocked" state in case of connection error, relay server unavailability or invalid
   configuration, which prevents leaking traffic until the user specifically requests to disconnect.
 - Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
+- Make scrollbar thumb draggable.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
