@@ -18,7 +18,7 @@ use futures::{Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};
-use talpid_types::tunnel::TunnelStateTransition;
+use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
 use self::blocked_state::BlockedState;
 use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
@@ -110,6 +110,8 @@ pub enum TunnelCommand {
     Connect(TunnelParameters),
     /// Close tunnel connection.
     Disconnect,
+    /// Disconnect any open tunnel and block all network access
+    Block(BlockReason),
 }
 
 /// Information necessary to open a tunnel.

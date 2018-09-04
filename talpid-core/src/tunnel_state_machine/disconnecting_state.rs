@@ -33,20 +33,23 @@ impl DisconnectingState {
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
+                Ok(TunnelCommand::Block(reason)) => Block(reason),
                 _ => Nothing,
             },
             AfterDisconnect::Block(reason) => match event {
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) => Nothing,
+                Ok(TunnelCommand::Block(new_reason)) => Block(new_reason),
                 _ => AfterDisconnect::Block(reason),
             },
             AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
-                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     tunnel_parameters.allow_lan = allow_lan;
                     Reconnect(tunnel_parameters)
                 }
+                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
+                Ok(TunnelCommand::Block(reason)) => Block(reason),
             },
         };
 
