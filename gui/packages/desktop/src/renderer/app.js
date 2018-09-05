@@ -47,6 +47,7 @@ export default class AppRenderer {
   _reduxStore: ReduxStore;
   _reduxActions: *;
   _accountDataState = new AccountDataState();
+  _connectedToDaemon = false;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -439,6 +440,8 @@ export default class AppRenderer {
   }
 
   async _onOpenConnection() {
+    this._connectedToDaemon = true;
+
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
@@ -477,7 +480,6 @@ export default class AppRenderer {
 
   async _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
-    const history = this._memoryHistory;
 
     // recover connection on error
     if (error) {
@@ -495,19 +497,15 @@ export default class AppRenderer {
         recover();
       });
 
-      // take user back to the launch screen `/` except when user is in settings.
-      if (history.location.pathname.startsWith('/settings')) {
-        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
-        // the restricted screen due to changes in daemon's state.
-        for (const entry of history.entries) {
-          if (!entry.pathname.startsWith('/settings')) {
-            entry.pathname = '/';
-          }
-        }
-      } else {
+      // only send to the connecting to daemon view if the daemon was
+      // connnected previously
+      if (this._connectedToDaemon) {
         actions.history.replace('/');
       }
+    } else {
+      log.info(`Disconnected from the daemon`);
     }
+    this._connectedToDaemon = false;
   }
 
   async _subscribeStateListener() {
@@ -618,16 +616,6 @@ export default class AppRenderer {
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
         return;
-    }
-  }
-
-  async _authenticate(sharedSecret: string) {
-    try {
-      await this._daemonRpc.authenticate(sharedSecret);
-      log.info('Authenticated with backend');
-    } catch (e) {
-      log.error(`Failed to authenticate with backend: ${e.message}`);
-      throw e;
     }
   }
 }
