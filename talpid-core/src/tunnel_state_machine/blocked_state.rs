@@ -8,7 +8,7 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use security::{NetworkSecurity, SecurityPolicy};
+use security::SecurityPolicy;
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState;
@@ -16,7 +16,6 @@ pub struct BlockedState;
 impl BlockedState {
     fn set_security_policy(shared_values: &mut SharedTunnelStateValues, allow_lan: bool) {
         let policy = SecurityPolicy::Blocked { allow_lan };
-        debug!("Setting security policy: {:?}", policy);
         if let Err(error) = shared_values
             .security
             .apply_policy(policy)

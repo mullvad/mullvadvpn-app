@@ -18,7 +18,7 @@ use std::io;
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::Path;
 
-use super::{NetworkSecurity, SecurityPolicy};
+use super::{NetworkSecurityT, SecurityPolicy};
 
 mod dns;
 use self::dns::DnsSettings;
@@ -71,17 +71,17 @@ enum End {
     Dst,
 }
 
-/// The Linux implementation for the `NetworkSecurity` trait.
-pub struct LinuxNetworkSecurity {
+/// The Linux implementation for the firewall and DNS.
+pub struct NetworkSecurity {
     dns_settings: DnsSettings,
     table_name: CString,
 }
 
-impl NetworkSecurity for LinuxNetworkSecurity {
+impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
     fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
-        Ok(LinuxNetworkSecurity {
+        Ok(NetworkSecurity {
             dns_settings: DnsSettings::new()?,
             table_name: TABLE_NAME.clone(),
         })
@@ -117,7 +117,7 @@ impl NetworkSecurity for LinuxNetworkSecurity {
     }
 }
 
-impl LinuxNetworkSecurity {
+impl NetworkSecurity {
     fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
         let socket =
             mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;

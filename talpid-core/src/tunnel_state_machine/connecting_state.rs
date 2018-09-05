@@ -18,7 +18,7 @@ use super::{
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
-use security::{NetworkSecurity, SecurityPolicy};
+use security::SecurityPolicy;
 use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
@@ -63,8 +63,6 @@ impl ConnectingState {
             relay_endpoint: endpoint.to_endpoint(),
             allow_lan,
         };
-
-        debug!("Setting security policy: {:?}", policy);
         shared_values
             .security
             .apply_policy(policy)

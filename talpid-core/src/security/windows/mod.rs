@@ -1,6 +1,6 @@
 extern crate widestring;
 
-use super::{NetworkSecurity, SecurityPolicy};
+use super::{NetworkSecurityT, SecurityPolicy};
 use std::net::IpAddr;
 use std::path::Path;
 use std::ptr;
@@ -60,12 +60,12 @@ error_chain! {
 
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
-/// The Windows implementation for the `NetworkSecurity` trait.
-pub struct WindowsNetworkSecurity {
+/// The Windows implementation for the firewall and DNS.
+pub struct NetworkSecurity {
     dns: WinDns,
 }
 
-impl NetworkSecurity for WindowsNetworkSecurity {
+impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {
@@ -78,7 +78,7 @@ impl NetworkSecurity for WindowsNetworkSecurity {
             ).into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        Ok(WindowsNetworkSecurity { dns: windns })
+        Ok(NetworkSecurity { dns: windns })
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
@@ -106,14 +106,13 @@ impl NetworkSecurity for WindowsNetworkSecurity {
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        trace!("Resetting firewall policy");
         self.dns.reset_dns()?;
         unsafe { WinFw_Reset().into_result() }?;
         Ok(())
     }
 }
 
-impl Drop for WindowsNetworkSecurity {
+impl Drop for NetworkSecurity {
     fn drop(&mut self) {
         if unsafe { WinFw_Deinitialize().into_result().is_ok() } {
             trace!("Successfully deinitialized windows firewall module");
@@ -123,7 +122,7 @@ impl Drop for WindowsNetworkSecurity {
     }
 }
 
-impl WindowsNetworkSecurity {
+impl NetworkSecurity {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,

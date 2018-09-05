@@ -6,14 +6,12 @@ use super::{
     BlockedState, ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use security::NetworkSecurity;
 
 /// No tunnel is running.
 pub struct DisconnectedState;
 
 impl DisconnectedState {
     fn reset_security_policy(shared_values: &mut SharedTunnelStateValues) {
-        debug!("Resetting security policy");
         if let Err(error) = shared_values.security.reset_policy() {
             let chained_error = Error::with_chain(error, "Failed to reset security policy");
             error!("{}", chained_error.display_chain());
