@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
 - Make scrollbar thumb draggable.
 - Ability to expand cities with multiple servers and configure the app to use a specific server.
+- Add firewall rules allowing traffic to the SSDP/WS-discover multicast IP, 239.255.255.250, if
+  local area network sharing is activated. This allows discovery of devices using these protocols.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
