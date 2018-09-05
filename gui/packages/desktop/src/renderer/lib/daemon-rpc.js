@@ -253,21 +253,14 @@ const BlockReasonSchema = oneOf(
   }),
 );
 
-const BlockedStateSchema = object({
-  state: enumeration('blocked'),
-  details: BlockReasonSchema,
-});
-const ConnectedStateSchema = object({ state: enumeration('connected') });
-const ConnectingStateSchema = object({ state: enumeration('connecting') });
-const DisconnectedStateSchema = object({ state: enumeration('disconnected') });
-const DisconnectingStateSchema = object({ state: enumeration('disconnecting') });
-
 const TunnelStateSchema = oneOf(
-  BlockedStateSchema,
-  ConnectedStateSchema,
-  ConnectingStateSchema,
-  DisconnectedStateSchema,
-  DisconnectingStateSchema,
+  object({
+    state: enumeration('blocked'),
+    details: BlockReasonSchema,
+  }),
+  object({
+    state: enumeration('connected', 'connecting', 'disconnected', 'disconnecting'),
+  }),
 );
 
 export type AppVersionInfo = {
