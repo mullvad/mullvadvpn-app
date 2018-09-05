@@ -346,6 +346,7 @@ export default class AppRenderer {
         latitude: city.latitude,
         longitude: city.longitude,
         hasActiveRelays: city.has_active_relays,
+        relays: city.relays,
       })),
     }));
 

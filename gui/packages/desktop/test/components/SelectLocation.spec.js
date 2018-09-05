@@ -29,6 +29,15 @@ describe('components/SelectLocation', () => {
             latitude: 0,
             longitude: 0,
             hasActiveRelays: true,
+            relays: [
+              {
+                hostname: 'fake1.mullvad.net',
+                ipv4AddrIn: '192.168.0.100',
+                ipv4AddrExit: '192.168.1.100',
+                includeInCountry: true,
+                weight: 1,
+              },
+            ],
           },
           {
             name: 'Stockholm',
@@ -36,6 +45,15 @@ describe('components/SelectLocation', () => {
             latitude: 0,
             longitude: 0,
             hasActiveRelays: true,
+            relays: [
+              {
+                hostname: 'fake2.mullvad.net',
+                ipv4AddrIn: '192.168.0.101',
+                ipv4AddrExit: '192.168.1.101',
+                includeInCountry: true,
+                weight: 1,
+              },
+            ],
           },
         ],
       },

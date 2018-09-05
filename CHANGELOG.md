@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   configuration, which prevents leaking traffic until the user specifically requests to disconnect.
 - Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
 - Make scrollbar thumb draggable.
+- Ability to expand cities with multiple servers and configure the app to use a specific server.
 
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.

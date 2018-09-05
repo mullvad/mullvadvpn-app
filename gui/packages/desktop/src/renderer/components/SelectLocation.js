@@ -15,6 +15,7 @@ import type {
   SettingsReduxState,
   RelayLocationRedux,
   RelayLocationCityRedux,
+  RelayLocationRelayRedux,
 } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/daemon-rpc';
 
@@ -48,7 +49,15 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
       } else if (location.country) {
         this.state.expanded.push(location.country);
       } else if (location.city) {
-        this.state.expanded.push(location.city[0]);
+        const countryCode = location.city[0];
+
+        this.state.expanded.push(countryCode);
+      } else if (location.hostname) {
+        const countryCode = location.hostname[0];
+        const cityCode = location.hostname[1];
+
+        this.state.expanded.push(countryCode);
+        this.state.expanded.push(`${countryCode}_${cityCode}`);
       }
     }
   }
@@ -122,6 +131,16 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         return (
           selectedCity.length === otherCity.length &&
           selectedCity.every((v, i) => v === otherCity[i])
+        );
+      }
+
+      if (Array.isArray(selectedLocation.hostname) && Array.isArray(otherLocation.hostname)) {
+        const selectedRelay = selectedLocation.hostname;
+        const otherRelay = otherLocation.hostname;
+
+        return (
+          selectedRelay.length === otherRelay.length &&
+          selectedRelay.every((v, i) => v === otherRelay[i])
         );
       }
     }
@@ -210,6 +229,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   }
 
   _renderCity(countryCode: string, relayCity: RelayLocationCityRedux) {
+    const expandedCode = `${countryCode}_${relayCity.code}`;
     const relayLocation: RelayLocation = { city: [countryCode, relayCity.code] };
 
     const isSelected = this._isSelected(relayLocation);
@@ -220,6 +240,9 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
         }
       : undefined;
 
+    // either expanded by user or when the city or a relay from the city is selected
+    const isExpanded = this.state.expanded.includes(expandedCode);
+
     const handleSelect =
       relayCity.hasActiveRelays && !isSelected
         ? () => {
@@ -227,18 +250,73 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           }
         : undefined;
 
+    const handleCollapse = (e) => {
+      this._toggleCollapse(expandedCode);
+      e.stopPropagation();
+    };
+
+    return (
+      <View key={expandedCode}>
+        <Cell.CellButton
+          onPress={handleSelect}
+          disabled={!relayCity.hasActiveRelays}
+          cellHoverStyle={isSelected ? styles.sub_cell__selected : null}
+          style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
+          testName="city"
+          ref={onRef}>
+          {this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected)}
+
+          <Cell.Label>{relayCity.name}</Cell.Label>
+
+          {relayCity.relays.length > 1 ? (
+            <Cell.Img
+              style={styles.collapse_button}
+              hoverStyle={styles.expand_chevron_hover}
+              onPress={handleCollapse}
+              source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
+              height={24}
+              width={24}
+            />
+          ) : null}
+        </Cell.CellButton>
+
+        {relayCity.relays.length > 1 && (
+          <Accordion height={isExpanded ? 'auto' : 0}>
+            {relayCity.relays.map((relay) => this._renderRelay(countryCode, relayCity.code, relay))}
+          </Accordion>
+        )}
+      </View>
+    );
+  }
+
+  _renderRelay(countryCode: string, cityCode: string, relay: RelayLocationRelayRedux) {
+    const relayLocation: RelayLocation = { hostname: [countryCode, cityCode, relay.hostname] };
+
+    const isSelected = this._isSelected(relayLocation);
+
+    const onRef = isSelected
+      ? (element) => {
+          this._selectedCell = element;
+        }
+      : undefined;
+
+    const handleSelect = !isSelected
+      ? () => {
+          this.props.onSelect(relayLocation);
+        }
+      : undefined;
+
     return (
       <Cell.CellButton
-        key={`${countryCode}_${relayCity.code}`}
+        key={`${countryCode}_${cityCode}_${relay.hostname}`}
         onPress={handleSelect}
-        disabled={!relayCity.hasActiveRelays}
-        cellHoverStyle={isSelected ? styles.sub_cell__selected : null}
-        style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
-        testName="city"
+        cellHoverStyle={isSelected ? styles.sub_sub_cell__selected : null}
+        style={isSelected ? styles.sub_sub_cell__selected : styles.sub_sub_cell}
+        testName="relay"
         ref={onRef}>
-        {this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected)}
+        {this._relayStatusIndicator(true, isSelected)}
 
-        <Cell.Label>{relayCity.name}</Cell.Label>
+        <Cell.Label>{relay.hostname}</Cell.Label>
       </Cell.CellButton>
     );
   }

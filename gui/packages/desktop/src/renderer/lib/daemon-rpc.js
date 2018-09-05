@@ -70,7 +70,10 @@ export type TunnelState =
   | BlockedState;
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type RelayLocation = {| city: [string, string] |} | {| country: string |};
+export type RelayLocation =
+  | {| hostname: [string, string, string] |}
+  | {| city: [string, string] |}
+  | {| country: string |};
 
 type OpenVpnConstraints = {
   port: 'any' | { only: number },
@@ -139,6 +142,9 @@ const RelaySettingsSchema = oneOf(
       location: constraint(
         oneOf(
           object({
+            hostname: arrayOf(string),
+          }),
+          object({
             city: arrayOf(string),
           }),
           object({
@@ -185,6 +191,15 @@ export type RelayListCity = {
   latitude: number,
   longitude: number,
   has_active_relays: boolean,
+  relays: Array<RelayListHostname>,
+};
+
+export type RelayListHostname = {
+  hostname: string,
+  ipv4_addr_in: string,
+  ipv4_addr_exit: string,
+  include_in_country: boolean,
+  weight: number,
 };
 
 const RelayListSchema = object({
@@ -199,6 +214,15 @@ const RelayListSchema = object({
           latitude: number,
           longitude: number,
           has_active_relays: boolean,
+          relays: arrayOf(
+            object({
+              hostname: string,
+              ipv4_addr_in: string,
+              ipv4_addr_exit: string,
+              include_in_country: boolean,
+              weight: number,
+            }),
+          ),
         }),
       ),
     }),
