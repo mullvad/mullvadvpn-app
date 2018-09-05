@@ -182,7 +182,7 @@
 	log::Log "New virtual adapter is named $\"$1$\""
 	
 	log::Log "Renaming adapter to $\"Mullvad$\""
-	nsExec::ExecToStack '"netsh.exe" interface set interface name = "$1" newname = "Mullvad"'
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" interface set interface name = "$1" newname = "Mullvad"'
 
 	Pop $0
 	Pop $1
@@ -236,7 +236,7 @@
 	${EndIf}
 
 	log::Log "Starting service"
-	nsExec::ExecToStack '"sc.exe" start mullvadvpn'
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" start mullvadvpn'
 
 	Pop $0
 	Pop $1
@@ -365,14 +365,14 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"sc.exe" stop mullvadvpn'
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
 
 	# Discard return value
 	Pop $0
 
 	Sleep 5000
 
-	nsExec::ExecToStack '"sc.exe" delete mullvadvpn'
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
 
 	# Discard return value
 	Pop $0
