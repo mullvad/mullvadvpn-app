@@ -468,7 +468,6 @@ export default class AppRenderer {
 
   async _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
-    const history = this._memoryHistory;
 
     // save to redux that the app disconnected from daemon
     actions.daemon.disconnected();
@@ -489,10 +488,9 @@ export default class AppRenderer {
         recover();
       });
 
-      // take user back to the launch screen `/` except when user is in settings.
-      if (!history.location.pathname.startsWith('/settings')) {
-        actions.history.replace('/');
-      }
+      actions.history.replace('/');
+    } else {
+      log.info(`Disconnected from the daemon`);
     }
   }
 
@@ -604,16 +602,6 @@ export default class AppRenderer {
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
         return;
-    }
-  }
-
-  async _authenticate(sharedSecret: string) {
-    try {
-      await this._daemonRpc.authenticate(sharedSecret);
-      log.info('Authenticated with backend');
-    } catch (e) {
-      log.error(`Failed to authenticate with backend: ${e.message}`);
-      throw e;
     }
   }
 }

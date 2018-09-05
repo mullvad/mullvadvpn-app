@@ -305,7 +305,6 @@ export interface DaemonRpcProtocol {
   subscribeStateListener((state: ?TunnelState, error: ?Error) => void): Promise<void>;
   addOpenConnectionObserver(() => void): ConnectionObserver;
   addCloseConnectionObserver((error: ?Error) => void): ConnectionObserver;
-  authenticate(sharedSecret: string): Promise<void>;
   getAccountHistory(): Promise<Array<AccountToken>>;
   removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
   getCurrentVersion(): Promise<string>;
@@ -334,10 +333,6 @@ const NETWORK_CALL_TIMEOUT = 10000;
 
 export class DaemonRpc implements DaemonRpcProtocol {
   _transport = new JsonRpcClient(new SocketTransport());
-
-  async authenticate(sharedSecret: string): Promise<void> {
-    await this._transport.send('auth', sharedSecret);
-  }
 
   connect(connectionParams: { path: string }) {
     this._transport.connect(connectionParams);
