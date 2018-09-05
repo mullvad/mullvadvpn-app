@@ -1,5 +1,6 @@
 #[cfg(unix)]
 use ipnetwork::Ipv4Network;
+use std::fmt;
 #[cfg(unix)]
 use std::net::Ipv4Addr;
 use std::path::Path;
@@ -60,6 +61,40 @@ pub enum SecurityPolicy {
     },
 }
 
+impl fmt::Display for SecurityPolicy {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            SecurityPolicy::Connecting {
+                relay_endpoint,
+                allow_lan,
+            } => write!(
+                f,
+                "Connecting to {}, {} LAN",
+                relay_endpoint,
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+            SecurityPolicy::Connected {
+                relay_endpoint,
+                tunnel,
+                allow_lan,
+            } => write!(
+                f,
+                "Connected to {} over \"{}\" (ip: {}, gw: {}), {} LAN",
+                relay_endpoint,
+                tunnel.interface,
+                tunnel.ip,
+                tunnel.gateway,
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+            SecurityPolicy::Blocked { allow_lan } => write!(
+                f,
+                "Blocked, {} LAN",
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+        }
+    }
+}
+
 /// Manages network security of the computer/device. Can apply and enforce security policies
 /// by manipulating the OS firewall and DNS settings.
 pub struct NetworkSecurity {
@@ -77,14 +112,14 @@ impl NetworkSecurity {
     /// Applies and starts enforcing the given `SecurityPolicy` Makes sure it is being kept in place
     /// until this method is called again with another policy, or until `reset_policy` is called.
     pub fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<(), Error> {
-        debug!("Setting security policy: {:?}", policy);
+        info!("Applying security policy: {}", policy);
         self.inner.apply_policy(policy)
     }
 
     /// Resets/removes any currently enforced `SecurityPolicy`. Returns the system to the same state
     /// it had before any policy was applied through this `NetworkSecurity` instance.
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        debug!("Resetting security policy");
+        info!("Resetting security policy");
         self.inner.reset_policy()
     }
 }
