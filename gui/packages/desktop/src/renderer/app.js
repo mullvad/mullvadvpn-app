@@ -474,26 +474,25 @@ export default class AppRenderer {
     // save to redux that the app disconnected from daemon
     actions.daemon.disconnected();
 
+    const message = error && error.message ? error.message : 'null';
     // recover connection on error
-    if (error) {
-      log.debug(`Lost connection to daemon: ${error.message}`);
+    log.debug(`Lost connection to daemon: ${message}`);
 
-      const recover = async () => {
-        try {
-          await this.connect();
-        } catch (error) {
-          log.error(`Failed to reconnect: ${error.message}`);
-        }
-      };
-
-      this._reconnectBackoff.attempt(() => {
-        recover();
-      });
-
-      // take user back to the launch screen `/` except when user is in settings.
-      if (!history.location.pathname.startsWith('/settings')) {
-        actions.history.replace('/');
+    const recover = async () => {
+      try {
+        await this.connect();
+      } catch (error) {
+        log.error(`Failed to reconnect: ${error.message}`);
       }
+    };
+
+    this._reconnectBackoff.attempt(() => {
+      recover();
+    });
+
+    // take user back to the launch screen `/` except when user is in settings.
+    if (!history.location.pathname.startsWith('/settings')) {
+      actions.history.replace('/');
     }
   }
 
@@ -605,16 +604,6 @@ export default class AppRenderer {
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
         return;
-    }
-  }
-
-  async _authenticate(sharedSecret: string) {
-    try {
-      await this._daemonRpc.authenticate(sharedSecret);
-      log.info('Authenticated with backend');
-    } catch (e) {
-      log.error(`Failed to authenticate with backend: ${e.message}`);
-      throw e;
     }
   }
 }
