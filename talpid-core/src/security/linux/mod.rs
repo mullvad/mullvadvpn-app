@@ -309,7 +309,6 @@ impl<'a> PolicyBatch<'a> {
                 let mut rule = Rule::new(chain)?;
                 check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
                 check_net(&mut rule, End::Dst, IpNetwork::V4(*net))?;
-
                 add_verdict(&mut rule, Verdict::Accept)?;
 
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
@@ -320,12 +319,18 @@ impl<'a> PolicyBatch<'a> {
             let mut rule = Rule::new(&self.out_chain)?;
             check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
             check_net(&mut rule, End::Dst, IpNetwork::V4(*super::MULTICAST_NET))?;
+            add_verdict(&mut rule, Verdict::Accept)?;
 
+            self.batch.add(&rule, nftnl::MsgType::Add)?;
+
+            // LAN -> SSDP + WS-Discovery protocols
+            let mut rule = Rule::new(&self.out_chain)?;
+            check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
+            check_ip(&mut rule, End::Dst, *super::SSDP_IP)?;
             add_verdict(&mut rule, Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
-
         Ok(())
     }
 }
