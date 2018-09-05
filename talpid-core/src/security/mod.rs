@@ -1,7 +1,7 @@
 #[cfg(unix)]
 use ipnetwork::Ipv4Network;
 #[cfg(unix)]
-use std::net::Ipv4Addr;
+use std::net::{IpAddr, Ipv4Addr};
 use std::path::Path;
 use talpid_types::net::Endpoint;
 
@@ -14,6 +14,7 @@ lazy_static! {
     ];
     static ref MULTICAST_NET: Ipv4Network =
         Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
+    static ref SSDP_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(239, 255, 255, 250));
 }
 
 /// A enum that describes network security strategy
