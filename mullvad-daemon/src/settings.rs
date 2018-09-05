@@ -180,9 +180,9 @@ impl Settings {
         }
     }
 
-    pub fn set_openvpn_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool> {
-        if self.tunnel_options.openvpn.enable_ipv6 != enable_ipv6 {
-            self.tunnel_options.openvpn.enable_ipv6 = enable_ipv6;
+    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool> {
+        if self.tunnel_options.enable_ipv6 != enable_ipv6 {
+            self.tunnel_options.enable_ipv6 = enable_ipv6;
             self.save().map(|_| true)
         } else {
             Ok(false)
