@@ -16,9 +16,7 @@ use failure::ResultExt as FailureResultExt;
 #[cfg(target_os = "linux")]
 use which;
 
-use talpid_types::net::{
-    Endpoint, OpenVpnTunnelOptions, TunnelEndpoint, TunnelEndpointData, TunnelOptions,
-};
+use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -161,7 +159,7 @@ impl TunnelMonitor {
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
             tunnel_alias,
-            &tunnel_options.openvpn,
+            &tunnel_options,
             user_pass_file.as_ref(),
             log,
             resource_dir,
@@ -193,7 +191,7 @@ impl TunnelMonitor {
     fn create_openvpn_cmd(
         remote: Endpoint,
         tunnel_alias: Option<OsString>,
-        options: &OpenVpnTunnelOptions,
+        options: &TunnelOptions,
         user_pass_file: &Path,
         log: Option<&Path>,
         resource_dir: &Path,
@@ -210,7 +208,8 @@ impl TunnelMonitor {
         );
         cmd.remote(remote)
             .user_pass(user_pass_file)
-            .tunnel_options(&options)
+            .tunnel_options(&options.openvpn)
+            .enable_ipv6(options.enable_ipv6)
             .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"))
             .crl(resource_dir.join("crl.pem"));
