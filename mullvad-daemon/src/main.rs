@@ -604,8 +604,9 @@ impl Daemon {
     }
 
     fn connect_tunnel(&mut self) {
+        let allow_lan = self.settings.get_allow_lan();
         let command = match self.settings.get_account_token() {
-            None => TunnelCommand::Block(BlockReason::NoAccountToken),
+            None => TunnelCommand::Block(BlockReason::NoAccountToken, allow_lan),
             Some(account_token) => match self.settings.get_relay_settings() {
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
                     .to_tunnel_endpoint()
@@ -622,7 +623,7 @@ impl Daemon {
             .map(|parameters| TunnelCommand::Connect(parameters))
             .unwrap_or_else(|error| {
                 error!("{}", error.display_chain());
-                TunnelCommand::Block(BlockReason::NoMatchingRelay)
+                TunnelCommand::Block(BlockReason::NoMatchingRelay, allow_lan)
             }),
         };
         self.send_tunnel_command(command);

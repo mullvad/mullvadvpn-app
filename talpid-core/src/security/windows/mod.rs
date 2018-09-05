@@ -19,30 +19,35 @@ mod system_state;
 
 use self::dns::WinDns;
 
-error_chain!{
-    errors{
+error_chain! {
+    errors {
         /// Failure to initialize windows firewall module
-        Initialization{
+        Initialization {
             description("Failed to initialise windows firewall module")
         }
 
         /// Failure to deinitialize windows firewall module
-        Deinitialization{
+        Deinitialization {
             description("Failed to deinitialize windows firewall module")
         }
 
-        /// Failure to apply a firewall _connected_ policy
-        ApplyingConnectedPolicy{
+        /// Failure to apply a firewall _connecting_ policy
+        ApplyingConnectingPolicy {
             description("Failed to apply firewall policy for when the daemon is connecting to a tunnel")
         }
 
-        /// Failure to apply a firewall _connecting_ policy
-        ApplyingConnectingPolicy{
+        /// Failure to apply a firewall _connected_ policy
+        ApplyingConnectedPolicy {
             description("Failed to apply firewall policy for when the daemon is connected to a tunnel")
         }
 
+        /// Failure to apply firewall _blocked_ policy
+        ApplyingBlockedPolicy {
+            description("Failed to apply blocked security policy")
+        }
+
         /// Failure to reset firewall policies
-        ResettingPolicy{
+        ResettingPolicy {
             description("Failed to reset firewall policies")
         }
     }
@@ -92,6 +97,10 @@ impl NetworkSecurity for WindowsNetworkSecurity {
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connected_state(&relay_endpoint, &cfg, &tunnel)
+            }
+            SecurityPolicy::Blocked { allow_lan } => {
+                let cfg = &WinFwSettings::new(allow_lan);
+                self.set_blocked_state(&cfg)
             }
         }
     }
@@ -177,6 +186,11 @@ impl WindowsNetworkSecurity {
             ).into_result()
         }
     }
+
+    fn set_blocked_state(&mut self, winfw_settings: &WinFwSettings) -> Result<()> {
+        trace!("Applying 'blocked' firewall policy");
+        unsafe { WinFw_ApplyPolicyBlocked(winfw_settings).into_result() }
+    }
 }
 
 
@@ -227,13 +241,14 @@ mod winfw {
     ffi_error!(InitializationResult, ErrorKind::Initialization.into());
     ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
     ffi_error!(
-        ApplyConnectedResult,
-        ErrorKind::ApplyingConnectedPolicy.into()
-    );
-    ffi_error!(
         ApplyConnectingResult,
         ErrorKind::ApplyingConnectingPolicy.into()
     );
+    ffi_error!(
+        ApplyConnectedResult,
+        ErrorKind::ApplyingConnectedPolicy.into()
+    );
+    ffi_error!(ApplyBlockedResult, ErrorKind::ApplyingBlockedPolicy.into());
     ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
@@ -260,6 +275,9 @@ mod winfw {
             tunnelIfaceAlias: *const libc::wchar_t,
             primaryDns: *const libc::wchar_t,
         ) -> ApplyConnectedResult;
+
+        #[link_name(WinFw_ApplyPolicyBlocked)]
+        pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> ApplyBlockedResult;
 
         #[link_name(WinFw_Reset)]
         pub fn WinFw_Reset() -> ResettingPolicyResult;

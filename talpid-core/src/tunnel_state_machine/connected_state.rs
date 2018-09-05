@@ -79,7 +79,10 @@ impl ConnectedState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                                AfterDisconnect::Block(
+                                    BlockReason::SetSecurityPolicyError,
+                                    allow_lan,
+                                ),
                             ),
                         ))
                     }
@@ -107,12 +110,12 @@ impl ConnectedState {
                     AfterDisconnect::Nothing,
                 ),
             )),
-            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
+            Ok(TunnelCommand::Block(reason, allow_lan)) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Block(reason),
+                    AfterDisconnect::Block(reason, allow_lan),
                 ),
             )),
         }
@@ -179,7 +182,10 @@ impl TunnelState for ConnectedState {
                     (
                         connected_state.close_handle,
                         connected_state.tunnel_close_event,
-                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                        AfterDisconnect::Block(
+                            BlockReason::SetSecurityPolicyError,
+                            connected_state.tunnel_parameters.allow_lan,
+                        ),
                     ),
                 )
             }

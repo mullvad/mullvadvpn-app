@@ -36,6 +36,12 @@ pub enum SecurityPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
     },
+
+    /// Block all network traffic in and out from the computer.
+    Blocked {
+        /// Flag setting if communication with LAN networks should be possible.
+        allow_lan: bool,
+    },
 }
 
 /// Abstract firewall interaction trait
