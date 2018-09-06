@@ -60,6 +60,10 @@ error_chain!{
         CredentialsWriteError {
             description("Error while writing credentials to temporary file")
         }
+        /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
+        EnableIpv6Error {
+            description("Can't enable IPv6 on tunnel interface because IPv6 is disabled")
+        }
         /// Running on an operating system which is not supported yet.
         UnsupportedPlatform {
             description("Running on an unsupported operating system")
@@ -150,10 +154,9 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        match tunnel_endpoint.tunnel {
-            TunnelEndpointData::OpenVpn(_) => (),
-            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
-        }
+        Self::ensure_endpoint_is_openvpn(&tunnel_endpoint)?;
+        Self::ensure_ipv6_can_be_used_if_enabled(tunnel_options)?;
+
         let user_pass_file =
             Self::create_user_pass_file(username).chain_err(|| ErrorKind::CredentialsWriteError)?;
         let cmd = Self::create_openvpn_cmd(
@@ -186,6 +189,21 @@ impl TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
         })
+    }
+
+    fn ensure_endpoint_is_openvpn(endpoint: &TunnelEndpoint) -> Result<()> {
+        match endpoint.tunnel {
+            TunnelEndpointData::OpenVpn(_) => Ok(()),
+            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedTunnelProtocol),
+        }
+    }
+
+    fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &TunnelOptions) -> Result<()> {
+        if tunnel_options.enable_ipv6 && !is_ipv6_enabled_in_os() {
+            bail!(ErrorKind::EnableIpv6Error);
+        } else {
+            Ok(())
+        }
     }
 
     fn create_openvpn_cmd(
@@ -295,5 +313,31 @@ impl CloseHandle {
     /// Closes the underlying tunnel, making the `TunnelMonitor::wait` method return.
     pub fn close(self) -> io::Result<()> {
         self.0.close()
+    }
+}
+
+fn is_ipv6_enabled_in_os() -> bool {
+    #[cfg(windows)]
+    {
+        use winreg::enums::*;
+        use winreg::RegKey;
+
+        const IPV6_DISABLED: u8 = 0xFF;
+
+        RegKey::predef(HKEY_LOCAL_MACHINE)
+            .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
+            .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
+            .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & 0xFF) == IPV6_DISABLED as u32)
+            .unwrap_or(false)
+    }
+    #[cfg(target_os = "linux")]
+    {
+        fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
+            .map(|disable_ipv6| disable_ipv6.trim() == "0")
+            .unwrap_or(false)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        true
     }
 }

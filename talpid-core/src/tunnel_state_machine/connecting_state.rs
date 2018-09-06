@@ -14,12 +14,12 @@ use talpid_types::tunnel::BlockReason;
 
 use super::{
     AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
-    EventConsequence, Result, ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use logging;
 use security::SecurityPolicy;
-use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
+use tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
@@ -30,6 +30,18 @@ const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
 #[cfg(not(windows))]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
+
+error_chain! {
+    errors {
+        RotateLogError {
+            description("Failed to rotate tunnel log file")
+        }
+    }
+
+    links {
+        TunnelMonitorError(tunnel::Error, tunnel::ErrorKind);
+    }
+}
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -101,7 +113,7 @@ impl ConnectingState {
         };
         let log_file = Self::prepare_tunnel_log_file(&parameters)?;
 
-        TunnelMonitor::new(
+        Ok(TunnelMonitor::new(
             parameters.endpoint,
             &parameters.options,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
@@ -109,7 +121,7 @@ impl ConnectingState {
             log_file.as_ref().map(PathBuf::as_path),
             &parameters.resource_dir,
             on_tunnel_event,
-        ).chain_err(|| "Unable to start tunnel monitor")
+        )?)
     }
 
     fn prepare_tunnel_log_file(parameters: &TunnelParameters) -> Result<Option<PathBuf>> {
@@ -119,7 +131,7 @@ impl ConnectingState {
                 TunnelEndpointData::Wireguard(_) => WIREGUARD_LOG_FILENAME,
             };
             let tunnel_log = log_dir.join(filename);
-            logging::rotate_log(&tunnel_log).chain_err(|| "Unable to rotate tunnel log")?;
+            logging::rotate_log(&tunnel_log).chain_err(|| ErrorKind::RotateLogError)?;
             Ok(Some(tunnel_log))
         } else {
             Ok(None)
@@ -291,9 +303,17 @@ impl TunnelState for ConnectingState {
                 TunnelStateTransition::Connecting,
             ),
             Err(error) => {
+                let block_reason = match *error.kind() {
+                    ErrorKind::TunnelMonitorError(tunnel::ErrorKind::EnableIpv6Error) => {
+                        BlockReason::Ipv6Unavailable
+                    }
+                    _ => BlockReason::StartTunnelError,
+                };
+
                 let chained_error = error.chain_err(|| "Failed to start tunnel");
                 error!("{}", chained_error.display_chain());
-                BlockedState::enter(shared_values, (BlockReason::StartTunnelError, allow_lan))
+
+                BlockedState::enter(shared_values, (block_reason, allow_lan))
             }
         }
     }
