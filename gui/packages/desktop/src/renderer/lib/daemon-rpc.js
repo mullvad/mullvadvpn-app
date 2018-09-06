@@ -190,7 +190,6 @@ export type RelayListCity = {
   code: string,
   latitude: number,
   longitude: number,
-  has_active_relays: boolean,
   relays: Array<RelayListHostname>,
 };
 
@@ -213,7 +212,6 @@ const RelayListSchema = object({
           code: string,
           latitude: number,
           longitude: number,
-          has_active_relays: boolean,
           relays: arrayOf(
             object({
               hostname: string,
