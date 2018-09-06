@@ -89,6 +89,7 @@ bool PermitLan::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionIp::Local(wfp::IpAddress::Literal({ 172, 16, 0, 0 }), uint8_t(12)));
 	conditionBuilder.add_condition(ConditionIp::Local(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), uint8_t(24)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 239, 255, 255, 250 }), uint8_t(32)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }

@@ -207,8 +207,10 @@ impl NetworkSecurity {
                 .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(
                     *super::MULTICAST_NET,
                 )))).build()?;
+            let allow_ssdp = rule_builder.to(pfctl::Ip::from(*super::SSDP_IP)).build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
+            rules.push(allow_ssdp);
         }
         Ok(rules)
     }
