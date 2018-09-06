@@ -339,13 +339,13 @@ export default class AppRenderer {
     const storedLocations = locations.countries.map((country) => ({
       name: country.name,
       code: country.code,
-      hasActiveRelays: country.cities.some((city) => city.has_active_relays),
+      hasActiveRelays: country.cities.some((city) => city.relays.length > 0),
       cities: country.cities.map((city) => ({
         name: city.name,
         code: city.code,
         latitude: city.latitude,
         longitude: city.longitude,
-        hasActiveRelays: city.has_active_relays,
+        hasActiveRelays: city.relays.length > 0,
         relays: city.relays,
       })),
     }));
