@@ -324,11 +324,13 @@ fn is_ipv6_enabled_in_os() -> bool {
 
         const IPV6_DISABLED: u8 = 0xFF;
 
-        RegKey::predef(HKEY_LOCAL_MACHINE)
+        let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
             .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
             .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & 0xFF) == IPV6_DISABLED as u32)
-            .unwrap_or(false)
+            .unwrap_or(false);
+
+        globally_enabled && ::ffi::route::get_tap_interface_ipv6_status().unwrap_or(false)
     }
     #[cfg(target_os = "linux")]
     {
