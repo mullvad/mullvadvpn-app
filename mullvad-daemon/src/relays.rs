@@ -262,12 +262,11 @@ impl RelaySelector {
                 })
             }
             Constraint::Only(LocationConstraint::Hostname(ref country, ref city, ref hostname)) => {
-                relay
-                    .location
-                    .as_ref()
-                    .map_or(relay.hostname == *hostname, |loc| {
-                        loc.country_code == *country && loc.city_code == *city
-                    })
+                relay.location.as_ref().map_or(false, |loc| {
+                    loc.country_code == *country
+                        && loc.city_code == *city
+                        && relay.hostname == *hostname
+                })
             }
         };
         if !matches_location {
