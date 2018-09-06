@@ -329,6 +329,9 @@ export type ConnectionObserver = {
   unsubscribe: () => void,
 };
 
+// Timeout used for RPC calls that do networking
+const NETWORK_CALL_TIMEOUT = 10000;
+
 export class DaemonRpc implements DaemonRpcProtocol {
   _transport = new JsonRpcClient(new SocketTransport());
 
@@ -363,11 +366,9 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async getAccountData(accountToken: AccountToken): Promise<AccountData> {
-    // send the IPC with 30s timeout since the backend will wait
-    // for a HTTP request before replying
     let response;
     try {
-      response = await this._transport.send('get_account_data', accountToken, 30000);
+      response = await this._transport.send('get_account_data', accountToken, NETWORK_CALL_TIMEOUT);
     } catch (error) {
       if (error instanceof JsonRpcRemoteError) {
         switch (error.code) {
@@ -490,10 +491,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async getLocation(): Promise<Location> {
-    // send the IPC with 30s timeout since the backend will wait
-    // for a HTTP request before replying
-
-    const response = await this._transport.send('get_current_location', [], 30000);
+    const response = await this._transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
       return validate(LocationSchema, response);
     } catch (error) {
