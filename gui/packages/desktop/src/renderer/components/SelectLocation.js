@@ -182,6 +182,10 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
 
+    const hasChildren =
+      relayCountry.cities.length > 1 ||
+      (relayCountry.cities.length == 1 && relayCountry.cities[0].relays.length > 1);
+
     const handleSelect =
       relayCountry.hasActiveRelays && !isSelected
         ? () => {
@@ -207,7 +211,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
 
           <Cell.Label>{relayCountry.name}</Cell.Label>
 
-          {relayCountry.cities.length > 1 ? (
+          {hasChildren ? (
             <Cell.Img
               style={styles.collapse_button}
               hoverStyle={styles.expand_chevron_hover}
@@ -219,7 +223,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
           ) : null}
         </Cell.CellButton>
 
-        {relayCountry.cities.length > 1 && (
+        {hasChildren && (
           <Accordion height={isExpanded ? 'auto' : 0}>
             {relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity))}
           </Accordion>
