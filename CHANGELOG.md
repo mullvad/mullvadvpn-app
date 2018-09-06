@@ -50,6 +50,10 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix edge cases when window's arrow appeared misaligned and pointed to the wrong menubar item.
 
+#### macOS
+- Allow the app to use the integrated GPU for rendering. This saves battery and keeps the computer
+  cooler.
+
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.

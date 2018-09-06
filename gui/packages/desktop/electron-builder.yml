@@ -39,6 +39,7 @@ mac:
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
+    NSSupportsAutomaticGraphicsSwitching: true
   extraResources:
     - from: ../../../target/release/mullvad
       to: .
