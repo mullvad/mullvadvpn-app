@@ -54,6 +54,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix edge cases when window's arrow appeared misaligned and pointed to the wrong menubar item.
+- Make the pkg installer kill any running GUI process after installation is done. Prevents
+  accidentally running an old GUI with a newer daemon.
 
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
