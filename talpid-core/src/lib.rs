@@ -45,6 +45,10 @@ extern crate talpid_types;
 #[macro_use]
 extern crate nftnl;
 
+#[cfg(windows)]
+#[macro_use]
+mod ffi;
+
 /// Working with processes.
 pub mod process;
 
