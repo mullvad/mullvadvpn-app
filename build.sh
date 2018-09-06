@@ -144,11 +144,12 @@ process.stdin.on('end', function () {
 JSONRPC_CODE
 set -e
 
-curl -X POST \
+JSONRPC_RESPONSE="$(curl -X POST \
+    --fail \
      -H "Content-Type: application/json" \
      -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list"}' \
-     https://api.mullvad.net/rpc/  | \
-node -e "$JSONRPC_CODE" >  dist-assets/relays.json
+     https://api.mullvad.net/rpc/)"
+echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 
 echo "Installing JavaScript dependencies..."
 cd gui
