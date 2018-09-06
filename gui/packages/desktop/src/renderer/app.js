@@ -48,6 +48,7 @@ export default class AppRenderer {
   _reduxStore: ReduxStore;
   _reduxActions: *;
   _accountDataState = new AccountDataState();
+  _tunnelState: ?TunnelState;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -216,18 +217,22 @@ export default class AppRenderer {
   async connectTunnel() {
     const actions = this._reduxActions;
 
-    try {
-      const currentState = await this._daemonRpc.getState();
-      if (currentState === 'connected' || currentState === 'connecting') {
-        log.debug('Refusing to connect as connection is already secured');
-        actions.connection.connected();
-      } else {
-        actions.connection.connecting();
-        await this._daemonRpc.connectTunnel();
-      }
-    } catch (error) {
-      actions.connection.disconnected();
-      throw error;
+    // avoid connecting when there is no account set in daemon.
+    const accountToken = await this._daemonRpc.getAccount();
+    if (!accountToken) {
+      throw new NoAccountError();
+    }
+
+    // connect only if tunnel is disconnected or blocked.
+    if (
+      this._tunnelState &&
+      (this._tunnelState.state === 'disconnected' || this._tunnelState.state === 'blocked')
+    ) {
+      // switch to connecting state immediately to prevent a lag that may be caused by RPC
+      // communication delay
+      actions.connection.connecting();
+
+      await this._daemonRpc.connectTunnel();
     }
   }
 
@@ -402,8 +407,11 @@ export default class AppRenderer {
   }
 
   async _fetchTunnelState() {
-    const tunnelState = await this._daemonRpc.getState();
-    this._updateConnectionState(tunnelState);
+    const state = await this._daemonRpc.getState();
+
+    log.debug(`Got state: ${JSON.stringify(state)}`);
+
+    this._onChangeTunnelState(state);
   }
 
   async _fetchTunnelOptions() {
@@ -499,14 +507,13 @@ export default class AppRenderer {
   async _subscribeStateListener() {
     await this._daemonRpc.subscribeStateListener((newState, error) => {
       if (error) {
-        log.error(`Received an error when processing the incoming state change: ${error.message}`);
+        log.error(`Failed to deserialize the new state: ${error.message}`);
       }
 
       if (newState) {
-        log.debug(`Got new state from daemon '${JSON.stringify(newState)}'`);
+        log.debug(`Got state update: '${JSON.stringify(newState)}'`);
 
-        this._updateConnectionState(newState);
-        this._refreshStateOnChange();
+        this._onChangeTunnelState(newState);
       }
     });
   }
@@ -525,44 +532,28 @@ export default class AppRenderer {
     ]);
   }
 
-  _updateTrayIcon(connectionState: ConnectionState) {
-    const iconTypes: { [ConnectionState]: TrayIconType } = {
-      connected: 'secured',
-      connecting: 'securing',
-      blocked: 'securing',
-    };
-    const type = iconTypes[connectionState] || 'unsecured';
+  _onChangeTunnelState(tunnelState: TunnelState) {
+    this._tunnelState = tunnelState;
 
-    ipcRenderer.send('change-tray-icon', type);
+    this._updateConnectionStatus(tunnelState);
+    this._updateConnectionLocation(tunnelState.state);
+    this._updateTrayIcon(tunnelState.state);
+    this._showNotification(tunnelState.state);
   }
 
-  async _refreshStateOnChange() {
-    try {
-      await this._fetchLocation();
-    } catch (error) {
-      log.error(`Failed to fetch the location: ${error.message}`);
+  async _updateConnectionLocation(connectionState: ConnectionState) {
+    if (connectionState === 'connecting' || connectionState === 'disconnected') {
+      try {
+        await this._fetchLocation();
+      } catch (error) {
+        log.error(`Failed to update the location: ${error.message}`);
+      }
     }
   }
 
-  _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
-    switch (tunnelState.state) {
-      case 'disconnected':
-      // Fall through
-      case 'disconnecting':
-        return 'disconnected';
-      case 'connected':
-        return 'connected';
-      case 'connecting':
-        return 'connecting';
-      case 'blocked':
-        return 'blocked';
-      default:
-        throw new Error('Unknown tunnel state: ' + (tunnelState: empty));
-    }
-  }
-
-  _updateConnectionState(tunnelState: TunnelState) {
+  _updateConnectionStatus(tunnelState: TunnelState) {
     const actions = this._reduxActions;
+
     switch (tunnelState.state) {
       case 'connecting':
         actions.connection.connecting();
@@ -571,7 +562,8 @@ export default class AppRenderer {
         actions.connection.connected();
         break;
       case 'disconnecting':
-      // Fall through
+        actions.connection.disconnecting();
+        break;
       case 'disconnected':
         actions.connection.disconnected();
         break;
@@ -581,10 +573,17 @@ export default class AppRenderer {
       default:
         log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
     }
+  }
 
-    const connectionState = this._tunnelStateToConnectionState(tunnelState);
-    this._updateTrayIcon(connectionState);
-    this._showNotification(connectionState);
+  _updateTrayIcon(connectionState: ConnectionState) {
+    const iconTypes: { [ConnectionState]: TrayIconType } = {
+      connected: 'secured',
+      connecting: 'securing',
+      blocked: 'securing',
+    };
+    const type = iconTypes[connectionState] || 'unsecured';
+
+    ipcRenderer.send('change-tray-icon', type);
   }
 
   _showNotification(connectionState: ConnectionState) {
@@ -600,6 +599,9 @@ export default class AppRenderer {
         break;
       case 'blocked':
         this._notificationController.show('Blocked all connections');
+        break;
+      case 'disconnecting':
+        // no-op
         break;
       default:
         log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);

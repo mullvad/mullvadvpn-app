@@ -3,7 +3,12 @@
 import type { ReduxAction } from '../store';
 import type { Ip } from '../../lib/daemon-rpc';
 
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blocked';
+export type ConnectionState =
+  | 'disconnected'
+  | 'disconnecting'
+  | 'connecting'
+  | 'connected'
+  | 'blocked';
 export type ConnectionReduxState = {
   status: ConnectionState,
   isOnline: boolean,
@@ -42,6 +47,9 @@ export default function(
 
     case 'DISCONNECTED':
       return { ...state, ...{ status: 'disconnected', blockReason: null } };
+
+    case 'DISCONNECTING':
+      return { ...state, ...{ status: 'disconnecting', blockReason: null } };
 
     case 'BLOCKED':
       return { ...state, ...{ status: 'blocked', blockReason: action.reason } };

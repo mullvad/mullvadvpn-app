@@ -14,6 +14,10 @@ type DisconnectedAction = {
   type: 'DISCONNECTED',
 };
 
+type DisconnectingAction = {
+  type: 'DISCONNECTING',
+};
+
 type BlockedAction = {
   type: 'BLOCKED',
   reason: string,
@@ -44,6 +48,7 @@ export type ConnectionAction =
   | ConnectingAction
   | ConnectedAction
   | DisconnectedAction
+  | DisconnectingAction
   | BlockedAction
   | OnlineAction
   | OfflineAction;
@@ -63,6 +68,12 @@ function connected(): ConnectedAction {
 function disconnected(): DisconnectedAction {
   return {
     type: 'DISCONNECTED',
+  };
+}
+
+function disconnecting(): DisconnectingAction {
+  return {
+    type: 'DISCONNECTING',
   };
 }
 
@@ -97,6 +108,7 @@ export default {
   connecting,
   connected,
   disconnected,
+  disconnecting,
   blocked,
   online,
   offline,
