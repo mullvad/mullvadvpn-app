@@ -9,10 +9,9 @@ use self::winfw::*;
 use talpid_types::net::Endpoint;
 
 use self::widestring::WideCString;
+use ffi;
 
 
-#[macro_use]
-mod ffi;
 mod dns;
 mod route;
 mod system_state;
@@ -195,7 +194,8 @@ impl NetworkSecurity {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{ffi, ErrorKind, Result};
+    use super::{ErrorKind, Result};
+    use ffi;
     use libc;
     use talpid_types::net::TransportProtocol;
 

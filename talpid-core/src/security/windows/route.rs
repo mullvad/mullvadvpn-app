@@ -1,5 +1,5 @@
-use super::ffi;
 use super::widestring::WideCString;
+use ffi;
 use libc;
 use std::ptr;
 
