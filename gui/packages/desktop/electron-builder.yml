@@ -50,6 +50,8 @@ mac:
       to: .
     - from: ../../../dist-assets/binaries/macos/openvpn
       to: .
+    - from: ../../../dist-assets/uninstall_macos.sh
+      to: ./uninstall.sh
 
 pkg:
   allowAnywhere: false

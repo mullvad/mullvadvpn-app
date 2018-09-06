@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add firewall rules allowing traffic to the SSDP/WS-discover multicast IP, 239.255.255.250, if
   local area network sharing is activated. This allows discovery of devices using these protocols.
 
+#### macOS
+- Add uninstall script that can uninstall and remove all the files installed by the app.
+
 #### Windows
 - Extend uninstaller to also remove logs, cache and optionally settings.
 - Add installation log (%PROGRAMDATA%\Mullvad VPN\install.log).
