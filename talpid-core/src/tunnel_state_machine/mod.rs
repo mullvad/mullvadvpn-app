@@ -26,7 +26,7 @@ use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
 use super::mpsc::IntoSender;
-use super::security::{NetworkSecurity, NetworkSecurityImpl};
+use super::security::NetworkSecurity;
 
 error_chain! {
     errors {
@@ -149,7 +149,7 @@ impl TunnelStateMachine {
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
         let security =
-            NetworkSecurityImpl::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
+            NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
         let mut shared_values = SharedTunnelStateValues { security };
 
         let initial_state = TunnelStateWrapper::new(&mut shared_values, ());
@@ -214,7 +214,7 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
-    security: NetworkSecurityImpl,
+    security: NetworkSecurity,
 }
 
 /// Asynchronous result of an attempt to progress a state.

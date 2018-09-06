@@ -1,7 +1,7 @@
 extern crate pfctl;
 extern crate tokio_core;
 
-use super::{NetworkSecurity, SecurityPolicy};
+use super::{NetworkSecurityT, SecurityPolicy};
 
 use ipnetwork::IpNetwork;
 
@@ -26,17 +26,17 @@ error_chain! {
 const ANCHOR_NAME: &'static str = "mullvad";
 
 /// The macOS firewall and DNS implementation.
-pub struct MacosNetworkSecurity {
+pub struct NetworkSecurity {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     dns_monitor: DnsMonitor,
 }
 
-impl NetworkSecurity for MacosNetworkSecurity {
+impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
     fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
-        Ok(MacosNetworkSecurity {
+        Ok(NetworkSecurity {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             dns_monitor: DnsMonitor::new()?,
@@ -61,7 +61,7 @@ impl NetworkSecurity for MacosNetworkSecurity {
     }
 }
 
-impl MacosNetworkSecurity {
+impl NetworkSecurity {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 

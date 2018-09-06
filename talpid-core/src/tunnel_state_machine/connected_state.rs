@@ -10,7 +10,7 @@ use super::{
     SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
     TunnelStateWrapper,
 };
-use security::{NetworkSecurity, SecurityPolicy};
+use security::SecurityPolicy;
 use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 
 pub struct ConnectedStateBootstrap {
@@ -50,8 +50,6 @@ impl ConnectedState {
             tunnel: self.metadata.clone(),
             allow_lan: self.tunnel_parameters.allow_lan,
         };
-
-        debug!("Setting security policy: {:?}", policy);
         shared_values
             .security
             .apply_policy(policy)

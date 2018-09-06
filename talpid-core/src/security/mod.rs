@@ -1,9 +1,26 @@
 #[cfg(unix)]
 use ipnetwork::Ipv4Network;
+use std::fmt;
 #[cfg(unix)]
 use std::net::Ipv4Addr;
 use std::path::Path;
 use talpid_types::net::Endpoint;
+
+
+#[cfg(target_os = "macos")]
+#[path = "macos/mod.rs"]
+mod imp;
+
+#[cfg(target_os = "linux")]
+#[path = "linux/mod.rs"]
+mod imp;
+
+#[cfg(windows)]
+#[path = "windows/mod.rs"]
+mod imp;
+
+pub use self::imp::{Error, ErrorKind};
+
 
 #[cfg(unix)]
 lazy_static! {
@@ -44,8 +61,72 @@ pub enum SecurityPolicy {
     },
 }
 
-/// Abstract firewall interaction trait
-pub trait NetworkSecurity: Sized {
+impl fmt::Display for SecurityPolicy {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            SecurityPolicy::Connecting {
+                relay_endpoint,
+                allow_lan,
+            } => write!(
+                f,
+                "Connecting to {}, {} LAN",
+                relay_endpoint,
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+            SecurityPolicy::Connected {
+                relay_endpoint,
+                tunnel,
+                allow_lan,
+            } => write!(
+                f,
+                "Connected to {} over \"{}\" (ip: {}, gw: {}), {} LAN",
+                relay_endpoint,
+                tunnel.interface,
+                tunnel.ip,
+                tunnel.gateway,
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+            SecurityPolicy::Blocked { allow_lan } => write!(
+                f,
+                "Blocked, {} LAN",
+                if *allow_lan { "Allowing" } else { "Blocking" }
+            ),
+        }
+    }
+}
+
+/// Manages network security of the computer/device. Can apply and enforce security policies
+/// by manipulating the OS firewall and DNS settings.
+pub struct NetworkSecurity {
+    inner: imp::NetworkSecurity,
+}
+
+impl NetworkSecurity {
+    /// Returns a new `NetworkSecurity`, ready to apply policies.
+    pub fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+        Ok(NetworkSecurity {
+            inner: imp::NetworkSecurity::new(cache_dir)?,
+        })
+    }
+
+    /// Applies and starts enforcing the given `SecurityPolicy` Makes sure it is being kept in place
+    /// until this method is called again with another policy, or until `reset_policy` is called.
+    pub fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<(), Error> {
+        info!("Applying security policy: {}", policy);
+        self.inner.apply_policy(policy)
+    }
+
+    /// Resets/removes any currently enforced `SecurityPolicy`. Returns the system to the same state
+    /// it had before any policy was applied through this `NetworkSecurity` instance.
+    pub fn reset_policy(&mut self) -> Result<(), Error> {
+        info!("Resetting security policy");
+        self.inner.reset_policy()
+    }
+}
+
+
+/// Abstract firewall interaction trait. Used by the OS specific implementations.
+trait NetworkSecurityT: Sized {
     /// The error type thrown by the implementer of this trait
     type Error: ::std::error::Error;
 
@@ -59,19 +140,3 @@ pub trait NetworkSecurity: Sized {
     /// modifying the system.
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
 }
-
-
-#[cfg(target_os = "macos")]
-mod macos;
-#[cfg(target_os = "macos")]
-pub use self::macos::{Error, ErrorKind, MacosNetworkSecurity as NetworkSecurityImpl, Result};
-
-#[cfg(target_os = "linux")]
-mod linux;
-#[cfg(target_os = "linux")]
-pub use self::linux::{Error, ErrorKind, LinuxNetworkSecurity as NetworkSecurityImpl, Result};
-
-#[cfg(windows)]
-mod windows;
-#[cfg(windows)]
-pub use self::windows::{Error, ErrorKind, Result, WindowsNetworkSecurity as NetworkSecurityImpl};
