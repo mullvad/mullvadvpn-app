@@ -1,14 +1,13 @@
-extern crate widestring;
-
-use super::ffi;
-use super::system_state::SystemStateWriter;
-
-use self::widestring::WideCString;
-use libc;
 use std::net::IpAddr;
 use std::path::Path;
 use std::ptr;
 use std::slice;
+
+use libc;
+use widestring::WideCString;
+
+use super::system_state::SystemStateWriter;
+use winnet;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
@@ -51,7 +50,7 @@ pub struct WinDns {
 
 impl WinDns {
     pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
-        unsafe { WinDns_Initialize(Some(ffi::error_sink), ptr::null_mut()).into_result()? };
+        unsafe { WinDns_Initialize(Some(winnet::error_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
             cache_dir
@@ -186,7 +185,7 @@ extern "system" {
 
     #[link_name(WinDns_Initialize)]
     pub fn WinDns_Initialize(
-        sink: Option<ffi::ErrorSink>,
+        sink: Option<winnet::ErrorSink>,
         sink_context: *mut libc::c_void,
     ) -> InitializationResult;
 

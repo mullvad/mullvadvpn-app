@@ -35,6 +35,8 @@ extern crate uuid;
 #[cfg(target_os = "linux")]
 extern crate which;
 #[cfg(windows)]
+extern crate widestring;
+#[cfg(windows)]
 extern crate winreg;
 
 extern crate openvpn_plugin;
@@ -44,6 +46,9 @@ extern crate talpid_types;
 #[cfg(target_os = "linux")]
 #[macro_use]
 extern crate nftnl;
+
+#[cfg(windows)]
+mod winnet;
 
 /// Working with processes.
 pub mod process;
