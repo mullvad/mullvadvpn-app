@@ -1,19 +1,16 @@
-extern crate widestring;
-
-use super::{NetworkSecurityT, SecurityPolicy};
 use std::net::IpAddr;
 use std::path::Path;
 use std::ptr;
 
-use self::winfw::*;
 use talpid_types::net::Endpoint;
+use widestring::WideCString;
 
-use self::widestring::WideCString;
-use ffi;
+use self::winfw::*;
+use super::{NetworkSecurityT, SecurityPolicy};
+use ffi::{self, route};
 
 
 mod dns;
-mod route;
 mod system_state;
 
 use self::dns::WinDns;
