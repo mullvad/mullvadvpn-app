@@ -533,7 +533,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async getCurrentVersion(): Promise<string> {
-    const response = await this._transport.send('get_current_version');
+    const response = await this._transport.send('get_current_version', [], NETWORK_CALL_TIMEOUT);
     try {
       return validate(string, response);
     } catch (error) {
@@ -542,7 +542,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async getVersionInfo(): Promise<AppVersionInfo> {
-    const response = await this._transport.send('get_version_info');
+    const response = await this._transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
     try {
       const versionInfo = validate(AppVersionInfoSchema, response);
       return {
