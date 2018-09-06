@@ -1,23 +1,20 @@
-extern crate widestring;
-
-use super::{NetworkSecurityT, SecurityPolicy};
 use std::net::IpAddr;
 use std::path::Path;
 use std::ptr;
 
-use self::winfw::*;
 use talpid_types::net::Endpoint;
+use widestring::WideCString;
 
-use self::widestring::WideCString;
-
+use self::dns::WinDns;
+use self::winfw::*;
+use super::{NetworkSecurityT, SecurityPolicy};
+use winnet;
 
 #[macro_use]
 mod ffi;
-mod dns;
-mod route;
-mod system_state;
 
-use self::dns::WinDns;
+mod dns;
+mod system_state;
 
 error_chain! {
     errors {
@@ -50,11 +47,15 @@ error_chain! {
         ResettingPolicy {
             description("Failed to reset firewall policies")
         }
+
+        /// Failure to set TAP adapter metric
+        SetTapMetric {
+            description("Unable to set TAP adapter metric")
+        }
     }
 
     links {
         WinDns(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
-        WinRoute(route::Error, route::ErrorKind) #[doc = "Failure to modify system routing metrics"];
     }
 }
 
@@ -73,7 +74,7 @@ impl NetworkSecurityT for NetworkSecurity {
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
-                Some(ffi::error_sink),
+                Some(winnet::error_sink),
                 ptr::null_mut(),
             ).into_result()?
         };
@@ -168,13 +169,14 @@ impl NetworkSecurity {
 
         self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
 
-        let metrics_set = route::ensure_top_metric_for_interface(&tunnel_metadata.interface)?;
+        let metrics_set = winnet::ensure_top_metric_for_interface(&tunnel_metadata.interface)
+            .chain_err(|| ErrorKind::SetTapMetric)?;
+
         if metrics_set {
             debug!("Network interface metrics were changed");
         } else {
             debug!("Network interface metrics were not changed");
         }
-
 
         unsafe {
             WinFw_ApplyPolicyConnected(
@@ -195,9 +197,11 @@ impl NetworkSecurity {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{ffi, ErrorKind, Result};
     use libc;
     use talpid_types::net::TransportProtocol;
+
+    use super::{ErrorKind, Result};
+    use winnet;
 
     #[repr(C)]
     pub struct WinFwRelay {
@@ -254,7 +258,7 @@ mod winfw {
         #[link_name(WinFw_Initialize)]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
-            sink: Option<ffi::ErrorSink>,
+            sink: Option<winnet::ErrorSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 
