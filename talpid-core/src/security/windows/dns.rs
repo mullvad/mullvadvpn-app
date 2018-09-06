@@ -1,7 +1,7 @@
 extern crate widestring;
 
-use super::ffi;
 use super::system_state::SystemStateWriter;
+use ffi;
 
 use self::widestring::WideCString;
 use libc;
