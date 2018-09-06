@@ -1,7 +1,9 @@
-use super::widestring::WideCString;
-use ffi;
-use libc;
 use std::ptr;
+
+use libc;
+use widestring::WideCString;
+
+use ffi;
 
 error_chain!{
     errors{
