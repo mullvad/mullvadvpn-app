@@ -156,7 +156,7 @@ build_rpc_trait! {
 /// Enum representing commands coming in on the management interface.
 pub enum ManagementCommand {
     /// Change target state.
-    SetTargetState(TargetState),
+    SetTargetState(OneshotSender<Result<(), ()>>, TargetState),
     /// Request the current state.
     GetState(OneshotSender<TunnelStateTransition>),
     /// Get the current geographical location.
@@ -477,12 +477,30 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn connect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         debug!("connect");
-        self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Secured))
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetTargetState(tx, TargetState::Secured))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|result| match result {
+                Ok(()) => future::ok(()),
+                Err(()) => future::err(Error {
+                    code: ErrorCode::ServerError(-900),
+                    message: "No account token configured".to_owned(),
+                    data: None,
+                }),
+            });
+        Box::new(future)
     }
 
     fn disconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         debug!("disconnect");
-        self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Unsecured))
+        let (tx, _) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetTargetState(
+                tx,
+                TargetState::Unsecured,
+            )).then(|_| future::ok(()));
+        Box::new(future)
     }
 
     fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelStateTransition, Error> {

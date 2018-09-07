@@ -1,8 +1,8 @@
 use clap;
+use error_chain::ChainedError;
 use new_rpc_client;
 use Command;
 use Result;
-
 
 pub struct Connect;
 
@@ -18,7 +18,9 @@ impl Command for Connect {
 
     fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        rpc.connect()?;
+        if let Err(e) = rpc.connect() {
+            eprintln!("{}", e.display_chain());
+        }
         Ok(())
     }
 }
