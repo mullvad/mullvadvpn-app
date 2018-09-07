@@ -10,8 +10,8 @@ use jsonrpc_client_ipc::IpcTransport;
 use tokio::reactor::Handle;
 use tokio::runtime::Runtime;
 
-use std::thread;
 use super::Arguments;
+use std::thread;
 
 error_chain! {
     errors {
@@ -37,7 +37,7 @@ impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor> {
         trace!("Creating EventProcessor");
         let (start_tx, start_rx) = futures::sync::oneshot::channel();
-        thread::spawn(move|| {
+        thread::spawn(move || {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
 
             let (client, client_handle) =
@@ -47,7 +47,9 @@ impl EventProcessor {
 
             let (tx, client_stop) = ::std::sync::mpsc::channel();
             let client_future = client.then(move |result| tx.send(result)).map_err(|_| ());
-            start_tx.send((client_stop, client_handle)).expect("failed to send client handles");
+            start_tx
+                .send((client_stop, client_handle))
+                .expect("failed to send client handles");
 
             rt.block_on(client_future);
         });

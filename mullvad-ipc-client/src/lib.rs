@@ -100,7 +100,8 @@ pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcCli
     let path = path.as_ref().to_string_lossy().to_string();
 
     new_standalone_transport(path, |path| {
-        IpcTransport::new(&path, &tokio::reactor::Handle::current()).chain_err(|| ErrorKind::TransportError)
+        IpcTransport::new(&path, &tokio::reactor::Handle::current())
+            .chain_err(|| ErrorKind::TransportError)
     })
 }
 
