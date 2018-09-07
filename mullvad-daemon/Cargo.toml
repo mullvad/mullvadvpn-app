@@ -15,10 +15,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 log = "0.4"
 log-panics = "2.0.0"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-ipc-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
 uuid = { version = "0.6", features = ["v4"] }
 lazy_static = "1.0"
 rand = "0.5"
