@@ -511,18 +511,16 @@ export default class AppRenderer {
     });
   }
 
-  _fetchInitialState() {
-    return Promise.all([
-      this._fetchTunnelState(),
-      this.fetchRelaySettings(),
-      this._fetchRelayLocations(),
-      this._fetchAllowLan(),
-      this._fetchAutoConnect(),
-      this._fetchLocation(),
-      this._fetchAccountHistory(),
-      this._fetchTunnelOptions(),
-      this._fetchVersionInfo(),
-    ]);
+  async _fetchInitialState() {
+    await this._fetchTunnelState();
+    await this.fetchRelaySettings();
+    await this._fetchRelayLocations();
+    await this._fetchAllowLan();
+    await this._fetchAutoConnect();
+    await this._fetchLocation();
+    await this._fetchAccountHistory();
+    await this._fetchTunnelOptions();
+    await this._fetchVersionInfo();
   }
 
   _updateTrayIcon(connectionState: ConnectionState) {
