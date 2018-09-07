@@ -46,7 +46,9 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
-  _accountDataState = new AccountDataState();
+  _accountDataCache = new AccountDataCache((accountToken) => {
+    return this._daemonRpc.getAccountData(accountToken);
+  });
   _connectedToDaemon = false;
   _accountToken: ?AccountToken;
   _tunnelState: ?TunnelState;
@@ -231,8 +233,8 @@ export default class AppRenderer {
       actions.account.loggedOut();
       actions.history.replace('/login');
 
-      // reset account data state on log out
-      this._accountDataState = new AccountDataState();
+      // invalidate account data cache on log out
+      this._accountDataCache.invalidate();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -313,20 +315,12 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const actions = this._reduxActions;
-    const accountDataState = this._accountDataState;
-
-    // Bail if something else requested an update to account data
-    // or if account data cache was updated recently.
-    if (accountDataState.isUpdating() || !accountDataState.needsUpdate()) {
-      return;
-    }
+    const accountDataCache = this._accountDataCache;
 
     try {
       const accountToken = this._accountToken;
       if (accountToken) {
-        const accountData = await accountDataState.update(() => {
-          return this._daemonRpc.getAccountData(accountToken);
-        });
+        const accountData = await accountDataCache.fetch(accountToken);
         actions.account.updateAccountExpiry(accountData.expiry);
       } else {
         throw new NoAccountError();
@@ -629,32 +623,65 @@ export default class AppRenderer {
   }
 }
 
-// Helper class to keep track of account data updates
-class AccountDataState {
+// An account data cache that helps to throttle RPC requests to get_account_data and retain the
+// cached value for 1 minute.
+class AccountDataCache {
+  _executingPromise: ?Promise<AccountData>;
+  _value: ?AccountData;
   _expiresAt: ?Date;
-  _isUpdating = false;
+  _fetch: (AccountToken) => Promise<AccountData>;
 
-  isUpdating() {
-    return this._isUpdating;
+  constructor(fetch: (AccountToken) => Promise<AccountData>) {
+    this._fetch = fetch;
   }
 
-  needsUpdate() {
-    return !this._expiresAt || this._expiresAt < new Date();
-  }
+  async fetch(accountToken: AccountToken): Promise<AccountData> {
+    // return the same promise if still fetching from remote
+    const executingPromise = this._executingPromise;
+    if (executingPromise) {
+      return executingPromise;
+    }
 
-  async update(fn: () => Promise<AccountData>): Promise<AccountData> {
-    this._isUpdating = true;
+    // return the received value if not expired yet
+    const currentValue = this._value;
+    if (currentValue && !this._isExpired()) {
+      return currentValue;
+    }
 
     try {
-      const accountData = await fn();
-      this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+      const nextPromise = this._fetch(accountToken);
+      this._executingPromise = nextPromise;
 
-      return accountData;
+      const accountData = await nextPromise;
+
+      // it's possible that invalidate() was called before this promise was resolved.
+      // discard the result of "orphaned" promise.
+      if (this._executingPromise === nextPromise) {
+        this._setValue(accountData);
+        return accountData;
+      } else {
+        throw new Error('Cancelled');
+      }
     } catch (error) {
       throw error;
     } finally {
-      this._isUpdating = false;
+      this._executingPromise = null;
     }
+  }
+
+  invalidate() {
+    this._executingPromise = null;
+    this._expiresAt = null;
+    this._value = null;
+  }
+
+  _setValue(value: AccountData) {
+    this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+    this._value = value;
+  }
+
+  _isExpired() {
+    return !this._expiresAt || this._expiresAt < new Date();
   }
 }
 
