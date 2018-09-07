@@ -35,12 +35,14 @@ const SILENCED_CRATES: &[&str] = &[
     "tokio_io",
     "tokio_proto",
     "tokio_reactor",
+    "tokio_threadpool",
     "jsonrpc_ws_server",
     "want",
     "ws",
     "mio",
     "hyper",
 ];
+const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl"];
 
 const COLORS: ColoredLevelConfig = ColoredLevelConfig {
     error: Color::Red,
@@ -67,6 +69,9 @@ pub fn init_logger(
     for silenced_crate in SILENCED_CRATES {
         top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Warn);
     }
+    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        top_dispatcher = top_dispatcher.level_for(*silenced_crate, one_level_quieter(log_level));
+    }
 
     let stdout_formatter = Formatter {
         output_timestamp: output_timestamp,
@@ -92,6 +97,18 @@ pub fn init_logger(
     }
     top_dispatcher.apply()?;
     Ok(())
+}
+
+fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
+    use log::LevelFilter::*;
+    match level {
+        Off => Off,
+        Error => Off,
+        Warn => Error,
+        Info => Warn,
+        Debug => Info,
+        Trace => Debug,
+    }
 }
 
 #[derive(Default, Debug)]
