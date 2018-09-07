@@ -18,7 +18,8 @@ extern crate futures;
 extern crate jsonrpc_client_ipc;
 #[macro_use]
 extern crate openvpn_plugin;
-extern crate tokio_core;
+extern crate tokio;
+extern crate tokio_reactor;
 
 use error_chain::ChainedError;
 use openvpn_plugin::types::{EventResult, OpenVpnPluginEvent};

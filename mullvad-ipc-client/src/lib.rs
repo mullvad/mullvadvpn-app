@@ -13,8 +13,7 @@ extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
-extern crate tokio_core;
-extern crate tokio_reactor;
+extern crate tokio;
 extern crate tokio_timer;
 
 use std::path::Path;
@@ -73,7 +72,7 @@ error_chain! {
 static NO_ARGS: [u8; 0] = [];
 
 pub fn new_standalone_transport<
-    F: Send + 'static + FnOnce(String, tokio_reactor::Handle) -> Result<T>,
+    F: Send + 'static + FnOnce(String) -> Result<T>,
     T: jsonrpc_client_core::Transport,
 >(
     rpc_path: String,
@@ -84,9 +83,10 @@ pub fn new_standalone_transport<
         Err(e) => tx
             .send(Err(e))
             .expect("Failed to send error back to caller"),
-        Ok((mut core, client, client_handle)) => {
+        Ok((client, client_handle)) => {
             tx.send(Ok(client_handle))
                 .expect("Failed to send client handle");
+
             if let Err(e) = client.wait() {
                 error!("JSON-RPC client failed: {}", e.description());
             }
@@ -101,21 +101,18 @@ pub fn new_standalone_transport<
 pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
     let path = path.as_ref().to_string_lossy().to_string();
 
-    new_standalone_transport(path, |path, handle| {
-        IpcTransport::new(&path, &handle).chain_err(|| ErrorKind::TransportError)
+    new_standalone_transport(path, |path| {
+        IpcTransport::new(&path, &tokio::reactor::Handle::current())
+            .chain_err(|| ErrorKind::TransportError)
     })
 }
 
-fn spawn_transport<
-    F: Send + FnOnce(String, tokio_reactor::Handle) -> Result<T>,
-    T: jsonrpc_client_core::Transport,
->(
+fn spawn_transport<F: Send + FnOnce(String) -> Result<T>, T: jsonrpc_client_core::Transport>(
     address: String,
     transport_func: F,
-) -> Result<(tokio_reactor::Reactor, Client<T>, ClientHandle)> {
-    let core = tokio_reactor::Reactor::new().chain_err(|| ErrorKind::TokioError)?;
-    let (client, client_handle) = transport_func(address, core.handle())?.into_client();
-    Ok((core, client, client_handle))
+) -> Result<(Client<T>, ClientHandle)> {
+    let (client, client_handle) = transport_func(address)?.into_client();
+    Ok((client, client_handle))
 }
 
 pub struct DaemonRpcClient {
@@ -221,20 +218,6 @@ impl DaemonRpcClient {
             .call_method(method, args)
             .wait()
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
-    }
-
-    pub fn call_async<T, A> (&mut self, method: &'static str, args: A) -> Box<Future<Item=(), Error=()>>
-    where
-    T:for<'de> Deserialize<'de> + Send + 'static + std::fmt::Debug,
-    A:  Serialize + Send + 'static,
-    {
-        let meth = method.to_string();
-        Box::new(self.rpc_client
-            .call_method(method, &args)
-            .then(move |result: std::result::Result<T, _>| {
-                println!("received {} - {:?}",meth, result );
-                futures::future::ok(())
-            }))
     }
 
     pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<TunnelStateTransition>> {

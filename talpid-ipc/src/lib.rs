@@ -18,8 +18,13 @@ extern crate jsonrpc_core;
 extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
 
+extern crate futures;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
+extern crate tokio;
+
+use futures::Future;
+use std::thread;
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
@@ -68,7 +73,15 @@ impl IpcServer {
             .set_security_attributes(security_attributes)
             .start(&path)
             .chain_err(|| ErrorKind::IpcServerError)
-            .map(|server| IpcServer {
+            .and_then(|(fut, start, server)| {
+                thread::spawn(move || tokio::run(fut));
+                start
+                    .wait()
+                    .expect("server panicked")
+                    .map(|e| Err(e))
+                    .unwrap_or(Ok(server))
+                    .chain_err(|| ErrorKind::IpcServerError)
+            }).map(|server| IpcServer {
                 path: path.to_owned(),
                 server,
             })?;
