@@ -180,6 +180,14 @@ export default class AppRenderer {
       // take user to main view if user is still at launch screen `/`
       if (history.location.pathname === '/') {
         actions.history.replace('/connect');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (entry.pathname === '/') {
+            entry.pathname = '/connect';
+          }
+        }
       }
     } else {
       log.debug('No account set, showing login view.');
@@ -190,6 +198,14 @@ export default class AppRenderer {
       // take user to `/login` screen if user is at launch screen `/`
       if (history.location.pathname === '/') {
         actions.history.replace('/login');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (!entry.pathname.startsWith('/settings')) {
+            entry.pathname = '/login';
+          }
+        }
       }
     }
   }
@@ -489,8 +505,13 @@ export default class AppRenderer {
 
       // take user back to the launch screen `/` except when user is in settings.
       if (history.location.pathname.startsWith('/settings')) {
-        // TODO: make sure that user can still access settings but returning from settings should
-        // take user to launch screen `/`.
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (!entry.pathname.startsWith('/settings')) {
+            entry.pathname = '/';
+          }
+        }
       } else {
         actions.history.replace('/');
       }
