@@ -50,7 +50,8 @@ impl EventProcessor {
                 .send((client_stop, client_handle))
                 .expect("failed to send client handles");
 
-            rt.block_on(client_future).expect("RPC client should not fail");
+            rt.block_on(client_future)
+                .expect("RPC client should not fail");
         });
 
         let (client_stop, client_handle) = start_rx.wait().chain_err(|| ErrorKind::Shutdown)?;
