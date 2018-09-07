@@ -79,7 +79,7 @@ use std::{mem, thread};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
-use talpid_types::net::{TunnelEndpoint, TunnelOptions};
+use talpid_types::net::TunnelEndpoint;
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
 
@@ -350,17 +350,12 @@ impl Daemon {
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
-            GetAccount(tx) => self.on_get_account(tx),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
-            GetAllowLan(tx) => self.on_get_allow_lan(tx),
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
-            GetAutoConnect(tx) => self.on_get_auto_connect(tx),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
-            GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
             GetSettings(tx) => self.on_get_settings(tx),
-            GetRelaySettings(tx) => self.on_get_relay_settings(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             Shutdown => self.handle_trigger_shutdown_event(),
@@ -471,10 +466,6 @@ impl Daemon {
         Self::oneshot_send(tx, current_version, "get_current_version response");
     }
 
-    fn on_get_account(&self, tx: OneshotSender<Option<String>>) {
-        Self::oneshot_send(tx, self.settings.get_account_token(), "current account")
-    }
-
     fn on_update_relay_settings(&mut self, tx: OneshotSender<()>, update: RelaySettingsUpdate) {
         let save_result = self.settings.update_relay_settings(update);
         match save_result.chain_err(|| "Unable to save settings") {
@@ -489,10 +480,6 @@ impl Daemon {
             }
             Err(e) => error!("{}", e.display_chain()),
         }
-    }
-
-    fn on_get_relay_settings(&self, tx: OneshotSender<RelaySettings>) {
-        Self::oneshot_send(tx, self.settings.get_relay_settings(), "relay settings")
     }
 
     fn on_set_allow_lan(&mut self, tx: OneshotSender<()>, allow_lan: bool) {
@@ -510,10 +497,6 @@ impl Daemon {
         }
     }
 
-    fn on_get_allow_lan(&self, tx: OneshotSender<bool>) {
-        Self::oneshot_send(tx, self.settings.get_allow_lan(), "allow lan")
-    }
-
     fn on_set_auto_connect(&mut self, tx: OneshotSender<()>, auto_connect: bool) {
         let save_result = self.settings.set_auto_connect(auto_connect);
         match save_result.chain_err(|| "Unable to save settings") {
@@ -526,14 +509,6 @@ impl Daemon {
             }
             Err(e) => error!("{}", e.display_chain()),
         }
-    }
-
-    fn on_get_auto_connect(&self, tx: OneshotSender<bool>) {
-        Self::oneshot_send(
-            tx,
-            self.settings.get_auto_connect(),
-            "get auto-connect response",
-        )
     }
 
     fn on_set_openvpn_mssfix(&mut self, tx: OneshotSender<()>, mssfix_arg: Option<u16>) {
@@ -564,11 +539,6 @@ impl Daemon {
             }
             Err(e) => error!("{}", e.display_chain()),
         }
-    }
-
-    fn on_get_tunnel_options(&self, tx: OneshotSender<TunnelOptions>) {
-        let tunnel_options = self.settings.get_tunnel_options().clone();
-        Self::oneshot_send(tx, tunnel_options, "get_tunnel_options response");
     }
 
     fn on_get_settings(&self, tx: OneshotSender<Settings>) {
