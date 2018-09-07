@@ -18,9 +18,9 @@ extern crate jsonrpc_core;
 extern crate jsonrpc_ipc_server;
 extern crate jsonrpc_pubsub;
 
+extern crate futures;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
-extern crate futures;
 extern crate tokio;
 
 use futures::Future;
@@ -74,18 +74,17 @@ impl IpcServer {
             .start(&path)
             .chain_err(|| ErrorKind::IpcServerError)
             .and_then(|(fut, start, server)| {
-                 thread::spawn(move || tokio::run(fut));
-                 start.wait()
-                     .expect("server panicked")
-                     .map(|e| Err(e))
-                     .unwrap_or(Ok(server))
-                     .chain_err(|| ErrorKind::IpcServerError)
-            })
-            .map(|server|{
-                 IpcServer {
+                thread::spawn(move || tokio::run(fut));
+                start
+                    .wait()
+                    .expect("server panicked")
+                    .map(|e| Err(e))
+                    .unwrap_or(Ok(server))
+                    .chain_err(|| ErrorKind::IpcServerError)
+            }).map(|server| IpcServer {
                 path: path.to_owned(),
                 server,
-            }})?;
+            })?;
 
         #[cfg(unix)]
         {
