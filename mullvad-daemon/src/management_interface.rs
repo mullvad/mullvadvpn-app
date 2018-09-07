@@ -12,11 +12,11 @@ use mullvad_types::location::GeoIpLocation;
 use mullvad_paths;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
+use mullvad_types::settings::Settings;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
 
 use serde;
-use settings::Settings;
 
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;

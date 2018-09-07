@@ -51,7 +51,6 @@ mod logging;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
-mod settings;
 mod shutdown;
 mod system_service;
 mod version;
@@ -68,6 +67,7 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::{Relay, RelayList};
+use mullvad_types::settings::Settings;
 use mullvad_types::states::TargetState;
 use mullvad_types::version::{AppVersion, AppVersionInfo};
 
@@ -185,7 +185,7 @@ struct Daemon {
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
-    settings: settings::Settings,
+    settings: Settings,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
@@ -243,7 +243,7 @@ impl Daemon {
             rx,
             tx,
             management_interface_broadcaster,
-            settings: settings::Settings::load().chain_err(|| "Unable to read settings")?,
+            settings: Settings::load().chain_err(|| "Unable to read settings")?,
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -570,7 +570,7 @@ impl Daemon {
         Self::oneshot_send(tx, tunnel_options, "get_tunnel_options response");
     }
 
-    fn on_get_settings(&self, tx: OneshotSender<settings::Settings>) {
+    fn on_get_settings(&self, tx: OneshotSender<Settings>) {
         Self::oneshot_send(tx, self.settings.clone(), "get_settings response");
     }
 

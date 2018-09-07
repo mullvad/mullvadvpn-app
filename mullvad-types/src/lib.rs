@@ -11,6 +11,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate mullvad_paths;
 extern crate talpid_types;
 
 #[macro_use]
@@ -23,6 +24,7 @@ pub mod account;
 pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;
+pub mod settings;
 pub mod states;
 pub mod version;
 
