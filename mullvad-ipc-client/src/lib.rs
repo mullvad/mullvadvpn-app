@@ -213,24 +213,6 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
 
-    pub fn call_async<T, A>(
-        &mut self,
-        method: &'static str,
-        args: A,
-    ) -> Box<Future<Item = (), Error = ()>>
-    where
-        T: for<'de> Deserialize<'de> + Send + 'static + std::fmt::Debug,
-        A: Serialize + Send + 'static,
-    {
-        let meth = method.to_string();
-        Box::new(self.rpc_client.call_method(method, &args).then(
-            move |result: std::result::Result<T, _>| {
-                println!("received {} - {:?}", meth, result);
-                futures::future::ok(())
-            },
-        ))
-    }
-
     pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<TunnelStateTransition>> {
         let client = self.rpc_client.clone();
         let mut current_state = self.get_state()?;
