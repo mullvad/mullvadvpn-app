@@ -7,14 +7,13 @@ extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
 extern crate talpid_ipc;
-extern crate tokio_core;
+extern crate tokio;
 extern crate uuid;
 
 extern crate futures;
 
 use futures::sync::oneshot;
 use futures::Future;
-use tokio_core::reactor::Core;
 
 use jsonrpc_client_core::{Error as ClientError, Transport};
 use jsonrpc_core::{Error, IoHandler};
@@ -86,13 +85,12 @@ fn create_client(ipc_path: String) -> jsonrpc_client_core::ClientHandle {
     let (tx, rx) = oneshot::channel();
 
     thread::spawn(move || {
-        let mut core = Core::new().expect("failed to spawn reactor");
         let (client, client_handle) =
-            jsonrpc_client_ipc::IpcTransport::new(&ipc_path, &core.handle())
+            jsonrpc_client_ipc::IpcTransport::new(&ipc_path, &tokio::reactor::Handle::current())
                 .expect("failed to construct a transport")
                 .into_client();
         tx.send(client_handle).unwrap();
-        core.run(client).unwrap();
+        client.wait().unwrap();
     });
 
     let handle = rx.wait().expect("Failed to construct a valid client");
