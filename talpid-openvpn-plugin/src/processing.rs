@@ -3,7 +3,6 @@ use std::collections::HashMap;
 
 extern crate futures;
 
-use futures::executor::spawn;
 use jsonrpc_client_core::{Future, Result as ClientResult, Transport};
 use jsonrpc_client_ipc::IpcTransport;
 
@@ -41,7 +40,7 @@ impl EventProcessor {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
 
             let (client, client_handle) =
-                IpcTransport::new(&arguments.ipc_socket_path, &rt.handle())
+                IpcTransport::new(&arguments.ipc_socket_path, &Handle::current())
                     .expect("Unable to create IPC transport")
                     .into_client();
 
@@ -51,7 +50,7 @@ impl EventProcessor {
                 .send((client_stop, client_handle))
                 .expect("failed to send client handles");
 
-            rt.block_on(client_future);
+            rt.block_on(client_future).expect("RPC client should not fail");
         });
 
         let (client_stop, client_handle) = start_rx.wait().chain_err(|| ErrorKind::Shutdown)?;
