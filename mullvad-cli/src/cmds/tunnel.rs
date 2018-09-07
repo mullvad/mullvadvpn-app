@@ -118,7 +118,7 @@ impl Tunnel {
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
         let mut rpc = new_rpc_client()?;
-        Ok(rpc.get_tunnel_options()?)
+        Ok(rpc.get_settings()?.get_tunnel_options().clone())
     }
 
     fn print_common_tunnel_options(options: &TunnelOptions) {

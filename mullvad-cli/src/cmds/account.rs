@@ -59,8 +59,8 @@ impl Account {
 
     fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        let account_token = rpc.get_account()?;
-        if let Some(account_token) = account_token {
+        let settings = rpc.get_settings()?;
+        if let Some(account_token) = settings.get_account_token() {
             println!("Mullvad account: {}", account_token);
             let expiry = rpc.get_account_data(account_token)?;
             println!("Expires at     : {}", expiry.expiry);
