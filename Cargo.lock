@@ -612,7 +612,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc-core"
 version = "8.0.2"
-source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent#e178171765010bf726cf04da728688256edbb7d9"
+source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux#40344ea49836a6a0040c49c927610608bd3c4a8a"
 dependencies = [
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -624,32 +624,34 @@ dependencies = [
 [[package]]
 name = "jsonrpc-ipc-server"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent#e178171765010bf726cf04da728688256edbb7d9"
+source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux#40344ea49836a6a0040c49c927610608bd3c4a8a"
 dependencies = [
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-server-utils 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-server-utils 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-tokio-ipc 0.1.5 (git+https://github.com/nikvolf/parity-tokio-ipc)",
  "parking_lot 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-service 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "jsonrpc-macros"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent#e178171765010bf726cf04da728688256edbb7d9"
+source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux#40344ea49836a6a0040c49c927610608bd3c4a8a"
 dependencies = [
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "jsonrpc-pubsub"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent#e178171765010bf726cf04da728688256edbb7d9"
+source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux#40344ea49836a6a0040c49c927610608bd3c4a8a"
 dependencies = [
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -670,11 +672,11 @@ dependencies = [
 [[package]]
 name = "jsonrpc-server-utils"
 version = "8.0.1"
-source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent#e178171765010bf726cf04da728688256edbb7d9"
+source = "git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux#40344ea49836a6a0040c49c927610608bd3c4a8a"
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "globset 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-io 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -919,10 +921,10 @@ dependencies = [
  "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fern 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1205,7 +1207,7 @@ source = "git+https://github.com/nikvolf/parity-tokio-ipc#306ea3e6ff8b8c1bb03081
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
  "miow 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1222,7 +1224,7 @@ source = "git+https://github.com/NikVolf/parity-tokio-ipc?rev=master#306ea3e6ff8
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
  "miow 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1631,8 +1633,8 @@ dependencies = [
  "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1665,10 +1667,10 @@ dependencies = [
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
  "jsonrpc-client-ipc 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs)",
- "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
- "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)",
+ "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
+ "jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "log 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.24 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2228,12 +2230,12 @@ source = "git+https://github.com/mullvad/rust-openssl#4dbd237fe1f6454d8a0042ccf4
 "checksum jsonrpc-client-http 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2e642eb74423b9dfcb4512fda167148746b76f788a823cd712fadf409f31d302"
 "checksum jsonrpc-client-ipc 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs)" = "<none>"
 "checksum jsonrpc-core 8.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ddf83704f4e79979a424d1082dd2c1e52683058056c9280efa19ac5f6bc9033c"
-"checksum jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)" = "<none>"
-"checksum jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)" = "<none>"
-"checksum jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)" = "<none>"
-"checksum jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)" = "<none>"
+"checksum jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)" = "<none>"
+"checksum jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)" = "<none>"
+"checksum jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)" = "<none>"
+"checksum jsonrpc-pubsub 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)" = "<none>"
 "checksum jsonrpc-server-utils 8.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "513e981828a4953ea7ddbb64c24d15d4983ecf6900dc1cd36f257d61c27138d5"
-"checksum jsonrpc-server-utils 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent)" = "<none>"
+"checksum jsonrpc-server-utils 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)" = "<none>"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 "checksum lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ca488b89a5657b0a2ecd45b95609b3e848cf1755da332a0da46e2b2b1cb371a7"
