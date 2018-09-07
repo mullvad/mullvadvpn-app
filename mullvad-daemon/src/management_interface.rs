@@ -355,7 +355,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<AccountData, Error> {
-        trace!("get_account_data");
+        debug!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccountData(tx, account_token))
@@ -373,7 +373,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_relay_locations(&self, _: Self::Metadata) -> BoxFuture<RelayList, Error> {
-        trace!("get_relay_locations");
+        debug!("get_relay_locations");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetRelayLocations(tx))
@@ -386,7 +386,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: Option<AccountToken>,
     ) -> BoxFuture<(), Error> {
-        trace!("set_account");
+        debug!("set_account");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token.clone()))
@@ -407,7 +407,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_account(&self, _: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
-        trace!("get_account");
+        debug!("get_account");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccount(tx))
@@ -420,7 +420,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         constraints_update: RelaySettingsUpdate,
     ) -> BoxFuture<(), Error> {
-        trace!("update_relay_settings");
+        debug!("update_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
 
         let message = ManagementCommand::UpdateRelaySettings(tx, constraints_update);
@@ -431,7 +431,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_relay_settings(&self, _: Self::Metadata) -> BoxFuture<RelaySettings, Error> {
-        trace!("get_relay_settings");
+        debug!("get_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetRelaySettings(tx))
@@ -440,7 +440,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_allow_lan(&self, _: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
-        trace!("set_allow_lan");
+        debug!("set_allow_lan({})", allow_lan);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAllowLan(tx, allow_lan))
@@ -449,7 +449,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_allow_lan(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
-        trace!("get_allow_lan");
+        debug!("get_allow_lan");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAllowLan(tx))
@@ -458,7 +458,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_auto_connect(&self, _: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
-        trace!("set_auto_connect");
+        debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAutoConnect(tx, auto_connect))
@@ -467,7 +467,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_auto_connect(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
-        trace!("get_auto_connect");
+        debug!("get_auto_connect");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAutoConnect(tx))
@@ -476,17 +476,17 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn connect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        trace!("connect");
+        debug!("connect");
         self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Secured))
     }
 
     fn disconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        trace!("disconnect");
+        debug!("disconnect");
         self.send_command_to_daemon(ManagementCommand::SetTargetState(TargetState::Unsecured))
     }
 
     fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelStateTransition, Error> {
-        trace!("get_state");
+        debug!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetState(state_tx))
@@ -495,7 +495,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_current_location(&self, _: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
-        trace!("get_current_location");
+        debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentLocation(tx))
@@ -504,12 +504,12 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        trace!("shutdown");
+        debug!("shutdown");
         self.send_command_to_daemon(ManagementCommand::Shutdown)
     }
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
-        trace!("get_account_history");
+        debug!("get_account_history");
         Box::new(future::result(
             self.load_history()
                 .map(|history| history.get_accounts().to_vec())
@@ -525,7 +525,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<(), Error> {
-        trace!("remove_account_from_history");
+        debug!("remove_account_from_history");
         Box::new(future::result(
             self.load_history()
                 .and_then(|mut history| history.remove_account_token(account_token))
@@ -540,7 +540,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_openvpn_mssfix(&self, _: Self::Metadata, mssfix: Option<u16>) -> BoxFuture<(), Error> {
-        trace!("set_openvpn_mssfix");
+        debug!("set_openvpn_mssfix({:?})", mssfix);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnMssfix(tx, mssfix))
@@ -550,7 +550,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_enable_ipv6(&self, _: Self::Metadata, enable_ipv6: bool) -> BoxFuture<(), Error> {
-        trace!("set_enable_ipv6");
+        debug!("set_enable_ipv6({})", enable_ipv6);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetEnableIpv6(tx, enable_ipv6))
@@ -560,7 +560,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_tunnel_options(&self, _: Self::Metadata) -> BoxFuture<TunnelOptions, Error> {
-        trace!("get_tunnel_options");
+        debug!("get_tunnel_options");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetTunnelOptions(tx))
@@ -569,6 +569,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_current_version(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
+        debug!("get_current_version");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentVersion(tx))
@@ -578,6 +579,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_version_info(&self, _: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
+        debug!("get_version_info");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetVersionInfo(tx))
@@ -600,12 +602,12 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         subscriber: pubsub::Subscriber<TunnelStateTransition>,
     ) {
-        trace!("new_state_subscribe");
+        debug!("new_state_subscribe");
         Self::subscribe(subscriber, &self.subscriptions);
     }
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
-        trace!("new_state_unsubscribe");
+        debug!("new_state_unsubscribe");
         Self::unsubscribe(id, &self.subscriptions)
     }
 }
