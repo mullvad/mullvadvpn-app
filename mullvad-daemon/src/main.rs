@@ -296,9 +296,11 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
-        if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
+        if self.settings.get_auto_connect() {
             info!("Automatically connecting since auto-connect is turned on");
-            self.set_target_state(TargetState::Secured);
+            if self.set_target_state(TargetState::Secured).is_err() {
+                warn!("Aborting auto-connect since no account token is set");
+            }
         }
         while let Ok(event) = self.rx.recv() {
             self.handle_event(event)?;
@@ -347,7 +349,7 @@ impl Daemon {
     fn handle_management_interface_event(&mut self, event: ManagementCommand) -> Result<()> {
         use ManagementCommand::*;
         match event {
-            SetTargetState(state) => Ok(self.on_set_target_state(state)),
+            SetTargetState(tx, state) => Ok(self.on_set_target_state(tx, state)),
             GetState(tx) => Ok(self.on_get_state(tx)),
             GetCurrentLocation(tx) => Ok(self.on_get_current_location(tx)),
             GetAccountData(tx, account_token) => Ok(self.on_get_account_data(tx, account_token)),
@@ -369,11 +371,16 @@ impl Daemon {
         }
     }
 
-    fn on_set_target_state(&mut self, new_target_state: TargetState) {
+    fn on_set_target_state(
+        &mut self,
+        tx: OneshotSender<::std::result::Result<(), ()>>,
+        new_target_state: TargetState,
+    ) {
         if self.state.is_running() {
-            self.set_target_state(new_target_state);
+            Self::oneshot_send(tx, self.set_target_state(new_target_state), "targe state");
         } else {
             warn!("Ignoring target state change request due to shutdown");
+            Self::oneshot_send(tx, Ok(()), "targe state");
         }
     }
 
@@ -436,7 +443,7 @@ impl Daemon {
                 if account_changed {
                     if account_token_cleared {
                         info!("Disconnecting because account token was cleared");
-                        self.set_target_state(TargetState::Unsecured);
+                        let _ = self.set_target_state(TargetState::Unsecured);
                     } else {
                         info!("Initiating tunnel restart because the account token changed");
                         self.reconnect_tunnel();
@@ -592,40 +599,44 @@ impl Daemon {
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
-    fn set_target_state(&mut self, new_state: TargetState) {
+    /// Returns an error if trying to set secured state, but no account token is present.
+    fn set_target_state(&mut self, new_state: TargetState) -> ::std::result::Result<(), ()> {
         if new_state != self.target_state {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             match self.target_state {
-                TargetState::Secured => self.connect_tunnel(),
+                TargetState::Secured => match self.settings.get_account_token() {
+                    Some(account_token) => self.connect_tunnel(account_token),
+                    None => {
+                        self.set_target_state(TargetState::Unsecured)?;
+                        return Err(());
+                    }
+                },
                 TargetState::Unsecured => self.disconnect_tunnel(),
             }
         }
+        Ok(())
     }
 
-    fn connect_tunnel(&mut self) {
-        let allow_lan = self.settings.get_allow_lan();
-        let command = match self.settings.get_account_token() {
-            None => TunnelCommand::Block(BlockReason::NoAccountToken, allow_lan),
-            Some(account_token) => match self.settings.get_relay_settings() {
-                RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                    .to_tunnel_endpoint()
-                    .chain_err(|| "Custom tunnel endpoint could not be resolved"),
-                RelaySettings::Normal(constraints) => self
-                    .relay_selector
-                    .get_tunnel_endpoint(&constraints)
-                    .chain_err(|| "No valid relay servers match the current settings")
-                    .map(|(relay, endpoint)| {
-                        self.current_relay = Some(relay);
-                        endpoint
-                    }),
-            }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
-            .map(|parameters| TunnelCommand::Connect(parameters))
-            .unwrap_or_else(|error| {
-                error!("{}", error.display_chain());
-                TunnelCommand::Block(BlockReason::NoMatchingRelay, allow_lan)
-            }),
-        };
+    fn connect_tunnel(&mut self, account_token: AccountToken) {
+        let command = match self.settings.get_relay_settings() {
+            RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
+                .to_tunnel_endpoint()
+                .chain_err(|| "Custom tunnel endpoint could not be resolved"),
+            RelaySettings::Normal(constraints) => self
+                .relay_selector
+                .get_tunnel_endpoint(&constraints)
+                .chain_err(|| "No valid relay servers match the current settings")
+                .map(|(relay, endpoint)| {
+                    self.current_relay = Some(relay);
+                    endpoint
+                }),
+        }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
+        .map(|parameters| TunnelCommand::Connect(parameters))
+        .unwrap_or_else(|error| {
+            error!("{}", error.display_chain());
+            TunnelCommand::Block(BlockReason::NoMatchingRelay, self.settings.get_allow_lan())
+        });
         self.send_tunnel_command(command);
     }
 
@@ -635,7 +646,9 @@ impl Daemon {
 
     fn reconnect_tunnel(&mut self) {
         if self.target_state == TargetState::Secured {
-            self.connect_tunnel()
+            if let Some(account_token) = self.settings.get_account_token() {
+                self.connect_tunnel(account_token);
+            }
         }
     }
 
