@@ -12,7 +12,7 @@ extern crate talpid_ipc;
 extern crate tempfile;
 
 extern crate futures;
-extern crate tokio_core;
+extern crate tokio;
 
 pub mod mock_openvpn;
 
@@ -31,7 +31,7 @@ use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use tempfile::TempDir;
-use tokio_core::reactor::Core;
+use tokio::reactor::Handle;
 
 use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
 use self::platform_specific::*;
@@ -312,8 +312,8 @@ impl DaemonRunner {
     pub fn rpc_client(&mut self) -> Result<DaemonRpcClient> {
         wait_for_file(&self.rpc_socket_path);
         let socket_path: String = self.rpc_socket_path.to_string_lossy().to_string();
-        mullvad_ipc_client::new_standalone_transport(socket_path, |path, handle| {
-            IpcTransport::new(&path, &handle)
+        mullvad_ipc_client::new_standalone_transport(socket_path, |path| {
+            IpcTransport::new(&path, &Handle::current())
                 .chain_err(|| mullvad_ipc_client::ErrorKind::TransportError)
         }).map_err(|e| format!("Failed to construct an RPC client - {}", e))
     }
@@ -369,16 +369,17 @@ impl MockOpenVpnPluginRpcClient {
     fn spawn_event_loop(address: String) -> Result<jsonrpc_client_core::ClientHandle> {
         let (tx, rx) = oneshot::channel();
         thread::spawn(move || {
-            let mut core = Core::new().expect("failed to spawn an event loop");
-
-            let result = IpcTransport::new(&address, &core.handle())
+            let result = IpcTransport::new(&address, &Handle::current())
                 .map_err(|error| {
                     format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
                 }).map(Transport::into_client);
             match result {
                 Ok((client, client_handle)) => {
                     tx.send(Ok(client_handle)).unwrap();
-                    core.run(client).expect("client failed");
+                    tokio::run(client.map_err(|e| {
+                        println!("RPC client failed: {}", e);
+                        ()
+                    }));
                 }
                 Err(e) => tx.send(Err(e)).unwrap(),
             }

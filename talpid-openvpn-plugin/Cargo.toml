@@ -14,7 +14,8 @@ log = "0.4"
 env_logger = "0.5"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
-tokio-core = "0.1"
+tokio-reactor = "0.1"
+tokio = "0.1"
 futures = "0.1"
 
 openvpn-plugin = { version = "0.3", features = ["serde", "log"] }
