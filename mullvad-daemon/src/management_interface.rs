@@ -40,7 +40,6 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
-
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
         #[rpc(meta, name = "get_account_data")]
@@ -131,6 +130,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_tunnel_options")]
         fn get_tunnel_options(&self, Self::Metadata) -> BoxFuture<TunnelOptions, Error>;
 
+        /// Returns the current daemon settings
+        #[rpc(meta, name = "get_settings")]
+        fn get_settings(&self, Self::Metadata) -> BoxFuture<Settings, Error>;
+
         /// Retreive version of the app
         #[rpc(meta, name = "get_current_version")]
         fn get_current_version(&self, Self::Metadata) -> BoxFuture<String, Error>;
@@ -204,6 +207,8 @@ pub enum ManagementCommand {
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the tunnel options
     GetTunnelOptions(OneshotSender<TunnelOptions>),
+    /// Get the daemon settings
+    GetSettings(OneshotSender<Settings>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
     /// Get current version of the app
@@ -617,6 +622,15 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetTunnelOptions(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn get_settings(&self, _: Self::Metadata) -> BoxFuture<Settings, Error> {
+        debug!("get_settings");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GetSettings(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

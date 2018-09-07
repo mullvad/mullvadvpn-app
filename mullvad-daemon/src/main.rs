@@ -364,6 +364,7 @@ impl Daemon {
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             GetTunnelOptions(tx) => self.on_get_tunnel_options(tx),
+            GetSettings(tx) => Ok(self.on_get_settings(tx)),
             GetRelaySettings(tx) => Ok(self.on_get_relay_settings(tx)),
             GetVersionInfo(tx) => Ok(self.on_get_version_info(tx)),
             GetCurrentVersion(tx) => Ok(self.on_get_current_version(tx)),
@@ -595,6 +596,10 @@ impl Daemon {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         Self::oneshot_send(tx, tunnel_options, "get_tunnel_options response");
         Ok(())
+    }
+
+    fn on_get_settings(&self, tx: OneshotSender<settings::Settings>) {
+        Self::oneshot_send(tx, self.settings.clone(), "get_settings response");
     }
 
     fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
