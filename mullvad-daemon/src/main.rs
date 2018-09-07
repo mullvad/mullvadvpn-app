@@ -597,35 +597,34 @@ impl Daemon {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             match self.target_state {
-                TargetState::Secured => self.connect_tunnel(),
+                TargetState::Secured => match self.settings.get_account_token() {
+                    Some(account_token) => self.connect_tunnel(account_token),
+                    None => self.set_target_state(TargetState::Unsecured),
+                },
                 TargetState::Unsecured => self.disconnect_tunnel(),
             }
         }
     }
 
-    fn connect_tunnel(&mut self) {
-        let allow_lan = self.settings.get_allow_lan();
-        let command = match self.settings.get_account_token() {
-            None => TunnelCommand::Block(BlockReason::NoAccountToken, allow_lan),
-            Some(account_token) => match self.settings.get_relay_settings() {
-                RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                    .to_tunnel_endpoint()
-                    .chain_err(|| "Custom tunnel endpoint could not be resolved"),
-                RelaySettings::Normal(constraints) => self
-                    .relay_selector
-                    .get_tunnel_endpoint(&constraints)
-                    .chain_err(|| "No valid relay servers match the current settings")
-                    .map(|(relay, endpoint)| {
-                        self.current_relay = Some(relay);
-                        endpoint
-                    }),
-            }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
-            .map(|parameters| TunnelCommand::Connect(parameters))
-            .unwrap_or_else(|error| {
-                error!("{}", error.display_chain());
-                TunnelCommand::Block(BlockReason::NoMatchingRelay, allow_lan)
-            }),
-        };
+    fn connect_tunnel(&mut self, account_token: AccountToken) {
+        let command = match self.settings.get_relay_settings() {
+            RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
+                .to_tunnel_endpoint()
+                .chain_err(|| "Custom tunnel endpoint could not be resolved"),
+            RelaySettings::Normal(constraints) => self
+                .relay_selector
+                .get_tunnel_endpoint(&constraints)
+                .chain_err(|| "No valid relay servers match the current settings")
+                .map(|(relay, endpoint)| {
+                    self.current_relay = Some(relay);
+                    endpoint
+                }),
+        }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
+        .map(|parameters| TunnelCommand::Connect(parameters))
+        .unwrap_or_else(|error| {
+            error!("{}", error.display_chain());
+            TunnelCommand::Block(BlockReason::NoMatchingRelay, self.settings.get_allow_lan())
+        });
         self.send_tunnel_command(command);
     }
 
@@ -635,7 +634,9 @@ impl Daemon {
 
     fn reconnect_tunnel(&mut self) {
         if self.target_state == TargetState::Secured {
-            self.connect_tunnel()
+            if let Some(account_token) = self.settings.get_account_token() {
+                self.connect_tunnel(account_token);
+            }
         }
     }
 

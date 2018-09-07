@@ -29,8 +29,6 @@ pub enum BlockReason {
     StartTunnelError,
     /// No relay server matching the current filter parameters.
     NoMatchingRelay,
-    /// No account token configured.
-    NoAccountToken,
 }
 
 impl fmt::Display for BlockReason {
@@ -42,7 +40,6 @@ impl fmt::Display for BlockReason {
             BlockReason::SetSecurityPolicyError => "Failed to set security policy",
             BlockReason::StartTunnelError => "Failed to start connection to remote server",
             BlockReason::NoMatchingRelay => "No relay server matches the current settings",
-            BlockReason::NoAccountToken => "No account token configured",
         };
 
         write!(formatter, "{}", description)
