@@ -296,7 +296,7 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
-        if self.settings.get_auto_connect() {
+        if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
             info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured);
         }
