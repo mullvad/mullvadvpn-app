@@ -48,6 +48,7 @@ export default class AppRenderer {
   _reduxStore: ReduxStore;
   _reduxActions: *;
   _accountDataState = new AccountDataState();
+  _accountToken: ?AccountToken;
   _tunnelState: ?TunnelState;
 
   constructor() {
@@ -143,6 +144,9 @@ export default class AppRenderer {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
 
+      // reset the account token with the one that we just sent to daemon
+      this._accountToken = accountToken;
+
       actions.account.updateAccountExpiry(accountData.expiry);
       actions.account.loginSuccessful();
 
@@ -175,6 +179,9 @@ export default class AppRenderer {
 
     const accountToken = await this._daemonRpc.getAccount();
 
+    // save the account token received after connecting to daemon
+    this._accountToken = accountToken;
+
     if (accountToken) {
       log.debug(`Got account token: ${accountToken}`);
       actions.account.updateAccountToken(accountToken);
@@ -202,6 +209,10 @@ export default class AppRenderer {
 
     try {
       await this._daemonRpc.setAccount(null);
+
+      // reset the account token after log out
+      this._accountToken = null;
+
       await this._fetchAccountHistory();
 
       actions.account.loggedOut();
@@ -216,12 +227,6 @@ export default class AppRenderer {
 
   async connectTunnel() {
     const actions = this._reduxActions;
-
-    // avoid connecting when there is no account set in daemon.
-    const accountToken = await this._daemonRpc.getAccount();
-    if (!accountToken) {
-      throw new NoAccountError();
-    }
 
     // connect only if tunnel is disconnected or blocked.
     if (
@@ -304,19 +309,14 @@ export default class AppRenderer {
     }
 
     try {
-      const accountToken = await this._daemonRpc.getAccount();
-      if (!accountToken) {
-        throw new NoAccountError();
-      }
-
-      const accountData = await accountDataState.update(() => {
-        return this._daemonRpc.getAccountData(accountToken);
-      });
-
-      // Check if account token is still the same after receiving account data
-      const currentAccountToken = this._reduxStore.getState().account.accountToken;
-      if (currentAccountToken === accountToken) {
+      const accountToken = this._accountToken;
+      if (accountToken) {
+        const accountData = await accountDataState.update(() => {
+          return this._daemonRpc.getAccountData(accountToken);
+        });
         actions.account.updateAccountExpiry(accountData.expiry);
+      } else {
+        throw new NoAccountError();
       }
     } catch (e) {
       log.error(`Failed to update account expiry: ${e.message}`);
@@ -465,12 +465,19 @@ export default class AppRenderer {
     // auto connect the tunnel on startup
     // note: disabled when developing
     if (process.env.NODE_ENV !== 'development') {
-      try {
-        log.debug('Auto-connecting the tunnel...');
-        await this.connectTunnel();
-      } catch (error) {
-        log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+      // avoid connecting when there is no account set in daemon.
+      if (this._accountToken) {
+        try {
+          log.debug('Autoconnect the tunnel');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.debug('Skip autoconnect because account token is not set');
       }
+    } else {
+      log.debug('Skip autoconnect in development');
     }
   }
 
