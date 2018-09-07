@@ -10,7 +10,7 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 
 use mullvad_paths;
-use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
+use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
 use mullvad_types::states::TargetState;
@@ -25,7 +25,6 @@ use std::sync::{Arc, Mutex, RwLock};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::net::TunnelOptions;
 use talpid_types::tunnel::TunnelStateTransition;
 use uuid;
 
@@ -53,10 +52,6 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_account")]
         fn set_account(&self, Self::Metadata, Option<AccountToken>) -> BoxFuture<(), Error>;
 
-        /// Get which account is configured.
-        #[rpc(meta, name = "get_account")]
-        fn get_account(&self, Self::Metadata) -> BoxFuture<Option<AccountToken>, Error>;
-
         /// Update constraints put on the type of tunnel connection to use
         #[rpc(meta, name = "update_relay_settings")]
         fn update_relay_settings(
@@ -64,28 +59,13 @@ build_rpc_trait! {
             Self::Metadata, RelaySettingsUpdate
             ) -> BoxFuture<(), Error>;
 
-        /// Update constraints put on the type of tunnel connection to use
-        #[rpc(meta, name = "get_relay_settings")]
-        fn get_relay_settings(
-            &self,
-            Self::Metadata
-            ) -> BoxFuture<RelaySettings, Error>;
-
         /// Set if the client should allow communication with the LAN while in secured state.
         #[rpc(meta, name = "set_allow_lan")]
         fn set_allow_lan(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
-        /// Get if the client should allow communication with the LAN while in secured state.
-        #[rpc(meta, name = "get_allow_lan")]
-        fn get_allow_lan(&self, Self::Metadata) -> BoxFuture<bool, Error>;
-
         /// Set if the daemon should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_auto_connect")]
         fn set_auto_connect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
-
-        /// Get if the daemon should automatically establish a tunnel on start or not.
-        #[rpc(meta, name = "get_auto_connect")]
-        fn get_auto_connect(&self, Self::Metadata) -> BoxFuture<bool, Error>;
 
         /// Try to connect if disconnected, or do nothing if already connecting/connected.
         #[rpc(meta, name = "connect")]
@@ -125,10 +105,6 @@ build_rpc_trait! {
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
         fn set_enable_ipv6(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
-
-        /// Gets tunnel specific options
-        #[rpc(meta, name = "get_tunnel_options")]
-        fn get_tunnel_options(&self, Self::Metadata) -> BoxFuture<TunnelOptions, Error>;
 
         /// Returns the current daemon settings
         #[rpc(meta, name = "get_settings")]
@@ -187,26 +163,16 @@ pub enum ManagementCommand {
     GetRelayLocations(OneshotSender<RelayList>),
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(OneshotSender<()>, Option<AccountToken>),
-    /// Request the current account token being used.
-    GetAccount(OneshotSender<Option<AccountToken>>),
     /// Place constraints on the type of tunnel and relay
     UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
-    /// Read the constraints put on the tunnel and relay
-    GetRelaySettings(OneshotSender<RelaySettings>),
     /// Set the allow LAN setting.
     SetAllowLan(OneshotSender<()>, bool),
-    /// Get the current allow LAN setting.
-    GetAllowLan(OneshotSender<bool>),
     /// Set the auto-connect setting.
     SetAutoConnect(OneshotSender<()>, bool),
-    /// Get the current auto-connect setting.
-    GetAutoConnect(OneshotSender<bool>),
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
-    /// Get the tunnel options
-    GetTunnelOptions(OneshotSender<TunnelOptions>),
     /// Get the daemon settings
     GetSettings(OneshotSender<Settings>),
     /// Get information about the currently running and latest app versions
@@ -446,15 +412,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_account(&self, _: Self::Metadata) -> BoxFuture<Option<AccountToken>, Error> {
-        debug!("get_account");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::GetAccount(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
     fn update_relay_settings(
         &self,
         _: Self::Metadata,
@@ -470,15 +427,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_relay_settings(&self, _: Self::Metadata) -> BoxFuture<RelaySettings, Error> {
-        debug!("get_relay_settings");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::GetRelaySettings(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
     fn set_allow_lan(&self, _: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
         debug!("set_allow_lan({})", allow_lan);
         let (tx, rx) = sync::oneshot::channel();
@@ -488,29 +436,11 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_allow_lan(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
-        debug!("get_allow_lan");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::GetAllowLan(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
     fn set_auto_connect(&self, _: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
         debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAutoConnect(tx, auto_connect))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
-    fn get_auto_connect(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
-        debug!("get_auto_connect");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::GetAutoConnect(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -614,15 +544,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .send_command_to_daemon(ManagementCommand::SetEnableIpv6(tx, enable_ipv6))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
-        Box::new(future)
-    }
-
-    fn get_tunnel_options(&self, _: Self::Metadata) -> BoxFuture<TunnelOptions, Error> {
-        debug!("get_tunnel_options");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::GetTunnelOptions(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
