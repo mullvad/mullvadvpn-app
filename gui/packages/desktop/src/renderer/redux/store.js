@@ -13,8 +13,6 @@ import supportReducer from './support/reducers';
 import supportActions from './support/actions';
 import versionReducer from './version/reducers';
 import versionActions from './version/actions';
-import daemonReducer from './daemon/reducers';
-import daemonActions from './daemon/actions';
 import windowReducer from './window/reducers';
 import windowActions from './window/actions';
 
@@ -25,7 +23,6 @@ import type { ConnectionReduxState } from './connection/reducers';
 import type { SettingsReduxState } from './settings/reducers';
 import type { SupportReduxState } from './support/reducers';
 import type { VersionReduxState } from './version/reducers';
-import type { DaemonReduxState } from './daemon/reducers';
 import type { WindowReduxState } from './window/reducers';
 
 import type { AccountAction } from './account/actions';
@@ -33,7 +30,6 @@ import type { ConnectionAction } from './connection/actions';
 import type { SettingsAction } from './settings/actions';
 import type { SupportAction } from './support/actions';
 import type { VersionAction } from './version/actions';
-import type { DaemonAction } from './daemon/actions';
 import type { WindowAction } from './window/actions';
 
 export type ReduxState = {
@@ -42,7 +38,6 @@ export type ReduxState = {
   settings: SettingsReduxState,
   support: SupportReduxState,
   version: VersionReduxState,
-  daemon: DaemonReduxState,
   window: WindowReduxState,
 };
 
@@ -52,7 +47,6 @@ export type ReduxAction =
   | SettingsAction
   | SupportAction
   | VersionAction
-  | DaemonAction
   | WindowAction;
 export type ReduxStore = Store<ReduxState, ReduxAction, ReduxDispatch>;
 export type ReduxGetState = () => ReduxState;
@@ -70,7 +64,6 @@ export default function configureStore(
     ...settingsActions,
     ...supportActions,
     ...versionActions,
-    ...daemonActions,
     ...windowActions,
     pushRoute: (route) => push(route),
     replaceRoute: (route) => replace(route),
@@ -82,7 +75,6 @@ export default function configureStore(
     settings: settingsReducer,
     support: supportReducer,
     version: versionReducer,
-    daemon: daemonReducer,
     window: windowReducer,
   };
 

@@ -24,7 +24,6 @@ import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
-import daemonActions from './redux/daemon/actions';
 import windowActions from './redux/window/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
@@ -59,7 +58,6 @@ export default class AppRenderer {
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
       version: bindActionCreators(versionActions, dispatch),
-      daemon: bindActionCreators(daemonActions, dispatch),
       window: bindActionCreators(windowActions, dispatch),
       history: bindActionCreators(
         {
@@ -116,9 +114,7 @@ export default class AppRenderer {
   renderView() {
     return (
       <Provider store={this._reduxStore}>
-        <ConnectedRouter history={this._memoryHistory}>
-          {makeRoutes(this._reduxStore.getState, { app: this })}
-        </ConnectedRouter>
+        <ConnectedRouter history={this._memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
       </Provider>
     );
   }
@@ -182,6 +178,14 @@ export default class AppRenderer {
       // take user to main view if user is still at launch screen `/`
       if (history.location.pathname === '/') {
         actions.history.replace('/connect');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (entry.pathname === '/') {
+            entry.pathname = '/connect';
+          }
+        }
       }
     } else {
       log.debug('No account set, showing login view.');
@@ -192,6 +196,14 @@ export default class AppRenderer {
       // take user to `/login` screen if user is at launch screen `/`
       if (history.location.pathname === '/') {
         actions.history.replace('/login');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (!entry.pathname.startsWith('/settings')) {
+            entry.pathname = '/login';
+          }
+        }
       }
     }
   }
@@ -427,9 +439,6 @@ export default class AppRenderer {
   }
 
   async _onOpenConnection() {
-    // save to redux that the app connected to daemon
-    this._reduxActions.daemon.connected();
-
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
@@ -470,9 +479,6 @@ export default class AppRenderer {
     const actions = this._reduxActions;
     const history = this._memoryHistory;
 
-    // save to redux that the app disconnected from daemon
-    actions.daemon.disconnected();
-
     // recover connection on error
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
@@ -490,7 +496,15 @@ export default class AppRenderer {
       });
 
       // take user back to the launch screen `/` except when user is in settings.
-      if (!history.location.pathname.startsWith('/settings')) {
+      if (history.location.pathname.startsWith('/settings')) {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (!entry.pathname.startsWith('/settings')) {
+            entry.pathname = '/';
+          }
+        }
+      } else {
         actions.history.replace('/');
       }
     }
