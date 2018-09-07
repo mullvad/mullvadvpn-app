@@ -14,6 +14,7 @@ talpid-types = { path = "../talpid-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
+tokio-reactor = "0.1"
 tokio-core = "0.1"
 tokio-timer = "0.1"
 futures = "0.1"
