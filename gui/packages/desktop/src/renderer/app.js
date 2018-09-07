@@ -116,9 +116,7 @@ export default class AppRenderer {
   renderView() {
     return (
       <Provider store={this._reduxStore}>
-        <ConnectedRouter history={this._memoryHistory}>
-          {makeRoutes(this._reduxStore.getState, { app: this })}
-        </ConnectedRouter>
+        <ConnectedRouter history={this._memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
       </Provider>
     );
   }
@@ -490,7 +488,10 @@ export default class AppRenderer {
       });
 
       // take user back to the launch screen `/` except when user is in settings.
-      if (!history.location.pathname.startsWith('/settings')) {
+      if (history.location.pathname.startsWith('/settings')) {
+        // TODO: make sure that user can still access settings but returning from settings should
+        // take user to launch screen `/`.
+      } else {
         actions.history.replace('/');
       }
     }
