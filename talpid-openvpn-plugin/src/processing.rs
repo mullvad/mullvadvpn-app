@@ -36,9 +36,6 @@ pub struct EventProcessor {
 impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor> {
         trace!("Creating EventProcessor");
-
-
-
         let (start_tx, start_rx) = futures::sync::oneshot::channel();
         thread::spawn(move|| {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
