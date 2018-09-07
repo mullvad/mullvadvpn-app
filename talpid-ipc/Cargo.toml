@@ -10,9 +10,10 @@ error-chain = "0.12"
 serde = "1.0"
 serde_json = "1.0"
 log = "0.4"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-ipc-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent" }
+
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 
