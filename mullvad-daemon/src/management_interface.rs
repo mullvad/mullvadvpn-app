@@ -15,6 +15,9 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
 
+use serde;
+use settings::Settings;
+
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -149,6 +152,17 @@ build_rpc_trait! {
             #[rpc(name = "new_state_unsubscribe")]
             fn new_state_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
         }
+
+        #[pubsub(name = "settings")] {
+            /// Subscribes to the `settings` event notifications. Getting notified as soon as any
+            /// daemon settings change.
+            #[rpc(name = "settings_subscribe")]
+            fn settings_subscribe(&self, Self::Metadata, pubsub::Subscriber<Settings>);
+
+            /// Unsubscribes from the `settings` event notifications.
+            #[rpc(name = "settings_unsubscribe")]
+            fn settings_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
+        }
     }
 }
 
@@ -198,9 +212,15 @@ pub enum ManagementCommand {
     Shutdown,
 }
 
+#[derive(Default)]
+struct ActiveSubscriptions {
+    new_state_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>,
+    settings_subscriptions: RwLock<HashMap<SubscriptionId, pubsub::Sink<Settings>>>,
+}
+
 pub struct ManagementInterfaceServer {
     server: talpid_ipc::IpcServer,
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
+    subscriptions: Arc<ActiveSubscriptions>,
 }
 
 impl ManagementInterfaceServer {
@@ -248,22 +268,37 @@ impl ManagementInterfaceServer {
 
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 pub struct EventBroadcaster {
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
+    subscriptions: Arc<ActiveSubscriptions>,
 }
 
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
         debug!("Broadcasting new state to listeners: {:?}", new_state);
-        let subscriptions = self.subscriptions.read().unwrap();
+        self.notify(&self.subscriptions.new_state_subscriptions, new_state);
+    }
+
+    /// Sends settings to all `settings` subscribers of the management interface.
+    pub fn notify_settings(&self, settings: &Settings) {
+        self.notify(&self.subscriptions.settings_subscriptions, settings.clone());
+    }
+
+    fn notify<T>(
+        &self,
+        subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<T>>>,
+        value: T,
+    ) where
+        T: serde::Serialize + Clone,
+    {
+        let subscriptions = subscriptions_lock.read().unwrap();
         for sink in subscriptions.values() {
-            let _ = sink.notify(Ok(new_state.clone())).wait();
+            let _ = sink.notify(Ok(value.clone())).wait();
         }
     }
 }
 
 struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<TunnelStateTransition>>>>,
+    subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<ManagementCommand, T>>,
     cache_dir: PathBuf,
 }
@@ -621,12 +656,22 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         subscriber: pubsub::Subscriber<TunnelStateTransition>,
     ) {
         debug!("new_state_subscribe");
-        Self::subscribe(subscriber, &self.subscriptions);
+        Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         debug!("new_state_unsubscribe");
-        Self::unsubscribe(id, &self.subscriptions)
+        Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
+    }
+
+    fn settings_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<Settings>) {
+        debug!("settings_subscribe");
+        Self::subscribe(subscriber, &self.subscriptions.settings_subscriptions);
+    }
+
+    fn settings_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
+        debug!("settings_unsubscribe");
+        Self::unsubscribe(id, &self.subscriptions.settings_subscriptions)
     }
 }
 

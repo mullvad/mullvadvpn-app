@@ -441,6 +441,8 @@ impl Daemon {
             Ok(account_changed) => {
                 Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
                     if account_token_cleared {
                         info!("Disconnecting because account token was cleared");
                         let _ = self.set_target_state(TargetState::Unsecured);
@@ -513,6 +515,8 @@ impl Daemon {
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
                 if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
                 Self::oneshot_send(tx, (), "set_allow_lan response");
@@ -529,7 +533,13 @@ impl Daemon {
     fn on_set_auto_connect(&mut self, tx: OneshotSender<()>, auto_connect: bool) -> Result<()> {
         let save_result = self.settings.set_auto_connect(auto_connect);
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(_settings_changed) => Self::oneshot_send(tx, (), "set auto-connect response"),
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set auto-connect response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                }
+            }
             Err(e) => error!("{}", e.display_chain()),
         }
         Ok(())
@@ -550,7 +560,13 @@ impl Daemon {
     ) -> Result<()> {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(_) => Self::oneshot_send(tx, (), "set_openvpn_mssfix response"),
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                }
+            }
             Err(e) => error!("{}", e.display_chain()),
         };
         Ok(())
@@ -562,8 +578,9 @@ impl Daemon {
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_enable_ipv6 response");
-
                 if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
                 }
