@@ -24,7 +24,6 @@ import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
-import daemonActions from './redux/daemon/actions';
 import windowActions from './redux/window/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
@@ -59,7 +58,6 @@ export default class AppRenderer {
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
       version: bindActionCreators(versionActions, dispatch),
-      daemon: bindActionCreators(daemonActions, dispatch),
       window: bindActionCreators(windowActions, dispatch),
       history: bindActionCreators(
         {
@@ -441,9 +439,6 @@ export default class AppRenderer {
   }
 
   async _onOpenConnection() {
-    // save to redux that the app connected to daemon
-    this._reduxActions.daemon.connected();
-
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
@@ -483,9 +478,6 @@ export default class AppRenderer {
   async _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
     const history = this._memoryHistory;
-
-    // save to redux that the app disconnected from daemon
-    actions.daemon.disconnected();
 
     // recover connection on error
     if (error) {
