@@ -17,13 +17,6 @@ WinDnsContext::~WinDnsContext()
 	{
 		reset();
 	}
-	catch (std::exception &err)
-	{
-		if (nullptr != m_sinkInfo.errorSinkInfo.sink)
-		{
-			m_sinkInfo.errorSinkInfo.sink(err.what(), m_sinkInfo.errorSinkInfo.context);
-		}
-	}
 	catch (...)
 	{
 	}
@@ -35,13 +28,13 @@ void WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 
 	if (nullptr == m_notification)
 	{
-		m_configManager = std::make_shared<ConfigManager>(servers, m_sinkInfo.configSinkInfo);
+		m_configManager = std::make_shared<ConfigManager>(servers, this);
 
 		//
 		// Register interface configuration monitoring.
 		//
 
-		auto eventSink = std::make_shared<NetConfigEventSink>(m_connection, m_configManager);
+		auto eventSink = std::make_shared<NetConfigEventSink>(m_connection, m_configManager, this);
 		auto eventDispatcher = CComPtr<wmi::IEventDispatcher>(new wmi::ModificationEventDispatcher(eventSink));
 
 		m_notification = std::make_unique<wmi::Notification>(m_connection, eventDispatcher);
@@ -60,7 +53,6 @@ void WinDnsContext::set(const std::vector<std::wstring> &servers, const ClientSi
 		ConfigManager::Mutex mutex(*m_configManager);
 
 		m_configManager->updateServers(servers);
-		m_configManager->updateConfigSink(m_sinkInfo.configSinkInfo);
 	}
 
 	//
@@ -95,4 +87,22 @@ void WinDnsContext::reset()
 		nchelpers::RevertDnsServers(config);
 		return true;
 	});
+}
+
+// IClientSinkProxy
+void WinDnsContext::error(const char *errorMessage, const char **details, uint32_t numDetails)
+{
+	if (nullptr != m_sinkInfo.errorSinkInfo.sink)
+	{
+		m_sinkInfo.errorSinkInfo.sink(errorMessage, details, numDetails, m_sinkInfo.errorSinkInfo.context);
+	}
+}
+
+// IClientSinkProxy
+void WinDnsContext::config(const void *configData, uint32_t dataLength)
+{
+	if (nullptr != m_sinkInfo.configSinkInfo.sink)
+	{
+		m_sinkInfo.configSinkInfo.sink(configData, dataLength, m_sinkInfo.configSinkInfo.context);
+	}
 }
