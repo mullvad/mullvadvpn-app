@@ -17,7 +17,7 @@
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, void *context);
+typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details, uint32_t numDetails, void *context);
 typedef void (WINDNS_API *WinDnsConfigSink)(const void *configData, uint32_t dataLength, void *context);
 
 //

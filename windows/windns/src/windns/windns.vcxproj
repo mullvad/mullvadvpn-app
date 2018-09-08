@@ -177,6 +177,8 @@
   <ItemGroup>
     <ClInclude Include="clientsinkinfo.h" />
     <ClInclude Include="configmanager.h" />
+    <ClInclude Include="confineoperation.h" />
+    <ClInclude Include="iclientsinkproxy.h" />
     <ClInclude Include="interfaceconfig.h" />
     <ClInclude Include="netconfigeventsink.h" />
     <ClInclude Include="netconfighelpers.h" />
@@ -189,6 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="configmanager.cpp" />
+    <ClCompile Include="confineoperation.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="interfaceconfig.cpp" />
     <ClCompile Include="netconfigeventsink.cpp" />
