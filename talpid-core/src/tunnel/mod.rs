@@ -322,13 +322,13 @@ fn is_ipv6_enabled_in_os() -> bool {
         use winreg::enums::*;
         use winreg::RegKey;
 
-        const IPV6_DISABLED: u8 = 0xFF;
+        const IPV6_DISABLED_MASK = 0x11;
 
         let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
             .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
-            .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & 0xFF) == IPV6_DISABLED as u32)
-            .unwrap_or(false);
+            .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & IPV6_DISABLED_MASK) != 0)
+            .unwrap_or(true);
 
         globally_enabled && ::ffi::route::get_tap_interface_ipv6_status().unwrap_or(false)
     }
