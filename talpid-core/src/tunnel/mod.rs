@@ -332,8 +332,16 @@ fn is_ipv6_enabled_in_os() -> bool {
             .map(|ipv6_disabled_bits: u32| {
                 (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
             }).unwrap_or(true);
+        let enabled_on_tap = ::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
 
-        globally_enabled && ::winnet::get_tap_interface_ipv6_status().unwrap_or(false)
+        if !globally_enabled {
+            debug!("IPv6 disabled in tunnel interfaces");
+        }
+        if !enabled_on_tap {
+            debug!("IPv6 disabled in TAP adapter");
+        }
+
+        globally_enabled && enabled_on_tap
     }
     #[cfg(target_os = "linux")]
     {
