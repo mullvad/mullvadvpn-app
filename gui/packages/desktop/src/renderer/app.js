@@ -643,8 +643,9 @@ class AccountDataCache {
     }
 
     // return the received value if not expired yet
-    if (!this._isExpired()) {
-      return this._value;
+    const currentValue = this._value;
+    if (currentValue && !this._isExpired()) {
+      return currentValue;
     }
 
     try {
