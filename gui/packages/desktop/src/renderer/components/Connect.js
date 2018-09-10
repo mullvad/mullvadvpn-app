@@ -154,7 +154,7 @@ export default class Connect extends Component<Props, State> {
   }
 
   renderMap() {
-    let [isConnecting, isConnected, isDisconnected] = [false, false, false];
+    let [isConnecting, isConnected, isDisconnected, isDisconnecting] = [false, false, false, false];
     switch (this.props.connection.status) {
       case 'connecting':
         isConnecting = true;
@@ -164,6 +164,9 @@ export default class Connect extends Component<Props, State> {
         break;
       case 'disconnected':
         isDisconnected = true;
+        break;
+      case 'disconnecting':
+        isDisconnecting = true;
         break;
     }
 
@@ -193,8 +196,8 @@ export default class Connect extends Component<Props, State> {
               **********************************
             */}
 
-            {/* location when connecting or disconnected */}
-            {isConnecting || isDisconnected ? (
+            {/* location when connecting, disconnecting or disconnected */}
+            {isConnecting || isDisconnecting || isDisconnected ? (
               <Text style={styles.status_location} testName="location">
                 {this.props.connection.country}
               </Text>
@@ -216,7 +219,7 @@ export default class Connect extends Component<Props, State> {
             */}
 
             <Text style={this.ipAddressStyle()} onPress={this.onIPAddressClick.bind(this)}>
-              {isConnected || isDisconnected ? (
+              {isConnected || isDisconnecting || isDisconnected ? (
                 <Text testName="ipAddress">
                   {this.state.showCopyIPMessage
                     ? 'IP copied to clipboard!'
@@ -232,8 +235,8 @@ export default class Connect extends Component<Props, State> {
             **********************************
           */}
 
-          {/* footer when disconnected */}
-          {isDisconnected ? (
+          {/* footer when disconnecting or disconnected */}
+          {isDisconnecting || isDisconnected ? (
             <View style={styles.footer}>
               <AppButton.TransparentButton
                 style={styles.switch_location_button}
@@ -324,6 +327,7 @@ export default class Connect extends Component<Props, State> {
   headerBarStyle(): HeaderBarStyle {
     const { status } = this.props.connection;
     switch (status) {
+      case 'disconnecting':
       case 'disconnected':
         return 'error';
       case 'connecting':
@@ -331,7 +335,7 @@ export default class Connect extends Component<Props, State> {
       case 'blocked':
         return 'success';
       default:
-        throw new Error(`Invalid ConnectionState: ${(status: empty)}`);
+        throw new Error(`Invalid TunnelState: ${(status: empty)}`);
     }
   }
 

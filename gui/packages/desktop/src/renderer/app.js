@@ -14,7 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
-import { DaemonRpc } from './lib/daemon-rpc';
+import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
 import { NoAccountError } from './errors';
@@ -28,26 +28,37 @@ import windowActions from './redux/window/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
 import type {
+  AccountToken,
+  TunnelStateTransition,
+  RelaySettingsUpdate,
+  TunnelState,
   DaemonRpcProtocol,
   AccountData,
-  ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
-import type { AccountToken, TunnelState, RelaySettingsUpdate } from './lib/daemon-rpc';
-import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from '../main/tray-icon-controller';
 
 export default class AppRenderer {
   _notificationController = new NotificationController();
   _daemonRpc: DaemonRpcProtocol = new DaemonRpc();
+  _connectionObserver = new ConnectionObserver(
+    () => {
+      this._onOpenConnection();
+    },
+    (error) => {
+      this._onCloseConnection(error);
+    },
+  );
   _reconnectBackoff = new ReconnectionBackoff();
-  _openConnectionObserver: ?DaemonConnectionObserver;
-  _closeConnectionObserver: ?DaemonConnectionObserver;
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
-  _accountDataState = new AccountDataState();
+  _accountDataCache = new AccountDataCache((accountToken) => {
+    return this._daemonRpc.getAccountData(accountToken);
+  });
   _connectedToDaemon = false;
+  _accountToken: ?AccountToken;
+  _tunnelState: ?TunnelStateTransition;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -69,13 +80,7 @@ export default class AppRenderer {
       ),
     };
 
-    this._openConnectionObserver = this._daemonRpc.addOpenConnectionObserver(() => {
-      this._onOpenConnection();
-    });
-
-    this._closeConnectionObserver = this._daemonRpc.addCloseConnectionObserver((error) => {
-      this._onCloseConnection(error);
-    });
+    this._daemonRpc.addConnectionObserver(this._connectionObserver);
 
     setShutdownHandler(async () => {
       log.info('Executing a shutdown handler');
@@ -83,7 +88,7 @@ export default class AppRenderer {
         await this.disconnectTunnel();
         log.info('Disconnected the tunnel');
       } catch (e) {
-        log.error(`Failed to shutdown tunnel: ${e.message}`);
+        log.error(`Failed to disconnect the tunnel: ${e.message}`);
       }
     });
 
@@ -97,21 +102,6 @@ export default class AppRenderer {
     webFrame.setVisualZoomLevelLimits(1, 1);
   }
 
-  dispose() {
-    const openConnectionObserver = this._openConnectionObserver;
-    const closeConnectionObserver = this._closeConnectionObserver;
-
-    if (openConnectionObserver) {
-      openConnectionObserver.unsubscribe();
-      this._openConnectionObserver = null;
-    }
-
-    if (closeConnectionObserver) {
-      closeConnectionObserver.unsubscribe();
-      this._closeConnectionObserver = null;
-    }
-  }
-
   renderView() {
     return (
       <Provider store={this._reduxStore}>
@@ -121,7 +111,7 @@ export default class AppRenderer {
   }
 
   connect() {
-    this._connectToDaemon();
+    this._daemonRpc.connect({ path: getIpcPath() });
   }
 
   disconnect() {
@@ -138,6 +128,9 @@ export default class AppRenderer {
     try {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
+
+      // reset the account token with the one that we just sent to daemon
+      this._accountToken = accountToken;
 
       actions.account.updateAccountExpiry(accountData.expiry);
       actions.account.loginSuccessful();
@@ -170,6 +163,9 @@ export default class AppRenderer {
     log.debug('Restoring session');
 
     const accountToken = await this._daemonRpc.getAccount();
+
+    // save the account token received after connecting to daemon
+    this._accountToken = accountToken;
 
     if (accountToken) {
       log.debug(`Got account token: ${accountToken}`);
@@ -214,13 +210,17 @@ export default class AppRenderer {
 
     try {
       await this._daemonRpc.setAccount(null);
+
+      // reset the account token after log out
+      this._accountToken = null;
+
       await this._fetchAccountHistory();
 
       actions.account.loggedOut();
       actions.history.replace('/login');
 
-      // reset account data state on log out
-      this._accountDataState = new AccountDataState();
+      // invalidate account data cache on log out
+      this._accountDataCache.invalidate();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -229,18 +229,16 @@ export default class AppRenderer {
   async connectTunnel() {
     const actions = this._reduxActions;
 
-    try {
-      const currentState = await this._daemonRpc.getState();
-      if (currentState === 'connected' || currentState === 'connecting') {
-        log.debug('Refusing to connect as connection is already secured');
-        actions.connection.connected();
-      } else {
-        actions.connection.connecting();
-        await this._daemonRpc.connectTunnel();
-      }
-    } catch (error) {
-      actions.connection.disconnected();
-      throw error;
+    // connect only if tunnel is disconnected or blocked.
+    if (
+      this._tunnelState &&
+      (this._tunnelState.state === 'disconnected' || this._tunnelState.state === 'blocked')
+    ) {
+      // switch to connecting state immediately to prevent a lag that may be caused by RPC
+      // communication delay
+      actions.connection.connecting();
+
+      await this._daemonRpc.connectTunnel();
     }
   }
 
@@ -303,28 +301,15 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const actions = this._reduxActions;
-    const accountDataState = this._accountDataState;
-
-    // Bail if something else requested an update to account data
-    // or if account data cache was updated recently.
-    if (accountDataState.isUpdating() || !accountDataState.needsUpdate()) {
-      return;
-    }
+    const accountDataCache = this._accountDataCache;
 
     try {
-      const accountToken = await this._daemonRpc.getAccount();
-      if (!accountToken) {
-        throw new NoAccountError();
-      }
-
-      const accountData = await accountDataState.update(() => {
-        return this._daemonRpc.getAccountData(accountToken);
-      });
-
-      // Check if account token is still the same after receiving account data
-      const currentAccountToken = this._reduxStore.getState().account.accountToken;
-      if (currentAccountToken === accountToken) {
+      const accountToken = this._accountToken;
+      if (accountToken) {
+        const accountData = await accountDataCache.fetch(accountToken);
         actions.account.updateAccountExpiry(accountData.expiry);
+      } else {
+        throw new NoAccountError();
       }
     } catch (e) {
       log.error(`Failed to update account expiry: ${e.message}`);
@@ -415,8 +400,11 @@ export default class AppRenderer {
   }
 
   async _fetchTunnelState() {
-    const tunnelState = await this._daemonRpc.getState();
-    this._updateConnectionState(tunnelState);
+    const state = await this._daemonRpc.getState();
+
+    log.debug(`Got state: ${JSON.stringify(state)}`);
+
+    this._onChangeTunnelState(state);
   }
 
   async _fetchTunnelOptions() {
@@ -433,10 +421,6 @@ export default class AppRenderer {
 
     actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
     actions.version.updateLatest(latestVersionInfo);
-  }
-
-  async _connectToDaemon(): Promise<void> {
-    this._daemonRpc.connect({ path: getIpcPath() });
   }
 
   async _onOpenConnection() {
@@ -469,16 +453,23 @@ export default class AppRenderer {
     // auto connect the tunnel on startup
     // note: disabled when developing
     if (process.env.NODE_ENV !== 'development') {
-      try {
-        log.debug('Auto-connecting the tunnel...');
-        await this.connectTunnel();
-      } catch (error) {
-        log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+      // only connect if account is set in the daemon
+      if (this._accountToken) {
+        try {
+          log.debug('Autoconnect the tunnel');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.debug('Skip autoconnect because account token is not set');
       }
+    } else {
+      log.debug('Skip autoconnect in development');
     }
   }
 
-  async _onCloseConnection(error: ?Error) {
+  _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
 
     // recover connection on error
@@ -508,19 +499,19 @@ export default class AppRenderer {
     this._connectedToDaemon = false;
   }
 
-  async _subscribeStateListener() {
-    await this._daemonRpc.subscribeStateListener((newState, error) => {
-      if (error) {
-        log.error(`Received an error when processing the incoming state change: ${error.message}`);
-      }
+  _subscribeStateListener(): Promise<void> {
+    const listener = new SubscriptionListener(
+      (newState: TunnelStateTransition) => {
+        log.debug(`Got state update: '${JSON.stringify(newState)}'`);
 
-      if (newState) {
-        log.debug(`Got new state from daemon '${JSON.stringify(newState)}'`);
+        this._onChangeTunnelState(newState);
+      },
+      (error: Error) => {
+        log.error(`Failed to deserialize the new state: ${error.message}`);
+      },
+    );
 
-        this._updateConnectionState(newState);
-        this._refreshStateOnChange();
-      }
-    });
+    return this._daemonRpc.subscribeStateListener(listener);
   }
 
   _fetchInitialState() {
@@ -537,70 +528,68 @@ export default class AppRenderer {
     ]);
   }
 
-  _updateTrayIcon(connectionState: ConnectionState) {
-    const iconTypes: { [ConnectionState]: TrayIconType } = {
+  _onChangeTunnelState(tunnelState: TunnelStateTransition) {
+    this._tunnelState = tunnelState;
+
+    this._updateConnectionStatus(tunnelState);
+    this._updateUserLocation(tunnelState.state);
+    this._updateTrayIcon(tunnelState.state);
+    this._showNotification(tunnelState.state);
+  }
+
+  async _updateUserLocation(tunnelState: TunnelState) {
+    if (tunnelState === 'connecting' || tunnelState === 'disconnected') {
+      try {
+        await this._fetchLocation();
+      } catch (error) {
+        log.error(`Failed to update the location: ${error.message}`);
+      }
+    }
+  }
+
+  _updateConnectionStatus(stateTransition: TunnelStateTransition) {
+    const actions = this._reduxActions;
+
+    switch (stateTransition.state) {
+      case 'connecting':
+        actions.connection.connecting();
+        break;
+
+      case 'connected':
+        actions.connection.connected();
+        break;
+
+      case 'disconnecting':
+        actions.connection.disconnecting();
+        break;
+
+      case 'disconnected':
+        actions.connection.disconnected();
+        break;
+
+      case 'blocked':
+        actions.connection.blocked(stateTransition.details);
+        break;
+
+      default:
+        log.error(`Unexpected TunnelStateTransition: ${(stateTransition.state: empty)}`);
+        break;
+    }
+  }
+
+  _updateTrayIcon(tunnelState: TunnelState) {
+    const iconTypes: { [TunnelState]: TrayIconType } = {
       connected: 'secured',
       connecting: 'securing',
       blocked: 'securing',
     };
-    const type = iconTypes[connectionState] || 'unsecured';
+    const type = iconTypes[tunnelState] || 'unsecured';
 
     ipcRenderer.send('change-tray-icon', type);
   }
 
-  async _refreshStateOnChange() {
-    try {
-      await this._fetchLocation();
-    } catch (error) {
-      log.error(`Failed to fetch the location: ${error.message}`);
-    }
-  }
-
-  _tunnelStateToConnectionState(tunnelState: TunnelState): ConnectionState {
-    switch (tunnelState.state) {
-      case 'disconnected':
-      // Fall through
-      case 'disconnecting':
-        return 'disconnected';
-      case 'connected':
-        return 'connected';
-      case 'connecting':
-        return 'connecting';
-      case 'blocked':
-        return 'blocked';
-      default:
-        throw new Error('Unknown tunnel state: ' + (tunnelState: empty));
-    }
-  }
-
-  _updateConnectionState(tunnelState: TunnelState) {
-    const actions = this._reduxActions;
-    switch (tunnelState.state) {
-      case 'connecting':
-        actions.connection.connecting();
-        break;
-      case 'connected':
-        actions.connection.connected();
-        break;
-      case 'disconnecting':
-      // Fall through
-      case 'disconnected':
-        actions.connection.disconnected();
-        break;
-      case 'blocked':
-        actions.connection.blocked(tunnelState.details);
-        break;
-      default:
-        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
-    }
-
-    const connectionState = this._tunnelStateToConnectionState(tunnelState);
-    this._updateTrayIcon(connectionState);
-    this._showNotification(connectionState);
-  }
-
-  _showNotification(connectionState: ConnectionState) {
-    switch (connectionState) {
+  _showNotification(tunnelState: TunnelState) {
+    switch (tunnelState) {
       case 'connecting':
         this._notificationController.show('Connecting');
         break;
@@ -613,46 +602,82 @@ export default class AppRenderer {
       case 'blocked':
         this._notificationController.show('Blocked all connections');
         break;
+      case 'disconnecting':
+        // no-op
+        break;
       default:
-        log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
+        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
         return;
     }
   }
 }
 
-// Helper class to keep track of account data updates
-class AccountDataState {
+// An account data cache that helps to throttle RPC requests to get_account_data and retain the
+// cached value for 1 minute.
+class AccountDataCache {
+  _executingPromise: ?Promise<AccountData>;
+  _value: ?AccountData;
   _expiresAt: ?Date;
-  _isUpdating = false;
+  _fetch: (AccountToken) => Promise<AccountData>;
 
-  isUpdating() {
-    return this._isUpdating;
+  constructor(fetch: (AccountToken) => Promise<AccountData>) {
+    this._fetch = fetch;
   }
 
-  needsUpdate() {
-    return !this._expiresAt || this._expiresAt < new Date();
-  }
+  async fetch(accountToken: AccountToken): Promise<AccountData> {
+    // return the same promise if still fetching from remote
+    const executingPromise = this._executingPromise;
+    if (executingPromise) {
+      return executingPromise;
+    }
 
-  async update(fn: () => Promise<AccountData>): Promise<AccountData> {
-    this._isUpdating = true;
+    // return the received value if not expired yet
+    const currentValue = this._value;
+    if (currentValue && !this._isExpired()) {
+      return currentValue;
+    }
 
     try {
-      const accountData = await fn();
-      this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+      const nextPromise = this._fetch(accountToken);
+      this._executingPromise = nextPromise;
 
-      return accountData;
+      const accountData = await nextPromise;
+
+      // it's possible that invalidate() was called before this promise was resolved.
+      // discard the result of "orphaned" promise.
+      if (this._executingPromise === nextPromise) {
+        this._setValue(accountData);
+        return accountData;
+      } else {
+        throw new Error('Cancelled');
+      }
     } catch (error) {
       throw error;
     } finally {
-      this._isUpdating = false;
+      this._executingPromise = null;
     }
+  }
+
+  invalidate() {
+    this._executingPromise = null;
+    this._expiresAt = null;
+    this._value = null;
+  }
+
+  _setValue(value: AccountData) {
+    this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+    this._value = value;
+  }
+
+  _isExpired() {
+    return !this._expiresAt || this._expiresAt < new Date();
   }
 }
 
-const getIpcPath = (): string => {
+function getIpcPath(): string {
   if (process.platform === 'win32') {
     return '//./pipe/Mullvad VPN';
   } else {
     return '/var/run/mullvad-vpn';
   }
-};
+}

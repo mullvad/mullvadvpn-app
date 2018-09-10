@@ -47,28 +47,12 @@ export type BlockReason =
   | 'start_tunnel_error'
   | 'no_matching_relay'
   | 'no_account_token';
-export type DisconnectedState = {
-  state: 'disconnected',
-};
-export type ConnectingState = {
-  state: 'connecting',
-};
-export type ConnectedState = {
-  state: 'connected',
-};
-export type DisconnectingState = {
-  state: 'disconnecting',
-};
-export type BlockedState = {
-  state: 'blocked',
-  details: BlockReason,
-};
-export type TunnelState =
-  | DisconnectedState
-  | ConnectingState
-  | ConnectedState
-  | DisconnectingState
-  | BlockedState;
+
+export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
+
+export type TunnelStateTransition =
+  | { state: 'disconnecting' | 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'blocked', details: BlockReason };
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation =
@@ -250,21 +234,14 @@ const allBlockReasons: Array<BlockReason> = [
   'no_matching_relay',
   'no_account_token',
 ];
-const BlockedStateSchema = object({
-  state: enumeration('blocked'),
-  details: enumeration(...allBlockReasons),
-});
-const ConnectedStateSchema = object({ state: enumeration('connected') });
-const ConnectingStateSchema = object({ state: enumeration('connecting') });
-const DisconnectedStateSchema = object({ state: enumeration('disconnected') });
-const DisconnectingStateSchema = object({ state: enumeration('disconnecting') });
-
-const TunnelStateSchema = oneOf(
-  BlockedStateSchema,
-  ConnectedStateSchema,
-  ConnectingStateSchema,
-  DisconnectedStateSchema,
-  DisconnectingStateSchema,
+const TunnelStateTransitionSchema = oneOf(
+  object({
+    state: enumeration('blocked'),
+    details: enumeration(...allBlockReasons),
+  }),
+  object({
+    state: enumeration('connected', 'connecting', 'disconnected', 'disconnecting'),
+  }),
 );
 
 export type AppVersionInfo = {
@@ -282,6 +259,42 @@ const AppVersionInfoSchema = object({
     latest: string,
   }),
 });
+
+export class ConnectionObserver {
+  _openHandler: () => void;
+  _closeHandler: (error: ?Error) => void;
+
+  constructor(openHandler: () => void, closeHandler: (error: ?Error) => void) {
+    this._openHandler = openHandler;
+    this._closeHandler = closeHandler;
+  }
+
+  _onOpen = () => {
+    this._openHandler();
+  };
+
+  _onClose = (error: ?Error) => {
+    this._closeHandler(error);
+  };
+}
+
+export class SubscriptionListener<T> {
+  _eventHandler: (payload: T) => void;
+  _errorHandler: (error: Error) => void;
+
+  constructor(eventHandler: (payload: T) => void, errorHandler: (error: Error) => void) {
+    this._eventHandler = eventHandler;
+    this._errorHandler = errorHandler;
+  }
+
+  _onEvent(payload: T) {
+    this._eventHandler(payload);
+  }
+
+  _onError(error: Error) {
+    this._errorHandler(error);
+  }
+}
 
 export interface DaemonRpcProtocol {
   connect({ path: string }): void;
@@ -301,10 +314,10 @@ export interface DaemonRpcProtocol {
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
-  getState(): Promise<TunnelState>;
-  subscribeStateListener((state: ?TunnelState, error: ?Error) => void): Promise<void>;
-  addOpenConnectionObserver(() => void): ConnectionObserver;
-  addCloseConnectionObserver((error: ?Error) => void): ConnectionObserver;
+  getState(): Promise<TunnelStateTransition>;
+  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
+  addConnectionObserver(observer: ConnectionObserver): void;
+  removeConnectionObserver(observer: ConnectionObserver): void;
   getAccountHistory(): Promise<Array<AccountToken>>;
   removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
   getCurrentVersion(): Promise<string>;
@@ -324,10 +337,6 @@ export class ResponseParseError extends Error {
   }
 }
 
-export type ConnectionObserver = {
-  unsubscribe: () => void,
-};
-
 // Timeout used for RPC calls that do networking
 const NETWORK_CALL_TIMEOUT = 10000;
 
@@ -342,22 +351,12 @@ export class DaemonRpc implements DaemonRpcProtocol {
     this._transport.disconnect();
   }
 
-  addOpenConnectionObserver(handler: () => void): ConnectionObserver {
-    this._transport.on('open', handler);
-    return {
-      unsubscribe: () => {
-        this._transport.off('open', handler);
-      },
-    };
+  addConnectionObserver(observer: ConnectionObserver) {
+    this._transport.on('open', observer._onOpen).on('close', observer._onClose);
   }
 
-  addCloseConnectionObserver(handler: (error: ?Error) => void): ConnectionObserver {
-    this._transport.on('close', handler);
-    return {
-      unsubscribe: () => {
-        this._transport.off('close', handler);
-      },
-    };
+  removeConnectionObserver(observer: ConnectionObserver) {
+    this._transport.off('open', observer._onOpen).off('close', observer._onClose);
   }
 
   async getAccountData(accountToken: AccountToken): Promise<AccountData> {
@@ -494,22 +493,22 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
-  async getState(): Promise<TunnelState> {
+  async getState(): Promise<TunnelStateTransition> {
     const response = await this._transport.send('get_state');
     try {
-      return validate(TunnelStateSchema, response);
+      return validate(TunnelStateTransitionSchema, response);
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
   }
 
-  subscribeStateListener(listener: (state: ?TunnelState, error: ?Error) => void): Promise<void> {
+  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
-        const newState = validate(TunnelStateSchema, payload);
-        listener(newState, null);
+        const newState = validate(TunnelStateTransitionSchema, payload);
+        listener._onEvent(newState);
       } catch (error) {
-        listener(null, new ResponseParseError('Invalid payload from new_state', error));
+        listener._onError(new ResponseParseError('Invalid payload from new_state', error));
       }
     });
   }

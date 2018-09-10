@@ -1,11 +1,10 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { Ip } from '../../lib/daemon-rpc';
+import type { TunnelState, Ip } from '../../lib/daemon-rpc';
 
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blocked';
 export type ConnectionReduxState = {
-  status: ConnectionState,
+  status: TunnelState,
   isOnline: boolean,
   ip: ?Ip,
   latitude: ?number,
@@ -42,6 +41,9 @@ export default function(
 
     case 'DISCONNECTED':
       return { ...state, ...{ status: 'disconnected', blockReason: null } };
+
+    case 'DISCONNECTING':
+      return { ...state, ...{ status: 'disconnecting', blockReason: null } };
 
     case 'BLOCKED':
       return { ...state, ...{ status: 'blocked', blockReason: action.reason } };
