@@ -11,6 +11,7 @@
 //! the License, or (at your option) any later version.
 
 extern crate atty;
+#[macro_use]
 extern crate duct;
 #[macro_use]
 extern crate log;
