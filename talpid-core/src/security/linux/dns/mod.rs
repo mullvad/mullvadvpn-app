@@ -43,6 +43,7 @@ impl DnsSettings {
     fn with_detected_dns_manager() -> Result<Self> {
         SystemdResolved::new()
             .map(DnsSettings::SystemdResolved)
+            .or_else(|_| Resolvconf::new().map(DnsSettings::Resolvconf))
             .or_else(|_| StaticResolvConf::new().map(DnsSettings::StaticResolvConf))
             .chain_err(|| ErrorKind::NoDnsSettingsManager)
     }
