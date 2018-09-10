@@ -25,7 +25,9 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
+use mullvad_types::settings::Settings;
 use mullvad_types::version::AppVersionInfo;
+
 use serde::{Deserialize, Serialize};
 use talpid_types::net::TunnelOptions;
 use talpid_types::tunnel::TunnelStateTransition;
@@ -180,6 +182,10 @@ impl DaemonRpcClient {
 
     pub fn get_tunnel_options(&mut self) -> Result<TunnelOptions> {
         self.call("get_tunnel_options", &NO_ARGS)
+    }
+
+    pub fn get_settings(&mut self) -> Result<Settings> {
+        self.call("get_settings", &NO_ARGS)
     }
 
     pub fn get_version_info(&mut self) -> Result<AppVersionInfo> {

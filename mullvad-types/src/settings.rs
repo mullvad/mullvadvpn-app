@@ -1,6 +1,6 @@
 extern crate serde_json;
 
-use mullvad_types::relay_constraints::{
+use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
 use talpid_types::net::TunnelOptions;
@@ -30,6 +30,8 @@ error_chain! {
 
 static SETTINGS_FILE: &str = "settings.json";
 
+
+/// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Settings {
