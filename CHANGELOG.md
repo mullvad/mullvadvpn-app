@@ -57,6 +57,10 @@ Line wrap the file at 100 chars.                                              Th
 - Make the pkg installer kill any running GUI process after installation is done. Prevents
   accidentally running an old GUI with a newer daemon.
 
+#### Windows
+- Failing to restore DNS settings on daemon start does not make the daemon exit with an error, just
+  log the error and continue.
+
 ### Changed
 - The "Buy more credit" button is changed to open a dedicated account login page instead of one
   having a create account form first.

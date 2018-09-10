@@ -10,6 +10,8 @@ use std::path::Path;
 use std::ptr;
 use std::slice;
 
+use error_chain::ChainedError;
+
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
 error_chain!{
@@ -39,10 +41,6 @@ error_chain!{
             description("Failed to recover to backed up system state")
         }
     }
-
-    foreign_links {
-        Io(::std::io::Error) #[doc = "IO error, most probably occurs when reading system state backup"];
-    }
 }
 
 pub struct WinDns {
@@ -60,7 +58,12 @@ impl WinDns {
                 .into_boxed_path(),
         );
         let mut dns = WinDns { backup_writer };
-        dns.restore_system_backup()?;
+        if let Err(error) = dns
+            .restore_system_backup()
+            .chain_err(|| "Failed to restore DNS backup")
+        {
+            error!("{}", error.display_chain());
+        }
         Ok(dns)
     }
 
@@ -109,19 +112,21 @@ impl WinDns {
     }
 
     fn restore_system_backup(&mut self) -> Result<()> {
-        if let Some(previous_state) = self.backup_writer.read_backup()? {
+        if let Some(previous_state) = self
+            .backup_writer
+            .read_backup()
+            .chain_err(|| "Failed to read backed up DNS state")?
+        {
             info!("Restoring DNS state from backup");
-            self.restore_dns_settings(&previous_state)?;
+            self.restore_dns_settings(&previous_state)
+                .chain_err(|| "Failed to restore backed up DNS state")?;
             trace!("Successfully restored DNS state");
-            if let Err(e) = self.backup_writer.remove_backup() {
-                error!(
-                    "Failed to remove DNS config backup after restoring it: {}",
-                    e
-                );
-            }
-            return Ok(());
+            self.backup_writer
+                .remove_backup()
+                .chain_err(|| "Failed to remove backed up DNS state after restoring it")?;
+        } else {
+            trace!("No dns state to restore");
         }
-        trace!("No dns state to restore");
         Ok(())
     }
 }
