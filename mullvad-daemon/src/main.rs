@@ -593,7 +593,7 @@ impl Daemon {
     /// progress towards that state.
     /// Returns an error if trying to set secured state, but no account token is present.
     fn set_target_state(&mut self, new_state: TargetState) -> ::std::result::Result<(), ()> {
-        if new_state != self.target_state {
+        if new_state != self.target_state || self.tunnel_state.is_blocked() {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             match self.target_state {
