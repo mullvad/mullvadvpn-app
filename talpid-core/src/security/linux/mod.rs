@@ -89,7 +89,8 @@ impl NetworkSecurityT for NetworkSecurity {
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
         if let SecurityPolicy::Connected { ref tunnel, .. } = policy {
-            self.dns_settings.set_dns(vec![tunnel.gateway.into()])?;
+            self.dns_settings
+                .set_dns(&tunnel.interface, vec![tunnel.gateway.into()])?;
         }
 
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
@@ -381,7 +382,7 @@ fn check_iface(rule: &mut Rule, direction: Direction, iface: &str) -> Result<()>
     Ok(())
 }
 
-fn iface_index(name: &str) -> Result<libc::c_uint> {
+pub fn iface_index(name: &str) -> Result<libc::c_uint> {
     let c_name =
         CString::new(name).chain_err(|| ErrorKind::InvalidInterfaceName(name.to_owned()))?;
     let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
