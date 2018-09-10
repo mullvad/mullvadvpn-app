@@ -3,6 +3,8 @@
 #include "libcommon/wmi/connection.h"
 #include "netconfigeventsink.h"
 #include "netconfighelpers.h"
+#include "confineoperation.h"
+#include <functional>
 
 using namespace common;
 
@@ -78,15 +80,36 @@ void WinDnsContext::reset()
 	m_notification = nullptr;
 
 	//
-	// Revert configs
-	// Safe to do without a mutex guarding the config manager
+	// Reset adapter configs.
+	//
+	// Safe to do without a mutex guarding the config manager.
+	//
+	// Try to reset as many adapters as possible, even if one or more fails to reset.
 	//
 
-	m_configManager->processConfigs([&](const InterfaceConfig &config)
+	bool success = true;
+
+	auto forwardError = std::bind(&WinDnsContext::error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
+	m_configManager->processConfigs([&success, &forwardError](const InterfaceConfig &config)
 	{
-		nchelpers::RevertDnsServers(config);
+		const auto adapterStatus = ConfineOperation("Reset adapter DNS configuration", forwardError, [&config]()
+		{
+			nchelpers::RevertDnsServers(config);
+		});
+
+		if (false == adapterStatus)
+		{
+			success = false;
+		}
+
 		return true;
 	});
+
+	if (false == success)
+	{
+		throw std::runtime_error("Resetting DNS failed for one or more adapters");
+	}
 }
 
 // IClientSinkProxy
