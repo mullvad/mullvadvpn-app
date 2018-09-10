@@ -14,7 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
-import { DaemonRpc } from './lib/daemon-rpc';
+import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
 import { NoAccountError } from './errors';
@@ -34,7 +34,6 @@ import type {
   TunnelState,
   DaemonRpcProtocol,
   AccountData,
-  ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
 import type { TrayIconType } from '../main/tray-icon-controller';
@@ -42,9 +41,15 @@ import type { TrayIconType } from '../main/tray-icon-controller';
 export default class AppRenderer {
   _notificationController = new NotificationController();
   _daemonRpc: DaemonRpcProtocol = new DaemonRpc();
+  _connectionObserver = new ConnectionObserver(
+    () => {
+      this._onOpenConnection();
+    },
+    (error) => {
+      this._onCloseConnection(error);
+    },
+  );
   _reconnectBackoff = new ReconnectionBackoff();
-  _openConnectionObserver: ?DaemonConnectionObserver;
-  _closeConnectionObserver: ?DaemonConnectionObserver;
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
@@ -75,13 +80,7 @@ export default class AppRenderer {
       ),
     };
 
-    this._openConnectionObserver = this._daemonRpc.addOpenConnectionObserver(() => {
-      this._onOpenConnection();
-    });
-
-    this._closeConnectionObserver = this._daemonRpc.addCloseConnectionObserver((error) => {
-      this._onCloseConnection(error);
-    });
+    this._daemonRpc.addConnectionObserver(this._connectionObserver);
 
     setShutdownHandler(async () => {
       log.info('Executing a shutdown handler');
@@ -89,7 +88,7 @@ export default class AppRenderer {
         await this.disconnectTunnel();
         log.info('Disconnected the tunnel');
       } catch (e) {
-        log.error(`Failed to shutdown tunnel: ${e.message}`);
+        log.error(`Failed to disconnect the tunnel: ${e.message}`);
       }
     });
 
@@ -112,7 +111,7 @@ export default class AppRenderer {
   }
 
   connect() {
-    this._connectToDaemon();
+    this._daemonRpc.connect({ path: getIpcPath() });
   }
 
   disconnect() {
@@ -424,10 +423,6 @@ export default class AppRenderer {
     actions.version.updateLatest(latestVersionInfo);
   }
 
-  async _connectToDaemon(): Promise<void> {
-    this._daemonRpc.connect({ path: getIpcPath() });
-  }
-
   async _onOpenConnection() {
     this._connectedToDaemon = true;
 
@@ -474,7 +469,7 @@ export default class AppRenderer {
     }
   }
 
-  async _onCloseConnection(error: ?Error) {
+  _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
 
     // recover connection on error
@@ -678,10 +673,10 @@ class AccountDataCache {
   }
 }
 
-const getIpcPath = (): string => {
+function getIpcPath(): string {
   if (process.platform === 'win32') {
     return '//./pipe/Mullvad VPN';
   } else {
     return '/var/run/mullvad-vpn';
   }
-};
+}

@@ -260,6 +260,24 @@ const AppVersionInfoSchema = object({
   }),
 });
 
+export class ConnectionObserver {
+  _openHandler: () => void;
+  _closeHandler: (error: ?Error) => void;
+
+  constructor(openHandler: () => void, closeHandler: (error: ?Error) => void) {
+    this._openHandler = openHandler;
+    this._closeHandler = closeHandler;
+  }
+
+  _onOpen = () => {
+    this._openHandler();
+  };
+
+  _onClose = (error: ?Error) => {
+    this._closeHandler(error);
+  };
+}
+
 export interface DaemonRpcProtocol {
   connect({ path: string }): void;
   disconnect(): void;
@@ -280,8 +298,8 @@ export interface DaemonRpcProtocol {
   getLocation(): Promise<Location>;
   getState(): Promise<TunnelStateTransition>;
   subscribeStateListener((state: ?TunnelStateTransition, error: ?Error) => void): Promise<void>;
-  addOpenConnectionObserver(() => void): ConnectionObserver;
-  addCloseConnectionObserver((error: ?Error) => void): ConnectionObserver;
+  addConnectionObserver(observer: ConnectionObserver): void;
+  removeConnectionObserver(observer: ConnectionObserver): void;
   getAccountHistory(): Promise<Array<AccountToken>>;
   removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
   getCurrentVersion(): Promise<string>;
@@ -301,10 +319,6 @@ export class ResponseParseError extends Error {
   }
 }
 
-export type ConnectionObserver = {
-  unsubscribe: () => void,
-};
-
 // Timeout used for RPC calls that do networking
 const NETWORK_CALL_TIMEOUT = 10000;
 
@@ -319,22 +333,12 @@ export class DaemonRpc implements DaemonRpcProtocol {
     this._transport.disconnect();
   }
 
-  addOpenConnectionObserver(handler: () => void): ConnectionObserver {
-    this._transport.on('open', handler);
-    return {
-      unsubscribe: () => {
-        this._transport.off('open', handler);
-      },
-    };
+  addConnectionObserver(observer: ConnectionObserver) {
+    this._transport.on('open', observer._onOpen).on('close', observer._onClose);
   }
 
-  addCloseConnectionObserver(handler: (error: ?Error) => void): ConnectionObserver {
-    this._transport.on('close', handler);
-    return {
-      unsubscribe: () => {
-        this._transport.off('close', handler);
-      },
-    };
+  removeConnectionObserver(observer: ConnectionObserver) {
+    this._transport.off('open', observer._onOpen).off('close', observer._onClose);
   }
 
   async getAccountData(accountToken: AccountToken): Promise<AccountData> {
