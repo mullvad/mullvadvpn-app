@@ -89,7 +89,8 @@ impl NetworkSecurityT for NetworkSecurity {
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
         if let SecurityPolicy::Connected { ref tunnel, .. } = policy {
-            self.dns_settings.set_dns(vec![tunnel.gateway.into()])?;
+            self.dns_settings
+                .set_dns(&tunnel.interface, vec![tunnel.gateway.into()])?;
         }
 
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
