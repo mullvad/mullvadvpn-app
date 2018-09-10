@@ -30,36 +30,26 @@ pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut c_void) {
 pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool> {
     let interface_alias_ws =
         WideCString::from_str(interface_alias).chain_err(|| ErrorKind::InvalidInterfaceAlias)?;
-    unsafe {
+
+    let metric_result = unsafe {
         WinRoute_EnsureTopMetric(
             interface_alias_ws.as_wide_c_str().as_ptr(),
             Some(error_sink),
             ptr::null_mut(),
-        ).into()
-    }
-}
+        )
+    };
 
-// Allowing dead code here as this type should only ever be constructed by an
-// FFI function.
-#[allow(dead_code)]
-#[repr(u32)]
-enum MetricResult {
-    MetricsUnchanged = 0u32,
-    MetricsChanged = 1u32,
-    Failure = 2u32,
-    UnexpectedValue,
-}
-
-impl Into<Result<bool>> for MetricResult {
-    fn into(self) -> Result<bool> {
-        match self {
-            MetricResult::MetricsUnchanged => Ok(false),
-            MetricResult::MetricsChanged => Ok(true),
-            MetricResult::Failure => Err(Error::from(ErrorKind::MetricApplication)),
-            MetricResult::UnexpectedValue => {
-                error!("Unexpected return code from WinRoute_EnsureTopMetric");
-                Err(Error::from(ErrorKind::MetricApplication))
-            }
+    match metric_result {
+        // Metrics didn't change
+        0 => Ok(false),
+        // Metrics changed
+        1 => Ok(true),
+        // Failure
+        2 => Err(Error::from(ErrorKind::MetricApplication)),
+        // Unexpected value
+        _ => {
+            error!("Unexpected return code from WinRoute_EnsureTopMetric");
+            Err(Error::from(ErrorKind::MetricApplication))
         }
     }
 }
@@ -70,5 +60,5 @@ extern "system" {
         tunnel_interface_alias: *const wchar_t,
         sink: Option<ErrorSink>,
         sink_context: *mut c_void,
-    ) -> MetricResult;
+    ) -> u32;
 }
