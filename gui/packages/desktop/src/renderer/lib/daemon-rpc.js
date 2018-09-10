@@ -278,6 +278,24 @@ export class ConnectionObserver {
   };
 }
 
+export class SubscriptionListener<T> {
+  _eventHandler: (payload: T) => void;
+  _errorHandler: (error: Error) => void;
+
+  constructor(eventHandler: (payload: T) => void, errorHandler: (error: Error) => void) {
+    this._eventHandler = eventHandler;
+    this._errorHandler = errorHandler;
+  }
+
+  _onEvent(payload: T) {
+    this._eventHandler(payload);
+  }
+
+  _onError(error: Error) {
+    this._errorHandler(error);
+  }
+}
+
 export interface DaemonRpcProtocol {
   connect({ path: string }): void;
   disconnect(): void;
@@ -297,7 +315,7 @@ export interface DaemonRpcProtocol {
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
   getState(): Promise<TunnelStateTransition>;
-  subscribeStateListener((state: ?TunnelStateTransition, error: ?Error) => void): Promise<void>;
+  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
   addConnectionObserver(observer: ConnectionObserver): void;
   removeConnectionObserver(observer: ConnectionObserver): void;
   getAccountHistory(): Promise<Array<AccountToken>>;
@@ -484,15 +502,13 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
-  subscribeStateListener(
-    listener: (state: ?TunnelStateTransition, error: ?Error) => void,
-  ): Promise<void> {
+  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
         const newState = validate(TunnelStateTransitionSchema, payload);
-        listener(newState, null);
+        listener._onEvent(newState);
       } catch (error) {
-        listener(null, new ResponseParseError('Invalid payload from new_state', error));
+        listener._onError(new ResponseParseError('Invalid payload from new_state', error));
       }
     });
   }

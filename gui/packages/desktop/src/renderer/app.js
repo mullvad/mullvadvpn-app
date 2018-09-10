@@ -14,7 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
-import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
+import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
 import { NoAccountError } from './errors';
@@ -499,18 +499,19 @@ export default class AppRenderer {
     this._connectedToDaemon = false;
   }
 
-  async _subscribeStateListener() {
-    await this._daemonRpc.subscribeStateListener((newState, error) => {
-      if (error) {
-        log.error(`Failed to deserialize the new state: ${error.message}`);
-      }
-
-      if (newState) {
+  _subscribeStateListener(): Promise<void> {
+    const listener = new SubscriptionListener(
+      (newState: TunnelStateTransition) => {
         log.debug(`Got state update: '${JSON.stringify(newState)}'`);
 
         this._onChangeTunnelState(newState);
-      }
-    });
+      },
+      (error: Error) => {
+        log.error(`Failed to deserialize the new state: ${error.message}`);
+      },
+    );
+
+    return this._daemonRpc.subscribeStateListener(listener);
   }
 
   _fetchInitialState() {
