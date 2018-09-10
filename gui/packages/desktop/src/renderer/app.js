@@ -468,7 +468,7 @@ export default class AppRenderer {
     // auto connect the tunnel on startup
     // note: disabled when developing
     if (process.env.NODE_ENV !== 'development') {
-      // avoid connecting when there is no account set in daemon.
+      // only connect if account is set in the daemon
       if (this._accountToken) {
         try {
           log.debug('Autoconnect the tunnel');
