@@ -2,11 +2,34 @@
 #include "netsh.h"
 #include "libcommon/applicationrunner.h"
 #include "libcommon/string.h"
+#include "libcommon/filesystem.h"
 #include <sstream>
 #include <stdexcept>
+#include <experimental/filesystem>
 
 namespace
 {
+
+std::wstring g_NetShPath;
+
+void InitializePath()
+{
+	if (false == g_NetShPath.empty())
+	{
+		return;
+	}
+
+	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
+
+	g_NetShPath = std::experimental::filesystem::path(system32).append(L"netsh.exe");
+}
+
+const std::wstring &NetShPath()
+{
+	InitializePath();
+
+	return g_NetShPath;
+}
 
 std::vector<std::string> BlockToRows(const std::string &textBlock)
 {
@@ -95,7 +118,7 @@ void NetSh::SetIpv4PrimaryDns(uint32_t interfaceIndex, std::wstring server)
 		<< server
 		<< L" validate=no";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
@@ -117,7 +140,7 @@ void NetSh::SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 		<< server
 		<< L" index=2 validate=no";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
@@ -137,7 +160,7 @@ void NetSh::SetIpv4Dhcp(uint32_t interfaceIndex)
 		<< interfaceIndex
 		<< L" source=dhcp";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
@@ -159,7 +182,7 @@ void NetSh::SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server)
 		<< server
 		<< L" validate=no";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
@@ -181,7 +204,7 @@ void NetSh::SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 		<< server
 		<< L" index=2 validate=no";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
@@ -201,7 +224,7 @@ void NetSh::SetIpv6Dhcp(uint32_t interfaceIndex)
 		<< interfaceIndex
 		<< L" source=dhcp";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(L"netsh.exe", ss.str());
+	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
 	ValidateShellOut(*netsh);
 }
