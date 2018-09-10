@@ -28,13 +28,15 @@ import windowActions from './redux/window/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
 import type {
+  AccountToken,
+  TunnelStateTransition,
+  RelaySettingsUpdate,
+  TunnelState,
   DaemonRpcProtocol,
   AccountData,
   ConnectionObserver as DaemonConnectionObserver,
 } from './lib/daemon-rpc';
 import type { ReduxStore } from './redux/store';
-import type { AccountToken, TunnelState, RelaySettingsUpdate } from './lib/daemon-rpc';
-import type { ConnectionState } from './redux/connection/reducers';
 import type { TrayIconType } from '../main/tray-icon-controller';
 
 export default class AppRenderer {
@@ -51,7 +53,7 @@ export default class AppRenderer {
   });
   _connectedToDaemon = false;
   _accountToken: ?AccountToken;
-  _tunnelState: ?TunnelState;
+  _tunnelState: ?TunnelStateTransition;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -545,17 +547,17 @@ export default class AppRenderer {
     ]);
   }
 
-  _onChangeTunnelState(tunnelState: TunnelState) {
+  _onChangeTunnelState(tunnelState: TunnelStateTransition) {
     this._tunnelState = tunnelState;
 
     this._updateConnectionStatus(tunnelState);
-    this._updateConnectionLocation(tunnelState.state);
+    this._updateUserLocation(tunnelState.state);
     this._updateTrayIcon(tunnelState.state);
     this._showNotification(tunnelState.state);
   }
 
-  async _updateConnectionLocation(connectionState: ConnectionState) {
-    if (connectionState === 'connecting' || connectionState === 'disconnected') {
+  async _updateUserLocation(tunnelState: TunnelState) {
+    if (tunnelState === 'connecting' || tunnelState === 'disconnected') {
       try {
         await this._fetchLocation();
       } catch (error) {
@@ -564,43 +566,49 @@ export default class AppRenderer {
     }
   }
 
-  _updateConnectionStatus(tunnelState: TunnelState) {
+  _updateConnectionStatus(stateTransition: TunnelStateTransition) {
     const actions = this._reduxActions;
 
-    switch (tunnelState.state) {
+    switch (stateTransition.state) {
       case 'connecting':
         actions.connection.connecting();
         break;
+
       case 'connected':
         actions.connection.connected();
         break;
+
       case 'disconnecting':
         actions.connection.disconnecting();
         break;
+
       case 'disconnected':
         actions.connection.disconnected();
         break;
+
       case 'blocked':
-        actions.connection.blocked(tunnelState.details);
+        actions.connection.blocked(stateTransition.details);
         break;
+
       default:
-        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
+        log.error(`Unexpected TunnelStateTransition: ${(stateTransition.state: empty)}`);
+        break;
     }
   }
 
-  _updateTrayIcon(connectionState: ConnectionState) {
-    const iconTypes: { [ConnectionState]: TrayIconType } = {
+  _updateTrayIcon(tunnelState: TunnelState) {
+    const iconTypes: { [TunnelState]: TrayIconType } = {
       connected: 'secured',
       connecting: 'securing',
       blocked: 'securing',
     };
-    const type = iconTypes[connectionState] || 'unsecured';
+    const type = iconTypes[tunnelState] || 'unsecured';
 
     ipcRenderer.send('change-tray-icon', type);
   }
 
-  _showNotification(connectionState: ConnectionState) {
-    switch (connectionState) {
+  _showNotification(tunnelState: TunnelState) {
+    switch (tunnelState) {
       case 'connecting':
         this._notificationController.show('Connecting');
         break;
@@ -617,7 +625,7 @@ export default class AppRenderer {
         // no-op
         break;
       default:
-        log.error(`Unexpected ConnectionState: ${(connectionState: empty)}`);
+        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
         return;
     }
   }
