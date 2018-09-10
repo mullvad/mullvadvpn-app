@@ -30,13 +30,11 @@ type Props = {
 
 type State = {
   showCopyIPMessage: boolean,
-  mapOffset: [number, number],
 };
 
 export default class Connect extends Component<Props, State> {
   state = {
     showCopyIPMessage: false,
-    mapOffset: [0, 0],
   };
 
   _copyTimer: ?TimeoutID;
@@ -52,8 +50,6 @@ export default class Connect extends Component<Props, State> {
       // shallow compare the connection
       !shallowCompare(prevConnection, nextConnection) ||
       !shallowCompare(otherPrevProps, otherNextProps) ||
-      prevState.mapOffset[0] !== nextState.mapOffset[0] ||
-      prevState.mapOffset[1] !== nextState.mapOffset[1] ||
       prevState.showCopyIPMessage !== nextState.showCopyIPMessage
     );
   }
@@ -157,18 +153,6 @@ export default class Connect extends Component<Props, State> {
     }
   }
 
-  _updateMapOffset = (spinnerNode: ?HTMLElement) => {
-    if (spinnerNode) {
-      // calculate the vertical offset from the center of the map
-      // to shift the center of the map upwards to align the centers
-      // of spinner and marker on the map
-      const y = spinnerNode.offsetTop + spinnerNode.clientHeight * 0.5;
-      this.setState({
-        mapOffset: [0, y],
-      });
-    }
-  };
-
   renderMap() {
     let [isConnecting, isConnected, isDisconnected] = [false, false, false];
     switch (this.props.connection.status) {
@@ -199,7 +183,6 @@ export default class Connect extends Component<Props, State> {
                 height={60}
                 width={60}
                 alt=""
-                ref={this._updateMapOffset}
               />
             </View>
           ) : null}
