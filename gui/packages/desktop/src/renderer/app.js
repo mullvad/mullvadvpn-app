@@ -103,21 +103,6 @@ export default class AppRenderer {
     webFrame.setVisualZoomLevelLimits(1, 1);
   }
 
-  dispose() {
-    const openConnectionObserver = this._openConnectionObserver;
-    const closeConnectionObserver = this._closeConnectionObserver;
-
-    if (openConnectionObserver) {
-      openConnectionObserver.unsubscribe();
-      this._openConnectionObserver = null;
-    }
-
-    if (closeConnectionObserver) {
-      closeConnectionObserver.unsubscribe();
-      this._closeConnectionObserver = null;
-    }
-  }
-
   renderView() {
     return (
       <Provider store={this._reduxStore}>
