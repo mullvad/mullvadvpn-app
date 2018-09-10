@@ -17,6 +17,15 @@ pub enum TunnelStateTransition {
     Blocked(BlockReason),
 }
 
+impl TunnelStateTransition {
+    pub fn is_blocked(&self) -> bool {
+        match self {
+            TunnelStateTransition::Blocked(_) => true,
+            _ => false,
+        }
+    }
+}
+
 /// Reason for entering the blocked state.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
