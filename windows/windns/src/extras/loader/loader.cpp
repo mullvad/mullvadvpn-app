@@ -7,9 +7,14 @@
 #include <vector>
 #include <windows.h>
 
-void WINDNS_API ErrorSink(const char *errorMessage, void *context)
+void WINDNS_API ErrorSink(const char *errorMessage, const char **details, uint32_t numDetails, void *context)
 {
 	std::cout << "WINDNS Error: " << errorMessage << std::endl;
+
+	for (uint32_t i = 0; i < numDetails; ++i)
+	{
+		std::cout << "    " << details[i] << std::endl;
+	}
 }
 
 void WINDNS_API ConfigSink(const void *configData, uint32_t dataLength, void *context)
@@ -83,13 +88,13 @@ int main()
 {
 	common::trace::Trace::RegisterSink(new common::trace::ConsoleTraceSink);
 
+	std::wcout << L"WinDns_Initialize: " << WinDns_Initialize(ErrorSink, nullptr) << std::endl;
+
 	if (Ask(L"Perform recovery?"))
 	{
 		Recover();
 		return 0;
 	}
-
-	std::wcout << L"WinDns_Initialize: " << WinDns_Initialize(ErrorSink, nullptr) << std::endl;
 
 	const wchar_t *servers[] =
 	{
