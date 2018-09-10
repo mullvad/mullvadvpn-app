@@ -35,6 +35,10 @@ Line wrap the file at 100 chars.                                              Th
 - Use different method for identifying network interfaces during installation.
 - Properly restore DNS settings on network interfaces. Fixes issue #352.
 
+### Added
+#### Linux
+- Add support for DNS configuration using systemd-resolved and resolvconf.
+
 ## [2018.4-beta1] - 2018-10-01
 ### Added
 - Allow packets to the fe80::/10 and fe02::/16 IPv6 networks when local network sharing is enabled.
