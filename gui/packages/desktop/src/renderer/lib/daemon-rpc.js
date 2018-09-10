@@ -47,28 +47,12 @@ export type BlockReason =
   | 'start_tunnel_error'
   | 'no_matching_relay'
   | 'no_account_token';
-export type DisconnectedState = {
-  state: 'disconnected',
-};
-export type ConnectingState = {
-  state: 'connecting',
-};
-export type ConnectedState = {
-  state: 'connected',
-};
-export type DisconnectingState = {
-  state: 'disconnecting',
-};
-export type BlockedState = {
-  state: 'blocked',
-  details: BlockReason,
-};
-export type TunnelState =
-  | DisconnectedState
-  | ConnectingState
-  | ConnectedState
-  | DisconnectingState
-  | BlockedState;
+
+export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
+
+export type TunnelStateTransition =
+  | { state: 'disconnecting' | 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'blocked', details: BlockReason };
 
 export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation =
@@ -250,21 +234,14 @@ const allBlockReasons: Array<BlockReason> = [
   'no_matching_relay',
   'no_account_token',
 ];
-const BlockedStateSchema = object({
-  state: enumeration('blocked'),
-  details: enumeration(...allBlockReasons),
-});
-const ConnectedStateSchema = object({ state: enumeration('connected') });
-const ConnectingStateSchema = object({ state: enumeration('connecting') });
-const DisconnectedStateSchema = object({ state: enumeration('disconnected') });
-const DisconnectingStateSchema = object({ state: enumeration('disconnecting') });
-
-const TunnelStateSchema = oneOf(
-  BlockedStateSchema,
-  ConnectedStateSchema,
-  ConnectingStateSchema,
-  DisconnectedStateSchema,
-  DisconnectingStateSchema,
+const TunnelStateTransitionSchema = oneOf(
+  object({
+    state: enumeration('blocked'),
+    details: enumeration(...allBlockReasons),
+  }),
+  object({
+    state: enumeration('connected', 'connecting', 'disconnected', 'disconnecting'),
+  }),
 );
 
 export type AppVersionInfo = {
@@ -301,8 +278,8 @@ export interface DaemonRpcProtocol {
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
-  getState(): Promise<TunnelState>;
-  subscribeStateListener((state: ?TunnelState, error: ?Error) => void): Promise<void>;
+  getState(): Promise<TunnelStateTransition>;
+  subscribeStateListener((state: ?TunnelStateTransition, error: ?Error) => void): Promise<void>;
   addOpenConnectionObserver(() => void): ConnectionObserver;
   addCloseConnectionObserver((error: ?Error) => void): ConnectionObserver;
   getAccountHistory(): Promise<Array<AccountToken>>;
@@ -494,19 +471,21 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
-  async getState(): Promise<TunnelState> {
+  async getState(): Promise<TunnelStateTransition> {
     const response = await this._transport.send('get_state');
     try {
-      return validate(TunnelStateSchema, response);
+      return validate(TunnelStateTransitionSchema, response);
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
   }
 
-  subscribeStateListener(listener: (state: ?TunnelState, error: ?Error) => void): Promise<void> {
+  subscribeStateListener(
+    listener: (state: ?TunnelStateTransition, error: ?Error) => void,
+  ): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
-        const newState = validate(TunnelStateSchema, payload);
+        const newState = validate(TunnelStateTransitionSchema, payload);
         listener(newState, null);
       } catch (error) {
         listener(null, new ResponseParseError('Invalid payload from new_state', error));

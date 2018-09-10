@@ -335,7 +335,7 @@ export default class Connect extends Component<Props, State> {
       case 'blocked':
         return 'success';
       default:
-        throw new Error(`Invalid ConnectionState: ${(status: empty)}`);
+        throw new Error(`Invalid TunnelState: ${(status: empty)}`);
     }
   }
 
