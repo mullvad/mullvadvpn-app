@@ -42,6 +42,9 @@ Line wrap the file at 100 chars.                                              Th
 - Extend uninstaller to also remove logs, cache and optionally settings.
 - Add installation log (%PROGRAMDATA%\Mullvad VPN\install.log).
 
+#### Linux
+- Add support for DNS configuration using systemd-resolved and resolvconf.
+
 ### Fixed
 - Fix incorrect window position when using external display.
 - Don't auto-connect the daemon on start if no account token is set. This prevents the daemon from
