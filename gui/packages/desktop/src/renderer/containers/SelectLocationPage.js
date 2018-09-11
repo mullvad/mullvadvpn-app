@@ -24,7 +24,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
           .build();
 
         await props.app.updateRelaySettings(relayUpdate);
-        await props.app.fetchRelaySettings();
         await props.app.connectTunnel();
 
         history.goBack();
