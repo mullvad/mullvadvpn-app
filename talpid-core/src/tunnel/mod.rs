@@ -322,13 +322,26 @@ fn is_ipv6_enabled_in_os() -> bool {
         use winreg::enums::*;
         use winreg::RegKey;
 
-        const IPV6_DISABLED: u8 = 0xFF;
+        const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
 
-        RegKey::predef(HKEY_LOCAL_MACHINE)
+        // Check registry if IPv6 is disabled on tunnel interfaces, as documented in
+        // https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users
+        let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
             .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
-            .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & 0xFF) == IPV6_DISABLED as u32)
-            .unwrap_or(false)
+            .map(|ipv6_disabled_bits: u32| {
+                (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
+            }).unwrap_or(true);
+        let enabled_on_tap = ::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
+
+        if !globally_enabled {
+            debug!("IPv6 disabled in tunnel interfaces");
+        }
+        if !enabled_on_tap {
+            debug!("IPv6 disabled in TAP adapter");
+        }
+
+        globally_enabled && enabled_on_tap
     }
     #[cfg(target_os = "linux")]
     {
