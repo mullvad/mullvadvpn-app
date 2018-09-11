@@ -2,6 +2,7 @@ mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
 
+use std::env;
 use std::net::IpAddr;
 
 use self::resolvconf::Resolvconf;
@@ -30,6 +31,17 @@ pub enum DnsSettings {
 
 impl DnsSettings {
     pub fn new() -> Result<Self> {
+        let dns_module = env::var_os("TALPID_DNS_MODULE");
+
+        Ok(match dns_module.as_ref().and_then(|value| value.to_str()) {
+            Some("static-file") => DnsSettings::StaticResolvConf(StaticResolvConf::new()?),
+            Some("resolvconf") => DnsSettings::Resolvconf(Resolvconf::new()?),
+            Some("systemd") => DnsSettings::SystemdResolved(SystemdResolved::new()?),
+            Some(_) | None => Self::with_detected_dns_manager()?,
+        })
+    }
+
+    fn with_detected_dns_manager() -> Result<Self> {
         SystemdResolved::new()
             .map(DnsSettings::SystemdResolved)
             .or_else(|_| Resolvconf::new().map(DnsSettings::Resolvconf))
