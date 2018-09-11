@@ -10,7 +10,7 @@ StartLimitIntervalSec=20
 [Service]
 Restart=always
 RestartSec=1
-ExecStart="/opt/Mullvad VPN/resources/mullvad-daemon" -v --disable-stdout-timestamps
+ExecStart=/opt/Mullvad\x20VPN/resources/mullvad-daemon -v --disable-stdout-timestamps
 
 [Install]
 WantedBy=multi-user.target
