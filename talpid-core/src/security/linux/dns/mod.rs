@@ -36,6 +36,7 @@ impl DnsSettings {
         Ok(match dns_module.as_ref().and_then(|value| value.to_str()) {
             Some("static-file") => DnsSettings::StaticResolvConf(StaticResolvConf::new()?),
             Some("resolvconf") => DnsSettings::Resolvconf(Resolvconf::new()?),
+            Some("systemd") => DnsSettings::SystemdResolved(SystemdResolved::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
         })
     }
