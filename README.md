@@ -145,6 +145,7 @@ sections.
   choose a specific method:
     * `"static-file"`: change the `/etc/resolv.conf` file directly
     * `"resolvconf"`: use the `resolvconf` program
+    * `"systemd"`: use systemd's `resolved` service through DBus
 
 
 ## Building and running the Electron GUI app
