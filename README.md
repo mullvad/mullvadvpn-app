@@ -60,7 +60,7 @@ The host has to have the following installed:
 For Debian based distributions, you need to install the following. For other distributions you need
 the equivalent packages:
 ```bash
-sudo apt install gcc libssl-dev libappindicator1
+sudo apt install gcc libssl-dev libappindicator1 libdbus-1-dev
 ```
 
 ### All platforms
