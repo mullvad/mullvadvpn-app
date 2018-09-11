@@ -229,34 +229,37 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 
 ## Repository structure
 
-### Electron GUI and electron-builder packaging
-- **app/**
-  - **redux/** - state management
-  - **components/** - components
-  - **containers/** - containers that provide a glueing layer between components and redux
-    actions/backend.
-  - **lib/** - shared classes and utilities
-  - **assets/** - graphical assets and stylesheets
-  - **config.json** - links to external components
-  - **app.js** - entry file for renderer process
-  - **main.js** - entry file for background process
-  - **routes.js** - routes configurator
-  - **transitions.js** - transition rules between views
-- **init.js** - entry file for electron, points to compiled **main.js**
-- **scripts/** - support scripts for development
-- **test/** - Electron GUI tests
+### Electron GUI app and electron-builder packaging assets
+- **gui/packages/**
+  - **components/** - Platform agnostic shared react components
+  - **desktop/** - The desktop implementation
+    - **src/**
+      - **assets/** - graphical assets and stylesheets
+      - **renderer/**
+        - **app.js** - entry file for renderer process
+        - **routes.js** - routes configurator
+        - **transitions.js** - transition rules between views
+      - **config.json** - App color definitions and URLs to external resources
+    - **test/** - Electron GUI tests
 - **dist-assets/** - Icons, binaries and other files used when creating the distributables
   - **binaries/** - Git submodule containing binaries bundled with the app. For example the
-    statically linked OpenVPN binary. See the README in the submodule for details.
+    statically linked OpenVPN binary. See the README in the submodule for details
+  - **linux/** - Scripts and configuration files for the deb and rpm artifacts
   - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
+  - **windows/** - Windows NSIS installer configuration and assets
+  - **api_root_ca.pem** - The root CA for the api.mullvad.net endpoint. The app uses certificate
+    pinning
+  - **ca.crt** - The Mullvad relay server root CA. Bundled with the app and only OpenVPN relays
+    signed by this CA are trusted
+  - **crl.pem** - The certificate revocation list for old relay certificates
+
 
 ### Building, testing and misc
+- **build_windows_modules.sh** - Compiles the C++ libraries needed on Windows
 - **build.sh** - Sanity checks the working directory state and then builds release artifacts for
-  the app.
-- **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
-  logs.
+  the app
 
-### Daemon
+### Mullvad Daemon
 
 The daemon is implemented in Rust and is implemented in several crates. The main, or top level,
 crate that builds the final daemon binary is `mullvad-daemon` which then depend on the others.
@@ -270,9 +273,11 @@ preserving features. The crates having `mullvad` in their name on the other hand
 `talpid` components to build a secure and Mullvad specific VPN client.
 
 
-- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
+- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are daemon
   Rust crates.
 - **mullvad-daemon/** - Main Rust crate building the daemon binary.
+- **talpid-core/** - Main crate of the VPN client implementation itself. Completely Mullvad agnostic
+  privacy preserving VPN client library.
 
 
 ## Vocabulary
