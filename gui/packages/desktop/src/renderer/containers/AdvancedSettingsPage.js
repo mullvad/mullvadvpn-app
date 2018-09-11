@@ -56,7 +56,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
 
       try {
         await props.app.updateRelaySettings(relayUpdate);
-        await props.app.fetchRelaySettings();
       } catch (e) {
         log.error('Failed to update relay settings', e.message);
       }
