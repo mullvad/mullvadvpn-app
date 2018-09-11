@@ -11,9 +11,11 @@ set -eu
 # Verify and configure environment.
 ################################################################################
 
-SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./gui/packages/desktop/package.json').version" | sed -Ee 's/\.0//g')
+
 source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
@@ -67,12 +69,14 @@ echo "Building Mullvad VPN $PRODUCT_VERSION"
 SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
+    pushd "$SCRIPT_DIR"
     mv gui/packages/desktop/package.json.bak gui/packages/desktop/package.json || true
     mv Cargo.lock.bak Cargo.lock || true
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
     mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
     mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
+    popd
 }
 trap 'restore_metadata_backups' EXIT
 
@@ -151,8 +155,10 @@ JSONRPC_RESPONSE="$(curl -X POST \
      https://api.mullvad.net/rpc/)"
 echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 
+
+pushd "$SCRIPT_DIR/gui"
+
 echo "Installing JavaScript dependencies..."
-cd gui
 yarn install
 
 ################################################################################
@@ -166,7 +172,7 @@ case "$(uname -s)" in
     MINGW*)     yarn pack:win;;
 esac
 
-cd ..
+popd
 
 for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
