@@ -296,6 +296,22 @@ export class SubscriptionListener<T> {
   }
 }
 
+export type Settings = {
+  accountToken: AccountToken,
+  allowLan: boolean,
+  autoConnect: boolean,
+  relaySettings: RelaySettings,
+  tunnelOptions: TunnelOptions,
+};
+
+const SettingsSchema = object({
+  account_token: maybe(string),
+  allow_lan: boolean,
+  auto_connect: boolean,
+  relay_settings: RelaySettingsSchema,
+  tunnel_options: TunnelOptionsSchema,
+});
+
 export interface DaemonRpcProtocol {
   connect({ path: string }): void;
   disconnect(): void;
@@ -315,7 +331,9 @@ export interface DaemonRpcProtocol {
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
   getState(): Promise<TunnelStateTransition>;
+  getSettings(): Promise<Settings>;
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
+  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void>;
   addConnectionObserver(observer: ConnectionObserver): void;
   removeConnectionObserver(observer: ConnectionObserver): void;
   getAccountHistory(): Promise<Array<AccountToken>>;
@@ -502,6 +520,15 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
+  async getSettings(): Promise<Settings> {
+    const response = await this._transport.send('get_settings');
+    try {
+      return camelCaseObjectKeys(validate(SettingsSchema, response));
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_settings', error);
+    }
+  }
+
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
@@ -509,6 +536,17 @@ export class DaemonRpc implements DaemonRpcProtocol {
         listener._onEvent(newState);
       } catch (error) {
         listener._onError(new ResponseParseError('Invalid payload from new_state', error));
+      }
+    });
+  }
+
+  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void> {
+    return this._transport.subscribe('settings', (payload) => {
+      try {
+        const newSettings = camelCaseObjectKeys(validate(SettingsSchema, payload));
+        listener._onEvent(newSettings);
+      } catch (error) {
+        listener._onError(new ResponseParseError('Invalid payload from settings', error));
       }
     });
   }
@@ -550,4 +588,25 @@ export class DaemonRpc implements DaemonRpcProtocol {
       throw new ResponseParseError('Invalid response from get_version_info', null);
     }
   }
+}
+
+function underscoreToCamelCase(str: string): string {
+  return str.replace(/_([a-z])/gi, (matches) => matches[1].toUpperCase());
+}
+
+function camelCaseObjectKeys(object: Object) {
+  for (const underscoreKey of Object.keys(object)) {
+    const camelCaseKey = underscoreToCamelCase(underscoreKey);
+    const sourceValue = object[underscoreKey];
+
+    object[camelCaseKey] =
+      sourceValue !== null && typeof sourceValue === 'object'
+        ? camelCaseObjectKeys(sourceValue)
+        : sourceValue;
+
+    if (camelCaseKey !== underscoreKey) {
+      delete object[underscoreKey];
+    }
+  }
+  return object;
 }
