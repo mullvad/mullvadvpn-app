@@ -140,6 +140,13 @@ sections.
 * `TALPID_NFTABLES_COUNTERS` - Set to `"1"` to add packet counters to all firewall rules on
   Linux.
 
+* `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration on Linux.
+  By default this is automatically detected, but you can set it to one of the options below to
+  choose a specific method:
+    * `"static-file"`: change the `/etc/resolv.conf` file directly
+    * `"resolvconf"`: use the `resolvconf` program
+    * `"systemd"`: use systemd's `resolved` service through DBus
+
 
 ## Building and running the Electron GUI app
 
