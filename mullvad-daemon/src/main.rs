@@ -478,10 +478,11 @@ impl Daemon {
     fn on_update_relay_settings(&mut self, tx: OneshotSender<()>, update: RelaySettingsUpdate) {
         let save_result = self.settings.update_relay_settings(update);
         match save_result.chain_err(|| "Unable to save settings") {
-            Ok(changed) => {
+            Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "update_relay_settings response");
-
-                if changed {
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
                     info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -498,12 +499,12 @@ impl Daemon {
         let save_result = self.settings.set_allow_lan(allow_lan);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_allow_lan response");
                 if settings_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
-                Self::oneshot_send(tx, (), "set_allow_lan response");
             }
             Err(e) => error!("{}", e.display_chain()),
         }
