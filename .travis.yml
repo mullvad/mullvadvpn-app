@@ -60,6 +60,7 @@ matrix:
             key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
          packages:
           - binutils
+          - libdbus-1-dev
       cache: cargo
       before_script: *rust_before_script
       script:
