@@ -10,16 +10,19 @@ error-chain = "0.12"
 serde = "1.0"
 serde_json = "1.0"
 log = "0.4"
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
-jsonrpc-ipc-server = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
+jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
+jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
+tokio = "0.1"
+futures = "0.1"
+
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs" }
 
 [dev-dependencies]
 assert_matches = "1.0"
 env_logger = "0.5"
-jsonrpc-macros = { git = "https://github.com/paritytech/jsonrpc", branch = "master" }
+jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
 uuid = { version = "0.6", features = ["v4"] }
 futures = "0.1.23"
-tokio-core = "0.1"
+tokio = "0.1"

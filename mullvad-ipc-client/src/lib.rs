@@ -13,7 +13,7 @@ extern crate mullvad_types;
 extern crate serde;
 extern crate talpid_ipc;
 extern crate talpid_types;
-extern crate tokio_core;
+extern crate tokio;
 extern crate tokio_timer;
 
 use std::path::Path;
@@ -37,7 +37,6 @@ use futures::sync::oneshot;
 use jsonrpc_client_core::{Client, ClientHandle, Future};
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 use jsonrpc_client_ipc::IpcTransport;
-use tokio_core::reactor;
 
 error_chain! {
     errors {
@@ -73,7 +72,7 @@ error_chain! {
 static NO_ARGS: [u8; 0] = [];
 
 pub fn new_standalone_transport<
-    F: Send + 'static + FnOnce(String, reactor::Handle) -> Result<T>,
+    F: Send + 'static + FnOnce(String) -> Result<T>,
     T: jsonrpc_client_core::Transport,
 >(
     rpc_path: String,
@@ -84,10 +83,11 @@ pub fn new_standalone_transport<
         Err(e) => tx
             .send(Err(e))
             .expect("Failed to send error back to caller"),
-        Ok((mut core, client, client_handle)) => {
+        Ok((client, client_handle)) => {
             tx.send(Ok(client_handle))
                 .expect("Failed to send client handle");
-            if let Err(e) = core.run(client) {
+
+            if let Err(e) = client.wait() {
                 error!("JSON-RPC client failed: {}", e.description());
             }
         }
@@ -101,21 +101,18 @@ pub fn new_standalone_transport<
 pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
     let path = path.as_ref().to_string_lossy().to_string();
 
-    new_standalone_transport(path, |path, handle| {
-        IpcTransport::new(&path, &handle).chain_err(|| ErrorKind::TransportError)
+    new_standalone_transport(path, |path| {
+        IpcTransport::new(&path, &tokio::reactor::Handle::current())
+            .chain_err(|| ErrorKind::TransportError)
     })
 }
 
-fn spawn_transport<
-    F: Send + FnOnce(String, reactor::Handle) -> Result<T>,
-    T: jsonrpc_client_core::Transport,
->(
+fn spawn_transport<F: Send + FnOnce(String) -> Result<T>, T: jsonrpc_client_core::Transport>(
     address: String,
     transport_func: F,
-) -> Result<(reactor::Core, Client<T>, ClientHandle)> {
-    let core = reactor::Core::new().chain_err(|| ErrorKind::TokioError)?;
-    let (client, client_handle) = transport_func(address, core.handle())?.into_client();
-    Ok((core, client, client_handle))
+) -> Result<(Client<T>, ClientHandle)> {
+    let (client, client_handle) = transport_func(address)?.into_client();
+    Ok((client, client_handle))
 }
 
 pub struct DaemonRpcClient {

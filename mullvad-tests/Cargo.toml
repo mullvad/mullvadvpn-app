@@ -19,7 +19,7 @@ talpid-types = { path = "../talpid-types" }
 tempfile = "3.0"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
-tokio-core = "0.1"
+tokio = "0.1"
 futures = "0.1.23"
 
 [target.'cfg(unix)'.dependencies]
