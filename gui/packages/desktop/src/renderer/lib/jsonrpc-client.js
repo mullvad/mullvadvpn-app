@@ -184,7 +184,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
   }
 
   async subscribe(event: string, listener: (mixed) => void): Promise<*> {
-    log.silly(`Adding a listener to ${event}`);
+    log.silly(`Adding a listener for ${event}`);
 
     try {
       const subscriptionId = await this.send(`${event}_subscribe`);
