@@ -34,6 +34,13 @@ describe('components/SelectLocation', () => {
                 includeInCountry: true,
                 weight: 1,
               },
+              {
+                hostname: 'fake2.mullvad.net',
+                ipv4AddrIn: '192.168.0.101',
+                ipv4AddrExit: '192.168.1.101',
+                includeInCountry: true,
+                weight: 1,
+              },
             ],
           },
           {
@@ -107,6 +114,27 @@ describe('components/SelectLocation', () => {
     };
     const component = shallow(<SelectLocation {...props} />);
     const elements = getComponent(component, 'city');
+    expect(elements).to.have.length(2);
+    elements.at(0).simulate('press');
+  });
+
+  it('should call select callback for relay', (done) => {
+    const props = {
+      ...defaultProps,
+      onClose: () => {},
+      onSelect: (location) => {
+        try {
+          expect(location).to.deep.equal({
+            hostname: ['se', 'mma', 'fake1.mullvad.net'],
+          });
+          done();
+        } catch (e) {
+          done(e);
+        }
+      },
+    };
+    const component = shallow(<SelectLocation {...props} />);
+    const elements = getComponent(component, 'relay');
     expect(elements).to.have.length(2);
     elements.at(0).simulate('press');
   });
