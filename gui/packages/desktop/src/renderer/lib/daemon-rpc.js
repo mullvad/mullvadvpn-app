@@ -228,7 +228,7 @@ const AccountDataSchema = object({
 });
 
 const allBlockReasons: Array<BlockReason> = [
-  'enable_ipv6_error',
+  'ipv6_unavailable',
   'set_security_policy_error',
   'start_tunnel_error',
   'no_matching_relay',
