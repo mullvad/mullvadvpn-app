@@ -288,10 +288,10 @@ export default class JsonRpcClient<T> extends EventEmitter {
     const listener = this._subscriptions.get(subscriptionId);
 
     if (listener) {
-      log.silly('Got notification', message.payload.method, message.payload.params.result);
+      log.silly(`Got notification for ${message.payload.method}`);
       listener(message.payload.params.result);
     } else {
-      log.warn('Got notification for', message.payload.method, 'but no one is listening for it');
+      log.warn(`Got notification for ${message.payload.method} but no one is listening for it`);
     }
   }
 
