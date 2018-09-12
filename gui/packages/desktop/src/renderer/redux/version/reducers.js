@@ -4,22 +4,22 @@ import type { ReduxAction } from '../store';
 
 export type VersionReduxState = {
   current: string,
-  latest: string,
-  latestStable: string,
+  latest: ?string,
+  latestStable: ?string,
   upToDate: boolean,
   consistent: boolean,
 };
 
 const initialState: VersionReduxState = {
   current: '',
-  latest: '',
-  latestStable: '',
-  upToDate: false,
+  latest: null,
+  latestStable: null,
+  upToDate: true,
   consistent: true,
 };
 
-const checkIfLatest = (current: string, latest: string, latestStable: string): boolean => {
-  return current === latest || current === latestStable;
+const checkIfLatest = (current: string, latest: ?string, latestStable: ?string): boolean => {
+  return latest === null || latestStable === null || current === latest || current === latestStable;
 };
 
 export default function(
