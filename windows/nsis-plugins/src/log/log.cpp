@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
 #include <experimental/filesystem>
 
 Logger *g_logger = nullptr;
@@ -99,12 +100,39 @@ void __declspec(dllexport) NSISCALL Initialize
 	{
 		PinDll();
 
-		auto logfile = std::experimental::filesystem::path(common::fs::GetKnownFolderPath(
+		auto logpath = std::experimental::filesystem::path(common::fs::GetKnownFolderPath(
 			FOLDERID_ProgramData, 0, nullptr));
 
-		logfile.append(L"Mullvad VPN").append(L"install.log");
+		logpath.append(L"Mullvad VPN");
+
+		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
+		{
+			if (ERROR_ALREADY_EXISTS != GetLastError())
+			{
+				std::wstringstream ss;
+
+				ss << L"Cannot create folder: "
+					<< L"\""
+					<< logpath
+					<< L"\"";
+
+				throw std::runtime_error(common::string::ToAnsi(ss.str()));
+			}
+		}
+
+		const auto logfile = decltype(logpath)(logpath).append(L"install.log");
 
 		g_logger = new Logger(std::make_unique<AnsiFileLogSink>(logfile));
+	}
+	catch (std::exception &err)
+	{
+		std::stringstream ss;
+
+		ss << "Failed to initialize logging plugin."
+			<< std::endl
+			<< err.what();
+
+		MessageBoxA(hwndParent, ss.str().c_str(), nullptr, MB_OK);
 	}
 	catch (...)
 	{
