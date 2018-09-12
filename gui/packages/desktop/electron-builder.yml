@@ -92,7 +92,6 @@ win:
       to: .
     - from: ../../../dist-assets/binaries/windows/openvpn.exe
       to: .
-  extraFiles:
     - from: ../../../target/release/mullvad.exe
       to: .
 
