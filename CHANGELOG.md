@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix incorrect window position when using external display.
 - Don't auto-connect the daemon on start if no account token is set. This prevents the daemon from
   blocking all internet if logging out from the app.
+- Reduce latency to show app version in Settings screen.
 
 #### Linux
 - The app window is now shown in its previous location, instead of at the center of the screen.
