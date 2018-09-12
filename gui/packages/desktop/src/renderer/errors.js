@@ -14,8 +14,6 @@ export class BlockedError extends Error {
           return 'Failed to start tunnel connection';
         case 'no_matching_relay':
           return 'No relay server matches the current settings';
-        case 'no_account_token':
-          return 'No account token configured';
         default:
           return `Unknown error: ${(reason: empty)}`;
       }

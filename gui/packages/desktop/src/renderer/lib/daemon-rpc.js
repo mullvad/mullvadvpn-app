@@ -42,11 +42,10 @@ const LocationSchema = object({
 });
 
 export type BlockReason =
-  | 'enable_ipv6_error'
+  | 'ipv6_unavailable'
   | 'set_security_policy_error'
   | 'start_tunnel_error'
-  | 'no_matching_relay'
-  | 'no_account_token';
+  | 'no_matching_relay';
 
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
@@ -232,7 +231,6 @@ const allBlockReasons: Array<BlockReason> = [
   'set_security_policy_error',
   'start_tunnel_error',
   'no_matching_relay',
-  'no_account_token',
 ];
 const TunnelStateTransitionSchema = oneOf(
   object({
