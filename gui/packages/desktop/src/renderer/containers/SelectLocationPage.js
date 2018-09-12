@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   return {
     onClose: () => history.goBack(),
     onSelect: async (relayLocation) => {
-      // dismiss the view first because updateRelaySettings + connectTunnel may take a long time.
+      // dismiss the view first
       history.goBack();
 
       try {
