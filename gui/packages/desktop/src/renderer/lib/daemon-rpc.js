@@ -96,7 +96,7 @@ export type RelaySettings =
       normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>,
     |}
   | {|
-      custom_tunnel_endpoint: RelaySettingsCustom,
+      customTunnelEndpoint: RelaySettingsCustom,
     |};
 
 // types describing the partial update of RelaySettings
@@ -108,7 +108,7 @@ export type RelaySettingsUpdate =
       normal: RelaySettingsNormalUpdate,
     |}
   | {|
-      custom_tunnel_endpoint: RelaySettingsCustom,
+      customTunnelEndpoint: RelaySettingsCustom,
     |};
 
 const constraint = <T>(constraintValue: SchemaNode<T>) => {
@@ -179,9 +179,9 @@ export type RelayListCity = {
 
 export type RelayListHostname = {
   hostname: string,
-  ipv4_addr_in: string,
-  ipv4_addr_exit: string,
-  include_in_country: boolean,
+  ipv4AddrIn: string,
+  ipv4AddrExit: string,
+  includeInCountry: boolean,
   weight: number,
 };
 
@@ -213,6 +213,9 @@ const RelayListSchema = object({
 
 export type TunnelOptions = {
   enableIpv6: boolean,
+  openvpn: {
+    mssfix: ?number,
+  },
 };
 
 const TunnelOptionsSchema = object({
@@ -404,7 +407,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getRelayLocations(): Promise<RelayList> {
     const response = await this._transport.send('get_relay_locations');
     try {
-      return validate(RelayListSchema, response);
+      return camelCaseObjectKeys(validate(RelayListSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_relay_locations', error);
     }
@@ -424,13 +427,13 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    await this._transport.send('update_relay_settings', [relaySettings]);
+    await this._transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
   }
 
   async getRelaySettings(): Promise<RelaySettings> {
     const response = await this._transport.send('get_relay_settings');
     try {
-      const validatedObject = validate(RelaySettingsSchema, response);
+      const validatedObject = camelCaseObjectKeys(validate(RelaySettingsSchema, response));
 
       /* $FlowFixMe:
         There is no way to express constraints with string literals, i.e:
@@ -469,11 +472,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getTunnelOptions(): Promise<TunnelOptions> {
     const response = await this._transport.send('get_tunnel_options');
     try {
-      const validatedObject = validate(TunnelOptionsSchema, response);
-
-      return {
-        enableIpv6: validatedObject.enable_ipv6,
-      };
+      return camelCaseObjectKeys(validate(TunnelOptionsSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_tunnel_options', error);
     }
@@ -530,7 +529,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
-        const newState = validate(TunnelStateTransitionSchema, payload);
+        const newState = camelCaseObjectKeys(validate(TunnelStateTransitionSchema, payload));
         listener._onEvent(newState);
       } catch (error) {
         listener._onError(new ResponseParseError('Invalid payload from new_state', error));
@@ -592,18 +591,32 @@ function underscoreToCamelCase(str: string): string {
   return str.replace(/_([a-z])/gi, (matches) => matches[1].toUpperCase());
 }
 
-function camelCaseObjectKeys(object: Object) {
-  for (const underscoreKey of Object.keys(object)) {
-    const camelCaseKey = underscoreToCamelCase(underscoreKey);
-    const sourceValue = object[underscoreKey];
+function camelCaseToUnderscore(str: string): string {
+  return str
+    .replace(/[a-z0-9][A-Z]/g, (matches) => `${matches[0]}_${matches[1].toLowerCase()}`)
+    .toLowerCase();
+}
 
-    object[camelCaseKey] =
+function camelCaseObjectKeys(object: Object) {
+  return transformObjectKeys(object, underscoreToCamelCase);
+}
+
+function underscoreObjectKeys(object: Object) {
+  return transformObjectKeys(object, camelCaseToUnderscore);
+}
+
+function transformObjectKeys(object: Object, keyTransformer: (string) => string) {
+  for (const sourceKey of Object.keys(object)) {
+    const targetKey = keyTransformer(sourceKey);
+    const sourceValue = object[sourceKey];
+
+    object[targetKey] =
       sourceValue !== null && typeof sourceValue === 'object'
-        ? camelCaseObjectKeys(sourceValue)
+        ? transformObjectKeys(sourceValue, keyTransformer)
         : sourceValue;
 
-    if (camelCaseKey !== underscoreKey) {
-      delete object[underscoreKey];
+    if (sourceKey !== targetKey) {
+      delete object[sourceKey];
     }
   }
   return object;
