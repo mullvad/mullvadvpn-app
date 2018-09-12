@@ -318,7 +318,6 @@ export interface DaemonRpcProtocol {
   disconnect(): void;
   getAccountData(AccountToken): Promise<AccountData>;
   getRelayLocations(): Promise<RelayList>;
-  getAccount(): Promise<?AccountToken>;
   setAccount(accountToken: ?AccountToken): Promise<void>;
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
   setAllowLan(boolean): Promise<void>;
@@ -406,15 +405,6 @@ export class DaemonRpc implements DaemonRpcProtocol {
       return camelCaseObjectKeys(validate(RelayListSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_relay_locations', error);
-    }
-  }
-
-  async getAccount(): Promise<?AccountToken> {
-    const response = await this._transport.send('get_account');
-    if (response === null || typeof response === 'string') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_account', null);
     }
   }
 
