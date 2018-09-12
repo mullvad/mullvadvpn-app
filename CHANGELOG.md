@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
 - The app window is now shown in its previous location, instead of at the center of the screen.
 - Remove daemon log, cache and configuration directories during full uninstallation of the app.
 - Restart the daemon automatically on upgrade.
+- Fix systemd unit file to support older versions of systemd (e.g., in Debian 8).
 
 #### macOS
 - Fix edge cases when window's arrow appeared misaligned and pointed to the wrong menubar item.
