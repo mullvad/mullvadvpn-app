@@ -321,7 +321,6 @@ export interface DaemonRpcProtocol {
   getAccount(): Promise<?AccountToken>;
   setAccount(accountToken: ?AccountToken): Promise<void>;
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
-  getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
   setEnableIpv6(boolean): Promise<void>;
   setAutoConnect(boolean): Promise<void>;
@@ -425,28 +424,6 @@ export class DaemonRpc implements DaemonRpcProtocol {
 
   async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
     await this._transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
-  }
-
-  async getRelaySettings(): Promise<RelaySettings> {
-    const response = await this._transport.send('get_relay_settings');
-    try {
-      const validatedObject = camelCaseObjectKeys(validate(RelaySettingsSchema, response));
-
-      /* $FlowFixMe:
-        There is no way to express constraints with string literals, i.e:
-
-        RelaySettingsSchema constraint:
-          oneOf(string, object)
-
-        RelaySettings constraint:
-          'any' | object
-
-        These two are incompatible so we simply enforce the type for now.
-      */
-      return ((validatedObject: any): RelaySettings);
-    } catch (e) {
-      throw new ResponseParseError('Invalid response from get_relay_settings', e);
-    }
   }
 
   async setAllowLan(allowLan: boolean): Promise<void> {
