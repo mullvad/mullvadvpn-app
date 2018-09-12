@@ -5,11 +5,8 @@ import { shallow } from 'enzyme';
 import { CloseBarItem } from '../../src/renderer/components/NavigationBar';
 import SelectLocation from '../../src/renderer/components/SelectLocation';
 
-import type { SettingsReduxState } from '../../src/renderer/redux/settings/reducers';
-import type { SelectLocationProps } from '../../src/renderer/components/SelectLocation';
-
 describe('components/SelectLocation', () => {
-  const state: SettingsReduxState = {
+  const defaultProps = {
     relaySettings: {
       normal: {
         location: 'any',
@@ -58,39 +55,24 @@ describe('components/SelectLocation', () => {
         ],
       },
     ],
-    autoConnect: false,
-    allowLan: false,
-    enableIpv6: true,
-  };
-
-  const makeProps = (
-    state: SettingsReduxState,
-    mergeProps: $Shape<SelectLocationProps>,
-  ): SelectLocationProps => {
-    const defaultProps: SelectLocationProps = {
-      settings: state,
-      onClose: () => {},
-      onSelect: (_server) => {},
-    };
-    return Object.assign({}, defaultProps, mergeProps);
-  };
-
-  const render = (props: SelectLocationProps) => {
-    return shallow(<SelectLocation {...props} />);
   };
 
   it('should call close callback', (done) => {
-    const props = makeProps(state, {
+    const props = {
+      ...defaultProps,
       onClose: () => done(),
-    });
-    const component = render(props)
+      onSelect: () => {},
+    };
+    const component = shallow(<SelectLocation {...props} />)
       .find(CloseBarItem)
       .dive();
     component.simulate('press');
   });
 
   it('should call select callback for country', (done) => {
-    const props = makeProps(state, {
+    const props = {
+      ...defaultProps,
+      onClose: () => {},
       onSelect: (location) => {
         try {
           expect(location).to.deep.equal({
@@ -101,14 +83,17 @@ describe('components/SelectLocation', () => {
           done(e);
         }
       },
-    });
-    const elements = getComponent(render(props), 'country');
+    };
+    const component = shallow(<SelectLocation {...props} />);
+    const elements = getComponent(component, 'country');
     expect(elements).to.have.length(1);
     elements.at(0).simulate('press');
   });
 
   it('should call select callback for city', (done) => {
-    const props = makeProps(state, {
+    const props = {
+      ...defaultProps,
+      onClose: () => {},
       onSelect: (location) => {
         try {
           expect(location).to.deep.equal({
@@ -119,8 +104,9 @@ describe('components/SelectLocation', () => {
           done(e);
         }
       },
-    });
-    const elements = getComponent(render(props), 'city');
+    };
+    const component = shallow(<SelectLocation {...props} />);
+    const elements = getComponent(component, 'city');
     expect(elements).to.have.length(2);
     elements.at(0).simulate('press');
   });

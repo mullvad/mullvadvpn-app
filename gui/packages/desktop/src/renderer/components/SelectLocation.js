@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import { View } from 'reactxp';
+import { View, Component } from 'reactxp';
 import { Accordion } from '@mullvad/components';
 import { Layout, Container } from './Layout';
 import CustomScrollbars from './CustomScrollbars';
@@ -12,15 +12,16 @@ import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 
 import type {
-  SettingsReduxState,
+  RelaySettingsRedux,
   RelayLocationRedux,
   RelayLocationCityRedux,
   RelayLocationRelayRedux,
 } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/daemon-rpc';
 
-export type SelectLocationProps = {
-  settings: SettingsReduxState,
+type Props = {
+  relaySettings: RelaySettingsRedux,
+  relayLocations: Array<RelayLocationRedux>,
   onClose: () => void,
   onSelect: (location: RelayLocation) => void,
 };
@@ -29,19 +30,19 @@ type State = {
   expanded: Array<string>,
 };
 
-export default class SelectLocation extends React.Component<SelectLocationProps, State> {
   _selectedCell: ?Cell.CellButton;
   _scrollView: ?CustomScrollbars;
+export default class SelectLocation extends Component<Props, State> {
 
   state = {
     expanded: [],
   };
 
-  constructor(props: SelectLocationProps, context?: any) {
-    super(props, context);
+  constructor(props: Props) {
+    super(props);
 
     // set initially expanded country based on relaySettings
-    const relaySettings = this.props.settings.relaySettings;
+    const relaySettings = this.props.relaySettings;
     if (relaySettings.normal) {
       const { location } = relaySettings.normal;
       if (location === 'any') {
@@ -99,7 +100,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
                     </HeaderSubTitle>
                   </SettingsHeader>
 
-                  {this.props.settings.relayLocations.map((relayCountry) => {
+                  {this.props.relayLocations.map((relayCountry) => {
                     return this._renderCountry(relayCountry);
                   })}
                 </View>
@@ -112,7 +113,7 @@ export default class SelectLocation extends React.Component<SelectLocationProps,
   }
 
   _isSelected(selectedLocation: RelayLocation) {
-    const { relaySettings } = this.props.settings;
+    const relaySettings = this.props.relaySettings;
     if (relaySettings.normal) {
       const otherLocation = relaySettings.normal.location;
 
