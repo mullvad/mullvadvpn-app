@@ -318,16 +318,11 @@ export interface DaemonRpcProtocol {
   disconnect(): void;
   getAccountData(AccountToken): Promise<AccountData>;
   getRelayLocations(): Promise<RelayList>;
-  getAccount(): Promise<?AccountToken>;
   setAccount(accountToken: ?AccountToken): Promise<void>;
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
-  getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
-  getAllowLan(): Promise<boolean>;
   setEnableIpv6(boolean): Promise<void>;
-  getTunnelOptions(): Promise<TunnelOptions>;
   setAutoConnect(boolean): Promise<void>;
-  getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
@@ -413,15 +408,6 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
-  async getAccount(): Promise<?AccountToken> {
-    const response = await this._transport.send('get_account');
-    if (response === null || typeof response === 'string') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_account', null);
-    }
-  }
-
   async setAccount(accountToken: ?AccountToken): Promise<void> {
     await this._transport.send('set_account', accountToken);
   }
@@ -430,65 +416,16 @@ export class DaemonRpc implements DaemonRpcProtocol {
     await this._transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
   }
 
-  async getRelaySettings(): Promise<RelaySettings> {
-    const response = await this._transport.send('get_relay_settings');
-    try {
-      const validatedObject = camelCaseObjectKeys(validate(RelaySettingsSchema, response));
-
-      /* $FlowFixMe:
-        There is no way to express constraints with string literals, i.e:
-
-        RelaySettingsSchema constraint:
-          oneOf(string, object)
-
-        RelaySettings constraint:
-          'any' | object
-
-        These two are incompatible so we simply enforce the type for now.
-      */
-      return ((validatedObject: any): RelaySettings);
-    } catch (e) {
-      throw new ResponseParseError('Invalid response from get_relay_settings', e);
-    }
-  }
-
   async setAllowLan(allowLan: boolean): Promise<void> {
     await this._transport.send('set_allow_lan', [allowLan]);
-  }
-
-  async getAllowLan(): Promise<boolean> {
-    const response = await this._transport.send('get_allow_lan');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_allow_lan', null);
-    }
   }
 
   async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this._transport.send('set_enable_ipv6', [enableIpv6]);
   }
 
-  async getTunnelOptions(): Promise<TunnelOptions> {
-    const response = await this._transport.send('get_tunnel_options');
-    try {
-      return camelCaseObjectKeys(validate(TunnelOptionsSchema, response));
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_tunnel_options', error);
-    }
-  }
-
   async setAutoConnect(autoConnect: boolean): Promise<void> {
     await this._transport.send('set_auto_connect', [autoConnect]);
-  }
-
-  async getAutoConnect(): Promise<boolean> {
-    const response = await this._transport.send('get_auto_connect');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_auto_connect', null);
-    }
   }
 
   async connectTunnel(): Promise<void> {
