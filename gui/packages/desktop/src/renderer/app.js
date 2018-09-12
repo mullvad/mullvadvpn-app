@@ -426,7 +426,7 @@ export default class AppRenderer {
     const actions = this._reduxActions;
     const history = this._memoryHistory;
     const settings = await this._settingsProxy.fetch();
-    const { accountToken } = settings;
+    const accountToken = settings.accountToken;
 
     if (accountToken) {
       log.debug(`Account token is set. Showing the tunnel view.`);
