@@ -377,13 +377,13 @@ export default class AppRenderer {
     try {
       await this._fetchRelayLocations();
     } catch (error) {
-      log.error(`Cannot fetch relay locations and account history: ${error.message}`);
+      log.error(`Cannot fetch the relay locations: ${error.message}`);
     }
 
     try {
       await this._fetchAccountHistory();
     } catch (error) {
-      log.error(`Cannot fetch account history: ${error.message}`);
+      log.error(`Cannot fetch the account history: ${error.message}`);
     }
 
     // set the appropriate start view
