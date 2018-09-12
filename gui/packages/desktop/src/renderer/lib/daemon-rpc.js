@@ -325,11 +325,8 @@ export interface DaemonRpcProtocol {
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
   getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
-  getAllowLan(): Promise<boolean>;
   setEnableIpv6(boolean): Promise<void>;
-  getTunnelOptions(): Promise<TunnelOptions>;
   setAutoConnect(boolean): Promise<void>;
-  getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
@@ -458,39 +455,12 @@ export class DaemonRpc implements DaemonRpcProtocol {
     await this._transport.send('set_allow_lan', [allowLan]);
   }
 
-  async getAllowLan(): Promise<boolean> {
-    const response = await this._transport.send('get_allow_lan');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_allow_lan', null);
-    }
-  }
-
   async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this._transport.send('set_enable_ipv6', [enableIpv6]);
   }
 
-  async getTunnelOptions(): Promise<TunnelOptions> {
-    const response = await this._transport.send('get_tunnel_options');
-    try {
-      return camelCaseObjectKeys(validate(TunnelOptionsSchema, response));
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_tunnel_options', error);
-    }
-  }
-
   async setAutoConnect(autoConnect: boolean): Promise<void> {
     await this._transport.send('set_auto_connect', [autoConnect]);
-  }
-
-  async getAutoConnect(): Promise<boolean> {
-    const response = await this._transport.send('get_auto_connect');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_auto_connect', null);
-    }
   }
 
   async connectTunnel(): Promise<void> {
