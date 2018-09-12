@@ -334,13 +334,20 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
-  async _fetchVersionInfo() {
+  async _fetchCurrentVersion() {
     const actions = this._reduxActions;
-    const latestVersionInfo = await this._daemonRpc.getVersionInfo();
     const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
     const versionFromGui = remote.app.getVersion().replace('.0', '');
 
     actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
+  }
+
+  async _fetchLatestVersionInfo() {
+    // fetching the latest version info has a higher latency because the daemon communicates with
+    // the API server
+    const actions = this._reduxActions;
+    const latestVersionInfo = await this._daemonRpc.getVersionInfo();
+
     actions.version.updateLatest(latestVersionInfo);
   }
 
@@ -373,6 +380,12 @@ export default class AppRenderer {
 
     // fetch the rest of data
     try {
+      await this._fetchCurrentVersion();
+    } catch (error) {
+      log.error(`Cannot fetch the current version: ${error.message}`);
+    }
+
+    try {
       await this._fetchRelayLocations();
     } catch (error) {
       log.error(`Cannot fetch the relay locations: ${error.message}`);
@@ -394,9 +407,9 @@ export default class AppRenderer {
     }
 
     try {
-      await this._fetchVersionInfo();
+      await this._fetchLatestVersionInfo();
     } catch (error) {
-      log.error(`Cannot fetch the version information: ${error.message}`);
+      log.error(`Cannot fetch the latest version information: ${error.message}`);
     }
 
     // auto connect the tunnel on startup
