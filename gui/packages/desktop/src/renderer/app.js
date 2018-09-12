@@ -360,15 +360,13 @@ export default class AppRenderer {
   async _runPrimaryApplicationFlow() {
     // fetch initial state and subscribe for changes
     try {
-      const settings = await this._settingsProxy.fetch();
-      this._setSettings(settings);
+      await this._settingsProxy.fetch();
     } catch (error) {
       log.error(`Cannot fetch the initial settings: ${error.message}`);
     }
 
     try {
-      const tunnelState = await this._tunnelStateProxy.fetch();
-      this._setTunnelState(tunnelState);
+      await this._tunnelStateProxy.fetch();
     } catch (error) {
       log.error(`Cannot fetch the initial tunnel state: ${error.message}`);
     }

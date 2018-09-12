@@ -49,6 +49,9 @@ export default class BaseSubscriptionProxy<T> {
       // cache the initial value
       this._value = value;
 
+      // notify the delegate upon initial fetch
+      this._onUpdate(value);
+
       return value;
     } catch (error) {
       throw error;
