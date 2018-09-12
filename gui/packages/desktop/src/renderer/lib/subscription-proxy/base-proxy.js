@@ -28,15 +28,13 @@ export default class BaseSubscriptionProxy<T> {
 
   async fetch(): Promise<T> {
     // return the cached promise if there is an ongoing fetch
-    const executingPromise = this._executingPromise;
-    if (executingPromise) {
-      return executingPromise;
+    if (this._executingPromise) {
+      return this._executingPromise;
     }
 
     // return the value if it's available
-    const value = this._value;
-    if (value) {
-      return value;
+    if (this._value) {
+      return this._value;
     }
 
     // subscribe if needed and fetch the initial state.
