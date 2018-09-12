@@ -549,7 +549,7 @@ function transformObjectKeys(object: Object, keyTransformer: (string) => string)
 
     object[targetKey] =
       sourceValue !== null && typeof sourceValue === 'object'
-        ? camelCaseObjectKeys(sourceValue)
+        ? transformObjectKeys(sourceValue, keyTransformer)
         : sourceValue;
 
     if (sourceKey !== targetKey) {
