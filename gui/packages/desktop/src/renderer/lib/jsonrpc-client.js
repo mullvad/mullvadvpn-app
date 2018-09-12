@@ -122,7 +122,7 @@ export class WebSocketError extends Error {
 
 export class TransportError extends Error {}
 
-const DEFAULT_TIMEOUT_MILLIS = 5000;
+const DEFAULT_TIMEOUT_MILLIS = 15000;
 
 export default class JsonRpcClient<T> extends EventEmitter {
   _unansweredRequests: Map<string, UnansweredRequest> = new Map();
