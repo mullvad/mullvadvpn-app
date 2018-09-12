@@ -206,7 +206,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
     return new Promise((resolve, reject) => {
       const transport = this._transport;
       if (!transport) {
-        reject(new Error('Websocket is not connected.'));
+        reject(new Error('RPC client transport is not connected.'));
         return;
       }
 
