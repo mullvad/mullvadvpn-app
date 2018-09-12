@@ -6,7 +6,7 @@ export class BlockedError extends Error {
   constructor(reason: BlockReason) {
     const message = (function() {
       switch (reason) {
-        case 'enable_ipv6_error':
+        case 'ipv6_unavailable':
           return 'Could not configure IPv6, please enable it on your system or disable it in the app';
         case 'set_security_policy_error':
           return 'Failed to apply security policy';
@@ -14,8 +14,6 @@ export class BlockedError extends Error {
           return 'Failed to start tunnel connection';
         case 'no_matching_relay':
           return 'No relay server matches the current settings';
-        case 'no_account_token':
-          return 'No account token configured';
         default:
           return `Unknown error: ${(reason: empty)}`;
       }
