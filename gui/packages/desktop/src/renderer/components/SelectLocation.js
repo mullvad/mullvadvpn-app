@@ -30,9 +30,9 @@ type State = {
   expanded: Array<string>,
 };
 
-  _selectedCell: ?Cell.CellButton;
-  _scrollView: ?CustomScrollbars;
 export default class SelectLocation extends Component<Props, State> {
+  _selectedCellRef = React.createRef();
+  _scrollViewRef = React.createRef();
 
   state = {
     expanded: [],
@@ -65,8 +65,8 @@ export default class SelectLocation extends Component<Props, State> {
 
   componentDidMount() {
     // restore scroll to selected cell
-    const cell = this._selectedCell;
-    const scrollView = this._scrollView;
+    const cell = this._selectedCellRef.current;
+    const scrollView = this._scrollViewRef.current;
 
     if (scrollView && cell) {
       // eslint-disable-next-line react/no-find-dom-node
@@ -91,7 +91,7 @@ export default class SelectLocation extends Component<Props, State> {
                 <HeaderTitle>Select location</HeaderTitle>
               </SettingsHeader>
 
-              <CustomScrollbars autoHide={true} ref={(ref) => (this._scrollView = ref)}>
+              <CustomScrollbars autoHide={true} ref={this._scrollViewRef}>
                 <View style={styles.content}>
                   <SettingsHeader style={styles.subtitle_header}>
                     <HeaderSubTitle>
@@ -174,11 +174,7 @@ export default class SelectLocation extends Component<Props, State> {
   _renderCountry(relayCountry: RelayLocationRedux) {
     const isSelected = this._isSelected({ country: relayCountry.code });
 
-    const onRef = isSelected
-      ? (element) => {
-          this._selectedCell = element;
-        }
-      : undefined;
+    const cellRef = isSelected ? this._selectedCellRef : undefined;
 
     // either expanded by user or when the city selected within the country
     const isExpanded = this.state.expanded.includes(relayCountry.code);
@@ -207,7 +203,7 @@ export default class SelectLocation extends Component<Props, State> {
           onPress={handleSelect}
           disabled={!relayCountry.hasActiveRelays}
           testName="country"
-          ref={onRef}>
+          ref={cellRef}>
           {this._relayStatusIndicator(relayCountry.hasActiveRelays, isSelected)}
 
           <Cell.Label>{relayCountry.name}</Cell.Label>
@@ -239,11 +235,7 @@ export default class SelectLocation extends Component<Props, State> {
 
     const isSelected = this._isSelected(relayLocation);
 
-    const onRef = isSelected
-      ? (element) => {
-          this._selectedCell = element;
-        }
-      : undefined;
+    const cellRef = isSelected ? this._selectedCellRef : undefined;
 
     // either expanded by user or when the city or a relay from the city is selected
     const isExpanded = this.state.expanded.includes(expandedCode);
@@ -268,7 +260,7 @@ export default class SelectLocation extends Component<Props, State> {
           cellHoverStyle={isSelected ? styles.sub_cell__selected : null}
           style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
           testName="city"
-          ref={onRef}>
+          ref={cellRef}>
           {this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected)}
 
           <Cell.Label>{relayCity.name}</Cell.Label>
@@ -299,11 +291,7 @@ export default class SelectLocation extends Component<Props, State> {
 
     const isSelected = this._isSelected(relayLocation);
 
-    const onRef = isSelected
-      ? (element) => {
-          this._selectedCell = element;
-        }
-      : undefined;
+    const cellRef = isSelected ? this._selectedCellRef : undefined;
 
     const handleSelect = !isSelected
       ? () => {
@@ -318,7 +306,7 @@ export default class SelectLocation extends Component<Props, State> {
         cellHoverStyle={isSelected ? styles.sub_sub_cell__selected : null}
         style={isSelected ? styles.sub_sub_cell__selected : styles.sub_sub_cell}
         testName="relay"
-        ref={onRef}>
+        ref={cellRef}>
         {this._relayStatusIndicator(true, isSelected)}
 
         <Cell.Label>{relay.hostname}</Cell.Label>
