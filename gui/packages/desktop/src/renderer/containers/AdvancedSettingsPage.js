@@ -24,8 +24,8 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
       protocol: protocol === 'any' ? 'Automatic' : protocol,
       port: port === 'any' ? 'Automatic' : port,
     };
-  } else if (relaySettings.custom_tunnel_endpoint) {
-    const { protocol, port } = relaySettings.custom_tunnel_endpoint;
+  } else if (relaySettings.customTunnelEndpoint) {
+    const { protocol, port } = relaySettings.customTunnelEndpoint;
     return { protocol, port };
   } else {
     throw new Error('Unknown type of relay settings.');
