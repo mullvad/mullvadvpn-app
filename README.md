@@ -57,45 +57,82 @@ The host has to have the following installed:
 
 ### Linux
 
-For Debian based distributions, you need to install the following. For other distributions you need
-the equivalent packages:
+For Debian/Ubuntu based distributions, you need to install the following. For other distributions
+you need the equivalent packages:
 ```bash
-sudo apt install gcc libssl-dev libappindicator1
+# For building the daemon
+sudo apt install gcc
+# For running the frontend app
+sudo apt install libappindicator1 gconf2
 ```
 
 ### All platforms
 
-1. Get the latest stable Rust toolchain. This is easy with rustup, follow the instructions on
-[rustup.rs](https://rustup.rs/).
+1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-1. Get Node.js (version 8 or 9) and the latest version of yarn. On macOS these can be installed via
-homebrew:
-    ```bash
-    brew install node yarn
-    ```
+1. Get the latest version 8 LTS release of Node.js (>=8.10) and the latest version of
+   yarn (>=1.7.0).
+   #### macOS
+   ```bash
+   brew install node@8 yarn
+   export PATH="/usr/local/opt/node@8/bin:$PATH"
+   ```
+
+   #### Linux
+   Just download and unpack the `node-v8.xxxx.tar.xz` tarball and add its `bin` directory to your
+   `PATH`. Then install yarn with the help of the instructions on their website.
+
+   #### Windows
+   Download the Node.js and yarn installers from their official websites.
+
+## Building and packaging the app
+
+The simplest way to build the entire app and generate an installer is to just run the build script.
+`--dev-build` is added to skip some release checks and signing of the binaries:
+```bash
+./build.sh --dev-build
+```
+This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
+
+Building this requires at least 1GB of memory.
+
+If you want to build each component individually, or run in development mode, read the following
+sections.
 
 ## Building and running mullvad-daemon
 
-1. Firstly, one should source `env.sh` to set the default environment
-   variables. One can also source the variables on Powershell with `env.ps1`,
+1. Firstly, one should source `env.sh` to set the default environment variables.
+   One can also source the variables on Powershell with `env.ps1`,
    however most of our scripts require bash.
+   ```bash
+   source env.sh
+   # Or if you use Powershell:
+   . .\env.ps1
+   ```
 
-1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon.
-   Run `build_winfw.sh` to build a C++ library that sets firewall rules on Windows.
+1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon:
     ```bash
-    bash build_winfw.sh
+    bash ./build_windows_modules.sh --dev-build
     ```
 
-1. Build the daemon without optimizations (debug mode) with:
+1. Build the system daemon plus the other Rust tools and programs:
     ```
     cargo build
     ```
 
-1. Run the daemon debug binary with verbose logging to the terminal with:
+1. Copy the OpenVPN binary, and our plugin for it, to the directory we will use as resource
+   directory. If you want to use any other directory, you would need to copy even more files.
+   ```bash
+   cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
+   cp target/debug/*talpid_openvpn_plugin* dist-assets/
+   ```
+
+
+1. Run the daemon with verbose logging with:
     ```
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
     ```
-    It must run as root since it it modifies the firewall and sets up virtual network interfaces
+    It must run as root since it modifies the firewall and sets up virtual network interfaces
     etc.
 
 ### Environment variables controlling the execution
@@ -105,6 +142,11 @@ homebrew:
 
 
 ## Building and running the Electron GUI app
+
+1. Go to the `gui` directory
+   ```bash
+   cd gui
+   ```
 
 1. Install all the JavaScript dependencies by running:
     ```bash
@@ -123,29 +165,9 @@ Please note that the GUI needs a running daemon to connect to in order to work. 
 [Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instruction on how
 to do that before starting the GUI.
 
-The GUI will need to resolve the path to binaries. In development mode this defaults to
-`./target/debug/`, but can be configured with the `MULLVAD_PATH` environment variable.
-
-
-## Packaging the app
-
-1. Follow the [Install toolchains and dependencies](#install-toolchains-and-dependencies) steps
-
-1. Build the daemon in optimized release mode with:
-    ```
-    cargo build --release
-    ```
-
-1. Install all JavaScript dependencies (unless you already have) and package the application with:
-    ```bash
-    cd gui
-    yarn install
-    yarn pack:<OS>  # <OS> can be linux, mac or win
-    ```
-    This will create installation packages for windows, linux or macOS. Note that you have to have
-    run `yarn install` at least once before this step to download the javascript dependencies.
-
-    The artifact (.pkg, .deb, .msi) version is the `version` property of `package.json`.
+The GUI will need to resolve the path to the `problem-report` tool. In development mode this
+defaults to `<repo>/target/debug/`, but can be configured with the `MULLVAD_PATH` environment
+variable.
 
 
 ## Making a release
@@ -207,34 +229,37 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 
 ## Repository structure
 
-### Electron GUI and electron-builder packaging
-- **app/**
-  - **redux/** - state management
-  - **components/** - components
-  - **containers/** - containers that provide a glueing layer between components and redux
-    actions/backend.
-  - **lib/** - shared classes and utilities
-  - **assets/** - graphical assets and stylesheets
-  - **config.json** - links to external components
-  - **app.js** - entry file for renderer process
-  - **main.js** - entry file for background process
-  - **routes.js** - routes configurator
-  - **transitions.js** - transition rules between views
-- **init.js** - entry file for electron, points to compiled **main.js**
-- **scripts/** - support scripts for development
-- **test/** - Electron GUI tests
+### Electron GUI app and electron-builder packaging assets
+- **gui/packages/**
+  - **components/** - Platform agnostic shared react components
+  - **desktop/** - The desktop implementation
+    - **src/**
+      - **assets/** - graphical assets and stylesheets
+      - **renderer/**
+        - **app.js** - entry file for renderer process
+        - **routes.js** - routes configurator
+        - **transitions.js** - transition rules between views
+      - **config.json** - App color definitions and URLs to external resources
+    - **test/** - Electron GUI tests
 - **dist-assets/** - Icons, binaries and other files used when creating the distributables
   - **binaries/** - Git submodule containing binaries bundled with the app. For example the
-    statically linked OpenVPN binary. See the README in the submodule for details.
+    statically linked OpenVPN binary. See the README in the submodule for details
+  - **linux/** - Scripts and configuration files for the deb and rpm artifacts
   - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
+  - **windows/** - Windows NSIS installer configuration and assets
+  - **api_root_ca.pem** - The root CA for the api.mullvad.net endpoint. The app uses certificate
+    pinning
+  - **ca.crt** - The Mullvad relay server root CA. Bundled with the app and only OpenVPN relays
+    signed by this CA are trusted
+  - **crl.pem** - The certificate revocation list for old relay certificates
+
 
 ### Building, testing and misc
+- **build_windows_modules.sh** - Compiles the C++ libraries needed on Windows
 - **build.sh** - Sanity checks the working directory state and then builds release artifacts for
-  the app.
-- **uninstall.sh** - Temporary script to help uninstall Mullvad VPN, all settings files, caches and
-  logs.
+  the app
 
-### Daemon
+### Mullvad Daemon
 
 The daemon is implemented in Rust and is implemented in several crates. The main, or top level,
 crate that builds the final daemon binary is `mullvad-daemon` which then depend on the others.
@@ -248,9 +273,11 @@ preserving features. The crates having `mullvad` in their name on the other hand
 `talpid` components to build a secure and Mullvad specific VPN client.
 
 
-- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are backend
+- **Cargo.toml** - Main Rust workspace definition. See this file for which folders here are daemon
   Rust crates.
 - **mullvad-daemon/** - Main Rust crate building the daemon binary.
+- **talpid-core/** - Main crate of the VPN client implementation itself. Completely Mullvad agnostic
+  privacy preserving VPN client library.
 
 
 ## Vocabulary
