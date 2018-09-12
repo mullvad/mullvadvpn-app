@@ -19,6 +19,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   return {
     onClose: () => history.goBack(),
     onSelect: async (relayLocation) => {
+      // dismiss the view first because updateRelaySettings + connectTunnel may take a long time.
+      history.goBack();
+
       try {
         const relayUpdate = RelaySettingsBuilder.normal()
           .location.fromRaw(relayLocation)
@@ -26,8 +29,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
 
         await props.app.updateRelaySettings(relayUpdate);
         await props.app.connectTunnel();
-
-        history.goBack();
       } catch (e) {
         log.error(`Failed to select server: ${e.message}`);
       }
