@@ -12,6 +12,8 @@
     <ClInclude Include="netsh.h" />
     <ClInclude Include="interfaceconfig.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="iclientsinkproxy.h" />
+    <ClInclude Include="confineoperation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -23,6 +25,7 @@
     <ClCompile Include="netconfighelpers.cpp" />
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="interfaceconfig.cpp" />
+    <ClCompile Include="confineoperation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windns.rc" />

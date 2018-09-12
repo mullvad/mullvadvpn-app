@@ -1,14 +1,14 @@
+use std::borrow::Borrow;
 use std::net::IpAddr;
+use std::os::raw::{c_char, c_void};
 use std::path::Path;
 use std::ptr;
 use std::slice;
 
 use error_chain::ChainedError;
-use libc;
 use widestring::WideCString;
 
 use super::system_state::SystemStateWriter;
-use winnet;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
@@ -47,7 +47,7 @@ pub struct WinDns {
 
 impl WinDns {
     pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
-        unsafe { WinDns_Initialize(Some(winnet::error_sink), ptr::null_mut()).into_result()? };
+        unsafe { WinDns_Initialize(Some(error_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
             cache_dir
@@ -90,7 +90,7 @@ impl WinDns {
                 ip_ptrs.as_mut_ptr(),
                 widestring_ips.len() as u32,
                 Some(write_system_state_backup_cb),
-                &self.backup_writer as *const _ as *const libc::c_void,
+                &self.backup_writer as *const _ as *const c_void,
             ).into_result()
         }
     }
@@ -129,6 +129,40 @@ impl WinDns {
     }
 }
 
+// typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details,
+// uint32_t numDetails, void *context);
+extern "system" fn error_sink(
+    msg: *const c_char,
+    detail_ptr: *const *const c_char,
+    n_details: u32,
+    _ctx: *mut c_void,
+) {
+    use std::ffi::CStr;
+    if msg.is_null() {
+        error!("Log message from FFI boundary is NULL");
+    } else {
+        if detail_ptr.is_null() || n_details == 0 {
+            error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
+        } else {
+            let raw_details = unsafe { slice::from_raw_parts(detail_ptr, n_details as usize) };
+            let mut appendix = String::new();
+            for detail_ptr in raw_details {
+                appendix
+                    .push_str(unsafe { CStr::from_ptr(*detail_ptr).to_string_lossy().borrow() });
+                appendix.push_str("\n");
+            }
+
+            let message = format!(
+                "{}: {}",
+                unsafe { CStr::from_ptr(msg).to_string_lossy() },
+                appendix
+            );
+
+            error!("{}", message);
+        }
+    }
+}
+
 impl Drop for WinDns {
     fn drop(&mut self) {
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
@@ -151,7 +185,7 @@ ffi_error!(RecoveringResult, ErrorKind::Recovery.into());
 pub extern "system" fn write_system_state_backup_cb(
     blob: *const u8,
     length: u32,
-    state_writer_ptr: *mut libc::c_void,
+    state_writer_ptr: *mut c_void,
 ) -> i32 {
     let state_writer = state_writer_ptr as *mut SystemStateWriter;
     if state_writer.is_null() {
@@ -182,15 +216,24 @@ pub extern "system" fn write_system_state_backup_cb(
 
 
 type DNSConfigSink =
-    extern "system" fn(data: *const u8, length: u32, state_writer: *mut libc::c_void) -> i32;
+    extern "system" fn(data: *const u8, length: u32, state_writer: *mut c_void) -> i32;
+
+// This callback can be called from multiple threads concurrently, thus if there ever is a real
+// context object passed around, it should probably implement Sync.
+type ErrorSink = extern "system" fn(
+    msg: *const c_char,
+    details: *const *const c_char,
+    num_details: u32,
+    ctx: *mut c_void,
+);
 
 #[allow(non_snake_case)]
 extern "system" {
 
     #[link_name(WinDns_Initialize)]
     pub fn WinDns_Initialize(
-        sink: Option<winnet::ErrorSink>,
-        sink_context: *mut libc::c_void,
+        sink: Option<ErrorSink>,
+        sink_context: *mut c_void,
     ) -> InitializationResult;
 
     // WinDns_Deinitialize:
@@ -205,7 +248,7 @@ extern "system" {
         ips: *mut *const u16,
         n_ips: u32,
         callback: Option<DNSConfigSink>,
-        backup_writer: *const libc::c_void,
+        backup_writer: *const c_void,
     ) -> SettingResult;
 
     // Revert server settings to what they were before calling WinDns_Set.

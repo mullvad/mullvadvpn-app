@@ -8,10 +8,10 @@
 ConfigManager::ConfigManager
 (
 	const std::vector<std::wstring> &servers,
-	const ConfigSinkInfo &configSinkInfo
+	IClientSinkProxy *clientSinkProxy
 )
 	: m_servers(servers)
-	, m_configSinkInfo(configSinkInfo)
+	, m_clientSinkProxy(clientSinkProxy)
 {
 }
 
@@ -29,12 +29,6 @@ void ConfigManager::updateServers(const std::vector<std::wstring> &servers)
 {
 	XTRACE(L"Updating DNS server list");
 	m_servers = servers;
-}
-
-void ConfigManager::updateConfigSink(const ConfigSinkInfo &configSinkInfo)
-{
-	XTRACE(L"Updating config sink");
-	m_configSinkInfo = configSinkInfo;
 }
 
 const std::vector<std::wstring> &ConfigManager::getServers() const
@@ -135,5 +129,5 @@ void ConfigManager::exportConfigs()
 
 	auto data = s.blob();
 
-	m_configSinkInfo.sink(&data[0], static_cast<uint32_t>(data.size()), m_configSinkInfo.context);
+	m_clientSinkProxy->config(&data[0], static_cast<uint32_t>(data.size()));
 }

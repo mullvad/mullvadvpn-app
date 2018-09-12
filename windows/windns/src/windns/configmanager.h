@@ -1,7 +1,7 @@
 #pragma once
 
 #include "interfaceconfig.h"
-#include "clientsinkinfo.h"
+#include "iclientsinkproxy.h"
 #include <map>
 #include <string>
 #include <mutex>
@@ -50,7 +50,7 @@ public:
 	ConfigManager
 	(
 		const std::vector<std::wstring> &servers,
-		const ConfigSinkInfo &configSinkInfo
+		IClientSinkProxy *clientSinkProxy
 	);
 
 	//
@@ -61,14 +61,9 @@ public:
 	void unlock();
 
 	//
-	// Notify the ConfigManager that servers used when overriding DNS settings have changed.
+	// Establish the set of servers to use when overriding DNS settings.
 	//
 	void updateServers(const std::vector<std::wstring> &servers);
-
-	//
-	// Update the callback used for persisting settings.
-	//
-	void updateConfigSink(const ConfigSinkInfo &configSinkInfo);
 
 	//
 	// Get the current set of servers used for overriding DNS settings.
@@ -96,7 +91,7 @@ private:
 	std::mutex m_mutex;
 
 	std::vector<std::wstring> m_servers;
-	ConfigSinkInfo m_configSinkInfo;
+	IClientSinkProxy *m_clientSinkProxy;
 
 	//
 	// Organize configs based on their system assigned index.
