@@ -415,11 +415,16 @@ export default class AppRenderer {
 
   async _fetchVersionInfo() {
     const actions = this._reduxActions;
-    const latestVersionInfo = await this._daemonRpc.getVersionInfo();
+
     const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
     const versionFromGui = remote.app.getVersion().replace('.0', '');
 
     actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
+
+    // fetching the version info has a higher latency because the daemon communicates with the API
+    // server
+    const latestVersionInfo = await this._daemonRpc.getVersionInfo();
+
     actions.version.updateLatest(latestVersionInfo);
   }
 
