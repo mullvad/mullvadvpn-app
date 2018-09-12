@@ -11,7 +11,8 @@ import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => ({
-  settings: state.settings,
+  relaySettings: state.settings.relaySettings,
+  relayLocations: state.settings.relayLocations,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
