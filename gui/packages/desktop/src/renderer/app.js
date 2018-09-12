@@ -467,24 +467,6 @@ export default class AppRenderer {
     }
   }
 
-  async _fetchStateAndSubscribeForChanges() {
-    // load initial settings and subscribe for changes
-    try {
-      const settings = await this._settingsProxy.fetch();
-      this._setSettings(settings);
-    } catch (error) {
-      log.error(`Cannot fetch settings: ${error.message}`);
-    }
-
-    // load initial tunnel state and subscribe for changes
-    try {
-      const tunnelState = await this._tunnelStateProxy.fetch();
-      this._setTunnelState(tunnelState);
-    } catch (error) {
-      log.error(`Cannot fetch tunnel state: ${error.message}`);
-    }
-  }
-
   _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
 
