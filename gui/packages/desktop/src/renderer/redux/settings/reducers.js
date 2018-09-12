@@ -12,7 +12,7 @@ export type RelaySettingsRedux =
       },
     |}
   | {|
-      custom_tunnel_endpoint: {
+      customTunnelEndpoint: {
         host: string,
         port: number,
         protocol: RelayProtocol,

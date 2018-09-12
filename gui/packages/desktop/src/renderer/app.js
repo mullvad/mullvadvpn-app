@@ -280,17 +280,17 @@ export default class AppRenderer {
       actions.settings.updateRelay({
         normal: payload,
       });
-    } else if (relaySettings.custom_tunnel_endpoint) {
-      const custom_tunnel_endpoint = relaySettings.custom_tunnel_endpoint;
+    } else if (relaySettings.customTunnelEndpoint) {
+      const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
       const {
         host,
         tunnel: {
           openvpn: { port, protocol },
         },
-      } = custom_tunnel_endpoint;
+      } = customTunnelEndpoint;
 
       actions.settings.updateRelay({
-        custom_tunnel_endpoint: {
+        customTunnelEndpoint: {
           host,
           port,
           protocol,

@@ -132,7 +132,7 @@ describe('Relay settings builder', () => {
         })
         .build(),
     ).to.deep.equal({
-      custom_tunnel_endpoint: {
+      customTunnelEndpoint: {
         host: 'se2.mullvad.net',
         tunnel: {
           openvpn: {
