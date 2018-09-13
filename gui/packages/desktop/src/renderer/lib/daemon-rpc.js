@@ -529,7 +529,9 @@ function underscoreToCamelCase(str: string): string {
 }
 
 function camelCaseToUnderscore(str: string): string {
-  return str.replace(/[A-Z]/g, (matches) => `_${matches[0].toLowerCase()}`);
+  return str
+    .replace(/[a-z][A-Z]/g, (matches) => `${matches[0]}_${matches[1].toLowerCase()}`)
+    .toLowerCase();
 }
 
 function camelCaseObjectKeys(object: Object) {
