@@ -71,6 +71,16 @@ error_chain! {
 
 static NO_ARGS: [u8; 0] = [];
 
+
+pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
+    let path = path.as_ref().to_string_lossy().to_string();
+
+    new_standalone_transport(path, |path| {
+        IpcTransport::new(&path, &tokio::reactor::Handle::current())
+            .chain_err(|| ErrorKind::TransportError)
+    })
+}
+
 pub fn new_standalone_transport<
     F: Send + 'static + FnOnce(String) -> Result<T>,
     T: jsonrpc_client_core::Transport,
@@ -96,15 +106,6 @@ pub fn new_standalone_transport<
     rx.wait()
         .chain_err(|| ErrorKind::TransportError)?
         .map(|client_handle| DaemonRpcClient::new(client_handle))
-}
-
-pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
-    let path = path.as_ref().to_string_lossy().to_string();
-
-    new_standalone_transport(path, |path| {
-        IpcTransport::new(&path, &tokio::reactor::Handle::current())
-            .chain_err(|| ErrorKind::TransportError)
-    })
 }
 
 fn spawn_transport<F: Send + FnOnce(String) -> Result<T>, T: jsonrpc_client_core::Transport>(
