@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add option to enable or disable IPv6 on the tunnel interface.
+- Add option to enable or disable IPv6 on the tunnel interface. It's disabled by default.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
 - Add a "blocked" state in the app that blocks the entire network and waits for user action when

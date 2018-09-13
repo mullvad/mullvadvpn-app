@@ -148,7 +148,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             openvpn: OpenVpnTunnelOptions::default(),
-            enable_ipv6: true,
+            enable_ipv6: false,
         }
     }
 }
