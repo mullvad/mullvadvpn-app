@@ -27,8 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable or disable IPv6 on the tunnel interface. It's disabled by default.
 - Log panics in the daemon to the log file.
 - Warn in the Settings screen if a new version is available.
-- Add a "blocked" state in the app that blocks the entire network and waits for user action when
-  something has gone wrong.
+- Add a "blocked" state in the app that blocks the entire network and shows a message about what
+  went wrong. Then it waits for user action.
 - Add support for Ubuntu 14.04 and other distributions that use the Upstart init system.
 - Make scrollbar thumb draggable.
 - Ability to expand cities with multiple servers and configure the app to use a specific server.
