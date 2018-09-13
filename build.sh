@@ -36,7 +36,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         exit 1
     fi
 
-    if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "MINGW"*) ]]; then
+    if [[ ("$(uname -s)" == "Darwin") ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
