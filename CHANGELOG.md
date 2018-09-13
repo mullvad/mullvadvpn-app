@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Ability to expand cities with multiple servers and configure the app to use a specific server.
 - Add firewall rules allowing traffic to the SSDP/WS-discover multicast IP, 239.255.255.250, if
   local area network sharing is activated. This allows discovery of devices using these protocols.
+- Display the reason why the daemon entered the blocked state and enable users to unblock it.
 
 #### macOS
 - Add uninstall script that can uninstall and remove all the files installed by the app.
