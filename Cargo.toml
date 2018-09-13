@@ -12,6 +12,3 @@ members = [
     "talpid-core",
     "talpid-ipc",
 ]
-
-[patch.crates-io]
-openssl-sys = { git = "https://github.com/mullvad/rust-openssl" }
