@@ -9,11 +9,11 @@ error_chain!{}
 /// it is backed up with the extension changed to `.old.log`.
 pub fn rotate_log(file: &Path) -> Result<()> {
     let backup = file.with_extension("old.log");
-    fs::rename(file, backup).unwrap_or_else(|error| {
+    if let Err(error) = fs::rename(file, backup) {
         if error.kind() != io::ErrorKind::NotFound {
             warn!("Failed to rotate log file ({})", error);
         }
-    });
+    }
 
     fs::File::create(file).chain_err(|| "Unable to create new log file")?;
     Ok(())
