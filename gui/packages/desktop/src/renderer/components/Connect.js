@@ -6,12 +6,14 @@ import { Component, Clipboard, Text, View, Types } from 'reactxp';
 import { Accordion } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
+import BlockingInternetBanner, { BannerTitle, BannerSubtitle } from './BlockingInternetBanner';
 import * as AppButton from './AppButton';
 import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
-import { BlockedError, NoCreditError, NoInternetError } from '../errors';
+import { NoCreditError, NoInternetError } from '../errors';
 import WindowStateObserver from '../lib/window-state-observer';
+import type { BlockReason, TunnelState } from '../lib/daemon-rpc';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
@@ -29,29 +31,50 @@ type Props = {
 };
 
 type State = {
+  banner: {
+    visible: boolean,
+    title: string,
+    subtitle: string,
+  },
   showCopyIPMessage: boolean,
 };
 
+function getBlockReasonMessage(reason: BlockReason): string {
+  switch (reason) {
+    case 'ipv6_unavailable':
+      return 'Could not configure IPv6, please enable it on your system or disable it in the app';
+    case 'set_security_policy_error':
+      return 'Failed to apply security policy';
+    case 'start_tunnel_error':
+      return 'Failed to start tunnel connection';
+    case 'no_matching_relay':
+      return 'No relay server matches the current settings';
+    default:
+      return `Unknown error: ${(reason: empty)}`;
+  }
+}
+
 export default class Connect extends Component<Props, State> {
   state = {
+    banner: {
+      visible: false,
+      title: '',
+      subtitle: '',
+    },
     showCopyIPMessage: false,
   };
 
   _copyTimer: ?TimeoutID;
   _windowStateObserver = new WindowStateObserver();
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    const { connection: prevConnection, ...otherPrevProps } = this.props;
-    const { connection: nextConnection, ...otherNextProps } = nextProps;
+  constructor(props: Props) {
+    super();
 
-    const prevState = this.state;
-
-    return (
-      // shallow compare the connection
-      !shallowCompare(prevConnection, nextConnection) ||
-      !shallowCompare(otherPrevProps, otherNextProps) ||
-      prevState.showCopyIPMessage !== nextState.showCopyIPMessage
-    );
+    const connection = props.connection;
+    this.state = {
+      ...this.state,
+      banner: this.getBannerState(connection.status, connection.blockReason),
+    };
   }
 
   componentDidMount() {
@@ -70,6 +93,20 @@ export default class Connect extends Component<Props, State> {
     this._windowStateObserver.dispose();
   }
 
+  componentDidUpdate(oldProps: Props, _oldState: State) {
+    const oldConnection = oldProps.connection;
+    const newConnection = this.props.connection;
+
+    if (
+      oldConnection.status !== newConnection.status ||
+      oldConnection.blockReason !== newConnection.blockReason
+    ) {
+      this.setState({
+        banner: this.getBannerState(newConnection.status, newConnection.blockReason),
+      });
+    }
+  }
+
   render() {
     const error = this.checkForErrors();
     const child = error ? this.renderError(error) : this.renderMap();
@@ -85,6 +122,33 @@ export default class Connect extends Component<Props, State> {
     );
   }
 
+  getBannerState(
+    tunnelState: TunnelState,
+    blockReason: ?BlockReason,
+  ): $PropertyType<State, 'banner'> {
+    switch (tunnelState) {
+      case 'connecting':
+        return {
+          visible: true,
+          title: 'BLOCKING INTERNET',
+          subtitle: '',
+        };
+
+      case 'blocked':
+        return {
+          visible: true,
+          title: 'BLOCKING INTERNET',
+          subtitle: blockReason ? getBlockReasonMessage(blockReason) : '',
+        };
+
+      default:
+        return {
+          ...this.state.banner,
+          visible: false,
+        };
+    }
+  }
+
   renderError(error: Error) {
     let title = '';
     let message = '';
@@ -97,11 +161,6 @@ export default class Connect extends Component<Props, State> {
     if (error instanceof NoInternetError) {
       title = 'Offline';
       message = 'Your internet connection will be secured when you get back online';
-    }
-
-    if (error instanceof BlockedError) {
-      title = 'Blocked';
-      message = error.message;
     }
 
     return (
@@ -134,7 +193,7 @@ export default class Connect extends Component<Props, State> {
         center: [longitude, latitude],
         // do not show the marker when connecting
         showMarker: status !== 'connecting',
-        markerStyle: status === 'connected' ? 'secure' : 'unsecure',
+        markerStyle: status === 'connected' || status === 'blocked' ? 'secure' : 'unsecure',
         // zoom in when connected
         zoomLevel: status === 'connected' ? 'low' : 'medium',
         // a magic offset to align marker with spinner
@@ -154,7 +213,13 @@ export default class Connect extends Component<Props, State> {
   }
 
   renderMap() {
-    let [isConnecting, isConnected, isDisconnected, isDisconnecting] = [false, false, false, false];
+    let [isConnecting, isConnected, isDisconnected, isDisconnecting, isBlocked] = [
+      false,
+      false,
+      false,
+      false,
+      false,
+    ];
     switch (this.props.connection.status) {
       case 'connecting':
         isConnecting = true;
@@ -168,6 +233,9 @@ export default class Connect extends Component<Props, State> {
       case 'disconnecting':
         isDisconnecting = true;
         break;
+      case 'blocked':
+        isBlocked = true;
+        break;
     }
 
     return (
@@ -176,7 +244,15 @@ export default class Connect extends Component<Props, State> {
           <Map style={{ width: '100%', height: '100%' }} {...this._getMapProps()} />
         </View>
         <View style={styles.container}>
-          {this._renderIsBlockingInternetMessage()}
+          <Accordion
+            style={styles.blocking_container}
+            height={this.state.banner.visible ? 'auto' : 0}
+            testName={'blockingAccordion'}>
+            <BlockingInternetBanner>
+              <BannerTitle>{this.state.banner.title}</BannerTitle>
+              <BannerSubtitle>{this.state.banner.subtitle}</BannerSubtitle>
+            </BlockingInternetBanner>
+          </Accordion>
 
           {/* show spinner when connecting */}
           {isConnecting ? (
@@ -250,15 +326,15 @@ export default class Connect extends Component<Props, State> {
             </View>
           ) : null}
 
-          {/* footer when connecting */}
-          {isConnecting ? (
+          {/* footer when connecting or blocked */}
+          {isConnecting || isBlocked ? (
             <View style={styles.footer}>
               <AppButton.TransparentButton
                 style={styles.switch_location_button}
                 onPress={this.props.onSelectLocation}>
                 {'Switch location'}
               </AppButton.TransparentButton>
-              <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+              <AppButton.RedTransparentButton onPress={this.props.onDisconnect} testName="cancel">
                 {'Cancel'}
               </AppButton.RedTransparentButton>
             </View>
@@ -287,19 +363,6 @@ export default class Connect extends Component<Props, State> {
           */}
         </View>
       </View>
-    );
-  }
-
-  _renderIsBlockingInternetMessage() {
-    return (
-      <Accordion
-        style={styles.blocking_container}
-        height={this.props.connection.status === 'connecting' ? 'auto' : 0}>
-        <Text style={styles.blocking_message}>
-          <Text style={styles.blocking_icon}>&nbsp;</Text>
-          <Text>BLOCKING INTERNET</Text>
-        </Text>
-      </Accordion>
     );
   }
 
@@ -341,9 +404,10 @@ export default class Connect extends Component<Props, State> {
 
   networkSecurityStyle(): Types.Style {
     const classes = [styles.status_security];
-    if (this.props.connection.status === 'connected') {
+    const { status } = this.props.connection;
+    if (status === 'connected' || status === 'blocked') {
       classes.push(styles.status_security__secure);
-    } else if (this.props.connection.status === 'disconnected') {
+    } else if (status === 'disconnected' || status === 'disconnecting') {
       classes.push(styles.status_security__unsecured);
     }
     return classes;
@@ -353,6 +417,8 @@ export default class Connect extends Component<Props, State> {
     switch (this.props.connection.status) {
       case 'connected':
         return 'SECURE CONNECTION';
+      case 'blocked':
+        return 'BLOCKED CONNECTION';
       case 'connecting':
         return 'CREATING SECURE CONNECTION';
       default:
@@ -380,16 +446,6 @@ export default class Connect extends Component<Props, State> {
       return new NoCreditError();
     }
 
-    // Tunnel is blocked due to an error?
-    if (this.props.connection.status === 'blocked') {
-      return new BlockedError(this.props.connection.blockReason);
-    }
-
     return null;
   }
-}
-
-function shallowCompare(lhs: Object, rhs: Object) {
-  const keys = Object.keys(lhs);
-  return keys.length === Object.keys(rhs).length && keys.every((key) => lhs[key] === rhs[key]);
 }

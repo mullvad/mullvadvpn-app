@@ -1,6 +1,6 @@
 // @flow
 
-import type { Ip } from '../../lib/daemon-rpc';
+import type { BlockReason, Ip } from '../../lib/daemon-rpc';
 
 type ConnectingAction = {
   type: 'CONNECTING',
@@ -20,7 +20,7 @@ type DisconnectingAction = {
 
 type BlockedAction = {
   type: 'BLOCKED',
-  reason: string,
+  reason: BlockReason,
 };
 
 type NewLocationAction = {
@@ -77,7 +77,7 @@ function disconnecting(): DisconnectingAction {
   };
 }
 
-function blocked(reason: string): BlockedAction {
+function blocked(reason: BlockReason): BlockedAction {
   return {
     type: 'BLOCKED',
     reason,

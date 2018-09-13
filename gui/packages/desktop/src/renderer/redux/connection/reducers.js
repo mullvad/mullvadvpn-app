@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { TunnelState, Ip } from '../../lib/daemon-rpc';
+import type { BlockReason, TunnelState, Ip } from '../../lib/daemon-rpc';
 
 export type ConnectionReduxState = {
   status: TunnelState,
@@ -11,7 +11,7 @@ export type ConnectionReduxState = {
   longitude: ?number,
   country: ?string,
   city: ?string,
-  blockReason: ?string,
+  blockReason: ?BlockReason,
 };
 
 const initialState: ConnectionReduxState = {

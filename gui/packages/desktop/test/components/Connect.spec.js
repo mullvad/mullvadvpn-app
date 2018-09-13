@@ -40,6 +40,23 @@ describe('components/Connect', () => {
     expect(disconnectButton.html()).to.contain('Disconnect');
   });
 
+  it('shows blocked hints when blocked', () => {
+    const component = renderWithProps({
+      connection: {
+        ...defaultProps.connection,
+        status: 'blocked',
+        blockReason: 'no_matching_relay',
+      },
+    });
+
+    const header = getComponent(component, 'header');
+    const securityMessage = getComponent(component, 'networkSecurityMessage');
+    const cancelButton = getComponent(component, 'cancel');
+    expect(header.prop('barStyle')).to.equal('success');
+    expect(securityMessage.html()).to.contain('BLOCKED ');
+    expect(cancelButton.html()).to.contain('Cancel');
+  });
+
   it('shows the connection location when connecting', () => {
     const component = renderWithProps({
       connection: {
@@ -47,6 +64,7 @@ describe('components/Connect', () => {
         status: 'connecting',
         country: 'Norway',
         city: 'Oslo',
+        ip: '4.3.2.1',
       },
     });
     const countryAndCity = getComponent(component, 'location');
@@ -105,6 +123,47 @@ describe('components/Connect', () => {
 
     connectButton.prop('onPress')();
   });
+
+  it('hides the blocking internet message when connected, disconnecting or disconnected', () => {
+    for (const status of ['connected', 'disconnecting', 'disconnected']) {
+      const component = renderWithProps({
+        connection: {
+          ...defaultProps.connection,
+          status,
+        },
+      });
+      const blockingAccordion = getComponent(component, 'blockingAccordion');
+
+      expect(blockingAccordion.prop('height')).to.equal(0);
+    }
+  });
+
+  it('shows the blocking internet message when connecting', () => {
+    const component = renderWithProps({
+      connection: {
+        ...defaultProps.connection,
+        status: 'connecting',
+        country: 'Norway',
+        city: 'Oslo',
+      },
+    });
+    const blockingAccordion = getComponent(component, 'blockingAccordion');
+
+    expect(blockingAccordion.prop('height')).to.equal('auto');
+  });
+
+  it('shows the blocking internet message when blocked', () => {
+    const component = renderWithProps({
+      connection: {
+        ...defaultProps.connection,
+        status: 'blocked',
+        blockReason: 'no_matching_relay',
+      },
+    });
+    const blockingAccordion = getComponent(component, 'blockingAccordion');
+    expect(blockingAccordion.prop('height')).to.equal('auto');
+    expect(blockingAccordion.dive().html()).to.contain('No relay server');
+  });
 });
 
 const defaultProps: ConnectProps = {
@@ -123,6 +182,7 @@ const defaultProps: ConnectProps = {
     longitude: null,
     country: null,
     city: null,
+    blockReason: null,
   },
   updateAccountExpiry: () => Promise.resolve(),
 };
