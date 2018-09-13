@@ -184,7 +184,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
   }
 
   async subscribe(event: string, listener: (mixed) => void): Promise<*> {
-    log.silly(`Adding a listener to ${event}`);
+    log.silly(`Adding a listener for ${event}`);
 
     try {
       const subscriptionId = await this.send(`${event}_subscribe`);
@@ -206,7 +206,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
     return new Promise((resolve, reject) => {
       const transport = this._transport;
       if (!transport) {
-        reject(new Error('Websocket is not connected.'));
+        reject(new Error('RPC client transport is not connected.'));
         return;
       }
 
@@ -288,10 +288,10 @@ export default class JsonRpcClient<T> extends EventEmitter {
     const listener = this._subscriptions.get(subscriptionId);
 
     if (listener) {
-      log.silly('Got notification', message.payload.method, message.payload.params.result);
+      log.silly(`Got notification for ${message.payload.method}`);
       listener(message.payload.params.result);
     } else {
-      log.warn('Got notification for', message.payload.method, 'but no one is listening for it');
+      log.warn(`Got notification for ${message.payload.method} but no one is listening for it`);
     }
   }
 

@@ -161,7 +161,7 @@ class CustomRelaySettingsBuilder {
 
   build(): RelaySettingsUpdate {
     return {
-      custom_tunnel_endpoint: this._payload,
+      customTunnelEndpoint: this._payload,
     };
   }
 

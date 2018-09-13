@@ -48,7 +48,7 @@ function getRelayName(
     }
 
     return 'Unknown';
-  } else if (relaySettings.custom_tunnel_endpoint) {
+  } else if (relaySettings.customTunnelEndpoint) {
     return 'Custom';
   } else {
     throw new Error('Unsupported relay settings.');

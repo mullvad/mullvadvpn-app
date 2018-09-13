@@ -24,8 +24,8 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
       protocol: protocol === 'any' ? 'Automatic' : protocol,
       port: port === 'any' ? 'Automatic' : port,
     };
-  } else if (relaySettings.custom_tunnel_endpoint) {
-    const { protocol, port } = relaySettings.custom_tunnel_endpoint;
+  } else if (relaySettings.customTunnelEndpoint) {
+    const { protocol, port } = relaySettings.customTunnelEndpoint;
     return { protocol, port };
   } else {
     throw new Error('Unknown type of relay settings.');
@@ -56,7 +56,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
 
       try {
         await props.app.updateRelaySettings(relayUpdate);
-        await props.app.fetchRelaySettings();
       } catch (e) {
         log.error('Failed to update relay settings', e.message);
       }

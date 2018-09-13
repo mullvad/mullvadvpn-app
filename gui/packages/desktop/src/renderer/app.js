@@ -14,10 +14,9 @@ import { createMemoryHistory } from 'history';
 
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
-import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './lib/daemon-rpc';
+import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
-import { NoAccountError } from './errors';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -26,11 +25,16 @@ import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
 import windowActions from './redux/window/actions';
 
+import SettingsProxy from './lib/subscription-proxy/settings-proxy';
+import TunnelStateProxy from './lib/subscription-proxy/tunnel-state-proxy';
+
 import type { WindowShapeParameters } from '../main/window-controller';
 import type {
   AccountToken,
+  Settings,
   TunnelStateTransition,
   RelaySettingsUpdate,
+  RelaySettings,
   TunnelState,
   DaemonRpcProtocol,
   AccountData,
@@ -56,9 +60,13 @@ export default class AppRenderer {
   _accountDataCache = new AccountDataCache((accountToken) => {
     return this._daemonRpc.getAccountData(accountToken);
   });
+  _tunnelStateProxy = new TunnelStateProxy(this._daemonRpc, (tunnelState) => {
+    this._setTunnelState(tunnelState);
+  });
+  _settingsProxy = new SettingsProxy(this._daemonRpc, (settings) => {
+    this._setSettings(settings);
+  });
   _connectedToDaemon = false;
-  _accountToken: ?AccountToken;
-  _tunnelState: ?TunnelStateTransition;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -129,9 +137,6 @@ export default class AppRenderer {
       const accountData = await this._daemonRpc.getAccountData(accountToken);
       await this._daemonRpc.setAccount(accountToken);
 
-      // reset the account token with the one that we just sent to daemon
-      this._accountToken = accountToken;
-
       actions.account.updateAccountExpiry(accountData.expiry);
       actions.account.loginSuccessful();
 
@@ -156,63 +161,11 @@ export default class AppRenderer {
     }
   }
 
-  async _restoreSession() {
-    const actions = this._reduxActions;
-    const history = this._memoryHistory;
-
-    log.debug('Restoring session');
-
-    const accountToken = await this._daemonRpc.getAccount();
-
-    // save the account token received after connecting to daemon
-    this._accountToken = accountToken;
-
-    if (accountToken) {
-      log.debug(`Got account token: ${accountToken}`);
-      actions.account.updateAccountToken(accountToken);
-      actions.account.loginSuccessful();
-
-      // take user to main view if user is still at launch screen `/`
-      if (history.location.pathname === '/') {
-        actions.history.replace('/connect');
-      } else {
-        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
-        // the restricted screen due to changes in daemon's state.
-        for (const entry of history.entries) {
-          if (entry.pathname === '/') {
-            entry.pathname = '/connect';
-          }
-        }
-      }
-    } else {
-      log.debug('No account set, showing login view.');
-
-      // show window when account is not set
-      ipcRenderer.send('show-window');
-
-      // take user to `/login` screen if user is at launch screen `/`
-      if (history.location.pathname === '/') {
-        actions.history.replace('/login');
-      } else {
-        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
-        // the restricted screen due to changes in daemon's state.
-        for (const entry of history.entries) {
-          if (!entry.pathname.startsWith('/settings')) {
-            entry.pathname = '/login';
-          }
-        }
-      }
-    }
-  }
-
   async logout() {
     const actions = this._reduxActions;
 
     try {
       await this._daemonRpc.setAccount(null);
-
-      // reset the account token after log out
-      this._accountToken = null;
 
       await this._fetchAccountHistory();
 
@@ -229,11 +182,10 @@ export default class AppRenderer {
   async connectTunnel() {
     const actions = this._reduxActions;
 
+    const tunnelState = await this._tunnelStateProxy.fetch();
+
     // connect only if tunnel is disconnected or blocked.
-    if (
-      this._tunnelState &&
-      (this._tunnelState.state === 'disconnected' || this._tunnelState.state === 'blocked')
-    ) {
+    if (tunnelState.state === 'disconnected' || tunnelState.state === 'blocked') {
       // switch to connecting state immediately to prevent a lag that may be caused by RPC
       // communication delay
       actions.connection.connecting();
@@ -250,11 +202,8 @@ export default class AppRenderer {
     return this._daemonRpc.updateRelaySettings(relaySettings);
   }
 
-  async fetchRelaySettings() {
+  _setRelaySettings(relaySettings: RelaySettings) {
     const actions = this._reduxActions;
-    const relaySettings = await this._daemonRpc.getRelaySettings();
-
-    log.debug('Got relay settings from daemon', JSON.stringify(relaySettings));
 
     if (relaySettings.normal) {
       const payload = {};
@@ -280,17 +229,17 @@ export default class AppRenderer {
       actions.settings.updateRelay({
         normal: payload,
       });
-    } else if (relaySettings.custom_tunnel_endpoint) {
-      const custom_tunnel_endpoint = relaySettings.custom_tunnel_endpoint;
+    } else if (relaySettings.customTunnelEndpoint) {
+      const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
       const {
         host,
         tunnel: {
           openvpn: { port, protocol },
         },
-      } = custom_tunnel_endpoint;
+      } = customTunnelEndpoint;
 
       actions.settings.updateRelay({
-        custom_tunnel_endpoint: {
+        customTunnelEndpoint: {
           host,
           port,
           protocol,
@@ -301,18 +250,16 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const actions = this._reduxActions;
+    const settings = await this._settingsProxy.fetch();
     const accountDataCache = this._accountDataCache;
 
-    try {
-      const accountToken = this._accountToken;
-      if (accountToken) {
-        const accountData = await accountDataCache.fetch(accountToken);
+    if (settings && settings.accountToken) {
+      try {
+        const accountData = await accountDataCache.fetch(settings.accountToken);
         actions.account.updateAccountExpiry(accountData.expiry);
-      } else {
-        throw new NoAccountError();
+      } catch (error) {
+        log.error(`Failed to update account expiry: ${error.message}`);
       }
-    } catch (e) {
-      log.error(`Failed to update account expiry: ${e.message}`);
     }
   }
 
@@ -387,32 +334,6 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
-  async _fetchAllowLan() {
-    const actions = this._reduxActions;
-    const allowLan = await this._daemonRpc.getAllowLan();
-    actions.settings.updateAllowLan(allowLan);
-  }
-
-  async _fetchAutoConnect() {
-    const actions = this._reduxActions;
-    const autoConnect = await this._daemonRpc.getAutoConnect();
-    actions.settings.updateAutoConnect(autoConnect);
-  }
-
-  async _fetchTunnelState() {
-    const state = await this._daemonRpc.getState();
-
-    log.debug(`Got state: ${JSON.stringify(state)}`);
-
-    this._onChangeTunnelState(state);
-  }
-
-  async _fetchTunnelOptions() {
-    const actions = this._reduxActions;
-    const tunnelOptions = await this._daemonRpc.getTunnelOptions();
-    actions.settings.updateEnableIpv6(tunnelOptions.enableIpv6);
-  }
-
   async _fetchVersionInfo() {
     const actions = this._reduxActions;
     const latestVersionInfo = await this._daemonRpc.getVersionInfo();
@@ -429,32 +350,62 @@ export default class AppRenderer {
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
-    // attempt to restore the session
     try {
-      await this._restoreSession();
+      await this._runPrimaryApplicationFlow();
     } catch (error) {
-      log.error(`Failed to restore session: ${error.message}`);
+      log.error(`An error was raised when running the primary application flow: ${error.message}`);
+    }
+  }
+
+  async _runPrimaryApplicationFlow() {
+    // fetch initial state and subscribe for changes
+    try {
+      await this._settingsProxy.fetch();
+    } catch (error) {
+      log.error(`Cannot fetch the initial settings: ${error.message}`);
     }
 
-    // make sure to re-subscribe to state notifications when connection is re-established.
     try {
-      await this._subscribeStateListener();
+      await this._tunnelStateProxy.fetch();
     } catch (error) {
-      log.error(`Cannot subscribe for RPC notifications: ${error.message}`);
+      log.error(`Cannot fetch the initial tunnel state: ${error.message}`);
     }
 
-    // fetch initial state
+    // fetch the rest of data
     try {
-      await this._fetchInitialState();
+      await this._fetchRelayLocations();
     } catch (error) {
-      log.error(`Cannot fetch initial state: ${error.message}`);
+      log.error(`Cannot fetch the relay locations: ${error.message}`);
+    }
+
+    try {
+      await this._fetchAccountHistory();
+    } catch (error) {
+      log.error(`Cannot fetch the account history: ${error.message}`);
+    }
+
+    // set the appropriate start view
+    await this._setStartView();
+
+    try {
+      await this._fetchLocation();
+    } catch (error) {
+      log.error(`Cannot fetch the location: ${error.message}`);
+    }
+
+    try {
+      await this._fetchVersionInfo();
+    } catch (error) {
+      log.error(`Cannot fetch the version information: ${error.message}`);
     }
 
     // auto connect the tunnel on startup
     // note: disabled when developing
     if (process.env.NODE_ENV !== 'development') {
+      const settings = await this._settingsProxy.fetch();
+
       // only connect if account is set in the daemon
-      if (this._accountToken) {
+      if (settings.accountToken) {
         try {
           log.debug('Autoconnect the tunnel');
           await this.connectTunnel();
@@ -466,6 +417,51 @@ export default class AppRenderer {
       }
     } else {
       log.debug('Skip autoconnect in development');
+    }
+  }
+
+  async _setStartView() {
+    const actions = this._reduxActions;
+    const history = this._memoryHistory;
+    const settings = await this._settingsProxy.fetch();
+    const accountToken = settings.accountToken;
+
+    if (accountToken) {
+      log.debug(`Account token is set. Showing the tunnel view.`);
+
+      actions.account.updateAccountToken(accountToken);
+      actions.account.loginSuccessful();
+
+      // take user to main view if user is still at launch screen `/`
+      if (history.location.pathname === '/') {
+        actions.history.replace('/connect');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (entry.pathname === '/') {
+            entry.pathname = '/connect';
+          }
+        }
+      }
+    } else {
+      log.debug('No account set, showing login view.');
+
+      // show window when account is not set
+      ipcRenderer.send('show-window');
+
+      // take user to `/login` screen if user is at launch screen `/`
+      if (history.location.pathname === '/') {
+        actions.history.replace('/login');
+      } else {
+        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
+        // the restricted screen due to changes in daemon's state.
+        for (const entry of history.entries) {
+          if (!entry.pathname.startsWith('/settings')) {
+            entry.pathname = '/login';
+          }
+        }
+      }
     }
   }
 
@@ -499,42 +495,23 @@ export default class AppRenderer {
     this._connectedToDaemon = false;
   }
 
-  _subscribeStateListener(): Promise<void> {
-    const listener = new SubscriptionListener(
-      (newState: TunnelStateTransition) => {
-        log.debug(`Got state update: '${JSON.stringify(newState)}'`);
-
-        this._onChangeTunnelState(newState);
-      },
-      (error: Error) => {
-        log.error(`Failed to deserialize the new state: ${error.message}`);
-      },
-    );
-
-    return this._daemonRpc.subscribeStateListener(listener);
-  }
-
-  _fetchInitialState() {
-    return Promise.all([
-      this._fetchTunnelState(),
-      this.fetchRelaySettings(),
-      this._fetchRelayLocations(),
-      this._fetchAllowLan(),
-      this._fetchAutoConnect(),
-      this._fetchLocation(),
-      this._fetchAccountHistory(),
-      this._fetchTunnelOptions(),
-      this._fetchVersionInfo(),
-    ]);
-  }
-
-  _onChangeTunnelState(tunnelState: TunnelStateTransition) {
-    this._tunnelState = tunnelState;
+  _setTunnelState(tunnelState: TunnelStateTransition) {
+    log.debug(`Tunnel state: ${tunnelState.state}`);
 
     this._updateConnectionStatus(tunnelState);
     this._updateUserLocation(tunnelState.state);
     this._updateTrayIcon(tunnelState.state);
     this._showNotification(tunnelState.state);
+  }
+
+  _setSettings(newSettings: Settings) {
+    const reduxSettings = this._reduxActions.settings;
+
+    reduxSettings.updateAllowLan(newSettings.allowLan);
+    reduxSettings.updateAutoConnect(newSettings.autoConnect);
+    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
+
+    this._setRelaySettings(newSettings.relaySettings);
   }
 
   async _updateUserLocation(tunnelState: TunnelState) {

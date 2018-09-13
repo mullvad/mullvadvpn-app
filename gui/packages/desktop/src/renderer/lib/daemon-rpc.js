@@ -96,7 +96,7 @@ export type RelaySettings =
       normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>,
     |}
   | {|
-      custom_tunnel_endpoint: RelaySettingsCustom,
+      customTunnelEndpoint: RelaySettingsCustom,
     |};
 
 // types describing the partial update of RelaySettings
@@ -108,7 +108,7 @@ export type RelaySettingsUpdate =
       normal: RelaySettingsNormalUpdate,
     |}
   | {|
-      custom_tunnel_endpoint: RelaySettingsCustom,
+      customTunnelEndpoint: RelaySettingsCustom,
     |};
 
 const constraint = <T>(constraintValue: SchemaNode<T>) => {
@@ -179,9 +179,9 @@ export type RelayListCity = {
 
 export type RelayListHostname = {
   hostname: string,
-  ipv4_addr_in: string,
-  ipv4_addr_exit: string,
-  include_in_country: boolean,
+  ipv4AddrIn: string,
+  ipv4AddrExit: string,
+  includeInCountry: boolean,
   weight: number,
 };
 
@@ -213,6 +213,9 @@ const RelayListSchema = object({
 
 export type TunnelOptions = {
   enableIpv6: boolean,
+  openvpn: {
+    mssfix: ?number,
+  },
 };
 
 const TunnelOptionsSchema = object({
@@ -294,26 +297,39 @@ export class SubscriptionListener<T> {
   }
 }
 
+export type Settings = {
+  accountToken: AccountToken,
+  allowLan: boolean,
+  autoConnect: boolean,
+  relaySettings: RelaySettings,
+  tunnelOptions: TunnelOptions,
+};
+
+const SettingsSchema = object({
+  account_token: maybe(string),
+  allow_lan: boolean,
+  auto_connect: boolean,
+  relay_settings: RelaySettingsSchema,
+  tunnel_options: TunnelOptionsSchema,
+});
+
 export interface DaemonRpcProtocol {
   connect({ path: string }): void;
   disconnect(): void;
   getAccountData(AccountToken): Promise<AccountData>;
   getRelayLocations(): Promise<RelayList>;
-  getAccount(): Promise<?AccountToken>;
   setAccount(accountToken: ?AccountToken): Promise<void>;
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
-  getRelaySettings(): Promise<RelaySettings>;
   setAllowLan(boolean): Promise<void>;
-  getAllowLan(): Promise<boolean>;
   setEnableIpv6(boolean): Promise<void>;
-  getTunnelOptions(): Promise<TunnelOptions>;
   setAutoConnect(boolean): Promise<void>;
-  getAutoConnect(): Promise<boolean>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
   getLocation(): Promise<Location>;
   getState(): Promise<TunnelStateTransition>;
+  getSettings(): Promise<Settings>;
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
+  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void>;
   addConnectionObserver(observer: ConnectionObserver): void;
   removeConnectionObserver(observer: ConnectionObserver): void;
   getAccountHistory(): Promise<Array<AccountToken>>;
@@ -386,18 +402,9 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getRelayLocations(): Promise<RelayList> {
     const response = await this._transport.send('get_relay_locations');
     try {
-      return validate(RelayListSchema, response);
+      return camelCaseObjectKeys(validate(RelayListSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_relay_locations', error);
-    }
-  }
-
-  async getAccount(): Promise<?AccountToken> {
-    const response = await this._transport.send('get_account');
-    if (response === null || typeof response === 'string') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_account', null);
     }
   }
 
@@ -406,72 +413,19 @@ export class DaemonRpc implements DaemonRpcProtocol {
   }
 
   async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    await this._transport.send('update_relay_settings', [relaySettings]);
-  }
-
-  async getRelaySettings(): Promise<RelaySettings> {
-    const response = await this._transport.send('get_relay_settings');
-    try {
-      const validatedObject = validate(RelaySettingsSchema, response);
-
-      /* $FlowFixMe:
-        There is no way to express constraints with string literals, i.e:
-
-        RelaySettingsSchema constraint:
-          oneOf(string, object)
-
-        RelaySettings constraint:
-          'any' | object
-
-        These two are incompatible so we simply enforce the type for now.
-      */
-      return ((validatedObject: any): RelaySettings);
-    } catch (e) {
-      throw new ResponseParseError('Invalid response from get_relay_settings', e);
-    }
+    await this._transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
   }
 
   async setAllowLan(allowLan: boolean): Promise<void> {
     await this._transport.send('set_allow_lan', [allowLan]);
   }
 
-  async getAllowLan(): Promise<boolean> {
-    const response = await this._transport.send('get_allow_lan');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_allow_lan', null);
-    }
-  }
-
   async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this._transport.send('set_enable_ipv6', [enableIpv6]);
   }
 
-  async getTunnelOptions(): Promise<TunnelOptions> {
-    const response = await this._transport.send('get_tunnel_options');
-    try {
-      const validatedObject = validate(TunnelOptionsSchema, response);
-
-      return {
-        enableIpv6: validatedObject.enable_ipv6,
-      };
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_tunnel_options', error);
-    }
-  }
-
   async setAutoConnect(autoConnect: boolean): Promise<void> {
     await this._transport.send('set_auto_connect', [autoConnect]);
-  }
-
-  async getAutoConnect(): Promise<boolean> {
-    const response = await this._transport.send('get_auto_connect');
-    if (typeof response === 'boolean') {
-      return response;
-    } else {
-      throw new ResponseParseError('Invalid response from get_auto_connect', null);
-    }
   }
 
   async connectTunnel(): Promise<void> {
@@ -500,13 +454,33 @@ export class DaemonRpc implements DaemonRpcProtocol {
     }
   }
 
+  async getSettings(): Promise<Settings> {
+    const response = await this._transport.send('get_settings');
+    try {
+      return camelCaseObjectKeys(validate(SettingsSchema, response));
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_settings', error);
+    }
+  }
+
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
     return this._transport.subscribe('new_state', (payload) => {
       try {
-        const newState = validate(TunnelStateTransitionSchema, payload);
+        const newState = camelCaseObjectKeys(validate(TunnelStateTransitionSchema, payload));
         listener._onEvent(newState);
       } catch (error) {
         listener._onError(new ResponseParseError('Invalid payload from new_state', error));
+      }
+    });
+  }
+
+  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void> {
+    return this._transport.subscribe('settings', (payload) => {
+      try {
+        const newSettings = camelCaseObjectKeys(validate(SettingsSchema, payload));
+        listener._onEvent(newSettings);
+      } catch (error) {
+        listener._onError(new ResponseParseError('Invalid payload from settings', error));
       }
     });
   }
@@ -548,4 +522,39 @@ export class DaemonRpc implements DaemonRpcProtocol {
       throw new ResponseParseError('Invalid response from get_version_info', null);
     }
   }
+}
+
+function underscoreToCamelCase(str: string): string {
+  return str.replace(/_([a-z])/gi, (matches) => matches[1].toUpperCase());
+}
+
+function camelCaseToUnderscore(str: string): string {
+  return str
+    .replace(/[a-z0-9][A-Z]/g, (matches) => `${matches[0]}_${matches[1].toLowerCase()}`)
+    .toLowerCase();
+}
+
+function camelCaseObjectKeys(object: Object) {
+  return transformObjectKeys(object, underscoreToCamelCase);
+}
+
+function underscoreObjectKeys(object: Object) {
+  return transformObjectKeys(object, camelCaseToUnderscore);
+}
+
+function transformObjectKeys(object: Object, keyTransformer: (string) => string) {
+  for (const sourceKey of Object.keys(object)) {
+    const targetKey = keyTransformer(sourceKey);
+    const sourceValue = object[sourceKey];
+
+    object[targetKey] =
+      sourceValue !== null && typeof sourceValue === 'object'
+        ? transformObjectKeys(sourceValue, keyTransformer)
+        : sourceValue;
+
+    if (sourceKey !== targetKey) {
+      delete object[sourceKey];
+    }
+  }
+  return object;
 }
