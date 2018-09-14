@@ -40,6 +40,8 @@ mac:
   extendInfo:
     LSUIElement: true
   extraResources:
+    - from: ../../../target/release/mullvad
+      to: .
     - from: ../../../target/release/problem-report
       to: .
     - from: ../../../target/release/mullvad-daemon
@@ -50,9 +52,6 @@ mac:
       to: .
     - from: ../../../dist-assets/uninstall_macos.sh
       to: ./uninstall.sh
-  extraFiles:
-    - from: ../../../target/release/mullvad
-      to: .
 
 pkg:
   allowAnywhere: false
@@ -78,6 +77,8 @@ win:
     - sha256
   signDlls: true
   extraResources:
+    - from: ../../../target/release/mullvad.exe
+      to: .
     - from: ../../../target/release/problem-report.exe
       to: .
     - from: ../../../target/release/mullvad-daemon.exe
@@ -92,8 +93,6 @@ win:
       to: .
     - from: ../../../dist-assets/binaries/windows/openvpn.exe
       to: .
-    - from: ../../../target/release/mullvad.exe
-      to: .
 
 linux:
   target:
@@ -101,6 +100,9 @@ linux:
     - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   category: Network
+  extraFiles:
+    - from: ../../../target/release/mullvad
+      to: .
   extraResources:
     - from: ../../../target/release/problem-report
       to: .
@@ -113,9 +115,6 @@ linux:
     - from: ../../../dist-assets/linux/mullvad-daemon.conf
       to: .
     - from: ../../../dist-assets/linux/mullvad-daemon.service
-      to: .
-  extraFiles:
-    - from: ../../../target/release/mullvad
       to: .
 
 deb:
