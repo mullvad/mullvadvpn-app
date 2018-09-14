@@ -4,7 +4,7 @@ use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_types::tunnel::BlockReason;
+use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
 
 use super::{
     BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
@@ -103,12 +103,14 @@ impl TunnelState for DisconnectingState {
             }
         });
 
+        let action_after_disconnect = after_disconnect.action();
+
         (
             TunnelStateWrapper::from(DisconnectingState {
                 exited,
                 after_disconnect,
             }),
-            TunnelStateTransition::Disconnecting,
+            TunnelStateTransition::Disconnecting(action_after_disconnect),
         )
     }
 
@@ -127,4 +129,15 @@ pub enum AfterDisconnect {
     Nothing,
     Block(BlockReason, bool),
     Reconnect(TunnelParameters),
+}
+
+impl AfterDisconnect {
+    /// Build event representation of the action that will be taken after the disconnection.
+    pub fn action(&self) -> ActionAfterDisconnect {
+        match self {
+            AfterDisconnect::Nothing => ActionAfterDisconnect::Nothing,
+            AfterDisconnect::Block(..) => ActionAfterDisconnect::Block,
+            AfterDisconnect::Reconnect(_) => ActionAfterDisconnect::Reconnect,
+        }
+    }
 }

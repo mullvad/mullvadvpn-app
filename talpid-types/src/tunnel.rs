@@ -12,9 +12,18 @@ pub enum TunnelStateTransition {
     /// Tunnel is connected.
     Connected,
     /// Disconnecting tunnel.
-    Disconnecting,
+    Disconnecting(ActionAfterDisconnect),
     /// Tunnel is disconnected but secured by blocking all connections.
     Blocked(BlockReason),
+}
+
+/// Action that will be taken after disconnection is complete.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActionAfterDisconnect {
+    Nothing,
+    Block,
+    Reconnect,
 }
 
 impl TunnelStateTransition {

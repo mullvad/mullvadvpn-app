@@ -47,7 +47,7 @@ fn print_state(state: &TunnelStateTransition) {
         Connected => println!("Connected"),
         Connecting => println!("Connecting..."),
         Disconnected => println!("Disconnected"),
-        Disconnecting => println!("Disconnecting..."),
+        Disconnecting(_) => println!("Disconnecting..."),
     }
 }
 

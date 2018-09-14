@@ -51,10 +51,13 @@ export type BlockReason =
     }
   | { reason: 'auth_failed', details: ?string };
 
+export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
+
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
 export type TunnelStateTransition =
-  | { state: 'disconnecting' | 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'disconnecting', details: AfterDisconnect }
   | { state: 'blocked', details: BlockReason };
 
 export type RelayProtocol = 'tcp' | 'udp';
@@ -235,6 +238,10 @@ const AccountDataSchema = object({
 
 const TunnelStateTransitionSchema = oneOf(
   object({
+    state: enumeration('disconnecting'),
+    details: enumeration('nothing', 'block', 'reconnect'),
+  }),
+  object({
     state: enumeration('blocked'),
     details: oneOf(
       object({
@@ -249,7 +256,7 @@ const TunnelStateTransitionSchema = oneOf(
     ),
   }),
   object({
-    state: enumeration('connected', 'connecting', 'disconnected', 'disconnecting'),
+    state: enumeration('connected', 'connecting', 'disconnected'),
   }),
 );
 
