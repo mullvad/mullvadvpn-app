@@ -195,7 +195,7 @@ export default class Connect extends Component<Props, State> {
         center: [longitude, latitude],
         // do not show the marker when connecting
         showMarker: state !== 'connecting',
-        markerStyle: state === 'connected' || state === 'blocked' ? 'secure' : 'unsecure',
+        markerStyle: this._getMarkerStyle(),
         // zoom in when connected
         zoomLevel: state === 'connected' ? 'low' : 'medium',
         // a magic offset to align marker with spinner
@@ -211,6 +211,31 @@ export default class Connect extends Component<Props, State> {
         // remove the offset since the marker is hidden
         offset: [0, 0],
       };
+    }
+  }
+
+  _getMarkerStyle() {
+    const { status } = this.props.connection;
+
+    switch (status.state) {
+      case 'connecting':
+      case 'connected':
+      case 'blocked':
+        return 'secure';
+      case 'disconnected':
+        return 'unsecure';
+      case 'disconnecting':
+        switch (status.details) {
+          case 'block':
+          case 'reconnect':
+            return 'secure';
+          case 'nothing':
+            return 'unsecure';
+          default:
+            throw new Error(`Invalid action after disconnection: $(status.details: empty)}`);
+        }
+      default:
+        throw new Error(`Invalid connection status: ${(status.state: empty)}`);
     }
   }
 
