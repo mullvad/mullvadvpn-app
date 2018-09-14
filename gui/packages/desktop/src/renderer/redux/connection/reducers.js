@@ -41,7 +41,7 @@ export default function(
       return { ...state, status: { state: 'disconnected' } };
 
     case 'DISCONNECTING':
-      return { ...state, status: { state: 'disconnecting', details: 'nothing' } };
+      return { ...state, status: { state: 'disconnecting', details: action.afterDisconnect } };
 
     case 'BLOCKED':
       return { ...state, status: { state: 'blocked', details: action.reason } };
