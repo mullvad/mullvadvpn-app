@@ -123,12 +123,26 @@ describe('components/Connect', () => {
     connectButton.prop('onPress')();
   });
 
-  it('hides the blocking internet message when connected, disconnecting or disconnected', () => {
-    for (const state of ['connected', 'disconnecting', 'disconnected']) {
+  it('hides the blocking internet message when connected or disconnected', () => {
+    for (const state of ['connected', 'disconnected']) {
       const component = renderWithProps({
         connection: {
           ...defaultProps.connection,
           status: { state },
+        },
+      });
+      const blockingAccordion = getComponent(component, 'blockingAccordion');
+
+      expect(blockingAccordion.prop('height')).to.equal(0);
+    }
+  });
+
+  it('hides the blocking internet message when disconnecting', () => {
+    for (const afterDisconnect of ['nothing', 'block', 'reconnect']) {
+      const component = renderWithProps({
+        connection: {
+          ...defaultProps.connection,
+          status: { state: 'disconnecting', details: afterDisconnect },
         },
       });
       const blockingAccordion = getComponent(component, 'blockingAccordion');
