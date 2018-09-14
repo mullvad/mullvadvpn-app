@@ -63,7 +63,7 @@ nsis:
   oneClick: false
   perMachine: true
   allowElevation: true
-  allowToChangeInstallationDirectory: true
+  allowToChangeInstallationDirectory: false
   include: ../../../dist-assets/windows/installer.nsh
   installerSidebar: ../../../dist-assets/windows/installersidebar.bmp
 
