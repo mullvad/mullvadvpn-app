@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Don't flash the header with a red color when reconnecting or blocking.
 
 
 ## [2018.3] - 2018-09-17
