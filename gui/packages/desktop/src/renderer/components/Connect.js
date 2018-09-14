@@ -390,17 +390,26 @@ export default class Connect extends Component<Props, State> {
   // Private
 
   headerBarStyle(): HeaderBarStyle {
-    const { state } = this.props.connection.status;
-    switch (state) {
-      case 'disconnecting':
+    const { status } = this.props.connection;
+    switch (status.state) {
       case 'disconnected':
         return 'error';
       case 'connecting':
       case 'connected':
       case 'blocked':
         return 'success';
+      case 'disconnecting':
+        switch (status.details) {
+          case 'block':
+          case 'reconnect':
+            return 'success';
+          case 'nothing':
+            return 'error';
+          default:
+            throw new Error(`Invalid action after disconnection: ${(status.details: empty)}`);
+        }
       default:
-        throw new Error(`Invalid TunnelState: ${(state: empty)}`);
+        throw new Error(`Invalid TunnelState: ${(status.state: empty)}`);
     }
   }
 
