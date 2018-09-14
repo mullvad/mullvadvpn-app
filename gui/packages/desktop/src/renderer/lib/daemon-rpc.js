@@ -47,10 +47,13 @@ export type BlockReason =
   | 'start_tunnel_error'
   | 'no_matching_relay';
 
+export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
+
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
 export type TunnelStateTransition =
-  | { state: 'disconnecting' | 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'disconnecting', details: AfterDisconnect }
   | { state: 'blocked', details: BlockReason };
 
 export type RelayProtocol = 'tcp' | 'udp';
@@ -235,7 +238,12 @@ const allBlockReasons: Array<BlockReason> = [
   'start_tunnel_error',
   'no_matching_relay',
 ];
+const allAfterDisconnectActions: Array<AfterDisconnect> = ['nothing', 'block', 'reconnect'];
 const TunnelStateTransitionSchema = oneOf(
+  object({
+    state: enumeration('disconnecting'),
+    details: enumeration(...allAfterDisconnectActions),
+  }),
   object({
     state: enumeration('blocked'),
     details: enumeration(...allBlockReasons),
