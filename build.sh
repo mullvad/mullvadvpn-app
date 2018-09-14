@@ -36,7 +36,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         exit 1
     fi
 
-    if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "MINGW"*) ]]; then
+    if [[ ("$(uname -s)" == "Darwin") ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
@@ -58,11 +58,14 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
     cargo +stable clean
 else
     echo "!! Development build. Not for general distribution !!"
-    GIT_COMMIT=$(git rev-parse --short HEAD)
-    PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
-
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
+fi
+
+if [[ "${1:-""}" == "--dev-build" || $(git describe) != "$PRODUCT_VERSION" ]]; then
+    GIT_COMMIT=$(git rev-parse --short HEAD)
+    PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
+    echo "Modifying product version to $PRODUCT_VERSION"
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
