@@ -3,15 +3,18 @@
 import { remote } from 'electron';
 import log from 'electron-log';
 
-import type { TunnelState } from './daemon-rpc';
+import type { TunnelStateTransition } from './daemon-rpc';
 
 export default class NotificationController {
   _activeNotification: ?Notification;
+  _reconnecting = false;
 
-  notify(tunnelState: TunnelState) {
-    switch (tunnelState) {
+  notify(tunnelState: TunnelStateTransition) {
+    switch (tunnelState.state) {
       case 'connecting':
-        this._show('Connecting');
+        if (!this._reconnecting) {
+          this._show('Connecting');
+        }
         break;
       case 'connected':
         this._show('Secured');
@@ -23,11 +26,22 @@ export default class NotificationController {
         this._show('Blocked all connections');
         break;
       case 'disconnecting':
-        // no-op
+        switch (tunnelState.details) {
+          case 'nothing':
+          case 'block':
+            // no-op
+            break;
+          case 'reconnect':
+            this._show('Reconnecting');
+            this._reconnecting = true;
+            return;
+        }
         break;
       default:
-        log.error(`Unexpected TunnelStateTransition: ${(tunnelState: empty)}`);
+        log.error(`Unexpected TunnelStateTransition: ${(tunnelState.state: empty)}`);
     }
+
+    this._reconnecting = false;
   }
 
   _show(message: string) {
