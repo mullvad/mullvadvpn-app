@@ -23,10 +23,19 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.3] - 2018-09-17
 ### Changed
 #### macOS
 - Move the CLI binary (`mullvad`) back into the `Resources/` directory. A bug caused the app to not
   be signed if it was placed in the app root directory.
+
+### Security
+#### Windows
+- Lock the installation directory to `C:\Program Files\Mullvad VPN`. This prevents potential local
+  privilege escalation by ensuring all binaries executed by the `SYSTEM` user, as part of the
+  Mullvad system service, are stored where unprivileged users can't modify them.
 
 
 ## [2018.3-beta1] - 2018-09-13
