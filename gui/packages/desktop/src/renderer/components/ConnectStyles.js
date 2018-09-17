@@ -7,6 +7,9 @@ export default {
   connect: Styles.createViewStyle({
     flex: 1,
   }),
+  tunnel_control: Styles.createViewStyle({
+    flex: 1,
+  }),
   map: Styles.createViewStyle({
     position: 'absolute',
     top: 0,
@@ -23,19 +26,19 @@ export default {
     position: 'relative' /* need this for z-index to work to cover map */,
     zIndex: 1,
   }),
-  footer: Styles.createViewStyle({
-    flex: 0,
-    paddingBottom: 16,
-    paddingLeft: 24,
-    paddingRight: 24,
-  }),
-  status: Styles.createViewStyle({
+  body: Styles.createViewStyle({
     paddingTop: 0,
     paddingLeft: 24,
     paddingRight: 24,
     paddingBottom: 0,
     marginTop: 186,
     flex: 1,
+  }),
+  footer: Styles.createViewStyle({
+    flex: 0,
+    paddingBottom: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
   }),
   status_icon: Styles.createViewStyle({
     position: 'absolute',
@@ -50,16 +53,6 @@ export default {
   blocking_container: Styles.createViewStyle({
     width: '100%',
     position: 'absolute',
-  }),
-  server_label: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 32,
-    fontWeight: '900',
-    lineHeight: 44,
-    letterSpacing: -0.7,
-    color: colors.white,
-    marginBottom: 7,
-    flex: 0,
   }),
   error_title: Styles.createTextStyle({
     fontFamily: 'DINPro',
@@ -82,13 +75,6 @@ export default {
     fontWeight: '800',
     lineHeight: 22,
     marginBottom: 4,
-    color: colors.white,
-  }),
-  status_security__secure: Styles.createTextStyle({
-    color: colors.green,
-  }),
-  status_security__unsecured: Styles.createTextStyle({
-    color: colors.red,
   }),
   status_ipaddress: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -96,10 +82,11 @@ export default {
     fontWeight: '800',
     color: colors.white,
   }),
-  status_ipaddress__invisible: Styles.createTextStyle({
-    opacity: 0,
-  }),
   status_location: Styles.createTextStyle({
+    flexDirection: 'column',
+    marginBottom: 4,
+  }),
+  status_location_text: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 38,
     fontWeight: '900',
@@ -107,6 +94,5 @@ export default {
     overflow: 'hidden',
     letterSpacing: -0.9,
     color: colors.white,
-    marginBottom: 4,
   }),
 };
