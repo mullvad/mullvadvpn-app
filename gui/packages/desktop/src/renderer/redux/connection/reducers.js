@@ -47,10 +47,10 @@ export default function(
       return { ...state, status: { state: 'blocked', details: action.reason } };
 
     case 'ONLINE':
-      return { ...state, ...{ isOnline: true } };
+      return { ...state, isOnline: true };
 
     case 'OFFLINE':
-      return { ...state, ...{ isOnline: false } };
+      return { ...state, isOnline: false };
 
     default:
       return state;
