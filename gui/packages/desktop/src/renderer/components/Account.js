@@ -2,7 +2,8 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Clipboard, Text, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
+import { ClipboardLabel } from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
@@ -21,33 +22,13 @@ type Props = {
   onBuyMore: () => void,
 };
 
-type State = {
-  showAccountTokenCopiedMessage: boolean,
-};
-
-export default class Account extends Component<Props, State> {
-  state = {
-    showAccountTokenCopiedMessage: false,
-  };
-
+export default class Account extends Component<Props> {
   _copyTimer: ?TimeoutID;
 
   componentWillUnmount() {
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
-  }
-
-  onAccountTokenClick() {
-    if (this._copyTimer) {
-      clearTimeout(this._copyTimer);
-    }
-    this._copyTimer = setTimeout(
-      () => this.setState({ showAccountTokenCopiedMessage: false }),
-      3000,
-    );
-    this.setState({ showAccountTokenCopiedMessage: true });
-    Clipboard.setText(this.props.accountToken);
   }
 
   render() {
@@ -68,13 +49,11 @@ export default class Account extends Component<Props, State> {
                 <View style={styles.account__main}>
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Account ID</Text>
-                    <Text
+                    <ClipboardLabel
                       style={styles.account__row_value}
-                      onPress={this.onAccountTokenClick.bind(this)}>
-                      {this.state.showAccountTokenCopiedMessage
-                        ? 'COPIED TO CLIPBOARD!'
-                        : this.props.accountToken}
-                    </Text>
+                      value={this.props.accountToken}
+                      message={'COPIED TO CLIPBOARD!'}
+                    />
                   </View>
 
                   <View style={styles.account__row}>
