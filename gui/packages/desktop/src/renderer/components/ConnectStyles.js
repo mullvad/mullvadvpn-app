@@ -7,6 +7,9 @@ export default {
   connect: Styles.createViewStyle({
     flex: 1,
   }),
+  tunnel_control: Styles.createViewStyle({
+    flex: 1,
+  }),
   map: Styles.createViewStyle({
     position: 'absolute',
     top: 0,
@@ -82,13 +85,6 @@ export default {
     fontWeight: '800',
     lineHeight: 22,
     marginBottom: 4,
-    color: colors.white,
-  }),
-  status_security__secure: Styles.createTextStyle({
-    color: colors.green,
-  }),
-  status_security__unsecured: Styles.createTextStyle({
-    color: colors.red,
   }),
   status_ipaddress: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -96,10 +92,11 @@ export default {
     fontWeight: '800',
     color: colors.white,
   }),
-  status_ipaddress__invisible: Styles.createTextStyle({
-    opacity: 0,
-  }),
   status_location: Styles.createTextStyle({
+    flexDirection: 'column',
+    marginBottom: 4,
+  }),
+  status_location_text: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 38,
     fontWeight: '900',
@@ -107,6 +104,5 @@ export default {
     overflow: 'hidden',
     letterSpacing: -0.9,
     color: colors.white,
-    marginBottom: 4,
   }),
 };
