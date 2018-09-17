@@ -45,7 +45,7 @@ describe('components/Connect', () => {
       connection: {
         ...defaultProps.connection,
         status: 'blocked',
-        blockReason: 'no_matching_relay',
+        blockReason: { reason: 'no_matching_relay' },
       },
     });
 
@@ -157,7 +157,7 @@ describe('components/Connect', () => {
       connection: {
         ...defaultProps.connection,
         status: 'blocked',
-        blockReason: 'no_matching_relay',
+        blockReason: { reason: 'no_matching_relay' },
       },
     });
     const blockingAccordion = getComponent(component, 'blockingAccordion');

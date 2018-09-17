@@ -58,7 +58,7 @@ mod version;
 use error_chain::ChainedError;
 use futures::sync::mpsc::UnboundedSender;
 use futures::{Future, Sink};
-use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
+use jsonrpc_core::futures::sync::oneshot::{self, Sender as OneshotSender};
 
 use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
@@ -141,7 +141,7 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
-    pub fn shutdown(&mut self, tunnel_state: TunnelStateTransition) {
+    pub fn shutdown(&mut self, tunnel_state: &TunnelStateTransition) {
         use self::DaemonExecutionState::*;
 
         match self {
@@ -332,13 +332,34 @@ impl Daemon {
                 self.state.disconnected();
                 self.current_relay = None;
             }
-            Blocked(ref reason) => info!("Blocking all network connections, reason: {}", reason),
+            Blocked(ref reason) => {
+                info!("Blocking all network connections, reason: {}", reason);
+
+                match reason {
+                    BlockReason::AuthFailed(_) => self.schedule_reconnect(Duration::from_secs(60)),
+                    _ => {}
+                }
+            }
             _ => {}
         }
 
-        self.tunnel_state = tunnel_state;
+        self.tunnel_state = tunnel_state.clone();
         self.management_interface_broadcaster
-            .notify_new_state(self.tunnel_state);
+            .notify_new_state(tunnel_state);
+    }
+
+    fn schedule_reconnect(&mut self, delay: Duration) {
+        let command_tx = self.tx.clone();
+
+        thread::spawn(move || {
+            let (result_tx, _result_rx) = oneshot::channel();
+
+            thread::sleep(delay);
+            debug!("Attempting to reconnect");
+            let _ = command_tx.send(DaemonEvent::ManagementInterfaceEvent(
+                ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
+            ));
+        });
     }
 
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
@@ -376,7 +397,7 @@ impl Daemon {
     }
 
     fn on_get_state(&self, tx: OneshotSender<TunnelStateTransition>) {
-        Self::oneshot_send(tx, self.tunnel_state, "current state");
+        Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
     fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
@@ -556,7 +577,7 @@ impl Daemon {
     }
 
     fn handle_trigger_shutdown_event(&mut self) {
-        self.state.shutdown(self.tunnel_state);
+        self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
     }
 
