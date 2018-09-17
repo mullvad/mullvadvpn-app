@@ -7,6 +7,9 @@ export default {
   connect: Styles.createViewStyle({
     flex: 1,
   }),
+  tunnel_control: Styles.createViewStyle({
+    flex: 1,
+  }),
   map: Styles.createViewStyle({
     position: 'absolute',
     top: 0,
@@ -82,6 +85,8 @@ export default {
     fontWeight: '800',
     lineHeight: 22,
     marginBottom: 4,
+  }),
+  status_security__securing: Styles.createTextStyle({
     color: colors.white,
   }),
   status_security__secure: Styles.createTextStyle({
@@ -100,6 +105,10 @@ export default {
     opacity: 0,
   }),
   status_location: Styles.createTextStyle({
+    flexDirection: 'column',
+    marginBottom: 4,
+  }),
+  status_location_text: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 38,
     fontWeight: '900',
@@ -107,6 +116,5 @@ export default {
     overflow: 'hidden',
     letterSpacing: -0.9,
     color: colors.white,
-    marginBottom: 4,
   }),
 };

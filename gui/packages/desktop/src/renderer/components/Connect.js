@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Clipboard, Text, View, Types } from 'reactxp';
+import { Component, Clipboard, Text, View } from 'reactxp';
 import { Accordion } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
@@ -30,15 +30,6 @@ type Props = {
   updateAccountExpiry: () => Promise<void>,
 };
 
-type State = {
-  banner: {
-    visible: boolean,
-    title: string,
-    subtitle: string,
-  },
-  showCopyIPMessage: boolean,
-};
-
 function getBlockReasonMessage(reason: BlockReason): string {
   switch (reason) {
     case 'ipv6_unavailable':
@@ -54,28 +45,16 @@ function getBlockReasonMessage(reason: BlockReason): string {
   }
 }
 
-export default class Connect extends Component<Props, State> {
+export default class Connect extends Component<Props> {
   state = {
     banner: {
       visible: false,
       title: '',
       subtitle: '',
     },
-    showCopyIPMessage: false,
   };
 
-  _copyTimer: ?TimeoutID;
   _windowStateObserver = new WindowStateObserver();
-
-  constructor(props: Props) {
-    super();
-
-    const connection = props.connection;
-    this.state = {
-      ...this.state,
-      banner: this.getBannerState(connection.status, connection.blockReason),
-    };
-  }
 
   componentDidMount() {
     this.props.updateAccountExpiry();
@@ -86,25 +65,7 @@ export default class Connect extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    if (this._copyTimer) {
-      clearTimeout(this._copyTimer);
-    }
-
     this._windowStateObserver.dispose();
-  }
-
-  componentDidUpdate(oldProps: Props, _oldState: State) {
-    const oldConnection = oldProps.connection;
-    const newConnection = this.props.connection;
-
-    if (
-      oldConnection.status !== newConnection.status ||
-      oldConnection.blockReason !== newConnection.blockReason
-    ) {
-      this.setState({
-        banner: this.getBannerState(newConnection.status, newConnection.blockReason),
-      });
-    }
   }
 
   render() {
@@ -120,33 +81,6 @@ export default class Connect extends Component<Props, State> {
         <Container>{child}</Container>
       </Layout>
     );
-  }
-
-  getBannerState(
-    tunnelState: TunnelState,
-    blockReason: ?BlockReason,
-  ): $PropertyType<State, 'banner'> {
-    switch (tunnelState) {
-      case 'connecting':
-        return {
-          visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: '',
-        };
-
-      case 'blocked':
-        return {
-          visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: blockReason ? getBlockReasonMessage(blockReason) : '',
-        };
-
-      default:
-        return {
-          ...this.state.banner,
-          visible: false,
-        };
-    }
   }
 
   renderError(error: Error) {
@@ -213,154 +147,35 @@ export default class Connect extends Component<Props, State> {
   }
 
   renderMap() {
-    let [isConnecting, isConnected, isDisconnected, isDisconnecting, isBlocked] = [
-      false,
-      false,
-      false,
-      false,
-      false,
-    ];
-    switch (this.props.connection.status) {
-      case 'connecting':
-        isConnecting = true;
-        break;
-      case 'connected':
-        isConnected = true;
-        break;
-      case 'disconnected':
-        isDisconnected = true;
-        break;
-      case 'disconnecting':
-        isDisconnecting = true;
-        break;
-      case 'blocked':
-        isBlocked = true;
-        break;
-    }
-
     return (
       <View style={styles.connect}>
         <View style={styles.map}>
           <Map style={{ width: '100%', height: '100%' }} {...this._getMapProps()} />
         </View>
         <View style={styles.container}>
-          <Accordion
-            style={styles.blocking_container}
-            height={this.state.banner.visible ? 'auto' : 0}
-            testName={'blockingAccordion'}>
-            <BlockingInternetBanner>
-              <BannerTitle>{this.state.banner.title}</BannerTitle>
-              <BannerSubtitle>{this.state.banner.subtitle}</BannerSubtitle>
-            </BlockingInternetBanner>
-          </Accordion>
+          <TunnelBanner
+            tunnelState={this.props.connection.status}
+            blockReason={this.props.connection.blockReason}
+          />
 
           {/* show spinner when connecting */}
-          {isConnecting ? (
+          {this.props.connection.status === 'connecting' ? (
             <View style={styles.status_icon}>
               <Img source="icon-spinner" height={60} width={60} alt="" />
             </View>
           ) : null}
 
-          <View style={styles.status}>
-            <View style={this.networkSecurityStyle()} testName="networkSecurityMessage">
-              {this.networkSecurityMessage()}
-            </View>
-
-            {/*
-              **********************************
-              Begin: Location block
-              **********************************
-            */}
-
-            {/* location when connecting, disconnecting or disconnected */}
-            {isConnecting || isDisconnecting || isDisconnected ? (
-              <Text style={styles.status_location} testName="location">
-                {this.props.connection.country}
-              </Text>
-            ) : null}
-
-            {/* location when connected */}
-            {isConnected ? (
-              <Text style={styles.status_location} testName="location">
-                {this.props.connection.city}
-                {this.props.connection.city && <br />}
-                {this.props.connection.country}
-              </Text>
-            ) : null}
-
-            {/*
-              **********************************
-              End: Location block
-              **********************************
-            */}
-
-            <Text style={this.ipAddressStyle()} onPress={this.onIPAddressClick.bind(this)}>
-              {isConnected || isDisconnecting || isDisconnected ? (
-                <Text testName="ipAddress">
-                  {this.state.showCopyIPMessage
-                    ? 'IP copied to clipboard!'
-                    : this.props.connection.ip}
-                </Text>
-              ) : null}
-            </Text>
-          </View>
-
-          {/*
-            **********************************
-            Begin: Footer block
-            **********************************
-          */}
-
-          {/* footer when disconnecting or disconnected */}
-          {isDisconnecting || isDisconnected ? (
-            <View style={styles.footer}>
-              <AppButton.TransparentButton
-                style={styles.switch_location_button}
-                onPress={this.props.onSelectLocation}>
-                <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
-                <Img height={12} width={7} source="icon-chevron" />
-              </AppButton.TransparentButton>
-              <AppButton.GreenButton onPress={this.props.onConnect} testName="secureConnection">
-                {'Secure my connection'}
-              </AppButton.GreenButton>
-            </View>
-          ) : null}
-
-          {/* footer when connecting or blocked */}
-          {isConnecting || isBlocked ? (
-            <View style={styles.footer}>
-              <AppButton.TransparentButton
-                style={styles.switch_location_button}
-                onPress={this.props.onSelectLocation}>
-                {'Switch location'}
-              </AppButton.TransparentButton>
-              <AppButton.RedTransparentButton onPress={this.props.onDisconnect} testName="cancel">
-                {'Cancel'}
-              </AppButton.RedTransparentButton>
-            </View>
-          ) : null}
-
-          {/* footer when connected */}
-          {isConnected ? (
-            <View style={styles.footer}>
-              <AppButton.TransparentButton
-                style={styles.switch_location_button}
-                onPress={this.props.onSelectLocation}>
-                {'Switch location'}
-              </AppButton.TransparentButton>
-              <AppButton.RedTransparentButton
-                onPress={this.props.onDisconnect}
-                testName="disconnect">
-                {'Disconnect'}
-              </AppButton.RedTransparentButton>
-            </View>
-          ) : null}
-
-          {/*
-            **********************************
-            End: Footer block
-            **********************************
-          */}
+          <TunnelControl
+            style={styles.tunnel_control}
+            tunnelState={this.props.connection.status}
+            selectedRelayName={this.props.selectedRelayName}
+            city={this.props.connection.city}
+            country={this.props.connection.country}
+            ip={this.props.connection.ip}
+            onConnect={this.props.onConnect}
+            onDisconnect={this.props.onDisconnect}
+            onSelectLocation={this.props.onSelectLocation}
+          />
         </View>
       </View>
     );
@@ -370,19 +185,6 @@ export default class Connect extends Component<Props, State> {
 
   onExternalLink(type: string) {
     this.props.onExternalLink(type);
-  }
-
-  onIPAddressClick() {
-    if (this._copyTimer) {
-      clearTimeout(this._copyTimer);
-    }
-    this._copyTimer = setTimeout(() => this.setState({ showCopyIPMessage: false }), 3000);
-    this.setState({ showCopyIPMessage: true });
-
-    const { ip } = this.props.connection;
-    if (ip) {
-      Clipboard.setText(ip);
-    }
   }
 
   // Private
@@ -402,38 +204,6 @@ export default class Connect extends Component<Props, State> {
     }
   }
 
-  networkSecurityStyle(): Types.Style {
-    const classes = [styles.status_security];
-    const { status } = this.props.connection;
-    if (status === 'connected' || status === 'blocked') {
-      classes.push(styles.status_security__secure);
-    } else if (status === 'disconnected' || status === 'disconnecting') {
-      classes.push(styles.status_security__unsecured);
-    }
-    return classes;
-  }
-
-  networkSecurityMessage(): string {
-    switch (this.props.connection.status) {
-      case 'connected':
-        return 'SECURE CONNECTION';
-      case 'blocked':
-        return 'BLOCKED CONNECTION';
-      case 'connecting':
-        return 'CREATING SECURE CONNECTION';
-      default:
-        return 'UNSECURED CONNECTION';
-    }
-  }
-
-  ipAddressStyle(): Types.Style {
-    var classes = [styles.status_ipaddress];
-    if (this.props.connection.status === 'connecting') {
-      classes.push(styles.status_ipaddress__invisible);
-    }
-    return classes;
-  }
-
   checkForErrors(): ?Error {
     // Offline?
     if (!this.props.connection.isOnline) {
@@ -447,5 +217,309 @@ export default class Connect extends Component<Props, State> {
     }
 
     return null;
+  }
+}
+
+class TunnelBanner extends Component<
+  {
+    tunnelState: TunnelState,
+    blockReason: ?BlockReason,
+  },
+  {
+    visible: boolean,
+    title: string,
+    subtitle: string,
+  },
+> {
+  state = {
+    visible: false,
+    title: '',
+    subtitle: '',
+  };
+
+  constructor(props) {
+    super();
+    this.state = this._deriveState(props.tunnelState, props.blockReason);
+  }
+
+  componentDidUpdate(oldProps, _oldState) {
+    if (
+      oldProps.tunnelState !== this.props.tunnelState ||
+      oldProps.blockReason !== this.props.blockReason
+    ) {
+      const nextState = this._deriveState(this.props.tunnelState, this.props.blockReason);
+      this.setState(nextState);
+    }
+  }
+
+  render() {
+    return (
+      <Accordion
+        style={styles.blocking_container}
+        height={this.state.visible ? 'auto' : 0}
+        testName={'blockingAccordion'}>
+        <BlockingInternetBanner>
+          <BannerTitle>{this.state.title}</BannerTitle>
+          <BannerSubtitle>{this.state.subtitle}</BannerSubtitle>
+        </BlockingInternetBanner>
+      </Accordion>
+    );
+  }
+
+  _deriveState(tunnelState: TunnelState, blockReason: ?BlockReason) {
+    switch (tunnelState) {
+      case 'connecting':
+        return {
+          visible: true,
+          title: 'BLOCKING INTERNET',
+          subtitle: '',
+        };
+
+      case 'blocked':
+        return {
+          visible: true,
+          title: 'BLOCKING INTERNET',
+          subtitle: blockReason ? getBlockReasonMessage(blockReason) : '',
+        };
+
+      default:
+        return {
+          ...this.state,
+          visible: false,
+        };
+    }
+  }
+}
+
+type SecuredDisplayStyle = 'secured' | 'blocked' | 'securing' | 'unsecured';
+class SecuredLabel extends Component<{
+  displayStyle: SecuredDisplayStyle,
+}> {
+  _getText() {
+    switch (this.props.displayStyle) {
+      case 'secured':
+        return 'SECURE CONNECTION';
+
+      case 'blocked':
+        return 'BLOCKED CONNECTION';
+
+      case 'securing':
+        return 'CREATING SECURE CONNECTION';
+
+      case 'unsecured':
+        return 'UNSECURED CONNECTION';
+
+      default:
+        throw new Error(`Unknown SecuredDisplayStyle: ${(this.props.displayStyle: empty)}`);
+    }
+  }
+
+  _getTextStyle() {
+    switch (this.props.displayStyle) {
+      case 'secured':
+      case 'blocked':
+        return styles.status_security__secure;
+
+      case 'securing':
+        return styles.status_security__securing;
+
+      case 'unsecured':
+        return styles.status_security__unsecured;
+
+      default:
+        throw new Error(`Unknown SecuredDisplayStyle: ${(this.props.displayStyle: empty)}`);
+    }
+  }
+
+  render() {
+    return (
+      <Text
+        style={[styles.status_security, this._getTextStyle()]}
+        testName={'networkSecurityMessage'}>
+        {this._getText()}
+      </Text>
+    );
+  }
+}
+
+class IpAddressLabel extends Component<
+  {
+    value: string,
+  },
+  {
+    showsMessage: boolean,
+  },
+> {
+  _timer: ?TimeoutID;
+
+  state = {
+    showsMessage: false,
+  };
+
+  componentWillUnmount() {
+    if (this._timer) {
+      clearTimeout(this._timer);
+    }
+  }
+
+  render() {
+    return (
+      <Text style={styles.status_ipaddress} onPress={this._handlePress}>
+        {this.state.showsMessage ? 'IP copied to clipboard!' : this.props.value}
+      </Text>
+    );
+  }
+
+  _handlePress = () => {
+    if (this._timer) {
+      clearTimeout(this._timer);
+    }
+    this._timer = setTimeout(() => this.setState({ showsMessage: false }), 3000);
+    this.setState({ showsMessage: true });
+    Clipboard.setText(this.props.value);
+  };
+}
+
+class TunnelControl extends Component<{
+  tunnelState: TunnelState,
+  selectedRelayName: string,
+  city: ?string,
+  country: ?string,
+  ip: ?string,
+  onConnect: () => void,
+  onDisconnect: () => void,
+  onSelectLocation: () => void,
+}> {
+  render() {
+    const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
+    const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
+    const Country = () => <Text style={styles.status_location_text}>{this.props.country}</Text>;
+    const Ip = () => <IpAddressLabel value={this.props.ip || ''} />;
+
+    const SwitchLocation = () => {
+      return (
+        <AppButton.TransparentButton
+          style={styles.switch_location_button}
+          onPress={this.props.onSelectLocation}>
+          <AppButton.Label>{'Switch location'}</AppButton.Label>
+        </AppButton.TransparentButton>
+      );
+    };
+
+    const SelectedLocation = () => (
+      <AppButton.TransparentButton
+        style={styles.switch_location_button}
+        onPress={this.props.onSelectLocation}>
+        <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
+        <Img height={12} width={7} source="icon-chevron" />
+      </AppButton.TransparentButton>
+    );
+
+    const Connect = () => (
+      <AppButton.GreenButton onPress={this.props.onConnect} testName="secureConnection">
+        {'Secure my connection'}
+      </AppButton.GreenButton>
+    );
+
+    const Disconnect = () => (
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} testName="disconnect">
+        {'Disconnect'}
+      </AppButton.RedTransparentButton>
+    );
+
+    const Cancel = () => (
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} testName="cancel">
+        {'Cancel'}
+      </AppButton.RedTransparentButton>
+    );
+
+    const Wrapper = ({ children }) => <View style={this.props.style}>{children}</View>;
+    const Body = ({ children }) => <View style={styles.status}>{children}</View>;
+    const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
+
+    switch (this.props.tunnelState) {
+      case 'connecting':
+        return (
+          <Wrapper>
+            <Body>
+              <SecuredLabel displayStyle={'securing'} />
+              <Location>
+                <City />
+              </Location>
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Cancel />
+            </Footer>
+          </Wrapper>
+        );
+      case 'connected':
+        return (
+          <Wrapper>
+            <Body>
+              <SecuredLabel displayStyle={'secured'} />
+              <Location>
+                <City />
+                <Country />
+              </Location>
+              <Ip />
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Disconnect />
+            </Footer>
+          </Wrapper>
+        );
+
+      case 'blocked':
+        return (
+          <Wrapper>
+            <Body>
+              <SecuredLabel displayStyle={'blocked'} />
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Cancel />
+            </Footer>
+          </Wrapper>
+        );
+
+      case 'disconnecting':
+        return (
+          <Wrapper>
+            <Body>
+              <SecuredLabel displayStyle={'secured'} />
+              <Location>
+                <Country />
+              </Location>
+              <Ip />
+            </Body>
+            <Footer>
+              <SelectedLocation />
+              <Connect />
+            </Footer>
+          </Wrapper>
+        );
+
+      case 'disconnected':
+        return (
+          <Wrapper>
+            <Body>
+              <SecuredLabel displayStyle={'unsecured'} />
+              <Location>
+                <Country />
+              </Location>
+              <Ip />
+            </Body>
+            <Footer>
+              <SelectedLocation />
+              <Connect />
+            </Footer>
+          </Wrapper>
+        );
+
+      default:
+        throw new Error(`Unknown TunnelState: ${(this.props.tunnelState: empty)}`);
+    }
   }
 }
