@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Add support for DNS configuration using resolvconf.
 
+### Changed
+- Logging in no longer requires a connection with the Mullvad API server.
+
 ### Fixed
 - Don't temporarily show the unsecured state in the GUI when the app is reconnecting or blocking.
 
