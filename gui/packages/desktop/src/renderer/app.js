@@ -12,6 +12,7 @@ import {
 } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
 
+import { InvalidAccountError } from './errors';
 import makeRoutes from './routes';
 import ReconnectionBackoff from './lib/reconnection-backoff';
 import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
@@ -134,10 +135,18 @@ export default class AppRenderer {
     log.debug('Logging in');
 
     try {
-      const accountData = await this._daemonRpc.getAccountData(accountToken);
-      await this._daemonRpc.setAccount(accountToken);
+      try {
+        const accountData = await this._daemonRpc.getAccountData(accountToken);
+        actions.account.updateAccountExpiry(accountData.expiry);
+      } catch (error) {
+        if (error instanceof InvalidAccountError) {
+          throw error;
+        } else {
+          log.debug(`Failed to get account data, logging in anyway: ${error.message}`);
+        }
+      }
 
-      actions.account.updateAccountExpiry(accountData.expiry);
+      await this._daemonRpc.setAccount(accountToken);
       actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
