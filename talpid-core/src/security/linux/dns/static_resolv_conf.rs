@@ -34,19 +34,19 @@ error_chain! {
     }
 }
 
-pub struct DnsSettings {
+pub struct StaticResolvConf {
     state: Arc<Mutex<Option<State>>>,
     _watcher: DnsWatcher,
 }
 
-impl DnsSettings {
+impl StaticResolvConf {
     pub fn new() -> Result<Self> {
         restore_from_backup().chain_err(|| ErrorKind::RestoreResolvConf)?;
 
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
 
-        Ok(DnsSettings {
+        Ok(StaticResolvConf {
             state,
             _watcher: watcher,
         })

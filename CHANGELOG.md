@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Linux
+- Add support for DNS configuration using resolvconf.
 
 
 ## [2018.3] - 2018-09-17
