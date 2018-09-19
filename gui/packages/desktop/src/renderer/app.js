@@ -135,18 +135,16 @@ export default class AppRenderer {
     log.debug('Logging in');
 
     try {
-      try {
-        const accountData = await this._daemonRpc.getAccountData(accountToken);
-        actions.account.updateAccountExpiry(accountData.expiry);
-      } catch (error) {
-        if (error instanceof InvalidAccountError) {
-          throw error;
-        } else {
-          log.debug(`Failed to get account data, logging in anyway: ${error.message}`);
-        }
-      }
+      const verification = await this.verifyAccount(accountToken);
 
       await this._daemonRpc.setAccount(accountToken);
+
+      if (verification.status === 'verified') {
+        actions.account.updateAccountExpiry(verification.accountData.expiry);
+      } else if (verification.status === 'deferred') {
+        log.debug(`Failed to get account data, logging in anyway: ${verification.error.message}`);
+      }
+
       actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
@@ -167,6 +165,21 @@ export default class AppRenderer {
       log.error('Failed to log in,', error.message);
 
       actions.account.loginFailed(error);
+    }
+  }
+
+  async verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
+    try {
+      return {
+        status: 'verified',
+        accountData: await this._daemonRpc.getAccountData(accountToken),
+      };
+    } catch (error) {
+      if (error instanceof InvalidAccountError) {
+        throw error;
+      } else {
+        return { status: 'deferred', error };
+      }
     }
   }
 
@@ -584,6 +597,10 @@ export default class AppRenderer {
     ipcRenderer.send('change-tray-icon', type);
   }
 }
+
+type AccountVerification =
+  | { status: 'verified', accountData: AccountData }
+  | { status: 'deferred', error: Error };
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
