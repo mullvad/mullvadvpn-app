@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Replace repeated `Disconnecting` followed by `Connecting` notifications with a single
+  `Reconnecting` notification.
+
 #### Linux
 - Add support for DNS configuration using resolvconf.
 
