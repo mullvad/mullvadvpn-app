@@ -511,7 +511,7 @@ export default class AppRenderer {
     this._updateConnectionStatus(tunnelState);
     this._updateUserLocation(tunnelState.state);
     this._updateTrayIcon(tunnelState.state);
-    this._showNotification(tunnelState.state);
+    this._notificationController.notify(tunnelState);
   }
 
   _setSettings(newSettings: Settings) {
@@ -573,29 +573,6 @@ export default class AppRenderer {
     const type = iconTypes[tunnelState] || 'unsecured';
 
     ipcRenderer.send('change-tray-icon', type);
-  }
-
-  _showNotification(tunnelState: TunnelState) {
-    switch (tunnelState) {
-      case 'connecting':
-        this._notificationController.show('Connecting');
-        break;
-      case 'connected':
-        this._notificationController.show('Secured');
-        break;
-      case 'disconnected':
-        this._notificationController.show('Unsecured');
-        break;
-      case 'blocked':
-        this._notificationController.show('Blocked all connections');
-        break;
-      case 'disconnecting':
-        // no-op
-        break;
-      default:
-        log.error(`Unexpected TunnelState: ${(tunnelState: empty)}`);
-        return;
-    }
   }
 }
 
