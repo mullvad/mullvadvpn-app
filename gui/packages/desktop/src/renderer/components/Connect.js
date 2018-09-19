@@ -42,8 +42,10 @@ type State = {
 function getBlockReasonMessage(blockReason: BlockReason): string {
   switch (blockReason.reason) {
     case 'auth_failed': {
-      const details = blockReason.details ? `: ${blockReason.details}` : '';
-      return `Authentication failed${details}`;
+      const details =
+        blockReason.details ||
+        'Check that the account is valid, has time left and not too many connections';
+      return `Authentication failed: ${details}`;
     }
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
