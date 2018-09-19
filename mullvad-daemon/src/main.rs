@@ -71,6 +71,7 @@ use mullvad_types::settings::Settings;
 use mullvad_types::states::TargetState;
 use mullvad_types::version::{AppVersion, AppVersionInfo};
 
+use std::alloc::System;
 use std::net::IpAddr;
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -81,6 +82,10 @@ use talpid_core::mpsc::IntoSender;
 use talpid_core::tunnel_state_machine::{self, TunnelCommand, TunnelParameters};
 use talpid_types::net::TunnelEndpoint;
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
+
+
+#[global_allocator]
+static GLOBAL: System = System;
 
 
 error_chain!{

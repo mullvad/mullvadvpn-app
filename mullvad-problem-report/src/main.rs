@@ -22,6 +22,7 @@ extern crate mullvad_rpc;
 use error_chain::ChainedError;
 use regex::Regex;
 
+use std::alloc::System;
 use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
@@ -29,6 +30,11 @@ use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
+
+
+#[global_allocator]
+static GLOBAL: System = System;
+
 
 mod metadata;
 
