@@ -15,10 +15,10 @@ pub fn is_another_instance_running() -> bool {
         Err(error) => {
             let msg =
                 "Failed to locate/connect to another daemon instance, assuming there isn't one";
-            if log_enabled!(Level::Debug) {
-                debug!("{}\n{}", msg, error.display_chain());
+            if log_enabled!(Level::Trace) {
+                trace!("{}\n{}", msg, error.display_chain());
             } else {
-                info!("{}", msg);
+                debug!("{}", msg);
             }
             false
         }
