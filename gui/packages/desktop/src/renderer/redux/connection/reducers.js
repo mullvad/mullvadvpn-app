@@ -1,28 +1,26 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { BlockReason, TunnelState, Ip } from '../../lib/daemon-rpc';
+import type { TunnelStateTransition, Ip } from '../../lib/daemon-rpc';
 
 export type ConnectionReduxState = {
-  status: TunnelState,
+  status: TunnelStateTransition,
   isOnline: boolean,
   ip: ?Ip,
   latitude: ?number,
   longitude: ?number,
   country: ?string,
   city: ?string,
-  blockReason: ?BlockReason,
 };
 
 const initialState: ConnectionReduxState = {
-  status: 'disconnected',
+  status: { state: 'disconnected' },
   isOnline: true,
   ip: null,
   latitude: null,
   longitude: null,
   country: null,
   city: null,
-  blockReason: null,
 };
 
 export default function(
@@ -34,25 +32,25 @@ export default function(
       return { ...state, ...action.newLocation };
 
     case 'CONNECTING':
-      return { ...state, ...{ status: 'connecting', blockReason: null } };
+      return { ...state, status: { state: 'connecting' } };
 
     case 'CONNECTED':
-      return { ...state, ...{ status: 'connected', blockReason: null } };
+      return { ...state, status: { state: 'connected' } };
 
     case 'DISCONNECTED':
-      return { ...state, ...{ status: 'disconnected', blockReason: null } };
+      return { ...state, status: { state: 'disconnected' } };
 
     case 'DISCONNECTING':
-      return { ...state, ...{ status: 'disconnecting', blockReason: null } };
+      return { ...state, status: { state: 'disconnecting', details: action.afterDisconnect } };
 
     case 'BLOCKED':
-      return { ...state, ...{ status: 'blocked', blockReason: action.reason } };
+      return { ...state, status: { state: 'blocked', details: action.reason } };
 
     case 'ONLINE':
-      return { ...state, ...{ isOnline: true } };
+      return { ...state, isOnline: true };
 
     case 'OFFLINE':
-      return { ...state, ...{ isOnline: false } };
+      return { ...state, isOnline: false };
 
     default:
       return state;

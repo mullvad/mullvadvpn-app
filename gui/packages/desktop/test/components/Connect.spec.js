@@ -12,7 +12,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'disconnected',
+        status: { state: 'disconnected' },
       },
     });
 
@@ -28,7 +28,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'connected',
+        status: { state: 'connected' },
       },
     });
 
@@ -44,8 +44,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'blocked',
-        blockReason: { reason: 'no_matching_relay' },
+        status: { state: 'blocked', details: { reason: 'no_matching_relay' } },
       },
     });
 
@@ -61,7 +60,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'connecting',
+        status: { state: 'connecting' },
         country: 'Norway',
         city: 'Oslo',
         ip: '4.3.2.1',
@@ -79,7 +78,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'connected',
+        status: { state: 'connected' },
         country: 'Norway',
         city: 'Oslo',
         ip: '4.3.2.1',
@@ -97,7 +96,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'disconnected',
+        status: { state: 'disconnected' },
         country: 'Norway',
         city: 'Oslo',
         ip: '4.3.2.1',
@@ -116,7 +115,7 @@ describe('components/Connect', () => {
       onConnect: () => done(),
       connection: {
         ...defaultProps.connection,
-        status: 'disconnected',
+        status: { state: 'disconnected' },
       },
     });
     const connectButton = getComponent(component, 'secureConnection');
@@ -124,12 +123,26 @@ describe('components/Connect', () => {
     connectButton.prop('onPress')();
   });
 
-  it('hides the blocking internet message when connected, disconnecting or disconnected', () => {
-    for (const status of ['connected', 'disconnecting', 'disconnected']) {
+  it('hides the blocking internet message when connected or disconnected', () => {
+    for (const state of ['connected', 'disconnected']) {
       const component = renderWithProps({
         connection: {
           ...defaultProps.connection,
-          status,
+          status: { state },
+        },
+      });
+      const blockingAccordion = getComponent(component, 'blockingAccordion');
+
+      expect(blockingAccordion.prop('height')).to.equal(0);
+    }
+  });
+
+  it('hides the blocking internet message when disconnecting', () => {
+    for (const afterDisconnect of ['nothing', 'block', 'reconnect']) {
+      const component = renderWithProps({
+        connection: {
+          ...defaultProps.connection,
+          status: { state: 'disconnecting', details: afterDisconnect },
         },
       });
       const blockingAccordion = getComponent(component, 'blockingAccordion');
@@ -142,7 +155,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'connecting',
+        status: { state: 'connecting' },
         country: 'Norway',
         city: 'Oslo',
       },
@@ -156,8 +169,7 @@ describe('components/Connect', () => {
     const component = renderWithProps({
       connection: {
         ...defaultProps.connection,
-        status: 'blocked',
-        blockReason: { reason: 'no_matching_relay' },
+        status: { state: 'blocked', details: { reason: 'no_matching_relay' } },
       },
     });
     const blockingAccordion = getComponent(component, 'blockingAccordion');
@@ -175,14 +187,13 @@ const defaultProps: ConnectProps = {
   accountExpiry: '',
   selectedRelayName: '',
   connection: {
-    status: 'disconnected',
+    status: { state: 'disconnected' },
     isOnline: true,
     ip: null,
     latitude: null,
     longitude: null,
     country: null,
     city: null,
-    blockReason: null,
   },
   updateAccountExpiry: () => Promise.resolve(),
 };

@@ -547,7 +547,7 @@ export default class AppRenderer {
         break;
 
       case 'disconnecting':
-        actions.connection.disconnecting();
+        actions.connection.disconnecting(stateTransition.details);
         break;
 
       case 'disconnected':
