@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Don't temporarily show the unsecured state in the GUI when the app is reconnecting or blocking.
 - Periodically update list of relays in the GUI.
+- Redact IPv6 address that start or end with double colons in problem reports.
 
 
 ## [2018.3] - 2018-09-17
