@@ -6263,9 +6263,9 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nseventmonitor@https://github.com/mullvad/NSEventMonitor.git#0.0.9":
-  version "0.0.9"
-  resolved "https://github.com/mullvad/NSEventMonitor.git#ff5bad00d954b6cba7b16a1ebd013fea0bb79292"
+"nseventmonitor@https://github.com/mullvad/NSEventMonitor.git#0.0.10":
+  version "0.0.10"
+  resolved "https://github.com/mullvad/NSEventMonitor.git#9bbdf33c0cbdb0119dcb76a8e7b5e5487f6c9d41"
   dependencies:
     node-pre-gyp "^0.10.0"
 
