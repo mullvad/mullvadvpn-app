@@ -352,16 +352,18 @@ impl ProblemReport {
     fn redact_network_info(input: &str) -> Cow<str> {
         lazy_static! {
             static ref RE: Regex = {
+                let boundary = "[^0-9a-zA-Z.:]";
                 let combined_pattern = format!(
-                    "\\b({}|{}|{})\\b",
+                    "(?P<start>^|{})(?:{}|{}|{})",
+                    boundary,
                     build_ipv4_regex(),
                     build_ipv6_regex(),
-                    build_mac_regex()
+                    build_mac_regex(),
                 );
                 Regex::new(&combined_pattern).unwrap()
             };
         }
-        RE.replace_all(input, "[REDACTED]")
+        RE.replace_all(input, "$start[REDACTED]")
     }
 
     fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
@@ -423,23 +425,41 @@ fn build_ipv4_regex() -> String {
 }
 
 fn build_ipv6_regex() -> String {
-    let hextet = "[[:xdigit:]]{1,4}"; // 0 - ffff
+    // Regular expression obtained from:
+    // https://stackoverflow.com/a/17871737
+    let ipv4_segment = "(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
+    let ipv4_address = format!("({0}\\.){{3,3}}{0}", ipv4_segment);
 
-    // Matches 1-7 hextets followed by one or two colons
-    // and one last hextet.
-    //
-    // This means that there are many
-    // invalid IPv6 addresses that matches this. E.g.
-    // all that has more than one instance of '::', but we
-    // don't really care.
-    let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
+    let ipv6_segment = "[0-9a-fA-F]{1,4}";
 
-    // Matches addresses without double colon. This is
-    // a separate regex to make it easier to not match
-    // on time
-    let long = format!("({0}:){{7}}{0}", hextet);
+    let long = format!("({0}:){{7,7}}{0}", ipv6_segment);
+    let compressed_1 = format!("({0}:){{1,7}}:", ipv6_segment);
+    let compressed_2 = format!("({0}:){{1,6}}:{0}", ipv6_segment);
+    let compressed_3 = format!("({0}:){{1,5}}(:{0}){{1,2}}", ipv6_segment);
+    let compressed_4 = format!("({0}:){{1,4}}(:{0}){{1,3}}", ipv6_segment);
+    let compressed_5 = format!("({0}:){{1,3}}(:{0}){{1,4}}", ipv6_segment);
+    let compressed_6 = format!("({0}:){{1,2}}(:{0}){{1,5}}", ipv6_segment);
+    let compressed_7 = format!("{0}:((:{0}){{1,6}})", ipv6_segment);
+    let compressed_8 = format!(":((:{0}){{1,7}}|:)", ipv6_segment);
+    let link_local = "[Ff][Ee]80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}";
+    let ipv4_mapped = format!("::([fF]{{4}}(:0{{1,4}}){{0,1}}:){{0,1}}{}", ipv4_address);
+    let ipv4_embedded = format!("({0}:){{1,4}}:{1}", ipv6_segment, ipv4_address);
 
-    format!("(?:{})|(?:{})", short, long)
+    format!(
+        "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}",
+        long,
+        link_local,
+        ipv4_mapped,
+        ipv4_embedded,
+        compressed_8,
+        compressed_7,
+        compressed_6,
+        compressed_5,
+        compressed_4,
+        compressed_3,
+        compressed_2,
+        compressed_1,
+    )
 }
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
@@ -504,6 +524,9 @@ mod tests {
         assert_redacts_ipv6("2001:db8:0:1:1:1:1:1");
         assert_redacts_ipv6("2001:db8:0:0:1:0:0:1");
         assert_redacts_ipv6("2001:db8::1:0:0:1");
+        assert_redacts_ipv6("abcd:dead:beef::");
+        assert_redacts_ipv6("abcd:dead:beef:1234::");
+        assert_redacts_ipv6("::dead:beef:1234");
         assert_redacts_ipv6("0::0");
         assert_redacts_ipv6("0:0:0:0::1");
     }
