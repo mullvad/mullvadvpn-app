@@ -490,9 +490,7 @@ mod tests {
 
     #[test]
     fn does_not_redact_localhost_ipv4() {
-        let report = ProblemReport::new(vec![]);
-        let res = report.redact("127.0.0.1");
-        assert_eq!("127.0.0.1", res);
+        assert_does_not_redact("127.0.0.1");
     }
 
     #[test]
@@ -512,9 +510,7 @@ mod tests {
 
     #[test]
     fn doesnt_redact_not_ipv6() {
-        let report = ProblemReport::new(vec![]);
-        let actual = report.redact("[talpid_core::security]");
-        assert_eq!("[talpid_core::security]", actual);
+        assert_does_not_redact("[talpid_core::security]");
     }
 
     fn assert_redacts_ipv6(input: &str) {
@@ -525,8 +521,12 @@ mod tests {
 
     #[test]
     fn test_does_not_redact_time() {
+        assert_does_not_redact("09:47:59");
+    }
+
+    fn assert_does_not_redact(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("09:47:59");
-        assert_eq!("09:47:59", res);
+        let res = report.redact(input);
+        assert_eq!(input, res);
     }
 }
