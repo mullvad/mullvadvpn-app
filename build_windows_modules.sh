@@ -20,6 +20,8 @@ function clean_solution
   if [[ -z "${DEV_BUILD+x}" ]]; then
     # Clean all intermediate and output files
     rm -r $path/bin/* || true
+  else
+    echo "Will NOT clean intermediate files in $path/bin/"
   fi
 }
 
