@@ -524,13 +524,6 @@ mod tests {
     }
 
     #[test]
-    fn test_does_not_redact_localhost_ipv6() {
-        let report = ProblemReport::new(vec![]);
-        let res = report.redact("::1");
-        assert_eq!("::1", res);
-    }
-
-    #[test]
     fn test_does_not_redact_time() {
         let report = ProblemReport::new(vec![]);
         let res = report.redact("09:47:59");
