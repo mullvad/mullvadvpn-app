@@ -22,7 +22,14 @@ mod cmds;
 
 
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
+
+use std::alloc::System;
 use std::io;
+
+
+#[global_allocator]
+static GLOBAL: System = System;
+
 
 error_chain! {
     foreign_links {
