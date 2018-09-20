@@ -315,7 +315,7 @@ const ApplicationMain = {
       webPreferences: {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
-        // Enable experimental features
+        // enable blur effect
         blinkFeatures: 'CSSBackdropFilter',
       },
     };
@@ -413,6 +413,9 @@ const ApplicationMain = {
   _createTray(): Tray {
     const tray = new Tray(nativeImage.createEmpty());
     tray.setToolTip('Mullvad VPN');
+
+    // disable double click on tray icon since it causes weird delay
+    tray.setIgnoreDoubleClickEvents(true);
 
     // disable icon highlight on macOS
     if (process.platform === 'darwin') {
