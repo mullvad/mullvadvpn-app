@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Don't temporarily show the unsecured state in the GUI when the app is reconnecting or blocking.
+- Improve tray icon response time by disabling the double click handling.
 
 
 ## [2018.3] - 2018-09-17
