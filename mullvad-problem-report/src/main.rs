@@ -352,16 +352,19 @@ impl ProblemReport {
     fn redact_network_info(input: &str) -> Cow<str> {
         lazy_static! {
             static ref RE: Regex = {
+                let boundary = "[^0-9a-zA-Z.:]";
                 let combined_pattern = format!(
-                    "\\b({}|{}|{})\\b",
+                    "(?P<start>^|{})(?:{}|{}|{})(?P<end>$|{})",
+                    boundary,
                     build_ipv4_regex(),
                     build_ipv6_regex(),
-                    build_mac_regex()
+                    build_mac_regex(),
+                    boundary,
                 );
                 Regex::new(&combined_pattern).unwrap()
             };
         }
-        RE.replace_all(input, "[REDACTED]")
+        RE.replace_all(input, "$start[REDACTED]$end")
     }
 
     fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
@@ -432,14 +435,31 @@ fn build_ipv6_regex() -> String {
     // invalid IPv6 addresses that matches this. E.g.
     // all that has more than one instance of '::', but we
     // don't really care.
-    let short = format!("({0}::?){{1,6}}(:{0}){{1,6}}", hextet);
+    let short_without_surrounding_colons = format!("({0}:){{1,6}}(:{0}){{1,6}}", hextet);
+
+    // Matches two colons followed by either a hextet not starting with `1` or a hextet that starts
+    // with `1` but has at least two characters.
+    let not_localhost = "::([02-9a-fA-F][[:xdigit:]]{0,3}|1[[:xdigit:]]{1,3})";
+
+    // Matches two starting colons followed by up to seven hextets, with the exception that it
+    // can't contain only a single `1` hextet (representing the localhost address).
+    let short_with_leading_colon = format!("({})|(:(:{}){{2,7}})", not_localhost, hextet);
+
+    // Matches up to seven hextets followed by two ending colons.
+    let short_with_ending_colon = format!("({}:){{1,7}}:", hextet);
+
+    // Matches addresses with at least one collapsed group.
+    let short = format!(
+        "(?:{})|(?:{})|(?:{})",
+        short_with_leading_colon, short_without_surrounding_colons, short_with_ending_colon
+    );
 
     // Matches addresses without double colon. This is
     // a separate regex to make it easier to not match
     // on time
     let long = format!("({0}:){{7}}{0}", hextet);
 
-    format!("(?:{})|(?:{})", short, long)
+    format!("(?:{})|{}", long, short)
 }
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
@@ -490,9 +510,7 @@ mod tests {
 
     #[test]
     fn does_not_redact_localhost_ipv4() {
-        let report = ProblemReport::new(vec![]);
-        let res = report.redact("127.0.0.1");
-        assert_eq!("127.0.0.1", res);
+        assert_does_not_redact("127.0.0.1");
     }
 
     #[test]
@@ -506,34 +524,39 @@ mod tests {
         assert_redacts_ipv6("2001:db8:0:1:1:1:1:1");
         assert_redacts_ipv6("2001:db8:0:0:1:0:0:1");
         assert_redacts_ipv6("2001:db8::1:0:0:1");
+        assert_redacts_ipv6("abcd:dead:beef::");
+        assert_redacts_ipv6("abcd:dead:beef:1234::");
+        assert_redacts_ipv6("::dead:beef:1234");
         assert_redacts_ipv6("0::0");
         assert_redacts_ipv6("0:0:0:0::1");
     }
 
     #[test]
     fn doesnt_redact_not_ipv6() {
-        let report = ProblemReport::new(vec![]);
-        let actual = report.redact("[talpid_core::security]");
-        assert_eq!("[talpid_core::security]", actual);
+        assert_does_not_redact("[talpid_core::security]");
     }
 
     fn assert_redacts_ipv6(input: &str) {
         let report = ProblemReport::new(vec![]);
         let actual = report.redact(&format!("pre {} post", input));
+        println!("IPv6 addr: {}", input);
         assert_eq!("pre [REDACTED] post", actual);
     }
 
     #[test]
     fn test_does_not_redact_localhost_ipv6() {
-        let report = ProblemReport::new(vec![]);
-        let res = report.redact("::1");
-        assert_eq!("::1", res);
+        assert_does_not_redact("::");
+        assert_does_not_redact("::1");
     }
 
     #[test]
     fn test_does_not_redact_time() {
+        assert_does_not_redact("09:47:59");
+    }
+
+    fn assert_does_not_redact(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let res = report.redact("09:47:59");
-        assert_eq!("09:47:59", res);
+        let res = report.redact(input);
+        assert_eq!(input, res);
     }
 }
