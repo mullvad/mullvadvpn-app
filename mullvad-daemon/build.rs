@@ -24,7 +24,12 @@ fn main() {
             winapi::um::winnt::LANG_ENGLISH,
             winapi::um::winnt::SUBLANG_ENGLISH_US,
         ));
-        res.set_manifest_file("mullvad-daemon.manifest");
+        // Add manifest to the Windows binary if this is not running as test.
+        // Since the manifest forces the binary to run with elevated privileges `cargo test` can't
+        // execute it if this is added.
+        if env::var_os("CARGO_CFG_TEST").is_none() {
+            res.set_manifest_file("mullvad-daemon.manifest");
+        }
         res.compile().expect("Unable to generate windows resources");
     }
 }
