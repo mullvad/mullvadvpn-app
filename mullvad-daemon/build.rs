@@ -15,7 +15,10 @@ fn main() {
     fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
     fs::write(out_dir.join("git-commit-date.txt"), commit_date()).unwrap();
 
-    #[cfg(windows)]
+    // Add metadata to the Windows binary if this is not running as test.
+    // Since the manifest forces the binary to run with elevated privileges `cargo test` can't
+    // execute it if this is added.
+    #[cfg(all(windows, not(feature = "test")))]
     {
         let mut res = winres::WindowsResource::new();
         res.set("ProductVersion", &product_version);

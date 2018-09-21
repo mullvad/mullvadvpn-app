@@ -53,3 +53,6 @@ CompanyName = "Amagicom AB"
 LegalCopyright = "(c) 2018 Amagicom AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"
+
+[features]
+test = []
