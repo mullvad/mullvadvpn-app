@@ -37,16 +37,11 @@ extern crate talpid_core;
 extern crate talpid_ipc;
 extern crate talpid_types;
 
-#[cfg(windows)]
-#[macro_use]
-extern crate windows_service;
-
 mod account_history;
 mod geoip;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
-mod system_service;
 
 use error_chain::ChainedError;
 use futures::sync::mpsc::UnboundedSender;

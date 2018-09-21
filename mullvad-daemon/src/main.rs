@@ -20,6 +20,10 @@ extern crate mullvad_daemon;
 extern crate mullvad_paths;
 extern crate talpid_core;
 
+#[cfg(windows)]
+#[macro_use]
+extern crate windows_service;
+
 use error_chain::ChainedError;
 use mullvad_daemon::Daemon;
 use std::{thread, time::Duration};
