@@ -20,7 +20,7 @@ import type { ConnectionReduxState } from '../redux/connection/reducers';
 
 type Props = {
   connection: ConnectionReduxState,
-  accountExpiry: string,
+  accountExpiry: ?string,
   selectedRelayName: string,
   onSettings: () => void,
   onSelectLocation: () => void,

@@ -15,7 +15,7 @@ import type { AccountToken } from '../lib/daemon-rpc';
 
 type Props = {
   accountToken: AccountToken,
-  accountExpiry: string,
+  accountExpiry: ?string,
   expiryLocale: string,
   updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
