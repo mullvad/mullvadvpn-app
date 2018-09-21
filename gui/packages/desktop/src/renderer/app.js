@@ -118,6 +118,8 @@ export default class AppRenderer {
       }
     });
 
+    ipcRenderer.on('window-shown', () => this.updateAccountExpiry());
+
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
   }
