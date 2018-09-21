@@ -46,22 +46,17 @@ const ApplicationMain = {
   },
 
   _ensureSingleInstance() {
-    // This callback is guaranteed to be excuted after 'ready' events have been
-    // sent to the app.
-    const shouldQuit = app.makeSingleInstance((_args, _workingDirectory) => {
-      log.debug('Another instance was spawned, showing window');
-
-      if (this._windowController) {
-        this._windowController.show();
-      }
-    });
-
-    if (shouldQuit) {
-      log.info('Another instance already exists, shutting down');
-      app.exit();
+    if (app.requestSingleInstanceLock()) {
+      app.on('second-instance', (event, commandLine, workingDirectory) => {
+        if (this._windowController) {
+          this._windowController.show();
+        }
+      });
+      return false;
+    } else {
+      app.quit();
+      return true;
     }
-
-    return shouldQuit;
   },
 
   _overrideAppPaths() {
