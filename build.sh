@@ -117,7 +117,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
-cargo +stable build --release
+MULLVAD_ADD_MANIFEST="1" cargo +stable build --release
 
 ################################################################################
 # Other work to prepare the release.
