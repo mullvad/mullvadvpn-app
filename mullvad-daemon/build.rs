@@ -24,7 +24,15 @@ fn main() {
             winapi::um::winnt::LANG_ENGLISH,
             winapi::um::winnt::SUBLANG_ENGLISH_US,
         ));
-        res.set_manifest_file("mullvad-daemon.manifest");
+        println!("cargo:rerun-if-env-changed=MULLVAD_ADD_MANIFEST");
+        if env::var("MULLVAD_ADD_MANIFEST")
+            .map(|s| s != "0")
+            .unwrap_or(false)
+        {
+            res.set_manifest_file("mullvad-daemon.manifest");
+        } else {
+            println!("cargo:warning=Skipping mullvad-daemon manifest");
+        }
         res.compile().expect("Unable to generate windows resources");
     }
 }
