@@ -54,14 +54,22 @@ describe('components/Account', () => {
     const props = makeProps({
       accountExpiry: new Date('2001-01-01').toISOString(),
     });
-    const component = getComponent(render(props), 'account__out_of_time');
-    expect(component).to.have.length(1);
+    const component = getComponent(render(props), 'account__expiry');
+    expect(component.dive().html()).to.contain('OUT OF TIME');
   });
 
   it('should not display "out of time" message when account is active', () => {
     const props = makeProps({});
-    const component = getComponent(render(props), 'account__out_of_time');
-    expect(component).to.have.length(0);
+    const component = getComponent(render(props), 'account__expiry');
+    expect(component.dive().html()).to.not.contain('OUT OF TIME');
+  });
+
+  it('should not display "unavailable" message when account expiry is missing', () => {
+    const props = makeProps({
+      accountExpiry: null,
+    });
+    const component = getComponent(render(props), 'account__expiry');
+    expect(component.dive().html()).to.contain('Currently unavailable');
   });
 });
 
