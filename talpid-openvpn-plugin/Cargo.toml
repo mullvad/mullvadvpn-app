@@ -23,4 +23,12 @@ talpid-ipc = { path = "../talpid-ipc" }
 
 
 [target.'cfg(windows)'.build-dependencies]
-windres = "0.2"
+winres = "0.1"
+winapi = "0.3"
+
+[package.metadata.winres]
+ProductName = "Mullvad VPN"
+CompanyName = "Amagicom AB"
+LegalCopyright = "(c) 2018 Amagicom AB"
+InternalName = "talpid-openvpn-plugin"
+OriginalFilename = "talpid_openvpn_plugin.dll"
