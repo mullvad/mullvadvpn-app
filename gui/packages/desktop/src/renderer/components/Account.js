@@ -25,6 +25,11 @@ type State = {
   showAccountTokenCopiedMessage: boolean,
 };
 
+type FormattedExpiry = {
+  message: string,
+  style: boolean,
+};
+
 export default class Account extends Component<Props, State> {
   state = {
     showAccountTokenCopiedMessage: false,
@@ -51,15 +56,7 @@ export default class Account extends Component<Props, State> {
   }
 
   render() {
-    const expiry = moment(this.props.accountExpiry);
-    const isOutOfTime = expiry.isSameOrBefore(moment());
-    const formattedExpiry = expiry.toDate().toLocaleString(this.props.expiryLocale, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    });
+    const expiry = this._formatAccountExpiry();
 
     return (
       <Layout>
@@ -89,13 +86,9 @@ export default class Account extends Component<Props, State> {
 
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Paid until</Text>
-                    {isOutOfTime ? (
-                      <Text style={styles.account__out_of_time} testName="account__out_of_time">
-                        {'OUT OF TIME'}
-                      </Text>
-                    ) : (
-                      <Text style={styles.account__row_value}>{formattedExpiry}</Text>
-                    )}
+                    <Text style={expiry.style} testName="account__expiry">
+                      {expiry.message}
+                    </Text>
                   </View>
 
                   <View style={styles.account__footer}>
@@ -119,5 +112,36 @@ export default class Account extends Component<Props, State> {
         </Container>
       </Layout>
     );
+  }
+
+  _formatAccountExpiry(): FormattedExpiry {
+    if (!this.props.accountExpiry) {
+      return {
+        message: 'Currently unavailable',
+        style: styles.account__row_value,
+      };
+    }
+
+    const expiry = moment(this.props.accountExpiry);
+
+    if (expiry.isSameOrBefore(moment())) {
+      return {
+        message: 'OUT OF TIME',
+        style: styles.account__out_of_time,
+      };
+    }
+
+    const formatOptions = {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    };
+
+    return {
+      message: expiry.toDate().toLocaleString(this.props.expiryLocale, formatOptions),
+      style: styles.account__row_value,
+    };
   }
 }
