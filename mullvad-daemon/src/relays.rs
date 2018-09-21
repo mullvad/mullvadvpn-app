@@ -23,6 +23,7 @@ use std::{io, thread};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
+const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
@@ -142,7 +143,7 @@ impl RelaySelector {
             "Initialized with {} cached relays from {}",
             unsynchronized_parsed_relays.relays().len(),
             DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
-                .format(::logging::DATE_TIME_FORMAT_STR)
+                .format(DATE_TIME_FORMAT_STR)
         );
         let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
         let updater = RelayListUpdater::spawn(rpc_handle, cache_path, parsed_relays.clone());

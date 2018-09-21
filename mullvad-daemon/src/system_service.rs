@@ -1,5 +1,3 @@
-#![cfg(windows)]
-
 use std::ffi::OsString;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
@@ -18,7 +16,8 @@ use windows_service::service_control_handler::{
 use windows_service::service_dispatcher;
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 
-use super::{DaemonShutdownHandle, Result, ResultExt};
+use super::{Result, ResultExt};
+use mullvad_daemon::DaemonShutdownHandle;
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
@@ -34,15 +33,15 @@ pub fn run() -> Result<()> {
 
 define_windows_service!(service_main, handle_service_main);
 
-pub fn handle_service_main(arguments: Vec<OsString>) {
+pub fn handle_service_main(_arguments: Vec<OsString>) {
     info!("Service started.");
-    match run_service(arguments) {
-        Ok(_) => info!("Service stopped."),
-        Err(ref e) => error!("{}", e.display_chain()),
+    match run_service() {
+        Ok(()) => info!("Service stopped."),
+        Err(error) => error!("{}", error.display_chain()),
     };
 }
 
-fn run_service(_arguments: Vec<OsString>) -> Result<()> {
+fn run_service() -> Result<()> {
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -76,11 +75,11 @@ fn run_service(_arguments: Vec<OsString>) -> Result<()> {
 
         persistent_service_status.set_running().unwrap();
 
-        daemon.run()
+        Ok(daemon.run()?)
     });
 
     let exit_code = match result {
-        Ok(_) => ServiceExitCode::default(),
+        Ok(()) => ServiceExitCode::default(),
         Err(_) => ServiceExitCode::ServiceSpecific(1),
     };
 
