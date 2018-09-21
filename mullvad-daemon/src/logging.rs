@@ -58,7 +58,7 @@ const LINE_SEPARATOR: &str = "\n";
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
 
-pub const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
+const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 pub fn init_logger(
     log_level: log::LevelFilter,
