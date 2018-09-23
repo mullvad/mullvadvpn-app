@@ -10,6 +10,8 @@
 namespace
 {
 
+ErrorSinkInfo g_ErrorSink = { nullptr, nullptr };
+
 std::wstring g_NetShPath;
 
 void InitializePath()
@@ -29,6 +31,13 @@ const std::wstring &NetShPath()
 	InitializePath();
 
 	return g_NetShPath;
+}
+
+void InfoSink(const char *msg)
+{
+	auto infoMsg = std::string("INFO: ").append(msg);
+
+	g_ErrorSink.sink(infoMsg.c_str(), nullptr, 0, g_ErrorSink.context);
 }
 
 std::vector<std::string> BlockToRows(const std::string &textBlock)
@@ -78,13 +87,16 @@ __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::Applicat
 	throw NetShError(std::move(error), std::move(details));
 }
 
-void ValidateShellOut(common::ApplicationRunner &netsh)
+void ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
 {
-	static const size_t TIMEOUT_MILLISECONDS = 2000;
+	// Use default timeout of 4 seconds.
+	const uint32_t actualTimeout = (0 == timeout ? 3000 : timeout);
+
+	const auto startTime = GetTickCount64();
 
 	DWORD returnCode;
 
-	if (false == netsh.join(returnCode, TIMEOUT_MILLISECONDS))
+	if (false == netsh.join(returnCode, actualTimeout))
 	{
 		ThrowWithDetails("'netsh' did not complete in a timely manner", netsh);
 	}
@@ -97,12 +109,31 @@ void ValidateShellOut(common::ApplicationRunner &netsh)
 
 		ThrowWithDetails(ss.str(), netsh);
 	}
+
+	const auto elapsed = static_cast<uint32_t>(GetTickCount64() - startTime);
+
+	if (elapsed > (actualTimeout / 2))
+	{
+		std::stringstream ss;
+
+		ss << L"'netsh' completed successfully, albeit a little slowly. It consumed "
+			<< elapsed << " ms of "
+			<< actualTimeout << " ms max permitted execution time";
+
+		InfoSink(ss.str().c_str());
+	}
 }
 
 } // anonymous namespace
 
 //static
-void NetSh::SetIpv4PrimaryDns(uint32_t interfaceIndex, std::wstring server)
+void NetSh::RegisterErrorSink(const ErrorSinkInfo &errorSink)
+{
+	g_ErrorSink = errorSink;
+}
+
+//static
+void NetSh::SetIpv4PrimaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout)
 {
 	//
 	// netsh interface ipv4 set dnsservers name="Ethernet 2" source=static address=8.8.8.8 validate=no
@@ -120,11 +151,11 @@ void NetSh::SetIpv4PrimaryDns(uint32_t interfaceIndex, std::wstring server)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }
 
 //static
-void NetSh::SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server)
+void NetSh::SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout)
 {
 	//
 	// netsh interface ipv4 add dnsservers name="Ethernet 2" address=8.8.4.4 index=2 validate=no
@@ -142,11 +173,11 @@ void NetSh::SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }
 
 //static
-void NetSh::SetIpv4Dhcp(uint32_t interfaceIndex)
+void NetSh::SetIpv4Dhcp(uint32_t interfaceIndex, uint32_t timeout)
 {
 	//
 	// netsh interface ipv4 set dnsservers name="Ethernet 2" source=dhcp
@@ -162,11 +193,11 @@ void NetSh::SetIpv4Dhcp(uint32_t interfaceIndex)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }
 
 //static
-void NetSh::SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server)
+void NetSh::SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout)
 {
 	//
 	// netsh interface ipv6 set dnsservers name="Ethernet 2" source=static address=2001:4860:4860::8888 validate=no
@@ -184,11 +215,11 @@ void NetSh::SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }
 
 //static
-void NetSh::SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server)
+void NetSh::SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout)
 {
 	//
 	// netsh interface ipv6 add dnsservers name="Ethernet 2" address=2001:4860:4860::8844 index=2 validate=no
@@ -206,11 +237,11 @@ void NetSh::SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }
 
 //static
-void NetSh::SetIpv6Dhcp(uint32_t interfaceIndex)
+void NetSh::SetIpv6Dhcp(uint32_t interfaceIndex, uint32_t timeout)
 {
 	//
 	// netsh interface ipv6 set dnsservers name="Ethernet 2" source=dhcp
@@ -226,5 +257,5 @@ void NetSh::SetIpv6Dhcp(uint32_t interfaceIndex)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(NetShPath(), ss.str());
 
-	ValidateShellOut(*netsh);
+	ValidateShellOut(*netsh, timeout);
 }

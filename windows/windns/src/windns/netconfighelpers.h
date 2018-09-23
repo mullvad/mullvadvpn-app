@@ -19,6 +19,6 @@ uint32_t GetInterfaceIndex(CComPtr<IWbemClassObject> instance);
 
 void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &servers);
 
-void RevertDnsServers(const InterfaceConfig &config);
+void RevertDnsServers(const InterfaceConfig &config, uint32_t timeout = 0);
 
 }

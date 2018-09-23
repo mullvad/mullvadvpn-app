@@ -42,7 +42,7 @@ void SetDnsServers(uint32_t interfaceIndex, const std::vector<std::wstring> &ser
 	}
 }
 
-void RevertDnsServers(const InterfaceConfig &config)
+void RevertDnsServers(const InterfaceConfig &config, uint32_t timeout)
 {
 	XTRACE("Reverting DNS configuration for interface with index=", config.interfaceIndex());
 
@@ -50,15 +50,15 @@ void RevertDnsServers(const InterfaceConfig &config)
 
 	if (config.dhcp() || nullptr == servers || 0 == servers->size())
 	{
-		NetSh::SetIpv4Dhcp(config.interfaceIndex());
+		NetSh::SetIpv4Dhcp(config.interfaceIndex(), timeout);
 		return;
 	}
 
-	NetSh::SetIpv4PrimaryDns(config.interfaceIndex(), (*servers)[0]);
+	NetSh::SetIpv4PrimaryDns(config.interfaceIndex(), (*servers)[0], timeout);
 
 	if (servers->size() > 1)
 	{
-		NetSh::SetIpv4SecondaryDns(config.interfaceIndex(), (*servers)[1]);
+		NetSh::SetIpv4SecondaryDns(config.interfaceIndex(), (*servers)[1], timeout);
 	}
 }
 

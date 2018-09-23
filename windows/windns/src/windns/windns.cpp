@@ -5,6 +5,7 @@
 #include "interfaceconfig.h"
 #include "netconfighelpers.h"
 #include "confineoperation.h"
+#include "netsh.h"
 #include "libcommon/serialization/deserializer.h"
 #include <vector>
 #include <string>
@@ -57,6 +58,8 @@ WinDns_Initialize(
 
 	return ConfineOperation("Initialize", ForwardError, []()
 	{
+		NetSh::RegisterErrorSink(ErrorSinkInfo{ g_ErrorSink, g_ErrorContext });
+
 		g_Context = new WinDnsContext;
 	});
 }
@@ -161,13 +164,15 @@ WinDns_Recover(
 	// Try to restore each config and update 'success' if any update fails.
 	//
 
+	static const uint32_t TIMEOUT_10_SECONDS = 10 * 1000;
+
 	bool success = true;
 
 	for (const auto &config : configs)
 	{
 		const auto adapterStatus = ConfineOperation("Restore adapter DNS settings", ForwardError, [&config]()
 		{
-			nchelpers::RevertDnsServers(config);
+			nchelpers::RevertDnsServers(config, TIMEOUT_10_SECONDS);
 		});
 
 		if (false == adapterStatus)
