@@ -9,7 +9,6 @@ import NavigationBar, { BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
 import Img from './Img';
-import WindowStateObserver from '../lib/window-state-observer';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 
@@ -17,44 +16,26 @@ type Props = {
   accountToken: AccountToken,
   accountExpiry: string,
   expiryLocale: string,
-  updateAccountExpiry: () => Promise<void>,
   onLogout: () => void,
   onClose: () => void,
   onBuyMore: () => void,
 };
 
 type State = {
-  isRefreshingExpiry: boolean,
   showAccountTokenCopiedMessage: boolean,
 };
 
 export default class Account extends Component<Props, State> {
   state = {
-    isRefreshingExpiry: false,
     showAccountTokenCopiedMessage: false,
   };
 
-  _isMounted = false;
   _copyTimer: ?TimeoutID;
-  _windowStateObserver = new WindowStateObserver();
-
-  componentDidMount() {
-    this._isMounted = true;
-    this._refreshAccountExpiry();
-
-    this._windowStateObserver.onShow = () => {
-      this._refreshAccountExpiry();
-    };
-  }
 
   componentWillUnmount() {
-    this._isMounted = false;
-
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
-
-    this._windowStateObserver.dispose();
   }
 
   onAccountTokenClick() {
@@ -138,19 +119,5 @@ export default class Account extends Component<Props, State> {
         </Container>
       </Layout>
     );
-  }
-
-  async _refreshAccountExpiry() {
-    this.setState({ isRefreshingExpiry: true });
-
-    try {
-      await this.props.updateAccountExpiry();
-    } catch (e) {
-      // TODO: Report the error to user
-    }
-
-    if (this._isMounted) {
-      this.setState({ isRefreshingExpiry: false });
-    }
   }
 }

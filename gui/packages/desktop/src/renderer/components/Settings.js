@@ -11,7 +11,6 @@ import NavigationBar, { CloseBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
-import WindowStateObserver from '../lib/window-state-observer';
 import { colors } from '../../config';
 
 import type { LoginState } from '../redux/account/reducers';
@@ -29,24 +28,9 @@ type Props = {
   onViewPreferences: () => void,
   onViewAdvancedSettings: () => void,
   onExternalLink: (type: string) => void,
-  updateAccountExpiry: () => Promise<void>,
 };
 
 export default class Settings extends Component<Props> {
-  _windowStateObserver = new WindowStateObserver();
-
-  componentDidMount() {
-    this.props.updateAccountExpiry();
-
-    this._windowStateObserver.onShow = () => {
-      this.props.updateAccountExpiry();
-    };
-  }
-
-  componentWillUnmount() {
-    this._windowStateObserver.dispose();
-  }
-
   render() {
     return (
       <Layout>

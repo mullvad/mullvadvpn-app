@@ -18,7 +18,6 @@ const mapStateToProps = (state: ReduxState) => ({
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
-    updateAccountExpiry: () => props.app.updateAccountExpiry(),
     onLogout: () => {
       props.app.logout();
     },

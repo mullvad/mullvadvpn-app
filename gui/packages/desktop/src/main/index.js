@@ -158,6 +158,7 @@ const ApplicationMain = {
     const windowController = new WindowController(window, tray);
     const trayIconController = new TrayIconController(tray, 'unsecured');
 
+    this._registerWindowListener(windowController);
     this._registerIpcListeners();
     this._setAppMenu();
     this._addContextMenu(window);
@@ -187,6 +188,12 @@ const ApplicationMain = {
     }
 
     window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
+  },
+
+  _registerWindowListener(windowController: WindowController) {
+    const window = windowController.window;
+
+    window.on('show', () => window.webContents.send('window-shown'));
   },
 
   _registerIpcListeners() {

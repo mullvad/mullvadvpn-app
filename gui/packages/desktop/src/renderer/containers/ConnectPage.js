@@ -88,7 +88,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       }
     },
     onExternalLink: (type) => shell.openExternal(links[type]),
-    updateAccountExpiry: () => props.app.updateAccountExpiry(),
   };
 };
 

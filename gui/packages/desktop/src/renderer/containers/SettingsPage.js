@@ -17,7 +17,7 @@ const mapStateToProps = (state: ReduxState) => ({
   consistentVersion: state.version.consistent,
   upToDateVersion: state.version.upToDate,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onQuit: () => remote.app.quit(),
@@ -27,7 +27,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onViewPreferences: () => history.push('/settings/preferences'),
     onViewAdvancedSettings: () => history.push('/settings/advanced'),
     onExternalLink: (type) => shell.openExternal(links[type]),
-    updateAccountExpiry: () => props.app.updateAccountExpiry(),
   };
 };
 

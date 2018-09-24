@@ -118,6 +118,8 @@ export default class AppRenderer {
       }
     });
 
+    ipcRenderer.on('window-shown', () => this.updateAccountExpiry());
+
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
   }
@@ -613,6 +615,7 @@ type AccountVerification =
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 class AccountDataCache {
+  _currentAccount: ?AccountToken;
   _executingPromise: ?Promise<AccountData>;
   _value: ?AccountData;
   _expiresAt: ?Date;
@@ -623,6 +626,12 @@ class AccountDataCache {
   }
 
   async fetch(accountToken: AccountToken): Promise<AccountData> {
+    // invalidate cache if account token has changed
+    if (accountToken !== this._currentAccount) {
+      this.invalidate();
+      this._currentAccount = accountToken;
+    }
+
     // return the same promise if still fetching from remote
     const executingPromise = this._executingPromise;
     if (executingPromise) {

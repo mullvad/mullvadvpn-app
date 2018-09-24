@@ -12,7 +12,6 @@ import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
-import WindowStateObserver from '../lib/window-state-observer';
 import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc';
 
 import type { HeaderBarStyle } from './HeaderBar';
@@ -27,7 +26,6 @@ type Props = {
   onConnect: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
-  updateAccountExpiry: () => Promise<void>,
 };
 
 type State = {
@@ -71,7 +69,6 @@ export default class Connect extends Component<Props, State> {
   };
 
   _copyTimer: ?TimeoutID;
-  _windowStateObserver = new WindowStateObserver();
 
   constructor(props: Props) {
     super();
@@ -83,20 +80,10 @@ export default class Connect extends Component<Props, State> {
     };
   }
 
-  componentDidMount() {
-    this.props.updateAccountExpiry();
-
-    this._windowStateObserver.onShow = () => {
-      this.props.updateAccountExpiry();
-    };
-  }
-
   componentWillUnmount() {
     if (this._copyTimer) {
       clearTimeout(this._copyTimer);
     }
-
-    this._windowStateObserver.dispose();
   }
 
   componentDidUpdate(oldProps: Props, _oldState: State) {
