@@ -311,7 +311,13 @@ impl<'a> PolicyBatch<'a> {
                 check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
                 check_net(&mut rule, End::Dst, IpNetwork::V4(*net))?;
                 add_verdict(&mut rule, Verdict::Accept)?;
-
+                self.batch.add(&rule, nftnl::MsgType::Add)?;
+            }
+            for net in &*super::LOCAL_INET6_NETS {
+                let mut rule = Rule::new(chain)?;
+                check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
+                check_net(&mut rule, End::Dst, IpNetwork::V6(*net))?;
+                add_verdict(&mut rule, Verdict::Accept)?;
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
             }
         }
@@ -330,6 +336,17 @@ impl<'a> PolicyBatch<'a> {
             check_ip(&mut rule, End::Dst, *super::SSDP_IP)?;
             add_verdict(&mut rule, Verdict::Accept)?;
 
+            self.batch.add(&rule, nftnl::MsgType::Add)?;
+        }
+        for net in &*super::LOCAL_INET6_NETS {
+            let mut rule = Rule::new(&self.out_chain)?;
+            check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
+            check_net(
+                &mut rule,
+                End::Dst,
+                IpNetwork::V6(*super::MULTICAST_INET6_NET),
+            )?;
+            add_verdict(&mut rule, Verdict::Accept)?;
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
         Ok(())
@@ -404,7 +421,12 @@ fn check_net(rule: &mut Rule, end: End, net: IpNetwork) -> Result<()> {
         (IpNetwork::V6(_), End::Src) => nft_expr!(payload ipv6 saddr),
         (IpNetwork::V6(_), End::Dst) => nft_expr!(payload ipv6 daddr),
     })?;
-    rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor 0))?;
+    match net {
+        IpNetwork::V4(_) => rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor 0u32))?,
+        IpNetwork::V6(_) => {
+            rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor &[0u16; 8][..]))?
+        }
+    };
     rule.add_expr(&nft_expr!(cmp == net.ip()))?;
 
     Ok(())

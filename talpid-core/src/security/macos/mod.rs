@@ -212,6 +212,23 @@ impl NetworkSecurity {
             rules.push(allow_multicast);
             rules.push(allow_ssdp);
         }
+        for net in &*super::LOCAL_INET6_NETS {
+            let mut rule_builder = pfctl::FilterRuleBuilder::default();
+            rule_builder
+                .action(pfctl::FilterRuleAction::Pass)
+                .quick(true)
+                .af(pfctl::AddrFamily::Ipv6)
+                .from(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(*net))));
+            let allow_net = rule_builder
+                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(*net))))
+                .build()?;
+            let allow_multicast = rule_builder
+                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(
+                    *super::MULTICAST_INET6_NET,
+                )))).build()?;
+            rules.push(allow_net);
+            rules.push(allow_multicast);
+        }
         Ok(rules)
     }
 

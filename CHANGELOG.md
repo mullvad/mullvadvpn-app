@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Replace repeated `Disconnecting` followed by `Connecting` notifications with a single
   `Reconnecting` notification.
+- Allow packets to the fe80::/10 and fe02::/16 IPv6 networks when local network sharing is enabled.
+  Should allow IPv6 over the LAN, and mDNS host discovery which in turn should allow Apple AirDrop
+  and Handover.
 
 #### Linux
 - Add support for DNS configuration using resolvconf.
