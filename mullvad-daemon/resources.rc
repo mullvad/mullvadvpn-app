@@ -1,8 +1,0 @@
-IDI_MAIN ICON "../dist-assets/icon.ico"
-
-#include "version.rc"
-
-#define RT_MANIFEST 24
-#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1
-
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "mullvad-daemon.manifest"

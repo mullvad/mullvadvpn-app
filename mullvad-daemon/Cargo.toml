@@ -44,4 +44,12 @@ windows-service = { git = "https://github.com/mullvad/windows-service-rs.git", r
 winapi = "0.3"
 
 [target.'cfg(windows)'.build-dependencies]
-windres = "0.2"
+winres = "0.1"
+winapi = "0.3"
+
+[package.metadata.winres]
+ProductName = "Mullvad VPN"
+CompanyName = "Amagicom AB"
+LegalCopyright = "(c) 2018 Amagicom AB"
+InternalName = "mullvad-daemon"
+OriginalFilename = "mullvad-daemon.exe"
