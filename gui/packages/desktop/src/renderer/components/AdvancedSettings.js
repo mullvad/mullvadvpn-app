@@ -10,7 +10,7 @@ import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
-type AdvancedSettingsProps = {
+type Props = {
   enableIpv6: boolean,
   protocol: string,
   port: string | number,
@@ -19,7 +19,7 @@ type AdvancedSettingsProps = {
   onClose: () => void,
 };
 
-export class AdvancedSettings extends Component<AdvancedSettingsProps> {
+export class AdvancedSettings extends Component<Props> {
   render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
