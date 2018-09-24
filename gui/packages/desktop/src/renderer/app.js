@@ -362,6 +362,12 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(enableIpv6);
   }
 
+  async setOpenVpnMssfix(mssfix: ?number) {
+    const actions = this._reduxActions;
+    await this._daemonRpc.setOpenVpnMssfix(mssfix);
+    actions.settings.updateOpenVpnMssfix(mssfix);
+  }
+
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
     await this._daemonRpc.setAutoConnect(autoConnect);
