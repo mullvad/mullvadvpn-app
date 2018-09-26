@@ -13,6 +13,11 @@ namespace rules
 
 bool PermitLanService::apply(IObjectInstaller &objectInstaller)
 {
+	return applyIpv4(objectInstaller) && applyIpv6(objectInstaller);
+}
+
+bool PermitLanService::applyIpv4(IObjectInstaller &objectInstaller) const
+{
 	wfp::FilterBuilder filterBuilder;
 
 	//
@@ -69,6 +74,34 @@ bool PermitLanService::apply(IObjectInstaller &objectInstaller)
 
 	conditionBuilder.add_condition(ConditionIp::Local(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
+
+	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
+}
+
+bool PermitLanService::applyIpv6(IObjectInstaller &objectInstaller) const
+{
+	wfp::FilterBuilder filterBuilder;
+
+	//
+	// #1 incoming request on fe80::/10
+	//
+
+	filterBuilder
+		.key(MullvadGuids::FilterPermitLanService_Ipv6_fe80_10())
+		.name(L"Permit incoming requests on fe80::/10")
+		.description(L"This filter is part of a rule that permits hosting services in a LAN environment")
+		.provider(MullvadGuids::Provider())
+		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)
+		.sublayer(MullvadGuids::SublayerWhitelist())
+		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.permit();
+
+	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
+
+	wfp::IpAddress::Literal6 fe80{ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+
+	conditionBuilder.add_condition(ConditionIp::Local(fe80, uint8_t(10)));
+	conditionBuilder.add_condition(ConditionIp::Remote(fe80, uint8_t(10)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }

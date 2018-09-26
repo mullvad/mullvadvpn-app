@@ -20,10 +20,13 @@ public:
 	static const GUID &FilterPermitLan_172_16_12();
 	static const GUID &FilterPermitLan_192_168_16();
 	static const GUID &FilterPermitLan_Multicast();
+	static const GUID &FilterPermitLan_Ipv6_fe80_10();
+	static const GUID &FilterPermitLan_Ipv6_Multicast();
 
 	static const GUID &FilterPermitLanService_10_8();
 	static const GUID &FilterPermitLanService_172_16_12();
 	static const GUID &FilterPermitLanService_192_168_16();
+	static const GUID &FilterPermitLanService_Ipv6_fe80_10();
 
 	static const GUID &FilterPermitLoopback_Outbound_Ipv4();
 	static const GUID &FilterPermitLoopback_Outbound_Ipv6();
