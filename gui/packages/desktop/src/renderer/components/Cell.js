@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Button, Text, Component, Styles, Types } from 'reactxp';
+import { Button, Text, Component, Styles, Types, View } from 'reactxp';
 import PlainImg from './Img';
 import { colors } from '../../config';
 
@@ -116,3 +116,19 @@ export class CellButton extends Component<CellButtonProps, State> {
     );
   }
 }
+
+type ContainerProps = { children: React.Node };
+
+const containerStyle = Styles.createViewStyle({
+  backgroundColor: colors.blue,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingTop: 1,
+  paddingBottom: 1,
+  paddingLeft: 24,
+  paddingRight: 12,
+});
+
+export const Container = ({ children }: ContainerProps) => {
+  return <View style={containerStyle}>{children}</View>;
+};
