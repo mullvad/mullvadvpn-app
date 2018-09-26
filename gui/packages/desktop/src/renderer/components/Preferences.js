@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, View } from 'reactxp';
+import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
@@ -47,49 +48,27 @@ export default class Preferences extends Component<PreferencesProps, State> {
               </SettingsHeader>
 
               <View style={styles.preferences__content}>
-                <View style={styles.preferences__cell}>
-                  <View style={styles.preferences__cell_label_container}>
-                    <Text style={styles.preferences__cell_label}>Auto-connect</Text>
-                  </View>
-                  <View style={styles.preferences__cell_accessory}>
-                    <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
-                  </View>
-                </View>
-                <View style={styles.preferences__cell_footer}>
-                  <Text style={styles.preferences__cell_footer_label}>
-                    {'Automatically connect the VPN when the computer starts.'}
-                  </Text>
-                </View>
+                <Cell.Container>
+                  <Cell.Label style={styles.preferences__cell_label}>Auto-connect</Cell.Label>
+                  <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
+                </Cell.Container>
+                <Cell.Footer>Automatically connect the VPN when the computer starts.</Cell.Footer>
 
-                <View style={styles.preferences__cell}>
-                  <View style={styles.preferences__cell_label_container}>
-                    <Text style={styles.preferences__cell_label}>Auto-start</Text>
-                  </View>
-                  <View style={styles.preferences__cell_accessory}>
-                    <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
-                  </View>
-                </View>
-                <View style={styles.preferences__cell_footer}>
-                  <Text style={styles.preferences__cell_footer_label}>
-                    {'Automatically open Mullvad VPN at login to the system.'}
-                  </Text>
-                </View>
+                <Cell.Container>
+                  <Cell.Label style={styles.preferences__cell_label}>Auto-start</Cell.Label>
+                  <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
+                </Cell.Container>
+                <Cell.Footer>Automatically open Mullvad VPN at login to the system.</Cell.Footer>
 
-                <View style={styles.preferences__cell}>
-                  <View style={styles.preferences__cell_label_container}>
-                    <Text style={styles.preferences__cell_label}>Local network sharing</Text>
-                  </View>
-                  <View style={styles.preferences__cell_accessory}>
-                    <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
-                  </View>
-                </View>
-                <View style={styles.preferences__cell_footer}>
-                  <Text style={styles.preferences__cell_footer_label}>
-                    {
-                      'Allows access to other devices on the same network for sharing, printing etc.'
-                    }
-                  </Text>
-                </View>
+                <Cell.Container>
+                  <Cell.Label style={styles.preferences__cell_label}>
+                    Local network sharing
+                  </Cell.Label>
+                  <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                </Cell.Container>
+                <Cell.Footer>
+                  Allows access to other devices on the same network for sharing, printing etc.
+                </Cell.Footer>
               </View>
             </View>
           </View>
