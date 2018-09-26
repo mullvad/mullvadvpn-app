@@ -27,6 +27,23 @@ const styles = {
     paddingRight: 12,
   }),
 
+  footer: {
+    container: Styles.createViewStyle({
+      paddingTop: 8,
+      paddingRight: 24,
+      paddingBottom: 24,
+      paddingLeft: 24,
+    }),
+    text: Styles.createTextStyle({
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '600',
+      lineHeight: 20,
+      letterSpacing: -0.2,
+      color: colors.white80,
+    }),
+  },
+
   cellHover: Styles.createViewStyle({
     backgroundColor: colors.blue80,
   }),
@@ -129,4 +146,12 @@ type ContainerProps = { children: React.Node };
 
 export function Container({ children }: ContainerProps) {
   return <View style={styles.cellContainer}>{children}</View>;
+}
+
+export function Footer({ children }: ContainerProps) {
+  return (
+    <View style={styles.footer.container}>
+      <Text style={styles.footer.text}>{children}</Text>
+    </View>
+  );
 }
