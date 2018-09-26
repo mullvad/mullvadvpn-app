@@ -1,7 +1,7 @@
 [package]
 name = "talpid-types"
 version = "0.1.0"
-authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Erik Larkö <erik@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
+authors = ["Mullvad VPN <admin@mullvad.net>"]
 description = "Common base structures for talpid"
 license = "GPL-3.0"
 
