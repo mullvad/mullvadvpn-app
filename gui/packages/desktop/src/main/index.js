@@ -47,7 +47,7 @@ const ApplicationMain = {
 
   _ensureSingleInstance() {
     if (app.requestSingleInstanceLock()) {
-      app.on('second-instance', (event, commandLine, workingDirectory) => {
+      app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
         if (this._windowController) {
           this._windowController.show();
         }

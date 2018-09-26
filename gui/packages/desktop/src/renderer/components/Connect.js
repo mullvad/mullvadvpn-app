@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, Text, View, Types } from 'reactxp';
 import { Accordion, ClipboardLabel, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
@@ -56,7 +56,7 @@ export default class Connect extends Component<Props> {
 
     return (
       <Layout>
-        <Header barStyle={this.headerBarStyle()} testName="header">
+        <Header barStyle={this.headerBarStyle()}>
           <Brand />
           <SettingsBarButton onPress={this.props.onSettings} />
         </Header>
@@ -251,12 +251,12 @@ export class TunnelBanner extends Component<TunnelBannerProps, TunnerBannerState
     subtitle: '',
   };
 
-  constructor(props) {
+  constructor(props: TunnelBannerProps) {
     super();
     this.state = this._deriveState(props.tunnelState);
   }
 
-  componentDidUpdate(oldProps, _oldState) {
+  componentDidUpdate(oldProps: TunnelBannerProps, _oldState: TunnerBannerState) {
     if (
       oldProps.tunnelState.state !== this.props.tunnelState.state ||
       oldProps.tunnelState.details !== this.props.tunnelState.details
@@ -311,6 +311,7 @@ type TunnelControlProps = {
   onConnect: () => void,
   onDisconnect: () => void,
   onSelectLocation: () => void,
+  style: Types.ViewStyleRuleSet,
 };
 
 export function TunnelControl(props: TunnelControlProps) {
@@ -338,27 +339,26 @@ export function TunnelControl(props: TunnelControlProps) {
   const SelectedLocation = () => (
     <AppButton.TransparentButton
       style={styles.switch_location_button}
-      onPress={props.onSelectLocation}
-      testName={'SelectedLocation'}>
+      onPress={props.onSelectLocation}>
       <AppButton.Label>{props.selectedRelayName}</AppButton.Label>
       <Img height={12} width={7} source="icon-chevron" />
     </AppButton.TransparentButton>
   );
 
   const Connect = () => (
-    <AppButton.GreenButton onPress={props.onConnect} testName="secureConnection">
+    <AppButton.GreenButton onPress={props.onConnect}>
       {'Secure my connection'}
     </AppButton.GreenButton>
   );
 
   const Disconnect = () => (
-    <AppButton.RedTransparentButton onPress={props.onDisconnect} testName="disconnect">
+    <AppButton.RedTransparentButton onPress={props.onDisconnect}>
       {'Disconnect'}
     </AppButton.RedTransparentButton>
   );
 
   const Cancel = () => (
-    <AppButton.RedTransparentButton onPress={props.onDisconnect} testName="cancel">
+    <AppButton.RedTransparentButton onPress={props.onDisconnect}>
       {'Cancel'}
     </AppButton.RedTransparentButton>
   );
