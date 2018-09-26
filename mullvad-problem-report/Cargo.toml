@@ -1,7 +1,14 @@
 [package]
 name = "mullvad-problem-report"
 version = "2018.3.0"
-authors = ["Mullvad VPN <admin@mullvad.net>", "Linus Färnstrand <linus@mullvad.net>", "Andrej Mihajlov <and@mullvad.net>"]
+authors = [
+    "Mullvad VPN <admin@mullvad.net>",
+    "Andrej Mihajlov <and@mullvad.net>",
+    "Emīls Piņķis <emils@mullvad.net>",
+    "Erik Larkö <erik@mullvad.net>",
+    "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>",
+    "Linus Färnstrand <linus@mullvad.net>",
+]
 description = "Collect Mullvad VPN logs into a report and send it to support"
 license = "GPL-3.0"
 
