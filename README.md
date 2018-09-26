@@ -353,6 +353,11 @@ environment variable.
 | macOS | `/var/run/mullvad-vpn` |
 | Windows | `//./pipe/Mullvad VPN` |
 
+## Audits, pentests and external security reviews
+
+Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
+more about them in the [audits readme](./audits/README.md)
+
 ## Quirks
 
 - If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
