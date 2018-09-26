@@ -14,7 +14,7 @@ import type { AccountToken } from '../lib/daemon-rpc';
 
 type Props = {
   accountToken: AccountToken,
-  accountExpiry: string,
+  accountExpiry: ?string,
   expiryLocale: string,
   onLogout: () => void,
   onClose: () => void,
@@ -51,16 +51,6 @@ export default class Account extends Component<Props, State> {
   }
 
   render() {
-    const expiry = moment(this.props.accountExpiry);
-    const isOutOfTime = expiry.isSameOrBefore(moment());
-    const formattedExpiry = expiry.toDate().toLocaleString(this.props.expiryLocale, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    });
-
     return (
       <Layout>
         <Container>
@@ -89,13 +79,11 @@ export default class Account extends Component<Props, State> {
 
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>Paid until</Text>
-                    {isOutOfTime ? (
-                      <Text style={styles.account__out_of_time} testName="account__out_of_time">
-                        {'OUT OF TIME'}
-                      </Text>
-                    ) : (
-                      <Text style={styles.account__row_value}>{formattedExpiry}</Text>
-                    )}
+                    <FormattedAccountExpiry
+                      expiry={this.props.accountExpiry}
+                      locale={this.props.accountExpiryLocale}
+                      testName="account__expiry"
+                    />
                   </View>
 
                   <View style={styles.account__footer}>
@@ -121,3 +109,29 @@ export default class Account extends Component<Props, State> {
     );
   }
 }
+
+const FormattedAccountExpiry = (props) => {
+  if (!props.expiry) {
+    return <Text style={styles.account__row_value}>{'Currently unavailable'}</Text>;
+  }
+
+  const expiry = moment(props.expiry);
+
+  if (expiry.isSameOrBefore(moment())) {
+    return <Text style={styles.account__out_of_time}>{'OUT OF TIME'}</Text>;
+  }
+
+  const formatOptions = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+
+  return (
+    <Text style={styles.account__row_value}>
+      {expiry.toDate().toLocaleString(props.locale, formatOptions)}
+    </Text>
+  );
+};
