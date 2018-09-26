@@ -132,3 +132,27 @@ const containerStyle = Styles.createViewStyle({
 export const Container = ({ children }: ContainerProps) => {
   return <View style={containerStyle}>{children}</View>;
 };
+
+const footerContainerStyle = Styles.createViewStyle({
+  paddingTop: 8,
+  paddingRight: 24,
+  paddingBottom: 24,
+  paddingLeft: 24,
+});
+
+const footerTextStyle = Styles.createTextStyle({
+  fontFamily: 'Open Sans',
+  fontSize: 13,
+  fontWeight: '600',
+  lineHeight: 20,
+  letterSpacing: -0.2,
+  color: colors.white80,
+});
+
+export const Footer = ({ children }: ContainerProps) => {
+  return (
+    <View style={footerContainerStyle}>
+      <Text style={footerTextStyle}>{children}</Text>
+    </View>
+  );
+};
