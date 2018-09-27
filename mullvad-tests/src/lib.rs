@@ -176,11 +176,13 @@ impl Iterator for PathWatcher {
                     path: Some(path),
                     op: Ok(op),
                     ..
-                }) => if path == self.path {
-                    return Some(op);
-                } else {
-                    continue;
-                },
+                }) => {
+                    if path == self.path {
+                        return Some(op);
+                    } else {
+                        continue;
+                    }
+                }
                 Ok(_) => continue,
                 Err(_) => return None,
             }
@@ -263,7 +265,8 @@ fn prepare_relay_list<T: AsRef<Path>>(path: T) {
                 }]
             }]
         }"#,
-    ).expect("Failed to create mock relay list file");
+    )
+    .expect("Failed to create mock relay list file");
 }
 
 pub struct DaemonRunner {
@@ -315,7 +318,8 @@ impl DaemonRunner {
         mullvad_ipc_client::new_standalone_transport(socket_path, |path| {
             IpcTransport::new(&path, &Handle::current())
                 .chain_err(|| mullvad_ipc_client::ErrorKind::TransportError)
-        }).map_err(|e| format!("Failed to construct an RPC client - {}", e))
+        })
+        .map_err(|e| format!("Failed to construct an RPC client - {}", e))
     }
 
     #[cfg(unix)]
@@ -372,7 +376,8 @@ impl MockOpenVpnPluginRpcClient {
             let result = IpcTransport::new(&address, &Handle::current())
                 .map_err(|error| {
                     format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
-                }).map(Transport::into_client);
+                })
+                .map(Transport::into_client);
             match result {
                 Ok((client, client_handle)) => {
                     tx.send(Ok(client_handle)).unwrap();

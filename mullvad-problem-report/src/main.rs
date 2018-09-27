@@ -107,14 +107,16 @@ fn run() -> Result<()> {
                         .value_name("PATH")
                         .takes_value(true)
                         .required(true),
-                ).arg(
+                )
+                .arg(
                     clap::Arg::with_name("extra_logs")
                         .help("Paths to additional log files to be included.")
                         .multiple(true)
                         .value_name("EXTRA LOGS")
                         .takes_value(true)
                         .required(false),
-                ).arg(
+                )
+                .arg(
                     clap::Arg::with_name("redact")
                         .help("List of words and expressions to remove from the report")
                         .long("redact")
@@ -122,7 +124,8 @@ fn run() -> Result<()> {
                         .multiple(true)
                         .takes_value(true),
                 ),
-        ).subcommand(
+        )
+        .subcommand(
             clap::SubCommand::with_name("send")
                 .about("Send collected problem report")
                 .arg(
@@ -132,14 +135,16 @@ fn run() -> Result<()> {
                         .help("The path to previously collected report file.")
                         .takes_value(true)
                         .required(true),
-                ).arg(
+                )
+                .arg(
                     clap::Arg::with_name("email")
                         .long("email")
                         .short("e")
                         .help("Reporter's email")
                         .takes_value(true)
                         .required(false),
-                ).arg(
+                )
+                .arg(
                     clap::Arg::with_name("message")
                         .long("message")
                         .short("m")
@@ -183,11 +188,13 @@ fn collect_report(
             let mut other_logs = Vec::new();
             for log in logs {
                 match log {
-                    Ok(path) => if is_tunnel_log(&path) {
-                        problem_report.add_log(&path);
-                    } else {
-                        other_logs.push(path);
-                    },
+                    Ok(path) => {
+                        if is_tunnel_log(&path) {
+                            problem_report.add_log(&path);
+                        } else {
+                            other_logs.push(path);
+                        }
+                    }
                     Err(error) => problem_report.add_error("Unable to get log path", error),
                 }
             }

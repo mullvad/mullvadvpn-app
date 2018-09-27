@@ -91,7 +91,8 @@ impl WinDns {
                 widestring_ips.len() as u32,
                 Some(write_system_state_backup_cb),
                 &self.backup_writer as *const _ as *const c_void,
-            ).into_result()
+            )
+            .into_result()
         }
     }
 

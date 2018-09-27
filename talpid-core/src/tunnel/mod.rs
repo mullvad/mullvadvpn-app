@@ -190,7 +190,8 @@ impl TunnelMonitor {
             cmd,
             on_openvpn_event,
             Self::get_plugin_path(resource_dir)?,
-        ).chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        )
+        .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -337,7 +338,8 @@ fn is_ipv6_enabled_in_os() -> bool {
             .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
             .map(|ipv6_disabled_bits: u32| {
                 (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
-            }).unwrap_or(true);
+            })
+            .unwrap_or(true);
         let enabled_on_tap = ::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
 
         if !globally_enabled {

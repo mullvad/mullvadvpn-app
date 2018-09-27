@@ -20,7 +20,8 @@ impl Command for Lan {
                             .required(true)
                             .possible_values(&["allow", "block"]),
                     ),
-            ).subcommand(
+            )
+            .subcommand(
                 clap::SubCommand::with_name("get")
                     .about("Display the current local network sharing setting"),
             )

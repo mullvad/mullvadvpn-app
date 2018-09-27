@@ -76,7 +76,8 @@ impl NetworkSecurityT for NetworkSecurity {
                 WINFW_TIMEOUT_SECONDS,
                 Some(winnet::error_sink),
                 ptr::null_mut(),
-            ).into_result()?
+            )
+            .into_result()?
         };
         trace!("Successfully initialized windows firewall module");
         Ok(NetworkSecurity { dns: windns })
@@ -184,7 +185,8 @@ impl NetworkSecurity {
                 &winfw_relay,
                 tunnel_alias.as_wide_c_str().as_ptr(),
                 gateway_str.as_wide_c_str().as_ptr(),
-            ).into_result()
+            )
+            .into_result()
         }
     }
 

@@ -21,7 +21,8 @@ impl Command for AutoConnect {
                             .required(true)
                             .possible_values(&["on", "off"]),
                     ),
-            ).subcommand(
+            )
+            .subcommand(
                 clap::SubCommand::with_name("get")
                     .about("Display the current auto-connect setting"),
             )

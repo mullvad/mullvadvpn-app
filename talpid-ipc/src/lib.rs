@@ -81,7 +81,8 @@ impl IpcServer {
                     .map(|e| Err(e))
                     .unwrap_or(Ok(server))
                     .chain_err(|| ErrorKind::IpcServerError)
-            }).map(|server| IpcServer {
+            })
+            .map(|server| IpcServer {
                 path: path.to_owned(),
                 server,
             })?;

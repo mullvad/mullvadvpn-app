@@ -245,7 +245,8 @@ impl DaemonRpcClient {
                         };
                     }
                     Ok(())
-                }).wait();
+                })
+                .wait();
         });
         Ok(rx)
     }

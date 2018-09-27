@@ -89,16 +89,18 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     /// for the process or in the event dispatcher.
     pub fn wait(mut self) -> Result<()> {
         match self.wait_result() {
-            WaitResult::Child(Ok(exit_status), closed) => if exit_status.success() || closed {
-                debug!(
-                    "OpenVPN exited, as expected, with exit status: {}",
-                    exit_status
-                );
-                Ok(())
-            } else {
-                error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
-            },
+            WaitResult::Child(Ok(exit_status), closed) => {
+                if exit_status.success() || closed {
+                    debug!(
+                        "OpenVPN exited, as expected, with exit status: {}",
+                        exit_status
+                    );
+                    Ok(())
+                } else {
+                    error!("OpenVPN died unexpectedly with status: {}", exit_status);
+                    Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
+                }
+            }
             WaitResult::Child(Err(e), _) => {
                 error!("OpenVPN process wait error: {}", e);
                 Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
