@@ -8,8 +8,6 @@ import { colors } from '../../config';
 const styles = {
   cell: Styles.createViewStyle({
     backgroundColor: colors.blue,
-    paddingTop: 14,
-    paddingBottom: 14,
     paddingLeft: 16,
     paddingRight: 16,
     marginBottom: 1,
@@ -44,6 +42,22 @@ const styles = {
     }),
   },
 
+  label: {
+    container: Styles.createViewStyle({
+      marginTop: 14,
+      marginBottom: 14,
+      flexGrow: 1,
+    }),
+    text: Styles.createTextStyle({
+      fontFamily: 'DINPro',
+      fontSize: 20,
+      fontWeight: '900',
+      lineHeight: 26,
+      letterSpacing: -0.2,
+      color: colors.white,
+    }),
+  },
+
   cellHover: Styles.createViewStyle({
     backgroundColor: colors.blue80,
   }),
@@ -73,7 +87,6 @@ const styles = {
 };
 
 export class SubText extends Text {}
-export class Label extends Text {}
 export class Img extends PlainImg {}
 
 type CellButtonProps = {
@@ -150,6 +163,14 @@ type ContainerProps = { children: React.Node };
 
 export function Container({ children }: ContainerProps) {
   return <View style={styles.cellContainer}>{children}</View>;
+}
+
+export function Label({ children }: ContainerProps) {
+  return (
+    <View style={styles.label.container}>
+      <Text style={styles.label.text}>{children}</Text>
+    </View>
+  );
 }
 
 export function Footer({ children }: ContainerProps) {
