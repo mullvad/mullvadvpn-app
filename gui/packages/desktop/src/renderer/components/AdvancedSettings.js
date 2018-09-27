@@ -73,6 +73,12 @@ export class AdvancedSettings extends Component<Props> {
                     {portSelector}
                   </View>
                 </NavigationScrollbars>
+
+                <Cell.Container>
+                  <Cell.Label>Mssfix</Cell.Label>
+                  <Cell.Input keyboardType={'numeric'} maxLength={5} placeholder={'None'} />
+                </Cell.Container>
+                <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
               </View>
             </NavigationContainer>
           </View>
