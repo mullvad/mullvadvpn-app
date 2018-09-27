@@ -24,14 +24,6 @@ export default {
     flexBasis: 'auto',
     overflow: 'visible',
   }),
-  advanced_settings__ipv6: Styles.createViewStyle({
-    backgroundColor: colors.blue,
-    flexDirection: 'row',
-    alignItems: 'center',
-  }),
-  advanced_settings__ipv6_accessory: Styles.createViewStyle({
-    marginRight: 12,
-  }),
   advanced_settings__cell: Styles.createViewStyle({
     cursor: 'default',
     backgroundColor: colors.green,
@@ -70,19 +62,6 @@ export default {
     flexDirection: 'row',
     justifyContent: 'flex-start',
   }),
-  advanced_settings__cell_footer: Styles.createViewStyle({
-    paddingTop: 8,
-    paddingRight: 24,
-    paddingBottom: 24,
-    paddingLeft: 24,
-  }),
-  advanced_settings__cell_label_container: Styles.createViewStyle({
-    paddingTop: 14,
-    paddingRight: 12,
-    paddingBottom: 14,
-    paddingLeft: 24,
-    flexGrow: 1,
-  }),
 
   advanced_settings__section_title: Styles.createTextStyle({
     backgroundColor: colors.blue,
@@ -105,13 +84,5 @@ export default {
     letterSpacing: -0.2,
     color: colors.white,
     flex: 0,
-  }),
-  advanced_settings__cell_footer_label: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 20,
-    letterSpacing: -0.2,
-    color: colors.white80,
   }),
 };
