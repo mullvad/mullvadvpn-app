@@ -19,16 +19,4 @@ export default {
     flexShrink: 1,
     flexBasis: 'auto',
   }),
-
-  preferences__cell_label: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    letterSpacing: -0.2,
-    color: colors.white,
-    paddingTop: 14,
-    paddingBottom: 14,
-    flexGrow: 1,
-  }),
 };

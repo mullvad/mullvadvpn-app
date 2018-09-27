@@ -49,21 +49,19 @@ export default class Preferences extends Component<PreferencesProps, State> {
 
               <View style={styles.preferences__content}>
                 <Cell.Container>
-                  <Cell.Label style={styles.preferences__cell_label}>Auto-connect</Cell.Label>
+                  <Cell.Label>Auto-connect</Cell.Label>
                   <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
                 </Cell.Container>
                 <Cell.Footer>Automatically connect the VPN when the computer starts.</Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label style={styles.preferences__cell_label}>Auto-start</Cell.Label>
+                  <Cell.Label>Auto-start</Cell.Label>
                   <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
                 </Cell.Container>
                 <Cell.Footer>Automatically open Mullvad VPN at login to the system.</Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label style={styles.preferences__cell_label}>
-                    Local network sharing
-                  </Cell.Label>
+                  <Cell.Label>Local network sharing</Cell.Label>
                   <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                 </Cell.Container>
                 <Cell.Footer>
