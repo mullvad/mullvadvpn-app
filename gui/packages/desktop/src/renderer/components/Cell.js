@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Button, Text, Component, Styles, Types, View } from 'reactxp';
+import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import PlainImg from './Img';
 import { colors } from '../../config';
 
@@ -58,6 +58,28 @@ const styles = {
       lineHeight: 26,
       letterSpacing: -0.2,
       color: colors.white,
+    }),
+  },
+
+  input: {
+    view: Styles.createViewStyle({
+      paddingLeft: 12,
+      paddingRight: 12,
+      paddingTop: 8,
+      paddingBottom: 8,
+      flexGrow: 1,
+      borderWidth: 2,
+      borderRadius: 8,
+      borderColor: 'transparent',
+    }),
+    text: Styles.createTextStyle({
+      color: colors.blue,
+      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+      fontFamily: 'DINPro',
+      fontSize: 20,
+      fontWeight: '900',
+      lineHeight: 26,
+      textAlign: 'center',
     }),
   },
 
@@ -145,6 +167,26 @@ export function Label({
         </View>
       )}
     </CellHoverContext.Consumer>
+  );
+}
+
+export type InputProps = {
+  maxLength?: number,
+  placeholder?: string,
+  style?: Types.ViewStyle,
+};
+
+export function Input({ maxLength, placeholder, style, ...otherProps }: InputProps) {
+  return (
+    <TextInput
+      maxLength={maxLength ? maxLength : 10}
+      placeholder={placeholder ? placeholder : ''}
+      placeholderTextColor={colors.blue40}
+      autoCorrect={false}
+      autoFocus={false}
+      style={[styles.input.text, styles.input.view, style]}
+      {...otherProps}
+    />
   );
 }
 
