@@ -205,7 +205,8 @@ impl Daemon {
                 let https_handle = mullvad_rpc::rest::create_https_client(&ca_path, &handle);
                 let remote = core.remote();
                 (rpc, https_handle, remote)
-            }).chain_err(|| "Unable to initialize network event loop")?;
+            })
+            .chain_err(|| "Unable to initialize network event loop")?;
         let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
         let https_handle = https_handle.chain_err(|| "Unable to create am.i.mullvad client")?;
 
@@ -603,7 +604,8 @@ impl Daemon {
                     self.current_relay = Some(relay);
                     endpoint
                 }),
-        }.map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
+        }
+        .map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
         .map(|parameters| TunnelCommand::Connect(parameters))
         .unwrap_or_else(|error| {
             error!("{}", error.display_chain());

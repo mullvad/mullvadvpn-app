@@ -89,19 +89,21 @@ impl DnsMonitor {
                     backup,
                 }
             }
-            Some(state) => if servers != state.desired_dns {
-                debug!("Changing DNS to [{}]", servers.join(", "));
-                for service_path in state.backup.keys() {
-                    set_dns(&self.store, CFString::new(service_path), &servers)?;
+            Some(state) => {
+                if servers != state.desired_dns {
+                    debug!("Changing DNS to [{}]", servers.join(", "));
+                    for service_path in state.backup.keys() {
+                        set_dns(&self.store, CFString::new(service_path), &servers)?;
+                    }
+                    State {
+                        desired_dns: servers,
+                        backup: state.backup,
+                    }
+                } else {
+                    debug!("No change, new DNS same as the one already set");
+                    state
                 }
-                State {
-                    desired_dns: servers,
-                    backup: state.backup,
-                }
-            } else {
-                debug!("No change, new DNS same as the one already set");
-                state
-            },
+            }
         });
         Ok(())
     }
@@ -180,41 +182,45 @@ fn dns_change_callback_internal(
         None => {
             trace!("Not injecting DNS at this time");
         }
-        Some(ref mut state) => for path in changed_keys.iter() {
-            let should_set_dns = match read_dns(&store, path.clone()) {
-                None => {
-                    debug!("Detected DNS removed for {}", *path);
-                    state.backup.insert(path.to_string(), None);
-                    true
-                }
-                Some(servers) => if servers != state.desired_dns {
-                    debug!(
-                        "Detected DNS changed to [{}] for {}",
-                        servers.join(", "),
-                        *path
-                    );
-                    state.backup.insert(path.to_string(), Some(servers));
-                    true
-                } else {
-                    false
-                },
-            };
-            if should_set_dns {
-                set_dns(&store, path.clone(), &state.desired_dns)
-                    .chain_err(|| format!("Failed changing DNS for {}", *path))?;
-                // If we changed a state DNS, also set the corresponding setup DNS.
-                if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
-                    let setup_path = CFString::new(&setup_path_str);
-                    if !state.backup.contains_key(&setup_path_str) {
-                        state
-                            .backup
-                            .insert(setup_path_str, read_dns(&store, setup_path.clone()));
+        Some(ref mut state) => {
+            for path in changed_keys.iter() {
+                let should_set_dns = match read_dns(&store, path.clone()) {
+                    None => {
+                        debug!("Detected DNS removed for {}", *path);
+                        state.backup.insert(path.to_string(), None);
+                        true
                     }
-                    set_dns(&store, setup_path.clone(), &state.desired_dns)
-                        .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
+                    Some(servers) => {
+                        if servers != state.desired_dns {
+                            debug!(
+                                "Detected DNS changed to [{}] for {}",
+                                servers.join(", "),
+                                *path
+                            );
+                            state.backup.insert(path.to_string(), Some(servers));
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                };
+                if should_set_dns {
+                    set_dns(&store, path.clone(), &state.desired_dns)
+                        .chain_err(|| format!("Failed changing DNS for {}", *path))?;
+                    // If we changed a state DNS, also set the corresponding setup DNS.
+                    if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
+                        let setup_path = CFString::new(&setup_path_str);
+                        if !state.backup.contains_key(&setup_path_str) {
+                            state
+                                .backup
+                                .insert(setup_path_str, read_dns(&store, setup_path.clone()));
+                        }
+                        set_dns(&store, setup_path.clone(), &state.desired_dns)
+                            .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
+                    }
                 }
             }
-        },
+        }
     }
     Ok(())
 }
@@ -281,7 +287,8 @@ fn read_dns(store: &SCDynamicStore, path: CFString) -> Option<Vec<DnsServer>> {
             dictionary
                 .find2(&CFString::from_static_string("ServerAddresses"))
                 .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(array_ptr) })
-        }).and_then(|addresses| {
+        })
+        .and_then(|addresses| {
             if let Some(array) = addresses.downcast::<CFArray<CFType>>() {
                 parse_cf_array_to_strings(array)
             } else {

@@ -32,7 +32,8 @@ mod platform {
         ctrlc::set_handler(move || {
             debug!("Process received Ctrl-c");
             f();
-        }).chain_err(|| "Unable to attach ctrl-c handler")
+        })
+        .chain_err(|| "Unable to attach ctrl-c handler")
     }
 }
 

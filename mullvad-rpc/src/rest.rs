@@ -55,7 +55,8 @@ fn create_request_processing_future<CC: hyper::client::Connect>(
                 } else {
                     future::err(ErrorKind::HttpError(response.status()).into())
                 }
-            }).and_then(|response: hyper::Response| response.body().concat2().from_err())
+            })
+            .and_then(|response: hyper::Response| response.body().concat2().from_err())
             .map(|response_chunk| response_chunk.to_vec())
             .then(move |response_result| {
                 if let Err(_) = response_tx.send(response_result) {

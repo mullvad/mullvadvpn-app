@@ -469,7 +469,8 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .send_command_to_daemon(ManagementCommand::SetTargetState(
                 tx,
                 TargetState::Unsecured,
-            )).then(|_| future::ok(()));
+            ))
+            .then(|_| future::ok(()));
         Box::new(future)
     }
 

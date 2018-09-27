@@ -55,7 +55,8 @@ impl NetworkSecurityT for NetworkSecurity {
             self.remove_anchor(),
             self.restore_state(),
             self.restore_dns(),
-        ].into_iter()
+        ]
+        .into_iter()
         .collect::<Result<Vec<_>>>()
         .map(|_| ())
     }
@@ -206,7 +207,8 @@ impl NetworkSecurity {
             let allow_multicast = rule_builder
                 .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(
                     *super::MULTICAST_NET,
-                )))).build()?;
+                ))))
+                .build()?;
             let allow_ssdp = rule_builder.to(pfctl::Ip::from(*super::SSDP_IP)).build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
@@ -225,7 +227,8 @@ impl NetworkSecurity {
             let allow_multicast = rule_builder
                 .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(
                     *super::MULTICAST_INET6_NET,
-                )))).build()?;
+                ))))
+                .build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
         }

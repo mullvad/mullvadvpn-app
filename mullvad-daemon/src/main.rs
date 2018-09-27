@@ -81,7 +81,8 @@ fn run() -> Result<()> {
         config.log_level,
         log_file.as_ref(),
         config.log_stdout_timestamps,
-    ).chain_err(|| ErrorKind::LogError("Unable to initialize logger"))?;
+    )
+    .chain_err(|| ErrorKind::LogError("Unable to initialize logger"))?;
     log_panics::init();
     log_version();
     if let Some(ref log_dir) = log_dir {
@@ -146,7 +147,8 @@ fn create_daemon(config: cli::Config) -> Result<Daemon> {
         resource_dir,
         cache_dir,
         version::CURRENT.to_owned(),
-    ).chain_err(|| "Unable to initialize daemon")
+    )
+    .chain_err(|| "Unable to initialize daemon")
 }
 
 fn log_version() {

@@ -26,7 +26,8 @@ impl Command for Relay {
                 clap::SubCommand::with_name("set")
                     .about(
                         "Set relay server selection parameters. Such as location and port/protocol",
-                    ).setting(clap::AppSettings::SubcommandRequired)
+                    )
+                    .setting(clap::AppSettings::SubcommandRequired)
                     .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a custom VPN relay")
@@ -35,46 +36,55 @@ impl Command for Relay {
                                     .required(true)
                                     .index(1)
                                     .possible_values(&["openvpn", "wireguard"]),
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("host")
                                     .help("Hostname or IP")
                                     .required(true)
                                     .index(2),
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("port")
                                     .help("Remote network port")
                                     .required(true)
                                     .index(3),
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("protocol")
                                     .help("Transport protocol. For Wireguard this is ignored.")
                                     .index(4)
                                     .default_value("udp")
                                     .possible_values(&["udp", "tcp"]),
                             ),
-                    ).subcommand(
+                    )
+                    .subcommand(
                         clap::SubCommand::with_name("location")
                             .about(
                                 "Set country or city to select relays from. Use the 'list' \
                                  command to show available alternatives.",
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("country")
                                     .help(
                                         "The two letter country code, or 'any' for no preference.",
-                                    ).required(true)
+                                    )
+                                    .required(true)
                                     .index(1)
                                     .validator(country_code_validator),
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("city")
                                     .help("The three letter city code")
                                     .index(2)
                                     .validator(city_code_validator),
-                            ).arg(
+                            )
+                            .arg(
                                 clap::Arg::with_name("hostname")
                                     .help("The relay hostname")
                                     .index(3),
                             ),
-                    ).subcommand(
+                    )
+                    .subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set tunnel constraints")
                             .arg(clap::Arg::with_name("port").required(true).index(1))
@@ -85,7 +95,8 @@ impl Command for Relay {
                                     .possible_values(&["any", "udp", "tcp"]),
                             ),
                     ),
-            ).subcommand(clap::SubCommand::with_name("get"))
+            )
+            .subcommand(clap::SubCommand::with_name("get"))
             .subcommand(
                 clap::SubCommand::with_name("list").about("List available countries and cities"),
             )
@@ -150,7 +161,8 @@ impl Relay {
             ("any", ..) => clap::Error::with_description(
                 "City can't be given when selecting 'any' country",
                 clap::ErrorKind::InvalidValue,
-            ).exit(),
+            )
+            .exit(),
             (country, None, None) => {
                 Constraint::Only(LocationConstraint::Country(country.to_owned()))
             }
@@ -168,7 +180,8 @@ impl Relay {
             (..) => clap::Error::with_description(
                 "Invalid country, city and hostname combination given",
                 clap::ErrorKind::InvalidValue,
-            ).exit(),
+            )
+            .exit(),
         };
 
         self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
