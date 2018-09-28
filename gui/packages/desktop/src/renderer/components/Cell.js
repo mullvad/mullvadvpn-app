@@ -86,7 +86,6 @@ const styles = {
   }),
 };
 
-export class SubText extends Text {}
 export class Img extends PlainImg {}
 
 type CellButtonProps = {
@@ -170,6 +169,19 @@ export function Label({ children }: ContainerProps) {
     <View style={styles.label.container}>
       <Text style={styles.label.text}>{children}</Text>
     </View>
+  );
+}
+
+export type SubTextProps = {
+  children: React.Node,
+  style?: Types.ViewStyle,
+};
+
+export function SubText({ children, style, ...otherProps }: SubTextProps) {
+  return (
+    <Text style={[styles.subtext, style]} {...otherProps}>
+      {children}
+    </Text>
   );
 }
 
