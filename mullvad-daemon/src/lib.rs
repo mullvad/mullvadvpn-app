@@ -168,6 +168,7 @@ pub struct Daemon {
     state: DaemonExecutionState,
     rx: mpsc::Receiver<DaemonEvent>,
     tx: mpsc::Sender<DaemonEvent>,
+    reconnection_loop_tx: Option<mpsc::Sender<()>>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
     #[cfg(unix)]
     management_interface_socket_path: String,
@@ -231,6 +232,7 @@ impl Daemon {
             state: DaemonExecutionState::Running,
             rx,
             tx,
+            reconnection_loop_tx: None,
             management_interface_broadcaster: management_interface_result.0,
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
@@ -319,6 +321,8 @@ impl Daemon {
     fn handle_tunnel_state_transition(&mut self, tunnel_state: TunnelStateTransition) {
         use self::TunnelStateTransition::*;
 
+        self.unschedule_reconnect();
+
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
             Disconnected => {
@@ -342,17 +346,27 @@ impl Daemon {
     }
 
     fn schedule_reconnect(&mut self, delay: Duration) {
-        let command_tx = self.tx.clone();
+        let tunnel_command_tx = self.tx.clone();
+        let (tx, rx) = mpsc::channel();
+
+        self.reconnection_loop_tx = Some(tx);
 
         thread::spawn(move || {
             let (result_tx, _result_rx) = oneshot::channel();
 
-            thread::sleep(delay);
-            debug!("Attempting to reconnect");
-            let _ = command_tx.send(DaemonEvent::ManagementInterfaceEvent(
-                ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
-            ));
+            if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
+                debug!("Attempting to reconnect");
+                let _ = tunnel_command_tx.send(DaemonEvent::ManagementInterfaceEvent(
+                    ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
+                ));
+            }
         });
+    }
+
+    fn unschedule_reconnect(&mut self) {
+        if let Some(tx) = self.reconnection_loop_tx.take() {
+            let _ = tx.send(());
+        }
     }
 
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
