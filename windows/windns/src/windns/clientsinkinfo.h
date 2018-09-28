@@ -2,20 +2,14 @@
 
 #include "windns.h"
 
-struct ErrorSinkInfo
+struct LogSinkInfo
 {
-	WinDnsErrorSink sink;
+	WinDnsLogSink sink;
 	void *context;
 };
 
-struct ConfigSinkInfo
+struct RecoverySinkInfo
 {
-	WinDnsConfigSink sink;
+	WinDnsRecoverySink sink;
 	void *context;
-};
-
-struct ClientSinkInfo
-{
-	ErrorSinkInfo errorSinkInfo;
-	ConfigSinkInfo configSinkInfo;
 };
