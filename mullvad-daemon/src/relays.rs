@@ -27,7 +27,7 @@ const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
-const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 24);
+const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 2);
 
 error_chain! {
     errors {
