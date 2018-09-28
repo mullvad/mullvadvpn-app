@@ -45,7 +45,7 @@ export default class Settings extends Component<Props> {
                 <HeaderTitle>Settings</HeaderTitle>
               </SettingsHeader>
 
-              <CustomScrollbars style={styles.settings__scrollview} autoHide={true}>
+              <CustomScrollbars style={styles.settings__scrollview}>
                 <View style={styles.settings__content}>
                   <View>
                     {this._renderTopButtons()}
