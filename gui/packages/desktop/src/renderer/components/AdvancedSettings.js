@@ -42,7 +42,7 @@ export class AdvancedSettings extends Component<AdvancedSettingsProps> {
               <SettingsHeader>
                 <HeaderTitle>Advanced</HeaderTitle>
               </SettingsHeader>
-              <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
+              <CustomScrollbars style={styles.advanced_settings__scrollview}>
                 <View style={styles.advanced_settings__ipv6}>
                   <View style={styles.advanced_settings__cell_label_container}>
                     <Text style={styles.advanced_settings__cell_label}>Enable IPv6</Text>
