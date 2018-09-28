@@ -166,11 +166,20 @@ export function Container({ children }: ContainerProps) {
   return <View style={styles.cellContainer}>{children}</View>;
 }
 
-export function Label({ children }: ContainerProps) {
+export type LabelProps = {
+  children: React.Node,
+  cellHoverStyle?: Types.ViewStyle,
+};
+
+export function Label({ children, cellHoverStyle }: LabelProps) {
   return (
-    <View style={styles.label.container}>
-      <Text style={styles.label.text}>{children}</Text>
-    </View>
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <View style={[styles.label.container, hovered && cellHoverStyle]}>
+          <Text style={styles.label.text}>{children}</Text>
+        </View>
+      )}
+    </CellHoverContext.Consumer>
   );
 }
 
