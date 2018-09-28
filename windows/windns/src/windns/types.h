@@ -1,7 +1,9 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
+#include <cstdint>
 
-using OptionalStringList = std::shared_ptr<std::vector<std::wstring> >;
+enum class Protocol : uint8_t
+{
+	IPv4,
+	IPv6
+};

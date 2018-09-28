@@ -5,6 +5,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loader", "src\extras\loader\loader.vcxproj", "{1476A8B9-4A9E-4358-8744-A350CB97E152}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A5344205-FC37-4572-9C63-8564ECC410AC} = {A5344205-FC37-4572-9C63-8564ECC410AC}
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windns", "src\windns\windns.vcxproj", "{A5344205-FC37-4572-9C63-8564ECC410AC}"

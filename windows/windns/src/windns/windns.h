@@ -17,8 +17,16 @@
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details, uint32_t numDetails, void *context);
-typedef void (WINDNS_API *WinDnsConfigSink)(const void *configData, uint32_t dataLength, void *context);
+enum WinDnsLogCategory
+{
+	WINDNS_LOG_CATEGORY_ERROR	= 0x01,
+	WINDNS_LOG_CATEGORY_INFO	= 0x02
+};
+
+typedef void (WINDNS_API *WinDnsLogSink)(WinDnsLogCategory category, const char *message,
+	const char **details, uint32_t numDetails, void *context);
+
+typedef void (WINDNS_API *WinDnsRecoverySink)(const void *recoveryData, uint32_t dataLength, void *context);
 
 //
 // WinDns_Initialize:
@@ -35,8 +43,8 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Initialize(
-	WinDnsErrorSink errorSink,
-	void *errorContext
+	WinDnsLogSink logSink,
+	void *logContext
 );
 
 //
@@ -56,20 +64,22 @@ WinDns_Deinitialize(
 //
 // Configure which DNS servers should be used and start enforcing these settings.
 //
-// The 'configSink' will receive periodic callbacks with updated config data
+// The 'recoverySink' will receive periodic callbacks with updated recovery data
 // until you call WinDns_Reset.
 //
-// You should persist the config data in preparation for an eventual recovery.
+// You should persist the recovery data in preparation for an eventual recovery.
 //
 extern "C"
 WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
-	const wchar_t **servers,
-	uint32_t numServers,
-	WinDnsConfigSink configSink,
-	void *configContext
+	const wchar_t **ipv4Servers,
+	uint32_t numIpv4Servers,
+	const wchar_t **ipv6Servers,
+	uint32_t numIpv6Servers,
+	WinDnsRecoverySink recoverySink,
+	void *recoveryContext
 );
 
 //
@@ -80,7 +90,7 @@ WinDns_Set(
 // (Also taking into account external changes to DNS settings that have occurred
 // during the period of enforcing specific settings.)
 //
-// It's safe to discard persisted config data once WinDns_Reset returns 'true'.
+// It's safe to discard persisted recovery data once WinDns_Reset returns 'true'.
 //
 extern "C"
 WINDNS_LINKAGE
@@ -102,6 +112,6 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Recover(
-	const void *configData,
+	const void *recoveryData,
 	uint32_t dataLength
 );

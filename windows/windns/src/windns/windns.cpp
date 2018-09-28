@@ -2,20 +2,19 @@
 #include "windns.h"
 #include "windnscontext.h"
 #include "clientsinkinfo.h"
-#include "interfaceconfig.h"
-#include "netconfighelpers.h"
 #include "confineoperation.h"
+#include "recoveryformatter.h"
+#include "recoverylogic.h"
 #include "netsh.h"
-#include "libcommon/serialization/deserializer.h"
+#include "logsink.h"
+#include <memory>
 #include <vector>
 #include <string>
 
 namespace
 {
 
-WinDnsErrorSink g_ErrorSink = nullptr;
-void *g_ErrorContext = nullptr;
-
+LogSink *g_LogSink = nullptr;
 WinDnsContext *g_Context = nullptr;
 
 std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numStrings)
@@ -30,11 +29,11 @@ std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numS
 	return v;
 }
 
-void ForwardError(const char *errorMessage, const char **details, uint32_t numDetails)
+void ForwardError(const char *message, const char **details, uint32_t numDetails)
 {
-	if (nullptr != g_ErrorSink)
+	if (nullptr != g_LogSink)
 	{
-		g_ErrorSink(errorMessage, details, numDetails, g_ErrorContext);
+		g_LogSink->error(message, details, numDetails);
 	}
 }
 
@@ -44,8 +43,8 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Initialize(
-	WinDnsErrorSink errorSink,
-	void *errorContext
+	WinDnsLogSink logSink,
+	void *logContext
 )
 {
 	if (nullptr != g_Context)
@@ -53,14 +52,19 @@ WinDns_Initialize(
 		return false;
 	}
 
-	g_ErrorSink = errorSink;
-	g_ErrorContext = errorContext;
-
-	return ConfineOperation("Initialize", ForwardError, []()
+	return ConfineOperation("Initialize", ForwardError, [&]()
 	{
-		NetSh::RegisterErrorSink(ErrorSinkInfo{ g_ErrorSink, g_ErrorContext });
+		if (nullptr == g_LogSink)
+		{
+			g_LogSink = new LogSink(LogSinkInfo{ logSink, logContext });
+			NetSh::Construct(g_LogSink);
+		}
+		else
+		{
+			g_LogSink->setTarget(LogSinkInfo{ logSink, logContext });
+		}
 
-		g_Context = new WinDnsContext;
+		g_Context = new WinDnsContext(g_LogSink);
 	});
 }
 
@@ -78,6 +82,10 @@ WinDns_Deinitialize(
 	delete g_Context;
 	g_Context = nullptr;
 
+	// Maintain a single instance forever and invoke setTarget() on it.
+	//delete g_LogSink;
+	//g_LogSink = nullptr;
+
 	return true;
 }
 
@@ -85,27 +93,28 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
-	const wchar_t **servers,
-	uint32_t numServers,
-	WinDnsConfigSink configSink,
-	void *configContext
+	const wchar_t **ipv4Servers,
+	uint32_t numIpv4Servers,
+	const wchar_t **ipv6Servers,
+	uint32_t numIpv6Servers,
+	WinDnsRecoverySink recoverySink,
+	void *recoveryContext
 )
 {
 	if (nullptr == g_Context
-		|| 0 == numServers
-		|| nullptr == configSink)
+		|| nullptr == ipv4Servers
+		|| 0 == numIpv4Servers
+		|| nullptr == ipv6Servers
+		|| 0 == numIpv6Servers
+		|| nullptr == recoverySink)
 	{
 		return false;
 	}
 
 	return ConfineOperation("Enforce DNS settings", ForwardError, [&]()
 	{
-		ClientSinkInfo sinkInfo;
-
-		sinkInfo.errorSinkInfo = ErrorSinkInfo{ g_ErrorSink, g_ErrorContext };
-		sinkInfo.configSinkInfo = ConfigSinkInfo{ configSink, configContext };
-
-		g_Context->set(MakeStringArray(servers, numServers), sinkInfo);
+		g_Context->set(MakeStringArray(ipv4Servers, numIpv4Servers), MakeStringArray(ipv6Servers, \
+			numIpv6Servers), RecoverySinkInfo{ recoverySink, recoveryContext });
 	});
 }
 
@@ -130,56 +139,16 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Recover(
-	const void *configData,
+	const void *recoveryData,
 	uint32_t dataLength
 )
 {
-	std::vector<InterfaceConfig> configs;
-
-	const auto status = ConfineOperation("Deserialize recovery data", ForwardError, [&]()
+	return ConfineOperation("Recover DNS settings", ForwardError, [&]()
 	{
-		common::serialization::Deserializer d(reinterpret_cast<const uint8_t *>(configData), dataLength);
+		auto unpacked = RecoveryFormatter::Unpack(reinterpret_cast<const uint8_t *>(recoveryData), dataLength);
 
-		auto numConfigs = d.decode<uint32_t>();
+		static const uint32_t TIMEOUT_TEN_SECONDS = 1000 * 10;
 
-		if (numConfigs > 50)
-		{
-			throw std::runtime_error("Too many configuration entries");
-		}
-
-		configs.reserve(numConfigs);
-
-		for (; numConfigs != 0; --numConfigs)
-		{
-			configs.emplace_back(InterfaceConfig(d));
-		}
+		RecoveryLogic::RestoreInterfaces(unpacked, g_LogSink, TIMEOUT_TEN_SECONDS);
 	});
-
-	if (false == status)
-	{
-		return false;
-	}
-
-	//
-	// Try to restore each config and update 'success' if any update fails.
-	//
-
-	static const uint32_t TIMEOUT_10_SECONDS = 10 * 1000;
-
-	bool success = true;
-
-	for (const auto &config : configs)
-	{
-		const auto adapterStatus = ConfineOperation("Restore adapter DNS settings", ForwardError, [&config]()
-		{
-			nchelpers::RevertDnsServers(config, TIMEOUT_10_SECONDS);
-		});
-
-		if (false == adapterStatus)
-		{
-			success = false;
-		}
-	}
-
-	return success;
 }
