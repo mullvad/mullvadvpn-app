@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 
 
 ## [2018.4-beta1] - 2018-10-01
