@@ -42,6 +42,10 @@ Line wrap the file at 100 chars.                                              Th
 - Redact IPv6 address that start or end with double colons in problem reports.
 - Improve tray icon response time by disabling the double click handling.
 
+### Security
+- Prevent Electron from executing/navigating to files being drag-and-dropped onto the app GUI. This
+  fixes [MUL-01-001](./audits/2018-09-24-assured-cure53.md#miscellaneous-issues)
+
 
 ## [2018.3] - 2018-09-17
 ### Changed
@@ -53,7 +57,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Lock the installation directory to `C:\Program Files\Mullvad VPN`. This prevents potential local
   privilege escalation by ensuring all binaries executed by the `SYSTEM` user, as part of the
-  Mullvad system service, are stored where unprivileged users can't modify them.
+  Mullvad system service, are stored where unprivileged users can't modify them. This fixes
+  [MUL-01-004](./audits/2018-09-24-assured-cure53.md#identified-vulnerabilities).
 
 
 ## [2018.3-beta1] - 2018-09-13
