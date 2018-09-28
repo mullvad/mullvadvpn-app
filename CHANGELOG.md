@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 - Logging in no longer requires a connection with the Mullvad API server.
 - Replace repeated `Disconnecting` followed by `Connecting` notifications with a single
   `Reconnecting` notification.
+- Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 
 ### Fixed
 - Don't temporarily show the unsecured state in the GUI when the app is reconnecting or blocking.

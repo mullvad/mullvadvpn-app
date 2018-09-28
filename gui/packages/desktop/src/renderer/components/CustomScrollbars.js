@@ -32,7 +32,8 @@ type ScrollPosition = 'top' | 'bottom' | 'middle';
 
 export default class CustomScrollbars extends React.Component<Props, State> {
   static defaultProps = {
-    autoHide: true,
+    // auto-hide on macOS by default
+    autoHide: process.platform === 'darwin',
     trackPadding: { x: 2, y: 2 },
   };
 
@@ -121,8 +122,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     });
 
     // do not hide the scrollbar if user is dragging a thumb but left the track area.
-    if (this.props.autoHide && !this.state.isDragging) {
-      this._startAutoHide();
+    if (!this.state.isDragging) {
+      if (this.props.autoHide) {
+        this._startAutoHide();
+      } else {
+        this._startAutoShrink();
+      }
     }
   };
 
@@ -159,8 +164,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
         y: event.clientY,
       };
 
-      if (this.props.autoHide && !this._isPointInsideOfElement(track, cursorPosition)) {
-        this._startAutoHide();
+      if (!this._isPointInsideOfElement(track, cursorPosition)) {
+        if (this.props.autoHide) {
+          this._startAutoHide();
+        } else {
+          this._startAutoShrink();
+        }
       }
     }
   };
@@ -253,6 +262,11 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       if (!this.state.isDragging) {
         this._startAutoHide();
       }
+    } else {
+      // only auto-shrink when scrolling with mousewheel
+      if (!this.state.isDragging) {
+        this._startAutoShrink();
+      }
     }
   };
 
@@ -272,6 +286,19 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     this._autoHideTimer = setTimeout(() => {
       this.setState({
         showScrollIndicators: false,
+        showTrack: false,
+        isWide: false,
+      });
+    }, AUTOHIDE_TIMEOUT);
+  }
+
+  _startAutoShrink() {
+    if (this._autoHideTimer) {
+      clearTimeout(this._autoHideTimer);
+    }
+
+    this._autoHideTimer = setTimeout(() => {
+      this.setState({
         showTrack: false,
         isWide: false,
       });

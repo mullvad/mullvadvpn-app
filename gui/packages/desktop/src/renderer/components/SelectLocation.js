@@ -91,7 +91,7 @@ export default class SelectLocation extends Component<Props, State> {
                 <HeaderTitle>Select location</HeaderTitle>
               </SettingsHeader>
 
-              <CustomScrollbars autoHide={true} ref={this._scrollViewRef}>
+              <CustomScrollbars ref={this._scrollViewRef}>
                 <View style={styles.content}>
                   <SettingsHeader style={styles.subtitle_header}>
                     <HeaderSubTitle>
