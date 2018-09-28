@@ -1,7 +1,9 @@
 #pragma once
 
-#include "clientsinkinfo.h"
+#include "ilogsink.h"
+#include <libcommon/applicationrunner.h>
 #include <string>
+#include <vector>
 #include <cstdint>
 #include <stdexcept>
 
@@ -9,24 +11,30 @@ class NetSh
 {
 public:
 
-	static void RegisterErrorSink(const ErrorSinkInfo &errorSink);
+	static void Construct(ILogSink *logSink);
 
-	static void SetIpv4PrimaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout = 0);
-	
-	//
-	// Caveat: This sets the primary DNS server if there isn't already one.
-	//
-	static void SetIpv4SecondaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout = 0);
+	static NetSh &Instance();
 
-	static void SetIpv4Dhcp(uint32_t interfaceIndex, uint32_t timeout = 0);
+	void SetIpv4StaticDns(uint32_t interfaceIndex,
+		const std::vector<std::wstring> &nameServers, uint32_t timeout = 0);
 
-	static void SetIpv6PrimaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout = 0);
-	static void SetIpv6SecondaryDns(uint32_t interfaceIndex, std::wstring server, uint32_t timeout = 0);
-	static void SetIpv6Dhcp(uint32_t interfaceIndex, uint32_t timeout = 0);
+	void SetIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
+
+	void SetIpv6StaticDns(uint32_t interfaceIndex,
+		const std::vector<std::wstring> &nameServers, uint32_t timeout = 0);
+
+	void SetIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
+
+	static uint32_t ConvertInterfaceGuidToIndex(const std::wstring &interfaceGuid);
 
 private:
 
-	NetSh();
+	ILogSink *m_logSink;
+	std::wstring m_netShPath;
+
+	NetSh(ILogSink *logSink);
+
+	void ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout);
 };
 
 class NetShError : public std::exception
