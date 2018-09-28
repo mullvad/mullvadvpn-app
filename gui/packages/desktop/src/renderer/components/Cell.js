@@ -97,6 +97,8 @@ type CellButtonProps = {
 
 type State = { hovered: boolean };
 
+const CellHoverContext = React.createContext(false);
+
 export class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
