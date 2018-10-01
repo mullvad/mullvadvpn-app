@@ -6,7 +6,7 @@ import { Component, Text, View } from 'reactxp';
 import { ClipboardLabel } from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
-import NavigationBar, { BackBarItem } from './NavigationBar';
+import { NavigationBar, BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
 import Img from './Img';

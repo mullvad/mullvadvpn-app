@@ -223,6 +223,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     const {
       autoHide: _autoHide,
       trackPadding: _trackPadding,
+      onScroll: _onScroll,
       children,
       ...otherProps
     } = this.props;
