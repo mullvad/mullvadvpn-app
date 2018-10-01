@@ -185,14 +185,19 @@ export function Label({ children, cellHoverStyle }: LabelProps) {
 
 export type SubTextProps = {
   children: React.Node,
+  cellHoverStyle?: Types.ViewStyle,
   style?: Types.ViewStyle,
 };
 
-export function SubText({ children, style, ...otherProps }: SubTextProps) {
+export function SubText({ children, style, cellHoverStyle, ...otherProps }: SubTextProps) {
   return (
-    <Text style={[styles.subtext, style]} {...otherProps}>
-      {children}
-    </Text>
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <Text style={[styles.subtext, style, hovered && cellHoverStyle]} {...otherProps}>
+          {children}
+        </Text>
+      )}
+    </CellHoverContext.Consumer>
   );
 }
 
