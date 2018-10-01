@@ -7,7 +7,13 @@ import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import Img from './Img';
 import { Layout, Container } from './Layout';
-import NavigationBar, { CloseBarItem } from './NavigationBar';
+import {
+  NavigationBar,
+  NavigationContainer,
+  NavigationScrollableContent,
+  CloseBarItem,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
@@ -36,26 +42,30 @@ export default class Settings extends Component<Props> {
       <Layout>
         <Container>
           <View style={styles.settings}>
-            <NavigationBar>
-              <CloseBarItem action={this.props.onClose} />
-            </NavigationBar>
+            <NavigationContainer>
+              <NavigationBar>
+                <CloseBarItem action={this.props.onClose} />
+                <TitleBarItem>Settings</TitleBarItem>
+              </NavigationBar>
 
-            <View style={styles.settings__container}>
-              <SettingsHeader>
-                <HeaderTitle>Settings</HeaderTitle>
-              </SettingsHeader>
-
-              <CustomScrollbars style={styles.settings__scrollview}>
-                <View style={styles.settings__content}>
-                  <View>
-                    {this._renderTopButtons()}
-                    {this._renderMiddleButtons()}
-                    {this._renderBottomButtons()}
-                  </View>
-                  {this._renderQuitButton()}
-                </View>
-              </CustomScrollbars>
-            </View>
+              <View style={styles.settings__container}>
+                <NavigationScrollableContent>
+                  <CustomScrollbars style={styles.settings__scrollview} autoHide={true}>
+                    <View style={styles.settings__content}>
+                      <SettingsHeader>
+                        <HeaderTitle>Settings</HeaderTitle>
+                      </SettingsHeader>
+                      <View>
+                        {this._renderTopButtons()}
+                        {this._renderMiddleButtons()}
+                        {this._renderBottomButtons()}
+                      </View>
+                      {this._renderQuitButton()}
+                    </View>
+                  </CustomScrollbars>
+                </NavigationScrollableContent>
+              </View>
+            </NavigationContainer>
           </View>
         </Container>
       </Layout>
