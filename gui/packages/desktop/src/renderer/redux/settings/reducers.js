@@ -49,6 +49,9 @@ export type SettingsReduxState = {
   autoConnect: boolean,
   allowLan: boolean,
   enableIpv6: boolean,
+  openVpn: {
+    mssfix: ?number,
+  },
 };
 
 const initialState: SettingsReduxState = {
@@ -63,6 +66,9 @@ const initialState: SettingsReduxState = {
   autoConnect: false,
   allowLan: false,
   enableIpv6: true,
+  openVpn: {
+    mssfix: null,
+  },
 };
 
 export default function(
@@ -98,6 +104,15 @@ export default function(
       return {
         ...state,
         enableIpv6: action.enableIpv6,
+      };
+
+    case 'UPDATE_OPENVPN_MSSFIX':
+      return {
+        ...state,
+        openVpn: {
+          ...state.openVpn,
+          mssfix: action.mssfix,
+        },
       };
 
     default:

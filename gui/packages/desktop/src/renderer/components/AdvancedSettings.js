@@ -19,6 +19,7 @@ import Img from './Img';
 type Props = {
   enableIpv6: boolean,
   protocol: string,
+  mssfix: ?number,
   port: string | number,
   setEnableIpv6: (boolean) => void,
   onUpdate: (protocol: string, port: string | number) => void,
@@ -76,7 +77,12 @@ export class AdvancedSettings extends Component<Props> {
 
                 <Cell.Container>
                   <Cell.Label>Mssfix</Cell.Label>
-                  <Cell.Input keyboardType={'numeric'} maxLength={5} placeholder={'None'} />
+                  <Cell.Input
+                    keyboardType={'numeric'}
+                    maxLength={5}
+                    placeholder={'None'}
+                    value={this.props.mssfix}
+                  />
                 </Cell.Container>
                 <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
               </View>
