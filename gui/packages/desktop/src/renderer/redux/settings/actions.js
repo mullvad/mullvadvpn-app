@@ -27,12 +27,18 @@ export type UpdateEnableIpv6Action = {
   enableIpv6: boolean,
 };
 
+export type UpdateOpenVpnMssfixAction = {
+  type: 'UPDATE_OPENVPN_MSSFIX',
+  mssfix: ?number,
+};
+
 export type SettingsAction =
   | UpdateRelayAction
   | UpdateRelayLocationsAction
   | UpdateAutoConnectAction
   | UpdateAllowLanAction
-  | UpdateEnableIpv6Action;
+  | UpdateEnableIpv6Action
+  | UpdateOpenVpnMssfixAction;
 
 function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   return {
@@ -71,10 +77,18 @@ function updateEnableIpv6(enableIpv6: boolean): UpdateEnableIpv6Action {
   };
 }
 
+function updateOpenVpnMssfix(mssfix: ?number): UpdateOpenVpnMssfixAction {
+  return {
+    type: 'UPDATE_OPENVPN_MSSFIX',
+    mssfix,
+  };
+}
+
 export default {
   updateRelay,
   updateRelayLocations,
   updateAutoConnect,
   updateAllowLan,
   updateEnableIpv6,
+  updateOpenVpnMssfix,
 };
