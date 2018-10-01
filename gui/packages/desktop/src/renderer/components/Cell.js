@@ -8,6 +8,8 @@ import { colors } from '../../config';
 const styles = {
   cellButton: Styles.createViewStyle({
     backgroundColor: colors.blue,
+    paddingTop: 0,
+    paddingBottom: 0,
     paddingLeft: 16,
     paddingRight: 16,
     marginBottom: 1,
