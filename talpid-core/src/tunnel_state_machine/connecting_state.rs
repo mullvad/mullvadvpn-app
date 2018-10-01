@@ -262,14 +262,17 @@ impl ConnectingState {
                 self.into_connected_state_bootstrap(metadata),
             )),
             Ok(_) => SameState(self),
-            Err(_) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Reconnect(self.tunnel_parameters),
-                ),
-            )),
+            Err(_) => {
+                debug!("The OpenVPN tunnel event plugin disconnected");
+                NewState(DisconnectingState::enter(
+                    shared_values,
+                    (
+                        self.close_handle,
+                        self.tunnel_close_event,
+                        AfterDisconnect::Reconnect(self.tunnel_parameters),
+                    ),
+                ))
+            }
         }
     }
 
@@ -277,16 +280,14 @@ impl ConnectingState {
         mut self,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        use self::EventConsequence::*;
-
         match self.tunnel_close_event.poll() {
             Ok(Async::Ready(_)) => {}
-            Ok(Async::NotReady) => return NoEvents(self),
+            Ok(Async::NotReady) => return EventConsequence::NoEvents(self),
             Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
         }
 
         info!("Tunnel closed. Reconnecting.");
-        NewState(ConnectingState::enter(
+        EventConsequence::NewState(ConnectingState::enter(
             shared_values,
             self.tunnel_parameters,
         ))

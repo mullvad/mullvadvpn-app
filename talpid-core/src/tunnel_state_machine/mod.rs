@@ -7,7 +7,6 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 
-use std::fmt::{Debug, Formatter, Result as FmtResult};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc as sync_mpsc;
 use std::thread;
@@ -152,8 +151,7 @@ impl TunnelStateMachine {
             NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
         let mut shared_values = SharedTunnelStateValues { security };
 
-        let initial_state = TunnelStateWrapper::new(&mut shared_values, ());
-
+        let (initial_state, _) = DisconnectedState::enter(&mut shared_values, ());
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
             commands,
@@ -281,82 +279,45 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     ) -> EventConsequence<Self>;
 }
 
-/// Valid states of the tunnel.
-///
-/// All implementations must implement `TunnelState` so that they can handle events and
-/// commands in order to advance the state machine.
-enum TunnelStateWrapper {
-    Disconnected(DisconnectedState),
-    Connecting(ConnectingState),
-    Connected(ConnectedState),
-    Disconnecting(DisconnectingState),
-    Blocked(BlockedState),
-}
+macro_rules! state_wrapper {
+    (enum $wrapper_name:ident { $($state_variant:ident($state_type:ident)),* $(,)* }) => {
+        /// Valid states of the tunnel.
+        ///
+        /// All implementations must implement `TunnelState` so that they can handle events and
+        /// commands in order to advance the state machine.
+        enum $wrapper_name {
+            $($state_variant($state_type),)*
+        }
 
-impl TunnelStateWrapper {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        bootstrap: <DisconnectedState as TunnelState>::Bootstrap,
-    ) -> TunnelStateWrapper {
-        let (new_state, _transition) = DisconnectedState::enter(shared_values, bootstrap);
+        $(impl From<$state_type> for $wrapper_name {
+            fn from(state: $state_type) -> Self {
+                $wrapper_name::$state_variant(state)
+            }
+        })*
 
-        new_state
-    }
-
-    fn handle_event(
-        self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> TunnelStateMachineAction {
-        macro_rules! handle_event {
-            ( $($state:ident),* $(,)* ) => {
+        impl $wrapper_name {
+            fn handle_event(
+                self,
+                commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+                shared_values: &mut SharedTunnelStateValues,
+            ) -> TunnelStateMachineAction {
                 match self {
-                    $(
-                        TunnelStateWrapper::$state(state) => {
-                            let event_consequence = state.handle_event(commands, shared_values);
-                            TunnelStateMachineAction::from(event_consequence)
-                        }
-                    )*
+                    $($wrapper_name::$state_variant(state) => {
+                        let event_consequence = state.handle_event(commands, shared_values);
+                        TunnelStateMachineAction::from(event_consequence)
+                    })*
                 }
             }
         }
-
-        handle_event! {
-            Disconnected,
-            Connecting,
-            Connected,
-            Disconnecting,
-            Blocked,
-        }
     }
 }
 
-macro_rules! impl_from_for_tunnel_state {
-    ($state_variant:ident($state_type:ident)) => {
-        impl From<$state_type> for TunnelStateWrapper {
-            fn from(state: $state_type) -> Self {
-                TunnelStateWrapper::$state_variant(state)
-            }
-        }
-    };
-}
-
-impl_from_for_tunnel_state!(Disconnected(DisconnectedState));
-impl_from_for_tunnel_state!(Connecting(ConnectingState));
-impl_from_for_tunnel_state!(Connected(ConnectedState));
-impl_from_for_tunnel_state!(Disconnecting(DisconnectingState));
-impl_from_for_tunnel_state!(Blocked(BlockedState));
-
-impl Debug for TunnelStateWrapper {
-    fn fmt(&self, formatter: &mut Formatter) -> FmtResult {
-        use self::TunnelStateWrapper::*;
-
-        match *self {
-            Disconnected(_) => write!(formatter, "TunnelStateWrapper::Disconnected(_)"),
-            Connecting(_) => write!(formatter, "TunnelStateWrapper::Connecting(_)"),
-            Connected(_) => write!(formatter, "TunnelStateWrapper::Connected(_)"),
-            Disconnecting(_) => write!(formatter, "TunnelStateWrapper::Disconnecting(_)"),
-            Blocked(_) => write!(formatter, "TunnelStateWrapper::Blocked(_)"),
-        }
+state_wrapper! {
+    enum TunnelStateWrapper {
+        Disconnected(DisconnectedState),
+        Connecting(ConnectingState),
+        Connected(ConnectedState),
+        Disconnecting(DisconnectingState),
+        Blocked(BlockedState),
     }
 }
