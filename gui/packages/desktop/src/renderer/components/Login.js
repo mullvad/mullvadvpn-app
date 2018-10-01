@@ -456,7 +456,6 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
           </Cell.Label>
           <Img
             style={styles.account_dropdown__remove}
-            cellHoverStyle={styles.account_dropdown__remove_cell_hover}
             hoverStyle={styles.account_dropdown__remove_hover}
             source="icon-close-sml"
             height={16}
