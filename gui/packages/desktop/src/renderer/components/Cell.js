@@ -52,7 +52,7 @@ const styles = {
     marginLeft: 8,
   }),
 
-  label: Styles.createTextStyle({
+  labelText: Styles.createTextStyle({
     color: colors.white,
     alignSelf: 'center',
     fontFamily: 'DINPro',
@@ -111,7 +111,11 @@ export class CellButton extends Component<CellButtonProps, State> {
 
             if (node.type === Label) {
               updatedProps = {
-                style: [styles.label, node.props.style, this.textStyle(node.props.cellHoverStyle)],
+                style: [
+                  styles.labelText,
+                  node.props.style,
+                  this.textStyle(node.props.cellHoverStyle),
+                ],
               };
             }
 
@@ -134,7 +138,7 @@ export class CellButton extends Component<CellButtonProps, State> {
 
             return React.cloneElement(node, updatedProps);
           } else if (node) {
-            return <Label style={[styles.label, this.textStyle()]}>{children}</Label>;
+            return <Label style={[styles.labelText, this.textStyle()]}>{children}</Label>;
           }
         })}
       </Button>
