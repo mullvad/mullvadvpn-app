@@ -196,6 +196,25 @@ export function SubText({ children, style, ...otherProps }: SubTextProps) {
   );
 }
 
+export type IconProps = {
+  cellHoverStyle?: Types.ViewStyle,
+  style?: Types.ViewStyle,
+};
+
+export function Icon({ style, cellHoverStyle, ...otherProps }: IconProps) {
+  return (
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <PlainImg
+          tintColor={'currentColor'}
+          style={[styles.icon, style, hovered && cellHoverStyle]}
+          {...otherProps}
+        />
+      )}
+    </CellHoverContext.Consumer>
+  );
+}
+
 export function Footer({ children }: ContainerProps) {
   return (
     <View style={styles.footer.container}>
