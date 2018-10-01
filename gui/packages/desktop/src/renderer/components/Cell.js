@@ -66,16 +66,6 @@ const styles = {
     marginLeft: 8,
   }),
 
-  labelText: Styles.createTextStyle({
-    color: colors.white,
-    alignSelf: 'center',
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    flex: 1,
-    marginLeft: 8,
-  }),
   subtext: Styles.createTextStyle({
     color: colors.white60,
     fontFamily: 'Open Sans',
@@ -100,59 +90,19 @@ const CellHoverContext = React.createContext(false);
 export class CellButton extends Component<CellButtonProps, State> {
   state = { hovered: false };
 
-  textStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
-  iconStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
-  subtextStyle = (cellHoverStyle?: Types.ViewStyle) => (this.state.hovered ? cellHoverStyle : null);
-  backgroundStyle = (cellHoverStyle?: Types.ViewStyle) =>
-    this.state.hovered ? cellHoverStyle || styles.cellHover : null;
-
   onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
   onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
 
   render() {
     const { children, style, cellHoverStyle, ...otherProps } = this.props;
+    const hoverStyle = cellHoverStyle || styles.cellHover;
     return (
       <Button
-        style={[styles.cellButton, style, this.backgroundStyle(cellHoverStyle)]}
+        style={[styles.cellButton, style, this.state.hovered && hoverStyle]}
         onHoverStart={this.onHoverStart}
         onHoverEnd={this.onHoverEnd}
         {...otherProps}>
-        {React.Children.map(children, (node) => {
-          if (React.isValidElement(node)) {
-            let updatedProps = {};
-
-            if (node.type === Label) {
-              updatedProps = {
-                style: [
-                  styles.labelText,
-                  node.props.style,
-                  this.textStyle(node.props.cellHoverStyle),
-                ],
-              };
-            }
-
-            if (node.type === Img) {
-              updatedProps = {
-                tintColor: 'currentColor',
-                style: [styles.icon, node.props.style, this.iconStyle(node.props.cellHoverStyle)],
-              };
-            }
-
-            if (node.type === SubText) {
-              updatedProps = {
-                style: [
-                  styles.subtext,
-                  node.props.style,
-                  this.subtextStyle(node.props.cellHoverStyle),
-                ],
-              };
-            }
-
-            return React.cloneElement(node, updatedProps);
-          } else if (node) {
-            return <Label style={[styles.labelText, this.textStyle()]}>{children}</Label>;
-          }
-        })}
+        <CellHoverContext.Provider value={this.state.hovered}>{children}</CellHoverContext.Provider>
       </Button>
     );
   }
