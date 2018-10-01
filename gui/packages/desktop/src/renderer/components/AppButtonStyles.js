@@ -28,6 +28,18 @@ export default {
   white: Styles.createViewStyle({
     color: colors.white,
   }),
+  transparent: Styles.createViewStyle({
+    backgroundColor: colors.white20,
+  }),
+  transparentHover: Styles.createViewStyle({
+    backgroundColor: colors.white40,
+  }),
+  redTransparent: Styles.createViewStyle({
+    backgroundColor: colors.red40,
+  }),
+  redTransparentHover: Styles.createViewStyle({
+    backgroundColor: colors.red45,
+  }),
   icon: Styles.createViewStyle({
     position: 'absolute',
     alignSelf: 'flex-end',
