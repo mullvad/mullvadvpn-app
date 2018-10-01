@@ -14,7 +14,11 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
 
-  return { enableIpv6: state.settings.enableIpv6, ...protocolAndPort };
+  return {
+    enableIpv6: state.settings.enableIpv6,
+    mssfix: state.settings.openVpn.mssfix,
+    ...protocolAndPort,
+  };
 };
 
 const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
