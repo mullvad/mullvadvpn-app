@@ -151,8 +151,7 @@ impl TunnelStateMachine {
             NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
         let mut shared_values = SharedTunnelStateValues { security };
 
-        let initial_state = TunnelStateWrapper::new(&mut shared_values, ());
-
+        let (initial_state, _) = DisconnectedState::enter(&mut shared_values, ());
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
             commands,
@@ -309,15 +308,6 @@ state_wrapper! {
 }
 
 impl TunnelStateWrapper {
-    fn new(
-        shared_values: &mut SharedTunnelStateValues,
-        bootstrap: <DisconnectedState as TunnelState>::Bootstrap,
-    ) -> TunnelStateWrapper {
-        let (new_state, _transition) = DisconnectedState::enter(shared_values, bootstrap);
-
-        new_state
-    }
-
     fn handle_event(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
