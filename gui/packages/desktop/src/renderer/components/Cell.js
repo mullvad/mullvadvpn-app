@@ -6,7 +6,7 @@ import PlainImg from './Img';
 import { colors } from '../../config';
 
 const styles = {
-  cell: Styles.createViewStyle({
+  cellButton: Styles.createViewStyle({
     backgroundColor: colors.blue,
     paddingLeft: 16,
     paddingRight: 16,
@@ -115,7 +115,7 @@ export class CellButton extends Component<CellButtonProps, State> {
     const { children, style, cellHoverStyle, ...otherProps } = this.props;
     return (
       <Button
-        style={[styles.cell, style, this.backgroundStyle(cellHoverStyle)]}
+        style={[styles.cellButton, style, this.backgroundStyle(cellHoverStyle)]}
         onHoverStart={this.onHoverStart}
         onHoverEnd={this.onHoverEnd}
         {...otherProps}>
