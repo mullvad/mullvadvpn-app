@@ -1,6 +1,7 @@
 mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
+mod network_manager;
 
 use std::env;
 use std::net::IpAddr;

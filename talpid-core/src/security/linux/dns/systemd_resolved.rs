@@ -135,7 +135,6 @@ impl SystemdResolved {
         link_object_path: &'b dbus::Path<'static>,
         servers: &[IpAddr],
     ) -> Result<()> {
-
         let server_addresses = build_addresses_argument(servers);
 
         let mut reply = self
@@ -199,10 +198,7 @@ impl SystemdResolved {
 }
 
 fn build_addresses_argument(addresses: &[IpAddr]) -> MessageItem {
-    let addresses = addresses
-        .iter()
-        .map(ip_address_to_message_item)
-        .collect();
+    let addresses = addresses.iter().map(ip_address_to_message_item).collect();
 
     MessageItem::Array(
         MessageItemArray::new(addresses, Signature::make::<Vec<(i32, Vec<u8>)>>())
