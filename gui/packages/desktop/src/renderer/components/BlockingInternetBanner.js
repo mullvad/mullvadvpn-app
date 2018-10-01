@@ -8,7 +8,6 @@ const styles = {
   container: Styles.createViewStyle({
     flexDirection: 'row',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(4px)',
     paddingTop: 8,
     paddingLeft: 20,
     paddingRight: 20,
