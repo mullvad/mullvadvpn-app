@@ -21,7 +21,7 @@ const styles = {
     backgroundColor: colors.blue,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 24,
+    paddingLeft: 16,
     paddingRight: 12,
   }),
 
@@ -44,6 +44,7 @@ const styles = {
 
   label: {
     container: Styles.createViewStyle({
+      marginLeft: 8,
       marginTop: 14,
       marginBottom: 14,
       flexGrow: 1,
