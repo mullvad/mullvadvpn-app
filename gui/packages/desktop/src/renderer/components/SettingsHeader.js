@@ -10,7 +10,7 @@ const styles = {
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: 'auto',
-      paddingTop: 16,
+      paddingTop: 4,
       paddingRight: 24,
       paddingLeft: 24,
       paddingBottom: 24,
