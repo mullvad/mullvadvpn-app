@@ -135,7 +135,6 @@ impl SystemdResolved {
         link_object_path: &'b dbus::Path<'static>,
         servers: &[IpAddr],
     ) -> Result<()> {
-
         let server_addresses = build_addresses_argument(servers);
 
         let mut reply = self
