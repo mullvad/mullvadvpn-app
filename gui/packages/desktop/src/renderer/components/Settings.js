@@ -91,7 +91,7 @@ export default class Settings extends Component<Props> {
                 style={styles.settings__account_paid_until_label__error}>
                 {'OUT OF TIME'}
               </Cell.SubText>
-              <Cell.Img height={12} width={7} source="icon-chevron" />
+              <Cell.Icon height={12} width={7} source="icon-chevron" />
             </Cell.CellButton>
           ) : (
             <Cell.CellButton
@@ -101,19 +101,19 @@ export default class Settings extends Component<Props> {
               <Cell.SubText testName="settings__account_paid_until_subtext">
                 {formattedExpiry}
               </Cell.SubText>
-              <Cell.Img height={12} width={7} source="icon-chevron" />
+              <Cell.Icon height={12} width={7} source="icon-chevron" />
             </Cell.CellButton>
           )}
         </View>
 
         <Cell.CellButton onPress={this.props.onViewPreferences} testName="settings__preferences">
           <Cell.Label>Preferences</Cell.Label>
-          <Cell.Img height={12} width={7} source="icon-chevron" />
+          <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewAdvancedSettings} testName="settings__advanced">
           <Cell.Label>Advanced</Cell.Label>
-          <Cell.Img height={12} width={7} source="icon-chevron" />
+          <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
       </View>
@@ -148,7 +148,7 @@ export default class Settings extends Component<Props> {
           {icon}
           <Cell.Label>App version</Cell.Label>
           <Cell.SubText>{this.props.appVersion}</Cell.SubText>
-          <Cell.Img height={16} width={16} source="icon-extLink" />
+          <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         {footer}
       </View>
@@ -162,19 +162,19 @@ export default class Settings extends Component<Props> {
           onPress={this.props.onExternalLink.bind(this, 'faq')}
           testName="settings__external_link">
           <Cell.Label>FAQs</Cell.Label>
-          <Cell.Img height={16} width={16} source="icon-extLink" />
+          <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
 
         <Cell.CellButton
           onPress={this.props.onExternalLink.bind(this, 'guides')}
           testName="settings__external_link">
           <Cell.Label>Guides</Cell.Label>
-          <Cell.Img height={16} width={16} source="icon-extLink" />
+          <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
           <Cell.Label>Report a problem</Cell.Label>
-          <Cell.Img height={12} width={7} source="icon-chevron" />
+          <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
       </View>
     );

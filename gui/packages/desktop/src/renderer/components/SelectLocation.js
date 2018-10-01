@@ -165,7 +165,7 @@ export default class SelectLocation extends Component<Props, State> {
     const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
     return isSelected ? (
-      <Cell.Img style={styles.tick_icon} source="icon-tick" height={24} width={24} />
+      <Cell.Icon style={styles.tick_icon} source="icon-tick" height={24} width={24} />
     ) : (
       <View style={[styles.relay_status, statusClass]} />
     );
@@ -209,7 +209,7 @@ export default class SelectLocation extends Component<Props, State> {
           <Cell.Label>{relayCountry.name}</Cell.Label>
 
           {hasChildren ? (
-            <Cell.Img
+            <Cell.Icon
               style={styles.collapse_button}
               hoverStyle={styles.expand_chevron_hover}
               onPress={handleCollapse}
@@ -266,7 +266,7 @@ export default class SelectLocation extends Component<Props, State> {
           <Cell.Label>{relayCity.name}</Cell.Label>
 
           {relayCity.relays.length > 1 ? (
-            <Cell.Img
+            <Cell.Icon
               style={styles.collapse_button}
               hoverStyle={styles.expand_chevron_hover}
               onPress={handleCollapse}
