@@ -294,6 +294,21 @@ macro_rules! state_wrapper {
                 $wrapper_name::$state_variant(state)
             }
         })*
+
+        impl $wrapper_name {
+            fn handle_event(
+                self,
+                commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+                shared_values: &mut SharedTunnelStateValues,
+            ) -> TunnelStateMachineAction {
+                match self {
+                    $($wrapper_name::$state_variant(state) => {
+                        let event_consequence = state.handle_event(commands, shared_values);
+                        TunnelStateMachineAction::from(event_consequence)
+                    })*
+                }
+            }
+        }
     }
 }
 
@@ -304,34 +319,5 @@ state_wrapper! {
         Connected(ConnectedState),
         Disconnecting(DisconnectingState),
         Blocked(BlockedState),
-    }
-}
-
-impl TunnelStateWrapper {
-    fn handle_event(
-        self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> TunnelStateMachineAction {
-        macro_rules! handle_event {
-            ( $($state:ident),* $(,)* ) => {
-                match self {
-                    $(
-                        TunnelStateWrapper::$state(state) => {
-                            let event_consequence = state.handle_event(commands, shared_values);
-                            TunnelStateMachineAction::from(event_consequence)
-                        }
-                    )*
-                }
-            }
-        }
-
-        handle_event! {
-            Disconnected,
-            Connecting,
-            Connected,
-            Disconnecting,
-            Blocked,
-        }
     }
 }
