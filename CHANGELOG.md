@@ -23,18 +23,21 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.4-beta1] - 2018-10-01
 ### Added
-- Replace repeated `Disconnecting` followed by `Connecting` notifications with a single
-  `Reconnecting` notification.
 - Allow packets to the fe80::/10 and fe02::/16 IPv6 networks when local network sharing is enabled.
   Should allow IPv6 over the LAN, and mDNS host discovery which in turn should allow Apple AirDrop
-  and Handover.
+  and Handover among other IPv6 based LAN discovery services.
 
 #### Linux
 - Add support for DNS configuration using resolvconf.
 
 ### Changed
 - Logging in no longer requires a connection with the Mullvad API server.
+- Replace repeated `Disconnecting` followed by `Connecting` notifications with a single
+  `Reconnecting` notification.
 
 ### Fixed
 - Don't temporarily show the unsecured state in the GUI when the app is reconnecting or blocking.
