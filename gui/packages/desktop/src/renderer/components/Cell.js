@@ -86,8 +86,6 @@ const styles = {
   }),
 };
 
-export class Img extends PlainImg {}
-
 type CellButtonProps = {
   children?: React.Node,
   disabled?: boolean,
