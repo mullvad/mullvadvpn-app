@@ -310,8 +310,6 @@ const ApplicationMain = {
       webPreferences: {
         // prevents renderer process code from not running when window is hidden
         backgroundThrottling: false,
-        // enable blur effect
-        blinkFeatures: 'CSSBackdropFilter',
       },
     };
 
