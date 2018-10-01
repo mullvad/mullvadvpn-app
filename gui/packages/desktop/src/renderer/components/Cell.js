@@ -131,11 +131,14 @@ export function Label({
   textStyle,
   cellHoverContainerStyle,
   cellHoverTextStyle,
+  ...otherProps
 }: LabelProps) {
   return (
     <CellHoverContext.Consumer>
       {(hovered) => (
-        <View style={[styles.label.container, containerStyle, hovered && cellHoverContainerStyle]}>
+        <View
+          style={[styles.label.container, containerStyle, hovered && cellHoverContainerStyle]}
+          {...otherProps}>
           <Text style={[styles.label.text, textStyle, hovered && cellHoverTextStyle]}>
             {children}
           </Text>
