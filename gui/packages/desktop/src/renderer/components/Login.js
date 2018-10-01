@@ -447,12 +447,13 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
         <Cell.CellButton
           style={styles.account_dropdown__item}
           cellHoverStyle={styles.account_dropdown__item_hover}>
-          <Text
-            style={styles.account_dropdown__label}
-            cellHoverStyle={styles.account_dropdown__label_hover}
+          <Cell.Label
+            textStyle={styles.account_dropdown__label}
+            containerStyle={styles.account_dropdown__label_container}
+            cellHoverTextStyle={styles.account_dropdown__label_hover}
             onPress={() => this.props.onSelect(this.props.value)}>
             {this.props.label}
-          </Text>
+          </Cell.Label>
           <Img
             style={styles.account_dropdown__remove}
             cellHoverStyle={styles.account_dropdown__remove_cell_hover}
