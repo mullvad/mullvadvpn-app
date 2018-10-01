@@ -12,6 +12,7 @@ const AUTOHIDE_TIMEOUT = 1000;
 type Props = {
   autoHide: boolean,
   trackPadding: { x: number, y: number },
+  onScroll?: ({ scrollLeft: number, scrollTop: number }) => void,
   children?: React.Node,
 };
 
@@ -267,6 +268,14 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       if (!this.state.isDragging) {
         this._startAutoShrink();
       }
+    }
+
+    const scrollView = this._scrollableRef.current;
+    if (scrollView && this.props.onScroll) {
+      this.props.onScroll({
+        scrollLeft: scrollView.scrollLeft,
+        scrollTop: scrollView.scrollTop,
+      });
     }
   };
 
