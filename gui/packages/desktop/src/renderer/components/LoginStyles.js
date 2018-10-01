@@ -104,12 +104,6 @@ export default {
     paddingLeft: 12,
     marginLeft: 0,
   }),
-  account_dropdown__remove_cell_hover: Styles.createViewStyle({
-    color: colors.blue60,
-  }),
-  account_dropdown__remove_hover: Styles.createViewStyle({
-    color: colors.blue,
-  }),
   account_dropdown__label_hover: Styles.createViewStyle({
     color: colors.blue,
   }),
