@@ -1,11 +1,12 @@
+mod network_manager;
 mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
-mod network_manager;
 
 use std::env;
 use std::net::IpAddr;
 
+use self::network_manager::NetworkManager;
 use self::resolvconf::Resolvconf;
 use self::static_resolv_conf::StaticResolvConf;
 use self::systemd_resolved::SystemdResolved;
@@ -21,6 +22,7 @@ error_chain! {
         Resolvconf(resolvconf::Error, resolvconf::ErrorKind);
         StaticResolvConf(static_resolv_conf::Error, static_resolv_conf::ErrorKind);
         SystemdResolved(systemd_resolved::Error, systemd_resolved::ErrorKind);
+        NetworkManager(network_manager::Error, network_manager::ErrorKind);
     }
 }
 
@@ -28,6 +30,7 @@ pub enum DnsSettings {
     Resolvconf(Resolvconf),
     StaticResolvConf(StaticResolvConf),
     SystemdResolved(SystemdResolved),
+    NetworkManager(NetworkManager),
 }
 
 impl DnsSettings {
@@ -38,13 +41,15 @@ impl DnsSettings {
             Some("static-file") => DnsSettings::StaticResolvConf(StaticResolvConf::new()?),
             Some("resolvconf") => DnsSettings::Resolvconf(Resolvconf::new()?),
             Some("systemd") => DnsSettings::SystemdResolved(SystemdResolved::new()?),
+            Some("network-manager") => DnsSettings::NetworkManager(NetworkManager::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
         })
     }
 
     fn with_detected_dns_manager() -> Result<Self> {
-        SystemdResolved::new()
-            .map(DnsSettings::SystemdResolved)
+        NetworkManager::new()
+            .map(DnsSettings::NetworkManager)
+            .or_else(|_| SystemdResolved::new().map(DnsSettings::SystemdResolved))
             .or_else(|_| Resolvconf::new().map(DnsSettings::Resolvconf))
             .or_else(|_| StaticResolvConf::new().map(DnsSettings::StaticResolvConf))
             .chain_err(|| ErrorKind::NoDnsSettingsManager)
@@ -57,8 +62,9 @@ impl DnsSettings {
             Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,
             StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.set_dns(servers)?,
             SystemdResolved(ref mut systemd_resolved) => {
-                systemd_resolved.set_dns(interface, servers)?
+                systemd_resolved.set_dns(interface, &servers)?
             }
+            NetworkManager(ref mut network_manager) => network_manager.set_dns(&servers)?,
         }
 
         Ok(())
@@ -71,6 +77,7 @@ impl DnsSettings {
             Resolvconf(ref mut resolvconf) => resolvconf.reset()?,
             StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.reset()?,
             SystemdResolved(ref mut systemd_resolved) => systemd_resolved.reset()?,
+            NetworkManager(ref mut network_manager) => network_manager.reset()?,
         }
 
         Ok(())
