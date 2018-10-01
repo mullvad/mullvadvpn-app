@@ -4,7 +4,13 @@ import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
 import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
-import NavigationBar, { BackBarItem } from './NavigationBar';
+import {
+  NavigationBar,
+  NavigationContainer,
+  NavigationScrollableContent,
+  BackBarItem,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import CustomScrollbars from './CustomScrollbars';
 import Switch from './Switch';
@@ -35,37 +41,43 @@ export class AdvancedSettings extends Component<Props> {
       <Layout>
         <Container>
           <View style={styles.advanced_settings}>
-            <NavigationBar>
-              <BackBarItem action={this.props.onClose} title={'Settings'} />
-            </NavigationBar>
+            <NavigationContainer>
+              <NavigationBar>
+                <BackBarItem action={this.props.onClose} title={'Settings'} />
+                <TitleBarItem>Advanced</TitleBarItem>
+              </NavigationBar>
 
-            <View style={styles.advanced_settings__container}>
-              <SettingsHeader>
-                <HeaderTitle>Advanced</HeaderTitle>
-              </SettingsHeader>
-              <CustomScrollbars style={styles.advanced_settings__scrollview}>
-                <Cell.Container>
-                  <Cell.Label>Enable IPv6</Cell.Label>
-                  <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
-                </Cell.Container>
-                <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
+              <View style={styles.advanced_settings__container}>
+                <NavigationScrollableContent>
+                  <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
+                    <SettingsHeader>
+                      <HeaderTitle>Advanced</HeaderTitle>
+                    </SettingsHeader>
 
-                <View style={styles.advanced_settings__content}>
-                  <Selector
-                    title={'Network protocols'}
-                    values={['Automatic', 'UDP', 'TCP']}
-                    value={protocol}
-                    onSelect={(protocol) => {
-                      this.props.onUpdate(protocol, 'Automatic');
-                    }}
-                  />
+                    <Cell.Container>
+                      <Cell.Label>Enable IPv6</Cell.Label>
+                      <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                    </Cell.Container>
+                    <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
 
-                  <View style={styles.advanced_settings__cell_spacer} />
+                    <View style={styles.advanced_settings__content}>
+                      <Selector
+                        title={'Network protocols'}
+                        values={['Automatic', 'UDP', 'TCP']}
+                        value={protocol}
+                        onSelect={(protocol) => {
+                          this.props.onUpdate(protocol, 'Automatic');
+                        }}
+                      />
 
-                  {portSelector}
-                </View>
-              </CustomScrollbars>
-            </View>
+                      <View style={styles.advanced_settings__cell_spacer} />
+
+                      {portSelector}
+                    </View>
+                  </CustomScrollbars>
+                </NavigationScrollableContent>
+              </View>
+            </NavigationContainer>
           </View>
         </Container>
       </Layout>
