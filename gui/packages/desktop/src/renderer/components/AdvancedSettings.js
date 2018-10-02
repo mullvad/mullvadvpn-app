@@ -168,10 +168,12 @@ export class AdvancedSettings extends Component<Props, State> {
   };
 
   _onMssfixBlur = () => {
-    this.props.setOpenVpnMssfix(this.state.editedMssfix);
-    this.setState((state, _props) => {
-      return { focusOnMssfix: false, persistedMssfix: state.editedMssfix };
-    });
+    this.setState({ focusOnMssfix: false });
+
+    if (this._mssfixIsValid()) {
+      this.props.setOpenVpnMssfix(this.state.editedMssfix);
+      this.setState((state, _props) => ({ persistedMssfix: state.editedMssfix }));
+    }
   };
 
   _mssfixIsValid(): boolean {
