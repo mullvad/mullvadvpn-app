@@ -31,12 +31,13 @@ Line wrap the file at 100 chars.                                              Th
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 
 #### Linux
-- Add support for DNS configuration using systemd-resolved and resolvconf.
+- Add support for DNS configuration using systemd-resolved and NetworkManager.
 
 ### Fixed
 #### Windows
 - Use different method for identifying network interfaces during installation.
 - Properly restore DNS settings on network interfaces. Fixes issue #352.
+
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added
