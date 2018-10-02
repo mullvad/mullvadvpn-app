@@ -23,7 +23,13 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Windows
+- Monitor and enforce IPv6 DNS settings on network interfaces (previously IPv4-only).
 
+### Fixed
+#### Windows
+- Properly restore DNS settings on network interfaces. Fixes issue #352.
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added
