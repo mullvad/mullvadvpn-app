@@ -27,16 +27,18 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Monitor and enforce IPv6 DNS settings on network interfaces (previously IPv4-only).
 
+#### Linux
+- Add support for DNS configuration using systemd-resolved and NetworkManager.
+
+
 ### Changed
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
-
-#### Linux
-- Add support for DNS configuration using systemd-resolved and resolvconf.
 
 ### Fixed
 #### Windows
 - Use different method for identifying network interfaces during installation.
 - Properly restore DNS settings on network interfaces. Fixes issue #352.
+
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added
