@@ -457,6 +457,7 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
           <Img
             style={styles.account_dropdown__remove}
             hoverStyle={styles.account_dropdown__remove_hover}
+            tintColor={'currentColor'}
             source="icon-close-sml"
             height={16}
             width={16}
