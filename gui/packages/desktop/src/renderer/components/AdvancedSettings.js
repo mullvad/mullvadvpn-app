@@ -11,6 +11,9 @@ import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
+const MIN_MSSFIX_VALUE = 1000;
+const MAX_MSSFIX_VALUE = 1500;
+
 type Props = {
   enableIpv6: boolean,
   protocol: string,
@@ -32,6 +35,13 @@ export class AdvancedSettings extends Component<Props> {
       protocol = 'Automatic';
     } else {
       portSelector = this._createPortSelector();
+    }
+
+    let mssfixStyle;
+    if (this.props.mssfix < MIN_MSSFIX_VALUE || this.props.mssfix > MAX_MSSFIX_VALUE) {
+      mssfixStyle = styles.advanced_settings__mssfix_invalid_value;
+    } else {
+      mssfixStyle = styles.advanced_settings__mssfix_valid_value;
     }
 
     return (
@@ -75,6 +85,7 @@ export class AdvancedSettings extends Component<Props> {
                     maxLength={5}
                     placeholder={'None'}
                     value={this.props.mssfix}
+                    style={mssfixStyle}
                     onChangeText={this._onMssfixChange}
                     onBlur={this._persistMssfix}
                   />
