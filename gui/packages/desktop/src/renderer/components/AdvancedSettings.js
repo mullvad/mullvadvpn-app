@@ -22,11 +22,16 @@ type Props = {
   setEnableIpv6: (boolean) => void,
   setOpenVpnMssfix: (?number) => void,
   updateOpenVpnMssfix: (?number) => void,
+  reloadOpenVpnMssfix: () => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
 };
 
 export class AdvancedSettings extends Component<Props> {
+  componentWillUnmount() {
+    this.props.reloadOpenVpnMssfix();
+  }
+
   render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
@@ -129,7 +134,9 @@ export class AdvancedSettings extends Component<Props> {
   };
 
   _persistMssfix = () => {
-    this.props.setOpenVpnMssfix(this.props.mssfix);
+    if (this.props.mssfix >= MIN_MSSFIX_VALUE && this.props.mssfix <= MAX_MSSFIX_VALUE) {
+      this.props.setOpenVpnMssfix(this.props.mssfix);
+    }
   };
 }
 

@@ -368,6 +368,14 @@ export default class AppRenderer {
     actions.settings.updateOpenVpnMssfix(mssfix);
   }
 
+  async reloadOpenVpnMssfix() {
+    try {
+      this._setSettings(await this._settingsProxy.fetch());
+    } catch (error) {
+      log.error(`Cannot fetch settings to get OpenVPN mssfix value: ${error.message}`);
+    }
+  }
+
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
     await this._daemonRpc.setAutoConnect(autoConnect);

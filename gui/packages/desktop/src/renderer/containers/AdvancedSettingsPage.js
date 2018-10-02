@@ -82,6 +82,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         log.error('Failed to update mssfix value', e.message);
       }
     },
+    reloadOpenVpnMssfix: () => {
+      props.app.reloadOpenVpnMssfix();
+    },
     updateOpenVpnMssfix,
   };
 };
