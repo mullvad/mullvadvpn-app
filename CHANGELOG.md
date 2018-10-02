@@ -32,7 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Added
 #### Linux
-- Add support for DNS configuration using systemd-resolved and resolvconf.
+- Add support for DNS configuration using systemd-resolved and NetworkManager.
+
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added
