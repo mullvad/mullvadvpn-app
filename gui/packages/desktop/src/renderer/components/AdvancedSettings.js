@@ -16,6 +16,9 @@ import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
+const MIN_MSSFIX_VALUE = 1000;
+const MAX_MSSFIX_VALUE = 1500;
+
 type Props = {
   enableIpv6: boolean,
   protocol: string,
@@ -64,6 +67,13 @@ export class AdvancedSettings extends Component<Props, State> {
       portSelector = this._createPortSelector();
     }
 
+    let mssfixStyle;
+    if (this._mssfixIsValid()) {
+      mssfixStyle = styles.advanced_settings__mssfix_valid_value;
+    } else {
+      mssfixStyle = styles.advanced_settings__mssfix_invalid_value;
+    }
+
     return (
       <Layout>
         <Container>
@@ -109,6 +119,7 @@ export class AdvancedSettings extends Component<Props, State> {
                     maxLength={5}
                     placeholder={'None'}
                     value={this.state.editedMssfix}
+                    style={mssfixStyle}
                     onChangeText={this._onMssfixChange}
                     onFocus={this._onMssfixFocus}
                     onBlur={this._onMssfixBlur}
@@ -162,6 +173,12 @@ export class AdvancedSettings extends Component<Props, State> {
       return { focusOnMssfix: false, persistedMssfix: state.editedMssfix };
     });
   };
+
+  _mssfixIsValid(): boolean {
+    const mssfix = this.state.editedMssfix;
+
+    return mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE;
+  }
 }
 
 type SelectorProps<T> = {
