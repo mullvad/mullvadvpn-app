@@ -72,6 +72,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         log.error('Failed to update enable IPv6', e.message);
       }
     },
+
+    setOpenVpnMssfix: async (mssfix) => {
+      try {
+        await props.app.setOpenVpnMssfix(mssfix);
+      } catch (e) {
+        log.error('Failed to update mssfix value', e.message);
+      }
+    },
   };
 };
 
