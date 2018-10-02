@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Allow configuration of OpenVPN mssfix option with GUI (under Advanced Settings).
 
 
 ## [2018.4-beta1] - 2018-10-01
