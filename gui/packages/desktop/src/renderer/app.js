@@ -61,9 +61,15 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
-  _accountDataCache = new AccountDataCache((accountToken) => {
-    return this._daemonRpc.getAccountData(accountToken);
-  });
+  _accountDataCache = new AccountDataCache(
+    (accountToken) => {
+      return this._daemonRpc.getAccountData(accountToken);
+    },
+    (accountData) => {
+      const expiry = accountData ? accountData.expiry : null;
+      this._reduxActions.account.updateAccountExpiry(expiry);
+    },
+  );
   _relayListCache = new RelayListCache(
     () => {
       return this._daemonRpc.getRelayLocations();
@@ -150,14 +156,11 @@ export default class AppRenderer {
     try {
       const verification = await this.verifyAccount(accountToken);
 
-      await this._daemonRpc.setAccount(accountToken);
-
-      if (verification.status === 'verified') {
-        actions.account.updateAccountExpiry(verification.accountData.expiry);
-      } else if (verification.status === 'deferred') {
+      if (verification.status === 'deferred') {
         log.debug(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
+      await this._daemonRpc.setAccount(accountToken);
       actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
@@ -182,11 +185,11 @@ export default class AppRenderer {
   }
 
   async verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
+    this._accountDataCache.invalidate();
+
     try {
-      return {
-        status: 'verified',
-        accountData: await this._daemonRpc.getAccountData(accountToken),
-      };
+      await this._accountDataCache.fetch(accountToken);
+      return { status: 'verified' };
     } catch (error) {
       if (error instanceof InvalidAccountError) {
         throw error;
@@ -284,14 +287,12 @@ export default class AppRenderer {
   }
 
   async updateAccountExpiry() {
-    const actions = this._reduxActions;
     const settings = await this._settingsProxy.fetch();
     const accountDataCache = this._accountDataCache;
 
     if (settings && settings.accountToken) {
       try {
-        const accountData = await accountDataCache.fetch(settings.accountToken);
-        actions.account.updateAccountExpiry(accountData.expiry);
+        await accountDataCache.fetch(settings.accountToken);
       } catch (error) {
         log.error(`Failed to update account expiry: ${error.message}`);
       }
@@ -651,24 +652,23 @@ export default class AppRenderer {
   }
 }
 
-type AccountVerification =
-  | { status: 'verified', accountData: AccountData }
-  | { status: 'deferred', error: Error };
+type AccountVerification = { status: 'verified' } | { status: 'deferred', error: Error };
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 class AccountDataCache {
   _currentAccount: ?AccountToken;
   _executingPromise: ?Promise<AccountData>;
-  _value: ?AccountData;
   _expiresAt: ?Date;
   _fetch: (AccountToken) => Promise<AccountData>;
+  _update: (?AccountData) => void;
 
-  constructor(fetch: (AccountToken) => Promise<AccountData>) {
+  constructor(fetch: (AccountToken) => Promise<AccountData>, update: (?AccountData) => void) {
     this._fetch = fetch;
+    this._update = update;
   }
 
-  async fetch(accountToken: AccountToken): Promise<AccountData> {
+  async fetch(accountToken: AccountToken): Promise<void> {
     // invalidate cache if account token has changed
     if (accountToken !== this._currentAccount) {
       this.invalidate();
@@ -678,13 +678,12 @@ class AccountDataCache {
     // return the same promise if still fetching from remote
     const executingPromise = this._executingPromise;
     if (executingPromise) {
-      return executingPromise;
+      return executingPromise.then((_accountData) => Promise.resolve());
     }
 
     // return the received value if not expired yet
-    const currentValue = this._value;
-    if (currentValue && !this._isExpired()) {
-      return currentValue;
+    if (!this._isExpired()) {
+      return Promise.resolve();
     }
 
     try {
@@ -697,7 +696,7 @@ class AccountDataCache {
       // discard the result of "orphaned" promise.
       if (this._executingPromise === nextPromise) {
         this._setValue(accountData);
-        return accountData;
+        return Promise.resolve();
       } else {
         throw new Error('Cancelled');
       }
@@ -711,12 +710,12 @@ class AccountDataCache {
   invalidate() {
     this._executingPromise = null;
     this._expiresAt = null;
-    this._value = null;
+    this._update(null);
   }
 
   _setValue(value: AccountData) {
     this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
-    this._value = value;
+    this._update(value);
   }
 
   _isExpired() {
