@@ -47,7 +47,7 @@ pub struct WinDns {
 
 impl WinDns {
     pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
-        unsafe { WinDns_Initialize(Some(error_sink), ptr::null_mut()).into_result()? };
+        unsafe { WinDns_Initialize(Some(log_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
             cache_dir
@@ -74,21 +74,40 @@ impl WinDns {
                 .collect::<Vec<String>>()
                 .join(", ")
         );
-        let widestring_ips = servers
-            .iter()
-            .map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
-            .map(|ip| WideCString::new(ip).unwrap())
-            .collect::<Vec<_>>();
 
-        let mut ip_ptrs = widestring_ips
+        let ipv4 = servers
+            .iter()
+            .filter(|ip| ip.is_ipv4())
+            .cloned()
+            .collect::<Vec<_>>();
+        let ipv6 = servers
+            .iter()
+            .map(|ip| match ip {
+                IpAddr::V4(ip) => IpAddr::V6(ip.to_ipv6_compatible()),
+                any => any.clone(),
+            })
+            .collect::<Vec<_>>();
+        let ipv4_addresses = ip_to_string(ipv4.iter());
+        let ipv6_addresses = ip_to_string(ipv6.iter());
+
+        let mut ipv4_address_ptrs = ipv4_addresses
+            .iter()
+            .map(|ip_cstr| ip_cstr.as_ptr())
+            .collect::<Vec<_>>();
+        let mut ipv6_address_ptrs = ipv6_addresses
             .iter()
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
+        debug!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
+        debug!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
+
         unsafe {
             WinDns_Set(
-                ip_ptrs.as_mut_ptr(),
-                widestring_ips.len() as u32,
+                ipv4_address_ptrs.as_mut_ptr(),
+                ipv4_address_ptrs.len() as u32,
+                ipv6_address_ptrs.as_mut_ptr(),
+                ipv6_address_ptrs.len() as u32,
                 Some(write_system_state_backup_cb),
                 &self.backup_writer as *const _ as *const c_void,
             )
@@ -130,9 +149,16 @@ impl WinDns {
     }
 }
 
+fn ip_to_string<'a>(ips: impl Iterator<Item = &'a IpAddr>) -> Vec<WideCString> {
+    ips.map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
+        .map(|ip| WideCString::new(ip).unwrap())
+        .collect::<Vec<_>>()
+}
+
 // typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details,
 // uint32_t numDetails, void *context);
-extern "system" fn error_sink(
+extern "system" fn log_sink(
+    log_level: u8,
     msg: *const c_char,
     detail_ptr: *const *const c_char,
     n_details: u32,
@@ -159,7 +185,11 @@ extern "system" fn error_sink(
                 appendix
             );
 
-            error!("{}", message);
+            match log_level {
+                0x01 => error!("{}", message),
+                0x02 => info!("{}", message),
+                _ => error!("unknwon log level - {}", message),
+            }
         }
     }
 }
@@ -222,6 +252,7 @@ type DNSConfigSink =
 // This callback can be called from multiple threads concurrently, thus if there ever is a real
 // context object passed around, it should probably implement Sync.
 type ErrorSink = extern "system" fn(
+    log_level: u8,
     msg: *const c_char,
     details: *const *const c_char,
     num_details: u32,
@@ -246,8 +277,10 @@ extern "system" {
     // Configure which DNS servers should be used and start enforcing these settings.
     #[link_name(WinDns_Set)]
     pub fn WinDns_Set(
-        ips: *mut *const u16,
-        n_ips: u32,
+        v4_ips: *mut *const u16,
+        v4_n_ips: u32,
+        v6_ips: *mut *const u16,
+        v6_n_ips: u32,
         callback: Option<DNSConfigSink>,
         backup_writer: *const c_void,
     ) -> SettingResult;
