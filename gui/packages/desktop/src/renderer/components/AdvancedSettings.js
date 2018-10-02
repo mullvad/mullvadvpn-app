@@ -17,6 +17,8 @@ type Props = {
   mssfix: ?number,
   port: string | number,
   setEnableIpv6: (boolean) => void,
+  setOpenVpnMssfix: (?number) => void,
+  updateOpenVpnMssfix: (?number) => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
 };
@@ -73,6 +75,8 @@ export class AdvancedSettings extends Component<Props> {
                     maxLength={5}
                     placeholder={'None'}
                     value={this.props.mssfix}
+                    onChangeText={this._onMssfixChange}
+                    onBlur={this._persistMssfix}
                   />
                 </Cell.Container>
                 <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
@@ -102,6 +106,20 @@ export class AdvancedSettings extends Component<Props> {
       />
     );
   }
+
+  _onMssfixChange = (mssfixString: string) => {
+    const mssfix = mssfixString.replace(/[^0-9]/g, '');
+
+    if (mssfix === '') {
+      this.props.updateOpenVpnMssfix(null);
+    } else {
+      this.props.updateOpenVpnMssfix(Number(mssfix));
+    }
+  };
+
+  _persistMssfix = () => {
+    this.props.setOpenVpnMssfix(this.props.mssfix);
+  };
 }
 
 type SelectorProps<T> = {

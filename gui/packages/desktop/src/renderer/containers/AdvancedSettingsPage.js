@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { goBack } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import { AdvancedSettings } from '../components/AdvancedSettings';
+import settingsActions from '../redux/settings/actions';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
@@ -38,6 +39,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
+  const { updateOpenVpnMssfix } = bindActionCreators(settingsActions, dispatch);
   return {
     onClose: () => {
       history.goBack();
@@ -72,6 +74,15 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         log.error('Failed to update enable IPv6', e.message);
       }
     },
+
+    setOpenVpnMssfix: async (mssfix) => {
+      try {
+        await props.app.setOpenVpnMssfix(mssfix);
+      } catch (e) {
+        log.error('Failed to update mssfix value', e.message);
+      }
+    },
+    updateOpenVpnMssfix,
   };
 };
 
