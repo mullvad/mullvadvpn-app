@@ -611,62 +611,90 @@ export default class AppRenderer {
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred', error: Error };
+type ExecutingPromise = {
+  promise: Promise<void>,
+  resolve: () => void,
+  reject: (reason: any) => void,
+};
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 class AccountDataCache {
   _currentAccount: ?AccountToken;
-  _executingPromise: ?Promise<AccountData>;
   _expiresAt: ?Date;
   _fetch: (AccountToken) => Promise<AccountData>;
   _update: (?AccountData) => void;
+  _fetcher: DelayedPromiseRetries;
+  _executingPromise: ?ExecutingPromise = null;
 
   constructor(fetch: (AccountToken) => Promise<AccountData>, update: (?AccountData) => void) {
     this._fetch = fetch;
     this._update = update;
+    this._fetcher = new DelayedPromiseRetries(
+      async () => {
+        await this._performFetch();
+      },
+      this._retryDelay,
+      'Account data',
+    );
   }
 
-  async fetch(accountToken: AccountToken): Promise<void> {
+  fetch(accountToken: AccountToken): Promise<void> {
     // invalidate cache if account token has changed
     if (accountToken !== this._currentAccount) {
       this.invalidate();
       this._currentAccount = accountToken;
     }
 
-    // return the same promise if still fetching from remote
-    const executingPromise = this._executingPromise;
-    if (executingPromise) {
-      return executingPromise.then((_accountData) => Promise.resolve());
+    if (this._executingPromise) {
+      return this._executingPromise.promise;
     }
 
-    // return the received value if not expired yet
-    if (!this._isExpired()) {
-      return Promise.resolve();
+    if (this._isExpired()) {
+      this._fetcher.start();
+      return this._setUpExecutingPromise();
     }
 
+    return Promise.resolve();
+  }
+
+  async _performFetch() {
     try {
-      const nextPromise = this._fetch(accountToken);
-      this._executingPromise = nextPromise;
+      if (this._currentAccount) {
+        const accountToken = this._currentAccount;
+        const accountData = await this._fetch(accountToken);
 
-      const accountData = await nextPromise;
-
-      // it's possible that invalidate() was called before this promise was resolved.
-      // discard the result of "orphaned" promise.
-      if (this._executingPromise === nextPromise) {
-        this._setValue(accountData);
-        return Promise.resolve();
-      } else {
-        throw new Error('Cancelled');
+        // it's possible that the fetch completes after the account token changes
+        if (this._currentAccount === accountToken) {
+          this._resolvePromise();
+          this._setValue(accountData);
+          return;
+        }
       }
+
+      this._rejectPromise(new Error('Cancelled'));
     } catch (error) {
+      this._rejectPromise(error);
       throw error;
-    } finally {
-      this._executingPromise = null;
+    }
+  }
+
+  _retryDelay(attempt: number): ?number {
+    if (attempt === 0) {
+      return 0;
+    } else {
+      return Math.min(2048, 1 << (attempt + 2)) * 1000;
     }
   }
 
   invalidate() {
+    if (this._executingPromise) {
+      this._executingPromise.reject();
+    }
+
+    this._fetcher.stop();
     this._executingPromise = null;
+    this._currentAccount = null;
     this._expiresAt = null;
     this._update(null);
   }
@@ -678,6 +706,34 @@ class AccountDataCache {
 
   _isExpired() {
     return !this._expiresAt || this._expiresAt < new Date();
+  }
+
+  _setUpExecutingPromise() {
+    let resolvePromise = () => {};
+    let rejectPromise = (_) => {};
+
+    const promise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+      rejectPromise = reject;
+    });
+
+    this._executingPromise = { promise, resolve: resolvePromise, reject: rejectPromise };
+
+    return promise;
+  }
+
+  _resolvePromise() {
+    if (this._executingPromise) {
+      this._executingPromise.resolve();
+      this._executingPromise = null;
+    }
+  }
+
+  _rejectPromise(reason: any) {
+    if (this._executingPromise) {
+      this._executingPromise.reject(reason);
+      this._executingPromise = null;
+    }
   }
 }
 
