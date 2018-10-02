@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Allow configuration of OpenVPN mssfix option with GUI (under Advanced Settings).
+
 #### Windows
 - Monitor and enforce IPv6 DNS settings on network interfaces (previously IPv4-only).
 
