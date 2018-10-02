@@ -23,14 +23,6 @@ type Props = {
 };
 
 export default class Account extends Component<Props> {
-  _copyTimer: ?TimeoutID;
-
-  componentWillUnmount() {
-    if (this._copyTimer) {
-      clearTimeout(this._copyTimer);
-    }
-  }
-
   render() {
     return (
       <Layout>

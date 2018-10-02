@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
+import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import NavigationBar, { BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
@@ -10,7 +11,7 @@ import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
-type AdvancedSettingsProps = {
+type Props = {
   enableIpv6: boolean,
   protocol: string,
   port: string | number,
@@ -19,7 +20,7 @@ type AdvancedSettingsProps = {
   onClose: () => void,
 };
 
-export class AdvancedSettings extends Component<AdvancedSettingsProps> {
+export class AdvancedSettings extends Component<Props> {
   render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
@@ -43,19 +44,11 @@ export class AdvancedSettings extends Component<AdvancedSettingsProps> {
                 <HeaderTitle>Advanced</HeaderTitle>
               </SettingsHeader>
               <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
-                <View style={styles.advanced_settings__ipv6}>
-                  <View style={styles.advanced_settings__cell_label_container}>
-                    <Text style={styles.advanced_settings__cell_label}>Enable IPv6</Text>
-                  </View>
-                  <View style={styles.advanced_settings__ipv6_accessory}>
-                    <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
-                  </View>
-                </View>
-                <View style={styles.advanced_settings__cell_footer}>
-                  <Text style={styles.advanced_settings__cell_footer_label}>
-                    {'Enable IPv6 communication through the tunnel.'}
-                  </Text>
-                </View>
+                <Cell.Container>
+                  <Cell.Label>Enable IPv6</Cell.Label>
+                  <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                </Cell.Container>
+                <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
 
                 <View style={styles.advanced_settings__content}>
                   <Selector

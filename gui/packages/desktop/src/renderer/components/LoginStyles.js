@@ -104,14 +104,16 @@ export default {
     paddingLeft: 12,
     marginLeft: 0,
   }),
-  account_dropdown__remove_cell_hover: Styles.createViewStyle({
-    color: colors.blue60,
-  }),
   account_dropdown__remove_hover: Styles.createViewStyle({
     color: colors.blue,
   }),
   account_dropdown__label_hover: Styles.createViewStyle({
     color: colors.blue,
+  }),
+  account_dropdown__label_container: Styles.createViewStyle({
+    marginLeft: 12,
+    marginTop: 11,
+    marginBottom: 11,
   }),
 
   login_footer__prompt: Styles.createTextStyle({
@@ -157,19 +159,10 @@ export default {
     flex: 1,
   }),
   account_dropdown__label: Styles.createTextStyle({
-    flex: 1,
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
     color: colors.blue80,
     borderWidth: 0,
     textAlign: 'left',
     marginLeft: 0,
-    paddingTop: 10,
-    paddingRight: 0,
-    paddingLeft: 12,
-    paddingBottom: 12,
     cursor: 'default',
   }),
 };
