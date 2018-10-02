@@ -137,3 +137,4 @@ rpm:
       - libappindicator
       - libnotify
       - libnsl
+      - dbus-libs
