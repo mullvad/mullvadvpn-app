@@ -43,7 +43,7 @@ export class AdvancedSettings extends Component<Props> {
               <SettingsHeader>
                 <HeaderTitle>Advanced</HeaderTitle>
               </SettingsHeader>
-              <CustomScrollbars style={styles.advanced_settings__scrollview} autoHide={true}>
+              <CustomScrollbars style={styles.advanced_settings__scrollview}>
                 <Cell.Container>
                   <Cell.Label>Enable IPv6</Cell.Label>
                   <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
