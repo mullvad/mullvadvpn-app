@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+#### Windows
+- Use different interface property for network interface identification in installer.
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added
