@@ -17,8 +17,8 @@ error_chain! {
         NoSystemdResolved {
             description("Systemd resolved not detected")
         }
-        InvalidInterface {
-            description("Invalid interface to configure DNS settings")
+        InvalidInterfaceName {
+            description("Invalid network interface name")
         }
         DbusRpcError {
             description("Failed to perform RPC call on DBus")
@@ -115,7 +115,7 @@ impl SystemdResolved {
 
     fn fetch_link(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
         let interface_index =
-            iface_index(interface_name).chain_err(|| ErrorKind::InvalidInterface)?;
+            iface_index(interface_name).chain_err(|| ErrorKind::InvalidInterfaceName)?;
 
         let mut reply = self
             .as_manager_object()
@@ -134,13 +134,11 @@ impl SystemdResolved {
         link_object_path: &'b dbus::Path<'static>,
         servers: Vec<IpAddr>,
     ) -> Result<()> {
-        let link_object_path = dbus::Path::from_slice(link_object_path.as_bytes())
-            .expect("Validation succeeded only once");
 
         let server_addresses = build_addresses_argument(servers);
 
         let mut reply = self
-            .as_link_object(link_object_path)
+            .as_link_object(link_object_path.clone())
             .method_call_with_args(&LINK_INTERFACE, &SET_DNS_METHOD, |message| {
                 message.append_items(&[server_addresses]);
             })
