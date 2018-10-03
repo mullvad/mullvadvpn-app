@@ -179,8 +179,6 @@ pub struct Daemon {
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
     current_relay: Option<Relay>,
-    log_dir: Option<PathBuf>,
-    resource_dir: PathBuf,
     version: String,
 }
 
@@ -215,12 +213,15 @@ impl Daemon {
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
 
         let (tx, rx) = mpsc::channel();
-        let tunnel_command_tx =
-            tunnel_state_machine::spawn(cache_dir.clone(), IntoSender::from(tx.clone()))?;
+        let tunnel_command_tx = tunnel_state_machine::spawn(
+            log_dir,
+            resource_dir,
+            cache_dir.clone(),
+            IntoSender::from(tx.clone()),
+        )?;
 
         let target_state = TargetState::Unsecured;
-        let management_interface_result =
-            Self::start_management_interface(tx.clone(), cache_dir.clone())?;
+        let management_interface_result = Self::start_management_interface(tx.clone(), cache_dir)?;
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -243,8 +244,6 @@ impl Daemon {
             tokio_remote,
             relay_selector,
             current_relay: None,
-            log_dir,
-            resource_dir,
             version,
         })
     }
@@ -648,8 +647,6 @@ impl Daemon {
         TunnelParameters {
             endpoint,
             options: self.settings.get_tunnel_options().clone(),
-            log_dir: self.log_dir.clone(),
-            resource_dir: self.resource_dir.clone(),
             username: account_token,
             allow_lan: self.settings.get_allow_lan(),
         }

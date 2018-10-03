@@ -2,7 +2,6 @@ use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_types::net::TunnelEndpoint;
 use talpid_types::tunnel::BlockReason;
 
 use super::{
@@ -16,7 +15,6 @@ use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
-    pub tunnel_endpoint: TunnelEndpoint,
     pub tunnel_parameters: TunnelParameters,
     pub tunnel_close_event: oneshot::Receiver<()>,
     pub close_handle: CloseHandle,
@@ -26,7 +24,6 @@ pub struct ConnectedStateBootstrap {
 pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
-    tunnel_endpoint: TunnelEndpoint,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: oneshot::Receiver<()>,
     close_handle: CloseHandle,
@@ -37,7 +34,6 @@ impl ConnectedState {
         ConnectedState {
             metadata: bootstrap.metadata,
             tunnel_events: bootstrap.tunnel_events,
-            tunnel_endpoint: bootstrap.tunnel_endpoint,
             tunnel_parameters: bootstrap.tunnel_parameters,
             tunnel_close_event: bootstrap.tunnel_close_event,
             close_handle: bootstrap.close_handle,
@@ -46,7 +42,7 @@ impl ConnectedState {
 
     fn set_security_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
         let policy = SecurityPolicy::Connected {
-            relay_endpoint: self.tunnel_endpoint.to_endpoint(),
+            relay_endpoint: self.tunnel_parameters.endpoint.to_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: self.tunnel_parameters.allow_lan,
         };
