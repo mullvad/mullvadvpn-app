@@ -74,8 +74,9 @@ const styles = {
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '800',
-    flex: 0,
+    flex: -1,
     textAlign: 'right',
+    marginLeft: 8,
   }),
 };
 
