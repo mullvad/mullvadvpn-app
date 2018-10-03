@@ -44,7 +44,7 @@ public:
 private:
 
 	static std::set<VirtualNic> ParseVirtualNics(const std::wstring &textBlock);
-	static std::wstring GetNicAlias(const std::wstring &name);
+	static std::wstring GetNicAlias(const std::wstring &node, const std::wstring &name);
 
 	std::set<VirtualNic> m_baseline;
 	std::set<VirtualNic> m_currentState;
