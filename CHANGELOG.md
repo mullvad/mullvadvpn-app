@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 
+### Fixed
+#### Windows
+- Use different method for identifying network interfaces during installation.
 
 ## [2018.4-beta1] - 2018-10-01
 ### Added

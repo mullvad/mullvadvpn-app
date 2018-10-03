@@ -102,6 +102,24 @@ void LogAllAdapters(wmi::Connection &connection)
 	PluginLogWithDetails(L"Adapters known to WMI", details);
 }
 
+std::wstring DoubleBackslashes(const std::wstring &str)
+{
+	auto result(str);
+
+	size_t offset = 0;
+
+	for (size_t index = 0; index < str.size(); ++index)
+	{
+		if (L'\\' == str[index])
+		{
+			result.insert(index + offset, 1, L'\\');
+			++offset;
+		}
+	}
+
+	return result;
+}
+
 } // anonymous namespace
 
 Context::BaselineStatus Context::establishBaseline(const std::wstring &textBlock)
@@ -177,7 +195,7 @@ std::set<Context::VirtualNic> Context::ParseVirtualNics(const std::wstring &text
 
 		nic.node = text.at(line);
 		nic.name = std::wstring(nameDelimiter + 2);
-		nic.alias = GetNicAlias(nic.name);
+		nic.alias = GetNicAlias(nic.node, nic.name);
 
 		nics.emplace(std::move(nic));
 		line += 4;
@@ -187,13 +205,26 @@ std::set<Context::VirtualNic> Context::ParseVirtualNics(const std::wstring &text
 }
 
 //static
-std::wstring Context::GetNicAlias(const std::wstring &name)
+std::wstring Context::GetNicAlias(const std::wstring &node, const std::wstring &name)
 {
 	static wmi::Connection connection(wmi::Connection::Namespace::Cimv2);
 
 	std::wstringstream ss;
 
-	ss << L"SELECT * from Win32_NetworkAdapter WHERE Name = \"" << name << L"\"";
+	//
+	// The name cannot be used when querying WMI, because WMI sometimes normalizes the
+	// names in its dataset, thereby destroying their uniqueness.
+	//
+	// E.g. if a network interface has a name of "TAP-Windows Adapter V9 #2" it will
+	// sometimes be reported by WMI as "TAP-Windows Adapter V9".
+	//
+	// Also, the node string cannot be used as-is. We have to double the backslashes in it
+	// or the string will be rejected by WMI.
+	//
+
+	const auto formattedNode = DoubleBackslashes(node);
+
+	ss << L"SELECT * FROM Win32_NetworkAdapter WHERE PNPDeviceID = \"" << formattedNode << L"\"";
 
 	auto resultset = connection.query(ss.str().c_str());
 
