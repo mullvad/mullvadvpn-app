@@ -28,7 +28,9 @@ type Props = {
 };
 
 type State = {
-  mssfix: ?number,
+  persistedMssfix: ?number,
+  editedMssfix: ?number,
+  focusOnMssfix: boolean,
 };
 
 export class AdvancedSettings extends Component<Props, State> {
@@ -36,8 +38,20 @@ export class AdvancedSettings extends Component<Props, State> {
     super(props);
 
     this.state = {
-      mssfix: props.mssfix,
+      persistedMssfix: props.mssfix,
+      editedMssfix: props.mssfix,
+      focusOnMssfix: false,
     };
+  }
+
+  componentDidUpdate(_oldProps: Props, _oldState: State) {
+    if (this.props.mssfix !== this.state.persistedMssfix) {
+      this.setState((state, props) => ({
+        ...state,
+        persistedMssfix: props.mssfix,
+        editedMssfix: state.focusOnMssfix ? state.editedMssfix : props.mssfix,
+      }));
+    }
   }
 
   render() {
@@ -94,9 +108,10 @@ export class AdvancedSettings extends Component<Props, State> {
                     keyboardType={'numeric'}
                     maxLength={5}
                     placeholder={'None'}
-                    value={this.state.mssfix}
+                    value={this.state.editedMssfix}
                     onChangeText={this._onMssfixChange}
-                    onBlur={this._persistMssfix}
+                    onFocus={this._onMssfixFocus}
+                    onBlur={this._onMssfixBlur}
                   />
                 </Cell.Container>
                 <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
@@ -131,14 +146,21 @@ export class AdvancedSettings extends Component<Props, State> {
     const mssfix = mssfixString.replace(/[^0-9]/g, '');
 
     if (mssfix === '') {
-      this.setState({ mssfix: null });
+      this.setState({ editedMssfix: null });
     } else {
-      this.setState({ mssfix: parseInt(mssfix, 10) });
+      this.setState({ editedMssfix: parseInt(mssfix, 10) });
     }
   };
 
-  _persistMssfix = () => {
-    this.props.setOpenVpnMssfix(this.state.mssfix);
+  _onMssfixFocus = () => {
+    this.setState({ focusOnMssfix: true });
+  };
+
+  _onMssfixBlur = () => {
+    this.props.setOpenVpnMssfix(this.state.editedMssfix);
+    this.setState((state, _props) => {
+      return { focusOnMssfix: false, persistedMssfix: state.editedMssfix };
+    });
   };
 }
 
