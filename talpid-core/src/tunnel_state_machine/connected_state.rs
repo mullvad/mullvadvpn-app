@@ -44,7 +44,7 @@ impl ConnectedState {
         let policy = SecurityPolicy::Connected {
             relay_endpoint: self.tunnel_parameters.endpoint.to_endpoint(),
             tunnel: self.metadata.clone(),
-            allow_lan: self.tunnel_parameters.allow_lan,
+            allow_lan: shared_values.allow_lan,
         };
         shared_values
             .security
@@ -53,7 +53,7 @@ impl ConnectedState {
     }
 
     fn handle_commands(
-        mut self,
+        self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
@@ -61,7 +61,7 @@ impl ConnectedState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                self.tunnel_parameters.allow_lan = allow_lan;
+                shared_values.allow_lan = allow_lan;
 
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
@@ -73,10 +73,7 @@ impl ConnectedState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Block(
-                                    BlockReason::SetSecurityPolicyError,
-                                    allow_lan,
-                                ),
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -104,12 +101,12 @@ impl ConnectedState {
                     AfterDisconnect::Nothing,
                 ),
             )),
-            Ok(TunnelCommand::Block(reason, allow_lan)) => NewState(DisconnectingState::enter(
+            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Block(reason, allow_lan),
+                    AfterDisconnect::Block(reason),
                 ),
             )),
         }
@@ -176,10 +173,7 @@ impl TunnelState for ConnectedState {
                     (
                         connected_state.close_handle,
                         connected_state.tunnel_close_event,
-                        AfterDisconnect::Block(
-                            BlockReason::SetSecurityPolicyError,
-                            connected_state.tunnel_parameters.allow_lan,
-                        ),
+                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                     ),
                 )
             }

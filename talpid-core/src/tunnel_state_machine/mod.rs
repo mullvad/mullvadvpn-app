@@ -43,6 +43,7 @@ error_chain! {
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub fn spawn<P, T>(
+    allow_lan: bool,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: P,
@@ -57,6 +58,7 @@ where
 
     thread::spawn(move || {
         match create_event_loop(
+            allow_lan,
             log_dir,
             resource_dir,
             cache_dir,
@@ -89,6 +91,7 @@ where
 }
 
 fn create_event_loop<T>(
+    allow_lan: bool,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
@@ -99,7 +102,8 @@ where
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
-    let state_machine = TunnelStateMachine::new(log_dir, resource_dir, cache_dir, commands)?;
+    let state_machine =
+        TunnelStateMachine::new(allow_lan, log_dir, resource_dir, cache_dir, commands)?;
 
     let future = state_machine.for_each(move |state_change_event| {
         state_change_listener
@@ -119,7 +123,7 @@ pub enum TunnelCommand {
     /// Close tunnel connection.
     Disconnect,
     /// Disconnect any open tunnel and block all network access
-    Block(BlockReason, bool),
+    Block(BlockReason),
 }
 
 /// Information necessary to open a tunnel.
@@ -131,8 +135,6 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     /// Username to use for setting up the tunnel.
     pub username: String,
-    /// Should LAN access be allowed outside the tunnel.
-    pub allow_lan: bool,
 }
 
 /// Asynchronous handling of the tunnel state machine.
@@ -149,6 +151,7 @@ struct TunnelStateMachine {
 
 impl TunnelStateMachine {
     fn new(
+        allow_lan: bool,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
@@ -158,6 +161,7 @@ impl TunnelStateMachine {
             NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
         let mut shared_values = SharedTunnelStateValues {
             security,
+            allow_lan,
             log_dir,
             resource_dir,
         };
@@ -225,6 +229,8 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     security: NetworkSecurity,
+    /// Should LAN access be allowed outside the tunnel.
+    allow_lan: bool,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.

@@ -24,6 +24,7 @@ impl DisconnectingState {
     fn handle_commands(
         mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::AfterDisconnect::*;
 
@@ -32,26 +33,32 @@ impl DisconnectingState {
 
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match event {
+                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                    shared_values.allow_lan = allow_lan;
+                    Nothing
+                }
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-                Ok(TunnelCommand::Block(reason, allow_lan)) => Block(reason, allow_lan),
+                Ok(TunnelCommand::Block(reason)) => Block(reason),
                 _ => Nothing,
             },
-            AfterDisconnect::Block(reason, allow_lan) => match event {
+            AfterDisconnect::Block(reason) => match event {
+                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                    shared_values.allow_lan = allow_lan;
+                    Block(reason)
+                }
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) => Nothing,
-                Ok(TunnelCommand::Block(new_reason, new_allow_lan)) => {
-                    Block(new_reason, new_allow_lan)
-                }
-                _ => Block(reason, allow_lan),
+                Ok(TunnelCommand::Block(new_reason)) => Block(new_reason),
+                Err(_) => Block(reason),
             },
-            AfterDisconnect::Reconnect(mut tunnel_parameters) => match event {
+            AfterDisconnect::Reconnect(tunnel_parameters) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                    tunnel_parameters.allow_lan = allow_lan;
+                    shared_values.allow_lan = allow_lan;
                     Reconnect(tunnel_parameters)
                 }
                 Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
                 Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
-                Ok(TunnelCommand::Block(reason, allow_lan)) => Block(reason, allow_lan),
+                Ok(TunnelCommand::Block(reason)) => Block(reason),
             },
         };
 
@@ -76,9 +83,7 @@ impl DisconnectingState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
-            AfterDisconnect::Block(reason, allow_lan) => {
-                BlockedState::enter(shared_values, (reason, allow_lan))
-            }
+            AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
             AfterDisconnect::Reconnect(tunnel_parameters) => {
                 ConnectingState::enter(shared_values, tunnel_parameters)
             }
@@ -119,7 +124,7 @@ impl TunnelState for DisconnectingState {
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        self.handle_commands(commands)
+        self.handle_commands(commands, shared_values)
             .or_else(Self::handle_exit_event, shared_values)
     }
 }
@@ -127,7 +132,7 @@ impl TunnelState for DisconnectingState {
 /// Which state should be transitioned to after disconnection is complete.
 pub enum AfterDisconnect {
     Nothing,
-    Block(BlockReason, bool),
+    Block(BlockReason),
     Reconnect(TunnelParameters),
 }
 

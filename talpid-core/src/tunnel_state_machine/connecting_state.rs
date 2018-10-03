@@ -55,11 +55,10 @@ impl ConnectingState {
     fn set_security_policy(
         shared_values: &mut SharedTunnelStateValues,
         endpoint: TunnelEndpoint,
-        allow_lan: bool,
     ) -> Result<()> {
         let policy = SecurityPolicy::Connecting {
             relay_endpoint: endpoint.to_endpoint(),
-            allow_lan,
+            allow_lan: shared_values.allow_lan,
         };
         shared_values
             .security
@@ -172,7 +171,7 @@ impl ConnectingState {
     }
 
     fn handle_commands(
-        mut self,
+        self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
@@ -180,12 +179,8 @@ impl ConnectingState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                self.tunnel_parameters.allow_lan = allow_lan;
-                match Self::set_security_policy(
-                    shared_values,
-                    self.tunnel_parameters.endpoint,
-                    allow_lan,
-                ) {
+                shared_values.allow_lan = allow_lan;
+                match Self::set_security_policy(shared_values, self.tunnel_parameters.endpoint) {
                     Ok(()) => SameState(self),
                     Err(error) => {
                         error!("{}", error.display_chain());
@@ -195,10 +190,7 @@ impl ConnectingState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Block(
-                                    BlockReason::SetSecurityPolicyError,
-                                    allow_lan,
-                                ),
+                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
                             ),
                         ))
                     }
@@ -226,12 +218,12 @@ impl ConnectingState {
                     AfterDisconnect::Nothing,
                 ),
             )),
-            Ok(TunnelCommand::Block(reason, allow_lan)) => NewState(DisconnectingState::enter(
+            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Block(reason, allow_lan),
+                    AfterDisconnect::Block(reason),
                 ),
             )),
         }
@@ -249,10 +241,7 @@ impl ConnectingState {
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Block(
-                        BlockReason::AuthFailed(reason),
-                        self.tunnel_parameters.allow_lan,
-                    ),
+                    AfterDisconnect::Block(BlockReason::AuthFailed(reason)),
                 ),
             )),
             Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
@@ -299,12 +288,9 @@ impl TunnelState for ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         parameters: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        let allow_lan = parameters.allow_lan;
-        if let Err(error) =
-            Self::set_security_policy(shared_values, parameters.endpoint, parameters.allow_lan)
-        {
+        if let Err(error) = Self::set_security_policy(shared_values, parameters.endpoint) {
             error!("{}", error.display_chain());
-            return BlockedState::enter(shared_values, (BlockReason::StartTunnelError, allow_lan));
+            return BlockedState::enter(shared_values, BlockReason::StartTunnelError);
         }
 
         match Self::start_tunnel(
@@ -327,7 +313,7 @@ impl TunnelState for ConnectingState {
                 let chained_error = error.chain_err(|| "Failed to start tunnel");
                 error!("{}", chained_error.display_chain());
 
-                BlockedState::enter(shared_values, (block_reason, allow_lan))
+                BlockedState::enter(shared_values, block_reason)
             }
         }
     }

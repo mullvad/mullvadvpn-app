@@ -14,8 +14,10 @@ use security::SecurityPolicy;
 pub struct BlockedState;
 
 impl BlockedState {
-    fn set_security_policy(shared_values: &mut SharedTunnelStateValues, allow_lan: bool) {
-        let policy = SecurityPolicy::Blocked { allow_lan };
+    fn set_security_policy(shared_values: &mut SharedTunnelStateValues) {
+        let policy = SecurityPolicy::Blocked {
+            allow_lan: shared_values.allow_lan,
+        };
         if let Err(error) = shared_values
             .security
             .apply_policy(policy)
@@ -27,13 +29,13 @@ impl BlockedState {
 }
 
 impl TunnelState for BlockedState {
-    type Bootstrap = (BlockReason, bool);
+    type Bootstrap = BlockReason;
 
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
-        (block_reason, allow_lan): Self::Bootstrap,
+        block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        Self::set_security_policy(shared_values, allow_lan);
+        Self::set_security_policy(shared_values);
         (
             TunnelStateWrapper::from(BlockedState),
             TunnelStateTransition::Blocked(block_reason),
@@ -49,7 +51,8 @@ impl TunnelState for BlockedState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                Self::set_security_policy(shared_values, allow_lan);
+                shared_values.allow_lan = allow_lan;
+                Self::set_security_policy(shared_values);
                 SameState(self)
             }
             Ok(TunnelCommand::Connect(parameters)) => {
@@ -58,8 +61,8 @@ impl TunnelState for BlockedState {
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectedState::enter(shared_values, ()))
             }
-            Ok(TunnelCommand::Block(reason, allow_lan)) => {
-                NewState(BlockedState::enter(shared_values, (reason, allow_lan)))
+            Ok(TunnelCommand::Block(reason)) => {
+                NewState(BlockedState::enter(shared_values, reason))
             }
         }
     }
