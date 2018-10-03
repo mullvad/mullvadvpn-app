@@ -211,9 +211,11 @@ impl Daemon {
 
         let relay_selector =
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
+        let settings = Settings::load().chain_err(|| "Unable to read settings")?;
 
         let (tx, rx) = mpsc::channel();
         let tunnel_command_tx = tunnel_state_machine::spawn(
+            settings.get_allow_lan(),
             log_dir,
             resource_dir,
             cache_dir.clone(),
@@ -237,7 +239,7 @@ impl Daemon {
             management_interface_broadcaster: management_interface_result.0,
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
-            settings: Settings::load().chain_err(|| "Unable to read settings")?,
+            settings,
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -622,7 +624,7 @@ impl Daemon {
         .map(|parameters| TunnelCommand::Connect(parameters))
         .unwrap_or_else(|error| {
             error!("{}", error.display_chain());
-            TunnelCommand::Block(BlockReason::NoMatchingRelay, self.settings.get_allow_lan())
+            TunnelCommand::Block(BlockReason::NoMatchingRelay)
         });
         self.send_tunnel_command(command);
     }
@@ -648,7 +650,6 @@ impl Daemon {
             endpoint,
             options: self.settings.get_tunnel_options().clone(),
             username: account_token,
-            allow_lan: self.settings.get_allow_lan(),
         }
     }
 
