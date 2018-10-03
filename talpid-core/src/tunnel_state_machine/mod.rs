@@ -43,6 +43,8 @@ error_chain! {
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub fn spawn<P, T>(
+    log_dir: Option<PathBuf>,
+    resource_dir: PathBuf,
     cache_dir: P,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
 ) -> Result<mpsc::UnboundedSender<TunnelCommand>>
@@ -53,8 +55,14 @@ where
     let (command_tx, command_rx) = mpsc::unbounded();
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
 
-    thread::spawn(
-        move || match create_event_loop(cache_dir, command_rx, state_change_listener) {
+    thread::spawn(move || {
+        match create_event_loop(
+            log_dir,
+            resource_dir,
+            cache_dir,
+            command_rx,
+            state_change_listener,
+        ) {
             Ok((mut reactor, event_loop)) => {
                 startup_result_tx.send(Ok(())).expect(
                     "Tunnel state machine won't be started because the owner thread crashed",
@@ -71,8 +79,8 @@ where
                     .send(Err(startup_error))
                     .expect("Failed to send startup error");
             }
-        },
-    );
+        }
+    });
 
     startup_result_rx
         .recv()
@@ -80,17 +88,18 @@ where
         .map(|_| command_tx)
 }
 
-fn create_event_loop<P, T>(
-    cache_dir: P,
+fn create_event_loop<T>(
+    log_dir: Option<PathBuf>,
+    resource_dir: PathBuf,
+    cache_dir: impl AsRef<Path>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>)>
 where
-    P: AsRef<Path>,
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
-    let state_machine = TunnelStateMachine::new(&cache_dir, commands)?;
+    let state_machine = TunnelStateMachine::new(log_dir, resource_dir, cache_dir, commands)?;
 
     let future = state_machine.for_each(move |state_change_event| {
         state_change_listener
@@ -120,10 +129,6 @@ pub struct TunnelParameters {
     pub endpoint: TunnelEndpoint,
     /// Tunnel connection options.
     pub options: TunnelOptions,
-    /// Directory to store tunnel log file.
-    pub log_dir: Option<PathBuf>,
-    /// Resource directory path.
-    pub resource_dir: PathBuf,
     /// Username to use for setting up the tunnel.
     pub username: String,
     /// Should LAN access be allowed outside the tunnel.
@@ -143,13 +148,19 @@ struct TunnelStateMachine {
 }
 
 impl TunnelStateMachine {
-    fn new<P: AsRef<Path>>(
-        cache_dir: P,
+    fn new(
+        log_dir: Option<PathBuf>,
+        resource_dir: PathBuf,
+        cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
         let security =
             NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
-        let mut shared_values = SharedTunnelStateValues { security };
+        let mut shared_values = SharedTunnelStateValues {
+            security,
+            log_dir,
+            resource_dir,
+        };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, ());
         Ok(TunnelStateMachine {
@@ -210,9 +221,14 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
     }
 }
 
+
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     security: NetworkSecurity,
+    /// Directory to store tunnel log file.
+    log_dir: Option<PathBuf>,
+    /// Resource directory path.
+    resource_dir: PathBuf,
 }
 
 /// Asynchronous result of an attempt to progress a state.
