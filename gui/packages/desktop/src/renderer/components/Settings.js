@@ -126,7 +126,7 @@ export default class Settings extends Component<Props> {
     if (!this.props.consistentVersion || !this.props.upToDateVersion) {
       const message = !this.props.consistentVersion
         ? 'Inconsistent internal version information, please restart the app.'
-        : 'This is not the latest version, download the update to remain safe.';
+        : 'Update available, download to remain safe.';
 
       icon = (
         <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
