@@ -56,7 +56,7 @@ impl NetworkManager {
             .set(
                 NM_TOP_OBJECT,
                 GLOBAL_DNS_CONF_KEY,
-                create_global_settings(servers),
+                create_global_settings(&servers),
             )
             .map_err(|e| e.into())
     }
@@ -72,7 +72,7 @@ impl NetworkManager {
     }
 }
 
-type GlobalDnsConfig = HashMap<String, Variant<Box<RefArg>>>;
+type GlobalDnsConfig = HashMap<&'static str, Variant<Box<RefArg>>>;
 
 // The NetworkManager GlobalDnsConfiguration schema looks something like this
 // {
@@ -87,7 +87,7 @@ type GlobalDnsConfig = HashMap<String, Variant<Box<RefArg>>>;
 //   }
 //  }
 // }
-fn create_global_settings(server_list: Vec<IpAddr>) -> GlobalDnsConfig {
+fn create_global_settings(server_list: &[IpAddr]) -> GlobalDnsConfig {
     let mut global_settings = HashMap::new();
     let mut domain_settings = HashMap::new();
     let mut specific_domain_config = HashMap::new();
@@ -100,9 +100,9 @@ fn create_global_settings(server_list: Vec<IpAddr>) -> GlobalDnsConfig {
     );
     specific_domain_config.insert("servers".to_owned(), dns_server_list);
     domain_settings.insert("*".to_owned(), as_variant(specific_domain_config));
-    global_settings.insert("domains".to_owned(), as_variant(domain_settings));
-    global_settings.insert("searches".to_owned(), as_variant(vec![] as Vec<String>));
-    global_settings.insert("options".to_owned(), as_variant(vec![] as Vec<String>));
+    global_settings.insert("domains", as_variant(domain_settings));
+    global_settings.insert("searches", as_variant(vec![] as Vec<String>));
+    global_settings.insert("options", as_variant(vec![] as Vec<String>));
 
     global_settings
 }
