@@ -42,6 +42,10 @@ impl TunnelState for DisconnectedState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, commands.poll()) {
+            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+                shared_values.allow_lan = allow_lan;
+                SameState(self)
+            }
             Ok(TunnelCommand::Connect(parameters)) => {
                 NewState(ConnectingState::enter(shared_values, parameters))
             }
