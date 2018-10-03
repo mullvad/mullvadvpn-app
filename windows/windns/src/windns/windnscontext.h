@@ -1,32 +1,34 @@
 #pragma once
 
 #include "windns.h"
-#include "libcommon/wmi/connection.h"
-#include "libcommon/wmi/notification.h"
-#include "configmanager.h"
 #include "clientsinkinfo.h"
-#include "iclientsinkproxy.h"
+#include "ilogsink.h"
+#include "recoverysink.h"
+#include "nameserversource.h"
+#include "dnsagent.h"
 #include <vector>
 #include <string>
 #include <memory>
 
-class WinDnsContext : public IClientSinkProxy
+class WinDnsContext
 {
 public:
 
-	WinDnsContext();
+	WinDnsContext(ILogSink *logSink);
 	~WinDnsContext();
 
-	void set(const std::vector<std::wstring> &servers, const ClientSinkInfo &sinkInfo);
-	void reset();
+	void set(const std::vector<std::wstring> &ipv4NameServers, const std::vector<std::wstring> &ipv6NameServers,
+		const RecoverySinkInfo &recoverySinkInfo);
 
-	void IClientSinkProxy::error(const char *errorMessage, const char **details, uint32_t numDetails) override;
-	void IClientSinkProxy::config(const void *configData, uint32_t dataLength) override;
+	void reset();
 
 private:
 
-	std::shared_ptr<common::wmi::Connection> m_connection;
-	std::shared_ptr<ConfigManager> m_configManager;
-	std::unique_ptr<common::wmi::Notification> m_notification;
-	ClientSinkInfo m_sinkInfo;
+	ILogSink *m_logSink;
+
+	std::unique_ptr<RecoverySink> m_recoverySink;
+	std::unique_ptr<NameServerSource> m_nameServerSource;
+
+	std::unique_ptr<DnsAgent> m_ipv4Agent;
+	std::unique_ptr<DnsAgent> m_ipv6Agent;
 };
