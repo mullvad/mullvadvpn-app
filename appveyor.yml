@@ -52,6 +52,11 @@ install:
   - rustc --print cfg
   - cargo -V
   - git submodule update --init
+  - rmdir /S /Q windows\nsis-plugins\bin
+  - rmdir /S /Q windows\windns\bin
+  - rmdir /S /Q windows\winfw\bin
+  - rmdir /S /Q windows\winroute\bin
+  - rmdir /S /Q .mtime_cache
   - ruby ci/mtime_cache windows/**/*.{cpp,h} --verbose --cache .mtime_cache/cache.json
 
 # This is the "test phase", tweak it as you see fit
