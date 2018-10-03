@@ -165,23 +165,16 @@ export default class Settings extends Component<Props> {
   _renderBottomButtons() {
     return (
       <View>
-        <Cell.CellButton
-          onPress={this.props.onExternalLink.bind(this, 'faq')}
-          testName="settings__external_link">
-          <Cell.Label>FAQs</Cell.Label>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
-
-        <Cell.CellButton
-          onPress={this.props.onExternalLink.bind(this, 'guides')}
-          testName="settings__external_link">
-          <Cell.Label>Guides</Cell.Label>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
-
         <Cell.CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
           <Cell.Label>Report a problem</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
+        </Cell.CellButton>
+
+        <Cell.CellButton
+          onPress={this.props.onExternalLink.bind(this, 'faq')}
+          testName="settings__external_link">
+          <Cell.Label>{'FAQs & Guides'}</Cell.Label>
+          <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
       </View>
     );

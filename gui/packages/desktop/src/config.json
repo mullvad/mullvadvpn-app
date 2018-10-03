@@ -3,7 +3,6 @@
     "createAccount": "https://mullvad.net/account/create/",
     "purchase": "https://mullvad.net/account/login/",
     "faq": "https://mullvad.net/faq/",
-    "guides": "https://mullvad.net/guides/",
     "download": "https://mullvad.net/download/",
     "supportEmail": "mailto:support@mullvad.net"
   },
