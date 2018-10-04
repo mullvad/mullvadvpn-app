@@ -136,12 +136,15 @@ impl WinDns {
             .chain_err(|| "Failed to read backed up DNS state")?
         {
             info!("Restoring DNS state from backup");
-            self.restore_dns_settings(&previous_state)
-                .chain_err(|| "Failed to restore backed up DNS state")?;
-            trace!("Successfully restored DNS state");
+            if let Err(e) = self.restore_dns_settings(&previous_state) {
+                error!("Failed to restore DNS settings - {}", e);
+            } else {
+                trace!("Successfully restored DNS state");
+            };
             self.backup_writer
                 .remove_backup()
                 .chain_err(|| "Failed to remove backed up DNS state after restoring it")?;
+            debug!("DNS recovery file removed!");
         } else {
             trace!("No dns state to restore");
         }
