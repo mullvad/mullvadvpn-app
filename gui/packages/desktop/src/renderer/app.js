@@ -14,7 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import { InvalidAccountError } from './errors';
 import makeRoutes from './routes';
-import ReconnectionBackoff from './lib/reconnection-backoff';
+import DelayedPromiseRetries from './lib/delayed-promise-retries';
 import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
@@ -57,7 +57,10 @@ export default class AppRenderer {
       this._onCloseConnection(error);
     },
   );
-  _reconnectBackoff = new ReconnectionBackoff();
+
+  _connectionRetries = new DelayedPromiseRetries(async () => {
+    await this._daemonRpc.connect({ path: getIpcPath() });
+  }, this._reconnectionBackOff);
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
@@ -139,7 +142,7 @@ export default class AppRenderer {
   }
 
   connect() {
-    this._daemonRpc.connect({ path: getIpcPath() });
+    this._connectionRetries.start();
   }
 
   disconnect() {
@@ -386,9 +389,6 @@ export default class AppRenderer {
   async _onOpenConnection() {
     this._connectedToDaemon = true;
 
-    // reset the reconnect backoff when connection established.
-    this._reconnectBackoff.reset();
-
     try {
       await this._runPrimaryApplicationFlow();
     } catch (error) {
@@ -511,23 +511,18 @@ export default class AppRenderer {
   _onCloseConnection(error: ?Error) {
     const actions = this._reduxActions;
 
+    if (!this._connectedToDaemon) {
+      // connection attempt failed, but reconnection will already be scheduled
+      return;
+    }
+
     this._relayListCache.stopUpdating();
 
     // recover connection on error
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
-      const recover = async () => {
-        try {
-          await this.connect();
-        } catch (error) {
-          log.error(`Failed to reconnect: ${error.message}`);
-        }
-      };
-
-      this._reconnectBackoff.attempt(() => {
-        recover();
-      });
+      this._connectionRetries.start();
 
       // only send to the connecting to daemon view if the daemon was
       // connnected previously
@@ -538,6 +533,10 @@ export default class AppRenderer {
       log.info(`Disconnected from the daemon`);
     }
     this._connectedToDaemon = false;
+  }
+
+  _reconnectionBackOff(attemptNumber: number): ?number {
+    return 500 * Math.min(6, attemptNumber);
   }
 
   _setTunnelState(tunnelState: TunnelStateTransition) {

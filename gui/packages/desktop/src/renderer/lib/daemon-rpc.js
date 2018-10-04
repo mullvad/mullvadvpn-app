@@ -329,7 +329,7 @@ const SettingsSchema = object({
 });
 
 export interface DaemonRpcProtocol {
-  connect({ path: string }): void;
+  connect({ path: string }): Promise<void>;
   disconnect(): void;
   getAccountData(AccountToken): Promise<AccountData>;
   getRelayLocations(): Promise<RelayList>;
@@ -372,8 +372,8 @@ const NETWORK_CALL_TIMEOUT = 10000;
 export class DaemonRpc implements DaemonRpcProtocol {
   _transport = new JsonRpcClient(new SocketTransport());
 
-  connect(connectionParams: { path: string }) {
-    this._transport.connect(connectionParams);
+  async connect(connectionParams: { path: string }) {
+    await this._transport.connect(connectionParams);
   }
 
   disconnect() {
