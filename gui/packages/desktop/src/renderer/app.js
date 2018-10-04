@@ -520,6 +520,8 @@ export default class AppRenderer {
     if (accountToken) {
       log.debug(`Account token is set. Showing the tunnel view.`);
 
+      this._accountDataCache.fetch(accountToken);
+
       actions.account.updateAccountToken(accountToken);
       actions.account.loginSuccessful();
 
