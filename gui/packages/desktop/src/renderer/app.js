@@ -339,12 +339,12 @@ export default class AppRenderer {
     log.info('Got location from daemon');
 
     const locationUpdate = {
-      ip: location.ip,
       country: location.country,
       city: location.city,
       latitude: location.latitude,
       longitude: location.longitude,
       mullvadExitIp: location.mullvad_exit_ip,
+      hostname: location.hostname,
     };
 
     actions.connection.newLocation(locationUpdate);

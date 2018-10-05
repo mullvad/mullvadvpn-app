@@ -38,7 +38,6 @@ pub struct RelayListCity {
 pub struct Relay {
     pub hostname: String,
     pub ipv4_addr_in: Ipv4Addr,
-    pub ipv4_addr_exit: Ipv4Addr,
     pub include_in_country: bool,
     pub weight: u64,
     #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
