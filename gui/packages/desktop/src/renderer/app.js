@@ -333,9 +333,7 @@ export default class AppRenderer {
   }
 
   async _fetchLocation() {
-    this._reduxActions
-      .connection
-      .newLocation(await this._daemonRpc.getLocation());
+    this._reduxActions.connection.newLocation(await this._daemonRpc.getLocation());
   }
 
   async setAllowLan(allowLan: boolean) {

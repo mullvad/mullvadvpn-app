@@ -3,7 +3,7 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { Accordion, ClipboardLabel, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import { Accordion, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
 import BlockingInternetBanner, { BannerTitle, BannerSubtitle } from './BlockingInternetBanner';
