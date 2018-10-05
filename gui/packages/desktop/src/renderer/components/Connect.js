@@ -307,7 +307,7 @@ type TunnelControlProps = {
   selectedRelayName: string,
   city: ?string,
   country: ?string,
-  ip: ?string,
+  hostname: ?string,
   onConnect: () => void,
   onDisconnect: () => void,
   onSelectLocation: () => void,

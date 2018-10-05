@@ -27,12 +27,12 @@ type BlockedAction = {
 type NewLocationAction = {
   type: 'NEW_LOCATION',
   newLocation: {
-    ip: Ip,
     country: string,
     city: ?string,
     latitude: number,
     longitude: number,
     mullvadExitIp: boolean,
+    hostname: ?string,
   },
 };
 
