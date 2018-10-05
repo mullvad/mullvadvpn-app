@@ -25,20 +25,20 @@ export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
-  ip: Ip,
   country: string,
   city: ?string,
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
+  hostname: ?string,
 };
 const LocationSchema = object({
-  ip: string,
   country: string,
   city: maybe(string),
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
+  hostname: maybe(string),
 });
 
 export type BlockReason =
@@ -207,7 +207,6 @@ const RelayListSchema = object({
             object({
               hostname: string,
               ipv4_addr_in: string,
-              ipv4_addr_exit: string,
               include_in_country: boolean,
               weight: number,
             }),
@@ -454,7 +453,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getLocation(): Promise<Location> {
     const response = await this._transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
-      return validate(LocationSchema, response);
+      return camelCaseObjectKeys(validate(LocationSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_location', error);
     }
@@ -463,7 +462,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getState(): Promise<TunnelStateTransition> {
     const response = await this._transport.send('get_state');
     try {
-      return validate(TunnelStateTransitionSchema, response);
+      return camelCaseObjectKeys(validate(TunnelStateTransitionSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }

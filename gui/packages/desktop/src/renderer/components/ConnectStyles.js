@@ -76,11 +76,12 @@ export default {
     lineHeight: 22,
     marginBottom: 4,
   }),
-  status_ipaddress: Styles.createTextStyle({
+  status_hostname: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 16,
     fontWeight: '800',
     color: colors.white,
+    paddingBottom: 2,
   }),
   status_location: Styles.createTextStyle({
     flexDirection: 'column',

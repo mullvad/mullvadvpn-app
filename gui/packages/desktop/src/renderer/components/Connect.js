@@ -3,7 +3,7 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { Accordion, ClipboardLabel, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import { Accordion, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
 import BlockingInternetBanner, { BannerTitle, BannerSubtitle } from './BlockingInternetBanner';
@@ -176,7 +176,7 @@ export default class Connect extends Component<Props> {
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
-            ip={this.props.connection.ip}
+            hostname={this.props.connection.hostname}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
@@ -307,7 +307,7 @@ type TunnelControlProps = {
   selectedRelayName: string,
   city: ?string,
   country: ?string,
-  ip: ?string,
+  hostname: ?string,
   onConnect: () => void,
   onDisconnect: () => void,
   onSelectLocation: () => void,
@@ -318,13 +318,7 @@ export function TunnelControl(props: TunnelControlProps) {
   const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
   const City = () => <Text style={styles.status_location_text}>{props.city}</Text>;
   const Country = () => <Text style={styles.status_location_text}>{props.country}</Text>;
-  const Ip = () => (
-    <ClipboardLabel
-      style={styles.status_ipaddress}
-      value={props.ip || ''}
-      message={'IP copied to clipboard!'}
-    />
-  );
+  const Hostname = () => <Text style={styles.status_hostname}>{props.hostname || ''}</Text>;
 
   const SwitchLocation = () => {
     return (
@@ -378,7 +372,9 @@ export function TunnelControl(props: TunnelControlProps) {
             <Secured displayStyle={SecuredDisplayStyle.securing} />
             <Location>
               <City />
+              <Country />
             </Location>
+            <Hostname />
           </Body>
           <Footer>
             <SwitchLocation />
@@ -395,7 +391,7 @@ export function TunnelControl(props: TunnelControlProps) {
               <City />
               <Country />
             </Location>
-            <Ip />
+            <Hostname />
           </Body>
           <Footer>
             <SwitchLocation />
@@ -425,7 +421,6 @@ export function TunnelControl(props: TunnelControlProps) {
             <Location>
               <Country />
             </Location>
-            <Ip />
           </Body>
           <Footer>
             <SelectedLocation />
@@ -442,7 +437,6 @@ export function TunnelControl(props: TunnelControlProps) {
             <Location>
               <Country />
             </Location>
-            <Ip />
           </Body>
           <Footer>
             <SelectedLocation />

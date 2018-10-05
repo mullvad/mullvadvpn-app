@@ -1,6 +1,6 @@
 // @flow
 
-import type { AfterDisconnect, BlockReason, Ip } from '../../lib/daemon-rpc';
+import type { AfterDisconnect, BlockReason } from '../../lib/daemon-rpc';
 
 type ConnectingAction = {
   type: 'CONNECTING',
@@ -27,12 +27,12 @@ type BlockedAction = {
 type NewLocationAction = {
   type: 'NEW_LOCATION',
   newLocation: {
-    ip: Ip,
     country: string,
     city: ?string,
     latitude: number,
     longitude: number,
     mullvadExitIp: boolean,
+    hostname: ?string,
   },
 };
 
