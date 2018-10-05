@@ -16,10 +16,10 @@ pub struct Location {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GeoIpLocation {
-    pub ip: IpAddr,
     pub country: String,
     pub city: Option<String>,
     pub latitude: f64,
     pub longitude: f64,
     pub mullvad_exit_ip: bool,
+    pub hostname: Option<String>,
 }

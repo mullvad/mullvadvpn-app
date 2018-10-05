@@ -176,7 +176,7 @@ export default class Connect extends Component<Props> {
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
-            ip={this.props.connection.ip}
+            hostname={this.props.connection.hostname}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
@@ -318,13 +318,7 @@ export function TunnelControl(props: TunnelControlProps) {
   const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
   const City = () => <Text style={styles.status_location_text}>{props.city}</Text>;
   const Country = () => <Text style={styles.status_location_text}>{props.country}</Text>;
-  const Ip = () => (
-    <ClipboardLabel
-      style={styles.status_ipaddress}
-      value={props.ip || ''}
-      message={'IP copied to clipboard!'}
-    />
-  );
+  const Hostname = () => <Text style={styles.status_hostname}>{props.hostname || ''}</Text>;
 
   const SwitchLocation = () => {
     return (
@@ -379,6 +373,7 @@ export function TunnelControl(props: TunnelControlProps) {
             <Location>
               <City />
             </Location>
+            <Hostname />
           </Body>
           <Footer>
             <SwitchLocation />
@@ -395,7 +390,7 @@ export function TunnelControl(props: TunnelControlProps) {
               <City />
               <Country />
             </Location>
-            <Ip />
+            <Hostname />
           </Body>
           <Footer>
             <SwitchLocation />
@@ -425,7 +420,6 @@ export function TunnelControl(props: TunnelControlProps) {
             <Location>
               <Country />
             </Location>
-            <Ip />
           </Body>
           <Footer>
             <SelectedLocation />
@@ -442,7 +436,6 @@ export function TunnelControl(props: TunnelControlProps) {
             <Location>
               <Country />
             </Location>
-            <Ip />
           </Body>
           <Footer>
             <SelectedLocation />

@@ -61,7 +61,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
 };
 
-use std::{mem, net::IpAddr, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 
 use talpid_core::{
     mpsc::IntoSender,
@@ -411,13 +411,14 @@ impl Daemon {
     fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
         if let Some(ref relay) = self.current_relay {
             let location = relay.location.as_ref().cloned().unwrap();
+            let hostname = relay.hostname.clone();
             let geo_ip_location = GeoIpLocation {
-                ip: IpAddr::V4(relay.ipv4_addr_exit),
                 country: location.country,
                 city: Some(location.city),
                 latitude: location.latitude,
                 longitude: location.longitude,
                 mullvad_exit_ip: true,
+                hostname: Some(hostname),
             };
             Self::oneshot_send(tx, geo_ip_location, "current location");
         } else {

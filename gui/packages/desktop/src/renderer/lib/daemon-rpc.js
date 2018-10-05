@@ -33,12 +33,12 @@ export type Location = {
   mullvad_exit_ip: boolean,
 };
 const LocationSchema = object({
-  ip: string,
   country: string,
   city: maybe(string),
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
+  hostname: maybe(string),
 });
 
 export type BlockReason =
@@ -207,7 +207,6 @@ const RelayListSchema = object({
             object({
               hostname: string,
               ipv4_addr_in: string,
-              ipv4_addr_exit: string,
               include_in_country: boolean,
               weight: number,
             }),
