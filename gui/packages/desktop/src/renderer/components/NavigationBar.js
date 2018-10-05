@@ -104,6 +104,8 @@ export class NavigationContainer extends Component {
   }
 }
 
+/* $FlowFixMe: React.forwardRef is not supported yet by Flow.
+   See: https://github.com/facebook/flow/issues/6103 */
 export const NavigationScrollbars = React.forwardRef(function NavigationScrollbars(props, ref) {
   return (
     <NavigationScrollContext.Consumer>
