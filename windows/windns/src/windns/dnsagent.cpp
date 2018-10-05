@@ -2,8 +2,10 @@
 #include "dnsagent.h"
 #include "registrypaths.h"
 #include "netsh.h"
+#include "confineoperation.h"
 #include <libcommon/trace/xtrace.h>
 #include <libcommon/error.h>
+#include <libcommon/string.h>
 #include <process.h>
 #include <algorithm>
 
@@ -214,15 +216,23 @@ void DnsAgent::processServerSourceEvent()
 		return interfaceData.interfaceGuid;
 	});
 
-	const auto updatedSnaps = createSnaps(interfaces);
 	const auto enforcedServers = m_nameServerSource->getNameServers(m_protocol);
 
-	for (const auto snap : updatedSnaps)
+	for (const auto &iface : interfaces)
 	{
-		if (snap.needsOverriding(enforcedServers))
+		const auto literalOperation = std::wstring(L"Verifying settings on interface ").append(iface);
+
+		XTRACE(literalOperation);
+
+		ConfineOperation(common::string::ToAnsi(literalOperation).c_str(), m_logSink, [&]()
 		{
-			setNameServers(snap.interfaceGuid(), enforcedServers);
-		}
+			InterfaceSnap snap(m_protocol, iface);
+
+			if (snap.needsOverriding(enforcedServers))
+			{
+				setNameServers(iface, enforcedServers);
+			}
+		});
 	}
 }
 
@@ -293,36 +303,32 @@ DnsAgent::ProcessingResult DnsAgent::processInterfaceEvent(const HANDLE *interfa
 			continue;
 		}
 
-		auto &interface = m_trackedInterfaces[i];
+		auto &iface = m_trackedInterfaces[i];
 
-		XTRACE(L"Processing event for interface ", interface.interfaceGuid);
+		const auto literalOperation = std::wstring(L"Processing event for interface ").append(iface.interfaceGuid);
 
-		try
+		XTRACE(literalOperation);
+
+		ConfineOperation(common::string::ToAnsi(literalOperation).c_str(), m_logSink, [&]()
 		{
-			InterfaceSnap updatedSnap(m_protocol, interface.interfaceGuid);
+			InterfaceSnap updatedSnap(m_protocol, iface.interfaceGuid);
 
-			if (updatedSnap.needsOverriding(enforcedNameServers))
+			if ((iface.preservedSettings.internalInterface() && updatedSnap.internalInterface())
+				|| updatedSnap.nameServers() == enforcedNameServers)
 			{
-				result = ProcessingResult::TrackingUpdated;
-
-				interface.preservedSettings = std::move(updatedSnap);
-				setNameServers(interface.interfaceGuid, enforcedNameServers);
+				return;
 			}
-		}
-		catch (std::exception &err)
-		{
-			const char *what = err.what();
 
-			m_logSink->error("Could not fetch updated interface settings. Probably because the interface was removed.", &what, 1);
+			const auto shouldOverride = updatedSnap.needsOverriding(enforcedNameServers);
 
-			continue;
-		}
-		catch (...)
-		{
-			m_logSink->error("Could not fetch updated interface settings. Probably because the interface was removed.");
+			result = ProcessingResult::TrackingUpdated;
+			iface.preservedSettings = std::move(updatedSnap);
 
-			continue;
-		}
+			if (shouldOverride)
+			{
+				setNameServers(iface.interfaceGuid, enforcedNameServers);
+			}
+		});
 	}
 
 	return result;
@@ -343,20 +349,6 @@ std::vector<std::wstring> DnsAgent::discoverInterfaces()
 	});
 
 	return interfaces;
-}
-
-std::vector<InterfaceSnap> DnsAgent::createSnaps(const std::vector<std::wstring> &interfaces)
-{
-	std::vector<InterfaceSnap> snaps;
-
-	snaps.reserve(interfaces.size());
-
-	for (const auto &interface : interfaces)
-	{
-		snaps.emplace_back(m_protocol, interface);
-	}
-
-	return snaps;
 }
 
 void DnsAgent::setNameServers(const std::wstring &interfaceGuid, const std::vector<std::wstring> &enforcedServers)
@@ -391,33 +383,36 @@ void DnsAgent::setNameServers(const std::wstring &interfaceGuid, const std::vect
 
 void DnsAgent::startTrackingInterfaces(const std::vector<std::wstring> &interfaces)
 {
-	const auto snaps = createSnaps(interfaces);
-
-	//
-	// Override configured name servers on all interfaces, as necessary.
-	//
-
 	const auto enforcedServers = m_nameServerSource->getNameServers(m_protocol);
 
-	for (const auto &snap : snaps)
+	for (const auto &iface : interfaces)
 	{
-		if (snap.needsOverriding(enforcedServers))
+		const auto literalOperation = std::wstring(L"Start tracking interface ").append(iface);
+
+		XTRACE(literalOperation);
+
+		ConfineOperation(common::string::ToAnsi(literalOperation).c_str(), m_logSink, [&]()
 		{
-			setNameServers(snap.interfaceGuid(), enforcedServers);
-		}
-	}
+			InterfaceSnap snap(m_protocol, iface);
 
-	//
-	// Create a tracking record for each interface.
-	//
+			const auto shouldOverride = snap.needsOverriding(enforcedServers);
 
-	for (const auto &snap : snaps)
-	{
-		const auto interfaceGuid = snap.interfaceGuid();
+			//
+			// Create a tracking record.
+			//
 
-		XTRACE(L"Creating tracking entry for interface ", interfaceGuid);
+			m_trackedInterfaces.emplace_back(iface, std::move(snap),
+				std::make_unique<InterfaceMonitor>(m_protocol, iface));
 
-		m_trackedInterfaces.emplace_back(interfaceGuid, snap, std::make_unique<InterfaceMonitor>(m_protocol, interfaceGuid));
+			//
+			// Override configured name servers, as necessary.
+			//
+
+			if (shouldOverride)
+			{
+				setNameServers(iface, enforcedServers);
+			}
+		});
 	}
 }
 

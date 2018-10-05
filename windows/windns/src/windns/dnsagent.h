@@ -73,7 +73,6 @@ private:
 	ProcessingResult processInterfaceEvent(const HANDLE *interfaceEvents, size_t startIndex);
 
 	std::vector<std::wstring> discoverInterfaces();
-	std::vector<InterfaceSnap> createSnaps(const std::vector<std::wstring> &interfaces);
 
 	void setNameServers(const std::wstring &interfaceGuid, const std::vector<std::wstring> &enforcedServers);
 
