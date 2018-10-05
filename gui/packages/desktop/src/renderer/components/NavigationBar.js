@@ -261,8 +261,11 @@ class PrivateNavigationBar extends Component<NavigationBarProps, NavigationBarSt
   _titleViewRef = React.createRef();
 
   static getDerivedStateFromProps(props, state) {
-    const showsBarSeparator = PrivateNavigationBar._shouldShowBarSeparator(props.scrollTop);
-    const showsBarTitle = PrivateNavigationBar._shouldShowNavigationTitle(props.scrollTop);
+    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
+    const showsBarSeparator = props.scrollTop > 11;
+
+    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
+    const showsBarTitle = props.scrollTop > 30;
 
     return {
       ...state,
@@ -305,16 +308,6 @@ class PrivateNavigationBar extends Component<NavigationBarProps, NavigationBarSt
         })}
       </View>
     );
-  }
-
-  static _shouldShowBarSeparator(scrollTop: number): boolean {
-    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
-    return scrollTop > 11;
-  }
-
-  static _shouldShowNavigationTitle(scrollTop: number): boolean {
-    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
-    return scrollTop > 30;
   }
 
   _onLayout = async (containerLayout) => {
