@@ -92,6 +92,24 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    const prevProps = this.props;
+    const prevState = this.state;
+
+    return (
+      prevProps.children !== nextProps.children ||
+      prevProps.autoHide !== nextProps.autoHide ||
+      prevProps.trackPadding.x !== nextProps.trackPadding.x ||
+      prevProps.trackPadding.y !== nextProps.trackPadding.y ||
+      prevState.canScroll !== nextState.canScroll ||
+      prevState.showScrollIndicators !== nextState.showScrollIndicators ||
+      prevState.showTrack !== nextState.showTrack ||
+      prevState.isTrackHovered !== nextState.isTrackHovered ||
+      prevState.isDragging !== nextState.isDragging ||
+      prevState.isWide !== nextState.isWide
+    );
+  }
+
   componentWillUnmount() {
     this._stopAutoHide();
 
