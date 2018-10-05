@@ -1,21 +1,20 @@
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
 
 use error_chain::ChainedError;
-use futures::sink::Wait;
 use futures::sync::{mpsc, oneshot};
-use futures::{Async, Future, Sink, Stream};
+use futures::{Async, Future, Stream};
 
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 use talpid_types::tunnel::BlockReason;
 
 use super::{
-    AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
-    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    tunnel_event_channel, AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap,
+    DisconnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    TunnelEventReceiver, TunnelEventSender, TunnelParameters, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use logging;
 use security::SecurityPolicy;
@@ -45,7 +44,7 @@ error_chain! {
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
-    tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    tunnel_events: TunnelEventReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: oneshot::Receiver<()>,
     close_handle: CloseHandle,
@@ -71,9 +70,8 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
     ) -> Result<Self> {
-        let (event_tx, event_rx) = mpsc::unbounded();
-        let monitor =
-            Self::spawn_tunnel_monitor(&parameters, log_dir, resource_dir, event_tx.wait())?;
+        let (event_tx, event_rx) = tunnel_event_channel();
+        let monitor = Self::spawn_tunnel_monitor(&parameters, log_dir, resource_dir, event_tx)?;
         let close_handle = monitor.close_handle();
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
@@ -89,16 +87,10 @@ impl ConnectingState {
         parameters: &TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
-        events: Wait<mpsc::UnboundedSender<TunnelEvent>>,
+        events: TunnelEventSender,
     ) -> Result<TunnelMonitor> {
-        let event_tx = Mutex::new(events);
         let on_tunnel_event = move |event| {
-            let send_result = event_tx
-                .lock()
-                .expect("A thread panicked while sending a tunnel event")
-                .send(event);
-
-            if send_result.is_err() {
+            if events.send(event).is_err() {
                 warn!("Tunnel state machine stopped before tunnel event was received");
             }
         };

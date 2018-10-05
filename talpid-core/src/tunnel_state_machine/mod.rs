@@ -8,7 +8,9 @@ mod disconnected_state;
 mod disconnecting_state;
 
 use std::path::{Path, PathBuf};
-use std::sync::mpsc as sync_mpsc;
+use std::result::Result as StdResult;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{mpsc as sync_mpsc, Arc};
 use std::thread;
 
 use error_chain::ChainedError;
@@ -26,6 +28,7 @@ use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
 use super::mpsc::IntoSender;
 use super::security::NetworkSecurity;
+use tunnel::TunnelEvent;
 
 error_chain! {
     errors {
@@ -127,7 +130,7 @@ pub enum TunnelCommand {
 }
 
 /// Information necessary to open a tunnel.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct TunnelParameters {
     /// Tunnel enpoint to connect to.
     pub endpoint: TunnelEndpoint,
@@ -342,4 +345,68 @@ state_wrapper! {
         Disconnecting(DisconnectingState),
         Blocked(BlockedState),
     }
+}
+
+/// An unbounded sender of tunnel events that can be notified when the receiver is shutting down.
+struct TunnelEventSender {
+    shutting_down: Arc<AtomicBool>,
+    sender: mpsc::UnboundedSender<TunnelEvent>,
+}
+
+impl TunnelEventSender {
+    /// Send a tunnel event to the receiver.
+    ///
+    /// If the receiver is closed, it might be due to an error or due to a graceful shutdown. In
+    /// the latter, any send errors are ignored.
+    pub fn send(&self, event: TunnelEvent) -> StdResult<(), mpsc::SendError<TunnelEvent>> {
+        self.sender.unbounded_send(event).or_else(|error| {
+            if self.shutting_down.load(Ordering::Acquire) {
+                Ok(())
+            } else {
+                Err(error)
+            }
+        })
+    }
+}
+
+/// An unbounded receiver of tunnel events that can be shutdown so the sender can ignore any send
+/// errors.
+pub(crate) struct TunnelEventReceiver {
+    shutting_down: Arc<AtomicBool>,
+    receiver: mpsc::UnboundedReceiver<TunnelEvent>,
+}
+
+impl TunnelEventReceiver {
+    /// Let the sender know that the receiver is gracefully shutting down.
+    pub fn shutdown(&self) {
+        self.shutting_down.store(true, Ordering::Release);
+    }
+}
+
+impl Stream for TunnelEventReceiver {
+    type Item = TunnelEvent;
+    type Error = ();
+
+    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
+        self.receiver.poll()
+    }
+}
+
+/// Create a tunnel event channel that can ignore send errors if the receiver end specifies it is
+/// gracefully shutting down.
+fn tunnel_event_channel() -> (TunnelEventSender, TunnelEventReceiver) {
+    let (tx, rx) = mpsc::unbounded();
+    let shutting_down = Arc::new(AtomicBool::new(false));
+
+    let sender = TunnelEventSender {
+        shutting_down: shutting_down.clone(),
+        sender: tx,
+    };
+
+    let receiver = TunnelEventReceiver {
+        shutting_down,
+        receiver: rx,
+    };
+
+    (sender, receiver)
 }
