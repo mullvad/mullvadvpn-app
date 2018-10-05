@@ -139,6 +139,14 @@ type NavigationBarTitleProps = {
 };
 
 class NavigationBarTitle extends Component<NavigationBarTitleProps> {
+  shouldComponentUpdate(nextProps: NavigationBarTitleProps) {
+    return (
+      this.props.visible !== nextProps.visible ||
+      this.props.titleAdjustment !== nextProps.titleAdjustment ||
+      this.props.children !== nextProps.children
+    );
+  }
+
   render() {
     const titleAdjustment = this.props.titleAdjustment;
     const titleAdjustmentStyle = Styles.createViewStyle(
@@ -178,7 +186,7 @@ class NavigationBarAnimatedTitle extends Component<NavigationBarAnimatedTitlePro
     });
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: NavigationBarAnimatedTitleProps) {
     return this.props.visible !== nextProps.visible || this.props.children !== nextProps.children;
   }
 
