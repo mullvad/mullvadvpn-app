@@ -34,15 +34,32 @@ void RecoveryLogic::RestoreInterfaces(const RecoveryFormatter::Unpacked &data,
 				return;
 			}
 
-			XTRACE("Resetting name server configuration for interface ", snap.interfaceGuid());
+			XTRACE(L"Resetting name server configuration for interface ", snap.interfaceGuid());
+
+			uint32_t interfaceIndex = 0;
+
+			try
+			{
+				interfaceIndex = NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid());
+			}
+			catch (...)
+			{
+				//
+				// The interface cannot be linked to a virtual or physical adapter.
+				// It's either floating or has been removed.
+				//
+
+				XTRACE(L"Ignoring floating/invalid interface ", snap.interfaceGuid());
+				return;
+			}
 
 			if (snap.nameServers().empty())
 			{
-				NetSh::Instance().SetIpv4DhcpDns(NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid()), timeout);
+				NetSh::Instance().SetIpv4DhcpDns(interfaceIndex, timeout);
 			}
 			else
 			{
-				NetSh::Instance().SetIpv4StaticDns(NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid()), snap.nameServers(), timeout);
+				NetSh::Instance().SetIpv4StaticDns(interfaceIndex, snap.nameServers(), timeout);
 			}
 		});
 
@@ -65,15 +82,32 @@ void RecoveryLogic::RestoreInterfaces(const RecoveryFormatter::Unpacked &data,
 				return;
 			}
 
-			XTRACE("Resetting name server configuration for interface ", snap.interfaceGuid());
+			XTRACE(L"Resetting name server configuration for interface ", snap.interfaceGuid());
+
+			uint32_t interfaceIndex = 0;
+
+			try
+			{
+				interfaceIndex = NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid());
+			}
+			catch (...)
+			{
+				//
+				// The interface cannot be linked to a virtual or physical adapter.
+				// It's either floating or has been removed.
+				//
+
+				XTRACE(L"Ignoring floating/invalid interface ", snap.interfaceGuid());
+				return;
+			}
 
 			if (snap.nameServers().empty())
 			{
-				NetSh::Instance().SetIpv6DhcpDns(NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid()), timeout);
+				NetSh::Instance().SetIpv6DhcpDns(interfaceIndex, timeout);
 			}
 			else
 			{
-				NetSh::Instance().SetIpv6StaticDns(NetSh::ConvertInterfaceGuidToIndex(snap.interfaceGuid()), snap.nameServers(), timeout);
+				NetSh::Instance().SetIpv6StaticDns(interfaceIndex, snap.nameServers(), timeout);
 			}
 		});
 

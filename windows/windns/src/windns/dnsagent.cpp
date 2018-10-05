@@ -363,13 +363,29 @@ void DnsAgent::setNameServers(const std::wstring &interfaceGuid, const std::vect
 {
 	XTRACE(L"Overriding name servers for interface ", interfaceGuid);
 
+	uint32_t interfaceIndex = 0;
+
+	try
+	{
+		interfaceIndex = NetSh::ConvertInterfaceGuidToIndex(interfaceGuid);
+	}
+	catch (...)
+	{
+		//
+		// The interface cannot be linked to a virtual or physical adapter.
+		//
+
+		XTRACE(L"Ignoring floating interface ", interfaceGuid);
+		return;
+	}
+
 	if (Protocol::IPv4 == m_protocol)
 	{
-		NetSh::Instance().SetIpv4StaticDns(NetSh::ConvertInterfaceGuidToIndex(interfaceGuid), enforcedServers);
+		NetSh::Instance().SetIpv4StaticDns(interfaceIndex, enforcedServers);
 	}
 	else
 	{
-		NetSh::Instance().SetIpv6StaticDns(NetSh::ConvertInterfaceGuidToIndex(interfaceGuid), enforcedServers);
+		NetSh::Instance().SetIpv6StaticDns(interfaceIndex, enforcedServers);
 	}
 }
 
