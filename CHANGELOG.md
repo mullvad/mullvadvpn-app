@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
+- Instead of showing the public IP of the device in the UI, we show the hostname of the VPN server
+  the app is connected to. Or nothing if not connected anywhere.
 
 ### Fixed
 #### Windows
