@@ -1,5 +1,3 @@
-use std::net::IpAddr;
-
 pub type CountryCode = String;
 pub type CityCode = String;
 pub type Hostname = String;
@@ -21,5 +19,6 @@ pub struct GeoIpLocation {
     pub latitude: f64,
     pub longitude: f64,
     pub mullvad_exit_ip: bool,
+    #[serde(default)]
     pub hostname: Option<String>,
 }
