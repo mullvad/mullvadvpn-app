@@ -372,6 +372,7 @@ export function TunnelControl(props: TunnelControlProps) {
             <Secured displayStyle={SecuredDisplayStyle.securing} />
             <Location>
               <City />
+              <Country />
             </Location>
             <Hostname />
           </Body>
