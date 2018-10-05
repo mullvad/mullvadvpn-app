@@ -25,12 +25,12 @@ export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
-  ip: Ip,
   country: string,
   city: ?string,
   latitude: number,
   longitude: number,
   mullvad_exit_ip: boolean,
+  hostname: ?string,
 };
 const LocationSchema = object({
   country: string,
