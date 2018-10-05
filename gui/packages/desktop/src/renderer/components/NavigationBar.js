@@ -132,14 +132,14 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   );
 });
 
-type NavigationBarTitleProps = {
+type PrivateTitleBarItemContainerProps = {
   visible: boolean,
   titleAdjustment: number,
-  children?: React.Node,
+  children?: React.Element<typeof TitleBarItem>,
 };
 
-class NavigationBarTitle extends Component<NavigationBarTitleProps> {
-  shouldComponentUpdate(nextProps: NavigationBarTitleProps) {
+class PrivateTitleBarItemContainer extends Component<PrivateTitleBarItemContainerProps> {
+  shouldComponentUpdate(nextProps: PrivateTitleBarItemContainerProps) {
     return (
       this.props.visible !== nextProps.visible ||
       this.props.titleAdjustment !== nextProps.titleAdjustment ||
@@ -159,25 +159,25 @@ class NavigationBarTitle extends Component<NavigationBarTitleProps> {
 
     return (
       <View style={[styles.navigationBarTitle, titleAdjustmentStyle]}>
-        <NavigationBarAnimatedTitle visible={this.props.visible}>
+        <PrivateBarItemAnimationContainer visible={this.props.visible}>
           {this.props.children}
-        </NavigationBarAnimatedTitle>
+        </PrivateBarItemAnimationContainer>
       </View>
     );
   }
 }
 
-type NavigationBarAnimatedTitleProps = {
+type PrivateBarItemAnimationContainerProps = {
   visible: boolean,
   children?: React.Node,
 };
 
-class NavigationBarAnimatedTitle extends Component<NavigationBarAnimatedTitleProps> {
+class PrivateBarItemAnimationContainer extends Component<PrivateBarItemAnimationContainerProps> {
   _opacityValue: Animated.Value;
   _opacityStyle: Styles.AnimatedViewStyle;
   _animation: ?Animated.Animation;
 
-  constructor(props: NavigationBarAnimatedTitleProps) {
+  constructor(props: PrivateBarItemAnimationContainerProps) {
     super(props);
 
     this._opacityValue = Animated.createValue(props.visible ? 1 : 0);
@@ -186,7 +186,7 @@ class NavigationBarAnimatedTitle extends Component<NavigationBarAnimatedTitlePro
     });
   }
 
-  shouldComponentUpdate(nextProps: NavigationBarAnimatedTitleProps) {
+  shouldComponentUpdate(nextProps: PrivateBarItemAnimationContainerProps) {
     return this.props.visible !== nextProps.visible || this.props.children !== nextProps.children;
   }
 
@@ -222,16 +222,100 @@ class NavigationBarAnimatedTitle extends Component<NavigationBarAnimatedTitlePro
   }
 }
 
-type NavigationBarState = {
-  titleAdjustment: number,
+type NavigationBarProps = {
+  scrollTop: number,
+  children?: React.Node,
 };
 
-export class NavigationBar extends Component<{}, NavigationBarState> {
+type NavigationBarState = {
+  titleAdjustment: number,
+  showsBarSeparator: boolean,
+  showsBarTitle: boolean,
+};
+
+/* $FlowFixMe: React.forwardRef is not supported yet by Flow.
+   See: https://github.com/facebook/flow/issues/6103 */
+export const NavigationBar = React.forwardRef(function NavigationBar(props, ref) {
+  return (
+    <NavigationScrollContext.Consumer>
+      {(context) => (
+        <PrivateNavigationBar ref={ref} scrollTop={context.scrollTop}>
+          {props.children}
+        </PrivateNavigationBar>
+      )}
+    </NavigationScrollContext.Consumer>
+  );
+});
+
+class PrivateNavigationBar extends Component<NavigationBarProps, NavigationBarState> {
+  static defaultProps = {
+    scrollTop: 0,
+  };
+
   state = {
     titleAdjustment: 0,
+    showsBarSeparator: false,
+    showsBarTitle: false,
   };
 
   _titleViewRef = React.createRef();
+
+  static getDerivedStateFromProps(props, state) {
+    const showsBarSeparator = PrivateNavigationBar._shouldShowBarSeparator(props.scrollTop);
+    const showsBarTitle = PrivateNavigationBar._shouldShowNavigationTitle(props.scrollTop);
+
+    return {
+      ...state,
+      showsBarSeparator,
+      showsBarTitle,
+    };
+  }
+
+  shouldComponentUpdate(nextProps: NavigationBarProps, nextState: NavigationBarState) {
+    return (
+      this.props.children !== nextProps.children ||
+      this.state.titleAdjustment !== nextState.titleAdjustment ||
+      this.state.showsBarSeparator !== nextState.showsBarSeparator ||
+      this.state.showsBarTitle !== nextState.showsBarTitle
+    );
+  }
+
+  render() {
+    return (
+      <View
+        style={[
+          styles.navigationBar.default,
+          this.state.showsBarSeparator && styles.navigationBar.separator,
+          styles.navigationBar[process.platform],
+        ]}
+        onLayout={this._onLayout}>
+        {React.Children.map(this.props.children, (element) => {
+          if (element.type === TitleBarItem) {
+            return (
+              <PrivateTitleBarItemContainer
+                titleAdjustment={this.state.titleAdjustment}
+                visible={this.state.showsBarTitle}
+                ref={this._titleViewRef}>
+                {element}
+              </PrivateTitleBarItemContainer>
+            );
+          } else {
+            return <View>{element}</View>;
+          }
+        })}
+      </View>
+    );
+  }
+
+  static _shouldShowBarSeparator(scrollTop: number): boolean {
+    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
+    return scrollTop > 11;
+  }
+
+  static _shouldShowNavigationTitle(scrollTop: number): boolean {
+    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
+    return scrollTop > 30;
+  }
 
   _onLayout = async (containerLayout) => {
     const titleView = this._titleViewRef.current;
@@ -250,47 +334,6 @@ export class NavigationBar extends Component<{}, NavigationBarState> {
       });
     }
   };
-
-  render() {
-    return (
-      <NavigationScrollContext.Consumer>
-        {(context) => (
-          <View
-            style={[
-              styles.navigationBar.default,
-              this._shouldShowBarSeparator(context.scrollTop) && styles.navigationBar.separator,
-              styles.navigationBar[process.platform],
-            ]}
-            onLayout={this._onLayout}>
-            {React.Children.map(this.props.children, (element) => {
-              if (element.type === TitleBarItem) {
-                return (
-                  <NavigationBarTitle
-                    titleAdjustment={this.state.titleAdjustment}
-                    visible={this._shouldShowNavigationTitle(context.scrollTop)}
-                    ref={this._titleViewRef}>
-                    {element}
-                  </NavigationBarTitle>
-                );
-              } else {
-                return <View>{element}</View>;
-              }
-            })}
-          </View>
-        )}
-      </NavigationScrollContext.Consumer>
-    );
-  }
-
-  _shouldShowBarSeparator(scrollTop: number): boolean {
-    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
-    return scrollTop > 11;
-  }
-
-  _shouldShowNavigationTitle(scrollTop: number): boolean {
-    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
-    return scrollTop > 30;
-  }
 }
 
 export class TitleBarItem extends Component {
