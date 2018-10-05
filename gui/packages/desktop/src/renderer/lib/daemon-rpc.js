@@ -453,7 +453,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getLocation(): Promise<Location> {
     const response = await this._transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
-      return validate(LocationSchema, response);
+      return camelCaseObjectKeys(validate(LocationSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_location', error);
     }
@@ -462,7 +462,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getState(): Promise<TunnelStateTransition> {
     const response = await this._transport.send('get_state');
     try {
-      return validate(TunnelStateTransitionSchema, response);
+      return camelCaseObjectKeys(validate(TunnelStateTransitionSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
