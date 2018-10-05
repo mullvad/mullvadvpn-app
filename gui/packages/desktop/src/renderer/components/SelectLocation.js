@@ -5,10 +5,9 @@ import ReactDOM from 'react-dom';
 import { View, Component } from 'reactxp';
 import { Accordion } from '@mullvad/components';
 import { Layout, Container } from './Layout';
-import CustomScrollbars from './CustomScrollbars';
 import {
   NavigationContainer,
-  NavigationScrollableContent,
+  NavigationScrollbars,
   NavigationBar,
   CloseBarItem,
   TitleBarItem,
@@ -95,23 +94,21 @@ export default class SelectLocation extends Component<Props, State> {
                 <TitleBarItem>{'Select location'}</TitleBarItem>
               </NavigationBar>
               <View style={styles.container}>
-                <NavigationScrollableContent>
-                  <CustomScrollbars autoHide={true} ref={this._scrollViewRef}>
-                    <View style={styles.content}>
-                      <SettingsHeader style={styles.subtitle_header}>
-                        <HeaderTitle>Select location</HeaderTitle>
-                        <HeaderSubTitle>
-                          While connected, your real location is masked with a private and secure
-                          location in the selected region
-                        </HeaderSubTitle>
-                      </SettingsHeader>
+                <NavigationScrollbars autoHide={true} ref={this._scrollViewRef}>
+                  <View style={styles.content}>
+                    <SettingsHeader style={styles.subtitle_header}>
+                      <HeaderTitle>Select location</HeaderTitle>
+                      <HeaderSubTitle>
+                        While connected, your real location is masked with a private and secure
+                        location in the selected region
+                      </HeaderSubTitle>
+                    </SettingsHeader>
 
-                      {this.props.relayLocations.map((relayCountry) => {
-                        return this._renderCountry(relayCountry);
-                      })}
-                    </View>
-                  </CustomScrollbars>
-                </NavigationScrollableContent>
+                    {this.props.relayLocations.map((relayCountry) => {
+                      return this._renderCountry(relayCountry);
+                    })}
+                  </View>
+                </NavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>

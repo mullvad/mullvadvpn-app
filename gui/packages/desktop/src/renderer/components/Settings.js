@@ -10,12 +10,11 @@ import { Layout, Container } from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
-  NavigationScrollableContent,
+  NavigationScrollbars,
   CloseBarItem,
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import { colors } from '../../config';
 
@@ -49,21 +48,19 @@ export default class Settings extends Component<Props> {
               </NavigationBar>
 
               <View style={styles.settings__container}>
-                <NavigationScrollableContent>
-                  <CustomScrollbars style={styles.settings__scrollview} autoHide={true}>
-                    <View style={styles.settings__content}>
-                      <SettingsHeader>
-                        <HeaderTitle>Settings</HeaderTitle>
-                      </SettingsHeader>
-                      <View>
-                        {this._renderTopButtons()}
-                        {this._renderMiddleButtons()}
-                        {this._renderBottomButtons()}
-                      </View>
-                      {this._renderQuitButton()}
+                <NavigationScrollbars style={styles.settings__scrollview} autoHide={true}>
+                  <View style={styles.settings__content}>
+                    <SettingsHeader>
+                      <HeaderTitle>Settings</HeaderTitle>
+                    </SettingsHeader>
+                    <View>
+                      {this._renderTopButtons()}
+                      {this._renderMiddleButtons()}
+                      {this._renderBottomButtons()}
                     </View>
-                  </CustomScrollbars>
-                </NavigationScrollableContent>
+                    {this._renderQuitButton()}
+                  </View>
+                </NavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>

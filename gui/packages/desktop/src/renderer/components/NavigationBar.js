@@ -78,7 +78,8 @@ const styles = {
   },
 };
 
-const NavigationContext = React.createContext({
+const NavigationScrollContext = React.createContext({
+  scrollTop: 0,
   onScroll: (_scroll) => {},
 });
 
@@ -95,42 +96,36 @@ export class NavigationContainer extends Component {
 
   render() {
     return (
-      <NavigationContext.Provider value={{ onScroll: this._onScroll }}>
-        {React.Children.map(this.props.children, (element) => {
-          if (element.type === NavigationBar) {
-            return React.cloneElement(element, {
-              ...element.props,
-              scrollTop: this.state.scrollTop,
-            });
-          } else {
-            return element;
-          }
-        })}
-      </NavigationContext.Provider>
+      <NavigationScrollContext.Provider
+        value={{ scrollTop: this.state.scrollTop, onScroll: this._onScroll }}>
+        {this.props.children}
+      </NavigationScrollContext.Provider>
     );
   }
 }
 
-export class NavigationScrollableContent extends Component {
-  render() {
-    return (
-      <NavigationContext.Consumer>
-        {(context) =>
-          React.Children.map(this.props.children, (element) => {
-            if (element.type === CustomScrollbars) {
-              return React.cloneElement(element, {
-                ...element.props,
-                onScroll: context.onScroll,
-              });
-            } else {
-              return element;
-            }
-          })
-        }
-      </NavigationContext.Consumer>
-    );
-  }
-}
+export const NavigationScrollbars = React.forwardRef(function NavigationScrollbars(props, ref) {
+  return (
+    <NavigationScrollContext.Consumer>
+      {(context) => {
+        const { children, ...otherProps } = props;
+        const wrappedOnScroll = (scroll) => {
+          context.onScroll(scroll);
+
+          if (otherProps.onScroll) {
+            otherProps.onScroll(scroll);
+          }
+        };
+
+        return (
+          <CustomScrollbars {...otherProps} ref={ref} onScroll={wrappedOnScroll}>
+            {children}
+          </CustomScrollbars>
+        );
+      }}
+    </NavigationScrollContext.Consumer>
+  );
+});
 
 type NavigationBarTitleProps = {
   visible: boolean,
@@ -214,11 +209,11 @@ class NavigationBarAnimatedTitle extends Component<NavigationBarAnimatedTitlePro
   }
 }
 
-export class NavigationBar extends Component<{ scrollTop: number }> {
-  static defaultProps = {
-    scrollTop: 0,
-  };
+type NavigationBarState = {
+  titleAdjustment: number,
+};
 
+export class NavigationBar extends Component<{}, NavigationBarState> {
   state = {
     titleAdjustment: 0,
   };
@@ -243,41 +238,45 @@ export class NavigationBar extends Component<{ scrollTop: number }> {
     }
   };
 
-  _shouldShowBarSeparator = () => {
-    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
-    return this.props.scrollTop > 11;
-  };
-
-  _shouldShowNavigationTitle = () => {
-    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
-    return this.props.scrollTop > 30;
-  };
-
   render() {
     return (
-      <View
-        style={[
-          styles.navigationBar.default,
-          this._shouldShowBarSeparator() && styles.navigationBar.separator,
-          styles.navigationBar[process.platform],
-        ]}
-        onLayout={this._onLayout}>
-        {React.Children.map(this.props.children, (element) => {
-          if (element.type === TitleBarItem) {
-            return (
-              <NavigationBarTitle
-                titleAdjustment={this.state.titleAdjustment}
-                visible={this._shouldShowNavigationTitle()}
-                ref={this._titleViewRef}>
-                {element}
-              </NavigationBarTitle>
-            );
-          } else {
-            return <View>{element}</View>;
-          }
-        })}
-      </View>
+      <NavigationScrollContext.Consumer>
+        {(context) => (
+          <View
+            style={[
+              styles.navigationBar.default,
+              this._shouldShowBarSeparator(context.scrollTop) && styles.navigationBar.separator,
+              styles.navigationBar[process.platform],
+            ]}
+            onLayout={this._onLayout}>
+            {React.Children.map(this.props.children, (element) => {
+              if (element.type === TitleBarItem) {
+                return (
+                  <NavigationBarTitle
+                    titleAdjustment={this.state.titleAdjustment}
+                    visible={this._shouldShowNavigationTitle(context.scrollTop)}
+                    ref={this._titleViewRef}>
+                    {element}
+                  </NavigationBarTitle>
+                );
+              } else {
+                return <View>{element}</View>;
+              }
+            })}
+          </View>
+        )}
+      </NavigationScrollContext.Consumer>
     );
+  }
+
+  _shouldShowBarSeparator(scrollTop: number): boolean {
+    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
+    return scrollTop > 11;
+  }
+
+  _shouldShowNavigationTitle(scrollTop: number): boolean {
+    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
+    return scrollTop > 30;
   }
 }
 
