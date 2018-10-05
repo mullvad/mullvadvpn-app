@@ -18,12 +18,7 @@ WinDnsContext::WinDnsContext(ILogSink *logSink)
 
 WinDnsContext::~WinDnsContext()
 {
-	auto forwardError = [this](const char *msg, const char **details, uint32_t numDetails)
-	{
-		m_logSink->error(msg, details, numDetails);
-	};
-
-	ConfineOperation("Reset DNS settings", forwardError, [this]()
+	ConfineOperation("Reset DNS settings", m_logSink, [this]()
 	{
 		this->reset();
 	});

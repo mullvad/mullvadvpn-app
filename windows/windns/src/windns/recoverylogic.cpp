@@ -14,16 +14,11 @@ void RecoveryLogic::RestoreInterfaces(const RecoveryFormatter::Unpacked &data,
 		throw std::runtime_error("Invalid logger sink");
 	}
 
-	auto forwardError = [logSink](const char *msg, const char **details, uint32_t numDetails)
-	{
-		logSink->error(msg, details, numDetails);
-	};
-
 	bool success = true;
 
 	for (const auto &snap : data.v4Snaps)
 	{
-		const auto status = ConfineOperation("Reset interface DNS settings", forwardError, [&snap, &timeout]()
+		const auto status = ConfineOperation("Reset interface DNS settings", logSink, [&snap, &timeout]()
 		{
 			if (snap.internalInterface())
 			{
@@ -71,7 +66,7 @@ void RecoveryLogic::RestoreInterfaces(const RecoveryFormatter::Unpacked &data,
 
 	for (const auto &snap : data.v6Snaps)
 	{
-		const auto status = ConfineOperation("Reset interface DNS settings", forwardError, [&snap, &timeout]()
+		const auto status = ConfineOperation("Reset interface DNS settings", logSink, [&snap, &timeout]()
 		{
 			if (snap.internalInterface())
 			{

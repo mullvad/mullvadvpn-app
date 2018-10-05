@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ilogsink.h"
 #include <functional>
 #include <vector>
 #include <string>
@@ -9,6 +10,13 @@ bool ConfineOperation
 (
 	const char *literalOperation,
 	std::function<void(const char *, const char **, uint32_t)> errorCallback,
+	std::function<void()> operation
+);
+
+bool ConfineOperation
+(
+	const char *literalOperation,
+	ILogSink *logSink,
 	std::function<void()> operation
 );
 
