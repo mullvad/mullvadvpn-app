@@ -100,9 +100,6 @@ linux:
     - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   category: Network
-  extraFiles:
-    - from: ../../../target/release/mullvad
-      to: .
   extraResources:
     - from: ../../../target/release/problem-report
       to: .
@@ -121,7 +118,9 @@ deb:
   fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
-       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
+       "../../../target/release/mullvad=/usr/bin/",
+       ]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
 
@@ -129,7 +128,9 @@ rpm:
   fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
-       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf"]
+       "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
+       "../../../target/release/mullvad=/usr/bin/",
+       ]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
