@@ -61,7 +61,7 @@ For Debian/Ubuntu based distributions, you need to install the following. For ot
 you need the equivalent packages:
 ```bash
 # For building the daemon
-sudo apt install gcc
+sudo apt install gcc libdbus-1-dev
 # For running the frontend app
 sudo apt install libappindicator1 gconf2
 ```
@@ -145,6 +145,8 @@ sections.
   choose a specific method:
     * `"static-file"`: change the `/etc/resolv.conf` file directly
     * `"resolvconf"`: use the `resolvconf` program
+    * `"systemd"`: use systemd's `resolved` service through DBus
+    * `"network-manager"`: use `NetworkManager` service through DBus
 
 
 ## Building and running the Electron GUI app
