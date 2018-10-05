@@ -222,17 +222,6 @@ class PrivateBarItemAnimationContainer extends Component<PrivateBarItemAnimation
   }
 }
 
-type NavigationBarProps = {
-  scrollTop: number,
-  children?: React.Node,
-};
-
-type NavigationBarState = {
-  titleAdjustment: number,
-  showsBarSeparator: boolean,
-  showsBarTitle: boolean,
-};
-
 /* $FlowFixMe: React.forwardRef is not supported yet by Flow.
    See: https://github.com/facebook/flow/issues/6103 */
 export const NavigationBar = React.forwardRef(function NavigationBar(props, ref) {
@@ -247,7 +236,18 @@ export const NavigationBar = React.forwardRef(function NavigationBar(props, ref)
   );
 });
 
-class PrivateNavigationBar extends Component<NavigationBarProps, NavigationBarState> {
+type PrivateNavigationBarProps = {
+  scrollTop: number,
+  children?: React.Node,
+};
+
+type PrivateNavigationBarState = {
+  titleAdjustment: number,
+  showsBarSeparator: boolean,
+  showsBarTitle: boolean,
+};
+
+class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateNavigationBarState> {
   static defaultProps = {
     scrollTop: 0,
   };
@@ -274,7 +274,10 @@ class PrivateNavigationBar extends Component<NavigationBarProps, NavigationBarSt
     };
   }
 
-  shouldComponentUpdate(nextProps: NavigationBarProps, nextState: NavigationBarState) {
+  shouldComponentUpdate(
+    nextProps: PrivateNavigationBarProps,
+    nextState: PrivateNavigationBarState,
+  ) {
     return (
       this.props.children !== nextProps.children ||
       this.state.titleAdjustment !== nextState.titleAdjustment ||
