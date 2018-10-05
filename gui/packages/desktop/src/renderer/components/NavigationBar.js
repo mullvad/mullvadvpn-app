@@ -30,19 +30,21 @@ const styles = {
       WebkitAppRegion: 'drag',
     }),
   },
-  navigationBarTitle: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  }),
-  titleBarItem: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 22,
-    color: colors.white60,
-    alignSelf: 'center',
-  }),
+  navigationBarTitle: {
+    container: Styles.createViewStyle({
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+    }),
+    label: Styles.createTextStyle({
+      fontFamily: 'Open Sans',
+      fontSize: 16,
+      fontWeight: '600',
+      lineHeight: 22,
+      color: colors.white60,
+      alignSelf: 'center',
+    }),
+  },
   closeBarItem: {
     default: Styles.createViewStyle({
       cursor: 'default',
@@ -132,14 +134,14 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   );
 });
 
-type PrivateTitleBarItemContainerProps = {
+type PrivateTitleBarItemProps = {
   visible: boolean,
   titleAdjustment: number,
-  children?: React.Element<typeof TitleBarItem>,
+  children?: React.Node,
 };
 
-class PrivateTitleBarItemContainer extends Component<PrivateTitleBarItemContainerProps> {
-  shouldComponentUpdate(nextProps: PrivateTitleBarItemContainerProps) {
+class PrivateTitleBarItem extends Component<PrivateTitleBarItemProps> {
+  shouldComponentUpdate(nextProps: PrivateTitleBarItemProps) {
     return (
       this.props.visible !== nextProps.visible ||
       this.props.titleAdjustment !== nextProps.titleAdjustment ||
@@ -158,9 +160,9 @@ class PrivateTitleBarItemContainer extends Component<PrivateTitleBarItemContaine
     );
 
     return (
-      <View style={[styles.navigationBarTitle, titleAdjustmentStyle]}>
+      <View style={[styles.navigationBarTitle.container, titleAdjustmentStyle]}>
         <PrivateBarItemAnimationContainer visible={this.props.visible}>
-          {this.props.children}
+          <Text style={styles.navigationBarTitle.label}>{this.props.children}</Text>
         </PrivateBarItemAnimationContainer>
       </View>
     );
@@ -247,6 +249,12 @@ type PrivateNavigationBarState = {
   showsBarTitle: boolean,
 };
 
+const PrivateTitleBarItemContext = React.createContext({
+  titleAdjustment: 0,
+  visible: false,
+  titleRef: React.createRef(),
+});
+
 class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateNavigationBarState> {
   static defaultProps = {
     scrollTop: 0,
@@ -295,20 +303,14 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
           styles.navigationBar[process.platform],
         ]}
         onLayout={this._onLayout}>
-        {React.Children.map(this.props.children, (element) => {
-          if (element.type === TitleBarItem) {
-            return (
-              <PrivateTitleBarItemContainer
-                titleAdjustment={this.state.titleAdjustment}
-                visible={this.state.showsBarTitle}
-                ref={this._titleViewRef}>
-                {element}
-              </PrivateTitleBarItemContainer>
-            );
-          } else {
-            return <View>{element}</View>;
-          }
-        })}
+        <PrivateTitleBarItemContext.Provider
+          value={{
+            titleAdjustment: this.state.titleAdjustment,
+            visible: this.state.showsBarTitle,
+            titleRef: this._titleViewRef,
+          }}>
+          {this.props.children}
+        </PrivateTitleBarItemContext.Provider>
       </View>
     );
   }
@@ -332,11 +334,32 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
   };
 }
 
-export class TitleBarItem extends Component {
-  render() {
-    return <Text style={styles.titleBarItem}>{this.props.children}</Text>;
-  }
-}
+/* $FlowFixMe: React.forwardRef is not supported yet by Flow.
+   See: https://github.com/facebook/flow/issues/6103 */
+export const TitleBarItem = React.forwardRef(function TitleBarItem(props, ref) {
+  return (
+    <PrivateTitleBarItemContext.Consumer>
+      {(context) => (
+        <PrivateTitleBarItem
+          titleAdjustment={context.titleAdjustment}
+          visible={context.visible}
+          ref={(value) => {
+            context.titleRef.current = value;
+
+            if (ref) {
+              if (typeof ref === 'function') {
+                ref(value);
+              } else if (typeof ref === 'object') {
+                ref.current = value;
+              }
+            }
+          }}>
+          {props.children}
+        </PrivateTitleBarItem>
+      )}
+    </PrivateTitleBarItemContext.Consumer>
+  );
+});
 
 export class CloseBarItem extends Component {
   props: {
