@@ -333,21 +333,9 @@ export default class AppRenderer {
   }
 
   async _fetchLocation() {
-    const actions = this._reduxActions;
-    const location = await this._daemonRpc.getLocation();
-
-    log.info('Got location from daemon');
-
-    const locationUpdate = {
-      country: location.country,
-      city: location.city,
-      latitude: location.latitude,
-      longitude: location.longitude,
-      mullvadExitIp: location.mullvad_exit_ip,
-      hostname: location.hostname,
-    };
-
-    actions.connection.newLocation(locationUpdate);
+    this._reduxActions
+      .connection
+      .newLocation(await this._daemonRpc.getLocation());
   }
 
   async setAllowLan(allowLan: boolean) {
