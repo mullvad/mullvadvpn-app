@@ -29,11 +29,14 @@ export default class Img extends Component<Props, State> {
     let image;
 
     if (tintColor) {
+      const maskWidth = typeof width === 'number' ? `${width}px` : 'auto';
+      const maskHeight = typeof height === 'number' ? `${height}px` : 'auto';
       image = (
         <div
           style={{
             WebkitMaskImage: `url('${url}')`,
             WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskSize: `${maskWidth} ${maskHeight}`,
             backgroundColor: tintColor,
             lineHeight: 0,
           }}>
