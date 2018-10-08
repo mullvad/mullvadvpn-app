@@ -24,7 +24,6 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--ping-exit", "15"],
     &["--connect-retry", "0", "0"],
     &["--connect-retry-max", "1"],
-    &["--comp-lzo"],
     &["--remote-cert-tls", "server"],
     &["--rcvbuf", "1048576"],
     &["--sndbuf", "1048576"],

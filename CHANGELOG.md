@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Moved CLI binary to `/usr/bin/` as to have the CLI binary in the user's `$PATH` by default.
 
+### Removed
+- `--comp-lzo` argument to OpenVPN. Disables any possibility of establishing a VPN tunnel with
+  compression in.
+
 ### Fixed
 #### Windows
 - Use different method for identifying network interfaces during installation.
