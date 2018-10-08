@@ -12,6 +12,7 @@ export type VersionReduxState = {
 
 const initialState: VersionReduxState = {
   current: '',
+  currentIsSupported: true,
   latest: null,
   latestStable: null,
   upToDate: true,
@@ -28,11 +29,13 @@ export default function(
 ): VersionReduxState {
   switch (action.type) {
     case 'UPDATE_LATEST': {
+      const currentIsSupported = action.latestInfo.currentIsSupported;
       const latest = action.latestInfo.latest.latest;
       const latestStable = action.latestInfo.latest.latestStable;
 
       return {
         ...state,
+        currentIsSupported,
         latest,
         latestStable,
         upToDate: checkIfLatest(state.current, latest, latestStable),
