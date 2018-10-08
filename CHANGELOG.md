@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 - Instead of showing the public IP of the device in the UI, we show the hostname of the VPN server
   the app is connected to. Or nothing if not connected anywhere.
+- Increase timeout parameter to OpenVPN from 15 to 20 seconds. Should make active VPN tunnels drop
+  less frequent when on unstable networks.
 
 #### Linux
 - Moved CLI binary to `/usr/bin/` as to have the CLI binary in the user's `$PATH` by default.
