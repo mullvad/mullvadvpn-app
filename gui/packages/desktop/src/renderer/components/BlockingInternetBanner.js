@@ -7,7 +7,7 @@ import { colors } from '../../config';
 const styles = {
   container: Styles.createViewStyle({
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(25, 38, 56, 0.95)',
     paddingTop: 8,
     paddingLeft: 20,
     paddingRight: 20,
