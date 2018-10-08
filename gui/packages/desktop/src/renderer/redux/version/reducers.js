@@ -4,6 +4,7 @@ import type { ReduxAction } from '../store';
 
 export type VersionReduxState = {
   current: string,
+  currentIsSupported: boolean,
   latest: ?string,
   latestStable: ?string,
   nextUpgrade: ?string,
