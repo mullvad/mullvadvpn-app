@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
   the app is connected to. Or nothing if not connected anywhere.
 - Passing `--connect-timeout 30` to `openvpn` to decrease the time the daemon
   will wait until it tries to reconnect again in the case of a broken TCP connection.
+- Increase timeout parameter to OpenVPN from 15 to 20 seconds. Should make active VPN tunnels drop
+  less frequent when on unstable networks.
 
 #### Linux
 - Moved CLI binary to `/usr/bin/` as to have the CLI binary in the user's `$PATH` by default.
