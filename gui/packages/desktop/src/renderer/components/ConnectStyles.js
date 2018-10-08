@@ -50,7 +50,7 @@ export default {
   switch_location_button: Styles.createViewStyle({
     marginBottom: 16,
   }),
-  blocking_container: Styles.createViewStyle({
+  notification_area: Styles.createViewStyle({
     width: '100%',
     position: 'absolute',
   }),
