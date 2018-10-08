@@ -20,8 +20,8 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--dev", "tun"],
     #[cfg(windows)]
     &["--dev-type", "tun"],
-    &["--ping", "3"],
-    &["--ping-exit", "15"],
+    &["--ping", "4"],
+    &["--ping-exit", "20"],
     &["--connect-timeout", "30"],
     &["--connect-retry", "0", "0"],
     &["--connect-retry-max", "1"],
