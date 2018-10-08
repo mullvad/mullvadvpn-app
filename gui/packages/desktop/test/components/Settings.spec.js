@@ -204,7 +204,7 @@ describe('components/Settings', () => {
       .find({ testName: 'settings__external_link' })
       .forEach((element) => element.simulate('press'));
 
-    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq', 'guides']);
+    expect(collectedExternalLinkTypes).to.include.ordered.members(['faq']);
   });
 });
 

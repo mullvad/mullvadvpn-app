@@ -5,8 +5,13 @@ import ReactDOM from 'react-dom';
 import { View, Component } from 'reactxp';
 import { Accordion } from '@mullvad/components';
 import { Layout, Container } from './Layout';
-import CustomScrollbars from './CustomScrollbars';
-import NavigationBar, { CloseBarItem } from './NavigationBar';
+import {
+  NavigationContainer,
+  NavigationScrollbars,
+  NavigationBar,
+  CloseBarItem,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
@@ -83,29 +88,29 @@ export default class SelectLocation extends Component<Props, State> {
       <Layout>
         <Container>
           <View style={styles.select_location}>
-            <NavigationBar>
-              <CloseBarItem action={this.props.onClose} />
-            </NavigationBar>
-            <View style={styles.container}>
-              <SettingsHeader style={styles.title_header}>
-                <HeaderTitle>Select location</HeaderTitle>
-              </SettingsHeader>
+            <NavigationContainer>
+              <NavigationBar>
+                <CloseBarItem action={this.props.onClose} />
+                <TitleBarItem>{'Select location'}</TitleBarItem>
+              </NavigationBar>
+              <View style={styles.container}>
+                <NavigationScrollbars ref={this._scrollViewRef}>
+                  <View style={styles.content}>
+                    <SettingsHeader style={styles.subtitle_header}>
+                      <HeaderTitle>Select location</HeaderTitle>
+                      <HeaderSubTitle>
+                        While connected, your real location is masked with a private and secure
+                        location in the selected region
+                      </HeaderSubTitle>
+                    </SettingsHeader>
 
-              <CustomScrollbars ref={this._scrollViewRef}>
-                <View style={styles.content}>
-                  <SettingsHeader style={styles.subtitle_header}>
-                    <HeaderSubTitle>
-                      While connected, your real location is masked with a private and secure
-                      location in the selected region
-                    </HeaderSubTitle>
-                  </SettingsHeader>
-
-                  {this.props.relayLocations.map((relayCountry) => {
-                    return this._renderCountry(relayCountry);
-                  })}
-                </View>
-              </CustomScrollbars>
-            </View>
+                    {this.props.relayLocations.map((relayCountry) => {
+                      return this._renderCountry(relayCountry);
+                    })}
+                  </View>
+                </NavigationScrollbars>
+              </View>
+            </NavigationContainer>
           </View>
         </Container>
       </Layout>

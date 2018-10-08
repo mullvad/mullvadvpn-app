@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
-import NavigationBar, { BackBarItem } from './NavigationBar';
+import { NavigationBar, BackBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import styles from './SupportStyles';
 import Img from './Img';
@@ -290,7 +290,7 @@ export default class Support extends Component<SupportProps, SupportState> {
             <Text style={styles.support__sent_message}>Thanks! We will look into this.</Text>
             {this.state.email.trim().length > 0 ? (
               <Text style={styles.support__sent_message}>
-                If needed we will contact you on {'\u00A0'}
+                {'If needed we will contact you on '}
                 <Text style={styles.support__sent_email}>{this.state.email}</Text>
               </Text>
             ) : null}

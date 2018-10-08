@@ -12,6 +12,7 @@ const AUTOHIDE_TIMEOUT = 1000;
 type Props = {
   autoHide: boolean,
   trackPadding: { x: number, y: number },
+  onScroll?: ({ scrollLeft: number, scrollTop: number }) => void,
   children?: React.Node,
 };
 
@@ -89,6 +90,24 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     if (this.props.autoHide) {
       this._startAutoHide();
     }
+  }
+
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    const prevProps = this.props;
+    const prevState = this.state;
+
+    return (
+      prevProps.children !== nextProps.children ||
+      prevProps.autoHide !== nextProps.autoHide ||
+      prevProps.trackPadding.x !== nextProps.trackPadding.x ||
+      prevProps.trackPadding.y !== nextProps.trackPadding.y ||
+      prevState.canScroll !== nextState.canScroll ||
+      prevState.showScrollIndicators !== nextState.showScrollIndicators ||
+      prevState.showTrack !== nextState.showTrack ||
+      prevState.isTrackHovered !== nextState.isTrackHovered ||
+      prevState.isDragging !== nextState.isDragging ||
+      prevState.isWide !== nextState.isWide
+    );
   }
 
   componentWillUnmount() {
@@ -222,6 +241,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     const {
       autoHide: _autoHide,
       trackPadding: _trackPadding,
+      onScroll: _onScroll,
       children,
       ...otherProps
     } = this.props;
@@ -267,6 +287,14 @@ export default class CustomScrollbars extends React.Component<Props, State> {
       if (!this.state.isDragging) {
         this._startAutoShrink();
       }
+    }
+
+    const scrollView = this._scrollableRef.current;
+    if (scrollView && this.props.onScroll) {
+      this.props.onScroll({
+        scrollLeft: scrollView.scrollLeft,
+        scrollTop: scrollView.scrollTop,
+      });
     }
   };
 

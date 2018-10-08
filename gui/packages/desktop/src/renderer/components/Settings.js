@@ -7,9 +7,14 @@ import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import Img from './Img';
 import { Layout, Container } from './Layout';
-import NavigationBar, { CloseBarItem } from './NavigationBar';
+import {
+  NavigationBar,
+  NavigationContainer,
+  NavigationScrollbars,
+  CloseBarItem,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import CustomScrollbars from './CustomScrollbars';
 import styles from './SettingsStyles';
 import { colors } from '../../config';
 
@@ -36,26 +41,28 @@ export default class Settings extends Component<Props> {
       <Layout>
         <Container>
           <View style={styles.settings}>
-            <NavigationBar>
-              <CloseBarItem action={this.props.onClose} />
-            </NavigationBar>
+            <NavigationContainer>
+              <NavigationBar>
+                <CloseBarItem action={this.props.onClose} />
+                <TitleBarItem>Settings</TitleBarItem>
+              </NavigationBar>
 
-            <View style={styles.settings__container}>
-              <SettingsHeader>
-                <HeaderTitle>Settings</HeaderTitle>
-              </SettingsHeader>
-
-              <CustomScrollbars style={styles.settings__scrollview}>
-                <View style={styles.settings__content}>
-                  <View>
-                    {this._renderTopButtons()}
-                    {this._renderMiddleButtons()}
-                    {this._renderBottomButtons()}
+              <View style={styles.settings__container}>
+                <NavigationScrollbars style={styles.settings__scrollview}>
+                  <View style={styles.settings__content}>
+                    <SettingsHeader>
+                      <HeaderTitle>Settings</HeaderTitle>
+                    </SettingsHeader>
+                    <View>
+                      {this._renderTopButtons()}
+                      {this._renderMiddleButtons()}
+                      {this._renderBottomButtons()}
+                    </View>
+                    {this._renderQuitButton()}
                   </View>
-                  {this._renderQuitButton()}
-                </View>
-              </CustomScrollbars>
-            </View>
+                </NavigationScrollbars>
+              </View>
+            </NavigationContainer>
           </View>
         </Container>
       </Layout>
@@ -158,23 +165,16 @@ export default class Settings extends Component<Props> {
   _renderBottomButtons() {
     return (
       <View>
-        <Cell.CellButton
-          onPress={this.props.onExternalLink.bind(this, 'faq')}
-          testName="settings__external_link">
-          <Cell.Label>FAQs</Cell.Label>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
-
-        <Cell.CellButton
-          onPress={this.props.onExternalLink.bind(this, 'guides')}
-          testName="settings__external_link">
-          <Cell.Label>Guides</Cell.Label>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
-
         <Cell.CellButton onPress={this.props.onViewSupport} testName="settings__view_support">
           <Cell.Label>Report a problem</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
+        </Cell.CellButton>
+
+        <Cell.CellButton
+          onPress={this.props.onExternalLink.bind(this, 'faq')}
+          testName="settings__external_link">
+          <Cell.Label>{'FAQs & Guides'}</Cell.Label>
+          <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
       </View>
     );
