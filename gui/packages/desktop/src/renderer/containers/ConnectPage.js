@@ -60,6 +60,7 @@ const mapStateToProps = (state: ReduxState) => {
     accountExpiry: state.account.expiry,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
+    version: state.version,
   };
 };
 
