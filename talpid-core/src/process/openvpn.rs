@@ -22,6 +22,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--dev-type", "tun"],
     &["--ping", "3"],
     &["--ping-exit", "15"],
+    &["--connect-timeout", "30"],
     &["--connect-retry", "0", "0"],
     &["--connect-retry-max", "1"],
     &["--remote-cert-tls", "server"],
