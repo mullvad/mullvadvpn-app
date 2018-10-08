@@ -130,6 +130,8 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
 
 export default class WindowController {
   _window: BrowserWindow;
+  _width: number;
+  _height: number;
   _windowPositioning: WindowPositioning;
   _isWindowReady = false;
 
@@ -139,6 +141,10 @@ export default class WindowController {
 
   constructor(window: BrowserWindow, tray: Tray) {
     this._window = window;
+    let width, height;
+    [width, height] = window.getSize();
+    this._width = width;
+    this._height = height;
 
     if (process.platform === 'linux') {
       this._windowPositioning = new StandaloneWindowPositioning();
@@ -204,7 +210,14 @@ export default class WindowController {
       this._updatePosition();
       this._notifyUpdateWindowShape();
     }
+    if (process.platform === 'linux' && changedMetrics.includes('scaleFactor')) {
+      this._forceResizeWindow();
+    }
   };
+
+  _forceResizeWindow() {
+    this._window.setSize(this._width, this._height);
+  }
 
   _installWindowReadyHandlers() {
     this._window.once('ready-to-show', () => {
