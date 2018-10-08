@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.4-beta2] - 2018-10-08
 ### Added
 - Allow configuration of OpenVPN mssfix option with GUI (under Advanced Settings).
 
@@ -36,14 +39,15 @@ Line wrap the file at 100 chars.                                              Th
 - Auto-hide scrollbars on macOS only, leaving them visible on other platforms.
 - Instead of showing the public IP of the device in the UI, we show the hostname of the VPN server
   the app is connected to. Or nothing if not connected anywhere.
-- Passing `--connect-timeout 30` to `openvpn` to decrease the time the daemon
+- Passing `--connect-timeout 30` to OpenVPN to decrease the time the daemon
   will wait until it tries to reconnect again in the case of a broken TCP connection.
 - Increase timeout parameter to OpenVPN from 15 to 20 seconds. Should make active VPN tunnels drop
   less frequent when on unstable networks.
 - Reduce the transparency of "blocking internet" banner to increase the text readability.
+- Make the quit button visible without needing to scroll down in the settings view.
 
 #### Linux
-- Moved CLI binary to `/usr/bin/` as to have the CLI binary in the user's `$PATH` by default.
+- Move CLI binary to `/usr/bin/` as to have the CLI binary in the user's `PATH` by default.
 
 ### Removed
 - Remove `--comp-lzo` argument to OpenVPN. Disables any possibility of establishing a VPN tunnel
@@ -51,7 +55,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### Windows
-- Use different method for identifying network interfaces during installation.
+- Use different method for identifying network interfaces during installation. Should solve some
+  installation errors.
 - Properly restore DNS settings on network interfaces. Fixes issue #352.
 
 
