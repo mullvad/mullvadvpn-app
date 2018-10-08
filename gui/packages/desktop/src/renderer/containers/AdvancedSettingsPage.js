@@ -14,7 +14,11 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
 
-  return { enableIpv6: state.settings.enableIpv6, ...protocolAndPort };
+  return {
+    enableIpv6: state.settings.enableIpv6,
+    mssfix: state.settings.openVpn.mssfix,
+    ...protocolAndPort,
+  };
 };
 
 const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
@@ -66,6 +70,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         await props.app.setEnableIpv6(enableIpv6);
       } catch (e) {
         log.error('Failed to update enable IPv6', e.message);
+      }
+    },
+
+    setOpenVpnMssfix: async (mssfix) => {
+      try {
+        await props.app.setOpenVpnMssfix(mssfix);
+      } catch (e) {
+        log.error('Failed to update mssfix value', e.message);
       }
     },
   };

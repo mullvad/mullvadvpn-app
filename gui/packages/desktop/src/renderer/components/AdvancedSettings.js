@@ -16,16 +16,47 @@ import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
+const MIN_MSSFIX_VALUE = 1000;
+const MAX_MSSFIX_VALUE = 1500;
+
 type Props = {
   enableIpv6: boolean,
   protocol: string,
+  mssfix: ?number,
   port: string | number,
   setEnableIpv6: (boolean) => void,
+  setOpenVpnMssfix: (?number) => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
 };
 
-export class AdvancedSettings extends Component<Props> {
+type State = {
+  persistedMssfix: ?number,
+  editedMssfix: ?number,
+  focusOnMssfix: boolean,
+};
+
+export class AdvancedSettings extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      persistedMssfix: props.mssfix,
+      editedMssfix: props.mssfix,
+      focusOnMssfix: false,
+    };
+  }
+
+  componentDidUpdate(_oldProps: Props, _oldState: State) {
+    if (this.props.mssfix !== this.state.persistedMssfix) {
+      this.setState((state, props) => ({
+        ...state,
+        persistedMssfix: props.mssfix,
+        editedMssfix: state.focusOnMssfix ? state.editedMssfix : props.mssfix,
+      }));
+    }
+  }
+
   render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
@@ -34,6 +65,13 @@ export class AdvancedSettings extends Component<Props> {
       protocol = 'Automatic';
     } else {
       portSelector = this._createPortSelector();
+    }
+
+    let mssfixStyle;
+    if (this._mssfixIsValid()) {
+      mssfixStyle = styles.advanced_settings__mssfix_valid_value;
+    } else {
+      mssfixStyle = styles.advanced_settings__mssfix_invalid_value;
     }
 
     return (
@@ -73,6 +111,21 @@ export class AdvancedSettings extends Component<Props> {
                     {portSelector}
                   </View>
                 </NavigationScrollbars>
+
+                <Cell.Container>
+                  <Cell.Label>Mssfix</Cell.Label>
+                  <Cell.Input
+                    keyboardType={'numeric'}
+                    maxLength={5}
+                    placeholder={'None'}
+                    value={this.state.editedMssfix}
+                    style={mssfixStyle}
+                    onChangeText={this._onMssfixChange}
+                    onFocus={this._onMssfixFocus}
+                    onBlur={this._onMssfixBlur}
+                  />
+                </Cell.Container>
+                <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
               </View>
             </NavigationContainer>
           </View>
@@ -98,6 +151,35 @@ export class AdvancedSettings extends Component<Props> {
         }}
       />
     );
+  }
+
+  _onMssfixChange = (mssfixString: string) => {
+    const mssfix = mssfixString.replace(/[^0-9]/g, '');
+
+    if (mssfix === '') {
+      this.setState({ editedMssfix: null });
+    } else {
+      this.setState({ editedMssfix: parseInt(mssfix, 10) });
+    }
+  };
+
+  _onMssfixFocus = () => {
+    this.setState({ focusOnMssfix: true });
+  };
+
+  _onMssfixBlur = () => {
+    this.setState({ focusOnMssfix: false });
+
+    if (this._mssfixIsValid()) {
+      this.props.setOpenVpnMssfix(this.state.editedMssfix);
+      this.setState((state, _props) => ({ persistedMssfix: state.editedMssfix }));
+    }
+  };
+
+  _mssfixIsValid(): boolean {
+    const mssfix = this.state.editedMssfix;
+
+    return mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE;
   }
 }
 

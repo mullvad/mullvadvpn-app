@@ -348,6 +348,12 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(enableIpv6);
   }
 
+  async setOpenVpnMssfix(mssfix: ?number) {
+    const actions = this._reduxActions;
+    actions.settings.updateOpenVpnMssfix(mssfix);
+    await this._daemonRpc.setOpenVpnMssfix(mssfix);
+  }
+
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
     await this._daemonRpc.setAutoConnect(autoConnect);
@@ -538,6 +544,7 @@ export default class AppRenderer {
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateAutoConnect(newSettings.autoConnect);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
+    reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
 
     this._setRelaySettings(newSettings.relaySettings);
   }

@@ -336,6 +336,7 @@ export interface DaemonRpcProtocol {
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
   setAllowLan(boolean): Promise<void>;
   setEnableIpv6(boolean): Promise<void>;
+  setOpenVpnMssfix(?number): Promise<void>;
   setAutoConnect(boolean): Promise<void>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
@@ -436,6 +437,10 @@ export class DaemonRpc implements DaemonRpcProtocol {
 
   async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this._transport.send('set_enable_ipv6', [enableIpv6]);
+  }
+
+  async setOpenVpnMssfix(mssfix: ?number): Promise<void> {
+    await this._transport.send('set_openvpn_mssfix', [mssfix]);
   }
 
   async setAutoConnect(autoConnect: boolean): Promise<void> {
