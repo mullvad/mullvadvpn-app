@@ -1,7 +1,7 @@
 extern crate dbus;
 
-use std::collections::HashMap;
 use std::net::IpAddr;
+use std::mem;
 
 use error_chain::ChainedError;
 use libc::{AF_INET, AF_INET6};
@@ -54,7 +54,7 @@ lazy_static! {
 
 pub struct SystemdResolved {
     dbus_connection: dbus::Connection,
-    interface_links: HashMap<String, dbus::Path<'static>>,
+    interface_links: Vec<(String, dbus::Path<'static>)>,
 }
 
 impl SystemdResolved {
@@ -63,7 +63,7 @@ impl SystemdResolved {
             dbus::Connection::get_private(BusType::System).chain_err(|| ErrorKind::DBusError)?;
         let systemd_resolved = SystemdResolved {
             dbus_connection,
-            interface_links: HashMap::new(),
+            interface_links: Vec::new(),
         };
 
         systemd_resolved.ensure_resolved_exists()?;
@@ -94,22 +94,10 @@ impl SystemdResolved {
     }
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let new_entry = if let Some(link_object_path) = self.interface_links.get(interface_name) {
-            self.set_link_dns(&link_object_path, servers)?;
+        let link_object_path = self.fetch_link(interface_name)?;
 
-            None
-        } else {
-            let link_object_path = self.fetch_link(interface_name)?;
-
-            self.set_link_dns(&link_object_path, servers)?;
-
-            Some((interface_name.to_owned(), link_object_path))
-        };
-
-        if let Some((interface_name, link_object_path)) = new_entry {
-            self.interface_links
-                .insert(interface_name, link_object_path);
-        }
+        self.set_link_dns(&link_object_path, servers)?;
+        self.interface_links.push((interface_name.to_string(), link_object_path));
 
         Ok(())
     }
@@ -152,7 +140,7 @@ impl SystemdResolved {
 
     pub fn reset(&mut self) -> Result<()> {
         let mut result = Ok(());
-        let interface_links: Vec<_> = self.interface_links.drain().collect();
+        let interface_links = mem::replace(&mut self.interface_links, Vec::new());
 
         for (interface_name, link_object_path) in interface_links {
             if let Err(error) = self.revert_link(link_object_path, &interface_name) {
