@@ -110,22 +110,22 @@ export class AdvancedSettings extends Component<Props, State> {
 
                     {portSelector}
                   </View>
-                </NavigationScrollbars>
 
-                <Cell.Container>
-                  <Cell.Label>Mssfix</Cell.Label>
-                  <Cell.Input
-                    keyboardType={'numeric'}
-                    maxLength={5}
-                    placeholder={'None'}
-                    value={this.state.editedMssfix}
-                    style={mssfixStyle}
-                    onChangeText={this._onMssfixChange}
-                    onFocus={this._onMssfixFocus}
-                    onBlur={this._onMssfixBlur}
-                  />
-                </Cell.Container>
-                <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
+                  <Cell.Container>
+                    <Cell.Label>Mssfix</Cell.Label>
+                    <Cell.Input
+                      keyboardType={'numeric'}
+                      maxLength={5}
+                      placeholder={'None'}
+                      value={this.state.editedMssfix}
+                      style={mssfixStyle}
+                      onChangeText={this._onMssfixChange}
+                      onFocus={this._onMssfixFocus}
+                      onBlur={this._onMssfixBlur}
+                    />
+                  </Cell.Container>
+                  <Cell.Footer>Change OpenVPN MSS value</Cell.Footer>
+                </NavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>
