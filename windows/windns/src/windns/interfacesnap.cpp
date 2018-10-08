@@ -81,7 +81,7 @@ InterfaceSnap::InterfaceSnap(Protocol protocol, const std::wstring &interfaceGui
 	// DHCP name servers are the servers most recently supplied by DHCP.
 	// An adapter can be configured for DHCP and static name servers at the same time.
 	// Static name servers always have precedence.
-	m_dhcpNameServers = GetNameServers(m_interfaceGuid, m_protocol, NameServerType::Dhcp);
+	//m_dhcpNameServers = GetNameServers(m_interfaceGuid, m_protocol, NameServerType::Dhcp);
 }
 
 InterfaceSnap::InterfaceSnap(common::serialization::Deserializer &deserializer)
@@ -99,7 +99,6 @@ InterfaceSnap::InterfaceSnap(common::serialization::Deserializer &deserializer)
 	d >> m_interfaceGuid;
 	d >> (uint8_t &)m_configuredForDhcp;
 	d >> m_staticNameServers;
-	d >> m_dhcpNameServers;
 }
 
 void InterfaceSnap::serialize(common::serialization::Serializer &serializer) const
@@ -110,7 +109,6 @@ void InterfaceSnap::serialize(common::serialization::Serializer &serializer) con
 	s << m_interfaceGuid;
 	s << (uint8_t &)m_configuredForDhcp;
 	s << m_staticNameServers;
-	s << m_dhcpNameServers;
 }
 
 bool InterfaceSnap::needsOverriding(const std::vector<std::wstring> &enforcedServers) const

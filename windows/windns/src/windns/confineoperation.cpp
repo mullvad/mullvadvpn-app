@@ -50,6 +50,24 @@ bool ConfineOperation
 	}
 }
 
+bool ConfineOperation
+(
+	const char *literalOperation,
+	ILogSink *logSink,
+	std::function<void()> operation
+)
+{
+	auto ForwardError = [logSink](const char *error, const char **details, uint32_t numDetails)
+	{
+		if (nullptr != logSink)
+		{
+			logSink->error(error, details, numDetails);
+		}
+	};
+
+	return ConfineOperation(literalOperation, ForwardError, operation);
+}
+
 std::vector<uint8_t> CreateRawStringArray(const std::vector<std::string> &arr)
 {
 	//

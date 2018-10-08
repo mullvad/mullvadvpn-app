@@ -29,7 +29,5 @@ private:
 	std::wstring m_interfaceGuid;
 
 	bool m_configuredForDhcp;
-
 	std::vector<std::wstring> m_staticNameServers;
-	std::vector<std::wstring> m_dhcpNameServers;
 };
