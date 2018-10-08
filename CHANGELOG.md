@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
   will wait until it tries to reconnect again in the case of a broken TCP connection.
 - Increase timeout parameter to OpenVPN from 15 to 20 seconds. Should make active VPN tunnels drop
   less frequent when on unstable networks.
+- Reduce the transparency of "blocking internet" banner to increase the text readability.
 
 #### Linux
 - Moved CLI binary to `/usr/bin/` as to have the CLI binary in the user's `$PATH` by default.
