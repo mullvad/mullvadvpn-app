@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Place Mssfix setting inside scrollable area
 
 
 ## [2018.4-beta2] - 2018-10-08
