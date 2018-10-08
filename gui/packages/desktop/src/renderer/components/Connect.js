@@ -3,10 +3,18 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { Accordion, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import { SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
-import BlockingInternetBanner, { BannerTitle, BannerSubtitle } from './BlockingInternetBanner';
+import {
+  NotificationBanner,
+  NotificationIndicator,
+  NotificationContent,
+  NotificationActions,
+  NotificationTitle,
+  NotificationSubtitle,
+  NotificationOpenLinkAction,
+} from './NotificationBanner';
 import * as AppButton from './AppButton';
 import Img from './Img';
 import Map from './Map';
@@ -16,9 +24,11 @@ import type { BlockReason, TunnelState, TunnelStateTransition } from '../lib/dae
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
+import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {
   connection: ConnectionReduxState,
+  version: VersionReduxState,
   accountExpiry: ?string,
   selectedRelayName: string,
   onSettings: () => void,
@@ -89,7 +99,7 @@ export default class Connect extends Component<Props> {
           <View style={styles.error_message}>{message}</View>
           {error instanceof NoCreditError ? (
             <View>
-              <AppButton.GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
+              <AppButton.GreenButton onPress={() => this.props.onExternalLink('purchase')}>
                 <AppButton.Label>Buy more time</AppButton.Label>
                 <Img source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
@@ -161,8 +171,6 @@ export default class Connect extends Component<Props> {
           <Map style={{ width: '100%', height: '100%' }} {...this._getMapProps()} />
         </View>
         <View style={styles.container}>
-          <TunnelBanner tunnelState={this.props.connection.status} />
-
           {/* show spinner when connecting */}
           {this.props.connection.status.state === 'connecting' ? (
             <View style={styles.status_icon}>
@@ -181,15 +189,15 @@ export default class Connect extends Component<Props> {
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
           />
+
+          <NotificationArea
+            tunnelState={this.props.connection.status}
+            version={this.props.version}
+            openExternalLink={this.props.onExternalLink}
+          />
         </View>
       </View>
     );
-  }
-
-  // Handlers
-
-  onExternalLink(type: string) {
-    this.props.onExternalLink(type);
   }
 
   // Private
@@ -234,71 +242,139 @@ export default class Connect extends Component<Props> {
   }
 }
 
-type TunnelBannerProps = {
+type NotificationAreaProps = {
   tunnelState: TunnelStateTransition,
+  version: VersionReduxState,
+  openExternalLink: (string) => void,
 };
 
-type TunnerBannerState = {
+type NotificationAreaPresentation =
+  | { type: 'blocking', reason: string }
+  | { type: 'inconsistent-version' }
+  | { type: 'unsupported-version' }
+  | { type: 'update-available', upgradeVersion: string };
+
+type NotificationAreaState = NotificationAreaPresentation & {
   visible: boolean,
-  title: string,
-  subtitle: string,
 };
 
-export class TunnelBanner extends Component<TunnelBannerProps, TunnerBannerState> {
+export class NotificationArea extends Component<NotificationAreaProps, NotificationAreaState> {
   state = {
+    type: 'blocking',
+    reason: '',
     visible: false,
-    title: '',
-    subtitle: '',
   };
 
-  constructor(props: TunnelBannerProps) {
-    super();
-    this.state = this._deriveState(props.tunnelState);
-  }
+  static getDerivedStateFromProps(props: NotificationAreaProps, state: NotificationAreaState) {
+    const { version, tunnelState } = props;
 
-  componentDidUpdate(oldProps: TunnelBannerProps, _oldState: TunnerBannerState) {
-    if (
-      oldProps.tunnelState.state !== this.props.tunnelState.state ||
-      oldProps.tunnelState.details !== this.props.tunnelState.details
-    ) {
-      const nextState = this._deriveState(this.props.tunnelState);
-      this.setState(nextState);
-    }
-  }
-
-  render() {
-    return (
-      <Accordion style={styles.blocking_container} height={this.state.visible ? 'auto' : 0}>
-        <BlockingInternetBanner>
-          <BannerTitle>{this.state.title}</BannerTitle>
-          <BannerSubtitle>{this.state.subtitle}</BannerSubtitle>
-        </BlockingInternetBanner>
-      </Accordion>
-    );
-  }
-
-  _deriveState(tunnelState: TunnelStateTransition) {
     switch (tunnelState.state) {
       case 'connecting':
         return {
           visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: '',
+          type: 'blocking',
+          reason: '',
         };
 
       case 'blocked':
         return {
           visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: getBlockReasonMessage(tunnelState.details),
+          type: 'blocking',
+          reason: getBlockReasonMessage(tunnelState.details),
         };
 
       default:
+        if (!version.consistent) {
+          return {
+            visible: true,
+            type: 'inconsistent-version',
+          };
+        }
+
+        if (!version.currentIsSupported) {
+          return {
+            visible: true,
+            type: 'unsupported-version',
+          };
+        }
+
+        if (!version.upToDate && version.nextUpgrade) {
+          return {
+            visible: true,
+            type: 'update-available',
+            upgradeVersion: version.nextUpgrade,
+          };
+        }
+
         return {
-          ...this.state,
+          ...state,
           visible: false,
         };
     }
+  }
+
+  render() {
+    return (
+      <NotificationBanner style={styles.blocking_container} visible={this.state.visible}>
+        {this.state.type === 'blocking' && (
+          <React.Fragment>
+            <NotificationIndicator type={'error'} />
+            <NotificationContent>
+              <NotificationTitle>{'BLOCKING INTERNET'}</NotificationTitle>
+              <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
+            </NotificationContent>
+          </React.Fragment>
+        )}
+
+        {this.state.type === 'inconsistent-version' && (
+          <React.Fragment>
+            <NotificationIndicator type={'error'} />
+            <NotificationContent>
+              <NotificationTitle>{'INCONSISTENT VERSION'}</NotificationTitle>
+              <NotificationSubtitle>
+                {'Inconsistent internal version information, please restart the app.'}
+              </NotificationSubtitle>
+            </NotificationContent>
+          </React.Fragment>
+        )}
+
+        {this.state.type === 'unsupported-version' && (
+          <React.Fragment>
+            <NotificationIndicator type={'error'} />
+            <NotificationContent>
+              <NotificationTitle>{'UNSUPPORTED VERSION'}</NotificationTitle>
+              <NotificationSubtitle>{`The version you're running is no longer supported. Please, update to the latest.`}</NotificationSubtitle>
+            </NotificationContent>
+            <NotificationActions>
+              <NotificationOpenLinkAction
+                onPress={() => {
+                  this.props.openExternalLink('download');
+                }}
+              />
+            </NotificationActions>
+          </React.Fragment>
+        )}
+
+        {this.state.type === 'update-available' && (
+          <React.Fragment>
+            <NotificationIndicator type={'warning'} />
+            <NotificationContent>
+              <NotificationTitle>{`UPDATE AVAILABLE`}</NotificationTitle>
+              <NotificationSubtitle>{`Install Mullvad VPN (${
+                this.state.upgradeVersion
+              }) to stay up to date`}</NotificationSubtitle>
+            </NotificationContent>
+            <NotificationActions>
+              <NotificationOpenLinkAction
+                onPress={() => {
+                  this.props.openExternalLink('download');
+                }}
+              />
+            </NotificationActions>
+          </React.Fragment>
+        )}
+      </NotificationBanner>
+    );
   }
 }
 
