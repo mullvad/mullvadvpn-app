@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add new types of in-app notifications displayed on the main screen to tell users when the new
+  version is available for download, when currently running version reaches the end of life and
+  becomes unsupported, or notify about version inconsitencies between `mullvad-daemon` and GUI.
+
 ### Fixed
 - Place Mssfix setting inside scrollable area
 
