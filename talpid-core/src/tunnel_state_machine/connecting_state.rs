@@ -89,11 +89,7 @@ impl ConnectingState {
         events: mpsc::UnboundedSender<TunnelEvent>,
     ) -> Result<TunnelMonitor> {
         let on_tunnel_event = move |event| {
-            let send_result = events.unbounded_send(event);
-
-            if send_result.is_err() {
-                warn!("Tunnel state machine stopped before tunnel event was received");
-            }
+            let _ = events.unbounded_send(event);
         };
         let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
 
