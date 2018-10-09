@@ -3,30 +3,25 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 
-import { TunnelBanner } from '../../src/renderer/components/Connect';
+import { NotificationArea } from '../../src/renderer/components/Connect';
 
 describe('components/Connect', () => {
-  describe('TunnelBanner', () => {
-    it('invisible when disconnecting', () => {
+  describe('NotificationArea', () => {
+    it('handles disconnecting state', () => {
       for (const reason of ['nothing', 'block', 'reconnect']) {
         const component = shallow(
-          <TunnelBanner
+          <NotificationArea
             tunnelState={{
               state: 'disconnecting',
               details: { reason },
             }}
-          />,
-        );
-        expect(component.state('visible')).to.be.false;
-      }
-    });
-
-    it('invisible when connected or disconnected', () => {
-      for (const state of ['connected', 'disconnected']) {
-        const component = shallow(
-          <TunnelBanner
-            tunnelState={{
-              state,
+            version={{
+              consistent: true,
+              currentIsSupported: true,
+              upToDate: true,
+              latest: null,
+              latestStable: null,
+              nextUpgrade: null,
             }}
           />,
         );
@@ -34,34 +29,137 @@ describe('components/Connect', () => {
       }
     });
 
-    it('visible when connecting', () => {
+    it('handles connected or disconnected states', () => {
+      for (const state of ['connected', 'disconnected']) {
+        const component = shallow(
+          <NotificationArea
+            tunnelState={{
+              state,
+            }}
+            version={{
+              consistent: true,
+              currentIsSupported: true,
+              upToDate: true,
+              latest: null,
+              latestStable: null,
+              nextUpgrade: null,
+            }}
+          />,
+        );
+
+        expect(component.state('visible')).to.be.false;
+      }
+    });
+
+    it('handles connecting state', () => {
       const component = shallow(
-        <TunnelBanner
+        <NotificationArea
           tunnelState={{
             state: 'connecting',
+          }}
+          version={{
+            consistent: true,
+            currentIsSupported: true,
+            upToDate: true,
+            latest: null,
+            latestStable: null,
+            nextUpgrade: null,
           }}
         />,
       );
 
+      expect(component.state('type')).to.be.equal('blocking');
       expect(component.state('visible')).to.be.true;
-      expect(component.state('title')).to.not.be.empty;
     });
 
-    it('visible when blocked', () => {
+    it('handles blocked state', () => {
       const component = shallow(
-        <TunnelBanner
+        <NotificationArea
           tunnelState={{
             state: 'blocked',
             details: {
               reason: 'no_matching_relay',
             },
           }}
+          version={{
+            consistent: true,
+            currentIsSupported: true,
+            upToDate: true,
+            latest: null,
+            latestStable: null,
+            nextUpgrade: null,
+          }}
         />,
       );
 
+      expect(component.state('type')).to.be.equal('blocking');
       expect(component.state('visible')).to.be.true;
-      expect(component.state('title')).to.not.be.empty;
-      expect(component.state('subtitle')).to.not.be.empty;
+    });
+
+    it('handles inconsistent version', () => {
+      const component = shallow(
+        <NotificationArea
+          tunnelState={{
+            state: 'disconnected',
+          }}
+          version={{
+            consistent: false,
+            currentIsSupported: false,
+            upToDate: true,
+            current: '2018.2',
+            latest: '2018.4-beta2',
+            latestStable: '2018.3',
+            nextUpgrade: '2018.3',
+          }}
+        />,
+      );
+
+      expect(component.state('type')).to.be.equal('inconsistent-version');
+      expect(component.state('visible')).to.be.true;
+    });
+
+    it('handles unsupported version', () => {
+      const component = shallow(
+        <NotificationArea
+          tunnelState={{
+            state: 'disconnected',
+          }}
+          version={{
+            consistent: true,
+            currentIsSupported: false,
+            upToDate: false,
+            current: '2018.2',
+            latest: '2018.4-beta2',
+            latestStable: '2018.3',
+            nextUpgrade: '2018.3',
+          }}
+        />,
+      );
+
+      expect(component.state('type')).to.be.equal('unsupported-version');
+      expect(component.state('visible')).to.be.true;
+    });
+
+    it('handles update available', () => {
+      const component = shallow(
+        <NotificationArea
+          tunnelState={{
+            state: 'disconnected',
+          }}
+          version={{
+            consistent: true,
+            currentIsSupported: true,
+            upToDate: false,
+            current: '2018.2',
+            latest: '2018.4-beta2',
+            latestStable: '2018.3',
+            nextUpgrade: '2018.3',
+          }}
+        />,
+      );
+
+      expect(component.state('type')).to.be.equal('update-available');
+      expect(component.state('visible')).to.be.true;
     });
   });
 });
