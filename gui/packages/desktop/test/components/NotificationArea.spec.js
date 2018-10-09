@@ -5,6 +5,16 @@ import { shallow } from 'enzyme';
 import NotificationArea from '../../src/renderer/components/NotificationArea';
 
 describe('components/NotificationArea', () => {
+  const defaultVersion = {
+    consistent: true,
+    currentIsSupported: true,
+    upToDate: true,
+    current: '2018.2',
+    latest: '2018.2-beta1',
+    latestStable: '2018.2',
+    nextUpgrade: null,
+  };
+
   it('handles disconnecting state', () => {
     for (const reason of ['nothing', 'block', 'reconnect']) {
       const component = shallow(
@@ -13,14 +23,7 @@ describe('components/NotificationArea', () => {
             state: 'disconnecting',
             details: { reason },
           }}
-          version={{
-            consistent: true,
-            currentIsSupported: true,
-            upToDate: true,
-            latest: null,
-            latestStable: null,
-            nextUpgrade: null,
-          }}
+          version={defaultVersion}
         />,
       );
       expect(component.state('visible')).to.be.false;
@@ -34,14 +37,7 @@ describe('components/NotificationArea', () => {
           tunnelState={{
             state,
           }}
-          version={{
-            consistent: true,
-            currentIsSupported: true,
-            upToDate: true,
-            latest: null,
-            latestStable: null,
-            nextUpgrade: null,
-          }}
+          version={defaultVersion}
         />,
       );
 
@@ -55,14 +51,7 @@ describe('components/NotificationArea', () => {
         tunnelState={{
           state: 'connecting',
         }}
-        version={{
-          consistent: true,
-          currentIsSupported: true,
-          upToDate: true,
-          latest: null,
-          latestStable: null,
-          nextUpgrade: null,
-        }}
+        version={defaultVersion}
       />,
     );
 
@@ -79,14 +68,7 @@ describe('components/NotificationArea', () => {
             reason: 'no_matching_relay',
           },
         }}
-        version={{
-          consistent: true,
-          currentIsSupported: true,
-          upToDate: true,
-          latest: null,
-          latestStable: null,
-          nextUpgrade: null,
-        }}
+        version={defaultVersion}
       />,
     );
 
@@ -101,13 +83,8 @@ describe('components/NotificationArea', () => {
           state: 'disconnected',
         }}
         version={{
+          ...defaultVersion,
           consistent: false,
-          currentIsSupported: false,
-          upToDate: true,
-          current: '2018.2',
-          latest: '2018.4-beta2',
-          latestStable: '2018.3',
-          nextUpgrade: '2018.3',
         }}
       />,
     );
@@ -123,13 +100,8 @@ describe('components/NotificationArea', () => {
           state: 'disconnected',
         }}
         version={{
-          consistent: true,
+          ...defaultVersion,
           currentIsSupported: false,
-          upToDate: false,
-          current: '2018.2',
-          latest: '2018.4-beta2',
-          latestStable: '2018.3',
-          nextUpgrade: '2018.3',
         }}
       />,
     );
@@ -145,8 +117,7 @@ describe('components/NotificationArea', () => {
           state: 'disconnected',
         }}
         version={{
-          consistent: true,
-          currentIsSupported: true,
+          ...defaultVersion,
           upToDate: false,
           current: '2018.2',
           latest: '2018.4-beta2',
@@ -168,8 +139,7 @@ describe('components/NotificationArea', () => {
           state: 'disconnected',
         }}
         version={{
-          consistent: true,
-          currentIsSupported: true,
+          ...defaultVersion,
           upToDate: false,
           current: '2018.4-beta1',
           latest: '2018.4-beta3',
