@@ -138,7 +138,7 @@ describe('components/NotificationArea', () => {
     expect(component.state('visible')).to.be.true;
   });
 
-  it('handles update available', () => {
+  it('handles stable update available', () => {
     const component = shallow(
       <NotificationArea
         tunnelState={{
@@ -157,6 +157,30 @@ describe('components/NotificationArea', () => {
     );
 
     expect(component.state('type')).to.be.equal('update-available');
+    expect(component.state('upgradeVersion')).to.be.equal('2018.3');
+    expect(component.state('visible')).to.be.true;
+  });
+
+  it('handles beta update available', () => {
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'disconnected',
+        }}
+        version={{
+          consistent: true,
+          currentIsSupported: true,
+          upToDate: false,
+          current: '2018.4-beta1',
+          latest: '2018.4-beta3',
+          latestStable: '2018.3',
+          nextUpgrade: '2018.4-beta3',
+        }}
+      />,
+    );
+
+    expect(component.state('type')).to.be.equal('update-available');
+    expect(component.state('upgradeVersion')).to.be.equal('2018.4-beta3');
     expect(component.state('visible')).to.be.true;
   });
 });
