@@ -133,7 +133,7 @@ impl OpenVpnCommand {
 
     /// Sets extra options
     pub fn tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
-        self.tunnel_options = *tunnel_options;
+        self.tunnel_options = tunnel_options.clone();
         self
     }
 

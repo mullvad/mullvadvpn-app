@@ -161,7 +161,7 @@ impl Error for TransportProtocolParseError {
 
 /// TunnelOptions holds optional settings for tunnels, that are to be applied to any tunnel of the
 /// appropriate type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
@@ -184,10 +184,26 @@ impl Default for TunnelOptions {
 /// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
 /// of the relay parameters - i.e. have nothing to do with the particular OpenVPN server, but do
 /// affect the connection.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(default)]
 pub struct OpenVpnTunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
+    /// Bridge settings, for when the relay connection should be via a bridge.
+    pub bridge_settings: Option<OpenVpnBridgeSettings>,
+}
+
+
+/// Represents a bridge endpoint. Address, plus extra parameters specific to bridge protocol.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub struct OpenVpnBridgeSettings {
+    pub bridge: SocketAddr,
+    pub auth: Option<OpenVpnBridgeAuth>
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct OpenVpnBridgeAuth {
+    pub username: String,
+    pub password: String,
 }
