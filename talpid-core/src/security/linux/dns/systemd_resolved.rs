@@ -1,7 +1,6 @@
 extern crate dbus;
 
 use std::net::IpAddr;
-use std::mem;
 
 use error_chain::ChainedError;
 use libc::{AF_INET, AF_INET6};
@@ -54,7 +53,7 @@ lazy_static! {
 
 pub struct SystemdResolved {
     dbus_connection: dbus::Connection,
-    interface_links: Vec<(String, dbus::Path<'static>)>,
+    interface_links: Option<(String, dbus::Path<'static>)>,
 }
 
 impl SystemdResolved {
@@ -63,7 +62,7 @@ impl SystemdResolved {
             dbus::Connection::get_private(BusType::System).chain_err(|| ErrorKind::DBusError)?;
         let systemd_resolved = SystemdResolved {
             dbus_connection,
-            interface_links: Vec::new(),
+            interface_links: None,
         };
 
         systemd_resolved.ensure_resolved_exists()?;
@@ -95,9 +94,15 @@ impl SystemdResolved {
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
         let link_object_path = self.fetch_link(interface_name)?;
+        if let Err(e) = self.reset() {
+            debug!(
+                "Failed to reset previous DNS settings - {}",
+                e.display_chain()
+            );
+        }
 
         self.set_link_dns(&link_object_path, servers)?;
-        self.interface_links.push((interface_name.to_string(), link_object_path));
+        self.interface_links = Some((interface_name.to_string(), link_object_path));
 
         Ok(())
     }
@@ -139,23 +144,18 @@ impl SystemdResolved {
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        let mut result = Ok(());
-        let interface_links = mem::replace(&mut self.interface_links, Vec::new());
-
-        for (interface_name, link_object_path) in interface_links {
-            if let Err(error) = self.revert_link(link_object_path, &interface_name) {
-                let chained_error = error.chain_err(|| {
+        if let Some((interface_name, link_object_path)) = self.interface_links.take() {
+            self.revert_link(link_object_path, &interface_name)
+                .chain_err(|| {
                     format!(
                         "Failed to revert DNS settings of interface: {}",
                         interface_name
                     )
-                });
-                error!("{}", chained_error.display_chain());
-                result = Err(Error::from(ErrorKind::RevertDnsError));
-            }
-        }
-
-        result
+                })?;
+        } else {
+            trace!("No DNS settings to reset");
+        };
+        Ok(())
     }
 
     fn revert_link(
