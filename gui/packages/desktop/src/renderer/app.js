@@ -70,6 +70,9 @@ export default class AppRenderer {
       this._reduxActions.account.updateAccountExpiry(expiry);
     },
   );
+  _accountDataFetcher = new AccountDataFetcher((accountToken) =>
+    this._accountDataCache.fetch(accountToken),
+  );
   _relayListCache = new RelayListCache(
     () => {
       return this._daemonRpc.getRelayLocations();
@@ -188,7 +191,7 @@ export default class AppRenderer {
     this._accountDataCache.invalidate();
 
     try {
-      await this._accountDataCache.fetch(accountToken);
+      await this._accountDataFetcher.fetch(accountToken);
       return { status: 'verified' };
     } catch (error) {
       if (error instanceof InvalidAccountError) {
@@ -288,11 +291,10 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const settings = await this._settingsProxy.fetch();
-    const accountDataCache = this._accountDataCache;
 
     if (settings && settings.accountToken) {
       try {
-        await accountDataCache.fetch(settings.accountToken);
+        await this._accountDataFetcher.fetch(settings.accountToken);
       } catch (error) {
         log.error(`Failed to update account expiry: ${error.message}`);
       }
@@ -462,7 +464,7 @@ export default class AppRenderer {
     if (accountToken) {
       log.debug(`Account token is set. Showing the tunnel view.`);
 
-      this._accountDataCache.fetch(accountToken);
+      this._accountDataFetcher.fetch(accountToken);
 
       actions.account.updateAccountToken(accountToken);
       actions.account.loginSuccessful();
@@ -711,5 +713,58 @@ function getIpcPath(): string {
     return '//./pipe/Mullvad VPN';
   } else {
     return '/var/run/mullvad-vpn';
+  }
+}
+
+class AccountDataFetcher {
+  _fetch: (AccountToken) => Promise<void>;
+  _retryAttempt = 0;
+  _retryTimeout: ?TimeoutID;
+
+  constructor(fetch: (AccountToken) => Promise<void>) {
+    this._fetch = fetch;
+  }
+
+  async fetch(accountToken: AccountToken) {
+    this._resetRetries();
+
+    try {
+      await this._fetch(accountToken);
+    } catch (error) {
+      this._scheduleRetryAttempt(accountToken);
+      throw error;
+    }
+  }
+
+  async _retryFetch(accountToken: AccountToken) {
+    try {
+      await this._fetch(accountToken);
+      this._resetRetries();
+    } catch (error) {
+      this._scheduleRetryAttempt(accountToken);
+    }
+  }
+
+  _scheduleRetryAttempt(accountToken: AccountToken) {
+    const delay = this._retryDelay();
+
+    log.debug(`Failed to fetch account data, will retry in ${delay} ms`);
+
+    this._retryTimeout = setTimeout(() => this._retryFetch(accountToken), delay);
+  }
+
+  _retryDelay(): number {
+    this._retryAttempt += 1;
+
+    return Math.min(2048, 1 << (this._retryAttempt + 2)) * 1000;
+  }
+
+  _resetRetries() {
+    if (this._retryTimeout) {
+      clearTimeout(this._retryTimeout);
+    }
+
+    this._retryAttempt = 0;
+    this._retryTimeout = null;
   }
 }
