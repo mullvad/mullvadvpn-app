@@ -6,6 +6,7 @@ export type VersionReduxState = {
   current: string,
   latest: ?string,
   latestStable: ?string,
+  nextUpgrade: ?string,
   upToDate: boolean,
   consistent: boolean,
 };
@@ -15,13 +16,32 @@ const initialState: VersionReduxState = {
   currentIsSupported: true,
   latest: null,
   latestStable: null,
+  nextUpgrade: null,
   upToDate: true,
   consistent: true,
 };
 
-const checkIfLatest = (current: string, latest: ?string, latestStable: ?string): boolean => {
-  return latest === null || latestStable === null || current === latest || current === latestStable;
-};
+function isBeta(version: string) {
+  return version.includes('-');
+}
+
+function nextUpgrade(current: string, latest: ?string, latestStable: ?string): ?string {
+  if (isBeta(current)) {
+    return current === latest ? null : latest;
+  } else {
+    return current === latestStable ? null : latestStable;
+  }
+}
+
+function checkIfLatest(current: string, latest: ?string, latestStable: ?string): boolean {
+  // perhaps -beta?
+  if (isBeta(current)) {
+    return current === latest || latest === null;
+  } else {
+    // must be stable
+    return current === latestStable || latestStable === null;
+  }
+}
 
 export default function(
   state: VersionReduxState = initialState,
@@ -38,6 +58,7 @@ export default function(
         currentIsSupported,
         latest,
         latestStable,
+        nextUpgrade: nextUpgrade(state.current, latest, latestStable),
         upToDate: checkIfLatest(state.current, latest, latestStable),
       };
     }
@@ -47,6 +68,7 @@ export default function(
         ...state,
         current: action.version,
         consistent: action.consistent,
+        nextUpgrade: nextUpgrade(action.version, state.latest, state.latestStable),
         upToDate: checkIfLatest(action.version, state.latest, state.latestStable),
       };
 
