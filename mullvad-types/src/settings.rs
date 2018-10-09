@@ -3,7 +3,9 @@ extern crate serde_json;
 use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
-use talpid_types::net::TunnelOptions;
+use talpid_types::net::{
+    TunnelOptions, BridgeEndpoint
+};
 
 use std::fs::File;
 use std::io;
@@ -44,6 +46,8 @@ pub struct Settings {
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     tunnel_options: TunnelOptions,
+    /// Bridge settings, for when the relay connection should be via a bridge.
+    bridge_settings: Option<BridgeEndpoint>,
 }
 
 impl Default for Settings {
@@ -57,6 +61,7 @@ impl Default for Settings {
             allow_lan: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
+            bridge_settings: None,
         }
     }
 }

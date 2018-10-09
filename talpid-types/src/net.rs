@@ -164,3 +164,55 @@ pub struct OpenVpnTunnelOptions {
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
 }
+
+
+/// Represents one bridge endpoint. Address, plus extra parameters specific to bridge protocol.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub struct BridgeEndpoint {
+    pub address: IpAddr,
+    pub bridge: BridgeEndpointData,
+}
+
+impl BridgeEndpoint {
+    /// Returns this bridge endpoint as an `Endpoint`.
+    pub fn to_endpoint(&self) -> Endpoint {
+        Endpoint::new(
+            self.address.clone(),
+            self.bridge.clone().port(),
+            TransportProtocol::Tcp,
+        )
+    }
+}
+
+/// BridgeEndpointData contains data required to connect to a given bridge endpoint.
+/// Different endpoint types can require different types of data.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub enum BridgeEndpointData {
+    /// Extra parameters for a regular Socks5 bridge endpoint.
+    #[serde(rename = "socks5")]
+    Socks5(Socks5EndpointData),
+    /// Extra parameters for an authenticated Socks5 bridge endpoint.
+    #[serde(rename = "authenticatedsocks5")]
+    AuthenticatedSocks5(AuthenticatedSocks5EndpointData),
+}
+
+impl BridgeEndpointData {
+    pub fn port(self) -> u16 {
+        match self {
+            BridgeEndpointData::Socks5(metadata) => metadata.port,
+            BridgeEndpointData::AuthenticatedSocks5(metadata) => metadata.port,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct Socks5EndpointData {
+    pub port: u16,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct AuthenticatedSocks5EndpointData {
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+}
