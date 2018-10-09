@@ -24,7 +24,7 @@ type Props = {
 type NotificationAreaPresentation =
   | { type: 'blocking', reason: string }
   | { type: 'inconsistent-version' }
-  | { type: 'unsupported-version' }
+  | { type: 'unsupported-version', upgradeVersion: string }
   | { type: 'update-available', upgradeVersion: string };
 
 type State = NotificationAreaPresentation & {
@@ -85,10 +85,11 @@ export default class NotificationArea extends Component<Props, State> {
           };
         }
 
-        if (!version.currentIsSupported) {
+        if (!version.currentIsSupported && version.nextUpgrade) {
           return {
             visible: true,
             type: 'unsupported-version',
+            upgradeVersion: version.nextUpgrade,
           };
         }
 
@@ -126,7 +127,7 @@ export default class NotificationArea extends Component<Props, State> {
             <NotificationContent>
               <NotificationTitle>{'INCONSISTENT VERSION'}</NotificationTitle>
               <NotificationSubtitle>
-                {'Inconsistent internal version information, please restart the app.'}
+                {'Inconsistent internal version information, please restart the app'}
               </NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
@@ -137,7 +138,9 @@ export default class NotificationArea extends Component<Props, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>{'UNSUPPORTED VERSION'}</NotificationTitle>
-              <NotificationSubtitle>{`The version you're running is no longer supported. Please, update to the latest.`}</NotificationSubtitle>
+              <NotificationSubtitle>{`This app version might have security issues. Please upgrade to ${
+                this.state.upgradeVersion
+              }`}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
               <NotificationOpenLinkAction

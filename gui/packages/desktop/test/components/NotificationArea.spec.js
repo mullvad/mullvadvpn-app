@@ -102,6 +102,9 @@ describe('components/NotificationArea', () => {
         version={{
           ...defaultVersion,
           currentIsSupported: false,
+          upToDate: false,
+          current: '2018.1',
+          nextUpgrade: '2018.2',
         }}
       />,
     );
