@@ -230,13 +230,6 @@ export class NotificationBanner extends Component<
     }
   };
 
-  _didFinishAnimation = ({ finished }) => {
-    if (finished) {
-      // disable drawer-like animations for content updates when the banner is visible
-      this.setState({ contentPinnedToBottom: false });
-    }
-  };
-
   async _animateHeightChanges() {
     const containerView = this._containerRef.current;
     if (!containerView) {
@@ -263,6 +256,11 @@ export class NotificationBanner extends Component<
 
     this._animation = animation;
 
-    animation.start(this._didFinishAnimation);
+    animation.start(({ finished }) => {
+      if (finished) {
+        // disable drawer-like animations for content updates when the banner is visible
+        this.setState({ contentPinnedToBottom: false });
+      }
+    });
   }
 }
