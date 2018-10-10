@@ -33,6 +33,21 @@ pub enum TunnelEndpointData {
     Wireguard(WireguardEndpointData),
 }
 
+impl fmt::Display for TunnelEndpointData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            TunnelEndpointData::OpenVpn(openvpn_data) => {
+                write!(f, "OpenVPN ")?;
+                openvpn_data.fmt(f)
+            }
+            TunnelEndpointData::Wireguard(wireguard_data) => {
+                write!(f, "Wireguard ")?;
+                wireguard_data.fmt(f)
+            }
+        }
+    }
+}
+
 impl TunnelEndpointData {
     pub fn port(self) -> u16 {
         match self {
@@ -55,9 +70,21 @@ pub struct OpenVpnEndpointData {
     pub protocol: TransportProtocol,
 }
 
+impl fmt::Display for OpenVpnEndpointData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{} port {}", self.protocol, self.port)
+    }
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct WireguardEndpointData {
     pub port: u16,
+}
+
+impl fmt::Display for WireguardEndpointData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "port {}", self.port)
+    }
 }
 
 
