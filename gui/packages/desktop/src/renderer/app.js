@@ -185,18 +185,19 @@ export default class AppRenderer {
   }
 
   async verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
-    this._accountDataCache.invalidate();
-
-    try {
-      await this._accountDataCache.fetch(accountToken);
-      return { status: 'verified' };
-    } catch (error) {
-      if (error instanceof InvalidAccountError) {
-        throw error;
-      } else {
-        return { status: 'deferred', error };
-      }
-    }
+    return new Promise((resolve, reject) => {
+      this._accountDataCache.invalidate();
+      this._accountDataCache.fetch(accountToken, {
+        onFinish: () => resolve({ status: 'verified' }),
+        onError: (error) => {
+          if (error instanceof InvalidAccountError) {
+            reject(error);
+          } else {
+            resolve({ status: 'deferred', error });
+          }
+        },
+      });
+    });
   }
 
   async logout() {
@@ -291,11 +292,7 @@ export default class AppRenderer {
     const accountDataCache = this._accountDataCache;
 
     if (settings && settings.accountToken) {
-      try {
-        await accountDataCache.fetch(settings.accountToken);
-      } catch (error) {
-        log.error(`Failed to update account expiry: ${error.message}`);
-      }
+      accountDataCache.fetch(settings.accountToken);
     }
   }
 
@@ -655,73 +652,79 @@ export default class AppRenderer {
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred', error: Error };
+type AccountFetchWatcher = {
+  onFinish: () => void,
+  onError: (any) => void,
+};
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 class AccountDataCache {
   _currentAccount: ?AccountToken;
-  _executingPromise: ?Promise<AccountData>;
   _expiresAt: ?Date;
   _fetch: (AccountToken) => Promise<AccountData>;
   _update: (?AccountData) => void;
+  _watchers: Array<AccountFetchWatcher>;
 
   constructor(fetch: (AccountToken) => Promise<AccountData>, update: (?AccountData) => void) {
     this._fetch = fetch;
     this._update = update;
+    this._watchers = [];
   }
 
-  async fetch(accountToken: AccountToken): Promise<void> {
+  fetch(accountToken: AccountToken, watcher?: AccountFetchWatcher) {
     // invalidate cache if account token has changed
     if (accountToken !== this._currentAccount) {
       this.invalidate();
       this._currentAccount = accountToken;
     }
 
-    // return the same promise if still fetching from remote
-    const executingPromise = this._executingPromise;
-    if (executingPromise) {
-      return executingPromise.then((_accountData) => Promise.resolve());
-    }
-
-    // return the received value if not expired yet
-    if (!this._isExpired()) {
-      return Promise.resolve();
-    }
-
-    try {
-      const nextPromise = this._fetch(accountToken);
-      this._executingPromise = nextPromise;
-
-      const accountData = await nextPromise;
-
-      // it's possible that invalidate() was called before this promise was resolved.
-      // discard the result of "orphaned" promise.
-      if (this._executingPromise === nextPromise) {
-        this._setValue(accountData);
-        return Promise.resolve();
-      } else {
-        throw new Error('Cancelled');
+    // Only fetch is value has expired
+    if (this._isExpired()) {
+      if (watcher) {
+        this._watchers.push(watcher);
       }
-    } catch (error) {
-      throw error;
-    } finally {
-      this._executingPromise = null;
+
+      this._performFetch(accountToken);
+    } else if (watcher) {
+      watcher.onFinish();
     }
   }
 
   invalidate() {
-    this._executingPromise = null;
     this._expiresAt = null;
     this._update(null);
+    this._notifyWatchers((watcher) => watcher.onError(new Error('Cancelled')));
   }
 
   _setValue(value: AccountData) {
     this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
     this._update(value);
+    this._notifyWatchers((watcher) => watcher.onFinish());
   }
 
   _isExpired() {
     return !this._expiresAt || this._expiresAt < new Date();
+  }
+
+  async _performFetch(accountToken: AccountToken) {
+    try {
+      // it's possible for invalidate() to be called or for a fetch for a different account token
+      // to start before this fetch completes, so checking if the current account token is the one
+      // used is necessary below.
+      const accountData = await this._fetch(accountToken);
+
+      if (this._currentAccount === accountToken) {
+        this._setValue(accountData);
+      }
+    } catch (error) {
+      if (this._currentAccount === accountToken) {
+        this._notifyWatchers((watcher) => watcher.onError(error));
+      }
+  }
+
+  _notifyWatchers(notify: (AccountFetchWatcher) => void) {
+    this._watchers.splice(0).forEach(notify);
   }
 }
 
