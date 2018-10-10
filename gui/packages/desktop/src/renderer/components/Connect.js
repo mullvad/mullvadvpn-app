@@ -3,22 +3,24 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { Accordion, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import { SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
-import BlockingInternetBanner, { BannerTitle, BannerSubtitle } from './BlockingInternetBanner';
+import NotificationArea from './NotificationArea';
 import * as AppButton from './AppButton';
 import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
-import type { BlockReason, TunnelState, TunnelStateTransition } from '../lib/daemon-rpc';
+import type { TunnelState } from '../lib/daemon-rpc';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
+import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {
   connection: ConnectionReduxState,
+  version: VersionReduxState,
   accountExpiry: ?string,
   selectedRelayName: string,
   onSettings: () => void,
@@ -27,27 +29,6 @@ type Props = {
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
 };
-
-function getBlockReasonMessage(blockReason: BlockReason): string {
-  switch (blockReason.reason) {
-    case 'auth_failed': {
-      const details =
-        blockReason.details ||
-        'Check that the account is valid, has time left and not too many connections';
-      return `Authentication failed: ${details}`;
-    }
-    case 'ipv6_unavailable':
-      return 'Could not configure IPv6, please enable it on your system or disable it in the app';
-    case 'set_security_policy_error':
-      return 'Failed to apply security policy';
-    case 'start_tunnel_error':
-      return 'Failed to start tunnel connection';
-    case 'no_matching_relay':
-      return 'No relay server matches the current settings';
-    default:
-      return `Unknown error: ${(blockReason.reason: empty)}`;
-  }
-}
 
 export default class Connect extends Component<Props> {
   render() {
@@ -89,7 +70,7 @@ export default class Connect extends Component<Props> {
           <View style={styles.error_message}>{message}</View>
           {error instanceof NoCreditError ? (
             <View>
-              <AppButton.GreenButton onPress={this.onExternalLink.bind(this, 'purchase')}>
+              <AppButton.GreenButton onPress={() => this.props.onExternalLink('purchase')}>
                 <AppButton.Label>Buy more time</AppButton.Label>
                 <Img source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
@@ -161,8 +142,6 @@ export default class Connect extends Component<Props> {
           <Map style={{ width: '100%', height: '100%' }} {...this._getMapProps()} />
         </View>
         <View style={styles.container}>
-          <TunnelBanner tunnelState={this.props.connection.status} />
-
           {/* show spinner when connecting */}
           {this.props.connection.status.state === 'connecting' ? (
             <View style={styles.status_icon}>
@@ -181,15 +160,16 @@ export default class Connect extends Component<Props> {
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
           />
+
+          <NotificationArea
+            style={styles.notification_area}
+            tunnelState={this.props.connection.status}
+            version={this.props.version}
+            openExternalLink={this.props.onExternalLink}
+          />
         </View>
       </View>
     );
-  }
-
-  // Handlers
-
-  onExternalLink(type: string) {
-    this.props.onExternalLink(type);
   }
 
   // Private
@@ -231,74 +211,6 @@ export default class Connect extends Component<Props> {
     }
 
     return null;
-  }
-}
-
-type TunnelBannerProps = {
-  tunnelState: TunnelStateTransition,
-};
-
-type TunnerBannerState = {
-  visible: boolean,
-  title: string,
-  subtitle: string,
-};
-
-export class TunnelBanner extends Component<TunnelBannerProps, TunnerBannerState> {
-  state = {
-    visible: false,
-    title: '',
-    subtitle: '',
-  };
-
-  constructor(props: TunnelBannerProps) {
-    super();
-    this.state = this._deriveState(props.tunnelState);
-  }
-
-  componentDidUpdate(oldProps: TunnelBannerProps, _oldState: TunnerBannerState) {
-    if (
-      oldProps.tunnelState.state !== this.props.tunnelState.state ||
-      oldProps.tunnelState.details !== this.props.tunnelState.details
-    ) {
-      const nextState = this._deriveState(this.props.tunnelState);
-      this.setState(nextState);
-    }
-  }
-
-  render() {
-    return (
-      <Accordion style={styles.blocking_container} height={this.state.visible ? 'auto' : 0}>
-        <BlockingInternetBanner>
-          <BannerTitle>{this.state.title}</BannerTitle>
-          <BannerSubtitle>{this.state.subtitle}</BannerSubtitle>
-        </BlockingInternetBanner>
-      </Accordion>
-    );
-  }
-
-  _deriveState(tunnelState: TunnelStateTransition) {
-    switch (tunnelState.state) {
-      case 'connecting':
-        return {
-          visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: '',
-        };
-
-      case 'blocked':
-        return {
-          visible: true,
-          title: 'BLOCKING INTERNET',
-          subtitle: getBlockReasonMessage(tunnelState.details),
-        };
-
-      default:
-        return {
-          ...this.state,
-          visible: false,
-        };
-    }
   }
 }
 
