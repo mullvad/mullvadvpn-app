@@ -178,22 +178,32 @@ impl RelaySelector {
     pub fn get_tunnel_endpoint(
         &mut self,
         constraints: &RelayConstraints,
+        retry_attempt: u32,
     ) -> Result<(Relay, TunnelEndpoint)> {
+        // Prefer UDP by default. But if that has failed a couple of times, then try TCP port 443,
+        // which works for many with UDP problems. After that, just alternate between protocols.
+        let (prio1_port, prio1_proto) = if retry_attempt < 2 {
+            (Constraint::Any, TransportProtocol::Udp)
+        } else if retry_attempt < 4 {
+            (Constraint::Only(443), TransportProtocol::Tcp)
+        } else if retry_attempt % 2 == 0 {
+            (Constraint::Any, TransportProtocol::Udp)
+        } else {
+            (Constraint::Any, TransportProtocol::Tcp)
+        };
+
         // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
         // any constraints that are explicitly specified.
         let tunnel_constraints1 = match constraints.tunnel {
             Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
-                port: Constraint::Any,
-                protocol: Constraint::Only(TransportProtocol::Udp),
+                port: prio1_port,
+                protocol: Constraint::Only(prio1_proto),
             }),
             Constraint::Only(TunnelConstraints::OpenVpn(ref openvpn_constraints)) => {
                 TunnelConstraints::OpenVpn(OpenVpnConstraints {
-                    port: openvpn_constraints.port.clone(),
+                    port: openvpn_constraints.port.clone().or(prio1_port),
                     protocol: Constraint::Only(
-                        openvpn_constraints
-                            .protocol
-                            .clone()
-                            .unwrap_or(TransportProtocol::Udp),
+                        openvpn_constraints.protocol.clone().unwrap_or(prio1_proto),
                     ),
                 })
             }
@@ -205,12 +215,19 @@ impl RelaySelector {
         };
 
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&relay_constraints1) {
-            debug!("Relay matched on highest preference");
+            debug!(
+                "Relay matched on highest preference for retry attempt {}",
+                retry_attempt
+            );
             Ok((relay, endpoint))
         } else if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(constraints) {
-            debug!("Relay matched on second preference");
+            debug!(
+                "Relay matched on second preference for retry attempt {}",
+                retry_attempt
+            );
             Ok((relay, endpoint))
         } else {
+            warn!("No relays matching {}", constraints);
             bail!(ErrorKind::NoRelay);
         }
     }

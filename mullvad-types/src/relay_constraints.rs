@@ -24,6 +24,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(value) => value,
         }
     }
+
+    pub fn or(self, other: Constraint<T>) -> Constraint<T> {
+        match self {
+            Constraint::Any => other,
+            Constraint::Only(value) => Constraint::Only(value),
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
