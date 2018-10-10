@@ -128,7 +128,7 @@ pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
     /// Open tunnel connection.
-    Connect(TunnelParameters),
+    Connect,
     /// Close tunnel connection.
     Disconnect,
     /// Disconnect any open tunnel and block all network access

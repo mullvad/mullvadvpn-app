@@ -79,20 +79,14 @@ impl ConnectedState {
                     }
                 }
             }
-            Ok(TunnelCommand::Connect(parameters)) => {
-                if parameters != self.tunnel_parameters {
-                    NewState(DisconnectingState::enter(
-                        shared_values,
-                        (
-                            self.close_handle,
-                            self.tunnel_close_event,
-                            AfterDisconnect::Reconnect(parameters),
-                        ),
-                    ))
-                } else {
-                    SameState(self)
-                }
-            }
+            Ok(TunnelCommand::Connect) => NewState(DisconnectingState::enter(
+                shared_values,
+                (
+                    self.close_handle,
+                    self.tunnel_close_event,
+                    AfterDisconnect::Reconnect(0),
+                ),
+            )),
             Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
@@ -124,7 +118,7 @@ impl ConnectedState {
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Reconnect(self.tunnel_parameters),
+                    AfterDisconnect::Reconnect(0),
                 ),
             )),
             Ok(_) => SameState(self),
@@ -144,10 +138,7 @@ impl ConnectedState {
         }
 
         info!("Tunnel closed. Reconnecting.");
-        NewState(ConnectingState::enter(
-            shared_values,
-            self.tunnel_parameters,
-        ))
+        NewState(ConnectingState::enter(shared_values, 0))
     }
 }
 

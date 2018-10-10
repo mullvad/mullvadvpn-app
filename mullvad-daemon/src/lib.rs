@@ -44,13 +44,12 @@ mod relays;
 mod rpc_uniqueness_check;
 
 use error_chain::ChainedError;
-use futures::sync::mpsc::UnboundedSender;
-use futures::{Future, Sink};
-use jsonrpc_core::futures::sync::oneshot::{self, Sender as OneshotSender};
-
+use futures::{
+    sync::{mpsc::UnboundedSender, oneshot},
+    Future, Sink,
+};
 use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
-
 use mullvad_types::{
     account::{AccountData, AccountToken},
     location::GeoIpLocation,
@@ -60,17 +59,12 @@ use mullvad_types::{
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
-
 use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
-
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel_state_machine::{self, TunnelCommand, TunnelParameters},
+    tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
 };
-use talpid_types::{
-    net::TunnelEndpoint,
-    tunnel::{BlockReason, TunnelStateTransition},
-};
+use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
 
 error_chain!{
@@ -97,6 +91,8 @@ type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
 pub enum DaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
+    /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
+    GenerateTunnelParameters(mpsc::Sender<TunnelParameters>, u32),
     /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(ManagementCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
@@ -178,7 +174,7 @@ pub struct Daemon {
     https_handle: mullvad_rpc::rest::RequestSender,
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
-    current_relay: Option<Relay>,
+    last_generated_relay: Option<Relay>,
     version: String,
 }
 
@@ -214,8 +210,10 @@ impl Daemon {
         let settings = Settings::load().chain_err(|| "Unable to read settings")?;
 
         let (tx, rx) = mpsc::channel();
+        let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.get_allow_lan(),
+            tunnel_parameters_generator,
             log_dir,
             resource_dir,
             cache_dir.clone(),
@@ -245,7 +243,7 @@ impl Daemon {
             https_handle,
             tokio_remote,
             relay_selector,
-            current_relay: None,
+            last_generated_relay: None,
             version,
         })
     }
@@ -292,11 +290,9 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<()> {
-        if self.settings.get_auto_connect() {
+        if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
             info!("Automatically connecting since auto-connect is turned on");
-            if self.set_target_state(TargetState::Secured).is_err() {
-                warn!("Aborting auto-connect since no account token is set");
-            }
+            self.set_target_state(TargetState::Secured);
         }
         while let Ok(event) = self.rx.recv() {
             self.handle_event(event)?;
@@ -313,6 +309,9 @@ impl Daemon {
             TunnelStateTransition(transition) => {
                 Ok(self.handle_tunnel_state_transition(transition))
             }
+            GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
+                Ok(self.handle_generate_tunnel_parameters(tunnel_parameters_tx, retry_attempt))
+            }
             ManagementInterfaceEvent(event) => Ok(self.handle_management_interface_event(event)),
             ManagementInterfaceExited => self.handle_management_interface_exited(),
             TriggerShutdown => Ok(self.handle_trigger_shutdown_event()),
@@ -326,10 +325,7 @@ impl Daemon {
 
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
-            Disconnected => {
-                self.state.disconnected();
-                self.current_relay = None;
-            }
+            Disconnected => self.state.disconnected(),
             Blocked(ref reason) => {
                 info!("Blocking all network connections, reason: {}", reason);
 
@@ -344,6 +340,44 @@ impl Daemon {
         self.tunnel_state = tunnel_state.clone();
         self.management_interface_broadcaster
             .notify_new_state(tunnel_state);
+    }
+
+    fn handle_generate_tunnel_parameters(
+        &mut self,
+        tunnel_parameters_tx: mpsc::Sender<TunnelParameters>,
+        retry_attempt: u32,
+    ) {
+        let result = self
+            .settings
+            .get_account_token()
+            .ok_or(Error::from("No account token configured"))
+            .map(|account_token| {
+                match self.settings.get_relay_settings() {
+                    RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
+                        .to_tunnel_endpoint()
+                        .chain_err(|| "Custom tunnel endpoint could not be resolved"),
+                    RelaySettings::Normal(constraints) => self
+                        .relay_selector
+                        .get_tunnel_endpoint(&constraints, retry_attempt)
+                        .chain_err(|| "No valid relay servers match the current settings")
+                        .map(|(relay, endpoint)| {
+                            self.last_generated_relay = Some(relay);
+                            endpoint
+                        }),
+                }
+                .map(|endpoint| {
+                    tunnel_parameters_tx
+                        .send(TunnelParameters {
+                            endpoint,
+                            options: self.settings.get_tunnel_options().clone(),
+                            username: account_token,
+                        })
+                        .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
+                })
+            });
+        if let Err(error) = result {
+            error!("{}", error.display_chain());
+        }
     }
 
     fn schedule_reconnect(&mut self, delay: Duration) {
@@ -393,49 +427,59 @@ impl Daemon {
 
     fn on_set_target_state(
         &mut self,
-        tx: OneshotSender<::std::result::Result<(), ()>>,
+        tx: oneshot::Sender<::std::result::Result<(), ()>>,
         new_target_state: TargetState,
     ) {
         if self.state.is_running() {
-            Self::oneshot_send(tx, self.set_target_state(new_target_state), "targe state");
+            self.set_target_state(new_target_state);
         } else {
             warn!("Ignoring target state change request due to shutdown");
-            Self::oneshot_send(tx, Ok(()), "targe state");
         }
+        Self::oneshot_send(tx, Ok(()), "targe state");
     }
 
-    fn on_get_state(&self, tx: OneshotSender<TunnelStateTransition>) {
+    fn on_get_state(&self, tx: oneshot::Sender<TunnelStateTransition>) {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    fn on_get_current_location(&self, tx: OneshotSender<GeoIpLocation>) {
-        if let Some(ref relay) = self.current_relay {
-            let location = relay.location.as_ref().cloned().unwrap();
-            let hostname = relay.hostname.clone();
-            let geo_ip_location = GeoIpLocation {
-                country: location.country,
-                city: Some(location.city),
-                latitude: location.latitude,
-                longitude: location.longitude,
-                mullvad_exit_ip: true,
-                hostname: Some(hostname),
-            };
-            Self::oneshot_send(tx, geo_ip_location, "current location");
-        } else {
-            let https_handle = self.https_handle.clone();
-            self.tokio_remote.spawn(move |_| {
-                geoip::send_location_request(https_handle)
-                    .map(move |location| Self::oneshot_send(tx, location, "current location"))
-                    .map_err(|e| {
-                        warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-                    })
-            });
+    fn on_get_current_location(&self, tx: oneshot::Sender<GeoIpLocation>) {
+        use self::TunnelStateTransition::*;
+        match self.tunnel_state {
+            Disconnected => {
+                let https_handle = self.https_handle.clone();
+                self.tokio_remote.spawn(move |_| {
+                    geoip::send_location_request(https_handle)
+                        .map(move |location| Self::oneshot_send(tx, location, "current location"))
+                        .map_err(|e| {
+                            warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+                        })
+                });
+            }
+            Connecting | Connected | Disconnecting(..) => {
+                if let Some(ref relay) = self.last_generated_relay {
+                    let location = relay.location.as_ref().cloned().unwrap();
+                    let hostname = relay.hostname.clone();
+                    let geo_ip_location = GeoIpLocation {
+                        country: location.country,
+                        city: Some(location.city),
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        mullvad_exit_ip: true,
+                        hostname: Some(hostname),
+                    };
+                    Self::oneshot_send(tx, geo_ip_location, "current location");
+                }
+            }
+            Blocked(..) => {
+                // We are not online at all at this stage. Return error.
+                mem::drop(tx);
+            }
         }
     }
 
     fn on_get_account_data(
         &mut self,
-        tx: OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         account_token: AccountToken,
     ) {
         let rpc_call = self
@@ -445,12 +489,12 @@ impl Daemon {
         Self::oneshot_send(tx, Box::new(rpc_call), "account data")
     }
 
-    fn on_get_relay_locations(&mut self, tx: OneshotSender<RelayList>) {
+    fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
         Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
     }
 
 
-    fn on_set_account(&mut self, tx: OneshotSender<()>, account_token: Option<String>) {
+    fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
         let account_token_cleared = account_token.is_none();
         let save_result = self.settings.set_account_token(account_token);
 
@@ -462,7 +506,7 @@ impl Daemon {
                         .notify_settings(&self.settings);
                     if account_token_cleared {
                         info!("Disconnecting because account token was cleared");
-                        let _ = self.set_target_state(TargetState::Unsecured);
+                        self.set_target_state(TargetState::Unsecured);
                     } else {
                         info!("Initiating tunnel restart because the account token changed");
                         self.reconnect_tunnel();
@@ -475,7 +519,7 @@ impl Daemon {
 
     fn on_get_version_info(
         &mut self,
-        tx: OneshotSender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
     ) {
         let fut = self
             .version_proxy
@@ -488,11 +532,11 @@ impl Daemon {
         Self::oneshot_send(tx, Box::new(fut), "get_version_info response");
     }
 
-    fn on_get_current_version(&mut self, tx: OneshotSender<AppVersion>) {
+    fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
         Self::oneshot_send(tx, self.version.clone(), "get_current_version response");
     }
 
-    fn on_update_relay_settings(&mut self, tx: OneshotSender<()>, update: RelaySettingsUpdate) {
+    fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
         let save_result = self.settings.update_relay_settings(update);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
@@ -508,7 +552,7 @@ impl Daemon {
         }
     }
 
-    fn on_set_allow_lan(&mut self, tx: OneshotSender<()>, allow_lan: bool) {
+    fn on_set_allow_lan(&mut self, tx: oneshot::Sender<()>, allow_lan: bool) {
         let save_result = self.settings.set_allow_lan(allow_lan);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
@@ -523,7 +567,7 @@ impl Daemon {
         }
     }
 
-    fn on_set_auto_connect(&mut self, tx: OneshotSender<()>, auto_connect: bool) {
+    fn on_set_auto_connect(&mut self, tx: oneshot::Sender<()>, auto_connect: bool) {
         let save_result = self.settings.set_auto_connect(auto_connect);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
@@ -537,7 +581,7 @@ impl Daemon {
         }
     }
 
-    fn on_set_openvpn_mssfix(&mut self, tx: OneshotSender<()>, mssfix_arg: Option<u16>) {
+    fn on_set_openvpn_mssfix(&mut self, tx: oneshot::Sender<()>, mssfix_arg: Option<u16>) {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
@@ -551,7 +595,7 @@ impl Daemon {
         }
     }
 
-    fn on_set_enable_ipv6(&mut self, tx: OneshotSender<()>, enable_ipv6: bool) {
+    fn on_set_enable_ipv6(&mut self, tx: oneshot::Sender<()>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
@@ -567,11 +611,11 @@ impl Daemon {
         }
     }
 
-    fn on_get_settings(&self, tx: OneshotSender<Settings>) {
+    fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
         Self::oneshot_send(tx, self.settings.clone(), "get_settings response");
     }
 
-    fn oneshot_send<T>(tx: OneshotSender<T>, t: T, msg: &'static str) {
+    fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if let Err(_) = tx.send(t) {
             warn!("Unable to send {} to management interface client", msg);
         }
@@ -589,45 +633,19 @@ impl Daemon {
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     /// Returns an error if trying to set secured state, but no account token is present.
-    fn set_target_state(&mut self, new_state: TargetState) -> ::std::result::Result<(), ()> {
+    fn set_target_state(&mut self, new_state: TargetState) {
         if new_state != self.target_state || self.tunnel_state.is_blocked() {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             match self.target_state {
-                TargetState::Secured => match self.settings.get_account_token() {
-                    Some(account_token) => self.connect_tunnel(account_token),
-                    None => {
-                        self.set_target_state(TargetState::Unsecured)?;
-                        return Err(());
-                    }
-                },
+                TargetState::Secured => self.connect_tunnel(),
                 TargetState::Unsecured => self.disconnect_tunnel(),
             }
         }
-        Ok(())
     }
 
-    fn connect_tunnel(&mut self, account_token: AccountToken) {
-        let command = match self.settings.get_relay_settings() {
-            RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                .to_tunnel_endpoint()
-                .chain_err(|| "Custom tunnel endpoint could not be resolved"),
-            RelaySettings::Normal(constraints) => self
-                .relay_selector
-                .get_tunnel_endpoint(&constraints)
-                .chain_err(|| "No valid relay servers match the current settings")
-                .map(|(relay, endpoint)| {
-                    self.current_relay = Some(relay);
-                    endpoint
-                }),
-        }
-        .map(|endpoint| self.build_tunnel_parameters(account_token, endpoint))
-        .map(|parameters| TunnelCommand::Connect(parameters))
-        .unwrap_or_else(|error| {
-            error!("{}", error.display_chain());
-            TunnelCommand::Block(BlockReason::NoMatchingRelay)
-        });
-        self.send_tunnel_command(command);
+    fn connect_tunnel(&mut self) {
+        self.send_tunnel_command(TunnelCommand::Connect);
     }
 
     fn disconnect_tunnel(&mut self) {
@@ -636,21 +654,7 @@ impl Daemon {
 
     fn reconnect_tunnel(&mut self) {
         if self.target_state == TargetState::Secured {
-            if let Some(account_token) = self.settings.get_account_token() {
-                self.connect_tunnel(account_token);
-            }
-        }
-    }
-
-    fn build_tunnel_parameters(
-        &self,
-        account_token: AccountToken,
-        endpoint: TunnelEndpoint,
-    ) -> TunnelParameters {
-        TunnelParameters {
-            endpoint,
-            options: self.settings.get_tunnel_options().clone(),
-            username: account_token,
+            self.connect_tunnel();
         }
     }
 
@@ -689,5 +693,23 @@ impl Drop for Daemon {
                 );
             }
         }
+    }
+}
+
+
+struct MullvadTunnelParametersGenerator {
+    tx: mpsc::Sender<DaemonEvent>,
+}
+
+impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
+    fn generate(&mut self, retry_attempt: u32) -> Option<TunnelParameters> {
+        let (response_tx, response_rx) = mpsc::channel();
+        self.tx
+            .send(DaemonEvent::GenerateTunnelParameters(
+                response_tx,
+                retry_attempt,
+            ))
+            .ok()
+            .and_then(|_| response_rx.recv().ok())
     }
 }
