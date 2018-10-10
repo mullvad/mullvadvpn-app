@@ -24,8 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add new in-app notifications to inform user when the app becomes outdated, unsupported or might
-  have security issues.
+- Add new in-app notifications to inform the user when the app becomes outdated, unsupported or
+  might have security issues.
 
 ### Fixed
 - Place Mssfix setting inside scrollable area
