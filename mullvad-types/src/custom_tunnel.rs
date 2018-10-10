@@ -1,5 +1,7 @@
-use std::net::{IpAddr, ToSocketAddrs};
-
+use std::{
+    fmt,
+    net::{IpAddr, ToSocketAddrs},
+};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
 error_chain!{
@@ -23,6 +25,12 @@ impl CustomTunnelEndpoint {
             address: resolve_to_ip(&self.host)?,
             tunnel: self.tunnel,
         })
+    }
+}
+
+impl fmt::Display for CustomTunnelEndpoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} over {}", self.host, self.tunnel)
     }
 }
 

@@ -136,7 +136,7 @@ impl Settings {
         let new_settings = self.relay_settings.merge(update);
         if self.relay_settings != new_settings {
             debug!(
-                "changing relay settings from {:?} to {:?}",
+                "changing relay settings from {} to {}",
                 self.relay_settings, new_settings
             );
 
