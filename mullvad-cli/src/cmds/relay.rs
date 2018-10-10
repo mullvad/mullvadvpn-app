@@ -205,7 +205,7 @@ impl Relay {
     fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let constraints = rpc.get_settings()?.get_relay_settings();
-        println!("Current constraints: {:#?}", constraints);
+        println!("Current constraints: {}", constraints);
 
         Ok(())
     }

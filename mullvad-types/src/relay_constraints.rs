@@ -24,6 +24,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(value) => value,
         }
     }
+
+    pub fn or(self, other: Constraint<T>) -> Constraint<T> {
+        match self {
+            Constraint::Any => other,
+            Constraint::Only(value) => Constraint::Only(value),
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
@@ -48,6 +55,17 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
 pub enum RelaySettings {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraints),
+}
+
+impl fmt::Display for RelaySettings {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => {
+                write!(f, "custom endpoint {}", endpoint)
+            }
+            RelaySettings::Normal(constraints) => constraints.fmt(f),
+        }
+    }
 }
 
 impl Default for RelaySettings {
@@ -88,6 +106,20 @@ impl RelayConstraints {
     }
 }
 
+impl fmt::Display for RelayConstraints {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self.tunnel {
+            Constraint::Any => write!(f, "any relay")?,
+            Constraint::Only(ref tunnel_constraint) => tunnel_constraint.fmt(f)?,
+        }
+        write!(f, " in ")?;
+        match self.location {
+            Constraint::Any => write!(f, "any location"),
+            Constraint::Only(ref location_constraint) => location_constraint.fmt(f),
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -100,6 +132,18 @@ pub enum LocationConstraint {
     Hostname(CountryCode, CityCode, Hostname),
 }
 
+impl fmt::Display for LocationConstraint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            LocationConstraint::Country(country) => write!(f, "country {}", country),
+            LocationConstraint::City(country, city) => write!(f, "city {}, {}", city, country),
+            LocationConstraint::Hostname(country, city, hostname) => {
+                write!(f, "city {}, {}, hostname {}", city, country, hostname)
+            }
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum TunnelConstraints {
@@ -107,6 +151,21 @@ pub enum TunnelConstraints {
     OpenVpn(OpenVpnConstraints),
     #[serde(rename = "wireguard")]
     Wireguard(WireguardConstraints),
+}
+
+impl fmt::Display for TunnelConstraints {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            TunnelConstraints::OpenVpn(openvpn_constraints) => {
+                write!(f, "OpenVPN over ")?;
+                openvpn_constraints.fmt(f)
+            }
+            TunnelConstraints::Wireguard(wireguard_constraints) => {
+                write!(f, "Wireguard over ")?;
+                wireguard_constraints.fmt(f)
+            }
+        }
+    }
 }
 
 impl Match<OpenVpnEndpointData> for TunnelConstraints {
@@ -133,6 +192,20 @@ pub struct OpenVpnConstraints {
     pub protocol: Constraint<TransportProtocol>,
 }
 
+impl fmt::Display for OpenVpnConstraints {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self.port {
+            Constraint::Any => write!(f, "any port")?,
+            Constraint::Only(port) => write!(f, "port {}", port)?,
+        }
+        write!(f, " over ")?;
+        match self.protocol {
+            Constraint::Any => write!(f, "any protocol"),
+            Constraint::Only(protocol) => write!(f, "{}", protocol),
+        }
+    }
+}
+
 impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
     fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
         self.port.matches(&endpoint.port) && self.protocol.matches(&endpoint.protocol)
@@ -142,6 +215,15 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
+}
+
+impl fmt::Display for WireguardConstraints {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self.port {
+            Constraint::Any => write!(f, "any port"),
+            Constraint::Only(port) => write!(f, "port {}", port),
+        }
+    }
 }
 
 impl Match<WireguardEndpointData> for WireguardConstraints {

@@ -23,15 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
+  with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
+
 ### Fixed
 - Place Mssfix setting inside scrollable area
+- Pick new random relay for each reconnect attempt instead of just retrying with the same one.
 
 #### Linux
 - The app will have it's window resized correctly when display scaling settings are changed. This
  should also fix bad window behaviour on startup.
-
-### Fixed
-#### Linux
 - Fixed systemd-resolved DNS management.
 
 

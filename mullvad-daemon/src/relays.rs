@@ -178,40 +178,68 @@ impl RelaySelector {
     pub fn get_tunnel_endpoint(
         &mut self,
         constraints: &RelayConstraints,
+        retry_attempt: u32,
     ) -> Result<(Relay, TunnelEndpoint)> {
-        // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
-        // any constraints that are explicitly specified.
-        let tunnel_constraints1 = match constraints.tunnel {
-            Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
-                port: Constraint::Any,
-                protocol: Constraint::Only(TransportProtocol::Udp),
-            }),
-            Constraint::Only(TunnelConstraints::OpenVpn(ref openvpn_constraints)) => {
-                TunnelConstraints::OpenVpn(OpenVpnConstraints {
-                    port: openvpn_constraints.port.clone(),
-                    protocol: Constraint::Only(
-                        openvpn_constraints
-                            .protocol
-                            .clone()
-                            .unwrap_or(TransportProtocol::Udp),
-                    ),
-                })
-            }
-            Constraint::Only(ref tunnel_constraints) => tunnel_constraints.clone(),
-        };
-        let relay_constraints1 = RelayConstraints {
-            location: constraints.location.clone(),
-            tunnel: Constraint::Only(tunnel_constraints1),
-        };
-
-        if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&relay_constraints1) {
-            debug!("Relay matched on highest preference");
+        let preferred_constraints = Self::preferred_constraints(constraints, retry_attempt);
+        if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
+            debug!(
+                "Relay matched on highest preference for retry attempt {}",
+                retry_attempt
+            );
             Ok((relay, endpoint))
         } else if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(constraints) {
-            debug!("Relay matched on second preference");
+            debug!(
+                "Relay matched on second preference for retry attempt {}",
+                retry_attempt
+            );
             Ok((relay, endpoint))
         } else {
+            warn!("No relays matching {}", constraints);
             bail!(ErrorKind::NoRelay);
+        }
+    }
+
+    fn preferred_constraints(
+        original_constraints: &RelayConstraints,
+        retry_attempt: u32,
+    ) -> RelayConstraints {
+        // Prefer UDP by default. But if that has failed a couple of times, then try TCP port 443,
+        // which works for many with UDP problems. After that, just alternate between protocols.
+        let (preferred_port, preferred_protocol) = match retry_attempt {
+            0 | 1 => (Constraint::Any, TransportProtocol::Udp),
+            2 | 3 => (Constraint::Only(443), TransportProtocol::Tcp),
+            attempt if attempt % 2 == 0 => (Constraint::Any, TransportProtocol::Udp),
+            _ => (Constraint::Any, TransportProtocol::Tcp),
+        };
+
+        // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
+        // any constraints that are explicitly specified.
+        let tunnel_constraints = match original_constraints.tunnel {
+            // No constraints, we use our preferred ones.
+            Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
+                port: preferred_port,
+                protocol: Constraint::Only(preferred_protocol),
+            }),
+            Constraint::Only(TunnelConstraints::OpenVpn(ref openvpn_constraints)) => {
+                match openvpn_constraints {
+                    // Constrained to OpenVpn, but port/protocol not constrained. Use our preferred.
+                    OpenVpnConstraints {
+                        port: Constraint::Any,
+                        protocol: Constraint::Any,
+                    } => TunnelConstraints::OpenVpn(OpenVpnConstraints {
+                        port: preferred_port,
+                        protocol: Constraint::Only(preferred_protocol),
+                    }),
+                    // Other constraints, use the original constraints.
+                    openvpn_constraints => TunnelConstraints::OpenVpn(openvpn_constraints.clone()),
+                }
+            }
+            // Non-OpenVPN constraints. Respect and keep those constraints.
+            Constraint::Only(ref tunnel_constraints) => tunnel_constraints.clone(),
+        };
+        RelayConstraints {
+            location: original_constraints.location.clone(),
+            tunnel: Constraint::Only(tunnel_constraints),
         }
     }
 
