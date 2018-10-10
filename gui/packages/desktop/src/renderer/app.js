@@ -662,6 +662,8 @@ type AccountFetchWatcher = {
 class AccountDataCache {
   _currentAccount: ?AccountToken;
   _expiresAt: ?Date;
+  _fetchAttempt: number;
+  _fetchRetryTimeout: ?TimeoutID;
   _fetch: (AccountToken) => Promise<AccountData>;
   _update: (?AccountData) => void;
   _watchers: Array<AccountFetchWatcher>;
@@ -670,6 +672,7 @@ class AccountDataCache {
     this._fetch = fetch;
     this._update = update;
     this._watchers = [];
+    this._fetchAttempt = 0;
   }
 
   fetch(accountToken: AccountToken, watcher?: AccountFetchWatcher) {
@@ -692,6 +695,12 @@ class AccountDataCache {
   }
 
   invalidate() {
+    if (this._fetchRetryTimeout) {
+      clearTimeout(this._fetchRetryTimeout);
+      this._fetchRetryTimeout = null;
+      this._fetchAttempt = 0;
+    }
+
     this._expiresAt = null;
     this._update(null);
     this._notifyWatchers((watcher) => watcher.onError(new Error('Cancelled')));
@@ -720,7 +729,22 @@ class AccountDataCache {
     } catch (error) {
       if (this._currentAccount === accountToken) {
         this._notifyWatchers((watcher) => watcher.onError(error));
+        this._scheduleRetry(accountToken);
       }
+    }
+  }
+
+  _scheduleRetry(accountToken: AccountToken) {
+    this._fetchAttempt += 1;
+
+    const delay = Math.min(2048, 1 << (this._fetchAttempt + 2)) * 1000;
+
+    log.debug(`Failed to fetch account data. Retrying in ${delay} ms`);
+
+    this._fetchRetryTimeout = setTimeout(() => {
+      this._fetchRetryTimeout = null;
+      this._performFetch(accountToken);
+    }, delay);
   }
 
   _notifyWatchers(notify: (AccountFetchWatcher) => void) {
