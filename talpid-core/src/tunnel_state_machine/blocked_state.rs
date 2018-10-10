@@ -55,9 +55,7 @@ impl TunnelState for BlockedState {
                 Self::set_security_policy(shared_values);
                 SameState(self)
             }
-            Ok(TunnelCommand::Connect(parameters)) => {
-                NewState(ConnectingState::enter(shared_values, parameters))
-            }
+            Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectedState::enter(shared_values, ()))
             }

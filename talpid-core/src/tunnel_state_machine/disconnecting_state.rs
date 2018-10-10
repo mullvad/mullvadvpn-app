@@ -8,8 +8,7 @@ use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
 
 use super::{
     BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
-    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper,
+    SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use tunnel::CloseHandle;
 
@@ -26,8 +25,6 @@ impl DisconnectingState {
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        use self::AfterDisconnect::*;
-
         let event = try_handle_event!(self, commands.poll());
         let after_disconnect = self.after_disconnect;
 
@@ -35,30 +32,30 @@ impl DisconnectingState {
             AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
-                    Nothing
+                    AfterDisconnect::Nothing
                 }
-                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-                Ok(TunnelCommand::Block(reason)) => Block(reason),
-                _ => Nothing,
+                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
+                Ok(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                _ => AfterDisconnect::Nothing,
             },
             AfterDisconnect::Block(reason) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
-                    Block(reason)
+                    AfterDisconnect::Block(reason)
                 }
-                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-                Ok(TunnelCommand::Disconnect) => Nothing,
-                Ok(TunnelCommand::Block(new_reason)) => Block(new_reason),
-                Err(_) => Block(reason),
+                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
+                Ok(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
+                Ok(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
+                Err(_) => AfterDisconnect::Block(reason),
             },
-            AfterDisconnect::Reconnect(tunnel_parameters) => match event {
+            AfterDisconnect::Reconnect(retry_attempt) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
-                    Reconnect(tunnel_parameters)
+                    AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Ok(TunnelCommand::Connect(parameters)) => Reconnect(parameters),
-                Ok(TunnelCommand::Disconnect) | Err(_) => Nothing,
-                Ok(TunnelCommand::Block(reason)) => Block(reason),
+                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
+                Ok(TunnelCommand::Disconnect) | Err(_) => AfterDisconnect::Nothing,
+                Ok(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
             },
         };
 
@@ -84,8 +81,8 @@ impl DisconnectingState {
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
             AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
-            AfterDisconnect::Reconnect(tunnel_parameters) => {
-                ConnectingState::enter(shared_values, tunnel_parameters)
+            AfterDisconnect::Reconnect(retry_attempt) => {
+                ConnectingState::enter(shared_values, retry_attempt)
             }
         }
     }
@@ -133,7 +130,7 @@ impl TunnelState for DisconnectingState {
 pub enum AfterDisconnect {
     Nothing,
     Block(BlockReason),
-    Reconnect(TunnelParameters),
+    Reconnect(u32),
 }
 
 impl AfterDisconnect {
@@ -142,7 +139,7 @@ impl AfterDisconnect {
         match self {
             AfterDisconnect::Nothing => ActionAfterDisconnect::Nothing,
             AfterDisconnect::Block(..) => ActionAfterDisconnect::Block,
-            AfterDisconnect::Reconnect(_) => ActionAfterDisconnect::Reconnect,
+            AfterDisconnect::Reconnect(..) => ActionAfterDisconnect::Reconnect,
         }
     }
 }

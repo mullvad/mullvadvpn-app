@@ -47,6 +47,7 @@ pub struct ConnectingState {
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: oneshot::Receiver<()>,
     close_handle: CloseHandle,
+    retry_attempt: u32,
 }
 
 impl ConnectingState {
@@ -68,6 +69,7 @@ impl ConnectingState {
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
+        retry_attempt: u32,
     ) -> Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let monitor = Self::spawn_tunnel_monitor(&parameters, log_dir, resource_dir, event_tx)?;
@@ -79,6 +81,7 @@ impl ConnectingState {
             tunnel_parameters: parameters,
             tunnel_close_event,
             close_handle,
+            retry_attempt,
         })
     }
 
@@ -185,20 +188,14 @@ impl ConnectingState {
                     }
                 }
             }
-            Ok(TunnelCommand::Connect(parameters)) => {
-                if parameters != self.tunnel_parameters {
-                    NewState(DisconnectingState::enter(
-                        shared_values,
-                        (
-                            self.close_handle,
-                            self.tunnel_close_event,
-                            AfterDisconnect::Reconnect(parameters),
-                        ),
-                    ))
-                } else {
-                    SameState(self)
-                }
-            }
+            Ok(TunnelCommand::Connect) => NewState(DisconnectingState::enter(
+                shared_values,
+                (
+                    self.close_handle,
+                    self.tunnel_close_event,
+                    AfterDisconnect::Reconnect(0),
+                ),
+            )),
             Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter(
                 shared_values,
                 (
@@ -245,7 +242,7 @@ impl ConnectingState {
                     (
                         self.close_handle,
                         self.tunnel_close_event,
-                        AfterDisconnect::Reconnect(self.tunnel_parameters),
+                        AfterDisconnect::Reconnect(self.retry_attempt + 1),
                     ),
                 ))
             }
@@ -262,47 +259,61 @@ impl ConnectingState {
             Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
         }
 
-        info!("Tunnel closed. Reconnecting.");
+        info!(
+            "Tunnel closed. Reconnecting, attempt {}.",
+            self.retry_attempt + 1
+        );
         EventConsequence::NewState(ConnectingState::enter(
             shared_values,
-            self.tunnel_parameters,
+            self.retry_attempt + 1,
         ))
     }
 }
 
 impl TunnelState for ConnectingState {
-    type Bootstrap = TunnelParameters;
+    type Bootstrap = u32;
 
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
-        parameters: Self::Bootstrap,
+        retry_attempt: u32,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        if let Err(error) = Self::set_security_policy(shared_values, parameters.endpoint) {
-            error!("{}", error.display_chain());
-            return BlockedState::enter(shared_values, BlockReason::StartTunnelError);
-        }
+        match shared_values
+            .tunnel_parameters_generator
+            .generate(retry_attempt)
+        {
+            None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
+            Some(tunnel_parameters) => {
+                if let Err(error) =
+                    Self::set_security_policy(shared_values, tunnel_parameters.endpoint)
+                {
+                    error!("{}", error.display_chain());
+                    BlockedState::enter(shared_values, BlockReason::StartTunnelError)
+                } else {
+                    match Self::start_tunnel(
+                        tunnel_parameters,
+                        &shared_values.log_dir,
+                        &shared_values.resource_dir,
+                        retry_attempt,
+                    ) {
+                        Ok(connecting_state) => (
+                            TunnelStateWrapper::from(connecting_state),
+                            TunnelStateTransition::Connecting,
+                        ),
+                        Err(error) => {
+                            let block_reason = match *error.kind() {
+                                ErrorKind::TunnelMonitorError(
+                                    tunnel::ErrorKind::EnableIpv6Error,
+                                ) => BlockReason::Ipv6Unavailable,
+                                _ => BlockReason::StartTunnelError,
+                            };
 
-        match Self::start_tunnel(
-            parameters,
-            &shared_values.log_dir,
-            &shared_values.resource_dir,
-        ) {
-            Ok(connecting_state) => (
-                TunnelStateWrapper::from(connecting_state),
-                TunnelStateTransition::Connecting,
-            ),
-            Err(error) => {
-                let block_reason = match *error.kind() {
-                    ErrorKind::TunnelMonitorError(tunnel::ErrorKind::EnableIpv6Error) => {
-                        BlockReason::Ipv6Unavailable
+                            let chained_error = error.chain_err(|| "Failed to start tunnel");
+                            error!("{}", chained_error.display_chain());
+
+                            BlockedState::enter(shared_values, block_reason)
+                        }
                     }
-                    _ => BlockReason::StartTunnelError,
-                };
-
-                let chained_error = error.chain_err(|| "Failed to start tunnel");
-                error!("{}", chained_error.display_chain());
-
-                BlockedState::enter(shared_values, block_reason)
+                }
             }
         }
     }

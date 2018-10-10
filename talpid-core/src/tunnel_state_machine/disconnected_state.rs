@@ -46,9 +46,7 @@ impl TunnelState for DisconnectedState {
                 shared_values.allow_lan = allow_lan;
                 SameState(self)
             }
-            Ok(TunnelCommand::Connect(parameters)) => {
-                NewState(ConnectingState::enter(shared_values, parameters))
-            }
+            Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Ok(TunnelCommand::Block(reason)) => {
                 NewState(BlockedState::enter(shared_values, reason))
             }
