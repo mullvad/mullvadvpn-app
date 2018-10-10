@@ -3,8 +3,7 @@ mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
 
-use std::env;
-use std::net::IpAddr;
+use std::{env, fmt, net::IpAddr};
 
 use self::network_manager::NetworkManager;
 use self::resolvconf::Resolvconf;
@@ -33,17 +32,31 @@ pub enum DnsSettings {
     NetworkManager(NetworkManager),
 }
 
+impl fmt::Display for DnsSettings {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = match self {
+            DnsSettings::Resolvconf(..) => "resolvconf",
+            DnsSettings::StaticResolvConf(..) => "/etc/resolv.conf",
+            DnsSettings::SystemdResolved(..) => "systemd-resolve",
+            DnsSettings::NetworkManager(..) => "network manager",
+        };
+        f.write_str(name)
+    }
+}
+
 impl DnsSettings {
     pub fn new() -> Result<Self> {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
-        Ok(match dns_module.as_ref().and_then(|value| value.to_str()) {
+        let manager = match dns_module.as_ref().and_then(|value| value.to_str()) {
             Some("static-file") => DnsSettings::StaticResolvConf(StaticResolvConf::new()?),
             Some("resolvconf") => DnsSettings::Resolvconf(Resolvconf::new()?),
             Some("systemd") => DnsSettings::SystemdResolved(SystemdResolved::new()?),
             Some("network-manager") => DnsSettings::NetworkManager(NetworkManager::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
-        })
+        };
+        debug!("Managing DNS via {}", manager);
+        Ok(manager)
     }
 
     fn with_detected_dns_manager() -> Result<Self> {
