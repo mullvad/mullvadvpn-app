@@ -65,7 +65,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{OpenVpnBridgeSettings, TunnelEndpoint},
+    net::OpenVpnBridgeSettings,
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
