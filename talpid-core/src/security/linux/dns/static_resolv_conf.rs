@@ -1,5 +1,4 @@
 extern crate notify;
-extern crate resolv_conf;
 
 use std::net::IpAddr;
 use std::ops::DerefMut;
@@ -9,9 +8,9 @@ use std::{fs, io, thread};
 use error_chain::ChainedError;
 
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
-use self::resolv_conf::{Config, ScopedIp};
+use super::resolv_conf::{Config, ScopedIp};
+use super::RESOLV_CONF_PATH;
 
-const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
 error_chain! {
