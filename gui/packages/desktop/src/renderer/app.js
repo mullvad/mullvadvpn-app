@@ -508,7 +508,7 @@ export default class AppRenderer {
 
       const recover = async () => {
         try {
-          await this.connect();
+          this.connect();
         } catch (error) {
           log.error(`Failed to reconnect: ${error.message}`);
         }
