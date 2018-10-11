@@ -37,7 +37,7 @@ impl fmt::Display for DnsSettings {
         let name = match self {
             DnsSettings::Resolvconf(..) => "resolvconf",
             DnsSettings::StaticResolvConf(..) => "/etc/resolv.conf",
-            DnsSettings::SystemdResolved(..) => "systemd-resolve",
+            DnsSettings::SystemdResolved(..) => "systemd-resolved",
             DnsSettings::NetworkManager(..) => "network manager",
         };
         f.write_str(name)
