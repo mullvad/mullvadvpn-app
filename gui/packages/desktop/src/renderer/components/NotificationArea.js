@@ -138,9 +138,9 @@ export default class NotificationArea extends Component<Props, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>{'UNSUPPORTED VERSION'}</NotificationTitle>
-              <NotificationSubtitle>{`This app version might have security issues. Please upgrade to ${
+              <NotificationSubtitle>{`You are running an unsupported app version. Please upgrade to ${
                 this.state.upgradeVersion
-              }`}</NotificationSubtitle>
+              } now to ensure your security`}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
               <NotificationOpenLinkAction
