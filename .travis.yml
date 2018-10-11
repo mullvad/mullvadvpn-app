@@ -101,6 +101,35 @@ matrix:
       script:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh stable
 
+    # Daemon - Windows
+    - os: windows
+      name: Daemon - stable Rust
+      env: RUST_VERSION=stable
+      language: bash
+      cache:  &rust_windows_cache
+        directories:
+          - windows/nsis-plugins/bin
+          - windows/windns/bin
+          - windows/winfw/bin
+          - windows/winnet/bin
+          - windows/winutil/bin
+      install: &rust_windows_install
+        - du -sh windows/
+        - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+        - ./rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain $RUST_VERSION --profile minimal
+        - export PATH="$HOME/.cargo/bin/:$PATH"
+        - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/amd64/:$PATH"
+      script: &rust_windows_script
+        - ./ci/ci-rust-script.sh $RUST_VERSION
+
+    - os: windows
+      name: Daemon - beta Rust
+      env: RUST_VERSION=beta
+      language: bash
+      cache: *rust_windows_cache
+      install: *rust_windows_install
+      script: *rust_windows_script
+
 
 notifications:
   email:
