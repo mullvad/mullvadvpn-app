@@ -27,7 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
   with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
 - Add new in-app notifications to inform the user when the app becomes outdated, unsupported or
-  might have security issues.
+  may have security issues.
+- Add new system notifications to inform the user when the app becomes unsupported or may have
+  security issues.
 
 ### Fixed
 - Place Mssfix setting inside scrollable area
