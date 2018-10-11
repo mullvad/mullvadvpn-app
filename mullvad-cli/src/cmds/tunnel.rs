@@ -24,7 +24,7 @@ impl Command for Tunnel {
                                 clap::SubCommand::with_name("mssfix").arg(
                                     clap::Arg::with_name("mssfix")
                                         .help(
-                                            "Sets the optional  mssfix parameter. \
+                                            "Sets the optional mssfix parameter. \
                                              Set an empty string to clear it.",
                                         )
                                         .required(true),
@@ -34,7 +34,7 @@ impl Command for Tunnel {
                     )
                     .subcommand(
                         clap::SubCommand::with_name("get")
-                            .help("Retrieves the current setting for mssfix"),
+                            .help("Retrieves the current settings for OpenVPN tunnels"),
                     ),
             )
             .subcommand(
