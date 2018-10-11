@@ -564,16 +564,8 @@ export default class AppRenderer {
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
-      const recover = async () => {
-        try {
-          await this.connect();
-        } catch (error) {
-          log.error(`Failed to reconnect: ${error.message}`);
-        }
-      };
-
       this._reconnectBackoff.attempt(() => {
-        recover();
+        this.connect();
       });
 
       // only send to the connecting to daemon view if the daemon was
