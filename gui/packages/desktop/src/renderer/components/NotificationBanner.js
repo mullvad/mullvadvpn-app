@@ -46,6 +46,7 @@ const styles = {
     flex: 0,
     flexDirection: 'column',
     justifyContent: 'center',
+    marginLeft: 5,
   }),
   actionButton: Styles.createButtonStyle({
     flex: 1,

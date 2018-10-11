@@ -2,9 +2,14 @@
 
 import type { AppVersionInfo } from '../../lib/daemon-rpc';
 
+type UpdateLatestActionPayload = {
+  upToDate: boolean,
+  nextUpgrade: ?string,
+} & AppVersionInfo;
+
 export type UpdateLatestAction = {
   type: 'UPDATE_LATEST',
-  latestInfo: AppVersionInfo,
+  latestInfo: UpdateLatestActionPayload,
 };
 
 export type UpdateVersionAction = {
@@ -15,7 +20,7 @@ export type UpdateVersionAction = {
 
 export type VersionAction = UpdateLatestAction | UpdateVersionAction;
 
-function updateLatest(latestInfo: AppVersionInfo): UpdateLatestAction {
+function updateLatest(latestInfo: UpdateLatestActionPayload): UpdateLatestAction {
   return {
     type: 'UPDATE_LATEST',
     latestInfo,

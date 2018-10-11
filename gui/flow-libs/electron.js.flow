@@ -57,6 +57,7 @@ declare module 'electron' {
 
   declare class Remote {
     app: App;
+    shell: Shell;
     getCurrentWindow(): BrowserWindow;
     getCurrentWebContents(): WebContents;
     getGlobal(name: string): ?mixed;
