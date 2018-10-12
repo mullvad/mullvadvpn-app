@@ -30,8 +30,9 @@ Line wrap the file at 100 chars.                                              Th
   might have security issues.
 
 ### Fixed
-- Place Mssfix setting inside scrollable area
+- Place Mssfix setting inside scrollable area.
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
+- Fix so mssfix can be unset. Previously emptying the textbox did nothing.
 
 #### Linux
 - The app will have it's window resized correctly when display scaling settings are changed. This
