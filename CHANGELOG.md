@@ -30,15 +30,19 @@ Line wrap the file at 100 chars.                                              Th
   might have security issues.
 
 ### Fixed
-- Place Mssfix setting inside scrollable area.
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
+
+
+## [2018.4-beta3] - 2018-10-12
+### Fixed
+- Place Mssfix setting inside scrollable area.
 - Fix so mssfix can be unset. Previously emptying the textbox did nothing.
 
 #### Linux
-- The app will have it's window resized correctly when display scaling settings are changed. This
- should also fix bad window behaviour on startup.
-- Fixed systemd-resolved DNS management.
-- Skip systemd-resolved as the DNS manager if it's running in consumer mode.
+- The app will have its window resized correctly when display scaling settings are changed. This
+  should also fix bad window behaviour on startup.
+- Fixed systemd-resolved DNS management. Skip using it as the DNS manager if it's running in
+  consumer mode.
 
 
 ## [2018.4-beta2] - 2018-10-08
