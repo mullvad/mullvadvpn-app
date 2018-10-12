@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
+- Fix so changing the OpenVPN mssfix setting triggers setting up a new tunnel with the new setting.
 
 
 ## [2018.4-beta3] - 2018-10-12

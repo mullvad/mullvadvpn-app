@@ -589,6 +589,8 @@ impl Daemon {
                 if settings_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
+                    info!("Initiating tunnel restart because the OpenVPN mssfix setting changed");
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
