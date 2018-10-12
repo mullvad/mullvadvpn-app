@@ -181,7 +181,7 @@ export class AdvancedSettings extends Component<Props, State> {
   _mssfixIsValid(): boolean {
     const mssfix = this.state.editedMssfix;
 
-    return mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE;
+    return mssfix === null || (mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE);
   }
 }
 

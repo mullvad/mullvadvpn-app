@@ -24,7 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Fixed
-- Place Mssfix setting inside scrollable area
+- Place Mssfix setting inside scrollable area.
+- Fix so mssfix can be unset. Previously emptying the textbox did nothing.
 
 #### Linux
 - The app will have it's window resized correctly when display scaling settings are changed. This
