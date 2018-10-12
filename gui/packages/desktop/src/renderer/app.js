@@ -662,7 +662,7 @@ type AccountFetchWatcher = {
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
-class AccountDataCache {
+export class AccountDataCache {
   _currentAccount: ?AccountToken;
   _expiresAt: ?Date;
   _fetchAttempt: number;

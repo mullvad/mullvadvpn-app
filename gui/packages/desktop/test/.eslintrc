@@ -9,6 +9,7 @@
   },
   "globals": {
     "expect": true,
+    "sinon": true,
     "spy": true
   }
 }
