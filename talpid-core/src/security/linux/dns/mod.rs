@@ -1,3 +1,5 @@
+extern crate resolv_conf;
+
 mod network_manager;
 mod resolvconf;
 mod static_resolv_conf;
@@ -9,6 +11,8 @@ use self::network_manager::NetworkManager;
 use self::resolvconf::Resolvconf;
 use self::static_resolv_conf::StaticResolvConf;
 use self::systemd_resolved::SystemdResolved;
+
+const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 
 error_chain! {
     errors {
@@ -37,7 +41,7 @@ impl fmt::Display for DnsSettings {
         let name = match self {
             DnsSettings::Resolvconf(..) => "resolvconf",
             DnsSettings::StaticResolvConf(..) => "/etc/resolv.conf",
-            DnsSettings::SystemdResolved(..) => "systemd-resolve",
+            DnsSettings::SystemdResolved(..) => "systemd-resolved",
             DnsSettings::NetworkManager(..) => "network manager",
         };
         f.write_str(name)

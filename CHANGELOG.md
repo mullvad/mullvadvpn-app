@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - The app will have it's window resized correctly when display scaling settings are changed. This
  should also fix bad window behaviour on startup.
 - Fixed systemd-resolved DNS management.
+- Skip systemd-resolved as the DNS manager if it's running in consumer mode.
 
 
 ## [2018.4-beta2] - 2018-10-08

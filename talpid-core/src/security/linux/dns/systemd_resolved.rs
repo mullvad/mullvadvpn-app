@@ -1,6 +1,8 @@
 extern crate dbus;
 
-use std::net::IpAddr;
+use std::fs;
+use std::net::{IpAddr, Ipv4Addr};
+use std::path::Path;
 
 use error_chain::ChainedError;
 use libc::{AF_INET, AF_INET6};
@@ -10,6 +12,8 @@ use self::dbus::stdintf::*;
 use self::dbus::{BusType, Interface, Member, MessageItem, MessageItemArray, Signature};
 
 use super::super::iface_index;
+use super::{resolv_conf, RESOLV_CONF_PATH};
+
 
 error_chain! {
     errors {
@@ -38,6 +42,9 @@ error_chain! {
 
 }
 
+const DYNAMIC_RESOLV_CONF_PATH: &str = "/run/systemd/resolve/resolv.conf";
+const RESOLVED_DNS_SERVER_ADDRESS: [u8; 4] = [127, 0, 0, 53];
+
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
 const RPC_TIMEOUT_MS: i32 = 1000;
 
@@ -65,6 +72,7 @@ impl SystemdResolved {
             interface_link: None,
         };
 
+        SystemdResolved::ensure_resolved_is_active()?;
         systemd_resolved.ensure_resolved_exists()?;
 
         Ok(systemd_resolved)
@@ -77,6 +85,35 @@ impl SystemdResolved {
             .chain_err(|| ErrorKind::NoSystemdResolved)?;
 
         Ok(())
+    }
+
+    fn ensure_resolved_is_active() -> Result<()> {
+        ensure!(
+            Self::resolv_conf_is_resolved_symlink() || Self::resolv_conf_has_resolved_dns()?,
+            ErrorKind::NoSystemdResolved
+        );
+
+        Ok(())
+    }
+
+    fn resolv_conf_is_resolved_symlink() -> bool {
+        fs::read_link(RESOLV_CONF_PATH)
+            .map(|resolv_conf_target| resolv_conf_target == Path::new(DYNAMIC_RESOLV_CONF_PATH))
+            .unwrap_or_else(|_| false)
+    }
+
+    fn resolv_conf_has_resolved_dns() -> Result<bool> {
+        let resolv_conf_contents =
+            fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::NoSystemdResolved)?;
+        let parsed_resolv_conf = resolv_conf::Config::parse(resolv_conf_contents)
+            .chain_err(|| ErrorKind::NoSystemdResolved)?;
+        let resolved_dns_server =
+            resolv_conf::ScopedIp::V4(Ipv4Addr::from(RESOLVED_DNS_SERVER_ADDRESS));
+
+        Ok(parsed_resolv_conf
+            .nameservers
+            .into_iter()
+            .any(|nameserver| nameserver == resolved_dns_server))
     }
 
     fn as_manager_object<'a>(&'a self) -> dbus::ConnPath<'a, &'a dbus::Connection> {
