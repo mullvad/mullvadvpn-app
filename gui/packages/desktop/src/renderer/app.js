@@ -478,12 +478,6 @@ export default class AppRenderer {
     await this._setStartView();
 
     try {
-      await this._fetchLocation();
-    } catch (error) {
-      log.error(`Cannot fetch the location: ${error.message}`);
-    }
-
-    try {
       await this._fetchLatestVersionInfo();
     } catch (error) {
       log.error(`Cannot fetch the latest version information: ${error.message}`);
