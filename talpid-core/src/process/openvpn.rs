@@ -188,8 +188,9 @@ impl OpenVpnCommand {
         }
 
         if let Some(mssfix) = self.tunnel_options.mssfix {
-            args.push(OsString::from("--mssfix"));
+            args.push(OsString::from("--fragment"));
             args.push(OsString::from(mssfix.to_string()));
+            args.push(OsString::from("--mssfix"));
         }
 
         if !self.enable_ipv6 {
