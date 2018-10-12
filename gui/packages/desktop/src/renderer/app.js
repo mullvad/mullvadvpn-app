@@ -189,11 +189,13 @@ export default class AppRenderer {
       this._accountDataCache.invalidate();
       this._accountDataCache.fetch(accountToken, {
         onFinish: () => resolve({ status: 'verified' }),
-        onError: (error) => {
+        onError: (error): AccountFetchRetryAction => {
           if (error instanceof InvalidAccountError) {
             reject(error);
+            return 'stop';
           } else {
             resolve({ status: 'deferred', error });
+            return 'retry';
           }
         },
       });
@@ -652,9 +654,10 @@ export default class AppRenderer {
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred', error: Error };
+type AccountFetchRetryAction = 'stop' | 'retry';
 type AccountFetchWatcher = {
   onFinish: () => void,
-  onError: (any) => void,
+  onError: (any) => AccountFetchRetryAction,
 };
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
@@ -703,7 +706,9 @@ class AccountDataCache {
 
     this._expiresAt = null;
     this._update(null);
-    this._notifyWatchers((watcher) => watcher.onError(new Error('Cancelled')));
+    this._notifyWatchers((watcher) => {
+      watcher.onError(new Error('Cancelled'));
+    });
   }
 
   _setValue(value: AccountData) {
@@ -728,9 +733,22 @@ class AccountDataCache {
       }
     } catch (error) {
       if (this._currentAccount === accountToken) {
-        this._notifyWatchers((watcher) => watcher.onError(error));
-        this._scheduleRetry(accountToken);
+        this._handleFetchError(accountToken, error);
       }
+    }
+  }
+
+  _handleFetchError(accountToken: AccountToken, error: any) {
+    let shouldRetry = true;
+
+    this._notifyWatchers((watcher) => {
+      if (watcher.onError(error) === 'stop') {
+        shouldRetry = false;
+      }
+    });
+
+    if (shouldRetry) {
+      this._scheduleRetry(accountToken);
     }
   }
 
