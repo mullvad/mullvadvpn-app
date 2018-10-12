@@ -17,7 +17,7 @@ import styles from './AdvancedSettingsStyles';
 import Img from './Img';
 
 const MIN_MSSFIX_VALUE = 1000;
-const MAX_MSSFIX_VALUE = 1500;
+const MAX_MSSFIX_VALUE = 1450;
 
 type Props = {
   enableIpv6: boolean,
@@ -116,7 +116,7 @@ export class AdvancedSettings extends Component<Props, State> {
                     <Cell.Input
                       keyboardType={'numeric'}
                       maxLength={5}
-                      placeholder={'None'}
+                      placeholder={MIN_MSSFIX_VALUE + ' - ' + MAX_MSSFIX_VALUE}
                       value={this.state.editedMssfix}
                       style={mssfixStyle}
                       onChangeText={this._onMssfixChange}
