@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Linux
 - Fixed systemd-resolved DNS management.
+- Skip systemd-resolved as the DNS manager if it's running in consumer mode.
 
 
 ## [2018.4-beta2] - 2018-10-08
