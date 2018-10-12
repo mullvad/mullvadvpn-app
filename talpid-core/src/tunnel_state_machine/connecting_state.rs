@@ -283,9 +283,9 @@ impl TunnelState for ConnectingState {
         {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
-                if let Err(error) =
-                    Self::set_security_policy(shared_values, tunnel_parameters.endpoint)
-                {
+                let tunnel_endpoint = tunnel_parameters.endpoint;
+
+                if let Err(error) = Self::set_security_policy(shared_values, tunnel_endpoint) {
                     error!("{}", error.display_chain());
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
@@ -297,7 +297,7 @@ impl TunnelState for ConnectingState {
                     ) {
                         Ok(connecting_state) => (
                             TunnelStateWrapper::from(connecting_state),
-                            TunnelStateTransition::Connecting,
+                            TunnelStateTransition::Connecting(tunnel_endpoint),
                         ),
                         Err(error) => {
                             let block_reason = match *error.kind() {

@@ -4,7 +4,7 @@ use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 
 /// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
     pub tunnel: TunnelEndpointData,

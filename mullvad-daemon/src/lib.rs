@@ -455,7 +455,7 @@ impl Daemon {
                         })
                 });
             }
-            Connecting | Connected | Disconnecting(..) => {
+            Connecting(_) | Connected(_) | Disconnecting(..) => {
                 if let Some(ref relay) = self.last_generated_relay {
                     let location = relay.location.as_ref().cloned().unwrap();
                     let hostname = relay.hostname.clone();

@@ -32,10 +32,10 @@ export default function(
       return { ...state, ...action.newLocation };
 
     case 'CONNECTING':
-      return { ...state, status: { state: 'connecting' } };
+      return { ...state, status: { state: 'connecting', details: action.tunnelEndpoint } };
 
     case 'CONNECTED':
-      return { ...state, status: { state: 'connected' } };
+      return { ...state, status: { state: 'connected', details: action.tunnelEndpoint } };
 
     case 'DISCONNECTED':
       return { ...state, status: { state: 'disconnected' } };

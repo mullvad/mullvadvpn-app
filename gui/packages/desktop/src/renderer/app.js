@@ -229,7 +229,10 @@ export default class AppRenderer {
     if (tunnelState.state === 'disconnected' || tunnelState.state === 'blocked') {
       // switch to connecting state immediately to prevent a lag that may be caused by RPC
       // communication delay
-      actions.connection.connecting();
+      actions.connection.connecting({
+        address: null,
+        tunnel: { openvpn: { port: null, protocol: null } },
+      });
 
       await this._daemonRpc.connectTunnel();
     }
@@ -616,11 +619,11 @@ export default class AppRenderer {
 
     switch (stateTransition.state) {
       case 'connecting':
-        actions.connection.connecting();
+        actions.connection.connecting(stateTransition.details);
         break;
 
       case 'connected':
-        actions.connection.connected();
+        actions.connection.connected(stateTransition.details);
         break;
 
       case 'disconnecting':
