@@ -31,8 +31,9 @@ impl Command for Status {
             for new_state in rpc.new_state_subscribe()? {
                 print_state(&new_state);
 
-                if new_state == Connected || new_state == Disconnected {
-                    print_location(&mut rpc)?;
+                match new_state {
+                    Connected(_) | Disconnected => print_location(&mut rpc)?,
+                    _ => {}
                 }
             }
         }
@@ -44,8 +45,8 @@ fn print_state(state: &TunnelStateTransition) {
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => println!("Blocked ({})", reason),
-        Connected => println!("Connected"),
-        Connecting => println!("Connecting..."),
+        Connected(_) => println!("Connected"),
+        Connecting(_) => println!("Connecting..."),
         Disconnected => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }

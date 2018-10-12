@@ -149,12 +149,13 @@ impl TunnelState for ConnectedState {
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        let tunnel_endpoint = bootstrap.tunnel_parameters.endpoint;
         let connected_state = ConnectedState::from(bootstrap);
 
         match connected_state.set_security_policy(shared_values) {
             Ok(()) => (
                 TunnelStateWrapper::from(connected_state),
-                TunnelStateTransition::Connected,
+                TunnelStateTransition::Connected(tunnel_endpoint),
             ),
             Err(error) => {
                 error!("{}", error.display_chain());
