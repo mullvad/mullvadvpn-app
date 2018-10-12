@@ -45,6 +45,7 @@ mod rpc_uniqueness_check;
 
 use error_chain::ChainedError;
 use futures::{
+    future,
     sync::{mpsc::UnboundedSender, oneshot},
     Future, Sink,
 };
@@ -444,36 +445,58 @@ impl Daemon {
 
     fn on_get_current_location(&self, tx: oneshot::Sender<GeoIpLocation>) {
         use self::TunnelStateTransition::*;
-        match self.tunnel_state {
-            Disconnected => {
-                let https_handle = self.https_handle.clone();
-                self.tokio_remote.spawn(move |_| {
-                    geoip::send_location_request(https_handle)
-                        .map(move |location| Self::oneshot_send(tx, location, "current location"))
-                        .map_err(|e| {
-                            warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-                        })
-                });
-            }
-            Connecting(_) | Connected(_) | Disconnecting(..) => {
-                if let Some(ref relay) = self.last_generated_relay {
-                    let location = relay.location.as_ref().cloned().unwrap();
-                    let hostname = relay.hostname.clone();
-                    let geo_ip_location = GeoIpLocation {
-                        country: location.country,
-                        city: Some(location.city),
-                        latitude: location.latitude,
-                        longitude: location.longitude,
-                        mullvad_exit_ip: true,
-                        hostname: Some(hostname),
-                    };
-                    Self::oneshot_send(tx, geo_ip_location, "current location");
+        let get_location: Box<dyn Future<Item = GeoIpLocation, Error = ()> + Send> =
+            match self.tunnel_state {
+                Disconnected => Box::new(self.get_geo_location()),
+                Connecting(_) | Disconnecting(..) => {
+                    Box::new(future::result(Ok(self.build_location_from_relay())))
                 }
-            }
-            Blocked(..) => {
-                // We are not online at all at this stage. Return error.
-                mem::drop(tx);
-            }
+                Connected(_) => {
+                    let location_from_relay = self.build_location_from_relay();
+                    Box::new(
+                        self.get_geo_location()
+                            .map(|fetched_location| GeoIpLocation {
+                                ip: fetched_location.ip,
+                                ..location_from_relay
+                            }),
+                    )
+                }
+                Blocked(..) => {
+                    // We are not online at all at this stage. Return error.
+                    mem::drop(tx);
+                    return;
+                }
+            };
+
+        self.tokio_remote.spawn(move |_| {
+            get_location.map(|location| Self::oneshot_send(tx, location, "current location"))
+        });
+    }
+
+    fn get_geo_location(&self) -> impl Future<Item = GeoIpLocation, Error = ()> {
+        let https_handle = self.https_handle.clone();
+
+        geoip::send_location_request(https_handle).map_err(|e| {
+            warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+        })
+    }
+
+    fn build_location_from_relay(&self) -> GeoIpLocation {
+        let relay = self
+            .last_generated_relay
+            .as_ref()
+            .expect("Can't build location from relay in disconnected state");
+        let location = relay.location.as_ref().cloned().unwrap();
+        let hostname = relay.hostname.clone();
+
+        GeoIpLocation {
+            ip: None,
+            country: location.country,
+            city: Some(location.city),
+            latitude: location.latitude,
+            longitude: location.longitude,
+            mullvad_exit_ip: true,
+            hostname: Some(hostname),
         }
     }
 

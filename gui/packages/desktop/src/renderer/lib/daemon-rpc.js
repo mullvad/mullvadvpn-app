@@ -25,6 +25,7 @@ export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
+  ip: ?string,
   country: string,
   city: ?string,
   latitude: number,
@@ -33,6 +34,7 @@ export type Location = {
   hostname: ?string,
 };
 const LocationSchema = object({
+  ip: maybe(string),
   country: string,
   city: maybe(string),
   latitude: number,
