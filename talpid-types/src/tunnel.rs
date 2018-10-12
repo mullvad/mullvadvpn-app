@@ -1,5 +1,7 @@
 use std::fmt;
 
+use super::net::TunnelEndpoint;
+
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
