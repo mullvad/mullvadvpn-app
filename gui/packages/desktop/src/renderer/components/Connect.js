@@ -1,5 +1,6 @@
 // @flow
 
+import log from 'electron-log';
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
@@ -136,6 +137,19 @@ export default class Connect extends Component<Props> {
   }
 
   renderMap() {
+    const tunnelState = this.props.connection.status.state;
+    const details = this.props.connection.status.details;
+
+    let relayIp = null;
+    let relayPort = null;
+    let relayProtocol = null;
+
+    if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
+      relayIp = details.address;
+      relayPort = details.tunnel.openvpn.port;
+      relayProtocol = details.tunnel.openvpn.protocol;
+    }
+
     return (
       <View style={styles.connect}>
         <View style={styles.map}>
@@ -143,7 +157,7 @@ export default class Connect extends Component<Props> {
         </View>
         <View style={styles.container}>
           {/* show spinner when connecting */}
-          {this.props.connection.status.state === 'connecting' ? (
+          {tunnelState === 'connecting' ? (
             <View style={styles.status_icon}>
               <Img source="icon-spinner" height={60} width={60} alt="" />
             </View>
@@ -155,9 +169,9 @@ export default class Connect extends Component<Props> {
             city={this.props.connection.city}
             country={this.props.connection.country}
             hostname={this.props.connection.hostname}
-            relayIp={null}
-            relayPort={null}
-            relayProtocol={null}
+            relayIp={relayIp}
+            relayPort={relayPort}
+            relayProtocol={relayProtocol}
             outIpv4={null}
             outIpv6={null}
             onConnect={this.props.onConnect}
