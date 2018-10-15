@@ -187,7 +187,6 @@ export type RelayListCity = {
 export type RelayListHostname = {
   hostname: string,
   ipv4AddrIn: string,
-  ipv4AddrExit: string,
   includeInCountry: boolean,
   weight: number,
 };
