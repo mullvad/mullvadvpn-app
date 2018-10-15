@@ -226,138 +226,154 @@ type TunnelControlProps = {
   style: Types.ViewStyleRuleSet,
 };
 
-export function TunnelControl(props: TunnelControlProps) {
-  const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
-  const City = () => <Text style={styles.status_location_text}>{props.city}</Text>;
-  const Country = () => <Text style={styles.status_location_text}>{props.country}</Text>;
-  const Hostname = () => <Text style={styles.status_hostname}>{props.hostname || ''}</Text>;
+class TunnelControl extends Component<TunnelControlProps> {
+  render() {
+    const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
+    const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
+    const Country = () => <Text style={styles.status_location_text}>{this.props.country}</Text>;
+    const Hostname = () => <Text style={styles.status_hostname}>{this.props.hostname || ''}</Text>;
 
-  const SwitchLocation = () => {
-    return (
+    const SwitchLocation = () => {
+      return (
+        <AppButton.TransparentButton
+          style={styles.switch_location_button}
+          onPress={this.props.onSelectLocation}>
+          <AppButton.Label>{'Switch location'}</AppButton.Label>
+        </AppButton.TransparentButton>
+      );
+    };
+
+    const SelectedLocation = () => (
       <AppButton.TransparentButton
         style={styles.switch_location_button}
-        onPress={props.onSelectLocation}>
-        <AppButton.Label>{'Switch location'}</AppButton.Label>
+        onPress={this.props.onSelectLocation}>
+        <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
+        <Img height={12} width={7} source="icon-chevron" />
       </AppButton.TransparentButton>
     );
-  };
 
-  const SelectedLocation = () => (
-    <AppButton.TransparentButton
-      style={styles.switch_location_button}
-      onPress={props.onSelectLocation}>
-      <AppButton.Label>{props.selectedRelayName}</AppButton.Label>
-      <Img height={12} width={7} source="icon-chevron" />
-    </AppButton.TransparentButton>
-  );
+    const Connect = () => (
+      <AppButton.GreenButton onPress={this.props.onConnect}>
+        {'Secure my connection'}
+      </AppButton.GreenButton>
+    );
 
-  const Connect = () => (
-    <AppButton.GreenButton onPress={props.onConnect}>
-      {'Secure my connection'}
-    </AppButton.GreenButton>
-  );
+    const Disconnect = () => (
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+        {'Disconnect'}
+      </AppButton.RedTransparentButton>
+    );
 
-  const Disconnect = () => (
-    <AppButton.RedTransparentButton onPress={props.onDisconnect}>
-      {'Disconnect'}
-    </AppButton.RedTransparentButton>
-  );
+    const Cancel = () => (
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+        {'Cancel'}
+      </AppButton.RedTransparentButton>
+    );
 
-  const Cancel = () => (
-    <AppButton.RedTransparentButton onPress={props.onDisconnect}>
-      {'Cancel'}
-    </AppButton.RedTransparentButton>
-  );
+    const Secured = ({ displayStyle }) => (
+      <SecuredLabel style={styles.status_security} displayStyle={displayStyle} />
+    );
+    const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
 
-  const Secured = ({ displayStyle }) => (
-    <SecuredLabel style={styles.status_security} displayStyle={displayStyle} />
-  );
-  const Wrapper = ({ children }) => <View style={props.style}>{children}</View>;
-  const Body = ({ children }) => <View style={styles.body}>{children}</View>;
-  const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
+    switch (this.props.tunnelState) {
+      case 'connecting':
+        return (
+          <Wrapper>
+            <Body>
+              <Secured displayStyle={SecuredDisplayStyle.securing} />
+              <Location>
+                <City />
+                <Country />
+              </Location>
+              <Hostname />
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Cancel />
+            </Footer>
+          </Wrapper>
+        );
+      case 'connected':
+        return (
+          <Wrapper>
+            <Body>
+              <Secured displayStyle={SecuredDisplayStyle.secured} />
+              <Location>
+                <City />
+                <Country />
+              </Location>
+              <Hostname />
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Disconnect />
+            </Footer>
+          </Wrapper>
+        );
 
-  switch (props.tunnelState) {
-    case 'connecting':
-      return (
-        <Wrapper>
-          <Body>
-            <Secured displayStyle={SecuredDisplayStyle.securing} />
-            <Location>
-              <City />
-              <Country />
-            </Location>
-            <Hostname />
-          </Body>
-          <Footer>
-            <SwitchLocation />
-            <Cancel />
-          </Footer>
-        </Wrapper>
-      );
-    case 'connected':
-      return (
-        <Wrapper>
-          <Body>
-            <Secured displayStyle={SecuredDisplayStyle.secured} />
-            <Location>
-              <City />
-              <Country />
-            </Location>
-            <Hostname />
-          </Body>
-          <Footer>
-            <SwitchLocation />
-            <Disconnect />
-          </Footer>
-        </Wrapper>
-      );
+      case 'blocked':
+        return (
+          <Wrapper>
+            <Body>
+              <Secured displayStyle={SecuredDisplayStyle.blocked} />
+            </Body>
+            <Footer>
+              <SwitchLocation />
+              <Cancel />
+            </Footer>
+          </Wrapper>
+        );
 
-    case 'blocked':
-      return (
-        <Wrapper>
-          <Body>
-            <Secured displayStyle={SecuredDisplayStyle.blocked} />
-          </Body>
-          <Footer>
-            <SwitchLocation />
-            <Cancel />
-          </Footer>
-        </Wrapper>
-      );
+      case 'disconnecting':
+        return (
+          <Wrapper>
+            <Body>
+              <Secured displayStyle={SecuredDisplayStyle.secured} />
+              <Location>
+                <Country />
+              </Location>
+            </Body>
+            <Footer>
+              <SelectedLocation />
+              <Connect />
+            </Footer>
+          </Wrapper>
+        );
 
-    case 'disconnecting':
-      return (
-        <Wrapper>
-          <Body>
-            <Secured displayStyle={SecuredDisplayStyle.secured} />
-            <Location>
-              <Country />
-            </Location>
-          </Body>
-          <Footer>
-            <SelectedLocation />
-            <Connect />
-          </Footer>
-        </Wrapper>
-      );
+      case 'disconnected':
+        return (
+          <Wrapper>
+            <Body>
+              <Secured displayStyle={SecuredDisplayStyle.unsecured} />
+              <Location>
+                <Country />
+              </Location>
+            </Body>
+            <Footer>
+              <SelectedLocation />
+              <Connect />
+            </Footer>
+          </Wrapper>
+        );
 
-    case 'disconnected':
-      return (
-        <Wrapper>
-          <Body>
-            <Secured displayStyle={SecuredDisplayStyle.unsecured} />
-            <Location>
-              <Country />
-            </Location>
-          </Body>
-          <Footer>
-            <SelectedLocation />
-            <Connect />
-          </Footer>
-        </Wrapper>
-      );
+      default:
+        throw new Error(`Unknown TunnelState: ${(this.props.tunnelState: empty)}`);
+    }
+  }
+}
 
-    default:
-      throw new Error(`Unknown TunnelState: ${(props.tunnelState: empty)}`);
+type ContainerProps = {
+  children?: Types.ReactNode,
+};
+
+class Wrapper extends Component<ContainerProps> {
+  render() {
+    return <View style={styles.tunnel_control}>{this.props.children}</View>;
+  }
+}
+
+class Body extends Component<ContainerProps> {
+  render() {
+    return <View style={styles.body}>{this.props.children}</View>;
   }
 }
