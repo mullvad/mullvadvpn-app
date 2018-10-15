@@ -596,7 +596,7 @@ export default class AppRenderer {
   }
 
   async _updateUserLocation(tunnelState: TunnelState) {
-    if (tunnelState === 'connecting' || tunnelState === 'disconnected') {
+    if (['connected', 'connecting', 'disconnected'].includes(tunnelState)) {
       try {
         await this._fetchLocation();
       } catch (error) {
