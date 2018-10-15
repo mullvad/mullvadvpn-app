@@ -360,18 +360,76 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
+  async _getAppComponentsVersions() {
+    const daemonVersion = await this._daemonRpc.getCurrentVersion();
+    const guiVersion = remote.app.getVersion().replace('.0', '');
+    return {
+      daemon: daemonVersion,
+      gui: guiVersion,
+      isConsistent: daemonVersion === guiVersion,
+    };
+  }
+
   async _fetchCurrentVersion() {
     const actions = this._reduxActions;
-    const versionFromDaemon = await this._daemonRpc.getCurrentVersion();
-    const versionFromGui = remote.app.getVersion().replace('.0', '');
+    const versions = await this._getAppComponentsVersions();
 
-    actions.version.updateVersion(versionFromDaemon, versionFromDaemon === versionFromGui);
+    // notify user about inconsistent version
+    if (process.env.NODE_ENV !== 'development' && !versions.isConsistent) {
+      this._notificationController.notifyInconsistentVersion();
+    }
+
+    actions.version.updateVersion(versions.gui, versions.isConsistent);
   }
 
   async _fetchLatestVersionInfo() {
-    // fetching the latest version info has a higher latency because the daemon communicates with
-    // the API server
-    this._reduxActions.version.updateLatest(await this._daemonRpc.getVersionInfo());
+    function isBeta(version: string) {
+      return version.includes('-');
+    }
+
+    function nextUpgrade(current: string, latest: string, latestStable: string): ?string {
+      if (isBeta(current)) {
+        return current === latest ? null : latest;
+      } else {
+        return current === latestStable ? null : latestStable;
+      }
+    }
+
+    function checkIfLatest(current: string, latest: string, latestStable: string): boolean {
+      // perhaps -beta?
+      if (isBeta(current)) {
+        return current === latest;
+      } else {
+        // must be stable
+        return current === latestStable;
+      }
+    }
+
+    const versions = await this._getAppComponentsVersions();
+    const versionInfo = await this._daemonRpc.getVersionInfo();
+    const latestVersion = versionInfo.latest.latest;
+    const latestStableVersion = versionInfo.latest.latestStable;
+
+    // the reason why we rely on daemon version here is because daemon obtains the version info
+    // based on its built-in version information
+    const isUpToDate = checkIfLatest(versions.daemon, latestVersion, latestStableVersion);
+    const upgradeVersion = nextUpgrade(versions.daemon, latestVersion, latestStableVersion);
+
+    // notify user to update the app if it became unsupported
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      versions.isConsistent &&
+      !versionInfo.currentIsSupported &&
+      upgradeVersion
+    ) {
+      this._notificationController.notifyUnsupportedVersion(upgradeVersion);
+    }
+
+    this._reduxActions.version.updateLatest({
+      ...versionInfo,
+      nextUpgrade: upgradeVersion,
+      upToDate: isUpToDate,
+    });
   }
 
   async _onOpenConnection() {
@@ -535,7 +593,7 @@ export default class AppRenderer {
     this._updateConnectionStatus(tunnelState);
     this._updateUserLocation(tunnelState.state);
     this._updateTrayIcon(tunnelState.state);
-    this._notificationController.notify(tunnelState);
+    this._notificationController.notifyTunnelState(tunnelState);
   }
 
   _setSettings(newSettings: Settings) {

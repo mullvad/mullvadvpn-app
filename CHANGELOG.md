@@ -26,8 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
   with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
-- Add new in-app notifications to inform the user when the app becomes outdated, unsupported or
-  might have security issues.
+- Add new system and in-app notifications to inform the user when the app becomes outdated,
+  unsupported or may have security issues.
 
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.

@@ -529,14 +529,7 @@ export class DaemonRpc implements DaemonRpcProtocol {
   async getVersionInfo(): Promise<AppVersionInfo> {
     const response = await this._transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
     try {
-      const versionInfo = validate(AppVersionInfoSchema, response);
-      return {
-        currentIsSupported: versionInfo.current_is_supported,
-        latest: {
-          latestStable: versionInfo.latest.latest_stable,
-          latest: versionInfo.latest.latest,
-        },
-      };
+      return camelCaseObjectKeys(validate(AppVersionInfoSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_version_info', null);
     }
