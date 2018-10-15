@@ -8,9 +8,9 @@ pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
     Disconnected,
     /// Network is secured but tunnel is still connecting.
-    Connecting,
+    Connecting(TunnelEndpoint),
     /// Tunnel is connected.
-    Connected,
+    Connected(TunnelEndpoint),
     /// Disconnecting tunnel.
     Disconnecting(ActionAfterDisconnect),
     /// Tunnel is disconnected but secured by blocking all connections.
