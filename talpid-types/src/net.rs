@@ -190,20 +190,61 @@ pub struct OpenVpnTunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
-    /// Bridge settings, for when the relay connection should be via a bridge.
-    pub bridge_settings: Option<OpenVpnBridgeSettings>,
+    /// Proxy settings, for when the relay connection should be via a proxy.
+    pub proxy: Option<OpenVpnProxySettings>,
 }
 
-
-/// Represents a bridge endpoint. Address, plus extra parameters specific to bridge protocol.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnBridgeSettings {
-    pub bridge: SocketAddr,
-    pub auth: Option<OpenVpnBridgeAuth>
+pub enum OpenVpnProxySettings {
+    Local(LocalOpenVpnProxySettings),
+    Remote(RemoteOpenVpnProxySettings),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct OpenVpnBridgeAuth {
+pub struct LocalOpenVpnProxySettings {
+    pub port: u16,
+    pub peer: SocketAddr,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct RemoteOpenVpnProxySettings {
+    pub address: SocketAddr,
+    pub auth: Option<OpenVpnProxyAuth>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct OpenVpnProxyAuth {
     pub username: String,
     pub password: String,
+}
+
+pub struct OpenVpnProxySettingsValidation;
+
+impl OpenVpnProxySettingsValidation {
+    pub fn validate(proxy: &OpenVpnProxySettings) -> Result<(), String> {
+        match proxy {
+            OpenVpnProxySettings::Local(local) => {
+                if local.port == 0 {
+                    return Err(String::from("Invalid local port number"));
+                }
+                if local.peer.ip().is_loopback() {
+                    return Err(String::from(
+                        "localhost is not a valid peer in this context",
+                    ));
+                }
+                if local.peer.port() == 0 {
+                    return Err(String::from("Invalid remote port number"));
+                }
+            }
+            OpenVpnProxySettings::Remote(remote) => {
+                if remote.address.port() == 0 {
+                    return Err(String::from("Invalid port number"));
+                }
+                if remote.address.ip().is_loopback() {
+                    return Err(String::from("localhost is not a valid remote server"));
+                }
+            }
+        };
+        Ok(())
+    }
 }

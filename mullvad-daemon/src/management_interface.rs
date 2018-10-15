@@ -25,10 +25,7 @@ use std::sync::{Arc, Mutex, RwLock};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{
-    net::OpenVpnBridgeSettings,
-    tunnel::TunnelStateTransition,
-};
+use talpid_types::{net::OpenVpnProxySettings, tunnel::TunnelStateTransition};
 use uuid;
 
 use account_history::{AccountHistory, Error as AccountHistoryError};
@@ -105,9 +102,9 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_openvpn_mssfix")]
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
-        /// Sets bridge details for OpenVPN
-        #[rpc(meta, name = "set_openvpn_bridge")]
-        fn set_openvpn_bridge(&self, Self::Metadata, Option<OpenVpnBridgeSettings>) -> BoxFuture<(), Error>;
+        /// Sets proxy details for OpenVPN
+        #[rpc(meta, name = "set_openvpn_proxy")]
+        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<(), Error>;
 
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
@@ -178,8 +175,8 @@ pub enum ManagementCommand {
     SetAutoConnect(OneshotSender<()>, bool),
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
-    /// Set bridge details for OpenVPN
-    SetOpenVpnBridge(OneshotSender<()>, Option<OpenVpnBridgeSettings>),
+    /// Set proxy details for OpenVPN
+    SetOpenVpnProxy(OneshotSender<()>, Option<OpenVpnProxySettings>),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the daemon settings
@@ -547,15 +544,15 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn set_openvpn_bridge(
+    fn set_openvpn_proxy(
         &self,
         _: Self::Metadata,
-        bridge: Option<OpenVpnBridgeSettings>
+        proxy: Option<OpenVpnProxySettings>,
     ) -> BoxFuture<(), Error> {
-        debug!("set_openvpn_bridge({:?})", bridge);
+        debug!("set_openvpn_proxy({:?})", proxy);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetOpenVpnBridge(tx, bridge))
+            .send_command_to_daemon(ManagementCommand::SetOpenVpnProxy(tx, proxy))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)

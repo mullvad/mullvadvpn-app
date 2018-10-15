@@ -65,7 +65,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::OpenVpnBridgeSettings,
+    net::OpenVpnProxySettings,
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -420,7 +420,7 @@ impl Daemon {
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
-            SetOpenVpnBridge(tx, bridge_arg) => self.on_set_openvpn_bridge(tx, bridge_arg),
+            SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             GetSettings(tx) => self.on_get_settings(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
@@ -599,15 +599,15 @@ impl Daemon {
         }
     }
 
-    fn on_set_openvpn_bridge(
+    fn on_set_openvpn_proxy(
         &mut self,
         tx: oneshot::Sender<()>,
-        bridge_arg: Option<OpenVpnBridgeSettings>
+        proxy: Option<OpenVpnProxySettings>,
     ) {
-        let save_result = self.settings.set_openvpn_bridge(bridge_arg);
+        let save_result = self.settings.set_openvpn_proxy(proxy);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_openvpn_bridge response");
+                Self::oneshot_send(tx, (), "set_openvpn_proxy response");
                 if settings_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);

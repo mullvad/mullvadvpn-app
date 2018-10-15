@@ -3,9 +3,7 @@ extern crate serde_json;
 use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
-use talpid_types::net::{
-    OpenVpnBridgeSettings, TunnelOptions
-};
+use talpid_types::net::{OpenVpnProxySettings, TunnelOptions};
 
 use std::fs::File;
 use std::io;
@@ -184,12 +182,9 @@ impl Settings {
         }
     }
 
-    pub fn set_openvpn_bridge(
-        &mut self,
-        openvpn_bridge: Option<OpenVpnBridgeSettings>
-    ) -> Result<bool> {
-        if self.tunnel_options.openvpn.bridge_settings != openvpn_bridge {
-            self.tunnel_options.openvpn.bridge_settings = openvpn_bridge;
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<bool> {
+        if self.tunnel_options.openvpn.proxy != proxy {
+            self.tunnel_options.openvpn.proxy = proxy;
             self.save().map(|_| true)
         } else {
             Ok(false)
