@@ -61,9 +61,15 @@ export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
-  _accountDataCache = new AccountDataCache((accountToken) => {
-    return this._daemonRpc.getAccountData(accountToken);
-  });
+  _accountDataCache = new AccountDataCache(
+    (accountToken) => {
+      return this._daemonRpc.getAccountData(accountToken);
+    },
+    (accountData) => {
+      const expiry = accountData ? accountData.expiry : null;
+      this._reduxActions.account.updateAccountExpiry(expiry);
+    },
+  );
   _relayListCache = new RelayListCache(
     () => {
       return this._daemonRpc.getRelayLocations();
@@ -150,14 +156,11 @@ export default class AppRenderer {
     try {
       const verification = await this.verifyAccount(accountToken);
 
-      await this._daemonRpc.setAccount(accountToken);
-
-      if (verification.status === 'verified') {
-        actions.account.updateAccountExpiry(verification.accountData.expiry);
-      } else if (verification.status === 'deferred') {
+      if (verification.status === 'deferred') {
         log.debug(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
+      await this._daemonRpc.setAccount(accountToken);
       actions.account.loginSuccessful();
 
       // Redirect the user after some time to allow for
@@ -182,18 +185,21 @@ export default class AppRenderer {
   }
 
   async verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
-    try {
-      return {
-        status: 'verified',
-        accountData: await this._daemonRpc.getAccountData(accountToken),
-      };
-    } catch (error) {
-      if (error instanceof InvalidAccountError) {
-        throw error;
-      } else {
-        return { status: 'deferred', error };
-      }
-    }
+    return new Promise((resolve, reject) => {
+      this._accountDataCache.invalidate();
+      this._accountDataCache.fetch(accountToken, {
+        onFinish: () => resolve({ status: 'verified' }),
+        onError: (error): AccountFetchRetryAction => {
+          if (error instanceof InvalidAccountError) {
+            reject(error);
+            return 'stop';
+          } else {
+            resolve({ status: 'deferred', error });
+            return 'retry';
+          }
+        },
+      });
+    });
   }
 
   async logout() {
@@ -284,17 +290,11 @@ export default class AppRenderer {
   }
 
   async updateAccountExpiry() {
-    const actions = this._reduxActions;
     const settings = await this._settingsProxy.fetch();
     const accountDataCache = this._accountDataCache;
 
     if (settings && settings.accountToken) {
-      try {
-        const accountData = await accountDataCache.fetch(settings.accountToken);
-        actions.account.updateAccountExpiry(accountData.expiry);
-      } catch (error) {
-        log.error(`Failed to update account expiry: ${error.message}`);
-      }
+      accountDataCache.fetch(settings.accountToken);
     }
   }
 
@@ -519,6 +519,8 @@ export default class AppRenderer {
     if (accountToken) {
       log.debug(`Account token is set. Showing the tunnel view.`);
 
+      this._accountDataCache.fetch(accountToken);
+
       actions.account.updateAccountToken(accountToken);
       actions.account.loginSuccessful();
 
@@ -564,16 +566,8 @@ export default class AppRenderer {
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
-      const recover = async () => {
-        try {
-          await this.connect();
-        } catch (error) {
-          log.error(`Failed to reconnect: ${error.message}`);
-        }
-      };
-
       this._reconnectBackoff.attempt(() => {
-        recover();
+        this.connect();
       });
 
       // only send to the connecting to daemon view if the daemon was
@@ -659,76 +653,120 @@ export default class AppRenderer {
   }
 }
 
-type AccountVerification =
-  | { status: 'verified', accountData: AccountData }
-  | { status: 'deferred', error: Error };
+type AccountVerification = { status: 'verified' } | { status: 'deferred', error: Error };
+type AccountFetchRetryAction = 'stop' | 'retry';
+type AccountFetchWatcher = {
+  onFinish: () => void,
+  onError: (any) => AccountFetchRetryAction,
+};
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
-class AccountDataCache {
+export class AccountDataCache {
   _currentAccount: ?AccountToken;
-  _executingPromise: ?Promise<AccountData>;
-  _value: ?AccountData;
   _expiresAt: ?Date;
+  _fetchAttempt: number;
+  _fetchRetryTimeout: ?TimeoutID;
   _fetch: (AccountToken) => Promise<AccountData>;
+  _update: (?AccountData) => void;
+  _watchers: Array<AccountFetchWatcher>;
 
-  constructor(fetch: (AccountToken) => Promise<AccountData>) {
+  constructor(fetch: (AccountToken) => Promise<AccountData>, update: (?AccountData) => void) {
     this._fetch = fetch;
+    this._update = update;
+    this._watchers = [];
+    this._fetchAttempt = 0;
   }
 
-  async fetch(accountToken: AccountToken): Promise<AccountData> {
+  fetch(accountToken: AccountToken, watcher?: AccountFetchWatcher) {
     // invalidate cache if account token has changed
     if (accountToken !== this._currentAccount) {
       this.invalidate();
       this._currentAccount = accountToken;
     }
 
-    // return the same promise if still fetching from remote
-    const executingPromise = this._executingPromise;
-    if (executingPromise) {
-      return executingPromise;
-    }
-
-    // return the received value if not expired yet
-    const currentValue = this._value;
-    if (currentValue && !this._isExpired()) {
-      return currentValue;
-    }
-
-    try {
-      const nextPromise = this._fetch(accountToken);
-      this._executingPromise = nextPromise;
-
-      const accountData = await nextPromise;
-
-      // it's possible that invalidate() was called before this promise was resolved.
-      // discard the result of "orphaned" promise.
-      if (this._executingPromise === nextPromise) {
-        this._setValue(accountData);
-        return accountData;
-      } else {
-        throw new Error('Cancelled');
+    // Only fetch is value has expired
+    if (this._isExpired()) {
+      if (watcher) {
+        this._watchers.push(watcher);
       }
-    } catch (error) {
-      throw error;
-    } finally {
-      this._executingPromise = null;
+
+      this._performFetch(accountToken);
+    } else if (watcher) {
+      watcher.onFinish();
     }
   }
 
   invalidate() {
-    this._executingPromise = null;
+    if (this._fetchRetryTimeout) {
+      clearTimeout(this._fetchRetryTimeout);
+      this._fetchRetryTimeout = null;
+      this._fetchAttempt = 0;
+    }
+
     this._expiresAt = null;
-    this._value = null;
+    this._update(null);
+    this._notifyWatchers((watcher) => {
+      watcher.onError(new Error('Cancelled'));
+    });
   }
 
   _setValue(value: AccountData) {
     this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
-    this._value = value;
+    this._update(value);
+    this._notifyWatchers((watcher) => watcher.onFinish());
   }
 
   _isExpired() {
     return !this._expiresAt || this._expiresAt < new Date();
+  }
+
+  async _performFetch(accountToken: AccountToken) {
+    try {
+      // it's possible for invalidate() to be called or for a fetch for a different account token
+      // to start before this fetch completes, so checking if the current account token is the one
+      // used is necessary below.
+      const accountData = await this._fetch(accountToken);
+
+      if (this._currentAccount === accountToken) {
+        this._setValue(accountData);
+      }
+    } catch (error) {
+      if (this._currentAccount === accountToken) {
+        this._handleFetchError(accountToken, error);
+      }
+    }
+  }
+
+  _handleFetchError(accountToken: AccountToken, error: any) {
+    let shouldRetry = true;
+
+    this._notifyWatchers((watcher) => {
+      if (watcher.onError(error) === 'stop') {
+        shouldRetry = false;
+      }
+    });
+
+    if (shouldRetry) {
+      this._scheduleRetry(accountToken);
+    }
+  }
+
+  _scheduleRetry(accountToken: AccountToken) {
+    this._fetchAttempt += 1;
+
+    const delay = Math.min(2048, 1 << (this._fetchAttempt + 2)) * 1000;
+
+    log.debug(`Failed to fetch account data. Retrying in ${delay} ms`);
+
+    this._fetchRetryTimeout = setTimeout(() => {
+      this._fetchRetryTimeout = null;
+      this._performFetch(accountToken);
+    }, delay);
+  }
+
+  _notifyWatchers(notify: (AccountFetchWatcher) => void) {
+    this._watchers.splice(0).forEach(notify);
   }
 }
 

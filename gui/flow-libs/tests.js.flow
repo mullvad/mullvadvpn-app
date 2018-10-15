@@ -9,4 +9,5 @@ declare function afterEach((done: Function) => void): Promise<any> | void;
 declare function beforeEach((done: Function) => void): Promise<any> | void;
 
 declare var expect: $PropertyType<chai, 'expect'>;
+declare var sinon: any;
 declare var spy: any;
