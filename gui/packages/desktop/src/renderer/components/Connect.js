@@ -3,7 +3,7 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import { ConnectionInfo, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import { SettingsBarButton, Brand } from './HeaderBar';
 import NotificationArea from './NotificationArea';
@@ -150,12 +150,16 @@ export default class Connect extends Component<Props> {
           ) : null}
 
           <TunnelControl
-            style={styles.tunnel_control}
             tunnelState={this.props.connection.status.state}
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
             hostname={this.props.connection.hostname}
+            relayIp={null}
+            relayPort={null}
+            relayProtocol={null}
+            outIpv4={null}
+            outIpv6={null}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
@@ -220,13 +224,25 @@ type TunnelControlProps = {
   city: ?string,
   country: ?string,
   hostname: ?string,
+  relayIp: ?string,
+  relayPort: ?number,
+  relayProtocol: ?string,
+  outIpv4: ?string,
+  outIpv6: ?string,
   onConnect: () => void,
   onDisconnect: () => void,
   onSelectLocation: () => void,
-  style: Types.ViewStyleRuleSet,
 };
 
-class TunnelControl extends Component<TunnelControlProps> {
+type TunnelControlState = {
+  showConnectionInfo: boolean,
+};
+
+class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
+  state = {
+    showConnectionInfo: false,
+  };
+
   render() {
     const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
     const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
@@ -275,6 +291,22 @@ class TunnelControl extends Component<TunnelControlProps> {
     );
     const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
 
+    const connectionInfoProps = {
+      inAddress: {
+        ip: this.props.relayIp,
+        port: this.props.relayPort,
+        protocol: this.props.relayProtocol,
+      },
+      outAddress: {
+        ipv4: this.props.outIpv4,
+        ipv6: this.props.outIpv6,
+      },
+      startExpanded: this.state.showConnectionInfo,
+      onToggle: (expanded) => {
+        this.setState({ showConnectionInfo: expanded });
+      },
+    };
+
     switch (this.props.tunnelState) {
       case 'connecting':
         return (
@@ -286,6 +318,7 @@ class TunnelControl extends Component<TunnelControlProps> {
                 <Country />
               </Location>
               <Hostname />
+              <ConnectionInfo {...connectionInfoProps} />
             </Body>
             <Footer>
               <SwitchLocation />
@@ -303,6 +336,7 @@ class TunnelControl extends Component<TunnelControlProps> {
                 <Country />
               </Location>
               <Hostname />
+              <ConnectionInfo {...connectionInfoProps} />
             </Body>
             <Footer>
               <SwitchLocation />
