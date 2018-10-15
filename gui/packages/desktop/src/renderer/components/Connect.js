@@ -171,7 +171,7 @@ export default class Connect extends Component<Props> {
             relayIp={relayIp}
             relayPort={relayPort}
             relayProtocol={relayProtocol}
-            outIpv4={null}
+            outIpv4={this.props.connection.ip}
             outIpv6={null}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
