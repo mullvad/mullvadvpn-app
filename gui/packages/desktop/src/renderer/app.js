@@ -425,8 +425,6 @@ export default class AppRenderer {
       this._notificationController.notifyUnsupportedVersion(upgradeVersion);
     }
 
-    // fetching the latest version info has a higher latency because the daemon communicates with
-    // the API server
     this._reduxActions.version.updateLatest({
       ...versionInfo,
       nextUpgrade: upgradeVersion,
