@@ -41,7 +41,7 @@ const styles = {
       fontSize: 16,
       fontWeight: '600',
       lineHeight: 22,
-      color: colors.white60,
+      color: colors.white,
       alignSelf: 'center',
     }),
   },
