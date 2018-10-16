@@ -67,6 +67,8 @@ use talpid_core::{
 };
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
+use geoip::GeoLocationFetcher;
+
 
 error_chain!{
     errors {
@@ -170,9 +172,9 @@ pub struct Daemon {
     #[cfg(unix)]
     management_interface_socket_path: String,
     settings: Settings,
+    geo_ip: GeoLocationFetcher,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
-    https_handle: mullvad_rpc::rest::RequestSender,
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -193,18 +195,18 @@ impl Daemon {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
+        let geo_ip_cache_dir = cache_dir.clone();
 
-        let (rpc_handle, https_handle, tokio_remote) =
-            mullvad_rpc::event_loop::create(move |core| {
-                let handle = core.handle();
-                let rpc = rpc_manager.new_connection_on_event_loop(&handle);
-                let https_handle = mullvad_rpc::rest::create_https_client(&ca_path, &handle);
-                let remote = core.remote();
-                (rpc, https_handle, remote)
-            })
-            .chain_err(|| "Unable to initialize network event loop")?;
+        let (rpc_handle, geo_ip, tokio_remote) = mullvad_rpc::event_loop::create(move |core| {
+            let handle = core.handle();
+            let rpc = rpc_manager.new_connection_on_event_loop(&handle);
+            let geo_ip = GeoLocationFetcher::new(geo_ip_cache_dir, &ca_path, &handle);
+            let remote = core.remote();
+            (rpc, geo_ip, remote)
+        })
+        .chain_err(|| "Unable to initialize network event loop")?;
         let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
-        let https_handle = https_handle.chain_err(|| "Unable to create am.i.mullvad client")?;
+        let geo_ip = geo_ip.chain_err(|| "Unable to create am.i.mullvad client")?;
 
         let relay_selector =
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
@@ -239,9 +241,9 @@ impl Daemon {
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
             settings,
+            geo_ip,
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
-            https_handle,
             tokio_remote,
             relay_selector,
             last_generated_relay: None,
@@ -443,7 +445,7 @@ impl Daemon {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    fn on_get_current_location(&self, tx: oneshot::Sender<GeoIpLocation>) {
+    fn on_get_current_location(&mut self, tx: oneshot::Sender<GeoIpLocation>) {
         use self::TunnelStateTransition::*;
         let get_location: Box<dyn Future<Item = GeoIpLocation, Error = ()> + Send> =
             match self.tunnel_state {
@@ -473,10 +475,8 @@ impl Daemon {
         });
     }
 
-    fn get_geo_location(&self) -> impl Future<Item = GeoIpLocation, Error = ()> {
-        let https_handle = self.https_handle.clone();
-
-        geoip::send_location_request(https_handle).map_err(|e| {
+    fn get_geo_location(&mut self) -> impl Future<Item = GeoIpLocation, Error = ()> {
+        self.geo_ip.send_location_request().map_err(|e| {
             warn!("Unable to fetch GeoIP location: {}", e.display_chain());
         })
     }

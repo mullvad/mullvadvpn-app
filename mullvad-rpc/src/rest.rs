@@ -31,8 +31,18 @@ error_chain! {
 pub type RequestSender = mpsc::UnboundedSender<(Request, oneshot::Sender<Result<Vec<u8>>>)>;
 type RequestReceiver = mpsc::UnboundedReceiver<(Request, oneshot::Sender<Result<Vec<u8>>>)>;
 
-pub fn create_https_client<P: AsRef<Path>>(ca_path: P, handle: &Handle) -> Result<RequestSender> {
-    let connector = HttpsConnectorWithSni::new(ca_path, handle)?;
+pub fn create_https_client(ca_path: impl AsRef<Path>, handle: &Handle) -> Result<RequestSender> {
+    create_https_client_with_sni(ca_path, None, handle)
+}
+
+pub fn create_https_client_with_sni(
+    ca_path: impl AsRef<Path>,
+    sni_hostname: Option<String>,
+    handle: &Handle,
+) -> Result<RequestSender> {
+    let mut connector = HttpsConnectorWithSni::new(ca_path, handle)?;
+    connector.set_sni_hostname(sni_hostname);
+
     let client = Client::configure().connector(connector).build(handle);
 
     let (request_tx, request_rx) = mpsc::unbounded();

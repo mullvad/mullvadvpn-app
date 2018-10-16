@@ -924,6 +924,7 @@ dependencies = [
  "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "fern 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hyper 0.11.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "jsonrpc-ipc-server 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",
  "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=make-ipc-server-concurrent-part-deux)",

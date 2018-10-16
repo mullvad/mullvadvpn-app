@@ -48,7 +48,7 @@ pub mod uris;
 use uris::{API_HOST, API_IP, API_IP_CACHE_FILE};
 
 mod cached_dns_resolver;
-use cached_dns_resolver::CachedDnsResolver;
+pub use cached_dns_resolver::CachedDnsResolver;
 
 mod https_client_with_sni;
 use https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
