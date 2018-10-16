@@ -11,6 +11,7 @@ import {
   NotificationOpenLinkAction,
 } from './NotificationBanner';
 
+import { AuthFailure } from '../lib/auth-failure';
 import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc';
 import type { VersionReduxState } from '../redux/version/reducers';
 
@@ -34,10 +35,7 @@ type State = NotificationAreaPresentation & {
 function getBlockReasonMessage(blockReason: BlockReason): string {
   switch (blockReason.reason) {
     case 'auth_failed': {
-      const details =
-        blockReason.details ||
-        'Check that the account is valid, has time left and not too many connections';
-      return `Authentication failed: ${details}`;
+      return new AuthFailure(blockReason.details).show();
     }
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
