@@ -81,7 +81,7 @@ impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory` using the specified cache directory.
     pub fn with_cache_dir<P: Into<PathBuf>>(cache_dir: &Path, ca_path: P) -> Self {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-        let cached_dns_resolver = CachedDnsResolver::new(API_HOST.to_owned(), cache_file, *API_IP);
+        let cached_dns_resolver = CachedDnsResolver::new(API_HOST, cache_file, *API_IP);
 
         MullvadRpcFactory {
             address_cache: Some(cached_dns_resolver),
