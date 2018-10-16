@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.4] - 2018-10-16
 ### Fixed
 - Fix so changing the OpenVPN mssfix setting triggers setting up a new tunnel with the new setting.
 
