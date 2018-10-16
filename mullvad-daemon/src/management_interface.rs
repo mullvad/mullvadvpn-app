@@ -177,7 +177,7 @@ pub enum ManagementCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetOpenVpnProxy(OneshotSender<Result<(), mullvad_types::settings::Error>>, Option<OpenVpnProxySettings>),
+    SetOpenVpnProxy(OneshotSender<Result<(), settings::Error>>, Option<OpenVpnProxySettings>),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the daemon settings
