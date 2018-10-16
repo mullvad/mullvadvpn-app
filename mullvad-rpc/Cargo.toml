@@ -21,6 +21,7 @@ tokio-openssl = "0.2"
 log = "0.4"
 
 mullvad-types = { path = "../mullvad-types" }
+talpid-core = { path = "../talpid-core" }
 
 [dev-dependencies]
 filetime = "0.1"

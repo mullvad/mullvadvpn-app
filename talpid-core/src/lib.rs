@@ -69,4 +69,7 @@ pub mod security;
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
+/// Helper DNS resolver that caches its result in a file
+pub mod cached_dns_resolver;
+
 mod mktemp;

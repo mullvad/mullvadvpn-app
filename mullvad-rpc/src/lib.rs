@@ -23,6 +23,7 @@ extern crate serde_json;
 extern crate tokio_core;
 
 extern crate mullvad_types;
+extern crate talpid_core;
 
 use chrono::offset::Utc;
 use chrono::DateTime;
@@ -36,6 +37,7 @@ pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 use mullvad_types::account::AccountToken;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
+use talpid_core::cached_dns_resolver::CachedDnsResolver;
 
 use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr};
@@ -44,9 +46,6 @@ use std::time::Duration;
 
 pub mod event_loop;
 pub mod rest;
-
-mod cached_dns_resolver;
-use cached_dns_resolver::CachedDnsResolver;
 
 mod https_client_with_sni;
 use https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
