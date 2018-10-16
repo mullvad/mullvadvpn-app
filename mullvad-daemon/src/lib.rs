@@ -601,19 +601,22 @@ impl Daemon {
 
     fn on_set_openvpn_proxy(
         &mut self,
-        tx: oneshot::Sender<()>,
+        tx: oneshot::Sender<Result<()>>,
         proxy: Option<OpenVpnProxySettings>,
     ) {
         let save_result = self.settings.set_openvpn_proxy(proxy);
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_openvpn_proxy response");
+                Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
                 if settings_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(validation_error) => {
+                Self::oneshot_send(tx, Err(validation_error), "set_openvpn_proxy response");
+                error!("{}", validation_error.display_chain());
+            }
         }
     }
 

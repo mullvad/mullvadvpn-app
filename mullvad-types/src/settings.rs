@@ -3,7 +3,7 @@ extern crate serde_json;
 use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
-use talpid_types::net::{OpenVpnProxySettings, TunnelOptions};
+use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
 
 use std::fs::File;
 use std::io;
@@ -24,6 +24,10 @@ error_chain! {
         }
         ParseError {
             description("Malformed settings")
+        }
+        InvalidProxyData(reason: String) {
+            description("Invalid proxy configuration was rejected")
+            display("Invalid proxy configuration was rejected: {}", reason)
         }
     }
 }
@@ -183,6 +187,12 @@ impl Settings {
     }
 
     pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<bool> {
+        if let Some(ref settings) = proxy {
+            if let Err(validation_error) = OpenVpnProxySettingsValidation::validate(settings) {
+                bail!(ErrorKind::InvalidProxyData(validation_error));
+            }
+        }
+
         if self.tunnel_options.openvpn.proxy != proxy {
             self.tunnel_options.openvpn.proxy = proxy;
             self.save().map(|_| true)

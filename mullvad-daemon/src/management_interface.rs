@@ -13,6 +13,7 @@ use mullvad_paths;
 use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
+//use mullvad_types::settings::ErrorKind::InvalidProxyData;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
 
@@ -104,7 +105,7 @@ build_rpc_trait! {
 
         /// Sets proxy details for OpenVPN
         #[rpc(meta, name = "set_openvpn_proxy")]
-        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<(), Error>;
+        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<Result<(), mullvad_types::settings::ErrorKind>, Error>;
 
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
@@ -176,7 +177,7 @@ pub enum ManagementCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetOpenVpnProxy(OneshotSender<()>, Option<OpenVpnProxySettings>),
+    SetOpenVpnProxy(OneshotSender<Result<(), mullvad_types::settings::ErrorKind>>, Option<OpenVpnProxySettings>),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the daemon settings
@@ -548,7 +549,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         &self,
         _: Self::Metadata,
         proxy: Option<OpenVpnProxySettings>,
-    ) -> BoxFuture<(), Error> {
+    ) -> BoxFuture<Result<(),mullvad_types::settings::ErrorKind>, Error> {
         debug!("set_openvpn_proxy({:?})", proxy);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
