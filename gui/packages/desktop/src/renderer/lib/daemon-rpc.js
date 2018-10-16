@@ -25,6 +25,7 @@ export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
 export type Location = {
+  ip: ?string,
   country: string,
   city: ?string,
   latitude: number,
@@ -33,6 +34,7 @@ export type Location = {
   hostname: ?string,
 };
 const LocationSchema = object({
+  ip: maybe(string),
   country: string,
   city: maybe(string),
   latitude: number,
@@ -55,8 +57,22 @@ export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
+export type TunnelEndpoint = {
+  address: string,
+  tunnel: TunnelEndpointData,
+};
+
+export type TunnelEndpointData = {
+  openvpn: {
+    port: number,
+    protocol: RelayProtocol,
+  },
+};
+
 export type TunnelStateTransition =
-  | { state: 'disconnected' | 'connecting' | 'connected' }
+  | { state: 'disconnected' }
+  | { state: 'connecting', details: ?TunnelEndpoint }
+  | { state: 'connected', details: TunnelEndpoint }
   | { state: 'disconnecting', details: AfterDisconnect }
   | { state: 'blocked', details: BlockReason };
 
@@ -91,12 +107,7 @@ type RelaySettingsNormal<TTunnelConstraints> = {
 // types describing the structure of RelaySettings
 export type RelaySettingsCustom = {
   host: string,
-  tunnel: {
-    openvpn: {
-      port: number,
-      protocol: RelayProtocol,
-    },
-  },
+  tunnel: TunnelEndpointData,
 };
 export type RelaySettings =
   | {|
@@ -127,6 +138,13 @@ const constraint = <T>(constraintValue: SchemaNode<T>) => {
   );
 };
 
+const TunnelEndpointDataSchema = object({
+  openvpn: object({
+    port: number,
+    protocol: enumeration('udp', 'tcp'),
+  }),
+});
+
 const RelaySettingsSchema = oneOf(
   object({
     normal: object({
@@ -156,12 +174,7 @@ const RelaySettingsSchema = oneOf(
   object({
     custom_tunnel_endpoint: object({
       host: string,
-      tunnel: object({
-        openvpn: object({
-          port: number,
-          protocol: enumeration('udp', 'tcp'),
-        }),
-      }),
+      tunnel: TunnelEndpointDataSchema,
     }),
   }),
 );
@@ -238,6 +251,13 @@ const TunnelStateTransitionSchema = oneOf(
   object({
     state: enumeration('disconnecting'),
     details: enumeration('nothing', 'block', 'reconnect'),
+  }),
+  object({
+    state: enumeration('connecting', 'connected'),
+    details: object({
+      address: string,
+      tunnel: TunnelEndpointDataSchema,
+    }),
   }),
   object({
     state: enumeration('blocked'),

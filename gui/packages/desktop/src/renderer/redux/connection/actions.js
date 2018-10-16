@@ -1,13 +1,15 @@
 // @flow
 
-import type { AfterDisconnect, BlockReason } from '../../lib/daemon-rpc';
+import type { AfterDisconnect, BlockReason, TunnelEndpoint } from '../../lib/daemon-rpc';
 
 type ConnectingAction = {
   type: 'CONNECTING',
+  tunnelEndpoint: ?TunnelEndpoint,
 };
 
 type ConnectedAction = {
   type: 'CONNECTED',
+  tunnelEndpoint: TunnelEndpoint,
 };
 
 type DisconnectedAction = {
@@ -54,15 +56,17 @@ export type ConnectionAction =
   | OnlineAction
   | OfflineAction;
 
-function connecting(): ConnectingAction {
+function connecting(tunnelEndpoint: ?TunnelEndpoint): ConnectingAction {
   return {
     type: 'CONNECTING',
+    tunnelEndpoint,
   };
 }
 
-function connected(): ConnectedAction {
+function connected(tunnelEndpoint: TunnelEndpoint): ConnectedAction {
   return {
     type: 'CONNECTED',
+    tunnelEndpoint,
   };
 }
 

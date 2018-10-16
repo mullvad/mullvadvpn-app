@@ -229,7 +229,7 @@ export default class AppRenderer {
     if (tunnelState.state === 'disconnected' || tunnelState.state === 'blocked') {
       // switch to connecting state immediately to prevent a lag that may be caused by RPC
       // communication delay
-      actions.connection.connecting();
+      actions.connection.connecting(null);
 
       await this._daemonRpc.connectTunnel();
     }
@@ -478,12 +478,6 @@ export default class AppRenderer {
     await this._setStartView();
 
     try {
-      await this._fetchLocation();
-    } catch (error) {
-      log.error(`Cannot fetch the location: ${error.message}`);
-    }
-
-    try {
       await this._fetchLatestVersionInfo();
     } catch (error) {
       log.error(`Cannot fetch the latest version information: ${error.message}`);
@@ -602,7 +596,7 @@ export default class AppRenderer {
   }
 
   async _updateUserLocation(tunnelState: TunnelState) {
-    if (tunnelState === 'connecting' || tunnelState === 'disconnected') {
+    if (['connected', 'connecting', 'disconnected'].includes(tunnelState)) {
       try {
         await this._fetchLocation();
       } catch (error) {
@@ -616,11 +610,11 @@ export default class AppRenderer {
 
     switch (stateTransition.state) {
       case 'connecting':
-        actions.connection.connecting();
+        actions.connection.connecting(stateTransition.details);
         break;
 
       case 'connected':
-        actions.connection.connected();
+        actions.connection.connected(stateTransition.details);
         break;
 
       case 'disconnecting':
