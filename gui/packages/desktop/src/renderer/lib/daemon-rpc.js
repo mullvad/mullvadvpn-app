@@ -187,7 +187,6 @@ export type RelayListCity = {
 export type RelayListHostname = {
   hostname: string,
   ipv4AddrIn: string,
-  ipv4AddrExit: string,
   includeInCountry: boolean,
   weight: number,
 };
@@ -312,7 +311,7 @@ export class SubscriptionListener<T> {
 }
 
 export type Settings = {
-  accountToken: AccountToken,
+  accountToken: ?AccountToken,
   allowLan: boolean,
   autoConnect: boolean,
   relaySettings: RelaySettings,
