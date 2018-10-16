@@ -216,19 +216,18 @@ impl Tunnel {
             }
         } else {
             println!("proxy: unset");
-            Ok(())
         }
+        Ok(())
     }
 
-    fn print_local_proxy(proxy: &LocalOpenVpnProxySettings) -> Result<()> {
+    fn print_local_proxy(proxy: &LocalOpenVpnProxySettings) {
         println!("proxy: local");
         println!("  local port: {}", proxy.port);
         println!("  peer IP: {}", proxy.peer.ip());
         println!("  peer port: {}", proxy.peer.port());
-        Ok(())
     }
 
-    fn print_remote_proxy(proxy: &RemoteOpenVpnProxySettings) -> Result<()> {
+    fn print_remote_proxy(proxy: &RemoteOpenVpnProxySettings) {
         println!("proxy: remote");
         println!("  server IP: {}", proxy.address.ip());
         println!("  server port: {}", proxy.address.port());
@@ -239,8 +238,6 @@ impl Tunnel {
         } else {
             println!("  auth: none");
         }
-
-        Ok(())
     }
 
     fn process_openvpn_proxy_unset() -> Result<()> {
