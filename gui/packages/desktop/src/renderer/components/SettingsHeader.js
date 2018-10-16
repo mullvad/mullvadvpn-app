@@ -15,9 +15,6 @@ const styles = {
       paddingLeft: 24,
       paddingBottom: 24,
     }),
-    linux: Styles.createViewStyle({
-      WebkitAppRegion: 'drag',
-    }),
   },
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
@@ -40,11 +37,7 @@ const styles = {
 
 export default class SettingsHeader extends Component {
   render() {
-    return (
-      <View style={[styles.header.default, styles.header[process.platform], this.props.style]}>
-        {this.props.children}
-      </View>
-    );
+    return <View style={[styles.header.default, this.props.style]}>{this.props.children}</View>;
   }
 }
 
