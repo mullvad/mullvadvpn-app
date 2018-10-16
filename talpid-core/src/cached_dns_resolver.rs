@@ -99,7 +99,7 @@ pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
 impl CachedDnsResolver<SystemDnsResolver> {
     /// Create a new cached DNS resolver that uses the default system DNS resolver to actually
     /// resolve the address to store in the cache.
-    pub fn new(hostname: String, cache_file: PathBuf, fallback_address: IpAddr) -> Self {
+    pub fn new(hostname: impl Into<String>, cache_file: PathBuf, fallback_address: IpAddr) -> Self {
         Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file, fallback_address)
     }
 }
@@ -109,7 +109,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     /// the address to store in the cache.
     pub fn with_dns_resolver(
         dns_resolver: R,
-        hostname: String,
+        hostname: impl Into<String>,
         cache_file: PathBuf,
         fallback_address: IpAddr,
     ) -> Self {
@@ -117,7 +117,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
             Self::load_initial_cached_address(&cache_file, fallback_address);
 
         CachedDnsResolver {
-            hostname,
+            hostname: hostname.into(),
             dns_resolver,
             cache_file,
             cached_address,
