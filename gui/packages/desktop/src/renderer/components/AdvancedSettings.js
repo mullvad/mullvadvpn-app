@@ -115,16 +115,18 @@ export class AdvancedSettings extends Component<Props, State> {
 
                   <Cell.Container>
                     <Cell.Label>Mssfix</Cell.Label>
-                    <Cell.Input
-                      keyboardType={'numeric'}
-                      maxLength={5}
-                      placeholder={'Default'}
-                      value={mssfixValue === null ? '' : mssfixValue.toString()}
-                      style={mssfixStyle}
-                      onChangeText={this._onMssfixChange}
-                      onFocus={this._onMssfixFocus}
-                      onBlur={this._onMssfixBlur}
-                    />
+                    <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
+                      <Cell.Input
+                        keyboardType={'numeric'}
+                        maxLength={4}
+                        placeholder={'Default'}
+                        value={mssfixValue === null ? '' : mssfixValue.toString()}
+                        style={mssfixStyle}
+                        onChangeText={this._onMssfixChange}
+                        onFocus={this._onMssfixFocus}
+                        onBlur={this._onMssfixBlur}
+                      />
+                    </Cell.InputFrame>
                   </Cell.Container>
                   <Cell.Footer>
                     Set OpenVPN MSS value. Valid range: {MIN_MSSFIX_VALUE} - {MAX_MSSFIX_VALUE}.

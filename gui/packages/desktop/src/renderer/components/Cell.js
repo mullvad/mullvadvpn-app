@@ -62,25 +62,21 @@ const styles = {
   },
 
   input: {
-    view: Styles.createViewStyle({
-      flexGrow: 1,
-      paddingLeft: 12,
-      paddingRight: 12,
-      paddingTop: 8,
-      paddingBottom: 8,
-      marginRight: 3,
-      borderWidth: 2,
-      borderRadius: 8,
-      borderColor: 'transparent',
+    frame: Styles.createViewStyle({
+      flexGrow: 0,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      borderRadius: 4,
+      paddingHorizontal: 2,
+      paddingVertical: 2,
     }),
     text: Styles.createTextStyle({
-      color: colors.blue,
-      backgroundColor: 'rgba(255, 255, 255, 0.5)',
-      fontFamily: 'DINPro',
+      color: colors.white,
+      backgroundColor: 'transparent',
+      fontFamily: 'Open Sans',
       fontSize: 20,
-      fontWeight: '900',
+      fontWeight: '600',
       lineHeight: 26,
-      textAlign: 'center',
+      textAlign: 'right',
     }),
   },
 
@@ -172,11 +168,19 @@ export function Label({
   );
 }
 
+export function InputFrame({ style, children, ...otherProps }: Types.ViewProps) {
+  return (
+    <View style={[styles.input.frame, style]} {...otherProps}>
+      {children}
+    </View>
+  );
+}
+
 export function Input({ style, ...otherProps }: Types.TextInputProps) {
   return (
     <TextInput
       maxLength={10}
-      placeholderTextColor={colors.blue40}
+      placeholderTextColor={colors.white60}
       autoCorrect={false}
       autoFocus={false}
       style={[styles.input.text, styles.input.view, style]}
