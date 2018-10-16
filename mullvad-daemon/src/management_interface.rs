@@ -13,7 +13,7 @@ use mullvad_paths;
 use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
-//use mullvad_types::settings::ErrorKind::InvalidProxyData;
+use mullvad_types::settings;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
 
@@ -105,7 +105,7 @@ build_rpc_trait! {
 
         /// Sets proxy details for OpenVPN
         #[rpc(meta, name = "set_openvpn_proxy")]
-        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<Result<(), mullvad_types::settings::ErrorKind>, Error>;
+        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<(), Error>;
 
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
@@ -177,7 +177,7 @@ pub enum ManagementCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetOpenVpnProxy(OneshotSender<Result<(), mullvad_types::settings::ErrorKind>>, Option<OpenVpnProxySettings>),
+    SetOpenVpnProxy(OneshotSender<Result<(), mullvad_types::settings::Error>>, Option<OpenVpnProxySettings>),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the daemon settings
@@ -549,12 +549,16 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         &self,
         _: Self::Metadata,
         proxy: Option<OpenVpnProxySettings>,
-    ) -> BoxFuture<Result<(),mullvad_types::settings::ErrorKind>, Error> {
+    ) -> BoxFuture<(), Error> {
         debug!("set_openvpn_proxy({:?})", proxy);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnProxy(tx, proxy))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|settings_result| settings_result.map_err(|err| match err.kind() {
+                settings::ErrorKind::InvalidProxyData(msg) => Error::invalid_params(msg.to_owned()),
+                _ => Error::internal_error(),
+            }));
 
         Box::new(future)
     }

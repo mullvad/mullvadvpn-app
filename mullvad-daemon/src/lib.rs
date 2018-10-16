@@ -55,6 +55,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{RelaySettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList},
+    settings,
     settings::Settings,
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
@@ -601,11 +602,11 @@ impl Daemon {
 
     fn on_set_openvpn_proxy(
         &mut self,
-        tx: oneshot::Sender<Result<()>>,
+        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
         proxy: Option<OpenVpnProxySettings>,
     ) {
         let save_result = self.settings.set_openvpn_proxy(proxy);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
                 if settings_changed {
@@ -613,9 +614,9 @@ impl Daemon {
                         .notify_settings(&self.settings);
                 }
             }
-            Err(validation_error) => {
-                Self::oneshot_send(tx, Err(validation_error), "set_openvpn_proxy response");
-                error!("{}", validation_error.display_chain());
+            Err(settings_error) => {
+                error!("{}", settings_error.display_chain());
+                Self::oneshot_send(tx, Err(settings_error), "set_openvpn_proxy response");
             }
         }
     }
