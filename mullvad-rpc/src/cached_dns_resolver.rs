@@ -15,20 +15,24 @@ static EXPIRED_CACHE_TIMESTAMP: SystemTime = UNIX_EPOCH;
 
 error_chain! {
     errors {
+        /// Timeout while waiting for DNS resolution
         DnsTimeout(host: String) {
             description("DNS resolution for a host took too long")
             display("DNS resolution for host \"{}\" took too long", host)
         }
 
+        /// No addresses found for the specified host
         HostNotFound(host: String) {
             description("DNS resolution for a host didn't return any IP addresses")
             display("DNS resolution for host \"{}\" didn't return any IP addresses", host)
         }
 
+        /// Loaded an invalid address from cache file
         InvalidAddress {
             description("Address loaded from file is invalid")
         }
 
+        /// Failed to resolve IP addresses for the specified host
         ResolveFailure(host: String) {
             description("Failed to resolve IP address for host")
             display("Failed to resolve IP address for host: {}", host)
@@ -36,15 +40,19 @@ error_chain! {
     }
 
     foreign_links {
-        FileAccessError(io::Error);
+        FileAccessError(io::Error) /// IO error while using cache file
+        ;
     }
 }
 
 
+/// Trait for DNS resolution
 pub trait DnsResolver {
+    /// Resolve the given hostname into an IP address
     fn resolve(&mut self, host: &str) -> Result<IpAddr>;
 }
 
+/// Default system DNS resolver
 pub struct SystemDnsResolver;
 
 impl SystemDnsResolver {
@@ -79,6 +87,7 @@ impl DnsResolver for SystemDnsResolver {
     }
 }
 
+/// DNS resolver with local cache support
 pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     hostname: String,
     dns_resolver: R,
@@ -88,12 +97,16 @@ pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
 }
 
 impl CachedDnsResolver<SystemDnsResolver> {
+    /// Create a new cached DNS resolver that uses the default system DNS resolver to actually
+    /// resolve the address to store in the cache.
     pub fn new(hostname: String, cache_file: PathBuf, fallback_address: IpAddr) -> Self {
         Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file, fallback_address)
     }
 }
 
 impl<R: DnsResolver> CachedDnsResolver<R> {
+    /// Create a new cached DNS resolver that uses the specified DNS resolver to actually resolve
+    /// the address to store in the cache.
     pub fn with_dns_resolver(
         dns_resolver: R,
         hostname: String,
@@ -112,6 +125,7 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
         }
     }
 
+    /// Load cached address or resolve a new address if the cache entry is missing or expired.
     pub fn resolve(&mut self) -> IpAddr {
         if let Ok(cache_age) = self.last_updated.elapsed() {
             if cache_age > MAX_CACHE_AGE {
