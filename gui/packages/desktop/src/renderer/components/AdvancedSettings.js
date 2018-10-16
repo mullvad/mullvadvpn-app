@@ -74,6 +74,8 @@ export class AdvancedSettings extends Component<Props, State> {
       mssfixStyle = styles.advanced_settings__mssfix_invalid_value;
     }
 
+    const mssfixValue = this.state.editedMssfix;
+
     return (
       <Layout>
         <Container>
@@ -117,7 +119,7 @@ export class AdvancedSettings extends Component<Props, State> {
                       keyboardType={'numeric'}
                       maxLength={5}
                       placeholder={'Default'}
-                      value={this.state.editedMssfix}
+                      value={mssfixValue === null ? '' : mssfixValue.toString()}
                       style={mssfixStyle}
                       onChangeText={this._onMssfixChange}
                       onFocus={this._onMssfixFocus}
