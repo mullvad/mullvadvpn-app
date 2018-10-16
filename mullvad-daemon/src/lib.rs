@@ -67,6 +67,8 @@ use talpid_core::{
 };
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
 
+use geoip::GeoLocationFetcher;
+
 
 error_chain!{
     errors {
@@ -170,6 +172,7 @@ pub struct Daemon {
     #[cfg(unix)]
     management_interface_socket_path: String,
     settings: Settings,
+    geo_ip: GeoLocationFetcher,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
@@ -209,6 +212,7 @@ impl Daemon {
         let relay_selector =
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
         let settings = Settings::load().chain_err(|| "Unable to read settings")?;
+        let geo_ip = GeoLocationFetcher::new(&cache_dir);
 
         let (tx, rx) = mpsc::channel();
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
@@ -239,6 +243,7 @@ impl Daemon {
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
             settings,
+            geo_ip,
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -443,7 +448,7 @@ impl Daemon {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    fn on_get_current_location(&self, tx: oneshot::Sender<GeoIpLocation>) {
+    fn on_get_current_location(&mut self, tx: oneshot::Sender<GeoIpLocation>) {
         use self::TunnelStateTransition::*;
         let get_location: Box<dyn Future<Item = GeoIpLocation, Error = ()> + Send> =
             match self.tunnel_state {
@@ -473,12 +478,14 @@ impl Daemon {
         });
     }
 
-    fn get_geo_location(&self) -> impl Future<Item = GeoIpLocation, Error = ()> {
+    fn get_geo_location(&mut self) -> impl Future<Item = GeoIpLocation, Error = ()> {
         let https_handle = self.https_handle.clone();
 
-        geoip::send_location_request(https_handle).map_err(|e| {
-            warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-        })
+        self.geo_ip
+            .send_location_request(https_handle)
+            .map_err(|e| {
+                warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+            })
     }
 
     fn build_location_from_relay(&self) -> GeoIpLocation {
