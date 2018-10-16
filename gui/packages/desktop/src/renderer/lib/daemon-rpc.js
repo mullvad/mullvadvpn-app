@@ -311,7 +311,7 @@ export class SubscriptionListener<T> {
 }
 
 export type Settings = {
-  accountToken: AccountToken,
+  accountToken: ?AccountToken,
   allowLan: boolean,
   autoConnect: boolean,
   relaySettings: RelaySettings,
