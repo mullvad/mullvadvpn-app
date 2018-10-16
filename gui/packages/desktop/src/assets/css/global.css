@@ -30,7 +30,3 @@ body {
   width: 100%;
   display: flex;
 }
-
-::-webkit-input-placeholder {
-  color: rgba(41, 77, 115, 0.4);
-}
