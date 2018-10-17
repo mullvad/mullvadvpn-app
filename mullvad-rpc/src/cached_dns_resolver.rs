@@ -231,6 +231,8 @@ mod tests {
     use self::tempfile::TempDir;
     use super::*;
 
+    const IP_CACHE_FILE: &str = "cached-ip-address.txt";
+
     #[test]
     fn uses_previously_cached_address() {
         let (_temp_dir, cache_dir) = create_test_dirs();
@@ -365,13 +367,13 @@ mod tests {
         let address = cache.resolve();
 
         assert_eq!(address, fallback_address);
-        let cache_file_path = cache_dir.join(::API_IP_CACHE_FILENAME);
+        let cache_file_path = cache_dir.join("cache_file");
         assert!(!cache_file_path.exists());
     }
 
     fn create_test_dirs() -> (TempDir, PathBuf) {
         let temp_dir = TempDir::new().expect("Failed to create a temporary cache directory");
-        let cache_dir = temp_dir.path().join("cache");
+        let cache_dir = temp_dir.path().join(IP_CACHE_FILE);
 
         fs::create_dir(&cache_dir).unwrap();
 
@@ -379,7 +381,7 @@ mod tests {
     }
 
     fn write_invalid_address(dir: &Path) -> PathBuf {
-        let file_path = dir.join(::API_IP_CACHE_FILENAME);
+        let file_path = dir.join(IP_CACHE_FILE);
         let mut file = File::create(&file_path).unwrap();
 
         writeln!(file, "400.30.12.9").unwrap();
@@ -388,7 +390,7 @@ mod tests {
     }
 
     fn write_address(dir: &Path, address: IpAddr) -> PathBuf {
-        let file_path = dir.join(::API_IP_CACHE_FILENAME);
+        let file_path = dir.join(IP_CACHE_FILE);
         let mut file = File::create(&file_path).unwrap();
 
         writeln!(file, "{}", address).unwrap();
@@ -405,7 +407,7 @@ mod tests {
     }
 
     fn get_cached_address(cache_dir: &Path) -> String {
-        let cache_file_path = cache_dir.join(::API_IP_CACHE_FILENAME);
+        let cache_file_path = cache_dir.join(IP_CACHE_FILE);
 
         assert!(cache_file_path.exists());
 
@@ -423,7 +425,7 @@ mod tests {
         fallback_address: Option<IpAddr>,
     ) -> CachedDnsResolver<MockDnsResolver> {
         let hostname = String::from("dummy.host");
-        let cache_file = cache_dir.join(::API_IP_CACHE_FILENAME);
+        let cache_file = cache_dir.join(IP_CACHE_FILE);
         let fallback_address = fallback_address.unwrap_or(IpAddr::from([10, 0, 109, 91]));
 
         CachedDnsResolver::with_dns_resolver(mock_resolver, hostname, cache_file, fallback_address)

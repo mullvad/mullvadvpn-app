@@ -38,12 +38,14 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::version;
 
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 pub mod event_loop;
 pub mod rest;
+
+pub mod uris;
+use uris::{API_HOST, API_IP, API_IP_CACHE_FILE};
 
 mod cached_dns_resolver;
 use cached_dns_resolver::CachedDnsResolver;
@@ -55,12 +57,7 @@ use https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
 /// Since DNS is resolved via blocking syscall they must be run on separate threads.
 const DNS_THREADS: usize = 2;
 
-const API_HOST: &str = "api.mullvad.net";
 const RPC_TIMEOUT: Duration = Duration::from_secs(5);
-pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
-lazy_static! {
-    static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 219, 46));
-}
 
 
 /// A type that helps with the creation of RPC connections.
@@ -80,7 +77,7 @@ impl MullvadRpcFactory {
 
     /// Create a new `MullvadRpcFactory` using the specified cache directory.
     pub fn with_cache_dir<P: Into<PathBuf>>(cache_dir: &Path, ca_path: P) -> Self {
-        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
+        let cache_file = cache_dir.join(API_IP_CACHE_FILE);
         let cached_dns_resolver = CachedDnsResolver::new(API_HOST, cache_file, *API_IP);
 
         MullvadRpcFactory {
