@@ -366,6 +366,7 @@ export default class Login extends Component<Props, State> {
               autoFocus={true}
               ref={(ref) => (this._accountInput = ref)}
               testName="AccountInput"
+              testId="AccountInput"
             />
             <Animated.View
               style={this._accountInputButtonStyles()}
