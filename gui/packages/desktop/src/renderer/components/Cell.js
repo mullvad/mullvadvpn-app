@@ -184,6 +184,7 @@ export function Input({ style, ...otherProps }: Types.TextInputProps) {
       autoCorrect={false}
       autoFocus={false}
       style={[styles.input.text, styles.input.view, style]}
+      testId="CellInputField"
       {...otherProps}
     />
   );
