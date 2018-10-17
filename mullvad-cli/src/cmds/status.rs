@@ -4,6 +4,8 @@ use Command;
 use Result;
 
 use mullvad_ipc_client::DaemonRpcClient;
+use mullvad_types::auth_failed::AuthFailed;
+use talpid_types::tunnel::BlockReason;
 use talpid_types::tunnel::TunnelStateTransition::{self, *};
 
 pub struct Status;
@@ -44,11 +46,24 @@ impl Command for Status {
 fn print_state(state: &TunnelStateTransition) {
     print!("Tunnel status: ");
     match state {
-        Blocked(reason) => println!("Blocked ({})", reason),
+        Blocked(reason) => print_blocked_reason(reason),
         Connected(_) => println!("Connected"),
         Connecting(_) => println!("Connecting..."),
         Disconnected => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
+    }
+}
+
+fn print_blocked_reason(reason: &BlockReason) {
+    match reason {
+        BlockReason::AuthFailed(ref auth_failure) => {
+            let auth_failure_str = auth_failure
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or("Account authentication failed");
+            println!("Blocked: {}", AuthFailed::from_str(auth_failure_str));
+        }
+        other => println!("Blocked: {}", other),
     }
 }
 
