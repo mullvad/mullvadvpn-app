@@ -183,7 +183,7 @@ export function Input({ style, ...otherProps }: Types.TextInputProps) {
       placeholderTextColor={colors.white60}
       autoCorrect={false}
       autoFocus={false}
-      style={[styles.input.text, styles.input.view, style]}
+      style={[styles.input.text, style]}
       testId="CellInputField"
       {...otherProps}
     />
