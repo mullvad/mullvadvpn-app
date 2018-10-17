@@ -12,7 +12,7 @@ case "$(uname -s)" in
     export MACOSX_DEPLOYMENT_TARGET="10.7"
     PLATFORM="macos"
     ;;
-  MINGW*)
+  MINGW*|MSYS_NT*)
     PLATFORM="windows"
     ;;
 esac
