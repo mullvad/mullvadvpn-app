@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
+import { ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
 import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import {
@@ -11,10 +12,9 @@ import {
   BackBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
 import styles from './AdvancedSettingsStyles';
-import Img from './Img';
+import { colors } from '../../config';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -239,10 +239,10 @@ class Selector extends Component<SelectorProps<*>, SelectorState> {
         onHoverStart={() => this.handleButtonHover(value)}
         onHoverEnd={() => this.handleButtonHover(-1)}
         key={value}>
-        <Img
+        <ImageView
           style={styles.advanced_settings__cell_icon}
           source="icon-tick"
-          tintColor="currentColor"
+          tintColor={colors.white}
         />
         <Text style={styles.advanced_settings__cell_label}>{value}</Text>
       </Button>

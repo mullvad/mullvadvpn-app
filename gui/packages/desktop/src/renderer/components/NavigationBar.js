@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Animated, Button, Component, Text, View, Styles, UserInterface } from 'reactxp';
-import Img from './Img';
+import { ImageView } from '@mullvad/components';
 import CustomScrollbars from './CustomScrollbars';
 import { colors } from '../../config';
 
@@ -368,7 +368,7 @@ export class CloseBarItem extends Component {
   render() {
     return (
       <Button style={[styles.closeBarItem.default]} onPress={this.props.action}>
-        <Img height={24} width={24} style={[styles.closeBarItem.icon]} source="icon-close" />
+        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source="icon-close" />
       </Button>
     );
   }
@@ -383,7 +383,7 @@ export class BackBarItem extends Component {
     return (
       <Button style={styles.backBarButton.default} onPress={this.props.action}>
         <View style={styles.backBarButton.content}>
-          <Img style={styles.backBarButton.icon} source="icon-back" />
+          <ImageView style={styles.backBarButton.icon} source="icon-back" />
           <Text style={styles.backBarButton.label}>{this.props.title}</Text>
         </View>
       </Button>

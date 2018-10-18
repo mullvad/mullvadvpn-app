@@ -3,7 +3,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { View, Component } from 'reactxp';
-import { Accordion } from '@mullvad/components';
+import { Accordion, SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
 import { Layout, Container } from './Layout';
 import {
   NavigationContainer,
@@ -12,7 +12,6 @@ import {
   CloseBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 
@@ -23,6 +22,7 @@ import type {
   RelayLocationRelayRedux,
 } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/daemon-rpc';
+import { colors } from '../../config';
 
 type Props = {
   relaySettings: RelaySettingsRedux,
@@ -170,7 +170,13 @@ export default class SelectLocation extends Component<Props, State> {
     const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
 
     return isSelected ? (
-      <Cell.Icon style={styles.tick_icon} source="icon-tick" height={24} width={24} />
+      <Cell.Icon
+        style={styles.tick_icon}
+        tintColor={colors.white}
+        source="icon-tick"
+        height={24}
+        width={24}
+      />
     ) : (
       <View style={[styles.relay_status, statusClass]} />
     );
@@ -216,7 +222,8 @@ export default class SelectLocation extends Component<Props, State> {
           {hasChildren ? (
             <Cell.Icon
               style={styles.collapse_button}
-              hoverStyle={styles.expand_chevron_hover}
+              tintColor={colors.white80}
+              tintHoverColor={colors.white}
               onPress={handleCollapse}
               source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
               height={24}
@@ -273,7 +280,8 @@ export default class SelectLocation extends Component<Props, State> {
           {relayCity.relays.length > 1 ? (
             <Cell.Icon
               style={styles.collapse_button}
-              hoverStyle={styles.expand_chevron_hover}
+              tintColor={colors.white80}
+              tintHoverColor={colors.white}
               onPress={handleCollapse}
               source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
               height={24}

@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Animated, View, Button, Text, Component, UserInterface, Styles, Types } from 'reactxp';
+import { ImageView } from '@mullvad/components';
 import { colors } from '../../config';
-import Img from './Img';
 
 const styles = {
   collapsible: Styles.createViewStyle({
@@ -97,7 +97,7 @@ export class NotificationOpenLinkAction extends Component<{ onPress: () => void 
         onPress={this.props.onPress}
         onHoverStart={this._onHoverStart}
         onHoverEnd={this._onHoverEnd}>
-        <Img
+        <ImageView
           height={12}
           width={12}
           tintColor={this.state.hovered ? colors.white80 : colors.white60}

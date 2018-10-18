@@ -70,11 +70,7 @@ export default {
     justifyContent: 'center',
     color: colors.blue20,
   }),
-  input_arrow__active: Styles.createViewStyle({
-    color: colors.white,
-  }),
   input_arrow__invisible: Styles.createViewStyle({
-    color: colors.white,
     opacity: 0,
   }),
   account_dropdown__spacer: Styles.createViewStyle({
@@ -97,15 +93,11 @@ export default {
   }),
   account_dropdown__remove: Styles.createViewStyle({
     justifyContent: 'center',
-    color: colors.blue40,
     paddingTop: 10,
     paddingRight: 12,
     paddingBottom: 12,
     paddingLeft: 12,
     marginLeft: 0,
-  }),
-  account_dropdown__remove_hover: Styles.createViewStyle({
-    color: colors.blue,
   }),
   account_dropdown__label_hover: Styles.createViewStyle({
     color: colors.blue,

@@ -1,15 +1,18 @@
-// @flow
+import * as React from 'react';
+import { Button, Component, Styles, Text, Types, View } from 'reactxp';
+import ImageView from './ImageView';
 
-import React from 'react';
-import { Component, Text, Button, View, Styles } from 'reactxp';
+export enum HeaderBarStyle {
+  default = 'default',
+  defaultDark = 'defaultDark',
+  error = 'error',
+  success = 'success',
+}
 
-import Img from './Img';
-import { colors } from '../../config';
-
-export type HeaderBarStyle = 'default' | 'defaultDark' | 'error' | 'success';
-type HeaderBarProps = {
-  barStyle: HeaderBarStyle,
-};
+interface IHeaderBarProps {
+  barStyle: HeaderBarStyle;
+  style?: Types.ViewStyleRuleSet;
+}
 
 const headerBarStyles = {
   container: {
@@ -24,6 +27,8 @@ const headerBarStyles = {
         paddingTop: 24,
       }),
       linux: Styles.createViewStyle({
+        // WebKitAppRegion is not standard :/
+        // @ts-ignore
         WebkitAppRegion: 'drag',
       }),
     },
@@ -37,28 +42,29 @@ const headerBarStyles = {
   }),
   barStyle: {
     default: Styles.createViewStyle({
-      backgroundColor: colors.blue,
+      backgroundColor: 'rgb(41, 77, 115)', // colors.blue
     }),
     defaultDark: Styles.createViewStyle({
-      backgroundColor: colors.darkBlue,
+      backgroundColor: 'rgb(25, 46, 69)', // colors.darkBlue
     }),
     error: Styles.createViewStyle({
-      backgroundColor: colors.red,
+      backgroundColor: 'rgb(208, 2, 27)', // colors.red
     }),
     success: Styles.createViewStyle({
-      backgroundColor: colors.green,
+      backgroundColor: 'rgb(68, 173, 77)', // colors.green
     }),
   },
 };
 
-export default class HeaderBar extends Component<HeaderBarProps> {
-  static defaultProps: HeaderBarProps = {
-    barStyle: 'default',
+export default class HeaderBar extends Component<IHeaderBarProps> {
+  public static defaultProps: IHeaderBarProps = {
+    barStyle: HeaderBarStyle.default,
   };
 
-  render() {
+  public render() {
     const style = [
       headerBarStyles.container.base,
+      // @ts-ignore
       headerBarStyles.container.platformOverride[process.platform],
       headerBarStyles.barStyle[this.props.barStyle],
       this.props.style,
@@ -84,25 +90,25 @@ const brandStyles = {
     fontWeight: '900',
     lineHeight: 30,
     letterSpacing: -0.5,
-    color: colors.white60,
+    color: 'rgba(255, 255, 255, 0.6)', // colors.white60
     marginLeft: 8,
   }),
 };
 
 export class Brand extends Component {
-  render() {
+  public render() {
     return (
-      <View style={brandStyles.container} testName="headerbar__container">
-        <Img width={50} height={50} source="logo-icon" />
+      <View style={brandStyles.container}>
+        <ImageView width={50} height={50} source="logo-icon" />
         <Text style={brandStyles.title}>{'MULLVAD VPN'}</Text>
       </View>
     );
   }
 }
 
-type SettingsButtonProps = {
-  onPress: ?() => void,
-};
+interface ISettingsButtonProps {
+  onPress?: () => void;
+}
 
 const settingsBarButtonStyles = {
   container: {
@@ -113,36 +119,29 @@ const settingsBarButtonStyles = {
     }),
     platformOverride: {
       linux: Styles.createViewStyle({
+        // WebKitAppRegion is not standard :/
+        // @ts-ignore
         WebkitAppRegion: 'no-drag',
       }),
     },
   },
-  icon: {
-    normal: Styles.createViewStyle({
-      color: colors.white60,
-    }),
-    hover: Styles.createViewStyle({
-      color: colors.white,
-    }),
-  },
 };
 
-export class SettingsBarButton extends Component<SettingsButtonProps> {
-  render() {
+export class SettingsBarButton extends Component<ISettingsButtonProps> {
+  public render() {
     return (
       <Button
         style={[
           settingsBarButtonStyles.container.base,
+          // @ts-ignore
           settingsBarButtonStyles.container.platformOverride[process.platform],
         ]}
-        onPress={this.props.onPress}
-        testName="headerbar__settings">
-        <Img
+        onPress={this.props.onPress}>
+        <ImageView
           height={24}
           width={24}
           source="icon-settings"
-          style={settingsBarButtonStyles.icon.normal}
-          hoverStyle={settingsBarButtonStyles.icon.hover}
+          tintColor={'rgba(255, 255, 255, 0.6)'}
         />
       </Button>
     );
