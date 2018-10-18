@@ -3,13 +3,11 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { ClipboardLabel } from '@mullvad/components';
+import { ClipboardLabel, ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './AccountStyles';
-import Img from './Img';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 
@@ -65,7 +63,7 @@ export default class Account extends Component<Props> {
                       icon="icon-extLink"
                       testName="account__buymore">
                       <AppButton.Label>Buy more credit</AppButton.Label>
-                      <Img source="icon-extLink" height={16} width={16} />
+                      <ImageView source="icon-extLink" height={16} width={16} />
                     </AppButton.GreenButton>
                     <AppButton.RedButton onPress={this.props.onLogout} testName="account__logout">
                       {'Log out'}

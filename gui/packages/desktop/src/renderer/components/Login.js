@@ -3,9 +3,7 @@
 import * as React from 'react';
 import { Component, Text, TextInput, View, Animated, Styles, UserInterface } from 'reactxp';
 import { Layout, Container, Header } from './Layout';
-import { SettingsBarButton, Brand } from './HeaderBar';
-import { Accordion } from '@mullvad/components';
-import Img from './Img';
+import { Accordion, ImageView, SettingsBarButton, Brand } from '@mullvad/components';
 import * as Cell from './Cell';
 import * as AppButton from './AppButton';
 import styles from './LoginStyles';
@@ -233,7 +231,9 @@ export default class Login extends Component<Props, State> {
     const statusIconPath = this._getStatusIconPath();
     return (
       <View style={styles.status_icon}>
-        {statusIconPath ? <Img source={statusIconPath} height={48} width={48} alt="" /> : null}
+        {statusIconPath ? (
+          <ImageView source={statusIconPath} height={48} width={48} alt="" />
+        ) : null}
       </View>
     );
   }
@@ -282,12 +282,8 @@ export default class Login extends Component<Props, State> {
   }
 
   _accountInputArrowStyles(): Array<Object> {
-    const { accountToken, loginState } = this.props;
+    const { loginState } = this.props;
     const classes = [styles.input_arrow];
-
-    if (accountToken && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH) {
-      classes.push(styles.input_arrow__active);
-    }
 
     if (loginState === 'logging in') {
       classes.push(styles.input_arrow__invisible);
@@ -372,12 +368,12 @@ export default class Login extends Component<Props, State> {
               style={this._accountInputButtonStyles()}
               onPress={this._onSubmit}
               testName="account-input-button">
-              <Img
+              <ImageView
                 style={this._accountInputArrowStyles()}
                 source="icon-arrow"
                 height={16}
                 width={24}
-                tintColor="currentColor"
+                tintColor="rgb(255, 255, 255)"
               />
             </Animated.View>
           </View>
@@ -401,7 +397,7 @@ export default class Login extends Component<Props, State> {
         <Text style={styles.login_footer__prompt}>{"Don't have an account number?"}</Text>
         <AppButton.BlueButton onPress={this._onCreateAccount}>
           <AppButton.Label>Create account</AppButton.Label>
-          <Img source="icon-extLink" height={16} width={16} />
+          <ImageView source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
       </View>
     );
@@ -455,10 +451,10 @@ class AccountDropdownItem extends React.Component<AccountDropdownItemProps> {
             onPress={() => this.props.onSelect(this.props.value)}>
             {this.props.label}
           </Cell.Label>
-          <Img
+          <ImageView
             style={styles.account_dropdown__remove}
-            hoverStyle={styles.account_dropdown__remove_hover}
-            tintColor={'currentColor'}
+            tintColor={colors.blue40}
+            tintHoverColor={colors.blue}
             source="icon-close-sml"
             height={16}
             width={16}

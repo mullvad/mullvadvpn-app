@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { View, Component } from 'reactxp';
-import HeaderBar from './HeaderBar';
+import { HeaderBar } from '@mullvad/components';
 import styles from './LayoutStyles';
 
 export class Header extends Component<React.ElementProps<typeof HeaderBar>> {

@@ -22,12 +22,6 @@ export default {
   blueHover: Styles.createViewStyle({
     backgroundColor: colors.blue60,
   }),
-  white80: Styles.createViewStyle({
-    color: colors.white80,
-  }),
-  white: Styles.createViewStyle({
-    color: colors.white,
-  }),
   transparent: Styles.createViewStyle({
     backgroundColor: colors.white20,
   }),
@@ -46,11 +40,6 @@ export default {
     right: 8,
     marginLeft: 8,
   }),
-  iconTransparent: Styles.createViewStyle({
-    position: 'absolute',
-    alignSelf: 'flex-end',
-    right: 42,
-  }),
   common: Styles.createViewStyle({
     cursor: 'default',
     paddingTop: 9,
@@ -63,7 +52,6 @@ export default {
     alignContent: 'center',
     justifyContent: 'center',
   }),
-
   label: Styles.createTextStyle({
     alignSelf: 'center',
     fontFamily: 'DINPro',
@@ -71,5 +59,6 @@ export default {
     fontWeight: '900',
     lineHeight: 26,
     flex: 1,
+    color: colors.white,
   }),
 };

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
-import PlainImg from './Img';
+import { ImageView } from '@mullvad/components';
 import { colors } from '../../config';
 
 const styles = {
@@ -84,7 +84,6 @@ const styles = {
     backgroundColor: colors.blue80,
   }),
   icon: Styles.createViewStyle({
-    color: colors.white60,
     marginLeft: 8,
   }),
 
@@ -208,18 +207,18 @@ export function SubText({ children, style, cellHoverStyle, ...otherProps }: SubT
   );
 }
 
-export type IconProps = {
-  cellHoverStyle?: Types.ViewStyle,
-  style?: Types.ViewStyle,
-};
-
-export function Icon({ style, cellHoverStyle, ...otherProps }: IconProps) {
+export function Icon({
+  style,
+  tintColor,
+  tintHoverColor,
+  ...otherProps
+}: React.ElementProps<typeof ImageView>) {
   return (
     <CellHoverContext.Consumer>
       {(hovered) => (
-        <PlainImg
-          tintColor={'currentColor'}
-          style={[styles.icon, style, hovered && cellHoverStyle]}
+        <ImageView
+          tintColor={(hovered && tintHoverColor) || tintColor || colors.white60}
+          style={[styles.icon, style]}
           {...otherProps}
         />
       )}

@@ -2,9 +2,8 @@
 
 import * as React from 'react';
 import { Component, Styles, View, Text } from 'reactxp';
+import { ImageView, SettingsBarButton } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
-import { SettingsBarButton } from './HeaderBar';
-import Img from './Img';
 import { colors } from '../../config';
 
 const styles = {
@@ -48,7 +47,7 @@ export default class Launch extends Component<Props> {
         </Header>
         <Container>
           <View style={styles.container} testName="headerbar__container">
-            <Img height={120} width={120} source="logo-icon" style={styles.logo} />
+            <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
             <Text style={styles.title}>{'MULLVAD VPN'}</Text>
             <Text style={styles.subtitle}>{'Connecting to daemon...'}</Text>
           </View>

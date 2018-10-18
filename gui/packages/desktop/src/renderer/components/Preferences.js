@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { Component, View } from 'reactxp';
+import { SettingsHeader, HeaderTitle } from '@mullvad/components';
 import * as Cell from './Cell';
 import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
 

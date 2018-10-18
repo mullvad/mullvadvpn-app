@@ -95,7 +95,4 @@ export default {
     paddingLeft: 60,
     backgroundColor: colors.green,
   }),
-  expand_chevron_hover: Styles.createViewStyle({
-    color: colors.white,
-  }),
 };

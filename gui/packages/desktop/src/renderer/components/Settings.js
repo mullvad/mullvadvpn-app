@@ -3,9 +3,9 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
+import { ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import Img from './Img';
 import { Layout, Container } from './Layout';
 import {
   NavigationBar,
@@ -14,7 +14,6 @@ import {
   CloseBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './SettingsStyles';
 import { colors } from '../../config';
 
@@ -136,7 +135,11 @@ export default class Settings extends Component<Props> {
         : 'Update available, download to remain safe.';
 
       icon = (
-        <Img source="icon-alert" tintColor={colors.red} style={styles.settings__version_warning} />
+        <ImageView
+          source="icon-alert"
+          tintColor={colors.red}
+          style={styles.settings__version_warning}
+        />
       );
       footer = (
         <View style={styles.settings__cell_footer}>

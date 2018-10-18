@@ -2,12 +2,11 @@
 
 import * as React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
+import { ImageView, SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
-import SettingsHeader, { HeaderTitle, HeaderSubTitle } from './SettingsHeader';
 import styles from './SupportStyles';
-import Img from './Img';
 
 import type { AccountToken } from '../lib/daemon-rpc';
 import type { SupportReportForm } from '../redux/support/actions';
@@ -248,7 +247,7 @@ export default class Support extends Component<SupportProps, SupportState> {
           onPress={this.onViewLog}
           testName="support__view_logs">
           <AppButton.Label>View app logs</AppButton.Label>
-          <Img source="icon-extLink" height={16} width={16} />
+          <ImageView source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
         <AppButton.GreenButton
           disabled={!this.validate()}
@@ -266,7 +265,7 @@ export default class Support extends Component<SupportProps, SupportState> {
         <View style={styles.support__form}>
           <View style={styles.support__form_row}>
             <View style={styles.support__status_icon}>
-              <Img source="icon-spinner" height={60} width={60} alt="" />
+              <ImageView source="icon-spinner" height={60} width={60} alt="" />
             </View>
             <View style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</View>
             <Text style={styles.support__send_status}>{'Sending...'}</Text>
@@ -282,7 +281,7 @@ export default class Support extends Component<SupportProps, SupportState> {
         <View style={styles.support__form}>
           <View style={styles.support__form_row}>
             <View style={styles.support__status_icon}>
-              <Img source="icon-success" height={60} width={60} alt="" />
+              <ImageView source="icon-success" height={60} width={60} alt="" />
             </View>
             <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
             <Text style={styles.support__send_status}>{'Sent'}</Text>
@@ -306,7 +305,7 @@ export default class Support extends Component<SupportProps, SupportState> {
         <View style={styles.support__form}>
           <View style={styles.support__form_row}>
             <View style={styles.support__status_icon}>
-              <Img source="icon-fail" height={60} width={60} alt="" />
+              <ImageView source="icon-fail" height={60} width={60} alt="" />
             </View>
             <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
             <Text style={styles.support__send_status}>{'Failed to send'}</Text>
