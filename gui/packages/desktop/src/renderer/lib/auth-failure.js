@@ -11,7 +11,7 @@ export type AuthFailureKind =
 export const GENERIC_FAILURE_MSG = 'Account authentication failed';
 export const INVALID_ACCOUNT_MSG = "You've logged in with an account number that is not valid. Please log out and try another one.";
 export const EXPIRED_ACCOUNT_MSG = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
-export const TOO_MANY_CONNECTIONS_MSG = "This account is already using the maximum number of simultaneous connections. Please either disconnect another device first or try connecting again in a minute.";
+export const TOO_MANY_CONNECTIONS_MSG = "This account is already using five simultaneous connections. Disconnect another device or try connecting again shortly.";
 
 export class AuthFailure {
   _reasonId: AuthFailureKind;
@@ -25,7 +25,7 @@ export class AuthFailure {
       return;
     }
 
-    const results = /^\[(\w+)\]\s*(.*?)$/.exec(reason);
+    const results = /^\[(\w+)\]\s*(.*)$/.exec(reason);
 
     if (!results || results.length < 3) {
       log.error(`Received invalid auth_failed message - "${reason}"`);
