@@ -12,6 +12,12 @@ enum AuthFailedInner {
     InvalidReason,
 }
 
+// These strings should match up with gui/packages/desktop/src/renderer/lib/auth-failure.js
+const GENERIC_FAILURE_MSG: &str = "Account authentication failed";
+const INVALID_ACCOUNT_MSG: &str = "You've logged in with an account number that is not valid. Please log out and try another one.";
+const EXPIRED_ACCOUNT_MSG: &str = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
+const TOO_MANY_CONNECTIONS_MSG: &str = "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.";
+
 impl AuthFailedInner {
     fn from_str(input: &str) -> AuthFailedInner {
         use self::AuthFailedInner::*;
@@ -61,11 +67,11 @@ impl ::std::fmt::Display for AuthFailed {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         use self::AuthFailedInner::*;
         match self.reason {
-            InvalidAccount => write!(f, "Account is invalid"),
-            ExpiredAccount => write!(f, "Account has expired"),
-            TooManyConnectons => write!(f, "Account has too many active connections"),
+            InvalidAccount => write!(f, "{}", INVALID_ACCOUNT_MSG),
+            ExpiredAccount => write!(f, "{}", EXPIRED_ACCOUNT_MSG),
+            TooManyConnectons => write!(f, "{}", TOO_MANY_CONNECTIONS_MSG),
             Unknown(_, ref reason) => write!(f, "{}", reason),
-            InvalidReason => write!(f, "Account authentication failed"),
+            InvalidReason => write!(f, "{}", GENERIC_FAILURE_MSG),
         }
     }
 }
