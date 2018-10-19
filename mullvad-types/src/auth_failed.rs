@@ -1,3 +1,5 @@
+use regex::Regex;
+
 #[derive(Debug)]
 pub struct AuthFailed {
     reason: AuthFailedInner,
@@ -34,17 +36,8 @@ impl AuthFailedInner {
             }
             None => {
                 warn!("Received invalid AUTH_FAILED message: {}", input);
-                InvalidReason
+                Unknown("UNKNOWN".to_string(), input.to_string())
             }
-        }
-    }
-
-
-    fn is_invalid(&self) -> bool {
-        use self::AuthFailedInner::*;
-        match self {
-            InvalidReason => true,
-            _ => false,
         }
     }
 }
@@ -82,19 +75,13 @@ impl ::std::fmt::Display for AuthFailed {
 // * "This is not a valid Mullvad account" - the human readable message of the failure reason.
 // In the case that the message has preceeding whitespace, it will be trimmed.
 fn parse_string<'a>(reason: &'a str) -> Option<(&'a str, &'a str)> {
-    if !reason.starts_with("[") {
-        return None;
+    lazy_static! {
+        static ref REASON_REGEX: Regex = Regex::new(r"^\[(\w+)\]\s*(.*?)$").unwrap();
     }
-
-    let reason_end_idx = reason.find(']')?;
-    let reason_id = &reason[1..reason_end_idx];
-
-    let end = reason.len();
-    if reason_end_idx + 1 >= end {
-        Some((reason_id, ""))
-    } else {
-        Some((reason_id, &reason[reason_end_idx + 1..end].trim_left()))
-    }
+    let captures = REASON_REGEX.captures(reason)?;
+    let reason = captures.get(1).map(|m| m.as_str())?;
+    let message = captures.get(2).map(|m| m.as_str())?;
+    Some((reason, message))
 }
 
 #[cfg(test)]
@@ -111,8 +98,8 @@ mod tests {
             (Some(("TOO_MANY_CONNECTIONS", "This Mullvad account is already used by the maximum number of simultaneous connections")),
             "[TOO_MANY_CONNECTIONS] This Mullvad account is already used by the maximum number of simultaneous connections"),
             (None, "[Incomplete String"),
-            (Some(("REASON REASON", "")), "[REASON REASON]"),
-            (Some(("REASON REASON", "A")), "[REASON REASON]A"),
+            (Some(("REASON_REASON", "")), "[REASON_REASON]"),
+            (Some(("REASON_REASON", "A")), "[REASON_REASON]A"),
             (None, "incomplete]"),
             (None, ""),
         ];
