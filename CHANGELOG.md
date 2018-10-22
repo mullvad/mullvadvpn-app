@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
+- Disable GPU acceleration on Linux to fix App on Ubuntu 14.04 and other older distributions.
 
 
 ## [2018.4] - 2018-10-16

@@ -25,6 +25,11 @@ const ApplicationMain = {
   _shouldQuit: false,
 
   run() {
+    // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
+    if (process.platform === 'linux') {
+      app.commandLine.appendSwitch('--disable-gpu');
+    }
+
     this._overrideAppPaths();
 
     if (this._ensureSingleInstance()) {
