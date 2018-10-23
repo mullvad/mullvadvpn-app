@@ -304,20 +304,27 @@ class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
     );
     const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
 
-    const connectionInfoProps = {
-      inAddress: {
+    const ConnectionDetails = () => {
+      const inAddress = {
         ip: this.props.relayIp,
         port: this.props.relayPort,
         protocol: this.props.relayProtocol,
-      },
-      outAddress: {
+      };
+      const outAddress = {
         ipv4: this.props.outIpv4,
         ipv6: this.props.outIpv6,
-      },
-      startExpanded: this.state.showConnectionInfo,
-      onToggle: (expanded) => {
-        this.setState({ showConnectionInfo: expanded });
-      },
+      };
+
+      return (
+        <ConnectionInfo
+          inAddress={inAddress}
+          outAddress={outAddress}
+          isExpanded={this.state.showConnectionInfo}
+          onToggle={() => {
+            this.setState((state) => ({ ...state, showConnectionInfo: !state.showConnectionInfo }));
+          }}
+        />
+      );
     };
 
     switch (this.props.tunnelState) {
@@ -331,7 +338,7 @@ class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
                 <Country />
               </Location>
               <Hostname />
-              <ConnectionInfo {...connectionInfoProps} />
+              <ConnectionDetails />
             </Body>
             <Footer>
               <SwitchLocation />
@@ -349,7 +356,7 @@ class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
                 <Country />
               </Location>
               <Hostname />
-              <ConnectionInfo {...connectionInfoProps} />
+              <ConnectionDetails />
             </Body>
             <Footer>
               <SwitchLocation />
