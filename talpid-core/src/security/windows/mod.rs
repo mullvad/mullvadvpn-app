@@ -86,19 +86,19 @@ impl NetworkSecurityT for NetworkSecurity {
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
         match policy {
             SecurityPolicy::Connecting {
-                relay_endpoint,
+                peer_endpoint,
                 allow_lan,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connecting_state(&relay_endpoint, &cfg)
+                self.set_connecting_state(&peer_endpoint, &cfg)
             }
             SecurityPolicy::Connected {
-                relay_endpoint,
+                peer_endpoint,
                 tunnel,
                 allow_lan,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&relay_endpoint, &cfg, &tunnel)
+                self.set_connected_state(&peer_endpoint, &cfg, &tunnel)
             }
             SecurityPolicy::Blocked { allow_lan } => {
                 let cfg = &WinFwSettings::new(allow_lan);
