@@ -41,18 +41,18 @@ lazy_static! {
 /// A enum that describes network security strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum SecurityPolicy {
-    /// Allow traffic only to relay server
+    /// Allow traffic only to server
     Connecting {
-        /// The relay endpoint that should be allowed.
-        relay_endpoint: Endpoint,
+        /// The peer endpoint that should be allowed.
+        peer_endpoint: Endpoint,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
     },
 
-    /// Allow traffic only to relay server and over tunnel interface
+    /// Allow traffic only to server and over tunnel interface
     Connected {
-        /// The relay endpoint that should be allowed.
-        relay_endpoint: Endpoint,
+        /// The peer endpoint that should be allowed.
+        peer_endpoint: Endpoint,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: ::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
@@ -70,22 +70,22 @@ impl fmt::Display for SecurityPolicy {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
             SecurityPolicy::Connecting {
-                relay_endpoint,
+                peer_endpoint,
                 allow_lan,
             } => write!(
                 f,
                 "Connecting to {}, {} LAN",
-                relay_endpoint,
+                peer_endpoint,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
             SecurityPolicy::Connected {
-                relay_endpoint,
+                peer_endpoint,
                 tunnel,
                 allow_lan,
             } => write!(
                 f,
                 "Connected to {} over \"{}\" (ip: {}, gw: {}), {} LAN",
-                relay_endpoint,
+                peer_endpoint,
                 tunnel.interface,
                 tunnel.ip,
                 tunnel.gateway,
