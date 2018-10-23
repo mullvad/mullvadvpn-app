@@ -46,6 +46,7 @@ pub struct OpenVpnCommand {
     config: Option<PathBuf>,
     remote: Option<net::Endpoint>,
     user_pass_path: Option<PathBuf>,
+    proxy_auth_path: Option<PathBuf>,
     ca: Option<PathBuf>,
     crl: Option<PathBuf>,
     iproute_bin: Option<OsString>,
@@ -65,6 +66,7 @@ impl OpenVpnCommand {
             config: None,
             remote: None,
             user_pass_path: None,
+            proxy_auth_path: None,
             ca: None,
             crl: None,
             iproute_bin: None,
@@ -92,6 +94,13 @@ impl OpenVpnCommand {
     /// is stored. See the `--auth-user-pass` OpenVPN documentation for details.
     pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
+        self
+    }
+
+    /// Sets the path to the file where the username and password for proxy authentication
+    /// is stored.
+    pub fn proxy_auth<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.proxy_auth_path = Some(path.as_ref().to_path_buf());
         self
     }
 
@@ -208,6 +217,39 @@ impl OpenVpnCommand {
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));
+
+        if let Some(ref proxy) = self.tunnel_options.proxy {
+            if let net::OpenVpnProxySettings::Local(local_proxy) = proxy {
+                args.push(OsString::from("--socks-proxy"));
+                args.push(OsString::from("127.0.0.1"));
+                args.push(OsString::from(local_proxy.port.to_string()));
+                args.push(OsString::from("--route"));
+                args.push(OsString::from(local_proxy.peer.ip().to_string()));
+                args.push(OsString::from("255.255.255.255"));
+                args.push(OsString::from("net_gateway"));
+            } else if let net::OpenVpnProxySettings::Remote(remote_proxy) = proxy {
+                args.push(OsString::from("--socks-proxy"));
+                args.push(OsString::from(remote_proxy.address.ip().to_string()));
+                args.push(OsString::from(remote_proxy.address.port().to_string()));
+
+                if let Some(ref _auth) = remote_proxy.auth {
+                    if let Some(ref auth_file) = self.proxy_auth_path {
+                        args.push(OsString::from(auth_file));
+                    }
+                    else
+                    {
+                        warn!("Proxy credentials present but credentials file missing");
+                    }
+                }
+
+                args.push(OsString::from("--route"));
+                args.push(OsString::from(remote_proxy.address.ip().to_string()));
+                args.push(OsString::from("255.255.255.255"));
+                args.push(OsString::from("net_gateway"));
+            } else {
+                unreachable!("unhandled proxy type");
+            }
+        }
 
         args
     }

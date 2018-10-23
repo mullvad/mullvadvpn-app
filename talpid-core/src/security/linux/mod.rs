@@ -223,18 +223,18 @@ impl<'a> PolicyBatch<'a> {
     fn add_policy_specific_rules(&mut self, policy: &SecurityPolicy) -> Result<()> {
         let allow_lan = match policy {
             SecurityPolicy::Connecting {
-                relay_endpoint,
+                peer_endpoint,
                 allow_lan,
             } => {
-                self.add_allow_endpoint_rules(relay_endpoint)?;
+                self.add_allow_endpoint_rules(peer_endpoint)?;
                 *allow_lan
             }
             SecurityPolicy::Connected {
-                relay_endpoint,
+                peer_endpoint,
                 tunnel,
                 allow_lan,
             } => {
-                self.add_allow_endpoint_rules(relay_endpoint)?;
+                self.add_allow_endpoint_rules(peer_endpoint)?;
                 self.add_dns_rule(tunnel, TransportProtocol::Udp)?;
                 self.add_dns_rule(tunnel, TransportProtocol::Tcp)?;
                 self.add_allow_tunnel_rules(tunnel)?;

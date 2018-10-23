@@ -7,7 +7,7 @@ use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
 
-use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelEndpoint, TunnelEndpointData};
 use talpid_types::tunnel::BlockReason;
 
 use super::{
@@ -53,10 +53,30 @@ pub struct ConnectingState {
 impl ConnectingState {
     fn set_security_policy(
         shared_values: &mut SharedTunnelStateValues,
+        proxy: &Option<OpenVpnProxySettings>,
         endpoint: TunnelEndpoint,
     ) -> Result<()> {
+        // If a proxy is specified we need to pass it on as the peer endpoint.
+        let peer_endpoint = match proxy {
+            Some(OpenVpnProxySettings::Local(ref local_proxy)) => {
+                Endpoint {
+                    address: local_proxy.peer,
+                    protocol: TransportProtocol::Tcp,
+                }
+            },
+            Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => {
+                Endpoint {
+                    address: remote_proxy.address,
+                    protocol: TransportProtocol::Tcp,
+                }
+            },
+            _ => {
+                endpoint.to_endpoint()
+            },
+        };
+
         let policy = SecurityPolicy::Connecting {
-            relay_endpoint: endpoint.to_endpoint(),
+            peer_endpoint,
             allow_lan: shared_values.allow_lan,
         };
         shared_values
@@ -172,7 +192,7 @@ impl ConnectingState {
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 shared_values.allow_lan = allow_lan;
-                match Self::set_security_policy(shared_values, self.tunnel_parameters.endpoint) {
+                match Self::set_security_policy(shared_values, &self.tunnel_parameters.options.openvpn.proxy, self.tunnel_parameters.endpoint) {
                     Ok(()) => SameState(self),
                     Err(error) => {
                         error!("{}", error.display_chain());
@@ -284,7 +304,7 @@ impl TunnelState for ConnectingState {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
                 if let Err(error) =
-                    Self::set_security_policy(shared_values, tunnel_parameters.endpoint)
+                    Self::set_security_policy(shared_values, &tunnel_parameters.options.openvpn.proxy, tunnel_parameters.endpoint)
                 {
                     error!("{}", error.display_chain());
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)

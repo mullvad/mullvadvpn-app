@@ -10,13 +10,14 @@ use std::fs;
 use std::io::{self, Write};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
+use std::result::Result as StdResult;
 
 #[cfg(target_os = "linux")]
 use failure::ResultExt as FailureResultExt;
 #[cfg(target_os = "linux")]
 use which;
 
-use talpid_types::net::{Endpoint, TunnelEndpoint, TunnelEndpointData, TunnelOptions};
+use talpid_types::net::{Endpoint, OpenVpnProxySettings, TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -143,6 +144,8 @@ pub struct TunnelMonitor {
     monitor: OpenVpnMonitor,
     /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
     _user_pass_file: mktemp::TempFile,
+    /// Keep the 'TempFile' for the proxy user-pass file in the struct, so it's removed on drop.
+    _proxy_auth_file: Option<mktemp::TempFile>,
 }
 
 impl TunnelMonitor {
@@ -164,21 +167,40 @@ impl TunnelMonitor {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_options)?;
 
         let user_pass_file =
-            Self::create_user_pass_file(username).chain_err(|| ErrorKind::CredentialsWriteError)?;
+            Self::create_credentials_file(username, "-").chain_err(|| ErrorKind::CredentialsWriteError)?;
+
+        let proxy_auth_file =
+            Self::create_proxy_auth_file(&tunnel_options.openvpn.proxy).chain_err(|| ErrorKind::CredentialsWriteError)?;
+
+        // todo: also send proxy file
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
             tunnel_alias,
             &tunnel_options,
             user_pass_file.as_ref(),
+            match proxy_auth_file {
+                Some(ref file) => Some(file.as_ref()),
+                _ => None},
             log,
             resource_dir,
         )?;
 
         let user_pass_file_path = user_pass_file.to_path_buf();
+
+        let proxy_auth_file_path = match proxy_auth_file {
+            Some(ref file) => Some(file.to_path_buf()),
+            _ => None,
+        };
+
         let on_openvpn_event = move |event, env| {
             if event == OpenVpnPluginEvent::Up {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
+
+                // The proxy auth file has been read. Try to delete it early.
+                if let Some(ref file_path) = &proxy_auth_file_path {
+                    let _ = fs::remove_file(file_path);
+                }
             }
             match TunnelEvent::from_openvpn_event(&event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
@@ -195,6 +217,7 @@ impl TunnelMonitor {
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
+            _proxy_auth_file: proxy_auth_file,
         })
     }
 
@@ -218,6 +241,7 @@ impl TunnelMonitor {
         tunnel_alias: Option<OsString>,
         options: &TunnelOptions,
         user_pass_file: &Path,
+        proxy_auth_file: Option<&Path>,
         log: Option<&Path>,
         resource_dir: &Path,
     ) -> Result<OpenVpnCommand> {
@@ -241,6 +265,10 @@ impl TunnelMonitor {
         if let Some(log) = log {
             cmd.log(log);
         }
+        if let Some(proxy_auth_file) = proxy_auth_file {
+            cmd.proxy_auth(proxy_auth_file);
+        }
+
         Ok(cmd)
     }
 
@@ -273,16 +301,25 @@ impl TunnelMonitor {
         }
     }
 
-    fn create_user_pass_file(username: &str) -> io::Result<mktemp::TempFile> {
+    fn create_credentials_file(username: &str, password: &str) -> io::Result<mktemp::TempFile> {
         let temp_file = mktemp::TempFile::new();
         debug!(
-            "Writing user-pass credentials to {}",
+            "Writing credentials to {}",
             temp_file.as_ref().display()
         );
         let mut file = fs::File::create(&temp_file)?;
         Self::set_user_pass_file_permissions(&file)?;
-        write!(file, "{}\n-\n", username)?;
+        write!(file, "{}\n{}\n", username, password)?;
         Ok(temp_file)
+    }
+
+    fn create_proxy_auth_file(proxy: &Option<OpenVpnProxySettings>) -> StdResult<Option<mktemp::TempFile>, io::Error> {
+        if let Some(OpenVpnProxySettings::Remote(ref remote_proxy)) = proxy {
+            if let Some(ref proxy_auth) = remote_proxy.auth {
+                return Ok(Some(Self::create_credentials_file(&proxy_auth.username, &proxy_auth.password)?));
+            }
+        }
+        Ok(None)
     }
 
     #[cfg(unix)]
