@@ -46,6 +46,7 @@ pub struct OpenVpnCommand {
     config: Option<PathBuf>,
     remote: Option<net::Endpoint>,
     user_pass_path: Option<PathBuf>,
+    proxy_auth_path: Option<PathBuf>,
     ca: Option<PathBuf>,
     crl: Option<PathBuf>,
     iproute_bin: Option<OsString>,
@@ -65,6 +66,7 @@ impl OpenVpnCommand {
             config: None,
             remote: None,
             user_pass_path: None,
+            proxy_auth_path: None,
             ca: None,
             crl: None,
             iproute_bin: None,
@@ -92,6 +94,13 @@ impl OpenVpnCommand {
     /// is stored. See the `--auth-user-pass` OpenVPN documentation for details.
     pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
+        self
+    }
+
+    /// Sets the path to the file where the username and password for proxy authentication
+    /// is stored.
+    pub fn proxy_auth<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+        self.proxy_auth_path = Some(path.as_ref().to_path_buf());
         self
     }
 
@@ -133,7 +142,7 @@ impl OpenVpnCommand {
 
     /// Sets extra options
     pub fn tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
-        self.tunnel_options = *tunnel_options;
+        self.tunnel_options = tunnel_options.clone();
         self
     }
 
@@ -208,6 +217,7 @@ impl OpenVpnCommand {
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));
+        args.extend(self.proxy_arguments().iter().map(OsString::from));
 
         args
     }
@@ -250,6 +260,41 @@ impl OpenVpnCommand {
             args.push(OsString::from("--auth-user-pass"));
             args.push(OsString::from(user_pass_path));
         }
+        args
+    }
+
+    fn proxy_arguments(&self) -> Vec<String> {
+        let mut args = vec![];
+        match self.tunnel_options.proxy {
+            Some(net::OpenVpnProxySettings::Local(ref local_proxy)) => {
+                args.push("--socks-proxy".to_owned());
+                args.push("127.0.0.1".to_owned());
+                args.push(local_proxy.port.to_string());
+                args.push("--route".to_owned());
+                args.push(local_proxy.peer.ip().to_string());
+                args.push("255.255.255.255".to_owned());
+                args.push("net_gateway".to_owned());
+            }
+            Some(net::OpenVpnProxySettings::Remote(ref remote_proxy)) => {
+                args.push("--socks-proxy".to_owned());
+                args.push(remote_proxy.address.ip().to_string());
+                args.push(remote_proxy.address.port().to_string());
+
+                if let Some(ref _auth) = remote_proxy.auth {
+                    if let Some(ref auth_file) = self.proxy_auth_path {
+                        args.push(auth_file.to_string_lossy().to_string());
+                    } else {
+                        log::error!("Proxy credentials present but credentials file missing");
+                    }
+                }
+
+                args.push("--route".to_owned());
+                args.push(remote_proxy.address.ip().to_string());
+                args.push("255.255.255.255".to_owned());
+                args.push("net_gateway".to_owned());
+            }
+            None => {}
+        };
         args
     }
 }
