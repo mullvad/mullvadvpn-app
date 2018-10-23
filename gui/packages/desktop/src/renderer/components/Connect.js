@@ -12,7 +12,7 @@ import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
-import type { TunnelState } from '../lib/daemon-rpc';
+import type { TunnelState, RelayProtocol } from '../lib/daemon-rpc';
 
 import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
@@ -139,14 +139,18 @@ export default class Connect extends Component<Props> {
     const tunnelState = this.props.connection.status.state;
     const details = this.props.connection.status.details;
 
-    let relayIp = null;
-    let relayPort = null;
-    let relayProtocol = null;
+    const relayOutAddress: RelayOutAddress = {
+      ipv4: this.props.connection.ip,
+      ipv6: null,
+    };
+    let relayInAddress: ?RelayInAddress = null;
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
-      relayIp = details.address;
-      relayPort = details.tunnel.openvpn.port;
-      relayProtocol = details.tunnel.openvpn.protocol;
+      relayInAddress = {
+        ip: details.address,
+        port: details.tunnel.openvpn.port,
+        protocol: details.tunnel.openvpn.protocol,
+      };
     }
 
     return (
@@ -168,11 +172,8 @@ export default class Connect extends Component<Props> {
             city={this.props.connection.city}
             country={this.props.connection.country}
             hostname={this.props.connection.hostname}
-            relayIp={relayIp}
-            relayPort={relayPort}
-            relayProtocol={relayProtocol}
-            outIpv4={this.props.connection.ip}
-            outIpv6={null}
+            relayInAddress={relayInAddress}
+            relayOutAddress={relayOutAddress}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
@@ -231,17 +232,25 @@ export default class Connect extends Component<Props> {
   }
 }
 
+type RelayInAddress = {
+  ip: string,
+  port: number,
+  protocol: RelayProtocol,
+};
+
+type RelayOutAddress = {
+  ipv4: ?string,
+  ipv6: ?string,
+};
+
 type TunnelControlProps = {
   tunnelState: TunnelState,
   selectedRelayName: string,
   city: ?string,
   country: ?string,
   hostname: ?string,
-  relayIp: ?string,
-  relayPort: ?number,
-  relayProtocol: ?string,
-  outIpv4: ?string,
-  outIpv6: ?string,
+  relayInAddress: ?RelayInAddress,
+  relayOutAddress: ?RelayOutAddress,
   onConnect: () => void,
   onDisconnect: () => void,
   onSelectLocation: () => void,
@@ -305,20 +314,10 @@ class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
     const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
 
     const ConnectionDetails = () => {
-      const inAddress = {
-        ip: this.props.relayIp,
-        port: this.props.relayPort,
-        protocol: this.props.relayProtocol,
-      };
-      const outAddress = {
-        ipv4: this.props.outIpv4,
-        ipv6: this.props.outIpv6,
-      };
-
       return (
         <ConnectionInfo
-          inAddress={inAddress}
-          outAddress={outAddress}
+          inAddress={this.props.relayInAddress}
+          outAddress={this.props.relayOutAddress}
           isExpanded={this.state.showConnectionInfo}
           onToggle={() => {
             this.setState((state) => ({ ...state, showConnectionInfo: !state.showConnectionInfo }));
