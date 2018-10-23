@@ -55,6 +55,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{RelaySettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList},
+    settings,
     settings::Settings,
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
@@ -64,7 +65,10 @@ use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
 };
-use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
+use talpid_types::{
+    net::OpenVpnProxySettings,
+    tunnel::{BlockReason, TunnelStateTransition},
+};
 
 
 error_chain!{
@@ -369,7 +373,7 @@ impl Daemon {
                     tunnel_parameters_tx
                         .send(TunnelParameters {
                             endpoint,
-                            options: self.settings.get_tunnel_options(),
+                            options: self.settings.get_tunnel_options().clone(),
                             username: account_token,
                         })
                         .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
@@ -417,6 +421,7 @@ impl Daemon {
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
+            SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             GetSettings(tx) => self.on_get_settings(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
@@ -616,6 +621,27 @@ impl Daemon {
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_set_openvpn_proxy(
+        &mut self,
+        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
+        proxy: Option<OpenVpnProxySettings>,
+    ) {
+        let save_result = self.settings.set_openvpn_proxy(proxy);
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                }
+            }
+            Err(settings_error) => {
+                error!("{}", settings_error.display_chain());
+                Self::oneshot_send(tx, Err(settings_error), "set_openvpn_proxy response");
+            }
         }
     }
 

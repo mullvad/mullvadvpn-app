@@ -4,10 +4,11 @@ use log::{debug, info};
 use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
+
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
-use talpid_types::net::TunnelOptions;
+use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
 
 error_chain! {
     errors {
@@ -24,6 +25,10 @@ error_chain! {
         }
         ParseError {
             description("Malformed settings")
+        }
+        InvalidProxyData(reason: String) {
+            description("Invalid proxy configuration was rejected")
+            display("Invalid proxy configuration was rejected: {}", reason)
         }
     }
 }
@@ -182,6 +187,21 @@ impl Settings {
         }
     }
 
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<bool> {
+        if let Some(ref settings) = proxy {
+            if let Err(validation_error) = OpenVpnProxySettingsValidation::validate(settings) {
+                bail!(ErrorKind::InvalidProxyData(validation_error));
+            }
+        }
+
+        if self.tunnel_options.openvpn.proxy != proxy {
+            self.tunnel_options.openvpn.proxy = proxy;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool> {
         if self.tunnel_options.enable_ipv6 != enable_ipv6 {
             self.tunnel_options.enable_ipv6 = enable_ipv6;
@@ -191,7 +211,7 @@ impl Settings {
         }
     }
 
-    pub fn get_tunnel_options(&self) -> TunnelOptions {
-        self.tunnel_options
+    pub fn get_tunnel_options(&self) -> &TunnelOptions {
+        &self.tunnel_options
     }
 }
