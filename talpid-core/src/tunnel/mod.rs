@@ -172,7 +172,6 @@ impl TunnelMonitor {
         let proxy_auth_file = Self::create_proxy_auth_file(&tunnel_options.openvpn.proxy)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
 
-        // todo: also send proxy file
         let cmd = Self::create_openvpn_cmd(
             tunnel_endpoint.to_endpoint(),
             tunnel_alias,
