@@ -7,6 +7,7 @@
 //! the License, or (at your option) any later version.
 
 extern crate chrono;
+extern crate regex;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -20,7 +21,12 @@ extern crate log;
 #[macro_use]
 extern crate error_chain;
 
+#[macro_use]
+extern crate lazy_static;
+
+
 pub mod account;
+pub mod auth_failed;
 pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;
