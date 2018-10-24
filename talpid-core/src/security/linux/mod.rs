@@ -278,7 +278,6 @@ impl<'a> PolicyBatch<'a> {
     ) -> Result<()> {
         let mut rule = Rule::new(&self.out_chain)?;
 
-        check_iface(&mut rule, Direction::Out, &tunnel.interface[..])?;
         check_port(&mut rule, protocol, End::Dst, 53)?;
         check_l3proto(&mut rule, IpAddr::V4(tunnel.gateway))?;
 
