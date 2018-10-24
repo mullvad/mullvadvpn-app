@@ -257,14 +257,14 @@ impl<'a> PolicyBatch<'a> {
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
         in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32))?;
         in_rule.add_expr(&nft_expr!(cmp != 0u32))?;
-        add_verdict(&mut in_rule, Verdict::Accept)?;
+        add_verdict(&mut in_rule, &Verdict::Accept)?;
 
         self.batch.add(&in_rule, nftnl::MsgType::Add)?;
 
 
         let mut out_rule = Rule::new(&self.out_chain)?;
         check_endpoint(&mut out_rule, End::Dst, endpoint)?;
-        add_verdict(&mut out_rule, Verdict::Accept)?;
+        add_verdict(&mut out_rule, &Verdict::Accept)?;
 
         self.batch.add(&out_rule, nftnl::MsgType::Add)?;
 
@@ -285,7 +285,7 @@ impl<'a> PolicyBatch<'a> {
         rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
         rule.add_expr(&nft_expr!(cmp != tunnel.gateway))?;
 
-        add_verdict(&mut rule, Verdict::Drop)?;
+        add_verdict(&mut rule, &Verdict::Drop)?;
 
         self.batch.add(&rule, nftnl::MsgType::Add)?;
         Ok(())
@@ -310,14 +310,14 @@ impl<'a> PolicyBatch<'a> {
                 let mut rule = Rule::new(chain)?;
                 check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
                 check_net(&mut rule, End::Dst, IpNetwork::V4(*net))?;
-                add_verdict(&mut rule, Verdict::Accept)?;
+                add_verdict(&mut rule, &Verdict::Accept)?;
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
             }
             for net in &*super::LOCAL_INET6_NETS {
                 let mut rule = Rule::new(chain)?;
                 check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
                 check_net(&mut rule, End::Dst, IpNetwork::V6(*net))?;
-                add_verdict(&mut rule, Verdict::Accept)?;
+                add_verdict(&mut rule, &Verdict::Accept)?;
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
             }
         }
@@ -326,7 +326,7 @@ impl<'a> PolicyBatch<'a> {
             let mut rule = Rule::new(&self.out_chain)?;
             check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
             check_net(&mut rule, End::Dst, IpNetwork::V4(*super::MULTICAST_NET))?;
-            add_verdict(&mut rule, Verdict::Accept)?;
+            add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
 
@@ -334,7 +334,7 @@ impl<'a> PolicyBatch<'a> {
             let mut rule = Rule::new(&self.out_chain)?;
             check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
             check_ip(&mut rule, End::Dst, *super::SSDP_IP)?;
-            add_verdict(&mut rule, Verdict::Accept)?;
+            add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
@@ -346,7 +346,7 @@ impl<'a> PolicyBatch<'a> {
                 End::Dst,
                 IpNetwork::V6(*super::MULTICAST_INET6_NET),
             )?;
-            add_verdict(&mut rule, Verdict::Accept)?;
+            add_verdict(&mut rule, &Verdict::Accept)?;
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
         Ok(())
@@ -372,7 +372,7 @@ fn allow_dhcp_rule<'a>(chain: &'a Chain, direction: Direction) -> Result<Rule<'a
         }
     }
 
-    add_verdict(&mut rule, Verdict::Accept)?;
+    add_verdict(&mut rule, &Verdict::Accept)?;
 
     Ok(rule)
 }
@@ -384,7 +384,7 @@ fn allow_interface_rule<'a>(
 ) -> Result<Rule<'a>> {
     let mut rule = Rule::new(&chain)?;
     check_iface(&mut rule, direction, iface)?;
-    add_verdict(&mut rule, Verdict::Accept)?;
+    add_verdict(&mut rule, &Verdict::Accept)?;
 
     Ok(rule)
 }
@@ -496,9 +496,10 @@ fn l4proto(protocol: TransportProtocol) -> u8 {
     }
 }
 
-fn add_verdict(rule: &mut Rule, verdict: expr::Verdict) -> Result<()> {
+fn add_verdict(rule: &mut Rule, verdict: &expr::Verdict) -> Result<()> {
     if *ADD_COUNTERS {
         rule.add_expr(&nft_expr!(counter))?;
     }
-    Ok(rule.add_expr(&verdict)?)
+    rule.add_expr(verdict)?;
+    Ok(())
 }

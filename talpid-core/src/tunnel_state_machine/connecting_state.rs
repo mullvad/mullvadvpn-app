@@ -96,7 +96,7 @@ impl ConnectingState {
         };
         let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
 
-        Ok(TunnelMonitor::new(
+        Ok(TunnelMonitor::start(
             parameters.endpoint,
             &parameters.options,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),

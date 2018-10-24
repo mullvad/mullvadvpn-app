@@ -1,7 +1,6 @@
 extern crate notify;
 
 use std::net::IpAddr;
-use std::ops::DerefMut;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::{fs, io, thread};
 
@@ -124,18 +123,18 @@ impl DnsWatcher {
             .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
             .chain_err(|| ErrorKind::WatchResolvConf)?;
 
-        thread::spawn(move || Self::event_loop(event_rx, state));
+        thread::spawn(move || Self::event_loop(event_rx, &state));
 
         Ok(DnsWatcher { _watcher: watcher })
     }
 
-    fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: Arc<Mutex<Option<State>>>) {
+    fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: &Arc<Mutex<Option<State>>>) {
         for _ in events {
-            let locked_state = state
+            let mut locked_state = state
                 .lock()
                 .expect("a thread panicked while using the DNS configuration state");
 
-            if let Err(error) = Self::update(locked_state) {
+            if let Err(error) = Self::update(locked_state.as_mut()) {
                 let chained_error = error
                     .chain_err(|| "Failed to update DNS state after DNS settings have changed.");
                 error!("{}", chained_error.display_chain());
@@ -143,8 +142,8 @@ impl DnsWatcher {
         }
     }
 
-    fn update(mut locked_state: MutexGuard<Option<State>>) -> Result<()> {
-        if let &mut Some(ref mut state) = locked_state.deref_mut() {
+    fn update(state: Option<&mut State>) -> Result<()> {
+        if let Some(state) = state {
             let mut new_config = read_config()?;
             let desired_nameservers = state
                 .desired_dns

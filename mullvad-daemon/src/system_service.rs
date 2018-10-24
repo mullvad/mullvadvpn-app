@@ -67,7 +67,7 @@ fn run_service() -> Result<()> {
         .unwrap();
 
     let config = cli::get_config();
-    let result = ::create_daemon(config).and_then(|daemon| {
+    let result = ::create_daemon(&config).and_then(|daemon| {
         let shutdown_handle = daemon.shutdown_handle();
 
         // Register monitor that translates `ServiceControl` to Daemon events

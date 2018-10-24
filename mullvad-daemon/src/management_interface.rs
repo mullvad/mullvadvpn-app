@@ -212,7 +212,7 @@ impl ManagementInterfaceServer {
         let server = talpid_ipc::IpcServer::start_with_metadata(
             meta_io,
             meta_extractor,
-            path.to_string_lossy().to_string(),
+            &path.to_string_lossy(),
         )?;
         Ok(ManagementInterfaceServer {
             server,
@@ -301,7 +301,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     fn unsubscribe<V>(
-        id: SubscriptionId,
+        id: &SubscriptionId,
         subscriptions_lock: &RwLock<HashMap<SubscriptionId, pubsub::Sink<V>>>,
     ) -> BoxFuture<(), Error> {
         let was_removed = subscriptions_lock.write().unwrap().remove(&id).is_some();
@@ -329,9 +329,9 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     /// Converts the given error to an error that can be given to the caller of the API.
     /// Will let any actual RPC error through as is, any other error is changed to an internal
     /// error.
-    fn map_rpc_error(error: mullvad_rpc::Error) -> Error {
+    fn map_rpc_error(error: &mullvad_rpc::Error) -> Error {
         match error.kind() {
-            &mullvad_rpc::ErrorKind::JsonRpcError(ref rpc_error) => {
+            mullvad_rpc::ErrorKind::JsonRpcError(ref rpc_error) => {
                 // We have to manually copy the error since we have different
                 // versions of the jsonrpc_core library at the moment.
                 Error {
@@ -372,7 +372,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                         "Unable to get account data from API: {}",
                         error.display_chain()
                     );
-                    Self::map_rpc_error(error)
+                    Self::map_rpc_error(&error)
                 })
             });
         Box::new(future)
@@ -517,7 +517,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         debug!("remove_account_from_history");
         Box::new(future::result(
             self.load_history()
-                .and_then(|mut history| history.remove_account_token(account_token))
+                .and_then(|mut history| history.remove_account_token(&account_token))
                 .map_err(|error| {
                     error!(
                         "Unable to remove account from history: {}",
@@ -579,7 +579,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                         "Unable to get version data from API: {}",
                         error.display_chain()
                     );
-                    Self::map_rpc_error(error)
+                    Self::map_rpc_error(&error)
                 })
             });
 
@@ -597,7 +597,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         debug!("new_state_unsubscribe");
-        Self::unsubscribe(id, &self.subscriptions.new_state_subscriptions)
+        Self::unsubscribe(&id, &self.subscriptions.new_state_subscriptions)
     }
 
     fn settings_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<Settings>) {
@@ -607,7 +607,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn settings_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         debug!("settings_unsubscribe");
-        Self::unsubscribe(id, &self.subscriptions.settings_subscriptions)
+        Self::unsubscribe(&id, &self.subscriptions.settings_subscriptions)
     }
 }
 

@@ -50,12 +50,12 @@ const RPC_TIMEOUT_MS: i32 = 1000;
 
 lazy_static! {
     static ref LINK_INTERFACE: Interface<'static> =
-        Interface::from_slice("org.freedesktop.resolve1.Link".as_bytes()).unwrap();
+        Interface::from_slice(b"org.freedesktop.resolve1.Link").unwrap();
     static ref MANAGER_INTERFACE: Interface<'static> =
-        Interface::from_slice("org.freedesktop.resolve1.Manager".as_bytes()).unwrap();
-    static ref GET_LINK_METHOD: Member<'static> = Member::from_slice("GetLink".as_bytes()).unwrap();
-    static ref SET_DNS_METHOD: Member<'static> = Member::from_slice("SetDNS".as_bytes()).unwrap();
-    static ref REVERT_METHOD: Member<'static> = Member::from_slice("Revert".as_bytes()).unwrap();
+        Interface::from_slice(b"org.freedesktop.resolve1.Manager").unwrap();
+    static ref GET_LINK_METHOD: Member<'static> = Member::from_slice(b"GetLink").unwrap();
+    static ref SET_DNS_METHOD: Member<'static> = Member::from_slice(b"SetDNS").unwrap();
+    static ref REVERT_METHOD: Member<'static> = Member::from_slice(b"Revert").unwrap();
 }
 
 pub struct SystemdResolved {
@@ -116,7 +116,7 @@ impl SystemdResolved {
             .any(|nameserver| nameserver == resolved_dns_server))
     }
 
-    fn as_manager_object<'a>(&'a self) -> dbus::ConnPath<'a, &'a dbus::Connection> {
+    fn as_manager_object(&self) -> dbus::ConnPath<&dbus::Connection> {
         self.dbus_connection
             .with_path(RESOLVED_BUS, "/org/freedesktop/resolve1", RPC_TIMEOUT_MS)
     }

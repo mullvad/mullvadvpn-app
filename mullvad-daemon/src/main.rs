@@ -53,7 +53,7 @@ fn main() {
     let exit_code = match run() {
         Ok(_) => 0,
         Err(error) => {
-            if let &ErrorKind::LogError(_) = error.kind() {
+            if let ErrorKind::LogError(_) = error.kind() {
                 eprintln!("{}", error.display_chain());
             } else {
                 error!("{}", error.display_chain());
@@ -89,11 +89,11 @@ fn run() -> Result<()> {
         info!("Logging to {}", log_dir.display());
     }
 
-    run_platform(config)
+    run_platform(&config)
 }
 
 #[cfg(windows)]
-fn run_platform(config: cli::Config) -> Result<()> {
+fn run_platform(config: &cli::Config) -> Result<()> {
     if config.run_as_service {
         system_service::run()
     } else {
@@ -111,11 +111,11 @@ fn run_platform(config: cli::Config) -> Result<()> {
 }
 
 #[cfg(not(windows))]
-fn run_platform(config: cli::Config) -> Result<()> {
+fn run_platform(config: &cli::Config) -> Result<()> {
     run_standalone(config)
 }
 
-fn run_standalone(config: cli::Config) -> Result<()> {
+fn run_standalone(config: &cli::Config) -> Result<()> {
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
@@ -133,7 +133,7 @@ fn run_standalone(config: cli::Config) -> Result<()> {
     Ok(())
 }
 
-fn create_daemon(config: cli::Config) -> Result<Daemon> {
+fn create_daemon(config: &cli::Config) -> Result<Daemon> {
     let log_dir = if config.log_to_file {
         Some(mullvad_paths::log_dir().chain_err(|| "Unable to get log directory")?)
     } else {
@@ -142,7 +142,7 @@ fn create_daemon(config: cli::Config) -> Result<Daemon> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().chain_err(|| "Unable to get cache dir")?;
 
-    Daemon::new(
+    Daemon::start(
         log_dir,
         resource_dir,
         cache_dir,

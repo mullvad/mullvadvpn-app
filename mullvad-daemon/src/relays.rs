@@ -368,7 +368,7 @@ impl RelaySelector {
         self.rng
             .choose(&tunnels.openvpn)
             .cloned()
-            .map(|openvpn_endpoint| TunnelEndpointData::OpenVpn(openvpn_endpoint))
+            .map(TunnelEndpointData::OpenVpn)
     }
 
     /// Try to read the relays, first from cache and if that fails from the resources.
