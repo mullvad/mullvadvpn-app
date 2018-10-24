@@ -20,10 +20,8 @@ matrix:
         - yarn flow-typed install
       before_script: &nodejs_before_script
         - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
-      script: &nodejs_script
-        - yarn lint
-        - yarn flow
-        - yarn check-format
+      script:
+        - yarn workspace $WORKSPACE lint
         - yarn workspace $WORKSPACE test
 
     # GUI - desktop
@@ -34,7 +32,11 @@ matrix:
         - WORKSPACE="desktop"
       install: *nodejs_install_script
       before_script: *nodejs_before_script
-      script: *nodejs_script
+      script:
+        - yarn lint
+        - yarn flow
+        - yarn check-format
+        - yarn workspace $WORKSPACE test
 
 
     # Daemon - macOS

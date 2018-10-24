@@ -3,18 +3,23 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View, Types } from 'reactxp';
-import { ConnectionInfo, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
+import {
+  ConnectionInfo,
+  SecuredLabel,
+  SecuredDisplayStyle,
+  SettingsBarButton,
+  Brand,
+  HeaderBarStyle,
+  ImageView,
+} from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
-import { SettingsBarButton, Brand } from './HeaderBar';
 import NotificationArea from './NotificationArea';
 import * as AppButton from './AppButton';
-import Img from './Img';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
 import type { TunnelState, RelayProtocol } from '../lib/daemon-rpc';
 
-import type { HeaderBarStyle } from './HeaderBar';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { VersionReduxState } from '../redux/version/reducers';
 
@@ -63,7 +68,7 @@ export default class Connect extends Component<Props> {
     return (
       <View style={styles.connect}>
         <View style={styles.status_icon}>
-          <Img source="icon-fail" height={60} width={60} alt="" />
+          <ImageView source="icon-fail" height={60} width={60} alt="" />
         </View>
         <View style={styles.body}>
           <View style={styles.error_title}>{title}</View>
@@ -72,7 +77,7 @@ export default class Connect extends Component<Props> {
             <View>
               <AppButton.GreenButton onPress={() => this.props.onExternalLink('purchase')}>
                 <AppButton.Label>Buy more time</AppButton.Label>
-                <Img source="icon-extLink" height={16} width={16} />
+                <ImageView source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
             </View>
           ) : null}
@@ -162,7 +167,7 @@ export default class Connect extends Component<Props> {
           {/* show spinner when connecting */}
           {tunnelState === 'connecting' ? (
             <View style={styles.status_icon}>
-              <Img source="icon-spinner" height={60} width={60} alt="" />
+              <ImageView source="icon-spinner" height={60} width={60} alt="" />
             </View>
           ) : null}
 
@@ -196,18 +201,18 @@ export default class Connect extends Component<Props> {
     const { status } = this.props.connection;
     switch (status.state) {
       case 'disconnected':
-        return 'error';
+        return HeaderBarStyle.error;
       case 'connecting':
       case 'connected':
       case 'blocked':
-        return 'success';
+        return HeaderBarStyle.success;
       case 'disconnecting':
         switch (status.details) {
           case 'block':
           case 'reconnect':
-            return 'success';
+            return HeaderBarStyle.success;
           case 'nothing':
-            return 'error';
+            return HeaderBarStyle.error;
           default:
             throw new Error(`Invalid action after disconnection: ${(status.details: empty)}`);
         }
@@ -286,7 +291,7 @@ class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
         style={styles.switch_location_button}
         onPress={this.props.onSelectLocation}>
         <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
-        <Img height={12} width={7} source="icon-chevron" />
+        <ImageView height={12} width={7} source="icon-chevron" />
       </AppButton.TransparentButton>
     );
 

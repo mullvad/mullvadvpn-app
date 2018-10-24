@@ -1,15 +1,10 @@
-// @flow
-
 import * as React from 'react';
-import { Component, Text, View, Styles } from 'reactxp';
-import { colors } from '../../config';
+import { Component, Styles, Text, Types, View } from 'reactxp';
 
 const styles = {
   header: {
     default: Styles.createViewStyle({
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
+      flex: 0,
       paddingTop: 4,
       paddingRight: 24,
       paddingLeft: 24,
@@ -21,7 +16,7 @@ const styles = {
     fontSize: 32,
     fontWeight: '900',
     lineHeight: 40,
-    color: colors.white,
+    color: 'rgb(255, 255, 255)',
   }),
   subtitle: Styles.createTextStyle({
     marginTop: 4,
@@ -29,26 +24,30 @@ const styles = {
     fontSize: 13,
     fontWeight: '600',
     overflow: 'visible',
-    color: colors.white80,
+    color: 'rgba(255, 255, 255, 0.8)', // colors.white80
     lineHeight: 20,
     letterSpacing: -0.2,
   }),
 };
 
-export default class SettingsHeader extends Component {
-  render() {
+interface ISettingsHeaderProps {
+  style?: Types.ViewStyleRuleSet;
+}
+
+export default class SettingsHeader extends Component<ISettingsHeaderProps> {
+  public render() {
     return <View style={[styles.header.default, this.props.style]}>{this.props.children}</View>;
   }
 }
 
 export class HeaderTitle extends Component {
-  render() {
+  public render() {
     return <Text style={[styles.title]}>{this.props.children}</Text>;
   }
 }
 
 export class HeaderSubTitle extends Component {
-  render() {
+  public render() {
     return <Text style={[styles.subtitle]}>{this.props.children}</Text>;
   }
 }

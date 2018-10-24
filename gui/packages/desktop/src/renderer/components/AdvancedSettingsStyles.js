@@ -49,7 +49,6 @@ export default {
     height: 24,
     marginRight: 8,
     flex: 0,
-    color: colors.white80,
   }),
   advanced_settings__cell_dimmed: Styles.createViewStyle({
     cursor: 'default',
