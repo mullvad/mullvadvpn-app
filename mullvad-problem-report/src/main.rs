@@ -11,6 +11,7 @@ extern crate clap;
 extern crate dirs;
 #[macro_use]
 extern crate error_chain;
+extern crate env_logger;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
@@ -91,6 +92,7 @@ error_chain!{
 quick_main!(run);
 
 fn run() -> Result<()> {
+    env_logger::init();
     let app = clap::App::new("problem-report")
         .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
