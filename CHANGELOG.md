@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
 - Disable GPU acceleration on Linux to fix App on Ubuntu 14.04 and other older distributions.
+- Make the `problem-report` tool fall back to the bundled API IP if DNS resolution fails.
 
 #### macOS
 - Correctly backup and restore search domains and other DNS settings.
