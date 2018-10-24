@@ -217,37 +217,7 @@ impl OpenVpnCommand {
         }
 
         args.extend(Self::security_arguments().iter().map(OsString::from));
-
-        if let Some(ref proxy) = self.tunnel_options.proxy {
-            if let net::OpenVpnProxySettings::Local(local_proxy) = proxy {
-                args.push(OsString::from("--socks-proxy"));
-                args.push(OsString::from("127.0.0.1"));
-                args.push(OsString::from(local_proxy.port.to_string()));
-                args.push(OsString::from("--route"));
-                args.push(OsString::from(local_proxy.peer.ip().to_string()));
-                args.push(OsString::from("255.255.255.255"));
-                args.push(OsString::from("net_gateway"));
-            } else if let net::OpenVpnProxySettings::Remote(remote_proxy) = proxy {
-                args.push(OsString::from("--socks-proxy"));
-                args.push(OsString::from(remote_proxy.address.ip().to_string()));
-                args.push(OsString::from(remote_proxy.address.port().to_string()));
-
-                if let Some(ref _auth) = remote_proxy.auth {
-                    if let Some(ref auth_file) = self.proxy_auth_path {
-                        args.push(OsString::from(auth_file));
-                    } else {
-                        warn!("Proxy credentials present but credentials file missing");
-                    }
-                }
-
-                args.push(OsString::from("--route"));
-                args.push(OsString::from(remote_proxy.address.ip().to_string()));
-                args.push(OsString::from("255.255.255.255"));
-                args.push(OsString::from("net_gateway"));
-            } else {
-                unreachable!("unhandled proxy type");
-            }
-        }
+        args.extend(self.proxy_arguments().iter().map(OsString::from));
 
         args
     }
@@ -290,6 +260,41 @@ impl OpenVpnCommand {
             args.push(OsString::from("--auth-user-pass"));
             args.push(OsString::from(user_pass_path));
         }
+        args
+    }
+
+    fn proxy_arguments(&self) -> Vec<String> {
+        let mut args = vec![];
+        match self.tunnel_options.proxy {
+            Some(net::OpenVpnProxySettings::Local(ref local_proxy)) => {
+                args.push("--socks-proxy".to_owned());
+                args.push("127.0.0.1".to_owned());
+                args.push(local_proxy.port.to_string());
+                args.push("--route".to_owned());
+                args.push(local_proxy.peer.ip().to_string());
+                args.push("255.255.255.255".to_owned());
+                args.push("net_gateway".to_owned());
+            }
+            Some(net::OpenVpnProxySettings::Remote(ref remote_proxy)) => {
+                args.push("--socks-proxy".to_owned());
+                args.push(remote_proxy.address.ip().to_string());
+                args.push(remote_proxy.address.port().to_string());
+
+                if let Some(ref _auth) = remote_proxy.auth {
+                    if let Some(ref auth_file) = self.proxy_auth_path {
+                        args.push(auth_file.to_string_lossy().to_string());
+                    } else {
+                        log::error!("Proxy credentials present but credentials file missing");
+                    }
+                }
+
+                args.push("--route".to_owned());
+                args.push(remote_proxy.address.ip().to_string());
+                args.push("255.255.255.255".to_owned());
+                args.push("net_gateway".to_owned());
+            }
+            None => {}
+        };
         args
     }
 }
