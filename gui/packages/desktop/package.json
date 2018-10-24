@@ -14,7 +14,6 @@
   "dependencies": {
     "@mullvad/components": "0.1.0",
     "JSONStream": "^1.3.4",
-    "babel-runtime": "^6.26.0",
     "connected-react-router": "^4.3.0",
     "d3-geo-projection": "^2.3.2",
     "electron-log": "^2.2.8",
@@ -37,13 +36,14 @@
     "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.10"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "browser-sync": "^2.23.6",
     "chai": "^4.1.0",
     "chai-as-promised": "^7.1.1",
@@ -63,7 +63,7 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "develop": "cross-env yarn run private:compile --source-maps true && run-p -r private:watch private:serve",
-    "test": "electron-mocha --renderer -R spec --require babel-core/register --require-main \"test/setup/main.js\" --preload \"test/setup/renderer.js\" \"test/*.spec.js\" \"test/**/*.spec.js\"",
+    "test": "electron-mocha --renderer -R spec --require @babel/register --require-main \"test/setup/main.js\" --preload \"test/setup/renderer.js\" \"test/*.spec.js\" \"test/**/*.spec.js\"",
     "pack:mac": "run-s private:clean private:compile private:build:mac private:postbuild:mac",
     "pack:win": "run-s private:clean private:compile private:build:win",
     "pack:linux": "run-s private:clean private:compile private:build:linux",
