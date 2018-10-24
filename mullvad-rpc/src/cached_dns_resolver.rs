@@ -71,7 +71,6 @@ impl SystemDnsResolver {
 
 impl DnsResolver for SystemDnsResolver {
     fn resolve(&mut self, host: &str) -> Result<IpAddr> {
-        debug!("Resolving IP for {}", host);
         Self::resolve_in_background_thread(host)
             .recv_timeout(DNS_TIMEOUT)
             .chain_err(|| ErrorKind::DnsTimeout(host.to_owned()))
@@ -82,13 +81,13 @@ impl DnsResolver for SystemDnsResolver {
 pub struct CachedDnsResolver<R: DnsResolver = SystemDnsResolver> {
     hostname: String,
     dns_resolver: R,
-    cache_file: PathBuf,
+    cache_file: Option<PathBuf>,
     cached_address: IpAddr,
     last_updated: SystemTime,
 }
 
 impl CachedDnsResolver<SystemDnsResolver> {
-    pub fn new(hostname: String, cache_file: PathBuf, fallback_address: IpAddr) -> Self {
+    pub fn new(hostname: String, cache_file: Option<PathBuf>, fallback_address: IpAddr) -> Self {
         Self::with_dns_resolver(SystemDnsResolver, hostname, cache_file, fallback_address)
     }
 }
@@ -97,11 +96,13 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     pub fn with_dns_resolver(
         dns_resolver: R,
         hostname: String,
-        cache_file: PathBuf,
+        cache_file: Option<PathBuf>,
         fallback_address: IpAddr,
     ) -> Self {
-        let (cached_address, last_updated) =
-            Self::load_initial_cached_address(&cache_file, fallback_address);
+        let (cached_address, last_updated) = match &cache_file {
+            Some(cache_file) => Self::load_initial_cached_address(&cache_file, fallback_address),
+            None => (fallback_address, EXPIRED_CACHE_TIMESTAMP),
+        };
 
         CachedDnsResolver {
             hostname,
@@ -167,21 +168,28 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     }
 
     fn resolve_into_cache(&mut self) {
-        if let Ok(address) = self.dns_resolver.resolve(&self.hostname) {
-            if Self::is_bogus_address(address) {
-                warn!(
-                    "DNS lookup for {} returned bogus address {}, ignoring",
-                    self.hostname, address
-                );
-                return;
+        debug!("Resolving IP for {}", self.hostname);
+        match self.dns_resolver.resolve(&self.hostname) {
+            Ok(address) => {
+                if Self::is_bogus_address(address) {
+                    warn!(
+                        "DNS lookup for {} returned bogus address {}, ignoring",
+                        self.hostname, address
+                    );
+                    return;
+                }
+
+                debug!("Updating DNS cache for {} with {}", self.hostname, address);
+                self.cached_address = address;
+                self.last_updated = SystemTime::now();
+
+                if let Err(error) = self.update_cache_file() {
+                    warn!("Failed to update cache file with new IP address: {}", error);
+                }
             }
-
-            debug!("Updating DNS cache for {} with {}", self.hostname, address);
-            self.cached_address = address;
-            self.last_updated = SystemTime::now();
-
-            if let Err(error) = self.update_cache_file() {
-                warn!("Failed to update cache file with new IP address: {}", error);
+            Err(e) => {
+                let chained_error = e.chain_err(|| format!("Unable to resolve {}", self.hostname));
+                warn!("{}", chained_error.display_chain());
             }
         }
     }
@@ -197,9 +205,12 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
     }
 
     fn update_cache_file(&mut self) -> io::Result<()> {
-        let mut cache_file = File::create(&self.cache_file)?;
-
-        writeln!(cache_file, "{}", self.cached_address)
+        if let Some(cache_file_path) = &self.cache_file {
+            let mut cache_file = File::create(cache_file_path)?;
+            writeln!(cache_file, "{}", self.cached_address)
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -412,7 +423,12 @@ mod tests {
         let cache_file = cache_dir.join(::API_IP_CACHE_FILENAME);
         let fallback_address = fallback_address.unwrap_or(IpAddr::from([10, 0, 109, 91]));
 
-        CachedDnsResolver::with_dns_resolver(mock_resolver, hostname, cache_file, fallback_address)
+        CachedDnsResolver::with_dns_resolver(
+            mock_resolver,
+            hostname,
+            Some(cache_file),
+            fallback_address,
+        )
     }
 
     struct MockDnsResolver {
