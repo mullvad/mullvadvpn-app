@@ -1,13 +1,10 @@
 {
   "presets": [
-    ["env", {
-      "targets": { "electron": "2.0" },
-      "useBuiltIns": true
-    }], "react"
+    ["@babel/preset-env", {
+      "targets": { "electron": "3.0" }
+    }], "@babel/preset-react", "@babel/preset-flow"
   ],
   "plugins": [
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    ["transform-builtin-extend", { "globals": ["Error"] }]
+    "@babel/plugin-proposal-class-properties"
   ]
 }
