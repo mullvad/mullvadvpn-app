@@ -723,6 +723,13 @@
   dependencies:
     "@babel/helper-plugin-utils" "7.0.0-beta.47"
 
+"@babel/plugin-syntax-typescript@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.0.0.tgz#90f4fe0a741ae9c0dcdc3017717c05a0cbbd5158"
+  integrity sha512-5fxmdqiAQVQTIS+KSvYeZuTt91wKtBTYi6JlIkvbQ6hmO+9fZE81ezxmMiFMIsxE7CdRSgzn7nQ1BChcvK9OpA==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+
 "@babel/plugin-transform-arrow-functions@7.0.0-beta.47":
   version "7.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-arrow-functions/-/plugin-transform-arrow-functions-7.0.0-beta.47.tgz#d6eecda4c652b909e3088f0983ebaf8ec292984b"
@@ -1145,6 +1152,14 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
+"@babel/plugin-transform-typescript@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.1.0.tgz#81e7b4be90e7317cbd04bf1163ebf06b2adee60b"
+  integrity sha512-TOTtVeT+fekAesiCHnPz+PSkYSdOSLyLn42DI45nxg6iCdlQY6LIj/tYqpMB0y+YicoTUiYiXqF8rG6SKfhw6Q==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-syntax-typescript" "^7.0.0"
+
 "@babel/plugin-transform-unicode-regex@7.0.0-beta.47":
   version "7.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-unicode-regex/-/plugin-transform-unicode-regex-7.0.0-beta.47.tgz#efed0b2f1dfbf28283502234a95b4be88f7fdcb6"
@@ -1236,6 +1251,14 @@
     "@babel/plugin-transform-react-jsx" "^7.0.0"
     "@babel/plugin-transform-react-jsx-self" "^7.0.0"
     "@babel/plugin-transform-react-jsx-source" "^7.0.0"
+
+"@babel/preset-typescript@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@babel/preset-typescript/-/preset-typescript-7.1.0.tgz#49ad6e2084ff0bfb5f1f7fb3b5e76c434d442c7f"
+  integrity sha512-LYveByuF9AOM8WrsNne5+N79k1YxjNB6gmpCQsnuSBAcV8QUeB+ZUxQzL7Rz7HksPbahymKkq2qBR+o36ggFZA==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-transform-typescript" "^7.1.0"
 
 "@babel/register@7.0.0-beta.47":
   version "7.0.0-beta.47"
