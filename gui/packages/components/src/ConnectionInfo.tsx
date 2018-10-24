@@ -31,75 +31,44 @@ interface IOutAddress {
 }
 
 interface IProps {
-  inAddress: IInAddress;
+  inAddress?: IInAddress;
   outAddress: IOutAddress;
-  startExpanded: boolean;
-  onToggle: (expanded: boolean) => void;
+  isExpanded: boolean;
+  onToggle?: () => void;
 }
 
-interface IState {
-  expanded: boolean;
-}
-
-export default class ConnectionInfo extends Component<IProps, IState> {
-  public static defaultProps = {
-    inAddress: {
-      ip: null,
-      port: null,
-      protocol: null,
-    },
-    outAddress: null,
-    startExpanded: false,
-    onToggle: (_: boolean) => {},
-  };
-
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = {
-      expanded: props.startExpanded,
-    };
-  }
-
+export default class ConnectionInfo extends Component<IProps> {
   public render() {
+    const { inAddress, outAddress } = this.props;
+
     return (
       <View>
-        <Accordion height={this.state.expanded ? 'auto' : 0}>
-          <Text style={styles.content}>{this.inAddress()}</Text>
-          <Text style={styles.content}>{this.outAddress()}</Text>
+        <Accordion height={this.props.isExpanded ? 'auto' : 0}>
+          {inAddress && (
+            <Text style={styles.content}>{`IN: ${inAddress.ip}:${inAddress.port} - ${
+              inAddress.protocol
+            }`}</Text>
+          )}
+
+          {(outAddress.ipv4 || outAddress.ipv6) && (
+            <Text style={styles.content}>
+              {'OUT: ' +
+                [outAddress.ipv4, outAddress.ipv6]
+                  .filter((a) => typeof a !== 'undefined')
+                  .join(' / ')}
+            </Text>
+          )}
         </Accordion>
-        <Text style={styles.toggle} onPress={() => this.toggle()}>
-          {this.state.expanded ? 'LESS' : 'MORE'}
+        <Text style={styles.toggle} onPress={this.toggle}>
+          {this.props.isExpanded ? 'LESS' : 'MORE'}
         </Text>
       </View>
     );
   }
 
-  private toggle() {
-    this.setState((state, props) => {
-      const expanded = !state.expanded;
-
-      props.onToggle(expanded);
-
-      return { expanded };
-    });
-  }
-
-  private inAddress() {
-    const { ip, port, protocol } = this.props.inAddress;
-
-    return (
-      'IN: ' + (ip || '<unknown>') + (port ? `:${port}` : '') + (protocol ? ` - ${protocol}` : '')
-    );
-  }
-
-  private outAddress() {
-    const { ipv4, ipv6 } = this.props.outAddress;
-
-    if (ipv4 || ipv6) {
-      return `OUT: ${ipv4}` + (ipv6 ? ` / ${ipv6}` : '');
-    } else {
-      return '';
+  private toggle = () => {
+    if (this.props.onToggle) {
+      this.props.onToggle();
     }
-  }
+  };
 }
