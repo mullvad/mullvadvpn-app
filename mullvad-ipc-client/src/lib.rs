@@ -105,7 +105,7 @@ pub fn new_standalone_transport<
 
     rx.wait()
         .chain_err(|| ErrorKind::TransportError)?
-        .map(|client_handle| DaemonRpcClient::new(client_handle))
+        .map(DaemonRpcClient::new)
 }
 
 fn spawn_transport<F: Send + FnOnce(String) -> Result<T>, T: jsonrpc_client_core::Transport>(

@@ -102,10 +102,10 @@ impl TunnelEvent {
     /// Converts an `OpenVpnPluginEvent` to a `TunnelEvent`.
     /// Returns `None` if there is no corresponding `TunnelEvent`.
     fn from_openvpn_event(
-        event: &OpenVpnPluginEvent,
+        event: OpenVpnPluginEvent,
         env: &HashMap<String, String>,
     ) -> Option<TunnelEvent> {
-        match *event {
+        match event {
             OpenVpnPluginEvent::AuthFailed => {
                 let reason = env.get("auth_failed_reason").cloned();
                 Some(TunnelEvent::AuthFailed(reason))
@@ -148,7 +148,7 @@ pub struct TunnelMonitor {
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
-    pub fn new<L>(
+    pub fn start<L>(
         tunnel_endpoint: TunnelEndpoint,
         tunnel_options: &TunnelOptions,
         tunnel_alias: Option<OsString>,
@@ -180,13 +180,13 @@ impl TunnelMonitor {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
             }
-            match TunnelEvent::from_openvpn_event(&event, &env) {
+            match TunnelEvent::from_openvpn_event(event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
                 None => debug!("Ignoring OpenVpnEvent {:?}", event),
             }
         };
 
-        let monitor = openvpn::OpenVpnMonitor::new(
+        let monitor = openvpn::OpenVpnMonitor::start(
             cmd,
             on_openvpn_event,
             Self::get_plugin_path(resource_dir)?,

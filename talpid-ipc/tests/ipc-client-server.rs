@@ -76,7 +76,7 @@ fn create_server() -> (talpid_ipc::IpcServer, mpsc::Receiver<i64>) {
     } else {
         format!("/tmp/ipc-test-{}", uuid)
     };
-    let server = talpid_ipc::IpcServer::start(io.into(), ipc_path).unwrap();
+    let server = talpid_ipc::IpcServer::start(io.into(), &ipc_path).unwrap();
     (server, rx)
 }
 
@@ -93,6 +93,5 @@ fn create_client(ipc_path: String) -> jsonrpc_client_core::ClientHandle {
         client.wait().unwrap();
     });
 
-    let handle = rx.wait().expect("Failed to construct a valid client");
-    handle
+    rx.wait().expect("Failed to construct a valid client")
 }
