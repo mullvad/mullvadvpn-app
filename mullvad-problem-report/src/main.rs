@@ -46,7 +46,7 @@ const REPORT_MAX_SIZE: usize = (5 * LOG_MAX_READ_BYTES) + EXTRA_BYTES;
 
 
 /// Field delimeter in generated problem report
-const LOG_DELIMITER: &'static str = "====================";
+const LOG_DELIMITER: &str = "====================";
 
 /// Line separator character sequence
 #[cfg(not(windows))]

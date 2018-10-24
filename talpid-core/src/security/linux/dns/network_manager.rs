@@ -46,7 +46,7 @@ impl NetworkManager {
         Ok(())
     }
 
-    fn as_manager<'a>(&'a self) -> dbus::ConnPath<'a, &'a dbus::Connection> {
+    fn as_manager(&self) -> dbus::ConnPath<&dbus::Connection> {
         self.dbus_connection
             .with_path(NM_BUS, NM_OBJECT_PATH, RPC_TIMEOUT_MS)
     }

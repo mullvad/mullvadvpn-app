@@ -147,7 +147,7 @@ impl DaemonExecutionState {
         };
     }
 
-    pub fn is_running(&mut self) -> bool {
+    pub fn is_running(&self) -> bool {
         use self::DaemonExecutionState::*;
 
         match self {
@@ -311,7 +311,7 @@ impl Daemon {
                 Ok(self.handle_tunnel_state_transition(transition))
             }
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
-                Ok(self.handle_generate_tunnel_parameters(tunnel_parameters_tx, retry_attempt))
+                Ok(self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt))
             }
             ManagementInterfaceEvent(event) => Ok(self.handle_management_interface_event(event)),
             ManagementInterfaceExited => self.handle_management_interface_exited(),
@@ -330,9 +330,8 @@ impl Daemon {
             Blocked(ref reason) => {
                 info!("Blocking all network connections, reason: {}", reason);
 
-                match reason {
-                    BlockReason::AuthFailed(_) => self.schedule_reconnect(Duration::from_secs(60)),
-                    _ => {}
+                if let BlockReason::AuthFailed(_) = reason {
+                    self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
             _ => {}
@@ -345,13 +344,13 @@ impl Daemon {
 
     fn handle_generate_tunnel_parameters(
         &mut self,
-        tunnel_parameters_tx: mpsc::Sender<TunnelParameters>,
+        tunnel_parameters_tx: &mpsc::Sender<TunnelParameters>,
         retry_attempt: u32,
     ) {
         let result = self
             .settings
             .get_account_token()
-            .ok_or(Error::from("No account token configured"))
+            .ok_or_else(|| Error::from("No account token configured"))
             .map(|account_token| {
                 match self.settings.get_relay_settings() {
                     RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
@@ -370,7 +369,7 @@ impl Daemon {
                     tunnel_parameters_tx
                         .send(TunnelParameters {
                             endpoint,
-                            options: self.settings.get_tunnel_options().clone(),
+                            options: self.settings.get_tunnel_options(),
                             username: account_token,
                         })
                         .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
@@ -641,7 +640,7 @@ impl Daemon {
     }
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
-        if let Err(_) = tx.send(t) {
+        if tx.send(t).is_err() {
             warn!("Unable to send {} to management interface client", msg);
         }
     }

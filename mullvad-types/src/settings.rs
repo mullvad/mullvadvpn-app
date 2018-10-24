@@ -191,7 +191,7 @@ impl Settings {
         }
     }
 
-    pub fn get_tunnel_options(&self) -> &TunnelOptions {
-        &self.tunnel_options
+    pub fn get_tunnel_options(&self) -> TunnelOptions {
+        self.tunnel_options
     }
 }
