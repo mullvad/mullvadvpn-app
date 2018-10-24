@@ -1,22 +1,24 @@
-extern crate core_foundation;
 extern crate system_configuration;
 
-use self::core_foundation::array::CFArray;
-use self::core_foundation::base::{CFType, TCFType};
-use self::core_foundation::dictionary::CFDictionary;
-use self::core_foundation::propertylist::CFPropertyList;
-use self::core_foundation::runloop::{kCFRunLoopCommonModes, CFRunLoop};
-use self::core_foundation::string::CFString;
-
-use self::system_configuration::dynamic_store::{
-    SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext,
+use self::system_configuration::{
+    core_foundation::{
+        array::CFArray,
+        base::{CFType, TCFType, ToVoid},
+        dictionary::{CFDictionary, CFMutableDictionary},
+        propertylist::CFPropertyList,
+        runloop::{kCFRunLoopCommonModes, CFRunLoop},
+        string::CFString,
+    },
+    dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
+    sys::schema_definitions::kSCPropNetDNSServerAddresses,
 };
-
 use error_chain::ChainedError;
-
-use std::collections::HashMap;
-use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
+use std::{
+    collections::HashMap,
+    fmt,
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
 
 error_chain! {
     errors {
@@ -32,15 +34,93 @@ type ServicePath = String;
 type DnsServer = String;
 
 struct State {
-    desired_dns: Vec<DnsServer>,
-    backup: HashMap<ServicePath, Option<Vec<DnsServer>>>,
+    /// The settings this monitor is currently enforcing as active settings.
+    dns_settings: DnsSettings,
+    /// The backup of all DNS settings. These are being applied back on reset.
+    backup: HashMap<ServicePath, Option<DnsSettings>>,
+}
+
+/// Holds the configuration for one service.
+#[derive(Debug, Eq, PartialEq)]
+struct DnsSettings(CFDictionary);
+
+unsafe impl Send for DnsSettings {}
+
+impl DnsSettings {
+    pub fn from_server_addresses(server_addresses: &[DnsServer]) -> Self {
+        let mut mut_dict = CFMutableDictionary::new();
+        if !server_addresses.is_empty() {
+            let cf_string_servers: Vec<CFString> =
+                server_addresses.iter().map(|s| CFString::new(s)).collect();
+            let server_addresses_value = CFArray::from_CFTypes(&cf_string_servers).into_untyped();
+            let server_addresses_key =
+                unsafe { CFString::wrap_under_get_rule(kSCPropNetDNSServerAddresses) };
+            mut_dict.add(
+                &server_addresses_key.to_void(),
+                &server_addresses_value.to_void(),
+            );
+        }
+        let dict = unsafe { CFDictionary::wrap_under_get_rule(mut_dict.as_concrete_TypeRef()) };
+        DnsSettings(dict)
+    }
+
+    /// Get DNS settings for a given service path. Returns `None` If the path does not exist.
+    pub fn load<S: Into<CFString>>(store: &SCDynamicStore, path: S) -> Option<Self> {
+        let dict = store
+            .get(path)
+            .and_then(CFPropertyList::downcast_into::<CFDictionary>)?;
+        Some(DnsSettings(dict))
+    }
+
+    /// Set the dynamic store entry at `path` to a dictionary these DNS settings.
+    pub fn save<S: Into<CFString> + fmt::Display>(
+        &self,
+        store: &SCDynamicStore,
+        path: S,
+    ) -> Result<()> {
+        trace!(
+            "Setting DNS to [{}] for {}",
+            self.server_addresses().join(", "),
+            path.to_string()
+        );
+        if store.set(path, self.0.clone()) {
+            Ok(())
+        } else {
+            bail!(ErrorKind::SettingDnsFailed)
+        }
+    }
+
+    pub fn server_addresses(&self) -> Vec<String> {
+        self.0
+            .find(unsafe { kSCPropNetDNSServerAddresses }.to_void())
+            .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(*array_ptr) })
+            .and_then(|array| array.downcast::<CFArray>())
+            .and_then(Self::parse_cf_array_to_strings)
+            .unwrap_or(Vec::new())
+    }
+
+    /// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString
+    /// instances only, otherwise `None` is returned.
+    fn parse_cf_array_to_strings(array: CFArray) -> Option<Vec<String>> {
+        let mut strings = Vec::new();
+        for item_ptr in array.iter() {
+            let item = unsafe { CFType::wrap_under_get_rule(*item_ptr) };
+            if let Some(string) = item.downcast::<CFString>() {
+                strings.push(string.to_string());
+            } else {
+                error!("DNS server entry is not a string: {:?}", item);
+                return None;
+            };
+        }
+        Some(strings)
+    }
 }
 
 pub struct DnsMonitor {
     store: SCDynamicStore,
 
     /// The current DNS injection state. If this is `None` it means we are not injecting any DNS.
-    /// When it's `Some(state)` we are actively making sure `state.desired_dns` is configured
+    /// When it's `Some(state)` we are actively making sure `state.dns_settings` is configured
     /// on all network interfaces.
     state: Arc<Mutex<Option<State>>>,
 }
@@ -76,27 +156,29 @@ impl DnsMonitor {
     }
 
     pub fn set_dns(&self, servers: Vec<DnsServer>) -> Result<()> {
+        let settings = DnsSettings::from_server_addresses(&servers);
         let mut state_lock = self.state.lock().unwrap();
         *state_lock = Some(match state_lock.take() {
             None => {
-                debug!("Setting DNS to [{}]", servers.join(", "));
                 let backup = read_all_dns(&self.store);
+                trace!("Backup of DNS settings: {:#?}", backup);
+                debug!("Setting DNS to [{}]", servers.join(", "));
                 for service_path in backup.keys() {
-                    set_dns(&self.store, CFString::new(service_path), &servers)?;
+                    settings.save(&self.store, service_path.as_str())?;
                 }
                 State {
-                    desired_dns: servers,
+                    dns_settings: settings,
                     backup,
                 }
             }
             Some(state) => {
-                if servers != state.desired_dns {
+                if servers != state.dns_settings.server_addresses() {
                     debug!("Changing DNS to [{}]", servers.join(", "));
                     for service_path in state.backup.keys() {
-                        set_dns(&self.store, CFString::new(service_path), &servers)?;
+                        settings.save(&self.store, service_path.as_str())?;
                     }
                     State {
-                        desired_dns: servers,
+                        dns_settings: settings,
                         backup: state.backup,
                     }
                 } else {
@@ -112,9 +194,10 @@ impl DnsMonitor {
     pub fn reset(&self) -> Result<()> {
         let mut state_lock = self.state.lock().unwrap();
         if let Some(state) = state_lock.take() {
-            for (service_path, servers) in state.backup {
-                if let Some(servers) = servers {
-                    set_dns(&self.store, CFString::new(&service_path), &servers)?;
+            trace!("Restoring DNS settings to: {:#?}", state.backup);
+            for (service_path, settings) in state.backup {
+                if let Some(settings) = settings {
+                    settings.save(&self.store, service_path.as_str())?;
                 } else {
                     debug!("Removing DNS for {}", service_path);
                     if !self.store.remove(CFString::new(&service_path)) {
@@ -167,94 +250,79 @@ fn dns_change_callback(
     changed_keys: CFArray<CFString>,
     state: &mut Arc<Mutex<Option<State>>>,
 ) {
-    if let Err(e) = dns_change_callback_internal(store, changed_keys, state) {
-        error!("{}", e.display_chain());
-    }
-}
-
-fn dns_change_callback_internal(
-    store: SCDynamicStore,
-    changed_keys: CFArray<CFString>,
-    state: &mut Arc<Mutex<Option<State>>>,
-) -> Result<()> {
     let mut state_lock = state.lock().unwrap();
     match *state_lock {
         None => {
             trace!("Not injecting DNS at this time");
         }
         Some(ref mut state) => {
-            for path in changed_keys.iter() {
-                let should_set_dns = match read_dns(&store, path.clone()) {
-                    None => {
-                        debug!("Detected DNS removed for {}", *path);
-                        state.backup.insert(path.to_string(), None);
-                        true
-                    }
-                    Some(servers) => {
-                        if servers != state.desired_dns {
-                            debug!(
-                                "Detected DNS changed to [{}] for {}",
-                                servers.join(", "),
-                                *path
-                            );
-                            state.backup.insert(path.to_string(), Some(servers));
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                };
-                if should_set_dns {
-                    set_dns(&store, path.clone(), &state.desired_dns)
-                        .chain_err(|| format!("Failed changing DNS for {}", *path))?;
-                    // If we changed a state DNS, also set the corresponding setup DNS.
-                    if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
-                        let setup_path = CFString::new(&setup_path_str);
-                        if !state.backup.contains_key(&setup_path_str) {
-                            state
-                                .backup
-                                .insert(setup_path_str, read_dns(&store, setup_path.clone()));
-                        }
-                        set_dns(&store, setup_path.clone(), &state.desired_dns)
-                            .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
-                    }
+            if let Err(e) = dns_change_callback_internal(store, changed_keys, state) {
+                error!("{}", e.display_chain());
+            }
+        }
+    }
+}
+
+fn dns_change_callback_internal(
+    store: SCDynamicStore,
+    changed_keys: CFArray<CFString>,
+    state: &mut State,
+) -> Result<()> {
+    for path in &changed_keys {
+        let should_set_dns = match DnsSettings::load(&store, path.clone()) {
+            None => {
+                debug!("Detected DNS removed for {}", *path);
+                state.backup.insert(path.to_string(), None);
+                true
+            }
+            Some(new_settings) => {
+                if new_settings != state.dns_settings {
+                    debug!("Detected DNS change for {}", *path);
+                    state.backup.insert(path.to_string(), Some(new_settings));
+                    true
+                } else {
+                    trace!("Ignoring DNS change since it's equal to desired DNS");
+                    false
                 }
+            }
+        };
+        if should_set_dns {
+            state
+                .dns_settings
+                .save(&store, path.clone())
+                .chain_err(|| format!("Failed changing DNS for {}", *path))?;
+            // If we changed a "state" entry, also set the corresponding "setup" entry.
+            if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
+                let setup_path = CFString::new(&setup_path_str);
+                if !state.backup.contains_key(&setup_path_str) {
+                    state.backup.insert(
+                        setup_path_str,
+                        DnsSettings::load(&store, setup_path.clone()),
+                    );
+                }
+                state
+                    .dns_settings
+                    .save(&store, setup_path.clone())
+                    .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
             }
         }
     }
     Ok(())
 }
 
-/// Set the dynamic store entry at `path` to a dictionary with the given servers under the
-/// "ServerAddresses" key.
-fn set_dns(store: &SCDynamicStore, path: CFString, servers: &[DnsServer]) -> Result<()> {
-    debug!("Setting DNS to [{}] for {}", servers.join(", "), path);
-    let server_addresses_key = CFString::from_static_string("ServerAddresses");
-
-    let cf_string_servers: Vec<CFString> = servers.iter().map(|s| CFString::new(s)).collect();
-    let server_addresses_value = CFArray::from_CFTypes(&cf_string_servers);
-
-    let dns_dictionary =
-        CFDictionary::from_CFType_pairs(&[(server_addresses_key, server_addresses_value)]);
-
-    if store.set(path, dns_dictionary) {
-        Ok(())
-    } else {
-        bail!(ErrorKind::SettingDnsFailed)
-    }
-}
-
 /// Read all existing DNS settings and return them.
-fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<Vec<DnsServer>>> {
+fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<DnsSettings>> {
     let mut backup = HashMap::new();
     // Backup all "state" DNS, and all corresponding "setup" DNS even if they don't exist
     if let Some(paths) = store.get_keys(STATE_PATH_PATTERN) {
         for state_path in paths.iter() {
             let state_path_str = state_path.to_string();
             let setup_path_str = state_to_setup_path(&state_path_str).unwrap();
-            let setup_path = CFString::new(&setup_path_str);
-            backup.insert(state_path_str, read_dns(store, state_path.clone()));
-            backup.insert(setup_path_str, read_dns(store, setup_path));
+            backup.insert(state_path_str, DnsSettings::load(store, state_path.clone()));
+            backup.insert(
+                setup_path_str.clone(),
+                DnsSettings::load(store, setup_path_str.as_ref()),
+            );
         }
     }
     // Backup all "setup" DNS not already covered
@@ -262,7 +330,7 @@ fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<Vec<DnsSe
         for setup_path in paths.iter() {
             let setup_path_str = setup_path.to_string();
             if !backup.contains_key(&setup_path_str) {
-                backup.insert(setup_path_str, read_dns(store, setup_path.clone()));
+                backup.insert(setup_path_str, DnsSettings::load(store, setup_path.clone()));
             }
         }
     }
@@ -275,40 +343,4 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
     } else {
         None
     }
-}
-
-/// Get DNS settings for a given dynamic store path. Returns `None` If the path does not exist
-/// or does not contain the expected format.
-fn read_dns(store: &SCDynamicStore, path: CFString) -> Option<Vec<DnsServer>> {
-    store
-        .get(path.clone())
-        .and_then(CFPropertyList::downcast_into::<CFDictionary>)
-        .and_then(|dictionary| {
-            dictionary
-                .find2(&CFString::from_static_string("ServerAddresses"))
-                .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(array_ptr) })
-        })
-        .and_then(|addresses| {
-            if let Some(array) = addresses.downcast::<CFArray<CFType>>() {
-                parse_cf_array_to_strings(array)
-            } else {
-                error!("DNS ServerAddresess is not an array: {:?}", addresses);
-                None
-            }
-        })
-}
-
-/// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString instances
-/// only, otherwise `None` is returned.
-fn parse_cf_array_to_strings(array: CFArray<CFType>) -> Option<Vec<String>> {
-    let mut strings = Vec::new();
-    for item in array.iter() {
-        if let Some(string) = item.downcast::<CFString>() {
-            strings.push(string.to_string());
-        } else {
-            error!("DNS server entry is not a string: {:?}", item);
-            return None;
-        };
-    }
-    Some(strings)
 }
