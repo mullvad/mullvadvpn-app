@@ -44,7 +44,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
-    pub fn new<L, P>(cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
+    pub fn start<L, P>(cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
     where
         L: Fn(OpenVpnPluginEvent, HashMap<String, String>) + Send + Sync + 'static,
         P: AsRef<Path>,
@@ -233,7 +233,7 @@ mod event_server {
         let mut io = IoHandler::new();
         io.extend_with(rpc.to_delegate());
         let meta_io: MetaIoHandler<()> = MetaIoHandler::from(io);
-        talpid_ipc::IpcServer::start(meta_io, ipc_path)
+        talpid_ipc::IpcServer::start(meta_io, &ipc_path)
     }
 
     build_rpc_trait! {
@@ -289,7 +289,7 @@ mod tests {
 
         fn start(&self) -> io::Result<Self::ProcessHandle> {
             self.process_handle
-                .ok_or(io::Error::new(io::ErrorKind::Other, "failed to start"))
+                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "failed to start"))
         }
     }
 
@@ -354,7 +354,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let error = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap_err();
         match error.kind() {
-            &ErrorKind::ChildProcessError(_) => (),
+            ErrorKind::ChildProcessError(_) => (),
             _ => panic!("Wrong error"),
         }
     }

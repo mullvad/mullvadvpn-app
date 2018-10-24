@@ -85,9 +85,9 @@ impl AccountHistory {
     }
 
     /// Remove account token from the account history
-    pub fn remove_account_token(&mut self, account_token: AccountToken) -> Result<()> {
+    pub fn remove_account_token(&mut self, account_token: &AccountToken) -> Result<()> {
         self.accounts
-            .retain(|existing_token| existing_token != &account_token);
+            .retain(|existing_token| existing_token != account_token);
         self.save()
     }
 

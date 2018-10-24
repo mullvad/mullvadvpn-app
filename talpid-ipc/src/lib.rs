@@ -54,14 +54,14 @@ pub struct IpcServer {
 }
 
 impl IpcServer {
-    pub fn start<M: Metadata + Default>(handler: MetaIoHandler<M>, path: String) -> Result<Self> {
+    pub fn start<M: Metadata + Default>(handler: MetaIoHandler<M>, path: &str) -> Result<Self> {
         Self::start_with_metadata(handler, NoopExtractor, path)
     }
 
     pub fn start_with_metadata<M, E>(
         handler: MetaIoHandler<M>,
         meta_extractor: E,
-        path: String,
+        path: &str,
     ) -> Result<Self>
     where
         M: Metadata + Default,
@@ -71,15 +71,15 @@ impl IpcServer {
             .chain_err(|| ErrorKind::PermissionsError)?;
         let server = ServerBuilder::with_meta_extractor(handler, meta_extractor)
             .set_security_attributes(security_attributes)
-            .start(&path)
+            .start(path)
             .chain_err(|| ErrorKind::IpcServerError)
             .and_then(|(fut, start, server)| {
                 thread::spawn(move || tokio::run(fut));
                 start
                     .wait()
                     .expect("server panicked")
-                    .map(|e| Err(e))
-                    .unwrap_or(Ok(server))
+                    .map(Err)
+                    .unwrap_or_else(|| Ok(server))
                     .chain_err(|| ErrorKind::IpcServerError)
             })
             .map(|server| IpcServer {
