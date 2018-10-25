@@ -276,18 +276,24 @@ impl<'a> PolicyBatch<'a> {
         tunnel: &tunnel::TunnelMetadata,
         protocol: TransportProtocol,
     ) -> Result<()> {
-        let mut rule = Rule::new(&self.out_chain)?;
+        // allow DNS traffic to the tunnel gateway
+        let mut allow_rule = Rule::new(&self.out_chain)?;
 
-        check_iface(&mut rule, Direction::Out, &tunnel.interface[..])?;
-        check_port(&mut rule, protocol, End::Dst, 53)?;
-        check_l3proto(&mut rule, IpAddr::V4(tunnel.gateway))?;
+        check_iface(&mut allow_rule, Direction::Out, &tunnel.interface[..])?;
+        check_port(&mut allow_rule, protocol, End::Dst, 53)?;
+        check_l3proto(&mut allow_rule, IpAddr::V4(tunnel.gateway))?;
 
-        rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
-        rule.add_expr(&nft_expr!(cmp != tunnel.gateway))?;
+        allow_rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
+        allow_rule.add_expr(&nft_expr!(cmp == tunnel.gateway))?;
 
-        add_verdict(&mut rule, &Verdict::Drop)?;
+        add_verdict(&mut allow_rule, &Verdict::Accept)?;
+        self.batch.add(&allow_rule, nftnl::MsgType::Add)?;
 
-        self.batch.add(&rule, nftnl::MsgType::Add)?;
+        let mut block_rule = Rule::new(&self.out_chain)?;
+        check_port(&mut block_rule, protocol, End::Dst, 53)?;
+        add_verdict(&mut block_rule, &Verdict::Drop)?;
+        self.batch.add(&block_rule, nftnl::MsgType::Add)?;
+
         Ok(())
     }
 
