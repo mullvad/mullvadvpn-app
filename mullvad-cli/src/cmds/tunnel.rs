@@ -303,6 +303,7 @@ impl Tunnel {
         }
 
         println!("proxy details have been updated");
+        println!("note: The OpenVPN tunnel constraints have been updated to use TCP");
         Ok(())
     }
 

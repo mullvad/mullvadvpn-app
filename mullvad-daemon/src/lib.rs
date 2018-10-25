@@ -53,7 +53,10 @@ use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{
     account::{AccountData, AccountToken},
     location::GeoIpLocation,
-    relay_constraints::{RelaySettings, RelaySettingsUpdate},
+    relay_constraints::{
+        Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        TunnelConstraints,
+    },
     relay_list::{Relay, RelayList},
     settings,
     settings::Settings,
@@ -66,7 +69,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::OpenVpnProxySettings,
+    net::{OpenVpnProxySettings, TransportProtocol},
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -629,20 +632,50 @@ impl Daemon {
         tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
         proxy: Option<OpenVpnProxySettings>,
     ) {
-        let save_result = self.settings.set_openvpn_proxy(proxy);
-        match save_result {
-            Ok(settings_changed) => {
+        let constraints_result = match proxy {
+            Some(_) => self.apply_proxy_constraints(),
+            _ => Ok(false),
+        };
+        let proxy_result = self.settings.set_openvpn_proxy(proxy);
+
+        match (proxy_result, constraints_result) {
+            (Ok(proxy_changed), Ok(constraints_changed)) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
-                if settings_changed {
+                if proxy_changed || constraints_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
+                    info!("Initiating tunnel restart because the OpenVPN proxy setting changed");
+                    self.reconnect_tunnel();
                 }
             }
-            Err(settings_error) => {
-                error!("{}", settings_error.display_chain());
-                Self::oneshot_send(tx, Err(settings_error), "set_openvpn_proxy response");
+            (Ok(_), Err(error)) | (Err(error), Ok(_)) => {
+                error!("{}", error.display_chain());
+                Self::oneshot_send(tx, Err(error), "set_openvpn_proxy response");
+            }
+            (Err(error), Err(_)) => {
+                error!("{}", error.display_chain());
+                Self::oneshot_send(tx, Err(error), "set_openvpn_proxy response");
             }
         }
+    }
+
+    // Set the OpenVPN tunnel to use TCP.
+    fn apply_proxy_constraints(&mut self) -> settings::Result<bool> {
+        let openvpn_constraints = OpenVpnConstraints {
+            port: Constraint::Any,
+            protocol: Constraint::Only(TransportProtocol::Tcp),
+        };
+
+        let tunnel_constraints = TunnelConstraints::OpenVpn(openvpn_constraints);
+
+        let constraints_update = RelayConstraintsUpdate {
+            location: None,
+            tunnel: Some(Constraint::Only(tunnel_constraints)),
+        };
+
+        let settings_update = RelaySettingsUpdate::Normal(constraints_update);
+
+        self.settings.update_relay_settings(settings_update)
     }
 
     fn on_set_enable_ipv6(&mut self, tx: oneshot::Sender<()>, enable_ipv6: bool) {
