@@ -2,14 +2,12 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { remote } from 'electron';
 import log from 'electron-log';
 
 const DESKTOP_FILE_NAME = 'mullvad-vpn.desktop';
 
-const execFileAsync = promisify(execFile);
 const mkdirAsync = promisify(fs.mkdir);
 const statAsync = promisify(fs.stat);
 const symlinkAsync = promisify(fs.symlink);
@@ -34,28 +32,7 @@ export function getOpenAtLogin() {
 }
 
 export async function setOpenAtLogin(openAtLogin: boolean) {
-  // setLoginItemSettings is broken on macOS and cannot delete login items.
-  // Issue: https://github.com/electron/electron/issues/10880
-  if (process.platform === 'darwin') {
-    if (openAtLogin === false) {
-      // process.execPath in renderer process points to the sub-bundle of Electron Helper.
-      // This regular expression extracts the path to the app bundle, which is the first occurrence of
-      // file with .app extension.
-      const matches = process.execPath.match(/([a-z0-9 ]+)\.app/i);
-      if (matches && matches.length > 1) {
-        const bundleName = matches[1];
-        const appleScript = `on run argv
-          set itemName to item 1 of argv
-          tell application "System Events" to delete login item itemName
-        end run`;
-        await execFileAsync('osascript', ['-e', appleScript, bundleName]);
-      } else {
-        log.error(`Cannot extract the app bundle name from ${process.execPath}`);
-      }
-    } else {
-      remote.app.setLoginItemSettings({ openAtLogin });
-    }
-  } else if (process.platform === 'linux') {
+  if (process.platform === 'linux') {
     try {
       const desktopFilePath = path.join('/usr/share/applications', DESKTOP_FILE_NAME);
       const autostartDir = path.join(remote.app.getPath('appData'), 'autostart');
