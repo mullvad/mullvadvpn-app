@@ -19,8 +19,6 @@ import {
 } from 'validated/schema';
 import { validate } from 'validated/object';
 
-import log from 'electron-log';
-
 import type { Node as SchemaNode } from 'validated/schema';
 
 export type AccountData = { expiry: string };
