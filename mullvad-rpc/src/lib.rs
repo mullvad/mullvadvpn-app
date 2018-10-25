@@ -65,7 +65,7 @@ lazy_static! {
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcFactory {
-    address_cache: Option<CachedDnsResolver>,
+    cached_dns_resolver: CachedDnsResolver,
     ca_path: PathBuf,
 }
 
@@ -73,7 +73,7 @@ impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory`.
     pub fn new<P: Into<PathBuf>>(ca_path: P) -> Self {
         MullvadRpcFactory {
-            address_cache: None,
+            cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, *API_IP),
             ca_path: ca_path.into(),
         }
     }
@@ -81,10 +81,11 @@ impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory` using the specified cache directory.
     pub fn with_cache_dir<P: Into<PathBuf>>(cache_dir: &Path, ca_path: P) -> Self {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-        let cached_dns_resolver = CachedDnsResolver::new(API_HOST.to_owned(), cache_file, *API_IP);
+        let cached_dns_resolver =
+            CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), *API_IP);
 
         MullvadRpcFactory {
-            address_cache: Some(cached_dns_resolver),
+            cached_dns_resolver,
             ca_path: ca_path.into(),
         }
     }
@@ -111,7 +112,9 @@ impl MullvadRpcFactory {
         let transport_builder = HttpTransportBuilder::with_client(client).timeout(RPC_TIMEOUT);
 
         let transport = create_transport(transport_builder)?;
-        let mut handle = transport.handle(&self.api_uri())?;
+        let api_uri = self.api_uri();
+        debug!("Using API URI {}", api_uri);
+        let mut handle = transport.handle(&api_uri)?;
 
         handle.set_header(Host::new(API_HOST, None));
 
@@ -119,13 +122,8 @@ impl MullvadRpcFactory {
     }
 
     fn api_uri(&mut self) -> String {
-        let address = if let Some(ref mut address_cache) = self.address_cache {
-            address_cache.resolve().to_string()
-        } else {
-            API_HOST.to_owned()
-        };
-
-        format!("https://{}/rpc/", address)
+        let ip = self.cached_dns_resolver.resolve().to_string();
+        format!("https://{}/rpc/", ip)
     }
 }
 

@@ -11,6 +11,7 @@ extern crate clap;
 extern crate dirs;
 #[macro_use]
 extern crate error_chain;
+extern crate env_logger;
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
@@ -91,6 +92,7 @@ error_chain!{
 quick_main!(run);
 
 fn run() -> Result<()> {
+    env_logger::init();
     let app = clap::App::new("problem-report")
         .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
@@ -159,11 +161,11 @@ fn run() -> Result<()> {
     if let Some(collect_matches) = matches.subcommand_matches("collect") {
         let redact_custom_strings = collect_matches
             .values_of_lossy("redact")
-            .unwrap_or(Vec::new());
+            .unwrap_or_else(Vec::new);
         let extra_logs = collect_matches
             .values_of_os("extra_logs")
             .map(|os_values| os_values.map(Path::new).collect())
-            .unwrap_or(Vec::new());
+            .unwrap_or_else(Vec::new);
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
         collect_report(&extra_logs, output_path, redact_custom_strings)
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
@@ -207,7 +209,7 @@ fn collect_report(
 
     problem_report.add_logs(extra_logs);
 
-    write_problem_report(&output_path, problem_report)
+    write_problem_report(&output_path, &problem_report)
         .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
 }
 
@@ -265,7 +267,7 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
         .chain_err(|| ErrorKind::RpcError)
 }
 
-fn write_problem_report(path: &Path, problem_report: ProblemReport) -> io::Result<()> {
+fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {
     let file = File::create(path)?;
     let mut permissions = file.metadata()?.permissions();
     permissions.set_readonly(true);
