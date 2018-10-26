@@ -23,9 +23,9 @@ pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
 pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut c_void) {
     use std::ffi::CStr;
     if msg.is_null() {
-        error!("Log message from FFI boundary is NULL");
+        log::error!("Log message from FFI boundary is NULL");
     } else {
-        error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
+        log::error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
     }
 }
 
@@ -51,7 +51,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool> {
         2 => Err(Error::from(ErrorKind::MetricApplication)),
         // Unexpected value
         _ => {
-            error!("Unexpected return code from WinRoute_EnsureTopMetric");
+            log::error!("Unexpected return code from WinRoute_EnsureTopMetric");
             Err(Error::from(ErrorKind::MetricApplication))
         }
     }
@@ -80,7 +80,7 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool> {
         2 => Err(Error::from(ErrorKind::GetIpv6Status)),
         // Unexpected value
         _ => {
-            error!("Unexpected return code from GetTapInterfaceIpv6Status");
+            log::error!("Unexpected return code from GetTapInterfaceIpv6Status");
             Err(Error::from(ErrorKind::GetIpv6Status))
         }
     }

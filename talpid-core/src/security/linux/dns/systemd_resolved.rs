@@ -134,7 +134,7 @@ impl SystemdResolved {
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
         let link_object_path = self.fetch_link(interface_name)?;
         if let Err(e) = self.reset() {
-            debug!(
+            log::debug!(
                 "Failed to reset previous DNS settings - {}",
                 e.display_chain()
             );
@@ -192,7 +192,7 @@ impl SystemdResolved {
                     )
                 })?;
         } else {
-            trace!("No DNS settings to reset");
+            log::trace!("No DNS settings to reset");
         };
         Ok(())
     }
@@ -211,7 +211,7 @@ impl SystemdResolved {
                 .chain_err(|| ErrorKind::RevertDnsError),
             Err(error) => {
                 if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
-                    info!(
+                    log::info!(
                         "Not reseting DNS of interface {} because it no longer exists",
                         interface_name
                     );

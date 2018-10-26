@@ -72,7 +72,7 @@ impl NetworkManager {
 
         match management_mode {
             Err(e) => {
-                debug!("Failed to get NM management mode - {}", e.display_chain());
+                log::debug!("Failed to get NM management mode - {}", e.display_chain());
                 return Err(e);
             }
             Ok(management_mode) => {
@@ -85,7 +85,7 @@ impl NetworkManager {
         let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
         let actual_resolv_conf = "/etc/resolv.conf";
         if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
-            debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not manaing DNS");
+            log::debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not manaing DNS");
             bail!(ErrorKind::NmNotManagingDns);
         }
 
@@ -159,14 +159,14 @@ fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
     let file_a = match File::open(a).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
-            debug!("Failed top open file {}: {}", a.as_ref().display(), e);
+            log::debug!("Failed top open file {}: {}", a.as_ref().display(), e);
             return false;
         }
     };
     let file_b = match File::open(b).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
-            debug!("Failed top open file {}: {}", b.as_ref().display(), e);
+            log::debug!("Failed top open file {}: {}", b.as_ref().display(), e);
             return false;
         }
     };

@@ -1,6 +1,4 @@
-#[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate error_chain;
 
@@ -27,7 +25,6 @@ use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
 use mullvad_types::version::AppVersionInfo;
-
 use serde::{Deserialize, Serialize};
 use talpid_types::net::TunnelOptions;
 use talpid_types::tunnel::TunnelStateTransition;
@@ -98,7 +95,7 @@ pub fn new_standalone_transport<
                 .expect("Failed to send client handle");
 
             if let Err(e) = client.wait() {
-                error!("JSON-RPC client failed: {}", e.description());
+                log::error!("JSON-RPC client failed: {}", e.description());
             }
         }
     });
@@ -240,7 +237,7 @@ impl DaemonRpcClient {
                     if state != current_state {
                         current_state = state.clone();
                         if tx.send(state).is_err() {
-                            trace!("can't send new state to subscriber");
+                            log::trace!("can't send new state to subscriber");
                             return Err(jsonrpc_client_core::ErrorKind::Shutdown.into());
                         };
                     }

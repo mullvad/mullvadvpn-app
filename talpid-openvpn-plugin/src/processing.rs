@@ -34,7 +34,7 @@ pub struct EventProcessor {
 
 impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor> {
-        trace!("Creating EventProcessor");
+        log::trace!("Creating EventProcessor");
         let (start_tx, start_rx) = futures::sync::oneshot::channel();
         thread::spawn(move || {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
@@ -68,7 +68,7 @@ impl EventProcessor {
         event: openvpn_plugin::types::OpenVpnPluginEvent,
         env: HashMap<String, String>,
     ) -> Result<()> {
-        trace!("Processing \"{:?}\" event", event);
+        log::trace!("Processing \"{:?}\" event", event);
         let call_future = self
             .ipc_client
             .openvpn_event(event, env)

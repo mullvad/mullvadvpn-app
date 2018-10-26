@@ -3,7 +3,6 @@ use std::thread;
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
-
 use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
 
 use super::{
@@ -101,7 +100,7 @@ impl TunnelState for DisconnectingState {
                 .chain_err(|| "Failed to close the tunnel");
 
             if let Err(error) = close_result {
-                error!("{}", error.display_chain());
+                log::error!("{}", error.display_chain());
             }
         });
 

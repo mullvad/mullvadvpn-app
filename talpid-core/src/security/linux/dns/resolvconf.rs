@@ -69,7 +69,7 @@ impl Resolvconf {
                 .chain_err(|| ErrorKind::RunResolvconf)?;
 
             if !output.status.success() {
-                error!(
+                log::error!(
                     "Failed to delete 'resolvconf' record '{}':\n{}",
                     record_name,
                     String::from_utf8_lossy(&output.stderr)

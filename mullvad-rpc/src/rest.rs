@@ -45,7 +45,7 @@ fn create_request_processing_future<CC: hyper::client::Connect>(
     client: Client<CC, hyper::Body>,
 ) -> Box<Future<Item = (), Error = ()>> {
     let f = request_rx.for_each(move |(request, response_tx)| {
-        trace!("Sending request to {}", request.uri());
+        log::trace!("Sending request to {}", request.uri());
         client
             .request(request)
             .from_err()
@@ -60,7 +60,7 @@ fn create_request_processing_future<CC: hyper::client::Connect>(
             .map(|response_chunk| response_chunk.to_vec())
             .then(move |response_result| {
                 if response_tx.send(response_result).is_err() {
-                    warn!("Unable to send response back to caller");
+                    log::warn!("Unable to send response back to caller");
                 }
                 Ok(())
             })

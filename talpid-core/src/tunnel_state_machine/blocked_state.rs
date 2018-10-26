@@ -1,7 +1,6 @@
 use error_chain::ChainedError;
 use futures::sync::mpsc;
 use futures::Stream;
-
 use talpid_types::tunnel::BlockReason;
 
 use super::{
@@ -23,7 +22,7 @@ impl BlockedState {
             .apply_policy(policy)
             .chain_err(|| "Failed to apply security policy for blocked state")
         {
-            error!("{}", error.display_chain());
+            log::error!("{}", error.display_chain());
         }
     }
 }

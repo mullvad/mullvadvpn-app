@@ -1,7 +1,5 @@
 use mktemp;
-
 use openvpn_plugin::types::OpenVpnPluginEvent;
-
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
@@ -182,7 +180,7 @@ impl TunnelMonitor {
             }
             match TunnelEvent::from_openvpn_event(event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
-                None => debug!("Ignoring OpenVpnEvent {:?}", event),
+                None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
             }
         };
 
@@ -247,7 +245,7 @@ impl TunnelMonitor {
     fn get_openvpn_bin(resource_dir: &Path) -> Result<PathBuf> {
         let path = resource_dir.join(OPENVPN_BIN_FILENAME);
         if path.exists() {
-            trace!("Using OpenVPN at {}", path.display());
+            log::trace!("Using OpenVPN at {}", path.display());
             Ok(path)
         } else {
             bail!(ErrorKind::OpenVpnNotFound(path));
@@ -257,7 +255,7 @@ impl TunnelMonitor {
     fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
         let path = resource_dir.join(OPENVPN_PLUGIN_FILENAME);
         if path.exists() {
-            trace!("Using OpenVPN plugin at {}", path.display());
+            log::trace!("Using OpenVPN plugin at {}", path.display());
             Ok(path)
         } else {
             bail!(ErrorKind::PluginNotFound(path));
@@ -275,7 +273,7 @@ impl TunnelMonitor {
 
     fn create_user_pass_file(username: &str) -> io::Result<mktemp::TempFile> {
         let temp_file = mktemp::TempFile::new();
-        debug!(
+        log::debug!(
             "Writing user-pass credentials to {}",
             temp_file.as_ref().display()
         );
@@ -343,10 +341,10 @@ fn is_ipv6_enabled_in_os() -> bool {
         let enabled_on_tap = ::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
 
         if !globally_enabled {
-            debug!("IPv6 disabled in tunnel interfaces");
+            log::debug!("IPv6 disabled in tunnel interfaces");
         }
         if !enabled_on_tap {
-            debug!("IPv6 disabled in TAP adapter");
+            log::debug!("IPv6 disabled in TAP adapter");
         }
 
         globally_enabled && enabled_on_tap

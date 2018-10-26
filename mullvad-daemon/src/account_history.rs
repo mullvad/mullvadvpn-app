@@ -45,7 +45,7 @@ impl AccountHistory {
     pub fn load(&mut self) -> Result<()> {
         match File::open(&self.cache_path).map(io::BufReader::new) {
             Ok(mut file) => {
-                info!(
+                log::info!(
                     "Loading account history from {}",
                     &self.cache_path.display()
                 );
@@ -53,7 +53,7 @@ impl AccountHistory {
                 Ok(())
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
-                info!("No account history file at {}", &self.cache_path.display());
+                log::info!("No account history file at {}", &self.cache_path.display());
                 Ok(())
             }
             Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(self.cache_path.clone())),
@@ -93,7 +93,7 @@ impl AccountHistory {
 
     /// Serializes the account history and saves it to the file it was loaded from.
     fn save(&self) -> Result<()> {
-        debug!("Writing account history to {}", self.cache_path.display());
+        log::debug!("Writing account history to {}", self.cache_path.display());
         let mut file = File::create(&self.cache_path)
             .map(io::BufWriter::new)
             .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))?;

@@ -119,14 +119,14 @@ impl NetworkSecurity {
     /// Applies and starts enforcing the given `SecurityPolicy` Makes sure it is being kept in place
     /// until this method is called again with another policy, or until `reset_policy` is called.
     pub fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<(), Error> {
-        info!("Applying security policy: {}", policy);
+        log::info!("Applying security policy: {}", policy);
         self.inner.apply_policy(policy)
     }
 
     /// Resets/removes any currently enforced `SecurityPolicy`. Returns the system to the same state
     /// it had before any policy was applied through this `NetworkSecurity` instance.
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        info!("Resetting security policy");
+        log::info!("Resetting security policy");
         self.inner.reset_policy()
     }
 }

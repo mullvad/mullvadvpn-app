@@ -4,11 +4,10 @@ use std::net::IpAddr;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::{fs, io, thread};
 
-use error_chain::ChainedError;
-
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use super::resolv_conf::{Config, ScopedIp};
 use super::RESOLV_CONF_PATH;
+use error_chain::ChainedError;
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 
@@ -137,7 +136,7 @@ impl DnsWatcher {
             if let Err(error) = Self::update(locked_state.as_mut()) {
                 let chained_error = error
                     .chain_err(|| "Failed to update DNS state after DNS settings have changed.");
-                error!("{}", chained_error.display_chain());
+                log::error!("{}", chained_error.display_chain());
             }
         }
     }
@@ -191,7 +190,7 @@ fn write_backup(backup: &Config) -> Result<()> {
 fn restore_from_backup() -> Result<()> {
     match fs::read_to_string(RESOLV_CONF_BACKUP_PATH) {
         Ok(backup) => {
-            info!("Restoring DNS state from backup");
+            log::info!("Restoring DNS state from backup");
             let config = Config::parse(&backup)
                 .chain_err(|| "Backup of /etc/resolv.conf could not be parsed")?;
 
@@ -201,7 +200,7 @@ fn restore_from_backup() -> Result<()> {
                 .chain_err(|| "Failed to remove stale backup of /etc/resolv.conf")
         }
         Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
-            debug!("No DNS state backup to restore");
+            log::debug!("No DNS state backup to restore");
             Ok(())
         }
         Err(error) => Err(Error::with_chain(

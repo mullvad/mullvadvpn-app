@@ -16,7 +16,6 @@ extern crate hyper_openssl;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 extern crate lazy_static;
-#[macro_use]
 extern crate log;
 extern crate serde_json;
 extern crate tokio_core;
@@ -112,7 +111,7 @@ impl MullvadRpcFactory {
 
         let transport = create_transport(transport_builder)?;
         let api_uri = self.api_uri();
-        debug!("Using API URI {}", api_uri);
+        log::debug!("Using API URI {}", api_uri);
         let mut handle = transport.handle(&api_uri)?;
 
         handle.set_header(Host::new(API_HOST, None));

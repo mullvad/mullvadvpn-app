@@ -12,7 +12,7 @@ mod platform {
         F: Fn() + 'static + Send,
     {
         simple_signal::set_handler(&[Signal::Term, Signal::Int], move |s| {
-            debug!("Process received signal: {:?}", s);
+            log::debug!("Process received signal: {:?}", s);
             f();
         });
         Ok(())
@@ -30,7 +30,7 @@ mod platform {
         F: Fn() + 'static + Send,
     {
         ctrlc::set_handler(move || {
-            debug!("Process received Ctrl-c");
+            log::debug!("Process received Ctrl-c");
             f();
         })
         .chain_err(|| "Unable to attach ctrl-c handler")

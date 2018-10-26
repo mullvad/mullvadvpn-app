@@ -47,7 +47,7 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
 
     ipv4.pop()
         .or_else(|| {
-            info!("No IPv4 for host {}", host);
+            log::info!("No IPv4 for host {}", host);
             ipv6.pop()
         })
         .ok_or_else(|| ErrorKind::InvalidHost(host.to_owned()).into())

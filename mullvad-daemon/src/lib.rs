@@ -12,7 +12,6 @@ extern crate error_chain;
 extern crate futures;
 #[cfg(unix)]
 extern crate libc;
-#[macro_use]
 extern crate log;
 
 #[macro_use]
@@ -49,6 +48,7 @@ use futures::{
     sync::{mpsc::UnboundedSender, oneshot},
     Future, Sink,
 };
+use log::{debug, error, info, warn};
 use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{

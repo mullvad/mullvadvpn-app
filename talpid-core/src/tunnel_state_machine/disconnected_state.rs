@@ -1,11 +1,10 @@
-use error_chain::ChainedError;
-use futures::sync::mpsc;
-use futures::Stream;
-
 use super::{
     BlockedState, ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
+use error_chain::ChainedError;
+use futures::sync::mpsc;
+use futures::Stream;
 
 /// No tunnel is running.
 pub struct DisconnectedState;
@@ -14,7 +13,7 @@ impl DisconnectedState {
     fn reset_security_policy(shared_values: &mut SharedTunnelStateValues) {
         if let Err(error) = shared_values.security.reset_policy() {
             let chained_error = Error::with_chain(error, "Failed to reset security policy");
-            error!("{}", chained_error.display_chain());
+            log::error!("{}", chained_error.display_chain());
         }
     }
 }

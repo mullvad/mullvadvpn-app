@@ -2,6 +2,7 @@ use std::net::IpAddr;
 use std::path::Path;
 use std::ptr;
 
+use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
 
