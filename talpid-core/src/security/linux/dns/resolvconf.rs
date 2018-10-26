@@ -45,7 +45,7 @@ impl Resolvconf {
             record_contents.push('\n');
         }
 
-        let output = cmd!(&self.resolvconf, "-a", &record_name)
+        let output = duct::cmd!(&self.resolvconf, "-a", &record_name)
             .input(record_contents)
             .run()
             .chain_err(|| ErrorKind::RunResolvconf)?;
@@ -64,7 +64,7 @@ impl Resolvconf {
         let mut result = Ok(());
 
         for record_name in self.record_names.drain() {
-            let output = cmd!(&self.resolvconf, "-d", &record_name)
+            let output = duct::cmd!(&self.resolvconf, "-d", &record_name)
                 .run()
                 .chain_err(|| ErrorKind::RunResolvconf)?;
 

@@ -6,7 +6,6 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-#[macro_use]
 extern crate clap;
 extern crate env_logger;
 extern crate futures;
@@ -20,7 +19,7 @@ extern crate talpid_types;
 
 mod cmds;
 
-
+use clap::{crate_authors, crate_description, crate_name, crate_version};
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 
 use std::alloc::System;

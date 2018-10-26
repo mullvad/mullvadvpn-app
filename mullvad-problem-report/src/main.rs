@@ -6,13 +6,11 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-#[macro_use]
 extern crate clap;
 extern crate dirs;
 #[macro_use]
 extern crate error_chain;
 extern crate env_logger;
-#[macro_use]
 extern crate lazy_static;
 extern crate regex;
 extern crate uuid;
@@ -20,17 +18,21 @@ extern crate uuid;
 extern crate mullvad_paths;
 extern crate mullvad_rpc;
 
+use clap::crate_authors;
 use error_chain::ChainedError;
+use lazy_static::lazy_static;
 use regex::Regex;
 
-use std::alloc::System;
-use std::borrow::Cow;
-use std::cmp::min;
-use std::collections::{HashMap, HashSet};
-use std::ffi::OsStr;
-use std::fs::{self, File};
-use std::io::{self, BufWriter, Read, Seek, SeekFrom, Write};
-use std::path::{Path, PathBuf};
+use std::{
+    alloc::System,
+    borrow::Cow,
+    cmp::min,
+    collections::{HashMap, HashSet},
+    ffi::OsStr,
+    fs::{self, File},
+    io::{self, BufWriter, Read, Seek, SeekFrom, Write},
+    path::{Path, PathBuf},
+};
 
 
 #[global_allocator]

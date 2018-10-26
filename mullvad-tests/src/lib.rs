@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate duct;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
@@ -287,7 +286,7 @@ impl DaemonRunner {
 
         let rpc_socket_path = temp_dir.path().join("rpc_socket");
 
-        let expression = cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
+        let expression = duct::cmd!(DAEMON_EXECUTABLE_PATH, "-v", "--disable-log-to-file")
             .dir("..")
             .env("MULLVAD_CACHE_DIR", cache_dir)
             .env("MULLVAD_RPC_SOCKET_PATH", rpc_socket_path.clone())
