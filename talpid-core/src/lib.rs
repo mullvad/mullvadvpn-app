@@ -11,7 +11,6 @@
 //! the License, or (at your option) any later version.
 
 extern crate atty;
-#[macro_use]
 extern crate duct;
 #[macro_use]
 extern crate log;
@@ -27,7 +26,6 @@ extern crate jsonrpc_core;
 #[macro_use]
 extern crate jsonrpc_macros;
 #[cfg(unix)]
-#[macro_use]
 extern crate lazy_static;
 extern crate libc;
 extern crate shell_escape;

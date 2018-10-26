@@ -31,7 +31,7 @@ pub fn run() -> Result<()> {
         .chain_err(|| "Failed to start a service dispatcher")
 }
 
-define_windows_service!(service_main, handle_service_main);
+windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
     info!("Service started.");

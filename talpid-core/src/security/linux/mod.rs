@@ -3,6 +3,7 @@ extern crate mnl;
 use error_chain::ChainedError;
 
 use ipnetwork::IpNetwork;
+use lazy_static::lazy_static;
 use libc;
 use nftnl::{
     self,

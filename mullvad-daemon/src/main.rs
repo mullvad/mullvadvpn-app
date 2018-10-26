@@ -7,7 +7,6 @@
 //! the License, or (at your option) any later version.
 
 extern crate chrono;
-#[macro_use]
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
@@ -21,7 +20,6 @@ extern crate mullvad_paths;
 extern crate talpid_core;
 
 #[cfg(windows)]
-#[macro_use]
 extern crate windows_service;
 
 use error_chain::ChainedError;

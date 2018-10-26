@@ -1,11 +1,13 @@
 extern crate dbus;
 
-use std::fs;
-use std::net::{IpAddr, Ipv4Addr};
-use std::path::Path;
-
 use error_chain::ChainedError;
+use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
+use std::{
+    fs,
+    net::{IpAddr, Ipv4Addr},
+    path::Path,
+};
 
 use self::dbus::arg::RefArg;
 use self::dbus::stdintf::*;
