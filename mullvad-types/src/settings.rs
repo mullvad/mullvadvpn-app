@@ -1,13 +1,13 @@
 extern crate serde_json;
 
+use log::{debug, info};
 use relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
-use talpid_types::net::TunnelOptions;
-
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
+use talpid_types::net::TunnelOptions;
 
 error_chain! {
     errors {

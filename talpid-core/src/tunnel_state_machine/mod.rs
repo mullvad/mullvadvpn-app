@@ -14,6 +14,7 @@ use std::thread;
 use error_chain::ChainedError;
 use futures::sync::mpsc;
 use futures::{Async, Future, Poll, Stream};
+use log::error;
 use tokio_core::reactor::Core;
 
 use talpid_types::net::{TunnelEndpoint, TunnelOptions};

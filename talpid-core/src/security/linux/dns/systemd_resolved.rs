@@ -3,6 +3,7 @@ extern crate dbus;
 use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
+use log::{debug, info, trace};
 use std::{
     fs,
     net::{IpAddr, Ipv4Addr},

@@ -1,3 +1,4 @@
+use log::{debug, error};
 use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
 use process::stoppable_process::StoppableProcess;
@@ -258,7 +259,7 @@ mod event_server {
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
-            trace!("OpenVPN event {:?}", event);
+            log::trace!("OpenVPN event {:?}", event);
             (self.on_event)(event, env);
             Ok(())
         }

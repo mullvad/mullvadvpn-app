@@ -1,3 +1,4 @@
+use log::{debug, error, info, trace, warn};
 use std::borrow::Borrow;
 use std::net::IpAddr;
 use std::os::raw::{c_char, c_void};

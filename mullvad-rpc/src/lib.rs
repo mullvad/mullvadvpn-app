@@ -16,7 +16,6 @@ extern crate hyper_openssl;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 extern crate lazy_static;
-#[macro_use]
 extern crate log;
 extern crate serde_json;
 extern crate tokio_core;
@@ -28,6 +27,7 @@ use chrono::DateTime;
 use jsonrpc_client_http::header::Host;
 use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
 use lazy_static::lazy_static;
+use log::debug;
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};

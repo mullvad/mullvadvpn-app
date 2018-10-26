@@ -27,14 +27,14 @@ impl AuthFailedInner {
             Some(("EXPIRED_ACCOUNT", _)) => ExpiredAccount,
             Some(("TOO_MANY_CONNECTIONS", _)) => TooManyConnectons,
             Some((unknown_reason, message)) => {
-                warn!(
+                log::warn!(
                     "Received AUTH_FAILED message with unknown reason: {}",
                     input
                 );
                 Unknown(unknown_reason.to_string(), message.to_string())
             }
             None => {
-                warn!("Received invalid AUTH_FAILED message: {}", input);
+                log::warn!("Received invalid AUTH_FAILED message: {}", input);
                 Unknown("UNKNOWN".to_string(), input.to_string())
             }
         }
