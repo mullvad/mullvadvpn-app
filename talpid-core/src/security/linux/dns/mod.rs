@@ -5,6 +5,7 @@ mod resolvconf;
 mod static_resolv_conf;
 mod systemd_resolved;
 
+use log::debug;
 use std::{env, fmt, net::IpAddr};
 
 use self::network_manager::NetworkManager;

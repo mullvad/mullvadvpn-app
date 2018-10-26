@@ -1,7 +1,6 @@
+use log::{debug, trace};
 use mktemp;
-
 use openvpn_plugin::types::OpenVpnPluginEvent;
-
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;

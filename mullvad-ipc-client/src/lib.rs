@@ -1,6 +1,4 @@
-#[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate error_chain;
 
@@ -28,6 +26,7 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
 use mullvad_types::version::AppVersionInfo;
 
+use log::{error, trace};
 use serde::{Deserialize, Serialize};
 use talpid_types::net::TunnelOptions;
 use talpid_types::tunnel::TunnelStateTransition;

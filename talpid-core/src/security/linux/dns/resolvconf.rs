@@ -1,3 +1,4 @@
+use log::error;
 use std::collections::HashSet;
 use std::net::IpAddr;
 use std::path::PathBuf;

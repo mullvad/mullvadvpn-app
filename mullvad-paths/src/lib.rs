@@ -2,7 +2,6 @@
 extern crate dirs;
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
 extern crate log;
 
 use std::fs;

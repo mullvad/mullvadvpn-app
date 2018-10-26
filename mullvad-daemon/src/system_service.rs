@@ -1,11 +1,15 @@
-use std::ffi::OsString;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{mpsc, Arc};
-use std::time::Duration;
-use std::{env, io, thread};
-
 use cli;
 use error_chain::ChainedError;
+use log::{debug, error, info};
+use std::{
+    env,
+    ffi::OsString,
+    io,
+    sync::atomic::{AtomicUsize, Ordering},
+    sync::{mpsc, Arc},
+    thread,
+    time::Duration,
+};
 use windows_service::service::{
     ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency, ServiceErrorControl,
     ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
