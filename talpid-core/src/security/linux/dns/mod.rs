@@ -97,6 +97,9 @@ impl DnsSettings {
             NetworkManager(ref mut network_manager) => network_manager.reset()?,
         }
 
+        // Resetting the DNS managemer in case the previously selected one isn't valid
+        *self = DnsSettings::new()?;
+
         Ok(())
     }
 }
