@@ -1,23 +1,27 @@
 extern crate mnl;
+extern crate nftnl;
 
 use error_chain::ChainedError;
 
+use self::nftnl::{
+    expr::{self, Verdict},
+    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
+    Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
-use nftnl::{
-    self,
-    expr::{self, Verdict},
-    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
-};
+use log::{debug, error, trace};
 use talpid_types::net::{Endpoint, TransportProtocol};
 use tunnel;
 
-use std::env;
-use std::ffi::CString;
-use std::io;
-use std::net::{IpAddr, Ipv4Addr};
-use std::path::Path;
+use std::{
+    env,
+    ffi::CString,
+    io,
+    net::{IpAddr, Ipv4Addr},
+    path::Path,
+};
 
 use super::{NetworkSecurityT, SecurityPolicy};
 

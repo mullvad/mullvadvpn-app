@@ -2,6 +2,7 @@
 use ipnetwork::{Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
+use log::{info};
 use std::fmt;
 #[cfg(unix)]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};

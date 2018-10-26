@@ -4,11 +4,11 @@ use std::net::IpAddr;
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::{fs, io, thread};
 
-use error_chain::ChainedError;
-
 use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use super::resolv_conf::{Config, ScopedIp};
 use super::RESOLV_CONF_PATH;
+use error_chain::ChainedError;
+use log::{debug, error, info};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 

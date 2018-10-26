@@ -1,11 +1,11 @@
-use error_chain::ChainedError;
-use futures::sync::mpsc;
-use futures::Stream;
-
 use super::{
     BlockedState, ConnectingState, Error, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
+use error_chain::ChainedError;
+use futures::sync::mpsc;
+use futures::Stream;
+use log::{error};
 
 /// No tunnel is running.
 pub struct DisconnectedState;

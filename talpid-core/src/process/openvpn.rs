@@ -2,6 +2,7 @@ use duct;
 extern crate os_pipe;
 
 use super::stoppable_process::StoppableProcess;
+use log::{debug};
 use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::path::{Path, PathBuf};

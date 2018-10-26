@@ -13,6 +13,7 @@ use self::system_configuration::{
     sys::schema_definitions::kSCPropNetDNSServerAddresses,
 };
 use error_chain::ChainedError;
+use log::{debug, error, trace};
 use std::{
     collections::HashMap,
     fmt,

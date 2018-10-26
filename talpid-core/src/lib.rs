@@ -12,7 +12,6 @@
 
 extern crate atty;
 extern crate duct;
-#[macro_use]
 extern crate log;
 
 #[macro_use]
@@ -41,10 +40,6 @@ extern crate winreg;
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
-
-#[cfg(target_os = "linux")]
-#[macro_use]
-extern crate nftnl;
 
 #[cfg(windows)]
 mod winnet;

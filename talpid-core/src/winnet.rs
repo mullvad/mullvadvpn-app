@@ -1,3 +1,4 @@
+use log::{error};
 use std::ptr;
 
 use libc::{c_char, c_void, wchar_t};

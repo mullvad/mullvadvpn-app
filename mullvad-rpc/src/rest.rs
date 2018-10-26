@@ -7,6 +7,7 @@ use hyper;
 use hyper::client::Client;
 use hyper::{Request, StatusCode, Uri};
 use hyper_openssl::openssl::error::ErrorStack;
+use log::{trace, warn};
 
 use tokio_core::reactor::Handle;
 

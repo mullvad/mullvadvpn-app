@@ -9,20 +9,22 @@
 extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
 extern crate log;
 
 #[macro_use]
 extern crate jsonrpc_client_core;
 extern crate futures;
 extern crate jsonrpc_client_ipc;
-#[macro_use]
 extern crate openvpn_plugin;
 extern crate tokio;
 extern crate tokio_reactor;
 
 use error_chain::ChainedError;
-use openvpn_plugin::types::{EventResult, OpenVpnPluginEvent};
+use log::{debug, error, info};
+use openvpn_plugin::{
+    openvpn_plugin,
+    types::{EventResult, OpenVpnPluginEvent},
+};
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::sync::Mutex;

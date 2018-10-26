@@ -3,7 +3,7 @@ use std::thread;
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
-
+use log::{error};
 use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
 
 use super::{

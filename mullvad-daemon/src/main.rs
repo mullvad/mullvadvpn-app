@@ -12,7 +12,6 @@ extern crate clap;
 extern crate error_chain;
 #[cfg(unix)]
 extern crate libc;
-#[macro_use]
 extern crate log;
 extern crate log_panics;
 extern crate mullvad_daemon;
@@ -23,6 +22,7 @@ extern crate talpid_core;
 extern crate windows_service;
 
 use error_chain::ChainedError;
+use log::{debug, error, info, warn};
 use mullvad_daemon::Daemon;
 use std::{thread, time::Duration};
 

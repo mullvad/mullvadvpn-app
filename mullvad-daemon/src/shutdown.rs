@@ -6,6 +6,7 @@ mod platform {
 
     use self::simple_signal::Signal;
     use super::Result;
+    use log::{debug};
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
     where
@@ -24,6 +25,7 @@ mod platform {
     extern crate ctrlc;
 
     use super::{Result, ResultExt};
+    use log::{debug};
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
     where
