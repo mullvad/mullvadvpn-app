@@ -74,6 +74,7 @@ impl DnsSettings {
 
     pub fn set_dns(&mut self, interface: &str, servers: Vec<IpAddr>) -> Result<()> {
         use self::DnsSettings::*;
+        self.reset()?;
 
         match self {
             Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,

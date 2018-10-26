@@ -18,10 +18,10 @@ error_chain! {
         NoNetworkManager {
             description("NetworkManager not detected")
         }
-        NMTooOld {
+        NmTooOld {
             description("NetworkManager is too old")
         }
-        NMNotManagingDns{
+        NmNotManagingDns{
             description("NetworkManager is not managing DNS")
         }
     }
@@ -68,7 +68,7 @@ impl NetworkManager {
             .dbus_connection
             .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
             .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)
-            .chain_err(|| ErrorKind::NMTooOld);
+            .chain_err(|| ErrorKind::NmTooOld);
 
         match management_mode {
             Err(e) => {
@@ -77,16 +77,16 @@ impl NetworkManager {
             }
             Ok(management_mode) => {
                 if management_mode == "unmanaged" {
-                    return Err(Error::from(ErrorKind::NMNotManagingDns));
+                    return Err(Error::from(ErrorKind::NmNotManagingDns));
                 }
             }
         }
 
         let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
         let actual_resolv_conf = "/etc/resolv.conf";
-        if !compare_files(&expected_resolv_conf, &actual_resolv_conf) {
+        if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
             debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not manaing DNS");
-            return Err(Error::from(ErrorKind::NMNotManagingDns));
+            bail!(ErrorKind::NmNotManagingDns);
         }
 
         Ok(())
@@ -155,15 +155,15 @@ fn as_variant<T: RefArg + 'static>(t: T) -> Variant<Box<RefArg>> {
     Variant(Box::new(t) as Box<RefArg>)
 }
 
-fn compare_files<P: AsRef<Path>>(a: &P, b: &P) -> bool {
-    let file_a = match File::open(&a).map(BufReader::new) {
+fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
+    let file_a = match File::open(a).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
             debug!("Failed top open file {}: {}", a.as_ref().display(), e);
             return false;
         }
     };
-    let file_b = match File::open(&b).map(BufReader::new) {
+    let file_b = match File::open(b).map(BufReader::new) {
         Ok(file) => file,
         Err(e) => {
             debug!("Failed top open file {}: {}", b.as_ref().display(), e);
