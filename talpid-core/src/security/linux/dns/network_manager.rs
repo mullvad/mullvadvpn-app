@@ -7,10 +7,22 @@ use self::dbus::arg::{RefArg, Variant};
 use self::dbus::stdintf::*;
 use self::dbus::BusType;
 
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::Path;
+
+use error_chain::ChainedError;
+
 error_chain! {
     errors {
         NoNetworkManager {
             description("NetworkManager not detected")
+        }
+        NmTooOld {
+            description("NetworkManager is too old")
+        }
+        NmNotManagingDns{
+            description("NetworkManager is not managing DNS")
         }
     }
 
@@ -21,9 +33,12 @@ error_chain! {
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
 const NM_TOP_OBJECT: &str = "org.freedesktop.NetworkManager";
+const NM_DNS_MANAGER: &str = "org.freedesktop.NetworkManager.DnsManager";
+const NM_DNS_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager/DnsManager";
 const NM_OBJECT_PATH: &str = "/org/freedesktop/NetworkManager";
 const RPC_TIMEOUT_MS: i32 = 1000;
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
+const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
 
 pub struct NetworkManager {
     dbus_connection: dbus::Connection,
@@ -35,6 +50,7 @@ impl NetworkManager {
         let dbus_connection = dbus::Connection::get_private(BusType::System)?;
         let manager = NetworkManager { dbus_connection };
         manager.ensure_network_manager_exists()?;
+        manager.ensure_resolv_conf_is_managed()?;
         Ok(manager)
     }
 
@@ -43,6 +59,36 @@ impl NetworkManager {
             .as_manager()
             .get(&NM_TOP_OBJECT, GLOBAL_DNS_CONF_KEY)
             .chain_err(|| ErrorKind::NoNetworkManager)?;
+        Ok(())
+    }
+
+    fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
+        // check if NM is set to manage resolv.conf
+        let management_mode: Result<String> = self
+            .dbus_connection
+            .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
+            .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)
+            .chain_err(|| ErrorKind::NmTooOld);
+
+        match management_mode {
+            Err(e) => {
+                debug!("Failed to get NM management mode - {}", e.display_chain());
+                return Err(e);
+            }
+            Ok(management_mode) => {
+                if management_mode == "unmanaged" {
+                    return Err(Error::from(ErrorKind::NmNotManagingDns));
+                }
+            }
+        }
+
+        let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
+        let actual_resolv_conf = "/etc/resolv.conf";
+        if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
+            debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not manaing DNS");
+            bail!(ErrorKind::NmNotManagingDns);
+        }
+
         Ok(())
     }
 
@@ -107,4 +153,29 @@ fn create_empty_global_settings() -> GlobalDnsConfig {
 
 fn as_variant<T: RefArg + 'static>(t: T) -> Variant<Box<RefArg>> {
     Variant(Box::new(t) as Box<RefArg>)
+}
+
+fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
+    let file_a = match File::open(a).map(BufReader::new) {
+        Ok(file) => file,
+        Err(e) => {
+            debug!("Failed top open file {}: {}", a.as_ref().display(), e);
+            return false;
+        }
+    };
+    let file_b = match File::open(b).map(BufReader::new) {
+        Ok(file) => file,
+        Err(e) => {
+            debug!("Failed top open file {}: {}", b.as_ref().display(), e);
+            return false;
+        }
+    };
+
+    file_a
+        .lines()
+        .zip(file_b.lines())
+        .all(|(a, b)| match (a, b) {
+            (Ok(a), Ok(b)) => a == b,
+            _ => false,
+        })
 }
