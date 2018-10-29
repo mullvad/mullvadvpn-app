@@ -1,16 +1,13 @@
-use openvpn_plugin;
-use std::collections::HashMap;
-
 extern crate futures;
 
-use jsonrpc_client_core::{Future, Result as ClientResult, Transport};
-use jsonrpc_client_ipc::IpcTransport;
-
-use tokio::reactor::Handle;
-use tokio::runtime::Runtime;
-
 use super::Arguments;
-use std::thread;
+use jsonrpc_client_core::{
+    expand_params, jsonrpc_client, Future, Result as ClientResult, Transport,
+};
+use jsonrpc_client_ipc::IpcTransport;
+use openvpn_plugin;
+use std::{collections::HashMap, thread};
+use tokio::{reactor::Handle, runtime::Runtime};
 
 error_chain! {
     errors {

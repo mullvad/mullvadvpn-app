@@ -214,6 +214,7 @@ impl ProcessHandle for OpenVpnProcHandle {
 mod event_server {
     use super::OpenVpnPluginEvent;
     use jsonrpc_core::{Error, IoHandler, MetaIoHandler};
+    use jsonrpc_macros::build_rpc_trait;
     use std::collections::HashMap;
     use talpid_ipc;
     use uuid;

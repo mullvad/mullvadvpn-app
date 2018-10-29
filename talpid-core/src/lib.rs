@@ -22,7 +22,6 @@ extern crate futures;
 #[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
-#[macro_use]
 extern crate jsonrpc_macros;
 #[cfg(unix)]
 extern crate lazy_static;

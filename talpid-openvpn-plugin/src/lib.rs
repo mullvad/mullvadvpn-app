@@ -11,9 +11,8 @@ extern crate env_logger;
 extern crate error_chain;
 extern crate log;
 
-#[macro_use]
-extern crate jsonrpc_client_core;
 extern crate futures;
+extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
 extern crate openvpn_plugin;
 extern crate tokio;

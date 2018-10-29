@@ -3,13 +3,12 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
 use jsonrpc_ipc_server;
-use jsonrpc_macros::pubsub;
+use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
+use mullvad_paths;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
-
-use mullvad_paths;
 use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;

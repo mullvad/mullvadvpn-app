@@ -12,7 +12,6 @@ extern crate error_chain;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_openssl;
-#[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
 extern crate lazy_static;
@@ -24,6 +23,7 @@ extern crate mullvad_types;
 
 use chrono::offset::Utc;
 use chrono::DateTime;
+use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::header::Host;
 use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
 use lazy_static::lazy_static;
