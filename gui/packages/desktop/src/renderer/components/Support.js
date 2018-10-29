@@ -309,6 +309,11 @@ export default class Support extends Component<SupportProps, SupportState> {
             </View>
             <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
             <Text style={styles.support__send_status}>{'Failed to send'}</Text>
+            <Text style={styles.support__sent_message}>
+              {
+                "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+              }
+            </Text>
           </View>
         </View>
         <View style={styles.support__footer}>
