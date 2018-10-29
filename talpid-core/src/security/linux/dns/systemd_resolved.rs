@@ -9,7 +9,7 @@ use libc::{AF_INET, AF_INET6};
 
 use self::dbus::arg::RefArg;
 use self::dbus::stdintf::*;
-use self::dbus::{BusType, Interface, Member, MessageItem, MessageItemArray, Signature};
+use self::dbus::{BusType, Interface, Member, Message, MessageItem, MessageItemArray, Signature};
 
 use super::super::iface_index;
 use super::{resolv_conf, RESOLV_CONF_PATH};
@@ -32,6 +32,9 @@ error_chain! {
         SetDnsError {
             description("Failed to configure DNS servers")
         }
+        SetDomainsError {
+            description("Failed to configure DNS domains")
+        }
         RevertDnsError {
             description("Failed to revert DNS configuration")
         }
@@ -39,7 +42,6 @@ error_chain! {
             description("Failed to initialize a connection to dbus")
         }
     }
-
 }
 
 const DYNAMIC_RESOLV_CONF_PATH: &str = "/run/systemd/resolve/resolv.conf";
@@ -177,7 +179,29 @@ impl SystemdResolved {
         reply
             .as_result()
             .map(|_| ())
-            .chain_err(|| ErrorKind::SetDnsError)
+            .chain_err(|| ErrorKind::SetDnsError)?;
+
+        // set the search domain to catch all DNS requests, forces the link to be the prefered
+        // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
+        let dns_domains: &[_] = &[(&".", true)];
+
+        let msg = Message::new_method_call(
+            RESOLVED_BUS,
+            link_object_path as &str,
+            &LINK_INTERFACE as &str,
+            "SetDomains",
+        )
+        .expect("failed to construct a new dbus message")
+        .append1(dns_domains);
+
+        let mut reply = self
+            .dbus_connection
+            .send_with_reply_and_block(msg, RPC_TIMEOUT_MS)
+            .chain_err(|| ErrorKind::SetDomainsError)?;
+        reply
+            .as_result()
+            .map(|_| ())
+            .chain_err(|| ErrorKind::SetDomainsError)
     }
 
     pub fn reset(&mut self) -> Result<()> {
