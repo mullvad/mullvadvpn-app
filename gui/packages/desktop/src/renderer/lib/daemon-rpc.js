@@ -234,12 +234,53 @@ export type TunnelOptions = {
   openvpn: {
     mssfix: ?number,
   },
+  proxy: ?ProxySettings,
 };
+
+export type ProxySettings = LocalProxySettings | RemoteProxySettings;
+
+export type LocalProxySettings = {
+  port: number,
+  peer: string,
+};
+
+export type RemoteProxySettings = {
+  address: string,
+  auth: ?RemoteProxyAuth,
+};
+
+export type RemoteProxyAuth = {
+  username: string,
+  password: string,
+};
+
+const OpenVpnProxySchema = maybe(
+  oneOf(
+    object({
+      local: object({
+        port: number,
+        peer: string,
+      }),
+    }),
+    object({
+      remote: object({
+        address: string,
+        auth: maybe(
+          object({
+            username: string,
+            password: string,
+          }),
+        ),
+      }),
+    }),
+  ),
+);
 
 const TunnelOptionsSchema = object({
   enable_ipv6: boolean,
   openvpn: object({
     mssfix: maybe(number),
+    proxy: OpenVpnProxySchema,
   }),
 });
 

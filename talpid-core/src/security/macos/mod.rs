@@ -87,17 +87,17 @@ impl NetworkSecurity {
     ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
             SecurityPolicy::Connecting {
-                relay_endpoint,
+                peer_endpoint,
                 allow_lan,
             } => {
-                let mut rules = vec![Self::get_allow_relay_rule(relay_endpoint)?];
+                let mut rules = vec![Self::get_allow_relay_rule(peer_endpoint)?];
                 if allow_lan {
                     rules.append(&mut Self::get_allow_lan_rules()?);
                 }
                 Ok(rules)
             }
             SecurityPolicy::Connected {
-                relay_endpoint,
+                peer_endpoint,
                 tunnel,
                 allow_lan,
             } => {
@@ -139,7 +139,7 @@ impl NetworkSecurity {
                     allow_udp_dns_to_relay_rule,
                     block_tcp_dns_rule,
                     block_udp_dns_rule,
-                    Self::get_allow_relay_rule(relay_endpoint)?,
+                    Self::get_allow_relay_rule(peer_endpoint)?,
                     Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
                 ];
 

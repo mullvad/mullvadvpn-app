@@ -11,6 +11,7 @@ use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
 use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
+use mullvad_types::settings;
 use mullvad_types::settings::Settings;
 use mullvad_types::states::TargetState;
 use mullvad_types::version;
@@ -24,7 +25,7 @@ use std::sync::{Arc, Mutex, RwLock};
 
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::tunnel::TunnelStateTransition;
+use talpid_types::{net::OpenVpnProxySettings, tunnel::TunnelStateTransition};
 use uuid;
 
 use account_history::{AccountHistory, Error as AccountHistoryError};
@@ -101,6 +102,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_openvpn_mssfix")]
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
+        /// Sets proxy details for OpenVPN
+        #[rpc(meta, name = "set_openvpn_proxy")]
+        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<(), Error>;
+
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
         fn set_enable_ipv6(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
@@ -170,6 +175,11 @@ pub enum ManagementCommand {
     SetAutoConnect(OneshotSender<()>, bool),
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
+    /// Set proxy details for OpenVPN
+    SetOpenVpnProxy(
+        OneshotSender<Result<(), settings::Error>>,
+        Option<OpenVpnProxySettings>,
+    ),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Get the daemon settings
@@ -533,6 +543,28 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnMssfix(tx, mssfix))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
+
+        Box::new(future)
+    }
+
+    fn set_openvpn_proxy(
+        &self,
+        _: Self::Metadata,
+        proxy: Option<OpenVpnProxySettings>,
+    ) -> BoxFuture<(), Error> {
+        log::debug!("set_openvpn_proxy({:?})", proxy);
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetOpenVpnProxy(tx, proxy))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|settings_result| {
+                settings_result.map_err(|err| match err.kind() {
+                    settings::ErrorKind::InvalidProxyData(msg) => {
+                        Error::invalid_params(msg.to_owned())
+                    }
+                    _ => Error::internal_error(),
+                })
+            });
 
         Box::new(future)
     }

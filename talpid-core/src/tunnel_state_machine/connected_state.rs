@@ -1,6 +1,7 @@
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
+use talpid_types::net::{Endpoint, OpenVpnProxySettings, TransportProtocol};
 use talpid_types::tunnel::BlockReason;
 
 use super::{
@@ -40,8 +41,21 @@ impl ConnectedState {
     }
 
     fn set_security_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+        // If a proxy is specified we need to pass it on as the peer endpoint.
+        let peer_endpoint = match self.tunnel_parameters.options.openvpn.proxy {
+            Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
+                address: local_proxy.peer,
+                protocol: TransportProtocol::Tcp,
+            },
+            Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
+                address: remote_proxy.address,
+                protocol: TransportProtocol::Tcp,
+            },
+            _ => self.tunnel_parameters.endpoint.to_endpoint(),
+        };
+
         let policy = SecurityPolicy::Connected {
-            relay_endpoint: self.tunnel_parameters.endpoint.to_endpoint(),
+            peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
         };

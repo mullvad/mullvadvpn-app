@@ -26,7 +26,7 @@ use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
-use talpid_types::net::TunnelOptions;
+use talpid_types::net::{OpenVpnProxySettings, TunnelOptions};
 use talpid_types::tunnel::TunnelStateTransition;
 
 use futures::stream::{self, Stream};
@@ -197,6 +197,10 @@ impl DaemonRpcClient {
 
     pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
         self.call("set_openvpn_mssfix", &[mssfix])
+    }
+
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<()> {
+        self.call("set_openvpn_proxy", &[proxy])
     }
 
     pub fn shutdown(&mut self) -> Result<()> {
