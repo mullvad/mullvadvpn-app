@@ -1,5 +1,5 @@
 #[cfg(unix)]
-use ipnetwork::{Ipv4Network, Ipv6Network};
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
 use std::fmt;
@@ -26,17 +26,17 @@ pub use self::imp::{Error, ErrorKind};
 
 #[cfg(unix)]
 lazy_static! {
-    static ref PRIVATE_NETS: [Ipv4Network; 3] = [
-        Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap(),
-        Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap(),
-        Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap(),
+    static ref PRIVATE_NETS: [IpNetwork; 3] = [
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
     ];
-    static ref LOCAL_INET6_NETS: [Ipv6Network; 1] =
-        [Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap(),];
-    static ref MULTICAST_NET: Ipv4Network =
-        Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap();
-    static ref MULTICAST_INET6_NET: Ipv6Network =
-        Ipv6Network::new(Ipv6Addr::new(0xfe02, 0, 0, 0, 0, 0, 0, 0), 16).unwrap();
+    static ref LOCAL_INET6_NET: IpNetwork =
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
+    static ref MULTICAST_NET: IpNetwork =
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap());
+    static ref MULTICAST_INET6_NET: IpNetwork =
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe02, 0, 0, 0, 0, 0, 0, 0), 16).unwrap());
     static ref SSDP_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(239, 255, 255, 250));
 }
 
