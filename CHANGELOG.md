@@ -33,11 +33,21 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
-- Disable GPU acceleration on Linux to fix App on Ubuntu 14.04 and other older distributions.
 - Make the `problem-report` tool fall back to the bundled API IP if DNS resolution fails.
 
 #### macOS
 - Correctly backup and restore search domains and other DNS settings.
+
+#### Linux
+- Disable GPU acceleration on Linux to fix App on Ubuntu 14.04 and other older distributions.
+- Improve DNS management detection. Evaluates which way the system handles DNS before each new
+  VPN tunnel is established instead of only on computer boot.
+- Set DNS search domain when using the systemd-resolved. Makes it work on Ubuntu 18.10.
+
+### Security
+#### Linux
+- Block all traffic to DNS servers other than the correct one in the tunnel. Stops potential DNS
+  leaks when "Local network sharing" was enabled and DNS management failed.
 
 
 ## [2018.4] - 2018-10-16
