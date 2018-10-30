@@ -20,7 +20,7 @@ source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
 
-    REQUIRED_RUSTC_VERSION="rustc 1.29.1 (b801ae664 2018-09-20)"
+    REQUIRED_RUSTC_VERSION="rustc 1.30.0 (da5f414c2 2018-10-24)"
 
     if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
         echo "You are running the wrong Rust compiler version."
