@@ -1,16 +1,13 @@
-use openvpn_plugin;
-use std::collections::HashMap;
-
 extern crate futures;
 
-use jsonrpc_client_core::{Future, Result as ClientResult, Transport};
-use jsonrpc_client_ipc::IpcTransport;
-
-use tokio::reactor::Handle;
-use tokio::runtime::Runtime;
-
 use super::Arguments;
-use std::thread;
+use jsonrpc_client_core::{
+    expand_params, jsonrpc_client, Future, Result as ClientResult, Transport,
+};
+use jsonrpc_client_ipc::IpcTransport;
+use openvpn_plugin;
+use std::{collections::HashMap, thread};
+use tokio::{reactor::Handle, runtime::Runtime};
 
 error_chain! {
     errors {
@@ -34,7 +31,7 @@ pub struct EventProcessor {
 
 impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor> {
-        trace!("Creating EventProcessor");
+        log::trace!("Creating EventProcessor");
         let (start_tx, start_rx) = futures::sync::oneshot::channel();
         thread::spawn(move || {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
@@ -68,7 +65,7 @@ impl EventProcessor {
         event: openvpn_plugin::types::OpenVpnPluginEvent,
         env: HashMap<String, String>,
     ) -> Result<()> {
-        trace!("Processing \"{:?}\" event", event);
+        log::trace!("Processing \"{:?}\" event", event);
         let call_future = self
             .ipc_client
             .openvpn_event(event, env)

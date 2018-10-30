@@ -1,22 +1,26 @@
 extern crate mnl;
+extern crate nftnl;
 
 use error_chain::ChainedError;
 
-use ipnetwork::IpNetwork;
-use libc;
-use nftnl::{
-    self,
+use self::nftnl::{
     expr::{self, Verdict},
-    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
+    Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
+use ipnetwork::IpNetwork;
+use lazy_static::lazy_static;
+use libc;
 use talpid_types::net::{Endpoint, TransportProtocol};
 use tunnel;
 
-use std::env;
-use std::ffi::CString;
-use std::io;
-use std::net::{IpAddr, Ipv4Addr};
-use std::path::Path;
+use std::{
+    env,
+    ffi::CString,
+    io,
+    net::{IpAddr, Ipv4Addr},
+    path::Path,
+};
 
 use super::{NetworkSecurityT, SecurityPolicy};
 
@@ -100,7 +104,7 @@ impl NetworkSecurityT for NetworkSecurity {
 
     fn reset_policy(&mut self) -> Result<()> {
         if let Err(error) = self.dns_settings.reset() {
-            error!("Failed to reset DNS settings: {}", error.display_chain());
+            log::error!("Failed to reset DNS settings: {}", error.display_chain());
         }
 
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
@@ -113,7 +117,7 @@ impl NetworkSecurityT for NetworkSecurity {
             batch.finalize()?
         };
 
-        debug!("Removing table and chain from netfilter");
+        log::debug!("Removing table and chain from netfilter");
         self.send_and_process(&batch)
     }
 }
@@ -133,10 +137,10 @@ impl NetworkSecurity {
         while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
             match mnl::cb_run(message, 2, portid).chain_err(|| ErrorKind::ProcessNetlinkError)? {
                 mnl::CbResult::Stop => {
-                    trace!("cb_run STOP");
+                    log::trace!("cb_run STOP");
                     break;
                 }
-                mnl::CbResult::Ok => trace!("cb_run OK"),
+                mnl::CbResult::Ok => log::trace!("cb_run OK"),
             }
         }
 
@@ -145,7 +149,7 @@ impl NetworkSecurity {
 
     fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> Result<Option<&'a [u8]>> {
         let ret = socket.recv(buf).chain_err(|| ErrorKind::NetlinkRecvError)?;
-        trace!("Read {} bytes from netlink", ret);
+        log::trace!("Read {} bytes from netlink", ret);
         if ret > 0 {
             Ok(Some(&buf[..ret]))
         } else {

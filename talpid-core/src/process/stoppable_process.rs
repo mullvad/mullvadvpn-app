@@ -1,3 +1,4 @@
+use log::{debug, trace, warn};
 use std::io;
 use std::thread;
 use std::time::{Duration, Instant};

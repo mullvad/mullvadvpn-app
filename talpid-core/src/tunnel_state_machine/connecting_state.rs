@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
-
+use log::{debug, error, info, trace, warn};
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 use talpid_types::tunnel::BlockReason;
 

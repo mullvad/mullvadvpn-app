@@ -12,12 +12,9 @@ extern crate error_chain;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_openssl;
-#[macro_use]
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_http;
-#[macro_use]
 extern crate lazy_static;
-#[macro_use]
 extern crate log;
 extern crate serde_json;
 extern crate tokio_core;
@@ -26,21 +23,22 @@ extern crate mullvad_types;
 
 use chrono::offset::Utc;
 use chrono::DateTime;
+use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::header::Host;
 use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
+use lazy_static::lazy_static;
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};
 pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 
-use mullvad_types::account::AccountToken;
-use mullvad_types::relay_list::RelayList;
-use mullvad_types::version;
-
-use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr};
-use std::path::{Path, PathBuf};
-use std::time::Duration;
+use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
+use std::{
+    collections::HashMap,
+    net::{IpAddr, Ipv4Addr},
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 pub mod event_loop;
 pub mod rest;
@@ -113,7 +111,7 @@ impl MullvadRpcFactory {
 
         let transport = create_transport(transport_builder)?;
         let api_uri = self.api_uri();
-        debug!("Using API URI {}", api_uri);
+        log::debug!("Using API URI {}", api_uri);
         let mut handle = transport.handle(&api_uri)?;
 
         handle.set_header(Host::new(API_HOST, None));

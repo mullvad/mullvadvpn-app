@@ -3,13 +3,12 @@ use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
 use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
 use jsonrpc_ipc_server;
-use jsonrpc_macros::pubsub;
+use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
+use mullvad_paths;
 use mullvad_rpc;
 use mullvad_types::account::{AccountData, AccountToken};
 use mullvad_types::location::GeoIpLocation;
-
-use mullvad_paths;
 use mullvad_types::relay_constraints::RelaySettingsUpdate;
 use mullvad_types::relay_list::RelayList;
 use mullvad_types::settings::Settings;
@@ -245,7 +244,7 @@ pub struct EventBroadcaster {
 impl EventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
-        debug!("Broadcasting new state to listeners: {:?}", new_state);
+        log::debug!("Broadcasting new state to listeners: {:?}", new_state);
         self.notify(&self.subscriptions.new_state_subscriptions, new_state);
     }
 
@@ -292,7 +291,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
             let id = SubscriptionId::String(uuid::Uuid::new_v4().to_string());
             if let Entry::Vacant(entry) = subscriptions.entry(id.clone()) {
                 if let Ok(sink) = subscriber.assign_id(id.clone()) {
-                    debug!("Accepting new subscription with id {:?}", id);
+                    log::debug!("Accepting new subscription with id {:?}", id);
                     entry.insert(sink);
                 }
                 break;
@@ -306,7 +305,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     ) -> BoxFuture<(), Error> {
         let was_removed = subscriptions_lock.write().unwrap().remove(&id).is_some();
         let result = if was_removed {
-            debug!("Unsubscribing id {:?}", id);
+            log::debug!("Unsubscribing id {:?}", id);
             future::ok(())
         } else {
             future::err(Error {
@@ -361,14 +360,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<AccountData, Error> {
-        debug!("get_account_data");
+        log::debug!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
-                    error!(
+                    log::error!(
                         "Unable to get account data from API: {}",
                         error.display_chain()
                     );
@@ -379,7 +378,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_relay_locations(&self, _: Self::Metadata) -> BoxFuture<RelayList, Error> {
-        debug!("get_relay_locations");
+        log::debug!("get_relay_locations");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetRelayLocations(tx))
@@ -392,7 +391,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: Option<AccountToken>,
     ) -> BoxFuture<(), Error> {
-        debug!("set_account");
+        log::debug!("set_account");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token.clone()))
@@ -402,7 +401,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             if let Err(e) = self.load_history().and_then(|mut account_history| {
                 account_history.add_account_token(new_account_token)
             }) {
-                error!(
+                log::error!(
                     "Unable to add an account into the account history: {}",
                     e.display_chain()
                 );
@@ -417,7 +416,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         constraints_update: RelaySettingsUpdate,
     ) -> BoxFuture<(), Error> {
-        debug!("update_relay_settings");
+        log::debug!("update_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
 
         let message = ManagementCommand::UpdateRelaySettings(tx, constraints_update);
@@ -428,7 +427,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_allow_lan(&self, _: Self::Metadata, allow_lan: bool) -> BoxFuture<(), Error> {
-        debug!("set_allow_lan({})", allow_lan);
+        log::debug!("set_allow_lan({})", allow_lan);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAllowLan(tx, allow_lan))
@@ -437,7 +436,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_auto_connect(&self, _: Self::Metadata, auto_connect: bool) -> BoxFuture<(), Error> {
-        debug!("set_auto_connect({})", auto_connect);
+        log::debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAutoConnect(tx, auto_connect))
@@ -446,7 +445,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn connect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        debug!("connect");
+        log::debug!("connect");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetTargetState(tx, TargetState::Secured))
@@ -463,7 +462,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn disconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        debug!("disconnect");
+        log::debug!("disconnect");
         let (tx, _) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetTargetState(
@@ -475,7 +474,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelStateTransition, Error> {
-        debug!("get_state");
+        log::debug!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetState(state_tx))
@@ -484,7 +483,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_current_location(&self, _: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
-        debug!("get_current_location");
+        log::debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentLocation(tx))
@@ -493,17 +492,17 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        debug!("shutdown");
+        log::debug!("shutdown");
         self.send_command_to_daemon(ManagementCommand::Shutdown)
     }
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
-        debug!("get_account_history");
+        log::debug!("get_account_history");
         Box::new(future::result(
             self.load_history()
                 .map(|history| history.get_accounts().to_vec())
                 .map_err(|error| {
-                    error!("Unable to get account history: {}", error.display_chain());
+                    log::error!("Unable to get account history: {}", error.display_chain());
                     Error::internal_error()
                 }),
         ))
@@ -514,12 +513,12 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         account_token: AccountToken,
     ) -> BoxFuture<(), Error> {
-        debug!("remove_account_from_history");
+        log::debug!("remove_account_from_history");
         Box::new(future::result(
             self.load_history()
                 .and_then(|mut history| history.remove_account_token(&account_token))
                 .map_err(|error| {
-                    error!(
+                    log::error!(
                         "Unable to remove account from history: {}",
                         error.display_chain()
                     );
@@ -529,7 +528,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_openvpn_mssfix(&self, _: Self::Metadata, mssfix: Option<u16>) -> BoxFuture<(), Error> {
-        debug!("set_openvpn_mssfix({:?})", mssfix);
+        log::debug!("set_openvpn_mssfix({:?})", mssfix);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetOpenVpnMssfix(tx, mssfix))
@@ -539,7 +538,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn set_enable_ipv6(&self, _: Self::Metadata, enable_ipv6: bool) -> BoxFuture<(), Error> {
-        debug!("set_enable_ipv6({})", enable_ipv6);
+        log::debug!("set_enable_ipv6({})", enable_ipv6);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetEnableIpv6(tx, enable_ipv6))
@@ -549,7 +548,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_settings(&self, _: Self::Metadata) -> BoxFuture<Settings, Error> {
-        debug!("get_settings");
+        log::debug!("get_settings");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetSettings(tx))
@@ -558,7 +557,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_current_version(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
-        debug!("get_current_version");
+        log::debug!("get_current_version");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetCurrentVersion(tx))
@@ -568,14 +567,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn get_version_info(&self, _: Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error> {
-        debug!("get_version_info");
+        log::debug!("get_version_info");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetVersionInfo(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|version_future| {
                 version_future.map_err(|error| {
-                    error!(
+                    log::error!(
                         "Unable to get version data from API: {}",
                         error.display_chain()
                     );
@@ -591,22 +590,22 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         _: Self::Metadata,
         subscriber: pubsub::Subscriber<TunnelStateTransition>,
     ) {
-        debug!("new_state_subscribe");
+        log::debug!("new_state_subscribe");
         Self::subscribe(subscriber, &self.subscriptions.new_state_subscriptions);
     }
 
     fn new_state_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
-        debug!("new_state_unsubscribe");
+        log::debug!("new_state_unsubscribe");
         Self::unsubscribe(&id, &self.subscriptions.new_state_subscriptions)
     }
 
     fn settings_subscribe(&self, _: Self::Metadata, subscriber: pubsub::Subscriber<Settings>) {
-        debug!("settings_subscribe");
+        log::debug!("settings_subscribe");
         Self::subscribe(subscriber, &self.subscriptions.settings_subscriptions);
     }
 
     fn settings_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
-        debug!("settings_unsubscribe");
+        log::debug!("settings_unsubscribe");
         Self::unsubscribe(&id, &self.subscriptions.settings_subscriptions)
     }
 }

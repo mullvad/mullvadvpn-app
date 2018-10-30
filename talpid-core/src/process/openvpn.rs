@@ -127,7 +127,7 @@ impl OpenVpnCommand {
 
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
-        debug!("Building expression: {}", &self);
+        log::debug!("Building expression: {}", &self);
         duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
     }
 

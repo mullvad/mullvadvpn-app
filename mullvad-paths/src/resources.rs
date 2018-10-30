@@ -17,7 +17,7 @@ fn get_default_resource_dir() -> PathBuf {
             path
         }
         Err(e) => {
-            error!(
+            log::error!(
                 "Failed finding the install directory. Using working directory: {}",
                 e
             );

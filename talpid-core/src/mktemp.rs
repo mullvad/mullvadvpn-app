@@ -33,7 +33,7 @@ impl Drop for TempFile {
     fn drop(&mut self) {
         if let Err(e) = fs::remove_file(&self.path) {
             if e.kind() != io::ErrorKind::NotFound {
-                error!(
+                log::error!(
                     "Unable to remove temp file {}: {:?}",
                     self.path.display(),
                     e

@@ -1,11 +1,14 @@
-use std::ffi::OsString;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{mpsc, Arc};
-use std::time::Duration;
-use std::{env, io, thread};
-
 use cli;
 use error_chain::ChainedError;
+use std::{
+    env,
+    ffi::OsString,
+    io,
+    sync::atomic::{AtomicUsize, Ordering},
+    sync::{mpsc, Arc},
+    thread,
+    time::Duration,
+};
 use windows_service::service::{
     ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency, ServiceErrorControl,
     ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
@@ -31,13 +34,13 @@ pub fn run() -> Result<()> {
         .chain_err(|| "Failed to start a service dispatcher")
 }
 
-define_windows_service!(service_main, handle_service_main);
+windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
-    info!("Service started.");
+    log::info!("Service started.");
     match run_service() {
-        Ok(()) => info!("Service stopped."),
-        Err(error) => error!("{}", error.display_chain()),
+        Ok(()) => log::info!("Service stopped."),
+        Err(error) => log::error!("{}", error.display_chain()),
     };
 }
 
@@ -188,9 +191,11 @@ impl PersistentServiceStatus {
             wait_hint: wait_hint,
         };
 
-        debug!(
+        log::debug!(
             "Update service status: {:?}, checkpoint: {}, wait_hint: {:?}",
-            service_status.current_state, service_status.checkpoint, service_status.wait_hint
+            service_status.current_state,
+            service_status.checkpoint,
+            service_status.wait_hint
         );
 
         self.status_handle.set_service_status(service_status)

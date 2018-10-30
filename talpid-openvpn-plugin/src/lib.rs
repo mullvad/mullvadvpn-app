@@ -9,20 +9,20 @@
 extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
 extern crate log;
 
-#[macro_use]
-extern crate jsonrpc_client_core;
 extern crate futures;
+extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
-#[macro_use]
 extern crate openvpn_plugin;
 extern crate tokio;
 extern crate tokio_reactor;
 
 use error_chain::ChainedError;
-use openvpn_plugin::types::{EventResult, OpenVpnPluginEvent};
+use openvpn_plugin::{
+    openvpn_plugin,
+    types::{EventResult, OpenVpnPluginEvent},
+};
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::sync::Mutex;
@@ -77,10 +77,10 @@ fn openvpn_open(
     _env: HashMap<CString, CString>,
 ) -> Result<(Vec<OpenVpnPluginEvent>, Mutex<EventProcessor>)> {
     env_logger::init();
-    debug!("Initializing plugin");
+    log::debug!("Initializing plugin");
 
     let arguments = parse_args(&args)?;
-    info!(
+    log::info!(
         "Connecting back to talpid core at {}",
         arguments.ipc_socket_path
     );
@@ -104,7 +104,7 @@ fn parse_args(args: &[CString]) -> Result<Arguments> {
 
 
 fn openvpn_close(_handle: Mutex<EventProcessor>) {
-    info!("Unloading plugin");
+    log::info!("Unloading plugin");
 }
 
 fn openvpn_event(
@@ -113,7 +113,7 @@ fn openvpn_event(
     env: HashMap<CString, CString>,
     handle: &mut Mutex<EventProcessor>,
 ) -> Result<EventResult> {
-    debug!("Received event: {:?}", event);
+    log::debug!("Received event: {:?}", event);
 
     let parsed_env =
         openvpn_plugin::ffi::parse::env_utf8(&env).chain_err(|| ErrorKind::ParseEnvFailed)?;
@@ -126,7 +126,7 @@ fn openvpn_event(
     match result {
         Ok(()) => Ok(EventResult::Success),
         Err(e) => {
-            error!("{}", e.display_chain());
+            log::error!("{}", e.display_chain());
             Ok(EventResult::Failure)
         }
     }

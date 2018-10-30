@@ -20,6 +20,7 @@ use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::time::{self, Duration, SystemTime};
 use std::{io, thread};
 
+use log::{debug, error, info, trace, warn};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 

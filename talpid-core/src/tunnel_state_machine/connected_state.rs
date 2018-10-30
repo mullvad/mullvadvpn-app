@@ -1,7 +1,6 @@
 use error_chain::ChainedError;
 use futures::sync::{mpsc, oneshot};
 use futures::{Async, Future, Stream};
-
 use talpid_types::tunnel::BlockReason;
 
 use super::{
@@ -66,7 +65,7 @@ impl ConnectedState {
                 match self.set_security_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.display_chain());
+                        log::error!("{}", error.display_chain());
 
                         NewState(DisconnectingState::enter(
                             shared_values,
@@ -134,10 +133,10 @@ impl ConnectedState {
         match self.tunnel_close_event.poll() {
             Ok(Async::Ready(_)) => {}
             Ok(Async::NotReady) => return NoEvents(self),
-            Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
+            Err(_cancelled) => log::warn!("Tunnel monitor thread has stopped unexpectedly"),
         }
 
-        info!("Tunnel closed. Reconnecting.");
+        log::info!("Tunnel closed. Reconnecting.");
         NewState(ConnectingState::enter(shared_values, 0))
     }
 }
@@ -158,7 +157,7 @@ impl TunnelState for ConnectedState {
                 TunnelStateTransition::Connected(tunnel_endpoint),
             ),
             Err(error) => {
-                error!("{}", error.display_chain());
+                log::error!("{}", error.display_chain());
 
                 DisconnectingState::enter(
                     shared_values,

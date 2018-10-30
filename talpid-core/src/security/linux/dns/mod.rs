@@ -59,7 +59,7 @@ impl DnsSettings {
             Some("network-manager") => DnsSettings::NetworkManager(NetworkManager::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
         };
-        debug!("Managing DNS via {}", manager);
+        log::debug!("Managing DNS via {}", manager);
         Ok(manager)
     }
 

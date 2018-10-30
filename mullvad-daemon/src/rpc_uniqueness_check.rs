@@ -1,6 +1,5 @@
 use error_chain::ChainedError;
 
-use log::Level;
 use mullvad_ipc_client::new_standalone_ipc_client;
 use mullvad_paths;
 
@@ -15,10 +14,10 @@ pub fn is_another_instance_running() -> bool {
         Err(error) => {
             let msg =
                 "Failed to locate/connect to another daemon instance, assuming there isn't one";
-            if log_enabled!(Level::Trace) {
-                trace!("{}\n{}", msg, error.display_chain());
+            if log::log_enabled!(log::Level::Trace) {
+                log::trace!("{}\n{}", msg, error.display_chain());
             } else {
-                debug!("{}", msg);
+                log::debug!("{}", msg);
             }
             false
         }

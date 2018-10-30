@@ -12,7 +12,6 @@ extern crate error_chain;
 extern crate futures;
 #[cfg(unix)]
 extern crate libc;
-#[macro_use]
 extern crate log;
 
 #[macro_use]
@@ -20,9 +19,8 @@ extern crate serde;
 extern crate serde_json;
 
 extern crate jsonrpc_core;
-#[macro_use]
-extern crate jsonrpc_macros;
 extern crate jsonrpc_ipc_server;
+extern crate jsonrpc_macros;
 extern crate jsonrpc_pubsub;
 extern crate rand;
 extern crate tokio_core;
@@ -49,6 +47,7 @@ use futures::{
     sync::{mpsc::UnboundedSender, oneshot},
     Future, Sink,
 };
+use log::{debug, error, info, warn};
 use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{

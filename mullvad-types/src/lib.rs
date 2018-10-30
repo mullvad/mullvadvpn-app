@@ -15,13 +15,9 @@ extern crate serde_derive;
 extern crate mullvad_paths;
 extern crate talpid_types;
 
-#[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate error_chain;
-
-#[macro_use]
 extern crate lazy_static;
 
 

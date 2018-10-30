@@ -7,13 +7,11 @@
 //! the License, or (at your option) any later version.
 
 extern crate chrono;
-#[macro_use]
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
 #[cfg(unix)]
 extern crate libc;
-#[macro_use]
 extern crate log;
 extern crate log_panics;
 extern crate mullvad_daemon;
@@ -21,10 +19,10 @@ extern crate mullvad_paths;
 extern crate talpid_core;
 
 #[cfg(windows)]
-#[macro_use]
 extern crate windows_service;
 
 use error_chain::ChainedError;
+use log::{debug, error, info, warn};
 use mullvad_daemon::Daemon;
 use std::{thread, time::Duration};
 

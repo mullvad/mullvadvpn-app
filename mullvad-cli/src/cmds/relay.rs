@@ -1,4 +1,4 @@
-use clap;
+use clap::{self, value_t};
 use std::str::FromStr;
 use {new_rpc_client, Command, Result, ResultExt};
 

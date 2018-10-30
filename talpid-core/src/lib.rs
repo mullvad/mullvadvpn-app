@@ -11,9 +11,7 @@
 //! the License, or (at your option) any later version.
 
 extern crate atty;
-#[macro_use]
 extern crate duct;
-#[macro_use]
 extern crate log;
 
 #[macro_use]
@@ -24,10 +22,8 @@ extern crate futures;
 #[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
-#[macro_use]
 extern crate jsonrpc_macros;
 #[cfg(unix)]
-#[macro_use]
 extern crate lazy_static;
 extern crate libc;
 extern crate shell_escape;
@@ -43,10 +39,6 @@ extern crate winreg;
 extern crate openvpn_plugin;
 extern crate talpid_ipc;
 extern crate talpid_types;
-
-#[cfg(target_os = "linux")]
-#[macro_use]
-extern crate nftnl;
 
 #[cfg(windows)]
 mod winnet;

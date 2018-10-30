@@ -75,7 +75,7 @@ where
                 if let Err(error) = reactor.run(event_loop) {
                     let chained_error =
                         Error::with_chain(error, "Tunnel state machine exited with an error");
-                    error!("{}", chained_error.display_chain());
+                    log::error!("{}", chained_error.display_chain());
                 }
             }
             Err(startup_error) => {

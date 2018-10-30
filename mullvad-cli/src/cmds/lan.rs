@@ -1,4 +1,4 @@
-use clap;
+use clap::{self, value_t_or_exit};
 use {new_rpc_client, Command, Result};
 
 pub struct Lan;

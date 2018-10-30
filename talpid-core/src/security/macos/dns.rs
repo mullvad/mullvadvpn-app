@@ -13,6 +13,7 @@ use self::system_configuration::{
     sys::schema_definitions::kSCPropNetDNSServerAddresses,
 };
 use error_chain::ChainedError;
+use log::{debug, trace};
 use std::{
     collections::HashMap,
     fmt,
@@ -108,7 +109,7 @@ impl DnsSettings {
             if let Some(string) = item.downcast::<CFString>() {
                 strings.push(string.to_string());
             } else {
-                error!("DNS server entry is not a string: {:?}", item);
+                log::error!("DNS server entry is not a string: {:?}", item);
                 return None;
             };
         }
@@ -148,7 +149,7 @@ impl DnsMonitor {
                 result_tx.send(Ok(())).unwrap();
                 run_dynamic_store_runloop(store);
                 // TODO(linus): This is critical. Improve later by sending error signal to Daemon
-                error!("Core Foundation main loop exited! It should run forever");
+                log::error!("Core Foundation main loop exited! It should run forever");
             }
             Err(e) => result_tx.send(Err(e)).unwrap(),
         });
@@ -257,7 +258,7 @@ fn dns_change_callback(
         }
         Some(ref mut state) => {
             if let Err(e) = dns_change_callback_internal(store, changed_keys, state) {
-                error!("{}", e.display_chain());
+                log::error!("{}", e.display_chain());
             }
         }
     }

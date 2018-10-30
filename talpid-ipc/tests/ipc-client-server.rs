@@ -1,10 +1,8 @@
-#[macro_use]
 extern crate assert_matches;
 extern crate env_logger;
 extern crate jsonrpc_client_core;
 extern crate jsonrpc_client_ipc;
 extern crate jsonrpc_core;
-#[macro_use]
 extern crate jsonrpc_macros;
 extern crate talpid_ipc;
 extern crate tokio;
@@ -12,11 +10,13 @@ extern crate uuid;
 
 extern crate futures;
 
+use assert_matches::assert_matches;
 use futures::sync::oneshot;
 use futures::Future;
 
 use jsonrpc_client_core::{Error as ClientError, Transport};
 use jsonrpc_core::{Error, IoHandler};
+use jsonrpc_macros::build_rpc_trait;
 use std::sync::{mpsc, Mutex};
 use std::time::Duration;
 

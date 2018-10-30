@@ -91,22 +91,22 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         match self.wait_result() {
             WaitResult::Child(Ok(exit_status), closed) => {
                 if exit_status.success() || closed {
-                    debug!(
+                    log::debug!(
                         "OpenVPN exited, as expected, with exit status: {}",
                         exit_status
                     );
                     Ok(())
                 } else {
-                    error!("OpenVPN died unexpectedly with status: {}", exit_status);
+                    log::error!("OpenVPN died unexpectedly with status: {}", exit_status);
                     Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
                 }
             }
             WaitResult::Child(Err(e), _) => {
-                error!("OpenVPN process wait error: {}", e);
+                log::error!("OpenVPN process wait error: {}", e);
                 Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
             }
             WaitResult::EventDispatcher => {
-                error!("OpenVPN Event server exited unexpectedly");
+                log::error!("OpenVPN Event server exited unexpectedly");
                 Err(ErrorKind::EventDispatcherError.into())
             }
         }
@@ -214,6 +214,7 @@ impl ProcessHandle for OpenVpnProcHandle {
 mod event_server {
     use super::OpenVpnPluginEvent;
     use jsonrpc_core::{Error, IoHandler, MetaIoHandler};
+    use jsonrpc_macros::build_rpc_trait;
     use std::collections::HashMap;
     use talpid_ipc;
     use uuid;
@@ -258,7 +259,7 @@ mod event_server {
             event: OpenVpnPluginEvent,
             env: HashMap<String, String>,
         ) -> Result<(), Error> {
-            trace!("OpenVPN event {:?}", event);
+            log::trace!("OpenVPN event {:?}", event);
             (self.on_event)(event, env);
             Ok(())
         }
