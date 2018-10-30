@@ -2,9 +2,6 @@ extern crate pfctl;
 extern crate tokio_core;
 
 use super::{NetworkSecurityT, SecurityPolicy};
-
-use ipnetwork::IpNetwork;
-
 use std::net::Ipv4Addr;
 use std::path::Path;
 
@@ -200,38 +197,35 @@ impl NetworkSecurity {
                 .action(pfctl::FilterRuleAction::Pass)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(*net))));
+                .from(pfctl::Ip::from(ipnetwork_compat(*net)));
             let allow_net = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(*net))))
+                .to(pfctl::Ip::from(ipnetwork_compat(*net)))
                 .build()?;
             let allow_multicast = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V4(
-                    *super::MULTICAST_NET,
-                ))))
+                .to(pfctl::Ip::from(ipnetwork_compat(*super::MULTICAST_NET)))
                 .build()?;
             let allow_ssdp = rule_builder.to(pfctl::Ip::from(*super::SSDP_IP)).build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
             rules.push(allow_ssdp);
         }
-        for net in &*super::LOCAL_INET6_NETS {
-            let mut rule_builder = pfctl::FilterRuleBuilder::default();
-            rule_builder
-                .action(pfctl::FilterRuleAction::Pass)
-                .quick(true)
-                .af(pfctl::AddrFamily::Ipv6)
-                .from(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(*net))));
-            let allow_net = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(*net))))
-                .build()?;
-            let allow_multicast = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(IpNetwork::V6(
-                    *super::MULTICAST_INET6_NET,
-                ))))
-                .build()?;
-            rules.push(allow_net);
-            rules.push(allow_multicast);
-        }
+        let mut rule_builder = pfctl::FilterRuleBuilder::default();
+        rule_builder
+            .action(pfctl::FilterRuleAction::Pass)
+            .quick(true)
+            .af(pfctl::AddrFamily::Ipv6)
+            .from(pfctl::Ip::from(ipnetwork_compat(*super::LOCAL_INET6_NET)));
+        let allow_net = rule_builder
+            .to(pfctl::Ip::from(ipnetwork_compat(*super::LOCAL_INET6_NET)))
+            .build()?;
+        let allow_multicast = rule_builder
+            .to(pfctl::Ip::from(ipnetwork_compat(
+                *super::MULTICAST_INET6_NET,
+            )))
+            .build()?;
+        rules.push(allow_net);
+        rules.push(allow_multicast);
+
         Ok(rules)
     }
 

@@ -318,47 +318,39 @@ impl<'a> PolicyBatch<'a> {
         for chain in &[&self.in_chain, &self.out_chain] {
             for net in &*super::PRIVATE_NETS {
                 let mut rule = Rule::new(chain)?;
-                check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
-                check_net(&mut rule, End::Dst, IpNetwork::V4(*net))?;
+                check_net(&mut rule, End::Src, *net)?;
+                check_net(&mut rule, End::Dst, *net)?;
                 add_verdict(&mut rule, &Verdict::Accept)?;
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
             }
-            for net in &*super::LOCAL_INET6_NETS {
-                let mut rule = Rule::new(chain)?;
-                check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
-                check_net(&mut rule, End::Dst, IpNetwork::V6(*net))?;
-                add_verdict(&mut rule, &Verdict::Accept)?;
-                self.batch.add(&rule, nftnl::MsgType::Add)?;
-            }
+            let mut rule = Rule::new(chain)?;
+            check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET)?;
+            check_net(&mut rule, End::Dst, *super::LOCAL_INET6_NET)?;
+            add_verdict(&mut rule, &Verdict::Accept)?;
+            self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
         // LAN -> multicast
         for net in &*super::PRIVATE_NETS {
             let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
-            check_net(&mut rule, End::Dst, IpNetwork::V4(*super::MULTICAST_NET))?;
+            check_net(&mut rule, End::Src, *net)?;
+            check_net(&mut rule, End::Dst, *super::MULTICAST_NET)?;
             add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
 
             // LAN -> SSDP + WS-Discovery protocols
             let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
+            check_net(&mut rule, End::Src, *net)?;
             check_ip(&mut rule, End::Dst, *super::SSDP_IP)?;
             add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
-        for net in &*super::LOCAL_INET6_NETS {
-            let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
-            check_net(
-                &mut rule,
-                End::Dst,
-                IpNetwork::V6(*super::MULTICAST_INET6_NET),
-            )?;
-            add_verdict(&mut rule, &Verdict::Accept)?;
-            self.batch.add(&rule, nftnl::MsgType::Add)?;
-        }
+        let mut rule = Rule::new(&self.out_chain)?;
+        check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET)?;
+        check_net(&mut rule, End::Dst, *super::MULTICAST_INET6_NET)?;
+        add_verdict(&mut rule, &Verdict::Accept)?;
+        self.batch.add(&rule, nftnl::MsgType::Add)?;
         Ok(())
     }
 }
