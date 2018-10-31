@@ -43,6 +43,7 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-flow": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "^7.0.0",
     "browser-sync": "^2.23.6",
     "chai": "^4.1.0",
@@ -74,7 +75,7 @@
     "private:build": "electron-builder",
     "private:watch": "cross-env yarn run private:compile --source-maps true --watch --skip-initial-build",
     "private:serve": "cross-env babel-node scripts/serve.js",
-    "private:compile": "babel src/ --copy-files --out-dir build",
+    "private:compile": "babel src/ --copy-files --out-dir build --extensions '.ts,.tsx,.js'",
     "private:clean": "rimraf build"
   }
 }
