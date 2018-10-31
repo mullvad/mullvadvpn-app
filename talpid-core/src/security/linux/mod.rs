@@ -213,14 +213,44 @@ impl<'a> PolicyBatch<'a> {
     }
 
     fn add_dhcp_rules(&mut self) -> Result<()> {
-        self.batch.add(
-            &allow_dhcp_rule(&self.out_chain, Direction::Out)?,
-            nftnl::MsgType::Add,
-        )?;
-        self.batch.add(
-            &allow_dhcp_rule(&self.in_chain, Direction::In)?,
-            nftnl::MsgType::Add,
-        )?;
+        use self::TransportProtocol::Udp;
+        const SERVER_PORT_V4: u16 = 67;
+        const CLIENT_PORT_V4: u16 = 68;
+        const SERVER_PORT_V6: u16 = 547;
+        const CLIENT_PORT_V6: u16 = 546;
+        {
+            let mut out_v4 = Rule::new(&self.out_chain)?;
+            check_port(&mut out_v4, Udp, End::Src, CLIENT_PORT_V4)?;
+            check_ip(&mut out_v4, End::Dst, IpAddr::V4(Ipv4Addr::BROADCAST))?;
+            check_port(&mut out_v4, Udp, End::Dst, SERVER_PORT_V4)?;
+            add_verdict(&mut out_v4, &Verdict::Accept)?;
+            self.batch.add(&out_v4, nftnl::MsgType::Add)?;
+        }
+        {
+            let mut in_v4 = Rule::new(&self.in_chain)?;
+            check_port(&mut in_v4, Udp, End::Src, SERVER_PORT_V4)?;
+            check_port(&mut in_v4, Udp, End::Dst, CLIENT_PORT_V4)?;
+            add_verdict(&mut in_v4, &Verdict::Accept)?;
+            self.batch.add(&in_v4, nftnl::MsgType::Add)?;
+        }
+        for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
+            let mut out_v6 = Rule::new(&self.out_chain)?;
+            check_net(&mut out_v6, End::Src, *super::LOCAL_INET6_NET)?;
+            check_port(&mut out_v6, Udp, End::Src, CLIENT_PORT_V6)?;
+            check_ip(&mut out_v6, End::Dst, *dhcpv6_server)?;
+            check_port(&mut out_v6, Udp, End::Dst, SERVER_PORT_V6)?;
+            add_verdict(&mut out_v6, &Verdict::Accept)?;
+            self.batch.add(&out_v6, nftnl::MsgType::Add)?;
+        }
+        {
+            let mut in_v6 = Rule::new(&self.in_chain)?;
+            check_net(&mut in_v6, End::Src, *super::LOCAL_INET6_NET)?;
+            check_port(&mut in_v6, Udp, End::Src, SERVER_PORT_V6)?;
+            check_net(&mut in_v6, End::Dst, *super::LOCAL_INET6_NET)?;
+            check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6)?;
+            add_verdict(&mut in_v6, &Verdict::Accept)?;
+            self.batch.add(&in_v6, nftnl::MsgType::Add)?;
+        }
         Ok(())
     }
 
@@ -318,73 +348,41 @@ impl<'a> PolicyBatch<'a> {
         for chain in &[&self.in_chain, &self.out_chain] {
             for net in &*super::PRIVATE_NETS {
                 let mut rule = Rule::new(chain)?;
-                check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
-                check_net(&mut rule, End::Dst, IpNetwork::V4(*net))?;
+                check_net(&mut rule, End::Src, *net)?;
+                check_net(&mut rule, End::Dst, *net)?;
                 add_verdict(&mut rule, &Verdict::Accept)?;
                 self.batch.add(&rule, nftnl::MsgType::Add)?;
             }
-            for net in &*super::LOCAL_INET6_NETS {
-                let mut rule = Rule::new(chain)?;
-                check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
-                check_net(&mut rule, End::Dst, IpNetwork::V6(*net))?;
-                add_verdict(&mut rule, &Verdict::Accept)?;
-                self.batch.add(&rule, nftnl::MsgType::Add)?;
-            }
+            let mut rule = Rule::new(chain)?;
+            check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET)?;
+            check_net(&mut rule, End::Dst, *super::LOCAL_INET6_NET)?;
+            add_verdict(&mut rule, &Verdict::Accept)?;
+            self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
         // LAN -> multicast
         for net in &*super::PRIVATE_NETS {
             let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
-            check_net(&mut rule, End::Dst, IpNetwork::V4(*super::MULTICAST_NET))?;
+            check_net(&mut rule, End::Src, *net)?;
+            check_net(&mut rule, End::Dst, *super::MULTICAST_NET)?;
             add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
 
             // LAN -> SSDP + WS-Discovery protocols
             let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V4(*net))?;
+            check_net(&mut rule, End::Src, *net)?;
             check_ip(&mut rule, End::Dst, *super::SSDP_IP)?;
             add_verdict(&mut rule, &Verdict::Accept)?;
 
             self.batch.add(&rule, nftnl::MsgType::Add)?;
         }
-        for net in &*super::LOCAL_INET6_NETS {
-            let mut rule = Rule::new(&self.out_chain)?;
-            check_net(&mut rule, End::Src, IpNetwork::V6(*net))?;
-            check_net(
-                &mut rule,
-                End::Dst,
-                IpNetwork::V6(*super::MULTICAST_INET6_NET),
-            )?;
-            add_verdict(&mut rule, &Verdict::Accept)?;
-            self.batch.add(&rule, nftnl::MsgType::Add)?;
-        }
+        let mut rule = Rule::new(&self.out_chain)?;
+        check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET)?;
+        check_net(&mut rule, End::Dst, *super::MULTICAST_INET6_NET)?;
+        add_verdict(&mut rule, &Verdict::Accept)?;
+        self.batch.add(&rule, nftnl::MsgType::Add)?;
         Ok(())
     }
-}
-
-fn allow_dhcp_rule<'a>(chain: &'a Chain, direction: Direction) -> Result<Rule<'a>> {
-    const SERVER_PORT: u16 = 67;
-    const CLIENT_PORT: u16 = 68;
-    let broadcast_addr = IpAddr::V4(Ipv4Addr::new(255, 255, 255, 255));
-
-    let mut rule = Rule::new(&chain)?;
-
-    match direction {
-        Direction::In => {
-            check_port(&mut rule, TransportProtocol::Udp, End::Src, SERVER_PORT)?;
-            check_port(&mut rule, TransportProtocol::Udp, End::Dst, CLIENT_PORT)?;
-        }
-        Direction::Out => {
-            check_port(&mut rule, TransportProtocol::Udp, End::Src, CLIENT_PORT)?;
-            check_port(&mut rule, TransportProtocol::Udp, End::Dst, SERVER_PORT)?;
-            check_ip(&mut rule, End::Dst, broadcast_addr)?;
-        }
-    }
-
-    add_verdict(&mut rule, &Verdict::Accept)?;
-
-    Ok(rule)
 }
 
 fn allow_interface_rule<'a>(

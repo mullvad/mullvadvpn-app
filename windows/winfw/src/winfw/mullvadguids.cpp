@@ -296,7 +296,7 @@ const GUID &MullvadGuids::FilterPermitLoopback_Inbound_Ipv6()
 }
 
 //static
-const GUID &MullvadGuids::FilterPermitDhcp_Outbound_Request()
+const GUID &MullvadGuids::FilterPermitDhcpV4_Outbound_Request()
 {
 	static const GUID g =
 	{
@@ -310,7 +310,21 @@ const GUID &MullvadGuids::FilterPermitDhcp_Outbound_Request()
 }
 
 //static
-const GUID &MullvadGuids::FilterPermitDhcp_Inbound_Response()
+const GUID &MullvadGuids::FilterPermitDhcpV6_Outbound_Request()
+{
+	static const GUID g =
+	{
+		0x67bd69b0,
+		0x522d,
+		0x4631,
+		{ 0x9a, 0x8f, 0x1c, 0xee, 0xdf, 0x64, 0xb7, 0x2b }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitDhcpV4_Inbound_Response()
 {
 	static const GUID g =
 	{
@@ -318,6 +332,20 @@ const GUID &MullvadGuids::FilterPermitDhcp_Inbound_Response()
 		0x4108,
 		0x47ff,
 		{ 0x85, 0x99, 0xaf, 0xa5, 0xcb, 0x95, 0x9c, 0x25 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitDhcpV6_Inbound_Response()
+{
+	static const GUID g =
+	{
+		0x40dcfb6d,
+		0x2ee,
+		0x4531,
+		{ 0x86, 0x61, 0xc4, 0xc8, 0xa4, 0x3a, 0xf4, 0x23 }
 	};
 
 	return g;
