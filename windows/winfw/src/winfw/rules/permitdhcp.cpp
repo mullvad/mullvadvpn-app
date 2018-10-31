@@ -117,6 +117,7 @@ bool PermitDhcp::apply(IObjectInstaller &objectInstaller)
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	conditionBuilder.add_condition(ConditionProtocol::Udp());
+	conditionBuilder.add_condition(ConditionIp::Remote(fe80, uint8_t(10)));
 	conditionBuilder.add_condition(ConditionPort::Remote(547));
 	conditionBuilder.add_condition(ConditionIp::Local(fe80, uint8_t(10)));
 	conditionBuilder.add_condition(ConditionPort::Local(546));

@@ -268,7 +268,10 @@ impl NetworkSecurity {
         let allow_incoming_dhcp_v6 = dhcp_rule_builder
             .af(pfctl::AddrFamily::Ipv6)
             .direction(pfctl::Direction::In)
-            .from(server_port_v6)
+            .from(pfctl::Endpoint::new(
+                *super::LOCAL_INET6_NET,
+                server_port_v6,
+            ))
             .to(pfctl::Endpoint::new(
                 *super::LOCAL_INET6_NET,
                 client_port_v6,

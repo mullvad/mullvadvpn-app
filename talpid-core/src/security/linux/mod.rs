@@ -221,8 +221,8 @@ impl<'a> PolicyBatch<'a> {
         {
             let mut out_v4 = Rule::new(&self.out_chain)?;
             check_port(&mut out_v4, Udp, End::Src, CLIENT_PORT_V4)?;
-            check_port(&mut out_v4, Udp, End::Dst, SERVER_PORT_V4)?;
             check_ip(&mut out_v4, End::Dst, IpAddr::V4(Ipv4Addr::BROADCAST))?;
+            check_port(&mut out_v4, Udp, End::Dst, SERVER_PORT_V4)?;
             add_verdict(&mut out_v4, &Verdict::Accept)?;
             self.batch.add(&out_v4, nftnl::MsgType::Add)?;
         }
@@ -235,18 +235,19 @@ impl<'a> PolicyBatch<'a> {
         }
         for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
             let mut out_v6 = Rule::new(&self.out_chain)?;
-            check_port(&mut out_v6, Udp, End::Src, CLIENT_PORT_V6)?;
             check_net(&mut out_v6, End::Src, *super::LOCAL_INET6_NET)?;
-            check_port(&mut out_v6, Udp, End::Dst, SERVER_PORT_V6)?;
+            check_port(&mut out_v6, Udp, End::Src, CLIENT_PORT_V6)?;
             check_ip(&mut out_v6, End::Dst, *dhcpv6_server)?;
+            check_port(&mut out_v6, Udp, End::Dst, SERVER_PORT_V6)?;
             add_verdict(&mut out_v6, &Verdict::Accept)?;
             self.batch.add(&out_v6, nftnl::MsgType::Add)?;
         }
         {
             let mut in_v6 = Rule::new(&self.in_chain)?;
+            check_net(&mut in_v6, End::Src, *super::LOCAL_INET6_NET)?;
             check_port(&mut in_v6, Udp, End::Src, SERVER_PORT_V6)?;
-            check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6)?;
             check_net(&mut in_v6, End::Dst, *super::LOCAL_INET6_NET)?;
+            check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6)?;
             add_verdict(&mut in_v6, &Verdict::Accept)?;
             self.batch.add(&in_v6, nftnl::MsgType::Add)?;
         }
