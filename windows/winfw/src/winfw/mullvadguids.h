@@ -33,8 +33,10 @@ public:
 	static const GUID &FilterPermitLoopback_Inbound_Ipv4();
 	static const GUID &FilterPermitLoopback_Inbound_Ipv6();
 
-	static const GUID &FilterPermitDhcp_Outbound_Request();
-	static const GUID &FilterPermitDhcp_Inbound_Response();
+	static const GUID &FilterPermitDhcpV4_Outbound_Request();
+	static const GUID &FilterPermitDhcpV6_Outbound_Request();
+	static const GUID &FilterPermitDhcpV4_Inbound_Response();
+	static const GUID &FilterPermitDhcpV6_Inbound_Response();
 
 	static const GUID &FilterPermitVpnRelay();
 
