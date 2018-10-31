@@ -191,65 +191,92 @@ impl NetworkSecurity {
 
     fn get_allow_lan_rules() -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = vec![];
+        // IPv4
         for net in &*super::PRIVATE_NETS {
             let mut rule_builder = pfctl::FilterRuleBuilder::default();
             rule_builder
                 .action(pfctl::FilterRuleAction::Pass)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(ipnetwork_compat(*net)));
-            let allow_net = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(*net)))
-                .build()?;
+                .from(pfctl::Ip::from(*net));
+            let allow_net = rule_builder.to(pfctl::Ip::from(*net)).build()?;
             let allow_multicast = rule_builder
-                .to(pfctl::Ip::from(ipnetwork_compat(*super::MULTICAST_NET)))
+                .to(pfctl::Ip::from(*super::MULTICAST_NET))
                 .build()?;
             let allow_ssdp = rule_builder.to(pfctl::Ip::from(*super::SSDP_IP)).build()?;
             rules.push(allow_net);
             rules.push(allow_multicast);
             rules.push(allow_ssdp);
         }
+        // IPv6
         let mut rule_builder = pfctl::FilterRuleBuilder::default();
         rule_builder
             .action(pfctl::FilterRuleAction::Pass)
             .quick(true)
             .af(pfctl::AddrFamily::Ipv6)
-            .from(pfctl::Ip::from(ipnetwork_compat(*super::LOCAL_INET6_NET)));
-        let allow_net = rule_builder
-            .to(pfctl::Ip::from(ipnetwork_compat(*super::LOCAL_INET6_NET)))
+            .from(pfctl::Ip::from(*super::LOCAL_INET6_NET));
+        let allow_net_v6 = rule_builder
+            .to(pfctl::Ip::from(*super::LOCAL_INET6_NET))
             .build()?;
-        let allow_multicast = rule_builder
-            .to(pfctl::Ip::from(ipnetwork_compat(
-                *super::MULTICAST_INET6_NET,
-            )))
+        let allow_multicast_v6 = rule_builder
+            .to(pfctl::Ip::from(*super::MULTICAST_INET6_NET))
             .build()?;
-        rules.push(allow_net);
-        rules.push(allow_multicast);
+        rules.push(allow_net_v6);
+        rules.push(allow_multicast_v6);
 
         Ok(rules)
     }
 
     fn get_allow_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {
-        let broadcast_address = Ipv4Addr::new(255, 255, 255, 255);
-        let server_port = pfctl::Port::from(67);
-        let client_port = pfctl::Port::from(68);
+        let server_port_v4 = pfctl::Port::from(67);
+        let client_port_v4 = pfctl::Port::from(68);
+        let server_port_v6 = pfctl::Port::from(547);
+        let client_port_v6 = pfctl::Port::from(546);
         let mut dhcp_rule_builder = pfctl::FilterRuleBuilder::default();
         dhcp_rule_builder
             .action(pfctl::FilterRuleAction::Pass)
-            .proto(pfctl::Proto::Udp)
             .quick(true)
-            .keep_state(pfctl::StatePolicy::Keep);
-        let allow_outgoing_dhcp = dhcp_rule_builder
+            .proto(pfctl::Proto::Udp);
+
+        let mut rules = Vec::new();
+        let allow_outgoing_dhcp_v4 = dhcp_rule_builder
             .direction(pfctl::Direction::Out)
-            .from(client_port)
-            .to(pfctl::Endpoint::new(broadcast_address, server_port))
+            .from(client_port_v4)
+            .to(pfctl::Endpoint::new(Ipv4Addr::BROADCAST, server_port_v4))
             .build()?;
-        let allow_incoming_dhcp = dhcp_rule_builder
+        rules.push(allow_outgoing_dhcp_v4);
+        let allow_incoming_dhcp_v4 = dhcp_rule_builder
+            .af(pfctl::AddrFamily::Ipv4)
             .direction(pfctl::Direction::In)
-            .from(server_port)
-            .to(client_port)
+            .from(server_port_v4)
+            .to(client_port_v4)
             .build()?;
-        Ok(vec![allow_outgoing_dhcp, allow_incoming_dhcp])
+        rules.push(allow_incoming_dhcp_v4);
+
+        for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
+            let allow_outgoing_dhcp_v6 = dhcp_rule_builder
+                .af(pfctl::AddrFamily::Ipv6)
+                .direction(pfctl::Direction::Out)
+                .from(pfctl::Endpoint::new(
+                    *super::LOCAL_INET6_NET,
+                    client_port_v6,
+                ))
+                .to(pfctl::Endpoint::new(*dhcpv6_server, server_port_v6))
+                .build()?;
+            rules.push(allow_outgoing_dhcp_v6);
+        }
+        let allow_incoming_dhcp_v6 = dhcp_rule_builder
+            .af(pfctl::AddrFamily::Ipv6)
+            .direction(pfctl::Direction::In)
+            .from(server_port_v6)
+            .to(pfctl::Endpoint::new(
+                *super::LOCAL_INET6_NET,
+                client_port_v6,
+            ))
+            .build()?;
+        rules.push(allow_incoming_dhcp_v6);
+
+        Ok(rules)
     }
 
     fn get_tcp_flags() -> pfctl::TcpFlags {
@@ -307,10 +334,4 @@ fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
         net::TransportProtocol::Udp => pfctl::Proto::Udp,
         net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
     }
-}
-
-/// Converts a network from the struct version that talpid-core uses to the version pfctl uses.
-fn ipnetwork_compat(net: ::ipnetwork::IpNetwork) -> pfctl::ipnetwork::IpNetwork {
-    pfctl::ipnetwork::IpNetwork::new(net.ip(), net.prefix())
-        .expect("IpNetwork versions not compatible")
 }

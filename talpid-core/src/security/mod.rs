@@ -38,6 +38,10 @@ lazy_static! {
     static ref MULTICAST_INET6_NET: IpNetwork =
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe02, 0, 0, 0, 0, 0, 0, 0), 16).unwrap());
     static ref SSDP_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(239, 255, 255, 250));
+    static ref DHCPV6_SERVER_ADDRS: [IpAddr; 2] = [
+        IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2)),
+        IpAddr::V6(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3)),
+    ];
 }
 
 /// A enum that describes network security strategy
