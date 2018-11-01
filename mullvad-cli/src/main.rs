@@ -25,6 +25,7 @@ use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use std::alloc::System;
 use std::io;
 
+use error_chain::ChainedError;
 
 #[global_allocator]
 static GLOBAL: System = System;
@@ -33,6 +34,14 @@ pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/produc
 
 
 error_chain! {
+
+    errors {
+        DaemonNotRunning(err: mullvad_ipc_client::Error) {
+            description("Failed to connect to daemon")
+            display("Failed to connect to daemon: {}Is the daemon running?", err.display_chain())
+        }
+    }
+
     foreign_links {
         Io(io::Error);
         ParseIntError(::std::num::ParseIntError);
@@ -44,7 +53,10 @@ error_chain! {
 }
 
 pub fn new_rpc_client() -> Result<DaemonRpcClient> {
-    new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()).map_err(|e| Error::from(e))
+    match new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()) {
+        Err(e) => Err(ErrorKind::DaemonNotRunning(e).into()),
+        Ok(client) => Ok(client),
+    }
 }
 
 quick_main!(run);
