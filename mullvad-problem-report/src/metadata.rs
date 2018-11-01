@@ -2,11 +2,7 @@ use std::collections::HashMap;
 use std::process::Command;
 use uuid;
 
-pub const PRODUCT_VERSION: &str = concat!(
-    include_str!(concat!(env!("OUT_DIR"), "/product-version.txt")),
-    " ",
-    include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"))
-);
+pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 pub fn collect() -> HashMap<String, String> {
     let mut metadata = HashMap::new();
