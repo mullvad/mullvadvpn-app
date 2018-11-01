@@ -75,7 +75,7 @@
     "private:build": "electron-builder",
     "private:watch": "cross-env yarn run private:compile --source-maps true --watch --skip-initial-build",
     "private:serve": "cross-env babel-node scripts/serve.js",
-    "private:compile": "babel src/ --copy-files --out-dir build --extensions '.ts,.tsx,.js'",
+    "private:compile": "babel src/ --copy-files --out-dir build --extensions \".ts,.tsx,.js\"",
     "private:clean": "rimraf build"
   }
 }
