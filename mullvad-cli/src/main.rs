@@ -19,7 +19,7 @@ extern crate talpid_types;
 
 mod cmds;
 
-use clap::{crate_authors, crate_description, crate_name, crate_version};
+use clap::{crate_authors, crate_description, crate_name};
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 
 use std::alloc::System;
@@ -28,6 +28,8 @@ use std::io;
 
 #[global_allocator]
 static GLOBAL: System = System;
+
+pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 
 error_chain! {
@@ -53,7 +55,7 @@ fn run() -> Result<()> {
     let commands = cmds::get_commands();
 
     let app = clap::App::new(crate_name!())
-        .version(crate_version!())
+        .version(PRODUCT_VERSION)
         .author(crate_authors!())
         .about(crate_description!())
         .setting(clap::AppSettings::SubcommandRequired)
