@@ -144,7 +144,7 @@ fn create_daemon(config: &cli::Config) -> Result<Daemon> {
         log_dir,
         resource_dir,
         cache_dir,
-        version::CURRENT.to_owned(),
+        version::PRODUCT_VERSION.to_owned(),
     )
     .chain_err(|| "Unable to initialize daemon")
 }
@@ -153,7 +153,7 @@ fn log_version() {
     info!(
         "Starting {} - {} {}",
         env!("CARGO_PKG_NAME"),
-        version::CURRENT,
+        version::PRODUCT_VERSION,
         version::COMMIT_DATE,
     )
 }
