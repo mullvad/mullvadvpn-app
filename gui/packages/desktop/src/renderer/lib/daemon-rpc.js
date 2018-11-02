@@ -9,6 +9,7 @@ import { CommunicationError, InvalidAccountError, NoDaemonError } from '../error
 
 import {
   object,
+  partialObject,
   maybe,
   string,
   number,
@@ -33,7 +34,7 @@ export type Location = {
   mullvad_exit_ip: boolean,
   hostname: ?string,
 };
-const LocationSchema = object({
+const LocationSchema = partialObject({
   ip: maybe(string),
   country: string,
   city: maybe(string),
@@ -138,8 +139,8 @@ const constraint = <T>(constraintValue: SchemaNode<T>) => {
   );
 };
 
-const TunnelEndpointDataSchema = object({
-  openvpn: object({
+const TunnelEndpointDataSchema = partialObject({
+  openvpn: partialObject({
     port: number,
     protocol: enumeration('udp', 'tcp'),
   }),
@@ -147,7 +148,7 @@ const TunnelEndpointDataSchema = object({
 
 const RelaySettingsSchema = oneOf(
   object({
-    normal: object({
+    normal: partialObject({
       location: constraint(
         oneOf(
           object({
@@ -162,8 +163,8 @@ const RelaySettingsSchema = oneOf(
         ),
       ),
       tunnel: constraint(
-        object({
-          openvpn: object({
+        partialObject({
+          openvpn: partialObject({
             port: constraint(number),
             protocol: constraint(enumeration('udp', 'tcp')),
           }),
@@ -172,7 +173,7 @@ const RelaySettingsSchema = oneOf(
     }),
   }),
   object({
-    custom_tunnel_endpoint: object({
+    custom_tunnel_endpoint: partialObject({
       host: string,
       tunnel: TunnelEndpointDataSchema,
     }),
@@ -204,19 +205,19 @@ export type RelayListHostname = {
   weight: number,
 };
 
-const RelayListSchema = object({
+const RelayListSchema = partialObject({
   countries: arrayOf(
-    object({
+    partialObject({
       name: string,
       code: string,
       cities: arrayOf(
-        object({
+        partialObject({
           name: string,
           code: string,
           latitude: number,
           longitude: number,
           relays: arrayOf(
-            object({
+            partialObject({
               hostname: string,
               ipv4_addr_in: string,
               include_in_country: boolean,
@@ -257,16 +258,16 @@ export type RemoteProxyAuth = {
 const OpenVpnProxySchema = maybe(
   oneOf(
     object({
-      local: object({
+      local: partialObject({
         port: number,
         peer: string,
       }),
     }),
     object({
-      remote: object({
+      remote: partialObject({
         address: string,
         auth: maybe(
-          object({
+          partialObject({
             username: string,
             password: string,
           }),
@@ -276,15 +277,15 @@ const OpenVpnProxySchema = maybe(
   ),
 );
 
-const TunnelOptionsSchema = object({
+const TunnelOptionsSchema = partialObject({
   enable_ipv6: boolean,
-  openvpn: object({
+  openvpn: partialObject({
     mssfix: maybe(number),
     proxy: OpenVpnProxySchema,
   }),
 });
 
-const AccountDataSchema = object({
+const AccountDataSchema = partialObject({
   expiry: string,
 });
 
@@ -295,7 +296,7 @@ const TunnelStateTransitionSchema = oneOf(
   }),
   object({
     state: enumeration('connecting', 'connected'),
-    details: object({
+    details: partialObject({
       address: string,
       tunnel: TunnelEndpointDataSchema,
     }),
@@ -311,7 +312,10 @@ const TunnelStateTransitionSchema = oneOf(
           'no_matching_relay',
         ),
       }),
-      object({ reason: enumeration('auth_failed'), details: maybe(string) }),
+      object({
+        reason: enumeration('auth_failed'),
+        details: maybe(string),
+      }),
     ),
   }),
   object({
@@ -327,9 +331,9 @@ export type AppVersionInfo = {
   },
 };
 
-const AppVersionInfoSchema = object({
+const AppVersionInfoSchema = partialObject({
   current_is_supported: boolean,
-  latest: object({
+  latest: partialObject({
     latest_stable: string,
     latest: string,
   }),
@@ -379,7 +383,7 @@ export type Settings = {
   tunnelOptions: TunnelOptions,
 };
 
-const SettingsSchema = object({
+const SettingsSchema = partialObject({
   account_token: maybe(string),
   allow_lan: boolean,
   auto_connect: boolean,
