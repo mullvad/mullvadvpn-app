@@ -1,21 +1,38 @@
 import * as React from 'react';
-import { Component, Styles, Text, View } from 'reactxp';
-import { default as Accordion } from './Accordion';
+import { Component, Styles, Text, Types, View } from 'reactxp';
+import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
 
 const styles = {
-  toggle: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 14,
-    fontWeight: '800',
-    color: 'rgb(255, 255, 255, 0.4)',
-    paddingBottom: 2,
+  row: Styles.createViewStyle({
+    flexDirection: 'row',
+    marginTop: 3,
   }),
-  content: Styles.createTextStyle({
+  caption: Styles.createTextStyle({
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgb(255, 255, 255)',
+    flex: 0,
+    flexBasis: 30,
+    marginRight: 8,
+  }),
+  value: Styles.createTextStyle({
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgb(255, 255, 255)',
+    letterSpacing: -0.2,
+  }),
+  header: Styles.createViewStyle({
+    flexDirection: 'row',
+    alignItems: 'center',
+  }),
+  hostname: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '600',
     color: 'rgb(255, 255, 255)',
-    paddingBottom: 2,
+    flex: 1,
   }),
 };
 
@@ -26,49 +43,79 @@ interface IInAddress {
 }
 
 interface IOutAddress {
-  ipv4: string | null;
-  ipv6: string | null;
+  ipv4?: string;
+  ipv6?: string;
 }
 
 interface IProps {
+  hostname?: string;
   inAddress?: IInAddress;
-  outAddress: IOutAddress;
-  isExpanded: boolean;
-  onToggle?: () => void;
+  outAddress?: IOutAddress;
+  defaultOpen?: boolean;
+  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
+  onToggle?: (isOpen: boolean) => void;
 }
 
-export default class ConnectionInfo extends Component<IProps> {
+interface IState {
+  isOpen: boolean;
+}
+
+export default class ConnectionInfo extends Component<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
+
+    this.state = {
+      isOpen: props.defaultOpen === true,
+    };
+  }
+
   public render() {
     const { inAddress, outAddress } = this.props;
 
     return (
-      <View>
-        <Accordion height={this.props.isExpanded ? 'auto' : 0}>
-          {inAddress && (
-            <Text style={styles.content}>{`IN: ${inAddress.ip}:${inAddress.port} - ${
-              inAddress.protocol
-            }`}</Text>
-          )}
+      <View style={this.props.style}>
+        <View style={styles.header}>
+          <Text style={styles.hostname}>{this.props.hostname || ''}</Text>
+          <ConnectionInfoDisclosure defaultOpen={this.props.defaultOpen} onToggle={this.onToggle}>
+            {'Connection details'}
+          </ConnectionInfoDisclosure>
+        </View>
 
-          {(outAddress.ipv4 || outAddress.ipv6) && (
-            <Text style={styles.content}>
-              {'OUT: ' +
-                [outAddress.ipv4, outAddress.ipv6]
-                  .filter((a) => typeof a !== 'undefined')
-                  .join(' / ')}
-            </Text>
-          )}
-        </Accordion>
-        <Text style={styles.toggle} onPress={this.toggle}>
-          {this.props.isExpanded ? 'LESS' : 'MORE'}
-        </Text>
+        {this.state.isOpen && (
+          <React.Fragment>
+            {inAddress && (
+              <View style={styles.row}>
+                <Text style={styles.caption}>{'In'}</Text>
+                <Text style={styles.value}>
+                  {`${inAddress.ip}:${inAddress.port} ${inAddress.protocol.toUpperCase()}`}
+                </Text>
+              </View>
+            )}
+
+            {outAddress &&
+              (outAddress.ipv4 || outAddress.ipv6) && (
+                <View style={styles.row}>
+                  <Text style={styles.caption}>{'Out'}</Text>
+                  <View>
+                    {outAddress.ipv4 && <Text style={styles.value}>{outAddress.ipv4}</Text>}
+                    {outAddress.ipv6 && <Text style={styles.value}>{outAddress.ipv6}</Text>}
+                  </View>
+                </View>
+              )}
+          </React.Fragment>
+        )}
       </View>
     );
   }
 
-  private toggle = () => {
-    if (this.props.onToggle) {
-      this.props.onToggle();
-    }
+  private onToggle = (isOpen: boolean) => {
+    this.setState(
+      (state) => ({ ...state, isOpen }),
+      () => {
+        if (this.props.onToggle) {
+          this.props.onToggle(isOpen);
+        }
+      },
+    );
   };
 }
