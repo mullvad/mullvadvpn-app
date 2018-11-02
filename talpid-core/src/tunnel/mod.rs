@@ -1,5 +1,4 @@
 use mktemp;
-use openvpn_plugin::types::OpenVpnPluginEvent;
 use process::openvpn::OpenVpnCommand;
 
 use std::collections::HashMap;
@@ -100,18 +99,18 @@ pub struct TunnelMetadata {
 }
 
 impl TunnelEvent {
-    /// Converts an `OpenVpnPluginEvent` to a `TunnelEvent`.
+    /// Converts an `openvpn_plugin::EventType` to a `TunnelEvent`.
     /// Returns `None` if there is no corresponding `TunnelEvent`.
     fn from_openvpn_event(
-        event: OpenVpnPluginEvent,
+        event: openvpn_plugin::EventType,
         env: &HashMap<String, String>,
     ) -> Option<TunnelEvent> {
         match event {
-            OpenVpnPluginEvent::AuthFailed => {
+            openvpn_plugin::EventType::AuthFailed => {
                 let reason = env.get("auth_failed_reason").cloned();
                 Some(TunnelEvent::AuthFailed(reason))
             }
-            OpenVpnPluginEvent::Up => {
+            openvpn_plugin::EventType::Up => {
                 let interface = env
                     .get("dev")
                     .expect("No \"dev\" in tunnel up event")
@@ -132,7 +131,7 @@ impl TunnelEvent {
                     gateway,
                 }))
             }
-            OpenVpnPluginEvent::RoutePredown => Some(TunnelEvent::Down),
+            openvpn_plugin::EventType::RoutePredown => Some(TunnelEvent::Down),
             _ => None,
         }
     }
@@ -193,7 +192,7 @@ impl TunnelMonitor {
         };
 
         let on_openvpn_event = move |event, env| {
-            if event == OpenVpnPluginEvent::Up {
+            if event == openvpn_plugin::EventType::Up {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
 

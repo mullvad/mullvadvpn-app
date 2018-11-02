@@ -220,6 +220,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive-try-from-primitive"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 0.11.11 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "derive_builder"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1029,7 +1038,7 @@ dependencies = [
  "mullvad-ipc-client 0.1.0",
  "mullvad-paths 0.1.0",
  "notify 4.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
  "tempfile 3.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1174,17 +1183,10 @@ dependencies = [
 [[package]]
 name = "openvpn-plugin"
 version = "0.3.0"
-source = "git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event#6e2586030d6c8fb0e39d88769677a4085a1dd121"
+source = "git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event#bb82d84f7a464b2d7313cc7521bc6e6048409f94"
 dependencies = [
- "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "openvpn-plugin"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
+ "derive-try-from-primitive 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.71 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1221,7 +1223,7 @@ source = "git+https://github.com/nikvolf/parity-tokio-ipc#306ea3e6ff8b8c1bb03081
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
  "miow 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1238,7 +1240,7 @@ source = "git+https://github.com/NikVolf/parity-tokio-ipc?rev=master#306ea3e6ff8
 dependencies = [
  "bytes 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio-named-pipes 0.1.6 (git+https://github.com/alexcrichton/mio-named-pipes)",
  "miow 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2206,6 +2208,7 @@ dependencies = [
 "checksum crossbeam-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d636a8b3bcc1b409d7ffd3facef8f21dcb4009626adbd0c5e6c4305c07253c7b"
 "checksum ctrlc 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "630391922b1b893692c6334369ff528dcc3a9d8061ccf4c803aa8f83cb13db5e"
 "checksum dbus 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "3e34c238dfb3f5881d46ad301403cd8f8ecf946e2a4e89bdd1166728b68b5008"
+"checksum derive-try-from-primitive 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "81dbd65eb15734b6d50dc6ac86f14f928462be0a5df6bda17761e909071ede5d"
 "checksum derive_builder 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8c998e6ab02a828dd9735c18f154e14100e674ed08cb4e1938f0e4177543f439"
 "checksum derive_builder_core 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "735e24ee9e5fa8e16b86da5007856e97d592e11867e45d76e0c0d0a164a0b757"
 "checksum dirs 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "37a76dd8b997af7107d0bb69d43903cf37153a18266f8b3fdb9911f28efb5444"
@@ -2290,7 +2293,6 @@ dependencies = [
 "checksum openssl 0.10.11 (registry+https://github.com/rust-lang/crates.io-index)" = "6c24d3508b4fb6da175c10baac54c578b33f09c89ae90c6fe9788b3b4768efdc"
 "checksum openssl-sys 0.9.35 (registry+https://github.com/rust-lang/crates.io-index)" = "912f301a749394e1025d9dcddef6106ddee9252620e6d0a0e5f8d0681de9b129"
 "checksum openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)" = "<none>"
-"checksum openvpn-plugin 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f01f94fa077e8648fa20c654f6aef90e1a0feae5455a7b5d80c19eadeb97c7e8"
 "checksum os_pipe 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "fe033225d563042c3eeb22ffd1d2ea1aefcc48e7e37151a064c9e0bae64b253f"
 "checksum os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cd9d339267cdef39ee54ef165fdfaa2c7289a7465f0188ebe1c8a63872ca64c7"
 "checksum owning_ref 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "cdf84f41639e037b484f93433aa3897863b561ed65c6e59c7073d7c561710f37"
