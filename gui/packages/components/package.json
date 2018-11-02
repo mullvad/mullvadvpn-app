@@ -9,8 +9,10 @@
     "lint": "tslint -t stylish -p .",
     "test": "mocha -R spec --require ts-node/register --require \"test/setup.ts\" \"test/**/*.spec.tsx\"",
     "build": "run-s private:build:clean private:build:compile",
+    "watch": "run-s private:build:clean private:build:watch",
     "private:build:clean": "rimraf build",
-    "private:build:compile": "tsc"
+    "private:build:compile": "tsc",
+    "private:build:watch": "tsc -w"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",

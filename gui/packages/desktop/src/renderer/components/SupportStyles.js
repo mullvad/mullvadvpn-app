@@ -113,10 +113,8 @@ export default {
   }),
   support__send_status: Styles.createTextStyle({
     fontFamily: 'DINPro',
-    fontSize: 38,
+    fontSize: 34,
     fontWeight: '900',
-    maxHeight: 'calc(1.16em * 2)',
-    overflow: 'visible',
     letterSpacing: -0.9,
     color: colors.white,
     marginBottom: 4,

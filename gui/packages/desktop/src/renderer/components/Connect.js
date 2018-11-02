@@ -2,24 +2,17 @@
 
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View, Types } from 'reactxp';
-import {
-  ConnectionInfo,
-  SecuredLabel,
-  SecuredDisplayStyle,
-  SettingsBarButton,
-  Brand,
-  HeaderBarStyle,
-  ImageView,
-} from '@mullvad/components';
+import { Component, View } from 'reactxp';
+import { SettingsBarButton, Brand, HeaderBarStyle, ImageView } from '@mullvad/components';
 import { Layout, Container, Header } from './Layout';
 import NotificationArea from './NotificationArea';
 import * as AppButton from './AppButton';
+import TunnelControl from './TunnelControl';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../errors';
-import type { TunnelState, RelayProtocol } from '../lib/daemon-rpc';
 
+import type { RelayOutAddress, RelayInAddress } from './TunnelControl';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { VersionReduxState } from '../redux/version/reducers';
 
@@ -28,11 +21,13 @@ type Props = {
   version: VersionReduxState,
   accountExpiry: ?string,
   selectedRelayName: string,
+  connectionInfoOpen: boolean,
   onSettings: () => void,
   onSelectLocation: () => void,
   onConnect: () => void,
   onDisconnect: () => void,
   onExternalLink: (type: string) => void,
+  onToggleConnectionInfo: (boolean) => void,
 };
 
 export default class Connect extends Component<Props> {
@@ -177,11 +172,13 @@ export default class Connect extends Component<Props> {
             city={this.props.connection.city}
             country={this.props.connection.country}
             hostname={this.props.connection.hostname}
+            defaultConnectionInfoOpen={this.props.connectionInfoOpen}
             relayInAddress={relayInAddress}
             relayOutAddress={relayOutAddress}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
+            onToggleConnectionInfo={this.props.onToggleConnectionInfo}
           />
 
           <NotificationArea
@@ -234,204 +231,5 @@ export default class Connect extends Component<Props> {
     }
 
     return null;
-  }
-}
-
-type RelayInAddress = {
-  ip: string,
-  port: number,
-  protocol: RelayProtocol,
-};
-
-type RelayOutAddress = {
-  ipv4: ?string,
-  ipv6: ?string,
-};
-
-type TunnelControlProps = {
-  tunnelState: TunnelState,
-  selectedRelayName: string,
-  city: ?string,
-  country: ?string,
-  hostname: ?string,
-  relayInAddress: ?RelayInAddress,
-  relayOutAddress: ?RelayOutAddress,
-  onConnect: () => void,
-  onDisconnect: () => void,
-  onSelectLocation: () => void,
-};
-
-type TunnelControlState = {
-  showConnectionInfo: boolean,
-};
-
-class TunnelControl extends Component<TunnelControlProps, TunnelControlState> {
-  state = {
-    showConnectionInfo: false,
-  };
-
-  render() {
-    const Location = ({ children }) => <View style={styles.status_location}>{children}</View>;
-    const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
-    const Country = () => <Text style={styles.status_location_text}>{this.props.country}</Text>;
-    const Hostname = () => <Text style={styles.status_hostname}>{this.props.hostname || ''}</Text>;
-
-    const SwitchLocation = () => {
-      return (
-        <AppButton.TransparentButton
-          style={styles.switch_location_button}
-          onPress={this.props.onSelectLocation}>
-          <AppButton.Label>{'Switch location'}</AppButton.Label>
-        </AppButton.TransparentButton>
-      );
-    };
-
-    const SelectedLocation = () => (
-      <AppButton.TransparentButton
-        style={styles.switch_location_button}
-        onPress={this.props.onSelectLocation}>
-        <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
-        <ImageView height={12} width={7} source="icon-chevron" />
-      </AppButton.TransparentButton>
-    );
-
-    const Connect = () => (
-      <AppButton.GreenButton onPress={this.props.onConnect}>
-        {'Secure my connection'}
-      </AppButton.GreenButton>
-    );
-
-    const Disconnect = () => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {'Disconnect'}
-      </AppButton.RedTransparentButton>
-    );
-
-    const Cancel = () => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {'Cancel'}
-      </AppButton.RedTransparentButton>
-    );
-
-    const Secured = ({ displayStyle }) => (
-      <SecuredLabel style={styles.status_security} displayStyle={displayStyle} />
-    );
-    const Footer = ({ children }) => <View style={styles.footer}>{children}</View>;
-
-    const ConnectionDetails = () => {
-      return (
-        <ConnectionInfo
-          inAddress={this.props.relayInAddress}
-          outAddress={this.props.relayOutAddress}
-          isExpanded={this.state.showConnectionInfo}
-          onToggle={() => {
-            this.setState((state) => ({ ...state, showConnectionInfo: !state.showConnectionInfo }));
-          }}
-        />
-      );
-    };
-
-    switch (this.props.tunnelState) {
-      case 'connecting':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.securing} />
-              <Location>
-                <City />
-                <Country />
-              </Location>
-              <Hostname />
-              <ConnectionDetails />
-            </Body>
-            <Footer>
-              <SwitchLocation />
-              <Cancel />
-            </Footer>
-          </Wrapper>
-        );
-      case 'connected':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.secured} />
-              <Location>
-                <City />
-                <Country />
-              </Location>
-              <Hostname />
-              <ConnectionDetails />
-            </Body>
-            <Footer>
-              <SwitchLocation />
-              <Disconnect />
-            </Footer>
-          </Wrapper>
-        );
-
-      case 'blocked':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.blocked} />
-            </Body>
-            <Footer>
-              <SwitchLocation />
-              <Cancel />
-            </Footer>
-          </Wrapper>
-        );
-
-      case 'disconnecting':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.secured} />
-              <Location>
-                <Country />
-              </Location>
-            </Body>
-            <Footer>
-              <SelectedLocation />
-              <Connect />
-            </Footer>
-          </Wrapper>
-        );
-
-      case 'disconnected':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.unsecured} />
-              <Location>
-                <Country />
-              </Location>
-            </Body>
-            <Footer>
-              <SelectedLocation />
-              <Connect />
-            </Footer>
-          </Wrapper>
-        );
-
-      default:
-        throw new Error(`Unknown TunnelState: ${(this.props.tunnelState: empty)}`);
-    }
-  }
-}
-
-type ContainerProps = {
-  children?: Types.ReactNode,
-};
-
-class Wrapper extends Component<ContainerProps> {
-  render() {
-    return <View style={styles.tunnel_control}>{this.props.children}</View>;
-  }
-}
-
-class Body extends Component<ContainerProps> {
-  render() {
-    return <View style={styles.body}>{this.props.children}</View>;
   }
 }
