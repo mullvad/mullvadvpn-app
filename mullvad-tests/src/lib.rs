@@ -28,7 +28,6 @@ use jsonrpc_client_ipc::IpcTransport;
 use mullvad_ipc_client::{DaemonRpcClient, ResultExt};
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
-use openvpn_plugin::types::OpenVpnPluginEvent;
 use tempfile::TempDir;
 use tokio::reactor::Handle;
 
@@ -410,16 +409,16 @@ impl MockOpenVpnPluginRpcClient {
         env.insert("ifconfig_local".to_owned(), "10.0.0.10".to_owned());
         env.insert("route_vpn_gateway".to_owned(), "10.0.0.1".to_owned());
 
-        self.send_event(OpenVpnPluginEvent::Up, env)
+        self.send_event(openvpn_plugin::EventType::Up, env)
     }
 
     pub fn route_predown(&mut self) -> Result<()> {
-        self.send_event(OpenVpnPluginEvent::RoutePredown, HashMap::new())
+        self.send_event(openvpn_plugin::EventType::RoutePredown, HashMap::new())
     }
 
     fn send_event(
         &mut self,
-        event: OpenVpnPluginEvent,
+        event: openvpn_plugin::EventType,
         env: HashMap<String, String>,
     ) -> Result<()> {
         self.rpc
