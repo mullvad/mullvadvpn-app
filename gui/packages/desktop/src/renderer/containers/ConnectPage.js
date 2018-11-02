@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { push } from 'connected-react-router';
 import { links } from '../../config';
 import Connect from '../components/Connect';
+import userInterfaceActions from '../redux/userinterface/actions';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
@@ -61,13 +62,18 @@ const mapStateToProps = (state: ReduxState) => {
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
     version: state.version,
+    connectionInfoOpen: state.userInterface.connectionInfoOpen,
   };
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+  const userInterface = bindActionCreators(userInterfaceActions, dispatch);
   const history = bindActionCreators({ push }, dispatch);
 
   return {
+    onToggleConnectionInfo: (isOpen: boolean) => {
+      userInterface.updateConnectionInfoOpen(isOpen);
+    },
     onSettings: () => {
       history.push('/settings');
     },
