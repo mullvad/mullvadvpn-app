@@ -305,6 +305,37 @@
 !define RemoveSettings '!insertmacro "RemoveSettings"'
 
 #
+# customInit
+#
+# This macro is activated right when the installer first starts up.
+#
+# When the installer is starting, take the opportunity to update registry
+# keys to use the new app identifier.
+#
+# This enables subsequent logic in the installer to correctly identify
+# that there is a previous version of the app installed.
+#
+!macro customInit
+
+	Push $0
+	
+	registry::MoveKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\Mullvad VPN"
+
+	# Discard return value
+	Pop $0
+	Pop $0
+
+	registry::MoveKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mullvad VPN"
+
+	# Discard return value
+	Pop $0
+	Pop $0
+
+	Pop $0
+	
+!macroend
+
+#
 # customInstall
 #
 # This macro is activated towards the end of the installation
