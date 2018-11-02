@@ -1,0 +1,5 @@
+LIBRARY registry
+
+EXPORTS
+
+MoveKey=?MoveKey@@YAXPAUHWND__@@HPA_WPAPAU_stack_t@@PAUextra_parameters@@ZZ
