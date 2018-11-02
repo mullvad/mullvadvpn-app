@@ -59,6 +59,7 @@ pkg:
   isRelocatable: false
 
 nsis:
+  guid: "Mullvad VPN"
   oneClick: false
   perMachine: true
   allowElevation: true
