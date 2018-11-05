@@ -28,7 +28,6 @@ const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
-const MAX_CACHE_AGE: Duration = Duration::from_secs(60 * 60 * 2);
 
 error_chain! {
     errors {
@@ -426,14 +425,12 @@ impl RelayListUpdater {
         debug!("Starting relay list updater thread");
         while self.wait_for_next_iteration() {
             trace!("Relay list updater iteration");
-            if self.should_update() {
-                match self
-                    .update()
-                    .chain_err(|| "Failed to update list of relays")
-                {
-                    Ok(()) => info!("Updated list of relays"),
-                    Err(error) => error!("{}", error.display_chain()),
-                }
+            match self
+                .update()
+                .chain_err(|| "Failed to update list of relays")
+            {
+                Ok(()) => info!("Updated list of relays"),
+                Err(error) => error!("{}", error.display_chain()),
             }
         }
         debug!("Relay list updater thread has finished");
@@ -446,13 +443,6 @@ impl RelayListUpdater {
             Ok(()) => true,
             Err(Timeout) => true,
             Err(Disconnected) => false,
-        }
-    }
-
-    fn should_update(&mut self) -> bool {
-        match SystemTime::now().duration_since(self.lock_parsed_relays().last_updated()) {
-            Ok(duration) => duration > MAX_CACHE_AGE,
-            Err(_) => false,
         }
     }
 

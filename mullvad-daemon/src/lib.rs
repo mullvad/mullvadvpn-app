@@ -419,6 +419,7 @@ impl Daemon {
             GetCurrentLocation(tx) => self.on_get_current_location(tx),
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
+            UpdateRelayLocations => self.on_update_relay_locations(),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
@@ -523,6 +524,9 @@ impl Daemon {
         Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
     }
 
+    fn on_update_relay_locations(&mut self) {
+        self.relay_selector.update();
+    }
 
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
         let account_token_cleared = account_token.is_none();

@@ -100,15 +100,21 @@ impl Command for Relay {
             .subcommand(
                 clap::SubCommand::with_name("list").about("List available countries and cities"),
             )
+            .subcommand(
+                clap::SubCommand::with_name("update")
+                    .about("Update the list of available countries and cities"),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             self.set(set_matches)
-        } else if let Some(_) = matches.subcommand_matches("get") {
+        } else if matches.subcommand_matches("get").is_some() {
             self.get()
-        } else if let Some(list_matches) = matches.subcommand_matches("list") {
-            self.list(list_matches)
+        } else if matches.subcommand_matches("list").is_some() {
+            self.list()
+        } else if matches.subcommand_matches("update").is_some() {
+            self.update()
         } else {
             unreachable!("No relay command given");
         }
@@ -210,7 +216,7 @@ impl Relay {
         Ok(())
     }
 
-    fn list(&self, _matches: &clap::ArgMatches) -> Result<()> {
+    fn list(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let mut locations = rpc.get_relay_locations()?;
         locations.countries.sort_by(|c1, c2| c1.name.cmp(&c2.name));
@@ -225,6 +231,12 @@ impl Relay {
             }
             println!();
         }
+        Ok(())
+    }
+
+    fn update(&self) -> Result<()> {
+        new_rpc_client()?.update_relay_locations()?;
+        println!("Updating relay list in the background...");
         Ok(())
     }
 }

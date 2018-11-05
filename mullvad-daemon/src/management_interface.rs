@@ -48,6 +48,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_relay_locations")]
         fn get_relay_locations(&self, Self::Metadata) -> BoxFuture<RelayList, Error>;
 
+        /// Triggers a relay list update
+        #[rpc(meta, name = "update_relay_locations")]
+        fn update_relay_locations(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
         /// Set which account to connect with.
         #[rpc(meta, name = "set_account")]
         fn set_account(&self, Self::Metadata, Option<AccountToken>) -> BoxFuture<(), Error>;
@@ -165,6 +169,9 @@ pub enum ManagementCommand {
     ),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(OneshotSender<RelayList>),
+    /// Trigger an asynchronous relay list update. This returns before the relay list is actually
+    /// updated.
+    UpdateRelayLocations,
     /// Set which account token to use for subsequent connection attempts.
     SetAccount(OneshotSender<()>, Option<AccountToken>),
     /// Place constraints on the type of tunnel and relay
@@ -394,6 +401,11 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .send_command_to_daemon(ManagementCommand::GetRelayLocations(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
+    }
+
+    fn update_relay_locations(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("update_relay_locations");
+        self.send_command_to_daemon(ManagementCommand::UpdateRelayLocations)
     }
 
     fn set_account(
