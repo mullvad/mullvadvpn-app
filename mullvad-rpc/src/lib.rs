@@ -57,7 +57,7 @@ const API_HOST: &str = "api.mullvad.net";
 const RPC_TIMEOUT: Duration = Duration::from_secs(5);
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 lazy_static! {
-    static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 219, 46));
+    static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 73));
 }
 
 
