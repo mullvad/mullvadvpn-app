@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Allow the user to view the relay in/out IP address in the GUI.
 - Add OpenVPN proxy support via CLI.
 - Allow DHCPv6 in the firewall.
+- CLI command `relay update` that triggers an update of the relay list in the daemon.
 
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
