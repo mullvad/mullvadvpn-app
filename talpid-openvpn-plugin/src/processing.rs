@@ -62,7 +62,7 @@ impl EventProcessor {
 
     pub fn process_event(
         &mut self,
-        event: openvpn_plugin::types::OpenVpnPluginEvent,
+        event: openvpn_plugin::EventType,
         env: HashMap<String, String>,
     ) -> Result<()> {
         log::trace!("Processing \"{:?}\" event", event);
@@ -86,5 +86,5 @@ impl EventProcessor {
 }
 
 jsonrpc_client!(pub struct EventProxy {
-    pub fn openvpn_event(&mut self, event: openvpn_plugin::types::OpenVpnPluginEvent, env: HashMap<String, String>) -> Future<()>;
+    pub fn openvpn_event(&mut self, event: openvpn_plugin::EventType, env: HashMap<String, String>) -> Future<()>;
 });

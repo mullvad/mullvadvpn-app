@@ -19,10 +19,7 @@ extern crate tokio;
 extern crate tokio_reactor;
 
 use error_chain::ChainedError;
-use openvpn_plugin::{
-    openvpn_plugin,
-    types::{EventResult, OpenVpnPluginEvent},
-};
+use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::sync::Mutex;
@@ -55,10 +52,10 @@ error_chain!{
 
 /// All the OpenVPN events this plugin will register for listening to. Edit this variable to change
 /// events.
-pub static INTERESTING_EVENTS: &'static [OpenVpnPluginEvent] = &[
-    OpenVpnPluginEvent::AuthFailed,
-    OpenVpnPluginEvent::Up,
-    OpenVpnPluginEvent::RoutePredown,
+pub static INTERESTING_EVENTS: &'static [EventType] = &[
+    EventType::AuthFailed,
+    EventType::Up,
+    EventType::RoutePredown,
 ];
 
 openvpn_plugin!(
@@ -75,7 +72,7 @@ pub struct Arguments {
 fn openvpn_open(
     args: Vec<CString>,
     _env: HashMap<CString, CString>,
-) -> Result<(Vec<OpenVpnPluginEvent>, Mutex<EventProcessor>)> {
+) -> Result<(Vec<EventType>, Mutex<EventProcessor>)> {
     env_logger::init();
     log::debug!("Initializing plugin");
 
@@ -108,7 +105,7 @@ fn openvpn_close(_handle: Mutex<EventProcessor>) {
 }
 
 fn openvpn_event(
-    event: OpenVpnPluginEvent,
+    event: EventType,
     _args: Vec<CString>,
     env: HashMap<CString, CString>,
     handle: &mut Mutex<EventProcessor>,
