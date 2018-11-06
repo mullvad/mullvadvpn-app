@@ -29,6 +29,10 @@
 !define INI_GENERAL_ERROR 0
 !define INI_SUCCESS 1
 
+#Return codes from driverlogic::Initialize/Deinitialize
+!define DRIVERLOGIC_GENERAL_ERROR 0
+!define DRIVERLOGIC_SUCCESS 1
+
 #
 # BreakInstallation
 #
@@ -83,6 +87,17 @@
 	Push $0
 	Push $1
 
+	driverlogic::Initialize
+	
+	Pop $0
+	Pop $1
+	
+	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		StrCpy $R0 "Failed to initialize plugin 'driverlogic': $1"
+		log::Log $R0
+		Goto InstallDriver_return_only
+	${EndIf}
+	
 	log::Log "Listing virtual adapters"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
 
@@ -96,7 +111,7 @@
 	${EndIf}
 
 	log::LogWithDetails "Virtual adapters listing" $1
-
+	
 	log::Log "Calling on plugin to parse adapter data"
 	driverlogic::EstablishBaseline $1
 
@@ -202,6 +217,18 @@
 	
 	InstallDriver_return:
 
+	driverlogic::Deinitialize
+	
+	Pop $0
+	Pop $1
+	
+	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		# Do not update $R0
+		log::Log "Failed to deinitialize plugin 'driverlogic': $1"
+	${EndIf}
+
+	InstallDriver_return_only:
+	
 	Pop $1
 	Pop $0
 	
