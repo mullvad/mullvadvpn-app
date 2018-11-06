@@ -122,6 +122,11 @@ std::wstring DoubleBackslashes(const std::wstring &str)
 
 } // anonymous namespace
 
+Context::Context()
+	: m_connection(wmi::Connection::Namespace::Cimv2)
+{
+}
+
 Context::BaselineStatus Context::establishBaseline(const std::wstring &textBlock)
 {
 	m_baseline = ParseVirtualNics(textBlock);
@@ -167,7 +172,6 @@ Context::VirtualNic Context::getNewAdapter()
 	return added[0];
 }
 
-//static
 std::set<Context::VirtualNic> Context::ParseVirtualNics(const std::wstring &textBlock)
 {
 	// ROOT\NET\0000
@@ -204,13 +208,8 @@ std::set<Context::VirtualNic> Context::ParseVirtualNics(const std::wstring &text
 	return nics;
 }
 
-//static
 std::wstring Context::GetNicAlias(const std::wstring &node, const std::wstring &name)
 {
-	static wmi::Connection connection(wmi::Connection::Namespace::Cimv2);
-
-	std::wstringstream ss;
-
 	//
 	// The name cannot be used when querying WMI, because WMI sometimes normalizes the
 	// names in its dataset, thereby destroying their uniqueness.
@@ -224,14 +223,16 @@ std::wstring Context::GetNicAlias(const std::wstring &node, const std::wstring &
 
 	const auto formattedNode = DoubleBackslashes(node);
 
+	std::wstringstream ss;
+
 	ss << L"SELECT * FROM Win32_NetworkAdapter WHERE PNPDeviceID = \"" << formattedNode << L"\"";
 
-	auto resultset = connection.query(ss.str().c_str());
+	auto resultset = m_connection.query(ss.str().c_str());
 
 	if (false == resultset.advance())
 	{
 		PluginLog(std::wstring(L"WMI query failed for adapter: ").append(name));
-		LogAllAdapters(connection);
+		LogAllAdapters(m_connection);
 
 		throw std::runtime_error("Unable to look up virtual adapter using WMI");
 	}

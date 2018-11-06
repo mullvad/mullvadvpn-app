@@ -2,5 +2,7 @@ LIBRARY driverlogic
 
 EXPORTS
 
+Initialize
 EstablishBaseline
 IdentifyNewInterface
+Deinitialize

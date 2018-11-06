@@ -1,11 +1,14 @@
 #pragma once
 
+#include <libcommon/wmi/connection.h>
 #include <set>
 #include <string>
 
 class Context
 {
 public:
+
+	Context();
 
 	struct VirtualNic
 	{
@@ -43,8 +46,10 @@ public:
 
 private:
 
-	static std::set<VirtualNic> ParseVirtualNics(const std::wstring &textBlock);
-	static std::wstring GetNicAlias(const std::wstring &node, const std::wstring &name);
+	common::wmi::Connection m_connection;
+
+	std::set<VirtualNic> ParseVirtualNics(const std::wstring &textBlock);
+	std::wstring GetNicAlias(const std::wstring &node, const std::wstring &name);
 
 	std::set<VirtualNic> m_baseline;
 	std::set<VirtualNic> m_currentState;
