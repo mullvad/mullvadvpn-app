@@ -45,6 +45,9 @@ Line wrap the file at 100 chars.                                              Th
   VPN tunnel is established instead of only on computer boot.
 - Set DNS search domain when using the systemd-resolved. Makes it work on Ubuntu 18.10.
 
+#### Windows
+- Fix crash on Windows 7 when closing installer.
+
 ### Security
 #### Linux
 - Block all traffic to DNS servers other than the correct one in the tunnel. Stops potential DNS
