@@ -24,7 +24,7 @@ import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
-import windowActions from './redux/window/actions';
+import userInterfaceActions from './redux/userinterface/actions';
 
 import SettingsProxy from './lib/subscription-proxy/settings-proxy';
 import TunnelStateProxy from './lib/subscription-proxy/tunnel-state-proxy';
@@ -96,7 +96,7 @@ export default class AppRenderer {
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
       version: bindActionCreators(versionActions, dispatch),
-      window: bindActionCreators(windowActions, dispatch),
+      userInterface: bindActionCreators(userInterfaceActions, dispatch),
       history: bindActionCreators(
         {
           push: pushHistory,
@@ -120,7 +120,7 @@ export default class AppRenderer {
 
     ipcRenderer.on('update-window-shape', (_event, shapeParams: WindowShapeParameters) => {
       if (typeof shapeParams.arrowPosition === 'number') {
-        this._reduxActions.window.updateWindowArrowPosition(shapeParams.arrowPosition);
+        this._reduxActions.userInterface.updateWindowArrowPosition(shapeParams.arrowPosition);
       }
     });
 

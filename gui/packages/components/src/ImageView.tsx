@@ -7,7 +7,7 @@ interface IProps {
   height?: number;
   tintColor?: string;
   tintHoverColor?: string;
-  style?: Types.ViewStyleRuleSet;
+  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
   disabled?: boolean;
 }
 

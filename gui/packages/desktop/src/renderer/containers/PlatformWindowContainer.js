@@ -7,7 +7,7 @@ import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => ({
-  arrowPosition: state.window.arrowPosition,
+  arrowPosition: state.userInterface.arrowPosition,
 });
 
 const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: SharedRouteProps) => ({});
