@@ -172,6 +172,11 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 		pushstring(common::string::ToWide(err.what()).c_str());
 		pushint(EstablishBaselineStatus::GENERAL_ERROR);
 	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
 }
 
 //
@@ -216,6 +221,11 @@ void __declspec(dllexport) NSISCALL IdentifyNewInterface
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
 		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
 	}
 }
