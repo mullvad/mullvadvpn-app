@@ -12,8 +12,8 @@ serde = "1.0"
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 mullvad-paths = { path = "../mullvad-paths" }
-jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
-jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", branch = "master" }
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "e9dbdc80" }
+jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "e9dbdc80" }
 tokio = "0.1"
 tokio-timer = "0.1"
 futures = "0.1"
