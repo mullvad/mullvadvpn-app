@@ -9,7 +9,7 @@ use super::{
     BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
     SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use tunnel::CloseHandle;
+use crate::tunnel::CloseHandle;
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
