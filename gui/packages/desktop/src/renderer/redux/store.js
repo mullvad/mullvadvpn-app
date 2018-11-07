@@ -56,8 +56,6 @@ export default function configureStore(
   initialState: ?ReduxState,
   routerHistory: History,
 ): ReduxStore {
-  const router = routerMiddleware(routerHistory);
-
   const actionCreators: { [string]: Function } = {
     ...accountActions,
     ...connectionActions,
@@ -76,9 +74,8 @@ export default function configureStore(
     support: supportReducer,
     version: versionReducer,
     userInterface: userInterfaceReducer,
+    router: connectRouter(routerHistory),
   };
-
-  const middlewares = [router];
 
   const composeEnhancers = (() => {
     const reduxCompose = window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
@@ -89,13 +86,14 @@ export default function configureStore(
   })();
 
   const enhancer: StoreEnhancer<ReduxState, ReduxAction, ReduxDispatch> = composeEnhancers(
-    applyMiddleware(...middlewares),
+    applyMiddleware(routerMiddleware(routerHistory)),
   );
+
   const rootReducer = combineReducers(reducers);
-  const rootReducerWithRouter = connectRouter(routerHistory)(rootReducer);
+
   if (initialState) {
-    return createStore(rootReducerWithRouter, initialState, enhancer);
+    return createStore(rootReducer, initialState, enhancer);
   } else {
-    return createStore(rootReducerWithRouter, enhancer);
+    return createStore(rootReducer, enhancer);
   }
 }
