@@ -1,9 +1,9 @@
 extern crate serde_json;
 
-use log::{debug, info};
-use relay_constraints::{
+use crate::relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
+use log::{debug, info};
 
 use std::fs::File;
 use std::io;

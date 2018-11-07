@@ -1,5 +1,5 @@
 use clap::{self, value_t_or_exit};
-use {new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 
 use mullvad_types::account::AccountToken;
 

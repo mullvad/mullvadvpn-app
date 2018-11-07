@@ -1,5 +1,5 @@
-use location::{CityCode, CountryCode, Hostname};
-use CustomTunnelEndpoint;
+use crate::location::{CityCode, CountryCode, Hostname};
+use crate::CustomTunnelEndpoint;
 
 use std::fmt;
 

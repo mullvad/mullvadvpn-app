@@ -1,7 +1,7 @@
 use clap;
-use new_rpc_client;
-use Command;
-use Result;
+use crate::new_rpc_client;
+use crate::Command;
+use crate::Result;
 
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::auth_failed::AuthFailed;

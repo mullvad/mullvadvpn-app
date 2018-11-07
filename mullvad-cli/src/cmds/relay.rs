@@ -1,6 +1,6 @@
 use clap::{self, value_t};
+use crate::{new_rpc_client, Command, Result, ResultExt};
 use std::str::FromStr;
-use {new_rpc_client, Command, Result, ResultExt};
 
 use mullvad_types::relay_constraints::{
     Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,

@@ -1,5 +1,5 @@
 use clap;
-use {new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 
 pub struct Version;
 

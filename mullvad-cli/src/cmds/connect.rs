@@ -1,8 +1,8 @@
 use clap;
+use crate::new_rpc_client;
+use crate::Command;
+use crate::Result;
 use error_chain::ChainedError;
-use new_rpc_client;
-use Command;
-use Result;
 
 pub struct Connect;
 
