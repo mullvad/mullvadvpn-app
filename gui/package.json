@@ -15,14 +15,14 @@
     "pack:linux": "yarn workspace desktop pack:linux"
   },
   "devDependencies": {
-    "babel-eslint": "^8.2.6",
-    "eslint": "^5.2.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
     "eslint-config-prettier": "^3.1.0",
-    "eslint-plugin-flowtype": "^2.50.3",
+    "eslint-plugin-flowtype": "^3.2.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.10.0",
     "flow-bin": "0.82",
     "flow-typed": "^2.5.1",
-    "prettier": "1.14.3"
+    "prettier": "1.15.1"
   }
 }
