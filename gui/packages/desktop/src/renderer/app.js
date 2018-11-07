@@ -124,7 +124,10 @@ export default class AppRenderer {
       }
     });
 
-    ipcRenderer.on('window-shown', () => this.updateAccountExpiry());
+    ipcRenderer.on('window-shown', () => {
+      this.updateAccountExpiry();
+      this._notificationController.cancelPendingNotifications();
+    });
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
