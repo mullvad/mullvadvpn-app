@@ -9,8 +9,10 @@ use super::{
     SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
     TunnelStateWrapper,
 };
-use security::SecurityPolicy;
-use tunnel::{CloseHandle, TunnelEvent, TunnelMetadata};
+use crate::{
+    security::SecurityPolicy,
+    tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
+};
 
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,

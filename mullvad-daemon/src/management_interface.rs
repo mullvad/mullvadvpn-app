@@ -1,3 +1,4 @@
+use crate::account_history::{AccountHistory, Error as AccountHistoryError};
 use error_chain::ChainedError;
 use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
 use jsonrpc_core::futures::{future, sync, Future};
@@ -7,28 +8,25 @@ use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use mullvad_paths;
 use mullvad_rpc;
-use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::location::GeoIpLocation;
-use mullvad_types::relay_constraints::RelaySettingsUpdate;
-use mullvad_types::relay_list::RelayList;
-use mullvad_types::settings;
-use mullvad_types::settings::Settings;
-use mullvad_types::states::TargetState;
-use mullvad_types::version;
-
+use mullvad_types::{
+    account::{AccountData, AccountToken},
+    location::GeoIpLocation,
+    relay_constraints::RelaySettingsUpdate,
+    relay_list::RelayList,
+    settings::{self, Settings},
+    states::TargetState,
+    version,
+};
 use serde;
-
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex, RwLock};
-
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    path::PathBuf,
+    sync::{Arc, Mutex, RwLock},
+};
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::{net::OpenVpnProxySettings, tunnel::TunnelStateTransition};
 use uuid;
-
-use account_history::{AccountHistory, Error as AccountHistoryError};
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).

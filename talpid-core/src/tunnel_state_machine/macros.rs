@@ -10,10 +10,10 @@
 macro_rules! try_handle_event {
     ($same_state:expr, $event:expr) => {
         match $event {
-            Ok(::futures::Async::Ready(Some(event))) => Ok(event),
-            Ok(::futures::Async::Ready(None)) => Err(None),
-            Ok(::futures::Async::NotReady) => {
-                return ::tunnel_state_machine::EventConsequence::NoEvents($same_state);
+            Ok(crate::futures::Async::Ready(Some(event))) => Ok(event),
+            Ok(crate::futures::Async::Ready(None)) => Err(None),
+            Ok(crate::futures::Async::NotReady) => {
+                return crate::tunnel_state_machine::EventConsequence::NoEvents($same_state);
             }
             Err(error) => Err(Some(error)),
         }

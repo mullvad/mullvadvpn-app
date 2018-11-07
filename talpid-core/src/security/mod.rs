@@ -60,7 +60,7 @@ pub enum SecurityPolicy {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
         /// Metadata about the tunnel and tunnel interface.
-        tunnel: ::tunnel::TunnelMetadata,
+        tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
     },

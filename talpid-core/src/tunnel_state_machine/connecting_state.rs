@@ -17,9 +17,12 @@ use super::{
     EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
     TunnelStateTransition, TunnelStateWrapper,
 };
-use logging;
-use security::SecurityPolicy;
-use tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor};
+use crate::{
+    logging,
+    security::SecurityPolicy,
+    tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
+};
+
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
