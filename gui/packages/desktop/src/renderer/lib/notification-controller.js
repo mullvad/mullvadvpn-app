@@ -47,6 +47,10 @@ export default class NotificationController {
   }
 
   notifyInconsistentVersion() {
+    if (remote.getCurrentWindow().isVisible()) {
+      return;
+    }
+
     this._presentNotificationOnce('inconsistent-version', () => {
       new Notification(remote.app.getName(), {
         body: 'Inconsistent internal version information, please restart the app',
@@ -56,6 +60,10 @@ export default class NotificationController {
   }
 
   notifyUnsupportedVersion(upgradeVersion: string) {
+    if (remote.getCurrentWindow().isVisible()) {
+      return;
+    }
+
     this._presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification(remote.app.getName(), {
         body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
