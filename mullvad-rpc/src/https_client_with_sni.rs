@@ -60,7 +60,7 @@ impl HttpsConnectorWithSni<HttpConnector> {
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
     pub fn new<P: AsRef<Path>>(ca_path: P, handle: &Handle) -> Result<Self, ErrorStack> {
-        let mut http = HttpConnector::new(::DNS_THREADS, handle);
+        let mut http = HttpConnector::new(crate::DNS_THREADS, handle);
         http.enforce_http(false);
         let mut ssl_builder = SslConnector::builder(SslMethod::tls())?;
         ssl_builder.set_ca_file(ca_path)?;

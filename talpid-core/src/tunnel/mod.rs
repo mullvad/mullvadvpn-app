@@ -1,5 +1,4 @@
-use mktemp;
-use process::openvpn::OpenVpnCommand;
+use crate::{mktemp, process::openvpn::OpenVpnCommand};
 
 use std::collections::HashMap;
 use std::ffi::OsString;

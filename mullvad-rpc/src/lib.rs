@@ -44,10 +44,10 @@ pub mod event_loop;
 pub mod rest;
 
 mod cached_dns_resolver;
-use cached_dns_resolver::CachedDnsResolver;
+use crate::cached_dns_resolver::CachedDnsResolver;
 
 mod https_client_with_sni;
-use https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
+use crate::https_client_with_sni::{HttpsClientWithSni, HttpsConnectorWithSni};
 
 /// Number of threads in the thread pool doing DNS resolutions.
 /// Since DNS is resolved via blocking syscall they must be run on separate threads.

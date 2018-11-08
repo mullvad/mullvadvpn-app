@@ -41,6 +41,7 @@ mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
 
+use crate::management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use error_chain::ChainedError;
 use futures::{
     future,
@@ -48,7 +49,6 @@ use futures::{
     Future, Sink,
 };
 use log::{debug, error, info, warn};
-use management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{
     account::{AccountData, AccountToken},
@@ -311,7 +311,7 @@ impl Daemon {
     }
 
     fn handle_event(&mut self, event: DaemonEvent) -> Result<()> {
-        use DaemonEvent::*;
+        use self::DaemonEvent::*;
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
@@ -412,7 +412,7 @@ impl Daemon {
     }
 
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
-        use ManagementCommand::*;
+        use self::ManagementCommand::*;
         match event {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             GetState(tx) => self.on_get_state(tx),

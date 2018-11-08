@@ -1,4 +1,4 @@
-use location::{CityCode, CountryCode, Location};
+use crate::location::{CityCode, CountryCode, Location};
 
 use std::net::Ipv4Addr;
 

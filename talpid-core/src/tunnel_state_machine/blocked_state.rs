@@ -7,7 +7,7 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use security::SecurityPolicy;
+use crate::security::SecurityPolicy;
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState;

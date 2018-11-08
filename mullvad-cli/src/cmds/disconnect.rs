@@ -1,7 +1,5 @@
 use clap;
-use new_rpc_client;
-use Command;
-use Result;
+use crate::{new_rpc_client, Command, Result};
 
 
 pub struct Disconnect;

@@ -26,7 +26,7 @@ use std::sync::Mutex;
 
 
 mod processing;
-use processing::EventProcessor;
+use crate::processing::EventProcessor;
 
 
 error_chain!{
@@ -59,10 +59,10 @@ pub static INTERESTING_EVENTS: &'static [EventType] = &[
 ];
 
 openvpn_plugin!(
-    ::openvpn_open,
-    ::openvpn_close,
-    ::openvpn_event,
-    ::Mutex<EventProcessor>
+    crate::openvpn_open,
+    crate::openvpn_close,
+    crate::openvpn_event,
+    crate::Mutex<EventProcessor>
 );
 
 pub struct Arguments {

@@ -10,7 +10,7 @@ use hyper_openssl::openssl::error::ErrorStack;
 
 use tokio_core::reactor::Handle;
 
-use HttpsConnectorWithSni;
+use crate::HttpsConnectorWithSni;
 
 error_chain! {
     errors {

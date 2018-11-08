@@ -1,11 +1,11 @@
 extern crate futures;
 
 use super::Arguments;
+use crate::openvpn_plugin;
 use jsonrpc_client_core::{
     expand_params, jsonrpc_client, Future, Result as ClientResult, Transport,
 };
 use jsonrpc_client_ipc::IpcTransport;
-use openvpn_plugin;
 use std::{collections::HashMap, thread};
 use tokio::{reactor::Handle, runtime::Runtime};
 
