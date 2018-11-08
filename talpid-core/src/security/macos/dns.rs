@@ -218,7 +218,7 @@ fn create_dynamic_store(state: Arc<Mutex<Option<State>>>) -> Result<SCDynamicSto
         info: state,
     };
 
-    let store = SCDynamicStoreBuilder::new("mullvad-dns-monitor")
+    let store = SCDynamicStoreBuilder::new("talpid-dns-monitor")
         .callback_context(callback_context)
         .build();
 
@@ -240,7 +240,7 @@ fn run_dynamic_store_runloop(store: SCDynamicStore) {
     let run_loop_source = store.create_run_loop_source();
     CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
 
-    trace!("Entering CFRunLoop");
+    trace!("Entering DNS CFRunLoop");
     CFRunLoop::run_current();
 }
 

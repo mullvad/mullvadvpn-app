@@ -10,7 +10,9 @@ use super::{
 use crate::security::SecurityPolicy;
 
 /// No tunnel is running and all network connections are blocked.
-pub struct BlockedState;
+pub struct BlockedState {
+    block_reason: BlockReason,
+}
 
 impl BlockedState {
     fn set_security_policy(shared_values: &mut SharedTunnelStateValues) {
@@ -36,7 +38,9 @@ impl TunnelState for BlockedState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         Self::set_security_policy(shared_values);
         (
-            TunnelStateWrapper::from(BlockedState),
+            TunnelStateWrapper::from(BlockedState {
+                block_reason: block_reason.clone(),
+            }),
             TunnelStateTransition::Blocked(block_reason),
         )
     }
@@ -53,6 +57,14 @@ impl TunnelState for BlockedState {
                 shared_values.allow_lan = allow_lan;
                 Self::set_security_policy(shared_values);
                 SameState(self)
+            }
+            Ok(TunnelCommand::IsOffline(is_offline)) => {
+                shared_values.is_offline = is_offline;
+                if !is_offline && self.block_reason == BlockReason::IsOffline {
+                    NewState(ConnectingState::enter(shared_values, 0))
+                } else {
+                    SameState(self)
+                }
             }
             Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Ok(TunnelCommand::Disconnect) | Err(_) => {

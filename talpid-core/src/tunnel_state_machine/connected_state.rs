@@ -94,6 +94,21 @@ impl ConnectedState {
                     }
                 }
             }
+            Ok(TunnelCommand::IsOffline(is_offline)) => {
+                shared_values.is_offline = is_offline;
+                if is_offline {
+                    NewState(DisconnectingState::enter(
+                        shared_values,
+                        (
+                            self.close_handle,
+                            self.tunnel_close_event,
+                            AfterDisconnect::Block(BlockReason::IsOffline),
+                        ),
+                    ))
+                } else {
+                    SameState(self)
+                }
+            }
             Ok(TunnelCommand::Connect) => NewState(DisconnectingState::enter(
                 shared_values,
                 (

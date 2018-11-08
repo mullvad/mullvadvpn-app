@@ -45,6 +45,8 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return 'Failed to start tunnel connection';
     case 'no_matching_relay':
       return 'No relay server matches the current settings';
+    case 'is_offline':
+      return 'This device is offline, no tunnels can be established';
     default:
       return `Unknown error: ${(blockReason.reason: empty)}`;
   }

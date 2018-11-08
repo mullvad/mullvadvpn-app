@@ -50,7 +50,8 @@ export type BlockReason =
         | 'ipv6_unavailable'
         | 'set_security_policy_error'
         | 'start_tunnel_error'
-        | 'no_matching_relay',
+        | 'no_matching_relay'
+        | 'is_offline',
     }
   | { reason: 'auth_failed', details: ?string };
 
@@ -310,6 +311,7 @@ const TunnelStateTransitionSchema = oneOf(
           'set_security_policy_error',
           'start_tunnel_error',
           'no_matching_relay',
+          'is_offline',
         ),
       }),
       object({

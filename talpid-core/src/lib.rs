@@ -43,6 +43,8 @@ extern crate talpid_types;
 #[cfg(windows)]
 mod winnet;
 
+mod offline;
+
 /// Working with processes.
 pub mod process;
 
