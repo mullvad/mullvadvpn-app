@@ -29,7 +29,7 @@ export default class TransitionContainer extends Component<TransitionContainerPr
     };
   }
 
-  componentWillReceiveProps(nextProps: TransitionContainerProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: TransitionContainerProps) {
     switch (nextProps.name) {
       case 'slide-up':
         this.slideUpTransition(nextProps);

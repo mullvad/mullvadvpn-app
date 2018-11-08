@@ -72,7 +72,7 @@ export default class SvgMap extends React.Component<SvgMapProps, SvgMapState> {
     this.state = this._getNextState(null, props);
   }
 
-  componentWillReceiveProps(nextProps: SvgMapProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SvgMapProps) {
     if (this._shouldInvalidateState(nextProps)) {
       this.setState((prevState) => this._getNextState(prevState, nextProps));
     }
