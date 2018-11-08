@@ -52,14 +52,17 @@ pub enum BlockReason {
     StartTunnelError,
     /// No relay server matching the current filter parameters.
     NoMatchingRelay,
+    /// This device is offline, no tunnels can be established.
+    IsOffline,
 }
 
 impl fmt::Display for BlockReason {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::BlockReason::*;
         let description = match *self {
-            BlockReason::AuthFailed(ref reason) => {
+            AuthFailed(ref reason) => {
                 return write!(
-                    formatter,
+                    f,
                     "Authentication with remote server failed: {}",
                     match reason {
                         Some(ref reason) => reason.as_str(),
@@ -67,14 +70,13 @@ impl fmt::Display for BlockReason {
                     }
                 );
             }
-            BlockReason::Ipv6Unavailable => {
-                "Failed to configure IPv6 because it's disabled in the platform"
-            }
-            BlockReason::SetSecurityPolicyError => "Failed to set security policy",
-            BlockReason::StartTunnelError => "Failed to start connection to remote server",
-            BlockReason::NoMatchingRelay => "No relay server matches the current settings",
+            Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
+            SetSecurityPolicyError => "Failed to set security policy",
+            StartTunnelError => "Failed to start connection to remote server",
+            NoMatchingRelay => "No relay server matches the current settings",
+            IsOffline => "This device is offline, no tunnels can be established",
         };
 
-        write!(formatter, "{}", description)
+        write!(f, "{}", description)
     }
 }

@@ -24,8 +24,7 @@ use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
-use super::mpsc::IntoSender;
-use super::security::NetworkSecurity;
+use crate::{mpsc::IntoSender, offline, security::NetworkSecurity};
 
 error_chain! {
     errors {
@@ -55,11 +54,15 @@ where
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
-    let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
+    offline::spawn_monitor(command_tx.clone())
+        .chain_err(|| "Unable to spawn offline state monitor")?;
+    let is_offline = offline::is_offline();
 
+    let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     thread::spawn(move || {
         match create_event_loop(
             allow_lan,
+            is_offline,
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -94,6 +97,7 @@ where
 
 fn create_event_loop<T>(
     allow_lan: bool,
+    is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -107,6 +111,7 @@ where
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
         allow_lan,
+        is_offline,
         tunnel_parameters_generator,
         log_dir,
         resource_dir,
@@ -127,6 +132,8 @@ where
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
+    /// Notify the state machine of the connectivity of the device.
+    IsOffline(bool),
     /// Open tunnel connection.
     Connect,
     /// Close tunnel connection.
@@ -161,6 +168,7 @@ struct TunnelStateMachine {
 impl TunnelStateMachine {
     fn new(
         allow_lan: bool,
+        is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
@@ -172,6 +180,7 @@ impl TunnelStateMachine {
         let mut shared_values = SharedTunnelStateValues {
             security,
             allow_lan,
+            is_offline,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             log_dir,
             resource_dir,
@@ -249,6 +258,8 @@ struct SharedTunnelStateValues {
     security: NetworkSecurity,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
+    /// True when the computer is known to be offline.
+    is_offline: bool,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// Directory to store tunnel log file.

@@ -33,6 +33,10 @@ Line wrap the file at 100 chars.                                              Th
 - Allow DHCPv6 in the firewall.
 - CLI command `relay update` that triggers an update of the relay list in the daemon.
 
+# macOS
+- Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
+  an error message.
+
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
 - Make the `problem-report` tool fall back to the bundled API IP if DNS resolution fails.
