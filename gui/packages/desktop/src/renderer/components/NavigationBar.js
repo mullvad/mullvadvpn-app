@@ -80,7 +80,12 @@ const styles = {
   },
 };
 
-const NavigationScrollContext = React.createContext({
+type NavigationScrollContextValue = {
+  scrollTop: number,
+  onScroll: ({ scrollLeft: number, scrollTop: number }) => void,
+};
+
+const NavigationScrollContext: React.Context<NavigationScrollContextValue> = React.createContext({
   scrollTop: 0,
   onScroll: (_scroll) => {},
 });
