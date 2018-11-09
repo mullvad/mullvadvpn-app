@@ -1,12 +1,19 @@
 #include <stdafx.h>
 #include "context.h"
 #include <libcommon/string.h>
+#include <libcommon/valuemapper.h>
 #include <windows.h>
+
+// Suppress warnings caused by broken legacy code
+#pragma warning (push)
+#pragma warning (disable: 4005)
 #include <nsis/pluginapi.h>
+#pragma warning (pop)
+
 #include <string>
 #include <vector>
 
-Context g_context;
+Context *g_context = nullptr;
 
 namespace
 {
@@ -66,6 +73,53 @@ void PinDll()
 } // anonymous namespace
 
 //
+// Initialize
+//
+// Call this function once during startup.
+//
+enum class InitializeStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS,
+};
+
+void __declspec(dllexport) NSISCALL Initialize
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		if (nullptr == g_context)
+		{
+			g_context = new Context;
+
+			PinDll();
+		}
+
+		pushstring(L"");
+		pushint(InitializeStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(InitializeStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(InitializeStatus::GENERAL_ERROR);
+	}
+}
+
+//
 // EstablishBaseline
 //
 // Invoke with the output from "tapinstall hwids tap0901"
@@ -91,34 +145,24 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 {
 	EXDLL_INIT();
 
+	if (nullptr == g_context)
+	{
+		pushstring(L"Initialize() function was not called or was not successful");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+
 	try
 	{
-		PinDll();
+		using value_type = common::ValueMapper<Context::BaselineStatus, EstablishBaselineStatus>::value_type;
 
-		auto status = EstablishBaselineStatus::GENERAL_ERROR;
-
-		switch (g_context.establishBaseline(PopString()))
+		const common::ValueMapper<Context::BaselineStatus, EstablishBaselineStatus> mapper =
 		{
-			case Context::BaselineStatus::NO_INTERFACES_PRESENT:
-			{
-				status = EstablishBaselineStatus::NO_INTERFACES_PRESENT;
-				break;
-			}
-			case Context::BaselineStatus::SOME_INTERFACES_PRESENT:
-			{
-				status = EstablishBaselineStatus::SOME_INTERFACES_PRESENT;
-				break;
-			}
-			case Context::BaselineStatus::MULLVAD_INTERFACE_PRESENT:
-			{
-				status = EstablishBaselineStatus::MULLVAD_INTERFACE_PRESENT;
-				break;
-			}
-			default:
-			{
-				throw std::runtime_error("Missing case handler in switch clause");
-			}
-		}
+			value_type(Context::BaselineStatus::NO_INTERFACES_PRESENT, EstablishBaselineStatus::NO_INTERFACES_PRESENT),
+			value_type(Context::BaselineStatus::SOME_INTERFACES_PRESENT, EstablishBaselineStatus::SOME_INTERFACES_PRESENT),
+			value_type(Context::BaselineStatus::MULLVAD_INTERFACE_PRESENT, EstablishBaselineStatus::MULLVAD_INTERFACE_PRESENT)
+		};
+
+		const auto status = mapper.map(g_context->establishBaseline(PopString()));
 
 		pushstring(L"");
 		pushint(status);
@@ -126,6 +170,11 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
 		pushint(EstablishBaselineStatus::GENERAL_ERROR);
 	}
 }
@@ -154,11 +203,17 @@ void __declspec(dllexport) NSISCALL IdentifyNewInterface
 {
 	EXDLL_INIT();
 
+	if (nullptr == g_context)
+	{
+		pushstring(L"Initialize() function was not called or was not successful");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+
 	try
 	{
-		g_context.recordCurrentState(PopString());
+		g_context->recordCurrentState(PopString());
 
-		auto nic = g_context.getNewAdapter();
+		auto nic = g_context->getNewAdapter();
 
 		pushstring(nic.alias.c_str());
 		pushint(IdentifyNewInterfaceStatus::SUCCESS);
@@ -168,4 +223,53 @@ void __declspec(dllexport) NSISCALL IdentifyNewInterface
 		pushstring(common::string::ToWide(err.what()).c_str());
 		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
 	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
+	}
+}
+
+//
+// Deinitialize
+//
+// Call this function once during shutdown.
+//
+enum class DeinitializeStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS,
+};
+
+void __declspec(dllexport) NSISCALL Deinitialize
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		delete g_context;
+
+		pushstring(L"");
+		pushint(InitializeStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(DeinitializeStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(DeinitializeStatus::GENERAL_ERROR);
+	}
+
+	g_context = nullptr;
 }
