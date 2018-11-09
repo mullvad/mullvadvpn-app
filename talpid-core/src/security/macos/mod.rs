@@ -1,8 +1,9 @@
 extern crate pfctl;
 extern crate tokio_core;
 
+use self::pfctl::FilterRuleAction;
 use super::{NetworkSecurityT, SecurityPolicy};
-use std::net::Ipv4Addr;
+use std::{env, net::Ipv4Addr};
 use talpid_types::net;
 
 mod dns;
@@ -20,15 +21,28 @@ const ANCHOR_NAME: &'static str = "mullvad";
 pub struct NetworkSecurity {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
+    rule_logging: RuleLogging,
 }
 
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
     fn new() -> Result<Self> {
+        // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
+        // rules.
+        let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");
+        let rule_logging = match firewall_debugging.as_ref().map(String::as_str) {
+            Ok("pass") => RuleLogging::Pass,
+            Ok("drop") => RuleLogging::Drop,
+            Ok("all") => RuleLogging::All,
+            Ok(_) | Err(_) => RuleLogging::None,
+        };
+        log::trace!("Firewall debug log policy: {:?}", rule_logging);
+
         Ok(NetworkSecurity {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
+            rule_logging,
         })
     }
 
@@ -54,12 +68,12 @@ impl NetworkSecurity {
     fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
-        new_filter_rules.append(&mut Self::get_allow_loopback_rules()?);
-        new_filter_rules.append(&mut Self::get_allow_dhcp_rules()?);
+        new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
+        new_filter_rules.append(&mut self.get_allow_dhcp_rules()?);
         new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
-        let drop_all_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Drop)
+        let drop_all_rule = self
+            .create_rule_builder(FilterRuleAction::Drop)
             .quick(true)
             .build()?;
         new_filter_rules.push(drop_all_rule);
@@ -78,9 +92,9 @@ impl NetworkSecurity {
                 peer_endpoint,
                 allow_lan,
             } => {
-                let mut rules = vec![Self::get_allow_relay_rule(peer_endpoint)?];
+                let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 if allow_lan {
-                    rules.append(&mut Self::get_allow_lan_rules()?);
+                    rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)
             }
@@ -89,31 +103,31 @@ impl NetworkSecurity {
                 tunnel,
                 allow_lan,
             } => {
-                let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
-                    .action(pfctl::FilterRuleAction::Pass)
+                let allow_tcp_dns_to_relay_rule = self
+                    .create_rule_builder(FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Tcp)
                     .to(pfctl::Endpoint::new(tunnel.gateway, 53))
                     .build()?;
-                let allow_udp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
-                    .action(pfctl::FilterRuleAction::Pass)
+                let allow_udp_dns_to_relay_rule = self
+                    .create_rule_builder(FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Udp)
                     .to(pfctl::Endpoint::new(tunnel.gateway, 53))
                     .build()?;
-                let block_tcp_dns_rule = pfctl::FilterRuleBuilder::default()
-                    .action(pfctl::FilterRuleAction::Drop)
+                let block_tcp_dns_rule = self
+                    .create_rule_builder(FilterRuleAction::Drop)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .proto(pfctl::Proto::Tcp)
                     .to(pfctl::Port::from(53))
                     .build()?;
-                let block_udp_dns_rule = pfctl::FilterRuleBuilder::default()
-                    .action(pfctl::FilterRuleAction::Drop)
+                let block_udp_dns_rule = self
+                    .create_rule_builder(FilterRuleAction::Drop)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .proto(pfctl::Proto::Udp)
@@ -125,30 +139,30 @@ impl NetworkSecurity {
                     allow_udp_dns_to_relay_rule,
                     block_tcp_dns_rule,
                     block_udp_dns_rule,
-                    Self::get_allow_relay_rule(peer_endpoint)?,
-                    Self::get_allow_tunnel_rule(tunnel.interface.as_str())?,
+                    self.get_allow_relay_rule(peer_endpoint)?,
+                    self.get_allow_tunnel_rule(tunnel.interface.as_str())?,
                 ];
 
                 if allow_lan {
-                    rules.append(&mut Self::get_allow_lan_rules()?);
+                    rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)
             }
             SecurityPolicy::Blocked { allow_lan } => {
                 let mut rules = Vec::new();
                 if allow_lan {
-                    rules.append(&mut Self::get_allow_lan_rules()?);
+                    rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)
             }
         }
     }
 
-    fn get_allow_relay_rule(relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
+    fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
-        Ok(pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Pass)
+        Ok(self
+            .create_rule_builder(FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
             .proto(pfctl_proto)
@@ -158,9 +172,9 @@ impl NetworkSecurity {
             .build()?)
     }
 
-    fn get_allow_tunnel_rule(tunnel_interface: &str) -> Result<pfctl::FilterRule> {
-        Ok(pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Pass)
+    fn get_allow_tunnel_rule(&self, tunnel_interface: &str) -> Result<pfctl::FilterRule> {
+        Ok(self
+            .create_rule_builder(FilterRuleAction::Pass)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
@@ -168,9 +182,9 @@ impl NetworkSecurity {
             .build()?)
     }
 
-    fn get_allow_loopback_rules() -> Result<Vec<pfctl::FilterRule>> {
-        let lo0_rule = pfctl::FilterRuleBuilder::default()
-            .action(pfctl::FilterRuleAction::Pass)
+    fn get_allow_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
+        let lo0_rule = self
+            .create_rule_builder(FilterRuleAction::Pass)
             .interface("lo0")
             .keep_state(pfctl::StatePolicy::Keep)
             .quick(true)
@@ -178,13 +192,12 @@ impl NetworkSecurity {
         Ok(vec![lo0_rule])
     }
 
-    fn get_allow_lan_rules() -> Result<Vec<pfctl::FilterRule>> {
+    fn get_allow_lan_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = vec![];
         // IPv4
         for net in &*super::PRIVATE_NETS {
-            let mut rule_builder = pfctl::FilterRuleBuilder::default();
+            let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
             rule_builder
-                .action(pfctl::FilterRuleAction::Pass)
                 .quick(true)
                 .af(pfctl::AddrFamily::Ipv4)
                 .from(pfctl::Ip::from(*net));
@@ -198,9 +211,8 @@ impl NetworkSecurity {
             rules.push(allow_ssdp);
         }
         // IPv6
-        let mut rule_builder = pfctl::FilterRuleBuilder::default();
+        let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
         rule_builder
-            .action(pfctl::FilterRuleAction::Pass)
             .quick(true)
             .af(pfctl::AddrFamily::Ipv6)
             .from(pfctl::Ip::from(*super::LOCAL_INET6_NET));
@@ -216,16 +228,13 @@ impl NetworkSecurity {
         Ok(rules)
     }
 
-    fn get_allow_dhcp_rules() -> Result<Vec<pfctl::FilterRule>> {
+    fn get_allow_dhcp_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let server_port_v4 = pfctl::Port::from(67);
         let client_port_v4 = pfctl::Port::from(68);
         let server_port_v6 = pfctl::Port::from(547);
         let client_port_v6 = pfctl::Port::from(546);
-        let mut dhcp_rule_builder = pfctl::FilterRuleBuilder::default();
-        dhcp_rule_builder
-            .action(pfctl::FilterRuleAction::Pass)
-            .quick(true)
-            .proto(pfctl::Proto::Udp);
+        let mut dhcp_rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
+        dhcp_rule_builder.quick(true).proto(pfctl::Proto::Udp);
 
         let mut rules = Vec::new();
         let allow_outgoing_dhcp_v4 = dhcp_rule_builder
@@ -271,6 +280,19 @@ impl NetworkSecurity {
         Ok(rules)
     }
 
+    fn create_rule_builder(&self, action: FilterRuleAction) -> pfctl::FilterRuleBuilder {
+        let mut builder = pfctl::FilterRuleBuilder::default();
+        builder.action(action);
+        let rule_log = pfctl::RuleLog::IncludeMatchingState;
+        if (self.rule_logging == RuleLogging::Pass && action == FilterRuleAction::Pass)
+            || (self.rule_logging == RuleLogging::Drop && action == FilterRuleAction::Drop)
+            || self.rule_logging == RuleLogging::All
+        {
+            builder.log(rule_log);
+        }
+        builder
+    }
+
     fn get_tcp_flags() -> pfctl::TcpFlags {
         pfctl::TcpFlags::new(
             &[pfctl::TcpFlag::Syn],
@@ -280,9 +302,9 @@ impl NetworkSecurity {
 
     fn remove_rules(&mut self) -> Result<()> {
         // remove_anchor() does not deactivate active rules
-        Ok(self
-            .pf
-            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?)
+        self.pf
+            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?;
+        Ok(())
     }
 
     fn enable(&mut self) -> Result<()> {
@@ -322,4 +344,12 @@ fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
         net::TransportProtocol::Udp => pfctl::Proto::Udp,
         net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
     }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+enum RuleLogging {
+    None,
+    Pass,
+    Drop,
+    All,
 }
