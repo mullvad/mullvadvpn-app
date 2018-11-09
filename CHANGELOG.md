@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add extra level of kill-switch called "block when disconnected". Blocks all network traffic even
   in the disconnected state. Not activated by default and can be changed via the CLI subcommand
   `block-when-disconnected`.
+- Ability to debug firewall rules on macOS with the `TALPID_FIREWALL_DEBUG` variable.
 
 #### macOS
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show

@@ -137,8 +137,13 @@ sections.
 
 ### Environment variables controlling the execution
 
-* `TALPID_NFTABLES_COUNTERS` - Set to `"1"` to add packet counters to all firewall rules on
-  Linux.
+* `TALPID_FIREWALL_DEBUG` - Helps debugging the firewall. Does different things depending on
+  platform:
+  * Linux: Set to `"1"` to add packet counters to all firewall rules.
+  * macOS: Makes rules log the packets they match to the `pflog0` interface.
+    * Set to `"all"` to add logging to all rules.
+    * Set to `"pass"` to add logging to rules allowing packets.
+    * Set to `"drop"` to add logging to rules blocking packets.
 
 * `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration on Linux.
   By default this is automatically detected, but you can set it to one of the options below to
