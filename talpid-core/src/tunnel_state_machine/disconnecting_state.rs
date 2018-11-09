@@ -33,6 +33,10 @@ impl DisconnectingState {
                     shared_values.allow_lan = allow_lan;
                     AfterDisconnect::Nothing
                 }
+                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                    shared_values.is_offline = is_offline;
+                    AfterDisconnect::Nothing
+                }
                 Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
                 Ok(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
                 _ => AfterDisconnect::Nothing,
@@ -41,6 +45,14 @@ impl DisconnectingState {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
                     AfterDisconnect::Block(reason)
+                }
+                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                    shared_values.is_offline = is_offline;
+                    if !is_offline && reason == BlockReason::IsOffline {
+                        AfterDisconnect::Reconnect(0)
+                    } else {
+                        AfterDisconnect::Block(reason)
+                    }
                 }
                 Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
                 Ok(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
@@ -51,6 +63,14 @@ impl DisconnectingState {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
                     AfterDisconnect::Reconnect(retry_attempt)
+                }
+                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                    shared_values.is_offline = is_offline;
+                    if is_offline {
+                        AfterDisconnect::Block(BlockReason::IsOffline)
+                    } else {
+                        AfterDisconnect::Reconnect(retry_attempt)
+                    }
                 }
                 Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
                 Ok(TunnelCommand::Disconnect) | Err(_) => AfterDisconnect::Nothing,
