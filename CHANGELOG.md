@@ -52,6 +52,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
+- Fix crash on Windows 7 when closing installer.
 
 ### Security
 #### Linux
