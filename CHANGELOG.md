@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.5-beta1] - 2018-11-12
 ### Added
 - Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
   with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
