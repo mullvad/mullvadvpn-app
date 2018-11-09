@@ -44,8 +44,8 @@
   "settings": {
     "react": {
       "pragma": "React",
-      "version": "16.2",
-      "flowVersion": "0.78"
+      "version": "16.4",
+      "flowVersion": "0.82"
     }
   },
   "env": {
