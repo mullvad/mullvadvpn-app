@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
 - Make the `problem-report` tool fall back to the bundled API IP if DNS resolution fails.
+- Cancel pending system notifications when the app becomes visible.
 
 #### macOS
 - Correctly backup and restore search domains and other DNS settings.
