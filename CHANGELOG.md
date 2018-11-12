@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
 
+#### Linux
+- Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
+
 
 ## [2018.5-beta1] - 2018-11-12
 ### Added
