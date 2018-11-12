@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Linux
+- Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
 
 
 ## [2018.5-beta1] - 2018-11-12

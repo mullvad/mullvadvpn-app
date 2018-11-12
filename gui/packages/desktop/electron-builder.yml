@@ -127,6 +127,7 @@ deb:
 rpm:
   fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
+       "--rpm-posttrans", "../../../dist-assets/linux/post-transaction.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
        "../../../target/release/mullvad=/usr/bin/",
