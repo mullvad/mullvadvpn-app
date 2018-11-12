@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve DNS management detection. Evaluates which way the system handles DNS before each new
   VPN tunnel is established instead of only on computer boot.
 - Set DNS search domain when using the systemd-resolved. Makes it work on Ubuntu 18.10.
+- Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
 
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
