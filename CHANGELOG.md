@@ -24,13 +24,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
-  with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
-- Add new system and in-app notifications to inform the user when the app becomes outdated,
-  unsupported or may have security issues.
-- Allow the user to view the relay in/out IP address in the GUI.
-- Add OpenVPN proxy support via CLI.
-- Allow DHCPv6 in the firewall.
 - CLI command `relay update` that triggers an update of the relay list in the daemon.
 
 # macOS
@@ -38,9 +31,25 @@ Line wrap the file at 100 chars.                                              Th
   an error message.
 
 ### Fixed
+- Cancel pending system notifications when the app becomes visible.
+
+#### Windows
+- Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
+
+
+## [2018.5-beta1] - 2018-11-12
+### Added
+- Fall back and try to connect over TCP port 443 if protocol is set to automatic and two attempts
+  with UDP fail in a row. If that also fails, alternate between UDP and TCP with random ports.
+- Add new system and in-app notifications to inform the user when the app becomes outdated,
+  unsupported or may have security issues.
+- Allow the user to view the relay in/out IP address in the GUI.
+- Add OpenVPN proxy support via CLI.
+- Allow DHCPv6 in the firewall.
+
+### Fixed
 - Pick new random relay for each reconnect attempt instead of just retrying with the same one.
 - Make the `problem-report` tool fall back to the bundled API IP if DNS resolution fails.
-- Cancel pending system notifications when the app becomes visible.
 
 #### macOS
 - Correctly backup and restore search domains and other DNS settings.
@@ -52,7 +61,6 @@ Line wrap the file at 100 chars.                                              Th
 - Set DNS search domain when using the systemd-resolved. Makes it work on Ubuntu 18.10.
 
 #### Windows
-- Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
 - Fix crash on Windows 7 when closing installer.
 
 ### Security
