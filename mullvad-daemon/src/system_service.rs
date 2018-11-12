@@ -24,7 +24,7 @@ use mullvad_daemon::DaemonShutdownHandle;
 
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
-static SERVICE_TYPE: ServiceType = ServiceType::OwnProcess;
+static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 pub fn run() -> Result<()> {
     // Start the service dispatcher.
