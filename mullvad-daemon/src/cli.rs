@@ -38,13 +38,22 @@ pub fn get_config() -> Config {
 fn create_app() -> App<'static, 'static> {
     let app = App::new(crate_name!())
         .version(version::PRODUCT_VERSION)
-        .author(crate_authors!())
+        .author(crate_authors!(", "))
         .about(crate_description!())
+        .after_help(
+"ENV:
+
+    MULLVAD_RESOURCE_DIR       Resources directory (i.e used to locate a root CA certificate)
+    MULLVAD_SETTINGS_DIR       Settings directory
+    MULLVAD_CACHE_DIR          Caches directory
+    MULLVAD_RPC_SOCKET_PATH    RPC socket path
+
+")
         .arg(
             Arg::with_name("v")
                 .short("v")
                 .multiple(true)
-                .help("Sets the level of verbosity."),
+                .help("Sets the level of verbosity"),
         )
         .arg(
             Arg::with_name("disable_log_to_file")
