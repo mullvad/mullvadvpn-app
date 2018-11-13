@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - CLI command `relay update` that triggers an update of the relay list in the daemon.
+- Add extra level of kill-switch called "block when disconnected". Blocks all network traffic even
+  in the disconnected state. Not activated by default and can be changed via the CLI subcommand
+  `block-when-disconnected`.
 
 #### macOS
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
