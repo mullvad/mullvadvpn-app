@@ -16,6 +16,9 @@ pub use self::connect::Connect;
 mod disconnect;
 pub use self::disconnect::Disconnect;
 
+mod block_when_disconnected;
+pub use self::block_when_disconnected::BlockWhenDisconnected;
+
 mod relay;
 pub use self::relay::Relay;
 
@@ -33,11 +36,12 @@ pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
     let commands: Vec<Box<Command>> = vec![
         Box::new(Account),
         Box::new(AutoConnect),
-        Box::new(Status),
+        Box::new(BlockWhenDisconnected),
         Box::new(Connect),
         Box::new(Disconnect),
-        Box::new(Relay),
         Box::new(Lan),
+        Box::new(Relay),
+        Box::new(Status),
         Box::new(Tunnel),
         Box::new(Version),
     ];

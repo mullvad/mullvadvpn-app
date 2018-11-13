@@ -43,6 +43,7 @@ error_chain! {
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub fn spawn<P, T>(
     allow_lan: bool,
+    block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -62,6 +63,7 @@ where
     thread::spawn(move || {
         match create_event_loop(
             allow_lan,
+            block_when_disconnected,
             is_offline,
             tunnel_parameters_generator,
             log_dir,
@@ -97,6 +99,7 @@ where
 
 fn create_event_loop<T>(
     allow_lan: bool,
+    block_when_disconnected: bool,
     is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
@@ -111,6 +114,7 @@ where
     let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
         allow_lan,
+        block_when_disconnected,
         is_offline,
         tunnel_parameters_generator,
         log_dir,
@@ -132,6 +136,8 @@ where
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
+    /// Enable or disable the block_when_disconnected feature.
+    BlockWhenDisconnected(bool),
     /// Notify the state machine of the connectivity of the device.
     IsOffline(bool),
     /// Open tunnel connection.
@@ -168,6 +174,7 @@ struct TunnelStateMachine {
 impl TunnelStateMachine {
     fn new(
         allow_lan: bool,
+        block_when_disconnected: bool,
         is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         log_dir: Option<PathBuf>,
@@ -180,6 +187,7 @@ impl TunnelStateMachine {
         let mut shared_values = SharedTunnelStateValues {
             security,
             allow_lan,
+            block_when_disconnected,
             is_offline,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             log_dir,
@@ -258,6 +266,8 @@ struct SharedTunnelStateValues {
     security: NetworkSecurity,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
+    /// Should network access be allowed when in the disconnected state.
+    block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     is_offline: bool,
     /// The generator of new `TunnelParameter`s
