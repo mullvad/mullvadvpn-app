@@ -50,6 +50,7 @@ pub struct Relay {
 #[serde(default)]
 pub struct RelayTunnels {
     pub openvpn: Vec<OpenVpnEndpointData>,
+    #[serde(skip)]
     pub wireguard: Vec<WireguardEndpointData>,
 }
 
