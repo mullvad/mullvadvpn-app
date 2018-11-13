@@ -44,6 +44,9 @@ pub struct Settings {
     relay_settings: RelaySettings,
     /// If the daemon should allow communication with private (LAN) networks.
     allow_lan: bool,
+    /// Extra level of kill switch. When this setting is on, the disconnected state will block
+    /// the firewall to not allow any traffic in or out.
+    block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
     auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
@@ -60,6 +63,7 @@ impl Default for Settings {
                 tunnel: Constraint::Any,
             }),
             allow_lan: false,
+            block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
         }
@@ -159,6 +163,19 @@ impl Settings {
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
         if allow_lan != self.allow_lan {
             self.allow_lan = allow_lan;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_block_when_disconnected(&self) -> bool {
+        self.block_when_disconnected
+    }
+
+    pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> Result<bool> {
+        if block_when_disconnected != self.block_when_disconnected {
+            self.block_when_disconnected = block_when_disconnected;
             self.save().map(|_| true)
         } else {
             Ok(false)

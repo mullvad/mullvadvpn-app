@@ -33,6 +33,10 @@ impl DisconnectingState {
                     shared_values.allow_lan = allow_lan;
                     AfterDisconnect::Nothing
                 }
+                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                    shared_values.block_when_disconnected = block_when_disconnected;
+                    AfterDisconnect::Nothing
+                }
                 Ok(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
                     AfterDisconnect::Nothing
@@ -44,6 +48,10 @@ impl DisconnectingState {
             AfterDisconnect::Block(reason) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
+                    AfterDisconnect::Block(reason)
+                }
+                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                    shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Block(reason)
                 }
                 Ok(TunnelCommand::IsOffline(is_offline)) => {
@@ -62,6 +70,10 @@ impl DisconnectingState {
             AfterDisconnect::Reconnect(retry_attempt) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
                     shared_values.allow_lan = allow_lan;
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                    shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Ok(TunnelCommand::IsOffline(is_offline)) => {
