@@ -259,7 +259,6 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
     pinning
   - **ca.crt** - The Mullvad relay server root CA. Bundled with the app and only OpenVPN relays
     signed by this CA are trusted
-  - **crl.pem** - The certificate revocation list for old relay certificates
 
 
 ### Building, testing and misc

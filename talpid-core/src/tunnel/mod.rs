@@ -258,8 +258,7 @@ impl TunnelMonitor {
             .tunnel_options(&options.openvpn)
             .enable_ipv6(options.enable_ipv6)
             .tunnel_alias(tunnel_alias)
-            .ca(resource_dir.join("ca.crt"))
-            .crl(resource_dir.join("crl.pem"));
+            .ca(resource_dir.join("ca.crt"));
         if let Some(log) = log {
             cmd.log(log);
         }

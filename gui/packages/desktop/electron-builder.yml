@@ -7,10 +7,8 @@ compression: maximum
 
 # assets bundled on all platforms
 extraResources:
-  # master.mullvad.net certificate used by mullvad-daemon
+  # Mullvad root CA certificate used by OpenVPN
   - from: ../../../dist-assets/ca.crt
-    to: .
-  - from: ../../../dist-assets/crl.pem
     to: .
   - from: ../../../dist-assets/api_root_ca.pem
     to: .
