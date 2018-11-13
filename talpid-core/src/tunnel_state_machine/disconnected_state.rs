@@ -55,17 +55,15 @@ impl TunnelState for DisconnectedState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                let changed = shared_values.allow_lan != allow_lan;
-                shared_values.allow_lan = allow_lan;
-                if changed {
+                if shared_values.allow_lan != allow_lan {
+                    shared_values.allow_lan = allow_lan;
                     Self::set_security_policy(shared_values);
                 }
                 SameState(self)
             }
             Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
-                let changed = shared_values.block_when_disconnected != block_when_disconnected;
-                shared_values.block_when_disconnected = block_when_disconnected;
-                if changed {
+                if shared_values.block_when_disconnected != block_when_disconnected {
+                    shared_values.block_when_disconnected = block_when_disconnected;
                     Self::set_security_policy(shared_values);
                 }
                 SameState(self)
