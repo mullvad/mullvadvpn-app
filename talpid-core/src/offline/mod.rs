@@ -2,7 +2,11 @@
 #[path = "macos.rs"]
 mod imp;
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+#[path = "windows.rs"]
+mod imp;
+
+#[cfg(not(any(windows, target_os = "macos")))]
 #[path = "dummy.rs"]
 mod imp;
 

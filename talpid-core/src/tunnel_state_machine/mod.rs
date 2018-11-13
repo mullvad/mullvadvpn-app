@@ -54,7 +54,7 @@ where
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
-    offline::spawn_monitor(command_tx.clone())
+    let offline_monitor = offline::spawn_monitor(command_tx.clone())
         .chain_err(|| "Unable to spawn offline state monitor")?;
     let is_offline = offline::is_offline();
 
@@ -87,6 +87,7 @@ where
                     .expect("Failed to send startup error");
             }
         }
+        std::mem::drop(offline_monitor);
     });
 
     startup_result_rx
