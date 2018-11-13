@@ -211,6 +211,10 @@ impl ConnectingState {
                     }
                 }
             }
+            Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                shared_values.block_when_disconnected = block_when_disconnected;
+                SameState(self)
+            }
             Ok(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if is_offline {

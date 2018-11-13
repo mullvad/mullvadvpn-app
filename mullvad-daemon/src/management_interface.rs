@@ -65,6 +65,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_allow_lan")]
         fn set_allow_lan(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
+        /// Set if the client should allow network communication when in the disconnected state.
+        #[rpc(meta, name = "set_block_when_disconnected")]
+        fn set_block_when_disconnected(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
+
         /// Set if the daemon should automatically establish a tunnel on start or not.
         #[rpc(meta, name = "set_auto_connect")]
         fn set_auto_connect(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
@@ -176,6 +180,8 @@ pub enum ManagementCommand {
     UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
     /// Set the allow LAN setting.
     SetAllowLan(OneshotSender<()>, bool),
+    /// Set the block_when_disconnected setting.
+    SetBlockWhenDisconnected(OneshotSender<()>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(OneshotSender<()>, bool),
     /// Set the mssfix argument for OpenVPN
@@ -451,6 +457,22 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAllowLan(tx, allow_lan))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn set_block_when_disconnected(
+        &self,
+        _: Self::Metadata,
+        block_when_disconnected: bool,
+    ) -> BoxFuture<(), Error> {
+        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetBlockWhenDisconnected(
+                tx,
+                block_when_disconnected,
+            ))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

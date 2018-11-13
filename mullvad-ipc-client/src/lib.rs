@@ -143,6 +143,10 @@ impl DaemonRpcClient {
         self.call("set_allow_lan", &[allow_lan])
     }
 
+    pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> Result<()> {
+        self.call("set_block_when_disconnected", &[block_when_disconnected])
+    }
+
     pub fn get_allow_lan(&mut self) -> Result<bool> {
         self.call("get_allow_lan", &NO_ARGS)
     }

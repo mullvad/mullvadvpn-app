@@ -220,6 +220,7 @@ impl Daemon {
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.get_allow_lan(),
+            settings.get_block_when_disconnected(),
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -423,6 +424,9 @@ impl Daemon {
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
+            SetBlockWhenDisconnected(tx, block_when_disconnected) => {
+                self.on_set_block_when_disconnected(tx, block_when_disconnected)
+            }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
@@ -595,6 +599,29 @@ impl Daemon {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
+                }
+            }
+            Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_set_block_when_disconnected(
+        &mut self,
+        tx: oneshot::Sender<()>,
+        block_when_disconnected: bool,
+    ) {
+        let save_result = self
+            .settings
+            .set_block_when_disconnected(block_when_disconnected);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_block_when_disconnected response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                    self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
+                        block_when_disconnected,
+                    ));
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
