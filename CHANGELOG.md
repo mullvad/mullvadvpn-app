@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Replace OpenVPN root CA certificate bundled with the app to the new Mullvad root CA.
+
 ### Fixed
 #### Linux
 - Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
