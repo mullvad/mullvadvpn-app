@@ -8,14 +8,6 @@
 
 extern crate winapi;
 
-use std::ffi::c_void;
-use futures::sync::mpsc::UnboundedSender;
-use std::mem::zeroed;
-use std::os::windows::io::IntoRawHandle;
-use std::os::windows::io::RawHandle;
-use std::ptr;
-use std::thread;
-use tunnel_state_machine::TunnelCommand;
 use self::winapi::shared::basetsd::LONG_PTR;
 use self::winapi::shared::minwindef::{DWORD, LPARAM, LRESULT, UINT, WPARAM};
 use self::winapi::shared::windef::HWND;
@@ -26,9 +18,17 @@ use self::winapi::um::synchapi::WaitForSingleObject;
 use self::winapi::um::winbase::INFINITE;
 use self::winapi::um::winuser::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
-    GetWindowLongPtrW, PBT_APMRESUMEAUTOMATIC, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW, GWLP_USERDATA,
-    GWLP_WNDPROC, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
+    GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW, GWLP_USERDATA,
+    GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
 };
+use futures::sync::mpsc::UnboundedSender;
+use std::ffi::c_void;
+use std::mem::zeroed;
+use std::os::windows::io::IntoRawHandle;
+use std::os::windows::io::RawHandle;
+use std::ptr;
+use std::thread;
+use tunnel_state_machine::TunnelCommand;
 
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
 const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
@@ -161,12 +161,13 @@ impl Drop for BroadcastListener {
 }
 
 pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<BroadcastListener> {
-    let listener = BroadcastListener::start(move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
-        if message == WM_POWERBROADCAST && wparam == PBT_APMRESUMEAUTOMATIC {
-            // Machine is returning from sleep mode.
-            let _ = sender.unbounded_send(TunnelCommand::IsOffline(true));
-        }
-    })?;
+    let listener =
+        BroadcastListener::start(move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
+            if message == WM_POWERBROADCAST && wparam == PBT_APMRESUMEAUTOMATIC {
+                // Machine is returning from sleep mode.
+                let _ = sender.unbounded_send(TunnelCommand::IsOffline(true));
+            }
+        })?;
 
     Ok(listener)
 }
