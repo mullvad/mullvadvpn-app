@@ -10,7 +10,6 @@ import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'el
 
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
-import ShutdownCoordinator from './shutdown-coordinator';
 import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './daemon-rpc';
 import type { TunnelStateTransition, Settings } from './daemon-rpc';
 import ReconnectionBackoff from './reconnection-backoff';
@@ -20,6 +19,8 @@ import type { TrayIconType } from './tray-icon-controller';
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+
+type AppQuitStage = 'unready' | 'initiated' | 'ready';
 
 const ApplicationMain = {
   _windowController: (null: ?WindowController),
@@ -31,8 +32,7 @@ const ApplicationMain = {
 
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
-  _connectionFilePollInterval: (null: ?IntervalID),
-  _shouldQuit: false,
+  _quitStage: ('unready': AppQuitStage),
 
   run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -57,7 +57,7 @@ const ApplicationMain = {
     app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
-    app.on('before-quit', () => this._onBeforeQuit());
+    app.on('before-quit', (event: Event) => this._onBeforeQuit(event));
 
     const connectionObserver = new ConnectionObserver(
       () => {
@@ -157,23 +157,47 @@ const ApplicationMain = {
     }
   },
 
-  _onBeforeQuit() {
-    this._shouldQuit = true;
+  async _onBeforeQuit(event: Event) {
+    switch (this._quitStage) {
+      case 'unready':
+        // postpone the app shutdown
+        event.preventDefault();
 
-    if (process.env.NODE_ENV === 'development') {
-      if (this._windowController) {
-        this._windowController.window.closeDevTools();
-      }
+        this._quitStage = 'initiated';
+        await this._prepareToQuit();
+
+        // terminate the app
+        this._quitStage = 'ready';
+        app.quit();
+        break;
+
+      case 'initiated':
+        // prevent immediate exit, the app will quit after running the shutdown routine
+        event.preventDefault();
+        return;
+
+      case 'ready':
+        // let the app quit freely at this point
+        break;
     }
+  },
 
-    return true;
+  async _prepareToQuit() {
+    if (this._connectedToDaemon) {
+      try {
+        await this._daemonRpc.disconnectTunnel();
+        log.info('Disconnected the tunnel');
+      } catch (e) {
+        log.error(`Failed to disconnect the tunnel: ${e.message}`);
+      }
+    } else {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    }
   },
 
   async _onReady() {
     const window = this._createWindow();
     const tray = this._createTray();
-
-    const _shutdownCoordinator = new ShutdownCoordinator(window.webContents);
 
     const windowController = new WindowController(window, tray);
     const trayIconController = new TrayIconController(tray, 'unsecured');
@@ -582,13 +606,10 @@ const ApplicationMain = {
   },
 
   _installLinuxWindowCloseHandler(windowController: WindowController) {
-    windowController.window.on('close', (closeEvent) => {
-      if (process.platform === 'linux' && !this._shouldQuit) {
+    windowController.window.on('close', (closeEvent: Event) => {
+      if (process.platform === 'linux' && this._quitStage !== 'ready') {
         closeEvent.preventDefault();
         windowController.hide();
-        return false;
-      } else {
-        return true;
       }
     });
   },
