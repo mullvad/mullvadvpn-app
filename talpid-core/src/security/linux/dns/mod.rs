@@ -29,74 +29,63 @@ error_chain! {
     }
 }
 
-pub enum DnsMonitor {
-    Resolvconf(Resolvconf),
-    StaticResolvConf(StaticResolvConf),
-    SystemdResolved(SystemdResolved),
-    NetworkManager(NetworkManager),
-}
-
-impl fmt::Display for DnsMonitor {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let name = match self {
-            DnsMonitor::Resolvconf(..) => "resolvconf",
-            DnsMonitor::StaticResolvConf(..) => "/etc/resolv.conf",
-            DnsMonitor::SystemdResolved(..) => "systemd-resolved",
-            DnsMonitor::NetworkManager(..) => "network manager",
-        };
-        f.write_str(name)
-    }
+pub struct DnsMonitor {
+    inner: Option<DnsMonitorHolder>,
 }
 
 impl super::super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
-        DnsMonitor::new_internal()
+        Ok(DnsMonitor { inner: None })
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         self.reset()?;
-        // Resetting the DNS manager in case the previously selected one isn't valid
-        *self = DnsMonitor::new_internal()?;
-
-        use self::DnsMonitor::*;
-        match self {
-            Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,
-            StaticResolvConf(ref mut static_resolv_conf) => {
-                static_resolv_conf.set_dns(servers.to_vec())?
-            }
-            SystemdResolved(ref mut systemd_resolved) => {
-                systemd_resolved.set_dns(interface, &servers)?
-            }
-            NetworkManager(ref mut network_manager) => network_manager.set_dns(&servers)?,
-        }
+        // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
+        let mut inner = DnsMonitorHolder::new()?;
+        inner.set(interface, servers)?;
+        self.inner = Some(inner);
         Ok(())
     }
 
     fn reset(&mut self) -> Result<()> {
-        use self::DnsMonitor::*;
-
-        match self {
-            Resolvconf(ref mut resolvconf) => resolvconf.reset()?,
-            StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.reset()?,
-            SystemdResolved(ref mut systemd_resolved) => systemd_resolved.reset()?,
-            NetworkManager(ref mut network_manager) => network_manager.reset()?,
+        if let Some(mut inner) = self.inner.take() {
+            inner.reset()?;
         }
-
         Ok(())
     }
 }
 
-impl DnsMonitor {
-    fn new_internal() -> Result<Self> {
+pub enum DnsMonitorHolder {
+    Resolvconf(Resolvconf),
+    StaticResolvConf(StaticResolvConf),
+    SystemdResolved(SystemdResolved),
+    NetworkManager(NetworkManager),
+}
+
+impl fmt::Display for DnsMonitorHolder {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::DnsMonitorHolder::*;
+        let name = match self {
+            Resolvconf(..) => "resolvconf",
+            StaticResolvConf(..) => "/etc/resolv.conf",
+            SystemdResolved(..) => "systemd-resolved",
+            NetworkManager(..) => "network manager",
+        };
+        f.write_str(name)
+    }
+}
+
+impl DnsMonitorHolder {
+    fn new() -> Result<Self> {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
         let manager = match dns_module.as_ref().and_then(|value| value.to_str()) {
-            Some("static-file") => DnsMonitor::StaticResolvConf(StaticResolvConf::new()?),
-            Some("resolvconf") => DnsMonitor::Resolvconf(Resolvconf::new()?),
-            Some("systemd") => DnsMonitor::SystemdResolved(SystemdResolved::new()?),
-            Some("network-manager") => DnsMonitor::NetworkManager(NetworkManager::new()?),
+            Some("static-file") => DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new()?),
+            Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new()?),
+            Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new()?),
+            Some("network-manager") => DnsMonitorHolder::NetworkManager(NetworkManager::new()?),
             Some(_) | None => Self::with_detected_dns_manager()?,
         };
         log::debug!("Managing DNS via {}", manager);
@@ -105,10 +94,36 @@ impl DnsMonitor {
 
     fn with_detected_dns_manager() -> Result<Self> {
         SystemdResolved::new()
-            .map(DnsMonitor::SystemdResolved)
-            .or_else(|_| NetworkManager::new().map(DnsMonitor::NetworkManager))
-            .or_else(|_| Resolvconf::new().map(DnsMonitor::Resolvconf))
-            .or_else(|_| StaticResolvConf::new().map(DnsMonitor::StaticResolvConf))
+            .map(DnsMonitorHolder::SystemdResolved)
+            .or_else(|_| NetworkManager::new().map(DnsMonitorHolder::NetworkManager))
+            .or_else(|_| Resolvconf::new().map(DnsMonitorHolder::Resolvconf))
+            .or_else(|_| StaticResolvConf::new().map(DnsMonitorHolder::StaticResolvConf))
             .chain_err(|| ErrorKind::NoDnsMonitor)
+    }
+
+    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+        use self::DnsMonitorHolder::*;
+        match self {
+            Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,
+            StaticResolvConf(ref mut static_resolv_conf) => {
+                static_resolv_conf.set_dns(servers.to_vec())?
+            }
+            SystemdResolved(ref mut systemd_resolved) => {
+                systemd_resolved.set_dns(interface, &servers)?
+            }
+            NetworkManager(ref mut network_manager) => network_manager.set_dns(servers)?,
+        }
+        Ok(())
+    }
+
+    fn reset(&mut self) -> Result<()> {
+        use self::DnsMonitorHolder::*;
+        match self {
+            Resolvconf(ref mut resolvconf) => resolvconf.reset()?,
+            StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.reset()?,
+            SystemdResolved(ref mut systemd_resolved) => systemd_resolved.reset()?,
+            NetworkManager(ref mut network_manager) => network_manager.reset()?,
+        }
+        Ok(())
     }
 }
