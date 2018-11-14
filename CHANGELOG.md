@@ -33,6 +33,10 @@ Line wrap the file at 100 chars.                                              Th
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.
 
+#### Changed
+- Split DNS management from Firewall management to allow restoring DNS earlier and showing more
+  detailed errors to users.
+
 ### Fixed
 - Cancel pending system notifications when the app becomes visible.
 
