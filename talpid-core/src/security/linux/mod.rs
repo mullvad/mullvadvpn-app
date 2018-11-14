@@ -16,7 +16,6 @@ use std::{
     ffi::CString,
     io,
     net::{IpAddr, Ipv4Addr},
-    path::Path,
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
 
@@ -78,7 +77,7 @@ pub struct NetworkSecurity {
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
-    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new() -> Result<Self> {
         Ok(NetworkSecurity {
             table_name: TABLE_NAME.clone(),
         })

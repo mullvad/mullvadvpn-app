@@ -1,5 +1,4 @@
 use std::net::IpAddr;
-use std::path::Path;
 use std::ptr;
 
 use log::{debug, error, trace};
@@ -65,7 +64,7 @@ pub struct NetworkSecurity(());
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
-    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new() -> Result<Self> {
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
