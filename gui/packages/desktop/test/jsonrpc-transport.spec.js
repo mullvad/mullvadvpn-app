@@ -1,10 +1,7 @@
 // @flow
 import jsonrpc from 'jsonrpc-lite';
 import { Server } from 'mock-socket';
-import JsonRpcClient, {
-  WebsocketTransport,
-  TimeOutError,
-} from '../src/renderer/lib/jsonrpc-client';
+import JsonRpcClient, { WebsocketTransport, TimeOutError } from '../src/main/jsonrpc-client';
 
 describe('JSON RPC transport', () => {
   const WEBSOCKET_URL = 'ws://localhost:8080';

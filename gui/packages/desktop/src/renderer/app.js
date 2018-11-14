@@ -12,10 +12,8 @@ import {
 } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
 
-import { InvalidAccountError } from './errors';
+import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
-import ReconnectionBackoff from './lib/reconnection-backoff';
-import { DaemonRpc, ConnectionObserver } from './lib/daemon-rpc';
 import NotificationController from './lib/notification-controller';
 import setShutdownHandler from './lib/shutdown-handler';
 
@@ -38,9 +36,11 @@ import type {
   RelaySettingsUpdate,
   RelaySettings,
   TunnelState,
-  DaemonRpcProtocol,
   AccountData,
-} from './lib/daemon-rpc';
+} from './lib/daemon-rpc-proxy';
+
+import DaemonRpcProxy from './lib/daemon-rpc-proxy';
+
 import type { ReduxStore } from './redux/store';
 import type { TrayIconType } from '../main/tray-icon-controller';
 
@@ -48,19 +48,10 @@ const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
 
 export default class AppRenderer {
   _notificationController = new NotificationController();
-  _daemonRpc: DaemonRpcProtocol = new DaemonRpc();
-  _connectionObserver = new ConnectionObserver(
-    () => {
-      this._onOpenConnection();
-    },
-    (error) => {
-      this._onCloseConnection(error);
-    },
-  );
-  _reconnectBackoff = new ReconnectionBackoff();
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
+  _daemonRpc = new DaemonRpcProxy();
   _accountDataCache = new AccountDataCache(
     (accountToken) => {
       return this._daemonRpc.getAccountData(accountToken);
@@ -106,8 +97,6 @@ export default class AppRenderer {
       ),
     };
 
-    this._daemonRpc.addConnectionObserver(this._connectionObserver);
-
     setShutdownHandler(async () => {
       log.info('Executing a shutdown handler');
       try {
@@ -125,9 +114,29 @@ export default class AppRenderer {
     });
 
     ipcRenderer.on('window-shown', () => {
-      this.updateAccountExpiry();
+      if (this._connectedToDaemon) {
+        this.updateAccountExpiry();
+      }
+
       this._notificationController.cancelPendingNotifications();
     });
+
+    ipcRenderer.on('daemon-connected', () => {
+      this._onDaemonConnected();
+    });
+
+    ipcRenderer.on('daemon-disconnected', (errorMessage: ?string) => {
+      this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : null);
+    });
+
+    // Request the initial daemon connection status
+    ipcRenderer.once('daemon-connection-status-reply', (isConnected: boolean) => {
+      if (isConnected) {
+        this._onDaemonConnected();
+      }
+    });
+
+    ipcRenderer.send('daemon-connection-status');
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
@@ -139,14 +148,6 @@ export default class AppRenderer {
         <ConnectedRouter history={this._memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
       </Provider>
     );
-  }
-
-  connect() {
-    this._daemonRpc.connect({ path: getIpcPath() });
-  }
-
-  disconnect() {
-    this._daemonRpc.disconnect();
   }
 
   async login(accountToken: AccountToken) {
@@ -294,10 +295,9 @@ export default class AppRenderer {
 
   async updateAccountExpiry() {
     const settings = await this._settingsProxy.fetch();
-    const accountDataCache = this._accountDataCache;
 
     if (settings && settings.accountToken) {
-      accountDataCache.fetch(settings.accountToken);
+      this._accountDataCache.fetch(settings.accountToken);
     }
   }
 
@@ -435,17 +435,31 @@ export default class AppRenderer {
     });
   }
 
-  async _onOpenConnection() {
+  async _onDaemonConnected() {
     this._connectedToDaemon = true;
-
-    // reset the reconnect backoff when connection established.
-    this._reconnectBackoff.reset();
 
     try {
       await this._runPrimaryApplicationFlow();
     } catch (error) {
       log.error(`An error was raised when running the primary application flow: ${error.message}`);
     }
+  }
+
+  _onDaemonDisconnected(error: ?Error) {
+    const actions = this._reduxActions;
+
+    this._relayListCache.stopUpdating();
+
+    // recover connection on error
+    if (error) {
+      // only send to the connecting to daemon view if the daemon was
+      // connnected previously
+      if (this._connectedToDaemon) {
+        actions.history.replace('/');
+      }
+    }
+
+    this._connectedToDaemon = false;
   }
 
   async _runPrimaryApplicationFlow() {
@@ -552,30 +566,6 @@ export default class AppRenderer {
         }
       }
     }
-  }
-
-  _onCloseConnection(error: ?Error) {
-    const actions = this._reduxActions;
-
-    this._relayListCache.stopUpdating();
-
-    // recover connection on error
-    if (error) {
-      log.debug(`Lost connection to daemon: ${error.message}`);
-
-      this._reconnectBackoff.attempt(() => {
-        this.connect();
-      });
-
-      // only send to the connecting to daemon view if the daemon was
-      // connnected previously
-      if (this._connectedToDaemon) {
-        actions.history.replace('/');
-      }
-    } else {
-      log.info(`Disconnected from the daemon`);
-    }
-    this._connectedToDaemon = false;
   }
 
   _setTunnelState(tunnelState: TunnelStateTransition) {
@@ -795,13 +785,5 @@ class RelayListCache {
     } catch (error) {
       log.error(`Cannot fetch the relay locations: ${error.message}`);
     }
-  }
-}
-
-function getIpcPath(): string {
-  if (process.platform === 'win32') {
-    return '//./pipe/Mullvad VPN';
-  } else {
-    return '/var/run/mullvad-vpn';
   }
 }

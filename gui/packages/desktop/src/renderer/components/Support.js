@@ -8,7 +8,7 @@ import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
 import styles from './SupportStyles';
 
-import type { AccountToken } from '../lib/daemon-rpc';
+import type { AccountToken } from '../lib/daemon-rpc-proxy';
 import type { SupportReportForm } from '../redux/support/actions';
 type SupportState = {
   email: string,
