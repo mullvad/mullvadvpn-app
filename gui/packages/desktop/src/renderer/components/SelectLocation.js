@@ -21,7 +21,7 @@ import type {
   RelayLocationCityRedux,
   RelayLocationRelayRedux,
 } from '../redux/settings/reducers';
-import type { RelayLocation } from '../lib/daemon-rpc';
+import type { RelayLocation } from '../lib/daemon-rpc-proxy';
 import { colors } from '../../config';
 
 type Props = {

@@ -1,8 +1,8 @@
 // @flow
 
 import log from 'electron-log';
-import { ConnectionObserver, SubscriptionListener, ResponseParseError } from '../daemon-rpc';
-import type { DaemonRpcProtocol } from '../daemon-rpc';
+import { ConnectionObserver, SubscriptionListener, ResponseParseError } from '../daemon-rpc-proxy';
+import type { DaemonRpcProtocol } from '../daemon-rpc-proxy';
 
 export default class BaseSubscriptionProxy<T> {
   _rpc: DaemonRpcProtocol;
