@@ -15,7 +15,6 @@ import { createMemoryHistory } from 'history';
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
 import NotificationController from './lib/notification-controller';
-import setShutdownHandler from './lib/shutdown-handler';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -96,16 +95,6 @@ export default class AppRenderer {
         dispatch,
       ),
     };
-
-    setShutdownHandler(async () => {
-      log.info('Executing a shutdown handler');
-      try {
-        await this.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        log.error(`Failed to disconnect the tunnel: ${e.message}`);
-      }
-    });
 
     ipcRenderer.on('update-window-shape', (_event, shapeParams: WindowShapeParameters) => {
       if (typeof shapeParams.arrowPosition === 'number') {
