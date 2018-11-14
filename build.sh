@@ -19,16 +19,6 @@ PRODUCT_VERSION=$(node -p "require('./gui/packages/desktop/package.json').versio
 source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
-
-    REQUIRED_RUSTC_VERSION="rustc 1.30.0 (da5f414c2 2018-10-24)"
-
-    if [[ $RUSTC_VERSION != $REQUIRED_RUSTC_VERSION ]]; then
-        echo "You are running the wrong Rust compiler version."
-        echo "You are running $RUSTC_VERSION, but this project requires $REQUIRED_RUSTC_VERSION"
-        echo "for release builds."
-        exit 1
-    fi
-
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
         echo "You should only build releases in clean working directories in order to make it"
