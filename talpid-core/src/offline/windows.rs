@@ -28,6 +28,7 @@ use std::os::windows::io::IntoRawHandle;
 use std::os::windows::io::RawHandle;
 use std::ptr;
 use std::thread;
+use std::time::Duration;
 use tunnel_state_machine::TunnelCommand;
 
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
@@ -166,6 +167,14 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<Broadcast
             if message == WM_POWERBROADCAST && wparam == PBT_APMRESUMEAUTOMATIC {
                 // Machine is returning from sleep mode.
                 let _ = sender.unbounded_send(TunnelCommand::IsOffline(true));
+
+                let cloned_sender = sender.clone();
+
+                thread::spawn(move || {
+                    // TAP will be unavailable for approx 2 seconds on a healthy machine.
+                    thread::sleep(Duration::from_secs(2));
+                    let _ = cloned_sender.unbounded_send(TunnelCommand::IsOffline(false));
+                });
             }
         })?;
 
