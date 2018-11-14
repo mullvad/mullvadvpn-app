@@ -41,6 +41,8 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
     case 'set_security_policy_error':
       return 'Failed to apply security policy';
+    case 'set_dns_error':
+      return 'Failed to set system DNS server';
     case 'start_tunnel_error':
       return 'Failed to start tunnel connection';
     case 'no_matching_relay':

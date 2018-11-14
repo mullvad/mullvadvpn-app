@@ -49,6 +49,7 @@ export type BlockReason =
       reason:
         | 'ipv6_unavailable'
         | 'set_security_policy_error'
+        | 'set_dns_error'
         | 'start_tunnel_error'
         | 'no_matching_relay'
         | 'is_offline',
@@ -309,6 +310,7 @@ const TunnelStateTransitionSchema = oneOf(
         reason: enumeration(
           'ipv6_unavailable',
           'set_security_policy_error',
+          'set_dns_error',
           'start_tunnel_error',
           'no_matching_relay',
           'is_offline',
