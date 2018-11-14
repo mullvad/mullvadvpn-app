@@ -67,15 +67,6 @@ impl WinDns {
     }
 
     pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
-        info!(
-            "Setting DNS servers - {}",
-            servers
-                .iter()
-                .map(|ip| ip.to_string())
-                .collect::<Vec<String>>()
-                .join(", ")
-        );
-
         let ipv4 = servers
             .iter()
             .filter(|ip| ip.is_ipv4())
@@ -117,7 +108,6 @@ impl WinDns {
     }
 
     pub fn reset_dns(&mut self) -> Result<()> {
-        trace!("Resetting DNS");
         unsafe { WinDns_Reset().into_result()? };
 
         if let Err(e) = self.backup_writer.remove_backup() {

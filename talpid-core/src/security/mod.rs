@@ -21,7 +21,7 @@ mod imp;
 #[path = "windows/mod.rs"]
 mod imp;
 
-pub use self::imp::{Error, ErrorKind};
+pub use self::imp::{DnsError, Error, ErrorKind};
 
 
 #[cfg(unix)]
@@ -135,6 +135,39 @@ impl NetworkSecurity {
     }
 }
 
+/// Sets and monitors system DNS settings. Makes sure the desired DNS servers are being used.
+pub struct DnsMonitor {
+    inner: imp::DnsMonitor,
+}
+
+impl DnsMonitor {
+    /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
+    pub fn new(cache_dir: impl AsRef<Path>) -> Result<Self, DnsError> {
+        Ok(DnsMonitor {
+            inner: imp::DnsMonitor::new(cache_dir)?,
+        })
+    }
+
+    /// Set DNS to the given servers. And start monitoring the system for changes.
+    pub fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), DnsError> {
+        log::info!(
+            "Setting DNS servers to {}",
+            servers
+                .iter()
+                .map(|ip| ip.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        );
+        self.inner.set(interface, servers)
+    }
+
+    /// Reset system DNS settings to what it was before being set by this instance.
+    pub fn reset(&mut self) -> Result<(), DnsError> {
+        log::info!("Resetting DNS");
+        self.inner.reset()
+    }
+}
+
 
 /// Abstract firewall interaction trait. Used by the OS specific implementations.
 trait NetworkSecurityT: Sized {
@@ -150,4 +183,14 @@ trait NetworkSecurityT: Sized {
     /// Revert the system network security state to what it was before this instance started
     /// modifying the system.
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
+}
+
+trait DnsMonitorT: Sized {
+    type Error: ::std::error::Error;
+
+    fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Self::Error>;
+
+    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
+
+    fn reset(&mut self) -> Result<(), Self::Error>;
 }

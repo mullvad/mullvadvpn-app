@@ -35,7 +35,7 @@ impl Resolvconf {
         })
     }
 
-    pub fn set_dns(&mut self, interface: &str, servers: Vec<IpAddr>) -> Result<()> {
+    pub fn set_dns(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         let record_name = format!("{}.mullvad", interface);
         let mut record_contents = String::new();
 

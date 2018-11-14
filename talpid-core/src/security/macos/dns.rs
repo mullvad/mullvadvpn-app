@@ -163,7 +163,6 @@ impl DnsMonitor {
             None => {
                 let backup = read_all_dns(&self.store);
                 trace!("Backup of DNS settings: {:#?}", backup);
-                debug!("Setting DNS to [{}]", servers.join(", "));
                 for service_path in backup.keys() {
                     settings.save(&self.store, service_path.as_str())?;
                 }
@@ -174,7 +173,6 @@ impl DnsMonitor {
             }
             Some(state) => {
                 if servers != state.dns_settings.server_addresses() {
-                    debug!("Changing DNS to [{}]", servers.join(", "));
                     for service_path in state.backup.keys() {
                         settings.save(&self.store, service_path.as_str())?;
                     }
