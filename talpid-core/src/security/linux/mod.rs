@@ -1,8 +1,6 @@
 extern crate mnl;
 extern crate nftnl;
 
-use error_chain::ChainedError;
-
 use self::nftnl::{
     expr::{self, Verdict},
     nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
@@ -18,12 +16,11 @@ use std::{
     ffi::CString,
     io,
     net::{IpAddr, Ipv4Addr},
-    path::Path,
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
 
 mod dns;
-use self::dns::DnsSettings;
+pub use self::dns::{DnsMonitor, Error as DnsError};
 
 error_chain! {
     errors {
@@ -42,7 +39,6 @@ error_chain! {
         }
     }
     links {
-        DnsSettings(self::dns::Error, self::dns::ErrorKind) #[doc = "DNS error"];
         Nftnl(nftnl::Error, nftnl::ErrorKind) #[doc = "Error in nftnl"];
     }
 }
@@ -75,36 +71,25 @@ enum End {
 
 /// The Linux implementation for the firewall and DNS.
 pub struct NetworkSecurity {
-    dns_settings: DnsSettings,
     table_name: CString,
 }
 
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
-    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new() -> Result<Self> {
         Ok(NetworkSecurity {
-            dns_settings: DnsSettings::new()?,
             table_name: TABLE_NAME.clone(),
         })
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
-        if let SecurityPolicy::Connected { ref tunnel, .. } = policy {
-            self.dns_settings
-                .set_dns(&tunnel.interface, vec![tunnel.gateway.into()])?;
-        }
-
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
         let batch = PolicyBatch::new(&table)?.finalize(&policy)?;
         self.send_and_process(&batch)
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        if let Err(error) = self.dns_settings.reset() {
-            log::error!("Failed to reset DNS settings: {}", error.display_chain());
-        }
-
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
         let batch = {
             let mut batch = Batch::new()?;

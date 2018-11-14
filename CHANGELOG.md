@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Replace OpenVPN root CA certificate bundled with the app to the new Mullvad root CA.
+- Split DNS management from Firewall management to allow restoring DNS earlier and showing more
+  detailed errors to users.
 
 ### Fixed
 - Cancel pending system notifications when the app becomes visible.

@@ -1,12 +1,10 @@
 use std::net::IpAddr;
-use std::path::Path;
 use std::ptr;
 
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
 
-use self::dns::WinDns;
 use self::winfw::*;
 use super::{NetworkSecurityT, SecurityPolicy};
 use winnet;
@@ -15,6 +13,8 @@ use winnet;
 mod ffi;
 
 mod dns;
+pub use self::dns::{DnsMonitor, Error as DnsError};
+
 mod system_state;
 
 error_chain! {
@@ -54,24 +54,17 @@ error_chain! {
             description("Unable to set TAP adapter metric")
         }
     }
-
-    links {
-        WinDns(dns::Error, dns::ErrorKind) #[doc = "WinDNS failure"];
-    }
 }
 
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the firewall and DNS.
-pub struct NetworkSecurity {
-    dns: WinDns,
-}
+pub struct NetworkSecurity(());
 
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
-    fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {
-        let windns = WinDns::new(cache_dir)?;
+    fn new() -> Result<Self> {
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
@@ -81,7 +74,7 @@ impl NetworkSecurityT for NetworkSecurity {
             .into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        Ok(NetworkSecurity { dns: windns })
+        Ok(NetworkSecurity(()))
     }
 
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
@@ -109,7 +102,6 @@ impl NetworkSecurityT for NetworkSecurity {
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        self.dns.reset_dns()?;
         unsafe { WinFw_Reset().into_result() }?;
         Ok(())
     }
@@ -168,8 +160,6 @@ impl NetworkSecurity {
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
-
-        self.dns.set_dns(&vec![tunnel_metadata.gateway.into()])?;
 
         let metrics_set = winnet::ensure_top_metric_for_interface(&tunnel_metadata.interface)
             .chain_err(|| ErrorKind::SetTapMetric)?;

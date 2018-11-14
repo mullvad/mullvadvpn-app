@@ -24,13 +24,21 @@ use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
 use self::connecting_state::ConnectingState;
 use self::disconnected_state::DisconnectedState;
 use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
-use crate::{mpsc::IntoSender, offline, security::NetworkSecurity};
+use crate::{
+    mpsc::IntoSender,
+    offline,
+    security::{DnsMonitor, NetworkSecurity},
+};
 
 error_chain! {
     errors {
         /// An error occurred while setting up the network security.
         NetworkSecurityError {
             description("Network security error")
+        }
+        /// Unable to start the DNS settings monitor and enforcer.
+        DnsMonitorError {
+            description("Unable to start the DNS settings enforcer and monitor")
         }
         /// An error occurred while attempting to set up the event loop for the tunnel state
         /// machine.
@@ -183,10 +191,11 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
-        let security =
-            NetworkSecurity::new(cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
+        let security = NetworkSecurity::new().chain_err(|| ErrorKind::NetworkSecurityError)?;
+        let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             security,
+            dns_monitor,
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -265,6 +274,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     security: NetworkSecurity,
+    dns_monitor: DnsMonitor,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.

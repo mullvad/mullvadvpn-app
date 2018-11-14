@@ -42,12 +42,14 @@ error_chain!{
     }
 }
 
-pub struct WinDns {
+pub struct DnsMonitor {
     backup_writer: SystemStateWriter,
 }
 
-impl WinDns {
-    pub fn new<P: AsRef<Path>>(cache_dir: P) -> Result<Self> {
+impl super::super::DnsMonitorT for DnsMonitor {
+    type Error = Error;
+
+    fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {
         unsafe { WinDns_Initialize(Some(log_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
@@ -56,7 +58,7 @@ impl WinDns {
                 .join(DNS_STATE_FILENAME)
                 .into_boxed_path(),
         );
-        let mut dns = WinDns { backup_writer };
+        let mut dns = DnsMonitor { backup_writer };
         if let Err(error) = dns
             .restore_system_backup()
             .chain_err(|| "Failed to restore DNS backup")
@@ -66,16 +68,7 @@ impl WinDns {
         Ok(dns)
     }
 
-    pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
-        info!(
-            "Setting DNS servers - {}",
-            servers
-                .iter()
-                .map(|ip| ip.to_string())
-                .collect::<Vec<String>>()
-                .join(", ")
-        );
-
+    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<()> {
         let ipv4 = servers
             .iter()
             .filter(|ip| ip.is_ipv4())
@@ -100,8 +93,8 @@ impl WinDns {
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
-        debug!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
-        debug!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
+        trace!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
+        trace!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
 
         unsafe {
             WinDns_Set(
@@ -116,8 +109,7 @@ impl WinDns {
         }
     }
 
-    pub fn reset_dns(&mut self) -> Result<()> {
-        trace!("Resetting DNS");
+    fn reset(&mut self) -> Result<()> {
         unsafe { WinDns_Reset().into_result()? };
 
         if let Err(e) = self.backup_writer.remove_backup() {
@@ -125,7 +117,9 @@ impl WinDns {
         }
         Ok(())
     }
+}
 
+impl DnsMonitor {
     fn restore_dns_settings(&mut self, data: &[u8]) -> Result<()> {
         unsafe { WinDns_Recover(data.as_ptr(), data.len() as u32) }.into_result()
     }
@@ -147,7 +141,7 @@ impl WinDns {
                 .chain_err(|| "Failed to remove backed up DNS state after restoring it")?;
             debug!("DNS recovery file removed!");
         } else {
-            trace!("No dns state to restore");
+            trace!("No DNS state to restore");
         }
         Ok(())
     }
@@ -192,13 +186,13 @@ extern "system" fn log_sink(
             match log_level {
                 0x01 => error!("{}", message),
                 0x02 => info!("{}", message),
-                _ => error!("unknwon log level - {}", message),
+                _ => error!("Unknwon log level - {}", message),
             }
         }
     }
 }
 
-impl Drop for WinDns {
+impl Drop for DnsMonitor {
     fn drop(&mut self) {
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
             trace!("Successfully deinitialized WinDns");
