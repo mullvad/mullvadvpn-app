@@ -4,7 +4,8 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use lazy_static::lazy_static;
 use std::fmt;
 #[cfg(unix)]
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::{Ipv4Addr, Ipv6Addr};
+use std::net::IpAddr;
 use std::path::Path;
 use talpid_types::net::Endpoint;
 
