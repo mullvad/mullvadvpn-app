@@ -3,7 +3,6 @@ extern crate tokio_core;
 
 use super::{NetworkSecurityT, SecurityPolicy};
 use std::net::Ipv4Addr;
-use std::path::Path;
 use talpid_types::net;
 
 mod dns;
@@ -26,7 +25,7 @@ pub struct NetworkSecurity {
 impl NetworkSecurityT for NetworkSecurity {
     type Error = Error;
 
-    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new() -> Result<Self> {
         Ok(NetworkSecurity {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,

@@ -191,8 +191,7 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
-        let security =
-            NetworkSecurity::new(&cache_dir).chain_err(|| ErrorKind::NetworkSecurityError)?;
+        let security = NetworkSecurity::new().chain_err(|| ErrorKind::NetworkSecurityError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             security,

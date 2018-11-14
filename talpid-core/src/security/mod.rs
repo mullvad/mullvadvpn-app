@@ -3,9 +3,9 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
 use std::fmt;
+use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{Ipv4Addr, Ipv6Addr};
-use std::net::IpAddr;
 use std::path::Path;
 use talpid_types::net::Endpoint;
 
@@ -115,9 +115,9 @@ pub struct NetworkSecurity {
 
 impl NetworkSecurity {
     /// Returns a new `NetworkSecurity`, ready to apply policies.
-    pub fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+    pub fn new() -> Result<Self, Error> {
         Ok(NetworkSecurity {
-            inner: imp::NetworkSecurity::new(cache_dir)?,
+            inner: imp::NetworkSecurity::new()?,
         })
     }
 
@@ -176,7 +176,7 @@ trait NetworkSecurityT: Sized {
     type Error: ::std::error::Error;
 
     /// Create new instance
-    fn new(cache_dir: impl AsRef<Path>) -> ::std::result::Result<Self, Self::Error>;
+    fn new() -> ::std::result::Result<Self, Self::Error>;
 
     /// Enable the given SecurityPolicy
     fn apply_policy(&mut self, policy: SecurityPolicy) -> ::std::result::Result<(), Self::Error>;

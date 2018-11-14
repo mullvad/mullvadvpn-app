@@ -17,10 +17,10 @@ use log::{debug, trace};
 use std::{
     collections::HashMap,
     fmt,
+    net::IpAddr,
+    path::Path,
     sync::{mpsc, Arc, Mutex},
     thread,
-    path::Path,
-    net::IpAddr,
 };
 
 error_chain! {
