@@ -67,6 +67,35 @@ impl ConnectedState {
             .chain_err(|| "Failed to apply security policy for connected state")
     }
 
+    fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+        shared_values
+            .dns_monitor
+            .set(&self.metadata.interface, &[self.metadata.gateway.into()])
+            .chain_err(|| "Failed to set system DNS settings")
+    }
+
+    fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values
+            .dns_monitor
+            .reset()
+            .chain_err(|| "Unable to reset DNS")
+        {
+            log::error!("{}", error.display_chain());
+        }
+    }
+
+    fn disconnect(
+        self,
+        shared_values: &mut SharedTunnelStateValues,
+        after_disconnect: AfterDisconnect,
+    ) -> EventConsequence<Self> {
+        Self::reset_dns(shared_values);
+        EventConsequence::NewState(DisconnectingState::enter(
+            shared_values,
+            (self.close_handle, self.tunnel_close_event, after_disconnect),
+        ))
+    }
+
     fn handle_commands(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
@@ -82,15 +111,10 @@ impl ConnectedState {
                     Ok(()) => SameState(self),
                     Err(error) => {
                         log::error!("{}", error.display_chain());
-
-                        NewState(DisconnectingState::enter(
+                        self.disconnect(
                             shared_values,
-                            (
-                                self.close_handle,
-                                self.tunnel_close_event,
-                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
-                            ),
-                        ))
+                            AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                        )
                     }
                 }
             }
@@ -101,42 +125,23 @@ impl ConnectedState {
             Ok(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if is_offline {
-                    NewState(DisconnectingState::enter(
+                    self.disconnect(
                         shared_values,
-                        (
-                            self.close_handle,
-                            self.tunnel_close_event,
-                            AfterDisconnect::Block(BlockReason::IsOffline),
-                        ),
-                    ))
+                        AfterDisconnect::Block(BlockReason::IsOffline),
+                    )
                 } else {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::Connect) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Reconnect(0),
-                ),
-            )),
-            Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Nothing,
-                ),
-            )),
-            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Block(reason),
-                ),
-            )),
+            Ok(TunnelCommand::Connect) => {
+                self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+            }
+            Ok(TunnelCommand::Disconnect) | Err(_) => {
+                self.disconnect(shared_values, AfterDisconnect::Nothing)
+            }
+            Ok(TunnelCommand::Block(reason)) => {
+                self.disconnect(shared_values, AfterDisconnect::Block(reason))
+            }
         }
     }
 
@@ -147,14 +152,9 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::Down) | Err(_) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Reconnect(0),
-                ),
-            )),
+            Ok(TunnelEvent::Down) | Err(_) => {
+                self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+            }
             Ok(_) => SameState(self),
         }
     }
@@ -172,6 +172,7 @@ impl ConnectedState {
         }
 
         log::info!("Tunnel closed. Reconnecting.");
+        Self::reset_dns(shared_values);
         NewState(ConnectingState::enter(shared_values, 0))
     }
 }
@@ -186,23 +187,31 @@ impl TunnelState for ConnectedState {
         let tunnel_endpoint = bootstrap.tunnel_parameters.endpoint;
         let connected_state = ConnectedState::from(bootstrap);
 
-        match connected_state.set_security_policy(shared_values) {
-            Ok(()) => (
+        if let Err(error) = connected_state.set_security_policy(shared_values) {
+            log::error!("{}", error.display_chain());
+            DisconnectingState::enter(
+                shared_values,
+                (
+                    connected_state.close_handle,
+                    connected_state.tunnel_close_event,
+                    AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                ),
+            )
+        } else if let Err(error) = connected_state.set_dns(shared_values) {
+            log::error!("{}", error.display_chain());
+            DisconnectingState::enter(
+                shared_values,
+                (
+                    connected_state.close_handle,
+                    connected_state.tunnel_close_event,
+                    AfterDisconnect::Block(BlockReason::SetDnsError),
+                ),
+            )
+        } else {
+            (
                 TunnelStateWrapper::from(connected_state),
                 TunnelStateTransition::Connected(tunnel_endpoint),
-            ),
-            Err(error) => {
-                log::error!("{}", error.display_chain());
-
-                DisconnectingState::enter(
-                    shared_values,
-                    (
-                        connected_state.close_handle,
-                        connected_state.tunnel_close_event,
-                        AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
-                    ),
-                )
-            }
+            )
         }
     }
 
