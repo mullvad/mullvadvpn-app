@@ -286,7 +286,7 @@ void NetSh::ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
 	{
 		std::stringstream ss;
 
-		ss << L"'netsh' completed successfully, albeit a little slowly. It consumed "
+		ss << "'netsh' completed successfully, albeit a little slowly. It consumed "
 			<< elapsed << " ms of "
 			<< actualTimeout << " ms max permitted execution time";
 
