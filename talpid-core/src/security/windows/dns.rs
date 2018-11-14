@@ -93,8 +93,8 @@ impl super::super::DnsMonitorT for DnsMonitor {
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
-        debug!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
-        debug!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
+        trace!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
+        trace!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
 
         unsafe {
             WinDns_Set(
@@ -141,7 +141,7 @@ impl DnsMonitor {
                 .chain_err(|| "Failed to remove backed up DNS state after restoring it")?;
             debug!("DNS recovery file removed!");
         } else {
-            trace!("No dns state to restore");
+            trace!("No DNS state to restore");
         }
         Ok(())
     }
@@ -186,7 +186,7 @@ extern "system" fn log_sink(
             match log_level {
                 0x01 => error!("{}", message),
                 0x02 => info!("{}", message),
-                _ => error!("unknwon log level - {}", message),
+                _ => error!("Unknwon log level - {}", message),
             }
         }
     }
