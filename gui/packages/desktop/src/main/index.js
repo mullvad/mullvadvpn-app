@@ -11,18 +11,89 @@ import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'el
 import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
 import ShutdownCoordinator from './shutdown-coordinator';
+import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './daemon-rpc';
+import type { TunnelStateTransition, Settings } from './daemon-rpc';
+import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
 
 import type { TrayIconType } from './tray-icon-controller';
+
+const DAEMON_RPC_PATH =
+  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
 const ApplicationMain = {
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
 
+  _daemonRpc: new DaemonRpc(),
+  _reconnectBackoff: new ReconnectionBackoff(),
+  _connectedToDaemon: false,
+
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
   _connectionFilePollInterval: (null: ?IntervalID),
   _shouldQuit: false,
+
+  async _onOpenConnection() {
+    this._connectedToDaemon = true;
+
+    // reset the reconnect backoff when connection established.
+    this._reconnectBackoff.reset();
+
+    if (this._windowController) {
+      this._windowController.send('connected-daemon');
+    }
+
+    const stateListener = new SubscriptionListener(
+      (newState: TunnelStateTransition) => {
+        this._onStateChange(newState);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new state: ${error.message}`);
+      },
+    );
+
+    const settingsListener = new SubscriptionListener(
+      (newSettings: Settings) => {
+        this._onSettingsChange(newSettings);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new settings: ${error.message}`);
+      },
+    );
+
+    try {
+      await Promise.all([
+        this._daemonRpc.subscribeStateListener(stateListener),
+        this._daemonRpc.subscribeSettingsListener(settingsListener),
+      ]);
+    } catch (error) {
+      log.error(`Failed to subscribe: ${error.message}`);
+    }
+  },
+
+  _onCloseConnection(error: ?Error) {
+    // recover connection on error
+    if (error) {
+      log.debug(`Lost connection to daemon: ${error.message}`);
+
+      this._reconnectBackoff.attempt(() => {
+        this._connectToDaemon();
+      });
+    } else {
+      log.info(`Disconnected from the daemon`);
+    }
+
+    this._connectedToDaemon = false;
+
+    if (this._windowController) {
+      this._windowController.send('disconnected-daemon', error);
+    }
+  },
+
+  _connectToDaemon() {
+    this._daemonRpc.connect({ path: DAEMON_RPC_PATH });
+  },
 
   run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -48,6 +119,30 @@ const ApplicationMain = {
     app.on('ready', () => this._onReady());
     app.on('window-all-closed', () => app.quit());
     app.on('before-quit', () => this._onBeforeQuit());
+
+    const connectionObserver = new ConnectionObserver(
+      () => {
+        this._onOpenConnection();
+      },
+      (error) => {
+        this._onCloseConnection(error);
+      },
+    );
+
+    this._daemonRpc.addConnectionObserver(connectionObserver);
+    this._connectToDaemon();
+  },
+
+  _onStateChange(newState: TunnelStateTransition) {
+    if (this._windowController) {
+      this._windowController.send('state-changed', newState);
+    }
+  },
+
+  _onSettingsChange(newSettings: Settings) {
+    if (this._windowController) {
+      this._windowController.send('settings-changed', newSettings);
+    }
   },
 
   _ensureSingleInstance() {
@@ -130,9 +225,8 @@ const ApplicationMain = {
   },
 
   _onActivate() {
-    const windowController = this._windowController;
-    if (windowController) {
-      windowController.show();
+    if (this._windowController) {
+      this._windowController.show();
     }
   },
 
@@ -140,9 +234,8 @@ const ApplicationMain = {
     this._shouldQuit = true;
 
     if (process.env.NODE_ENV === 'development') {
-      const windowController = this._windowController;
-      if (windowController) {
-        windowController.window.closeDevTools();
+      if (this._windowController) {
+        this._windowController.window.closeDevTools();
       }
     }
 
@@ -197,6 +290,31 @@ const ApplicationMain = {
   },
 
   _registerIpcListeners() {
+    ipcMain.on('daemon-rpc-call', async (event, id: string, method: string, payload: any) => {
+      log.debug(`Got daemon-rpc-call: ${id} ${method} ${payload}`);
+
+      try {
+        // $FlowFixMe: flow does not like index accessors.
+        const result = await this._daemonRpc[method](payload);
+
+        log.debug(`Reply to ${id} ${method} with success: ${JSON.stringify(result)}`);
+        event.sender.send(`daemon-rpc-reply-${id}`, result);
+      } catch (error) {
+        log.debug(`Reply to ${id} ${method} with error: ${error.message}`);
+        event.sender.send(`daemon-rpc-reply-${id}`, undefined, {
+          className: error.constructor.name || '',
+          data: {
+            message: error.message,
+            ...JSON.parse(JSON.stringify(error)),
+          },
+        });
+      }
+    });
+
+    ipcMain.on('daemon-connection-status', (event) => {
+      event.sender.send('daemon-connection-status-reply', this._connectedToDaemon);
+    });
+
     ipcMain.on('show-window', () => {
       const windowController = this._windowController;
       if (windowController) {

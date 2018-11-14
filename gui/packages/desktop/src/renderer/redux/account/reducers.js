@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { AccountToken } from '../../lib/daemon-rpc';
+import type { AccountToken } from '../../lib/daemon-rpc-proxy';
 
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
 export type AccountReduxState = {
