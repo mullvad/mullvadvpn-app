@@ -219,6 +219,11 @@ impl OpenVpnCommand {
         args.extend(Self::security_arguments().iter().map(OsString::from));
         args.extend(self.proxy_arguments().iter().map(OsString::from));
 
+        #[cfg(windows)]
+        {
+            args.extend(Self::default_route_arguments().iter().map(OsString::from));
+        }
+
         args
     }
 
@@ -296,6 +301,18 @@ impl OpenVpnCommand {
             None => {}
         };
         args
+    }
+
+    fn default_route_arguments() -> Vec<String> {
+        vec![
+            "--route-gateway".to_owned(),
+            "dhcp".to_owned(),
+            "--route".to_owned(),
+            "0.0.0.0".to_owned(),
+            "0.0.0.0".to_owned(),
+            "vpn_gateway".to_owned(),
+            "1".to_owned(),
+        ]
     }
 }
 
