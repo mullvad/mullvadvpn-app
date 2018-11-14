@@ -4,19 +4,14 @@ extern crate tokio_core;
 use super::{NetworkSecurityT, SecurityPolicy};
 use std::net::Ipv4Addr;
 use std::path::Path;
-
 use talpid_types::net;
 
 mod dns;
+pub use self::dns::{DnsMonitor, Error as DnsError};
 
-use self::dns::DnsMonitor;
+pub use self::pfctl::Error;
 
-error_chain! {
-    links {
-        PfCtl(self::pfctl::Error, self::pfctl::ErrorKind) #[doc = "PF error"];
-        DnsMonitor(self::dns::Error, self::dns::ErrorKind) #[doc = "DNS error"];
-    }
-}
+type Result<T> = ::std::result::Result<T, Error>;
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
@@ -26,7 +21,6 @@ const ANCHOR_NAME: &'static str = "mullvad";
 pub struct NetworkSecurity {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
-    dns_monitor: DnsMonitor,
 }
 
 impl NetworkSecurityT for NetworkSecurity {
@@ -36,7 +30,6 @@ impl NetworkSecurityT for NetworkSecurity {
         Ok(NetworkSecurity {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
-            dns_monitor: DnsMonitor::new()?,
         })
     }
 
@@ -51,7 +44,6 @@ impl NetworkSecurityT for NetworkSecurity {
             self.remove_rules(),
             self.remove_anchor(),
             self.restore_state(),
-            self.restore_dns(),
         ]
         .into_iter()
         .collect::<Result<Vec<_>>>()
@@ -98,8 +90,6 @@ impl NetworkSecurity {
                 tunnel,
                 allow_lan,
             } => {
-                self.dns_monitor.set_dns(vec![tunnel.gateway.to_string()])?;
-
                 let allow_tcp_dns_to_relay_rule = pfctl::FilterRuleBuilder::default()
                     .action(pfctl::FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
@@ -309,10 +299,6 @@ impl NetworkSecurity {
             Some(false) => Ok(self.pf.try_disable()?),
             None => Ok(()),
         }
-    }
-
-    fn restore_dns(&self) -> Result<()> {
-        Ok(self.dns_monitor.reset()?)
     }
 
     fn add_anchor(&mut self) -> Result<()> {

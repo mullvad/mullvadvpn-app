@@ -21,7 +21,7 @@ mod imp;
 #[path = "windows/mod.rs"]
 mod imp;
 
-pub use self::imp::{DnsError, Error, ErrorKind};
+pub use self::imp::{DnsError, Error};
 
 
 #[cfg(unix)]
