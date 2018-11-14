@@ -19,6 +19,8 @@ use std::{
     fmt,
     sync::{mpsc, Arc, Mutex},
     thread,
+    path::Path,
+    net::IpAddr,
 };
 
 error_chain! {
@@ -126,12 +128,14 @@ pub struct DnsMonitor {
     state: Arc<Mutex<Option<State>>>,
 }
 
-impl DnsMonitor {
+impl super::super::DnsMonitorT for DnsMonitor {
+    type Error = Error;
+
     /// Creates and returns a new `DnsMonitor`. This spawns a background thread that will monitor
     /// DNS settings for all network interfaces. If any changes occur it will instantly reset
     /// the DNS settings for that interface back to the last server list set to this instance
     /// with `set_dns`.
-    pub fn new() -> Result<Self> {
+    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
         let state = Arc::new(Mutex::new(None));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
@@ -140,23 +144,8 @@ impl DnsMonitor {
         })
     }
 
-    /// Spawns the background thread running the CoreFoundation main loop and monitors the system
-    /// for DNS changes.
-    fn spawn(state: Arc<Mutex<Option<State>>>) -> Result<()> {
-        let (result_tx, result_rx) = mpsc::channel();
-        thread::spawn(move || match create_dynamic_store(state) {
-            Ok(store) => {
-                result_tx.send(Ok(())).unwrap();
-                run_dynamic_store_runloop(store);
-                // TODO(linus): This is critical. Improve later by sending error signal to Daemon
-                log::error!("Core Foundation main loop exited! It should run forever");
-            }
-            Err(e) => result_tx.send(Err(e)).unwrap(),
-        });
-        result_rx.recv().unwrap()
-    }
-
-    pub fn set_dns(&self, servers: Vec<DnsServer>) -> Result<()> {
+    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<()> {
+        let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
         let settings = DnsSettings::from_server_addresses(&servers);
         let mut state_lock = self.state.lock().unwrap();
         *state_lock = Some(match state_lock.take() {
@@ -189,8 +178,7 @@ impl DnsMonitor {
         Ok(())
     }
 
-    /// Reset all DNS settings to the latest backed up values.
-    pub fn reset(&self) -> Result<()> {
+    fn reset(&mut self) -> Result<()> {
         let mut state_lock = self.state.lock().unwrap();
         if let Some(state) = state_lock.take() {
             trace!("Restoring DNS settings to: {:#?}", state.backup);
@@ -206,6 +194,24 @@ impl DnsMonitor {
             }
         }
         Ok(())
+    }
+}
+
+impl DnsMonitor {
+    /// Spawns the background thread running the CoreFoundation main loop and monitors the system
+    /// for DNS changes.
+    fn spawn(state: Arc<Mutex<Option<State>>>) -> Result<()> {
+        let (result_tx, result_rx) = mpsc::channel();
+        thread::spawn(move || match create_dynamic_store(state) {
+            Ok(store) => {
+                result_tx.send(Ok(())).unwrap();
+                run_dynamic_store_runloop(store);
+                // TODO(linus): This is critical. Improve later by sending error signal to Daemon
+                log::error!("Core Foundation main loop exited! It should run forever");
+            }
+            Err(e) => result_tx.send(Err(e)).unwrap(),
+        });
+        result_rx.recv().unwrap()
     }
 }
 
