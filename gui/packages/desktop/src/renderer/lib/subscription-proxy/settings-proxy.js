@@ -1,8 +1,8 @@
 // @flow
 
 import BaseSubscriptionProxy from './base-proxy';
-import { SubscriptionListener } from '../daemon-rpc';
-import type { DaemonRpcProtocol, Settings } from '../daemon-rpc';
+import { SubscriptionListener } from '../daemon-rpc-proxy';
+import type { DaemonRpcProtocol, Settings } from '../daemon-rpc-proxy';
 
 export default class SettingsProxy extends BaseSubscriptionProxy<Settings> {
   static subscribeValueListener(rpc: DaemonRpcProtocol, listener: SubscriptionListener<Settings>) {

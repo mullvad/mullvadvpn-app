@@ -10,7 +10,7 @@ import * as AppButton from './AppButton';
 import TunnelControl from './TunnelControl';
 import Map from './Map';
 import styles from './ConnectStyles';
-import { NoCreditError, NoInternetError } from '../errors';
+import { NoCreditError, NoInternetError } from '../../main/errors';
 
 import type { RelayOutAddress, RelayInAddress } from './TunnelControl';
 import type { ConnectionReduxState } from '../redux/connection/reducers';

@@ -1,6 +1,6 @@
 // @flow
 
-import type { AfterDisconnect, BlockReason, TunnelEndpoint } from '../../lib/daemon-rpc';
+import type { AfterDisconnect, BlockReason, TunnelEndpoint } from '../../lib/daemon-rpc-proxy';
 
 type ConnectingAction = {
   type: 'CONNECTING',

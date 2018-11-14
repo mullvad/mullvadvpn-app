@@ -175,6 +175,10 @@ export default class WindowController {
     }
   }
 
+  send(event: string, ...data: Array<mixed>): void {
+    this._window.webContents.send(event, ...data);
+  }
+
   _showImmediately() {
     const window = this._window;
 
