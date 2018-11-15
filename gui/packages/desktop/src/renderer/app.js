@@ -23,9 +23,6 @@ import settingsActions from './redux/settings/actions';
 import versionActions from './redux/version/actions';
 import userInterfaceActions from './redux/userinterface/actions';
 
-import SettingsProxy from './lib/subscription-proxy/settings-proxy';
-import TunnelStateProxy from './lib/subscription-proxy/tunnel-state-proxy';
-
 import type { WindowShapeParameters } from '../main/window-controller';
 import type {
   AccountToken,
@@ -38,10 +35,12 @@ import type {
   AccountData,
 } from './lib/daemon-rpc-proxy';
 
-import DaemonRpcProxy from './lib/daemon-rpc-proxy';
+import DaemonRpcProxy, {
+  defaultSettings,
+  defaultTunnelStateTransition,
+} from './lib/daemon-rpc-proxy';
 
 import type { ReduxStore } from './redux/store';
-import type { TrayIconType } from '../main/tray-icon-controller';
 
 const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
 
@@ -68,12 +67,10 @@ export default class AppRenderer {
       this._updateRelayLocations(relayList);
     },
   );
-  _tunnelStateProxy = new TunnelStateProxy(this._daemonRpc, (tunnelState) => {
-    this._setTunnelState(tunnelState);
-  });
-  _settingsProxy = new SettingsProxy(this._daemonRpc, (settings) => {
-    this._setSettings(settings);
-  });
+
+  _tunnelState = defaultTunnelStateTransition();
+  _settings = defaultSettings();
+
   _connectedToDaemon = false;
 
   constructor() {
@@ -118,14 +115,33 @@ export default class AppRenderer {
       this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : null);
     });
 
-    // Request the initial daemon connection status
-    ipcRenderer.once('daemon-connection-status-reply', (isConnected: boolean) => {
-      if (isConnected) {
-        this._onDaemonConnected();
-      }
+    ipcRenderer.on('tunnel-state-changed', (_event: Event, newState: TunnelStateTransition) => {
+      this._setTunnelState(newState);
     });
 
-    ipcRenderer.send('daemon-connection-status');
+    ipcRenderer.on('settings-changed', (_event: Event, newSettings: Settings) => {
+      this._setSettings(newSettings);
+    });
+
+    // Request the initial state from main process
+    ipcRenderer.on(
+      'get-state-reply',
+      (
+        _event: Event,
+        isConnected: boolean,
+        tunnelState: TunnelStateTransition,
+        settings: Settings,
+      ) => {
+        this._setTunnelState(tunnelState);
+        this._setSettings(settings);
+
+        if (isConnected) {
+          this._onDaemonConnected();
+        }
+      },
+    );
+
+    ipcRenderer.send('get-state');
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
@@ -216,10 +232,8 @@ export default class AppRenderer {
   async connectTunnel() {
     const actions = this._reduxActions;
 
-    const tunnelState = await this._tunnelStateProxy.fetch();
-
     // connect only if tunnel is disconnected or blocked.
-    if (tunnelState.state === 'disconnected' || tunnelState.state === 'blocked') {
+    if (this._tunnelState.state === 'disconnected' || this._tunnelState.state === 'blocked') {
       // switch to connecting state immediately to prevent a lag that may be caused by RPC
       // communication delay
       actions.connection.connecting(null);
@@ -283,10 +297,8 @@ export default class AppRenderer {
   }
 
   async updateAccountExpiry() {
-    const settings = await this._settingsProxy.fetch();
-
-    if (settings && settings.accountToken) {
-      this._accountDataCache.fetch(settings.accountToken);
+    if (this._settings.accountToken) {
+      this._accountDataCache.fetch(this._settings.accountToken);
     }
   }
 
@@ -428,45 +440,6 @@ export default class AppRenderer {
     this._connectedToDaemon = true;
 
     try {
-      await this._runPrimaryApplicationFlow();
-    } catch (error) {
-      log.error(`An error was raised when running the primary application flow: ${error.message}`);
-    }
-  }
-
-  _onDaemonDisconnected(error: ?Error) {
-    const actions = this._reduxActions;
-
-    this._relayListCache.stopUpdating();
-
-    // recover connection on error
-    if (error) {
-      // only send to the connecting to daemon view if the daemon was
-      // connnected previously
-      if (this._connectedToDaemon) {
-        actions.history.replace('/');
-      }
-    }
-
-    this._connectedToDaemon = false;
-  }
-
-  async _runPrimaryApplicationFlow() {
-    // fetch initial state and subscribe for changes
-    try {
-      await this._settingsProxy.fetch();
-    } catch (error) {
-      log.error(`Cannot fetch the initial settings: ${error.message}`);
-    }
-
-    try {
-      await this._tunnelStateProxy.fetch();
-    } catch (error) {
-      log.error(`Cannot fetch the initial tunnel state: ${error.message}`);
-    }
-
-    // fetch the rest of data
-    try {
       await this._fetchCurrentVersion();
     } catch (error) {
       log.error(`Cannot fetch the current version: ${error.message}`);
@@ -488,33 +461,29 @@ export default class AppRenderer {
     } catch (error) {
       log.error(`Cannot fetch the latest version information: ${error.message}`);
     }
+  }
 
-    // auto connect the tunnel on startup
-    // note: disabled when developing
-    if (process.env.NODE_ENV !== 'development') {
-      const settings = await this._settingsProxy.fetch();
+  _onDaemonDisconnected(error: ?Error) {
+    const actions = this._reduxActions;
 
-      // only connect if account is set in the daemon
-      if (settings.accountToken) {
-        try {
-          log.debug('Autoconnect the tunnel');
-          await this.connectTunnel();
-        } catch (error) {
-          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
-        }
-      } else {
-        log.debug('Skip autoconnect because account token is not set');
+    this._relayListCache.stopUpdating();
+
+    // recover connection on error
+    if (error) {
+      // only send to the connecting to daemon view if the daemon was
+      // connnected previously
+      if (this._connectedToDaemon) {
+        actions.history.replace('/');
       }
-    } else {
-      log.debug('Skip autoconnect in development');
     }
+
+    this._connectedToDaemon = false;
   }
 
   async _setStartView() {
     const actions = this._reduxActions;
     const history = this._memoryHistory;
-    const settings = await this._settingsProxy.fetch();
-    const accountToken = settings.accountToken;
+    const accountToken = this._settings.accountToken;
 
     if (accountToken) {
       log.debug(`Account token is set. Showing the tunnel view.`);
@@ -560,13 +529,16 @@ export default class AppRenderer {
   _setTunnelState(tunnelState: TunnelStateTransition) {
     log.debug(`Tunnel state: ${tunnelState.state}`);
 
+    this._tunnelState = tunnelState;
+
     this._updateConnectionStatus(tunnelState);
     this._updateUserLocation(tunnelState.state);
-    this._updateTrayIcon(tunnelState.state);
     this._notificationController.notifyTunnelState(tunnelState);
   }
 
   _setSettings(newSettings: Settings) {
+    this._settings = newSettings;
+
     const reduxSettings = this._reduxActions.settings;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
@@ -615,17 +587,6 @@ export default class AppRenderer {
         log.error(`Unexpected TunnelStateTransition: ${(stateTransition.state: empty)}`);
         break;
     }
-  }
-
-  _updateTrayIcon(tunnelState: TunnelState) {
-    const iconTypes: { [TunnelState]: TrayIconType } = {
-      connected: 'secured',
-      connecting: 'securing',
-      blocked: 'securing',
-    };
-    const type = iconTypes[tunnelState] || 'unsecured';
-
-    ipcRenderer.send('change-tray-icon', type);
   }
 }
 
