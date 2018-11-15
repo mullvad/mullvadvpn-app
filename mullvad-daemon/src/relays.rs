@@ -70,6 +70,12 @@ impl ParsedRelays {
                 let city_code = city.code.clone();
                 let latitude = city.latitude;
                 let longitude = city.longitude;
+                city.relays = city
+                    .relays
+                    .iter()
+                    .filter(|relay| !relay.tunnels.is_empty())
+                    .cloned()
+                    .collect();
                 for relay in &mut city.relays {
                     let mut relay_with_location = relay.clone();
                     relay_with_location.location = Some(Location {
