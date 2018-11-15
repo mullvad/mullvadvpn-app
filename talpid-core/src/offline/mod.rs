@@ -1,3 +1,6 @@
+use futures::sync::mpsc::UnboundedSender;
+use tunnel_state_machine::TunnelCommand;
+
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
@@ -10,4 +13,10 @@ mod imp;
 #[path = "dummy.rs"]
 mod imp;
 
-pub use self::imp::{is_offline, spawn_monitor};
+pub use self::imp::is_offline;
+
+pub struct MonitorHandle(imp::MonitorHandle);
+
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, imp::Error> {
+    Ok(MonitorHandle(imp::spawn_monitor(sender)?))
+}
