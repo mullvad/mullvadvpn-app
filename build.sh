@@ -44,8 +44,6 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
-
-    cargo +stable clean
 else
     echo "!! Development build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
@@ -56,6 +54,9 @@ if [[ "${1:-""}" == "--dev-build" || $(git describe) != "$PRODUCT_VERSION" ]]; t
     GIT_COMMIT=$(git rev-parse --short HEAD)
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
     echo "Modifying product version to $PRODUCT_VERSION"
+else
+    echo "Removing old Rust build artifacts"
+    cargo +stable clean
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
