@@ -1,3 +1,6 @@
+// TODO fix these tests on Windows
+#![cfg(not(windows))]
+
 extern crate assert_matches;
 extern crate env_logger;
 extern crate jsonrpc_client_core;
@@ -38,8 +41,6 @@ impl TestApi for ApiImpl {
     }
 }
 
-// TODO fix this test on Windows
-#[cfg(not(windows))]
 #[test]
 fn can_call_rpcs_on_server() {
     env_logger::init();
@@ -56,8 +57,6 @@ fn can_call_rpcs_on_server() {
     server.close_handle().close();
 }
 
-// TODO fix this test on Windows
-#[cfg(not(windows))]
 #[test]
 #[should_panic]
 fn ipc_client_invalid_url() {
