@@ -512,10 +512,6 @@ const ApplicationMain = {
       fullscreenable: false,
       show: false,
       frame: false,
-      webPreferences: {
-        // prevents renderer process code from not running when window is hidden
-        backgroundThrottling: false,
-      },
     };
 
     switch (process.platform) {
