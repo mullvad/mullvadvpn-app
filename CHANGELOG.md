@@ -34,7 +34,6 @@ Line wrap the file at 100 chars.                                              Th
   an error message.
 
 ### Changed
-- Replace OpenVPN root CA certificate bundled with the app to the new Mullvad root CA.
 - Split DNS management from Firewall management to allow restoring DNS earlier and showing more
   detailed errors to users.
 
@@ -45,6 +44,12 @@ Line wrap the file at 100 chars.                                              Th
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
 - Handle sleep/resume events to quickly restore the tunnel when the machine wakes up.
 
+
+## [2018.5] - 2018-11-15
+### Changed
+- Replace OpenVPN root CA certificate bundled with the app to the new Mullvad root CA.
+
+### Fixed
 #### Linux
 - Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
 
