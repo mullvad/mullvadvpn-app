@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
 - Handle sleep/resume events to quickly restore the tunnel when the machine wakes up.
+- Add default route to fix NLA issues (Microsoft Store/Office/etc say the machine is offline).
 
 #### Linux
 - Improve packaging on RPM based distros by re-enabling the daemon after an upgrade
