@@ -409,7 +409,7 @@ impl MockOpenVpnPluginRpcClient {
         env.insert("ifconfig_local".to_owned(), "10.0.0.10".to_owned());
         env.insert("route_vpn_gateway".to_owned(), "10.0.0.1".to_owned());
 
-        self.send_event(openvpn_plugin::EventType::Up, env)
+        self.send_event(openvpn_plugin::EventType::RouteUp, env)
     }
 
     pub fn route_predown(&mut self) -> Result<()> {

@@ -54,7 +54,7 @@ error_chain!{
 /// events.
 pub static INTERESTING_EVENTS: &'static [EventType] = &[
     EventType::AuthFailed,
-    EventType::Up,
+    EventType::RouteUp,
     EventType::RoutePredown,
 ];
 

@@ -109,7 +109,7 @@ impl TunnelEvent {
                 let reason = env.get("auth_failed_reason").cloned();
                 Some(TunnelEvent::AuthFailed(reason))
             }
-            openvpn_plugin::EventType::Up => {
+            openvpn_plugin::EventType::RouteUp => {
                 let interface = env
                     .get("dev")
                     .expect("No \"dev\" in tunnel up event")
@@ -191,7 +191,7 @@ impl TunnelMonitor {
         };
 
         let on_openvpn_event = move |event, env| {
-            if event == openvpn_plugin::EventType::Up {
+            if event == openvpn_plugin::EventType::RouteUp {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
 
