@@ -12,7 +12,7 @@ import {
 } from './NotificationBanner';
 
 import { AuthFailure } from '../lib/auth-failure';
-import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc';
+import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc-proxy';
 import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {

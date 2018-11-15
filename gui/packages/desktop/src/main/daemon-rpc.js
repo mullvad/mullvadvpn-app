@@ -5,7 +5,7 @@ import JsonRpcClient, {
   TimeOutError as JsonRpcTimeOutError,
   SocketTransport,
 } from './jsonrpc-client';
-import { CommunicationError, InvalidAccountError, NoDaemonError } from '../errors';
+import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
 
 import {
   object,
