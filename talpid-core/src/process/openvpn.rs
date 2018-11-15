@@ -218,7 +218,11 @@ impl OpenVpnCommand {
 
         args.extend(Self::security_arguments().iter().map(OsString::from));
         args.extend(self.proxy_arguments().iter().map(OsString::from));
-        args.extend(Self::default_route_arguments().iter().map(OsString::from));
+
+        #[cfg(windows)]
+        {
+            args.extend(Self::default_route_arguments().iter().map(OsString::from));
+        }
 
         args
     }
