@@ -4,6 +4,7 @@ import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 import uuid from 'uuid';
 
+// Re-export types
 export type {
   AccountToken,
   AccountData,
@@ -27,17 +28,12 @@ export type {
   DaemonRpcProtocol,
 } from '../../main/daemon-rpc';
 
-export { ConnectionObserver, SubscriptionListener } from '../../main/daemon-rpc';
-
-import {
-  NoCreditError,
-  NoInternetError,
-  NoDaemonError,
-  InvalidAccountError,
-  CommunicationError,
-} from '../../main/errors';
-
-import { TimeOutError, RemoteError } from '../../main/jsonrpc-client';
+export {
+  ConnectionObserver,
+  SubscriptionListener,
+  defaultSettings,
+  defaultTunnelStateTransition,
+} from '../../main/daemon-rpc';
 
 import type {
   AccountToken,
@@ -50,7 +46,18 @@ import type {
   Settings,
   Location,
 } from '../../main/daemon-rpc';
+
 import { ConnectionObserver, SubscriptionListener } from '../../main/daemon-rpc';
+
+import {
+  NoCreditError,
+  NoInternetError,
+  NoDaemonError,
+  InvalidAccountError,
+  CommunicationError,
+} from '../../main/errors';
+
+import { TimeOutError, RemoteError } from '../../main/jsonrpc-client';
 
 type ErrorInfo = {
   className: string,
@@ -192,17 +199,16 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
       ipcRenderer.once(
         `daemon-rpc-reply-${id}`,
         (_event: Event, result: R, errorInfo: ?ErrorInfo) => {
-          log.debug(
-            `Got daemon-rpc-reply: ${id} ${method} ${JSON.stringify(result)} ${JSON.stringify(
-              errorInfo,
-            )}`,
-          );
-
           if (errorInfo) {
             const error = this._deserializeError(errorInfo.className, errorInfo.data);
-            log.debug(`Deserialized an error to instance of ${error.constructor.name}`);
+
+            log.debug(
+              `Got daemon-rpc-reply-${id} ${method} with error: ${JSON.stringify(errorInfo)}`,
+            );
+
             reject(error);
           } else {
+            log.debug(`Got daemon-rpc-reply-${id} ${method} with success`);
             resolve(result);
           }
         },
