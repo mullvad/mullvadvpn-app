@@ -174,7 +174,7 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<Broadcast
                     let cloned_sender = sender.clone();
                     thread::spawn(move || {
                         // TAP will be unavailable for approximately 2 seconds on a healthy machine.
-                        thread::sleep(Duration::from_secs(2));
+                        thread::sleep(Duration::from_secs(5));
                         debug!("TAP is presumed to have been re-initialized");
                         let _ = cloned_sender.unbounded_send(TunnelCommand::IsOffline(false));
                     });
