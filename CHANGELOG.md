@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.5] - 2018-11-15
 ### Changed
 - Replace OpenVPN root CA certificate bundled with the app to the new Mullvad root CA.
 
