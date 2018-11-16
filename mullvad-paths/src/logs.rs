@@ -13,17 +13,19 @@ pub fn log_dir() -> Result<PathBuf> {
 pub fn get_log_dir() -> Result<PathBuf> {
     match env::var_os("MULLVAD_LOG_DIR") {
         Some(path) => Ok(PathBuf::from(path)),
-        None => get_default_log_dir().map(|dir| dir.join(crate::PRODUCT_NAME)),
+        None => get_default_log_dir(),
     }
 }
 
-fn get_default_log_dir() -> Result<PathBuf> {
+pub fn get_default_log_dir() -> Result<PathBuf> {
+    let dir;
     #[cfg(unix)]
     {
-        Ok(PathBuf::from("/var/log"))
+        dir = Ok(PathBuf::from("/var/log"));
     }
     #[cfg(windows)]
     {
-        ::get_allusersprofile_dir()
+        dir = ::get_allusersprofile_dir();
     }
+    dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }

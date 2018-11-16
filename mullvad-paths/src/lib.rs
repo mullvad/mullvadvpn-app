@@ -45,7 +45,7 @@ mod cache;
 pub use crate::cache::{cache_dir, get_default_cache_dir};
 
 mod logs;
-pub use crate::logs::{get_log_dir, log_dir};
+pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};
 
 pub mod resources;
 pub use crate::resources::{get_default_resource_dir, get_resource_dir};
