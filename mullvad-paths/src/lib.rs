@@ -42,16 +42,16 @@ fn create_and_return(dir_fn: fn() -> Result<PathBuf>) -> Result<PathBuf> {
 }
 
 mod cache;
-pub use crate::cache::cache_dir;
+pub use crate::cache::{cache_dir, get_default_cache_dir};
 
 mod logs;
-pub use crate::logs::{get_log_dir, log_dir};
+pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};
 
 pub mod resources;
-pub use crate::resources::get_resource_dir;
+pub use crate::resources::{get_default_resource_dir, get_resource_dir};
 
 mod rpc_socket;
-pub use crate::rpc_socket::get_rpc_socket_path;
+pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
 mod settings;
-pub use crate::settings::settings_dir;
+pub use crate::settings::{get_default_settings_dir, settings_dir};

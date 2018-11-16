@@ -12,17 +12,19 @@ pub fn settings_dir() -> Result<PathBuf> {
 fn get_settings_dir() -> Result<PathBuf> {
     match env::var_os("MULLVAD_SETTINGS_DIR") {
         Some(path) => Ok(PathBuf::from(path)),
-        None => get_default_settings_dir().map(|dir| dir.join(crate::PRODUCT_NAME)),
+        None => get_default_settings_dir(),
     }
 }
 
-fn get_default_settings_dir() -> Result<PathBuf> {
+pub fn get_default_settings_dir() -> Result<PathBuf> {
+    let dir;
     #[cfg(unix)]
     {
-        Ok(PathBuf::from("/etc"))
+        dir = Ok(PathBuf::from("/etc"));
     }
     #[cfg(windows)]
     {
-        ::dirs::data_local_dir().ok_or_else(|| ::ErrorKind::FindDirError.into())
+        dir = ::dirs::data_local_dir().ok_or_else(|| ::ErrorKind::FindDirError.into());
     }
+    dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }
