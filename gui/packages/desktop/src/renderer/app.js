@@ -42,8 +42,6 @@ import DaemonRpcProxy, {
 
 import type { ReduxStore } from './redux/store';
 
-const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
-
 export default class AppRenderer {
   _notificationController = new NotificationController();
   _memoryHistory = createMemoryHistory();
@@ -57,14 +55,6 @@ export default class AppRenderer {
     (accountData) => {
       const expiry = accountData ? accountData.expiry : null;
       this._reduxActions.account.updateAccountExpiry(expiry);
-    },
-  );
-  _relayListCache = new RelayListCache(
-    () => {
-      return this._daemonRpc.getRelayLocations();
-    },
-    (relayList) => {
-      this._updateRelayLocations(relayList);
     },
   );
 
@@ -123,6 +113,10 @@ export default class AppRenderer {
       this._setSettings(newSettings);
     });
 
+    ipcRenderer.on('relays-changed', (_event: Event, newRelays: RelayList) => {
+      this._setRelays(newRelays);
+    });
+
     // Request the initial state from main process
     ipcRenderer.on(
       'get-state-reply',
@@ -131,9 +125,11 @@ export default class AppRenderer {
         isConnected: boolean,
         tunnelState: TunnelStateTransition,
         settings: Settings,
+        relays: RelayList,
       ) => {
         this._setTunnelState(tunnelState);
         this._setSettings(settings);
+        this._setRelays(relays);
 
         if (isConnected) {
           this._onDaemonConnected();
@@ -314,11 +310,7 @@ export default class AppRenderer {
     actions.account.updateAccountHistory(accountHistory);
   }
 
-  _updateRelayLocations(relayList: RelayList) {
-    const actions = this._reduxActions;
-
-    log.info('Got relay locations');
-
+  _setRelays(relayList: RelayList) {
     const locations = relayList.countries.map((country) => ({
       name: country.name,
       code: country.code,
@@ -333,7 +325,7 @@ export default class AppRenderer {
       })),
     }));
 
-    actions.settings.updateRelayLocations(locations);
+    this._reduxActions.settings.updateRelayLocations(locations);
   }
 
   async _fetchLocation() {
@@ -445,8 +437,6 @@ export default class AppRenderer {
       log.error(`Cannot fetch the current version: ${error.message}`);
     }
 
-    this._relayListCache.startUpdating();
-
     try {
       await this._fetchAccountHistory();
     } catch (error) {
@@ -465,8 +455,6 @@ export default class AppRenderer {
 
   _onDaemonDisconnected(error: ?Error) {
     const actions = this._reduxActions;
-
-    this._relayListCache.stopUpdating();
 
     // recover connection on error
     if (error) {
@@ -704,36 +692,5 @@ export class AccountDataCache {
 
   _notifyWatchers(notify: (AccountFetchWatcher) => void) {
     this._watchers.splice(0).forEach(notify);
-  }
-}
-
-class RelayListCache {
-  _fetch: () => Promise<RelayList>;
-  _listener: (RelayList) => void;
-  _updateTimer: ?IntervalID = null;
-
-  constructor(fetch: () => Promise<RelayList>, listener: (RelayList) => void) {
-    this._fetch = fetch;
-    this._listener = listener;
-  }
-
-  startUpdating() {
-    this.stopUpdating();
-    this._updateTimer = setInterval(() => this._update(), RELAY_LIST_UPDATE_INTERVAL);
-    this._update();
-  }
-
-  stopUpdating() {
-    if (this._updateTimer) {
-      clearInterval(this._updateTimer);
-    }
-  }
-
-  async _update() {
-    try {
-      this._listener(await this._fetch());
-    } catch (error) {
-      log.error(`Cannot fetch the relay locations: ${error.message}`);
-    }
   }
 }

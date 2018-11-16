@@ -20,10 +20,12 @@ import {
   defaultSettings,
   defaultTunnelStateTransition,
 } from './daemon-rpc';
-import type { TunnelState, TunnelStateTransition, Settings } from './daemon-rpc';
+import type { RelayList, TunnelState, TunnelStateTransition, Settings } from './daemon-rpc';
 
 import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
+
+const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
@@ -44,6 +46,8 @@ const ApplicationMain = {
 
   _tunnelState: defaultTunnelStateTransition(),
   _settings: defaultSettings(),
+  _relays: ({ countries: [] }: RelayList),
+  _relaysInterval: (null: ?IntervalID),
 
   run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -275,6 +279,18 @@ const ApplicationMain = {
       return this._recoverFromBootstrapError(error);
     }
 
+    // fetch relays
+    try {
+      this._setRelays(await this._daemonRpc.getRelayLocations());
+    } catch (error) {
+      log.error(`Failed to fetch relay locations: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // start periodic updates
+    this._startRelaysPeriodicUpdates();
+
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
@@ -285,19 +301,33 @@ const ApplicationMain = {
   },
 
   _onDaemonDisconnected(error: ?Error) {
+    // make sure we were connected before to distinguish between a failed attempt to reconnect and
+    // connection loss.
+    const wasConnected = this._connectedToDaemon;
+
+    if (wasConnected) {
+      this._connectedToDaemon = false;
+
+      // stop periodic updates
+      this._stopRelaysPeriodicUpdates();
+
+      // notify renderer process
+      if (this._windowController) {
+        this._windowController.send('daemon-disconnected', error ? error.message : null);
+      }
+    }
+
     // recover connection on error
     if (error) {
-      log.debug(`Lost connection to daemon: ${error.message}`);
+      if (wasConnected) {
+        log.error(`Lost connection to daemon: ${error.message}`);
+      } else {
+        log.error(`Failed to connect to daemon: ${error.message}`);
+      }
 
       this._reconnectToDaemon();
     } else {
-      log.info(`Disconnected from the daemon`);
-    }
-
-    this._connectedToDaemon = false;
-
-    if (this._windowController) {
-      this._windowController.send('daemon-disconnected', error ? error.message : null);
+      log.info('Disconnected from the daemon');
     }
   },
 
@@ -361,6 +391,37 @@ const ApplicationMain = {
     }
   },
 
+  _setRelays(newRelayList: RelayList) {
+    this._relays = newRelayList;
+
+    if (this._windowController) {
+      this._windowController.send('relays-changed', newRelayList);
+    }
+  },
+
+  _startRelaysPeriodicUpdates() {
+    log.debug('Start relays periodic updates');
+
+    const handler = async () => {
+      try {
+        this._setRelays(await this._daemonRpc.getRelayLocations());
+      } catch (error) {
+        log.error(`Failed to fetch relay locations: ${error.message}`);
+      }
+    };
+
+    this._relaysInterval = setInterval(handler, RELAY_LIST_UPDATE_INTERVAL);
+  },
+
+  _stopRelaysPeriodicUpdates() {
+    if (this._relaysInterval) {
+      clearInterval(this._relaysInterval);
+      this._relaysInterval = null;
+
+      log.debug('Stop relays periodic updates');
+    }
+  },
+
   _updateTrayIcon(tunnelState: TunnelState) {
     const iconTypes: { [TunnelState]: TrayIconType } = {
       connected: 'secured',
@@ -408,6 +469,7 @@ const ApplicationMain = {
         this._connectedToDaemon,
         this._tunnelState,
         this._settings,
+        this._relays,
       );
     });
 
