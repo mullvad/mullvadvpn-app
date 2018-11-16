@@ -10,7 +10,7 @@ pub fn get_resource_dir() -> PathBuf {
     }
 }
 
-fn get_default_resource_dir() -> PathBuf {
+pub fn get_default_resource_dir() -> PathBuf {
     match env::current_exe() {
         Ok(mut path) => {
             path.pop();
