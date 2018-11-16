@@ -1,7 +1,7 @@
 // @flow
 
 import log from 'electron-log';
-import { remote, webFrame, ipcRenderer } from 'electron';
+import { webFrame, ipcRenderer } from 'electron';
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { Provider } from 'react-redux';
@@ -14,7 +14,6 @@ import { createMemoryHistory } from 'history';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
-import NotificationController from './lib/notification-controller';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -24,6 +23,8 @@ import versionActions from './redux/version/actions';
 import userInterfaceActions from './redux/userinterface/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
+import type { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
+
 import type {
   AccountToken,
   Settings,
@@ -43,7 +44,6 @@ import DaemonRpcProxy, {
 import type { ReduxStore } from './redux/store';
 
 export default class AppRenderer {
-  _notificationController = new NotificationController();
   _memoryHistory = createMemoryHistory();
   _reduxStore: ReduxStore;
   _reduxActions: *;
@@ -93,8 +93,6 @@ export default class AppRenderer {
       if (this._connectedToDaemon) {
         this.updateAccountExpiry();
       }
-
-      this._notificationController.cancelPendingNotifications();
     });
 
     ipcRenderer.on('daemon-connected', () => {
@@ -117,6 +115,17 @@ export default class AppRenderer {
       this._setRelays(newRelays);
     });
 
+    ipcRenderer.on(
+      'current-version-changed',
+      (_event: Event, currentVersion: CurrentAppVersionInfo) => {
+        this._setCurrentVersion(currentVersion);
+      },
+    );
+
+    ipcRenderer.on('upgrade-version-changed', (_event: Event, upgradeVersion: AppUpgradeInfo) => {
+      this._setUpgradeVersion(upgradeVersion);
+    });
+
     // Request the initial state from main process
     ipcRenderer.on(
       'get-state-reply',
@@ -126,10 +135,14 @@ export default class AppRenderer {
         tunnelState: TunnelStateTransition,
         settings: Settings,
         relays: RelayList,
+        currentVersion: CurrentAppVersionInfo,
+        upgradeVersion: AppUpgradeInfo,
       ) => {
         this._setTunnelState(tunnelState);
         this._setSettings(settings);
         this._setRelays(relays);
+        this._setCurrentVersion(currentVersion);
+        this._setUpgradeVersion(upgradeVersion);
 
         if (isConnected) {
           this._onDaemonConnected();
@@ -356,86 +369,8 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
-  async _getAppComponentsVersions() {
-    const daemonVersion = await this._daemonRpc.getCurrentVersion();
-    const guiVersion = remote.app.getVersion().replace('.0', '');
-    return {
-      daemon: daemonVersion,
-      gui: guiVersion,
-      isConsistent: daemonVersion === guiVersion,
-    };
-  }
-
-  async _fetchCurrentVersion() {
-    const actions = this._reduxActions;
-    const versions = await this._getAppComponentsVersions();
-
-    // notify user about inconsistent version
-    if (process.env.NODE_ENV !== 'development' && !versions.isConsistent) {
-      this._notificationController.notifyInconsistentVersion();
-    }
-
-    actions.version.updateVersion(versions.gui, versions.isConsistent);
-  }
-
-  async _fetchLatestVersionInfo() {
-    function isBeta(version: string) {
-      return version.includes('-');
-    }
-
-    function nextUpgrade(current: string, latest: string, latestStable: string): ?string {
-      if (isBeta(current)) {
-        return current === latest ? null : latest;
-      } else {
-        return current === latestStable ? null : latestStable;
-      }
-    }
-
-    function checkIfLatest(current: string, latest: string, latestStable: string): boolean {
-      // perhaps -beta?
-      if (isBeta(current)) {
-        return current === latest;
-      } else {
-        // must be stable
-        return current === latestStable;
-      }
-    }
-
-    const versions = await this._getAppComponentsVersions();
-    const versionInfo = await this._daemonRpc.getVersionInfo();
-    const latestVersion = versionInfo.latest.latest;
-    const latestStableVersion = versionInfo.latest.latestStable;
-
-    // the reason why we rely on daemon version here is because daemon obtains the version info
-    // based on its built-in version information
-    const isUpToDate = checkIfLatest(versions.daemon, latestVersion, latestStableVersion);
-    const upgradeVersion = nextUpgrade(versions.daemon, latestVersion, latestStableVersion);
-
-    // notify user to update the app if it became unsupported
-    if (
-      process.env.NODE_ENV !== 'development' &&
-      versions.isConsistent &&
-      !versionInfo.currentIsSupported &&
-      upgradeVersion
-    ) {
-      this._notificationController.notifyUnsupportedVersion(upgradeVersion);
-    }
-
-    this._reduxActions.version.updateLatest({
-      ...versionInfo,
-      nextUpgrade: upgradeVersion,
-      upToDate: isUpToDate,
-    });
-  }
-
   async _onDaemonConnected() {
     this._connectedToDaemon = true;
-
-    try {
-      await this._fetchCurrentVersion();
-    } catch (error) {
-      log.error(`Cannot fetch the current version: ${error.message}`);
-    }
 
     try {
       await this._fetchAccountHistory();
@@ -445,12 +380,6 @@ export default class AppRenderer {
 
     // set the appropriate start view
     await this._setStartView();
-
-    try {
-      await this._fetchLatestVersionInfo();
-    } catch (error) {
-      log.error(`Cannot fetch the latest version information: ${error.message}`);
-    }
   }
 
   _onDaemonDisconnected(error: ?Error) {
@@ -521,7 +450,6 @@ export default class AppRenderer {
 
     this._updateConnectionStatus(tunnelState);
     this._updateUserLocation(tunnelState.state);
-    this._notificationController.notifyTunnelState(tunnelState);
   }
 
   _setSettings(newSettings: Settings) {
@@ -535,6 +463,14 @@ export default class AppRenderer {
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
 
     this._setRelaySettings(newSettings.relaySettings);
+  }
+
+  _setCurrentVersion(versionInfo: CurrentAppVersionInfo) {
+    this._reduxActions.version.updateVersion(versionInfo.gui, versionInfo.isConsistent);
+  }
+
+  _setUpgradeVersion(upgradeVersion: AppUpgradeInfo) {
+    this._reduxActions.version.updateLatest(upgradeVersion);
   }
 
   async _updateUserLocation(tunnelState: TunnelState) {
