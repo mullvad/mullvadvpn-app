@@ -8,14 +8,22 @@ import mkdirp from 'mkdirp';
 import uuid from 'uuid';
 import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 
-import TrayIconController from './tray-icon-controller';
 import WindowController from './window-controller';
-import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './daemon-rpc';
-import type { TunnelStateTransition, Settings } from './daemon-rpc';
+
+import TrayIconController from './tray-icon-controller';
+import type { TrayIconType } from './tray-icon-controller';
+
+import {
+  DaemonRpc,
+  ConnectionObserver,
+  SubscriptionListener,
+  defaultSettings,
+  defaultTunnelStateTransition,
+} from './daemon-rpc';
+import type { TunnelState, TunnelStateTransition, Settings } from './daemon-rpc';
+
 import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
-
-import type { TrayIconType } from './tray-icon-controller';
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
@@ -33,6 +41,9 @@ const ApplicationMain = {
   _logFilePath: '',
   _oldLogFilePath: (null: ?string),
   _quitStage: ('unready': AppQuitStage),
+
+  _tunnelState: defaultTunnelStateTransition(),
+  _settings: defaultSettings(),
 
   run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -237,38 +248,39 @@ const ApplicationMain = {
   async _onDaemonConnected() {
     this._connectedToDaemon = true;
 
+    // subscribe to events
+    try {
+      await this._subscribeEvents();
+    } catch (error) {
+      log.error(`Failed to subscribe: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch the tunnel state
+    try {
+      this._setTunnelState(await this._daemonRpc.getState());
+    } catch (error) {
+      log.error(`Failed to fetch the tunnel state: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch settings
+    try {
+      this._setSettings(await this._daemonRpc.getSettings());
+    } catch (error) {
+      log.error(`Failed to fetch settings: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
 
+    // notify renderer
     if (this._windowController) {
       this._windowController.send('daemon-connected');
-    }
-
-    const stateListener = new SubscriptionListener(
-      (newState: TunnelStateTransition) => {
-        this._onStateChange(newState);
-      },
-      (error: Error) => {
-        log.error(`Cannot deserialize the new state: ${error.message}`);
-      },
-    );
-
-    const settingsListener = new SubscriptionListener(
-      (newSettings: Settings) => {
-        this._onSettingsChange(newSettings);
-      },
-      (error: Error) => {
-        log.error(`Cannot deserialize the new settings: ${error.message}`);
-      },
-    );
-
-    try {
-      await Promise.all([
-        this._daemonRpc.subscribeStateListener(stateListener),
-        this._daemonRpc.subscribeSettingsListener(settingsListener),
-      ]);
-    } catch (error) {
-      log.error(`Failed to subscribe: ${error.message}`);
     }
   },
 
@@ -277,9 +289,7 @@ const ApplicationMain = {
     if (error) {
       log.debug(`Lost connection to daemon: ${error.message}`);
 
-      this._reconnectBackoff.attempt(() => {
-        this._connectToDaemon();
-      });
+      this._reconnectToDaemon();
     } else {
       log.info(`Disconnected from the daemon`);
     }
@@ -295,15 +305,72 @@ const ApplicationMain = {
     this._daemonRpc.connect({ path: DAEMON_RPC_PATH });
   },
 
-  _onStateChange(newState: TunnelStateTransition) {
+  _reconnectToDaemon() {
+    this._reconnectBackoff.attempt(() => {
+      this._connectToDaemon();
+    });
+  },
+
+  _recoverFromBootstrapError(_error: ?Error) {
+    // Attempt to reconnect to daemon if the program fails to fetch settings, tunnel state or
+    // subscribe for RPC events.
+    this._daemonRpc.disconnect();
+
+    this._reconnectToDaemon();
+  },
+
+  async _subscribeEvents(): Promise<void> {
+    const stateListener = new SubscriptionListener(
+      (newState: TunnelStateTransition) => {
+        this._setTunnelState(newState);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new state: ${error.message}`);
+      },
+    );
+
+    const settingsListener = new SubscriptionListener(
+      (newSettings: Settings) => {
+        this._setSettings(newSettings);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new settings: ${error.message}`);
+      },
+    );
+
+    await Promise.all([
+      this._daemonRpc.subscribeStateListener(stateListener),
+      this._daemonRpc.subscribeSettingsListener(settingsListener),
+    ]);
+  },
+
+  _setTunnelState(newState: TunnelStateTransition) {
+    this._tunnelState = newState;
+    this._updateTrayIcon(newState.state);
+
     if (this._windowController) {
-      this._windowController.send('state-changed', newState);
+      this._windowController.send('tunnel-state-changed', newState);
     }
   },
 
-  _onSettingsChange(newSettings: Settings) {
+  _setSettings(newSettings: Settings) {
+    this._settings = newSettings;
+
     if (this._windowController) {
       this._windowController.send('settings-changed', newSettings);
+    }
+  },
+
+  _updateTrayIcon(tunnelState: TunnelState) {
+    const iconTypes: { [TunnelState]: TrayIconType } = {
+      connected: 'secured',
+      connecting: 'securing',
+      blocked: 'securing',
+    };
+    const type = iconTypes[tunnelState] || 'unsecured';
+
+    if (this._trayIconController) {
+      this._trayIconController.animateToIcon(type);
     }
   },
 
@@ -315,16 +382,16 @@ const ApplicationMain = {
 
   _registerIpcListeners() {
     ipcMain.on('daemon-rpc-call', async (event, id: string, method: string, payload: any) => {
-      log.debug(`Got daemon-rpc-call: ${id} ${method} ${payload}`);
+      log.debug(`Got daemon-rpc-call: ${id} ${method}`);
 
       try {
         // $FlowFixMe: flow does not like index accessors.
         const result = await this._daemonRpc[method](payload);
 
-        log.debug(`Reply to ${id} ${method} with success: ${JSON.stringify(result)}`);
+        log.debug(`Send daemon-rpc-reply-${id} ${method} with success`);
         event.sender.send(`daemon-rpc-reply-${id}`, result);
       } catch (error) {
-        log.debug(`Reply to ${id} ${method} with error: ${error.message}`);
+        log.debug(`Send daemon-rpc-reply-${id} ${method} with error: ${error.message}`);
         event.sender.send(`daemon-rpc-reply-${id}`, undefined, {
           className: error.constructor.name || '',
           data: {
@@ -335,28 +402,19 @@ const ApplicationMain = {
       }
     });
 
-    ipcMain.on('daemon-connection-status', (event) => {
-      event.sender.send('daemon-connection-status-reply', this._connectedToDaemon);
+    ipcMain.on('get-state', (event) => {
+      event.sender.send(
+        'get-state-reply',
+        this._connectedToDaemon,
+        this._tunnelState,
+        this._settings,
+      );
     });
 
     ipcMain.on('show-window', () => {
       const windowController = this._windowController;
       if (windowController) {
         windowController.show();
-      }
-    });
-
-    ipcMain.on('hide-window', () => {
-      const windowController = this._windowController;
-      if (windowController) {
-        windowController.hide();
-      }
-    });
-
-    ipcMain.on('change-tray-icon', (_event: any, type: TrayIconType) => {
-      const trayIconController = this._trayIconController;
-      if (trayIconController) {
-        trayIconController.animateToIcon(type);
       }
     });
 
@@ -454,10 +512,6 @@ const ApplicationMain = {
       fullscreenable: false,
       show: false,
       frame: false,
-      webPreferences: {
-        // prevents renderer process code from not running when window is hidden
-        backgroundThrottling: false,
-      },
     };
 
     switch (process.platform) {

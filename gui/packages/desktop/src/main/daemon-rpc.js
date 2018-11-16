@@ -638,3 +638,28 @@ function transformObjectKeys(object: Object, keyTransformer: (string) => string)
   }
   return object;
 }
+
+export function defaultSettings(): Settings {
+  return {
+    accountToken: null,
+    allowLan: false,
+    autoConnect: false,
+    relaySettings: {
+      normal: {
+        location: 'any',
+        tunnel: 'any',
+      },
+    },
+    tunnelOptions: {
+      enableIpv6: false,
+      openvpn: {
+        mssfix: null,
+      },
+      proxy: null,
+    },
+  };
+}
+
+export function defaultTunnelStateTransition(): TunnelStateTransition {
+  return { state: 'disconnected' };
+}
