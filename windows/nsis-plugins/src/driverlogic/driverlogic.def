@@ -4,5 +4,5 @@ EXPORTS
 
 Initialize
 EstablishBaseline
-IdentifyNewInterface
+IdentifyNewAdapter
 Deinitialize
