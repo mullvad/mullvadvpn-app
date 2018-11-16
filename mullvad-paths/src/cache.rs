@@ -12,17 +12,19 @@ pub fn cache_dir() -> Result<PathBuf> {
 fn get_cache_dir() -> Result<PathBuf> {
     match env::var_os("MULLVAD_CACHE_DIR") {
         Some(path) => Ok(PathBuf::from(path)),
-        None => get_default_cache_dir().map(|dir| dir.join(crate::PRODUCT_NAME)),
+        None => get_default_cache_dir(),
     }
 }
 
-fn get_default_cache_dir() -> Result<PathBuf> {
+pub fn get_default_cache_dir() -> Result<PathBuf> {
+    let dir;
     #[cfg(target_os = "linux")]
     {
-        Ok(PathBuf::from("/var/cache"))
+        dir = Ok(PathBuf::from("/var/cache"))
     }
     #[cfg(any(target_os = "macos", windows))]
     {
-        ::dirs::cache_dir().ok_or_else(|| ::ErrorKind::FindDirError.into())
+        dir = ::dirs::cache_dir().ok_or_else(|| ::ErrorKind::FindDirError.into())
     }
+    dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }
