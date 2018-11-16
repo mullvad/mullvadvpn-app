@@ -381,7 +381,6 @@ impl MockOpenVpnPluginRpcClient {
                     tx.send(Ok(client_handle)).unwrap();
                     tokio::run(client.map_err(|e| {
                         println!("RPC client failed: {}", e);
-                        ()
                     }));
                 }
                 Err(e) => tx.send(Err(e)).unwrap(),
