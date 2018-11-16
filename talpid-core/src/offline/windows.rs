@@ -162,7 +162,9 @@ impl Drop for BroadcastListener {
     }
 }
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<BroadcastListener> {
+pub type MonitorHandle = BroadcastListener;
+
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
     let listener =
         BroadcastListener::start(move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
             if message == WM_POWERBROADCAST {

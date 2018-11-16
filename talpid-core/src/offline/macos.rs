@@ -21,7 +21,9 @@ error_chain! {
     }
 }
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<()> {
+pub struct MonitorHandle;
+
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
     let (result_tx, result_rx) = mpsc::channel();
     thread::spawn(move || match create_dynamic_store(sender) {
         Ok(store) => {
@@ -31,7 +33,7 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<()> {
         }
         Err(e) => result_tx.send(Err(e)).unwrap(),
     });
-    result_rx.recv().unwrap()
+    result_rx.recv().unwrap().map(|_| MonitorHandle)
 }
 
 pub fn is_offline() -> bool {
