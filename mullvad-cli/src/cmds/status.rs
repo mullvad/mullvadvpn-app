@@ -59,7 +59,7 @@ fn print_blocked_reason(reason: &BlockReason) {
                 .as_ref()
                 .map(|s| s.as_str())
                 .unwrap_or("Account authentication failed");
-            println!("Blocked: {}", AuthFailed::from_str(auth_failure_str));
+            println!("Blocked: {}", AuthFailed::from(auth_failure_str));
         }
         other => println!("Blocked: {}", other),
     }

@@ -275,7 +275,7 @@ fn ip_address_to_message_item(address: &IpAddr) -> MessageItem {
 
 fn bytes_to_message_item_array(bytes: &[u8]) -> MessageItemArray {
     MessageItemArray::new(
-        bytes.into_iter().cloned().map(MessageItem::Byte).collect(),
+        bytes.iter().cloned().map(MessageItem::Byte).collect(),
         Signature::make::<Vec<u8>>(),
     )
     .expect("Invalid construction of DBus array of bytes argument")
