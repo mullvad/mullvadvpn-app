@@ -199,14 +199,14 @@ fn collect_report(
                             other_logs.push(path);
                         }
                     }
-                    Err(error) => problem_report.add_error("Unable to get log path", error),
+                    Err(error) => problem_report.add_error("Unable to get log path", &error),
                 }
             }
             for other_log in other_logs {
                 problem_report.add_log(&other_log);
             }
         }
-        Err(error) => problem_report.add_error("Failed to list logs in log directory", error),
+        Err(error) => problem_report.add_error("Failed to list logs in log directory", &error),
     };
 
     problem_report.add_logs(extra_logs);
@@ -329,13 +329,8 @@ impl ProblemReport {
     }
 
     /// Attach an error to the report.
-    pub fn add_error<S, E>(&mut self, message: S, error: E)
-    where
-        S: ToString,
-        E: ChainedError,
-    {
+    pub fn add_error(&mut self, message: &'static str, error: &impl ChainedError) {
         let redacted_error = self.redact(&error.display_chain().to_string());
-
         self.logs.push((message.to_string(), redacted_error));
     }
 
