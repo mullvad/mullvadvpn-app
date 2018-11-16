@@ -1,10 +1,10 @@
 // @flow
 
-import { remote } from 'electron';
+import { shell, Notification } from 'electron';
 import log from 'electron-log';
-import config from '../../config';
+import config from '../config';
 
-import type { TunnelStateTransition } from './daemon-rpc-proxy';
+import type { TunnelStateTransition } from './daemon-rpc';
 
 export default class NotificationController {
   _lastTunnelStateNotification: ?Notification;
@@ -48,41 +48,33 @@ export default class NotificationController {
   }
 
   notifyInconsistentVersion() {
-    if (remote.getCurrentWindow().isVisible()) {
-      return;
-    }
-
     this._presentNotificationOnce('inconsistent-version', () => {
-      const notification = new Notification(remote.app.getName(), {
+      const notification = new Notification({
         body: 'Inconsistent internal version information, please restart the app',
         silent: true,
       });
-      this._addPendingNotification(notification);
+      this._scheduleNotification(notification);
     });
   }
 
   notifyUnsupportedVersion(upgradeVersion: string) {
-    if (remote.getCurrentWindow().isVisible()) {
-      return;
-    }
-
     this._presentNotificationOnce('unsupported-version', () => {
-      const notification = new Notification(remote.app.getName(), {
+      const notification = new Notification({
         body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
         silent: true,
       });
 
-      notification.addEventListener('click', () => {
-        remote.shell.openExternal(config.links.download);
+      notification.on('click', () => {
+        shell.openExternal(config.links.download);
       });
 
-      this._addPendingNotification(notification);
+      this._scheduleNotification(notification);
     });
   }
 
   cancelPendingNotifications() {
     for (const notification of this._pendingNotifications) {
-      this._closeNotification(notification);
+      notification.close();
     }
   }
 
@@ -90,21 +82,21 @@ export default class NotificationController {
     const lastNotification = this._lastTunnelStateNotification;
     const sameAsLastNotification = lastNotification && lastNotification.body === message;
 
-    if (sameAsLastNotification || remote.getCurrentWindow().isVisible()) {
+    if (sameAsLastNotification) {
       return;
     }
 
-    const newNotification = new Notification(remote.app.getName(), {
+    const newNotification = new Notification({
       body: message,
       silent: true,
     });
 
     if (lastNotification) {
-      this._closeNotification(lastNotification);
+      lastNotification.close();
     }
 
     this._lastTunnelStateNotification = newNotification;
-    this._addPendingNotification(newNotification);
+    this._scheduleNotification(newNotification);
   }
 
   _presentNotificationOnce(notificationName: string, presentNotification: () => void) {
@@ -115,22 +107,14 @@ export default class NotificationController {
     }
   }
 
-  _closeNotification(notification: Notification) {
-    // If the notification is closed too soon, it might still get shown. If that happens, close()
-    // should be called again so that it is closed immediately.
-    // Tracking issue: https://github.com/electron/electron/issues/12887
-    notification.addEventListener('show', () => {
-      notification.close();
-    });
+  _scheduleNotification(notification: Notification) {
+    this._addPendingNotification(notification);
 
-    notification.close();
+    notification.show();
   }
 
   _addPendingNotification(notification: Notification) {
-    // Quirk: chromium postpones the 'close' event until new notifications pump the queue or window
-    // becomes visible. It's possible that there is going to be one stale notification in
-    // `_pendingNotifications` array but that shouldn't be a big deal.
-    notification.addEventListener('close', () => {
+    notification.on('close', () => {
       this._removePendingNotification(notification);
     });
 

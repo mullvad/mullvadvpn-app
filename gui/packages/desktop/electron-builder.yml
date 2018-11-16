@@ -37,6 +37,7 @@ mac:
   category: public.app-category.tools
   extendInfo:
     LSUIElement: true
+    NSUserNotificationAlertStyle: alert
   extraResources:
     - from: ../../../target/release/mullvad
       to: .
