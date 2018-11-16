@@ -287,7 +287,7 @@ impl Tunnel {
 
             let proxy = RemoteOpenVpnProxySettings {
                 address: SocketAddr::new(remote_ip, remote_port),
-                auth: auth,
+                auth,
             };
 
             let packed_proxy = OpenVpnProxySettings::Remote(proxy);
