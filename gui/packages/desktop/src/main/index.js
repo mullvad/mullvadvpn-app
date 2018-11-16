@@ -8,6 +8,7 @@ import mkdirp from 'mkdirp';
 import uuid from 'uuid';
 import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 
+import NotificationController from './notification-controller';
 import WindowController from './window-controller';
 
 import TrayIconController from './tray-icon-controller';
@@ -20,19 +21,38 @@ import {
   defaultSettings,
   defaultTunnelStateTransition,
 } from './daemon-rpc';
-import type { RelayList, TunnelState, TunnelStateTransition, Settings } from './daemon-rpc';
+import type {
+  AppVersionInfo,
+  RelayList,
+  Settings,
+  TunnelState,
+  TunnelStateTransition,
+} from './daemon-rpc';
 
 import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
 
 const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
+const VERSION_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
 type AppQuitStage = 'unready' | 'initiated' | 'ready';
 
+export type CurrentAppVersionInfo = {
+  gui: string,
+  daemon: string,
+  isConsistent: boolean,
+};
+
+export type AppUpgradeInfo = {
+  nextUpgrade: ?string,
+  upToDate: boolean,
+} & AppVersionInfo;
+
 const ApplicationMain = {
+  _notificationController: new NotificationController(),
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
 
@@ -46,8 +66,26 @@ const ApplicationMain = {
 
   _tunnelState: defaultTunnelStateTransition(),
   _settings: defaultSettings(),
+
   _relays: ({ countries: [] }: RelayList),
   _relaysInterval: (null: ?IntervalID),
+
+  _currentVersion: ({
+    daemon: '',
+    gui: '',
+    isConsistent: true,
+  }: CurrentAppVersionInfo),
+
+  _upgradeVersion: ({
+    currentIsSupported: true,
+    latest: {
+      latestStable: '',
+      latest: '',
+    },
+    nextUpgrade: null,
+    upToDate: true,
+  }: AppUpgradeInfo),
+  _latestVersionInterval: (null: ?IntervalID),
 
   run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -288,8 +326,30 @@ const ApplicationMain = {
       return this._recoverFromBootstrapError(error);
     }
 
+    // fetch the daemon's version
+    try {
+      this._setDaemonVersion(await this._daemonRpc.getCurrentVersion());
+    } catch (error) {
+      log.error(`Failed to fetch the daemon's version: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch the latest version info in background
+    this._fetchLatestVersion();
+
     // start periodic updates
     this._startRelaysPeriodicUpdates();
+    this._startLatestVersionPeriodicUpdates();
+
+    // notify user about inconsistent version
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      !this._shouldSuppressNotifications() &&
+      !this._currentVersion.isConsistent
+    ) {
+      this._notificationController.notifyInconsistentVersion();
+    }
 
     // reset the reconnect backoff when connection established.
     this._reconnectBackoff.reset();
@@ -310,6 +370,7 @@ const ApplicationMain = {
 
       // stop periodic updates
       this._stopRelaysPeriodicUpdates();
+      this._stopLatestVersionPeriodicUpdates();
 
       // notify renderer process
       if (this._windowController) {
@@ -375,11 +436,17 @@ const ApplicationMain = {
   },
 
   _setTunnelState(newState: TunnelStateTransition) {
+    const windowController = this._windowController;
+
     this._tunnelState = newState;
     this._updateTrayIcon(newState.state);
 
-    if (this._windowController) {
-      this._windowController.send('tunnel-state-changed', newState);
+    if (!this._shouldSuppressNotifications()) {
+      this._notificationController.notifyTunnelState(newState);
+    }
+
+    if (windowController) {
+      windowController.send('tunnel-state-changed', newState);
     }
   },
 
@@ -422,6 +489,109 @@ const ApplicationMain = {
     }
   },
 
+  _setDaemonVersion(daemonVersion: string) {
+    const guiVersion = app.getVersion().replace('.0', '');
+    const versionInfo = {
+      daemon: daemonVersion,
+      gui: guiVersion,
+      isConsistent: daemonVersion === guiVersion,
+    };
+
+    this._currentVersion = versionInfo;
+
+    // notify renderer
+    if (this._windowController) {
+      this._windowController.send('current-version-changed', versionInfo);
+    }
+  },
+
+  _setLatestVersion(latestVersionInfo: AppVersionInfo) {
+    function isBeta(version: string) {
+      return version.includes('-');
+    }
+
+    function nextUpgrade(current: string, latest: string, latestStable: string): ?string {
+      if (isBeta(current)) {
+        return current === latest ? null : latest;
+      } else {
+        return current === latestStable ? null : latestStable;
+      }
+    }
+
+    function checkIfLatest(current: string, latest: string, latestStable: string): boolean {
+      // perhaps -beta?
+      if (isBeta(current)) {
+        return current === latest;
+      } else {
+        // must be stable
+        return current === latestStable;
+      }
+    }
+
+    const currentVersionInfo = this._currentVersion;
+    const latestVersion = latestVersionInfo.latest.latest;
+    const latestStableVersion = latestVersionInfo.latest.latestStable;
+
+    // the reason why we rely on daemon version here is because daemon obtains the version info
+    // based on its built-in version information
+    const isUpToDate = checkIfLatest(currentVersionInfo.daemon, latestVersion, latestStableVersion);
+    const upgradeVersion = nextUpgrade(
+      currentVersionInfo.daemon,
+      latestVersion,
+      latestStableVersion,
+    );
+
+    const upgradeInfo = {
+      ...latestVersionInfo,
+      nextUpgrade: upgradeVersion,
+      upToDate: isUpToDate,
+    };
+
+    this._upgradeVersion = upgradeInfo;
+
+    // notify user to update the app if it became unsupported
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      !this._shouldSuppressNotifications() &&
+      currentVersionInfo.isConsistent &&
+      !latestVersionInfo.currentIsSupported &&
+      upgradeVersion
+    ) {
+      this._notificationController.notifyUnsupportedVersion(upgradeVersion);
+    }
+
+    if (this._windowController) {
+      this._windowController.send('upgrade-version-changed', upgradeInfo);
+    }
+  },
+
+  async _fetchLatestVersion() {
+    try {
+      this._setLatestVersion(await this._daemonRpc.getVersionInfo());
+    } catch (error) {
+      console.error(`Failed to request the version info: ${error.message}`);
+    }
+  },
+
+  _startLatestVersionPeriodicUpdates() {
+    const handler = () => {
+      this._fetchLatestVersion();
+    };
+    this._latestVersionInterval = setInterval(handler, VERSION_UPDATE_INTERVAL);
+  },
+
+  _stopLatestVersionPeriodicUpdates() {
+    if (this._latestVersionInterval) {
+      clearInterval(this._latestVersionInterval);
+
+      this._latestVersionInterval = null;
+    }
+  },
+
+  _shouldSuppressNotifications() {
+    return this._windowController && this._windowController.isVisible();
+  },
+
   _updateTrayIcon(tunnelState: TunnelState) {
     const iconTypes: { [TunnelState]: TrayIconType } = {
       connected: 'secured',
@@ -436,9 +606,12 @@ const ApplicationMain = {
   },
 
   _registerWindowListener(windowController: WindowController) {
-    const window = windowController.window;
+    windowController.window.on('show', () => {
+      // cancel notifications when window appears
+      this._notificationController.cancelPendingNotifications();
 
-    window.on('show', () => window.webContents.send('window-shown'));
+      windowController.send('window-shown');
+    });
   },
 
   _registerIpcListeners() {
@@ -470,6 +643,8 @@ const ApplicationMain = {
         this._tunnelState,
         this._settings,
         this._relays,
+        this._currentVersion,
+        this._upgradeVersion,
       );
     });
 

@@ -197,6 +197,43 @@ declare module 'electron' {
     popup(browserWindow?: BrowserWindow, options?: PopupOptions): void;
   }
 
+  // https://electronjs.org/docs/api/structures/notification-action
+  declare type NotificationAction = {
+    type: 'button',
+    text?: string
+  };
+
+  // https://electronjs.org/docs/api/notification
+  declare type NotificationOptions = {
+    title?: string,
+    subtitle?: string,
+    body: string,
+    silent?: boolean,
+    icon?: string | NativeImage,
+    hasReply?: boolean,
+    replyPlaceholder?: string,
+    sound?: string,
+    actions?: Array<NotificationAction>,
+    closeButtonText?: string
+  };
+
+  declare class Notification extends EventEmitter {
+    static isSupported(): boolean;
+    constructor(options: NotificationOptions): void;
+    show(): void;
+    close(): void;
+    title: string;
+    subtitle: string;
+    body: string;
+    silent: boolean;
+    hasReply: boolean;
+    replyPlaceholder: string;
+    sound: string;
+    actions: Array<NotificationAction>,
+    closeButtonText: string;
+  }
+
+
   // http://electron.atom.io/docs/api/app
 
   declare class App extends EventEmitter {
