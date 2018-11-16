@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libcommon/wmi/connection.h>
 #include <set>
 #include <string>
 
@@ -8,49 +7,47 @@ class Context
 {
 public:
 
-	Context();
-
-	struct VirtualNic
+	Context()
 	{
-		std::wstring node;
+	}
+
+	struct NetworkAdapter
+	{
+		std::wstring guid;
 		std::wstring name;
 		std::wstring alias;
 
-		bool operator<(const VirtualNic &rhs) const
+		NetworkAdapter(std::wstring _guid, std::wstring _name, std::wstring _alias)
+			: guid(_guid)
+			, name(_name)
+			, alias(_alias)
 		{
-			return _wcsicmp(node.c_str(), rhs.node.c_str()) < 0;
+		}
+
+		bool operator<(const NetworkAdapter &rhs) const
+		{
+			return _wcsicmp(guid.c_str(), rhs.guid.c_str()) < 0;
 		}
 	};
 
 	enum class BaselineStatus
 	{
-		NO_INTERFACES_PRESENT,
-		SOME_INTERFACES_PRESENT,
-		MULLVAD_INTERFACE_PRESENT
+		NO_TAP_ADAPTERS_PRESENT,
+		SOME_TAP_ADAPTERS_PRESENT,
+		MULLVAD_ADAPTER_PRESENT
 	};
 
-	//
-	// Invoke with the output from "tapinstall hwids tap0901"
-	//
-	BaselineStatus establishBaseline(const std::wstring &textBlock);
+	BaselineStatus establishBaseline();
+
+	void recordCurrentState();
 
 	//
-	// Invoke with the output from "tapinstall hwids tap0901"
+	// Identify a single new TAP adapter
 	//
-	void recordCurrentState(const std::wstring &textBlock);
-
-	//
-	// Identify a single new interface
-	//
-	VirtualNic getNewAdapter();
+	NetworkAdapter getNewAdapter();
 
 private:
 
-	common::wmi::Connection m_connection;
-
-	std::set<VirtualNic> ParseVirtualNics(const std::wstring &textBlock);
-	std::wstring GetNicAlias(const std::wstring &node, const std::wstring &name);
-
-	std::set<VirtualNic> m_baseline;
-	std::set<VirtualNic> m_currentState;
+	std::set<NetworkAdapter> m_baseline;
+	std::set<NetworkAdapter> m_currentState;
 };

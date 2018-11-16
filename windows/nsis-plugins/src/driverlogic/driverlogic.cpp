@@ -10,35 +10,10 @@
 #include <nsis/pluginapi.h>
 #pragma warning (pop)
 
-#include <string>
-#include <vector>
-
 Context *g_context = nullptr;
 
 namespace
 {
-
-std::wstring PopString()
-{
-	//
-	// NSIS functions popstring() and popstringn() require that you definitely size the buffer
-	// before popping the string. Let's do it ourselves instead.
-	//
-
-	if (!g_stacktop || !*g_stacktop)
-	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
-	}
-
-	stack_t *th = *g_stacktop;
-
-	std::wstring copy(th->text);
-
-	*g_stacktop = th->next;
-	GlobalFree((HGLOBAL)th);
-
-	return copy;
-}
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -122,15 +97,17 @@ void __declspec(dllexport) NSISCALL Initialize
 //
 // EstablishBaseline
 //
-// Invoke with the output from "tapinstall hwids tap0901"
-// e.g.: driverlogic::EstablishBaseline $1
+// Call this function to establish a baseline W.R.T network adapters
+// present in the system.
+//
+// The return value reflects the status of TAP presence in the system.
 //
 enum class EstablishBaselineStatus
 {
 	GENERAL_ERROR = 0,
-	NO_INTERFACES_PRESENT,
-	SOME_INTERFACES_PRESENT,
-	MULLVAD_INTERFACE_PRESENT
+	NO_TAP_ADAPTERS_PRESENT,
+	SOME_TAP_ADAPTERS_PRESENT,
+	MULLVAD_ADAPTER_PRESENT
 };
 
 void __declspec(dllexport) NSISCALL EstablishBaseline
@@ -157,12 +134,12 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 
 		const common::ValueMapper<Context::BaselineStatus, EstablishBaselineStatus> mapper =
 		{
-			value_type(Context::BaselineStatus::NO_INTERFACES_PRESENT, EstablishBaselineStatus::NO_INTERFACES_PRESENT),
-			value_type(Context::BaselineStatus::SOME_INTERFACES_PRESENT, EstablishBaselineStatus::SOME_INTERFACES_PRESENT),
-			value_type(Context::BaselineStatus::MULLVAD_INTERFACE_PRESENT, EstablishBaselineStatus::MULLVAD_INTERFACE_PRESENT)
+			value_type(Context::BaselineStatus::NO_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::NO_TAP_ADAPTERS_PRESENT),
+			value_type(Context::BaselineStatus::SOME_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::SOME_TAP_ADAPTERS_PRESENT),
+			value_type(Context::BaselineStatus::MULLVAD_ADAPTER_PRESENT, EstablishBaselineStatus::MULLVAD_ADAPTER_PRESENT)
 		};
 
-		const auto status = mapper.map(g_context->establishBaseline(PopString()));
+		const auto status = mapper.map(g_context->establishBaseline());
 
 		pushstring(L"");
 		pushint(status);
@@ -180,18 +157,20 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
-// IdentifyNewInterface
+// IdentifyNewAdapter
 //
-// Invoke with the output from "tapinstall hwids tap0901"
-// e.g.: driverlogic::IdentifyNewInterface $1
+// Call this function after installing a TAP adapter.
 //
-enum class IdentifyNewInterfaceStatus
+// By comparing with the previously captured baseline we're able to
+// identify the new adapter.
+//
+enum class IdentifyNewAdapterStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS
 };
 
-void __declspec(dllexport) NSISCALL IdentifyNewInterface
+void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 (
 	HWND hwndParent,
 	int string_size,
@@ -211,22 +190,22 @@ void __declspec(dllexport) NSISCALL IdentifyNewInterface
 
 	try
 	{
-		g_context->recordCurrentState(PopString());
+		g_context->recordCurrentState();
 
-		auto nic = g_context->getNewAdapter();
+		auto adapter = g_context->getNewAdapter();
 
-		pushstring(nic.alias.c_str());
-		pushint(IdentifyNewInterfaceStatus::SUCCESS);
+		pushstring(adapter.alias.c_str());
+		pushint(IdentifyNewAdapterStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
+		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(IdentifyNewInterfaceStatus::GENERAL_ERROR);
+		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
 	}
 }
 
