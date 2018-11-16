@@ -43,6 +43,7 @@ lazy_static::lazy_static! {
                                [Default: {}]
     MULLVAD_SETTINGS_DIR       Directory path for storing settings. [Default: {}]
     MULLVAD_CACHE_DIR          Directory path for storing cache. [Default: {}]
+    MULLVAD_LOG_DIR            Directory path for storing logs. [Default: {}]
     MULLVAD_RPC_SOCKET_PATH    Location of the management interface device.
                                It refers to Unix domain socket on Unix based platforms, and named pipe on Windows.
                                [Default: {}]
@@ -51,6 +52,7 @@ lazy_static::lazy_static! {
         mullvad_paths::get_default_resource_dir().display(),
         mullvad_paths::get_default_settings_dir().expect("Unable to get settings dir").display(),
         mullvad_paths::get_default_cache_dir().expect("Unable to get cache dir").display(),
+        mullvad_paths::get_default_log_dir().expect("Unable to get log dir").display(),
         mullvad_paths::get_default_rpc_socket_path().display());
 }
 
