@@ -438,9 +438,11 @@ const ApplicationMain = {
   },
 
   _setTunnelState(newState: TunnelStateTransition) {
+    const oldState = this._tunnelState;
+
     this._tunnelState = newState;
     this._updateTrayIcon(newState.state);
-    this._updateLocation(newState.state);
+    this._updateLocation(oldState, newState);
 
     if (!this._shouldSuppressNotifications()) {
       this._notificationController.notifyTunnelState(newState);
@@ -601,8 +603,14 @@ const ApplicationMain = {
     return this._windowController && this._windowController.isVisible();
   },
 
-  async _updateLocation(tunnelState: TunnelState) {
-    if (['connected', 'connecting', 'disconnected'].includes(tunnelState)) {
+  async _updateLocation(oldState: TunnelStateTransition, newState: TunnelStateTransition) {
+    if (
+      newState.state === 'connected' ||
+      newState.state === 'disconnected' ||
+      // Guard from fetching the location during reconnection loop.
+      (newState.state === 'connecting' &&
+        !(oldState.state === 'disconnecting' && oldState.details === 'reconnect'))
+    ) {
       try {
         this._setLocation(await this._daemonRpc.getLocation());
       } catch (error) {
