@@ -39,7 +39,10 @@ impl ClientCreator for HttpsClientWithSni {
     fn create(&self, handle: &Handle) -> Result<Client<Self::Connect, Body>, Self::Error> {
         let mut connector = HttpsConnectorWithSni::new(&self.ca_path, handle)?;
         connector.set_sni_hostname(Some(self.sni_hostname.clone()));
-        let client = Client::configure().connector(connector).build(handle);
+        let client = Client::configure()
+            .keep_alive(false)
+            .connector(connector)
+            .build(handle);
         Ok(client)
     }
 }

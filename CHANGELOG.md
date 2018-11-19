@@ -42,6 +42,8 @@ Line wrap the file at 100 chars.                                              Th
 - Cancel pending system notifications when the app becomes visible.
 - Transition to connected state after all routes are configured. Avoids problems with reaching the
   internet directly after the app says it's connected.
+- Disable keep alive on API RPC requests. Should stop reuse of invalid sockets after tunnel state
+  changes.
 
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
