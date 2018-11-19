@@ -31,7 +31,7 @@ export type Location = {
   city: ?string,
   latitude: number,
   longitude: number,
-  mullvad_exit_ip: boolean,
+  mullvadExitIp: boolean,
   hostname: ?string,
 };
 const LocationSchema = partialObject({
