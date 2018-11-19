@@ -27,13 +27,13 @@ import type { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
 
 import type {
   AccountToken,
-  Settings,
-  TunnelStateTransition,
+  AccountData,
+  Location,
   RelayList,
   RelaySettingsUpdate,
   RelaySettings,
-  TunnelState,
-  AccountData,
+  Settings,
+  TunnelStateTransition,
 } from './lib/daemon-rpc-proxy';
 
 import DaemonRpcProxy, {
@@ -111,6 +111,10 @@ export default class AppRenderer {
       this._setSettings(newSettings);
     });
 
+    ipcRenderer.on('location-changed', (_event: Event, location: Location) => {
+      this._setLocation(location);
+    });
+
     ipcRenderer.on('relays-changed', (_event: Event, newRelays: RelayList) => {
       this._setRelays(newRelays);
     });
@@ -134,12 +138,18 @@ export default class AppRenderer {
         isConnected: boolean,
         tunnelState: TunnelStateTransition,
         settings: Settings,
+        location: ?Location,
         relays: RelayList,
         currentVersion: CurrentAppVersionInfo,
         upgradeVersion: AppUpgradeInfo,
       ) => {
         this._setTunnelState(tunnelState);
         this._setSettings(settings);
+
+        if (location) {
+          this._setLocation(location);
+        }
+
         this._setRelays(relays);
         this._setCurrentVersion(currentVersion);
         this._setUpgradeVersion(upgradeVersion);
@@ -323,28 +333,6 @@ export default class AppRenderer {
     actions.account.updateAccountHistory(accountHistory);
   }
 
-  _setRelays(relayList: RelayList) {
-    const locations = relayList.countries.map((country) => ({
-      name: country.name,
-      code: country.code,
-      hasActiveRelays: country.cities.some((city) => city.relays.length > 0),
-      cities: country.cities.map((city) => ({
-        name: city.name,
-        code: city.code,
-        latitude: city.latitude,
-        longitude: city.longitude,
-        hasActiveRelays: city.relays.length > 0,
-        relays: city.relays,
-      })),
-    }));
-
-    this._reduxActions.settings.updateRelayLocations(locations);
-  }
-
-  async _fetchLocation() {
-    this._reduxActions.connection.newLocation(await this._daemonRpc.getLocation());
-  }
-
   async setAllowLan(allowLan: boolean) {
     const actions = this._reduxActions;
     await this._daemonRpc.setAllowLan(allowLan);
@@ -444,12 +432,37 @@ export default class AppRenderer {
   }
 
   _setTunnelState(tunnelState: TunnelStateTransition) {
+    const actions = this._reduxActions;
+
     log.debug(`Tunnel state: ${tunnelState.state}`);
 
     this._tunnelState = tunnelState;
 
-    this._updateConnectionStatus(tunnelState);
-    this._updateUserLocation(tunnelState.state);
+    switch (tunnelState.state) {
+      case 'connecting':
+        actions.connection.connecting(tunnelState.details);
+        break;
+
+      case 'connected':
+        actions.connection.connected(tunnelState.details);
+        break;
+
+      case 'disconnecting':
+        actions.connection.disconnecting(tunnelState.details);
+        break;
+
+      case 'disconnected':
+        actions.connection.disconnected();
+        break;
+
+      case 'blocked':
+        actions.connection.blocked(tunnelState.details);
+        break;
+
+      default:
+        log.error(`Unexpected TunnelState: ${(tunnelState.state: empty)}`);
+        break;
+    }
   }
 
   _setSettings(newSettings: Settings) {
@@ -465,52 +478,34 @@ export default class AppRenderer {
     this._setRelaySettings(newSettings.relaySettings);
   }
 
+  _setLocation(location: Location) {
+    this._reduxActions.connection.newLocation(location);
+  }
+
+  _setRelays(relayList: RelayList) {
+    const locations = relayList.countries.map((country) => ({
+      name: country.name,
+      code: country.code,
+      hasActiveRelays: country.cities.some((city) => city.relays.length > 0),
+      cities: country.cities.map((city) => ({
+        name: city.name,
+        code: city.code,
+        latitude: city.latitude,
+        longitude: city.longitude,
+        hasActiveRelays: city.relays.length > 0,
+        relays: city.relays,
+      })),
+    }));
+
+    this._reduxActions.settings.updateRelayLocations(locations);
+  }
+
   _setCurrentVersion(versionInfo: CurrentAppVersionInfo) {
     this._reduxActions.version.updateVersion(versionInfo.gui, versionInfo.isConsistent);
   }
 
   _setUpgradeVersion(upgradeVersion: AppUpgradeInfo) {
     this._reduxActions.version.updateLatest(upgradeVersion);
-  }
-
-  async _updateUserLocation(tunnelState: TunnelState) {
-    if (['connected', 'connecting', 'disconnected'].includes(tunnelState)) {
-      try {
-        await this._fetchLocation();
-      } catch (error) {
-        log.error(`Failed to update the location: ${error.message}`);
-      }
-    }
-  }
-
-  _updateConnectionStatus(stateTransition: TunnelStateTransition) {
-    const actions = this._reduxActions;
-
-    switch (stateTransition.state) {
-      case 'connecting':
-        actions.connection.connecting(stateTransition.details);
-        break;
-
-      case 'connected':
-        actions.connection.connected(stateTransition.details);
-        break;
-
-      case 'disconnecting':
-        actions.connection.disconnecting(stateTransition.details);
-        break;
-
-      case 'disconnected':
-        actions.connection.disconnected();
-        break;
-
-      case 'blocked':
-        actions.connection.blocked(stateTransition.details);
-        break;
-
-      default:
-        log.error(`Unexpected TunnelStateTransition: ${(stateTransition.state: empty)}`);
-        break;
-    }
   }
 }
 
