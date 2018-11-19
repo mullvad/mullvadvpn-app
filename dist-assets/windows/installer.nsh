@@ -21,13 +21,13 @@
 
 # Return codes from driverlogic::EstablishBaseline
 !define EB_GENERAL_ERROR 0
-!define EB_NO_INTERFACES_PRESENT 1
-!define EB_SOME_INTERFACES_PRESENT 2
-!define EB_MULLVAD_INTERFACE_PRESENT 3
+!define EB_NO_TAP_ADAPTERS_PRESENT 1
+!define EB_SOME_TAP_ADAPTERS_PRESENT 2
+!define EB_MULLVAD_ADAPTER_PRESENT 3
 
-# Return codes from driverlogic::IdentifyNewInterface
-!define INI_GENERAL_ERROR 0
-!define INI_SUCCESS 1
+# Return codes from driverlogic::IdentifyNewAdapter
+!define INA_GENERAL_ERROR 0
+!define INA_SUCCESS 1
 
 #Return codes from driverlogic::Initialize/Deinitialize
 !define DRIVERLOGIC_GENERAL_ERROR 0
@@ -98,28 +98,14 @@
 		Goto InstallDriver_return_only
 	${EndIf}
 	
-	log::Log "Listing virtual adapters"
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != 0
-		StrCpy $R0 "Failed to list virtual adapters: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
-	${EndIf}
-
-	log::LogWithDetails "Virtual adapters listing" $1
-	
-	log::Log "Calling on plugin to parse adapter data"
-	driverlogic::EstablishBaseline $1
+	log::Log "Calling on plugin to enumerate network adapters"
+	driverlogic::EstablishBaseline
 
 	Pop $0
 	Pop $1
 
 	${If} $0 == ${EB_GENERAL_ERROR}
-		StrCpy $R0 "Failed to parse adapter data: $1"
+		StrCpy $R0 "Failed to enumerate network adapters: $1"
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
@@ -127,7 +113,7 @@
 	Push $0
 	Pop $InstallDriver_BaselineStatus
 	
-	IntCmp $0 ${EB_NO_INTERFACES_PRESENT} InstallDriver_install_driver
+	IntCmp $0 ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
 
 	#
 	# Driver is already installed and there are one or several virtual adapters present.
@@ -145,7 +131,7 @@
 		Goto InstallDriver_return
 	${EndIf}
 
-	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_INTERFACE_PRESENT}
+	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
 		log::Log "Virtual adapter named $\"Mullvad$\" already present on system"
 		Goto InstallDriver_return_success
 	${EndIf}
@@ -168,28 +154,14 @@
 		Goto InstallDriver_return
 	${EndIf}
 
-	log::Log "Listing virtual adapters"
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" hwids ${TAP_HARDWARE_ID}'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != 0
-		StrCpy $R0 "Failed to list virtual adapters: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
-	${EndIf}
-
-	log::LogWithDetails "Updated virtual adapters listing" $1
-
-	log::Log "Calling on plugin to diff adapter listings"
-	driverlogic::IdentifyNewInterface $1
+	log::Log "Calling on plugin to identify recently added adapter"
+	driverlogic::IdentifyNewAdapter
 	
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${INI_SUCCESS}
-		StrCpy $R0 "Failed to identify new virtual adapter: $1"
+	${If} $0 != ${INA_SUCCESS}
+		StrCpy $R0 "Failed to identify new adapter: $1"
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
