@@ -13,6 +13,7 @@ extern crate error_chain;
 extern crate env_logger;
 extern crate lazy_static;
 extern crate regex;
+extern crate tokio_core;
 extern crate uuid;
 
 extern crate mullvad_paths;
@@ -22,6 +23,7 @@ use clap::crate_authors;
 use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use regex::Regex;
+use tokio_core::reactor::Core;
 
 use std::{
     alloc::System,
@@ -257,16 +259,16 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
 
     let ca_path = mullvad_paths::resources::get_api_ca_path();
 
+    let mut core = Core::new().unwrap();
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
     let rpc_http_handle = rpc_manager
-        .new_connection()
+        .new_connection_on_event_loop(&core.handle())
         .chain_err(|| ErrorKind::RpcError)?;
     let mut rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_http_handle);
 
-    rpc_client
-        .problem_report(user_email, user_message, &report_content, &metadata)
-        .call()
-        .chain_err(|| ErrorKind::RpcError)
+    let result =
+        core.run(rpc_client.problem_report(user_email, user_message, &report_content, &metadata));
+    result.chain_err(|| ErrorKind::RpcError)
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {

@@ -88,11 +88,6 @@ impl MullvadRpcFactory {
         }
     }
 
-    /// Spawns a tokio core on a new thread and returns a `HttpHandle` running on that core.
-    pub fn new_connection(&mut self) -> Result<HttpHandle, HttpError> {
-        self.setup_connection(HttpTransportBuilder::standalone)
-    }
-
     /// Create and returns a `HttpHandle` running on the given core handle.
     pub fn new_connection_on_event_loop(
         &mut self,

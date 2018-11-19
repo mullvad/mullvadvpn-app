@@ -1004,6 +1004,7 @@ dependencies = [
  "mullvad-rpc 0.1.0",
  "regex 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rs-release 0.1.7 (git+https://github.com/mullvad/rs-release?branch=snailquote-unescape)",
+ "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "winres 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
