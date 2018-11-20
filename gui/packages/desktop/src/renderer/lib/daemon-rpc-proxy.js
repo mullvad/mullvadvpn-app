@@ -28,12 +28,7 @@ export type {
   DaemonRpcProtocol,
 } from '../../main/daemon-rpc';
 
-export {
-  ConnectionObserver,
-  SubscriptionListener,
-  defaultSettings,
-  defaultTunnelStateTransition,
-} from '../../main/daemon-rpc';
+export { ConnectionObserver, SubscriptionListener } from '../../main/daemon-rpc';
 
 import type {
   AccountToken,

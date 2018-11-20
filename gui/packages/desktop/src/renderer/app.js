@@ -37,10 +37,7 @@ import type {
   TunnelStateTransition,
 } from './lib/daemon-rpc-proxy';
 
-import DaemonRpcProxy, {
-  defaultSettings,
-  defaultTunnelStateTransition,
-} from './lib/daemon-rpc-proxy';
+import DaemonRpcProxy from './lib/daemon-rpc-proxy';
 
 import type { ReduxStore } from './redux/store';
 
@@ -59,8 +56,8 @@ export default class AppRenderer {
     },
   );
 
-  _tunnelState = defaultTunnelStateTransition();
-  _settings = defaultSettings();
+  _tunnelState: TunnelStateTransition;
+  _settings: Settings;
   _connectedToDaemon = false;
 
   constructor() {
