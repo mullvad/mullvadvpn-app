@@ -24,6 +24,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
 import type { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
+import IpcEventChannel from '../shared/ipc-event-channel';
 
 import type {
   AccountToken,
@@ -60,7 +61,6 @@ export default class AppRenderer {
 
   _tunnelState = defaultTunnelStateTransition();
   _settings = defaultSettings();
-
   _connectedToDaemon = false;
 
   constructor() {
@@ -95,72 +95,55 @@ export default class AppRenderer {
       }
     });
 
-    ipcRenderer.on('daemon-connected', () => {
+    IpcEventChannel.daemonConnected.listen(() => {
       this._onDaemonConnected();
     });
 
-    ipcRenderer.on('daemon-disconnected', (errorMessage: ?string) => {
+    IpcEventChannel.daemonDisconnected.listen((errorMessage: ?string) => {
       this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : null);
     });
 
-    ipcRenderer.on('tunnel-state-changed', (_event: Event, newState: TunnelStateTransition) => {
+    IpcEventChannel.tunnelState.listen((newState: TunnelStateTransition) => {
       this._setTunnelState(newState);
     });
 
-    ipcRenderer.on('settings-changed', (_event: Event, newSettings: Settings) => {
+    IpcEventChannel.settings.listen((newSettings: Settings) => {
       this._setSettings(newSettings);
     });
 
-    ipcRenderer.on('location-changed', (_event: Event, location: Location) => {
-      this._setLocation(location);
+    IpcEventChannel.location.listen((newLocation: Location) => {
+      this._setLocation(newLocation);
     });
 
-    ipcRenderer.on('relays-changed', (_event: Event, newRelays: RelayList) => {
+    IpcEventChannel.relays.listen((newRelays: RelayList) => {
       this._setRelays(newRelays);
     });
 
-    ipcRenderer.on(
-      'current-version-changed',
-      (_event: Event, currentVersion: CurrentAppVersionInfo) => {
-        this._setCurrentVersion(currentVersion);
-      },
-    );
+    IpcEventChannel.currentVersion.listen((currentVersion: CurrentAppVersionInfo) => {
+      this._setCurrentVersion(currentVersion);
+    });
 
-    ipcRenderer.on('upgrade-version-changed', (_event: Event, upgradeVersion: AppUpgradeInfo) => {
+    IpcEventChannel.upgradeVersion.listen((upgradeVersion: AppUpgradeInfo) => {
       this._setUpgradeVersion(upgradeVersion);
     });
 
-    // Request the initial state from main process
-    ipcRenderer.on(
-      'get-state-reply',
-      (
-        _event: Event,
-        isConnected: boolean,
-        tunnelState: TunnelStateTransition,
-        settings: Settings,
-        location: ?Location,
-        relays: RelayList,
-        currentVersion: CurrentAppVersionInfo,
-        upgradeVersion: AppUpgradeInfo,
-      ) => {
-        this._setTunnelState(tunnelState);
-        this._setSettings(settings);
+    // Request the initial state from the main process
+    const initialState = IpcEventChannel.state.get();
 
-        if (location) {
-          this._setLocation(location);
-        }
+    this._setTunnelState(initialState.tunnelState);
+    this._setSettings(initialState.settings);
 
-        this._setRelays(relays);
-        this._setCurrentVersion(currentVersion);
-        this._setUpgradeVersion(upgradeVersion);
+    if (initialState.location) {
+      this._setLocation(initialState.location);
+    }
 
-        if (isConnected) {
-          this._onDaemonConnected();
-        }
-      },
-    );
+    this._setRelays(initialState.relays);
+    this._setCurrentVersion(initialState.currentVersion);
+    this._setUpgradeVersion(initialState.upgradeVersion);
 
-    ipcRenderer.send('get-state');
+    if (initialState.isConnected) {
+      this._onDaemonConnected();
+    }
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
