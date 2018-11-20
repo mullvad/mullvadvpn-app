@@ -31,8 +31,6 @@ export type {
 export {
   ConnectionObserver,
   SubscriptionListener,
-  defaultSettings,
-  defaultTunnelStateTransition,
 } from '../../main/daemon-rpc';
 
 import type {

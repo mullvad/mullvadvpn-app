@@ -20,8 +20,6 @@ import {
   DaemonRpc,
   ConnectionObserver,
   SubscriptionListener,
-  defaultSettings,
-  defaultTunnelStateTransition,
 } from './daemon-rpc';
 import type {
   AppVersionInfo,
@@ -68,8 +66,25 @@ const ApplicationMain = {
   _oldLogFilePath: (null: ?string),
   _quitStage: ('unready': AppQuitStage),
 
-  _tunnelState: defaultTunnelStateTransition(),
-  _settings: defaultSettings(),
+  _tunnelState: ({ state: 'disconnected' }: TunnelStateTransition),
+  _settings: ({
+    accountToken: null,
+    allowLan: false,
+    autoConnect: false,
+    relaySettings: {
+      normal: {
+        location: 'any',
+        tunnel: 'any',
+      },
+    },
+    tunnelOptions: {
+      enableIpv6: false,
+      openvpn: {
+        mssfix: null,
+      },
+      proxy: null,
+    },
+  }: Settings),
   _location: (null: ?Location),
 
   _relays: ({ countries: [] }: RelayList),
