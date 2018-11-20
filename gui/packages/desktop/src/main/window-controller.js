@@ -175,6 +175,10 @@ export default class WindowController {
     }
   }
 
+  isVisible(): boolean {
+    return this._window.isVisible();
+  }
+
   send(event: string, ...data: Array<mixed>): void {
     this._window.webContents.send(event, ...data);
   }
