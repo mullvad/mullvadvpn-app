@@ -23,6 +23,7 @@ import {
 } from './daemon-rpc';
 import type {
   AppVersionInfo,
+  Location,
   RelayList,
   Settings,
   TunnelState,
@@ -66,6 +67,7 @@ const ApplicationMain = {
 
   _tunnelState: defaultTunnelStateTransition(),
   _settings: defaultSettings(),
+  _location: (null: ?Location),
 
   _relays: ({ countries: [] }: RelayList),
   _relaysInterval: (null: ?IntervalID),
@@ -436,17 +438,18 @@ const ApplicationMain = {
   },
 
   _setTunnelState(newState: TunnelStateTransition) {
-    const windowController = this._windowController;
+    const oldState = this._tunnelState;
 
     this._tunnelState = newState;
     this._updateTrayIcon(newState.state);
+    this._updateLocation(oldState, newState);
 
     if (!this._shouldSuppressNotifications()) {
       this._notificationController.notifyTunnelState(newState);
     }
 
-    if (windowController) {
-      windowController.send('tunnel-state-changed', newState);
+    if (this._windowController) {
+      this._windowController.send('tunnel-state-changed', newState);
     }
   },
 
@@ -455,6 +458,14 @@ const ApplicationMain = {
 
     if (this._windowController) {
       this._windowController.send('settings-changed', newSettings);
+    }
+  },
+
+  _setLocation(newLocation: Location) {
+    this._location = newLocation;
+
+    if (this._windowController) {
+      this._windowController.send('location-changed', newLocation);
     }
   },
 
@@ -592,6 +603,22 @@ const ApplicationMain = {
     return this._windowController && this._windowController.isVisible();
   },
 
+  async _updateLocation(oldState: TunnelStateTransition, newState: TunnelStateTransition) {
+    if (
+      newState.state === 'connected' ||
+      newState.state === 'disconnected' ||
+      // Guard from fetching the location during reconnection loop.
+      (newState.state === 'connecting' &&
+        !(oldState.state === 'disconnecting' && oldState.details === 'reconnect'))
+    ) {
+      try {
+        this._setLocation(await this._daemonRpc.getLocation());
+      } catch (error) {
+        log.error(`Failed to update the location: ${error.message}`);
+      }
+    }
+  },
+
   _updateTrayIcon(tunnelState: TunnelState) {
     const iconTypes: { [TunnelState]: TrayIconType } = {
       connected: 'secured',
@@ -642,6 +669,7 @@ const ApplicationMain = {
         this._connectedToDaemon,
         this._tunnelState,
         this._settings,
+        this._location,
         this._relays,
         this._currentVersion,
         this._upgradeVersion,
