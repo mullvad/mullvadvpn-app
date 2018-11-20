@@ -14,6 +14,8 @@ import WindowController from './window-controller';
 import TrayIconController from './tray-icon-controller';
 import type { TrayIconType } from './tray-icon-controller';
 
+import IpcEventChannel from '../shared/ipc-event-channel';
+
 import {
   DaemonRpc,
   ConnectionObserver,
@@ -56,6 +58,7 @@ const ApplicationMain = {
   _notificationController: new NotificationController(),
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
+  _ipcEventChannel: (null: ?IpcEventChannel),
 
   _daemonRpc: new DaemonRpc(),
   _reconnectBackoff: new ReconnectionBackoff(),
@@ -264,6 +267,7 @@ const ApplicationMain = {
 
     this._windowController = windowController;
     this._trayIconController = trayIconController;
+    this._ipcEventChannel = new IpcEventChannel(window.webContents);
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
@@ -357,8 +361,8 @@ const ApplicationMain = {
     this._reconnectBackoff.reset();
 
     // notify renderer
-    if (this._windowController) {
-      this._windowController.send('daemon-connected');
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.daemonConnected.notify();
     }
   },
 
@@ -375,8 +379,8 @@ const ApplicationMain = {
       this._stopLatestVersionPeriodicUpdates();
 
       // notify renderer process
-      if (this._windowController) {
-        this._windowController.send('daemon-disconnected', error ? error.message : null);
+      if (this._ipcEventChannel) {
+        this._ipcEventChannel.daemonDisconnected.notify(error ? error.message : null);
       }
     }
 
@@ -448,32 +452,32 @@ const ApplicationMain = {
       this._notificationController.notifyTunnelState(newState);
     }
 
-    if (this._windowController) {
-      this._windowController.send('tunnel-state-changed', newState);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.tunnelState.notify(newState);
     }
   },
 
   _setSettings(newSettings: Settings) {
     this._settings = newSettings;
 
-    if (this._windowController) {
-      this._windowController.send('settings-changed', newSettings);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.settings.notify(newSettings);
     }
   },
 
   _setLocation(newLocation: Location) {
     this._location = newLocation;
 
-    if (this._windowController) {
-      this._windowController.send('location-changed', newLocation);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.location.notify(newLocation);
     }
   },
 
   _setRelays(newRelayList: RelayList) {
     this._relays = newRelayList;
 
-    if (this._windowController) {
-      this._windowController.send('relays-changed', newRelayList);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.relays.notify(newRelayList);
     }
   },
 
@@ -511,8 +515,8 @@ const ApplicationMain = {
     this._currentVersion = versionInfo;
 
     // notify renderer
-    if (this._windowController) {
-      this._windowController.send('current-version-changed', versionInfo);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.currentVersion.notify(versionInfo);
     }
   },
 
@@ -571,8 +575,8 @@ const ApplicationMain = {
       this._notificationController.notifyUnsupportedVersion(upgradeVersion);
     }
 
-    if (this._windowController) {
-      this._windowController.send('upgrade-version-changed', upgradeInfo);
+    if (this._ipcEventChannel) {
+      this._ipcEventChannel.upgradeVersion.notify(upgradeInfo);
     }
   },
 
@@ -663,17 +667,16 @@ const ApplicationMain = {
       }
     });
 
-    ipcMain.on('get-state', (event) => {
-      event.sender.send(
-        'get-state-reply',
-        this._connectedToDaemon,
-        this._tunnelState,
-        this._settings,
-        this._location,
-        this._relays,
-        this._currentVersion,
-        this._upgradeVersion,
-      );
+    IpcEventChannel.state.serve(() => {
+      return {
+        isConnected: this._connectedToDaemon,
+        tunnelState: this._tunnelState,
+        settings: this._settings,
+        location: this._location,
+        relays: this._relays,
+        currentVersion: this._currentVersion,
+        upgradeVersion: this._upgradeVersion,
+      };
     });
 
     ipcMain.on('show-window', () => {
