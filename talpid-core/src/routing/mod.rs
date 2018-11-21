@@ -1,6 +1,9 @@
 use ipnetwork::IpNetwork;
 use std::net::IpAddr;
 
+mod subprocess;
+
+
 /// A single route
 #[derive(Hash, Eq, PartialEq)]
 pub struct Route {
@@ -34,7 +37,6 @@ pub struct RequiredRoutes {
     /// is not used. Currently only used on Linux.
     pub fwmark: Option<String>,
 }
-
 
 /// This trait unifies platform specific implementations of route managers
 pub trait RoutingT: Sized {
