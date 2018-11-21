@@ -1,6 +1,10 @@
 use ipnetwork::IpNetwork;
 use std::net::IpAddr;
 
+#[cfg(target_os = "linux")]
+#[path = "linux.rs"]
+mod imp;
+
 mod subprocess;
 
 
@@ -36,6 +40,43 @@ pub struct RequiredRoutes {
     /// Optionally apply the routes to a specific table and only apply routes when a firewall mark
     /// is not used. Currently only used on Linux.
     pub fwmark: Option<String>,
+}
+
+/// Manages adding and removing routes from the routing table.
+pub struct RouteManager {
+    inner: imp::RouteManager,
+}
+
+impl RouteManager {
+    /// Creates a new RouteManager.
+    pub fn new() -> Result<Self, imp::Error> {
+        Ok(RouteManager {
+            inner: imp::RouteManager::new()?,
+        })
+    }
+
+    /// Set routes in the routing table.
+    pub fn add_routes(&mut self, required_routes: RequiredRoutes) -> Result<(), imp::Error> {
+        self.inner.add_routes(required_routes)
+    }
+
+    /// Remove previously set routes from the routing table.
+    pub fn delete_routes(&mut self) -> Result<(), imp::Error> {
+        self.inner.delete_routes()
+    }
+
+    /// Retrieves the gateway for the default route.
+    pub fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, imp::Error> {
+        self.inner.get_default_route_node()
+    }
+}
+
+impl Drop for RouteManager {
+    fn drop(&mut self) {
+        if let Err(e) = self.delete_routes() {
+            log::error!("Failed to reset routes on drop - {}", e);
+        }
+    }
 }
 
 /// This trait unifies platform specific implementations of route managers
