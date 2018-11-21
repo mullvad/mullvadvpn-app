@@ -13,7 +13,7 @@ use super::system_state::SystemStateWriter;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
-error_chain!{
+error_chain! {
     errors{
         /// Failure to initialize WinDns
         Initialization{

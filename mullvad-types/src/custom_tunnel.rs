@@ -4,7 +4,7 @@ use std::{
 };
 use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
 
-error_chain!{
+error_chain! {
     errors {
         InvalidHost(host: String) {
             display("Invalid host: {}", host)

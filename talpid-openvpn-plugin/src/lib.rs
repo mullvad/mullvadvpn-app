@@ -29,7 +29,7 @@ mod processing;
 use crate::processing::EventProcessor;
 
 
-error_chain!{
+error_chain! {
     errors {
         InitHandleFailed {
             description("Unable to initialize event processor")

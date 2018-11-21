@@ -74,7 +74,7 @@ use talpid_types::{
 };
 
 
-error_chain!{
+error_chain! {
     errors {
         NoCacheDir {
             description("Unable to create cache directory")

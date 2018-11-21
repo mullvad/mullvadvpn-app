@@ -1,5 +1,5 @@
-use clap::{self, value_t};
 use crate::{new_rpc_client, Command, Result};
+use clap::{self, value_t};
 
 use talpid_types::net::{
     LocalOpenVpnProxySettings, OpenVpnProxyAuth, OpenVpnProxySettings,

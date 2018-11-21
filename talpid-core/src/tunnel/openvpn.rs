@@ -14,7 +14,7 @@ use std::time::Duration;
 use talpid_ipc;
 
 mod errors {
-    error_chain!{
+    error_chain! {
         errors {
             /// Unable to start, wait for or kill the OpenVPN process.
             ChildProcessError(msg: &'static str) {
