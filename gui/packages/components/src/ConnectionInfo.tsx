@@ -30,6 +30,7 @@ const styles = {
   hostname: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 16,
+    lineHeight: 20,
     fontWeight: '600',
     color: 'rgb(255, 255, 255)',
     flex: 1,
