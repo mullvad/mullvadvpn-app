@@ -58,7 +58,7 @@ bsync.init(
 
     let child = runElectron(browserSyncUrl);
 
-    bsync.watch('build/main/**/*').on('change', () => {
+    bsync.watch(['build/main/**/*', 'build/shared/**/*']).on('change', () => {
       child.removeListener('close', onCloseElectron);
       child.kill();
 
