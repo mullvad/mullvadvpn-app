@@ -1,7 +1,6 @@
 use super::{NetNode, RequiredRoutes};
 
 use super::subprocess::{Exec, RunExpr};
-use ipnetwork::IpNetwork;
 use std::collections::HashSet;
 use std::net::IpAddr;
 
@@ -85,23 +84,28 @@ pub struct RouteManager {
     added_routes: HashSet<super::Route>,
     added_tables: HashSet<Table>,
     // the main routing table only has to be adjusted for default routes
-    main_v4_table_adjusted: bool,
-    main_v6_table_adjusted: bool,
+    main_table_suppress_by_prefix_set_v4: bool,
+    main_table_suppress_by_prefix_set_v6: bool,
 }
 
 impl RouteManager {
     // This function adjusts main routing table to not make any routing decisions based on rules
     // with a prefix of 0. This is to bypass the main table for default routes.
-    fn adjust_main_routing_table(&mut self, route: &IpNetwork) -> Result<()> {
-        let route_arg = IpVersion::new(&route.ip());
-        if route_arg.is_ipv4() && self.main_v4_table_adjusted || self.main_v6_table_adjusted {
+    fn set_suppress_prefix_length_on_main_routing_table(
+        &mut self,
+        version: IpVersion,
+        set_rule: bool,
+    ) -> Result<()> {
+        if (version.is_ipv4() && (set_rule == self.main_table_suppress_by_prefix_set_v4))
+            || (!version.is_ipv4() && (set_rule == self.main_table_suppress_by_prefix_set_v6))
+        {
             return Ok(());
         }
         duct::cmd!(
             "ip",
-            route_arg.as_ref(),
+            version.as_ref(),
             "rule",
-            "add",
+            if set_rule { "add" } else { "delete" },
             "table",
             "main",
             "suppress_prefixlength",
@@ -109,12 +113,17 @@ impl RouteManager {
         )
         .run_expr()
         .chain_err(|| ErrorKind::FailedToAdjustMainRoutingTable)?;
+        if version.is_ipv4() {
+            self.main_table_suppress_by_prefix_set_v4 = set_rule;
+        } else {
+            self.main_table_suppress_by_prefix_set_v6 = set_rule;
+        }
         Ok(())
     }
 
     fn add_route(&mut self, route: super::Route, fwmark: &Option<String>) -> Result<()> {
         if route.prefix.prefix() == 0 {
-            self.adjust_main_routing_table(&route.prefix)?;
+            self.set_suppress_prefix_length_on_main_routing_table(route.prefix.ip().into(), true)?;
         }
 
         let version = IpVersion::new(&route.prefix.ip());
@@ -213,48 +222,34 @@ impl RouteManager {
             }
         }
 
-        if self.main_v4_table_adjusted {
-            if let Err(e) = Self::delete_main_table_rule(IpVersion::V4) {
+        if self.main_table_suppress_by_prefix_set_v4 {
+            if let Err(e) =
+                self.set_suppress_prefix_length_on_main_routing_table(IpVersion::V4, false)
+            {
                 log::error!(
                     "Failed to remove prefix limit for main routing table - {}",
                     e
                 );
                 end_result = Err(e);
             } else {
-                self.main_v4_table_adjusted = false;
+                self.main_table_suppress_by_prefix_set_v4 = false;
             }
         }
 
-        if self.main_v6_table_adjusted {
-            if let Err(e) = Self::delete_main_table_rule(IpVersion::V6) {
+        if self.main_table_suppress_by_prefix_set_v6 {
+            if let Err(e) =
+                self.set_suppress_prefix_length_on_main_routing_table(IpVersion::V6, false)
+            {
                 log::error!(
                     "Failed to remove prefix limit for main routing table - {}",
                     e
                 );
                 end_result = Err(e);
             } else {
-                self.main_v6_table_adjusted = false;
+                self.main_table_suppress_by_prefix_set_v6 = false;
             }
         }
-
         end_result
-    }
-
-    fn delete_main_table_rule(ip_vers: IpVersion) -> Result<()> {
-        duct::cmd!(
-            "ip",
-            ip_vers.as_ref(),
-            "rule",
-            "delete",
-            "table",
-            "main",
-            "suppress_prefixlength",
-            "0"
-        )
-        .run_expr()
-        .chain_err(|| ErrorKind::FailedToRemoveRoute)?;
-
-        Ok(())
     }
 }
 
@@ -265,8 +260,8 @@ impl super::RoutingT for RouteManager {
             added_routes: HashSet::new(),
             added_tables: HashSet::new(),
             // the main routing table only has to be adjusted for default routes
-            main_v4_table_adjusted: false,
-            main_v6_table_adjusted: false,
+            main_table_suppress_by_prefix_set_v4: false,
+            main_table_suppress_by_prefix_set_v6: false,
         })
     }
 
