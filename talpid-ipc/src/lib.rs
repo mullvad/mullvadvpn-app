@@ -35,7 +35,7 @@ use std::fmt;
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
 
-error_chain!{
+error_chain! {
     errors {
         IpcServerError {
             description("Error in IPC server")

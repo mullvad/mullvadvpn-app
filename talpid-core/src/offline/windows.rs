@@ -35,7 +35,7 @@ use tunnel_state_machine::TunnelCommand;
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
 const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
 
-error_chain!{
+error_chain! {
     errors {
         ThreadCreationError {
             description("Unable to create listener thread")

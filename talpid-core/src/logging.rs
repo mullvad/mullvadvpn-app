@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::{fs, io};
 
-error_chain!{}
+error_chain! {}
 
 /// Create a new log file while backing up a previous version of it.
 ///

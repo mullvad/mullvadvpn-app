@@ -1,5 +1,5 @@
-use clap::{self, value_t};
 use crate::{new_rpc_client, Command, Result, ResultExt};
+use clap::{self, value_t};
 use std::str::FromStr;
 
 use mullvad_types::relay_constraints::{

@@ -3,7 +3,7 @@ use std::ptr;
 use libc::{c_char, c_void, wchar_t};
 use widestring::WideCString;
 
-error_chain!{
+error_chain! {
     errors{
         /// Failure to set metrics of network interfaces
         MetricApplication{

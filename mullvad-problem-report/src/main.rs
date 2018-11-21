@@ -70,7 +70,7 @@ macro_rules! write_line {
     };
 }
 
-error_chain!{
+error_chain! {
     errors {
         LogDirError(path: PathBuf) {
             description("Error listing the files in the mullvad-daemon log directory")

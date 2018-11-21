@@ -34,7 +34,7 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn";
 #[cfg(windows)]
 const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 
-error_chain!{
+error_chain! {
     errors {
         /// An error indicating there was an error listening for events from the VPN tunnel.
         TunnelMonitoringError {

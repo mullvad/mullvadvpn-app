@@ -1,4 +1,4 @@
-error_chain!{}
+error_chain! {}
 
 #[cfg(unix)]
 mod platform {

@@ -98,8 +98,9 @@ impl MullvadRpcFactory {
 
     fn setup_connection<F>(&mut self, create_transport: F) -> Result<HttpHandle, HttpError>
     where
-        F: FnOnce(HttpTransportBuilder<HttpsClientWithSni>)
-            -> jsonrpc_client_http::Result<HttpTransport>,
+        F: FnOnce(
+            HttpTransportBuilder<HttpsClientWithSni>,
+        ) -> jsonrpc_client_http::Result<HttpTransport>,
     {
         let client = HttpsClientWithSni::new(API_HOST.to_owned(), self.ca_path.clone());
         let transport_builder = HttpTransportBuilder::with_client(client).timeout(RPC_TIMEOUT);

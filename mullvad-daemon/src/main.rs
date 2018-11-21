@@ -35,7 +35,7 @@ mod version;
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
 
-error_chain!{
+error_chain! {
     errors {
         LogError(msg: &'static str) {
             description("Error setting up log")
