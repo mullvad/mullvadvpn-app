@@ -27,6 +27,8 @@ talpid-types = { path = "../talpid-types" }
 [target.'cfg(unix)'.dependencies]
 ipnetwork = "0.13"
 lazy_static = "1.0"
+tun = { git = "https://github.com/pinkisemils/rust-tun", branch = "add-raw-fd-traits" }
+nix = "0.12"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.6"
