@@ -43,6 +43,10 @@ extern crate talpid_types;
 #[cfg(windows)]
 mod winnet;
 
+#[cfg(unix)]
+/// Abstraction over operating system routing table.
+pub mod routing;
+
 mod offline;
 
 /// Working with processes.
