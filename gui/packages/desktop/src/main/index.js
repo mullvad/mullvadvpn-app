@@ -82,6 +82,7 @@ const ApplicationMain = {
     },
   }: Settings),
   _location: (null: ?Location),
+  _lastDisconnectedLocation: (null: ?Location),
 
   _relays: ({ countries: [] }: RelayList),
   _relaysInterval: (null: ?IntervalID),
@@ -457,7 +458,7 @@ const ApplicationMain = {
 
     this._tunnelState = newState;
     this._updateTrayIcon(newState.state);
-    this._updateLocation(oldState, newState);
+    this._updateLocation(oldState);
 
     if (!this._shouldSuppressNotifications()) {
       this._notificationController.notifyTunnelState(newState);
@@ -618,7 +619,9 @@ const ApplicationMain = {
     return this._windowController && this._windowController.isVisible();
   },
 
-  async _updateLocation(oldState: TunnelStateTransition, newState: TunnelStateTransition) {
+  async _updateLocation(oldState: TunnelStateTransition) {
+    const newState = this._tunnelState;
+
     if (
       newState.state === 'connected' ||
       newState.state === 'disconnected' ||
@@ -627,7 +630,27 @@ const ApplicationMain = {
         !(oldState.state === 'disconnecting' && oldState.details === 'reconnect'))
     ) {
       try {
-        this._setLocation(await this._daemonRpc.getLocation());
+        // It may take some time to fetch the new user location.
+        // So take the user to the last known location when disconnected.
+        if (newState.state === 'disconnected' && this._lastDisconnectedLocation) {
+          this._setLocation(this._lastDisconnectedLocation);
+        }
+
+        // Fetch the new user location
+        const location = await this._daemonRpc.getLocation();
+
+        // Cache the user location
+        // Note: hostname is only set for relay servers.
+        if (location.hostname === null) {
+          this._lastDisconnectedLocation = location;
+        }
+
+        // Broadcast the new location.
+        // There is a chance that the location is not stale if the tunnel state before the location
+        // request is the same as after receiving the response.
+        if (this._tunnelState.state === newState.state) {
+          this._setLocation(location);
+        }
       } catch (error) {
         log.error(`Failed to update the location: ${error.message}`);
       }
