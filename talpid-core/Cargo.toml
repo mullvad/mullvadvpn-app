@@ -33,8 +33,10 @@ nix = "0.12"
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.6"
 failure = "0.1"
+iproute2 = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
 notify = "4.0"
 resolv-conf = "0.6.1"
+rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
 nftnl = { version = "0.1", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.1", features = ["mnl-1-0-4"] }
 which = "2.0"
