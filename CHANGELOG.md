@@ -45,6 +45,9 @@ Line wrap the file at 100 chars.                                              Th
 - Disable keep alive on API RPC requests. Should stop reuse of invalid sockets after tunnel state
   changes.
 
+#### macOS
+- Fix permissions on log dir so problem-report tool has permission to read daemon logs.
+
 #### Windows
 - Use proper app id in the registry. This avoids false-positives with certain anti-virus software.
 - Handle sleep/resume events to quickly restore the tunnel when the machine wakes up.
