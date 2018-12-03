@@ -74,7 +74,7 @@ pub fn init_logger(
     }
 
     let stdout_formatter = Formatter {
-        output_timestamp: output_timestamp,
+        output_timestamp,
         output_color: true,
     };
     let stdout_dispatcher = fern::Dispatch::new()

@@ -186,9 +186,9 @@ impl PersistentServiceStatus {
             service_type: SERVICE_TYPE,
             current_state: next_state,
             controls_accepted: accepted_controls_by_state(next_state),
-            exit_code: exit_code,
+            exit_code,
             checkpoint: checkpoint as u32,
-            wait_hint: wait_hint,
+            wait_hint,
         };
 
         log::debug!(
