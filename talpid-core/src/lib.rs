@@ -26,8 +26,12 @@ extern crate jsonrpc_macros;
 #[cfg(unix)]
 extern crate lazy_static;
 extern crate libc;
+#[cfg(unix)]
+extern crate nix;
 extern crate shell_escape;
 extern crate tokio_core;
+#[cfg(unix)]
+extern crate tun;
 extern crate uuid;
 #[cfg(target_os = "linux")]
 extern crate which;
@@ -43,6 +47,9 @@ extern crate talpid_types;
 #[cfg(windows)]
 mod winnet;
 
+#[cfg(unix)]
+/// Working with IP interface devices
+pub mod network_interface;
 #[cfg(unix)]
 /// Abstraction over operating system routing table.
 pub mod routing;
