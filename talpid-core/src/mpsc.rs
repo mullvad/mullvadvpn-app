@@ -24,7 +24,7 @@ where
 {
     fn from(sender: mpsc::Sender<U>) -> Self {
         IntoSender {
-            sender: sender,
+            sender,
             _marker: PhantomData,
         }
     }
