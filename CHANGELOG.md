@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add default route to fix NLA issues (Microsoft Store/Office/etc say the machine is offline).
 - Update installer to not rely on WMI when enumerating network adapters.
 - Increase timeout waiting for OpenVPN to shut down cleanly.
+- Sign the bundled openvpn.exe binary. Should make some anti-virus software complain less.
 
 
 ## [2018.5] - 2018-11-15
