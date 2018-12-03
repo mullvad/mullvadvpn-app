@@ -31,7 +31,11 @@ mod errors {
 pub use self::errors::*;
 
 
+#[cfg(unix)]
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(4);
+#[cfg(windows)]
+static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
+
 
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]

@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Handle sleep/resume events to quickly restore the tunnel when the machine wakes up.
 - Add default route to fix NLA issues (Microsoft Store/Office/etc say the machine is offline).
 - Update installer to not rely on WMI when enumerating network adapters.
+- Increase timeout waiting for OpenVPN to shut down cleanly.
 
 
 ## [2018.5] - 2018-11-15
