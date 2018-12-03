@@ -50,7 +50,7 @@ impl RouteManager {
             NetNode::Device(device) => cmd.arg("-interface").arg(&device),
         };
 
-        cmd.to_expr()
+        cmd.into_expr()
             .run_expr()
             .chain_err(|| ErrorKind::FailedToAddRoute)?;
         self.set_routes.insert(route);

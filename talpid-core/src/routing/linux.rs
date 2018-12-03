@@ -142,7 +142,7 @@ impl RouteManager {
             cmd = cmd.arg("table").arg(fwmark);
         }
 
-        cmd.to_expr()
+        cmd.into_expr()
             .run_expr()
             .chain_err(|| ErrorKind::FailedToAddRoute)?;
 
@@ -289,9 +289,8 @@ impl super::RoutingT for RouteManager {
         let ip_str: &str = output
             .lines()
             .find(|line| line.trim().starts_with("default via "))
-            .and_then(|line| line.trim().split_whitespace().skip(2).next())
-            .map(Ok)
-            .unwrap_or(Err(Error::from(ErrorKind::FailedToGetDefaultRoute)))?;
+            .and_then(|line| line.trim().split_whitespace().nth(2))
+            .ok_or_else(|| Error::from(ErrorKind::FailedToGetDefaultRoute))?;
 
         ip_str
             .parse()
