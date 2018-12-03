@@ -1,12 +1,18 @@
 use crate::Result;
 
 use std::env;
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
 /// Creates and returns the logging directory pointed to by `MULLVAD_LOG_DIR`, or the default
 /// one if that variable is unset.
 pub fn log_dir() -> Result<PathBuf> {
-    crate::create_and_return(get_log_dir)
+    #[cfg(unix)]
+    let permissions = Some(PermissionsExt::from_mode(0o755));
+    #[cfg(not(unix))]
+    let permissions = None;
+    crate::create_and_return(get_log_dir, permissions)
 }
 
 /// Get the logging directory, but don't try to create it.

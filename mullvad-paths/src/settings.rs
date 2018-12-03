@@ -6,7 +6,7 @@ use std::path::PathBuf;
 /// Creates and returns the settings directory pointed to by `MULLVAD_SETTINGS_DIR`, or the default
 /// one if that variable is unset.
 pub fn settings_dir() -> Result<PathBuf> {
-    crate::create_and_return(get_settings_dir)
+    crate::create_and_return(get_settings_dir, None)
 }
 
 fn get_settings_dir() -> Result<PathBuf> {

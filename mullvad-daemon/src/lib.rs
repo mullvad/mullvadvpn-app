@@ -320,7 +320,9 @@ impl Daemon {
             }
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExited => {
-                return Err(ErrorKind::ManagementInterfaceError("Server exited unexpectedly").into())
+                return Err(
+                    ErrorKind::ManagementInterfaceError("Server exited unexpectedly").into(),
+                );
             }
             TriggerShutdown => self.handle_trigger_shutdown_event(),
         }

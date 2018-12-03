@@ -13,6 +13,10 @@ error_chain! {
             description("Failed to create directory")
             display("Failed to create directory {}", path.display())
         }
+        SetDirPermissionFailed(path: PathBuf) {
+            description("Failed to set directory permissions")
+            display("Failed to set directory permissions on {}", path.display())
+        }
         #[cfg(any(windows, target_os = "macos"))]
         FindDirError { description("Not able to find requested directory" )}
         #[cfg(windows)]
@@ -35,9 +39,16 @@ fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-fn create_and_return(dir_fn: fn() -> Result<PathBuf>) -> Result<PathBuf> {
+fn create_and_return(
+    dir_fn: fn() -> Result<PathBuf>,
+    permissions: Option<fs::Permissions>,
+) -> Result<PathBuf> {
     let dir = dir_fn()?;
     fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
+    if let Some(permissions) = permissions {
+        fs::set_permissions(&dir, permissions)
+            .chain_err(|| ErrorKind::SetDirPermissionFailed(dir.clone()))?;
+    }
     Ok(dir)
 }
 
