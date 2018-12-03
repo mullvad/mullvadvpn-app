@@ -6,7 +6,7 @@ use std::path::PathBuf;
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
-    crate::create_and_return(get_cache_dir)
+    crate::create_and_return(get_cache_dir, None)
 }
 
 fn get_cache_dir() -> Result<PathBuf> {
