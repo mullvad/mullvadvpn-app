@@ -348,6 +348,8 @@ export default class AppRenderer {
 
     // set the appropriate start view
     await this._setStartView();
+    // try to autoconnect the tunnel
+    await this._autoConnect();
   }
 
   _onDaemonDisconnected(error: ?Error) {
@@ -408,6 +410,25 @@ export default class AppRenderer {
           }
         }
       }
+    }
+  }
+
+  async _autoConnect() {
+    const accountToken = this._settings.accountToken;
+
+    if (accountToken) {
+      if (process.env.NODE_ENV !== 'development') {
+        try {
+          log.debug('Autoconnect the tunnel');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.debug('Skip autoconnect in development');
+      }
+    } else {
+      log.debug('Skip autoconnect because account token is not set');
     }
   }
 
