@@ -298,7 +298,7 @@ impl<'a> PolicyBatch<'a> {
 
         check_iface(&mut allow_rule, Direction::Out, &tunnel.interface[..])?;
         check_port(&mut allow_rule, protocol, End::Dst, 53)?;
-        check_l3proto(&mut allow_rule, IpAddr::V4(tunnel.gateway))?;
+        check_l3proto(&mut allow_rule, tunnel.gateway)?;
 
         allow_rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
         allow_rule.add_expr(&nft_expr!(cmp == tunnel.gateway))?;
