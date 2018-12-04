@@ -123,7 +123,7 @@ impl NetworkInterface for TunnelDevice {
 
     fn set_mtu(&mut self, mtu: u16) -> Result<()> {
         self.dev
-            .set_mtu(mtu as i32)
+            .set_mtu(i32::from(mtu))
             .chain_err(|| ErrorKind::ToggleDeviceError)
     }
 
