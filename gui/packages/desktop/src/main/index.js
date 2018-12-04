@@ -454,11 +454,9 @@ const ApplicationMain = {
   },
 
   _setTunnelState(newState: TunnelStateTransition) {
-    const oldState = this._tunnelState;
-
     this._tunnelState = newState;
     this._updateTrayIcon(newState.state);
-    this._updateLocation(oldState);
+    this._updateLocation();
 
     if (!this._shouldSuppressNotifications()) {
       this._notificationController.notifyTunnelState(newState);
@@ -619,15 +617,13 @@ const ApplicationMain = {
     return this._windowController && this._windowController.isVisible();
   },
 
-  async _updateLocation(oldState: TunnelStateTransition) {
+  async _updateLocation() {
     const newState = this._tunnelState;
 
     if (
       newState.state === 'connected' ||
       newState.state === 'disconnected' ||
-      // Guard from fetching the location during reconnection loop.
-      (newState.state === 'connecting' &&
-        !(oldState.state === 'disconnecting' && oldState.details === 'reconnect'))
+      newState.state === 'connecting'
     ) {
       try {
         // It may take some time to fetch the new user location.
