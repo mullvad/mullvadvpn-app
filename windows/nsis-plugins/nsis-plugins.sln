@@ -25,6 +25,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "registry", "src\registry\re
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tray", "src\tray\tray.vcxproj", "{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
+		{1344152F-2BAD-4198-8E51-31AAC32BFBB2} = {1344152F-2BAD-4198-8E51-31AAC32BFBB2}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -51,6 +57,10 @@ Global
 		{756DEBA7-E499-43DF-B5AB-C8F98145D603}.Debug|x86.Build.0 = Debug|Win32
 		{756DEBA7-E499-43DF-B5AB-C8F98145D603}.Release|x86.ActiveCfg = Release|Win32
 		{756DEBA7-E499-43DF-B5AB-C8F98145D603}.Release|x86.Build.0 = Release|Win32
+		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Debug|x86.ActiveCfg = Debug|Win32
+		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Debug|x86.Build.0 = Debug|Win32
+		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Release|x86.ActiveCfg = Release|Win32
+		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
