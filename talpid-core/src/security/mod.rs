@@ -92,7 +92,12 @@ impl fmt::Display for SecurityPolicy {
                 "Connected to {} over \"{}\" (ip: {}, gw: {}), {} LAN",
                 peer_endpoint,
                 tunnel.interface,
-                tunnel.ip,
+                tunnel
+                    .ip
+                    .iter()
+                    .map(|ip| ip.to_string())
+                    .collect::<Vec<_>>()
+                    .join(","),
                 tunnel.gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),

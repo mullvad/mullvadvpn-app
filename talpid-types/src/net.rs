@@ -7,7 +7,7 @@ use std::{
 };
 
 /// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
     pub tunnel: TunnelEndpointData,
@@ -26,7 +26,7 @@ impl TunnelEndpoint {
 
 /// TunnelEndpointData contains data required to connect to a given tunnel endpoint.
 /// Different endpoint types can require different types of data.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum TunnelEndpointData {
     /// Extra parameters for an OpenVPN tunnel endpoint.
     #[serde(rename = "openvpn")]
@@ -52,14 +52,14 @@ impl fmt::Display for TunnelEndpointData {
 }
 
 impl TunnelEndpointData {
-    pub fn port(self) -> u16 {
+    pub fn port(&self) -> u16 {
         match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.port,
             TunnelEndpointData::Wireguard(metadata) => metadata.port,
         }
     }
 
-    pub fn transport_protocol(self) -> TransportProtocol {
+    pub fn transport_protocol(&self) -> TransportProtocol {
         match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
             TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
@@ -79,9 +79,36 @@ impl fmt::Display for OpenVpnEndpointData {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct WireguardEndpointData {
+    /// Port to connect to
     pub port: u16,
+    /// Private key
+    pub client_key: [u8; 32],
+    /// Link addresses
+    pub addresses: Vec<IpAddr>,
+    /// Public key of peer
+    pub peer_key: [u8; 32],
+    pub gateway: IpAddr,
+}
+
+impl fmt::Debug for WireguardEndpointData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        f.debug_struct("WireguardEndpointData")
+            .field("gateway", &self.gateway.to_string())
+            .field("port", &self.port.to_string())
+            .field("peer_key", &base64::encode(&self.peer_key))
+            .field(
+                "addresses",
+                &self
+                    .addresses
+                    .iter()
+                    .map(|a| a.to_string())
+                    .collect::<Vec<_>>()
+                    .join(","),
+            )
+            .finish()
+    }
 }
 
 impl fmt::Display for WireguardEndpointData {
@@ -169,6 +196,8 @@ impl Error for TransportProtocolParseError {
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
     pub openvpn: OpenVpnTunnelOptions,
+    /// Contains wireguard tunnel options.
+    pub wireguard: WireguardTunnelOptions,
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
     /// forwarded through the tunnel. By default, this is set to `true`.
     pub enable_ipv6: bool,
@@ -178,6 +207,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             openvpn: OpenVpnTunnelOptions::default(),
+            wireguard: WireguardTunnelOptions::default(),
             enable_ipv6: false,
         }
     }
@@ -196,7 +226,6 @@ pub struct OpenVpnTunnelOptions {
     /// Proxy settings, for when the relay connection should be via a proxy.
     pub proxy: Option<OpenVpnProxySettings>,
 }
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum OpenVpnProxySettings {
@@ -250,5 +279,25 @@ impl OpenVpnProxySettingsValidation {
             }
         };
         Ok(())
+    }
+}
+
+/// Wireguard tunnel options
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct WireguardTunnelOptions {
+    /// MTU for the wireguard tunnel
+    pub mtu: Option<u16>,
+    /// firewall mark
+    pub fwmark: Option<i32>,
+}
+
+
+impl Default for WireguardTunnelOptions {
+    fn default() -> Self {
+        Self {
+            mtu: None,
+            fwmark: None,
+        }
     }
 }

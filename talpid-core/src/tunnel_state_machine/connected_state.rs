@@ -188,7 +188,7 @@ impl TunnelState for ConnectedState {
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        let tunnel_endpoint = bootstrap.tunnel_parameters.endpoint;
+        let tunnel_endpoint = bootstrap.tunnel_parameters.endpoint.clone();
         let connected_state = ConnectedState::from(bootstrap);
 
         if let Err(error) = connected_state.set_security_policy(shared_values) {

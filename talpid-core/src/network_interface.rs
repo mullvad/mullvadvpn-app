@@ -1,3 +1,4 @@
+use ipnetwork::Ipv6Network;
 use nix::fcntl;
 use std::{
     net::IpAddr,
@@ -89,9 +90,10 @@ impl NetworkInterface for TunnelDevice {
                 {
                     duct::cmd!(
                         "ip",
+                        "-6",
                         "addr",
                         "add",
-                        ipv6.to_string(),
+                        Ipv6Network::new(ipv6, 64).unwrap().to_string(),
                         "dev",
                         self.dev.name()
                     )
@@ -105,7 +107,7 @@ impl NetworkInterface for TunnelDevice {
                         "ifconfig",
                         self.dev.name(),
                         "inet6",
-                        ipv6.to_string(),
+                        Ipv6Network::new(ipv6, 64).unwrap().to_string(),
                         "alias"
                     )
                     .run()
@@ -121,7 +123,6 @@ impl NetworkInterface for TunnelDevice {
             .enabled(up)
             .chain_err(|| ErrorKind::ToggleDeviceError)
     }
-
 
     fn set_mtu(&mut self, mtu: u16) -> Result<()> {
         self.dev

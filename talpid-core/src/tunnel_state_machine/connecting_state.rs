@@ -120,7 +120,7 @@ impl ConnectingState {
         let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
 
         Ok(TunnelMonitor::start(
-            parameters.endpoint,
+            parameters.endpoint.clone(),
             &parameters.options,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
             &parameters.username,
@@ -198,7 +198,7 @@ impl ConnectingState {
                 match Self::set_security_policy(
                     shared_values,
                     &self.tunnel_parameters.options.openvpn.proxy,
-                    self.tunnel_parameters.endpoint,
+                    self.tunnel_parameters.endpoint.clone(),
                 ) {
                     Ok(()) => SameState(self),
                     Err(error) => {
@@ -332,11 +332,11 @@ impl TunnelState for ConnectingState {
         {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
-                let tunnel_endpoint = tunnel_parameters.endpoint;
+                let tunnel_endpoint = tunnel_parameters.endpoint.clone();
                 if let Err(error) = Self::set_security_policy(
                     shared_values,
                     &tunnel_parameters.options.openvpn.proxy,
-                    tunnel_endpoint,
+                    tunnel_endpoint.clone(),
                 ) {
                     error!("{}", error.display_chain());
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
