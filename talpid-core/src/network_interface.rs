@@ -89,6 +89,7 @@ impl NetworkInterface for TunnelDevice {
                 {
                     duct::cmd!(
                         "ip",
+                        "-6",
                         "addr",
                         "add",
                         ipv6.to_string(),
@@ -121,7 +122,6 @@ impl NetworkInterface for TunnelDevice {
             .enabled(up)
             .chain_err(|| ErrorKind::ToggleDeviceError)
     }
-
 
     fn set_mtu(&mut self, mtu: u16) -> Result<()> {
         self.dev

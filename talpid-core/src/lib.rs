@@ -20,6 +20,8 @@ extern crate error_chain;
 extern crate failure;
 extern crate futures;
 #[cfg(unix)]
+extern crate hex;
+#[cfg(unix)]
 extern crate ipnetwork;
 extern crate jsonrpc_core;
 extern crate jsonrpc_macros;
