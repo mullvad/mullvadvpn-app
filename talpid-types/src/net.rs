@@ -7,7 +7,7 @@ use std::{
 };
 
 /// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct TunnelEndpoint {
     pub address: IpAddr,
     pub tunnel: TunnelEndpointData,
@@ -26,7 +26,7 @@ impl TunnelEndpoint {
 
 /// TunnelEndpointData contains data required to connect to a given tunnel endpoint.
 /// Different endpoint types can require different types of data.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum TunnelEndpointData {
     /// Extra parameters for an OpenVPN tunnel endpoint.
     #[serde(rename = "openvpn")]
@@ -52,14 +52,14 @@ impl fmt::Display for TunnelEndpointData {
 }
 
 impl TunnelEndpointData {
-    pub fn port(self) -> u16 {
+    pub fn port(&self) -> u16 {
         match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.port,
             TunnelEndpointData::Wireguard(metadata) => metadata.port,
         }
     }
 
-    pub fn transport_protocol(self) -> TransportProtocol {
+    pub fn transport_protocol(&self) -> TransportProtocol {
         match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
             TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
@@ -79,14 +79,46 @@ impl fmt::Display for OpenVpnEndpointData {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct WireguardEndpointData {
+    /// Port to connect to
     pub port: u16,
+    /// Link addresses
+    pub addresses: Vec<IpAddr>,
+    /// Peer's IP address
+    pub gateway: IpAddr,
+    #[serde(skip)]
+    /// Client's private key
+    pub client_private_key: Option<WgPrivateKey>,
+    /// The peer's public key
+    pub peer_public_key: WgPublicKey,
+}
+
+impl fmt::Debug for WireguardEndpointData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        f.debug_struct(&"WireguardEndpointData")
+            .field("port", &self.port)
+            .field("addresses", &self.addresses)
+            .field("gateway", &self.gateway)
+            .field("peer_public_key", &self.peer_public_key)
+            .finish()
+    }
 }
 
 impl fmt::Display for WireguardEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "port {}", self.port)
+        write!(
+            f,
+            "gateway {} port {} peer_public_key {} addresses {}",
+            self.gateway,
+            self.port,
+            self.peer_public_key,
+            self.addresses
+                .iter()
+                .map(|a| a.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     }
 }
 
@@ -169,6 +201,8 @@ impl Error for TransportProtocolParseError {
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
     pub openvpn: OpenVpnTunnelOptions,
+    /// Contains wireguard tunnel options.
+    pub wireguard: WireguardTunnelOptions,
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
     /// forwarded through the tunnel. By default, this is set to `true`.
     pub enable_ipv6: bool,
@@ -178,11 +212,11 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             openvpn: OpenVpnTunnelOptions::default(),
+            wireguard: WireguardTunnelOptions::default(),
             enable_ipv6: false,
         }
     }
 }
-
 
 /// OpenVpnTunnelOptions contains options for an openvpn tunnel that should be applied irrespective
 /// of the relay parameters - i.e. have nothing to do with the particular OpenVPN server, but do
@@ -250,5 +284,80 @@ impl OpenVpnProxySettingsValidation {
             }
         };
         Ok(())
+    }
+}
+
+/// Wireguard tunnel options
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct WireguardTunnelOptions {
+    /// MTU for the wireguard tunnel
+    pub mtu: Option<u16>,
+    /// firewall mark
+    #[cfg(target_os = "linux")]
+    pub fwmark: i32,
+}
+
+impl Default for WireguardTunnelOptions {
+    fn default() -> WireguardTunnelOptions {
+        Self {
+            mtu: None,
+            // Magic value that should be different for different end user applications, used as a
+            // firewall marker on Linux.
+            #[cfg(target_os = "linux")]
+            fwmark: 787878,
+        }
+    }
+}
+
+/// Wireguard x25519 private key
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+pub struct WgPrivateKey([u8; 32]);
+
+impl WgPrivateKey {
+    /// Get private key as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+
+    /// Get public key from private key
+    pub fn public_key(&self) -> WgPublicKey {
+        WgPublicKey(x25519_dalek::generate_public(self.as_bytes()).to_bytes())
+    }
+}
+
+impl From<[u8; 32]> for WgPrivateKey {
+    fn from(private_key: [u8; 32]) -> WgPrivateKey {
+        WgPrivateKey(private_key)
+    }
+}
+
+/// Wireguard x25519 public key
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+pub struct WgPublicKey([u8; 32]);
+
+impl WgPublicKey {
+    /// Get the public key as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+
+impl From<[u8; 32]> for WgPublicKey {
+    fn from(public_key: [u8; 32]) -> WgPublicKey {
+        WgPublicKey(public_key)
+    }
+}
+
+impl fmt::Debug for WgPublicKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}", &self)
+    }
+}
+
+impl fmt::Display for WgPublicKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}", &base64::encode(&self.0))
     }
 }

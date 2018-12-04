@@ -1,10 +1,14 @@
+use super::TunnelEvent;
 use crate::process::{
     openvpn::{OpenVpnCommand, OpenVpnProcHandle},
     stoppable_process::StoppableProcess,
 };
+use mktemp;
 use std::{
     collections::HashMap,
-    io,
+    ffi::OsString,
+    fs,
+    io::{self, Write},
     path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
@@ -14,35 +18,56 @@ use std::{
     thread,
     time::Duration,
 };
-
 use talpid_ipc;
+use talpid_types::net::{Endpoint, OpenVpnProxySettings, TunnelOptions};
 
-mod errors {
-    error_chain! {
-        errors {
-            /// Unable to start, wait for or kill the OpenVPN process.
-            ChildProcessError(msg: &'static str) {
-                description("Unable to start, wait for or kill the OpenVPN process")
-                display("OpenVPN process error: {}", msg)
-            }
-            /// Unable to start or manage the IPC server listening for events from OpenVPN.
-            EventDispatcherError {
-                description("Unable to start or manage the event dispatcher IPC server")
-            }
-            #[cfg(windows)]
-            /// No TAP adapter was detected
-            MissingTapAdapter {
-                description("No TAP adapter was detected")
-            }
-            #[cfg(windows)]
-            /// TAP adapter seems to be disabled
-            DisabledTapAdapter {
-                description("The TAP adapter appears to be disabled")
-            }
+#[cfg(target_os = "linux")]
+use failure::ResultExt as FailureResultExt;
+#[cfg(target_os = "linux")]
+use which;
+
+error_chain! {
+    errors {
+        /// Unable to start, wait for or kill the OpenVPN process.
+        ChildProcessError(msg: &'static str) {
+            description("Unable to start, wait for or kill the OpenVPN process")
+            display("OpenVPN process error: {}", msg)
+        }
+        /// Unable to start or manage the IPC server listening for events from OpenVPN.
+        EventDispatcherError {
+            description("Unable to start or manage the event dispatcher IPC server")
+        }
+        #[cfg(windows)]
+        /// No TAP adapter was detected
+        MissingTapAdapter {
+            description("No TAP adapter was detected")
+        }
+        #[cfg(windows)]
+        /// TAP adapter seems to be disabled
+        DisabledTapAdapter {
+            description("The TAP adapter appears to be disabled")
+        }
+        /// The IP routing program was not found.
+        #[cfg(target_os = "linux")]
+        IpRouteNotFound {
+            description("The IP routing program `ip` was not found.")
+        }
+        /// The OpenVPN binary was not found.
+        OpenVpnNotFound(path: PathBuf) {
+            description("No OpenVPN binary found")
+            display("No OpenVPN binary found at {}", path.display())
+        }
+        /// The OpenVPN plugin was not found.
+        PluginNotFound(path: PathBuf) {
+            description("No OpenVPN plugin found")
+            display("No OpenVPN plugin found at {}", path.display())
+        }
+        /// There was an error when writing authentication credentials to temporary file.
+        CredentialsWriteError {
+            description("Error while writing credentials to temporary file")
         }
     }
 }
-pub use self::errors::*;
 
 
 #[cfg(unix)]
@@ -51,6 +76,18 @@ static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(4);
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
 
 
+#[cfg(target_os = "macos")]
+const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
+#[cfg(target_os = "linux")]
+const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.so";
+#[cfg(windows)]
+const OPENVPN_PLUGIN_FILENAME: &str = "talpid_openvpn_plugin.dll";
+
+#[cfg(unix)]
+const OPENVPN_BIN_FILENAME: &str = "openvpn";
+#[cfg(windows)]
+const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
+
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
@@ -58,21 +95,78 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     event_dispatcher: Option<talpid_ipc::IpcServer>,
     log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
+    /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
+    _user_pass_file: mktemp::TempFile,
+    /// Keep the 'TempFile' for the proxy user-pass file in the struct, so it's removed on drop.
+    _proxy_auth_file: Option<mktemp::TempFile>,
 }
 
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
     pub fn start<L>(
-        cmd: OpenVpnCommand,
         on_event: L,
-        plugin_path: impl AsRef<Path>,
+        endpoint: Endpoint,
+        tunnel_options: &TunnelOptions,
+        tunnel_alias: Option<OsString>,
         log_path: Option<PathBuf>,
+        resource_dir: &Path,
+        username: &str,
     ) -> Result<Self>
     where
-        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
+        L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        Self::new_internal(cmd, on_event, plugin_path, log_path)
+        let user_pass_file = Self::create_credentials_file(username, "-")
+            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+
+        let proxy_auth_file = Self::create_proxy_auth_file(&tunnel_options.openvpn.proxy)
+            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+
+
+        let user_pass_file_path = user_pass_file.to_path_buf();
+
+        let proxy_auth_file_path = match proxy_auth_file {
+            Some(ref file) => Some(file.to_path_buf()),
+            _ => None,
+        };
+
+        let on_openvpn_event = move |event, env| {
+            if event == openvpn_plugin::EventType::RouteUp {
+                // The user-pass file has been read. Try to delete it early.
+                let _ = fs::remove_file(&user_pass_file_path);
+
+                // The proxy auth file has been read. Try to delete it early.
+                if let Some(ref file_path) = &proxy_auth_file_path {
+                    let _ = fs::remove_file(file_path);
+                }
+            }
+            match TunnelEvent::from_openvpn_event(event, &env) {
+                Some(tunnel_event) => on_event(tunnel_event),
+                None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
+            }
+        };
+        let cmd = Self::create_openvpn_cmd(
+            endpoint,
+            tunnel_alias,
+            &tunnel_options,
+            user_pass_file.as_ref(),
+            match proxy_auth_file {
+                Some(ref file) => Some(file.as_ref()),
+                _ => None,
+            },
+            resource_dir,
+        )?;
+
+        let plugin_path = Self::get_plugin_path(resource_dir)?;
+
+        Self::new_internal(
+            cmd,
+            on_openvpn_event,
+            &plugin_path,
+            log_path,
+            user_pass_file,
+            proxy_auth_file,
+        )
     }
 }
 
@@ -82,6 +176,8 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         on_event: L,
         plugin_path: impl AsRef<Path>,
         log_path: Option<PathBuf>,
+        user_pass_file: mktemp::TempFile,
+        proxy_auth_file: Option<mktemp::TempFile>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -89,17 +185,21 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         let event_dispatcher =
             event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
+
         let child = cmd
             .plugin(plugin_path, vec![event_dispatcher.path().to_owned()])
-            .log(log_path.as_ref())
+            .log(log_path.as_ref().map(|p| p.as_path()))
             .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
+
 
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
             event_dispatcher: Some(event_dispatcher),
             log_path,
             closed: Arc::new(AtomicBool::new(false)),
+            _user_pass_file: user_pass_file,
+            _proxy_auth_file: proxy_auth_file,
         })
     }
 
@@ -189,6 +289,102 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         }
 
         ErrorKind::ChildProcessError("Died unexpectedly").into()
+    }
+
+    fn create_proxy_auth_file(
+        proxy: &Option<OpenVpnProxySettings>,
+    ) -> ::std::result::Result<Option<mktemp::TempFile>, io::Error> {
+        if let Some(OpenVpnProxySettings::Remote(ref remote_proxy)) = proxy {
+            if let Some(ref proxy_auth) = remote_proxy.auth {
+                return Ok(Some(Self::create_credentials_file(
+                    &proxy_auth.username,
+                    &proxy_auth.password,
+                )?));
+            }
+        }
+        Ok(None)
+    }
+
+    fn create_credentials_file(username: &str, password: &str) -> io::Result<mktemp::TempFile> {
+        let temp_file = mktemp::TempFile::new();
+        log::debug!("Writing credentials to {}", temp_file.as_ref().display());
+        let mut file = fs::File::create(&temp_file)?;
+        Self::set_user_pass_file_permissions(&file)?;
+        write!(file, "{}\n{}\n", username, password)?;
+        Ok(temp_file)
+    }
+
+
+    #[cfg(unix)]
+    fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(PermissionsExt::from_mode(0o400))
+    }
+
+    #[cfg(windows)]
+    fn set_user_pass_file_permissions(_file: &fs::File) -> io::Result<()> {
+        // TODO(linus): Lock permissions correctly on Windows.
+        Ok(())
+    }
+
+    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
+        let path = resource_dir.join(OPENVPN_PLUGIN_FILENAME);
+        if path.exists() {
+            log::trace!("Using OpenVPN plugin at {}", path.display());
+            Ok(path)
+        } else {
+            bail!(ErrorKind::PluginNotFound(path));
+        }
+    }
+
+    fn create_openvpn_cmd(
+        remote: Endpoint,
+        tunnel_alias: Option<OsString>,
+        options: &TunnelOptions,
+        user_pass_file: &Path,
+        proxy_auth_file: Option<&Path>,
+        resource_dir: &Path,
+    ) -> Result<OpenVpnCommand> {
+        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
+        if let Some(config) = Self::get_config_path(resource_dir) {
+            cmd.config(config);
+        }
+        #[cfg(target_os = "linux")]
+        cmd.iproute_bin(
+            which::which("ip")
+                .compat()
+                .chain_err(|| ErrorKind::IpRouteNotFound)?,
+        );
+        cmd.remote(remote)
+            .user_pass(user_pass_file)
+            .tunnel_options(&options.openvpn)
+            .enable_ipv6(options.enable_ipv6)
+            .tunnel_alias(tunnel_alias)
+            .ca(resource_dir.join("ca.crt"));
+        if let Some(proxy_auth_file) = proxy_auth_file {
+            cmd.proxy_auth(proxy_auth_file);
+        }
+
+        Ok(cmd)
+    }
+
+    fn get_openvpn_bin(resource_dir: &Path) -> Result<PathBuf> {
+        let path = resource_dir.join(OPENVPN_BIN_FILENAME);
+        if path.exists() {
+            log::trace!("Using OpenVPN at {}", path.display());
+            Ok(path)
+        } else {
+            bail!(ErrorKind::OpenVpnNotFound(path));
+        }
+    }
+
+    fn get_config_path(resource_dir: &Path) -> Option<PathBuf> {
+        let path = resource_dir.join("openvpn.conf");
+        if path.exists() {
+            Some(path)
+        } else {
+            None
+        }
     }
 }
 
@@ -332,6 +528,7 @@ mod tests {
     use super::*;
     use std::path::{Path, PathBuf};
 
+    use mktemp::TempFile;
     use std::sync::{Arc, Mutex};
 
     #[derive(Debug, Default, Clone)]
@@ -384,7 +581,14 @@ mod tests {
     #[test]
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
-        let _ = OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin", None);
+        let _ = OpenVpnMonitor::new_internal(
+            builder.clone(),
+            |_, _| {},
+            "./my_test_plugin",
+            None,
+            TempFile::new(),
+            None,
+        );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
             *builder.plugin.lock().unwrap()
@@ -397,8 +601,10 @@ mod tests {
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
             |_, _| {},
-            "./my_test_plugin",
+            "",
             Some(PathBuf::from("./my_test_log_file")),
+            TempFile::new(),
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
@@ -410,7 +616,9 @@ mod tests {
     fn exit_successfully() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(0));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
+        let testee =
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+                .unwrap();
         assert!(testee.wait().is_ok());
     }
 
@@ -418,7 +626,9 @@ mod tests {
     fn exit_error() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
+        let testee =
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+                .unwrap();
         assert!(testee.wait().is_err());
     }
 
@@ -426,7 +636,9 @@ mod tests {
     fn wait_closed() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
+        let testee =
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+                .unwrap();
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
     }
@@ -434,7 +646,9 @@ mod tests {
     #[test]
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let error = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap_err();
+        let error =
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+                .unwrap_err();
         match error.kind() {
             ErrorKind::ChildProcessError(_) => (),
             _ => panic!("Wrong error"),
