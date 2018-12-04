@@ -1770,6 +1770,7 @@ dependencies = [
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnl 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
  "nftnl 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nix 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.6 (registry+https://github.com/rust-lang/crates.io-index)",

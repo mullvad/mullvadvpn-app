@@ -34,6 +34,7 @@ nix = "0.12"
 dbus = "0.6"
 failure = "0.1"
 iproute2 = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
+netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
 notify = "4.0"
 resolv-conf = "0.6.1"
 rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
