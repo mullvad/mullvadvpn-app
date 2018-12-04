@@ -43,6 +43,7 @@ pub struct RequiredRoutes {
     pub routes: Vec<Route>,
     /// Optionally apply the routes to a specific table and only apply routes when a firewall mark
     /// is not used. Currently only used on Linux.
+    #[cfg(target_os = "linux")]
     pub fwmark: Option<String>,
 }
 

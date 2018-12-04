@@ -1,5 +1,14 @@
+use std::{env, path::PathBuf};
+
+fn manifest_dir() -> PathBuf {
+    env::var("CARGO_MANIFEST_DIR")
+        .map(PathBuf::from)
+        .expect("CARGO_MANIFEST_DIR env var not set")
+}
+
 #[cfg(windows)]
 mod win {
+    use super::manifest_dir;
     use std::{env, path::PathBuf};
 
     pub static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
@@ -19,12 +28,6 @@ mod win {
             _ => panic!("uncrecognized target: {}", target),
         };
         target_dir.into()
-    }
-
-    fn manifest_dir() -> PathBuf {
-        env::var("CARGO_MANIFEST_DIR")
-            .map(PathBuf::from)
-            .expect("CARGO_MANIFEST_DIR env var not set")
     }
 
     fn get_build_mode() -> &'static str {
@@ -59,4 +62,12 @@ fn main() {
 }
 
 #[cfg(not(windows))]
-fn main() {}
+fn main() {
+    let lib_dir = if cfg!(target_os = "macos") {
+        manifest_dir().join("../dist-assets/binaries/macos")
+    } else {
+        manifest_dir().join("../dist-assets/binaries/linux")
+    };
+    println!("cargo:rustc-link-search={}", &lib_dir.display());
+    println!("cargo:rustc-link-lib=static=wg");
+}
