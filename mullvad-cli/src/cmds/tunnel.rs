@@ -139,9 +139,9 @@ impl Tunnel {
     }
 
     fn handle_openvpn_mssfix_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(_) = matches.subcommand_matches("get") {
+        if matches.subcommand_matches("get").is_some() {
             Self::process_openvpn_mssfix_get()
-        } else if let Some(_) = matches.subcommand_matches("unset") {
+        } else if matches.subcommand_matches("unset").is_some() {
             Self::process_openvpn_mssfix_unset()
         } else if let Some(m) = matches.subcommand_matches("set") {
             Self::process_openvpn_mssfix_set(m)
@@ -151,9 +151,9 @@ impl Tunnel {
     }
 
     fn handle_openvpn_proxy_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(_) = matches.subcommand_matches("get") {
+        if matches.subcommand_matches("get").is_some() {
             Self::process_openvpn_proxy_get()
-        } else if let Some(_) = matches.subcommand_matches("unset") {
+        } else if matches.subcommand_matches("unset").is_some() {
             Self::process_openvpn_proxy_unset()
         } else if let Some(m) = matches.subcommand_matches("set") {
             Self::process_openvpn_proxy_set(m)
@@ -163,7 +163,7 @@ impl Tunnel {
     }
 
     fn handle_ipv6_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(_) = matches.subcommand_matches("get") {
+        if matches.subcommand_matches("get").is_some() {
             Self::process_ipv6_get()
         } else if let Some(m) = matches.subcommand_matches("set") {
             Self::process_ipv6_set(m)

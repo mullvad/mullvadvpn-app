@@ -40,7 +40,7 @@ impl Exec {
         self
     }
 
-    pub fn to_expr(self) -> Expression {
+    pub fn into_expr(self) -> Expression {
         duct::cmd(self.cmd, self.args)
     }
 }
