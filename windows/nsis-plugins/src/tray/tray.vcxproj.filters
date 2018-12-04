@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="trayjuggler.h" />
+    <ClInclude Include="trayparser.h" />
+    <ClInclude Include="iconstreams.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="tray.cpp" />
+    <ClCompile Include="trayjuggler.cpp" />
+    <ClCompile Include="trayparser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tray.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="tray.rc" />
+  </ItemGroup>
+</Project>
