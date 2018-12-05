@@ -170,7 +170,7 @@ export default class Connect extends Component<Props> {
           ) : null}
 
           <TunnelControl
-            tunnelState={this.props.connection.status.state}
+            tunnelState={this.props.connection.status}
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
