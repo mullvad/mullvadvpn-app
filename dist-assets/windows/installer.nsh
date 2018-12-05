@@ -29,9 +29,13 @@
 !define INA_GENERAL_ERROR 0
 !define INA_SUCCESS 1
 
-#Return codes from driverlogic::Initialize/Deinitialize
+# Return codes from driverlogic::Initialize/Deinitialize
 !define DRIVERLOGIC_GENERAL_ERROR 0
 !define DRIVERLOGIC_SUCCESS 1
+
+# Return codes from tray::PromoteTrayIcon
+!define PTI_GENERAL_ERROR 0
+!define PTI_SUCCESS 1
 
 #
 # BreakInstallation
@@ -262,6 +266,39 @@
 !define InstallService '!insertmacro "InstallService"'
 
 #
+# InstallTrayIcon
+#
+# Create or update registry entry for tray icon.
+#
+!macro InstallTrayIcon
+
+	log::Log "InstallTrayIcon()"
+
+	Push $0
+	Push $1
+
+	tray::PromoteTrayIcon
+	
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${PTI_SUCCESS}
+		log::LogWithDetails "Failed to install Mullvad tray icon" $1
+		Goto InstallTrayIcon_return
+	${EndIf}
+
+	log::Log "InstallTrayIcon() completed successfully"
+	
+	InstallTrayIcon_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define InstallTrayIcon '!insertmacro "InstallTrayIcon"'
+
+#
 # RemoveLogsAndCache
 #
 # Call into helper DLL instructing it to remove all logs and cache
@@ -373,7 +410,9 @@
 		${BreakInstallation}
 		Abort
 	${EndIf}
-
+	
+	${InstallTrayIcon}
+	
 	Pop $R0
 
 !macroend

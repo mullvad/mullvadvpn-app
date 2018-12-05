@@ -1,0 +1,1 @@
+#define MULLVAD_TRAY_RECORD 9001
