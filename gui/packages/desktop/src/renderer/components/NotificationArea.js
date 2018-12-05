@@ -79,6 +79,16 @@ export default class NotificationArea extends Component<Props, State> {
           reason: getBlockReasonMessage(tunnelState.details),
         };
 
+      case 'disconnecting':
+        if (tunnelState.details === 'reconnect') {
+          return {
+            visible: true,
+            type: 'blocking',
+            reason: '',
+          };
+        }
+      // fallthrough
+
       default:
         if (!version.consistent) {
           return {
