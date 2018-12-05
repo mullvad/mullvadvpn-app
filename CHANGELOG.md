@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Linux
+- Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
+  an error message.
 
 
 ## [2018.6-beta1] - 2018-12-05
