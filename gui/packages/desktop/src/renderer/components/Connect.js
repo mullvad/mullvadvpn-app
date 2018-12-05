@@ -139,6 +139,9 @@ export default class Connect extends Component<Props> {
     const tunnelState = this.props.connection.status.state;
     const details = this.props.connection.status.details;
 
+    const showSpinner =
+      tunnelState === 'connecting' || (tunnelState === 'disconnecting' && details === 'reconnect');
+
     const relayOutAddress: RelayOutAddress = {
       ipv4: this.props.connection.ip,
       ipv6: null,
@@ -160,7 +163,7 @@ export default class Connect extends Component<Props> {
         </View>
         <View style={styles.container}>
           {/* show spinner when connecting */}
-          {tunnelState === 'connecting' ? (
+          {showSpinner ? (
             <View style={styles.status_icon}>
               <ImageView source="icon-spinner" height={60} width={60} alt="" />
             </View>
