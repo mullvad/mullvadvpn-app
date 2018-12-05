@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2018.6-beta1] - 2018-12-05
 ### Added
 - CLI command `relay update` that triggers an update of the relay list in the daemon.
 - Add extra level of kill-switch called "block when disconnected". Blocks all network traffic even
