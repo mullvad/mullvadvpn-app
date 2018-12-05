@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Fix Connect screen state when reconnecting.
 
 
 ## [2018.6-beta1] - 2018-12-05
