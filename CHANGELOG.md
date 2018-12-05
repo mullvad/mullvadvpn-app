@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Linux
+- Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
+  an error message.
+
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
 - Dismiss notifications automatically after four seconds in all platforms.
