@@ -89,8 +89,9 @@ export default class Connect extends Component<Props> {
     if (typeof longitude === 'number' && typeof latitude === 'number') {
       return {
         center: [longitude, latitude],
-        // do not show the marker when connecting
-        showMarker: state !== 'connecting',
+        // do not show the marker when connecting or reconnecting
+        showMarker:
+          state !== 'connecting' && !(state === 'disconnecting' && status.details === 'reconnect'),
         markerStyle: this._getMarkerStyle(),
         // zoom in when connected
         zoomLevel: state === 'connected' ? 'low' : 'medium',
