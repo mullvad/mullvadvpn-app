@@ -33,7 +33,10 @@ type RequestReceiver = mpsc::UnboundedReceiver<(Request, oneshot::Sender<Result<
 
 pub fn create_https_client<P: AsRef<Path>>(ca_path: P, handle: &Handle) -> Result<RequestSender> {
     let connector = HttpsConnectorWithSni::new(ca_path, handle)?;
-    let client = Client::configure().connector(connector).build(handle);
+    let client = Client::configure()
+        .keep_alive(false)
+        .connector(connector)
+        .build(handle);
 
     let (request_tx, request_rx) = mpsc::unbounded();
     handle.spawn(create_request_processing_future(request_rx, client));
