@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Stop GUI from glitching during the short reconnect state.
 
 
 ## [2018.6-beta1] - 2018-12-05
