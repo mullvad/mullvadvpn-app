@@ -11,6 +11,7 @@ import {
   replace as replaceHistory,
 } from 'connected-react-router';
 import { createMemoryHistory } from 'history';
+import uuid from 'uuid';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
@@ -341,6 +342,26 @@ export default class AppRenderer {
     const actions = this._reduxActions;
     await this._daemonRpc.setAutoConnect(autoConnect);
     actions.settings.updateAutoConnect(autoConnect);
+  }
+
+  async setStartMinimized(startMinimized: boolean) {
+    const requestId = uuid.v4();
+    ipcRenderer.send('set-start-minimized', requestId, startMinimized);
+  }
+
+  async getStartMinimized(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const requestId = uuid.v4();
+      const responseListener = (_event, responseId, startMinimized) => {
+        if (requestId === responseId) {
+          ipcRenderer.removeListener('start-minimized-value', responseListener);
+          resolve(startMinimized);
+        }
+      };
+
+      ipcRenderer.on('start-minimized-value', responseListener);
+      ipcRenderer.send('get-start-minimized', requestId);
+    });
   }
 
   async _onDaemonConnected() {
