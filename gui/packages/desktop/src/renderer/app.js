@@ -325,6 +325,12 @@ export default class AppRenderer {
     actions.settings.updateEnableIpv6(enableIpv6);
   }
 
+  async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {
+    const actions = this._reduxActions;
+    await this._daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected);
+    actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
+  }
+
   async setOpenVpnMssfix(mssfix: ?number) {
     const actions = this._reduxActions;
     actions.settings.updateOpenVpnMssfix(mssfix);
