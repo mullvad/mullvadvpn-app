@@ -22,7 +22,6 @@ import type {
   Location,
   RelayList,
   Settings,
-  TunnelState,
   TunnelStateTransition,
 } from './daemon-rpc';
 
@@ -456,7 +455,7 @@ const ApplicationMain = {
 
   _setTunnelState(newState: TunnelStateTransition) {
     this._tunnelState = newState;
-    this._updateTrayIcon(newState.state);
+    this._updateTrayIcon(newState, this._settings.blockWhenDisconnected);
     this._updateLocation();
 
     if (!this._shouldSuppressNotifications()) {
@@ -470,6 +469,7 @@ const ApplicationMain = {
 
   _setSettings(newSettings: Settings) {
     this._settings = newSettings;
+    this._updateTrayIcon(this._tunnelState, newSettings.blockWhenDisconnected);
 
     if (this._ipcEventChannel) {
       this._ipcEventChannel.settings.notify(newSettings);
@@ -650,13 +650,48 @@ const ApplicationMain = {
     }
   },
 
-  _updateTrayIcon(tunnelState: TunnelState) {
-    const iconTypes: { [TunnelState]: TrayIconType } = {
-      connected: 'secured',
-      connecting: 'securing',
-      blocked: 'securing',
-    };
-    const type = iconTypes[tunnelState] || 'unsecured';
+  _trayIconType(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean): TrayIconType {
+    switch (tunnelState.state) {
+      case 'connected':
+        return 'secured';
+
+      case 'connecting':
+      // fallthrough
+      case 'blocked':
+        return 'securing';
+
+      case 'disconnecting':
+        switch (tunnelState.details) {
+          case 'reconnect':
+          // fallthrough
+          case 'block':
+            return 'securing';
+
+          case 'nothing':
+            // handle the same way as disconnected
+            break;
+
+          default:
+            // unrechable, but can't prove it to flow because of the fallthrough
+            return 'unsecured';
+        }
+      // fallthrough
+
+      case 'disconnected':
+        if (blockWhenDisconnected) {
+          return 'securing';
+        } else {
+          return 'unsecured';
+        }
+
+      default:
+        // unrechable, but can't prove it to flow because of the fallthrough
+        return 'unsecured';
+    }
+  },
+
+  _updateTrayIcon(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+    const type = this._trayIconType(tunnelState, blockWhenDisconnected);
 
     if (this._trayIconController) {
       this._trayIconController.animateToIcon(type);
