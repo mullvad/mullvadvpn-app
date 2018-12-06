@@ -30,6 +30,8 @@ type Props = {
   onToggleConnectionInfo: (boolean) => void,
 };
 
+type MarkerOrSpinner = 'marker' | 'spinner';
+
 export default class Connect extends Component<Props> {
   render() {
     const error = this.checkForErrors();
@@ -90,8 +92,7 @@ export default class Connect extends Component<Props> {
       return {
         center: [longitude, latitude],
         // do not show the marker when connecting or reconnecting
-        showMarker:
-          state !== 'connecting' && !(state === 'disconnecting' && status.details === 'reconnect'),
+        showMarker: this._showMarkerOrSpinner() === 'marker',
         markerStyle: this._getMarkerStyle(),
         // zoom in when connected
         zoomLevel: state === 'connected' ? 'low' : 'medium',
@@ -136,12 +137,20 @@ export default class Connect extends Component<Props> {
     }
   }
 
+  _showMarkerOrSpinner(): MarkerOrSpinner {
+    const state = this.props.connection.status.state;
+    const details = this.props.connection.status.details;
+
+    if (state === 'connecting' || (state === 'disconnecting' && details === 'reconnect')) {
+      return 'spinner';
+    } else {
+      return 'marker';
+    }
+  }
+
   renderMap() {
     const tunnelState = this.props.connection.status.state;
     const details = this.props.connection.status.details;
-
-    const showSpinner =
-      tunnelState === 'connecting' || (tunnelState === 'disconnecting' && details === 'reconnect');
 
     const relayOutAddress: RelayOutAddress = {
       ipv4: this.props.connection.ip,
@@ -164,7 +173,7 @@ export default class Connect extends Component<Props> {
         </View>
         <View style={styles.container}>
           {/* show spinner when connecting */}
-          {showSpinner ? (
+          {this._showMarkerOrSpinner() === 'spinner' ? (
             <View style={styles.status_icon}>
               <ImageView source="icon-spinner" height={60} width={60} alt="" />
             </View>
