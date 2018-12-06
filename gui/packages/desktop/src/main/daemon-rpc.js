@@ -383,6 +383,7 @@ export type Settings = {
   accountToken: ?AccountToken,
   allowLan: boolean,
   autoConnect: boolean,
+  blockWhenDisconnected: boolean,
   relaySettings: RelaySettings,
   tunnelOptions: TunnelOptions,
 };
@@ -391,6 +392,7 @@ const SettingsSchema = partialObject({
   account_token: maybe(string),
   allow_lan: boolean,
   auto_connect: boolean,
+  block_when_disconnected: boolean,
   relay_settings: RelaySettingsSchema,
   tunnel_options: TunnelOptionsSchema,
 });
