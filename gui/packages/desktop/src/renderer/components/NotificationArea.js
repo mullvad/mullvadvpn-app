@@ -20,6 +20,7 @@ type Props = {
   tunnelState: TunnelStateTransition,
   version: VersionReduxState,
   openExternalLink: (string) => void,
+  blockWhenDisconnected: boolean,
 };
 
 type NotificationAreaPresentation =
@@ -62,7 +63,7 @@ export default class NotificationArea extends Component<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    const { version, tunnelState } = props;
+    const { version, tunnelState, blockWhenDisconnected } = props;
 
     switch (tunnelState.state) {
       case 'connecting':
@@ -78,6 +79,18 @@ export default class NotificationArea extends Component<Props, State> {
           type: 'blocking',
           reason: getBlockReasonMessage(tunnelState.details),
         };
+
+      case 'disconnecting':
+      // fallthrough
+      case 'disconnected':
+        if (blockWhenDisconnected) {
+          return {
+            visible: true,
+            type: 'blocking',
+            reason: '',
+          };
+        }
+      // fallthrough
 
       default:
         if (!version.consistent) {
