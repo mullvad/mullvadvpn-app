@@ -27,6 +27,11 @@ export type UpdateEnableIpv6Action = {
   enableIpv6: boolean,
 };
 
+export type UpdateBlockWhenDisconnectedAction = {
+  type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
+  blockWhenDisconnected: boolean,
+};
+
 export type UpdateOpenVpnMssfixAction = {
   type: 'UPDATE_OPENVPN_MSSFIX',
   mssfix: ?number,
@@ -38,6 +43,7 @@ export type SettingsAction =
   | UpdateAutoConnectAction
   | UpdateAllowLanAction
   | UpdateEnableIpv6Action
+  | UpdateBlockWhenDisconnectedAction
   | UpdateOpenVpnMssfixAction;
 
 function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
@@ -77,6 +83,15 @@ function updateEnableIpv6(enableIpv6: boolean): UpdateEnableIpv6Action {
   };
 }
 
+function updateBlockWhenDisconnected(
+  blockWhenDisconnected: boolean,
+): UpdateBlockWhenDisconnectedAction {
+  return {
+    type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
+    blockWhenDisconnected,
+  };
+}
+
 function updateOpenVpnMssfix(mssfix: ?number): UpdateOpenVpnMssfixAction {
   return {
     type: 'UPDATE_OPENVPN_MSSFIX',
@@ -90,5 +105,6 @@ export default {
   updateAutoConnect,
   updateAllowLan,
   updateEnableIpv6,
+  updateBlockWhenDisconnected,
   updateOpenVpnMssfix,
 };

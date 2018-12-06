@@ -49,6 +49,7 @@ export type SettingsReduxState = {
   autoConnect: boolean,
   allowLan: boolean,
   enableIpv6: boolean,
+  blockWhenDisconnected: boolean,
   openVpn: {
     mssfix: ?number,
   },
@@ -66,6 +67,7 @@ const initialState: SettingsReduxState = {
   autoConnect: false,
   allowLan: false,
   enableIpv6: true,
+  blockWhenDisconnected: false,
   openVpn: {
     mssfix: null,
   },
@@ -104,6 +106,12 @@ export default function(
       return {
         ...state,
         enableIpv6: action.enableIpv6,
+      };
+
+    case 'UPDATE_BLOCK_WHEN_DISCONNECTED':
+      return {
+        ...state,
+        blockWhenDisconnected: action.blockWhenDisconnected,
       };
 
     case 'UPDATE_OPENVPN_MSSFIX':
