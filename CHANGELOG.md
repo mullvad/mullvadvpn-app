@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Handle "block when disconnected" extra kill-switch level in the UI, showing the disconnected state
+  as blocked when appropriate and also having a toggle switch for the setting in the Advanced
+  Settings screen.
 
 
 ## [2018.6-beta1] - 2018-12-05
