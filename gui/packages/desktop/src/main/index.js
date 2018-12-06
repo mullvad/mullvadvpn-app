@@ -22,7 +22,6 @@ import type {
   Location,
   RelayList,
   Settings,
-  TunnelState,
   TunnelStateTransition,
 } from './daemon-rpc';
 
@@ -455,7 +454,7 @@ const ApplicationMain = {
 
   _setTunnelState(newState: TunnelStateTransition) {
     this._tunnelState = newState;
-    this._updateTrayIcon(newState.state);
+    this._updateTrayIcon(newState);
     this._updateLocation();
 
     if (!this._shouldSuppressNotifications()) {
@@ -649,13 +648,46 @@ const ApplicationMain = {
     }
   },
 
-  _updateTrayIcon(tunnelState: TunnelState) {
-    const iconTypes: { [TunnelState]: TrayIconType } = {
-      connected: 'secured',
-      connecting: 'securing',
-      blocked: 'securing',
-    };
-    const type = iconTypes[tunnelState] || 'unsecured';
+  _trayIconType(tunnelState: TunnelStateTransition): TrayIconType {
+    switch (tunnelState.state) {
+      case 'connected':
+        return 'secured';
+
+      case 'connecting':
+        return 'securing';
+
+      case 'blocked':
+        return 'securing';
+
+      case 'disconnecting':
+        switch (tunnelState.details) {
+          case 'reconnect':
+            return 'securing';
+
+          case 'block':
+            return 'securing';
+
+          case 'nothing':
+            return 'unsecured';
+
+          default:
+            log.error(`Invalid after disconnect action: ${(tunnelState.details: empty)}`);
+        }
+        break;
+
+      case 'disconnected':
+        return 'unsecured';
+
+      default:
+        log.error(`Invalid tunnel state: ${(tunnelState.state: empty)}`);
+    }
+
+    // Unreachable, but flow doesn't agree
+    return 'unsecured';
+  },
+
+  _updateTrayIcon(tunnelState: TunnelStateTransition) {
+    const type = this._trayIconType(tunnelState);
 
     if (this._trayIconController) {
       this._trayIconController.animateToIcon(type);
