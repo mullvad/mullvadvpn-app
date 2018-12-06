@@ -122,6 +122,10 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
     return this._sendMessage('setEnableIpv6', enableIpv6);
   }
 
+  setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
+    return this._sendMessage('setBlockWhenDisconnected', blockWhenDisconnected);
+  }
+
   setOpenVpnMssfix(mssfix: ?number): Promise<void> {
     return this._sendMessage('setOpenVpnMssfix', mssfix);
   }
