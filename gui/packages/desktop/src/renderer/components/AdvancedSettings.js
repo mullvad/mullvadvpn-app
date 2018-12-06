@@ -21,10 +21,12 @@ const MAX_MSSFIX_VALUE = 1450;
 
 type Props = {
   enableIpv6: boolean,
+  blockWhenDisconnected: boolean,
   protocol: string,
   mssfix: ?number,
   port: string | number,
   setEnableIpv6: (boolean) => void,
+  setBlockWhenDisconnected: (boolean) => void,
   setOpenVpnMssfix: (?number) => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
@@ -97,6 +99,19 @@ export class AdvancedSettings extends Component<Props, State> {
                     <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
                   <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
+
+                  <Cell.Container>
+                    <Cell.Label>Block when disconnected</Cell.Label>
+                    <Switch
+                      isOn={this.props.blockWhenDisconnected}
+                      onChange={this.props.setBlockWhenDisconnected}
+                    />
+                  </Cell.Container>
+                  <Cell.Footer>
+                    {
+                      "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+                    }
+                  </Cell.Footer>
 
                   <View style={styles.advanced_settings__content}>
                     <Selector
