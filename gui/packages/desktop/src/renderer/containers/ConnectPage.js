@@ -63,6 +63,7 @@ const mapStateToProps = (state: ReduxState) => {
     connection: state.connection,
     version: state.version,
     connectionInfoOpen: state.userInterface.connectionInfoOpen,
+    blockWhenDisconnected: state.settings.blockWhenDisconnected,
   };
 };
 
