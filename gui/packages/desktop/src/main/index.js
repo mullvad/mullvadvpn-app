@@ -302,6 +302,10 @@ const ApplicationMain = {
         break;
     }
 
+    if (this._shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
+      windowController.show();
+    }
+
     window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
   },
 
@@ -987,7 +991,6 @@ const ApplicationMain = {
     tray.on('click', () => {
       windowController.toggle();
     });
-    windowController.show();
   },
 
   _installLinuxWindowCloseHandler(windowController: WindowController) {
@@ -997,6 +1000,28 @@ const ApplicationMain = {
         windowController.hide();
       }
     });
+  },
+
+  _shouldShowWindowOnStart(): boolean {
+    switch (process.platform) {
+      case 'win32':
+        return false;
+      case 'darwin':
+        return false;
+      case 'linux':
+        try {
+          const settingsFile = path.join(app.getPath('userData'), 'gui_settings.json');
+          const contents = fs.readFileSync(settingsFile, 'utf8');
+          const settings = JSON.parse(contents);
+
+          return !settings.startMinimized;
+        } catch (error) {
+          log.error(`Failed to read if window should start minimized or not: ${error}`);
+          return true;
+        }
+      default:
+        return true;
+    }
   },
 };
 
