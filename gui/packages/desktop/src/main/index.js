@@ -216,15 +216,29 @@ const ApplicationMain = {
     }
   },
 
+  _guiSettingsFilePath() {
+    return path.join(app.getPath('userData'), 'gui_settings.json');
+  },
+
   _loadGuiSettings() {
     try {
-      const settingsFile = path.join(app.getPath('userData'), 'gui_settings.json');
+      const settingsFile = this._guiSettingsFilePath();
       const contents = fs.readFileSync(settingsFile, 'utf8');
       const settings = JSON.parse(contents);
 
       this._guiSettings.startMinimized = settings.startMinimized || false;
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
+    }
+  },
+
+  _storeGuiSettings() {
+    try {
+      const settingsFile = this._guiSettingsFilePath();
+
+      fs.writeFileSync(settingsFile, JSON.stringify(this._guiSettings));
+    } catch (error) {
+      log.error(`Failed to write GUI settings file: ${error}`);
     }
   },
 
@@ -839,6 +853,15 @@ const ApplicationMain = {
         });
       },
     );
+
+    ipcMain.on('get-start-minimized', (event, requestId) => {
+      event.sender.send('start-minimized-value', requestId, this._guiSettings.startMinimized);
+    });
+
+    ipcMain.on('set-start-minimized', (_event, _requestId, startMinimized) => {
+      this._guiSettings.startMinimized = startMinimized || false;
+      this._storeGuiSettings();
+    });
   },
 
   async _installDevTools() {
