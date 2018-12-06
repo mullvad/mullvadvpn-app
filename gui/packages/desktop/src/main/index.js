@@ -66,6 +66,7 @@ const ApplicationMain = {
     accountToken: null,
     allowLan: false,
     autoConnect: false,
+    blockWhenDisconnected: false,
     relaySettings: {
       normal: {
         location: 'any',
