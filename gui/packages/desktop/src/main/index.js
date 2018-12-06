@@ -36,6 +36,10 @@ const DAEMON_RPC_PATH =
 
 type AppQuitStage = 'unready' | 'initiated' | 'ready';
 
+type GuiSettings = {
+  startMinimized: boolean,
+};
+
 export type CurrentAppVersionInfo = {
   gui: string,
   daemon: string,
@@ -81,6 +85,9 @@ const ApplicationMain = {
       proxy: null,
     },
   }: Settings),
+  _guiSettings: ({
+    startMinimized: false,
+  }: GuiSettings),
   _location: (null: ?Location),
   _lastDisconnectedLocation: (null: ?Location),
 
@@ -122,6 +129,10 @@ const ApplicationMain = {
 
     if (process.platform === 'win32') {
       app.setAppUserModelId('net.mullvad.vpn');
+    }
+
+    if (process.platform === 'linux') {
+      this._loadGuiSettings();
     }
 
     app.on('activate', () => this._onActivate());
@@ -202,6 +213,18 @@ const ApplicationMain = {
       log.transports.file.file = this._logFilePath;
 
       log.debug(`Logging to ${this._logFilePath}`);
+    }
+  },
+
+  _loadGuiSettings() {
+    try {
+      const settingsFile = path.join(app.getPath('userData'), 'gui_settings.json');
+      const contents = fs.readFileSync(settingsFile, 'utf8');
+      const settings = JSON.parse(contents);
+
+      this._guiSettings.startMinimized = settings.startMinimized || false;
+    } catch (error) {
+      log.error(`Failed to read GUI settings file: ${error}`);
     }
   },
 
@@ -1009,16 +1032,7 @@ const ApplicationMain = {
       case 'darwin':
         return false;
       case 'linux':
-        try {
-          const settingsFile = path.join(app.getPath('userData'), 'gui_settings.json');
-          const contents = fs.readFileSync(settingsFile, 'utf8');
-          const settings = JSON.parse(contents);
-
-          return !settings.startMinimized;
-        } catch (error) {
-          log.error(`Failed to read if window should start minimized or not: ${error}`);
-          return true;
-        }
+        return !this._guiSettings.startMinimized;
       default:
         return true;
     }
