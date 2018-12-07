@@ -22,8 +22,11 @@ function makeProps(props) {
     setAutoStart: (_autoStart) => Promise.resolve(),
     getAutoStart: () => false,
     setAllowLan: () => {},
+    getStartMinimized: () => Promise.resolve(false),
+    setStartMinimized: () => {},
     allowAutoConnect: false,
     allowLan: false,
+    enableStartMinimizedToggle: false,
     ...props,
   };
 }

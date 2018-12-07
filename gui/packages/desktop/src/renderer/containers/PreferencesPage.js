@@ -41,6 +41,13 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     setAllowLan: (allowLan) => {
       props.app.setAllowLan(allowLan);
     },
+    getStartMinimized: async () => {
+      return props.app.getStartMinimized();
+    },
+    setStartMinimized: (startMinimized) => {
+      props.app.setStartMinimized(startMinimized);
+    },
+    enableStartMinimizedToggle: process.platform === 'linux',
   };
 };
 
