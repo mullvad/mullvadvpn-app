@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.
+- Add a toggle switch to allow the app to start minimized on Linux, so that only the tray icon is
+  initially visible.
 
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
