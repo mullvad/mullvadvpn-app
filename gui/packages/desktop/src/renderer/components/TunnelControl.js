@@ -6,7 +6,7 @@ import { ConnectionInfo, SecuredLabel, SecuredDisplayStyle, ImageView } from '@m
 import * as AppButton from './AppButton';
 import { colors } from '../../config';
 
-import type { TunnelState, RelayProtocol } from '../lib/daemon-rpc-proxy';
+import type { TunnelStateTransition, RelayProtocol } from '../lib/daemon-rpc-proxy';
 
 export type RelayInAddress = {
   ip: string,
@@ -20,7 +20,7 @@ export type RelayOutAddress = {
 };
 
 type TunnelControlProps = {
-  tunnelState: TunnelState,
+  tunnelState: TunnelStateTransition,
   selectedRelayName: string,
   city: ?string,
   country: ?string,
@@ -135,7 +135,23 @@ export default class TunnelControl extends Component<TunnelControlProps> {
       />
     );
 
-    switch (this.props.tunnelState) {
+    let state = this.props.tunnelState.state;
+
+    if (state === 'disconnecting') {
+      switch (this.props.tunnelState.details) {
+        case 'block':
+          state = 'blocked';
+          break;
+        case 'reconnect':
+          state = 'connecting';
+          break;
+        default:
+          state = 'disconnecting';
+          break;
+      }
+    }
+
+    switch (state) {
       case 'connecting':
         return (
           <Wrapper>
