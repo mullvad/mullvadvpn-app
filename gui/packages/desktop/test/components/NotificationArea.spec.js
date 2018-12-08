@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import NotificationArea from '../../src/renderer/components/NotificationArea';
+import AccountExpiry from '../../src/renderer/lib/account-expiry';
 
 describe('components/NotificationArea', () => {
   const defaultVersion = {
@@ -15,6 +16,12 @@ describe('components/NotificationArea', () => {
     nextUpgrade: null,
   };
 
+  const defaultExpiry = new AccountExpiry(
+    moment()
+      .add(1, 'year')
+      .format(),
+  );
+
   it('handles disconnecting state', () => {
     for (const reason of ['nothing', 'block', 'reconnect']) {
       const component = shallow(
@@ -24,6 +31,7 @@ describe('components/NotificationArea', () => {
             details: { reason },
           }}
           version={defaultVersion}
+          accountExpiry={defaultExpiry}
         />,
       );
       expect(component.state('visible')).to.be.false;
@@ -38,6 +46,7 @@ describe('components/NotificationArea', () => {
             state,
           }}
           version={defaultVersion}
+          accountExpiry={defaultExpiry}
         />,
       );
 
@@ -52,6 +61,7 @@ describe('components/NotificationArea', () => {
           state: 'connecting',
         }}
         version={defaultVersion}
+        accountExpiry={defaultExpiry}
       />,
     );
 
@@ -69,6 +79,7 @@ describe('components/NotificationArea', () => {
           },
         }}
         version={defaultVersion}
+        accountExpiry={defaultExpiry}
       />,
     );
 
@@ -86,6 +97,7 @@ describe('components/NotificationArea', () => {
           ...defaultVersion,
           consistent: false,
         }}
+        accountExpiry={defaultExpiry}
       />,
     );
 
@@ -106,6 +118,7 @@ describe('components/NotificationArea', () => {
           current: '2018.1',
           nextUpgrade: '2018.2',
         }}
+        accountExpiry={defaultExpiry}
       />,
     );
 
@@ -127,6 +140,7 @@ describe('components/NotificationArea', () => {
           latestStable: '2018.3',
           nextUpgrade: '2018.3',
         }}
+        accountExpiry={defaultExpiry}
       />,
     );
 
@@ -149,6 +163,7 @@ describe('components/NotificationArea', () => {
           latestStable: '2018.3',
           nextUpgrade: '2018.4-beta3',
         }}
+        accountExpiry={defaultExpiry}
       />,
     );
 

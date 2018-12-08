@@ -10,7 +10,11 @@ export default class AccountExpiry {
   }
 
   hasExpired(): boolean {
-    return this._expiry.isSameOrBefore(moment());
+    return this.willHaveExpiredIn(moment());
+  }
+
+  willHaveExpiredIn(time: moment): boolean {
+    return this._expiry.isSameOrBefore(time);
   }
 
   remainingTime(): string {

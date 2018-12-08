@@ -199,6 +199,7 @@ export default class Connect extends Component<Props> {
             style={styles.notification_area}
             tunnelState={this.props.connection.status}
             version={this.props.version}
+            accountExpiry={this.props.accountExpiry}
             openExternalLink={this.props.onExternalLink}
             blockWhenDisconnected={this.props.blockWhenDisconnected}
           />
