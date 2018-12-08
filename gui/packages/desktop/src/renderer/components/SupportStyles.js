@@ -119,11 +119,29 @@ export default {
     color: colors.white,
     marginBottom: 4,
   }),
-  support__no_email_warning: Styles.createTextStyle({
+
+  confirm_no_email_background: Styles.createViewStyle({
+    backgroundColor: colors.darkBlueTest,
+    position: 'absolute',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingLeft: 14,
+    paddingRight: 14,
+  }),
+  confirm_no_email_dialog: Styles.createViewStyle({
+    backgroundColor: colors.darkBlue,
+    padding: 16,
+  }),
+  confirm_no_email_warning: Styles.createTextStyle({
     fontFamily: 'Open Sans',
-    fontSize: 13,
-    lineHeight: 16,
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 20,
     color: colors.white80,
     marginBottom: 12,
+  }),
+  confirm_no_email_back_button: Styles.createTextStyle({
+    marginTop: 16,
   }),
 };

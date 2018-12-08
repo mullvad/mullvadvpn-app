@@ -8,6 +8,7 @@
   },
   "colors": {
     "darkBlue": "rgb(25, 46, 69)",
+    "darkBlueTest": "rgb(25, 46, 69, 0.6)",
     "blue": "rgb(41, 77, 115)",
     "green": "rgb(68, 173, 77)",
     "darkGreen": "rgb(32, 84, 37)",
