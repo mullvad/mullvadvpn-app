@@ -14,6 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
+import { getOpenAtLogin } from './lib/autostart';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -343,8 +344,14 @@ export default class AppRenderer {
 
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setAutoConnect(autoConnect);
+    await IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
+    await this._setDaemonAutoConnect(autoConnect, getOpenAtLogin());
     actions.settings.updateAutoConnect(autoConnect);
+  }
+
+  async _setDaemonAutoConnect(guiAutoConnect: boolean, autoStart: boolean) {
+    const daemonAutoConnect = guiAutoConnect && autoStart;
+    await this._daemonRpc.setAutoConnect(daemonAutoConnect);
   }
 
   setStartMinimized(startMinimized: boolean) {
