@@ -355,6 +355,10 @@ export default class AppRenderer {
     IpcEventChannel.guiSettings.setStartMinimized(startMinimized);
   }
 
+  async setUncoupledFromTunnel(uncoupledFromTunnel: boolean) {
+    IpcEventChannel.guiSettings.setUncoupledFromTunnel(uncoupledFromTunnel);
+  }
+
   async _onDaemonConnected() {
     this._connectedToDaemon = true;
 
