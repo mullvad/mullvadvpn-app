@@ -126,9 +126,7 @@ const ApplicationMain = {
       app.setAppUserModelId('net.mullvad.vpn');
     }
 
-    if (process.platform === 'linux') {
-      this._guiSettings.load();
-    }
+    this._guiSettings.load();
 
     app.on('activate', () => this._onActivate());
     app.on('ready', () => this._onReady());
