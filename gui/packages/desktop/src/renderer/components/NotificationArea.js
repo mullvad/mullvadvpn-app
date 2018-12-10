@@ -122,7 +122,7 @@ export default class NotificationArea extends Component<Props, State> {
           return {
             visible: true,
             type: 'expires-soon',
-            timeLeft: accountExpiry.remainingTime(),
+            timeLeft: NotificationArea._capitalizeFirstLetter(accountExpiry.remainingTime()),
           };
         }
 
@@ -131,6 +131,12 @@ export default class NotificationArea extends Component<Props, State> {
           visible: false,
         };
     }
+  }
+
+  static _capitalizeFirstLetter(initialString: string): string {
+    return initialString.length > 0
+      ? initialString.charAt(0).toUpperCase() + initialString.slice(1)
+      : '';
   }
 
   render() {
