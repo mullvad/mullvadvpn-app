@@ -226,6 +226,7 @@ export class NotificationBanner extends Component<
     } else {
       this._didFinishFirstLayoutPass = true;
       if (this.props.visible) {
+        this._stopAnimation();
         this._heightValue.setValue(height);
       }
     }
@@ -237,10 +238,7 @@ export class NotificationBanner extends Component<
       return;
     }
 
-    if (this._animation) {
-      this._animation.stop();
-      this._animation = null;
-    }
+    this._stopAnimation();
 
     // calculate the animation duration based on travel distance
     const layout = await UserInterface.measureLayoutRelativeToWindow(containerView);
@@ -263,5 +261,12 @@ export class NotificationBanner extends Component<
         this.setState({ contentPinnedToBottom: false });
       }
     });
+  }
+
+  _stopAnimation() {
+    if (this._animation) {
+      this._animation.stop();
+      this._animation = null;
+    }
   }
 }
