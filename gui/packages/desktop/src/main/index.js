@@ -257,15 +257,17 @@ const ApplicationMain = {
   },
 
   async _prepareToQuit() {
-    if (this._connectedToDaemon) {
+    if (!this._connectedToDaemon) {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    } else if (this._guiSettings.uncoupledFromTunnel) {
+      log.info('Skip disconnecting because the app is uncoupled from the tunnel.');
+    } else {
       try {
         await this._daemonRpc.disconnectTunnel();
         log.info('Disconnected the tunnel');
       } catch (e) {
         log.error(`Failed to disconnect the tunnel: ${e.message}`);
       }
-    } else {
-      log.info('Cannot close the tunnel because there is no active connection to daemon.');
     }
   },
 
