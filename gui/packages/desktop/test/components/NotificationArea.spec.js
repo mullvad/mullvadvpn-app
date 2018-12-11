@@ -1,5 +1,6 @@
 // @flow
 
+import moment from 'moment';
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import NotificationArea from '../../src/renderer/components/NotificationArea';
@@ -169,6 +170,26 @@ describe('components/NotificationArea', () => {
 
     expect(component.state('type')).to.be.equal('update-available');
     expect(component.state('upgradeVersion')).to.be.equal('2018.4-beta3');
+    expect(component.state('visible')).to.be.true;
+  });
+
+  it('handles time running low', () => {
+    const expiry = new AccountExpiry(
+      moment()
+        .add(2, 'days')
+        .format(),
+    );
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'disconnected',
+        }}
+        version={defaultVersion}
+        accountExpiry={expiry}
+      />,
+    );
+
+    expect(component.state('type')).to.be.equal('expires-soon');
     expect(component.state('visible')).to.be.true;
   });
 });
