@@ -17,6 +17,7 @@ const mapStateToProps = (state: ReduxState) => {
   return {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
+    uncoupledFromTunnel: state.settings.guiSettings.uncoupledFromTunnel,
     mssfix: state.settings.openVpn.mssfix,
     ...protocolAndPort,
   };
@@ -87,6 +88,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         await props.app.setOpenVpnMssfix(mssfix);
       } catch (e) {
         log.error('Failed to update mssfix value', e.message);
+      }
+    },
+
+    setUncoupledFromTunnel: async (uncoupledFromTunnel) => {
+      try {
+        await props.app.setUncoupledFromTunnel(uncoupledFromTunnel);
+      } catch (e) {
+        log.error('Failed to update uncoupled from tunnel', e.message);
       }
     },
   };

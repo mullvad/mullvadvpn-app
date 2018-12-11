@@ -22,12 +22,14 @@ const MAX_MSSFIX_VALUE = 1450;
 type Props = {
   enableIpv6: boolean,
   blockWhenDisconnected: boolean,
+  uncoupledFromTunnel: boolean,
   protocol: string,
   mssfix: ?number,
   port: string | number,
   setEnableIpv6: (boolean) => void,
   setBlockWhenDisconnected: (boolean) => void,
   setOpenVpnMssfix: (?number) => void,
+  setUncoupledFromTunnel: (boolean) => void,
   onUpdate: (protocol: string, port: string | number) => void,
   onClose: () => void,
 };
@@ -145,6 +147,19 @@ export class AdvancedSettings extends Component<Props, State> {
                   </Cell.Container>
                   <Cell.Footer>
                     Set OpenVPN MSS value. Valid range: {MIN_MSSFIX_VALUE} - {MAX_MSSFIX_VALUE}.
+                  </Cell.Footer>
+
+                  <Cell.Container>
+                    <Cell.Label>Uncouple from tunnel</Cell.Label>
+                    <Switch
+                      isOn={this.props.uncoupledFromTunnel}
+                      onChange={this.props.setUncoupledFromTunnel}
+                    />
+                  </Cell.Container>
+                  <Cell.Footer>
+                    {
+                      "Doesn't attempt to start the tunnel when the app starts nor disconnect the tunnel when the app closes."
+                    }
                   </Cell.Footer>
                 </NavigationScrollbars>
               </View>
