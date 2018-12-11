@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   state as blocked when appropriate and also having a toggle switch for the setting in the Advanced
   Settings screen.
 - Add a drop-down warning to notify the user when the account credits are running low.
+- Add a toggle switch that disables auto-connect and auto-disconnect when the GUI starts or quits,
+  respectively.
 
 #### Linux
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
