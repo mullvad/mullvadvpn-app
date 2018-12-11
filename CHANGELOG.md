@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add a drop-down warning to notify the user when the account credits are running out.
+
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
 - Dismiss notifications automatically after four seconds in all platforms.
