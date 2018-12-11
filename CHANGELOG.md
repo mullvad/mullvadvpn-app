@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
+- Dismiss notifications automatically after four seconds in all platforms.
 
 
 ## [2018.6-beta1] - 2018-12-05
