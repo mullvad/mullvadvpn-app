@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Handle "block when disconnected" extra kill-switch level in the GUI, showing the disconnected
   state as blocked when appropriate and also having a toggle switch for the setting in the Advanced
   Settings screen.
+- Add a drop-down warning to notify the user when the account credits are running low.
 
 #### Linux
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show

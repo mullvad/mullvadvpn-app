@@ -1,6 +1,5 @@
 // @flow
 
-import moment from 'moment';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { SettingsBarButton, Brand, HeaderBarStyle, ImageView } from '@mullvad/components';
@@ -13,13 +12,14 @@ import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../../main/errors';
 
 import type { RelayOutAddress, RelayInAddress } from './TunnelControl';
+import type AccountExpiry from '../lib/account-expiry';
 import type { ConnectionReduxState } from '../redux/connection/reducers';
 import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {
   connection: ConnectionReduxState,
   version: VersionReduxState,
-  accountExpiry: ?string,
+  accountExpiry: ?AccountExpiry,
   selectedRelayName: string,
   connectionInfoOpen: boolean,
   blockWhenDisconnected: boolean,
@@ -199,6 +199,7 @@ export default class Connect extends Component<Props> {
             style={styles.notification_area}
             tunnelState={this.props.connection.status}
             version={this.props.version}
+            accountExpiry={this.props.accountExpiry}
             openExternalLink={this.props.onExternalLink}
             blockWhenDisconnected={this.props.blockWhenDisconnected}
           />
@@ -240,8 +241,7 @@ export default class Connect extends Component<Props> {
     }
 
     // No credit?
-    const expiry = this.props.accountExpiry;
-    if (expiry && moment(expiry).isSameOrBefore(moment())) {
+    if (this.props.accountExpiry && this.props.accountExpiry.hasExpired()) {
       return new NoCreditError();
     }
 

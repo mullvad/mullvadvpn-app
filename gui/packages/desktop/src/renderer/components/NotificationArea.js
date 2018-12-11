@@ -1,4 +1,6 @@
 // @flow
+
+import moment from 'moment';
 import * as React from 'react';
 import { Component, Types } from 'reactxp';
 import {
@@ -12,11 +14,13 @@ import {
 } from './NotificationBanner';
 
 import { AuthFailure } from '../lib/auth-failure';
+import AccountExpiry from '../lib/account-expiry';
 import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc-proxy';
 import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {
   style?: Types.ViewStyleRuleSet,
+  accountExpiry: ?AccountExpiry,
   tunnelState: TunnelStateTransition,
   version: VersionReduxState,
   openExternalLink: (string) => void,
@@ -27,7 +31,8 @@ type NotificationAreaPresentation =
   | { type: 'blocking', reason: string }
   | { type: 'inconsistent-version' }
   | { type: 'unsupported-version', upgradeVersion: string }
-  | { type: 'update-available', upgradeVersion: string };
+  | { type: 'update-available', upgradeVersion: string }
+  | { type: 'expires-soon', timeLeft: string };
 
 type State = NotificationAreaPresentation & {
   visible: boolean,
@@ -63,7 +68,7 @@ export default class NotificationArea extends Component<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    const { version, tunnelState, blockWhenDisconnected } = props;
+    const { accountExpiry, blockWhenDisconnected, tunnelState, version } = props;
 
     switch (tunnelState.state) {
       case 'connecting':
@@ -124,11 +129,25 @@ export default class NotificationArea extends Component<Props, State> {
           };
         }
 
+        if (accountExpiry && accountExpiry.willHaveExpiredIn(moment().add(3, 'days'))) {
+          return {
+            visible: true,
+            type: 'expires-soon',
+            timeLeft: NotificationArea._capitalizeFirstLetter(accountExpiry.remainingTime()),
+          };
+        }
+
         return {
           ...state,
           visible: false,
         };
     }
+  }
+
+  static _capitalizeFirstLetter(initialString: string): string {
+    return initialString.length > 0
+      ? initialString.charAt(0).toUpperCase() + initialString.slice(1)
+      : '';
   }
 
   render() {
@@ -188,6 +207,23 @@ export default class NotificationArea extends Component<Props, State> {
               <NotificationOpenLinkAction
                 onPress={() => {
                   this.props.openExternalLink('download');
+                }}
+              />
+            </NotificationActions>
+          </React.Fragment>
+        )}
+
+        {this.state.type === 'expires-soon' && (
+          <React.Fragment>
+            <NotificationIndicator type={'warning'} />
+            <NotificationContent>
+              <NotificationTitle>{'ACCOUNT CREDIT EXPIRES SOON'}</NotificationTitle>
+              <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
+            </NotificationContent>
+            <NotificationActions>
+              <NotificationOpenLinkAction
+                onPress={() => {
+                  this.props.openExternalLink('purchase');
                 }}
               />
             </NotificationActions>

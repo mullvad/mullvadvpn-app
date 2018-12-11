@@ -1,6 +1,5 @@
 // @flow
 
-import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
@@ -15,6 +14,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import styles from './SettingsStyles';
+import AccountExpiry from '../lib/account-expiry';
 import { colors } from '../../config';
 
 import type { LoginState } from '../redux/account/reducers';
@@ -74,15 +74,9 @@ export default class Settings extends Component<Props> {
       return null;
     }
 
-    let isOutOfTime = false;
-    let formattedExpiry = '';
-
-    const expiryIso = this.props.accountExpiry;
-    if (isLoggedIn && expiryIso) {
-      const expiry = moment(expiryIso);
-      isOutOfTime = expiry.isSameOrBefore(moment());
-      formattedExpiry = (expiry.fromNow(true) + ' left').toUpperCase();
-    }
+    const expiry = this.props.accountExpiry ? new AccountExpiry(this.props.accountExpiry) : null;
+    const isOutOfTime = expiry ? expiry.hasExpired() : false;
+    const formattedExpiry = expiry ? expiry.remainingTime().toUpperCase() : '';
 
     return (
       <View>

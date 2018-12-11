@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { push } from 'connected-react-router';
 import { links } from '../../config';
 import Connect from '../components/Connect';
+import AccountExpiry from '../lib/account-expiry';
 import userInterfaceActions from '../redux/userinterface/actions';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
@@ -58,7 +59,7 @@ function getRelayName(
 
 const mapStateToProps = (state: ReduxState) => {
   return {
-    accountExpiry: state.account.expiry,
+    accountExpiry: state.account.expiry ? new AccountExpiry(state.account.expiry) : null,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
     version: state.version,
