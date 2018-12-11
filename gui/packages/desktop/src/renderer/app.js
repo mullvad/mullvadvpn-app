@@ -60,6 +60,7 @@ export default class AppRenderer {
   _tunnelState: TunnelStateTransition;
   _settings: Settings;
   _connectedToDaemon = false;
+  _uncoupledFromTunnel = false;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -439,15 +440,17 @@ export default class AppRenderer {
     const accountToken = this._settings.accountToken;
 
     if (accountToken) {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        log.debug('Skip autoconnect in development');
+      } else if (this._uncoupledFromTunnel) {
+        log.debug('Skip autoconnect because app is uncoupled from tunnel');
+      } else {
         try {
           log.debug('Autoconnect the tunnel');
           await this.connectTunnel();
         } catch (error) {
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
-      } else {
-        log.debug('Skip autoconnect in development');
       }
     } else {
       log.debug('Skip autoconnect because account token is not set');
@@ -533,6 +536,7 @@ export default class AppRenderer {
   }
 
   _setGuiSettings(guiSettings: GuiSettingsState) {
+    this._uncoupledFromTunnel = guiSettings.uncoupledFromTunnel;
     this._reduxActions.settings.updateGuiSettings(guiSettings);
   }
 }
