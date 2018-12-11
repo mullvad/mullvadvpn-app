@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Handle "block when disconnected" extra kill-switch level in the GUI, showing the disconnected
+  state as blocked when appropriate and also having a toggle switch for the setting in the Advanced
+  Settings screen.
+
 #### Linux
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.

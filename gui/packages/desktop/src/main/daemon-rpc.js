@@ -383,6 +383,7 @@ export type Settings = {
   accountToken: ?AccountToken,
   allowLan: boolean,
   autoConnect: boolean,
+  blockWhenDisconnected: boolean,
   relaySettings: RelaySettings,
   tunnelOptions: TunnelOptions,
 };
@@ -391,6 +392,7 @@ const SettingsSchema = partialObject({
   account_token: maybe(string),
   allow_lan: boolean,
   auto_connect: boolean,
+  block_when_disconnected: boolean,
   relay_settings: RelaySettingsSchema,
   tunnel_options: TunnelOptionsSchema,
 });
@@ -404,6 +406,7 @@ export interface DaemonRpcProtocol {
   updateRelaySettings(RelaySettingsUpdate): Promise<void>;
   setAllowLan(boolean): Promise<void>;
   setEnableIpv6(boolean): Promise<void>;
+  setBlockWhenDisconnected(boolean): Promise<void>;
   setOpenVpnMssfix(?number): Promise<void>;
   setAutoConnect(boolean): Promise<void>;
   connectTunnel(): Promise<void>;
@@ -505,6 +508,10 @@ export class DaemonRpc implements DaemonRpcProtocol {
 
   async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this._transport.send('set_enable_ipv6', [enableIpv6]);
+  }
+
+  async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
+    await this._transport.send('set_block_when_disconnected', [blockWhenDisconnected]);
   }
 
   async setOpenVpnMssfix(mssfix: ?number): Promise<void> {

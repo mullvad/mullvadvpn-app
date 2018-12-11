@@ -66,6 +66,7 @@ const ApplicationMain = {
     accountToken: null,
     allowLan: false,
     autoConnect: false,
+    blockWhenDisconnected: false,
     relaySettings: {
       normal: {
         location: 'any',
@@ -454,7 +455,7 @@ const ApplicationMain = {
 
   _setTunnelState(newState: TunnelStateTransition) {
     this._tunnelState = newState;
-    this._updateTrayIcon(newState);
+    this._updateTrayIcon(newState, this._settings.blockWhenDisconnected);
     this._updateLocation();
 
     if (!this._shouldSuppressNotifications()) {
@@ -468,6 +469,7 @@ const ApplicationMain = {
 
   _setSettings(newSettings: Settings) {
     this._settings = newSettings;
+    this._updateTrayIcon(this._tunnelState, newSettings.blockWhenDisconnected);
 
     if (this._ipcEventChannel) {
       this._ipcEventChannel.settings.notify(newSettings);
@@ -648,7 +650,7 @@ const ApplicationMain = {
     }
   },
 
-  _trayIconType(tunnelState: TunnelStateTransition): TrayIconType {
+  _trayIconType(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
         return 'secured';
@@ -668,26 +670,29 @@ const ApplicationMain = {
             return 'securing';
 
           case 'nothing':
-            return 'unsecured';
+            // handle the same way as disconnected
+            break;
 
           default:
-            log.error(`Invalid after disconnect action: ${(tunnelState.details: empty)}`);
+            throw new Error(`Invalid after disconnect state: ${(tunnelState.details: empty)}`);
         }
-        break;
+      // fallthrough
 
       case 'disconnected':
-        return 'unsecured';
+        if (blockWhenDisconnected) {
+          return 'securing';
+        } else {
+          return 'unsecured';
+        }
 
       default:
-        log.error(`Invalid tunnel state: ${(tunnelState.state: empty)}`);
+        // unreachable, but can't prove it to flow because of the fallthrough
+        throw new Error(`Invalid tunnel state: ${tunnelState.state}`);
     }
-
-    // Unreachable, but flow doesn't agree
-    return 'unsecured';
   },
 
-  _updateTrayIcon(tunnelState: TunnelStateTransition) {
-    const type = this._trayIconType(tunnelState);
+  _updateTrayIcon(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+    const type = this._trayIconType(tunnelState, blockWhenDisconnected);
 
     if (this._trayIconController) {
       this._trayIconController.animateToIcon(type);

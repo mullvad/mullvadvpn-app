@@ -16,6 +16,7 @@ const mapStateToProps = (state: ReduxState) => {
 
   return {
     enableIpv6: state.settings.enableIpv6,
+    blockWhenDisconnected: state.settings.blockWhenDisconnected,
     mssfix: state.settings.openVpn.mssfix,
     ...protocolAndPort,
   };
@@ -70,6 +71,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
         await props.app.setEnableIpv6(enableIpv6);
       } catch (e) {
         log.error('Failed to update enable IPv6', e.message);
+      }
+    },
+
+    setBlockWhenDisconnected: async (blockWhenDisconnected) => {
+      try {
+        await props.app.setBlockWhenDisconnected(blockWhenDisconnected);
+      } catch (e) {
+        log.error('Failed to update block when disconnected', e.message);
       }
     },
 

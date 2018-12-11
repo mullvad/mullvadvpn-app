@@ -22,6 +22,7 @@ type Props = {
   accountExpiry: ?string,
   selectedRelayName: string,
   connectionInfoOpen: boolean,
+  blockWhenDisconnected: boolean,
   onSettings: () => void,
   onSelectLocation: () => void,
   onConnect: () => void,
@@ -199,6 +200,7 @@ export default class Connect extends Component<Props> {
             tunnelState={this.props.connection.status}
             version={this.props.version}
             openExternalLink={this.props.onExternalLink}
+            blockWhenDisconnected={this.props.blockWhenDisconnected}
           />
         </View>
       </View>
