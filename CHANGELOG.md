@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Disable buttons and menus that open external links when the app knows that there is no internet
   connection.
+- The auto-start and auto-connect toggles in the GUI have been reworked so that auto-connect
+  configures the GUI to automatically connect when it starts and so that it will only auto-connect
+  on boot when both settings are set.
 
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
