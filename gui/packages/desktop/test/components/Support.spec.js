@@ -100,6 +100,14 @@ describe('components/Support', () => {
     await click(sendButton);
     expect(props.clearReportForm).to.have.been.called.once;
   });
+
+  it('should not allow sending when off-line', () => {
+    const props = makeProps({ isOffline: true });
+    const component = shallow(<Support {...props} />);
+    const sendButton = component.find({ testName: 'support__send_logs' });
+
+    expect(sendButton.prop('disabled')).to.be.true;
+  });
 });
 
 function makeProps(mergeProps: $Shape<SupportProps> = {}): SupportProps {
@@ -107,6 +115,7 @@ function makeProps(mergeProps: $Shape<SupportProps> = {}): SupportProps {
     defaultEmail: '',
     defaultMessage: '',
     accountHistory: [],
+    isOffline: false,
     onClose: () => {},
     viewLog: (_path) => {},
     collectProblemReport: () => Promise.resolve('/path/to/problem/report'),

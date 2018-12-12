@@ -15,6 +15,7 @@ const mapStateToProps = (state: ReduxState) => ({
   defaultEmail: state.support.email,
   defaultMessage: state.support.message,
   accountHistory: state.account.accountHistory,
+  isOffline: state.connection.isBlocked,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
