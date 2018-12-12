@@ -13,6 +13,7 @@ describe('components/Account', () => {
       accountToken: '1234',
       accountExpiry: new Date('2038-01-01').toISOString(),
       expiryLocale: 'en-US',
+      isOffline: false,
       updateAccountExpiry: () => Promise.resolve(),
       onClose: () => {},
       onLogout: () => {},
