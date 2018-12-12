@@ -15,7 +15,6 @@ export type KeyframeAnimationRange = [number, number];
 
 export default class KeyframeAnimation {
   _speed: number = 200; // ms
-  _repeat: boolean = false;
   _reverse: boolean = false;
 
   _onFrame: ?OnFrameFn;
@@ -39,7 +38,7 @@ export default class KeyframeAnimation {
     return this._onFrame;
   }
 
-  // called when animation finished for non-repeating animations.
+  // called when animation finished
   set onFinish(newValue: ?OnFinishFn) {
     this._onFinish = newValue;
   }
@@ -53,13 +52,6 @@ export default class KeyframeAnimation {
   }
   get speed(): number {
     return this._speed;
-  }
-
-  set repeat(newValue: boolean) {
-    this._repeat = newValue;
-  }
-  get repeat(): boolean {
-    return this._repeat;
   }
 
   set reverse(newValue: boolean) {
@@ -209,13 +201,7 @@ export default class KeyframeAnimation {
 
     const lastFrame = this._frameRange[this._reverse ? 0 : 1];
     if (this._currentFrame === lastFrame) {
-      // mark animation as finished if it's not repeating
-      if (!this._repeat) {
-        this._didFinish();
-        return;
-      }
-
-      this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
+      this._didFinish();
     } else {
       this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
     }
