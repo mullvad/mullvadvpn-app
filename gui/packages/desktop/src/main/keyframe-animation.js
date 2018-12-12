@@ -67,7 +67,7 @@ export default class KeyframeAnimation {
     this._reverse = newValue;
   }
   get reverse(): boolean {
-    return this._repeat;
+    return this._reverse;
   }
 
   // alternates the animation direction when it reaches the end
