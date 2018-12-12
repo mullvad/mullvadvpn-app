@@ -2,17 +2,22 @@
 
 import path from 'path';
 import KeyframeAnimation from './keyframe-animation';
-import type { Tray } from 'electron';
+import { nativeImage } from 'electron';
+import type { NativeImage, Tray } from 'electron';
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
 export default class TrayIconController {
   _animation: ?KeyframeAnimation;
   _iconType: TrayIconType;
+  _iconImages: Array<NativeImage>;
 
   constructor(tray: Tray, initialType: TrayIconType) {
-    const animation = this._createAnimation();
-    animation.onFrame = (img) => tray.setImage(img);
+    this._loadImages();
+
+    const animation = new KeyframeAnimation(this._iconImages.length);
+    animation.speed = 100;
+    animation.onFrame = (frameNumber) => tray.setImage(this._iconImages[frameNumber]);
     animation.reverse = this._isReverseAnimation(initialType);
     animation.play({ advanceTo: 'end' });
 
@@ -48,12 +53,13 @@ export default class TrayIconController {
     this._iconType = type;
   }
 
-  _createAnimation(): KeyframeAnimation {
+  _loadImages() {
     const basePath = path.resolve(path.join(__dirname, '../assets/images/menubar icons'));
-    const filePath = path.join(basePath, 'lock-{}.png');
-    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 10]);
-    animation.speed = 100;
-    return animation;
+    const frames = Array.from({ length: 10 }, (_, i) => i + 1);
+
+    this._iconImages = frames.map((frame) =>
+      nativeImage.createFromPath(path.join(basePath, `lock-${frame}.png`)),
+    );
   }
 
   _isReverseAnimation(type: TrayIconType): boolean {

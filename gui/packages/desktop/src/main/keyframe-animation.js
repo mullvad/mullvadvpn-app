@@ -1,9 +1,6 @@
 // @flow
 
-import { nativeImage } from 'electron';
-import type { NativeImage } from 'electron';
-
-export type OnFrameFn = (image: NativeImage) => void;
+export type OnFrameFn = (frame: number) => void;
 export type OnFinishFn = (void) => void;
 export type KeyframeAnimationOptions = {
   startFrame?: number,
@@ -20,7 +17,6 @@ export default class KeyframeAnimation {
   _onFrame: ?OnFrameFn;
   _onFinish: ?OnFinishFn;
 
-  _nativeImages: Array<NativeImage>;
   _frameRange: KeyframeAnimationRange;
   _numFrames: number;
   _currentFrame: number = 0;
@@ -61,49 +57,13 @@ export default class KeyframeAnimation {
     return this._reverse;
   }
 
-  get nativeImages(): Array<NativeImage> {
-    return this._nativeImages.slice();
-  }
   get isFinished(): boolean {
     return this._isFinished;
   }
 
-  // create animation from files matching filename pattern. i.e (bubble-frame-{}.png)
-  static fromFilePattern(filePattern: string, range: KeyframeAnimationRange): KeyframeAnimation {
-    const images: Array<NativeImage> = [];
-
-    if (range.length !== 2 || range[0] > range[1]) {
-      throw new Error('the animation range is invalid');
-    }
-
-    for (let i = range[0]; i <= range[1]; i++) {
-      const filePath = filePattern.replace('{}', i.toString());
-      const image = nativeImage.createFromPath(filePath);
-      images.push(image);
-    }
-    return new KeyframeAnimation(images);
-  }
-
-  static fromFileSequence(files: Array<string>): KeyframeAnimation {
-    const images: Array<NativeImage> = files.map((filePath) =>
-      nativeImage.createFromPath(filePath),
-    );
-    return new KeyframeAnimation(images);
-  }
-
-  constructor(images: Array<NativeImage>) {
-    const len = images.length;
-    if (len < 1) {
-      throw new Error('too few images in animation');
-    }
-
-    this._nativeImages = images.slice();
-    this._numFrames = len;
-    this._frameRange = [0, len];
-  }
-
-  get currentImage(): NativeImage {
-    return this._nativeImages[this._currentFrame];
+  constructor(numFrames: number) {
+    this._numFrames = numFrames;
+    this._frameRange = [0, numFrames];
   }
 
   play(options: KeyframeAnimationOptions = {}) {
@@ -166,7 +126,7 @@ export default class KeyframeAnimation {
 
   _render() {
     if (this._onFrame) {
-      this._onFrame(this._nativeImages[this._currentFrame]);
+      this._onFrame(this._currentFrame);
     }
   }
 
