@@ -17,7 +17,6 @@ export default class KeyframeAnimation {
   _speed: number = 200; // ms
   _repeat: boolean = false;
   _reverse: boolean = false;
-  _alternate: boolean = false;
 
   _onFrame: ?OnFrameFn;
   _onFinish: ?OnFinishFn;
@@ -68,15 +67,6 @@ export default class KeyframeAnimation {
   }
   get reverse(): boolean {
     return this._reverse;
-  }
-
-  // alternates the animation direction when it reaches the end
-  // only for repeating animations
-  set alternate(newValue: boolean) {
-    this._alternate = !!newValue;
-  }
-  get alternate(): boolean {
-    return this._alternate;
   }
 
   get nativeImages(): Array<NativeImage> {
@@ -225,14 +215,7 @@ export default class KeyframeAnimation {
         return;
       }
 
-      // change animation direction if marked for alternation
-      if (this._alternate) {
-        this._reverse = !this._reverse;
-
-        this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
-      } else {
-        this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
-      }
+      this._currentFrame = this._frameRange[this._reverse ? 1 : 0];
     } else {
       this._currentFrame = this._nextFrame(this._currentFrame, this._frameRange, this._reverse);
     }
