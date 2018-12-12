@@ -14,15 +14,15 @@ export default class TrayIconController {
 
   constructor(tray: Tray, initialType: TrayIconType) {
     this._loadImages();
+    this._iconType = initialType;
 
-    const animation = new KeyframeAnimation(this._iconImages.length);
+    const initialFrame = this._targetFrame();
+    const animation = new KeyframeAnimation();
     animation.speed = 100;
     animation.onFrame = (frameNumber) => tray.setImage(this._iconImages[frameNumber]);
-    animation.reverse = this._isReverseAnimation(initialType);
-    animation.play({ advanceTo: 'end' });
+    animation.play({ start: initialFrame, end: initialFrame });
 
     this._animation = animation;
-    this._iconType = initialType;
   }
 
   dispose() {
@@ -41,16 +41,12 @@ export default class TrayIconController {
       return;
     }
 
-    const animation = this._animation;
-    if (type === 'secured') {
-      animation.reverse = true;
-      animation.play({ beginFromCurrentState: true, startFrame: 8, endFrame: 9 });
-    } else {
-      animation.reverse = this._isReverseAnimation(type);
-      animation.play({ beginFromCurrentState: true });
-    }
-
     this._iconType = type;
+
+    const animation = this._animation;
+    const frame = this._targetFrame();
+
+    animation.play({ end: frame });
   }
 
   _loadImages() {
@@ -62,7 +58,16 @@ export default class TrayIconController {
     );
   }
 
-  _isReverseAnimation(type: TrayIconType): boolean {
-    return type === 'unsecured';
+  _targetFrame(): number {
+    switch (this._iconType) {
+      case 'unsecured':
+        return 0;
+      case 'securing':
+        return 9;
+      case 'secured':
+        return 8;
+      default:
+        throw new Error(`Unknown tray icon type: ${(this._iconType: empty)}`);
+    }
   }
 }
