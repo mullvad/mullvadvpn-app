@@ -1,6 +1,6 @@
-use std::fmt;
-
 use super::net::TunnelEndpoint;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -59,7 +59,7 @@ pub enum BlockReason {
 }
 
 impl fmt::Display for BlockReason {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::BlockReason::*;
         let description = match *self {
             AuthFailed(ref reason) => {

@@ -6,20 +6,8 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate chrono;
-extern crate regex;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-
-extern crate mullvad_paths;
-extern crate talpid_types;
-
-extern crate log;
 #[macro_use]
 extern crate error_chain;
-extern crate lazy_static;
-
 
 pub mod account;
 pub mod auth_failed;

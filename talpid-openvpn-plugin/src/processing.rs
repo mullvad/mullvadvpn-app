@@ -1,7 +1,4 @@
-extern crate futures;
-
 use super::Arguments;
-use crate::openvpn_plugin;
 use jsonrpc_client_core::{
     expand_params, jsonrpc_client, Future, Result as ClientResult, Transport,
 };

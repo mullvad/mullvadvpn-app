@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
 pub type CountryCode = String;

@@ -1,7 +1,6 @@
 use crate::location::{CityCode, CountryCode, Location};
-
+use serde::{Deserialize, Serialize};
 use std::net::Ipv4Addr;
-
 use talpid_types::net::{OpenVpnEndpointData, WireguardEndpointData};
 
 

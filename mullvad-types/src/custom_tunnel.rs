@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::{
     fmt,
     net::{IpAddr, ToSocketAddrs},
@@ -29,7 +30,7 @@ impl CustomTunnelEndpoint {
 }
 
 impl fmt::Display for CustomTunnelEndpoint {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} over {}", self.host, self.tunnel)
     }
 }

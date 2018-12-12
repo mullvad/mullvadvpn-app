@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
 #[derive(Debug, Clone, Serialize, Deserialize)]

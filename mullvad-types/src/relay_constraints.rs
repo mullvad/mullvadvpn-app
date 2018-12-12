@@ -1,8 +1,7 @@
 use crate::location::{CityCode, CountryCode, Hostname};
 use crate::CustomTunnelEndpoint;
-
+use serde::{Deserialize, Serialize};
 use std::fmt;
-
 use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, WireguardEndpointData};
 
 
@@ -58,7 +57,7 @@ pub enum RelaySettings {
 }
 
 impl fmt::Display for RelaySettings {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             RelaySettings::CustomTunnelEndpoint(endpoint) => {
                 write!(f, "custom endpoint {}", endpoint)
@@ -107,7 +106,7 @@ impl RelayConstraints {
 }
 
 impl fmt::Display for RelayConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.tunnel {
             Constraint::Any => write!(f, "any relay")?,
             Constraint::Only(ref tunnel_constraint) => tunnel_constraint.fmt(f)?,
@@ -133,7 +132,7 @@ pub enum LocationConstraint {
 }
 
 impl fmt::Display for LocationConstraint {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             LocationConstraint::Country(country) => write!(f, "country {}", country),
             LocationConstraint::City(country, city) => write!(f, "city {}, {}", city, country),
@@ -154,7 +153,7 @@ pub enum TunnelConstraints {
 }
 
 impl fmt::Display for TunnelConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             TunnelConstraints::OpenVpn(openvpn_constraints) => {
                 write!(f, "OpenVPN over ")?;
@@ -193,7 +192,7 @@ pub struct OpenVpnConstraints {
 }
 
 impl fmt::Display for OpenVpnConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
             Constraint::Only(port) => write!(f, "port {}", port)?,
@@ -218,7 +217,7 @@ pub struct WireguardConstraints {
 }
 
 impl fmt::Display for WireguardConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port"),
             Constraint::Only(port) => write!(f, "port {}", port),

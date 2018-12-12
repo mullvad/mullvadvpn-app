@@ -1,7 +1,10 @@
-use std::error::Error;
-use std::fmt;
-use std::net::{IpAddr, SocketAddr};
-use std::str::FromStr;
+use serde::{Deserialize, Serialize};
+use std::{
+    error::Error,
+    fmt,
+    net::{IpAddr, SocketAddr},
+    str::FromStr,
+};
 
 /// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -34,7 +37,7 @@ pub enum TunnelEndpointData {
 }
 
 impl fmt::Display for TunnelEndpointData {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             TunnelEndpointData::OpenVpn(openvpn_data) => {
                 write!(f, "OpenVPN ")?;
@@ -71,7 +74,7 @@ pub struct OpenVpnEndpointData {
 }
 
 impl fmt::Display for OpenVpnEndpointData {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{} port {}", self.protocol, self.port)
     }
 }
@@ -82,7 +85,7 @@ pub struct WireguardEndpointData {
 }
 
 impl fmt::Display for WireguardEndpointData {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "port {}", self.port)
     }
 }
@@ -108,7 +111,7 @@ impl Endpoint {
 }
 
 impl fmt::Display for Endpoint {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}:{}", self.address, self.protocol)
     }
 }
@@ -136,7 +139,7 @@ impl FromStr for TransportProtocol {
 }
 
 impl fmt::Display for TransportProtocol {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             TransportProtocol::Udp => "UDP".fmt(fmt),
             TransportProtocol::Tcp => "TCP".fmt(fmt),
@@ -148,7 +151,7 @@ impl fmt::Display for TransportProtocol {
 pub struct TransportProtocolParseError;
 
 impl fmt::Display for TransportProtocolParseError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt.write_str(self.description())
     }
 }

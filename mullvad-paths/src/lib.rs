@@ -1,11 +1,7 @@
-#[cfg(any(windows, target_os = "macos"))]
-extern crate dirs;
 #[macro_use]
 extern crate error_chain;
-extern crate log;
 
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 error_chain! {
     errors {
