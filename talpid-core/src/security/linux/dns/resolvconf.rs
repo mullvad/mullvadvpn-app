@@ -1,13 +1,19 @@
-use std::collections::HashSet;
-use std::net::IpAddr;
-use std::path::PathBuf;
-
+use std::{
+    collections::HashSet,
+    ffi::OsStr,
+    fs,
+    net::IpAddr,
+    path::{Path, PathBuf},
+};
 use which::which;
 
 error_chain! {
     errors {
         NoResolvconf {
             description("Failed to detect 'resolvconf' program")
+        }
+        ResolvconfUsesResolved {
+            description("The existing resolvconf binary is just a symlink to systemd-resolved")
         }
         RunResolvconf {
             description("Failed to execute 'resolvconf' program")
@@ -29,10 +35,23 @@ pub struct Resolvconf {
 
 impl Resolvconf {
     pub fn new() -> Result<Self> {
+        let resolvconf_path =
+            which("resolvconf").map_err(|_| Error::from(ErrorKind::NoResolvconf))?;
+        if Self::resolvconf_is_resolved_symlink(&resolvconf_path) {
+            bail!(ErrorKind::ResolvconfUsesResolved);
+        }
         Ok(Resolvconf {
             record_names: HashSet::new(),
-            resolvconf: which("resolvconf").map_err(|_| Error::from(ErrorKind::NoResolvconf))?,
+            resolvconf: resolvconf_path,
         })
+    }
+
+    fn resolvconf_is_resolved_symlink(resolvconf_path: &Path) -> bool {
+        fs::read_link(resolvconf_path)
+            .map(|resolvconf_target| {
+                resolvconf_target.file_name() == Some(OsStr::new("resolvectl"))
+            })
+            .unwrap_or_else(|_| false)
     }
 
     pub fn set_dns(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
