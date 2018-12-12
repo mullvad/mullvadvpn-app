@@ -1,7 +1,5 @@
 use crate::Result;
-
-use std::env;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
@@ -24,7 +22,7 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
     }
     #[cfg(any(target_os = "macos", windows))]
     {
-        dir = ::dirs::cache_dir().ok_or_else(|| ::ErrorKind::FindDirError.into())
+        dir = dirs::cache_dir().ok_or_else(|| crate::ErrorKind::FindDirError.into())
     }
     dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }

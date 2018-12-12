@@ -1,5 +1,4 @@
-use std::env;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 pub fn get_rpc_socket_path() -> PathBuf {
     match env::var_os("MULLVAD_RPC_SOCKET_PATH") {

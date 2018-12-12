@@ -1,7 +1,6 @@
 use crate::Result;
 
-use std::env;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 /// Creates and returns the settings directory pointed to by `MULLVAD_SETTINGS_DIR`, or the default
 /// one if that variable is unset.
@@ -24,7 +23,7 @@ pub fn get_default_settings_dir() -> Result<PathBuf> {
     }
     #[cfg(windows)]
     {
-        dir = ::dirs::data_local_dir().ok_or_else(|| ::ErrorKind::FindDirError.into());
+        dir = dirs::data_local_dir().ok_or_else(|| crate::ErrorKind::FindDirError.into());
     }
     dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }

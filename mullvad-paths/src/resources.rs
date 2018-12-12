@@ -1,5 +1,4 @@
-use std::env;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 pub const API_CA_FILENAME: &str = "api_root_ca.pem";
 

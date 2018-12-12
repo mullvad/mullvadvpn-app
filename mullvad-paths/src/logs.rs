@@ -1,9 +1,8 @@
 use crate::Result;
 
-use std::env;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 /// Creates and returns the logging directory pointed to by `MULLVAD_LOG_DIR`, or the default
 /// one if that variable is unset.
@@ -31,7 +30,7 @@ pub fn get_default_log_dir() -> Result<PathBuf> {
     }
     #[cfg(windows)]
     {
-        dir = ::get_allusersprofile_dir();
+        dir = crate::get_allusersprofile_dir();
     }
     dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }
