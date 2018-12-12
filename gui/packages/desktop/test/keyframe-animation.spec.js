@@ -224,45 +224,4 @@ describe('lib/keyframe-animation', function() {
     animation.reverse = true;
     animation.play();
   });
-
-  it('should alternate sequence', (done) => {
-    const seq = [];
-    const animation = newAnimation();
-    const expectedFrames = [0, 1, 2, 3, 4, 3, 2, 1, 0];
-
-    animation.onFrame = () => {
-      if (seq.length === expectedFrames.length) {
-        animation.stop();
-        expect(seq).to.be.deep.equal(expectedFrames);
-        done();
-      } else {
-        seq.push(animation._currentFrame);
-      }
-    };
-
-    animation.repeat = true;
-    animation.alternate = true;
-    animation.play();
-  });
-
-  it('should alternate reverse sequence', (done) => {
-    const seq = [];
-    const animation = newAnimation();
-    const expectedFrames = [4, 3, 2, 1, 0, 1, 2, 3, 4];
-
-    animation.onFrame = () => {
-      if (seq.length === expectedFrames.length) {
-        animation.stop();
-        expect(seq).to.be.deep.equal(expectedFrames);
-        done();
-      } else {
-        seq.push(animation._currentFrame);
-      }
-    };
-
-    animation.repeat = true;
-    animation.reverse = true;
-    animation.alternate = true;
-    animation.play();
-  });
 });
