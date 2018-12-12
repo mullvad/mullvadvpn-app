@@ -1238,7 +1238,7 @@ dependencies = [
 [[package]]
 name = "openvpn-plugin"
 version = "0.3.0"
-source = "git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event#bb82d84f7a464b2d7313cc7521bc6e6048409f94"
+source = "git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event#c989d7a43de59e4207c31355be7952251273236b"
 dependencies = [
  "derive-try-from-primitive 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
