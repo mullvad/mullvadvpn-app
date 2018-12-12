@@ -6,6 +6,7 @@ import type { TunnelStateTransition, Ip } from '../../lib/daemon-rpc-proxy';
 export type ConnectionReduxState = {
   status: TunnelStateTransition,
   isOnline: boolean,
+  isBlocked: boolean,
   ip: ?Ip,
   latitude: ?number,
   longitude: ?number,
@@ -16,6 +17,7 @@ export type ConnectionReduxState = {
 const initialState: ConnectionReduxState = {
   status: { state: 'disconnected' },
   isOnline: true,
+  isBlocked: false,
   ip: null,
   latitude: null,
   longitude: null,
@@ -32,19 +34,31 @@ export default function(
       return { ...state, ...action.newLocation };
 
     case 'CONNECTING':
-      return { ...state, status: { state: 'connecting', details: action.tunnelEndpoint } };
+      return {
+        ...state,
+        status: { state: 'connecting', details: action.tunnelEndpoint },
+        isBlocked: true,
+      };
 
     case 'CONNECTED':
-      return { ...state, status: { state: 'connected', details: action.tunnelEndpoint } };
+      return {
+        ...state,
+        status: { state: 'connected', details: action.tunnelEndpoint },
+        isBlocked: false,
+      };
 
     case 'DISCONNECTED':
-      return { ...state, status: { state: 'disconnected' } };
+      return { ...state, status: { state: 'disconnected' }, isBlocked: false };
 
     case 'DISCONNECTING':
-      return { ...state, status: { state: 'disconnecting', details: action.afterDisconnect } };
+      return {
+        ...state,
+        status: { state: 'disconnecting', details: action.afterDisconnect },
+        isBlocked: true,
+      };
 
     case 'BLOCKED':
-      return { ...state, status: { state: 'blocked', details: action.reason } };
+      return { ...state, status: { state: 'blocked', details: action.reason }, isBlocked: true };
 
     case 'ONLINE':
       return { ...state, isOnline: true };
