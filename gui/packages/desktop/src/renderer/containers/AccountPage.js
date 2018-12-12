@@ -14,6 +14,7 @@ const mapStateToProps = (state: ReduxState) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
   expiryLocale: remote.app.getLocale(),
+  isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);

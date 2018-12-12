@@ -15,6 +15,7 @@ type Props = {
   accountToken: AccountToken,
   accountExpiry: ?string,
   expiryLocale: string,
+  isOffline: boolean,
   onLogout: () => void,
   onClose: () => void,
   onBuyMore: () => void,
@@ -58,6 +59,7 @@ export default class Account extends Component<Props> {
                   <View style={styles.account__footer}>
                     <AppButton.GreenButton
                       style={styles.account__buy_button}
+                      disabled={this.props.isOffline}
                       onPress={this.props.onBuyMore}
                       text="Buy more credit"
                       icon="icon-extLink"
