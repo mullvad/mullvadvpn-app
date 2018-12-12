@@ -1,6 +1,6 @@
+use super::net::TunnelEndpoint;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use super::net::TunnelEndpoint;
 
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

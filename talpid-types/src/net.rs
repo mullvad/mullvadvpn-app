@@ -1,10 +1,10 @@
+use serde::{Deserialize, Serialize};
 use std::{
     error::Error,
     fmt,
     net::{IpAddr, SocketAddr},
     str::FromStr,
 };
-use serde::{Deserialize, Serialize};
 
 /// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]

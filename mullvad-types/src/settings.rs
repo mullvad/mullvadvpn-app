@@ -1,13 +1,10 @@
-extern crate serde_json;
-
 use crate::relay_constraints::{
     Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
 use log::{debug, info};
-
-use std::fs::File;
-use std::io;
-use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
+use serde_json;
+use std::{fs::File, io, path::PathBuf};
 use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
 
 error_chain! {
