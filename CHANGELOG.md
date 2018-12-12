@@ -49,6 +49,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix relay list update interval. Should now handle sleep better.
 
 
+## [2018.6] - 2018-12-12
+This release is identical to 2018.6-beta1
+
+
 ## [2018.6-beta1] - 2018-12-05
 ### Added
 - CLI command `relay update` that triggers an update of the relay list in the daemon.
