@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+## [2018.6] - 2018-12-12
+This release is identical to 2018.6-beta1
 
 
 ## [2018.6-beta1] - 2018-12-05
