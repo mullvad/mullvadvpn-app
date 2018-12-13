@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>"]
 description = "RPC client for Mullvad daemon"
 license = "GPL-3.0"
+edition = "2018"
 
 [dependencies]
 error-chain = "0.12"
