@@ -6,7 +6,6 @@ use futures::{
     sync::oneshot,
 };
 use jsonrpc_client_core::{Client, ClientHandle, Future};
-pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 use jsonrpc_client_ipc::IpcTransport;
 use mullvad_types::{
     account::{AccountData, AccountToken},
@@ -22,6 +21,8 @@ use talpid_types::{
     net::{OpenVpnProxySettings, TunnelOptions},
     tunnel::TunnelStateTransition,
 };
+
+pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 
 error_chain! {
     errors {
