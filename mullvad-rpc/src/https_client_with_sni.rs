@@ -1,22 +1,21 @@
-extern crate tokio_openssl;
-extern crate tokio_service;
-
-use std::fmt;
-use std::io;
-use std::path::{Path, PathBuf};
-use std::str;
-use std::sync::Arc;
-
 use futures::{Future, Poll};
-use hyper::client::{Client, Connect, HttpConnector};
-use hyper::{Body, Uri};
-pub use hyper_openssl::openssl::error::ErrorStack;
+use hyper::{
+    client::{Client, Connect, HttpConnector},
+    Body, Uri,
+};
 use hyper_openssl::openssl::ssl::{SslConnector, SslMethod};
 use jsonrpc_client_http::ClientCreator;
+use std::{
+    fmt, io,
+    path::{Path, PathBuf},
+    str,
+    sync::Arc,
+};
 use tokio_core::reactor::Handle;
+use tokio_openssl::{SslConnectorExt, SslStream};
+use tokio_service::Service;
 
-use self::tokio_openssl::{SslConnectorExt, SslStream};
-use self::tokio_service::Service;
+pub use hyper_openssl::openssl::error::ErrorStack;
 
 pub struct HttpsClientWithSni {
     sni_hostname: String,
@@ -97,7 +96,7 @@ impl<T> From<(T, SslConnector)> for HttpsConnectorWithSni<T> {
 }
 
 impl<T> fmt::Debug for HttpsConnectorWithSni<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HttpsConnectorWithSni").finish()
     }
 }
@@ -141,7 +140,7 @@ impl<T: Connect> Service for HttpsConnectorWithSni<T> {
     }
 }
 
-type BoxedFut<T> = Box<Future<Item = SslStream<T>, Error = io::Error>>;
+type BoxedFut<T> = Box<dyn Future<Item = SslStream<T>, Error = io::Error>>;
 
 /// A Future representing work to connect to a URL, and a TLS handshake.
 pub struct HttpsConnecting<T>(BoxedFut<T>);
@@ -157,7 +156,7 @@ impl<T> Future for HttpsConnecting<T> {
 }
 
 impl<T> fmt::Debug for HttpsConnecting<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.pad("HttpsConnecting")
     }
 }
