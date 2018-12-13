@@ -1,8 +1,3 @@
-#[cfg(windows)]
-extern crate winapi;
-#[cfg(windows)]
-extern crate winres;
-
 use std::{env, fs, path::PathBuf};
 
 fn main() {

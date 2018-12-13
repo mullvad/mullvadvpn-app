@@ -32,8 +32,8 @@ mod version;
 pub use self::version::Version;
 
 /// Returns a map of all available subcommands with their name as key.
-pub fn get_commands() -> HashMap<&'static str, Box<Command>> {
-    let commands: Vec<Box<Command>> = vec![
+pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
+    let commands: Vec<Box<dyn Command>> = vec![
         Box::new(Account),
         Box::new(AutoConnect),
         Box::new(BlockWhenDisconnected),

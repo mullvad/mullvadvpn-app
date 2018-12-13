@@ -11,6 +11,7 @@ authors = [
 ]
 description = "Manage the Mullvad VPN daemon via a convenient CLI"
 license = "GPL-3.0"
+edition = "2018"
 
 [[bin]]
 name = "mullvad"
