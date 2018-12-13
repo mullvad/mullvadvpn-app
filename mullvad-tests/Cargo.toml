@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>"]
 description = "Mullvad test specific modules and binaries"
 license = "GPL-3.0"
+edition = "2018"
 
 [features]
 integration-tests = []

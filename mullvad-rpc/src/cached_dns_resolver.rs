@@ -1,13 +1,14 @@
-use log::{debug, info, warn};
-use std::fs::File;
-use std::io::{self, Read, Write};
-use std::net::{IpAddr, ToSocketAddrs};
-use std::path::{Path, PathBuf};
-use std::sync::mpsc;
-use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
 use error_chain::ChainedError;
+use log::{debug, info, warn};
+use std::{
+    fs::File,
+    io::{self, Read, Write},
+    net::{IpAddr, ToSocketAddrs},
+    path::{Path, PathBuf},
+    sync::mpsc,
+    thread,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 
 static DNS_TIMEOUT: Duration = Duration::from_secs(2);
@@ -217,17 +218,18 @@ impl<R: DnsResolver> CachedDnsResolver<R> {
 
 #[cfg(test)]
 mod tests {
-    extern crate filetime;
-    extern crate tempfile;
+    use std::{
+        fs::{self, File},
+        io::{Read, Write},
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        },
+    };
 
-    use std::fs::{self, File};
-    use std::io::{Read, Write};
-    use std::sync::atomic::{AtomicBool, Ordering};
-    use std::sync::Arc;
-
-    use self::filetime::FileTime;
-    use self::tempfile::TempDir;
     use super::*;
+    use filetime::FileTime;
+    use tempfile::TempDir;
 
     #[test]
     fn uses_previously_cached_address() {

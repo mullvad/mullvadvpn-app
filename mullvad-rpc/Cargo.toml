@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>"]
 description = "Mullvad VPN RPC clients. Providing an interface to query our infrastructure for information."
 license = "GPL-3.0"
+edition = "2018"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }

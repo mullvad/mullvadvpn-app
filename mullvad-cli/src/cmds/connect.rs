@@ -1,5 +1,4 @@
 use crate::{new_rpc_client, Command, Result};
-use clap;
 use error_chain::ChainedError;
 
 pub struct Connect;

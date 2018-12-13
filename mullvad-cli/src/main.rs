@@ -6,26 +6,15 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate clap;
-extern crate env_logger;
-extern crate futures;
 #[macro_use]
 extern crate error_chain;
-extern crate mullvad_ipc_client;
-extern crate mullvad_paths;
-extern crate mullvad_types;
-extern crate serde;
-extern crate talpid_types;
-
-mod cmds;
 
 use clap::{crate_authors, crate_description, crate_name};
-use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
-
-use std::alloc::System;
-use std::io;
-
 use error_chain::ChainedError;
+use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
+use std::{alloc::System, io};
+
+mod cmds;
 
 #[global_allocator]
 static GLOBAL: System = System;

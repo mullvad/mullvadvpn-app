@@ -6,32 +6,15 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate chrono;
+
 #[macro_use]
 extern crate error_chain;
-extern crate futures;
-extern crate hyper;
-extern crate hyper_openssl;
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_http;
-extern crate lazy_static;
-extern crate log;
-extern crate serde_json;
-extern crate tokio_core;
 
-extern crate mullvad_types;
-
-use chrono::offset::Utc;
-use chrono::DateTime;
+use chrono::{offset::Utc, DateTime};
 use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::header::Host;
 use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
 use lazy_static::lazy_static;
-use tokio_core::reactor::Handle;
-
-pub use jsonrpc_client_core::{Error, ErrorKind};
-pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
-
 use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
 use std::{
     collections::HashMap,
@@ -39,6 +22,10 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
+use tokio_core::reactor::Handle;
+
+pub use jsonrpc_client_core::{Error, ErrorKind};
+pub use jsonrpc_client_http::{Error as HttpError, HttpHandle};
 
 pub mod event_loop;
 pub mod rest;

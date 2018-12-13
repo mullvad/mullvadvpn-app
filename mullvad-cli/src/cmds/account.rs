@@ -1,6 +1,5 @@
 use crate::{new_rpc_client, Command, Result};
-use clap::{self, value_t_or_exit};
-
+use clap::value_t_or_exit;
 use mullvad_types::account::AccountToken;
 
 pub struct Account;

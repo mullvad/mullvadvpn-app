@@ -1,18 +1,11 @@
 #![cfg(feature = "integration-tests")]
 
-extern crate mullvad_ipc_client;
-extern crate mullvad_tests;
-extern crate talpid_types;
-
-use std::fs;
-use std::path::Path;
-use std::sync::mpsc;
-use std::time::Duration;
-
+use mullvad_tests::{
+    mock_openvpn::search_openvpn_args, watch_event, DaemonRunner, MockOpenVpnPluginRpcClient,
+    PathWatcher,
+};
+use std::{fs, path::Path, sync::mpsc, time::Duration};
 use talpid_types::tunnel::TunnelStateTransition;
-
-use mullvad_tests::mock_openvpn::search_openvpn_args;
-use mullvad_tests::{watch_event, DaemonRunner, MockOpenVpnPluginRpcClient, PathWatcher};
 
 #[cfg(target_os = "linux")]
 const OPENVPN_PLUGIN_NAME: &str = "libtalpid_openvpn_plugin.so";

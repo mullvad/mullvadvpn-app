@@ -1,12 +1,7 @@
 #![cfg(feature = "integration-tests")]
 
-extern crate mullvad_paths;
-extern crate mullvad_tests;
-extern crate talpid_types;
-
-use talpid_types::tunnel::TunnelStateTransition;
-
 use mullvad_tests::DaemonRunner;
+use talpid_types::tunnel::TunnelStateTransition;
 
 #[test]
 fn starts_in_disconnected_state() {

@@ -1,39 +1,28 @@
-extern crate log;
 #[macro_use]
 extern crate error_chain;
 
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_ipc;
-
-extern crate futures;
-extern crate mullvad_paths;
-extern crate mullvad_types;
-extern crate serde;
-extern crate talpid_ipc;
-extern crate talpid_types;
-extern crate tokio;
-extern crate tokio_timer;
-
-use std::path::Path;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
-
-use mullvad_types::account::{AccountData, AccountToken};
-use mullvad_types::location::GeoIpLocation;
-use mullvad_types::relay_constraints::{RelaySettings, RelaySettingsUpdate};
-use mullvad_types::relay_list::RelayList;
-use mullvad_types::settings::Settings;
-use mullvad_types::version::AppVersionInfo;
-use serde::{Deserialize, Serialize};
-use talpid_types::net::{OpenVpnProxySettings, TunnelOptions};
-use talpid_types::tunnel::TunnelStateTransition;
-
-use futures::stream::{self, Stream};
-use futures::sync::oneshot;
+use futures::{
+    stream::{self, Stream},
+    sync::oneshot,
+};
 use jsonrpc_client_core::{Client, ClientHandle, Future};
-pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 use jsonrpc_client_ipc::IpcTransport;
+use mullvad_types::{
+    account::{AccountData, AccountToken},
+    location::GeoIpLocation,
+    relay_constraints::{RelaySettings, RelaySettingsUpdate},
+    relay_list::RelayList,
+    settings::Settings,
+    version::AppVersionInfo,
+};
+use serde::{Deserialize, Serialize};
+use std::{path::Path, sync::mpsc, thread, time::Duration};
+use talpid_types::{
+    net::{OpenVpnProxySettings, TunnelOptions},
+    tunnel::TunnelStateTransition,
+};
+
+pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 
 error_chain! {
     errors {
