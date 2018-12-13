@@ -6,25 +6,13 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate clap;
-extern crate dirs;
 #[macro_use]
 extern crate error_chain;
-extern crate env_logger;
-extern crate lazy_static;
-extern crate regex;
-extern crate tokio_core;
-extern crate uuid;
-
-extern crate mullvad_paths;
-extern crate mullvad_rpc;
 
 use clap::crate_authors;
 use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use regex::Regex;
-use tokio_core::reactor::Core;
-
 use std::{
     alloc::System,
     borrow::Cow,
@@ -35,6 +23,7 @@ use std::{
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
 };
+use tokio_core::reactor::Core;
 
 
 #[global_allocator]
@@ -343,21 +332,21 @@ impl ProblemReport {
         self.redact_custom_strings(&out3).to_string()
     }
 
-    fn redact_account_number(input: &str) -> Cow<str> {
+    fn redact_account_number(input: &str) -> Cow<'_, str> {
         lazy_static! {
             static ref RE: Regex = Regex::new("\\d{16}").unwrap();
         }
         RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]")
     }
 
-    fn redact_home_dir(input: &str) -> Cow<str> {
+    fn redact_home_dir(input: &str) -> Cow<'_, str> {
         match dirs::home_dir() {
             Some(home) => Cow::from(input.replace(home.to_string_lossy().as_ref(), "~")),
             None => Cow::from(input),
         }
     }
 
-    fn redact_network_info(input: &str) -> Cow<str> {
+    fn redact_network_info(input: &str) -> Cow<'_, str> {
         lazy_static! {
             static ref RE: Regex = {
                 let boundary = "[^0-9a-zA-Z.:]";

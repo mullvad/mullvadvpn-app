@@ -1,11 +1,4 @@
-use std::env;
-use std::fs;
-use std::path::PathBuf;
-
-#[cfg(windows)]
-extern crate winapi;
-#[cfg(windows)]
-extern crate winres;
+use std::{env, fs, path::PathBuf};
 
 fn main() {
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());

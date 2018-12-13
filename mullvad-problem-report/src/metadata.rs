@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-use std::process::Command;
-use uuid;
+use std::{collections::HashMap, process::Command};
+
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
@@ -17,8 +16,6 @@ pub fn collect() -> HashMap<String, String> {
 
 #[cfg(target_os = "linux")]
 mod os {
-    extern crate rs_release;
-
     pub fn version() -> String {
         // The OS version information is obtained first from the os-release file. If that
         // information is incomplete or unavailable, an attempt is made to obtain the
