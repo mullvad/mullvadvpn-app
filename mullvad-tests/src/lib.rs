@@ -1,40 +1,26 @@
-extern crate duct;
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_ipc;
-#[cfg(unix)]
-extern crate libc;
-extern crate mullvad_ipc_client;
-extern crate mullvad_paths;
-extern crate notify;
-extern crate openvpn_plugin;
-extern crate talpid_ipc;
-extern crate tempfile;
-
-extern crate futures;
-extern crate tokio;
-
-pub mod mock_openvpn;
-
-use std::collections::HashMap;
-use std::fs::{self, File};
-use std::path::{Path, PathBuf};
-use std::sync::{mpsc, Arc};
-use std::time::{Duration, Instant};
-use std::{cmp, thread};
-
+use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
+use self::platform_specific::*;
 use futures::sync::oneshot;
 use jsonrpc_client_core::{Future, Transport};
 use jsonrpc_client_ipc::IpcTransport;
 use mullvad_ipc_client::{DaemonRpcClient, ResultExt};
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    path::{Path, PathBuf},
+    sync::{mpsc, Arc},
+    time::{Duration, Instant},
+    {cmp, thread},
+};
 use tempfile::TempDir;
 use tokio::reactor::Handle;
 
-use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
-use self::platform_specific::*;
+pub use notify::op::{self as watch_event, Op as WatchEvent};
 
-pub use self::notify::op::{self as watch_event, Op as WatchEvent};
+
+pub mod mock_openvpn;
 
 type Result<T> = ::std::result::Result<T, String>;
 

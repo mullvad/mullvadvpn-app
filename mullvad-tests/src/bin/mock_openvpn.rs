@@ -1,14 +1,14 @@
-extern crate mullvad_tests;
-
-use std::env;
-use std::fs::{self, File};
-use std::io::{self, Read, Write};
-use std::path::PathBuf;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
-
 use mullvad_tests::{watch_event, PathWatcher};
+use std::{
+    env,
+    fs::{self, File},
+    io::{self, Read, Write},
+    path::PathBuf,
+    sync::mpsc,
+    thread,
+    time::Duration,
+};
+
 
 const MAX_EVENT_TIME: Duration = Duration::from_secs(60);
 

@@ -1,13 +1,12 @@
 #![cfg(feature = "integration-tests")]
 
-extern crate mullvad_tests;
-
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::Path;
-
 use mullvad_tests::mock_openvpn::search_openvpn_args;
 use mullvad_tests::{watch_event, DaemonRunner, PathWatcher};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
 
 #[test]
 fn uses_account_token() {

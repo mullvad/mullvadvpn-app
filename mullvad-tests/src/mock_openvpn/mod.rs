@@ -1,8 +1,10 @@
-pub const MOCK_OPENVPN_ARGS_FILE: &str = "mock_openvpn_args";
+use std::{
+    fs::File,
+    io::{self, BufRead, BufReader},
+    path::Path,
+};
 
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
-use std::path::Path;
+pub const MOCK_OPENVPN_ARGS_FILE: &str = "mock_openvpn_args";
 
 pub fn search_openvpn_args<P: AsRef<Path>>(
     openvpn_args_file_path: P,
