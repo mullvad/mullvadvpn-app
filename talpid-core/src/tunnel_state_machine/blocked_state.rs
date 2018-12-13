@@ -1,6 +1,5 @@
 use error_chain::ChainedError;
-use futures::sync::mpsc;
-use futures::Stream;
+use futures::{sync::mpsc, Stream};
 use talpid_types::tunnel::BlockReason;
 
 use super::{

@@ -1,5 +1,4 @@
-use std::net::IpAddr;
-use std::ptr;
+use std::{net::IpAddr, ptr};
 
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;

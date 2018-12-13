@@ -14,14 +14,15 @@ extern crate uuid;
 extern crate futures;
 
 use assert_matches::assert_matches;
-use futures::sync::oneshot;
-use futures::Future;
+use futures::{sync::oneshot, Future};
 
 use jsonrpc_client_core::{Error as ClientError, Transport};
 use jsonrpc_core::{Error, IoHandler};
 use jsonrpc_macros::build_rpc_trait;
-use std::sync::{mpsc, Mutex};
-use std::time::Duration;
+use std::{
+    sync::{mpsc, Mutex},
+    time::Duration,
+};
 
 build_rpc_trait! {
     pub trait TestApi {

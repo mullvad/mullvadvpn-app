@@ -1,8 +1,13 @@
 use crate::account_history::{AccountHistory, Error as AccountHistoryError};
 use error_chain::ChainedError;
-use jsonrpc_core::futures::sync::oneshot::Sender as OneshotSender;
-use jsonrpc_core::futures::{future, sync, Future};
-use jsonrpc_core::{Error, ErrorCode, MetaIoHandler, Metadata};
+use jsonrpc_core::{
+    futures::{
+        future,
+        sync::{self, oneshot::Sender as OneshotSender},
+        Future,
+    },
+    Error, ErrorCode, MetaIoHandler, Metadata,
+};
 use jsonrpc_ipc_server;
 use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};

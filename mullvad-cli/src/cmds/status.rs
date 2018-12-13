@@ -1,8 +1,10 @@
 use crate::{new_rpc_client, Command, Result};
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::auth_failed::AuthFailed;
-use talpid_types::tunnel::BlockReason;
-use talpid_types::tunnel::TunnelStateTransition::{self, *};
+use talpid_types::tunnel::{
+    BlockReason,
+    TunnelStateTransition::{self, *},
+};
 
 pub struct Status;
 

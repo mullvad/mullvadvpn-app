@@ -12,8 +12,7 @@ extern crate error_chain;
 
 use chrono::{offset::Utc, DateTime};
 use jsonrpc_client_core::{expand_params, jsonrpc_client};
-use jsonrpc_client_http::header::Host;
-use jsonrpc_client_http::{HttpTransport, HttpTransportBuilder};
+use jsonrpc_client_http::{header::Host, HttpTransport, HttpTransportBuilder};
 use lazy_static::lazy_static;
 use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
 use std::{

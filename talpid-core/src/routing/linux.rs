@@ -1,8 +1,7 @@
 use super::{NetNode, RequiredRoutes};
 
 use super::subprocess::{Exec, RunExpr};
-use std::collections::HashSet;
-use std::net::IpAddr;
+use std::{collections::HashSet, net::IpAddr};
 
 
 error_chain! {

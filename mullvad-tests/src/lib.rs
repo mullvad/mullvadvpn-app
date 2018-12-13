@@ -1,5 +1,4 @@
-use self::mock_openvpn::MOCK_OPENVPN_ARGS_FILE;
-use self::platform_specific::*;
+use self::{mock_openvpn::MOCK_OPENVPN_ARGS_FILE, platform_specific::*};
 use futures::sync::oneshot;
 use jsonrpc_client_core::{Future, Transport};
 use jsonrpc_client_ipc::IpcTransport;
@@ -7,12 +6,13 @@ use mullvad_ipc_client::{DaemonRpcClient, ResultExt};
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::{
+    cmp,
     collections::HashMap,
     fs::{self, File},
     path::{Path, PathBuf},
     sync::{mpsc, Arc},
+    thread,
     time::{Duration, Instant},
-    {cmp, thread},
 };
 use tempfile::TempDir;
 use tokio::reactor::Handle;

@@ -1,6 +1,8 @@
 use nix::fcntl;
-use std::net::IpAddr;
-use std::os::unix::io::{AsRawFd, IntoRawFd, RawFd};
+use std::{
+    net::IpAddr,
+    os::unix::io::{AsRawFd, IntoRawFd, RawFd},
+};
 use tun::{platform, Configuration, Device};
 
 error_chain! {

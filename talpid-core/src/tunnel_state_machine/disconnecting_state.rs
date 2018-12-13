@@ -1,8 +1,10 @@
 use std::thread;
 
 use error_chain::ChainedError;
-use futures::sync::{mpsc, oneshot};
-use futures::{Async, Future, Stream};
+use futures::{
+    sync::{mpsc, oneshot},
+    Async, Future, Stream,
+};
 use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
 
 use super::{

@@ -1,13 +1,13 @@
 extern crate fern;
 
-use self::fern::colors::{Color, ColoredLevelConfig};
-use self::fern::Output;
+use self::fern::{
+    colors::{Color, ColoredLevelConfig},
+    Output,
+};
 use chrono;
 use log;
 
-use std::fmt;
-use std::io;
-use std::path::PathBuf;
+use std::{fmt, io, path::PathBuf};
 
 use talpid_core::logging::rotate_log;
 

@@ -2,11 +2,13 @@ use crate::{new_rpc_client, Command, Result, ResultExt};
 use clap::value_t;
 use std::str::FromStr;
 
-use mullvad_types::relay_constraints::{
-    Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
-    RelaySettingsUpdate, TunnelConstraints,
+use mullvad_types::{
+    relay_constraints::{
+        Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
+        RelaySettingsUpdate, TunnelConstraints,
+    },
+    CustomTunnelEndpoint,
 };
-use mullvad_types::CustomTunnelEndpoint;
 use talpid_types::net::{
     OpenVpnEndpointData, TransportProtocol, TunnelEndpointData, WireguardEndpointData,
 };

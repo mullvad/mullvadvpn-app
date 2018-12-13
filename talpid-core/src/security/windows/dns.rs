@@ -1,10 +1,11 @@
 use log::{debug, error, info, trace, warn};
-use std::borrow::Borrow;
-use std::net::IpAddr;
-use std::os::raw::{c_char, c_void};
-use std::path::Path;
-use std::ptr;
-use std::slice;
+use std::{
+    borrow::Borrow,
+    net::IpAddr,
+    os::raw::{c_char, c_void},
+    path::Path,
+    ptr, slice,
+};
 
 use error_chain::ChainedError;
 use widestring::WideCString;

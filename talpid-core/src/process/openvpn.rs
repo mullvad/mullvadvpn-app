@@ -2,10 +2,12 @@ use duct;
 extern crate os_pipe;
 
 use super::stoppable_process::StoppableProcess;
-use std::ffi::{OsStr, OsString};
-use std::fmt;
-use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::{
+    ffi::{OsStr, OsString},
+    fmt,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 
 use self::os_pipe::{pipe, PipeWriter};
 use atty;
@@ -378,8 +380,7 @@ impl StoppableProcess for OpenVpnProcHandle {
 #[cfg(test)]
 mod tests {
     use super::OpenVpnCommand;
-    use std::ffi::OsString;
-    use std::net::Ipv4Addr;
+    use std::{ffi::OsString, net::Ipv4Addr};
     use talpid_types::net::{Endpoint, TransportProtocol};
 
     #[test]

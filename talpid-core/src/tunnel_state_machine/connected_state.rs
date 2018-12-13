@@ -1,8 +1,12 @@
 use error_chain::ChainedError;
-use futures::sync::{mpsc, oneshot};
-use futures::{Async, Future, Stream};
-use talpid_types::net::{Endpoint, OpenVpnProxySettings, TransportProtocol};
-use talpid_types::tunnel::BlockReason;
+use futures::{
+    sync::{mpsc, oneshot},
+    Async, Future, Stream,
+};
+use talpid_types::{
+    net::{Endpoint, OpenVpnProxySettings, TransportProtocol},
+    tunnel::BlockReason,
+};
 
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,

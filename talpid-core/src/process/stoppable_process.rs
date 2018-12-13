@@ -1,7 +1,8 @@
 use log::{debug, trace, warn};
-use std::io;
-use std::thread;
-use std::time::{Duration, Instant};
+use std::{
+    io, thread,
+    time::{Duration, Instant},
+};
 
 static POLL_INTERVAL_MS: Duration = Duration::from_millis(50);
 

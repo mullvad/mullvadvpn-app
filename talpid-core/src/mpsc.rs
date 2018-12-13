@@ -1,5 +1,4 @@
-use std::marker::PhantomData;
-use std::sync::mpsc;
+use std::{marker::PhantomData, sync::mpsc};
 
 /// Abstraction over an `mpsc::Sender` that first converts the value to another type before sending.
 #[derive(Debug, Clone)]
@@ -33,8 +32,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::mpsc;
-    use std::thread;
+    use std::{sync::mpsc, thread};
 
     #[derive(Debug, Eq, PartialEq)]
     enum Inner {

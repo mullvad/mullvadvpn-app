@@ -1,5 +1,7 @@
-use crate::location::{CityCode, CountryCode, Hostname};
-use crate::CustomTunnelEndpoint;
+use crate::{
+    location::{CityCode, CountryCode, Hostname},
+    CustomTunnelEndpoint,
+};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, WireguardEndpointData};
