@@ -57,13 +57,22 @@ The host has to have the following installed:
 
 ### Linux
 
-For Debian/Ubuntu based distributions, you need to install the following. For other distributions
-you need the equivalent packages:
+#### Debian/Ubuntu
 ```bash
 # For building the daemon
 sudo apt install gcc libdbus-1-dev
 # For running the frontend app
 sudo apt install libappindicator1 gconf2
+# For building the installer
+sudo apt install rpm
+```
+
+#### Fedora/RHEL
+```bash
+# For building the daemon
+sudo dnf install dbus-devel
+# For building the installer
+sudo dnf install rpm-build
 ```
 
 ### All platforms
