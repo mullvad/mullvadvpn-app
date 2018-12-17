@@ -82,9 +82,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onSelectLocation: () => {
       history.push('/select-location');
     },
-    onConnect: () => {
+    onConnect: async () => {
       try {
-        props.app.connectTunnel();
+        await props.app.connectTunnel();
       } catch (error) {
         log.error(`Failed to connect the tunnel: ${error.message}`);
       }
