@@ -228,20 +228,24 @@ export default class AppRenderer {
     }
   }
 
-  async connectTunnel() {
-    const actions = this._reduxActions;
+  async connectTunnel(): Promise<void> {
+    const state = this._tunnelState.state;
 
     // connect only if tunnel is disconnected or blocked.
-    if (this._tunnelState.state === 'disconnected' || this._tunnelState.state === 'blocked') {
-      // switch to connecting state immediately to prevent a lag that may be caused by RPC
-      // communication delay
-      actions.connection.connecting(null);
+    if (state === 'disconnecting' || state === 'disconnected' || state === 'blocked') {
+      // switch to the connecting state ahead of time to make the app look more responsive
+      this._reduxActions.connection.connecting(null);
 
-      await this._daemonRpc.connectTunnel();
+      return this._daemonRpc.connectTunnel();
     }
   }
 
   disconnectTunnel() {
+    const actions = this._reduxActions;
+
+    // switch to disconnected state ahead of time to make the app look more responsive
+    actions.connection.disconnected();
+
     return this._daemonRpc.disconnectTunnel();
   }
 
