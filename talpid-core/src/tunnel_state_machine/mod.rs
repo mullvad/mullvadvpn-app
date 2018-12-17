@@ -7,23 +7,28 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 
-use std::path::{Path, PathBuf};
-use std::sync::mpsc as sync_mpsc;
-use std::thread;
+use std::{
+    path::{Path, PathBuf},
+    sync::mpsc as sync_mpsc,
+    thread,
+};
 
 use error_chain::ChainedError;
-use futures::sync::mpsc;
-use futures::{Async, Future, Poll, Stream};
+use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
-use talpid_types::net::{TunnelEndpoint, TunnelOptions};
-use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
+use talpid_types::{
+    net::{TunnelEndpoint, TunnelOptions},
+    tunnel::{BlockReason, TunnelStateTransition},
+};
 
-use self::blocked_state::BlockedState;
-use self::connected_state::{ConnectedState, ConnectedStateBootstrap};
-use self::connecting_state::ConnectingState;
-use self::disconnected_state::DisconnectedState;
-use self::disconnecting_state::{AfterDisconnect, DisconnectingState};
+use self::{
+    blocked_state::BlockedState,
+    connected_state::{ConnectedState, ConnectedStateBootstrap},
+    connecting_state::ConnectingState,
+    disconnected_state::DisconnectedState,
+    disconnecting_state::{AfterDisconnect, DisconnectingState},
+};
 use crate::{
     mpsc::IntoSender,
     offline,
@@ -249,8 +254,7 @@ enum TunnelStateMachineAction {
 
 impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
     fn from(event_consequence: EventConsequence<T>) -> Self {
-        use self::EventConsequence::*;
-        use self::TunnelStateMachineAction::*;
+        use self::{EventConsequence::*, TunnelStateMachineAction::*};
 
         match event_consequence {
             NewState((state_wrapper, transition)) => {

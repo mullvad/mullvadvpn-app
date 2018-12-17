@@ -9,12 +9,12 @@ use std::{
     path::Path,
 };
 
-use self::dbus::arg::RefArg;
-use self::dbus::stdintf::*;
-use self::dbus::{BusType, Interface, Member, Message, MessageItem, MessageItemArray, Signature};
+use self::dbus::{
+    arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
+    Signature,
+};
 
-use super::super::iface_index;
-use super::{resolv_conf, RESOLV_CONF_PATH};
+use super::{super::iface_index, resolv_conf, RESOLV_CONF_PATH};
 
 
 error_chain! {

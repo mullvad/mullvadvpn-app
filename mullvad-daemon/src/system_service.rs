@@ -4,20 +4,23 @@ use std::{
     env,
     ffi::OsString,
     io,
-    sync::atomic::{AtomicUsize, Ordering},
-    sync::{mpsc, Arc},
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        mpsc, Arc,
+    },
     thread,
     time::Duration,
 };
-use windows_service::service::{
-    ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency, ServiceErrorControl,
-    ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus, ServiceType,
+use windows_service::{
+    service::{
+        ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency,
+        ServiceErrorControl, ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState,
+        ServiceStatus, ServiceType,
+    },
+    service_control_handler::{self, ServiceControlHandlerResult, ServiceStatusHandle},
+    service_dispatcher,
+    service_manager::{ServiceManager, ServiceManagerAccess},
 };
-use windows_service::service_control_handler::{
-    self, ServiceControlHandlerResult, ServiceStatusHandle,
-};
-use windows_service::service_dispatcher;
-use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 
 use super::{Result, ResultExt};
 use mullvad_daemon::DaemonShutdownHandle;

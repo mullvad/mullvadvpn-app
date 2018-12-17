@@ -1,15 +1,18 @@
 extern crate dbus;
 
-use std::collections::HashMap;
-use std::net::IpAddr;
+use std::{collections::HashMap, net::IpAddr};
 
-use self::dbus::arg::{RefArg, Variant};
-use self::dbus::stdintf::*;
-use self::dbus::BusType;
+use self::dbus::{
+    arg::{RefArg, Variant},
+    stdintf::*,
+    BusType,
+};
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::Path;
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
 
 use error_chain::ChainedError;
 

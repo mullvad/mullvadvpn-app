@@ -1,12 +1,14 @@
 use crate::{mktemp, process::openvpn::OpenVpnCommand};
 
-use std::collections::HashMap;
-use std::ffi::OsString;
-use std::fs;
-use std::io::{self, Write};
-use std::net::Ipv4Addr;
-use std::path::{Path, PathBuf};
-use std::result::Result as StdResult;
+use std::{
+    collections::HashMap,
+    ffi::OsString,
+    fs,
+    io::{self, Write},
+    net::Ipv4Addr,
+    path::{Path, PathBuf},
+    result::Result as StdResult,
+};
 
 #[cfg(target_os = "linux")]
 use failure::ResultExt as FailureResultExt;
@@ -362,8 +364,7 @@ impl CloseHandle {
 fn is_ipv6_enabled_in_os() -> bool {
     #[cfg(windows)]
     {
-        use winreg::enums::*;
-        use winreg::RegKey;
+        use winreg::{enums::*, RegKey};
 
         const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
 

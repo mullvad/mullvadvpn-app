@@ -2,14 +2,18 @@ use crate::process::{
     openvpn::{OpenVpnCommand, OpenVpnProcHandle},
     stoppable_process::StoppableProcess,
 };
-use std::collections::HashMap;
-use std::io;
-use std::path::Path;
-use std::process::ExitStatus;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{mpsc, Arc};
-use std::thread;
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    io,
+    path::Path,
+    process::ExitStatus,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc, Arc,
+    },
+    thread,
+    time::Duration,
+};
 
 use talpid_ipc;
 

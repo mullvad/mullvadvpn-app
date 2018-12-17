@@ -1,7 +1,6 @@
 #[cfg(windows)]
 mod win {
-    use std::env;
-    use std::path::PathBuf;
+    use std::{env, path::PathBuf};
 
     pub static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
     pub static WINDNS_BUILD_DIR: &'static str = "..\\windows\\windns\\bin";

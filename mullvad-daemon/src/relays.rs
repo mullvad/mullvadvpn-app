@@ -3,22 +3,28 @@ use error_chain::ChainedError;
 use futures::Future;
 
 use mullvad_rpc::{HttpHandle, RelayListProxy};
-use mullvad_types::location::Location;
-use mullvad_types::relay_constraints::{
-    Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints, TunnelConstraints,
+use mullvad_types::{
+    location::Location,
+    relay_constraints::{
+        Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
+        TunnelConstraints,
+    },
+    relay_list::{Relay, RelayList, RelayTunnels},
 };
-use mullvad_types::relay_list::{Relay, RelayList, RelayTunnels};
 
 use serde_json;
 
 use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
 
-use std::fs::File;
-use std::net::IpAddr;
-use std::path::{Path, PathBuf};
-use std::sync::{mpsc, Arc, Mutex, MutexGuard};
-use std::time::{self, Duration, SystemTime};
-use std::{io, thread};
+use std::{
+    fs::File,
+    io,
+    net::IpAddr,
+    path::{Path, PathBuf},
+    sync::{mpsc, Arc, Mutex, MutexGuard},
+    thread,
+    time::{self, Duration, SystemTime},
+};
 
 use log::{debug, error, info, trace, warn};
 use rand::{self, Rng, ThreadRng};

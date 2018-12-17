@@ -89,8 +89,7 @@ impl IpcServer {
 
         #[cfg(unix)]
         {
-            use std::fs;
-            use std::os::unix::fs::PermissionsExt;
+            use std::{fs, os::unix::fs::PermissionsExt};
             fs::set_permissions(&path, PermissionsExt::from_mode(0o766))
                 .chain_err(|| ErrorKind::PermissionsError)?;
         }

@@ -11,9 +11,7 @@ extern crate error_chain;
 
 use error_chain::ChainedError;
 use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
-use std::collections::HashMap;
-use std::ffi::CString;
-use std::sync::Mutex;
+use std::{collections::HashMap, ffi::CString, sync::Mutex};
 
 
 mod processing;

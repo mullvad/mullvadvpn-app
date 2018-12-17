@@ -1,8 +1,10 @@
 extern crate serde_json;
 
-use std::fs::File;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::{
+    fs::File,
+    io,
+    path::{Path, PathBuf},
+};
 
 use mullvad_types::account::AccountToken;
 

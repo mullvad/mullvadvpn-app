@@ -2,18 +2,19 @@ extern crate iproute2;
 extern crate netlink_socket;
 extern crate rtnetlink;
 
-use std::collections::BTreeSet;
-use std::thread;
+use std::{collections::BTreeSet, thread};
 
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
 use log::{error, trace, warn};
 
-use self::iproute2::Link;
-use self::netlink_socket::{Protocol, SocketAddr, TokioSocket};
-use self::rtnetlink::{
-    LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed, NetlinkMessage,
-    RtnlMessage,
+use self::{
+    iproute2::Link,
+    netlink_socket::{Protocol, SocketAddr, TokioSocket},
+    rtnetlink::{
+        LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed,
+        NetlinkMessage, RtnlMessage,
+    },
 };
 
 use tunnel_state_machine::TunnelCommand;

@@ -1,7 +1,6 @@
 #![cfg(feature = "integration-tests")]
 
-use mullvad_tests::mock_openvpn::search_openvpn_args;
-use mullvad_tests::{watch_event, DaemonRunner, PathWatcher};
+use mullvad_tests::{mock_openvpn::search_openvpn_args, watch_event, DaemonRunner, PathWatcher};
 use std::{
     fs::File,
     io::{BufRead, BufReader},

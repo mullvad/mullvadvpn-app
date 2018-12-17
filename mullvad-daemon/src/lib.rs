@@ -58,8 +58,7 @@ use mullvad_types::{
         TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
-    settings,
-    settings::Settings,
+    settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };

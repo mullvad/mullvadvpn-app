@@ -4,8 +4,7 @@ use super::{
 };
 use crate::security::SecurityPolicy;
 use error_chain::ChainedError;
-use futures::sync::mpsc;
-use futures::Stream;
+use futures::{sync::mpsc, Stream};
 
 /// No tunnel is running.
 pub struct DisconnectedState;

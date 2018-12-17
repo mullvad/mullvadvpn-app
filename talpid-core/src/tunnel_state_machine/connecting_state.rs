@@ -1,16 +1,20 @@
-use std::ffi::OsString;
-use std::path::{Path, PathBuf};
-use std::thread;
-use std::time::{Duration, Instant};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+    thread,
+    time::{Duration, Instant},
+};
 
 use error_chain::ChainedError;
-use futures::sync::{mpsc, oneshot};
-use futures::{Async, Future, Stream};
-use log::{debug, error, info, trace, warn};
-use talpid_types::net::{
-    Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelEndpoint, TunnelEndpointData,
+use futures::{
+    sync::{mpsc, oneshot},
+    Async, Future, Stream,
 };
-use talpid_types::tunnel::BlockReason;
+use log::{debug, error, info, trace, warn};
+use talpid_types::{
+    net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelEndpoint, TunnelEndpointData},
+    tunnel::BlockReason,
+};
 
 use super::{
     AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
