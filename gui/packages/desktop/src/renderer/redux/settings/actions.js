@@ -1,6 +1,12 @@
 // @flow
 
 import type { RelaySettingsRedux, RelayLocationRedux } from './reducers';
+import type { GuiSettingsState } from '../../../shared/gui-settings-state';
+
+export type UpdateGuiSettingsAction = {
+  type: 'UPDATE_GUI_SETTINGS',
+  guiSettings: GuiSettingsState,
+};
 
 export type UpdateRelayAction = {
   type: 'UPDATE_RELAY',
@@ -38,6 +44,7 @@ export type UpdateOpenVpnMssfixAction = {
 };
 
 export type SettingsAction =
+  | UpdateGuiSettingsAction
   | UpdateRelayAction
   | UpdateRelayLocationsAction
   | UpdateAutoConnectAction
@@ -45,6 +52,13 @@ export type SettingsAction =
   | UpdateEnableIpv6Action
   | UpdateBlockWhenDisconnectedAction
   | UpdateOpenVpnMssfixAction;
+
+function updateGuiSettings(guiSettings: GuiSettingsState): UpdateGuiSettingsAction {
+  return {
+    type: 'UPDATE_GUI_SETTINGS',
+    guiSettings,
+  };
+}
 
 function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
   return {
@@ -100,6 +114,7 @@ function updateOpenVpnMssfix(mssfix: ?number): UpdateOpenVpnMssfixAction {
 }
 
 export default {
+  updateGuiSettings,
   updateRelay,
   updateRelayLocations,
   updateAutoConnect,

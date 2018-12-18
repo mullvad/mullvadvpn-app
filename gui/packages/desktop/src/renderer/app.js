@@ -24,6 +24,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 
 import type { WindowShapeParameters } from '../main/window-controller';
 import type { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
+import type { GuiSettingsState } from '../shared/gui-settings-state';
 import IpcEventChannel from '../shared/ipc-event-channel';
 
 import type {
@@ -124,6 +125,10 @@ export default class AppRenderer {
       this._setUpgradeVersion(upgradeVersion);
     });
 
+    IpcEventChannel.guiSettings.listen((guiSettings: GuiSettingsState) => {
+      this._setGuiSettings(guiSettings);
+    });
+
     // Request the initial state from the main process
     const initialState = IpcEventChannel.state.get();
 
@@ -137,6 +142,7 @@ export default class AppRenderer {
     this._setRelays(initialState.relays);
     this._setCurrentVersion(initialState.currentVersion);
     this._setUpgradeVersion(initialState.upgradeVersion);
+    this._setGuiSettings(initialState.guiSettings);
 
     if (initialState.isConnected) {
       this._onDaemonConnected();
@@ -516,6 +522,10 @@ export default class AppRenderer {
 
   _setUpgradeVersion(upgradeVersion: AppUpgradeInfo) {
     this._reduxActions.version.updateLatest(upgradeVersion);
+  }
+
+  _setGuiSettings(guiSettings: GuiSettingsState) {
+    this._reduxActions.settings.updateGuiSettings(guiSettings);
   }
 }
 
