@@ -25,6 +25,7 @@ import type {
   TunnelStateTransition,
 } from './daemon-rpc';
 
+import GuiSettings from './gui-settings';
 import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
 
@@ -35,10 +36,6 @@ const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
 type AppQuitStage = 'unready' | 'initiated' | 'ready';
-
-type GuiSettings = {
-  startMinimized: boolean,
-};
 
 export type CurrentAppVersionInfo = {
   gui: string,
@@ -85,9 +82,7 @@ const ApplicationMain = {
       proxy: null,
     },
   }: Settings),
-  _guiSettings: ({
-    startMinimized: false,
-  }: GuiSettings),
+  _guiSettings: new GuiSettings(),
   _location: (null: ?Location),
   _lastDisconnectedLocation: (null: ?Location),
 
@@ -132,7 +127,7 @@ const ApplicationMain = {
     }
 
     if (process.platform === 'linux') {
-      this._loadGuiSettings();
+      this._guiSettings.load();
     }
 
     app.on('activate', () => this._onActivate());
@@ -213,18 +208,6 @@ const ApplicationMain = {
       log.transports.file.file = this._logFilePath;
 
       log.debug(`Logging to ${this._logFilePath}`);
-    }
-  },
-
-  _loadGuiSettings() {
-    try {
-      const settingsFile = path.join(app.getPath('userData'), 'gui_settings.json');
-      const contents = fs.readFileSync(settingsFile, 'utf8');
-      const settings = JSON.parse(contents);
-
-      this._guiSettings.startMinimized = settings.startMinimized || false;
-    } catch (error) {
-      log.error(`Failed to read GUI settings file: ${error}`);
     }
   },
 
