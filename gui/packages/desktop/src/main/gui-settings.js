@@ -11,6 +11,7 @@ import type { GuiSettingsState } from '../shared/gui-settings-state';
 export default class GuiSettings {
   _state: GuiSettingsState = {
     startMinimized: false,
+    uncoupledFromTunnel: false,
   };
 
   _notify: ?(GuiSettingsState) => void;
@@ -22,6 +23,7 @@ export default class GuiSettings {
       const settings = JSON.parse(contents);
 
       this._state.startMinimized = settings.startMinimized || false;
+      this._state.uncoupledFromTunnel = settings.uncoupledFromTunnel || false;
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
     }
@@ -43,6 +45,10 @@ export default class GuiSettings {
 
   get startMinimized(): boolean {
     return this._state.startMinimized;
+  }
+
+  get uncoupledFromTunnel(): boolean {
+    return this._state.uncoupledFromTunnel;
   }
 
   registerIpcHandlers(ipcEventChannel: IpcEventChannel) {

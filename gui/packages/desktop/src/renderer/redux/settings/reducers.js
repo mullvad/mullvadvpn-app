@@ -60,6 +60,7 @@ export type SettingsReduxState = {
 const initialState: SettingsReduxState = {
   guiSettings: {
     startMinimized: false,
+    uncoupledFromTunnel: false,
   },
   relaySettings: {
     normal: {
