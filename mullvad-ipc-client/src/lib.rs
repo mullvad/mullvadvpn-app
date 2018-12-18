@@ -160,7 +160,7 @@ impl DaemonRpcClient {
         self.call("get_relay_locations", &NO_ARGS)
     }
 
-    pub fn update_relay_locations(&mut self) -> Result<RelayList> {
+    pub fn update_relay_locations(&mut self) -> Result<()> {
         self.call("update_relay_locations", &NO_ARGS)
     }
 
