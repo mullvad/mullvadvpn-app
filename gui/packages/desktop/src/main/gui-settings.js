@@ -5,9 +5,7 @@ import log from 'electron-log';
 import path from 'path';
 import { app } from 'electron';
 
-export type GuiSettingsState = {
-  startMinimized: boolean,
-};
+import type { GuiSettingsState } from '../shared/gui-settings-state';
 
 export default class GuiSettings {
   _state: GuiSettingsState = {

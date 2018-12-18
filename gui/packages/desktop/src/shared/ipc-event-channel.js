@@ -3,6 +3,8 @@
 import { ipcMain, ipcRenderer } from 'electron';
 import type { WebContents } from 'electron';
 
+import type { GuiSettingsState } from './gui-settings-state';
+
 import type { AppUpgradeInfo, CurrentAppVersionInfo } from '../main/index';
 import type { Location, RelayList, Settings, TunnelStateTransition } from '../main/daemon-rpc';
 
@@ -14,6 +16,7 @@ export type AppStateSnapshot = {
   relays: RelayList,
   currentVersion: CurrentAppVersionInfo,
   upgradeVersion: AppUpgradeInfo,
+  guiSettings: GuiSettingsState,
 };
 
 interface Sender<T> {
@@ -34,6 +37,7 @@ const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
 const CURRENT_VERSION_CHANGED = 'current-version-changed';
 const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
+const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 
 /// Typed IPC event channel
 ///
@@ -138,6 +142,16 @@ export default class IpcEventChannel {
   get upgradeVersion(): Sender<AppUpgradeInfo> {
     return {
       notify: sender(this._webContents, UPGRADE_VERSION_CHANGED),
+    };
+  }
+
+  static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
+    listen: listen(GUI_SETTINGS_CHANGED),
+  };
+
+  get guiSettings(): Sender<GuiSettingsState> & GuiSettingsHandlers {
+    return {
+      notify: sender(this._webContents, GUI_SETTINGS_CHANGED),
     };
   }
 }
