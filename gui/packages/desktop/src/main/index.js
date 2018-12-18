@@ -760,6 +760,10 @@ const ApplicationMain = {
       guiSettings: this._guiSettings.state,
     }));
 
+    IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
+      this._guiSettings.autoConnect = autoConnect;
+    });
+
     IpcMainEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
       this._guiSettings.startMinimized = startMinimized;
     });
