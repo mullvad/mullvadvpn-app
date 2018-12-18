@@ -29,6 +29,16 @@ mod errors {
             EventDispatcherError {
                 description("Unable to start or manage the event dispatcher IPC server")
             }
+            #[cfg(windows)]
+            /// No TAP adapter was detected
+            MissingTapAdapter {
+                description("No TAP adapter was detected")
+            }
+            #[cfg(windows)]
+            /// TAP adapter seems to be disabled
+            DisabledTapAdapter {
+                description("The TAP adapter appears to be disabled")
+            }
         }
     }
 }
@@ -117,7 +127,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
                     Ok(())
                 } else {
                     log::error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                    Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
+                    Err(self.postmortem())
                 }
             }
             WaitResult::Child(Err(e), _) => {
@@ -158,6 +168,27 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         let result = rx.recv().unwrap();
         let _ = rx.recv().unwrap();
         result
+    }
+
+    /// Performs a postmortem analysis to attempt to provide a more detailed error result.
+    fn postmortem(self) -> Error {
+        #[cfg(windows)]
+        {
+            use std::fs;
+
+            if let Some(log_path) = self.log_path {
+                if let Ok(log) = fs::read_to_string(log_path) {
+                    if log.contains("There are no TAP-Windows adapters on this system") {
+                        return ErrorKind::MissingTapAdapter.into();
+                    }
+                    if log.contains("CreateFile failed on TAP device") {
+                        return ErrorKind::DisabledTapAdapter.into();
+                    }
+                }
+            }
+        }
+
+        ErrorKind::ChildProcessError("Died unexpectedly").into()
     }
 }
 
