@@ -13,6 +13,7 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => ({
   autoConnect: state.settings.autoConnect,
   allowLan: state.settings.allowLan,
+  startMinimized: state.settings.guiSettings.startMinimized,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
@@ -41,6 +42,10 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     setAllowLan: (allowLan) => {
       props.app.setAllowLan(allowLan);
     },
+    setStartMinimized: (startMinimized) => {
+      props.app.setStartMinimized(startMinimized);
+    },
+    enableStartMinimizedToggle: process.platform === 'linux',
   };
 };
 

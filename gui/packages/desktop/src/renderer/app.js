@@ -351,6 +351,10 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
+  async setStartMinimized(startMinimized: boolean) {
+    IpcEventChannel.guiSettings.setStartMinimized(startMinimized);
+  }
+
   async _onDaemonConnected() {
     this._connectedToDaemon = true;
 
