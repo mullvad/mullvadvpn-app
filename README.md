@@ -359,6 +359,17 @@ environment variable.
 | macOS | `/var/run/mullvad-vpn` |
 | Windows | `//./pipe/Mullvad VPN` |
 
+### GUI
+
+The GUI has a specific settings file that is configured for each user. The path is set in the
+`gui/packages/desktop/main/gui-settings.js` file.
+
+| Platform | Path |
+|----------|------|
+| Linux | `$XDG_CONFIG_HOME/Mullvad VPN/gui_settings.json` |
+| macOS | `~/Library/Application Support/Mullvad VPN/gui_settings.json` |
+| Windows | `%LOCALAPPDATA%\Mullvad VPN\gui_settings.json` |
+
 ## Audits, pentests and external security reviews
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
