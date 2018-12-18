@@ -287,6 +287,8 @@ const ApplicationMain = {
     this._trayIconController = trayIconController;
     this._ipcEventChannel = new IpcEventChannel(window.webContents);
 
+    this._guiSettings.registerIpcHandlers(this._ipcEventChannel);
+
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
       window.openDevTools({ mode: 'detach' });
@@ -749,6 +751,7 @@ const ApplicationMain = {
         relays: this._relays,
         currentVersion: this._currentVersion,
         upgradeVersion: this._upgradeVersion,
+        guiSettings: this._guiSettings.state,
       };
     });
 
