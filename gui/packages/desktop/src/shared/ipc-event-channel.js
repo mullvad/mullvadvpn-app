@@ -35,11 +35,13 @@ interface Receiver<T> {
 }
 
 interface GuiSettingsMethods {
+  setAutoConnect: (boolean) => void;
   setStartMinimized: (boolean) => void;
   setMonochromaticIcon: (boolean) => void;
 }
 
 interface GuiSettingsHandlers {
+  handleAutoConnect: ((boolean) => void) => void;
   handleStartMinimized: ((boolean) => void) => void;
   handleMonochromaticIcon: ((boolean) => void) => void;
 }
@@ -66,6 +68,7 @@ const CURRENT_VERSION_CHANGED = 'current-version-changed';
 const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
 const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 
+const SET_AUTO_CONNECT = 'set-auto-connect';
 const SET_MONOCHROMATIC_ICON = 'set-monochromatic-icon';
 const SET_START_MINIMIZED = 'set-start-minimized';
 const GET_APP_STATE = 'get-app-state';
@@ -119,6 +122,7 @@ export class IpcRendererEventChannel {
 
   static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
     listen: listen(GUI_SETTINGS_CHANGED),
+    setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
   };
@@ -172,6 +176,7 @@ export class IpcMainEventChannel {
 
   static guiSettings: Sender<GuiSettingsState> & GuiSettingsHandlers = {
     notify: sender(GUI_SETTINGS_CHANGED),
+    handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
   };
