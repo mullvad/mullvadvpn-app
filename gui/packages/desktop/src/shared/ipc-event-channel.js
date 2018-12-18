@@ -29,10 +29,12 @@ interface Receiver<T> {
 
 interface GuiSettingsMethods {
   setStartMinimized: (boolean) => void;
+  setUncoupledFromTunnel: (boolean) => void;
 }
 
 interface GuiSettingsHandlers {
   handleStartMinimized: ((boolean) => void) => void;
+  handleUncoupledFromTunnel: ((boolean) => void) => void;
 }
 
 /// Events names
@@ -48,6 +50,7 @@ const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
 const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 
 const SET_START_MINIMIZED = 'set-start-minimized';
+const SET_UNCOUPLED_FROM_TUNNEL = 'set-uncoupled-from-tunnel';
 
 /// Typed IPC event channel
 ///
@@ -158,12 +161,14 @@ export default class IpcEventChannel {
   static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
     listen: listen(GUI_SETTINGS_CHANGED),
     setStartMinimized: set(SET_START_MINIMIZED),
+    setUncoupledFromTunnel: set(SET_UNCOUPLED_FROM_TUNNEL),
   };
 
   get guiSettings(): Sender<GuiSettingsState> & GuiSettingsHandlers {
     return {
       notify: sender(this._webContents, GUI_SETTINGS_CHANGED),
       handleStartMinimized: handler(SET_START_MINIMIZED),
+      handleUncoupledFromTunnel: handler(SET_UNCOUPLED_FROM_TUNNEL),
     };
   }
 }

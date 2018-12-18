@@ -58,6 +58,10 @@ export default class GuiSettings {
       this._state.startMinimized = startMinimized;
       this._settingsChanged();
     });
+    ipcEventChannel.guiSettings.handleUncoupledFromTunnel((uncoupledFromTunnel: boolean) => {
+      this._state.uncoupledFromTunnel = uncoupledFromTunnel;
+      this._settingsChanged();
+    });
   }
 
   _filePath() {
