@@ -4,7 +4,7 @@ use crate::process::{
 };
 use std::{
     collections::HashMap,
-    io,
+    fs, io,
     path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
@@ -28,6 +28,14 @@ mod errors {
             /// Unable to start or manage the IPC server listening for events from OpenVPN.
             EventDispatcherError {
                 description("Unable to start or manage the event dispatcher IPC server")
+            }
+            /// No TAP adapter was detected
+            MissingTapAdapter {
+                description("No TAP adapter was detected")
+            }
+            /// TAP adapter seems to be disabled
+            DisabledTapAdapter {
+                description("The TAP adapter appears to be disabled")
             }
         }
     }
@@ -108,7 +116,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
                     Ok(())
                 } else {
                     log::error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                    Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
+                    self.postmortem()
                 }
             }
             WaitResult::Child(Err(e), _) => {
@@ -149,6 +157,24 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         let result = rx.recv().unwrap();
         let _ = rx.recv().unwrap();
         result
+    }
+
+    /// Performs a postmortem analysis to attempt to provide a more detailed error result.
+    fn postmortem(self) -> Result<()> {
+        if let Some(log_path) = self.log_path {
+            if let Ok(log) = fs::read_to_string(log_path) {
+                ensure!(
+                    !log.contains("There are no TAP-Windows adapters on this system"),
+                    ErrorKind::MissingTapAdapter
+                );
+                ensure!(
+                    !log.contains("CreateFile failed on TAP device"),
+                    ErrorKind::DisabledTapAdapter
+                );
+            }
+        }
+
+        Err(ErrorKind::ChildProcessError("Died unexpectedly").into())
     }
 }
 
