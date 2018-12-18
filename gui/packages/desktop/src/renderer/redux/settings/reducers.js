@@ -59,6 +59,7 @@ export type SettingsReduxState = {
 
 const initialState: SettingsReduxState = {
   guiSettings: {
+    autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
   },
