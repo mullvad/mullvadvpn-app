@@ -36,5 +36,11 @@ fi
 read -p "Do you want to delete the Mullvad VPN settings? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /etc/mullvad-vpn
+    for user in /Users/*; do
+        user_settings_dir="$user/Library/Application Support/Mullvad VPN"
+        if [[ -d "$user_settings_dir" ]]; then
+            echo "Deleting GUI settings at $user_settings_dir"
+            sudo rm -rf "$user_settings_dir"
+        fi
+    done
 fi
-

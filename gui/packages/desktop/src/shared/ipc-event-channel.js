@@ -3,6 +3,8 @@
 import { ipcMain, ipcRenderer } from 'electron';
 import type { WebContents } from 'electron';
 
+import type { GuiSettingsState } from './gui-settings-state';
+
 import type { AppUpgradeInfo, CurrentAppVersionInfo } from '../main/index';
 import type { Location, RelayList, Settings, TunnelStateTransition } from '../main/daemon-rpc';
 
@@ -14,6 +16,7 @@ export type AppStateSnapshot = {
   relays: RelayList,
   currentVersion: CurrentAppVersionInfo,
   upgradeVersion: AppUpgradeInfo,
+  guiSettings: GuiSettingsState,
 };
 
 interface Sender<T> {
@@ -22,6 +25,14 @@ interface Sender<T> {
 
 interface Receiver<T> {
   listen<T>(fn: (T) => void): void;
+}
+
+interface GuiSettingsMethods {
+  setStartMinimized: (boolean) => void;
+}
+
+interface GuiSettingsHandlers {
+  handleStartMinimized: ((boolean) => void) => void;
 }
 
 /// Events names
@@ -34,6 +45,9 @@ const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
 const CURRENT_VERSION_CHANGED = 'current-version-changed';
 const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
+const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
+
+const SET_START_MINIMIZED = 'set-start-minimized';
 
 /// Typed IPC event channel
 ///
@@ -140,6 +154,18 @@ export default class IpcEventChannel {
       notify: sender(this._webContents, UPGRADE_VERSION_CHANGED),
     };
   }
+
+  static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
+    listen: listen(GUI_SETTINGS_CHANGED),
+    setStartMinimized: set(SET_START_MINIMIZED),
+  };
+
+  get guiSettings(): Sender<GuiSettingsState> & GuiSettingsHandlers {
+    return {
+      notify: sender(this._webContents, GUI_SETTINGS_CHANGED),
+      handleStartMinimized: handler(SET_START_MINIMIZED),
+    };
+  }
 }
 
 function listen<T>(event: string): ((T) => void) => void {
@@ -148,8 +174,22 @@ function listen<T>(event: string): ((T) => void) => void {
   };
 }
 
+function set<T>(event: string): (T) => void {
+  return function(newValue: T) {
+    ipcRenderer.send(event, newValue);
+  };
+}
+
 function sender<T>(webContents: WebContents, event: string): (T) => void {
   return function(newState: T) {
     webContents.send(event, newState);
+  };
+}
+
+function handler<T>(event: string): ((T) => void) => void {
+  return function(handlerFn: (T) => void) {
+    ipcMain.on(event, (_, newValue: T) => {
+      handlerFn(newValue);
+    });
   };
 }

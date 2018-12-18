@@ -2,6 +2,7 @@
 
 import type { ReduxAction } from '../store';
 import type { RelayProtocol, RelayLocation } from '../../lib/daemon-rpc-proxy';
+import type { GuiSettingsState } from '../../../shared/gui-settings-state';
 
 export type RelaySettingsRedux =
   | {|
@@ -44,6 +45,7 @@ export type RelayLocationRedux = {
 };
 
 export type SettingsReduxState = {
+  guiSettings: GuiSettingsState,
   relaySettings: RelaySettingsRedux,
   relayLocations: Array<RelayLocationRedux>,
   autoConnect: boolean,
@@ -56,6 +58,9 @@ export type SettingsReduxState = {
 };
 
 const initialState: SettingsReduxState = {
+  guiSettings: {
+    startMinimized: false,
+  },
   relaySettings: {
     normal: {
       location: 'any',
@@ -78,6 +83,12 @@ export default function(
   action: ReduxAction,
 ): SettingsReduxState {
   switch (action.type) {
+    case 'UPDATE_GUI_SETTINGS':
+      return {
+        ...state,
+        guiSettings: action.guiSettings,
+      };
+
     case 'UPDATE_RELAY':
       return {
         ...state,

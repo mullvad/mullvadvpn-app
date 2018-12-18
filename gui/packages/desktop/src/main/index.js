@@ -25,6 +25,7 @@ import type {
   TunnelStateTransition,
 } from './daemon-rpc';
 
+import GuiSettings from './gui-settings';
 import ReconnectionBackoff from './reconnection-backoff';
 import { resolveBin } from './proc';
 
@@ -81,6 +82,7 @@ const ApplicationMain = {
       proxy: null,
     },
   }: Settings),
+  _guiSettings: new GuiSettings(),
   _location: (null: ?Location),
   _lastDisconnectedLocation: (null: ?Location),
 
@@ -122,6 +124,10 @@ const ApplicationMain = {
 
     if (process.platform === 'win32') {
       app.setAppUserModelId('net.mullvad.vpn');
+    }
+
+    if (process.platform === 'linux') {
+      this._guiSettings.load();
     }
 
     app.on('activate', () => this._onActivate());
@@ -281,6 +287,8 @@ const ApplicationMain = {
     this._trayIconController = trayIconController;
     this._ipcEventChannel = new IpcEventChannel(window.webContents);
 
+    this._guiSettings.registerIpcHandlers(this._ipcEventChannel);
+
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
       window.openDevTools({ mode: 'detach' });
@@ -300,6 +308,10 @@ const ApplicationMain = {
       default:
         this._installGenericMenubarAppWindowHandlers(tray, windowController);
         break;
+    }
+
+    if (this._shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
+      windowController.show();
     }
 
     window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
@@ -739,6 +751,7 @@ const ApplicationMain = {
         relays: this._relays,
         currentVersion: this._currentVersion,
         upgradeVersion: this._upgradeVersion,
+        guiSettings: this._guiSettings.state,
       };
     });
 
@@ -987,7 +1000,6 @@ const ApplicationMain = {
     tray.on('click', () => {
       windowController.toggle();
     });
-    windowController.show();
   },
 
   _installLinuxWindowCloseHandler(windowController: WindowController) {
@@ -997,6 +1009,19 @@ const ApplicationMain = {
         windowController.hide();
       }
     });
+  },
+
+  _shouldShowWindowOnStart(): boolean {
+    switch (process.platform) {
+      case 'win32':
+        return false;
+      case 'darwin':
+        return false;
+      case 'linux':
+        return !this._guiSettings.startMinimized;
+      default:
+        return true;
+    }
   },
 };
 
