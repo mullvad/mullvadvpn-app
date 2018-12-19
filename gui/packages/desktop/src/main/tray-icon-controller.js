@@ -2,22 +2,27 @@
 
 import path from 'path';
 import KeyframeAnimation from './keyframe-animation';
-import type { Tray } from 'electron';
+import { nativeImage } from 'electron';
+import type { NativeImage, Tray } from 'electron';
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
 export default class TrayIconController {
   _animation: ?KeyframeAnimation;
   _iconType: TrayIconType;
+  _iconImages: Array<NativeImage>;
 
   constructor(tray: Tray, initialType: TrayIconType) {
-    const animation = this._createAnimation();
-    animation.onFrame = (img) => tray.setImage(img);
-    animation.reverse = this._isReverseAnimation(initialType);
-    animation.play({ advanceTo: 'end' });
+    this._loadImages();
+    this._iconType = initialType;
+
+    const initialFrame = this._targetFrame();
+    const animation = new KeyframeAnimation();
+    animation.speed = 100;
+    animation.onFrame = (frameNumber) => tray.setImage(this._iconImages[frameNumber]);
+    animation.play({ start: initialFrame, end: initialFrame });
 
     this._animation = animation;
-    this._iconType = initialType;
   }
 
   dispose() {
@@ -36,27 +41,33 @@ export default class TrayIconController {
       return;
     }
 
-    const animation = this._animation;
-    if (type === 'secured') {
-      animation.reverse = true;
-      animation.play({ beginFromCurrentState: true, startFrame: 8, endFrame: 9 });
-    } else {
-      animation.reverse = this._isReverseAnimation(type);
-      animation.play({ beginFromCurrentState: true });
-    }
-
     this._iconType = type;
+
+    const animation = this._animation;
+    const frame = this._targetFrame();
+
+    animation.play({ end: frame });
   }
 
-  _createAnimation(): KeyframeAnimation {
+  _loadImages() {
     const basePath = path.resolve(path.join(__dirname, '../assets/images/menubar icons'));
-    const filePath = path.join(basePath, 'lock-{}.png');
-    const animation = KeyframeAnimation.fromFilePattern(filePath, [1, 10]);
-    animation.speed = 100;
-    return animation;
+    const frames = Array.from({ length: 10 }, (_, i) => i + 1);
+
+    this._iconImages = frames.map((frame) =>
+      nativeImage.createFromPath(path.join(basePath, `lock-${frame}.png`)),
+    );
   }
 
-  _isReverseAnimation(type: TrayIconType): boolean {
-    return type === 'unsecured';
+  _targetFrame(): number {
+    switch (this._iconType) {
+      case 'unsecured':
+        return 0;
+      case 'securing':
+        return 9;
+      case 'secured':
+        return 8;
+      default:
+        throw new Error(`Unknown tray icon type: ${(this._iconType: empty)}`);
+    }
   }
 }
