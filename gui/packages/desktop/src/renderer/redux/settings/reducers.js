@@ -59,6 +59,7 @@ export type SettingsReduxState = {
 
 const initialState: SettingsReduxState = {
   guiSettings: {
+    monochromaticIcon: false,
     startMinimized: false,
   },
   relaySettings: {

@@ -10,6 +10,7 @@ import type { GuiSettingsState } from '../shared/gui-settings-state';
 
 export default class GuiSettings {
   _state: GuiSettingsState = {
+    monochromaticIcon: false,
     startMinimized: false,
   };
 
@@ -21,6 +22,7 @@ export default class GuiSettings {
       const contents = fs.readFileSync(settingsFile, 'utf8');
       const settings = JSON.parse(contents);
 
+      this._state.monochromaticIcon = settings.monochromaticIcon || false;
       this._state.startMinimized = settings.startMinimized || false;
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
@@ -39,6 +41,10 @@ export default class GuiSettings {
 
   get state(): GuiSettingsState {
     return this._state;
+  }
+
+  get monochromaticIcon(): boolean {
+    return this._state.monochromaticIcon;
   }
 
   get startMinimized(): boolean {
