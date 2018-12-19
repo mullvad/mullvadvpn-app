@@ -171,6 +171,11 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Returns the log file path
+    pub fn get_log(&self) -> Option<&PathBuf> {
+        self.log.as_ref()
+    }
+
     /// Returns all arguments that the subprocess would be spawned with.
     pub fn get_arguments(&self) -> Vec<OsString> {
         let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();

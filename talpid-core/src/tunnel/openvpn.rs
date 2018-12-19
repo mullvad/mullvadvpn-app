@@ -5,7 +5,7 @@ use crate::process::{
 use std::{
     collections::HashMap,
     io,
-    path::Path,
+    path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -46,6 +46,7 @@ static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
     event_dispatcher: Option<talpid_ipc::IpcServer>,
+    log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
 }
 
@@ -78,6 +79,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
             event_dispatcher: Some(event_dispatcher),
+            log_path: cmd.log_path(),
             closed: Arc::new(AtomicBool::new(false)),
         })
     }
@@ -185,6 +187,9 @@ pub trait OpenVpnBuilder {
 
     /// Spawn the subprocess and return a handle.
     fn start(&self) -> io::Result<Self::ProcessHandle>;
+
+    /// Obtain the path to the log file, if specified
+    fn log_path(&self) -> Option<PathBuf>;
 }
 
 /// Trait for types acting as handles to subprocesses for `OpenVpnMonitor`
@@ -205,6 +210,10 @@ impl OpenVpnBuilder for OpenVpnCommand {
 
     fn start(&self) -> io::Result<OpenVpnProcHandle> {
         OpenVpnProcHandle::new(self.build())
+    }
+
+    fn log_path(&self) -> Option<PathBuf> {
+        self.get_log().cloned()
     }
 }
 
@@ -298,6 +307,10 @@ mod tests {
         fn start(&self) -> io::Result<Self::ProcessHandle> {
             self.process_handle
                 .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "failed to start"))
+        }
+
+        fn log_path(&self) -> Option<PathBuf> {
+            None
         }
     }
 
