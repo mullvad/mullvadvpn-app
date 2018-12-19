@@ -11,15 +11,18 @@ export default class TrayIconController {
   _animation: ?KeyframeAnimation;
   _iconType: TrayIconType;
   _iconImages: Array<NativeImage>;
+  _monochromaticIconImages: Array<NativeImage>;
+  _useMonochromaticIcon: boolean;
 
-  constructor(tray: Tray, initialType: TrayIconType) {
+  constructor(tray: Tray, initialType: TrayIconType, useMonochromaticIcon: boolean) {
     this._loadImages();
     this._iconType = initialType;
+    this._useMonochromaticIcon = useMonochromaticIcon;
 
     const initialFrame = this._targetFrame();
     const animation = new KeyframeAnimation();
     animation.speed = 100;
-    animation.onFrame = (frameNumber) => tray.setImage(this._iconImages[frameNumber]);
+    animation.onFrame = (frameNumber) => tray.setImage(this._imageForFrame(frameNumber));
     animation.play({ start: initialFrame, end: initialFrame });
 
     this._animation = animation;
@@ -34,6 +37,14 @@ export default class TrayIconController {
 
   get iconType(): TrayIconType {
     return this._iconType;
+  }
+
+  set useMonochromaticIcon(useMonochromaticIcon: boolean) {
+    this._useMonochromaticIcon = useMonochromaticIcon;
+
+    if (this._animation && !this._animation.isRunning) {
+      this._animation.play({ end: this._targetFrame() });
+    }
   }
 
   animateToIcon(type: TrayIconType) {
@@ -56,6 +67,10 @@ export default class TrayIconController {
     this._iconImages = frames.map((frame) =>
       nativeImage.createFromPath(path.join(basePath, `lock-${frame}.png`)),
     );
+
+    this._monochromaticIconImages = frames.map((frame) =>
+      nativeImage.createFromPath(path.join(basePath, `lock-${frame}Template.png`)),
+    );
   }
 
   _targetFrame(): number {
@@ -69,5 +84,11 @@ export default class TrayIconController {
       default:
         throw new Error(`Unknown tray icon type: ${(this._iconType: empty)}`);
     }
+  }
+
+  _imageForFrame(frame: number): NativeImage {
+    return this._useMonochromaticIcon
+      ? this._monochromaticIconImages[frame]
+      : this._iconImages[frame];
   }
 }
