@@ -29,10 +29,12 @@ interface Receiver<T> {
 
 interface GuiSettingsMethods {
   setStartMinimized: (boolean) => void;
+  setMonochromaticIcon: (boolean) => void;
 }
 
 interface GuiSettingsHandlers {
   handleStartMinimized: ((boolean) => void) => void;
+  handleMonochromaticIcon: ((boolean) => void) => void;
 }
 
 /// Events names
@@ -47,6 +49,7 @@ const CURRENT_VERSION_CHANGED = 'current-version-changed';
 const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
 const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 
+const SET_MONOCHROMATIC_ICON = 'set-monochromatic-icon';
 const SET_START_MINIMIZED = 'set-start-minimized';
 
 /// Typed IPC event channel
@@ -157,12 +160,14 @@ export default class IpcEventChannel {
 
   static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
     listen: listen(GUI_SETTINGS_CHANGED),
+    setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
   };
 
   get guiSettings(): Sender<GuiSettingsState> & GuiSettingsHandlers {
     return {
       notify: sender(this._webContents, GUI_SETTINGS_CHANGED),
+      handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
       handleStartMinimized: handler(SET_START_MINIMIZED),
     };
   }
