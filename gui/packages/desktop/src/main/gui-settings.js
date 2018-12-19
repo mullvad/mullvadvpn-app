@@ -54,6 +54,10 @@ export default class GuiSettings {
   registerIpcHandlers(ipcEventChannel: IpcEventChannel) {
     this._notify = ipcEventChannel.guiSettings.notify;
 
+    ipcEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
+      this._state.monochromaticIcon = monochromaticIcon;
+      this._settingsChanged();
+    });
     ipcEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
       this._state.startMinimized = startMinimized;
       this._settingsChanged();
