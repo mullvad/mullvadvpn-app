@@ -13,6 +13,7 @@ import type { SharedRouteProps } from '../routes';
 const mapStateToProps = (state: ReduxState) => ({
   autoConnect: state.settings.autoConnect,
   allowLan: state.settings.allowLan,
+  monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
   startMinimized: state.settings.guiSettings.startMinimized,
 });
 
@@ -46,6 +47,10 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       props.app.setStartMinimized(startMinimized);
     },
     enableStartMinimizedToggle: process.platform === 'linux',
+    setMonochromaticIcon: (monochromaticIcon) => {
+      props.app.setMonochromaticIcon(monochromaticIcon);
+    },
+    enableMonochromaticIconToggle: process.platform === 'darwin',
   };
 };
 
