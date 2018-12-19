@@ -33,7 +33,12 @@ use tokio_timer::{TimeoutError, Timer};
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
-const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+/// How often the updater should wake up to check the cache of the in-memory cache of relays.
+/// This check is very cheap. The only reason to not have it very often is because if downloading
+/// constantly fails it will try very often and fill the logs etc.
+const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 2);
+/// How old the cached relays need to be to trigger an update
+const UPDATE_INTERVAL: Duration = Duration::from_secs(3600);
 
 error_chain! {
     errors {
@@ -436,13 +441,14 @@ impl RelayListUpdater {
     fn run(&mut self) {
         debug!("Starting relay list updater thread");
         while self.wait_for_next_iteration() {
-            trace!("Relay list updater iteration");
-            match self
-                .update()
-                .chain_err(|| "Failed to update list of relays")
-            {
-                Ok(()) => info!("Updated list of relays"),
-                Err(error) => error!("{}", error.display_chain()),
+            if self.should_update() {
+                match self
+                    .update()
+                    .chain_err(|| "Failed to update list of relays")
+                {
+                    Ok(()) => info!("Updated list of relays"),
+                    Err(error) => error!("{}", error.display_chain()),
+                }
             }
         }
         debug!("Relay list updater thread has finished");
@@ -451,10 +457,20 @@ impl RelayListUpdater {
     fn wait_for_next_iteration(&mut self) -> bool {
         use self::mpsc::RecvTimeoutError::*;
 
-        match self.close_handle.recv_timeout(UPDATE_INTERVAL) {
+        match self.close_handle.recv_timeout(UPDATE_CHECK_INTERVAL) {
             Ok(()) => true,
             Err(Timeout) => true,
             Err(Disconnected) => false,
+        }
+    }
+
+    fn should_update(&mut self) -> bool {
+        match SystemTime::now().duration_since(self.lock_parsed_relays().last_updated()) {
+            Ok(duration) => duration > UPDATE_INTERVAL,
+            // If the clock is skewed we have no idea by how much or when the last update
+            // actually was, better download again to get in sync and get a `last_updated`
+            // timestamp corresponding to the new time.
+            Err(_) => true,
         }
     }
 
