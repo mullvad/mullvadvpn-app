@@ -54,7 +54,7 @@ error_chain! {
 pub struct ConnectingState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: oneshot::Receiver<()>,
+    tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
     close_handle: CloseHandle,
     retry_attempt: u32,
 }
@@ -147,25 +147,23 @@ impl ConnectingState {
         }
     }
 
-    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: TunnelMonitor) -> oneshot::Receiver<()> {
+    fn spawn_tunnel_monitor_wait_thread(
+        tunnel_monitor: TunnelMonitor,
+    ) -> oneshot::Receiver<Option<BlockReason>> {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         thread::spawn(move || {
             let start = Instant::now();
 
-            match tunnel_monitor.wait() {
-                Ok(_) => debug!("Tunnel has finished without errors"),
-                Err(error) => {
-                    let chained_error = error.chain_err(|| "Tunnel has stopped unexpectedly");
-                    warn!("{}", chained_error.display_chain());
+            let block_reason = Self::wait_for_tunnel_monitor(tunnel_monitor);
+
+            if block_reason.is_none() {
+                if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
+                    thread::sleep(remaining_time);
                 }
             }
 
-            if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
-                thread::sleep(remaining_time);
-            }
-
-            if tunnel_close_event_tx.send(()).is_err() {
+            if tunnel_close_event_tx.send(block_reason).is_err() {
                 warn!("Tunnel state machine stopped before receiving tunnel closed event");
             }
 
@@ -173,6 +171,39 @@ impl ConnectingState {
         });
 
         tunnel_close_event_rx
+    }
+
+    fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<BlockReason> {
+        match tunnel_monitor.wait() {
+            Ok(_) => {
+                debug!("Tunnel has finished without errors");
+                None
+            }
+            Err(error) => match error {
+                #[cfg(windows)]
+                error @ tunnel::Error(
+                    tunnel::ErrorKind::OpenVpnTunnelMonitoringError(
+                        tunnel::openvpn::ErrorKind::DisabledTapAdapter,
+                    ),
+                    _,
+                )
+                | error @ tunnel::Error(
+                    tunnel::ErrorKind::OpenVpnTunnelMonitoringError(
+                        tunnel::openvpn::ErrorKind::MissingTapAdapter,
+                    ),
+                    _,
+                ) => {
+                    let chained_error = error.chain_err(|| "TAP adapter problem detected");
+                    warn!("{}", chained_error.display_chain());
+                    Some(BlockReason::TapAdapterProblem)
+                }
+                error => {
+                    let chained_error = error.chain_err(|| "Tunnel has stopped unexpectedly");
+                    warn!("{}", chained_error.display_chain());
+                    None
+                }
+            },
+        }
     }
 
     fn into_connected_state_bootstrap(self, metadata: TunnelMetadata) -> ConnectedStateBootstrap {
@@ -300,7 +331,11 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         match self.tunnel_close_event.poll() {
-            Ok(Async::Ready(_)) => {}
+            Ok(Async::Ready(block_reason)) => {
+                if let Some(reason) = block_reason {
+                    return EventConsequence::NewState(BlockedState::enter(shared_values, reason));
+                }
+            }
             Ok(Async::NotReady) => return EventConsequence::NoEvents(self),
             Err(_cancelled) => warn!("Tunnel monitor thread has stopped unexpectedly"),
         }

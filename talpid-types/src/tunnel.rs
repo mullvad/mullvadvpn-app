@@ -56,6 +56,8 @@ pub enum BlockReason {
     NoMatchingRelay,
     /// This device is offline, no tunnels can be established.
     IsOffline,
+    /// A problem with the TAP adapter has been detected.
+    TapAdapterProblem,
 }
 
 impl fmt::Display for BlockReason {
@@ -78,6 +80,7 @@ impl fmt::Display for BlockReason {
             StartTunnelError => "Failed to start connection to remote server",
             NoMatchingRelay => "No relay server matches the current settings",
             IsOffline => "This device is offline, no tunnels can be established",
+            TapAdapterProblem => "A problem with the TAP adapter has been detected",
         };
 
         write!(f, "{}", description)
