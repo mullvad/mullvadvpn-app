@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Stop GUI from glitching during the short reconnect state.
 - Dismiss notifications automatically after four seconds in all platforms.
 - Fix error printed from the CLI when issuing `relay update`.
+- Fix relay list update interval. Should now handle sleep better.
 
 
 ## [2018.6-beta1] - 2018-12-05
