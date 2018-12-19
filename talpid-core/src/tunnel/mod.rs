@@ -156,7 +156,7 @@ impl TunnelMonitor {
         tunnel_options: &TunnelOptions,
         tunnel_alias: Option<OsString>,
         username: &str,
-        log: Option<&Path>,
+        log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
     ) -> Result<Self>
@@ -181,7 +181,6 @@ impl TunnelMonitor {
                 Some(ref file) => Some(file.as_ref()),
                 _ => None,
             },
-            log,
             resource_dir,
         )?;
 
@@ -212,6 +211,7 @@ impl TunnelMonitor {
             cmd,
             on_openvpn_event,
             Self::get_plugin_path(resource_dir)?,
+            log,
         )
         .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
@@ -242,7 +242,6 @@ impl TunnelMonitor {
         options: &TunnelOptions,
         user_pass_file: &Path,
         proxy_auth_file: Option<&Path>,
-        log: Option<&Path>,
         resource_dir: &Path,
     ) -> Result<OpenVpnCommand> {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
@@ -261,9 +260,6 @@ impl TunnelMonitor {
             .enable_ipv6(options.enable_ipv6)
             .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"));
-        if let Some(log) = log {
-            cmd.log(log);
-        }
         if let Some(proxy_auth_file) = proxy_auth_file {
             cmd.proxy_auth(proxy_auth_file);
         }

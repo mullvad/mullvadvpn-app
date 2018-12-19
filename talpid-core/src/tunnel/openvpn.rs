@@ -5,7 +5,7 @@ use crate::process::{
 use std::{
     collections::HashMap,
     io,
-    path::Path,
+    path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -46,38 +46,49 @@ static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
     event_dispatcher: Option<talpid_ipc::IpcServer>,
+    log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
 }
 
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
-    pub fn start<L, P>(cmd: OpenVpnCommand, on_event: L, plugin_path: P) -> Result<Self>
+    pub fn start<L>(
+        cmd: OpenVpnCommand,
+        on_event: L,
+        plugin_path: impl AsRef<Path>,
+        log_path: Option<PathBuf>,
+    ) -> Result<Self>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
-        P: AsRef<Path>,
     {
-        Self::new_internal(cmd, on_event, plugin_path)
+        Self::new_internal(cmd, on_event, plugin_path, log_path)
     }
 }
 
 impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
-    fn new_internal<L, P>(mut cmd: C, on_event: L, plugin_path: P) -> Result<OpenVpnMonitor<C>>
+    fn new_internal<L>(
+        mut cmd: C,
+        on_event: L,
+        plugin_path: impl AsRef<Path>,
+        log_path: Option<PathBuf>,
+    ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
-        P: AsRef<Path>,
     {
         let event_dispatcher =
             event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
-        cmd.plugin(plugin_path, vec![event_dispatcher.path().to_owned()]);
         let child = cmd
+            .plugin(plugin_path, vec![event_dispatcher.path().to_owned()])
+            .log(log_path.as_ref())
             .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
 
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
             event_dispatcher: Some(event_dispatcher),
+            log_path,
             closed: Arc::new(AtomicBool::new(false)),
         })
     }
@@ -181,7 +192,10 @@ pub trait OpenVpnBuilder {
     type ProcessHandle: ProcessHandle;
 
     /// Set the OpenVPN plugin to the given values.
-    fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self;
+    fn plugin(&mut self, path: impl AsRef<Path>, args: Vec<String>) -> &mut Self;
+
+    /// Set the OpenVPN log file path to use.
+    fn log(&mut self, log_path: Option<impl AsRef<Path>>) -> &mut Self;
 
     /// Spawn the subprocess and return a handle.
     fn start(&self) -> io::Result<Self::ProcessHandle>;
@@ -199,8 +213,16 @@ pub trait ProcessHandle: Send + Sync + 'static {
 impl OpenVpnBuilder for OpenVpnCommand {
     type ProcessHandle = OpenVpnProcHandle;
 
-    fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self {
+    fn plugin(&mut self, path: impl AsRef<Path>, args: Vec<String>) -> &mut Self {
         self.plugin(path, args)
+    }
+
+    fn log(&mut self, log_path: Option<impl AsRef<Path>>) -> &mut Self {
+        if let Some(log_path) = log_path {
+            self.log(log_path)
+        } else {
+            self
+        }
     }
 
     fn start(&self) -> io::Result<OpenVpnProcHandle> {
@@ -284,14 +306,20 @@ mod tests {
     #[derive(Debug, Default, Clone)]
     struct TestOpenVpnBuilder {
         pub plugin: Arc<Mutex<Option<PathBuf>>>,
+        pub log: Arc<Mutex<Option<PathBuf>>>,
         pub process_handle: Option<TestProcessHandle>,
     }
 
     impl OpenVpnBuilder for TestOpenVpnBuilder {
         type ProcessHandle = TestProcessHandle;
 
-        fn plugin<P: AsRef<Path>>(&mut self, path: P, _args: Vec<String>) -> &mut Self {
+        fn plugin(&mut self, path: impl AsRef<Path>, _args: Vec<String>) -> &mut Self {
             *self.plugin.lock().unwrap() = Some(path.as_ref().to_path_buf());
+            self
+        }
+
+        fn log(&mut self, log: Option<impl AsRef<Path>>) -> &mut Self {
+            *self.log.lock().unwrap() = log.as_ref().map(|path| path.as_ref().to_path_buf());
             self
         }
 
@@ -325,7 +353,7 @@ mod tests {
     #[test]
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
-        let _ = OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin");
+        let _ = OpenVpnMonitor::new_internal(builder.clone(), |_, _| {}, "./my_test_plugin", None);
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
             *builder.plugin.lock().unwrap()
@@ -333,10 +361,25 @@ mod tests {
     }
 
     #[test]
+    fn sets_log() {
+        let builder = TestOpenVpnBuilder::default();
+        let _ = OpenVpnMonitor::new_internal(
+            builder.clone(),
+            |_, _| {},
+            "./my_test_plugin",
+            Some(PathBuf::from("./my_test_log_file")),
+        );
+        assert_eq!(
+            Some(PathBuf::from("./my_test_log_file")),
+            *builder.log.lock().unwrap()
+        );
+    }
+
+    #[test]
     fn exit_successfully() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(0));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
         assert!(testee.wait().is_ok());
     }
 
@@ -344,7 +387,7 @@ mod tests {
     fn exit_error() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
         assert!(testee.wait().is_err());
     }
 
@@ -352,7 +395,7 @@ mod tests {
     fn wait_closed() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap();
+        let testee = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap();
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
     }
@@ -360,7 +403,7 @@ mod tests {
     #[test]
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let error = OpenVpnMonitor::new_internal(builder, |_, _| {}, "").unwrap_err();
+        let error = OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None).unwrap_err();
         match error.kind() {
             ErrorKind::ChildProcessError(_) => (),
             _ => panic!("Wrong error"),

@@ -124,7 +124,7 @@ impl ConnectingState {
             &parameters.options,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
             &parameters.username,
-            log_file.as_ref().map(PathBuf::as_path),
+            log_file.clone(),
             resource_dir,
             on_tunnel_event,
         )?)
