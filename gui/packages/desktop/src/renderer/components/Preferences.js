@@ -10,6 +10,7 @@ import {
   NavigationContainer,
   NavigationScrollbars,
   BackBarItem,
+  TitleBarItem,
 } from './NavigationBar';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
@@ -52,6 +53,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose} title={'Settings'} />
+                <TitleBarItem>Preferences</TitleBarItem>
               </NavigationBar>
 
               <View style={styles.preferences__container}>
