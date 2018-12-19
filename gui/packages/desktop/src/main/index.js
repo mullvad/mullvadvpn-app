@@ -274,7 +274,11 @@ const ApplicationMain = {
     const tray = this._createTray();
 
     const windowController = new WindowController(window, tray);
-    const trayIconController = new TrayIconController(tray, 'unsecured');
+    const trayIconController = new TrayIconController(
+      tray,
+      'unsecured',
+      process.platform === 'darwin' && this._guiSettings.monochromaticIcon,
+    );
 
     this._registerWindowListener(windowController);
     this._registerIpcListeners();
@@ -298,6 +302,7 @@ const ApplicationMain = {
         break;
       case 'darwin':
         this._installMacOsMenubarAppWindowHandlers(tray, windowController);
+        this._installMonochromaticTrayIconHandler();
         break;
       case 'linux':
         this._installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -990,6 +995,14 @@ const ApplicationMain = {
       if (process.platform === 'linux' && this._quitStage !== 'ready') {
         closeEvent.preventDefault();
         windowController.hide();
+      }
+    });
+  },
+
+  _installMonochromaticTrayIconHandler() {
+    this._guiSettings.onChangeMonochromaticIcon((monochromaticIcon) => {
+      if (this._trayIconController) {
+        this._trayIconController.useMonochromaticIcon = monochromaticIcon;
       }
     });
   },

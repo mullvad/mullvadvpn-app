@@ -15,6 +15,7 @@ export default class GuiSettings {
   };
 
   _notify: ?(GuiSettingsState) => void;
+  _monochromaticIconChangeListener: ?(boolean) => void;
 
   load() {
     try {
@@ -47,6 +48,10 @@ export default class GuiSettings {
     return this._state.monochromaticIcon;
   }
 
+  onChangeMonochromaticIcon(listener: (boolean) => void) {
+    this._monochromaticIconChangeListener = listener;
+  }
+
   get startMinimized(): boolean {
     return this._state.startMinimized;
   }
@@ -57,6 +62,10 @@ export default class GuiSettings {
     ipcEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
       this._state.monochromaticIcon = monochromaticIcon;
       this._settingsChanged();
+
+      if (this._monochromaticIconChangeListener) {
+        this._monochromaticIconChangeListener(monochromaticIcon);
+      }
     });
     ipcEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
       this._state.startMinimized = startMinimized;
