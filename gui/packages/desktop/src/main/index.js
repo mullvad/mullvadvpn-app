@@ -276,7 +276,11 @@ const ApplicationMain = {
     const tray = this._createTray();
 
     const windowController = new WindowController(window, tray);
-    const trayIconController = new TrayIconController(tray, 'unsecured');
+    const trayIconController = new TrayIconController(
+      tray,
+      'unsecured',
+      this._guiSettings.monochromaticIcon,
+    );
 
     this._registerWindowListener(windowController);
     this._registerIpcListeners();
@@ -288,6 +292,11 @@ const ApplicationMain = {
     this._ipcEventChannel = new IpcEventChannel(window.webContents);
 
     this._guiSettings.registerIpcHandlers(this._ipcEventChannel);
+    this._guiSettings.onChangeMonochromaticIcon((monochromaticIcon) => {
+      if (this._trayIconController) {
+        this._trayIconController.useMonochromaticIcon = monochromaticIcon;
+      }
+    });
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
