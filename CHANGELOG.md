@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
   Settings screen.
 - Add a drop-down warning to notify the user when the account credits are running low.
 
+#### macOS
+- Add a monochromatic tray icon option for the GUI.
+
 #### Linux
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.
