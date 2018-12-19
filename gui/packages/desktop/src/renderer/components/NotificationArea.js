@@ -55,6 +55,8 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return 'No relay server matches the current settings';
     case 'is_offline':
       return 'This device is offline, no tunnels can be established';
+    case 'tap_adapter_problem':
+      return "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app";
     default:
       return `Unknown error: ${(blockReason.reason: empty)}`;
   }

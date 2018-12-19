@@ -52,7 +52,8 @@ export type BlockReason =
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'no_matching_relay'
-        | 'is_offline',
+        | 'is_offline'
+        | 'tap_adapter_problem',
     }
   | { reason: 'auth_failed', details: ?string };
 
@@ -314,6 +315,7 @@ const TunnelStateTransitionSchema = oneOf(
           'start_tunnel_error',
           'no_matching_relay',
           'is_offline',
+          'tap_adapter_problem',
         ),
       }),
       object({
