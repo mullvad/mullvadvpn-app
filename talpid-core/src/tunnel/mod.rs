@@ -38,9 +38,9 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 
 error_chain! {
     errors {
-        /// An error indicating there was an error listening for events from the VPN tunnel.
-        TunnelMonitoringError {
-            description("Error while setting up or processing events from the VPN tunnel")
+        /// There was an error preparing to listen for events from the VPN tunnel.
+        TunnelMonitorSetUpError {
+            description("Error while setting up to listen for events from the VPN tunnel")
         }
         /// The OpenVPN binary was not found.
         OpenVpnNotFound(path: PathBuf) {
@@ -73,6 +73,12 @@ error_chain! {
         UnsupportedTunnelProtocol {
             description("This tunnel protocol is not supported")
         }
+    }
+
+    links {
+        OpenVpnTunnelMonitoringError(openvpn::Error, openvpn::ErrorKind)
+        /// There was an error listening for events from the OpenVPN tunnel
+        ;
     }
 }
 
@@ -213,7 +219,7 @@ impl TunnelMonitor {
             Self::get_plugin_path(resource_dir)?,
             log,
         )
-        .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -340,9 +346,7 @@ impl TunnelMonitor {
 
     /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
-        self.monitor
-            .wait()
-            .chain_err(|| ErrorKind::TunnelMonitoringError)
+        self.monitor.wait().map_err(Error::from)
     }
 }
 
