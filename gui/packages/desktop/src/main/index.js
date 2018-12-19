@@ -14,10 +14,11 @@ import WindowController from './window-controller';
 import TrayIconController from './tray-icon-controller';
 import type { TrayIconType } from './tray-icon-controller';
 
-import IpcEventChannel from '../shared/ipc-event-channel';
+import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 
 import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './daemon-rpc';
 import type {
+  AccountToken,
   AppVersionInfo,
   Location,
   RelayList,
@@ -52,7 +53,6 @@ const ApplicationMain = {
   _notificationController: new NotificationController(),
   _windowController: (null: ?WindowController),
   _trayIconController: (null: ?TrayIconController),
-  _ipcEventChannel: (null: ?IpcEventChannel),
 
   _daemonRpc: new DaemonRpc(),
   _reconnectBackoff: new ReconnectionBackoff(),
@@ -287,9 +287,21 @@ const ApplicationMain = {
 
     this._windowController = windowController;
     this._trayIconController = trayIconController;
-    this._ipcEventChannel = new IpcEventChannel(window.webContents);
 
-    this._guiSettings.registerIpcHandlers(this._ipcEventChannel);
+    this._guiSettings.onChange = (newState, oldState) => {
+      if (
+        process.platform === 'darwin' &&
+        oldState.monochromaticIcon !== newState.monochromaticIcon
+      ) {
+        if (this._trayIconController) {
+          this._trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
+        }
+      }
+
+      if (this._windowController) {
+        IpcMainEventChannel.guiSettings.notify(this._windowController.webContents, newState);
+      }
+    };
 
     if (process.env.NODE_ENV === 'development') {
       await this._installDevTools();
@@ -302,7 +314,6 @@ const ApplicationMain = {
         break;
       case 'darwin':
         this._installMacOsMenubarAppWindowHandlers(tray, windowController);
-        this._installMonochromaticTrayIconHandler();
         break;
       case 'linux':
         this._installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -388,8 +399,8 @@ const ApplicationMain = {
     this._reconnectBackoff.reset();
 
     // notify renderer
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.daemonConnected.notify();
+    if (this._windowController) {
+      IpcMainEventChannel.daemonConnected.notify(this._windowController.webContents);
     }
   },
 
@@ -406,8 +417,11 @@ const ApplicationMain = {
       this._stopLatestVersionPeriodicUpdates();
 
       // notify renderer process
-      if (this._ipcEventChannel) {
-        this._ipcEventChannel.daemonDisconnected.notify(error ? error.message : null);
+      if (this._windowController) {
+        IpcMainEventChannel.daemonDisconnected.notify(
+          this._windowController.webContents,
+          error ? error.message : null,
+        );
       }
     }
 
@@ -477,8 +491,8 @@ const ApplicationMain = {
       this._notificationController.notifyTunnelState(newState);
     }
 
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.tunnelState.notify(newState);
+    if (this._windowController) {
+      IpcMainEventChannel.tunnelState.notify(this._windowController.webContents, newState);
     }
   },
 
@@ -486,24 +500,24 @@ const ApplicationMain = {
     this._settings = newSettings;
     this._updateTrayIcon(this._tunnelState, newSettings.blockWhenDisconnected);
 
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.settings.notify(newSettings);
+    if (this._windowController) {
+      IpcMainEventChannel.settings.notify(this._windowController.webContents, newSettings);
     }
   },
 
   _setLocation(newLocation: Location) {
     this._location = newLocation;
 
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.location.notify(newLocation);
+    if (this._windowController) {
+      IpcMainEventChannel.location.notify(this._windowController.webContents, newLocation);
     }
   },
 
   _setRelays(newRelayList: RelayList) {
     this._relays = newRelayList;
 
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.relays.notify(newRelayList);
+    if (this._windowController) {
+      IpcMainEventChannel.relays.notify(this._windowController.webContents, newRelayList);
     }
   },
 
@@ -541,8 +555,8 @@ const ApplicationMain = {
     this._currentVersion = versionInfo;
 
     // notify renderer
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.currentVersion.notify(versionInfo);
+    if (this._windowController) {
+      IpcMainEventChannel.currentVersion.notify(this._windowController.webContents, versionInfo);
     }
   },
 
@@ -601,8 +615,8 @@ const ApplicationMain = {
       this._notificationController.notifyUnsupportedVersion(upgradeVersion);
     }
 
-    if (this._ipcEventChannel) {
-      this._ipcEventChannel.upgradeVersion.notify(upgradeInfo);
+    if (this._windowController) {
+      IpcMainEventChannel.upgradeVersion.notify(this._windowController.webContents, upgradeInfo);
     }
   },
 
@@ -730,18 +744,29 @@ const ApplicationMain = {
       }
     });
 
-    IpcEventChannel.state.serve(() => {
-      return {
-        isConnected: this._connectedToDaemon,
-        tunnelState: this._tunnelState,
-        settings: this._settings,
-        location: this._location,
-        relays: this._relays,
-        currentVersion: this._currentVersion,
-        upgradeVersion: this._upgradeVersion,
-        guiSettings: this._guiSettings.state,
-      };
+    IpcMainEventChannel.state.handleGet(() => ({
+      isConnected: this._connectedToDaemon,
+      tunnelState: this._tunnelState,
+      settings: this._settings,
+      location: this._location,
+      relays: this._relays,
+      currentVersion: this._currentVersion,
+      upgradeVersion: this._upgradeVersion,
+      guiSettings: this._guiSettings.state,
+    }));
+
+    IpcMainEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
+      this._guiSettings.startMinimized = startMinimized;
     });
+
+    IpcMainEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
+      this._guiSettings.monochromaticIcon = monochromaticIcon;
+    });
+
+    IpcMainEventChannel.accountHistory.handleGet(() => this._daemonRpc.getAccountHistory());
+    IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>
+      this._daemonRpc.removeAccountFromHistory(token),
+    );
 
     ipcMain.on('show-window', () => {
       const windowController = this._windowController;
@@ -995,14 +1020,6 @@ const ApplicationMain = {
       if (process.platform === 'linux' && this._quitStage !== 'ready') {
         closeEvent.preventDefault();
         windowController.hide();
-      }
-    });
-  },
-
-  _installMonochromaticTrayIconHandler() {
-    this._guiSettings.onChangeMonochromaticIcon((monochromaticIcon) => {
-      if (this._trayIconController) {
-        this._trayIconController.useMonochromaticIcon = monochromaticIcon;
       }
     });
   },
