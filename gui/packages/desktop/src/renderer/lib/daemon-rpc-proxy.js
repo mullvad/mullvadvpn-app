@@ -176,11 +176,11 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   getAccountHistory(): Promise<Array<AccountToken>> {
-    return this._sendMessage('getAccountHistory');
+    throw new Error('Do not use this method');
   }
 
-  removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    return this._sendMessage('removeAccountFromHistory', accountToken);
+  removeAccountFromHistory(_accountToken: AccountToken): Promise<void> {
+    throw new Error('Do not use this method');
   }
 
   getCurrentVersion(): Promise<string> {

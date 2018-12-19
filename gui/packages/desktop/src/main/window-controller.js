@@ -1,7 +1,7 @@
 // @flow
 
 import { screen } from 'electron';
-import type { BrowserWindow, Tray, Display } from 'electron';
+import type { BrowserWindow, Tray, Display, WebContents } from 'electron';
 
 type Position = { x: number, y: number };
 
@@ -137,6 +137,10 @@ export default class WindowController {
 
   get window(): BrowserWindow {
     return this._window;
+  }
+
+  get webContents(): WebContents {
+    return this._window.webContents;
   }
 
   constructor(window: BrowserWindow, tray: Tray) {
