@@ -16,7 +16,7 @@ use crate::tunnel::CloseHandle;
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: oneshot::Receiver<()>,
+    exited: oneshot::Receiver<Option<BlockReason>>,
     after_disconnect: AfterDisconnect,
 }
 
@@ -103,14 +103,22 @@ impl DisconnectingState {
 
         match self.exited.poll() {
             Ok(Async::NotReady) => NoEvents(self),
-            Ok(Async::Ready(_)) | Err(_) => NewState(self.after_disconnect(shared_values)),
+            Ok(Async::Ready(block_reason)) => {
+                NewState(self.after_disconnect(block_reason, shared_values))
+            }
+            Err(_) => NewState(self.after_disconnect(None, shared_values)),
         }
     }
 
     fn after_disconnect(
         self,
+        block_reason: Option<BlockReason>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        if let Some(reason) = block_reason {
+            return BlockedState::enter(shared_values, reason);
+        }
+
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
             AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
@@ -122,7 +130,11 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (CloseHandle, oneshot::Receiver<()>, AfterDisconnect);
+    type Bootstrap = (
+        CloseHandle,
+        oneshot::Receiver<Option<BlockReason>>,
+        AfterDisconnect,
+    );
 
     fn enter(
         _: &mut SharedTunnelStateValues,
