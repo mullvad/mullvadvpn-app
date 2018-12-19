@@ -18,12 +18,14 @@ export type PreferencesProps = {
   autoConnect: boolean,
   allowLan: boolean,
   enableStartMinimizedToggle: boolean,
+  monochromaticIcon: boolean,
   startMinimized: boolean,
   getAutoStart: () => boolean,
   setAutoStart: (boolean) => void,
   setAutoConnect: (boolean) => void,
   setAllowLan: (boolean) => void,
   setStartMinimized: (boolean) => void,
+  setMonochromaticIcon: (boolean) => void,
   onClose: () => void,
 };
 
@@ -81,6 +83,17 @@ export default class Preferences extends Component<PreferencesProps, State> {
                     </Cell.Container>
                     <Cell.Footer>
                       Allows access to other devices on the same network for sharing, printing etc.
+                    </Cell.Footer>
+
+                    <Cell.Container>
+                      <Cell.Label>Monochromatic tray icon</Cell.Label>
+                      <Switch
+                        isOn={this.props.monochromaticIcon}
+                        onChange={this.props.setMonochromaticIcon}
+                      />
+                    </Cell.Container>
+                    <Cell.Footer>
+                      Use monochromatic tray icon instead of colored tray icon.
                     </Cell.Footer>
 
                     <StartMinimizedToggle
