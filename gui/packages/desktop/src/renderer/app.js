@@ -247,9 +247,6 @@ export default class AppRenderer {
   }
 
   disconnectTunnel(): Promise<void> {
-    // switch to the disconnected state ahead of time to make the app look more responsive
-    this._reduxActions.connection.disconnected();
-
     return this._daemonRpc.disconnectTunnel();
   }
 
