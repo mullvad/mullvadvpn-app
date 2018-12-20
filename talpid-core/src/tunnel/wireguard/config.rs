@@ -61,24 +61,21 @@ impl Config {
     pub fn get_wg_config(&self) -> Vec<u8> {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
-        wg_conf.add(
-            "private_key",
-            ConfValue::Bytes(&self.interface.private_key.clone()),
-        );
-
-        wg_conf.add(
-            "fwmark",
-            ConfValue::String(&self.interface.fwmark.to_string()),
-        );
-        wg_conf.add("listen_port", ConfValue::String(&"0"));
-        wg_conf.add("replace_peers", ConfValue::String(&"true"));
+        wg_conf
+            .add("private_key", ConfValue::Bytes(&self.interface.private_key))
+            .add(
+                "fwmark",
+                ConfValue::String(&self.interface.fwmark.to_string()),
+            )
+            .add("listen_port", "0")
+            .add("replace_peers", "true");
 
         for peer in &self.interface.peers {
-            wg_conf.add("public_key", ConfValue::Bytes(&peer.public_key));
-            wg_conf.add("endpoint", ConfValue::String(&peer.endpoint.to_string()));
-            wg_conf.add("replace_allowed_ips", ConfValue::String(&"true"));
+            wg_conf
+                .add("public_key", peer.public_key.as_ref())
+                .add("replace_allowed_ips", "true");
             for addr in &peer.allowed_ips {
-                wg_conf.add("allowed_ip", ConfValue::String(&addr.to_string()));
+                wg_conf.add("allowed_ip", addr.to_string().as_str());
             }
         }
 
@@ -90,6 +87,19 @@ pub enum ConfValue<'a> {
     String(&'a str),
     Bytes(&'a [u8]),
 }
+
+impl<'a> From<&'a str> for ConfValue<'a> {
+    fn from(s: &'a str) -> ConfValue<'a> {
+        ConfValue::String(s)
+    }
+}
+
+impl<'a> From<&'a [u8]> for ConfValue<'a> {
+    fn from(s: &'a [u8]) -> ConfValue<'a> {
+        ConfValue::Bytes(s)
+    }
+}
+
 
 impl<'a> ConfValue<'a> {
     fn as_bytes(&self) -> Vec<u8> {
@@ -109,11 +119,12 @@ impl WgConfigBuffer {
         WgConfigBuffer { buf: Vec::new() }
     }
 
-    pub fn add(&mut self, key: &str, value: ConfValue) {
+    pub fn add<'a, C: Into<ConfValue<'a>> + 'a>(&mut self, key: &str, value: C) -> &mut Self {
         self.buf.extend(key.as_bytes());
         self.buf.extend(b"=");
-        self.buf.extend(value.as_bytes());
+        self.buf.extend(value.into().as_bytes());
         self.buf.extend(b"\n");
+        self
     }
 
     pub fn to_config(mut self) -> Vec<u8> {
