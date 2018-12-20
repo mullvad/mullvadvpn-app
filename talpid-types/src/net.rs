@@ -226,6 +226,7 @@ pub struct OpenVpnTunnelOptions {
     /// Proxy settings, for when the relay connection should be via a proxy.
     pub proxy: Option<OpenVpnProxySettings>,
 }
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum OpenVpnProxySettings {

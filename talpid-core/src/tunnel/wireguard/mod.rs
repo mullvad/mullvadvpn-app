@@ -96,9 +96,7 @@ impl WireguardMonitor {
 
         Ok(monitor)
     }
-}
 
-impl WireguardMonitor {
     pub fn close_handle(&self) -> Box<CloseHandle> {
         self.tunnel.close_handle()
     }
