@@ -674,21 +674,7 @@ const ApplicationMain = {
         return 'securing';
 
       case 'disconnecting':
-        switch (tunnelState.details) {
-          case 'reconnect':
-            return 'securing';
-
-          case 'block':
-            return 'securing';
-
-          case 'nothing':
-            // handle the same way as disconnected
-            break;
-
-          default:
-            throw new Error(`Invalid after disconnect state: ${(tunnelState.details: empty)}`);
-        }
-      // fallthrough
+        return 'securing';
 
       case 'disconnected':
         if (blockWhenDisconnected) {
