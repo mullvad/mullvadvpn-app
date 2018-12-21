@@ -83,13 +83,29 @@ impl fmt::Display for OpenVpnEndpointData {
 pub struct WireguardEndpointData {
     /// Port to connect to
     pub port: u16,
-    /// Private key
-    pub client_key: [u8; 32],
     /// Link addresses
     pub addresses: Vec<IpAddr>,
-    /// Public key of peer
-    pub peer_key: [u8; 32],
+    /// Peer's IP address
     pub gateway: IpAddr,
+    #[serde(skip)]
+    /// Keys required to connect to the tunnel
+    pub keys: Option<WireguardKeys>,
+}
+
+impl WireguardEndpointData {
+    /// Set keys for a given wireguard config.
+    pub fn apply_keys(&mut self, keys: WireguardKeys) {
+        self.keys = Some(keys);
+    }
+}
+
+/// Keys for a wireguard connection between the client and a single host
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct WireguardKeys {
+    /// Private key of client
+    pub private_key: WgPrivateKey,
+    /// Public key of peer
+    pub public_key: WgPublicKey,
 }
 
 impl fmt::Debug for WireguardEndpointData {
@@ -97,7 +113,7 @@ impl fmt::Debug for WireguardEndpointData {
         f.debug_struct("WireguardEndpointData")
             .field("gateway", &self.gateway.to_string())
             .field("port", &self.port.to_string())
-            .field("peer_key", &base64::encode(&self.peer_key))
+            .field("keys", &self.keys)
             .field(
                 "addresses",
                 &self
@@ -300,5 +316,58 @@ impl Default for WireguardTunnelOptions {
             mtu: None,
             fwmark: None,
         }
+    }
+}
+
+/// Wireguard x25519 private key
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct WgPrivateKey {
+    private_key: [u8; 32],
+}
+
+impl fmt::Debug for WgPrivateKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        f.debug_struct("WgPrivateKey")
+            .field("private_key", &"[bytes]")
+            .finish()
+    }
+}
+
+impl fmt::Display for WgPrivateKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}", "[WgPrivateKey]")
+    }
+}
+
+impl WgPrivateKey {
+    pub fn data(&self) -> &[u8; 32] {
+        &self.private_key
+    }
+}
+
+/// Wireguard x25519 public key
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+pub struct WgPublicKey {
+    public_key: [u8; 32],
+}
+
+impl WgPublicKey {
+    pub fn data(&self) -> &[u8; 32] {
+        &self.public_key
+    }
+}
+
+
+impl fmt::Debug for WgPublicKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        f.debug_struct("WgPublicKey")
+            .field("public_key", &base64::encode(&self.public_key))
+            .finish()
+    }
+}
+
+impl fmt::Display for WgPublicKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{}", &base64::encode(&self.public_key))
     }
 }

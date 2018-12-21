@@ -1,4 +1,3 @@
-use ipnetwork::Ipv6Network;
 use nix::fcntl;
 use std::{
     net::IpAddr,
@@ -93,7 +92,7 @@ impl NetworkInterface for TunnelDevice {
                         "-6",
                         "addr",
                         "add",
-                        Ipv6Network::new(ipv6, 64).unwrap().to_string(),
+                        ipv6.to_string(),
                         "dev",
                         self.dev.name()
                     )
@@ -107,7 +106,7 @@ impl NetworkInterface for TunnelDevice {
                         "ifconfig",
                         self.dev.name(),
                         "inet6",
-                        Ipv6Network::new(ipv6, 64).unwrap().to_string(),
+                        ipv6.to_string(),
                         "alias"
                     )
                     .run()

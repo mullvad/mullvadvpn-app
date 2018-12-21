@@ -39,6 +39,10 @@ error_chain! {
             display("Failed to setup a logging file")
         }
 
+        NoKeysError {
+            display("Config has no keys")
+        }
+
         /// Failed to run
         PingError {
             display("Failed to run ping")
@@ -80,7 +84,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         on_event: F,
     ) -> Result<WireguardMonitor> {
-        let config = Config::from_data(address, data.clone(), options);
+        let config = Config::from_data(address, data.clone(), options)?;
         let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
         let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
         let event_callback = Box::new(on_event);

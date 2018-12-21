@@ -1,15 +1,18 @@
+use super::{ErrorKind, Result};
 use ipnetwork::IpNetwork;
 use std::net::{IpAddr, SocketAddr};
-use talpid_types::net::{TunnelOptions, WireguardEndpointData};
+use talpid_types::net::{
+    TunnelOptions, WgPrivateKey, WgPublicKey, WireguardEndpointData, WireguardKeys,
+};
 
 pub struct PeerConfig {
-    pub public_key: [u8; 32],
+    pub public_key: WgPublicKey,
     pub allowed_ips: Vec<IpNetwork>,
     pub endpoint: SocketAddr,
 }
 
 pub struct TunnelConfig {
-    pub private_key: [u8; 32],
+    pub private_key: WgPrivateKey,
     pub addresses: Vec<IpAddr>,
     pub fwmark: i32,
     pub mtu: u16,
@@ -34,27 +37,39 @@ const DEFAULT_MTU: u16 = 1420;
 const DEFAULT_FWMARK: i32 = 787878;
 
 impl Config {
-    pub fn from_data(ip: IpAddr, data: WireguardEndpointData, options: &TunnelOptions) -> Config {
+    pub fn from_data(
+        ip: IpAddr,
+        data: WireguardEndpointData,
+        options: &TunnelOptions,
+    ) -> Result<Config> {
+        let WireguardKeys {
+            private_key,
+            public_key,
+        } = match data.keys {
+            Some(keys) => keys,
+            None => bail!(ErrorKind::NoKeysError),
+        };
+
         let peer = PeerConfig {
-            public_key: data.peer_key,
+            public_key,
             allowed_ips: all_of_the_internet(),
             endpoint: SocketAddr::new(ip, data.port),
         };
 
         let tunnel_config = TunnelConfig {
-            private_key: data.client_key,
+            private_key,
             addresses: data.addresses,
             mtu: options.wireguard.mtu.unwrap_or(DEFAULT_MTU),
             fwmark: options.wireguard.fwmark.unwrap_or(DEFAULT_FWMARK),
             peers: vec![peer],
         };
 
-        Config {
+        Ok(Config {
             interface: tunnel_config,
             pingable_address: data.gateway,
             gateway: data.gateway,
             preferred_name: Some("talpid".to_string()),
-        }
+        })
     }
 
     // should probably take a flag that alters between additive and overwriting conf
@@ -62,17 +77,20 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add("private_key", ConfValue::Bytes(&self.interface.private_key))
+            .add(
+                "private_key",
+                self.interface.private_key.data().as_ref(),
+            )
             .add(
                 "fwmark",
-                ConfValue::String(&self.interface.fwmark.to_string()),
+                self.interface.fwmark.to_string().as_str(),
             )
             .add("listen_port", "0")
             .add("replace_peers", "true");
 
         for peer in &self.interface.peers {
             wg_conf
-                .add("public_key", peer.public_key.as_ref())
+                .add("public_key", peer.public_key.data().as_ref())
                 .add("replace_allowed_ips", "true");
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
