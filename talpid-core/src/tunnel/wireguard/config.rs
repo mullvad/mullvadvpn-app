@@ -77,14 +77,8 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add(
-                "private_key",
-                self.interface.private_key.data().as_ref(),
-            )
-            .add(
-                "fwmark",
-                self.interface.fwmark.to_string().as_str(),
-            )
+            .add("private_key", self.interface.private_key.data().as_ref())
+            .add("fwmark", self.interface.fwmark.to_string().as_str())
             .add("listen_port", "0")
             .add("replace_peers", "true");
 
