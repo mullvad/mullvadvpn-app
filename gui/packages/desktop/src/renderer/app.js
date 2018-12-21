@@ -25,7 +25,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 import type { WindowShapeParameters } from '../main/window-controller';
 import type { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
 import type { GuiSettingsState } from '../shared/gui-settings-state';
-import IpcEventChannel from '../shared/ipc-event-channel';
+import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 
 import type {
   AccountToken,
@@ -93,44 +93,44 @@ export default class AppRenderer {
       }
     });
 
-    IpcEventChannel.daemonConnected.listen(() => {
+    IpcRendererEventChannel.daemonConnected.listen(() => {
       this._onDaemonConnected();
     });
 
-    IpcEventChannel.daemonDisconnected.listen((errorMessage: ?string) => {
+    IpcRendererEventChannel.daemonDisconnected.listen((errorMessage: ?string) => {
       this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : null);
     });
 
-    IpcEventChannel.tunnelState.listen((newState: TunnelStateTransition) => {
+    IpcRendererEventChannel.tunnelState.listen((newState: TunnelStateTransition) => {
       this._setTunnelState(newState);
     });
 
-    IpcEventChannel.settings.listen((newSettings: Settings) => {
+    IpcRendererEventChannel.settings.listen((newSettings: Settings) => {
       this._setSettings(newSettings);
     });
 
-    IpcEventChannel.location.listen((newLocation: Location) => {
+    IpcRendererEventChannel.location.listen((newLocation: Location) => {
       this._setLocation(newLocation);
     });
 
-    IpcEventChannel.relays.listen((newRelays: RelayList) => {
+    IpcRendererEventChannel.relays.listen((newRelays: RelayList) => {
       this._setRelays(newRelays);
     });
 
-    IpcEventChannel.currentVersion.listen((currentVersion: CurrentAppVersionInfo) => {
+    IpcRendererEventChannel.currentVersion.listen((currentVersion: CurrentAppVersionInfo) => {
       this._setCurrentVersion(currentVersion);
     });
 
-    IpcEventChannel.upgradeVersion.listen((upgradeVersion: AppUpgradeInfo) => {
+    IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: AppUpgradeInfo) => {
       this._setUpgradeVersion(upgradeVersion);
     });
 
-    IpcEventChannel.guiSettings.listen((guiSettings: GuiSettingsState) => {
+    IpcRendererEventChannel.guiSettings.listen((guiSettings: GuiSettingsState) => {
       this._setGuiSettings(guiSettings);
     });
 
     // Request the initial state from the main process
-    const initialState = IpcEventChannel.state.get();
+    const initialState = IpcRendererEventChannel.state.get();
 
     this._setTunnelState(initialState.tunnelState);
     this._setSettings(initialState.settings);
@@ -307,15 +307,14 @@ export default class AppRenderer {
   }
 
   async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await this._daemonRpc.removeAccountFromHistory(accountToken);
+    await IpcRendererEventChannel.accountHistory.removeItem(accountToken);
     await this._fetchAccountHistory();
   }
 
   async _fetchAccountHistory(): Promise<void> {
-    const actions = this._reduxActions;
+    const accountHistory = await IpcRendererEventChannel.accountHistory.get();
 
-    const accountHistory = await this._daemonRpc.getAccountHistory();
-    actions.account.updateAccountHistory(accountHistory);
+    this._reduxActions.account.updateAccountHistory(accountHistory);
   }
 
   async setAllowLan(allowLan: boolean) {
@@ -348,12 +347,12 @@ export default class AppRenderer {
     actions.settings.updateAutoConnect(autoConnect);
   }
 
-  async setStartMinimized(startMinimized: boolean) {
-    IpcEventChannel.guiSettings.setStartMinimized(startMinimized);
+  setStartMinimized(startMinimized: boolean) {
+    IpcRendererEventChannel.guiSettings.setStartMinimized(startMinimized);
   }
 
-  async setMonochromaticIcon(monochromaticIcon: boolean) {
-    IpcEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
+  setMonochromaticIcon(monochromaticIcon: boolean) {
+    IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
   }
 
   async _onDaemonConnected() {

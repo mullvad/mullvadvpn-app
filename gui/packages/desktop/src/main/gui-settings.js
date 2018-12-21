@@ -5,7 +5,6 @@ import log from 'electron-log';
 import path from 'path';
 import { app } from 'electron';
 
-import IpcEventChannel from '../shared/ipc-event-channel';
 import type { GuiSettingsState } from '../shared/gui-settings-state';
 
 export default class GuiSettings {
@@ -14,8 +13,7 @@ export default class GuiSettings {
     startMinimized: false,
   };
 
-  _notify: ?(GuiSettingsState) => void;
-  _monochromaticIconChangeListener: ?(boolean) => void;
+  onChange: ?(newState: GuiSettingsState, oldState: GuiSettingsState) => void;
 
   load() {
     try {
@@ -44,44 +42,34 @@ export default class GuiSettings {
     return this._state;
   }
 
+  set monochromaticIcon(newValue: boolean) {
+    this._changeStateAndNotify({ ...this._state, monochromaticIcon: newValue });
+  }
+
   get monochromaticIcon(): boolean {
     return this._state.monochromaticIcon;
   }
 
-  onChangeMonochromaticIcon(listener: (boolean) => void) {
-    this._monochromaticIconChangeListener = listener;
+  set startMinimized(newValue: boolean) {
+    this._changeStateAndNotify({ ...this._state, startMinimized: newValue });
   }
 
   get startMinimized(): boolean {
     return this._state.startMinimized;
   }
 
-  registerIpcHandlers(ipcEventChannel: IpcEventChannel) {
-    this._notify = ipcEventChannel.guiSettings.notify;
-
-    ipcEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
-      this._state.monochromaticIcon = monochromaticIcon;
-      this._settingsChanged();
-
-      if (this._monochromaticIconChangeListener) {
-        this._monochromaticIconChangeListener(monochromaticIcon);
-      }
-    });
-    ipcEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
-      this._state.startMinimized = startMinimized;
-      this._settingsChanged();
-    });
-  }
-
   _filePath() {
     return path.join(app.getPath('userData'), 'gui_settings.json');
   }
 
-  _settingsChanged() {
+  _changeStateAndNotify(newState: GuiSettingsState) {
+    const oldState = this._state;
+    this._state = newState;
+
     this.store();
 
-    if (this._notify) {
-      this._notify(this._state);
+    if (this.onChange) {
+      this.onChange({ ...newState }, oldState);
     }
   }
 }

@@ -115,11 +115,20 @@ declare module 'electron' {
 
   // http://electron.atom.io/docs/api/ipc-renderer
 
+  declare type IpcRendererEvent = {
+    senderId: number;
+  }
+
   declare class IpcRenderer extends EventEmitter {
     send(channel: string, ...args: Array<mixed>): void;
   }
 
   // http://electron.atom.io/docs/api/ipc-main
+
+  declare type IpcMainEvent = {
+    sender: WebContents;
+    returnValue?: any;
+  }
 
   declare class IpcMain extends EventEmitter {}
 
