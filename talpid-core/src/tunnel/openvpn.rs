@@ -2,8 +2,6 @@ use crate::process::{
     openvpn::{OpenVpnCommand, OpenVpnProcHandle},
     stoppable_process::StoppableProcess,
 };
-
-
 use std::{
     collections::HashMap,
     io,
