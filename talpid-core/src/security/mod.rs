@@ -93,7 +93,7 @@ impl fmt::Display for SecurityPolicy {
                 peer_endpoint,
                 tunnel.interface,
                 tunnel
-                    .ip
+                    .ips
                     .iter()
                     .map(|ip| ip.to_string())
                     .collect::<Vec<_>>()

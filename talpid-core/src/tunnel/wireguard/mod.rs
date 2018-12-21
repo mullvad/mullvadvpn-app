@@ -166,7 +166,7 @@ impl WireguardMonitor {
         let interface_name = self.tunnel.get_interface_name();
         let metadata = TunnelMetadata {
             interface: interface_name.to_string(),
-            ip: data.addresses,
+            ips: data.addresses,
             gateway: data.gateway,
         };
         (self.event_callback)(TunnelEvent::Up(metadata));

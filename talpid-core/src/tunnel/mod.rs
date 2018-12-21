@@ -25,7 +25,6 @@ pub mod openvpn;
 #[cfg(unix)]
 mod wireguard;
 
-use self::openvpn::{OpenVpnCloseHandle, OpenVpnMonitor};
 
 #[cfg(target_os = "macos")]
 const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
@@ -92,8 +91,8 @@ pub enum TunnelEvent {
 pub struct TunnelMetadata {
     /// The name of the device which the tunnel is running on.
     pub interface: String,
-    /// The local IP on the tunnel interface.
-    pub ip: Vec<IpAddr>,
+    /// The local IPs on the tunnel interface.
+    pub ips: Vec<IpAddr>,
     /// The IP to the default gateway on the tunnel interface.
     pub gateway: IpAddr,
 }
@@ -115,7 +114,7 @@ impl TunnelEvent {
                     .get("dev")
                     .expect("No \"dev\" in tunnel up event")
                     .to_owned();
-                let ip = vec![env
+                let ips = vec![env
                     .get("ifconfig_local")
                     .expect("No \"ifconfig_local\" in tunnel up event")
                     .parse()
@@ -127,7 +126,7 @@ impl TunnelEvent {
                     .expect("Tunnel gateway IP not in valid format");
                 Some(TunnelEvent::Up(TunnelMetadata {
                     interface,
-                    ip,
+                    ips,
                     gateway,
                 }))
             }
@@ -138,7 +137,7 @@ impl TunnelEvent {
 }
 
 enum Tunnel {
-    OpenVpn(OpenVpnMonitor),
+    OpenVpn(openvpn::OpenVpnMonitor),
     #[cfg(unix)]
     Wireguard(wireguard::WireguardMonitor),
 }
@@ -418,10 +417,9 @@ impl TunnelMonitor {
 
 
 /// A handle to a `TunnelMonitor`
-// pub struct CloseHandle(OpenVpnCloseHandle);
 pub enum CloseHandle {
     /// OpenVpn close handle
-    OpenVpn(OpenVpnCloseHandle),
+    OpenVpn(openvpn::OpenVpnCloseHandle),
     #[cfg(unix)]
     /// Wireguard close handle
     Wireguard(Box<wireguard::CloseHandle>),
