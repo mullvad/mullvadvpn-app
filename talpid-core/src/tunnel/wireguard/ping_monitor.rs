@@ -19,22 +19,30 @@ impl PingMonitor {
     }
 
     fn cmd(&self, timeout: u64) -> duct::Expression {
-        let interface_flag = if cfg!(target_os = "linux") { "-I" } else { "-b" };
-        let timeout_flag = if cfg!(target_os = "linux") { "-w" } else { "-t" };
-            duct::cmd!(
-                "ping",
-                "-n",
-                "-c",
-                "1",
-                &interface_flag,
-                &self.interface,
-                timeout_flag,
-                timeout.to_string(),
-                self.ip.to_string()
-            )
-            .stdin_null()
-            .stdout_null()
-            .unchecked()
+        let interface_flag = if cfg!(target_os = "linux") {
+            "-I"
+        } else {
+            "-b"
+        };
+        let timeout_flag = if cfg!(target_os = "linux") {
+            "-w"
+        } else {
+            "-t"
+        };
+        duct::cmd!(
+            "ping",
+            "-n",
+            "-c",
+            "1",
+            &interface_flag,
+            &self.interface,
+            timeout_flag,
+            timeout.to_string(),
+            self.ip.to_string()
+        )
+        .stdin_null()
+        .stdout_null()
+        .unchecked()
     }
 
     pub fn wait(&self, timeout: u64) -> Result<()> {

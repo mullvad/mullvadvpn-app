@@ -153,9 +153,13 @@ impl InternalTunnelMonitor {
 
     fn wait(self) -> Result<()> {
         match self {
-            InternalTunnelMonitor::OpenVpn(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
+            InternalTunnelMonitor::OpenVpn(tun) => {
+                tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError)
+            }
             #[cfg(unix)]
-            InternalTunnelMonitor::Wireguard(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
+            InternalTunnelMonitor::Wireguard(tun) => {
+                tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError)
+            }
         }
     }
 }
