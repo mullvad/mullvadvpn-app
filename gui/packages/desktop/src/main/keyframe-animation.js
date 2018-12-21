@@ -45,6 +45,10 @@ export default class KeyframeAnimation {
     return this._speed;
   }
 
+  get isRunning(): boolean {
+    return this._isRunning;
+  }
+
   get isFinished(): boolean {
     return this._isFinished;
   }

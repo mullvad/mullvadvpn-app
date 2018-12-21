@@ -10,6 +10,7 @@ import {
   NavigationContainer,
   NavigationScrollbars,
   BackBarItem,
+  TitleBarItem,
 } from './NavigationBar';
 import Switch from './Switch';
 import styles from './PreferencesStyles';
@@ -17,13 +18,16 @@ import styles from './PreferencesStyles';
 export type PreferencesProps = {
   autoConnect: boolean,
   allowLan: boolean,
-  enableStartMinimizedToggle: boolean,
+  monochromaticIcon: boolean,
   startMinimized: boolean,
+  enableMonochromaticIconToggle: boolean,
+  enableStartMinimizedToggle: boolean,
   getAutoStart: () => boolean,
   setAutoStart: (boolean) => void,
   setAutoConnect: (boolean) => void,
   setAllowLan: (boolean) => void,
   setStartMinimized: (boolean) => void,
+  setMonochromaticIcon: (boolean) => void,
   onClose: () => void,
 };
 
@@ -49,6 +53,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose} title={'Settings'} />
+                <TitleBarItem>Preferences</TitleBarItem>
               </NavigationBar>
 
               <View style={styles.preferences__container}>
@@ -83,6 +88,12 @@ export default class Preferences extends Component<PreferencesProps, State> {
                       Allows access to other devices on the same network for sharing, printing etc.
                     </Cell.Footer>
 
+                    <MonochromaticIconToggle
+                      enable={this.props.enableMonochromaticIconToggle}
+                      monochromaticIcon={this.props.monochromaticIcon}
+                      onChange={this.props.setMonochromaticIcon}
+                    />
+
                     <StartMinimizedToggle
                       enable={this.props.enableStartMinimizedToggle}
                       startMinimized={this.props.startMinimized}
@@ -103,6 +114,30 @@ export default class Preferences extends Component<PreferencesProps, State> {
     // TODO: Handle failure to set auto-start
     this.setState({ autoStart });
   };
+}
+
+type MonochromaticIconProps = {
+  enable: boolean,
+  monochromaticIcon: boolean,
+  onChange: (boolean) => void,
+};
+
+class MonochromaticIconToggle extends Component<MonochromaticIconProps> {
+  render() {
+    if (this.props.enable) {
+      return (
+        <View>
+          <Cell.Container>
+            <Cell.Label>Monochromatic tray icon</Cell.Label>
+            <Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
+          </Cell.Container>
+          <Cell.Footer>Use a monochromatic tray icon instead of a colored one.</Cell.Footer>
+        </View>
+      );
+    } else {
+      return null;
+    }
+  }
 }
 
 type StartMinimizedProps = {

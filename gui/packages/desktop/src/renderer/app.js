@@ -352,6 +352,10 @@ export default class AppRenderer {
     IpcEventChannel.guiSettings.setStartMinimized(startMinimized);
   }
 
+  async setMonochromaticIcon(monochromaticIcon: boolean) {
+    IpcEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
+  }
+
   async _onDaemonConnected() {
     this._connectedToDaemon = true;
 
