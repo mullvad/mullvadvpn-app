@@ -155,7 +155,7 @@ impl WireguardMonitor {
 
     fn start_pinger(&self, config: &Config) {
         let pinger = ping_monitor::PingMonitor::new(
-            config.pingable_address,
+            config.gateway,
             self.tunnel.get_interface_name().to_string(),
             self.tunnel.close_handle(),
         );

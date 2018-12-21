@@ -136,26 +136,26 @@ impl TunnelEvent {
     }
 }
 
-enum Tunnel {
+enum InternalTunnelMonitor {
     OpenVpn(openvpn::OpenVpnMonitor),
     #[cfg(unix)]
     Wireguard(wireguard::WireguardMonitor),
 }
 
-impl Tunnel {
+impl InternalTunnelMonitor {
     fn close_handle(&self) -> CloseHandle {
         match self {
-            Tunnel::OpenVpn(tun) => CloseHandle::OpenVpn(tun.close_handle()),
+            InternalTunnelMonitor::OpenVpn(tun) => CloseHandle::OpenVpn(tun.close_handle()),
             #[cfg(unix)]
-            Tunnel::Wireguard(tun) => CloseHandle::Wireguard(tun.close_handle()),
+            InternalTunnelMonitor::Wireguard(tun) => CloseHandle::Wireguard(tun.close_handle()),
         }
     }
 
     fn wait(self) -> Result<()> {
         match self {
-            Tunnel::OpenVpn(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
+            InternalTunnelMonitor::OpenVpn(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
             #[cfg(unix)]
-            Tunnel::Wireguard(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
+            InternalTunnelMonitor::Wireguard(tun) => tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError),
         }
     }
 }
@@ -163,7 +163,7 @@ impl Tunnel {
 
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
-    monitor: Tunnel,
+    monitor: InternalTunnelMonitor,
 }
 
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
@@ -222,7 +222,7 @@ impl TunnelMonitor {
             wireguard::WireguardMonitor::start(address, data, tunnel_options, log, on_event)
                 .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
-            monitor: Tunnel::Wireguard(monitor),
+            monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
     }
 
@@ -289,7 +289,7 @@ impl TunnelMonitor {
         )
         .chain_err(|| ErrorKind::TunnelMonitoringError)?;
         Ok(TunnelMonitor {
-            monitor: Tunnel::OpenVpn(monitor),
+            monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
     }
 

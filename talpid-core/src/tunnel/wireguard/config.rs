@@ -21,7 +21,6 @@ pub struct TunnelConfig {
 
 pub struct Config {
     pub interface: TunnelConfig,
-    pub pingable_address: IpAddr,
     pub gateway: IpAddr,
     pub preferred_name: Option<String>,
 }
@@ -66,7 +65,6 @@ impl Config {
 
         Ok(Config {
             interface: tunnel_config,
-            pingable_address: data.gateway,
             gateway: data.gateway,
             preferred_name: Some("talpid".to_string()),
         })
