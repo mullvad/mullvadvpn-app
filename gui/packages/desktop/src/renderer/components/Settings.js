@@ -25,6 +25,7 @@ type Props = {
   appVersion: string,
   consistentVersion: boolean,
   upToDateVersion: boolean,
+  isOffline: boolean,
   onQuit: () => void,
   onClose: () => void,
   onViewAccount: () => void,
@@ -147,6 +148,7 @@ export default class Settings extends Component<Props> {
     return (
       <View>
         <Cell.CellButton
+          disabled={this.props.isOffline}
           onPress={this.props.onExternalLink.bind(this, 'download')}
           testName="settings__version">
           {icon}
@@ -168,6 +170,7 @@ export default class Settings extends Component<Props> {
         </Cell.CellButton>
 
         <Cell.CellButton
+          disabled={this.props.isOffline}
           onPress={this.props.onExternalLink.bind(this, 'faq')}
           testName="settings__external_link">
           <Cell.Label>{'FAQs & Guides'}</Cell.Label>
