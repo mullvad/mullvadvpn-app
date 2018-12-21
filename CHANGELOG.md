@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add a toggle switch to allow the app to start minimized on Linux, so that only the tray icon is
   initially visible.
 
+### Changed
+- Disable buttons and menus that open external links when the app knows that there is no internet
+  connection.
+
 ### Fixed
 - Stop GUI from glitching during the short reconnect state.
 - Dismiss notifications automatically after four seconds in all platforms.
