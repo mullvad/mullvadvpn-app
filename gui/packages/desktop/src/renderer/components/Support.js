@@ -21,6 +21,7 @@ export type SupportProps = {
   defaultEmail: string,
   defaultMessage: string,
   accountHistory: Array<AccountToken>,
+  isOffline: boolean,
   onClose: () => void,
   viewLog: (path: string) => void,
   saveReportForm: (form: SupportReportForm) => void,
@@ -250,7 +251,7 @@ export default class Support extends Component<SupportProps, SupportState> {
           <ImageView source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
         <AppButton.GreenButton
-          disabled={!this.validate()}
+          disabled={!this.validate() || this.props.isOffline}
           onPress={this.onSend}
           testName="support__send_logs">
           Send

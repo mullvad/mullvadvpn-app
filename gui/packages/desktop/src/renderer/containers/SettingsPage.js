@@ -16,6 +16,7 @@ const mapStateToProps = (state: ReduxState) => ({
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
   upToDateVersion: state.version.upToDate,
+  isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);

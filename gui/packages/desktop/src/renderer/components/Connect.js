@@ -63,6 +63,8 @@ export default class Connect extends Component<Props> {
       message = 'Your internet connection will be secured when you get back online';
     }
 
+    const { isBlocked } = this.props.connection;
+
     return (
       <View style={styles.connect}>
         <View style={styles.status_icon}>
@@ -73,7 +75,9 @@ export default class Connect extends Component<Props> {
           <View style={styles.error_message}>{message}</View>
           {error instanceof NoCreditError ? (
             <View>
-              <AppButton.GreenButton onPress={() => this.props.onExternalLink('purchase')}>
+              <AppButton.GreenButton
+                disabled={isBlocked}
+                onPress={() => this.props.onExternalLink('purchase')}>
                 <AppButton.Label>Buy more time</AppButton.Label>
                 <ImageView source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
