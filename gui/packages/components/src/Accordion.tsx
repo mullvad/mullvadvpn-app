@@ -1,42 +1,54 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
+import AccordionContent from './AccordionContent';
 
 interface IProps {
-  height: number | 'auto';
-  animationDuration?: number;
+  defaultCollapsed: boolean;
+  animationDuration: number;
   style?: Types.AnimatedViewStyleRuleSet;
   children?: React.ReactNode;
 }
 
 interface IState {
-  animatedValue: Animated.Value | null;
+  applyAnimatedStyle: boolean;
 }
 
 const containerOverflowStyle = Styles.createViewStyle({ overflow: 'hidden' });
 
 export default class Accordion extends Component<IProps, IState> {
   public static defaultProps = {
-    height: 'auto',
+    defaultCollapsed: false,
     animationDuration: 350,
   };
 
   public state: IState = {
-    animatedValue: null,
+    applyAnimatedStyle: false,
   };
 
+  private heightValue = Animated.createValue(0);
+  private animatedStyle = Styles.createAnimatedViewStyle({
+    height: this.heightValue,
+  });
+
+  private collapsed = false;
   private containerRef = React.createRef<Animated.View>();
   private contentHeight = 0;
-  private animation: Types.Animated.CompositeAnimation | null = null;
+  private animation?: Types.Animated.CompositeAnimation = undefined;
+  private contentCacheKey = 0;
 
   constructor(props: IProps) {
     super(props);
 
-    // set the initial height if it's known
-    if (typeof props.height === 'number') {
-      this.state = {
-        animatedValue: Animated.createValue(props.height),
-      };
+    this.collapsed = props.defaultCollapsed;
+
+    if (props.defaultCollapsed) {
+      this.state.applyAnimatedStyle = true;
     }
+  }
+
+  public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
+    // bump the content cache key on prop changes to force the accordion contents to be updated.
+    this.contentCacheKey += 1;
   }
 
   public componentWillUnmount() {
@@ -45,48 +57,44 @@ export default class Accordion extends Component<IProps, IState> {
     }
   }
 
-  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
-    return (
-      nextState.animatedValue !== this.state.animatedValue ||
-      nextProps.height !== this.props.height ||
-      nextProps.children !== this.props.children
-    );
-  }
-
-  public componentDidUpdate(prevProps: IProps, prevState: IState) {
-    if (prevProps.height !== this.props.height) {
-      this.animateHeightChanges();
-    }
-  }
-
   public render() {
-    const { style, height, children, animationDuration, ...otherProps } = this.props;
+    const { style, children, defaultCollapsed, animationDuration, ...otherProps } = this.props;
     const containerStyles = [style];
 
-    if (this.state.animatedValue !== null) {
-      const animatedStyle = Styles.createAnimatedViewStyle({
-        height: this.state.animatedValue,
-      });
-
-      containerStyles.push(containerOverflowStyle, animatedStyle);
+    if (this.state.applyAnimatedStyle) {
+      containerStyles.push(containerOverflowStyle, this.animatedStyle);
     }
 
     return (
-      <Animated.View
-        {...otherProps}
-        style={containerStyles}
-        ref={
-          /* Fix: cast to any because reactxp has out of date annotations
-             See: https://github.com/Microsoft/reactxp/issues/784
-           */
-          this.containerRef as any
-        }>
-        <View onLayout={this.contentLayoutDidChange}>{children}</View>
+      <Animated.View {...otherProps} style={containerStyles} ref={this.containerRef}>
+        <AccordionContent cacheKey={this.contentCacheKey}>
+          <View onLayout={this.contentLayoutDidChange}>{children}</View>
+        </AccordionContent>
       </Animated.View>
     );
   }
 
-  private async animateHeightChanges() {
+  public get isCollapsed(): boolean {
+    return this.collapsed;
+  }
+
+  public collapse() {
+    this.collapsed = true;
+    this.animate(true);
+  }
+
+  public expand() {
+    this.collapsed = false;
+    this.animate(false);
+  }
+
+  public toggle() {
+    const collapsed = !this.collapsed;
+    this.collapsed = collapsed;
+    this.animate(collapsed);
+  }
+
+  private async animate(collapse: boolean) {
     const containerView = this.containerRef.current;
     if (!containerView) {
       return;
@@ -94,45 +102,54 @@ export default class Accordion extends Component<IProps, IState> {
 
     if (this.animation) {
       this.animation.stop();
-      this.animation = null;
+      this.animation = undefined;
     }
 
+    let layout: Types.LayoutInfo;
     try {
-      const layout = await UserInterface.measureLayoutRelativeToWindow(containerView);
-      const fromValue = this.state.animatedValue || Animated.createValue(layout.height);
-      const toValue = this.props.height === 'auto' ? this.contentHeight : this.props.height;
-
-      // calculate the animation duration based on travel distance
-      const multiplier = Math.abs(toValue - layout.height) / Math.max(1, this.contentHeight);
-      const duration = Math.ceil(this.props.animationDuration! * multiplier);
-
-      const animation = Animated.timing(fromValue, {
-        toValue,
-        easing: Animated.Easing.InOut(),
-        duration,
-        useNativeDriver: true,
-      });
-
-      this.animation = animation;
-      this.setState({ animatedValue: fromValue }, () => {
-        animation.start(this.onAnimationEnd);
-      });
+      layout = await UserInterface.measureLayoutRelativeToWindow(containerView);
     } catch (error) {
       // TODO: log error
+      return;
     }
-  }
 
-  private onAnimationEnd = ({ finished }: Types.Animated.EndResult) => {
-    if (finished) {
-      this.animation = null;
+    // the content is expanded when the animated style is not applied,
+    // so reset the initial animated value to the current layout's height.
+    if (!this.state.applyAnimatedStyle) {
+      this.heightValue.setValue(layout.height);
+    }
 
-      // reset height after transition to let element layout naturally
-      // if animation finished without interruption
-      if (this.props.height === 'auto') {
-        this.setState({ animatedValue: null });
+    const toValue = collapse ? 0 : this.contentHeight;
+
+    // calculate the animation duration based on travel distance
+    const multiplier = Math.abs(toValue - layout.height) / Math.max(1, this.contentHeight);
+    const duration = Math.ceil(this.props.animationDuration * multiplier);
+
+    const animation = Animated.timing(this.heightValue, {
+      toValue,
+      easing: Animated.Easing.InOut(),
+      duration,
+      useNativeDriver: true,
+    });
+
+    this.animation = animation;
+
+    const onAnimationEnd = ({ finished }: Types.Animated.EndResult) => {
+      if (finished) {
+        this.animation = undefined;
+
+        // reset the height after transition to let element layout naturally
+        // if animation finished without interruption
+        if (!collapse) {
+          this.setState({ applyAnimatedStyle: false });
+        }
       }
-    }
-  };
+    };
+
+    this.setState({ applyAnimatedStyle: true }, () => {
+      animation.start(onAnimationEnd);
+    });
+  }
 
   private contentLayoutDidChange = ({ height }: Types.ViewOnLayoutEvent) =>
     (this.contentHeight = height);
