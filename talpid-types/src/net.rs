@@ -123,7 +123,18 @@ impl fmt::Debug for WireguardEndpointData {
 
 impl fmt::Display for WireguardEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "port {}", self.port)
+        write!(
+            f,
+            "gateway {} port {} public_key {} addresses {}",
+            self.gateway,
+            self.port,
+            self.public_key,
+            self.addresses
+                .iter()
+                .map(|a| a.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     }
 }
 
