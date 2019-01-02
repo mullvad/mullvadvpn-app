@@ -39,13 +39,13 @@ impl Config {
         data: WireguardEndpointData,
         options: &TunnelOptions,
     ) -> Result<Config> {
-        let private_key = match data.private_key {
+        let private_key = match data.client_private_key {
             Some(private_key) => private_key,
             None => bail!(ErrorKind::NoKeyError),
         };
 
         let peer = PeerConfig {
-            public_key: data.public_key,
+            public_key: data.peer_public_key,
             allowed_ips: all_of_the_internet(),
             endpoint: SocketAddr::new(ip, data.port),
         };

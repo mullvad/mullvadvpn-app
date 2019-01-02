@@ -89,15 +89,15 @@ pub struct WireguardEndpointData {
     pub gateway: IpAddr,
     #[serde(skip)]
     /// Client's private key
-    pub private_key: Option<WgPrivateKey>,
+    pub client_private_key: Option<WgPrivateKey>,
     /// The peer's public key
-    pub public_key: WgPublicKey,
+    pub peer_public_key: WgPublicKey,
 }
 
 impl WireguardEndpointData {
     /// Set private key for a given wireguard config.
-    pub fn apply_key(&mut self, private_key: WgPrivateKey) {
-        self.private_key = Some(private_key);
+    pub fn apply_key(&mut self, client_private_key: WgPrivateKey) {
+        self.client_private_key = Some(client_private_key);
     }
 }
 
@@ -106,8 +106,8 @@ impl fmt::Debug for WireguardEndpointData {
         f.debug_struct("WireguardEndpointData")
             .field("gateway", &self.gateway.to_string())
             .field("port", &self.port.to_string())
-            .field("private_key", &self.private_key)
-            .field("public_key", &self.public_key)
+            .field("client_private_key", &self.client_private_key)
+            .field("peer_public_key", &self.peer_public_key)
             .field(
                 "addresses",
                 &self
@@ -125,10 +125,10 @@ impl fmt::Display for WireguardEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(
             f,
-            "gateway {} port {} public_key {} addresses {}",
+            "gateway {} port {} peer_public_key {} addresses {}",
             self.gateway,
             self.port,
-            self.public_key,
+            self.peer_public_key,
             self.addresses
                 .iter()
                 .map(|a| a.to_string())
