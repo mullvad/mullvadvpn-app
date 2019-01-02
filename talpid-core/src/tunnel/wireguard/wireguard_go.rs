@@ -1,14 +1,13 @@
+use super::{
+    super::super::network_interface::{NetworkInterface, TunnelDevice},
+    CloseHandle, Config, Error, ErrorKind, Result, ResultExt, Tunnel,
+};
 use std::{
     ffi::CString,
     fs,
     os::unix::io::AsRawFd,
     path::Path,
     sync::{Arc, Condvar, Mutex},
-};
-
-use super::{
-    super::super::network_interface::{NetworkInterface, TunnelDevice},
-    CloseHandle, Config, Error, ErrorKind, Result, ResultExt, Tunnel,
 };
 
 type WgLogLevel = i32;
