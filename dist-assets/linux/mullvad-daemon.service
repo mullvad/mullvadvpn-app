@@ -4,6 +4,8 @@
 Description=Mullvad VPN daemon
 Wants=network.target
 After=network-online.target
+After=NetworkManager.service
+After=systemd-resolved.service
 StartLimitBurst=5
 StartLimitIntervalSec=20
 
