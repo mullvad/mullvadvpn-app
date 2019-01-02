@@ -88,24 +88,17 @@ pub struct WireguardEndpointData {
     /// Peer's IP address
     pub gateway: IpAddr,
     #[serde(skip)]
-    /// Keys required to connect to the tunnel
-    pub keys: Option<WireguardKeys>,
+    /// Client's private key
+    pub private_key: Option<WgPrivateKey>,
+    /// The peer's public key
+    pub public_key: WgPublicKey,
 }
 
 impl WireguardEndpointData {
-    /// Set keys for a given wireguard config.
-    pub fn apply_keys(&mut self, keys: WireguardKeys) {
-        self.keys = Some(keys);
+    /// Set private key for a given wireguard config.
+    pub fn apply_key(&mut self, private_key: WgPrivateKey) {
+        self.private_key = Some(private_key);
     }
-}
-
-/// Keys for a wireguard connection between the client and a single host
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
-pub struct WireguardKeys {
-    /// Private key of client
-    pub private_key: WgPrivateKey,
-    /// Public key of peer
-    pub public_key: WgPublicKey,
 }
 
 impl fmt::Debug for WireguardEndpointData {
@@ -113,7 +106,8 @@ impl fmt::Debug for WireguardEndpointData {
         f.debug_struct("WireguardEndpointData")
             .field("gateway", &self.gateway.to_string())
             .field("port", &self.port.to_string())
-            .field("keys", &self.keys)
+            .field("private_key", &self.private_key)
+            .field("public_key", &self.public_key)
             .field(
                 "addresses",
                 &self
@@ -340,8 +334,20 @@ impl fmt::Display for WgPrivateKey {
 }
 
 impl WgPrivateKey {
-    pub fn data(&self) -> &[u8; 32] {
+    /// Get private key as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
         &self.private_key
+    }
+
+    /// Get public key from private key
+    pub fn public_key(&self) -> WgPublicKey {
+        let public_key = x25519_dalek::generate_public(self.as_bytes()).to_bytes();
+        WgPublicKey { public_key }
+    }
+
+    /// Construct a private key from bytes
+    pub fn from_bytes(key: [u8; 32]) -> WgPrivateKey {
+        WgPrivateKey { private_key: key }
     }
 }
 
@@ -352,8 +358,14 @@ pub struct WgPublicKey {
 }
 
 impl WgPublicKey {
-    pub fn data(&self) -> &[u8; 32] {
+    /// Get the public key as bytes
+    pub fn as_bytes(&self) -> &[u8; 32] {
         &self.public_key
+    }
+
+    /// Construct a public key from some bytes
+    pub fn from_bytes(public_key: [u8; 32]) -> WgPublicKey {
+        WgPublicKey { public_key }
     }
 }
 

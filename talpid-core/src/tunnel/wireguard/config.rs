@@ -1,9 +1,7 @@
 use super::{ErrorKind, Result};
 use ipnetwork::IpNetwork;
 use std::net::{IpAddr, SocketAddr};
-use talpid_types::net::{
-    TunnelOptions, WgPrivateKey, WgPublicKey, WireguardEndpointData, WireguardKeys,
-};
+use talpid_types::net::{TunnelOptions, WgPrivateKey, WgPublicKey, WireguardEndpointData};
 
 pub struct PeerConfig {
     pub public_key: WgPublicKey,
@@ -41,16 +39,13 @@ impl Config {
         data: WireguardEndpointData,
         options: &TunnelOptions,
     ) -> Result<Config> {
-        let WireguardKeys {
-            private_key,
-            public_key,
-        } = match data.keys {
-            Some(keys) => keys,
-            None => bail!(ErrorKind::NoKeysError),
+        let private_key = match data.private_key {
+            Some(private_key) => private_key,
+            None => bail!(ErrorKind::NoKeyError),
         };
 
         let peer = PeerConfig {
-            public_key,
+            public_key: data.public_key,
             allowed_ips: all_of_the_internet(),
             endpoint: SocketAddr::new(ip, data.port),
         };
@@ -75,14 +70,17 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add("private_key", self.interface.private_key.data().as_ref())
+            .add(
+                "private_key",
+                self.interface.private_key.as_bytes().as_ref(),
+            )
             .add("fwmark", self.interface.fwmark.to_string().as_str())
             .add("listen_port", "0")
             .add("replace_peers", "true");
 
         for peer in &self.interface.peers {
             wg_conf
-                .add("public_key", peer.public_key.data().as_ref())
+                .add("public_key", peer.public_key.as_bytes().as_ref())
                 .add("replace_allowed_ips", "true");
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());

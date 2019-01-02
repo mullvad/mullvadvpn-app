@@ -39,7 +39,7 @@ error_chain! {
             display("Failed to setup a logging file")
         }
 
-        NoKeysError {
+        NoKeyError {
             display("Config has no keys")
         }
 
