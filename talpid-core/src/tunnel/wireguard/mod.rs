@@ -39,6 +39,7 @@ error_chain! {
             display("Failed to setup a logging file")
         }
 
+        /// No private key supplied
         NoKeyError {
             display("Config has no keys")
         }
