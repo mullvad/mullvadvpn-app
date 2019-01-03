@@ -26,7 +26,7 @@ use std::{
     time::{self, Duration, SystemTime},
 };
 
-use log::{debug, error, info, trace, warn};
+use log::{debug, error, info, warn};
 use rand::{self, Rng, ThreadRng};
 use tokio_timer::{TimeoutError, Timer};
 
