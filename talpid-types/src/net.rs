@@ -325,7 +325,7 @@ impl Default for WireguardTunnelOptions {
 }
 
 /// Wireguard x25519 private key
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct WgPrivateKey {
     private_key: [u8; 32],
 }
