@@ -81,6 +81,7 @@ impl Config {
         for peer in &self.interface.peers {
             wg_conf
                 .add("public_key", peer.public_key.as_bytes().as_ref())
+                .add("endpoint", peer.endpoint.to_string().as_str())
                 .add("replace_allowed_ips", "true");
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
