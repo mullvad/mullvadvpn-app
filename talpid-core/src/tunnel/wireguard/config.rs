@@ -33,7 +33,9 @@ fn all_of_the_internet() -> Vec<IpNetwork> {
     ]
 }
 
+// Smallest MTU that supports IPv6
 const DEFAULT_MTU: u16 = 1420;
+// An arbitrarily chosen number for our specific firewall mark.
 const DEFAULT_FWMARK: i32 = 787878;
 
 impl Config {
