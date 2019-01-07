@@ -34,15 +34,17 @@ export type Location = {
   mullvadExitIp: boolean,
   hostname: ?string,
 };
-const LocationSchema = partialObject({
-  ip: maybe(string),
-  country: string,
-  city: maybe(string),
-  latitude: number,
-  longitude: number,
-  mullvad_exit_ip: boolean,
-  hostname: maybe(string),
-});
+const LocationSchema = maybe(
+  partialObject({
+    ip: maybe(string),
+    country: string,
+    city: maybe(string),
+    latitude: number,
+    longitude: number,
+    mullvad_exit_ip: boolean,
+    hostname: maybe(string),
+  }),
+);
 
 export type BlockReason =
   | {
@@ -413,7 +415,7 @@ export interface DaemonRpcProtocol {
   setAutoConnect(boolean): Promise<void>;
   connectTunnel(): Promise<void>;
   disconnectTunnel(): Promise<void>;
-  getLocation(): Promise<Location>;
+  getLocation(): Promise<?Location>;
   getState(): Promise<TunnelStateTransition>;
   getSettings(): Promise<Settings>;
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
@@ -532,10 +534,13 @@ export class DaemonRpc implements DaemonRpcProtocol {
     await this._transport.send('disconnect');
   }
 
-  async getLocation(): Promise<Location> {
+  async getLocation(): Promise<?Location> {
     const response = await this._transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(LocationSchema, response));
+      const validatedResponse = validate(LocationSchema, response);
+      if (validatedResponse) {
+        return camelCaseObjectKeys(validatedResponse);
+      }
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_location', error);
     }

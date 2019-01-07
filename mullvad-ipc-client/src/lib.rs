@@ -148,7 +148,7 @@ impl DaemonRpcClient {
         self.call("get_auto_connect", &NO_ARGS)
     }
 
-    pub fn get_current_location(&mut self) -> Result<GeoIpLocation> {
+    pub fn get_current_location(&mut self) -> Result<Option<GeoIpLocation>> {
         self.call("get_current_location", &NO_ARGS)
     }
 
