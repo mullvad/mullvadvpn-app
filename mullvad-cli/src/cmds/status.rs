@@ -65,7 +65,13 @@ fn print_blocked_reason(reason: &BlockReason) {
 }
 
 fn print_location(rpc: &mut DaemonRpcClient) -> Result<()> {
-    let location = rpc.get_current_location()?;
+    let location = match rpc.get_current_location()? {
+        Some(loc) => loc,
+        None => {
+            println!("Location data unavailable");
+            return Ok(());
+        }
+    };
     let city_and_country = if let Some(city) = location.city {
         format!("{}, {}", city, location.country)
     } else {

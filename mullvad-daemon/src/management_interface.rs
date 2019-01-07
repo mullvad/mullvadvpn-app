@@ -95,7 +95,7 @@ build_rpc_trait! {
         /// Performs a geoIP lookup and returns the current location as perceived by the public
         /// internet.
         #[rpc(meta, name = "get_current_location")]
-        fn get_current_location(&self, Self::Metadata) -> BoxFuture<GeoIpLocation, Error>;
+        fn get_current_location(&self, Self::Metadata) -> BoxFuture<Option<GeoIpLocation>, Error>;
 
         /// Makes the daemon exit its main loop and quit.
         #[rpc(meta, name = "shutdown")]
@@ -168,7 +168,7 @@ pub enum ManagementCommand {
     /// Request the current state.
     GetState(OneshotSender<TunnelStateTransition>),
     /// Get the current geographical location.
-    GetCurrentLocation(OneshotSender<GeoIpLocation>),
+    GetCurrentLocation(OneshotSender<Option<GeoIpLocation>>),
     /// Request the metadata for an account.
     GetAccountData(
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
@@ -529,7 +529,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_current_location(&self, _: Self::Metadata) -> BoxFuture<GeoIpLocation, Error> {
+    fn get_current_location(&self, _: Self::Metadata) -> BoxFuture<Option<GeoIpLocation>, Error> {
         log::debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
