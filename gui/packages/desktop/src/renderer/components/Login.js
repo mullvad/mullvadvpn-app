@@ -37,6 +37,7 @@ export default class Login extends Component<Props, State> {
   };
 
   _accountInput: ?TextInput;
+  _accountHistoryRef = React.createRef();
   _shouldResetLoginError = false;
 
   _showsFooter = true;
@@ -87,6 +88,7 @@ export default class Login extends Component<Props, State> {
 
     this._setLoginButtonActive(this._shouldActivateLoginButton());
     this._setFooterVisibility(this._shouldShowFooter());
+    this._setAccountHistoryVisibility(this._shouldShowAccountHistory());
   }
 
   render() {
@@ -181,6 +183,17 @@ export default class Login extends Component<Props, State> {
     animation.start();
 
     this._footerAnimation = animation;
+  }
+
+  _setAccountHistoryVisibility(show: boolean) {
+    const view = this._accountHistoryRef.current;
+    if (view) {
+      if (show) {
+        view.expand();
+      } else {
+        view.collapse();
+      }
+    }
   }
 
   _onSubmit = () => {
@@ -377,7 +390,9 @@ export default class Login extends Component<Props, State> {
               />
             </Animated.View>
           </View>
-          <Accordion height={this._shouldShowAccountHistory() ? 'auto' : 0}>
+          <Accordion
+            ref={this._accountHistoryRef}
+            defaultCollapsed={!this._shouldShowAccountHistory()}>
             {
               <AccountDropdown
                 items={this.props.accountHistory.slice().reverse()}
