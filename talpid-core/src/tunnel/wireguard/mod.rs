@@ -2,7 +2,7 @@ use super::super::routing;
 use talpid_types::net::{TunnelOptions, WireguardEndpointData};
 
 use super::{TunnelEvent, TunnelMetadata};
-use std::{net::IpAddr, path::Path};
+use std::{net::IpAddr, path::Path, time};
 
 pub mod config;
 mod ping_monitor;
@@ -155,12 +155,12 @@ impl WireguardMonitor {
     }
 
     fn start_pinger(&self, config: &Config) {
-        let pinger = ping_monitor::PingMonitor::new(
+        ping_monitor::spawn_ping_monitor(
             config.gateway,
+            time::Duration::from_secs(PING_TIMEOUT),
             self.tunnel.get_interface_name().to_string(),
             self.tunnel.close_handle(),
         );
-        pinger.monitor_ping(PING_TIMEOUT);
     }
 
     fn tunnel_up(&self, data: WireguardEndpointData) {
