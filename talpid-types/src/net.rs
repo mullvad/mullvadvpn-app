@@ -305,23 +305,13 @@ impl OpenVpnProxySettingsValidation {
 }
 
 /// Wireguard tunnel options
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct WireguardTunnelOptions {
     /// MTU for the wireguard tunnel
     pub mtu: Option<u16>,
     /// firewall mark
     pub fwmark: Option<i32>,
-}
-
-
-impl Default for WireguardTunnelOptions {
-    fn default() -> Self {
-        Self {
-            mtu: None,
-            fwmark: None,
-        }
-    }
 }
 
 /// Wireguard x25519 private key
