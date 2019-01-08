@@ -53,6 +53,12 @@ error_chain! {
         PingTimeoutError {
             display("Ping timed out")
         }
+
+        #[cfg(target_os = "linux")]
+        /// No firewall mark in supplied tunnel options
+        NoFwmarkError {
+            display("Supplied tunnel options did not have a firewall mark set")
+        }
     }
 }
 
@@ -147,6 +153,7 @@ impl WireguardMonitor {
 
         let required_routes = routing::RequiredRoutes {
             routes,
+            #[cfg(target_os = "linux")]
             fwmark: Some(config.interface.fwmark.to_string()),
         };
         self.router

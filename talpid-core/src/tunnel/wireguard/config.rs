@@ -15,6 +15,7 @@ pub struct PeerConfig {
 pub struct TunnelConfig {
     pub private_key: WgPrivateKey,
     pub addresses: Vec<IpAddr>,
+    #[cfg(target_os = "linux")]
     pub fwmark: i32,
     pub mtu: u16,
     pub peers: Vec<PeerConfig>,
@@ -35,8 +36,6 @@ fn all_of_the_internet() -> Vec<IpNetwork> {
 
 // Smallest MTU that supports IPv6
 const DEFAULT_MTU: u16 = 1420;
-// An arbitrarily chosen number for our specific firewall mark.
-const DEFAULT_FWMARK: i32 = 787878;
 
 impl Config {
     pub fn from_data(
@@ -59,7 +58,8 @@ impl Config {
             private_key,
             addresses: data.addresses,
             mtu: options.wireguard.mtu.unwrap_or(DEFAULT_MTU),
-            fwmark: options.wireguard.fwmark.unwrap_or(DEFAULT_FWMARK),
+            #[cfg(target_os = "linux")]
+            fwmark: options.wireguard.fwmark.ok_or(ErrorKind::NoFwmarkError)?,
             peers: vec![peer],
         };
 
@@ -79,9 +79,14 @@ impl Config {
                 "private_key",
                 self.interface.private_key.as_bytes().as_ref(),
             )
-            .add("fwmark", self.interface.fwmark.to_string().as_str())
-            .add("listen_port", "0")
-            .add("replace_peers", "true");
+            .add("listen_port", "0");
+
+        #[cfg(target_os = "linux")]
+        {
+            wg_conf.add("fwmark", self.interface.fwmark.to_string().as_str());
+        }
+
+        wg_conf.add("replace_peers", "true");
 
         for peer in &self.interface.peers {
             wg_conf
