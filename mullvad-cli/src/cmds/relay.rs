@@ -151,7 +151,7 @@ impl Relay {
                 port,
                 protocol: value_t!(matches.value_of("protocol"), TransportProtocol).unwrap(),
             }),
-            // TODO: FIX
+            // TODO: Gather all the data to build a WireguardEndpointData properly.
             // "wireguard" => TunnelEndpointData::Wireguard(WireguardEndpointData { port }),
             _ => unreachable!("Invalid tunnel protocol"),
         };
