@@ -2,7 +2,7 @@ use super::super::routing;
 use talpid_types::net::{TunnelOptions, WireguardEndpointData};
 
 use super::{TunnelEvent, TunnelMetadata};
-use std::{net::IpAddr, path::Path, time};
+use std::{net::IpAddr, path::Path};
 
 pub mod config;
 mod ping_monitor;
@@ -12,7 +12,7 @@ use self::config::Config;
 pub use self::wireguard_go::WgGoTunnel;
 
 // amount of seconds to run `ping` until it returns.
-const PING_TIMEOUT: u64 = 5;
+const PING_TIMEOUT: u16 = 5;
 
 error_chain! {
     errors {
@@ -164,7 +164,7 @@ impl WireguardMonitor {
     fn start_pinger(&self, config: &Config) {
         ping_monitor::spawn_ping_monitor(
             config.gateway,
-            time::Duration::from_secs(PING_TIMEOUT),
+            PING_TIMEOUT,
             self.tunnel.get_interface_name().to_string(),
             self.tunnel.close_handle(),
         );
