@@ -5,7 +5,9 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs::File, io, path::PathBuf};
-use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
+use talpid_types::net::{
+    OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions, WireguardTunnelOptions,
+};
 
 error_chain! {
     errors {
@@ -15,6 +17,11 @@ error_chain! {
         ReadError(path: PathBuf) {
             description("Unable to read settings file")
             display("Unable to read settings from {}", path.display())
+        }
+
+        DeleteError(path: PathBuf) {
+            description("Unable to delete file")
+            display("Unable to delete settings from {}", path.display())
         }
         WriteError(path: PathBuf) {
             description("Unable to write settings file")
@@ -32,6 +39,8 @@ error_chain! {
 
 static SETTINGS_FILE: &str = "settings.json";
 
+#[cfg(target_os = "linux")]
+static DEFAULT_FWMARK: i32 = 787878;
 
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -62,7 +71,14 @@ impl Default for Settings {
             allow_lan: false,
             block_when_disconnected: false,
             auto_connect: false,
-            tunnel_options: TunnelOptions::default(),
+            tunnel_options: TunnelOptions {
+                wireguard: WireguardTunnelOptions {
+                    #[cfg(target_os = "linux")]
+                    fwmark: Some(DEFAULT_FWMARK),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
         }
     }
 }
