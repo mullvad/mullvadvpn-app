@@ -116,7 +116,7 @@ impl<'a> From<&'a [u8]> for ConfValue<'a> {
 
 
 impl<'a> ConfValue<'a> {
-    fn as_bytes(&self) -> Cow<'a, [u8]> {
+    fn to_bytes(&self) -> Cow<'a, [u8]> {
         match self {
             ConfValue::String(s) => s.as_bytes().into(),
             ConfValue::Bytes(bytes) => Cow::Owned(hex::encode(bytes).into_bytes()),
@@ -136,7 +136,7 @@ impl WgConfigBuffer {
     pub fn add<'a, C: Into<ConfValue<'a>> + 'a>(&mut self, key: &str, value: C) -> &mut Self {
         self.buf.extend(key.as_bytes());
         self.buf.extend(b"=");
-        self.buf.extend(value.into().as_bytes().as_ref());
+        self.buf.extend(value.into().to_bytes().as_ref());
         self.buf.extend(b"\n");
         self
     }
