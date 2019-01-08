@@ -2,6 +2,7 @@ use super::{
     super::super::network_interface::{NetworkInterface, TunnelDevice},
     CloseHandle, Config, Error, ErrorKind, Result, ResultExt, Tunnel,
 };
+use crate::logging;
 use std::{
     ffi::CString,
     fs,
@@ -19,7 +20,7 @@ pub struct WgGoTunnel {
     handle: WgHandle,
     interface_name: String,
     // keeping ahold of the tunnel device and the log file ensures that
-    // the associated file handles end up closed
+    // the associated file handles live long enough and get closed when the tunnel is stopped
     _tunnel_device: TunnelDevice,
     _log_file: fs::File,
 }
@@ -62,17 +63,11 @@ impl WgGoTunnel {
 fn prepare_log_file(base_path: Option<&Path>) -> Result<fs::File> {
     match base_path {
         Some(path) => {
-            if path.exists() {
-                fs::rename(&path, &path.with_extension(".old"))
-                    .chain_err(|| ErrorKind::PrepareLogFileError)?;
-            }
-            let file = fs::File::create(&path).chain_err(|| ErrorKind::PrepareLogFileError)?;
-            Ok(file)
+            logging::rotate_log(path).chain_err(|| ErrorKind::PrepareLogFileError)?;
+            fs::File::open(&path).chain_err(|| ErrorKind::PrepareLogFileError)
         }
         None => {
-            let log_file =
-                fs::File::open("/dev/null").chain_err(|| ErrorKind::PrepareLogFileError)?;
-            Ok(log_file)
+            fs::File::open("/dev/null").chain_err(|| ErrorKind::PrepareLogFileError)
         }
     }
 }
