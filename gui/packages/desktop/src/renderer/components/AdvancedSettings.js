@@ -101,7 +101,9 @@ export class AdvancedSettings extends Component<Props, State> {
                   <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
 
                   <Cell.Container>
-                    <Cell.Label>Block when disconnected</Cell.Label>
+                    <Cell.Label textStyle={styles.advanced_settings__block_when_disconnected_label}>
+                      Block when disconnected
+                    </Cell.Label>
                     <Switch
                       isOn={this.props.blockWhenDisconnected}
                       onChange={this.props.setBlockWhenDisconnected}

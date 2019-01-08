@@ -95,4 +95,7 @@ export default {
   advanced_settings__mssfix_invalid_value: Styles.createTextStyle({
     color: colors.red,
   }),
+  advanced_settings__block_when_disconnected_label: Styles.createTextStyle({
+    letterSpacing: -0.5,
+  }),
 };
