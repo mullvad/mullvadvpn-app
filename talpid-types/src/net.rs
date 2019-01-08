@@ -108,15 +108,7 @@ impl fmt::Debug for WireguardEndpointData {
             .field("port", &self.port.to_string())
             .field("client_private_key", &self.client_private_key)
             .field("peer_public_key", &self.peer_public_key)
-            .field(
-                "addresses",
-                &self
-                    .addresses
-                    .iter()
-                    .map(|a| a.to_string())
-                    .collect::<Vec<_>>()
-                    .join(","),
-            )
+            .field("addresses", &self.addresses)
             .finish()
     }
 }
