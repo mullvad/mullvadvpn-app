@@ -193,7 +193,6 @@ impl Error for TransportProtocolParseError {
 /// TunnelOptions holds optional settings for tunnels, that are to be applied to any tunnel of the
 /// appropriate type.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
     pub openvpn: OpenVpnTunnelOptions,
@@ -202,16 +201,6 @@ pub struct TunnelOptions {
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
     /// forwarded through the tunnel. By default, this is set to `true`.
     pub enable_ipv6: bool,
-}
-
-impl Default for TunnelOptions {
-    fn default() -> Self {
-        TunnelOptions {
-            openvpn: OpenVpnTunnelOptions::default(),
-            wireguard: WireguardTunnelOptions::default(),
-            enable_ipv6: false,
-        }
-    }
 }
 
 
@@ -285,13 +274,14 @@ impl OpenVpnProxySettingsValidation {
 }
 
 /// Wireguard tunnel options
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct WireguardTunnelOptions {
     /// MTU for the wireguard tunnel
     pub mtu: Option<u16>,
     /// firewall mark
-    pub fwmark: Option<i32>,
+    #[cfg(target_os = "linux")]
+    pub fwmark: i32,
 }
 
 /// Wireguard x25519 private key

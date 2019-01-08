@@ -59,7 +59,7 @@ impl Config {
             addresses: data.addresses,
             mtu: options.wireguard.mtu.unwrap_or(DEFAULT_MTU),
             #[cfg(target_os = "linux")]
-            fwmark: options.wireguard.fwmark.ok_or(ErrorKind::NoFwmarkError)?,
+            fwmark: options.wireguard.fwmark,
             peers: vec![peer],
         };
 
