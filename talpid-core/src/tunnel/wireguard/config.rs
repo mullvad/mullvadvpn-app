@@ -45,7 +45,7 @@ impl Config {
                 .collect(),
             mtu,
             #[cfg(target_os = "linux")]
-            fwmark: options.wireguard.fwmark.ok_or(ErrorKind::NoFwmarkError)?,
+            fwmark: options.wireguard.fwmark,
             peers: vec![peer],
         };
 
