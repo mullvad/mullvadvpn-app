@@ -15,12 +15,7 @@ import {
 import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 
-import type {
-  RelaySettingsRedux,
-  RelayLocationRedux,
-  RelayLocationCityRedux,
-  RelayLocationRelayRedux,
-} from '../redux/settings/reducers';
+import type { RelaySettingsRedux, RelayLocationRedux } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/daemon-rpc-proxy';
 import { colors } from '../../config';
 
@@ -105,7 +100,8 @@ export default class SelectLocation extends Component<Props> {
                       return (
                         <CountryRow
                           key={this._getLocationKey(location)}
-                          relayCountry={relayCountry}
+                          name={relayCountry.name}
+                          hasActiveRelays={relayCountry.hasActiveRelays}
                           ref={ref}
                           defaultSelected={isSelected}
                           defaultCollapsed={this._isCollapsed(location)}
@@ -120,7 +116,8 @@ export default class SelectLocation extends Component<Props> {
                               <CityRow
                                 key={key}
                                 ref={ref}
-                                relayCity={relayCity}
+                                name={relayCity.name}
+                                hasActiveRelays={relayCity.hasActiveRelays}
                                 defaultSelected={isSelected}
                                 defaultCollapsed={this._isCollapsed(location)}
                                 onPress={() => this._handleSelection(location)}>
@@ -136,8 +133,8 @@ export default class SelectLocation extends Component<Props> {
                                     <RelayRow
                                       key={key}
                                       ref={ref}
+                                      hostname={relay.hostname}
                                       defaultSelected={isSelected}
-                                      relay={relay}
                                       onPress={() => this._handleSelection(location)}
                                     />
                                   );
@@ -299,7 +296,8 @@ class CollapseButton extends Component<CollapseButtonProps> {
 }
 
 type CountryRowProps = {
-  relayCountry: RelayLocationRedux,
+  name: string,
+  hasActiveRelays: boolean,
   defaultSelected: boolean,
   defaultCollapsed: boolean,
   onPress?: () => void,
@@ -327,10 +325,10 @@ class CountryRow extends Component<CountryRowProps> {
   }
 
   render() {
-    const { relayCountry } = this.props;
-    const hasChildren =
-      relayCountry.cities.length > 1 ||
-      (relayCountry.cities.length == 1 && relayCountry.cities[0].relays.length > 1);
+    const numChildren = React.Children.count(this.props.children);
+    const onlyChild = numChildren === 1 ? this.props.children[0] : undefined;
+    const numOnlyChildChildren = onlyChild ? React.Children.count(onlyChild.props.children) : 0;
+    const hasChildren = numChildren > 1 || numOnlyChildChildren > 1;
 
     return (
       <View style={styles.country}>
@@ -338,13 +336,13 @@ class CountryRow extends Component<CountryRowProps> {
           cellHoverStyle={this.state.selected ? styles.cell_selected : null}
           style={this.state.selected ? styles.cell_selected : styles.cell}
           onPress={this.props.onPress}
-          disabled={!relayCountry.hasActiveRelays}
+          disabled={!this.props.hasActiveRelays}
           testName="country">
           <RelayStatusIndicator
-            isActive={relayCountry.hasActiveRelays}
+            isActive={this.props.hasActiveRelays}
             isSelected={this.state.selected}
           />
-          <Cell.Label>{relayCountry.name}</Cell.Label>
+          <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
             <CollapseButton
               ref={this._collapseButtonRef}
@@ -379,7 +377,8 @@ class CountryRow extends Component<CountryRowProps> {
 }
 
 type CityRowProps = {
-  relayCity: RelayLocationCityRedux,
+  name: string,
+  hasActiveRelays: boolean,
   defaultSelected: boolean,
   defaultCollapsed: boolean,
   onPress?: () => void,
@@ -407,22 +406,21 @@ class CityRow extends Component<CityRowProps> {
   }
 
   render() {
-    const { relayCity } = this.props;
-    const hasChildren = this.props.children.length > 1;
+    const hasChildren = React.Children.count(this.props.children) > 1;
 
     return (
       <View>
         <Cell.CellButton
           onPress={this.props.onPress}
-          disabled={!relayCity.hasActiveRelays}
+          disabled={!this.props.hasActiveRelays}
           cellHoverStyle={this.state.selected ? styles.sub_cell__selected : null}
           style={this.state.selected ? styles.sub_cell__selected : styles.sub_cell}
           testName="city">
           <RelayStatusIndicator
-            isActive={relayCity.hasActiveRelays}
+            isActive={this.props.hasActiveRelays}
             isSelected={this.state.selected}
           />
-          <Cell.Label>{relayCity.name}</Cell.Label>
+          <Cell.Label>{this.props.name}</Cell.Label>
 
           {hasChildren && (
             <CollapseButton
@@ -458,8 +456,8 @@ class CityRow extends Component<CityRowProps> {
 }
 
 type RelayRowProps = {
+  hostname: string,
   defaultSelected: boolean,
-  relay: RelayLocationRelayRedux,
   onPress?: () => void,
 };
 
@@ -479,8 +477,6 @@ class RelayRow extends Component<RelayRowProps> {
   }
 
   render() {
-    const { relay } = this.props;
-
     return (
       <Cell.CellButton
         onPress={this.props.onPress}
@@ -489,7 +485,7 @@ class RelayRow extends Component<RelayRowProps> {
         testName="relay">
         <RelayStatusIndicator isActive={true} isSelected={this.state.selected} />
 
-        <Cell.Label>{relay.hostname}</Cell.Label>
+        <Cell.Label>{this.props.hostname}</Cell.Label>
       </Cell.CellButton>
     );
   }
