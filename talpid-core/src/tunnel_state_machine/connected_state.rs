@@ -9,9 +9,9 @@ use talpid_types::{
 };
 
 use super::{
-    AfterDisconnect, ConnectingState, DisconnectingState, EventConsequence, Result, ResultExt,
-    SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper,
+    AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence, Result,
+    ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
     security::SecurityPolicy,
@@ -22,7 +22,7 @@ pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_parameters: TunnelParameters,
-    pub tunnel_close_event: oneshot::Receiver<()>,
+    pub tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
     pub close_handle: CloseHandle,
 }
 
@@ -31,7 +31,7 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: oneshot::Receiver<()>,
+    tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
     close_handle: CloseHandle,
 }
 
@@ -170,7 +170,11 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match self.tunnel_close_event.poll() {
-            Ok(Async::Ready(_)) => {}
+            Ok(Async::Ready(block_reason)) => {
+                if let Some(reason) = block_reason {
+                    return NewState(BlockedState::enter(shared_values, reason));
+                }
+            }
             Ok(Async::NotReady) => return NoEvents(self),
             Err(_cancelled) => log::warn!("Tunnel monitor thread has stopped unexpectedly"),
         }

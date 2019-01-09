@@ -38,9 +38,9 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 
 error_chain! {
     errors {
-        /// An error indicating there was an error listening for events from the VPN tunnel.
-        TunnelMonitoringError {
-            description("Error while setting up or processing events from the VPN tunnel")
+        /// There was an error preparing to listen for events from the VPN tunnel.
+        TunnelMonitorSetUpError {
+            description("Error while setting up to listen for events from the VPN tunnel")
         }
         /// The OpenVPN binary was not found.
         OpenVpnNotFound(path: PathBuf) {
@@ -73,6 +73,12 @@ error_chain! {
         UnsupportedTunnelProtocol {
             description("This tunnel protocol is not supported")
         }
+    }
+
+    links {
+        OpenVpnTunnelMonitoringError(openvpn::Error, openvpn::ErrorKind)
+        /// There was an error listening for events from the OpenVPN tunnel
+        ;
     }
 }
 
@@ -156,7 +162,7 @@ impl TunnelMonitor {
         tunnel_options: &TunnelOptions,
         tunnel_alias: Option<OsString>,
         username: &str,
-        log: Option<&Path>,
+        log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
     ) -> Result<Self>
@@ -181,7 +187,6 @@ impl TunnelMonitor {
                 Some(ref file) => Some(file.as_ref()),
                 _ => None,
             },
-            log,
             resource_dir,
         )?;
 
@@ -212,8 +217,9 @@ impl TunnelMonitor {
             cmd,
             on_openvpn_event,
             Self::get_plugin_path(resource_dir)?,
+            log,
         )
-        .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
         Ok(TunnelMonitor {
             monitor,
             _user_pass_file: user_pass_file,
@@ -242,7 +248,6 @@ impl TunnelMonitor {
         options: &TunnelOptions,
         user_pass_file: &Path,
         proxy_auth_file: Option<&Path>,
-        log: Option<&Path>,
         resource_dir: &Path,
     ) -> Result<OpenVpnCommand> {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
@@ -261,9 +266,6 @@ impl TunnelMonitor {
             .enable_ipv6(options.enable_ipv6)
             .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"));
-        if let Some(log) = log {
-            cmd.log(log);
-        }
         if let Some(proxy_auth_file) = proxy_auth_file {
             cmd.proxy_auth(proxy_auth_file);
         }
@@ -344,9 +346,7 @@ impl TunnelMonitor {
 
     /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
-        self.monitor
-            .wait()
-            .chain_err(|| ErrorKind::TunnelMonitoringError)
+        self.monitor.wait().map_err(Error::from)
     }
 }
 

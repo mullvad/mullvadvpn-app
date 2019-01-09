@@ -48,6 +48,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix error printed from the CLI when issuing `relay update`.
 - Fix relay list update interval. Should now handle sleep better.
 
+#### Windows
+- Gracefully block when TAP adapter is missing or disabled, instead of retrying to connect.
+
 
 ## [2018.6] - 2018-12-12
 This release is identical to 2018.6-beta1
