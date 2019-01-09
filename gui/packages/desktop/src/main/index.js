@@ -660,6 +660,11 @@ const ApplicationMain = {
 
         // Fetch the new user location
         const location = await this._daemonRpc.getLocation();
+        // If the location is currently unavailable, do nothing! This only ever
+        // happens when a custom relay is set or we are in a blocked state.
+        if (!location) {
+          return;
+        }
 
         // Cache the user location
         // Note: hostname is only set for relay servers.

@@ -456,28 +456,31 @@ impl Daemon {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    fn on_get_current_location(&self, tx: oneshot::Sender<GeoIpLocation>) {
+    fn on_get_current_location(&self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
         use self::TunnelStateTransition::*;
-        let get_location: Box<dyn Future<Item = GeoIpLocation, Error = ()> + Send> =
+        let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
             match self.tunnel_state {
-                Disconnected => Box::new(self.get_geo_location()),
-                Connecting(_) | Disconnecting(..) => {
-                    Box::new(future::result(Ok(self.build_location_from_relay())))
-                }
-                Connected(_) => {
-                    let location_from_relay = self.build_location_from_relay();
-                    Box::new(
+                Disconnected => Box::new(self.get_geo_location().map(Some)),
+                Connecting(_) | Disconnecting(..) => match self.build_location_from_relay() {
+                    Some(relay_location) => Box::new(future::result(Ok(Some(relay_location)))),
+                    // Custom relay is set, no location is known
+                    None => Box::new(future::result(Ok(None))),
+                },
+                Connected(_) => match self.build_location_from_relay() {
+                    Some(location_from_relay) => Box::new(
                         self.get_geo_location()
                             .map(|fetched_location| GeoIpLocation {
                                 ip: fetched_location.ip,
                                 ..location_from_relay
-                            }),
-                    )
-                }
+                            })
+                            .map(Some),
+                    ),
+                    // Custom relay is set, no location is known intrinsicly
+                    None => Box::new(self.get_geo_location().map(Some)),
+                },
                 Blocked(..) => {
-                    // We are not online at all at this stage. Return error.
-                    mem::drop(tx);
-                    return;
+                    // We are not online at all at this stage so no location data is available.
+                    Box::new(future::result(Ok(None)))
                 }
             };
 
@@ -494,15 +497,12 @@ impl Daemon {
         })
     }
 
-    fn build_location_from_relay(&self) -> GeoIpLocation {
-        let relay = self
-            .last_generated_relay
-            .as_ref()
-            .expect("Can't build location from relay in disconnected state");
+    fn build_location_from_relay(&self) -> Option<GeoIpLocation> {
+        let relay = self.last_generated_relay.as_ref()?;
         let location = relay.location.as_ref().cloned().unwrap();
         let hostname = relay.hostname.clone();
 
-        GeoIpLocation {
+        Some(GeoIpLocation {
             ip: None,
             country: location.country,
             city: Some(location.city),
@@ -510,7 +510,7 @@ impl Daemon {
             longitude: location.longitude,
             mullvad_exit_ip: true,
             hostname: Some(hostname),
-        }
+        })
     }
 
     fn on_get_account_data(
