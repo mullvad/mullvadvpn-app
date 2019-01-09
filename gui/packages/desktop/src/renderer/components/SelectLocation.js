@@ -120,7 +120,6 @@ export default class SelectLocation extends Component<Props> {
                               <CityRow
                                 key={key}
                                 ref={ref}
-                                countryCode={relayCountry.code}
                                 relayCity={relayCity}
                                 defaultSelected={isSelected}
                                 defaultCollapsed={this._isCollapsed(location)}
@@ -138,8 +137,6 @@ export default class SelectLocation extends Component<Props> {
                                       key={key}
                                       ref={ref}
                                       defaultSelected={isSelected}
-                                      countryCode={relayCountry.code}
-                                      cityCode={relayCity.code}
                                       relay={relay}
                                       onPress={() => this._handleSelection(location)}
                                     />
@@ -382,7 +379,6 @@ class CountryRow extends Component<CountryRowProps> {
 }
 
 type CityRowProps = {
-  countryCode: string,
   relayCity: RelayLocationCityRedux,
   defaultSelected: boolean,
   defaultCollapsed: boolean,
@@ -463,8 +459,6 @@ class CityRow extends Component<CityRowProps> {
 
 type RelayRowProps = {
   defaultSelected: boolean,
-  countryCode: string,
-  cityCode: string,
   relay: RelayLocationRelayRedux,
   onPress?: () => void,
 };
