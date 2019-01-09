@@ -188,11 +188,7 @@ export default class Login extends Component<Props, State> {
   _setAccountHistoryVisibility(show: boolean) {
     const view = this._accountHistoryRef.current;
     if (view) {
-      if (show) {
-        view.expand();
-      } else {
-        view.collapse();
-      }
+      view.toggle(!show);
     }
   }
 

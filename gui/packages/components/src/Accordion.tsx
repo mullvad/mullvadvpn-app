@@ -79,19 +79,17 @@ export default class Accordion extends Component<IProps, IState> {
   }
 
   public collapse() {
-    this.collapsed = true;
-    this.animate(true);
+    this.toggle(true);
   }
 
   public expand() {
-    this.collapsed = false;
-    this.animate(false);
+    this.toggle(false);
   }
 
-  public toggle() {
-    const collapsed = !this.collapsed;
-    this.collapsed = collapsed;
-    this.animate(collapsed);
+  public toggle(collapse?: boolean) {
+    this.collapsed = typeof collapse === 'undefined' ? !this.collapsed : collapse;
+
+    this.animate(this.collapsed);
   }
 
   private async animate(collapse: boolean) {
