@@ -126,9 +126,9 @@ export default class SelectLocation extends Component<Props, State> {
                           key={getLocationKey(location)}
                           name={relayCountry.name}
                           hasActiveRelays={relayCountry.hasActiveRelays}
-                          collapsed={this._isCollapsed(location)}
+                          expanded={this._isExpanded(location)}
                           onPress={() => this._handleSelection(location)}
-                          onCollapse={(collapse) => this._handleCollapse(location, collapse)}
+                          onExpand={(collapse) => this._handleCollapse(location, collapse)}
                           {...this._getCommonCellProps(location)}>
                           {relayCountry.cities.map((relayCity) => {
                             const location = { city: [relayCountry.code, relayCity.code] };
@@ -138,9 +138,9 @@ export default class SelectLocation extends Component<Props, State> {
                                 key={getLocationKey(location)}
                                 name={relayCity.name}
                                 hasActiveRelays={relayCity.hasActiveRelays}
-                                collapsed={this._isCollapsed(location)}
+                                expanded={this._isExpanded(location)}
                                 onPress={() => this._handleSelection(location)}
-                                onCollapse={(collapse) => this._handleCollapse(location, collapse)}
+                                onExpand={(collapse) => this._handleCollapse(location, collapse)}
                                 {...this._getCommonCellProps(location)}>
                                 {relayCity.relays.map((relay) => {
                                   const location = {
@@ -172,8 +172,8 @@ export default class SelectLocation extends Component<Props, State> {
     );
   }
 
-  _isCollapsed(relayLocation: RelayLocation) {
-    return !this.state.expandedItems.some((location) => compareLocation(location, relayLocation));
+  _isExpanded(relayLocation: RelayLocation) {
+    return this.state.expandedItems.some((location) => compareLocation(location, relayLocation));
   }
 
   _isSelected(relayLocation: RelayLocation) {
@@ -188,11 +188,11 @@ export default class SelectLocation extends Component<Props, State> {
     }
   };
 
-  _handleCollapse = (location: RelayLocation, collapse: boolean) => {
+  _handleCollapse = (location: RelayLocation, expand: boolean) => {
     this.setState((state) => {
       const expandedItems = state.expandedItems.filter((item) => !compareLocation(item, location));
 
-      if (!collapse) {
+      if (expand) {
         expandedItems.push(location);
       }
 

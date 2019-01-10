@@ -13,9 +13,9 @@ type Props = {
   name: string,
   hasActiveRelays: boolean,
   selected: boolean,
-  collapsed: boolean,
+  expanded: boolean,
   onPress?: () => void,
-  onCollapse?: (boolean) => void,
+  onExpand?: (boolean) => void,
   children?: React.Element<typeof CityRow>,
 };
 
@@ -49,7 +49,7 @@ export default class CountryRow extends Component<Props> {
       oldProps.name !== nextProps.name ||
       oldProps.hasActiveRelays !== nextProps.hasActiveRelays ||
       oldProps.selected !== nextProps.selected ||
-      oldProps.collapsed !== nextProps.collapsed
+      oldProps.expanded !== nextProps.expanded
     ) {
       return false;
     }
@@ -89,20 +89,20 @@ export default class CountryRow extends Component<Props> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
-            <ChevronButton onPress={this._toggleCollapse} collapsed={this.props.collapsed} />
+            <ChevronButton onPress={this._toggleCollapse} up={this.props.expanded} />
           ) : null}
         </Cell.CellButton>
 
         {hasChildren && (
-          <Accordion collapsed={this.props.collapsed}>{this.props.children}</Accordion>
+          <Accordion expanded={this.props.expanded}>{this.props.children}</Accordion>
         )}
       </View>
     );
   }
 
   _toggleCollapse = (event: Event) => {
-    if (this.props.onCollapse) {
-      this.props.onCollapse(!this.props.collapsed);
+    if (this.props.onExpand) {
+      this.props.onExpand(!this.props.expanded);
     }
     event.stopPropagation();
   };

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
 
 interface IProps {
-  collapsed: boolean;
+  expanded: boolean;
   animationDuration: number;
   style?: Types.AnimatedViewStyleRuleSet;
   children?: React.ReactNode;
@@ -17,7 +17,7 @@ const containerOverflowStyle = Styles.createViewStyle({ overflow: 'hidden' });
 
 export default class Accordion extends Component<IProps, IState> {
   public static defaultProps = {
-    collapsed: false,
+    expanded: true,
     animationDuration: 350,
   };
 
@@ -39,8 +39,8 @@ export default class Accordion extends Component<IProps, IState> {
     super(props);
 
     this.state = {
-      applyAnimatedStyle: props.collapsed,
-      mountChildren: !props.collapsed,
+      applyAnimatedStyle: !props.expanded,
+      mountChildren: props.expanded,
     };
   }
 
@@ -51,21 +51,21 @@ export default class Accordion extends Component<IProps, IState> {
   }
 
   public componentDidUpdate(oldProps: IProps, oldState: IState) {
-    if (this.props.collapsed !== oldProps.collapsed) {
+    if (this.props.expanded !== oldProps.expanded) {
       // make sure the children are mounted first before expanding the accordion
-      if (!this.props.collapsed && !this.state.mountChildren) {
+      if (this.props.expanded && !this.state.mountChildren) {
         this.setState({ mountChildren: true });
       } else {
-        this.animate(this.props.collapsed);
+        this.animate(this.props.expanded);
       }
     } else if (this.state.mountChildren && !oldState.mountChildren) {
       // run animations once the children are mounted
-      this.animate(this.props.collapsed);
+      this.animate(this.props.expanded);
     }
   }
 
   public render() {
-    const { style, children, collapsed, animationDuration, ...otherProps } = this.props;
+    const { style, children, expanded, animationDuration, ...otherProps } = this.props;
     const containerStyles = [style];
 
     if (this.state.applyAnimatedStyle) {
@@ -79,7 +79,7 @@ export default class Accordion extends Component<IProps, IState> {
     );
   }
 
-  private async animate(collapse: boolean) {
+  private async animate(expand: boolean) {
     const containerView = this.containerRef.current;
     const contentView = this.contentRef.current;
     if (!containerView || !contentView) {
@@ -103,7 +103,7 @@ export default class Accordion extends Component<IProps, IState> {
       this.heightValue.setValue(containerLayout.height);
     }
 
-    const toValue = collapse ? 0 : contentLayout.height;
+    const toValue = expand ? contentLayout.height : 0;
 
     // calculate the animation duration based on travel distance
     const multiplier =
@@ -125,7 +125,7 @@ export default class Accordion extends Component<IProps, IState> {
 
         // reset the height after transition to let element layout naturally
         // if animation finished without interruption
-        if (!collapse) {
+        if (expand) {
           this.setState({ applyAnimatedStyle: false });
         }
       }
