@@ -6,7 +6,7 @@ import * as Cell from './Cell';
 import { colors } from '../../config';
 
 type Props = {
-  collapsed: boolean,
+  up: boolean,
   onPress: () => void,
 };
 
@@ -26,7 +26,7 @@ export default class ChevronButton extends Component<Props> {
         tintColor={colors.white80}
         tintHoverColor={colors.white}
         onPress={this.props.onPress}
-        source={this.props.collapsed ? 'icon-chevron-down' : 'icon-chevron-up'}
+        source={this.props.up ? 'icon-chevron-up' : 'icon-chevron-down'}
         height={24}
         width={24}
       />
