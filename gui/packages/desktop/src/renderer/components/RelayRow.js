@@ -13,18 +13,14 @@ type Props = {
 };
 
 const styles = {
-  subSubCell: Styles.createViewStyle({
+  base: Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
     paddingRight: 0,
     paddingLeft: 60,
     backgroundColor: colors.blue20,
   }),
-  subSubCellSelected: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingRight: 0,
-    paddingLeft: 60,
+  selected: Styles.createViewStyle({
     backgroundColor: colors.green,
   }),
 };
@@ -42,8 +38,8 @@ export default class RelayRow extends Component<Props> {
     return (
       <Cell.CellButton
         onPress={this._handlePress}
-        cellHoverStyle={this.props.selected ? styles.subSubCellSelected : null}
-        style={this.props.selected ? styles.subSubCellSelected : styles.subSubCell}
+        cellHoverStyle={this.props.selected ? styles.selected : null}
+        style={[styles.base, this.props.selected ? styles.selected : null]}
         testName="relay">
         <RelayStatusIndicator isActive={true} isSelected={this.props.selected} />
 

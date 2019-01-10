@@ -6,7 +6,7 @@ import { Accordion } from '@mullvad/components';
 import * as Cell from './Cell';
 import CityRow from './CityRow';
 import RelayStatusIndicator from './RelayStatusIndicator';
-import CollapseButton from './CollapseButton';
+import ChevronButton from './ChevronButton';
 import { colors } from '../../config';
 
 type Props = {
@@ -20,21 +20,17 @@ type Props = {
 };
 
 const styles = {
-  country: Styles.createViewStyle({
+  container: Styles.createViewStyle({
     flexDirection: 'column',
     flex: 0,
   }),
-  cell: Styles.createViewStyle({
+  base: Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
     paddingLeft: 20,
     paddingRight: 0,
   }),
-  cellSelected: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 20,
-    paddingRight: 0,
+  selected: Styles.createViewStyle({
     backgroundColor: colors.green,
   }),
 };
@@ -80,10 +76,10 @@ export default class CountryRow extends Component<Props> {
     const hasChildren = numChildren > 1 || numOnlyChildChildren > 1;
 
     return (
-      <View style={styles.country}>
+      <View style={styles.container}>
         <Cell.CellButton
-          cellHoverStyle={this.props.selected ? styles.cellSelected : null}
-          style={this.props.selected ? styles.cellSelected : styles.cell}
+          cellHoverStyle={this.props.selected ? styles.selected : null}
+          style={[styles.base, this.props.selected ? styles.selected : null]}
           onPress={this.props.onPress}
           disabled={!this.props.hasActiveRelays}
           testName="country">
@@ -93,7 +89,7 @@ export default class CountryRow extends Component<Props> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
-            <CollapseButton onPress={this._toggleCollapse} collapsed={this.props.collapsed} />
+            <ChevronButton onPress={this._toggleCollapse} collapsed={this.props.collapsed} />
           ) : null}
         </Cell.CellButton>
 

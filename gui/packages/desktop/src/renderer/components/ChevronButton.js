@@ -18,7 +18,7 @@ const style = Styles.createViewStyle({
   paddingLeft: 16,
 });
 
-export default class CollapseButton extends Component<Props> {
+export default class ChevronButton extends Component<Props> {
   render() {
     return (
       <Cell.Icon

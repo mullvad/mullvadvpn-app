@@ -6,7 +6,7 @@ import { Accordion } from '@mullvad/components';
 import * as Cell from './Cell';
 import RelayRow from './RelayRow';
 import RelayStatusIndicator from './RelayStatusIndicator';
-import CollapseButton from './CollapseButton';
+import ChevronButton from './ChevronButton';
 import { colors } from '../../config';
 
 type Props = {
@@ -21,18 +21,14 @@ type Props = {
 };
 
 const styles = {
-  subCell: Styles.createViewStyle({
+  base: Styles.createViewStyle({
     paddingTop: 0,
     paddingBottom: 0,
     paddingRight: 0,
     paddingLeft: 40,
     backgroundColor: colors.blue40,
   }),
-  subCellSelected: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingRight: 0,
-    paddingLeft: 40,
+  selected: Styles.createViewStyle({
     backgroundColor: colors.green,
   }),
 };
@@ -79,8 +75,8 @@ export default class CityRow extends Component<Props> {
         <Cell.CellButton
           onPress={this._handlePress}
           disabled={!this.props.hasActiveRelays}
-          cellHoverStyle={this.props.selected ? styles.subCellSelected : null}
-          style={this.props.selected ? styles.subCellSelected : styles.subCell}
+          cellHoverStyle={this.props.selected ? styles.selected : null}
+          style={[styles.base, this.props.selected ? styles.selected : null]}
           testName="city">
           <RelayStatusIndicator
             isActive={this.props.hasActiveRelays}
@@ -89,7 +85,7 @@ export default class CityRow extends Component<Props> {
           <Cell.Label>{this.props.name}</Cell.Label>
 
           {hasChildren && (
-            <CollapseButton onPress={this._toggleCollapse} collapsed={this.props.collapsed} />
+            <ChevronButton onPress={this._toggleCollapse} collapsed={this.props.collapsed} />
           )}
         </Cell.CellButton>
 
