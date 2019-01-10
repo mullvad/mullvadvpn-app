@@ -9,7 +9,7 @@ import { colors } from '../../config';
 type Props = {
   hostname: string,
   selected: boolean,
-  onPress?: () => void,
+  onSelect?: () => void,
 };
 
 const styles = {
@@ -49,8 +49,8 @@ export default class RelayRow extends Component<Props> {
   }
 
   _handlePress = () => {
-    if (this.props.onPress) {
-      this.props.onPress();
+    if (this.props.onSelect) {
+      this.props.onSelect();
     }
   };
 }

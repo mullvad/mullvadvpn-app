@@ -15,7 +15,7 @@ type Props = {
   selected: boolean,
   expanded: boolean,
   selected: boolean,
-  onPress?: () => void,
+  onSelect?: () => void,
   onExpand?: () => void,
   children?: React.Element<typeof RelayRow>,
 };
@@ -100,8 +100,8 @@ export default class CityRow extends Component<Props> {
   };
 
   _handlePress = () => {
-    if (this.props.onPress) {
-      this.props.onPress();
+    if (this.props.onSelect) {
+      this.props.onSelect();
     }
   };
 }

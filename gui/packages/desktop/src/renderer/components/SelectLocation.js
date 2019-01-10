@@ -127,7 +127,7 @@ export default class SelectLocation extends Component<Props, State> {
                           name={relayCountry.name}
                           hasActiveRelays={relayCountry.hasActiveRelays}
                           expanded={this._isExpanded(location)}
-                          onPress={() => this._handleSelection(location)}
+                          onSelect={() => this._handleSelection(location)}
                           onExpand={(expand) => this._handleExpand(location, expand)}
                           {...this._getCommonCellProps(location)}>
                           {relayCountry.cities.map((relayCity) => {
@@ -139,7 +139,7 @@ export default class SelectLocation extends Component<Props, State> {
                                 name={relayCity.name}
                                 hasActiveRelays={relayCity.hasActiveRelays}
                                 expanded={this._isExpanded(location)}
-                                onPress={() => this._handleSelection(location)}
+                                onSelect={() => this._handleSelection(location)}
                                 onExpand={(expand) => this._handleExpand(location, expand)}
                                 {...this._getCommonCellProps(location)}>
                                 {relayCity.relays.map((relay) => {
@@ -151,7 +151,7 @@ export default class SelectLocation extends Component<Props, State> {
                                     <RelayRow
                                       key={getLocationKey(location)}
                                       hostname={relay.hostname}
-                                      onPress={() => this._handleSelection(location)}
+                                      onSelect={() => this._handleSelection(location)}
                                       {...this._getCommonCellProps(location)}
                                     />
                                   );

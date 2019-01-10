@@ -14,7 +14,7 @@ type Props = {
   hasActiveRelays: boolean,
   selected: boolean,
   expanded: boolean,
-  onPress?: () => void,
+  onSelect?: () => void,
   onExpand?: (boolean) => void,
   children?: React.Element<typeof CityRow>,
 };
@@ -80,7 +80,7 @@ export default class CountryRow extends Component<Props> {
         <Cell.CellButton
           cellHoverStyle={this.props.selected ? styles.selected : null}
           style={[styles.base, this.props.selected ? styles.selected : null]}
-          onPress={this.props.onPress}
+          onPress={this._handlePress}
           disabled={!this.props.hasActiveRelays}
           testName="country">
           <RelayStatusIndicator
@@ -103,5 +103,11 @@ export default class CountryRow extends Component<Props> {
       this.props.onExpand(!this.props.expanded);
     }
     event.stopPropagation();
+  };
+
+  _handlePress = () => {
+    if (this.props.onSelect) {
+      this.props.onSelect();
+    }
   };
 }
