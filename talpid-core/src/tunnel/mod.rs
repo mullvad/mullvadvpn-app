@@ -1,23 +1,12 @@
-use crate::{mktemp, process::openvpn::OpenVpnCommand};
-
 use std::{
     collections::HashMap,
     ffi::OsString,
-    fs,
-    io::{self, Write},
+    fs, io,
     net::IpAddr,
     path::{Path, PathBuf},
-    result::Result as StdResult,
 };
 
-#[cfg(target_os = "linux")]
-use failure::ResultExt as FailureResultExt;
-#[cfg(target_os = "linux")]
-use which;
-
-use talpid_types::net::{
-    Endpoint, OpenVpnProxySettings, TunnelEndpoint, TunnelEndpointData, TunnelOptions,
-};
+use talpid_types::net::{TunnelEndpoint, TunnelEndpointData, TunnelOptions};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -25,18 +14,6 @@ pub mod openvpn;
 #[cfg(unix)]
 mod wireguard;
 
-
-#[cfg(target_os = "macos")]
-const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
-#[cfg(target_os = "linux")]
-const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.so";
-#[cfg(windows)]
-const OPENVPN_PLUGIN_FILENAME: &str = "talpid_openvpn_plugin.dll";
-
-#[cfg(unix)]
-const OPENVPN_BIN_FILENAME: &str = "openvpn";
-#[cfg(windows)]
-const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 
 error_chain! {
     errors {
@@ -47,25 +24,6 @@ error_chain! {
         /// There was an error whilst preparing to listen for events from the VPN tunnel.
         TunnelMonitorSetUpError {
             description("Error while setting up to listen for events from the VPN tunnel")
-        }
-        /// The OpenVPN binary was not found.
-        OpenVpnNotFound(path: PathBuf) {
-            description("No OpenVPN binary found")
-            display("No OpenVPN binary found at {}", path.display())
-        }
-        /// The IP routing program was not found.
-        #[cfg(target_os = "linux")]
-        IpRouteNotFound {
-            description("The IP routing program `ip` was not found.")
-        }
-        /// The OpenVPN plugin was not found.
-        PluginNotFound(path: PathBuf) {
-            description("No OpenVPN plugin found")
-            display("No OpenVPN plugin found at {}", path.display())
-        }
-        /// There was an error when writing authentication credentials to temporary file.
-        CredentialsWriteError {
-            description("Error while writing credentials to temporary file")
         }
         /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
         EnableIpv6Error {
@@ -227,54 +185,14 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let user_pass_file = Self::create_credentials_file(username, "-")
-            .chain_err(|| ErrorKind::CredentialsWriteError)?;
-
-        let proxy_auth_file = Self::create_proxy_auth_file(&tunnel_options.openvpn.proxy)
-            .chain_err(|| ErrorKind::CredentialsWriteError)?;
-
-        let cmd = Self::create_openvpn_cmd(
-            tunnel_endpoint.to_endpoint(),
-            tunnel_alias,
-            &tunnel_options,
-            user_pass_file.as_ref(),
-            match proxy_auth_file {
-                Some(ref file) => Some(file.as_ref()),
-                _ => None,
-            },
-            resource_dir,
-        )?;
-
-        let user_pass_file_path = user_pass_file.to_path_buf();
-
-        let proxy_auth_file_path = match proxy_auth_file {
-            Some(ref file) => Some(file.to_path_buf()),
-            _ => None,
-        };
-
-        let on_openvpn_event = move |event, env| {
-            if event == openvpn_plugin::EventType::RouteUp {
-                // The user-pass file has been read. Try to delete it early.
-                let _ = fs::remove_file(&user_pass_file_path);
-
-                // The proxy auth file has been read. Try to delete it early.
-                if let Some(ref file_path) = &proxy_auth_file_path {
-                    let _ = fs::remove_file(file_path);
-                }
-            }
-            match TunnelEvent::from_openvpn_event(event, &env) {
-                Some(tunnel_event) => on_event(tunnel_event),
-                None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
-            }
-        };
-
         let monitor = openvpn::OpenVpnMonitor::start(
-            cmd,
-            on_openvpn_event,
-            Self::get_plugin_path(resource_dir)?,
+            on_event,
+            tunnel_endpoint.to_endpoint(),
+            tunnel_options,
+            tunnel_alias,
             log,
-            user_pass_file,
-            proxy_auth_file,
+            resource_dir,
+            username,
         )
         .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
         Ok(TunnelMonitor {
@@ -290,100 +208,6 @@ impl TunnelMonitor {
         }
     }
 
-    fn create_openvpn_cmd(
-        remote: Endpoint,
-        tunnel_alias: Option<OsString>,
-        options: &TunnelOptions,
-        user_pass_file: &Path,
-        proxy_auth_file: Option<&Path>,
-        resource_dir: &Path,
-    ) -> Result<OpenVpnCommand> {
-        let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
-        if let Some(config) = Self::get_config_path(resource_dir) {
-            cmd.config(config);
-        }
-        #[cfg(target_os = "linux")]
-        cmd.iproute_bin(
-            which::which("ip")
-                .compat()
-                .chain_err(|| ErrorKind::IpRouteNotFound)?,
-        );
-        cmd.remote(remote)
-            .user_pass(user_pass_file)
-            .tunnel_options(&options.openvpn)
-            .enable_ipv6(options.enable_ipv6)
-            .tunnel_alias(tunnel_alias)
-            .ca(resource_dir.join("ca.crt"));
-        if let Some(proxy_auth_file) = proxy_auth_file {
-            cmd.proxy_auth(proxy_auth_file);
-        }
-
-        Ok(cmd)
-    }
-
-    fn get_openvpn_bin(resource_dir: &Path) -> Result<PathBuf> {
-        let path = resource_dir.join(OPENVPN_BIN_FILENAME);
-        if path.exists() {
-            log::trace!("Using OpenVPN at {}", path.display());
-            Ok(path)
-        } else {
-            bail!(ErrorKind::OpenVpnNotFound(path));
-        }
-    }
-
-    fn get_plugin_path(resource_dir: &Path) -> Result<PathBuf> {
-        let path = resource_dir.join(OPENVPN_PLUGIN_FILENAME);
-        if path.exists() {
-            log::trace!("Using OpenVPN plugin at {}", path.display());
-            Ok(path)
-        } else {
-            bail!(ErrorKind::PluginNotFound(path));
-        }
-    }
-
-    fn get_config_path(resource_dir: &Path) -> Option<PathBuf> {
-        let path = resource_dir.join("openvpn.conf");
-        if path.exists() {
-            Some(path)
-        } else {
-            None
-        }
-    }
-
-    fn create_credentials_file(username: &str, password: &str) -> io::Result<mktemp::TempFile> {
-        let temp_file = mktemp::TempFile::new();
-        log::debug!("Writing credentials to {}", temp_file.as_ref().display());
-        let mut file = fs::File::create(&temp_file)?;
-        Self::set_user_pass_file_permissions(&file)?;
-        write!(file, "{}\n{}\n", username, password)?;
-        Ok(temp_file)
-    }
-
-    fn create_proxy_auth_file(
-        proxy: &Option<OpenVpnProxySettings>,
-    ) -> StdResult<Option<mktemp::TempFile>, io::Error> {
-        if let Some(OpenVpnProxySettings::Remote(ref remote_proxy)) = proxy {
-            if let Some(ref proxy_auth) = remote_proxy.auth {
-                return Ok(Some(Self::create_credentials_file(
-                    &proxy_auth.username,
-                    &proxy_auth.password,
-                )?));
-            }
-        }
-        Ok(None)
-    }
-
-    #[cfg(unix)]
-    fn set_user_pass_file_permissions(file: &fs::File) -> io::Result<()> {
-        use std::os::unix::fs::PermissionsExt;
-        file.set_permissions(PermissionsExt::from_mode(0o400))
-    }
-
-    #[cfg(windows)]
-    fn set_user_pass_file_permissions(_file: &fs::File) -> io::Result<()> {
-        // TODO(linus): Lock permissions correctly on Windows.
-        Ok(())
-    }
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
     /// thread
