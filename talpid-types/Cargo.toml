@@ -10,4 +10,5 @@ edition = "2018"
 serde = { version = "1.0", features = ["derive"] }
 ipnetwork = "0.13"
 base64 = "0.10"
-x25519-dalek = { version = "0.3", default-features = false, features = ["u64_backend"]}
+hex = "0.3"
+error-chain = "0.12"

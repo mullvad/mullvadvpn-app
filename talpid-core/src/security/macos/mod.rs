@@ -1,6 +1,9 @@
 use super::{NetworkSecurityT, SecurityPolicy};
 use pfctl::FilterRuleAction;
-use std::{env, net::Ipv4Addr};
+use std::{
+    env,
+    net::{Ipv4Addr, SocketAddr},
+};
 use talpid_types::net;
 
 mod dns;
