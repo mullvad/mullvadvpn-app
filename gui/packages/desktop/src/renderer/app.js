@@ -360,7 +360,10 @@ export default class AppRenderer {
 
   async _setDaemonAutoConnect(guiAutoConnect: boolean, autoStart: boolean) {
     const daemonAutoConnect = guiAutoConnect && autoStart;
-    await this._daemonRpc.setAutoConnect(daemonAutoConnect);
+
+    if (daemonAutoConnect !== this._settings.autoConnect) {
+      await this._daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
   }
 
   setStartMinimized(startMinimized: boolean) {
