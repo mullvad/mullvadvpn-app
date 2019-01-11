@@ -377,7 +377,7 @@ export default class Login extends Component<Props, State> {
               />
             </Animated.View>
           </View>
-          <Accordion height={this._shouldShowAccountHistory() ? 'auto' : 0}>
+          <Accordion expanded={this._shouldShowAccountHistory()}>
             {
               <AccountDropdown
                 items={this.props.accountHistory.slice().reverse()}
