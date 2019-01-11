@@ -64,20 +64,16 @@ export default class Preferences extends Component<PreferencesProps, State> {
 
                   <View style={styles.preferences__content}>
                     <Cell.Container>
+                      <Cell.Label>Launch app on start-up</Cell.Label>
+                      <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
+                    </Cell.Container>
+
+                    <Cell.Container>
                       <Cell.Label>Auto-connect</Cell.Label>
                       <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
                     </Cell.Container>
                     <Cell.Footer>
-                      Automatically connect to the VPN at the earliest moment during computer
-                      boot-up.
-                    </Cell.Footer>
-
-                    <Cell.Container>
-                      <Cell.Label>Auto-launch</Cell.Label>
-                      <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
-                    </Cell.Container>
-                    <Cell.Footer>
-                      Automatically launch the app when logging in to the computer.
+                      Automatically connect to a server when the app launches.
                     </Cell.Footer>
 
                     <Cell.Container>
