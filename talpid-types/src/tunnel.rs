@@ -1,4 +1,4 @@
-use super::net::TunnelEndpoint;
+use crate::net::TunnelEndpoint;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

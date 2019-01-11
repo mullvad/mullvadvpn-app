@@ -20,7 +20,7 @@ impl WgGoTunnel {
         let mut tunnel_device =
             TunnelDevice::new().chain_err(|| ErrorKind::SetupTunnelDeviceError)?;
 
-        for ip in config.interface.addresses.iter() {
+        for ip in config.tunnel.addresses.iter() {
             tunnel_device
                 .set_ip(*ip)
                 .chain_err(|| ErrorKind::SetupTunnelDeviceError)?;
@@ -40,7 +40,7 @@ impl WgGoTunnel {
         let handle = unsafe {
             wgTurnOnWithFd(
                 iface_name.as_ptr(),
-                config.interface.mtu as i64,
+                config.mtu as i64,
                 wg_config_str.as_ptr(),
                 tunnel_device.as_raw_fd(),
                 log_file.as_raw_fd(),

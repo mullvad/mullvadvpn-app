@@ -18,7 +18,7 @@ use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use tokio_core::reactor::Core;
 
 use talpid_types::{
-    net::{TunnelEndpoint, TunnelOptions},
+    net::TunnelParameters,
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -160,17 +160,6 @@ pub enum TunnelCommand {
     Disconnect,
     /// Disconnect any open tunnel and block all network access
     Block(BlockReason),
-}
-
-/// Information necessary to open a tunnel.
-#[derive(Debug, PartialEq)]
-pub struct TunnelParameters {
-    /// Tunnel enpoint to connect to.
-    pub endpoint: TunnelEndpoint,
-    /// Tunnel connection options.
-    pub options: TunnelOptions,
-    /// Username to use for setting up the tunnel.
-    pub username: String,
 }
 
 /// Asynchronous handling of the tunnel state machine.
