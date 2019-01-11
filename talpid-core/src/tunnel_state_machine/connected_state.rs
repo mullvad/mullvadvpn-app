@@ -4,14 +4,14 @@ use futures::{
     Async, Future, Stream,
 };
 use talpid_types::{
-    net::{Endpoint, OpenVpnProxySettings, TransportProtocol},
+    net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelParameters},
     tunnel::BlockReason,
 };
 
 use super::{
     AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence, Result,
-    ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use crate::{
     security::SecurityPolicy,
@@ -48,17 +48,7 @@ impl ConnectedState {
 
     fn set_security_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
-        let peer_endpoint = match self.tunnel_parameters.options.openvpn.proxy {
-            Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
-                address: local_proxy.peer,
-                protocol: TransportProtocol::Tcp,
-            },
-            Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
-                address: remote_proxy.address,
-                protocol: TransportProtocol::Tcp,
-            },
-            _ => self.tunnel_parameters.endpoint.to_endpoint(),
-        };
+        let peer_endpoint = self.get_endpoint_from_params();
 
         let policy = SecurityPolicy::Connected {
             peer_endpoint,
@@ -69,6 +59,23 @@ impl ConnectedState {
             .security
             .apply_policy(policy)
             .chain_err(|| "Failed to apply security policy for connected state")
+    }
+
+    fn get_endpoint_from_params(&self) -> Endpoint {
+        match self.tunnel_parameters {
+            TunnelParameters::OpenVpn(ref config) => match config.options.proxy {
+                Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
+                    address: local_proxy.peer,
+                    protocol: TransportProtocol::Tcp,
+                },
+                Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
+                    address: remote_proxy.address,
+                    protocol: TransportProtocol::Tcp,
+                },
+                _ => self.tunnel_parameters.get_endpoint(),
+            },
+            _ => self.tunnel_parameters.get_endpoint(),
+        }
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
@@ -192,8 +199,8 @@ impl TunnelState for ConnectedState {
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        let tunnel_endpoint = bootstrap.tunnel_parameters.endpoint.clone();
         let connected_state = ConnectedState::from(bootstrap);
+        let parameters = connected_state.tunnel_parameters.clone();
 
         if let Err(error) = connected_state.set_security_policy(shared_values) {
             log::error!("{}", error.display_chain());
@@ -218,7 +225,7 @@ impl TunnelState for ConnectedState {
         } else {
             (
                 TunnelStateWrapper::from(connected_state),
-                TunnelStateTransition::Connected(tunnel_endpoint),
+                TunnelStateTransition::Connected(parameters),
             )
         }
     }

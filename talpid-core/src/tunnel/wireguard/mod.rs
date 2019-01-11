@@ -2,7 +2,7 @@ use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
 use std::{net::IpAddr, path::Path, sync::mpsc};
-use talpid_types::net::{TunnelOptions, WireguardEndpointData};
+use talpid_types::net::{TunnelOptions, WireguardTunnelParameters};
 
 pub mod config;
 mod ping_monitor;
@@ -64,14 +64,12 @@ pub struct WireguardMonitor {
 
 impl WireguardMonitor {
     pub fn start<F: Fn(TunnelEvent) + Send + Sync + 'static>(
-        address: IpAddr,
-        data: WireguardEndpointData,
-        options: &TunnelOptions,
+        connection_config: &WireguardTunnelParameters,
         log_path: Option<&Path>,
         on_event: F,
     ) -> Result<WireguardMonitor> {
-        let config = Config::from_data(address, data.clone(), options)?;
-        let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
+        let wg_config = Config::from_data(&connection_config);
+        let tunnel = Box::new(WgGoTunnel::start_tunnel(&wg_config, log_path)?);
         let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
         let event_callback = Box::new(on_event);
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
@@ -82,9 +80,9 @@ impl WireguardMonitor {
             close_msg_sender,
             close_msg_receiver,
         };
-        monitor.setup_routing(&config)?;
-        monitor.start_pinger(&config);
-        monitor.tunnel_up(data);
+        monitor.setup_routing(&wg_config)?;
+        monitor.start_pinger(&wg_config);
+        monitor.tunnel_up(&wg_config);
 
         Ok(monitor)
     }
@@ -162,12 +160,12 @@ impl WireguardMonitor {
         )
     }
 
-    fn tunnel_up(&self, data: WireguardEndpointData) {
+    fn tunnel_up(&self, config: &Config) {
         let interface_name = self.tunnel.get_interface_name();
         let metadata = TunnelMetadata {
             interface: interface_name.to_string(),
-            ips: data.addresses,
-            gateway: data.gateway,
+            ips: config.interface.addresses.clone(),
+            gateway: config.gateway,
         };
         (self.event_callback)(TunnelEvent::Up(metadata));
     }

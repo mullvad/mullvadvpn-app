@@ -1,6 +1,9 @@
 use super::{NetworkSecurityT, SecurityPolicy};
 use pfctl::FilterRuleAction;
-use std::{env, net::Ipv4Addr};
+use std::{
+    env,
+    net::{Ipv4Addr, SocketAddr},
+};
 use talpid_types::net;
 
 mod dns;
@@ -161,7 +164,7 @@ impl NetworkSecurity {
         Ok(self
             .create_rule_builder(FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
-            .to(relay_endpoint.address)
+            .to(SocketAddr::new(relay_endpoint.ip, relay_endpoint.port))
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())

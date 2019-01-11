@@ -1,4 +1,4 @@
-use super::net::TunnelEndpoint;
+use crate::net::TunnelParameters;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -10,9 +10,9 @@ pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
     Disconnected,
     /// Network is secured but tunnel is still connecting.
-    Connecting(TunnelEndpoint),
+    Connecting(TunnelParameters),
     /// Tunnel is connected.
-    Connected(TunnelEndpoint),
+    Connected(TunnelParameters),
     /// Disconnecting tunnel.
     Disconnecting(ActionAfterDisconnect),
     /// Tunnel is disconnected but secured by blocking all connections.
