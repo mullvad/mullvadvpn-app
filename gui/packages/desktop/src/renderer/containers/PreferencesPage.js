@@ -11,7 +11,7 @@ import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => ({
-  autoConnect: state.settings.autoConnect,
+  autoConnect: state.settings.guiSettings.autoConnect,
   allowLan: state.settings.allowLan,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
   startMinimized: state.settings.guiSettings.startMinimized,
