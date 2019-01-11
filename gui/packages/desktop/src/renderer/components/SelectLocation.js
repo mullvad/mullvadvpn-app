@@ -3,7 +3,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { View, Component } from 'reactxp';
-import { Accordion, SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
+import { SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
 import { Layout, Container } from './Layout';
 import {
   NavigationContainer,
@@ -12,17 +12,14 @@ import {
   CloseBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import * as Cell from './Cell';
 import styles from './SelectLocationStyles';
 
-import type {
-  RelaySettingsRedux,
-  RelayLocationRedux,
-  RelayLocationCityRedux,
-  RelayLocationRelayRedux,
-} from '../redux/settings/reducers';
+import CountryRow from './CountryRow';
+import CityRow from './CityRow';
+import RelayRow from './RelayRow';
+
+import type { RelaySettingsRedux, RelayLocationRedux } from '../redux/settings/reducers';
 import type { RelayLocation } from '../lib/daemon-rpc-proxy';
-import { colors } from '../../config';
 
 type Props = {
   relaySettings: RelaySettingsRedux,
@@ -32,7 +29,8 @@ type Props = {
 };
 
 type State = {
-  expanded: Array<string>,
+  selectedLocation?: RelayLocation,
+  expandedItems: Array<RelayLocation>,
 };
 
 export default class SelectLocation extends Component<Props, State> {
@@ -40,43 +38,62 @@ export default class SelectLocation extends Component<Props, State> {
   _scrollViewRef = React.createRef();
 
   state = {
-    expanded: [],
+    selectedLocation: undefined,
+    expandedItems: [],
   };
 
   constructor(props: Props) {
     super(props);
 
-    // set initially expanded country based on relaySettings
-    const relaySettings = this.props.relaySettings;
-    if (relaySettings.normal) {
-      const { location } = relaySettings.normal;
-      if (location === 'any') {
-        // no-op
-      } else if (location.country) {
-        this.state.expanded.push(location.country);
-      } else if (location.city) {
-        const countryCode = location.city[0];
+    if (this.props.relaySettings.normal) {
+      const expandedItems = [];
+      const location = this.props.relaySettings.normal.location;
 
-        this.state.expanded.push(countryCode);
-      } else if (location.hostname) {
-        const countryCode = location.hostname[0];
-        const cityCode = location.hostname[1];
-
-        this.state.expanded.push(countryCode);
-        this.state.expanded.push(`${countryCode}_${cityCode}`);
+      if (location.city) {
+        expandedItems.push({ country: location.city[0] });
       }
+
+      if (location.hostname) {
+        expandedItems.push({ country: location.hostname[0] });
+        expandedItems.push({ city: [location.hostname[0], location.hostname[1]] });
+      }
+
+      if (location !== 'any') {
+        this.state.selectedLocation = location;
+      }
+
+      this.state.expandedItems = expandedItems;
+    }
+  }
+
+  componentDidUpdate(oldProps: Props) {
+    const currentLocation = this.state.selectedLocation;
+    let newLocation = (this.props.relaySettings.normal || {}).location;
+    let oldLocation = (oldProps.relaySettings.normal || {}).location;
+
+    if (newLocation === 'any') {
+      newLocation = undefined;
+    }
+
+    if (oldLocation === 'any') {
+      oldLocation = undefined;
+    }
+
+    if (
+      !compareLocationLoose(oldLocation, newLocation) &&
+      !compareLocationLoose(currentLocation, newLocation)
+    ) {
+      this.setState({ selectedLocation: newLocation });
     }
   }
 
   componentDidMount() {
-    // restore scroll to selected cell
+    // restore scroll to the selected cell
     const cell = this._selectedCellRef.current;
     const scrollView = this._scrollViewRef.current;
-
     if (scrollView && cell) {
       // eslint-disable-next-line react/no-find-dom-node
       const cellDOMNode = ReactDOM.findDOMNode(cell);
-
       if (cellDOMNode instanceof HTMLElement) {
         scrollView.scrollToElement(cellDOMNode, 'middle');
       }
@@ -105,7 +122,48 @@ export default class SelectLocation extends Component<Props, State> {
                     </SettingsHeader>
 
                     {this.props.relayLocations.map((relayCountry) => {
-                      return this._renderCountry(relayCountry);
+                      const location = { country: relayCountry.code };
+
+                      return (
+                        <CountryRow
+                          key={getLocationKey(location)}
+                          name={relayCountry.name}
+                          hasActiveRelays={relayCountry.hasActiveRelays}
+                          expanded={this._isExpanded(location)}
+                          onSelect={() => this._handleSelection(location)}
+                          onExpand={(expand) => this._handleExpand(location, expand)}
+                          {...this._getCommonCellProps(location)}>
+                          {relayCountry.cities.map((relayCity) => {
+                            const location = { city: [relayCountry.code, relayCity.code] };
+
+                            return (
+                              <CityRow
+                                key={getLocationKey(location)}
+                                name={relayCity.name}
+                                hasActiveRelays={relayCity.hasActiveRelays}
+                                expanded={this._isExpanded(location)}
+                                onSelect={() => this._handleSelection(location)}
+                                onExpand={(expand) => this._handleExpand(location, expand)}
+                                {...this._getCommonCellProps(location)}>
+                                {relayCity.relays.map((relay) => {
+                                  const location = {
+                                    hostname: [relayCountry.code, relayCity.code, relay.hostname],
+                                  };
+
+                                  return (
+                                    <RelayRow
+                                      key={getLocationKey(location)}
+                                      hostname={relay.hostname}
+                                      onSelect={() => this._handleSelection(location)}
+                                      {...this._getCommonCellProps(location)}
+                                    />
+                                  );
+                                })}
+                              </CityRow>
+                            );
+                          })}
+                        </CountryRow>
+                      );
                     })}
                   </View>
                 </NavigationScrollbars>
@@ -117,213 +175,71 @@ export default class SelectLocation extends Component<Props, State> {
     );
   }
 
-  _isSelected(selectedLocation: RelayLocation) {
-    const relaySettings = this.props.relaySettings;
-    if (relaySettings.normal) {
-      const otherLocation = relaySettings.normal.location;
-
-      if (
-        selectedLocation.country &&
-        otherLocation.country &&
-        selectedLocation.country === otherLocation.country
-      ) {
-        return true;
-      }
-
-      if (Array.isArray(selectedLocation.city) && Array.isArray(otherLocation.city)) {
-        const selectedCity = selectedLocation.city;
-        const otherCity = otherLocation.city;
-
-        return (
-          selectedCity.length === otherCity.length &&
-          selectedCity.every((v, i) => v === otherCity[i])
-        );
-      }
-
-      if (Array.isArray(selectedLocation.hostname) && Array.isArray(otherLocation.hostname)) {
-        const selectedRelay = selectedLocation.hostname;
-        const otherRelay = otherLocation.hostname;
-
-        return (
-          selectedRelay.length === otherRelay.length &&
-          selectedRelay.every((v, i) => v === otherRelay[i])
-        );
-      }
-    }
-    return false;
+  _isExpanded(relayLocation: RelayLocation) {
+    return this.state.expandedItems.some((location) => compareLocation(location, relayLocation));
   }
 
-  _toggleCollapse = (countryCode: string) => {
+  _isSelected(relayLocation: RelayLocation) {
+    return compareLocationLoose(this.state.selectedLocation, relayLocation);
+  }
+
+  _handleSelection = (location: RelayLocation) => {
+    if (!compareLocationLoose(this.state.selectedLocation, location)) {
+      this.setState({ selectedLocation: location }, () => {
+        this.props.onSelect(location);
+      });
+    }
+  };
+
+  _handleExpand = (location: RelayLocation, expand: boolean) => {
     this.setState((state) => {
-      const expanded = state.expanded.slice();
-      const index = expanded.indexOf(countryCode);
-      if (index === -1) {
-        expanded.push(countryCode);
-      } else {
-        expanded.splice(index, 1);
+      const expandedItems = state.expandedItems.filter((item) => !compareLocation(item, location));
+
+      if (expand) {
+        expandedItems.push(location);
       }
-      return { expanded };
+
+      return {
+        ...state,
+        expandedItems,
+      };
     });
   };
 
-  _relayStatusIndicator(active: boolean, isSelected: boolean) {
-    const statusClass = active ? styles.relay_status__active : styles.relay_status__inactive;
+  _getCommonCellProps(location: RelayLocation) {
+    const selected = this._isSelected(location);
+    const ref = selected ? this._selectedCellRef : undefined;
 
-    return isSelected ? (
-      <Cell.Icon
-        style={styles.tick_icon}
-        tintColor={colors.white}
-        source="icon-tick"
-        height={24}
-        width={24}
-      />
-    ) : (
-      <View style={[styles.relay_status, statusClass]} />
-    );
+    return { ref, selected };
   }
+}
 
-  _renderCountry(relayCountry: RelayLocationRedux) {
-    const isSelected = this._isSelected({ country: relayCountry.code });
+function getLocationKey(location: RelayLocation) {
+  const components = location.city || location.country || location.hostname || [];
 
-    const cellRef = isSelected ? this._selectedCellRef : undefined;
+  return [].concat(components).join('-');
+}
 
-    // either expanded by user or when the city selected within the country
-    const isExpanded = this.state.expanded.includes(relayCountry.code);
-
-    const hasChildren =
-      relayCountry.cities.length > 1 ||
-      (relayCountry.cities.length == 1 && relayCountry.cities[0].relays.length > 1);
-
-    const handleSelect =
-      relayCountry.hasActiveRelays && !isSelected
-        ? () => {
-            this.props.onSelect({ country: relayCountry.code });
-          }
-        : undefined;
-
-    const handleCollapse = (e) => {
-      this._toggleCollapse(relayCountry.code);
-      e.stopPropagation();
-    };
-
+function compareLocation(lhs: RelayLocation, rhs: RelayLocation) {
+  if (lhs.country && rhs.country) {
+    return lhs.country === rhs.country;
+  } else if (lhs.city && rhs.city) {
+    return lhs.city[0] === rhs.city[0] && lhs.city[1] === rhs.city[1];
+  } else if (lhs.hostname && rhs.hostname) {
     return (
-      <View key={relayCountry.code} style={styles.country}>
-        <Cell.CellButton
-          cellHoverStyle={isSelected ? styles.cell_selected : null}
-          style={isSelected ? styles.cell_selected : styles.cell}
-          onPress={handleSelect}
-          disabled={!relayCountry.hasActiveRelays}
-          testName="country"
-          ref={cellRef}>
-          {this._relayStatusIndicator(relayCountry.hasActiveRelays, isSelected)}
-
-          <Cell.Label>{relayCountry.name}</Cell.Label>
-
-          {hasChildren ? (
-            <Cell.Icon
-              style={styles.collapse_button}
-              tintColor={colors.white80}
-              tintHoverColor={colors.white}
-              onPress={handleCollapse}
-              source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
-              height={24}
-              width={24}
-            />
-          ) : null}
-        </Cell.CellButton>
-
-        {hasChildren && (
-          <Accordion height={isExpanded ? 'auto' : 0}>
-            {relayCountry.cities.map((relayCity) => this._renderCity(relayCountry.code, relayCity))}
-          </Accordion>
-        )}
-      </View>
+      lhs.hostname[0] === rhs.hostname[0] &&
+      lhs.hostname[1] === rhs.hostname[1] &&
+      lhs.hostname[2] === rhs.hostname[2]
     );
+  } else {
+    return false;
   }
+}
 
-  _renderCity(countryCode: string, relayCity: RelayLocationCityRedux) {
-    const expandedCode = `${countryCode}_${relayCity.code}`;
-    const relayLocation: RelayLocation = { city: [countryCode, relayCity.code] };
-
-    const isSelected = this._isSelected(relayLocation);
-
-    const cellRef = isSelected ? this._selectedCellRef : undefined;
-
-    // either expanded by user or when the city or a relay from the city is selected
-    const isExpanded = this.state.expanded.includes(expandedCode);
-
-    const handleSelect =
-      relayCity.hasActiveRelays && !isSelected
-        ? () => {
-            this.props.onSelect(relayLocation);
-          }
-        : undefined;
-
-    const handleCollapse = (e) => {
-      this._toggleCollapse(expandedCode);
-      e.stopPropagation();
-    };
-
-    return (
-      <View key={expandedCode}>
-        <Cell.CellButton
-          onPress={handleSelect}
-          disabled={!relayCity.hasActiveRelays}
-          cellHoverStyle={isSelected ? styles.sub_cell__selected : null}
-          style={isSelected ? styles.sub_cell__selected : styles.sub_cell}
-          testName="city"
-          ref={cellRef}>
-          {this._relayStatusIndicator(relayCity.hasActiveRelays, isSelected)}
-
-          <Cell.Label>{relayCity.name}</Cell.Label>
-
-          {relayCity.relays.length > 1 ? (
-            <Cell.Icon
-              style={styles.collapse_button}
-              tintColor={colors.white80}
-              tintHoverColor={colors.white}
-              onPress={handleCollapse}
-              source={isExpanded ? 'icon-chevron-up' : 'icon-chevron-down'}
-              height={24}
-              width={24}
-            />
-          ) : null}
-        </Cell.CellButton>
-
-        {relayCity.relays.length > 1 && (
-          <Accordion height={isExpanded ? 'auto' : 0}>
-            {relayCity.relays.map((relay) => this._renderRelay(countryCode, relayCity.code, relay))}
-          </Accordion>
-        )}
-      </View>
-    );
-  }
-
-  _renderRelay(countryCode: string, cityCode: string, relay: RelayLocationRelayRedux) {
-    const relayLocation: RelayLocation = { hostname: [countryCode, cityCode, relay.hostname] };
-
-    const isSelected = this._isSelected(relayLocation);
-
-    const cellRef = isSelected ? this._selectedCellRef : undefined;
-
-    const handleSelect = !isSelected
-      ? () => {
-          this.props.onSelect(relayLocation);
-        }
-      : undefined;
-
-    return (
-      <Cell.CellButton
-        key={`${countryCode}_${cityCode}_${relay.hostname}`}
-        onPress={handleSelect}
-        cellHoverStyle={isSelected ? styles.sub_sub_cell__selected : null}
-        style={isSelected ? styles.sub_sub_cell__selected : styles.sub_sub_cell}
-        testName="relay"
-        ref={cellRef}>
-        {this._relayStatusIndicator(true, isSelected)}
-
-        <Cell.Label>{relay.hostname}</Cell.Label>
-      </Cell.CellButton>
-    );
+function compareLocationLoose(lhs: ?RelayLocation, rhs: ?RelayLocation) {
+  if (lhs && rhs) {
+    return compareLocation(lhs, rhs);
+  } else {
+    return lhs === rhs;
   }
 }

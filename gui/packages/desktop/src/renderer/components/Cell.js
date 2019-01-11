@@ -49,7 +49,7 @@ const styles = {
       marginLeft: 8,
       marginTop: 14,
       marginBottom: 14,
-      flexGrow: 1,
+      flex: 1,
     }),
     text: Styles.createTextStyle({
       fontFamily: 'DINPro',
