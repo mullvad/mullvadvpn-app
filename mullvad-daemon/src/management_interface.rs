@@ -30,7 +30,7 @@ use std::{
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{net::OpenVpnProxySettings, tunnel::TunnelStateTransition};
+use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -115,7 +115,7 @@ build_rpc_trait! {
 
         /// Sets proxy details for OpenVPN
         #[rpc(meta, name = "set_openvpn_proxy")]
-        fn set_openvpn_proxy(&self, Self::Metadata, Option<OpenVpnProxySettings>) -> BoxFuture<(), Error>;
+        fn set_openvpn_proxy(&self, Self::Metadata, Option<openvpn::ProxySettings>) -> BoxFuture<(), Error>;
 
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
@@ -194,7 +194,7 @@ pub enum ManagementCommand {
     /// Set proxy details for OpenVPN
     SetOpenVpnProxy(
         OneshotSender<Result<(), settings::Error>>,
-        Option<OpenVpnProxySettings>,
+        Option<openvpn::ProxySettings>,
     ),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
@@ -587,7 +587,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     fn set_openvpn_proxy(
         &self,
         _: Self::Metadata,
-        proxy: Option<OpenVpnProxySettings>,
+        proxy: Option<openvpn::ProxySettings>,
     ) -> BoxFuture<(), Error> {
         log::debug!("set_openvpn_proxy({:?})", proxy);
         let (tx, rx) = sync::oneshot::channel();

@@ -5,7 +5,7 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs::File, io, path::PathBuf};
-use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
+use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 error_chain! {
     errors {
@@ -201,9 +201,9 @@ impl Settings {
         }
     }
 
-    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<bool> {
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<bool> {
         if let Some(ref settings) = proxy {
-            if let Err(validation_error) = OpenVpnProxySettingsValidation::validate(settings) {
+            if let Err(validation_error) = openvpn::ProxySettingsValidation::validate(settings) {
                 bail!(ErrorKind::InvalidProxyData(validation_error));
             }
         }
@@ -217,8 +217,8 @@ impl Settings {
     }
 
     pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool> {
-        if self.tunnel_options.enable_ipv6 != enable_ipv6 {
-            self.tunnel_options.enable_ipv6 = enable_ipv6;
+        if self.tunnel_options.generic.enable_ipv6 != enable_ipv6 {
+            self.tunnel_options.generic.enable_ipv6 = enable_ipv6;
             self.save().map(|_| true)
         } else {
             Ok(false)
@@ -227,5 +227,31 @@ impl Settings {
 
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
+    }
+}
+
+/// TunnelOptions holds configuration data that applies to all kinds of tunnels.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TunnelOptions {
+    /// openvpn holds OpenVPN specific tunnel options.
+    pub openvpn: openvpn::TunnelOptions,
+    /// Contains wireguard tunnel options.
+    pub wireguard: wireguard::TunnelOptions,
+    /// Contains generic tunnel options that may apply to more than a single tunnel type.
+    pub generic: GenericTunnelOptions,
+}
+
+impl Default for TunnelOptions {
+    fn default() -> Self {
+        TunnelOptions {
+            openvpn: openvpn::TunnelOptions::default(),
+            wireguard: wireguard::TunnelOptions {
+                mtu: None,
+                #[cfg(target_os = "linux")]
+                fwmark: 78_78_78,
+            },
+            generic: GenericTunnelOptions { enable_ipv6: false },
+        }
     }
 }

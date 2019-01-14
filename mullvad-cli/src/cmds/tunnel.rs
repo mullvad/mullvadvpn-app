@@ -1,10 +1,8 @@
 use crate::{new_rpc_client, Command, Result};
 use clap::value_t;
 
-use talpid_types::net::{
-    LocalOpenVpnProxySettings, OpenVpnProxyAuth, OpenVpnProxySettings,
-    OpenVpnProxySettingsValidation, RemoteOpenVpnProxySettings, TunnelOptions,
-};
+use mullvad_types::settings::TunnelOptions;
+use talpid_types::net::openvpn;
 
 use std::net::{IpAddr, SocketAddr};
 
@@ -102,11 +100,13 @@ fn create_openvpn_proxy_subcommand() -> clap::App<'static, 'static> {
                         .arg(
                             clap::Arg::with_name("username")
                                 .help("Specifies the username for remote authentication")
+                                .required(true)
                                 .index(3),
                         )
                         .arg(
                             clap::Arg::with_name("password")
                                 .help("Specifies the password for remote authentication")
+                                .required(true)
                                 .index(4),
                         ),
                 ),
@@ -207,9 +207,9 @@ impl Tunnel {
     fn process_openvpn_proxy_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options()?;
         if let Some(proxy) = tunnel_options.openvpn.proxy {
-            if let OpenVpnProxySettings::Local(local_proxy) = proxy {
+            if let openvpn::ProxySettings::Local(local_proxy) = proxy {
                 Self::print_local_proxy(&local_proxy)
-            } else if let OpenVpnProxySettings::Remote(remote_proxy) = proxy {
+            } else if let openvpn::ProxySettings::Remote(remote_proxy) = proxy {
                 Self::print_remote_proxy(&remote_proxy)
             } else {
                 unreachable!("unhandled proxy type");
@@ -220,14 +220,14 @@ impl Tunnel {
         Ok(())
     }
 
-    fn print_local_proxy(proxy: &LocalOpenVpnProxySettings) {
+    fn print_local_proxy(proxy: &openvpn::LocalProxySettings) {
         println!("proxy: local");
         println!("  local port: {}", proxy.port);
         println!("  peer IP: {}", proxy.peer.ip());
         println!("  peer port: {}", proxy.peer.port());
     }
 
-    fn print_remote_proxy(proxy: &RemoteOpenVpnProxySettings) {
+    fn print_remote_proxy(proxy: &openvpn::RemoteProxySettings) {
         println!("proxy: remote");
         println!("  server IP: {}", proxy.address.ip());
         println!("  server port: {}", proxy.address.port());
@@ -256,14 +256,14 @@ impl Tunnel {
             let remote_port =
                 value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
 
-            let proxy = LocalOpenVpnProxySettings {
+            let proxy = openvpn::LocalProxySettings {
                 port: local_port,
                 peer: SocketAddr::new(remote_ip, remote_port),
             };
 
-            let packed_proxy = OpenVpnProxySettings::Local(proxy);
+            let packed_proxy = openvpn::ProxySettings::Local(proxy);
 
-            if let Err(error) = OpenVpnProxySettingsValidation::validate(&packed_proxy) {
+            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
                 panic!(error);
             }
 
@@ -278,21 +278,21 @@ impl Tunnel {
             let password = args.value_of("password");
 
             let auth = match (username, password) {
-                (Some(username), Some(password)) => Some(OpenVpnProxyAuth {
+                (Some(username), Some(password)) => Some(openvpn::ProxyAuth {
                     username: username.to_string(),
                     password: password.to_string(),
                 }),
                 _ => None,
             };
 
-            let proxy = RemoteOpenVpnProxySettings {
+            let proxy = openvpn::RemoteProxySettings {
                 address: SocketAddr::new(remote_ip, remote_port),
                 auth,
             };
 
-            let packed_proxy = OpenVpnProxySettings::Remote(proxy);
+            let packed_proxy = openvpn::ProxySettings::Remote(proxy);
 
-            if let Err(error) = OpenVpnProxySettingsValidation::validate(&packed_proxy) {
+            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
                 panic!(error);
             }
 
@@ -311,7 +311,7 @@ impl Tunnel {
         let tunnel_options = Self::get_tunnel_options()?;
         println!(
             "IPv6: {}",
-            if tunnel_options.enable_ipv6 {
+            if tunnel_options.generic.enable_ipv6 {
                 "on"
             } else {
                 "off"

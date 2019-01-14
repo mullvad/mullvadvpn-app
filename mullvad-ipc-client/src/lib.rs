@@ -12,15 +12,12 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{RelaySettings, RelaySettingsUpdate},
     relay_list::RelayList,
-    settings::Settings,
+    settings::{Settings, TunnelOptions},
     version::AppVersionInfo,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::Path, sync::mpsc, thread, time::Duration};
-use talpid_types::{
-    net::{OpenVpnProxySettings, TunnelOptions},
-    tunnel::TunnelStateTransition,
-};
+use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
 
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 
@@ -196,7 +193,7 @@ impl DaemonRpcClient {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<()> {
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<()> {
         self.call("set_openvpn_proxy", &[proxy])
     }
 

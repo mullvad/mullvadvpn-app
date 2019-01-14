@@ -9,17 +9,16 @@ use mullvad_types::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
         TunnelConstraints,
     },
-    relay_list::{Relay, RelayList, RelayTunnels},
+    relay_list::{MullvadEndpoint, Relay, RelayList, RelayTunnels, TunnelEndpointData},
 };
 
 use serde_json;
 
-use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::TransportProtocol;
 
 use std::{
     fs::File,
     io,
-    net::IpAddr,
     path::{Path, PathBuf},
     sync::{mpsc, Arc, Mutex, MutexGuard},
     thread,
@@ -196,7 +195,7 @@ impl RelaySelector {
         &mut self,
         constraints: &RelayConstraints,
         retry_attempt: u32,
-    ) -> Result<(Relay, TunnelEndpoint)> {
+    ) -> Result<(Relay, MullvadEndpoint)> {
         let preferred_constraints = Self::preferred_constraints(constraints, retry_attempt);
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
@@ -264,7 +263,7 @@ impl RelaySelector {
     fn get_tunnel_endpoint_internal(
         &mut self,
         constraints: &RelayConstraints,
-    ) -> Option<(Relay, TunnelEndpoint)> {
+    ) -> Option<(Relay, MullvadEndpoint)> {
         let matching_relays: Vec<Relay> = self
             .lock_parsed_relays()
             .relays()
@@ -280,10 +279,8 @@ impl RelaySelector {
                 );
                 self.get_random_tunnel(&selected_relay.tunnels)
                     .map(|tunnel_parameters| {
-                        let endpoint = TunnelEndpoint {
-                            address: IpAddr::V4(selected_relay.ipv4_addr_in),
-                            tunnel: tunnel_parameters,
-                        };
+                        let endpoint = tunnel_parameters
+                            .to_mullvad_endpoint(selected_relay.ipv4_addr_in.into());
                         (selected_relay.clone(), endpoint)
                     })
             })
