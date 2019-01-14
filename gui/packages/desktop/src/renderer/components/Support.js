@@ -1,8 +1,16 @@
 // @flow
 
 import * as React from 'react';
-import { Component, Modal, Text, View, TextInput } from 'reactxp';
-import { ImageView, SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
+import { Component, Text, View, TextInput } from 'reactxp';
+import {
+  ImageView,
+  SettingsHeader,
+  HeaderTitle,
+  HeaderSubTitle,
+  ModalContainer,
+  ModalContent,
+  ModalAlert,
+} from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
@@ -14,7 +22,7 @@ type SupportState = {
   email: string,
   message: string,
   savedReport: ?string,
-  sendState: 'INITIAL' | 'LOADING' | 'SUCCESS' | 'FAILED',
+  sendState: 'INITIAL' | 'CONFIRM' | 'LOADING' | 'SUCCESS' | 'FAILED',
 };
 
 export type SupportProps = {
@@ -103,23 +111,37 @@ export default class Support extends Component<SupportProps, SupportState> {
   }
 
   onSend = async (): Promise<void> => {
-    if (this.state.sendState === 'INITIAL' && this.state.email.length === 0) {
-      this._showConfirmNoEmailDialog();
-      return Promise.resolve();
-    } else {
-      try {
-        await this._sendReport();
-      } catch (error) {
-        // No-op
-      }
+    switch (this.state.sendState) {
+      case 'INITIAL':
+        if (this.state.email.length === 0) {
+          this.setState({ sendState: 'CONFIRM' });
+        } else {
+          try {
+            await this._sendReport();
+          } catch (error) {
+            // No-op
+          }
+        }
+        return Promise.resolve();
+
+      case 'CONFIRM':
+        try {
+          await this._sendReport();
+        } catch (error) {
+          // No-op
+        }
+        return Promise.resolve();
+
+      default:
+        break;
     }
+
+    return Promise.resolve();
   };
 
-  _showConfirmNoEmailDialog() {
-    const modalId = 'ConfirmNoEmailDialog';
-
-    Modal.show(<ConfirmNoEmailDialog modalId={modalId} onConfirm={this._sendReport} />, modalId);
-  }
+  onCancelConfirmation = () => {
+    this.setState({ sendState: 'INITIAL' });
+  };
 
   _sendReport(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -146,7 +168,7 @@ export default class Support extends Component<SupportProps, SupportState> {
     const header = (
       <SettingsHeader>
         <HeaderTitle>Report a problem</HeaderTitle>
-        {sendState === 'INITIAL' && (
+        {(sendState === 'INITIAL' || sendState === 'CONFIRM') && (
           <HeaderSubTitle>
             {
               "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -161,17 +183,20 @@ export default class Support extends Component<SupportProps, SupportState> {
     return (
       <Layout>
         <Container>
-          <View style={styles.support}>
-            <NavigationBar>
-              <BackBarItem action={this.props.onClose} title={'Settings'} />
-            </NavigationBar>
-
-            <View style={styles.support__container}>
-              {header}
-
-              {content}
-            </View>
-          </View>
+          <ModalContainer>
+            <ModalContent>
+              <View style={styles.support}>
+                <NavigationBar>
+                  <BackBarItem action={this.props.onClose} title={'Settings'} />
+                </NavigationBar>
+                <View style={styles.support__container}>
+                  {header}
+                  {content}
+                </View>
+              </View>
+            </ModalContent>
+            {sendState === 'CONFIRM' && <ModalAlert>{this._renderConfirm()}</ModalAlert>}
+          </ModalContainer>
         </Container>
       </Layout>
     );
@@ -180,6 +205,7 @@ export default class Support extends Component<SupportProps, SupportState> {
   _renderContent() {
     switch (this.state.sendState) {
       case 'INITIAL':
+      case 'CONFIRM':
         return this._renderForm();
       case 'LOADING':
         return this._renderLoading();
@@ -190,6 +216,10 @@ export default class Support extends Component<SupportProps, SupportState> {
       default:
         return null;
     }
+  }
+
+  _renderConfirm() {
+    return <ConfirmNoEmailDialog onConfirm={this.onSend} onDismiss={this.onCancelConfirmation} />;
   }
 
   _renderForm() {
@@ -310,8 +340,8 @@ export default class Support extends Component<SupportProps, SupportState> {
 }
 
 type ConfirmNoEmailDialogProps = {
-  modalId: string,
   onConfirm: () => void,
+  onDismiss: () => void,
 };
 
 class ConfirmNoEmailDialog extends Component<ConfirmNoEmailDialogProps> {
@@ -339,10 +369,9 @@ class ConfirmNoEmailDialog extends Component<ConfirmNoEmailDialogProps> {
 
   _confirm = () => {
     this.props.onConfirm();
-    Modal.dismiss(this.props.modalId);
   };
 
   _dismiss = () => {
-    Modal.dismiss(this.props.modalId);
+    this.props.onDismiss();
   };
 }
