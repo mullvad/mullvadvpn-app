@@ -93,15 +93,16 @@ export default class ConnectionInfo extends Component<IProps, IState> {
               </View>
             )}
 
-            {outAddress && (outAddress.ipv4 || outAddress.ipv6) && (
-              <View style={styles.row}>
-                <Text style={styles.caption}>{'Out'}</Text>
-                <View>
-                  {outAddress.ipv4 && <Text style={styles.value}>{outAddress.ipv4}</Text>}
-                  {outAddress.ipv6 && <Text style={styles.value}>{outAddress.ipv6}</Text>}
+            {outAddress &&
+              (outAddress.ipv4 || outAddress.ipv6) && (
+                <View style={styles.row}>
+                  <Text style={styles.caption}>{'Out'}</Text>
+                  <View>
+                    {outAddress.ipv4 && <Text style={styles.value}>{outAddress.ipv4}</Text>}
+                    {outAddress.ipv6 && <Text style={styles.value}>{outAddress.ipv6}</Text>}
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
           </React.Fragment>
         )}
       </View>
