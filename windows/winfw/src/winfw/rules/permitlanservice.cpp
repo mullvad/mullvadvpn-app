@@ -75,6 +75,24 @@ bool PermitLanService::applyIpv4(IObjectInstaller &objectInstaller) const
 	conditionBuilder.add_condition(ConditionIp::Local(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
 
+	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+	{
+		return false;
+	}
+
+	//
+	// #4 incoming request on 169.254/16
+	//
+
+	filterBuilder
+		.key(MullvadGuids::FilterPermitLanService_169_254_16())
+		.name(L"Permit incoming requests on 169.254/16");
+
+	conditionBuilder.reset();
+
+	conditionBuilder.add_condition(ConditionIp::Local(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), uint8_t(16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), uint8_t(16)));
+
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
 
