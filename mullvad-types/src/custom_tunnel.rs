@@ -1,9 +1,13 @@
+use crate::settings::Settings;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    net::{IpAddr, ToSocketAddrs},
+    net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::{
+    OpenVpnConnectionConfig, OpenVpnTunnelParameters, TunnelParameters, WireguardConnectionConfig,
+    WireguardTunnelParameters,
+};
 
 error_chain! {
     errors {
@@ -13,25 +17,29 @@ error_chain! {
     }
 }
 
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {
     pub host: String,
-    pub tunnel: TunnelEndpointData,
+    pub config: ConnectionConfig,
 }
 
 impl CustomTunnelEndpoint {
-    pub fn to_tunnel_endpoint(&self) -> Result<TunnelEndpoint> {
-        Ok(TunnelEndpoint {
-            address: resolve_to_ip(&self.host)?,
-            tunnel: self.tunnel.clone(),
-        })
+    pub fn to_connection_config(&self) -> Result<ConnectionConfig> {
+        let ip = resolve_to_ip(&self.host)?;
+        let mut config = self.config.clone();
+        config.set_ip(ip);
+
+        Ok(config)
     }
 }
 
 impl fmt::Display for CustomTunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} over {}", self.host, self.tunnel)
+        let tunnel_type = match &self.config {
+            ConnectionConfig::OpenVpn(_) => &"OpenVpn",
+            ConnectionConfig::Wireguard(_) => &"Wireguard",
+        };
+        write!(f, "{} over {}", self.host, tunnel_type)
     }
 }
 
@@ -52,4 +60,42 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
             ipv6.pop()
         })
         .ok_or_else(|| ErrorKind::InvalidHost(host.to_owned()).into())
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ConnectionConfig {
+    OpenVpn(OpenVpnConnectionConfig),
+    Wireguard(WireguardConnectionConfig),
+}
+
+impl ConnectionConfig {
+    fn set_ip(&mut self, ip: IpAddr) {
+        match self {
+            ConnectionConfig::OpenVpn(config) => {
+                config.host = SocketAddr::new(ip, config.host.port())
+            }
+            ConnectionConfig::Wireguard(config) => {
+                config.host = SocketAddr::new(ip, config.host.port())
+            }
+        }
+    }
+
+    pub fn to_tunnel_parameters(self, settings: &Settings) -> TunnelParameters {
+        let tunnel_options = settings.get_tunnel_options().clone();
+        match self {
+            ConnectionConfig::OpenVpn(config) => OpenVpnTunnelParameters {
+                config,
+                options: tunnel_options.openvpn,
+                generic_options: tunnel_options.generic,
+            }
+            .into(),
+
+            ConnectionConfig::Wireguard(config) => WireguardTunnelParameters {
+                config,
+                options: tunnel_options.wireguard,
+                generic_options: tunnel_options.generic,
+            }
+            .into(),
+        }
+    }
 }

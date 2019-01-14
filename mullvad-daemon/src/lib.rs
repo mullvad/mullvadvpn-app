@@ -42,10 +42,13 @@ use mullvad_types::{
 use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
+    tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{OpenVpnProxySettings, TransportProtocol},
+    net::{
+        OpenVpnConnectionConfig, OpenVpnProxySettings, OpenVpnTunnelParameters, TransportProtocol,
+        TunnelEndpoint, TunnelEndpointData, TunnelParameters,
+    },
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -57,6 +60,9 @@ error_chain! {
         }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
+        }
+        UnsupportedTunnel {
+            description("Unsupported tunnel")
         }
         ManagementInterfaceError(msg: &'static str) {
             description("Error in the management interface")
@@ -340,7 +346,8 @@ impl Daemon {
             .map(|account_token| {
                 match self.settings.get_relay_settings() {
                     RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                        .to_tunnel_endpoint()
+                        .to_connection_config()
+                        .map(|config| config.to_tunnel_parameters(&self.settings))
                         .chain_err(|| "Custom tunnel endpoint could not be resolved"),
                     RelaySettings::Normal(constraints) => self
                         .relay_selector
@@ -349,20 +356,37 @@ impl Daemon {
                         .map(|(relay, endpoint)| {
                             self.last_generated_relay = Some(relay);
                             endpoint
+                        })
+                        .and_then(|endpoint| {
+                            self.create_tunnel_parameters(endpoint, account_token)
                         }),
                 }
-                .map(|endpoint| {
+                .map(|tunnel_params| {
                     tunnel_parameters_tx
-                        .send(TunnelParameters {
-                            endpoint,
-                            options: self.settings.get_tunnel_options().clone(),
-                            username: account_token,
-                        })
+                        .send(tunnel_params)
                         .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
                 })
             });
         if let Err(error) = result {
             error!("{}", error.display_chain());
+        }
+    }
+
+    fn create_tunnel_parameters(
+        &self,
+        endpoint: TunnelEndpoint,
+        account_token: String,
+    ) -> Result<TunnelParameters> {
+        let ip = endpoint.address;
+        let tunnel_options = self.settings.get_tunnel_options().clone();
+        match endpoint.tunnel {
+            TunnelEndpointData::OpenVpn(metadata) => Ok(OpenVpnTunnelParameters {
+                config: OpenVpnConnectionConfig::new(ip, metadata, account_token),
+                options: tunnel_options.openvpn,
+                generic_options: tunnel_options.generic,
+            }
+            .into()),
+            TunnelEndpointData::Wireguard(_) => Err(ErrorKind::UnsupportedTunnel.into()),
         }
     }
 
