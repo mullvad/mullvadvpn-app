@@ -29,6 +29,7 @@ use log::{debug, error, info, warn};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{
     account::{AccountData, AccountToken},
+    endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
@@ -42,10 +43,10 @@ use mullvad_types::{
 use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel_state_machine::{self, TunnelCommand, TunnelParameters, TunnelParametersGenerator},
+    tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{OpenVpnProxySettings, TransportProtocol},
+    net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -57,6 +58,9 @@ error_chain! {
         }
         DaemonIsAlreadyRunning {
             description("Another instance of the daemon is already running")
+        }
+        UnsupportedTunnel {
+            description("Unsupported tunnel")
         }
         ManagementInterfaceError(msg: &'static str) {
             description("Error in the management interface")
@@ -340,29 +344,45 @@ impl Daemon {
             .map(|account_token| {
                 match self.settings.get_relay_settings() {
                     RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                        .to_tunnel_endpoint()
+                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
                         .chain_err(|| "Custom tunnel endpoint could not be resolved"),
                     RelaySettings::Normal(constraints) => self
                         .relay_selector
                         .get_tunnel_endpoint(&constraints, retry_attempt)
                         .chain_err(|| "No valid relay servers match the current settings")
-                        .map(|(relay, endpoint)| {
+                        .and_then(|(relay, endpoint)| {
                             self.last_generated_relay = Some(relay);
-                            endpoint
+                            self.create_tunnel_parameters(endpoint, account_token)
                         }),
                 }
-                .map(|endpoint| {
+                .map(|tunnel_params| {
                     tunnel_parameters_tx
-                        .send(TunnelParameters {
-                            endpoint,
-                            options: self.settings.get_tunnel_options().clone(),
-                            username: account_token,
-                        })
+                        .send(tunnel_params)
                         .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
                 })
             });
         if let Err(error) = result {
             error!("{}", error.display_chain());
+        }
+    }
+
+    fn create_tunnel_parameters(
+        &self,
+        endpoint: MullvadEndpoint,
+        account_token: String,
+    ) -> Result<TunnelParameters> {
+        let tunnel_options = self.settings.get_tunnel_options().clone();
+        match endpoint {
+            MullvadEndpoint::OpenVpn(endpoint) => Ok(openvpn::TunnelParameters {
+                config: openvpn::ConnectionConfig::new(endpoint, account_token, "-".to_string()),
+                options: tunnel_options.openvpn,
+                generic_options: tunnel_options.generic,
+            }
+            .into()),
+            MullvadEndpoint::Wireguard {
+                peer: _,
+                gateway: _,
+            } => Err(ErrorKind::UnsupportedTunnel.into()),
         }
     }
 
@@ -639,7 +659,7 @@ impl Daemon {
     fn on_set_openvpn_proxy(
         &mut self,
         tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
-        proxy: Option<OpenVpnProxySettings>,
+        proxy: Option<openvpn::ProxySettings>,
     ) {
         let constraints_result = match proxy {
             Some(_) => self.apply_proxy_constraints(),
