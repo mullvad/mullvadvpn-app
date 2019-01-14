@@ -23,6 +23,6 @@
     "eslint-plugin-react": "^7.10.0",
     "flow-bin": "0.82",
     "flow-typed": "^2.5.1",
-    "prettier": "1.15.1"
+    "prettier": "1.15.3"
   }
 }
