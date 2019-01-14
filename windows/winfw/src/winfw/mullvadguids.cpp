@@ -142,6 +142,20 @@ const GUID &MullvadGuids::FilterPermitLan_192_168_16()
 }
 
 //static
+const GUID &MullvadGuids::FilterPermitLan_169_254_16()
+{
+	static const GUID g =
+	{
+		0x58718a9e,
+		0x7ec1,
+		0x4dee,
+		{ 0x8d, 0x3f, 0x16, 0x5b, 0x95, 0x5d, 0xb5, 0x42 }
+	};
+
+	return g;
+}
+
+//static
 const GUID &MullvadGuids::FilterPermitLan_Multicast()
 {
 	static const GUID g =
@@ -220,6 +234,20 @@ const GUID &MullvadGuids::FilterPermitLanService_192_168_16()
 		0x9bf0,
 		0x47f2,
 		{ 0x98, 0x69, 0xd1, 0x5e, 0xf3, 0x5c, 0x3a, 0x8 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitLanService_169_254_16()
+{
+	static const GUID g =
+	{
+		0x39d9b695,
+		0x5c27,
+		0x42a6,
+		{ 0xba, 0xea, 0x8c, 0x4b, 0xe0, 0x7e, 0x66, 0x3e }
 	};
 
 	return g;

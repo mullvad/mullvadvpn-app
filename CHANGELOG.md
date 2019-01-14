@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   state as blocked when appropriate and also having a toggle switch for the setting in the Advanced
   Settings screen.
 - Add a drop-down warning to notify the user when the account credits are running low.
+- Allow the 169.254.0.0/16 private network in addition to the other networks allowed when local
+  network sharing is enabled.
 
 #### macOS
 - Add a monochromatic tray icon option for the GUI.

@@ -25,10 +25,11 @@ pub use self::imp::{DnsError, Error};
 
 #[cfg(unix)]
 lazy_static! {
-    static ref PRIVATE_NETS: [IpNetwork; 3] = [
+    static ref PRIVATE_NETS: [IpNetwork; 4] = [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
     ];
     static ref LOCAL_INET6_NET: IpNetwork =
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
