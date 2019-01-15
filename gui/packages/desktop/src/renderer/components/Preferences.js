@@ -67,6 +67,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
                       <Cell.Label>Launch app on start-up</Cell.Label>
                       <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
                     </Cell.Container>
+                    <View style={styles.preferences__separator} />
 
                     <Cell.Container>
                       <Cell.Label>Auto-connect</Cell.Label>

@@ -19,4 +19,7 @@ export default {
     flexShrink: 1,
     flexBasis: 'auto',
   }),
+  preferences__separator: Styles.createViewStyle({
+    height: 1,
+  }),
 };
