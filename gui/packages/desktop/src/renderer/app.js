@@ -14,6 +14,7 @@ import { createMemoryHistory } from 'history';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
+import { getOpenAtLogin, setOpenAtLogin } from './lib/autostart';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -343,8 +344,26 @@ export default class AppRenderer {
 
   async setAutoConnect(autoConnect: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setAutoConnect(autoConnect);
+    await IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
+    await this._setDaemonAutoConnect(autoConnect, getOpenAtLogin());
     actions.settings.updateAutoConnect(autoConnect);
+  }
+
+  _getAutoConnect(): boolean {
+    return this._reduxStore.getState().settings.guiSettings.autoConnect;
+  }
+
+  async setAutoStart(autoStart: boolean) {
+    await setOpenAtLogin(autoStart);
+    await this._setDaemonAutoConnect(this._getAutoConnect(), autoStart);
+  }
+
+  async _setDaemonAutoConnect(guiAutoConnect: boolean, autoStart: boolean) {
+    const daemonAutoConnect = guiAutoConnect && autoStart;
+
+    if (daemonAutoConnect !== this._settings.autoConnect) {
+      await this._daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
   }
 
   setStartMinimized(startMinimized: boolean) {
@@ -435,15 +454,17 @@ export default class AppRenderer {
     const accountToken = this._settings.accountToken;
 
     if (accountToken) {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        log.debug('Skip autoconnect in development');
+      } else if (!this._getAutoConnect()) {
+        log.debug('Skip autoconnect because GUI setting is disabled');
+      } else {
         try {
           log.debug('Autoconnect the tunnel');
           await this.connectTunnel();
         } catch (error) {
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
-      } else {
-        log.debug('Skip autoconnect in development');
       }
     } else {
       log.debug('Skip autoconnect because account token is not set');
@@ -490,7 +511,6 @@ export default class AppRenderer {
     const reduxSettings = this._reduxActions.settings;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
-    reduxSettings.updateAutoConnect(newSettings.autoConnect);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);

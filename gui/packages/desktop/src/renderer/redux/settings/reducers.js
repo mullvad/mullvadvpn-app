@@ -48,7 +48,6 @@ export type SettingsReduxState = {
   guiSettings: GuiSettingsState,
   relaySettings: RelaySettingsRedux,
   relayLocations: Array<RelayLocationRedux>,
-  autoConnect: boolean,
   allowLan: boolean,
   enableIpv6: boolean,
   blockWhenDisconnected: boolean,
@@ -59,6 +58,7 @@ export type SettingsReduxState = {
 
 const initialState: SettingsReduxState = {
   guiSettings: {
+    autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
   },
@@ -70,7 +70,6 @@ const initialState: SettingsReduxState = {
     },
   },
   relayLocations: [],
-  autoConnect: false,
   allowLan: false,
   enableIpv6: true,
   blockWhenDisconnected: false,

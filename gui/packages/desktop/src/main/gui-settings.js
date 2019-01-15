@@ -9,6 +9,7 @@ import type { GuiSettingsState } from '../shared/gui-settings-state';
 
 export default class GuiSettings {
   _state: GuiSettingsState = {
+    autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
   };
@@ -21,6 +22,8 @@ export default class GuiSettings {
       const contents = fs.readFileSync(settingsFile, 'utf8');
       const settings = JSON.parse(contents);
 
+      this._state.autoConnect =
+        typeof settings.autoConnect === 'boolean' ? settings.autoConnect : true;
       this._state.monochromaticIcon = settings.monochromaticIcon || false;
       this._state.startMinimized = settings.startMinimized || false;
     } catch (error) {
@@ -40,6 +43,14 @@ export default class GuiSettings {
 
   get state(): GuiSettingsState {
     return this._state;
+  }
+
+  set autoConnect(newValue: boolean) {
+    this._changeStateAndNotify({ ...this._state, autoConnect: newValue });
+  }
+
+  get autoConnect(): boolean {
+    return this._state.autoConnect;
   }
 
   set monochromaticIcon(newValue: boolean) {
