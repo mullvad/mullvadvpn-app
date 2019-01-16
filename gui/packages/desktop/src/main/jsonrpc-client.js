@@ -438,7 +438,14 @@ export class SocketTransport implements Transport<{ path: string }> {
     if (!this.socketClosed) {
       this.socketClosed = true;
       this.onClose(err);
+      if (this.connection) {
+        // Overriding the 'close' event handler to not close the next socket, the
+        // onClose calllback is already called.
+        this.connection.removeAllListeners('close');
+      }
       this.close();
+    } else {
+      this.onClose(null);
     }
   }
 
