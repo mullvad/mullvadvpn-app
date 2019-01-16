@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import { Component, Text, View, TextInput } from 'reactxp';
-import { ImageView, SettingsHeader, HeaderTitle, HeaderSubTitle } from '@mullvad/components';
+import {
+  ImageView,
+  SettingsHeader,
+  HeaderTitle,
+  HeaderSubTitle,
+  ModalContainer,
+  ModalContent,
+  ModalAlert,
+} from '@mullvad/components';
 import * as AppButton from './AppButton';
 import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
@@ -14,7 +22,7 @@ type SupportState = {
   email: string,
   message: string,
   savedReport: ?string,
-  sendState: 'INITIAL' | 'CONFIRM_NO_EMAIL' | 'LOADING' | 'SUCCESS' | 'FAILED',
+  sendState: 'INITIAL' | 'CONFIRM' | 'LOADING' | 'SUCCESS' | 'FAILED',
 };
 
 export type SupportProps = {
@@ -103,17 +111,36 @@ export default class Support extends Component<SupportProps, SupportState> {
   }
 
   onSend = async (): Promise<void> => {
-    if (this.state.sendState === 'INITIAL' && this.state.email.length === 0) {
-      return new Promise((resolve) => {
-        this.setState({ sendState: 'CONFIRM_NO_EMAIL' }, () => resolve());
-      });
-    } else {
-      try {
-        await this._sendReport();
-      } catch (error) {
-        // No-op
-      }
+    switch (this.state.sendState) {
+      case 'INITIAL':
+        if (this.state.email.length === 0) {
+          this.setState({ sendState: 'CONFIRM' });
+        } else {
+          try {
+            await this._sendReport();
+          } catch (error) {
+            // No-op
+          }
+        }
+        return Promise.resolve();
+
+      case 'CONFIRM':
+        try {
+          await this._sendReport();
+        } catch (error) {
+          // No-op
+        }
+        return Promise.resolve();
+
+      default:
+        break;
     }
+
+    return Promise.resolve();
+  };
+
+  onCancelConfirmation = () => {
+    this.setState({ sendState: 'INITIAL' });
   };
 
   _sendReport(): Promise<void> {
@@ -141,7 +168,7 @@ export default class Support extends Component<SupportProps, SupportState> {
     const header = (
       <SettingsHeader>
         <HeaderTitle>Report a problem</HeaderTitle>
-        {(sendState === 'INITIAL' || sendState === 'CONFIRM_NO_EMAIL') && (
+        {(sendState === 'INITIAL' || sendState === 'CONFIRM') && (
           <HeaderSubTitle>
             {
               "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -156,17 +183,20 @@ export default class Support extends Component<SupportProps, SupportState> {
     return (
       <Layout>
         <Container>
-          <View style={styles.support}>
-            <NavigationBar>
-              <BackBarItem action={this.props.onClose} title={'Settings'} />
-            </NavigationBar>
-
-            <View style={styles.support__container}>
-              {header}
-
-              {content}
-            </View>
-          </View>
+          <ModalContainer>
+            <ModalContent>
+              <View style={styles.support}>
+                <NavigationBar>
+                  <BackBarItem action={this.props.onClose} title={'Settings'} />
+                </NavigationBar>
+                <View style={styles.support__container}>
+                  {header}
+                  {content}
+                </View>
+              </View>
+            </ModalContent>
+            {sendState === 'CONFIRM' && <ModalAlert>{this._renderConfirm()}</ModalAlert>}
+          </ModalContainer>
         </Container>
       </Layout>
     );
@@ -175,7 +205,7 @@ export default class Support extends Component<SupportProps, SupportState> {
   _renderContent() {
     switch (this.state.sendState) {
       case 'INITIAL':
-      case 'CONFIRM_NO_EMAIL':
+      case 'CONFIRM':
         return this._renderForm();
       case 'LOADING':
         return this._renderLoading();
@@ -186,6 +216,10 @@ export default class Support extends Component<SupportProps, SupportState> {
       default:
         return null;
     }
+  }
+
+  _renderConfirm() {
+    return <ConfirmNoEmailDialog onConfirm={this.onSend} onDismiss={this.onCancelConfirmation} />;
   }
 
   _renderForm() {
@@ -214,48 +248,21 @@ export default class Support extends Component<SupportProps, SupportState> {
             </View>
           </View>
           <View style={styles.support__footer}>
-            {this.state.sendState === 'CONFIRM_NO_EMAIL'
-              ? this._renderNoEmailWarning()
-              : this._renderActionButtons()}
+            <AppButton.BlueButton
+              style={styles.view_logs_button}
+              onPress={this.onViewLog}
+              testName="support__view_logs">
+              <AppButton.Label>View app logs</AppButton.Label>
+              <ImageView source="icon-extLink" height={16} width={16} />
+            </AppButton.BlueButton>
+            <AppButton.GreenButton
+              disabled={!this.validate()}
+              onPress={this.onSend}
+              testName="support__send_logs">
+              Send
+            </AppButton.GreenButton>
           </View>
         </View>
-      </View>
-    );
-  }
-
-  _renderNoEmailWarning() {
-    return (
-      <View>
-        <Text style={styles.support__no_email_warning}>
-          You are about to send the problem report without a way for us to get back to you. If you
-          want an answer to your report you will have to enter an email address.
-        </Text>
-        <AppButton.GreenButton
-          disabled={!this.validate()}
-          onPress={this.onSend}
-          testName="support__send_logs">
-          {'Send anyway'}
-        </AppButton.GreenButton>
-      </View>
-    );
-  }
-
-  _renderActionButtons() {
-    return (
-      <View>
-        <AppButton.BlueButton
-          style={styles.view_logs_button}
-          onPress={this.onViewLog}
-          testName="support__view_logs">
-          <AppButton.Label>View app logs</AppButton.Label>
-          <ImageView source="icon-extLink" height={16} width={16} />
-        </AppButton.BlueButton>
-        <AppButton.GreenButton
-          disabled={!this.validate() || this.props.isOffline}
-          onPress={this.onSend}
-          testName="support__send_logs">
-          Send
-        </AppButton.GreenButton>
       </View>
     );
   }
@@ -330,4 +337,41 @@ export default class Support extends Component<SupportProps, SupportState> {
       </View>
     );
   }
+}
+
+type ConfirmNoEmailDialogProps = {
+  onConfirm: () => void,
+  onDismiss: () => void,
+};
+
+class ConfirmNoEmailDialog extends Component<ConfirmNoEmailDialogProps> {
+  render() {
+    return (
+      <View style={styles.confirm_no_email_background}>
+        <View style={styles.confirm_no_email_dialog}>
+          <Text style={styles.confirm_no_email_warning}>
+            You are about to send the problem report without a way for us to get back to you. If you
+            want an answer to your report you will have to enter an email address.
+          </Text>
+          <AppButton.GreenButton onPress={this.props.onConfirm} testName="support__send_logs">
+            {'Send anyway'}
+          </AppButton.GreenButton>
+          <AppButton.RedButton
+            onPress={this._dismiss}
+            style={styles.confirm_no_email_back_button}
+            testName="support__back">
+            {'Back'}
+          </AppButton.RedButton>
+        </View>
+      </View>
+    );
+  }
+
+  _confirm = () => {
+    this.props.onConfirm();
+  };
+
+  _dismiss = () => {
+    this.props.onDismiss();
+  };
 }

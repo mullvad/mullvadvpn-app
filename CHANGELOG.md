@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add a drop-down warning to notify the user when the account credits are running low.
 - Allow the 169.254.0.0/16 private network in addition to the other networks allowed when local
   network sharing is enabled.
+- Improve the confirmation dialog when submitting a bug report without an email specified.
 
 #### macOS
 - Add a monochromatic tray icon option for the GUI.
