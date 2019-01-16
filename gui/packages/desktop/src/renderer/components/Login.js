@@ -101,7 +101,7 @@ export default class Login extends Component<Props, State> {
             {this._getStatusIcon()}
             <Text style={styles.title}>{this._formTitle()}</Text>
 
-            {this._shouldShowLoginForm() && <View>{this._createLoginForm()}</View>}
+            {this._createLoginForm()}
           </View>
 
           <Animated.View
@@ -209,7 +209,7 @@ export default class Login extends Component<Props, State> {
       case 'failed':
         return 'Login failed';
       case 'ok':
-        return 'Login successful';
+        return 'Logged in';
       default:
         return 'Login';
     }
@@ -222,6 +222,8 @@ export default class Login extends Component<Props, State> {
         return (loginError && loginError.message) || 'Unknown error';
       case 'logging in':
         return 'Checking account number';
+      case 'ok':
+        return 'Correct account number';
       default:
         return 'Enter your account number';
     }
@@ -259,6 +261,7 @@ export default class Login extends Component<Props, State> {
 
     switch (this.props.loginState) {
       case 'logging in':
+      case 'ok':
         classes.push(styles.account_input_group__inactive);
         break;
       case 'failed':
@@ -272,7 +275,7 @@ export default class Login extends Component<Props, State> {
   _accountInputButtonStyles(): Array<Object> {
     const classes = [styles.input_button];
 
-    if (this.props.loginState === 'logging in') {
+    if (this.props.loginState === 'logging in' || this.props.loginState === 'ok') {
       classes.push(styles.input_button__invisible);
     }
 
@@ -298,8 +301,8 @@ export default class Login extends Component<Props, State> {
   }
 
   _shouldEnableAccountInput() {
-    // enable account input always except when "logging in"
-    return this.props.loginState !== 'logging in';
+    // enable account input always except when "logging in" or "logged in"
+    return this.props.loginState !== 'logging in' && this.props.loginState !== 'ok';
   }
 
   _shouldShowAccountHistory() {
@@ -308,10 +311,6 @@ export default class Login extends Component<Props, State> {
       this.state.isActive &&
       this.props.accountHistory.length > 0
     );
-  }
-
-  _shouldShowLoginForm() {
-    return this.props.loginState !== 'ok';
   }
 
   _shouldShowFooter() {
