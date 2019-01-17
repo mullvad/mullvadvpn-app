@@ -29,7 +29,7 @@ describe('components/Login', () => {
     expect(getComponent(component, 'AccountInput').length).to.be.above(0);
   });
 
-  it('does not show the footer nor account input when logged in', () => {
+  it('does not show the footer but shows the account input when logged in', () => {
     const component = shallow(
       <Login
         {...{
@@ -42,7 +42,7 @@ describe('components/Login', () => {
     const invisibleFooters = getComponent(component, 'footerVisibility false');
     expect(visibleFooters.length).to.equal(0);
     expect(invisibleFooters.length).to.equal(1);
-    expect(getComponent(component, 'AccountInput').length).to.equal(0);
+    expect(getComponent(component, 'AccountInput').length).to.equal(1);
   });
 
   it('logs in with the entered account number when clicking the login icon', (done) => {
