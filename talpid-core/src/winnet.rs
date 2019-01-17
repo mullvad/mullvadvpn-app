@@ -58,7 +58,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool> {
 }
 
 extern "system" {
-    #[link_name(WinRoute_EnsureTopMetric)]
+    #[link_name = "WinRoute_EnsureTopMetric"]
     fn WinRoute_EnsureTopMetric(
         tunnel_interface_alias: *const wchar_t,
         sink: Option<ErrorSink>,
@@ -87,6 +87,6 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool> {
 }
 
 extern "system" {
-    #[link_name(GetTapInterfaceIpv6Status)]
+    #[link_name = "GetTapInterfaceIpv6Status"]
     fn GetTapInterfaceIpv6Status(sink: Option<ErrorSink>, sink_context: *mut c_void) -> u32;
 }
