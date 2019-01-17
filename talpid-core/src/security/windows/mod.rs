@@ -247,23 +247,23 @@ mod winfw {
     ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
 
     extern "system" {
-        #[link_name(WinFw_Initialize)]
+        #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
             sink: Option<winnet::ErrorSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 
-        #[link_name(WinFw_Deinitialize)]
+        #[link_name = "WinFw_Deinitialize"]
         pub fn WinFw_Deinitialize() -> DeinitializationResult;
 
-        #[link_name(WinFw_ApplyPolicyConnecting)]
+        #[link_name = "WinFw_ApplyPolicyConnecting"]
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
         ) -> ApplyConnectingResult;
 
-        #[link_name(WinFw_ApplyPolicyConnected)]
+        #[link_name = "WinFw_ApplyPolicyConnected"]
         pub fn WinFw_ApplyPolicyConnected(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
@@ -271,10 +271,10 @@ mod winfw {
             primaryDns: *const libc::wchar_t,
         ) -> ApplyConnectedResult;
 
-        #[link_name(WinFw_ApplyPolicyBlocked)]
+        #[link_name = "WinFw_ApplyPolicyBlocked"]
         pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> ApplyBlockedResult;
 
-        #[link_name(WinFw_Reset)]
+        #[link_name = "WinFw_Reset"]
         pub fn WinFw_Reset() -> ResettingPolicyResult;
     }
 }

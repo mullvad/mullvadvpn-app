@@ -261,7 +261,7 @@ type ErrorSink = extern "system" fn(
 #[allow(non_snake_case)]
 extern "system" {
 
-    #[link_name(WinDns_Initialize)]
+    #[link_name = "WinDns_Initialize"]
     pub fn WinDns_Initialize(
         sink: Option<ErrorSink>,
         sink_context: *mut c_void,
@@ -270,11 +270,11 @@ extern "system" {
     // WinDns_Deinitialize:
     //
     // Call this function once before unloading WINDNS or exiting the process.
-    #[link_name(WinDns_Deinitialize)]
+    #[link_name = "WinDns_Deinitialize"]
     pub fn WinDns_Deinitialize() -> DeinitializationResult;
 
     // Configure which DNS servers should be used and start enforcing these settings.
-    #[link_name(WinDns_Set)]
+    #[link_name = "WinDns_Set"]
     pub fn WinDns_Set(
         v4_ips: *mut *const u16,
         v4_n_ips: u32,
@@ -288,9 +288,9 @@ extern "system" {
     //
     // (Also taking into account external changes to DNS settings that have ocurred
     // during the period of enforcing specific settings.)
-    #[link_name(WinDns_Reset)]
+    #[link_name = "WinDns_Reset"]
     pub fn WinDns_Reset() -> ResettingResult;
 
-    #[link_name(WinDns_Recover)]
+    #[link_name = "WinDns_Recover"]
     pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringResult;
 }
