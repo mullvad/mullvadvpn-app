@@ -1,7 +1,7 @@
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-use std::{net::IpAddr, path::Path};
+use std::{net::IpAddr, path::Path, sync::mpsc};
 use talpid_types::net::{TunnelOptions, WireguardEndpointData};
 
 pub mod config;
@@ -67,6 +67,8 @@ pub struct WireguardMonitor {
     router: routing::RouteManager,
     /// Callback to signal tunnel events
     event_callback: Box<Fn(TunnelEvent) + Send + Sync + 'static>,
+    close_handle: CloseHandle,
+    close_channel: mpsc::Receiver<CloseMsg>,
 }
 
 impl WireguardMonitor {
@@ -81,11 +83,13 @@ impl WireguardMonitor {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
         let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
         let event_callback = Box::new(on_event);
-
+        let (close_channel, close_handle) = CloseHandle::new();
         let mut monitor = WireguardMonitor {
             tunnel,
             router,
             event_callback,
+            close_channel,
+            close_handle,
         };
         monitor.setup_routing(&config)?;
         monitor.start_pinger(&config);
@@ -94,14 +98,21 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
-    pub fn close_handle(&self) -> Box<CloseHandle> {
-        self.tunnel.close_handle()
+    pub fn close_handle(&self) -> CloseHandle {
+        self.close_handle.clone()
     }
 
     pub fn wait(self) -> Result<()> {
-        let result = self.tunnel.wait();
+        let ping_err = match self.close_channel.recv() {
+            Ok(CloseMsg::PingErr) => Err(ErrorKind::PingTimeoutError.into()),
+            Ok(CloseMsg::Stop) => Ok(()),
+            Err(_) => Ok(()),
+        };
+        if let Err(e) = self.tunnel.stop() {
+            log::error!("Failed to stop tunnel - {}", e);
+        }
         (self.event_callback)(TunnelEvent::Down);
-        result
+        ping_err
     }
 
     #[allow(unused_mut)]
@@ -148,12 +159,14 @@ impl WireguardMonitor {
     }
 
     fn start_pinger(&self, config: &Config) {
+        let mut close_handle = self.close_handle.clone();
+
         ping_monitor::spawn_ping_monitor(
             config.gateway,
             PING_TIMEOUT,
             self.tunnel.get_interface_name().to_string(),
-            self.tunnel.close_handle(),
-        );
+            move || close_handle.ping_failed(),
+        )
     }
 
     fn tunnel_up(&self, data: WireguardEndpointData) {
@@ -167,13 +180,40 @@ impl WireguardMonitor {
     }
 }
 
-pub trait CloseHandle: Sync + Send {
-    fn close(&mut self);
-    fn close_with_error(&mut self, err: Error);
+enum CloseMsg {
+    Stop,
+    PingErr,
+}
+
+#[derive(Clone, Debug)]
+pub struct CloseHandle {
+    chan: mpsc::Sender<CloseMsg>,
+}
+
+
+impl CloseHandle {
+    fn new() -> (mpsc::Receiver<CloseMsg>, Self) {
+        let (chan, rx) = mpsc::channel();
+        (rx, Self { chan })
+    }
+
+    pub fn close(&mut self) {
+        if let Err(e) = self.chan.send(CloseMsg::Stop) {
+            log::trace!("Failed to send close message to wireguard tunnel - {}", e);
+        }
+    }
+
+    fn ping_failed(&mut self) {
+        if let Err(e) = self.chan.send(CloseMsg::PingErr) {
+            log::trace!(
+                "Failed to send ping failure message to wireguard tunnel - {}",
+                e
+            );
+        }
+    }
 }
 
 pub trait Tunnel: Send {
     fn get_interface_name(&self) -> &str;
-    fn close_handle(&self) -> Box<dyn CloseHandle>;
-    fn wait(self: Box<Self>) -> Result<()>;
+    fn stop(self: Box<Self>) -> Result<()>;
 }

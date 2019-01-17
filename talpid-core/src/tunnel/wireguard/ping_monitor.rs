@@ -1,17 +1,28 @@
-use super::{CloseHandle, ErrorKind, Result, ResultExt};
 use std::{net::IpAddr, thread, time};
 
+error_chain! {
+    errors {
+        PingError{
+            description("Failed to run ping")
+        }
 
-pub fn spawn_ping_monitor(
+        TimeoutError {
+            description("Ping timed out")
+        }
+    }
+}
+
+pub fn spawn_ping_monitor<F: FnOnce() + Send + 'static>(
     ip: IpAddr,
     timeout_secs: u16,
     interface: String,
-    mut close_handle: Box<dyn CloseHandle>,
+    on_fail: F,
 ) {
     thread::spawn(move || loop {
         let start = time::Instant::now();
         if let Err(e) = ping(ip, timeout_secs, &interface) {
-            close_handle.close_with_error(e);
+            log::debug!("ping failed - {}", e);
+            on_fail();
             return;
         }
         if let Some(remaining) =
@@ -27,7 +38,7 @@ pub fn ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()> {
         .run()
         .chain_err(|| ErrorKind::PingError)?;
     if !output.status.success() {
-        bail!(ErrorKind::PingTimeoutError);
+        bail!(ErrorKind::TimeoutError);
     }
     Ok(())
 }

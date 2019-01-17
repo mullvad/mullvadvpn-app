@@ -229,7 +229,7 @@ pub enum CloseHandle {
     OpenVpn(openvpn::OpenVpnCloseHandle),
     #[cfg(unix)]
     /// Wireguard close handle
-    Wireguard(Box<wireguard::CloseHandle>),
+    Wireguard(wireguard::CloseHandle),
 }
 
 impl CloseHandle {

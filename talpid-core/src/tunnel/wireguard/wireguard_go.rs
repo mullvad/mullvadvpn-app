@@ -1,20 +1,18 @@
-use super::{CloseHandle, Config, Error, ErrorKind, Result, ResultExt, Tunnel};
+use super::{Config, ErrorKind, Result, ResultExt, Tunnel};
 use crate::{
     logging,
     network_interface::{NetworkInterface, TunnelDevice},
 };
-use std::{
-    ffi::CString,
-    fs,
-    os::unix::io::AsRawFd,
-    path::Path,
-    sync::{Arc, Condvar, Mutex},
-};
+use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
 
 
 pub struct WgGoTunnel {
-    handle: WgHandle,
     interface_name: String,
+    handle: i32,
+    // keeping on to the tunnel device and the log file ensures that the associated file handles
+    // live long enough and get closed when the tunnel is stopped
+    _tunnel_device: TunnelDevice,
+    _log_file: fs::File,
 }
 
 impl WgGoTunnel {
@@ -34,17 +32,31 @@ impl WgGoTunnel {
 
         let interface_name: String = tunnel_device.get_name().to_string();
         let log_file = prepare_log_file(log_path)?;
-        let handle = WgHandle::new(
-            &interface_name,
-            config,
-            tunnel_device,
-            log_file,
-            WG_GO_LOG_DEBUG,
-        )?;
+
+        let wg_config_str = config.to_userspace_format();
+        let iface_name = CString::new(interface_name.as_bytes())
+            .chain_err(|| ErrorKind::NullBytesInConfigError)?;
+
+        let handle = unsafe {
+            wgTurnOnWithFd(
+                iface_name.as_ptr(),
+                config.interface.mtu as i64,
+                wg_config_str.as_ptr(),
+                tunnel_device.as_raw_fd(),
+                log_file.as_raw_fd(),
+                WG_GO_LOG_DEBUG,
+            )
+        };
+
+        if handle < 0 {
+            bail!(ErrorKind::StartWireguardError(handle));
+        }
 
         Ok(WgGoTunnel {
-            handle,
             interface_name,
+            handle,
+            _tunnel_device: tunnel_device,
+            _log_file: log_file,
         })
     }
 }
@@ -60,173 +72,18 @@ fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
 }
 
 impl Tunnel for WgGoTunnel {
-    fn close_handle(&self) -> Box<dyn CloseHandle> {
-        Box::new(self.handle.clone())
-    }
-
     fn get_interface_name(&self) -> &str {
         &self.interface_name
     }
 
-    fn wait(mut self: Box<Self>) -> Result<()> {
-        self.handle.wait()
-    }
-}
-
-#[derive(Clone)]
-struct WgHandle {
-    handle: Arc<(Mutex<WgHandleInner>, Condvar)>,
-}
-
-impl WgHandle {
-    fn new(
-        interface_name: &str,
-        config: &Config,
-        tunnel_device: TunnelDevice,
-        log_file: fs::File,
-        log_level: WgLogLevel,
-    ) -> Result<WgHandle> {
-        let inner = WgHandleInner::new(interface_name, config, tunnel_device, log_file, log_level)?;
-        Ok(Self {
-            handle: Arc::new((Mutex::new(inner), Condvar::new())),
-        })
-    }
-
-    fn wait(&mut self) -> Result<()> {
-        let (mutex, condition) = self.handle.as_ref();
-        let mut handle = mutex
-            .lock()
-            .expect("wireguard-go handle mutex got poisoned");
-        loop {
-            // checking if handle has been removed
-            if handle.has_stopped() {
-                return handle.consume_error();
-            }
-
-            handle = condition
-                .wait(handle)
-                .expect("wireguard-go handle mutex got poisoned");
-        }
-    }
-}
-
-impl CloseHandle for WgHandle {
-    fn close(&mut self) {
-        let (mutex, condition) = &self.handle.as_ref();
-        mutex
-            .lock()
-            .expect("wireguard-go handle mutex got poisoned")
-            .close();
-        condition.notify_all();
-    }
-
-    fn close_with_error(&mut self, err: Error) {
-        let (mutex, condition) = &self.handle.as_ref();
-        mutex
-            .lock()
-            .expect("wireguard-go handle mutex got poisoned")
-            .close_with_error(err);
-        condition.notify_all();
-    }
-}
-
-struct WgHandleInner {
-    handle: Option<i32>,
-    error: Option<Error>,
-    // keeping on to the tunnel device and the log file ensures that the associated file handles
-    // live long enough and get closed when the tunnel is stopped
-    _tunnel_device: TunnelDevice,
-    _log_file: fs::File,
-}
-
-impl WgHandleInner {
-    fn new(
-        interface_name: &str,
-        config: &Config,
-        tunnel_device: TunnelDevice,
-        log_file: fs::File,
-        log_level: WgLogLevel,
-    ) -> Result<WgHandleInner> {
-        let wg_config_str = config.to_userspace_format();
-        let iface_name = CString::new(interface_name.as_bytes())
-            .chain_err(|| ErrorKind::NullBytesInConfigError)?;
-        let handle = unsafe {
-            wgTurnOnWithFd(
-                iface_name.as_ptr(),
-                config.interface.mtu as i64,
-                wg_config_str.as_ptr(),
-                tunnel_device.as_raw_fd(),
-                log_file.as_raw_fd(),
-                log_level,
-            )
-        };
-        if handle < 0 {
-            bail!(ErrorKind::StartWireguardError(handle));
-        }
-        Ok(Self {
-            handle: Some(handle),
-            error: None,
-            _tunnel_device: tunnel_device,
-            _log_file: log_file,
-        })
-    }
-
-    fn has_stopped(&self) -> bool {
-        self.handle.is_none()
-    }
-
-    fn consume_error(&mut self) -> Result<()> {
-        self.error.take().map(Err).unwrap_or(Ok(()))
-    }
-
-    fn close(&mut self) {
-        if let Some(handle) = self.handle.take() {
-            let status = unsafe { wgTurnOff(handle) };
+    fn stop(self: Box<Self>) -> Result<()> {
+        if self.handle != 0 {
+            let status = unsafe { wgTurnOff(self.handle) };
             if status < 0 {
-                if self.error.is_none() {
-                    self.error = Some(ErrorKind::StopWireguardError(status).into());
-                } else {
-                    log::error!(
-                        "Failed to stop wireguard-go successfully - {}",
-                        ErrorKind::StopWireguardError(status)
-                    );
-                }
-            };
-        }
-    }
-
-    fn close_with_error(&mut self, err: Error) {
-        // if we're already shut down, there's nothing to do
-        if self.has_stopped() {
-            return;
-        }
-
-        // if there's an error that's already set, there's not much to do here.
-        if let Some(set_err) = self.error.as_ref() {
-            log::trace!(
-                "Wireguard handle error already set - '{}', dropping another one - {}",
-                set_err,
-                err
-            );
-            return;
-        }
-
-        self.error = Some(err);
-        self.close();
-    }
-}
-
-impl Drop for WgHandleInner {
-    fn drop(&mut self) {
-        if let Some(handle) = self.handle {
-            let status = unsafe { wgTurnOff(handle) };
-            if status < 0 {
-                log::trace!(
-                    "Wireguard tunnel returned non-zero status when shutting down - {}",
-                    status
-                );
+                bail!(ErrorKind::StopWireguardError(status))
             }
         }
+        Ok(())
     }
 }
 
