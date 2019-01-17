@@ -62,7 +62,7 @@ error_chain! {
 /// Spawns and monitors a wireguard tunnel
 pub struct WireguardMonitor {
     /// Tunnel implementation
-    tunnel: Box<Tunnel>,
+    tunnel: Box<dyn Tunnel>,
     /// Route manager
     router: routing::RouteManager,
     /// Callback to signal tunnel events
