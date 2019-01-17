@@ -61,6 +61,7 @@ export default class AppRenderer {
   _tunnelState: TunnelStateTransition;
   _settings: Settings;
   _connectedToDaemon = false;
+  _autoConnected = false;
 
   constructor() {
     const store = configureStore(null, this._memoryHistory);
@@ -385,6 +386,7 @@ export default class AppRenderer {
 
     // set the appropriate start view
     await this._setStartView();
+
     // try to autoconnect the tunnel
     await this._autoConnect();
   }
@@ -451,20 +453,23 @@ export default class AppRenderer {
   }
 
   async _autoConnect() {
-    const accountToken = this._settings.accountToken;
-
-    if (accountToken) {
-      if (process.env.NODE_ENV === 'development') {
-        log.debug('Skip autoconnect in development');
-      } else if (!this._getAutoConnect()) {
-        log.debug('Skip autoconnect because GUI setting is disabled');
-      } else {
+    if (process.env.NODE_ENV === 'development') {
+      log.debug('Skip autoconnect in development');
+    } else if (this._autoConnected) {
+      log.debug('Skip autoconnect because it was done before');
+    } else if (this._settings.accountToken) {
+      if (this._getAutoConnect()) {
         try {
           log.debug('Autoconnect the tunnel');
+
           await this.connectTunnel();
+
+          this._autoConnected = true;
         } catch (error) {
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
+      } else {
+        log.debug('Skip autoconnect because GUI setting is disabled');
       }
     } else {
       log.debug('Skip autoconnect because account token is not set');
