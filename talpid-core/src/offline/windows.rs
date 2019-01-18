@@ -6,6 +6,7 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
 use log::debug;
 use std::{
@@ -15,7 +16,6 @@ use std::{
     ptr, thread,
     time::Duration,
 };
-use tunnel_state_machine::TunnelCommand;
 use winapi::{
     shared::{
         basetsd::LONG_PTR,

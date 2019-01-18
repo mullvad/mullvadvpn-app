@@ -1,3 +1,4 @@
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
 use log::{debug, trace};
 use std::{sync::mpsc, thread};
@@ -9,7 +10,6 @@ use system_configuration::{
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
 };
-use tunnel_state_machine::TunnelCommand;
 
 
 const PRIMARY_INTERFACE_KEY: &str = "State:/Network/Global/IPv4";

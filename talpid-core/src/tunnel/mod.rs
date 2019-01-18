@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     ffi::OsString,
-    fs, io,
+    io,
     net::IpAddr,
     path::{Path, PathBuf},
 };
@@ -291,7 +291,7 @@ fn is_ipv6_enabled_in_os() -> bool {
                 (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
             })
             .unwrap_or(true);
-        let enabled_on_tap = ::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
+        let enabled_on_tap = crate::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
 
         if !globally_enabled {
             log::debug!("IPv6 disabled in tunnel interfaces");
@@ -304,7 +304,7 @@ fn is_ipv6_enabled_in_os() -> bool {
     }
     #[cfg(target_os = "linux")]
     {
-        fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
+        std::fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
             .map(|disable_ipv6| disable_ipv6.trim() == "0")
             .unwrap_or(false)
     }

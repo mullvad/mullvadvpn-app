@@ -1,12 +1,11 @@
 use std::{net::IpAddr, ptr};
 
+use self::winfw::*;
+use super::{NetworkSecurityT, SecurityPolicy};
+use crate::winnet;
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
-
-use self::winfw::*;
-use super::{NetworkSecurityT, SecurityPolicy};
-use winnet;
 
 #[macro_use]
 mod ffi;
@@ -144,7 +143,7 @@ impl NetworkSecurity {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_metadata: &::tunnel::TunnelMetadata,
+        tunnel_metadata: &crate::tunnel::TunnelMetadata,
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
         let ip_str = Self::widestring_ip(&endpoint.address.ip());
@@ -189,11 +188,10 @@ impl NetworkSecurity {
 
 #[allow(non_snake_case)]
 mod winfw {
+    use super::{ErrorKind, Result};
+    use crate::winnet;
     use libc;
     use talpid_types::net::TransportProtocol;
-
-    use super::{ErrorKind, Result};
-    use winnet;
 
     #[repr(C)]
     pub struct WinFwRelay {
