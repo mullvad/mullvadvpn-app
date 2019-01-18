@@ -1,5 +1,5 @@
 use futures::sync::mpsc::UnboundedSender;
-use tunnel_state_machine::TunnelCommand;
+use crate::tunnel_state_machine::TunnelCommand;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
