@@ -24,7 +24,7 @@ impl CustomTunnelEndpoint {
     pub fn to_tunnel_endpoint(&self) -> Result<TunnelEndpoint> {
         Ok(TunnelEndpoint {
             address: resolve_to_ip(&self.host)?,
-            tunnel: self.tunnel,
+            tunnel: self.tunnel.clone(),
         })
     }
 }
