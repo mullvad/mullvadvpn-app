@@ -9,6 +9,13 @@
 .DS_Store
 *.log
 /dist-assets/relays.json
+/dist-assets/mullvad
+/dist-assets/mullvad-daemon
+/dist-assets/problem-report
+/dist-assets/libtalpid_openvpn_plugin.dylib
+/dist-assets/libtalpid_openvpn_plugin.so
+/dist-assets/talpid_openvpn_plugin.dll
+/dist-assets/openvpn
 /windows/**/bin/
 **/.vs/
 *.bak

@@ -39,13 +39,13 @@ mac:
     LSUIElement: true
     NSUserNotificationAlertStyle: alert
   extraResources:
-    - from: ../../../target/release/mullvad
+    - from: ../../../dist-assets/mullvad
       to: .
-    - from: ../../../target/release/problem-report
+    - from: ../../../dist-assets/problem-report
       to: .
-    - from: ../../../target/release/mullvad-daemon
+    - from: ../../../dist-assets/mullvad-daemon
       to: .
-    - from: ../../../target/release/libtalpid_openvpn_plugin.dylib
+    - from: ../../../dist-assets/libtalpid_openvpn_plugin.dylib
       to: .
     - from: ../../../dist-assets/binaries/macos/openvpn
       to: .
@@ -77,13 +77,13 @@ win:
     - sha256
   signDlls: true
   extraResources:
-    - from: ../../../target/release/mullvad.exe
+    - from: ../../../dist-assets/mullvad.exe
       to: .
-    - from: ../../../target/release/problem-report.exe
+    - from: ../../../dist-assets/problem-report.exe
       to: .
-    - from: ../../../target/release/mullvad-daemon.exe
+    - from: ../../../dist-assets/mullvad-daemon.exe
       to: .
-    - from: ../../../target/release/talpid_openvpn_plugin.dll
+    - from: ../../../dist-assets/talpid_openvpn_plugin.dll
       to: .
     - from: ../../../windows/winfw/bin/x64-Release/winfw.dll
       to: .
@@ -101,11 +101,11 @@ linux:
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   category: Network
   extraResources:
-    - from: ../../../target/release/problem-report
+    - from: ../../../dist-assets/problem-report
       to: .
-    - from: ../../../target/release/mullvad-daemon
+    - from: ../../../dist-assets/mullvad-daemon
       to: .
-    - from: ../../../target/release/libtalpid_openvpn_plugin.so
+    - from: ../../../dist-assets/libtalpid_openvpn_plugin.so
       to: .
     - from: ../../../dist-assets/binaries/linux/openvpn
       to: .
@@ -119,7 +119,7 @@ deb:
        "--before-remove", "../../../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
-       "../../../target/release/mullvad=/usr/bin/",
+       "../../../dist-assets/mullvad=/usr/bin/",
        ]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
@@ -130,7 +130,7 @@ rpm:
        "--rpm-posttrans", "../../../dist-assets/linux/post-transaction.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
-       "../../../target/release/mullvad=/usr/bin/",
+       "../../../dist-assets/mullvad=/usr/bin/",
        ]
   afterInstall: ../../../dist-assets/linux/after-install.sh
   afterRemove: ../../../dist-assets/linux/after-remove.sh
