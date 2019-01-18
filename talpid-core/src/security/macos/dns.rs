@@ -1,6 +1,14 @@
-extern crate system_configuration;
-
-use self::system_configuration::{
+use error_chain::ChainedError;
+use log::{debug, trace};
+use std::{
+    collections::HashMap,
+    fmt,
+    net::IpAddr,
+    path::Path,
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
+use system_configuration::{
     core_foundation::{
         array::CFArray,
         base::{CFType, TCFType, ToVoid},
@@ -11,16 +19,6 @@ use self::system_configuration::{
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     sys::schema_definitions::kSCPropNetDNSServerAddresses,
-};
-use error_chain::ChainedError;
-use log::{debug, trace};
-use std::{
-    collections::HashMap,
-    fmt,
-    net::IpAddr,
-    path::Path,
-    sync::{mpsc, Arc, Mutex},
-    thread,
 };
 
 error_chain! {

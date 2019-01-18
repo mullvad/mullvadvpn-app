@@ -1,18 +1,15 @@
 use duct;
-extern crate os_pipe;
 
 use super::stoppable_process::StoppableProcess;
+use atty;
+use os_pipe::{pipe, PipeWriter};
+use shell_escape;
 use std::{
     ffi::{OsStr, OsString},
-    fmt,
+    fmt, io,
     path::{Path, PathBuf},
     sync::Mutex,
 };
-
-use self::os_pipe::{pipe, PipeWriter};
-use atty;
-use shell_escape;
-use std::io;
 use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[

@@ -10,41 +10,8 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate atty;
-extern crate duct;
-extern crate log;
-
 #[macro_use]
 extern crate error_chain;
-#[cfg(target_os = "linux")]
-extern crate failure;
-extern crate futures;
-#[cfg(unix)]
-extern crate hex;
-#[cfg(unix)]
-extern crate ipnetwork;
-extern crate jsonrpc_core;
-extern crate jsonrpc_macros;
-#[cfg(unix)]
-extern crate lazy_static;
-extern crate libc;
-#[cfg(unix)]
-extern crate nix;
-extern crate shell_escape;
-extern crate tokio_core;
-#[cfg(unix)]
-extern crate tun;
-extern crate uuid;
-#[cfg(target_os = "linux")]
-extern crate which;
-#[cfg(windows)]
-extern crate widestring;
-#[cfg(windows)]
-extern crate winreg;
-
-extern crate openvpn_plugin;
-extern crate talpid_ipc;
-extern crate talpid_types;
 
 #[cfg(windows)]
 mod winnet;

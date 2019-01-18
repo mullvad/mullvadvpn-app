@@ -6,20 +6,9 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate chrono;
-extern crate clap;
 #[macro_use]
 extern crate error_chain;
-#[cfg(unix)]
-extern crate libc;
-extern crate log;
-extern crate log_panics;
-extern crate mullvad_daemon;
-extern crate mullvad_paths;
-extern crate talpid_core;
 
-#[cfg(windows)]
-extern crate windows_service;
 
 use error_chain::ChainedError;
 use log::{debug, error, info, warn};

@@ -6,9 +6,17 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate winapi;
-
-use self::winapi::{
+use futures::sync::mpsc::UnboundedSender;
+use log::debug;
+use std::{
+    ffi::c_void,
+    mem::zeroed,
+    os::windows::io::{IntoRawHandle, RawHandle},
+    ptr, thread,
+    time::Duration,
+};
+use tunnel_state_machine::TunnelCommand;
+use winapi::{
     shared::{
         basetsd::LONG_PTR,
         minwindef::{DWORD, LPARAM, LRESULT, UINT, WPARAM},
@@ -28,16 +36,6 @@ use self::winapi::{
         },
     },
 };
-use futures::sync::mpsc::UnboundedSender;
-use log::debug;
-use std::{
-    ffi::c_void,
-    mem::zeroed,
-    os::windows::io::{IntoRawHandle, RawHandle},
-    ptr, thread,
-    time::Duration,
-};
-use tunnel_state_machine::TunnelCommand;
 
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
 const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;

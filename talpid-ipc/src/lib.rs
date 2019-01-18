@@ -11,17 +11,6 @@
 #[macro_use]
 extern crate error_chain;
 
-extern crate serde;
-extern crate serde_json;
-
-extern crate jsonrpc_core;
-extern crate jsonrpc_ipc_server;
-extern crate jsonrpc_pubsub;
-
-extern crate futures;
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_ipc;
-extern crate tokio;
 
 use futures::Future;
 use std::thread;

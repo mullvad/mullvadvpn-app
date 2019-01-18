@@ -6,34 +6,11 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-extern crate chrono;
 #[macro_use]
 extern crate error_chain;
-extern crate futures;
-#[cfg(unix)]
-extern crate libc;
-extern crate log;
-
 #[macro_use]
 extern crate serde;
-extern crate serde_json;
 
-extern crate jsonrpc_core;
-extern crate jsonrpc_ipc_server;
-extern crate jsonrpc_macros;
-extern crate jsonrpc_pubsub;
-extern crate rand;
-extern crate tokio_core;
-extern crate tokio_timer;
-extern crate uuid;
-
-extern crate mullvad_ipc_client;
-extern crate mullvad_paths;
-extern crate mullvad_rpc;
-extern crate mullvad_types;
-extern crate talpid_core;
-extern crate talpid_ipc;
-extern crate talpid_types;
 
 mod account_history;
 mod geoip;

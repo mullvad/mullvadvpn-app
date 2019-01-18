@@ -1,15 +1,12 @@
-extern crate pfctl;
-extern crate tokio_core;
-
-use self::pfctl::FilterRuleAction;
 use super::{NetworkSecurityT, SecurityPolicy};
+use pfctl::FilterRuleAction;
 use std::{env, net::Ipv4Addr};
 use talpid_types::net;
 
 mod dns;
 pub use self::dns::{DnsMonitor, Error as DnsError};
 
-pub use self::pfctl::Error;
+pub use pfctl::Error;
 
 type Result<T> = ::std::result::Result<T, Error>;
 
