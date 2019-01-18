@@ -12,12 +12,9 @@ extern crate error_chain;
 use clap::{crate_authors, crate_description, crate_name};
 use error_chain::ChainedError;
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
-use std::{alloc::System, io};
+use std::io;
 
 mod cmds;
-
-#[global_allocator]
-static GLOBAL: System = System;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
