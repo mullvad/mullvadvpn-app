@@ -1,10 +1,5 @@
 use std::{env, fs, path::PathBuf, process::Command};
 
-#[cfg(windows)]
-extern crate winapi;
-#[cfg(windows)]
-extern crate winres;
-
 fn main() {
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 

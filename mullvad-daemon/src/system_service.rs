@@ -1,4 +1,4 @@
-use cli;
+use crate::cli;
 use error_chain::ChainedError;
 use std::{
     env,
@@ -73,7 +73,7 @@ fn run_service() -> Result<()> {
         .unwrap();
 
     let config = cli::get_config();
-    let result = ::create_daemon(&config).and_then(|daemon| {
+    let result = crate::create_daemon(&config).and_then(|daemon| {
         let shutdown_handle = daemon.shutdown_handle();
 
         // Register monitor that translates `ServiceControl` to Daemon events

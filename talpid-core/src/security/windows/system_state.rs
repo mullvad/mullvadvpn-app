@@ -59,8 +59,6 @@ impl SystemStateWriter {
 
 #[cfg(test)]
 mod tests {
-    extern crate tempfile;
-
     use super::*;
 
     #[test]

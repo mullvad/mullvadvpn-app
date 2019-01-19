@@ -1,18 +1,13 @@
-extern crate notify;
-
+use super::RESOLV_CONF_PATH;
+use error_chain::ChainedError;
+use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use resolv_conf::{Config, ScopedIp};
 use std::{
     fs, io,
     net::IpAddr,
     sync::{mpsc, Arc, Mutex, MutexGuard},
     thread,
 };
-
-use self::notify::{RecommendedWatcher, RecursiveMode, Watcher};
-use super::{
-    resolv_conf::{Config, ScopedIp},
-    RESOLV_CONF_PATH,
-};
-use error_chain::ChainedError;
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
 

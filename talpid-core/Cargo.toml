@@ -4,14 +4,15 @@ version = "0.1.0"
 authors = ["Mullvad VPN <admin@mullvad.net>"]
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
+edition = "2018"
 
 [dependencies]
 atty = "0.2"
 duct = "0.11"
 error-chain = "0.12"
 futures = "0.1"
-jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
-jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 
 libc = "0.2.20"
 log = "0.4"

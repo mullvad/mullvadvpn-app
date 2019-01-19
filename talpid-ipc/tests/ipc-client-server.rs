@@ -1,18 +1,6 @@
 // TODO fix these tests on Windows
 #![cfg(not(windows))]
 
-extern crate assert_matches;
-extern crate env_logger;
-extern crate jsonrpc_client_core;
-extern crate jsonrpc_client_ipc;
-extern crate jsonrpc_core;
-extern crate jsonrpc_macros;
-extern crate talpid_ipc;
-extern crate tokio;
-extern crate uuid;
-
-extern crate futures;
-
 use assert_matches::assert_matches;
 use futures::{sync::oneshot, Future};
 

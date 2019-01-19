@@ -1,5 +1,8 @@
-extern crate dbus;
-
+use super::{super::iface_index, RESOLV_CONF_PATH};
+use dbus::{
+    arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
+    Signature,
+};
 use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
@@ -8,13 +11,6 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     path::Path,
 };
-
-use self::dbus::{
-    arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
-    Signature,
-};
-
-use super::{super::iface_index, resolv_conf, RESOLV_CONF_PATH};
 
 
 error_chain! {

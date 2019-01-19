@@ -2,10 +2,8 @@ error_chain! {}
 
 #[cfg(unix)]
 mod platform {
-    extern crate simple_signal;
-
-    use self::simple_signal::Signal;
     use super::Result;
+    use simple_signal::Signal;
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
     where
@@ -21,8 +19,6 @@ mod platform {
 
 #[cfg(windows)]
 mod platform {
-    extern crate ctrlc;
-
     use super::{Result, ResultExt};
 
     pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>

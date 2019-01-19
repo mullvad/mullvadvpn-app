@@ -1,9 +1,13 @@
 use super::TunnelEvent;
-use crate::process::{
-    openvpn::{OpenVpnCommand, OpenVpnProcHandle},
-    stoppable_process::StoppableProcess,
+use crate::{
+    mktemp,
+    process::{
+        openvpn::{OpenVpnCommand, OpenVpnProcHandle},
+        stoppable_process::StoppableProcess,
+    },
 };
-use mktemp;
+#[cfg(target_os = "linux")]
+use failure::ResultExt as FailureResultExt;
 use std::{
     collections::HashMap,
     ffi::OsString,
@@ -20,9 +24,6 @@ use std::{
 };
 use talpid_ipc;
 use talpid_types::net::{Endpoint, OpenVpnProxySettings, TunnelOptions};
-
-#[cfg(target_os = "linux")]
-use failure::ResultExt as FailureResultExt;
 #[cfg(target_os = "linux")]
 use which;
 
@@ -526,10 +527,11 @@ mod event_server {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::{Path, PathBuf};
-
-    use mktemp::TempFile;
-    use std::sync::{Arc, Mutex};
+    use crate::mktemp::TempFile;
+    use std::{
+        path::{Path, PathBuf},
+        sync::{Arc, Mutex},
+    };
 
     #[derive(Debug, Default, Clone)]
     struct TestOpenVpnBuilder {

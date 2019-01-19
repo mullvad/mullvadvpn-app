@@ -11,6 +11,7 @@ authors = [
 ]
 description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
 license = "GPL-3.0"
+edition = "2018"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
@@ -22,10 +23,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 log = "0.4"
 log-panics = "2.0.0"
-jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
-jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
-jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
-jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "make-ipc-server-concurrent-part-deux" }
+jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 uuid = { version = "0.6", features = ["v4"] }
 lazy_static = "1.0"
 rand = "0.5"

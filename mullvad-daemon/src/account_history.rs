@@ -1,12 +1,9 @@
-extern crate serde_json;
-
+use mullvad_types::account::AccountToken;
 use std::{
     fs::File,
     io,
     path::{Path, PathBuf},
 };
-
-use mullvad_types::account::AccountToken;
 
 error_chain! {
     errors {

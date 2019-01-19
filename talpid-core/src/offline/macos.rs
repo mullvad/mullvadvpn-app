@@ -1,6 +1,8 @@
-extern crate system_configuration;
-
-use self::system_configuration::{
+use crate::tunnel_state_machine::TunnelCommand;
+use futures::sync::mpsc::UnboundedSender;
+use log::{debug, trace};
+use std::{sync::mpsc, thread};
+use system_configuration::{
     core_foundation::{
         array::CFArray,
         runloop::{kCFRunLoopCommonModes, CFRunLoop},
@@ -8,10 +10,7 @@ use self::system_configuration::{
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
 };
-use futures::sync::mpsc::UnboundedSender;
-use log::{debug, trace};
-use std::{sync::mpsc, thread};
-use tunnel_state_machine::TunnelCommand;
+
 
 const PRIMARY_INTERFACE_KEY: &str = "State:/Network/Global/IPv4";
 

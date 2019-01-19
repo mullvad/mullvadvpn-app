@@ -1,16 +1,13 @@
-extern crate mnl;
-extern crate nftnl;
-
-use self::nftnl::{
-    expr::{self, Verdict},
-    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
-    Chain, FinalizedBatch, ProtoFamily, Rule, Table,
-};
 use super::{NetworkSecurityT, SecurityPolicy};
 use crate::tunnel;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
+use nftnl::{
+    expr::{self, Verdict},
+    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
+    Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+};
 use std::{
     env,
     ffi::CString,
@@ -18,6 +15,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
+
 
 mod dns;
 pub use self::dns::{DnsMonitor, Error as DnsError};

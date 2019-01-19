@@ -1,23 +1,14 @@
-extern crate iproute2;
-extern crate netlink_socket;
-extern crate rtnetlink;
-
-use std::{collections::BTreeSet, thread};
-
+use crate::tunnel_state_machine::TunnelCommand;
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
+use iproute2::Link;
 use log::{error, trace, warn};
-
-use self::{
-    iproute2::Link,
-    netlink_socket::{Protocol, SocketAddr, TokioSocket},
-    rtnetlink::{
-        LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed,
-        NetlinkMessage, RtnlMessage,
-    },
+use netlink_socket::{Protocol, SocketAddr, TokioSocket};
+use rtnetlink::{
+    LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed, NetlinkMessage,
+    RtnlMessage,
 };
-
-use tunnel_state_machine::TunnelCommand;
+use std::{collections::BTreeSet, thread};
 
 error_chain! {
     errors {
