@@ -14,7 +14,6 @@ use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    alloc::System,
     borrow::Cow,
     cmp::min,
     collections::{HashMap, HashSet},
@@ -24,10 +23,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio_core::reactor::Core;
-
-
-#[global_allocator]
-static GLOBAL: System = System;
 
 
 mod metadata;
