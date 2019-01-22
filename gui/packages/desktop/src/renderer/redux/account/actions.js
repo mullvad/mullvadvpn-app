@@ -7,8 +7,8 @@ type StartLoginAction = {
   accountToken: AccountToken,
 };
 
-type LoginSuccessfulAction = {
-  type: 'LOGIN_SUCCESSFUL',
+type LoggedInAction = {
+  type: 'LOGGED_IN',
 };
 
 type LoginFailedAction = {
@@ -41,7 +41,7 @@ type UpdateAccountExpiryAction = {
 
 export type AccountAction =
   | StartLoginAction
-  | LoginSuccessfulAction
+  | LoggedInAction
   | LoginFailedAction
   | LoggedOutAction
   | ResetLoginErrorAction
@@ -56,9 +56,9 @@ function startLogin(accountToken: AccountToken): StartLoginAction {
   };
 }
 
-function loginSuccessful(): LoginSuccessfulAction {
+function loggedIn(): LoggedInAction {
   return {
-    type: 'LOGIN_SUCCESSFUL',
+    type: 'LOGGED_IN',
   };
 }
 
@@ -104,7 +104,7 @@ function updateAccountExpiry(expiry: string): UpdateAccountExpiryAction {
 
 export default {
   startLogin,
-  loginSuccessful,
+  loggedIn,
   loginFailed,
   loggedOut,
   resetLoginError,

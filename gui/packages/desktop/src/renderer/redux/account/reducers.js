@@ -34,7 +34,7 @@ export default function(
           error: null,
         },
       };
-    case 'LOGIN_SUCCESSFUL':
+    case 'LOGGED_IN':
       return {
         ...state,
         ...{
