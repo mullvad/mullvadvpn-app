@@ -772,6 +772,11 @@ const ApplicationMain = {
       this._guiSettings.monochromaticIcon = monochromaticIcon;
     });
 
+    IpcMainEventChannel.account.handleSet((token: AccountToken) =>
+      this._daemonRpc.setAccount(token),
+    );
+    IpcMainEventChannel.account.handleUnset(() => this._daemonRpc.setAccount(null));
+
     IpcMainEventChannel.accountHistory.handleGet(() => this._daemonRpc.getAccountHistory());
     IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>
       this._daemonRpc.removeAccountFromHistory(token),

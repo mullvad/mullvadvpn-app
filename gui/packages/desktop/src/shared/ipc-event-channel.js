@@ -46,6 +46,16 @@ interface GuiSettingsHandlers {
   handleMonochromaticIcon: ((boolean) => void) => void;
 }
 
+interface AccountHandlers {
+  handleSet(fn: (AccountToken) => Promise<void>): void;
+  handleUnset(fn: () => Promise<void>): void;
+}
+
+interface AccountMethods {
+  set(token: AccountToken): Promise<void>;
+  unset(): Promise<void>;
+}
+
 interface AccountHistoryHandlers {
   handleGet(fn: () => Promise<Array<AccountToken>>): void;
   handleRemoveItem(fn: (token: AccountToken) => Promise<void>): void;
@@ -74,6 +84,8 @@ const SET_START_MINIMIZED = 'set-start-minimized';
 const GET_APP_STATE = 'get-app-state';
 const GET_ACCOUNT_HISTORY = 'get-account-history';
 const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
+const SET_ACCOUNT = 'set-account';
+const UNSET_ACCOUNT = 'unset-account';
 
 /// Typed IPC event channel
 ///
@@ -125,6 +137,11 @@ export class IpcRendererEventChannel {
     setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
+  };
+
+  static account: AccountMethods = {
+    set: requestSender(SET_ACCOUNT),
+    unset: requestSender(UNSET_ACCOUNT),
   };
 
   static accountHistory: AccountHistoryMethods = {
@@ -179,6 +196,11 @@ export class IpcMainEventChannel {
     handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
+  };
+
+  static account: AccountHandlers = {
+    handleSet: requestHandler(SET_ACCOUNT),
+    handleUnset: requestHandler(UNSET_ACCOUNT),
   };
 
   static accountHistory: AccountHistoryHandlers = {

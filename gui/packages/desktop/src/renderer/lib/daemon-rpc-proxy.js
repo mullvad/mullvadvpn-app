@@ -107,7 +107,7 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   setAccount(accountToken: ?AccountToken): Promise<void> {
-    return this._sendMessage('setAccount', accountToken);
+    throw new Error('Do not use this method');
   }
 
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void> {
