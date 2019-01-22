@@ -177,7 +177,7 @@ export default class AppRenderer {
         log.debug(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
-      await this._daemonRpc.setAccount(accountToken);
+      await IpcRendererEventChannel.account.set(accountToken);
 
       // Redirect the user after some time to allow for the 'Logged in' screen to be visible
       this._loginTimer = setTimeout(async () => {
@@ -217,7 +217,7 @@ export default class AppRenderer {
 
   async logout() {
     try {
-      await this._daemonRpc.setAccount(null);
+      await IpcRendererEventChannel.account.unset();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
