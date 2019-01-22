@@ -41,11 +41,9 @@ import type {
 
 import DaemonRpcProxy from './lib/daemon-rpc-proxy';
 
-import type { ReduxStore } from './redux/store';
-
 export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
-  _reduxStore: ReduxStore;
+  _reduxStore = configureStore(null, this._memoryHistory);
   _reduxActions: *;
   _daemonRpc = new DaemonRpcProxy();
   _accountDataCache = new AccountDataCache(
@@ -62,12 +60,11 @@ export default class AppRenderer {
   _settings: Settings;
   _connectedToDaemon = false;
   _autoConnected = false;
+  _doingLogin = false;
+  _loginTimer: ?TimeoutID;
 
   constructor() {
-    const store = configureStore(null, this._memoryHistory);
-    const dispatch = store.dispatch;
-
-    this._reduxStore = store;
+    const dispatch = this._reduxStore.dispatch;
     this._reduxActions = {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
@@ -108,7 +105,10 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: Settings) => {
+      const oldSettings = this._settings;
+
       this._setSettings(newSettings);
+      this._handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
     });
 
     IpcRendererEventChannel.location.listen((newLocation: Location) => {
@@ -164,10 +164,11 @@ export default class AppRenderer {
 
   async login(accountToken: AccountToken) {
     const actions = this._reduxActions;
-    const history = this._memoryHistory;
     actions.account.startLogin(accountToken);
 
     log.debug('Logging in');
+
+    this._doingLogin = true;
 
     try {
       const verification = await this.verifyAccount(accountToken);
@@ -177,14 +178,10 @@ export default class AppRenderer {
       }
 
       await this._daemonRpc.setAccount(accountToken);
-      actions.account.loginSuccessful();
 
-      // Redirect the user after some time to allow for
-      // the 'Login Successful' screen to be visible
-      setTimeout(async () => {
-        if (history.location.pathname === '/login') {
-          actions.history.replace('/connect');
-        }
+      // Redirect the user after some time to allow for the 'Logged in' screen to be visible
+      this._loginTimer = setTimeout(async () => {
+        this._memoryHistory.replace('/connect');
 
         try {
           log.debug('Auto-connecting the tunnel');
@@ -219,18 +216,8 @@ export default class AppRenderer {
   }
 
   async logout() {
-    const actions = this._reduxActions;
-
     try {
       await this._daemonRpc.setAccount(null);
-
-      await this._fetchAccountHistory();
-
-      actions.account.loggedOut();
-      actions.history.replace('/login');
-
-      // invalidate account data cache on log out
-      this._accountDataCache.invalidate();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -302,7 +289,7 @@ export default class AppRenderer {
     }
   }
 
-  async updateAccountExpiry() {
+  updateAccountExpiry() {
     if (this._settings.accountToken) {
       this._accountDataCache.fetch(this._settings.accountToken);
     }
@@ -384,71 +371,26 @@ export default class AppRenderer {
       log.error(`Cannot fetch the account history: ${error.message}`);
     }
 
-    // set the appropriate start view
-    await this._setStartView();
+    if (this._settings.accountToken) {
+      this._memoryHistory.replace('/connect');
 
-    // try to autoconnect the tunnel
-    await this._autoConnect();
-  }
-
-  _onDaemonDisconnected(error: ?Error) {
-    const actions = this._reduxActions;
-
-    // recover connection on error
-    if (error) {
-      // only send to the connecting to daemon view if the daemon was
-      // connnected previously
-      if (this._connectedToDaemon) {
-        actions.history.replace('/');
-      }
-    }
-
-    this._connectedToDaemon = false;
-  }
-
-  async _setStartView() {
-    const actions = this._reduxActions;
-    const history = this._memoryHistory;
-    const accountToken = this._settings.accountToken;
-
-    if (accountToken) {
-      log.debug(`Account token is set. Showing the tunnel view.`);
-
-      this._accountDataCache.fetch(accountToken);
-
-      actions.account.updateAccountToken(accountToken);
-      actions.account.loginSuccessful();
-
-      // take user to main view if user is still at launch screen `/`
-      if (history.location.pathname === '/') {
-        actions.history.replace('/connect');
-      } else {
-        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
-        // the restricted screen due to changes in daemon's state.
-        for (const entry of history.entries) {
-          if (entry.pathname === '/') {
-            entry.pathname = '/connect';
-          }
-        }
-      }
+      // try to autoconnect the tunnel
+      await this._autoConnect();
     } else {
-      log.debug('No account set, showing login view.');
+      this._memoryHistory.replace('/login');
 
       // show window when account is not set
       ipcRenderer.send('show-window');
+    }
+  }
 
-      // take user to `/login` screen if user is at launch screen `/`
-      if (history.location.pathname === '/') {
-        actions.history.replace('/login');
-      } else {
-        // TODO: Reinvent the navigation back in history to make sure that user does not end up on
-        // the restricted screen due to changes in daemon's state.
-        for (const entry of history.entries) {
-          if (!entry.pathname.startsWith('/settings')) {
-            entry.pathname = '/login';
-          }
-        }
-      }
+  _onDaemonDisconnected(error: ?Error) {
+    const wasConnected = this._connectedToDaemon;
+
+    this._connectedToDaemon = false;
+
+    if (error && wasConnected) {
+      this._memoryHistory.replace('/');
     }
   }
 
@@ -514,6 +456,7 @@ export default class AppRenderer {
     this._settings = newSettings;
 
     const reduxSettings = this._reduxActions.settings;
+    const reduxAccount = this._reduxActions.account;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
@@ -521,6 +464,35 @@ export default class AppRenderer {
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
 
     this._setRelaySettings(newSettings.relaySettings);
+
+    if (newSettings.accountToken) {
+      reduxAccount.updateAccountToken(newSettings.accountToken);
+      reduxAccount.loggedIn();
+    } else {
+      reduxAccount.loggedOut();
+    }
+  }
+
+  _handleAccountChange(oldAccount: ?string, newAccount: ?string) {
+    if (oldAccount && !newAccount) {
+      this._accountDataCache.invalidate();
+
+      if (this._loginTimer) {
+        clearTimeout(this._loginTimer);
+      }
+
+      this._memoryHistory.replace('/login');
+    } else if (!oldAccount && newAccount) {
+      this._accountDataCache.fetch(newAccount);
+
+      if (!this._doingLogin) {
+        this._memoryHistory.replace('/connect');
+      }
+    } else if (oldAccount && newAccount && oldAccount !== newAccount) {
+      this._accountDataCache.fetch(newAccount);
+    }
+
+    this._doingLogin = false;
   }
 
   _setLocation(location: Location) {

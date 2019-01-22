@@ -70,6 +70,10 @@ export default class Login extends Component<Props, State> {
     });
   }
 
+  componentDidMount() {
+    this._setFooterVisibility(this._shouldShowFooter());
+  }
+
   componentDidUpdate(prevProps: Props, _prevState: State) {
     if (
       this.props.loginState !== prevProps.loginState &&
