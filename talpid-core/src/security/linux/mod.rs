@@ -5,12 +5,12 @@ use lazy_static::lazy_static;
 use libc;
 use nftnl::{
     expr::{self, Verdict},
-    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, Batch,
-    Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+    nft_expr, nft_expr_bitwise, nft_expr_cmp, nft_expr_ct, nft_expr_meta, nft_expr_payload, table,
+    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
 use std::{
     env,
-    ffi::CString,
+    ffi::{CStr, CString},
     io,
     net::{IpAddr, Ipv4Addr},
 };
@@ -30,6 +30,9 @@ error_chain! {
         NetlinkRecvError { description("Error while reading from netlink socket") }
         /// Error while processing an incoming netlink message
         ProcessNetlinkError { description("Error while processing an incoming netlink message") }
+        /// Failed to verify that our tables are set. Probably means that
+        /// it's the host does not support nftables properly.
+        NetfilterTableNotSetError{ description("Failed to set firewall rules") }
         /// The name is not a valid Linux network interface name
         InvalidInterfaceName(name: String) {
             description("Invalid network interface name")
@@ -84,7 +87,8 @@ impl NetworkSecurityT for NetworkSecurity {
     fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
         let batch = PolicyBatch::new(&table)?.finalize(&policy)?;
-        self.send_and_process(&batch)
+        self.send_and_process(&batch)?;
+        self.verify_tables(&[&TABLE_NAME])
     }
 
     fn reset_policy(&mut self) -> Result<()> {
@@ -114,9 +118,37 @@ impl NetworkSecurity {
         let portid = socket.portid();
         let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
-
+        let seq = 0;
         while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
-            match mnl::cb_run(message, 2, portid).chain_err(|| ErrorKind::ProcessNetlinkError)? {
+            match mnl::cb_run(message, seq, portid).chain_err(|| ErrorKind::ProcessNetlinkError)? {
+                mnl::CbResult::Stop => {
+                    log::trace!("cb_run STOP");
+                    break;
+                }
+                mnl::CbResult::Ok => log::trace!("cb_run OK"),
+            };
+        }
+        Ok(())
+    }
+
+    fn verify_tables(&self, expected_tables: &[&CStr]) -> Result<()> {
+        let socket =
+            mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;
+        let portid = socket.portid();
+        let seq = 0;
+
+        let get_tables_msg = table::get_tables_nlmsg(seq);;
+        socket
+            .send(&get_tables_msg)
+            .chain_err(|| ErrorKind::NetlinkSendError)?;
+
+        let mut table_set = ::std::collections::HashSet::new();
+        let mut msg_buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
+
+        while let Some(message) = Self::socket_recv(&socket, &mut msg_buffer)? {
+            match mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
+                .chain_err(|| ErrorKind::ProcessNetlinkError)?
+            {
                 mnl::CbResult::Stop => {
                     log::trace!("cb_run STOP");
                     break;
@@ -125,6 +157,15 @@ impl NetworkSecurity {
             }
         }
 
+        for expected_table in expected_tables {
+            if !table_set.contains(*expected_table) {
+                log::error!(
+                    "Expected '{}' netfilter table to be set, but it is not",
+                    expected_table.to_string_lossy()
+                );
+                bail!(ErrorKind::NetfilterTableNotSetError)
+            }
+        }
         Ok(())
     }
 
