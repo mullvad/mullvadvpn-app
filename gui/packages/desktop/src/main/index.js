@@ -23,6 +23,7 @@ import type {
   AppVersionInfo,
   Location,
   RelayList,
+  RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
 } from './daemon-rpc';
@@ -497,7 +498,7 @@ const ApplicationMain = {
     }
 
     if (this._windowController) {
-      IpcMainEventChannel.tunnelState.notify(this._windowController.webContents, newState);
+      IpcMainEventChannel.tunnel.notify(this._windowController.webContents, newState);
     }
   },
 
@@ -733,27 +734,6 @@ const ApplicationMain = {
   },
 
   _registerIpcListeners() {
-    ipcMain.on('daemon-rpc-call', async (event, id: string, method: string, payload: any) => {
-      log.debug(`Got daemon-rpc-call: ${id} ${method}`);
-
-      try {
-        // $FlowFixMe: flow does not like index accessors.
-        const result = await this._daemonRpc[method](payload);
-
-        log.debug(`Send daemon-rpc-reply-${id} ${method} with success`);
-        event.sender.send(`daemon-rpc-reply-${id}`, result);
-      } catch (error) {
-        log.debug(`Send daemon-rpc-reply-${id} ${method} with error: ${error.message}`);
-        event.sender.send(`daemon-rpc-reply-${id}`, undefined, {
-          className: error.constructor.name || '',
-          data: {
-            message: error.message,
-            ...JSON.parse(JSON.stringify(error)),
-          },
-        });
-      }
-    });
-
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this._connectedToDaemon,
       autoStart: getOpenAtLogin(),
@@ -766,9 +746,28 @@ const ApplicationMain = {
       guiSettings: this._guiSettings.state,
     }));
 
+    IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
+      this._daemonRpc.setAllowLan(allowLan),
+    );
+    IpcMainEventChannel.settings.handleEnableIpv6((enableIpv6: boolean) =>
+      this._daemonRpc.setEnableIpv6(enableIpv6),
+    );
+    IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
+      this._daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
+    );
+    IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix: ?number) =>
+      this._daemonRpc.setOpenVpnMssfix(mssfix),
+    );
+    IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
+      this._daemonRpc.updateRelaySettings(update),
+    );
+
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this._setAutoStart(autoStart);
     });
+
+    IpcMainEventChannel.tunnel.handleConnect(() => this._daemonRpc.connectTunnel());
+    IpcMainEventChannel.tunnel.handleDisconnect(() => this._daemonRpc.disconnectTunnel());
 
     IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
       this._guiSettings.autoConnect = autoConnect;
@@ -786,6 +785,9 @@ const ApplicationMain = {
       this._daemonRpc.setAccount(token),
     );
     IpcMainEventChannel.account.handleUnset(() => this._daemonRpc.setAccount(null));
+    IpcMainEventChannel.account.handleGetData((token: AccountToken) =>
+      this._daemonRpc.getAccountData(token),
+    );
 
     IpcMainEventChannel.accountHistory.handleGet(() => this._daemonRpc.getAccountHistory());
     IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>

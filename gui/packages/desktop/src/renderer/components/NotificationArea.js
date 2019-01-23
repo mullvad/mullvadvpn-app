@@ -15,7 +15,7 @@ import {
 
 import { AuthFailure } from '../lib/auth-failure';
 import AccountExpiry from '../lib/account-expiry';
-import type { BlockReason, TunnelStateTransition } from '../lib/daemon-rpc-proxy';
+import type { BlockReason, TunnelStateTransition } from '../../main/daemon-rpc';
 import type { VersionReduxState } from '../redux/version/reducers';
 
 type Props = {

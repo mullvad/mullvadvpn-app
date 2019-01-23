@@ -9,8 +9,10 @@ import type { GuiSettingsState } from './gui-settings-state';
 import type { AppUpgradeInfo, CurrentAppVersionInfo } from '../main/index';
 import type {
   AccountToken,
+  AccountData,
   Location,
   RelayList,
+  RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
 } from '../main/daemon-rpc';
@@ -35,26 +37,54 @@ interface Receiver<T> {
   listen<T>(fn: (T) => void): void;
 }
 
+interface TunnelMethods {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+}
+
+interface TunnelHandlers {
+  handleConnect(fn: () => Promise<void>): void;
+  handleDisconnect(fn: () => Promise<void>): void;
+}
+
+interface SettingsMethods {
+  setAllowLan(boolean): Promise<void>;
+  setEnableIpv6(boolean): Promise<void>;
+  setBlockWhenDisconnected(boolean): Promise<void>;
+  setOpenVpnMssfix(?number): Promise<void>;
+  updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
+}
+
+interface SettingsHandlers {
+  handleAllowLan(fn: (boolean) => Promise<void>): void;
+  handleEnableIpv6(fn: (boolean) => Promise<void>): void;
+  handleBlockWhenDisconnected(fn: (boolean) => Promise<void>): void;
+  handleOpenVpnMssfix(fn: (?number) => Promise<void>): void;
+  handleUpdateRelaySettings(fn: (RelaySettingsUpdate) => Promise<void>): void;
+}
+
 interface GuiSettingsMethods {
-  setAutoConnect: (boolean) => void;
-  setStartMinimized: (boolean) => void;
-  setMonochromaticIcon: (boolean) => void;
+  setAutoConnect(boolean): void;
+  setStartMinimized(boolean): void;
+  setMonochromaticIcon(boolean): void;
 }
 
 interface GuiSettingsHandlers {
-  handleAutoConnect: ((boolean) => void) => void;
-  handleStartMinimized: ((boolean) => void) => void;
-  handleMonochromaticIcon: ((boolean) => void) => void;
+  handleAutoConnect((boolean) => void): void;
+  handleStartMinimized((boolean) => void): void;
+  handleMonochromaticIcon((boolean) => void): void;
 }
 
 interface AccountHandlers {
   handleSet(fn: (AccountToken) => Promise<void>): void;
   handleUnset(fn: () => Promise<void>): void;
+  handleGetData(fn: (AccountToken) => Promise<AccountData>): void;
 }
 
 interface AccountMethods {
   set(token: AccountToken): Promise<void>;
   unset(): Promise<void>;
+  getData(token: AccountToken): Promise<AccountData>;
 }
 
 interface AccountHistoryHandlers {
@@ -73,15 +103,25 @@ interface AutoStartMethods {
 }
 
 interface AutoStartHandlers {
-  handleSet: ((boolean) => Promise<void>) => void;
+  handleSet((boolean) => Promise<void>): void;
 }
 
 /// Events names
 
 const DAEMON_CONNECTED = 'daemon-connected';
 const DAEMON_DISCONNECTED = 'daemon-disconnected';
+
 const TUNNEL_STATE_CHANGED = 'tunnel-state-changed';
+const CONNECT_TUNNEL = 'connect-tunnel';
+const DISCONNECT_TUNNEL = 'disconnect-tunnel';
+
 const SETTINGS_CHANGED = 'settings-changed';
+const SET_ALLOW_LAN = 'set-allow-lan';
+const SET_ENABLE_IPV6 = 'set-enable-ipv6';
+const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
+const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
+const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
+
 const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
 const CURRENT_VERSION_CHANGED = 'current-version-changed';
@@ -99,6 +139,7 @@ const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
 
 const SET_ACCOUNT = 'set-account';
 const UNSET_ACCOUNT = 'unset-account';
+const GET_ACCOUNT_DATA = 'get-account-data';
 
 const AUTO_START_CHANGED = 'auto-start-changed';
 const SET_AUTO_START = 'set-auto-start';
@@ -124,12 +165,19 @@ export class IpcRendererEventChannel {
     listen: listen(DAEMON_DISCONNECTED),
   };
 
-  static tunnelState: Receiver<TunnelStateTransition> = {
+  static tunnel: Receiver<TunnelStateTransition> & TunnelMethods = {
     listen: listen(TUNNEL_STATE_CHANGED),
+    connect: requestSender(CONNECT_TUNNEL),
+    disconnect: requestSender(DISCONNECT_TUNNEL),
   };
 
-  static settings: Receiver<Settings> = {
+  static settings: Receiver<Settings> & SettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
+    setAllowLan: requestSender(SET_ALLOW_LAN),
+    setEnableIpv6: requestSender(SET_ENABLE_IPV6),
+    setBlockWhenDisconnected: requestSender(SET_BLOCK_WHEN_DISCONNECTED),
+    setOpenVpnMssfix: requestSender(SET_OPENVPN_MSSFIX),
+    updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
   };
 
   static location: Receiver<Location> = {
@@ -163,6 +211,7 @@ export class IpcRendererEventChannel {
   static account: AccountMethods = {
     set: requestSender(SET_ACCOUNT),
     unset: requestSender(UNSET_ACCOUNT),
+    getData: requestSender(GET_ACCOUNT_DATA),
   };
 
   static accountHistory: AccountHistoryMethods = {
@@ -188,16 +237,23 @@ export class IpcMainEventChannel {
     notify: sender(DAEMON_DISCONNECTED),
   };
 
-  static tunnelState: Sender<TunnelStateTransition> = {
+  static tunnel: Sender<TunnelStateTransition> & TunnelHandlers = {
     notify: sender(TUNNEL_STATE_CHANGED),
+    handleConnect: requestHandler(CONNECT_TUNNEL),
+    handleDisconnect: requestHandler(DISCONNECT_TUNNEL),
   };
 
   static location: Sender<Location> = {
     notify: sender(LOCATION_CHANGED),
   };
 
-  static settings: Sender<Settings> = {
+  static settings: Sender<Settings> & SettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
+    handleAllowLan: requestHandler(SET_ALLOW_LAN),
+    handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
+    handleBlockWhenDisconnected: requestHandler(SET_BLOCK_WHEN_DISCONNECTED),
+    handleOpenVpnMssfix: requestHandler(SET_OPENVPN_MSSFIX),
+    handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
   };
 
   static relays: Sender<RelayList> = {
@@ -227,6 +283,7 @@ export class IpcMainEventChannel {
   static account: AccountHandlers = {
     handleSet: requestHandler(SET_ACCOUNT),
     handleUnset: requestHandler(UNSET_ACCOUNT),
+    handleGetData: requestHandler(GET_ACCOUNT_DATA),
   };
 
   static accountHistory: AccountHistoryHandlers = {
