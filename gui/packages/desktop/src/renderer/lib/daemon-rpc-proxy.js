@@ -98,8 +98,8 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
     throw new Error('Do not call this method.');
   }
 
-  getAccountData(accountToken: AccountToken): Promise<AccountData> {
-    return this._sendMessage('getAccountData', accountToken);
+  getAccountData(_accountToken: AccountToken): Promise<AccountData> {
+    throw new Error('Do not call this method.');
   }
 
   getRelayLocations(): Promise<RelayList> {
@@ -143,15 +143,15 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   getLocation(): Promise<Location> {
-    return this._sendMessage('getLocation');
+    throw new Error('Do not call this method.');
   }
 
   getState(): Promise<TunnelStateTransition> {
-    return this._sendMessage('getState');
+    throw new Error('Do not call this method.');
   }
 
   getSettings(): Promise<Settings> {
-    return this._sendMessage('getSettings');
+    throw new Error('Do not call this method.');
   }
 
   subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {

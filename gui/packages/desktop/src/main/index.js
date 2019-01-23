@@ -786,6 +786,9 @@ const ApplicationMain = {
       this._daemonRpc.setAccount(token),
     );
     IpcMainEventChannel.account.handleUnset(() => this._daemonRpc.setAccount(null));
+    IpcMainEventChannel.account.handleGetData((token: AccountToken) =>
+      this._daemonRpc.getAccountData(token),
+    );
 
     IpcMainEventChannel.accountHistory.handleGet(() => this._daemonRpc.getAccountHistory());
     IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>

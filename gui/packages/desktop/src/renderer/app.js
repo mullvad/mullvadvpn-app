@@ -47,7 +47,7 @@ export default class AppRenderer {
   _daemonRpc = new DaemonRpcProxy();
   _accountDataCache = new AccountDataCache(
     (accountToken) => {
-      return this._daemonRpc.getAccountData(accountToken);
+      return IpcRendererEventChannel.account.getData(accountToken);
     },
     (accountData) => {
       const expiry = accountData ? accountData.expiry : null;
