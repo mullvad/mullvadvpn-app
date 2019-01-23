@@ -53,9 +53,24 @@ Line wrap the file at 100 chars.                                              Th
 - Dismiss notifications automatically after four seconds in all platforms.
 - Fix error printed from the CLI when issuing `relay update`.
 - Fix relay list update interval. Should now handle sleep better.
+- Prevent GUI from sending connect commands to daemon every time it establishes a connection to
+  the daemon. Only on first start (if auto-connect is enabled.)
+- Prevent possible reconnect loop where the GUI would indefinitely reconnect to the daemon.
+- Correctly handle external changes to the account token in the GUI. For example when changed from
+  the CLI.
+
+#### Linux
+- Minor improvement to uninstall script on Debian based systems.
+- Wait for NetworkManager and systemd-resolved services to start before daemon starts on platforms
+  with systemd and those two services. Prevents the daemon from using the wrong DNS API.
 
 #### Windows
 - Gracefully block when TAP adapter is missing or disabled, instead of retrying to connect.
+
+### Security
+#### Linux
+- Poll netfilter to verify firewall rules were added correctly. On Ubuntu 14.04 netfilter did not
+  return any error, but it also ignored the rules the daemon tried to add.
 
 
 ## [2018.6] - 2018-12-12
