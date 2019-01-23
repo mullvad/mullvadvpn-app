@@ -14,7 +14,6 @@ import { createMemoryHistory } from 'history';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
-import { getOpenAtLogin, setOpenAtLogin } from './lib/autostart';
 
 import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
@@ -58,6 +57,7 @@ export default class AppRenderer {
 
   _tunnelState: TunnelStateTransition;
   _settings: Settings;
+  _guiSettings: GuiSettingsState;
   _connectedToDaemon = false;
   _autoConnected = false;
   _doingLogin = false;
@@ -131,6 +131,10 @@ export default class AppRenderer {
       this._setGuiSettings(guiSettings);
     });
 
+    IpcRendererEventChannel.autoStart.listen((autoStart: boolean) => {
+      this._setAutoStart(autoStart);
+    });
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
@@ -145,6 +149,7 @@ export default class AppRenderer {
     this._setCurrentVersion(initialState.currentVersion);
     this._setUpgradeVersion(initialState.upgradeVersion);
     this._setGuiSettings(initialState.guiSettings);
+    this._setAutoStart(initialState.autoStart);
 
     if (initialState.isConnected) {
       this._onDaemonConnected();
@@ -331,27 +336,15 @@ export default class AppRenderer {
   }
 
   async setAutoConnect(autoConnect: boolean) {
-    const actions = this._reduxActions;
-    await IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
-    await this._setDaemonAutoConnect(autoConnect, getOpenAtLogin());
-    actions.settings.updateAutoConnect(autoConnect);
+    this._reduxActions.settings.updateAutoConnect(autoConnect);
+
+    return IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
   }
 
-  _getAutoConnect(): boolean {
-    return this._reduxStore.getState().settings.guiSettings.autoConnect;
-  }
+  async setAutoStart(autoStart: boolean): Promise<void> {
+    this._setAutoStart(autoStart);
 
-  async setAutoStart(autoStart: boolean) {
-    await setOpenAtLogin(autoStart);
-    await this._setDaemonAutoConnect(this._getAutoConnect(), autoStart);
-  }
-
-  async _setDaemonAutoConnect(guiAutoConnect: boolean, autoStart: boolean) {
-    const daemonAutoConnect = guiAutoConnect && autoStart;
-
-    if (daemonAutoConnect !== this._settings.autoConnect) {
-      await this._daemonRpc.setAutoConnect(daemonAutoConnect);
-    }
+    return IpcRendererEventChannel.autoStart.set(autoStart);
   }
 
   setStartMinimized(startMinimized: boolean) {
@@ -400,7 +393,7 @@ export default class AppRenderer {
     } else if (this._autoConnected) {
       log.debug('Skip autoconnect because it was done before');
     } else if (this._settings.accountToken) {
-      if (this._getAutoConnect()) {
+      if (this._guiSettings.autoConnect) {
         try {
           log.debug('Autoconnect the tunnel');
 
@@ -526,7 +519,12 @@ export default class AppRenderer {
   }
 
   _setGuiSettings(guiSettings: GuiSettingsState) {
+    this._guiSettings = guiSettings;
     this._reduxActions.settings.updateGuiSettings(guiSettings);
+  }
+
+  _setAutoStart(autoStart: boolean) {
+    this._reduxActions.settings.updateAutoStart(autoStart);
   }
 }
 

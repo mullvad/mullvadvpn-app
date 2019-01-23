@@ -8,6 +8,7 @@ import mkdirp from 'mkdirp';
 import uuid from 'uuid';
 import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 
+import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import NotificationController from './notification-controller';
 import WindowController from './window-controller';
 
@@ -296,6 +297,10 @@ const ApplicationMain = {
         if (this._trayIconController) {
           this._trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
         }
+      }
+
+      if (newState.autoConnect !== oldState.autoConnect) {
+        this._updateDaemonsAutoConnect();
       }
 
       if (this._windowController) {
@@ -751,6 +756,7 @@ const ApplicationMain = {
 
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this._connectedToDaemon,
+      autoStart: getOpenAtLogin(),
       tunnelState: this._tunnelState,
       settings: this._settings,
       location: this._location,
@@ -759,6 +765,10 @@ const ApplicationMain = {
       upgradeVersion: this._upgradeVersion,
       guiSettings: this._guiSettings.state,
     }));
+
+    IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
+      return this._setAutoStart(autoStart);
+    });
 
     IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
       this._guiSettings.autoConnect = autoConnect;
@@ -852,6 +862,30 @@ const ApplicationMain = {
         });
       },
     );
+  },
+
+  _updateDaemonsAutoConnect() {
+    const daemonAutoConnect = this._guiSettings.autoConnect && getOpenAtLogin();
+    if (daemonAutoConnect !== this._settings.autoConnect) {
+      this._daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
+  },
+
+  async _setAutoStart(autoStart: boolean): Promise<void> {
+    try {
+      await setOpenAtLogin(autoStart);
+
+      if (this._windowController) {
+        IpcMainEventChannel.autoStart.notify(this._windowController.webContents, autoStart);
+      }
+
+      this._updateDaemonsAutoConnect();
+    } catch (error) {
+      log.error(
+        `Failed to update the autostart to ${autoStart.toString()}. ${error.message.toString()}`,
+      );
+    }
+    return Promise.resolve();
   },
 
   async _installDevTools() {

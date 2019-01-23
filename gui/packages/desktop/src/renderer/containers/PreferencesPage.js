@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { goBack } from 'connected-react-router';
 import Preferences from '../components/Preferences';
-import { getOpenAtLogin } from '../lib/autostart';
 
 import type { ReduxState, ReduxDispatch } from '../redux/store';
 import type { SharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: ReduxState) => ({
+  autoStart: state.settings.autoStart,
   autoConnect: state.settings.guiSettings.autoConnect,
   allowLan: state.settings.allowLan,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
@@ -22,9 +22,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
   return {
     onClose: () => {
       history.goBack();
-    },
-    getAutoStart: () => {
-      return getOpenAtLogin();
     },
     setAutoStart: async (autoStart) => {
       try {
