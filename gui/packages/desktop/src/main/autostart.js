@@ -23,7 +23,7 @@ export function getOpenAtLogin() {
 
       return true;
     } catch (error) {
-      log.debug(`Failed to check autostart file: ${error.message}`);
+      log.error(`Failed to check autostart file: ${error.message}`);
       return false;
     }
   } else {
@@ -67,7 +67,7 @@ const createDirIfNecessary = async (directory: string) => {
     try {
       await unlinkAsync(directory);
     } catch (error) {
-      log.debug(`Failed to remove path before creating a directory for it: ${error.message}`);
+      log.error(`Failed to remove path before creating a directory for it: ${error.message}`);
     }
 
     return mkdirAsync(directory);

@@ -171,7 +171,7 @@ export default class AppRenderer {
     const actions = this._reduxActions;
     actions.account.startLogin(accountToken);
 
-    log.debug('Logging in');
+    log.info('Logging in');
 
     this._doingLogin = true;
 
@@ -179,7 +179,7 @@ export default class AppRenderer {
       const verification = await this.verifyAccount(accountToken);
 
       if (verification.status === 'deferred') {
-        log.debug(`Failed to get account data, logging in anyway: ${verification.error.message}`);
+        log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
       await IpcRendererEventChannel.account.set(accountToken);
@@ -189,7 +189,7 @@ export default class AppRenderer {
         this._memoryHistory.replace('/connect');
 
         try {
-          log.debug('Auto-connecting the tunnel');
+          log.info('Auto-connecting the tunnel');
           await this.connectTunnel();
         } catch (error) {
           log.error(`Failed to auto-connect the tunnel: ${error.message}`);
@@ -389,13 +389,13 @@ export default class AppRenderer {
 
   async _autoConnect() {
     if (process.env.NODE_ENV === 'development') {
-      log.debug('Skip autoconnect in development');
+      log.info('Skip autoconnect in development');
     } else if (this._autoConnected) {
-      log.debug('Skip autoconnect because it was done before');
+      log.info('Skip autoconnect because it was done before');
     } else if (this._settings.accountToken) {
       if (this._guiSettings.autoConnect) {
         try {
-          log.debug('Autoconnect the tunnel');
+          log.info('Autoconnect the tunnel');
 
           await this.connectTunnel();
 
@@ -404,10 +404,10 @@ export default class AppRenderer {
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
       } else {
-        log.debug('Skip autoconnect because GUI setting is disabled');
+        log.info('Skip autoconnect because GUI setting is disabled');
       }
     } else {
-      log.debug('Skip autoconnect because account token is not set');
+      log.info('Skip autoconnect because account token is not set');
     }
   }
 
@@ -632,7 +632,7 @@ export class AccountDataCache {
 
     const delay = Math.min(2048, 1 << (this._fetchAttempt + 2)) * 1000;
 
-    log.debug(`Failed to fetch account data. Retrying in ${delay} ms`);
+    log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
     this._fetchRetryTimeout = setTimeout(() => {
       this._fetchRetryTimeout = null;
