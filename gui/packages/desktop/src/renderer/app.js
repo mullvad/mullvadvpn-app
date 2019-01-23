@@ -38,13 +38,10 @@ import type {
   TunnelStateTransition,
 } from './lib/daemon-rpc-proxy';
 
-import DaemonRpcProxy from './lib/daemon-rpc-proxy';
-
 export default class AppRenderer {
   _memoryHistory = createMemoryHistory();
   _reduxStore = configureStore(null, this._memoryHistory);
   _reduxActions: *;
-  _daemonRpc = new DaemonRpcProxy();
   _accountDataCache = new AccountDataCache(
     (accountToken) => {
       return IpcRendererEventChannel.account.getData(accountToken);
@@ -313,26 +310,26 @@ export default class AppRenderer {
 
   async setAllowLan(allowLan: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setAllowLan(allowLan);
+    await IpcRendererEventChannel.settings.setAllowLan(allowLan);
     actions.settings.updateAllowLan(allowLan);
   }
 
   async setEnableIpv6(enableIpv6: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setEnableIpv6(enableIpv6);
+    await IpcRendererEventChannel.settings.setEnableIpv6(enableIpv6);
     actions.settings.updateEnableIpv6(enableIpv6);
   }
 
   async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {
     const actions = this._reduxActions;
-    await this._daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected);
+    await IpcRendererEventChannel.settings.setBlockWhenDisconnected(blockWhenDisconnected);
     actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
   }
 
   async setOpenVpnMssfix(mssfix: ?number) {
     const actions = this._reduxActions;
     actions.settings.updateOpenVpnMssfix(mssfix);
-    await this._daemonRpc.setOpenVpnMssfix(mssfix);
+    await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
   }
 
   async setAutoConnect(autoConnect: boolean) {

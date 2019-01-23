@@ -767,6 +767,18 @@ const ApplicationMain = {
       guiSettings: this._guiSettings.state,
     }));
 
+    IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
+      this._daemonRpc.setAllowLan(allowLan),
+    );
+    IpcMainEventChannel.settings.handleEnableIpv6((enableIpv6: boolean) =>
+      this._daemonRpc.setEnableIpv6(enableIpv6),
+    );
+    IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
+      this._daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
+    );
+    IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix: ?number) =>
+      this._daemonRpc.setOpenVpnMssfix(mssfix),
+    );
     IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
       this._daemonRpc.updateRelaySettings(update),
     );

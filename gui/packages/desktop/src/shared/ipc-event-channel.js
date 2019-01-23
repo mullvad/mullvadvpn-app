@@ -48,10 +48,18 @@ interface TunnelHandlers {
 }
 
 interface SettingsMethods {
+  setAllowLan(boolean): Promise<void>;
+  setEnableIpv6(boolean): Promise<void>;
+  setBlockWhenDisconnected(boolean): Promise<void>;
+  setOpenVpnMssfix(?number): Promise<void>;
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
 }
 
 interface SettingsHandlers {
+  handleAllowLan(fn: (boolean) => Promise<void>): void;
+  handleEnableIpv6(fn: (boolean) => Promise<void>): void;
+  handleBlockWhenDisconnected(fn: (boolean) => Promise<void>): void;
+  handleOpenVpnMssfix(fn: (?number) => Promise<void>): void;
   handleUpdateRelaySettings(fn: (RelaySettingsUpdate) => Promise<void>): void;
 }
 
@@ -108,6 +116,10 @@ const CONNECT_TUNNEL = 'connect-tunnel';
 const DISCONNECT_TUNNEL = 'disconnect-tunnel';
 
 const SETTINGS_CHANGED = 'settings-changed';
+const SET_ALLOW_LAN = 'set-allow-lan';
+const SET_ENABLE_IPV6 = 'set-enable-ipv6';
+const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
+const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
 const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
 
 const LOCATION_CHANGED = 'location-changed';
@@ -161,6 +173,10 @@ export class IpcRendererEventChannel {
 
   static settings: Receiver<Settings> & SettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
+    setAllowLan: requestSender(SET_ALLOW_LAN),
+    setEnableIpv6: requestSender(SET_ENABLE_IPV6),
+    setBlockWhenDisconnected: requestSender(SET_BLOCK_WHEN_DISCONNECTED),
+    setOpenVpnMssfix: requestSender(SET_OPENVPN_MSSFIX),
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
   };
 
@@ -233,6 +249,10 @@ export class IpcMainEventChannel {
 
   static settings: Sender<Settings> & SettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
+    handleAllowLan: requestHandler(SET_ALLOW_LAN),
+    handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
+    handleBlockWhenDisconnected: requestHandler(SET_BLOCK_WHEN_DISCONNECTED),
+    handleOpenVpnMssfix: requestHandler(SET_OPENVPN_MSSFIX),
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
   };
 
