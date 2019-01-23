@@ -245,7 +245,7 @@ export default class AppRenderer {
   }
 
   updateRelaySettings(relaySettings: RelaySettingsUpdate) {
-    return this._daemonRpc.updateRelaySettings(relaySettings);
+    return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   }
 
   _setRelaySettings(relaySettings: RelaySettings) {

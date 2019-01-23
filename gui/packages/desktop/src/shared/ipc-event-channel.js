@@ -12,6 +12,7 @@ import type {
   AccountData,
   Location,
   RelayList,
+  RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
 } from '../main/daemon-rpc';
@@ -44,6 +45,14 @@ interface TunnelMethods {
 interface TunnelHandlers {
   handleConnect(fn: () => Promise<void>): void;
   handleDisconnect(fn: () => Promise<void>): void;
+}
+
+interface SettingsMethods {
+  updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
+}
+
+interface SettingsHandlers {
+  handleUpdateRelaySettings(fn: (RelaySettingsUpdate) => Promise<void>): void;
 }
 
 interface GuiSettingsMethods {
@@ -99,6 +108,8 @@ const CONNECT_TUNNEL = 'connect-tunnel';
 const DISCONNECT_TUNNEL = 'disconnect-tunnel';
 
 const SETTINGS_CHANGED = 'settings-changed';
+const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
+
 const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
 const CURRENT_VERSION_CHANGED = 'current-version-changed';
@@ -148,8 +159,9 @@ export class IpcRendererEventChannel {
     disconnect: requestSender(DISCONNECT_TUNNEL),
   };
 
-  static settings: Receiver<Settings> = {
+  static settings: Receiver<Settings> & SettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
+    updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
   };
 
   static location: Receiver<Location> = {
@@ -219,8 +231,9 @@ export class IpcMainEventChannel {
     notify: sender(LOCATION_CHANGED),
   };
 
-  static settings: Sender<Settings> = {
+  static settings: Sender<Settings> & SettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
+    handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
   };
 
   static relays: Sender<RelayList> = {

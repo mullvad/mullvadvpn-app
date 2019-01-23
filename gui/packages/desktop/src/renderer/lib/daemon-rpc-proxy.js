@@ -80,8 +80,8 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
     throw new Error('Do not use this method');
   }
 
-  updateRelaySettings(update: RelaySettingsUpdate): Promise<void> {
-    return this._sendMessage('updateRelaySettings', update);
+  updateRelaySettings(_update: RelaySettingsUpdate): Promise<void> {
+    throw new Error('Do not use this method');
   }
 
   setAllowLan(allowLan: boolean): Promise<void> {

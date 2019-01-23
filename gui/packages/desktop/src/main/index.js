@@ -23,6 +23,7 @@ import type {
   AppVersionInfo,
   Location,
   RelayList,
+  RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
 } from './daemon-rpc';
@@ -765,6 +766,10 @@ const ApplicationMain = {
       upgradeVersion: this._upgradeVersion,
       guiSettings: this._guiSettings.state,
     }));
+
+    IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
+      this._daemonRpc.updateRelaySettings(update),
+    );
 
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this._setAutoStart(autoStart);
