@@ -6,7 +6,7 @@ import type {
   RelaySettingsUpdate,
   RelaySettingsNormalUpdate,
   RelaySettingsCustom,
-} from './daemon-rpc-proxy';
+} from '../../main/daemon-rpc';
 
 type LocationBuilder<Self> = {
   country: (country: string) => Self,

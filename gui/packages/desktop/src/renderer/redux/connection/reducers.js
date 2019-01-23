@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { TunnelStateTransition, Ip } from '../../lib/daemon-rpc-proxy';
+import type { TunnelStateTransition, Ip } from '../../../main/daemon-rpc';
 
 export type ConnectionReduxState = {
   status: TunnelStateTransition,
