@@ -64,15 +64,15 @@ interface SettingsHandlers {
 }
 
 interface GuiSettingsMethods {
-  setAutoConnect: (boolean) => void;
-  setStartMinimized: (boolean) => void;
-  setMonochromaticIcon: (boolean) => void;
+  setAutoConnect(boolean): void;
+  setStartMinimized(boolean): void;
+  setMonochromaticIcon(boolean): void;
 }
 
 interface GuiSettingsHandlers {
-  handleAutoConnect: ((boolean) => void) => void;
-  handleStartMinimized: ((boolean) => void) => void;
-  handleMonochromaticIcon: ((boolean) => void) => void;
+  handleAutoConnect((boolean) => void): void;
+  handleStartMinimized((boolean) => void): void;
+  handleMonochromaticIcon((boolean) => void): void;
 }
 
 interface AccountHandlers {
@@ -103,7 +103,7 @@ interface AutoStartMethods {
 }
 
 interface AutoStartHandlers {
-  handleSet: ((boolean) => Promise<void>) => void;
+  handleSet((boolean) => Promise<void>): void;
 }
 
 /// Events names
