@@ -60,36 +60,6 @@ type ErrorInfo = {
 };
 
 export default class DaemonRpcProxy implements DaemonRpcProtocol {
-  _connectionObservers: Array<ConnectionObserver> = [];
-  _stateListeners: Array<SubscriptionListener<TunnelStateTransition>> = [];
-  _settingsListeners: Array<SubscriptionListener<Settings>> = [];
-
-  constructor() {
-    ipcRenderer.on('connected-daemon', () => {
-      for (const observer of this._connectionObservers) {
-        observer._onOpen();
-      }
-    });
-
-    ipcRenderer.on('disconnected-daemon', (_event: Event, error: ?Error) => {
-      for (const observer of this._connectionObservers) {
-        observer._onClose(error);
-      }
-    });
-
-    ipcRenderer.on('state-changed', (_event: Event, newState: TunnelStateTransition) => {
-      for (const listener of this._stateListeners) {
-        listener._onEvent(newState);
-      }
-    });
-
-    ipcRenderer.on('settings-changed', (_event: Event, newSettings: Settings) => {
-      for (const listener of this._settingsListeners) {
-        listener._onEvent(newSettings);
-      }
-    });
-  }
-
   connect(_connectionInfo: { path: string }): void {
     throw new Error('Do not call this method.');
   }
@@ -115,19 +85,19 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   setAllowLan(allowLan: boolean): Promise<void> {
-    return this._sendMessage('setAllowLan', allowLan);
+    throw new Error('Do not call this method.');
   }
 
   setEnableIpv6(enableIpv6: boolean): Promise<void> {
-    return this._sendMessage('setEnableIpv6', enableIpv6);
+    throw new Error('Do not call this method.');
   }
 
   setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
-    return this._sendMessage('setBlockWhenDisconnected', blockWhenDisconnected);
+    throw new Error('Do not call this method.');
   }
 
   setOpenVpnMssfix(mssfix: ?number): Promise<void> {
-    return this._sendMessage('setOpenVpnMssfix', mssfix);
+    throw new Error('Do not call this method.');
   }
 
   setAutoConnect(_autoConnect: boolean): Promise<void> {
@@ -154,25 +124,20 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
     throw new Error('Do not call this method.');
   }
 
-  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
-    this._stateListeners.push(listener);
-    return Promise.resolve();
+  subscribeStateListener(_listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
+    throw new Error('Do not call this method.');
   }
 
-  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void> {
-    this._settingsListeners.push(listener);
-    return Promise.resolve();
+  subscribeSettingsListener(_listener: SubscriptionListener<Settings>): Promise<void> {
+    throw new Error('Do not call this method.');
   }
 
-  addConnectionObserver(observer: ConnectionObserver): void {
-    this._connectionObservers.push(observer);
+  addConnectionObserver(_observer: ConnectionObserver): void {
+    throw new Error('Do not call this method.');
   }
 
-  removeConnectionObserver(observer: ConnectionObserver): void {
-    const index = this._connectionObservers.indexOf(observer);
-    if (index !== -1) {
-      this._connectionObservers.splice(index, 1);
-    }
+  removeConnectionObserver(_observer: ConnectionObserver): void {
+    throw new Error('Do not call this method.');
   }
 
   getAccountHistory(): Promise<Array<AccountToken>> {
@@ -184,11 +149,11 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   getCurrentVersion(): Promise<string> {
-    return this._sendMessage('getCurrentVersion');
+    throw new Error('Do not use this method');
   }
 
   getVersionInfo(): Promise<AppVersionInfo> {
-    return this._sendMessage('getVersionInfo');
+    throw new Error('Do not use this method');
   }
 
   _sendMessage<T, R>(method: string, payload: ?T): Promise<R> {
