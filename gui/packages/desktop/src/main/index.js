@@ -497,7 +497,7 @@ const ApplicationMain = {
     }
 
     if (this._windowController) {
-      IpcMainEventChannel.tunnelState.notify(this._windowController.webContents, newState);
+      IpcMainEventChannel.tunnel.notify(this._windowController.webContents, newState);
     }
   },
 
@@ -769,6 +769,9 @@ const ApplicationMain = {
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this._setAutoStart(autoStart);
     });
+
+    IpcMainEventChannel.tunnel.handleConnect(() => this._daemonRpc.connectTunnel());
+    IpcMainEventChannel.tunnel.handleDisconnect(() => this._daemonRpc.disconnectTunnel());
 
     IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
       this._guiSettings.autoConnect = autoConnect;

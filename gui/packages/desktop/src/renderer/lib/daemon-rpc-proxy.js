@@ -135,11 +135,11 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
   }
 
   connectTunnel(): Promise<void> {
-    return this._sendMessage('connectTunnel');
+    throw new Error('Do not call this method.');
   }
 
   disconnectTunnel(): Promise<void> {
-    return this._sendMessage('disconnectTunnel');
+    throw new Error('Do not call this method.');
   }
 
   getLocation(): Promise<Location> {

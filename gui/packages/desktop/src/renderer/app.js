@@ -100,7 +100,7 @@ export default class AppRenderer {
       this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : null);
     });
 
-    IpcRendererEventChannel.tunnelState.listen((newState: TunnelStateTransition) => {
+    IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
       this._setTunnelState(newState);
     });
 
@@ -236,12 +236,12 @@ export default class AppRenderer {
       // switch to the connecting state ahead of time to make the app look more responsive
       this._reduxActions.connection.connecting(null);
 
-      return this._daemonRpc.connectTunnel();
+      return IpcRendererEventChannel.tunnel.connect();
     }
   }
 
   disconnectTunnel(): Promise<void> {
-    return this._daemonRpc.disconnectTunnel();
+    return IpcRendererEventChannel.tunnel.disconnect();
   }
 
   updateRelaySettings(relaySettings: RelaySettingsUpdate) {

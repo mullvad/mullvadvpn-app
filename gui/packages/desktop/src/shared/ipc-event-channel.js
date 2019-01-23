@@ -36,6 +36,16 @@ interface Receiver<T> {
   listen<T>(fn: (T) => void): void;
 }
 
+interface TunnelMethods {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+}
+
+interface TunnelHandlers {
+  handleConnect(fn: () => Promise<void>): void;
+  handleDisconnect(fn: () => Promise<void>): void;
+}
+
 interface GuiSettingsMethods {
   setAutoConnect: (boolean) => void;
   setStartMinimized: (boolean) => void;
@@ -83,7 +93,11 @@ interface AutoStartHandlers {
 
 const DAEMON_CONNECTED = 'daemon-connected';
 const DAEMON_DISCONNECTED = 'daemon-disconnected';
+
 const TUNNEL_STATE_CHANGED = 'tunnel-state-changed';
+const CONNECT_TUNNEL = 'connect-tunnel';
+const DISCONNECT_TUNNEL = 'disconnect-tunnel';
+
 const SETTINGS_CHANGED = 'settings-changed';
 const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
@@ -128,8 +142,10 @@ export class IpcRendererEventChannel {
     listen: listen(DAEMON_DISCONNECTED),
   };
 
-  static tunnelState: Receiver<TunnelStateTransition> = {
+  static tunnel: Receiver<TunnelStateTransition> & TunnelMethods = {
     listen: listen(TUNNEL_STATE_CHANGED),
+    connect: requestSender(CONNECT_TUNNEL),
+    disconnect: requestSender(DISCONNECT_TUNNEL),
   };
 
   static settings: Receiver<Settings> = {
@@ -193,8 +209,10 @@ export class IpcMainEventChannel {
     notify: sender(DAEMON_DISCONNECTED),
   };
 
-  static tunnelState: Sender<TunnelStateTransition> = {
+  static tunnel: Sender<TunnelStateTransition> & TunnelHandlers = {
     notify: sender(TUNNEL_STATE_CHANGED),
+    handleConnect: requestHandler(CONNECT_TUNNEL),
+    handleDisconnect: requestHandler(DISCONNECT_TUNNEL),
   };
 
   static location: Sender<Location> = {
