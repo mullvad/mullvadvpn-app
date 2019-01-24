@@ -14,16 +14,21 @@ pub struct BlockedState {
 }
 
 impl BlockedState {
-    fn set_security_policy(shared_values: &mut SharedTunnelStateValues) {
+    fn set_security_policy(shared_values: &mut SharedTunnelStateValues) -> Option<BlockReason> {
         let policy = SecurityPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
         };
-        if let Err(error) = shared_values
+
+        match shared_values
             .security
             .apply_policy(policy)
             .chain_err(|| "Failed to apply security policy for blocked state")
         {
-            log::error!("{}", error.display_chain());
+            Ok(()) => None,
+            Err(error) => {
+                log::error!("{}", error.display_chain());
+                Some(BlockReason::SetSecurityPolicyError)
+            }
         }
     }
 }
@@ -35,7 +40,8 @@ impl TunnelState for BlockedState {
         shared_values: &mut SharedTunnelStateValues,
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        Self::set_security_policy(shared_values);
+        let block_reason = Self::set_security_policy(shared_values).unwrap_or_else(|| block_reason);
+
         (
             TunnelStateWrapper::from(BlockedState {
                 block_reason: block_reason.clone(),
