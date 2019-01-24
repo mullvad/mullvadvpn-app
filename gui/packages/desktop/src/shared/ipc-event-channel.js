@@ -17,6 +17,7 @@ import type {
 
 export type AppStateSnapshot = {
   isConnected: boolean,
+  autoStart: boolean,
   tunnelState: TunnelStateTransition,
   settings: Settings,
   location: ?Location,
@@ -66,6 +67,15 @@ interface AccountHistoryMethods {
   removeItem(token: AccountToken): Promise<void>;
 }
 
+interface AutoStartMethods {
+  listen(fn: (boolean) => void): void;
+  set(autoStart: boolean): Promise<void>;
+}
+
+interface AutoStartHandlers {
+  handleSet: ((boolean) => Promise<void>) => void;
+}
+
 /// Events names
 
 const DAEMON_CONNECTED = 'daemon-connected';
@@ -76,16 +86,22 @@ const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
 const CURRENT_VERSION_CHANGED = 'current-version-changed';
 const UPGRADE_VERSION_CHANGED = 'upgrade-version-changed';
-const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 
+const GUI_SETTINGS_CHANGED = 'gui-settings-changed';
 const SET_AUTO_CONNECT = 'set-auto-connect';
 const SET_MONOCHROMATIC_ICON = 'set-monochromatic-icon';
 const SET_START_MINIMIZED = 'set-start-minimized';
+
 const GET_APP_STATE = 'get-app-state';
+
 const GET_ACCOUNT_HISTORY = 'get-account-history';
 const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
+
 const SET_ACCOUNT = 'set-account';
 const UNSET_ACCOUNT = 'unset-account';
+
+const AUTO_START_CHANGED = 'auto-start-changed';
+const SET_AUTO_START = 'set-auto-start';
 
 /// Typed IPC event channel
 ///
@@ -137,6 +153,11 @@ export class IpcRendererEventChannel {
     setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
+  };
+
+  static autoStart: Receiver<boolean> & AutoStartMethods = {
+    listen: listen(AUTO_START_CHANGED),
+    set: requestSender(SET_AUTO_START),
   };
 
   static account: AccountMethods = {
@@ -196,6 +217,11 @@ export class IpcMainEventChannel {
     handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
+  };
+
+  static autoStart: Sender<boolean> & AutoStartHandlers = {
+    notify: sender(AUTO_START_CHANGED),
+    handleSet: requestHandler(SET_AUTO_START),
   };
 
   static account: AccountHandlers = {

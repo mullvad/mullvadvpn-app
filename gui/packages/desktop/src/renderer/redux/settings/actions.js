@@ -43,6 +43,11 @@ export type UpdateOpenVpnMssfixAction = {
   mssfix: ?number,
 };
 
+export type UpdateAutoStartAction = {
+  type: 'UPDATE_AUTO_START',
+  autoStart: boolean,
+};
+
 export type SettingsAction =
   | UpdateGuiSettingsAction
   | UpdateRelayAction
@@ -51,7 +56,8 @@ export type SettingsAction =
   | UpdateAllowLanAction
   | UpdateEnableIpv6Action
   | UpdateBlockWhenDisconnectedAction
-  | UpdateOpenVpnMssfixAction;
+  | UpdateOpenVpnMssfixAction
+  | UpdateAutoStartAction;
 
 function updateGuiSettings(guiSettings: GuiSettingsState): UpdateGuiSettingsAction {
   return {
@@ -113,6 +119,13 @@ function updateOpenVpnMssfix(mssfix: ?number): UpdateOpenVpnMssfixAction {
   };
 }
 
+function updateAutoStart(autoStart: boolean): UpdateAutoStartAction {
+  return {
+    type: 'UPDATE_AUTO_START',
+    autoStart,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -122,4 +135,5 @@ export default {
   updateEnableIpv6,
   updateBlockWhenDisconnected,
   updateOpenVpnMssfix,
+  updateAutoStart,
 };

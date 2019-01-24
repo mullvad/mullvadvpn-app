@@ -130,8 +130,8 @@ export default class DaemonRpcProxy implements DaemonRpcProtocol {
     return this._sendMessage('setOpenVpnMssfix', mssfix);
   }
 
-  setAutoConnect(autoConnect: boolean): Promise<void> {
-    return this._sendMessage('setAutoConnect', autoConnect);
+  setAutoConnect(_autoConnect: boolean): Promise<void> {
+    throw new Error('Do not call this method.');
   }
 
   connectTunnel(): Promise<void> {

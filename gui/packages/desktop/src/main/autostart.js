@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import { remote } from 'electron';
+import { app } from 'electron';
 import log from 'electron-log';
 
 const DESKTOP_FILE_NAME = 'mullvad-vpn.desktop';
@@ -16,18 +16,18 @@ const unlinkAsync = promisify(fs.unlink);
 export function getOpenAtLogin() {
   if (process.platform === 'linux') {
     try {
-      const autostartDir = path.join(remote.app.getPath('appData'), 'autostart');
+      const autostartDir = path.join(app.getPath('appData'), 'autostart');
       const autostartFilePath = path.join(autostartDir, DESKTOP_FILE_NAME);
 
       fs.accessSync(autostartFilePath);
 
       return true;
     } catch (error) {
-      log.debug(`Failed to check autostart file: ${error.message}`);
+      log.error(`Failed to check autostart file: ${error.message}`);
       return false;
     }
   } else {
-    return remote.app.getLoginItemSettings().openAtLogin;
+    return app.getLoginItemSettings().openAtLogin;
   }
 }
 
@@ -35,7 +35,7 @@ export async function setOpenAtLogin(openAtLogin: boolean) {
   if (process.platform === 'linux') {
     try {
       const desktopFilePath = path.join('/usr/share/applications', DESKTOP_FILE_NAME);
-      const autostartDir = path.join(remote.app.getPath('appData'), 'autostart');
+      const autostartDir = path.join(app.getPath('appData'), 'autostart');
       const autostartFilePath = path.join(autostartDir, DESKTOP_FILE_NAME);
 
       if (openAtLogin) {
@@ -48,7 +48,7 @@ export async function setOpenAtLogin(openAtLogin: boolean) {
       log.error(`Failed to set auto-start: ${error.message}`);
     }
   } else {
-    remote.app.setLoginItemSettings({ openAtLogin });
+    app.setLoginItemSettings({ openAtLogin });
   }
 }
 
@@ -67,7 +67,7 @@ const createDirIfNecessary = async (directory: string) => {
     try {
       await unlinkAsync(directory);
     } catch (error) {
-      log.debug(`Failed to remove path before creating a directory for it: ${error.message}`);
+      log.error(`Failed to remove path before creating a directory for it: ${error.message}`);
     }
 
     return mkdirAsync(directory);

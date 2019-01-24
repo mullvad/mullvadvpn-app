@@ -16,13 +16,13 @@ import Switch from './Switch';
 import styles from './PreferencesStyles';
 
 export type PreferencesProps = {
+  autoStart: boolean,
   autoConnect: boolean,
   allowLan: boolean,
   monochromaticIcon: boolean,
   startMinimized: boolean,
   enableMonochromaticIconToggle: boolean,
   enableStartMinimizedToggle: boolean,
-  getAutoStart: () => boolean,
   setAutoStart: (boolean) => void,
   setAutoConnect: (boolean) => void,
   setAllowLan: (boolean) => void,
@@ -31,20 +31,7 @@ export type PreferencesProps = {
   onClose: () => void,
 };
 
-type State = {
-  autoStart: boolean,
-};
-
-export default class Preferences extends Component<PreferencesProps, State> {
-  state = {
-    autoStart: false,
-  };
-
-  constructor(props: PreferencesProps) {
-    super();
-    this.state.autoStart = props.getAutoStart();
-  }
-
+export default class Preferences extends Component<PreferencesProps> {
   render() {
     return (
       <Layout>
@@ -65,7 +52,7 @@ export default class Preferences extends Component<PreferencesProps, State> {
                   <View style={styles.preferences__content}>
                     <Cell.Container>
                       <Cell.Label>Launch app on start-up</Cell.Label>
-                      <Switch isOn={this.state.autoStart} onChange={this._onChangeAutoStart} />
+                      <Switch isOn={this.props.autoStart} onChange={this._onChangeAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
@@ -108,8 +95,6 @@ export default class Preferences extends Component<PreferencesProps, State> {
 
   _onChangeAutoStart = (autoStart: boolean) => {
     this.props.setAutoStart(autoStart);
-    // TODO: Handle failure to set auto-start
-    this.setState({ autoStart });
   };
 }
 

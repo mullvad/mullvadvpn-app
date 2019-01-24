@@ -45,6 +45,7 @@ export type RelayLocationRedux = {
 };
 
 export type SettingsReduxState = {
+  autoStart: boolean,
   guiSettings: GuiSettingsState,
   relaySettings: RelaySettingsRedux,
   relayLocations: Array<RelayLocationRedux>,
@@ -57,6 +58,7 @@ export type SettingsReduxState = {
 };
 
 const initialState: SettingsReduxState = {
+  autoStart: false,
   guiSettings: {
     autoConnect: true,
     monochromaticIcon: false,
@@ -132,6 +134,12 @@ export default function(
           ...state.openVpn,
           mssfix: action.mssfix,
         },
+      };
+
+    case 'UPDATE_AUTO_START':
+      return {
+        ...state,
+        autoStart: action.autoStart,
       };
 
     default:
