@@ -1,0 +1,1113 @@
+import * as fs from 'fs';
+import log from 'electron-log';
+import * as path from 'path';
+import { execFile } from 'child_process';
+import mkdirp from 'mkdirp';
+import * as uuid from 'uuid';
+import { app, screen, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+
+import { getOpenAtLogin, setOpenAtLogin } from './autostart';
+import NotificationController from './notification-controller';
+import WindowController from './window-controller';
+
+import TrayIconController from './tray-icon-controller';
+import { TrayIconType } from './tray-icon-controller';
+
+import { IpcMainEventChannel } from '../shared/ipc-event-channel';
+
+import { DaemonRpc, ConnectionObserver, SubscriptionListener } from './daemon-rpc';
+import {
+  AccountToken,
+  AppVersionInfo,
+  Location,
+  RelayList,
+  RelaySettingsUpdate,
+  Settings,
+  TunnelStateTransition,
+} from '../shared/daemon-rpc-types';
+
+import GuiSettings from './gui-settings';
+import ReconnectionBackoff from './reconnection-backoff';
+import { resolveBin } from './proc';
+
+const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
+const VERSION_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
+
+const DAEMON_RPC_PATH =
+  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+
+type AppQuitStage = 'unready' | 'initiated' | 'ready';
+
+export type CurrentAppVersionInfo = {
+  gui: string;
+  daemon: string;
+  isConsistent: boolean;
+};
+
+export type AppUpgradeInfo = {
+  nextUpgrade?: string;
+  upToDate: boolean;
+} & AppVersionInfo;
+
+const ApplicationMain = {
+  _notificationController: new NotificationController(),
+  _windowController: undefined as WindowController | undefined,
+  _trayIconController: undefined as TrayIconController | undefined,
+
+  _daemonRpc: new DaemonRpc(),
+  _reconnectBackoff: new ReconnectionBackoff(),
+  _connectedToDaemon: false,
+
+  _logFilePath: '',
+  _oldLogFilePath: undefined as undefined | string,
+  _quitStage: 'unready' as AppQuitStage,
+
+  _tunnelState: { state: 'disconnected' } as TunnelStateTransition,
+  _settings: {
+    accountToken: undefined,
+    allowLan: false,
+    autoConnect: false,
+    blockWhenDisconnected: false,
+    relaySettings: {
+      normal: {
+        location: 'any',
+        tunnel: 'any',
+      },
+    },
+    tunnelOptions: {
+      generic: {
+        enableIpv6: false,
+      },
+      openvpn: {
+        mssfix: undefined,
+        proxy: undefined,
+      },
+      wireguard: {
+        mtu: undefined,
+        fwmark: undefined,
+      },
+    },
+  } as Settings,
+  _guiSettings: new GuiSettings(),
+  _location: undefined as Location | undefined,
+  _lastDisconnectedLocation: undefined as Location | undefined,
+
+  _relays: { countries: [] } as RelayList,
+  _relaysInterval: undefined as NodeJS.Timeout | undefined,
+
+  _currentVersion: {
+    daemon: '',
+    gui: '',
+    isConsistent: true,
+  } as CurrentAppVersionInfo,
+
+  _upgradeVersion: {
+    currentIsSupported: true,
+    latest: {
+      latestStable: '',
+      latest: '',
+    },
+    nextUpgrade: undefined,
+    upToDate: true,
+  } as AppUpgradeInfo,
+  _latestVersionInterval: undefined as NodeJS.Timeout | undefined,
+
+  run() {
+    // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
+    if (process.platform === 'linux') {
+      app.commandLine.appendSwitch('--disable-gpu');
+    }
+
+    this._overrideAppPaths();
+
+    if (this._ensureSingleInstance()) {
+      return;
+    }
+
+    this._initLogging();
+
+    log.info(`Running version ${app.getVersion()}`);
+
+    if (process.platform === 'win32') {
+      app.setAppUserModelId('net.mullvad.vpn');
+    }
+
+    this._guiSettings.load();
+
+    app.on('activate', () => this._onActivate());
+    app.on('ready', () => this._onReady());
+    app.on('window-all-closed', () => app.quit());
+    app.on('before-quit', (event: Event) => this._onBeforeQuit(event));
+
+    const connectionObserver = new ConnectionObserver(
+      () => {
+        this._onDaemonConnected();
+      },
+      (error) => {
+        this._onDaemonDisconnected(error);
+      },
+    );
+
+    this._daemonRpc.addConnectionObserver(connectionObserver);
+    this._connectToDaemon();
+  },
+
+  _ensureSingleInstance() {
+    if (app.requestSingleInstanceLock()) {
+      app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+        if (this._windowController) {
+          this._windowController.show();
+        }
+      });
+      return false;
+    } else {
+      app.quit();
+      return true;
+    }
+  },
+
+  _overrideAppPaths() {
+    // This ensures that on Windows the %LOCALAPPDATA% directory is used instead of the %ADDDATA%
+    // directory that has roaming contents
+    if (process.platform === 'win32') {
+      const appDataDir = process.env.LOCALAPPDATA;
+      if (appDataDir) {
+        app.setPath('appData', appDataDir);
+        app.setPath('userData', path.join(appDataDir, app.getName()));
+      } else {
+        throw new Error('Missing %LOCALAPPDATA% environment variable');
+      }
+    }
+  },
+
+  _initLogging() {
+    const logDirectory = this._getLogsDirectory();
+    const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
+
+    this._logFilePath = path.join(logDirectory, 'frontend.log');
+
+    log.transports.console.format = format;
+    log.transports.file.format = format;
+    if (process.env.NODE_ENV === 'development') {
+      log.transports.console.level = 'debug';
+
+      // Disable log file in development
+      log.transports.file.level = false;
+    } else {
+      // Create log folder
+      mkdirp.sync(logDirectory);
+
+      // Backup previous log file if it exists
+      try {
+        fs.accessSync(this._logFilePath);
+        this._oldLogFilePath = path.join(logDirectory, 'frontend.old.log');
+        fs.renameSync(this._logFilePath, this._oldLogFilePath);
+      } catch (error) {
+        // No previous log file exists
+      }
+
+      // Configure logging to file
+      log.transports.console.level = 'debug';
+      log.transports.file.level = 'debug';
+      log.transports.file.file = this._logFilePath;
+
+      log.debug(`Logging to ${this._logFilePath}`);
+    }
+  },
+
+  // Returns platform specific logs folder for application
+  // See open issue and PR on Github:
+  // 1. https://github.com/electron/electron/issues/10118
+  // 2. https://github.com/electron/electron/pull/10191
+  _getLogsDirectory() {
+    switch (process.platform) {
+      case 'darwin':
+        // macOS: ~/Library/Logs/{appname}
+        return path.join(app.getPath('home'), 'Library/Logs', app.getName());
+      default:
+        // Windows: %LOCALAPPDATA%\{appname}\logs
+        // Linux: ~/.config/{appname}/logs
+        return path.join(app.getPath('userData'), 'logs');
+    }
+  },
+
+  _onActivate() {
+    if (this._windowController) {
+      this._windowController.show();
+    }
+  },
+
+  async _onBeforeQuit(event: Event) {
+    switch (this._quitStage) {
+      case 'unready':
+        // postpone the app shutdown
+        event.preventDefault();
+
+        this._quitStage = 'initiated';
+        await this._prepareToQuit();
+
+        // terminate the app
+        this._quitStage = 'ready';
+        app.quit();
+        break;
+
+      case 'initiated':
+        // prevent immediate exit, the app will quit after running the shutdown routine
+        event.preventDefault();
+        return;
+
+      case 'ready':
+        // let the app quit freely at this point
+        break;
+    }
+  },
+
+  async _prepareToQuit() {
+    if (this._connectedToDaemon) {
+      try {
+        await this._daemonRpc.disconnectTunnel();
+        log.info('Disconnected the tunnel');
+      } catch (e) {
+        log.error(`Failed to disconnect the tunnel: ${e.message}`);
+      }
+    } else {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    }
+  },
+
+  async _onReady() {
+    const window = this._createWindow();
+    const tray = this._createTray();
+
+    const windowController = new WindowController(window, tray);
+    const trayIconController = new TrayIconController(
+      tray,
+      'unsecured',
+      process.platform === 'darwin' && this._guiSettings.monochromaticIcon,
+    );
+
+    this._registerWindowListener(windowController);
+    this._registerIpcListeners();
+    this._setAppMenu();
+    this._addContextMenu(window);
+
+    this._windowController = windowController;
+    this._trayIconController = trayIconController;
+
+    this._guiSettings.onChange = (newState, oldState) => {
+      if (
+        process.platform === 'darwin' &&
+        oldState.monochromaticIcon !== newState.monochromaticIcon
+      ) {
+        if (this._trayIconController) {
+          this._trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
+        }
+      }
+
+      if (newState.autoConnect !== oldState.autoConnect) {
+        this._updateDaemonsAutoConnect();
+      }
+
+      if (this._windowController) {
+        IpcMainEventChannel.guiSettings.notify(this._windowController.webContents, newState);
+      }
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      await this._installDevTools();
+      window.webContents.openDevTools({ mode: 'detach' });
+    }
+
+    switch (process.platform) {
+      case 'win32':
+        this._installWindowsMenubarAppWindowHandlers(tray, windowController);
+        break;
+      case 'darwin':
+        this._installMacOsMenubarAppWindowHandlers(tray, windowController);
+        break;
+      case 'linux':
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
+        this._installLinuxWindowCloseHandler(windowController);
+        break;
+      default:
+        this._installGenericMenubarAppWindowHandlers(tray, windowController);
+        break;
+    }
+
+    if (this._shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
+      windowController.show();
+    }
+
+    window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
+  },
+
+  async _onDaemonConnected() {
+    this._connectedToDaemon = true;
+
+    // subscribe to events
+    try {
+      await this._subscribeEvents();
+    } catch (error) {
+      log.error(`Failed to subscribe: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch the tunnel state
+    try {
+      this._setTunnelState(await this._daemonRpc.getState());
+    } catch (error) {
+      log.error(`Failed to fetch the tunnel state: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch settings
+    try {
+      this._setSettings(await this._daemonRpc.getSettings());
+    } catch (error) {
+      log.error(`Failed to fetch settings: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch relays
+    try {
+      this._setRelays(await this._daemonRpc.getRelayLocations());
+    } catch (error) {
+      log.error(`Failed to fetch relay locations: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch the daemon's version
+    try {
+      this._setDaemonVersion(await this._daemonRpc.getCurrentVersion());
+    } catch (error) {
+      log.error(`Failed to fetch the daemon's version: ${error.message}`);
+
+      return this._recoverFromBootstrapError(error);
+    }
+
+    // fetch the latest version info in background
+    this._fetchLatestVersion();
+
+    // start periodic updates
+    this._startRelaysPeriodicUpdates();
+    this._startLatestVersionPeriodicUpdates();
+
+    // notify user about inconsistent version
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      !this._shouldSuppressNotifications() &&
+      !this._currentVersion.isConsistent
+    ) {
+      this._notificationController.notifyInconsistentVersion();
+    }
+
+    // reset the reconnect backoff when connection established.
+    this._reconnectBackoff.reset();
+
+    // notify renderer
+    if (this._windowController) {
+      IpcMainEventChannel.daemonConnected.notify(this._windowController.webContents);
+    }
+  },
+
+  _onDaemonDisconnected(error?: Error) {
+    // make sure we were connected before to distinguish between a failed attempt to reconnect and
+    // connection loss.
+    const wasConnected = this._connectedToDaemon;
+
+    if (wasConnected) {
+      this._connectedToDaemon = false;
+
+      // stop periodic updates
+      this._stopRelaysPeriodicUpdates();
+      this._stopLatestVersionPeriodicUpdates();
+
+      // notify renderer process
+      if (this._windowController) {
+        IpcMainEventChannel.daemonDisconnected.notify(
+          this._windowController.webContents,
+          error ? error.message : undefined,
+        );
+      }
+    }
+
+    // recover connection on error
+    if (error) {
+      if (wasConnected) {
+        log.error(`Lost connection to daemon: ${error.message}`);
+      } else {
+        log.error(`Failed to connect to daemon: ${error.message}`);
+      }
+
+      this._reconnectToDaemon();
+    } else {
+      log.info('Disconnected from the daemon');
+    }
+  },
+
+  _connectToDaemon() {
+    this._daemonRpc.connect({ path: DAEMON_RPC_PATH });
+  },
+
+  _reconnectToDaemon() {
+    this._reconnectBackoff.attempt(() => {
+      this._connectToDaemon();
+    });
+  },
+
+  _recoverFromBootstrapError(_error?: Error) {
+    // Attempt to reconnect to daemon if the program fails to fetch settings, tunnel state or
+    // subscribe for RPC events.
+    this._daemonRpc.disconnect();
+
+    this._reconnectToDaemon();
+  },
+
+  async _subscribeEvents(): Promise<void> {
+    const stateListener = new SubscriptionListener(
+      (newState: TunnelStateTransition) => {
+        this._setTunnelState(newState);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new state: ${error.message}`);
+      },
+    );
+
+    const settingsListener = new SubscriptionListener(
+      (newSettings: Settings) => {
+        this._setSettings(newSettings);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the new settings: ${error.message}`);
+      },
+    );
+
+    await Promise.all([
+      this._daemonRpc.subscribeStateListener(stateListener),
+      this._daemonRpc.subscribeSettingsListener(settingsListener),
+    ]);
+  },
+
+  _setTunnelState(newState: TunnelStateTransition) {
+    this._tunnelState = newState;
+    this._updateTrayIcon(newState, this._settings.blockWhenDisconnected);
+    this._updateLocation();
+
+    if (!this._shouldSuppressNotifications()) {
+      this._notificationController.notifyTunnelState(newState);
+    }
+
+    if (this._windowController) {
+      IpcMainEventChannel.tunnel.notify(this._windowController.webContents, newState);
+    }
+  },
+
+  _setSettings(newSettings: Settings) {
+    this._settings = newSettings;
+    this._updateTrayIcon(this._tunnelState, newSettings.blockWhenDisconnected);
+
+    if (this._windowController) {
+      IpcMainEventChannel.settings.notify(this._windowController.webContents, newSettings);
+    }
+  },
+
+  _setLocation(newLocation: Location) {
+    this._location = newLocation;
+
+    if (this._windowController) {
+      IpcMainEventChannel.location.notify(this._windowController.webContents, newLocation);
+    }
+  },
+
+  _setRelays(newRelayList: RelayList) {
+    this._relays = newRelayList;
+
+    if (this._windowController) {
+      IpcMainEventChannel.relays.notify(this._windowController.webContents, newRelayList);
+    }
+  },
+
+  _startRelaysPeriodicUpdates() {
+    log.debug('Start relays periodic updates');
+
+    const handler = async () => {
+      try {
+        this._setRelays(await this._daemonRpc.getRelayLocations());
+      } catch (error) {
+        log.error(`Failed to fetch relay locations: ${error.message}`);
+      }
+    };
+
+    this._relaysInterval = setInterval(handler, RELAY_LIST_UPDATE_INTERVAL);
+  },
+
+  _stopRelaysPeriodicUpdates() {
+    if (this._relaysInterval) {
+      clearInterval(this._relaysInterval);
+      this._relaysInterval = undefined;
+
+      log.debug('Stop relays periodic updates');
+    }
+  },
+
+  _setDaemonVersion(daemonVersion: string) {
+    const guiVersion = app.getVersion().replace('.0', '');
+    const versionInfo = {
+      daemon: daemonVersion,
+      gui: guiVersion,
+      isConsistent: daemonVersion === guiVersion,
+    };
+
+    this._currentVersion = versionInfo;
+
+    // notify renderer
+    if (this._windowController) {
+      IpcMainEventChannel.currentVersion.notify(this._windowController.webContents, versionInfo);
+    }
+  },
+
+  _setLatestVersion(latestVersionInfo: AppVersionInfo) {
+    function isBeta(version: string) {
+      return version.includes('-');
+    }
+
+    function nextUpgrade(
+      current: string,
+      latest: string,
+      latestStable: string,
+    ): string | undefined {
+      if (isBeta(current)) {
+        return current === latest ? undefined : latest;
+      } else {
+        return current === latestStable ? undefined : latestStable;
+      }
+    }
+
+    function checkIfLatest(current: string, latest: string, latestStable: string): boolean {
+      // perhaps -beta?
+      if (isBeta(current)) {
+        return current === latest;
+      } else {
+        // must be stable
+        return current === latestStable;
+      }
+    }
+
+    const currentVersionInfo = this._currentVersion;
+    const latestVersion = latestVersionInfo.latest.latest;
+    const latestStableVersion = latestVersionInfo.latest.latestStable;
+
+    // the reason why we rely on daemon version here is because daemon obtains the version info
+    // based on its built-in version information
+    const isUpToDate = checkIfLatest(currentVersionInfo.daemon, latestVersion, latestStableVersion);
+    const upgradeVersion = nextUpgrade(
+      currentVersionInfo.daemon,
+      latestVersion,
+      latestStableVersion,
+    );
+
+    const upgradeInfo = {
+      ...latestVersionInfo,
+      nextUpgrade: upgradeVersion,
+      upToDate: isUpToDate,
+    };
+
+    this._upgradeVersion = upgradeInfo;
+
+    // notify user to update the app if it became unsupported
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      !this._shouldSuppressNotifications() &&
+      currentVersionInfo.isConsistent &&
+      !latestVersionInfo.currentIsSupported &&
+      upgradeVersion
+    ) {
+      this._notificationController.notifyUnsupportedVersion(upgradeVersion);
+    }
+
+    if (this._windowController) {
+      IpcMainEventChannel.upgradeVersion.notify(this._windowController.webContents, upgradeInfo);
+    }
+  },
+
+  async _fetchLatestVersion() {
+    try {
+      this._setLatestVersion(await this._daemonRpc.getVersionInfo());
+    } catch (error) {
+      console.error(`Failed to request the version info: ${error.message}`);
+    }
+  },
+
+  _startLatestVersionPeriodicUpdates() {
+    const handler = () => {
+      this._fetchLatestVersion();
+    };
+    this._latestVersionInterval = setInterval(handler, VERSION_UPDATE_INTERVAL);
+  },
+
+  _stopLatestVersionPeriodicUpdates() {
+    if (this._latestVersionInterval) {
+      clearInterval(this._latestVersionInterval);
+
+      this._latestVersionInterval = undefined;
+    }
+  },
+
+  _shouldSuppressNotifications(): boolean {
+    return this._windowController ? this._windowController.isVisible() : false;
+  },
+
+  async _updateLocation() {
+    const state = this._tunnelState.state;
+
+    if (state === 'connected' || state === 'disconnected' || state === 'connecting') {
+      try {
+        // It may take some time to fetch the new user location.
+        // So take the user to the last known location when disconnected.
+        if (state === 'disconnected' && this._lastDisconnectedLocation) {
+          this._setLocation(this._lastDisconnectedLocation);
+        }
+
+        // Fetch the new user location
+        const location = await this._daemonRpc.getLocation();
+        // If the location is currently unavailable, do nothing! This only ever
+        // happens when a custom relay is set or we are in a blocked state.
+        if (!location) {
+          return;
+        }
+
+        // Cache the user location
+        // Note: hostname is only set for relay servers.
+        if (location.hostname === null) {
+          this._lastDisconnectedLocation = location;
+        }
+
+        // Broadcast the new location.
+        // There is a chance that the location is not stale if the tunnel state before the location
+        // request is the same as after receiving the response.
+        if (this._tunnelState.state === state) {
+          this._setLocation(location);
+        }
+      } catch (error) {
+        log.error(`Failed to update the location: ${error.message}`);
+      }
+    }
+  },
+
+  _trayIconType(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean): TrayIconType {
+    switch (tunnelState.state) {
+      case 'connected':
+        return 'secured';
+
+      case 'connecting':
+        return 'securing';
+
+      case 'blocked':
+        switch (tunnelState.details.reason) {
+          case 'set_firewall_policy_error':
+            return 'unsecured';
+          default:
+            return 'securing';
+        }
+
+      case 'disconnecting':
+        return 'securing';
+
+      case 'disconnected':
+        if (blockWhenDisconnected) {
+          return 'securing';
+        } else {
+          return 'unsecured';
+        }
+    }
+  },
+
+  _updateTrayIcon(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+    const type = this._trayIconType(tunnelState, blockWhenDisconnected);
+
+    if (this._trayIconController) {
+      this._trayIconController.animateToIcon(type);
+    }
+  },
+
+  _registerWindowListener(windowController: WindowController) {
+    windowController.window.on('show', () => {
+      // cancel notifications when window appears
+      this._notificationController.cancelPendingNotifications();
+
+      windowController.send('window-shown');
+    });
+  },
+
+  _registerIpcListeners() {
+    IpcMainEventChannel.state.handleGet(() => ({
+      isConnected: this._connectedToDaemon,
+      autoStart: getOpenAtLogin(),
+      tunnelState: this._tunnelState,
+      settings: this._settings,
+      location: this._location,
+      relays: this._relays,
+      currentVersion: this._currentVersion,
+      upgradeVersion: this._upgradeVersion,
+      guiSettings: this._guiSettings.state,
+    }));
+
+    IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
+      this._daemonRpc.setAllowLan(allowLan),
+    );
+    IpcMainEventChannel.settings.handleEnableIpv6((enableIpv6: boolean) =>
+      this._daemonRpc.setEnableIpv6(enableIpv6),
+    );
+    IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
+      this._daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
+    );
+    IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
+      this._daemonRpc.setOpenVpnMssfix(mssfix),
+    );
+    IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
+      this._daemonRpc.updateRelaySettings(update),
+    );
+
+    IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
+      return this._setAutoStart(autoStart);
+    });
+
+    IpcMainEventChannel.tunnel.handleConnect(() => this._daemonRpc.connectTunnel());
+    IpcMainEventChannel.tunnel.handleDisconnect(() => this._daemonRpc.disconnectTunnel());
+
+    IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
+      this._guiSettings.autoConnect = autoConnect;
+    });
+
+    IpcMainEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
+      this._guiSettings.startMinimized = startMinimized;
+    });
+
+    IpcMainEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
+      this._guiSettings.monochromaticIcon = monochromaticIcon;
+    });
+
+    IpcMainEventChannel.account.handleSet((token: AccountToken) =>
+      this._daemonRpc.setAccount(token),
+    );
+    IpcMainEventChannel.account.handleUnset(() => this._daemonRpc.setAccount());
+    IpcMainEventChannel.account.handleGetData((token: AccountToken) =>
+      this._daemonRpc.getAccountData(token),
+    );
+
+    IpcMainEventChannel.accountHistory.handleGet(() => this._daemonRpc.getAccountHistory());
+    IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>
+      this._daemonRpc.removeAccountFromHistory(token),
+    );
+
+    ipcMain.on('show-window', () => {
+      const windowController = this._windowController;
+      if (windowController) {
+        windowController.show();
+      }
+    });
+
+    ipcMain.on(
+      'collect-logs',
+      (event: Electron.Event, requestId: string, toRedact: Array<string>) => {
+        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+        const executable = resolveBin('problem-report');
+        const args = ['collect', '--output', reportPath];
+        if (toRedact.length > 0) {
+          args.push('--redact', ...toRedact, '--');
+        }
+        args.push(this._logFilePath);
+        if (this._oldLogFilePath) {
+          args.push(this._oldLogFilePath);
+        }
+
+        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            log.error(
+              `Failed to collect a problem report: ${error.message}
+             Stdout: ${stdout.toString()}
+             Stderr: ${stderr.toString()}`,
+            );
+
+            event.sender.send('collect-logs-reply', requestId, {
+              success: false,
+              error: error.message,
+            });
+          } else {
+            log.debug(`Problem report was written to ${reportPath}`);
+
+            event.sender.send('collect-logs-reply', requestId, {
+              success: true,
+              reportPath,
+            });
+          }
+        });
+      },
+    );
+
+    ipcMain.on(
+      'send-problem-report',
+      (
+        event: Electron.Event,
+        requestId: string,
+        email: string,
+        message: string,
+        savedReport: string,
+      ) => {
+        const executable = resolveBin('problem-report');
+        const args = ['send', '--email', email, '--message', message, '--report', savedReport];
+
+        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            log.error(
+              `Failed to send a problem report: ${error.message}
+           Stdout: ${stdout.toString()}
+           Stderr: ${stderr.toString()}`,
+            );
+
+            event.sender.send('send-problem-report-reply', requestId, {
+              success: false,
+              error: error.message,
+            });
+          } else {
+            log.info('Problem report was sent.');
+
+            event.sender.send('send-problem-report-reply', requestId, {
+              success: true,
+            });
+          }
+        });
+      },
+    );
+  },
+
+  _updateDaemonsAutoConnect() {
+    const daemonAutoConnect = this._guiSettings.autoConnect && getOpenAtLogin();
+    if (daemonAutoConnect !== this._settings.autoConnect) {
+      this._daemonRpc.setAutoConnect(daemonAutoConnect);
+    }
+  },
+
+  async _setAutoStart(autoStart: boolean): Promise<void> {
+    try {
+      await setOpenAtLogin(autoStart);
+
+      if (this._windowController) {
+        IpcMainEventChannel.autoStart.notify(this._windowController.webContents, autoStart);
+      }
+
+      this._updateDaemonsAutoConnect();
+    } catch (error) {
+      log.error(
+        `Failed to update the autostart to ${autoStart.toString()}. ${error.message.toString()}`,
+      );
+    }
+    return Promise.resolve();
+  },
+
+  async _installDevTools() {
+    const installer = require('electron-devtools-installer');
+    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+    for (const name of extensions) {
+      try {
+        await installer.default(installer[name], forceDownload);
+      } catch (e) {
+        log.info(`Error installing ${name} extension: ${e.message}`);
+      }
+    }
+  },
+
+  _createWindow(): BrowserWindow {
+    const contentHeight = 568;
+
+    // the size of transparent area around arrow on macOS
+    const headerBarArrowHeight = 12;
+
+    const options = {
+      width: 320,
+      minWidth: 320,
+      height: contentHeight,
+      minHeight: contentHeight,
+      resizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      show: false,
+      frame: false,
+    };
+
+    switch (process.platform) {
+      case 'darwin': {
+        // setup window flags to mimic popover on macOS
+        const appWindow = new BrowserWindow({
+          ...options,
+          height: contentHeight + headerBarArrowHeight,
+          minHeight: contentHeight + headerBarArrowHeight,
+          transparent: true,
+        });
+
+        // make the window visible on all workspaces
+        appWindow.setVisibleOnAllWorkspaces(true);
+
+        return appWindow;
+      }
+
+      case 'win32':
+        // setup window flags to mimic an overlay window
+        return new BrowserWindow({
+          ...options,
+          transparent: true,
+          skipTaskbar: true,
+        });
+
+      default:
+        return new BrowserWindow(options);
+    }
+  },
+
+  _setAppMenu() {
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: 'Mullvad',
+        submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { type: 'separator' },
+          { role: 'selectall' },
+        ],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  },
+
+  _addContextMenu(window: BrowserWindow) {
+    const menuTemplate: Electron.MenuItemConstructorOptions[] = [
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { type: 'separator' },
+      { role: 'selectall' },
+    ];
+
+    // add inspect element on right click menu
+    window.webContents.on(
+      'context-menu',
+      (_e: Event, props: { x: number; y: number; isEditable: boolean }) => {
+        const inspectTemplate = [
+          {
+            label: 'Inspect element',
+            click() {
+              window.webContents.openDevTools({ mode: 'detach' });
+              window.webContents.inspectElement(props.x, props.y);
+            },
+          },
+        ];
+
+        if (props.isEditable) {
+          // mixin 'inspect element' into standard menu when in development mode
+          if (process.env.NODE_ENV === 'development') {
+            const inputMenu: Electron.MenuItemConstructorOptions[] = [
+              { type: 'separator' },
+              ...inspectTemplate,
+            ];
+
+            Menu.buildFromTemplate(inputMenu).popup({ window });
+          } else {
+            Menu.buildFromTemplate(menuTemplate).popup({ window });
+          }
+        } else if (process.env.NODE_ENV === 'development') {
+          // display inspect element for all non-editable
+          // elements when in development mode
+          Menu.buildFromTemplate(inspectTemplate).popup({ window });
+        }
+      },
+    );
+  },
+
+  _createTray(): Tray {
+    const tray = new Tray(nativeImage.createEmpty());
+    tray.setToolTip('Mullvad VPN');
+
+    // disable double click on tray icon since it causes weird delay
+    tray.setIgnoreDoubleClickEvents(true);
+
+    // disable icon highlight on macOS
+    if (process.platform === 'darwin') {
+      tray.setHighlightMode('never');
+    }
+
+    return tray;
+  },
+
+  _installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => windowController.toggle());
+    tray.on('right-click', () => windowController.hide());
+
+    windowController.window.on('blur', () => {
+      // Detect if blur happened when user had a cursor above the tray icon.
+      const trayBounds = tray.getBounds();
+      const cursorPos = screen.getCursorScreenPoint();
+      const isCursorInside =
+        cursorPos.x >= trayBounds.x &&
+        cursorPos.y >= trayBounds.y &&
+        cursorPos.x <= trayBounds.x + trayBounds.width &&
+        cursorPos.y <= trayBounds.y + trayBounds.height;
+      if (!isCursorInside) {
+        windowController.hide();
+      }
+    });
+  },
+
+  // setup NSEvent monitor to fix inconsistent window.blur on macOS
+  // see https://github.com/electron/electron/issues/8689
+  _installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    // $FlowFixMe: this module is only available on macOS
+    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
+    const macEventMonitor = new NSEventMonitor();
+    const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
+    const window = windowController.window;
+
+    window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
+    window.on('hide', () => macEventMonitor.stop());
+    tray.on('click', () => windowController.toggle());
+  },
+
+  _installGenericMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => {
+      windowController.toggle();
+    });
+  },
+
+  _installLinuxWindowCloseHandler(windowController: WindowController) {
+    windowController.window.on('close', (closeEvent: Event) => {
+      if (process.platform === 'linux' && this._quitStage !== 'ready') {
+        closeEvent.preventDefault();
+        windowController.hide();
+      }
+    });
+  },
+
+  _shouldShowWindowOnStart(): boolean {
+    switch (process.platform) {
+      case 'win32':
+        return false;
+      case 'darwin':
+        return false;
+      case 'linux':
+        return !this._guiSettings.startMinimized;
+      default:
+        return true;
+    }
+  },
+};
+
+ApplicationMain.run();

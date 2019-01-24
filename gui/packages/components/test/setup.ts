@@ -1,10 +1,10 @@
 import { JSDOM } from 'jsdom';
-import * as Enzyme from 'enzyme';
-import * as Adapter from 'enzyme-adapter-react-16';
-import * as chai from 'chai';
+import Enzyme from 'enzyme';
+import ReactSixteenAdapter from 'enzyme-adapter-react-16';
 
 Enzyme.configure({
-  adapter: new Adapter(),
+  adapter: new ReactSixteenAdapter(),
 });
 
+// @ts-ignore
 const jsdom = new JSDOM('<!doctype html><html><body></body></html>');

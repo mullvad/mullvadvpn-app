@@ -9,7 +9,7 @@ export enum HeaderBarStyle {
   success = 'success',
 }
 
-interface IHeaderBarProps {
+export interface IHeaderBarProps {
   barStyle: HeaderBarStyle;
   style?: Types.ViewStyleRuleSet;
 }
