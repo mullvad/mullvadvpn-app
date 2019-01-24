@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppVersionInfo } from '../../lib/daemon-rpc-proxy';
+import type { AppVersionInfo } from '../../../main/daemon-rpc';
 
 type UpdateLatestActionPayload = {
   upToDate: boolean,
