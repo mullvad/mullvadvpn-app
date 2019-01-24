@@ -5,7 +5,7 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs::File, io, path::PathBuf};
-use talpid_types::net::{OpenVpnProxySettings, OpenVpnProxySettingsValidation, TunnelOptions};
+use talpid_types::net::{openvpn, TunnelOptions};
 
 error_chain! {
     errors {
@@ -201,9 +201,9 @@ impl Settings {
         }
     }
 
-    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<bool> {
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<bool> {
         if let Some(ref settings) = proxy {
-            if let Err(validation_error) = OpenVpnProxySettingsValidation::validate(settings) {
+            if let Err(validation_error) = openvpn::ProxySettingsValidation::validate(settings) {
                 bail!(ErrorKind::InvalidProxyData(validation_error));
             }
         }

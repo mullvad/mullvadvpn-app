@@ -1,52 +1,93 @@
-use super::{ErrorKind, Result};
-use ipnetwork::IpNetwork;
-use std::{
-    borrow::Cow,
-    ffi::CString,
-    net::{IpAddr, SocketAddr},
+use std::{borrow::Cow, ffi::CString, net::IpAddr};
+use talpid_types::net::{
+    wireguard::{PeerConfig, TunnelConfig, TunnelOptions, TunnelParameters},
+    GenericTunnelOptions,
 };
-use talpid_types::net::{WgPrivateKey, WgPublicKey, WireguardTunnelParameters};
 
 pub struct Config {
-    pub interface: TunnelConfig,
+    pub tunnel: TunnelConfig,
+    pub peers: Vec<PeerConfig>,
     pub gateway: IpAddr,
+    pub mtu: u16,
+    #[cfg(target_os = "linux")]
+    pub fwmark: i32,
 }
-// Smallest MTU that supports IPv6
-const MIN_IPV6_MTU: u16 = 1420;
-const DEFAULT_MTU: u16 = MIN_IPV6_MTU;
+
+/// Smallest MTU that supports IPv6
+const SMALLEST_IPV6_MTU: u16 = 1420;
+const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
+
+error_chain! {
+    errors {
+        InvalidTunnelIpError {
+            description("No valid tunnel IP"),
+        }
+
+        InvalidPeerIpError {
+            description("Supplied peer has no valid IPs")
+        }
+
+        NoPeersSuppliedError{
+            description("No peers supplied")
+        }
+    }
+}
 
 impl Config {
-    pub fn from_data(connection_params: &WireguardTunnelParameters) -> Config {
-        let mtu = connection_params.options.mtu.unwrap_or(DEFAULT_MTU);
-        let ipv6_enabled = connection_params.generic_options.enable_ipv6 && mtu >= MIN_IPV6_MTU;
-        let peer = PeerConfig {
-            public_key: connection_params.config.peer_public_key.clone(),
-            allowed_ips: all_of_the_internet()
-                .into_iter()
-                .filter(|ip| ip.is_ipv4() || ipv6_enabled)
-                .collect(),
-            endpoint: connection_params.config.host,
-        };
+    pub fn from_parameters(params: &TunnelParameters) -> Result<Config> {
+        let tunnel = params.connection.tunnel.clone();
+        let peer = vec![params.connection.peer.clone()];
+        Self::new(
+            tunnel,
+            peer,
+            params.connection.gateway,
+            &params.options,
+            &params.generic_options,
+        )
+    }
 
-        let tunnel_params = TunnelConfig {
-            private_key: connection_params.config.client_private_key.clone(),
-            addresses: connection_params
-                .config
-                .link_addresses
+    pub fn new(
+        mut tunnel: TunnelConfig,
+        mut peers: Vec<PeerConfig>,
+        gateway: IpAddr,
+        wg_options: &TunnelOptions,
+        generic_options: &GenericTunnelOptions,
+    ) -> Result<Config> {
+        if peers.is_empty() {
+            bail!(ErrorKind::NoPeersSuppliedError);
+        }
+
+        let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
+        let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
+
+        for peer in &mut peers {
+            peer.allowed_ips = peer
+                .allowed_ips
                 .iter()
-                .filter(|ip| ip.is_ipv4() || ipv6_enabled)
                 .cloned()
-                .collect(),
+                .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
+                .collect();
+            if peer.allowed_ips.is_empty() {
+                bail!(ErrorKind::InvalidPeerIpError);
+            }
+        }
+
+        tunnel.addresses = tunnel
+            .addresses
+            .into_iter()
+            .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
+            .collect();
+        if tunnel.addresses.is_empty() {
+            bail!(ErrorKind::InvalidTunnelIpError);
+        }
+        Ok(Config {
+            tunnel,
+            peers,
+            gateway,
             mtu,
             #[cfg(target_os = "linux")]
-            fwmark: connection_params.options.fwmark,
-            peers: vec![peer],
-        };
-
-        Config {
-            interface: tunnel_params,
-            gateway: connection_params.config.gateway,
-        }
+            fwmark: wg_options.fwmark,
+        })
     }
 
     // should probably take a flag that alters between additive and overwriting conf
@@ -54,20 +95,17 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add(
-                "private_key",
-                self.interface.private_key.as_bytes().as_ref(),
-            )
+            .add("private_key", self.tunnel.private_key.as_bytes().as_ref())
             .add("listen_port", "0");
 
         #[cfg(target_os = "linux")]
         {
-            wg_conf.add("fwmark", self.interface.fwmark.to_string().as_str());
+            wg_conf.add("fwmark", self.fwmark.to_string().as_str());
         }
 
         wg_conf.add("replace_peers", "true");
 
-        for peer in &self.interface.peers {
+        for peer in &self.peers {
             wg_conf
                 .add("public_key", peer.public_key.as_bytes().as_ref())
                 .add("endpoint", peer.endpoint.to_string().as_str())
@@ -80,29 +118,6 @@ impl Config {
         let bytes = wg_conf.into_config();
         CString::new(bytes).expect("null bytes inside config")
     }
-}
-
-pub struct PeerConfig {
-    pub public_key: WgPublicKey,
-    pub allowed_ips: Vec<IpNetwork>,
-    pub endpoint: SocketAddr,
-}
-
-pub struct TunnelConfig {
-    pub private_key: WgPrivateKey,
-    pub addresses: Vec<IpAddr>,
-    #[cfg(target_os = "linux")]
-    pub fwmark: i32,
-    pub mtu: u16,
-    pub peers: Vec<PeerConfig>,
-}
-
-
-fn all_of_the_internet() -> Vec<IpNetwork> {
-    vec![
-        "::0/0".parse().expect("Failed to parse ipv6 network"),
-        "0.0.0.0/0".parse().expect("Failed to parse ipv4 network"),
-    ]
 }
 
 pub enum ConfValue<'a> {

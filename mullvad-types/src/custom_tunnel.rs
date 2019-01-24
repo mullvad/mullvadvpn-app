@@ -4,10 +4,7 @@ use std::{
     fmt,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{
-    OpenVpnConnectionConfig, OpenVpnTunnelParameters, TunnelParameters, WireguardConnectionConfig,
-    WireguardTunnelParameters,
-};
+use talpid_types::net::{openvpn, wireguard, TunnelParameters};
 
 error_chain! {
     errors {
@@ -64,8 +61,8 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ConnectionConfig {
-    OpenVpn(OpenVpnConnectionConfig),
-    Wireguard(WireguardConnectionConfig),
+    OpenVpn(openvpn::ConnectionConfig),
+    Wireguard(wireguard::ConnectionConfig),
 }
 
 impl ConnectionConfig {
@@ -75,7 +72,7 @@ impl ConnectionConfig {
                 config.host = SocketAddr::new(ip, config.host.port())
             }
             ConnectionConfig::Wireguard(config) => {
-                config.host = SocketAddr::new(ip, config.host.port())
+                config.peer.endpoint = SocketAddr::new(ip, config.peer.endpoint.port())
             }
         }
     }
@@ -83,15 +80,15 @@ impl ConnectionConfig {
     pub fn to_tunnel_parameters(self, settings: &Settings) -> TunnelParameters {
         let tunnel_options = settings.get_tunnel_options().clone();
         match self {
-            ConnectionConfig::OpenVpn(config) => OpenVpnTunnelParameters {
+            ConnectionConfig::OpenVpn(config) => openvpn::TunnelParameters {
                 config,
                 options: tunnel_options.openvpn,
                 generic_options: tunnel_options.generic,
             }
             .into(),
 
-            ConnectionConfig::Wireguard(config) => WireguardTunnelParameters {
-                config,
+            ConnectionConfig::Wireguard(config) => wireguard::TunnelParameters {
+                connection: config,
                 options: tunnel_options.wireguard,
                 generic_options: tunnel_options.generic,
             }

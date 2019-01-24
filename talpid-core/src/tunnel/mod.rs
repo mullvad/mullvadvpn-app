@@ -7,7 +7,7 @@ use std::{
 };
 
 use talpid_types::net::{
-    GenericTunnelOptions, OpenVpnTunnelParameters, TunnelParameters, WireguardTunnelParameters,
+    openvpn as openvpn_types, wireguard as wireguard_types, GenericTunnelOptions, TunnelParameters,
 };
 
 /// A module for all OpenVPN related tunnel management.
@@ -141,23 +141,28 @@ impl TunnelMonitor {
 
     #[cfg(unix)]
     fn start_wireguard_tunnel<L>(
-        config: &WireguardTunnelParameters,
+        params: &wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         on_event: L,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let monitor =
-            wireguard::WireguardMonitor::start(config, log.as_ref().map(|p| p.as_path()), on_event)
-                .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let config = wireguard::config::Config::from_parameters(&params)
+            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+        let monitor = wireguard::WireguardMonitor::start(
+            &config,
+            log.as_ref().map(|p| p.as_path()),
+            on_event,
+        )
+        .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
     }
 
     fn start_openvpn_tunnel<L>(
-        config: &OpenVpnTunnelParameters,
+        config: &openvpn_types::TunnelParameters,
         tunnel_alias: Option<OsString>,
         log: Option<PathBuf>,
         resource_dir: &Path,

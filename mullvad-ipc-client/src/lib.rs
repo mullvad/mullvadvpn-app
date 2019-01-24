@@ -18,7 +18,7 @@ use mullvad_types::{
 use serde::{Deserialize, Serialize};
 use std::{path::Path, sync::mpsc, thread, time::Duration};
 use talpid_types::{
-    net::{OpenVpnProxySettings, TunnelOptions},
+    net::{openvpn, TunnelOptions},
     tunnel::TunnelStateTransition,
 };
 
@@ -196,7 +196,7 @@ impl DaemonRpcClient {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn set_openvpn_proxy(&mut self, proxy: Option<OpenVpnProxySettings>) -> Result<()> {
+    pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<()> {
         self.call("set_openvpn_proxy", &[proxy])
     }
 

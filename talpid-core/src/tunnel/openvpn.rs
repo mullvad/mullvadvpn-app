@@ -23,7 +23,7 @@ use std::{
     time::Duration,
 };
 use talpid_ipc;
-use talpid_types::net::{Endpoint, OpenVpnConnectionConfig, OpenVpnProxySettings, TunnelOptions, OpenVpnTunnelParameters};
+use talpid_types::net::openvpn::{ProxySettings, TunnelParameters};
 #[cfg(target_os = "linux")]
 use which;
 
@@ -107,7 +107,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     /// path.
     pub fn start<L>(
         on_event: L,
-        params: &OpenVpnTunnelParameters,
+        params: &TunnelParameters,
         tunnel_alias: Option<OsString>,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
@@ -290,9 +290,9 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     }
 
     fn create_proxy_auth_file(
-        proxy: &Option<OpenVpnProxySettings>,
+        proxy: &Option<ProxySettings>,
     ) -> ::std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(OpenVpnProxySettings::Remote(ref remote_proxy)) = proxy {
+        if let Some(ProxySettings::Remote(ref remote_proxy)) = proxy {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
                     &proxy_auth.username,
@@ -336,7 +336,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     }
 
     fn create_openvpn_cmd(
-        params: &OpenVpnTunnelParameters,
+        params: &TunnelParameters,
         tunnel_alias: Option<OsString>,
         user_pass_file: &Path,
         proxy_auth_file: Option<&Path>,

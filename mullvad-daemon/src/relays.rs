@@ -9,12 +9,12 @@ use mullvad_types::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
         TunnelConstraints,
     },
-    relay_list::{Relay, RelayList, RelayTunnels},
+    relay_list::{Relay, RelayList, RelayTunnels, TunnelEndpoint, TunnelEndpointData},
 };
 
 use serde_json;
 
-use talpid_types::net::{TransportProtocol, TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::TransportProtocol;
 
 use std::{
     fs::File,

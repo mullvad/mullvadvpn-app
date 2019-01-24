@@ -1,8 +1,7 @@
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-use std::{net::IpAddr, path::Path, sync::mpsc};
-use talpid_types::net::{TunnelOptions, WireguardTunnelParameters};
+use std::{path::Path, sync::mpsc};
 
 pub mod config;
 mod ping_monitor;
@@ -15,6 +14,10 @@ const PING_TIMEOUT: u16 = 5;
 
 error_chain! {
     errors {
+        /// Config error
+        ConfigError{
+            description("Invalid configuration")
+        }
         /// Failed to setup a tunnel device
         SetupTunnelDeviceError {
             description("Failed to create tunnel device")
@@ -64,12 +67,11 @@ pub struct WireguardMonitor {
 
 impl WireguardMonitor {
     pub fn start<F: Fn(TunnelEvent) + Send + Sync + 'static>(
-        connection_config: &WireguardTunnelParameters,
+        config: &Config,
         log_path: Option<&Path>,
         on_event: F,
     ) -> Result<WireguardMonitor> {
-        let wg_config = Config::from_data(&connection_config);
-        let tunnel = Box::new(WgGoTunnel::start_tunnel(&wg_config, log_path)?);
+        let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
         let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
         let event_callback = Box::new(on_event);
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
@@ -80,9 +82,9 @@ impl WireguardMonitor {
             close_msg_sender,
             close_msg_receiver,
         };
-        monitor.setup_routing(&wg_config)?;
-        monitor.start_pinger(&wg_config);
-        monitor.tunnel_up(&wg_config);
+        monitor.setup_routing(&config)?;
+        monitor.start_pinger(&config);
+        monitor.tunnel_up(&config);
 
         Ok(monitor)
     }
@@ -109,7 +111,6 @@ impl WireguardMonitor {
     fn setup_routing(&mut self, config: &Config) -> Result<()> {
         let iface_name = self.tunnel.get_interface_name();
         let mut routes: Vec<_> = config
-            .interface
             .peers
             .iter()
             .flat_map(|peer| peer.allowed_ips.iter())
@@ -127,11 +128,12 @@ impl WireguardMonitor {
                 .router
                 .get_default_route_node()
                 .chain_err(|| ErrorKind::SetupRoutingError)?;
+
             // route endpoints with specific routes
-            for peer in config.interface.peers.iter() {
+            for peer in config.peers.iter() {
                 let default_route = routing::Route::new(
-                    peer.endpoint.ip().clone().into(),
-                    routing::NetNode::Address(default_node.clone()),
+                    peer.endpoint.ip().into(),
+                    routing::NetNode::Address(default_node),
                 );
                 routes.push(default_route);
             }
@@ -140,7 +142,7 @@ impl WireguardMonitor {
         let required_routes = routing::RequiredRoutes {
             routes,
             #[cfg(target_os = "linux")]
-            fwmark: Some(config.interface.fwmark.to_string()),
+            fwmark: Some(config.fwmark.to_string()),
         };
         self.router
             .add_routes(required_routes)
@@ -164,7 +166,7 @@ impl WireguardMonitor {
         let interface_name = self.tunnel.get_interface_name();
         let metadata = TunnelMetadata {
             interface: interface_name.to_string(),
-            ips: config.interface.addresses.clone(),
+            ips: config.tunnel.addresses.clone(),
             gateway: config.gateway,
         };
         (self.event_callback)(TunnelEvent::Up(metadata));

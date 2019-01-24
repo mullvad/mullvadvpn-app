@@ -4,7 +4,7 @@ use futures::{
     Async, Future, Stream,
 };
 use talpid_types::{
-    net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelParameters},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters},
     tunnel::BlockReason,
 };
 
@@ -64,11 +64,11 @@ impl ConnectedState {
     fn get_endpoint_from_params(&self) -> Endpoint {
         match self.tunnel_parameters {
             TunnelParameters::OpenVpn(ref config) => match config.options.proxy {
-                Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
+                Some(openvpn::ProxySettings::Local(ref local_proxy)) => Endpoint {
                     address: local_proxy.peer,
                     protocol: TransportProtocol::Tcp,
                 },
-                Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
+                Some(openvpn::ProxySettings::Remote(ref remote_proxy)) => Endpoint {
                     address: remote_proxy.address,
                     protocol: TransportProtocol::Tcp,
                 },

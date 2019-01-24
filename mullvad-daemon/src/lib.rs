@@ -34,21 +34,18 @@ use mullvad_types::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         TunnelConstraints,
     },
-    relay_list::{Relay, RelayList},
+    relay_list::{Relay, RelayList, TunnelEndpoint, TunnelEndpointData},
     settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
-use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{mem, net::SocketAddr, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{
-        OpenVpnConnectionConfig, OpenVpnProxySettings, OpenVpnTunnelParameters, TransportProtocol,
-        TunnelEndpoint, TunnelEndpointData, TunnelParameters,
-    },
+    net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -380,8 +377,12 @@ impl Daemon {
         let ip = endpoint.address;
         let tunnel_options = self.settings.get_tunnel_options().clone();
         match endpoint.tunnel {
-            TunnelEndpointData::OpenVpn(metadata) => Ok(OpenVpnTunnelParameters {
-                config: OpenVpnConnectionConfig::new(ip, metadata, account_token),
+            TunnelEndpointData::OpenVpn(metadata) => Ok(openvpn::TunnelParameters {
+                config: openvpn::ConnectionConfig::new(
+                    SocketAddr::new(ip, metadata.port),
+                    metadata.protocol,
+                    account_token,
+                ),
                 options: tunnel_options.openvpn,
                 generic_options: tunnel_options.generic,
             }
@@ -663,7 +664,7 @@ impl Daemon {
     fn on_set_openvpn_proxy(
         &mut self,
         tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
-        proxy: Option<OpenVpnProxySettings>,
+        proxy: Option<openvpn::ProxySettings>,
     ) {
         let constraints_result = match proxy {
             Some(_) => self.apply_proxy_constraints(),

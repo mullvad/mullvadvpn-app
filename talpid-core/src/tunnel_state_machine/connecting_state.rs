@@ -12,7 +12,7 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use talpid_types::{
-    net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelEndpoint, TunnelParameters},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters},
     tunnel::BlockReason,
 };
 
@@ -62,16 +62,16 @@ pub struct ConnectingState {
 impl ConnectingState {
     fn set_security_policy(
         shared_values: &mut SharedTunnelStateValues,
-        proxy: &Option<OpenVpnProxySettings>,
+        proxy: &Option<openvpn::ProxySettings>,
         endpoint: Endpoint,
     ) -> Result<()> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = match proxy {
-            Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
+            Some(openvpn::ProxySettings::Local(ref local_proxy)) => Endpoint {
                 address: local_proxy.peer,
                 protocol: TransportProtocol::Tcp,
             },
-            Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
+            Some(openvpn::ProxySettings::Remote(ref remote_proxy)) => Endpoint {
                 address: remote_proxy.address,
                 protocol: TransportProtocol::Tcp,
             },
@@ -352,7 +352,7 @@ impl ConnectingState {
 
 fn get_openvpn_proxy_settings(
     tunnel_parameters: &TunnelParameters,
-) -> &Option<OpenVpnProxySettings> {
+) -> &Option<openvpn::ProxySettings> {
     match tunnel_parameters {
         TunnelParameters::OpenVpn(ref config) => &config.options.proxy,
         _ => &None,
