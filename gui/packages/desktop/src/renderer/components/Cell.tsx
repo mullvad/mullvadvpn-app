@@ -1,0 +1,246 @@
+import * as React from 'react';
+import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
+import { ImageView } from '@mullvad/components';
+import { colors } from '../../config.json';
+
+const styles = {
+  cellButton: Styles.createButtonStyle({
+    backgroundColor: colors.blue,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginBottom: 1,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    cursor: 'default',
+  }),
+  cellContainer: Styles.createViewStyle({
+    backgroundColor: colors.blue,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 12,
+  }),
+
+  footer: {
+    container: Styles.createViewStyle({
+      paddingTop: 8,
+      paddingRight: 24,
+      paddingBottom: 24,
+      paddingLeft: 24,
+    }),
+    text: Styles.createTextStyle({
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '600',
+      lineHeight: 20,
+      letterSpacing: -0.2,
+      color: colors.white80,
+    }),
+  },
+
+  label: {
+    container: Styles.createViewStyle({
+      marginLeft: 8,
+      marginTop: 14,
+      marginBottom: 14,
+      flex: 1,
+    }),
+    text: Styles.createTextStyle({
+      fontFamily: 'DINPro',
+      fontSize: 20,
+      fontWeight: '900',
+      lineHeight: 26,
+      letterSpacing: -0.2,
+      color: colors.white,
+    }),
+  },
+
+  input: {
+    frame: Styles.createViewStyle({
+      flexGrow: 0,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      borderRadius: 4,
+      paddingHorizontal: 2,
+      paddingVertical: 2,
+    }),
+    text: Styles.createTextStyle({
+      color: colors.white,
+      backgroundColor: 'transparent',
+      fontFamily: 'Open Sans',
+      fontSize: 20,
+      fontWeight: '600',
+      lineHeight: 26,
+      textAlign: 'right',
+    }),
+  },
+
+  cellHover: Styles.createButtonStyle({
+    backgroundColor: colors.blue80,
+  }),
+  icon: Styles.createViewStyle({
+    marginLeft: 8,
+  }),
+
+  subtext: Styles.createTextStyle({
+    color: colors.white60,
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '800',
+    flex: -1,
+    textAlign: 'right',
+    marginLeft: 8,
+  }),
+};
+
+type CellButtonProps = {
+  children?: React.ReactNode;
+  disabled?: boolean;
+  cellHoverStyle?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
+  style?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
+  onPress?: () => void;
+};
+
+type State = { hovered: boolean };
+
+const CellHoverContext = React.createContext<boolean>(false);
+
+export class CellButton extends Component<CellButtonProps, State> {
+  state = { hovered: false };
+
+  onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
+  onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
+
+  render() {
+    const { children, style, cellHoverStyle, ...otherProps } = this.props;
+    const hoverStyle = cellHoverStyle || styles.cellHover;
+    return (
+      <Button
+        style={[styles.cellButton, style, this.state.hovered ? hoverStyle : undefined]}
+        onHoverStart={this.onHoverStart}
+        onHoverEnd={this.onHoverEnd}
+        {...otherProps}>
+        <CellHoverContext.Provider value={this.state.hovered}>{children}</CellHoverContext.Provider>
+      </Button>
+    );
+  }
+}
+
+type ContainerProps = { children: React.ReactNode };
+
+export function Container({ children }: ContainerProps) {
+  return <View style={styles.cellContainer}>{children}</View>;
+}
+
+type LabelProps = {
+  containerStyle?: Types.ViewStyleRuleSet;
+  textStyle?: Types.TextStyleRuleSet;
+  cellHoverContainerStyle?: Types.ViewStyleRuleSet;
+  cellHoverTextStyle?: Types.TextStyleRuleSet;
+  onPress?: (event: Types.SyntheticEvent) => void;
+  children?: React.ReactNode;
+};
+
+export function Label(props: LabelProps) {
+  const {
+    children,
+    containerStyle,
+    textStyle,
+    cellHoverContainerStyle,
+    cellHoverTextStyle,
+    ...otherProps
+  } = props;
+
+  return (
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <View
+          style={[
+            styles.label.container,
+            containerStyle,
+            hovered ? cellHoverContainerStyle : undefined,
+          ]}
+          {...otherProps}>
+          <Text style={[styles.label.text, textStyle, hovered ? cellHoverTextStyle : undefined]}>
+            {children}
+          </Text>
+        </View>
+      )}
+    </CellHoverContext.Consumer>
+  );
+}
+
+type InputFrameProps = {
+  children?: React.ReactNode;
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+};
+
+export function InputFrame(props: InputFrameProps) {
+  const { style, children } = props;
+
+  return <View style={[styles.input.frame, style]}>{children}</View>;
+}
+
+export const Input = React.forwardRef(function InputT(
+  props: Types.TextInputProps,
+  ref?: React.Ref<TextInput>,
+) {
+  const { style, ...otherProps } = props;
+
+  return (
+    <TextInput
+      ref={ref as any}
+      maxLength={10}
+      placeholderTextColor={colors.white60}
+      autoCorrect={false}
+      autoFocus={false}
+      style={[styles.input.text, style]}
+      {...otherProps}
+    />
+  );
+});
+
+type SubTextProps = Types.TextProps & {
+  cellHoverStyle?: Types.ViewStyle;
+};
+
+export function SubText(props: SubTextProps) {
+  const { children, ref: _, style, cellHoverStyle, ...otherProps } = props;
+
+  return (
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <Text style={[styles.subtext, style, hovered ? cellHoverStyle : undefined]} {...otherProps}>
+          {children}
+        </Text>
+      )}
+    </CellHoverContext.Consumer>
+  );
+}
+
+export function Icon(props: ImageView['props']) {
+  const { children: _children, style, tintColor, tintHoverColor, ...otherProps } = props;
+
+  return (
+    <CellHoverContext.Consumer>
+      {(hovered) => (
+        <ImageView
+          tintColor={(hovered && tintHoverColor) || tintColor || colors.white60}
+          style={[styles.icon, style]}
+          {...otherProps}
+        />
+      )}
+    </CellHoverContext.Consumer>
+  );
+}
+
+export function Footer({ children }: ContainerProps) {
+  return (
+    <View style={styles.footer.container}>
+      <Text style={styles.footer.text}>{children}</Text>
+    </View>
+  );
+}

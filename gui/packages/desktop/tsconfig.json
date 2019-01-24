@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "jsx": "react",
+    "outDir": "build",
+    "rootDirs": [
+      "src",
+      "assets"
+    ],
+    "typeRoots": [
+      "../../types",
+      "node_modules/@types"
+    ]
+  },
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

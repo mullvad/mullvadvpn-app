@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Clipboard, Component, Styles, Text, Types } from 'reactxp';
+import { Component, Styles, Text, Types } from 'reactxp';
 
 export enum SecuredDisplayStyle {
   secured,
