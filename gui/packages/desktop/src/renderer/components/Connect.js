@@ -123,8 +123,14 @@ export default class Connect extends Component<Props> {
     switch (status.state) {
       case 'connecting':
       case 'connected':
-      case 'blocked':
         return 'secure';
+      case 'blocked':
+        switch (status.details.reason) {
+          case 'set_security_policy_error':
+            return 'unsecure';
+          default:
+            return 'secure';
+        }
       case 'disconnected':
         return 'unsecure';
       case 'disconnecting':
@@ -221,8 +227,14 @@ export default class Connect extends Component<Props> {
         return HeaderBarStyle.error;
       case 'connecting':
       case 'connected':
-      case 'blocked':
         return HeaderBarStyle.success;
+      case 'blocked':
+        switch (status.details.reason) {
+          case 'set_security_policy_error':
+            return HeaderBarStyle.error;
+          default:
+            return HeaderBarStyle.success;
+        }
       case 'disconnecting':
         switch (status.details) {
           case 'block':
