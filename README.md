@@ -243,7 +243,6 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 ## Command line tools for Electron GUI app development
 
 - `$ yarn workspace desktop develop` - develop app with live-reload enabled
-- `$ yarn flow` - type-check the code
 - `$ yarn lint` - lint code
 - `$ yarn pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
   `linux`, `mac` or `win`
