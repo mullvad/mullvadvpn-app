@@ -58,7 +58,11 @@ export default function(
       };
 
     case 'BLOCKED':
-      return { ...state, status: { state: 'blocked', details: action.reason }, isBlocked: true };
+      return {
+        ...state,
+        status: { state: 'blocked', details: action.reason },
+        isBlocked: action.reason.reason !== 'set_security_policy_error',
+      };
 
     case 'ONLINE':
       return { ...state, isOnline: true };

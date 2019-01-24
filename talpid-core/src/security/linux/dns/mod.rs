@@ -5,9 +5,9 @@ mod systemd_resolved;
 
 use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
+    systemd_resolved::SystemdResolved,
 };
 use std::{env, fmt, net::IpAddr, path::Path};
-use systemd_resolved::SystemdResolved;
 
 
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";

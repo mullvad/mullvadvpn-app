@@ -26,7 +26,14 @@ export default class NotificationController {
         this._showTunnelStateNotification('Unsecured');
         break;
       case 'blocked':
-        this._showTunnelStateNotification('Blocked all connections');
+        switch (tunnelState.details.reason) {
+          case 'set_security_policy_error':
+            this._showTunnelStateNotification('Critical failure - Unsecured');
+            break;
+          default:
+            this._showTunnelStateNotification('Blocked all connections');
+            break;
+        }
         break;
       case 'disconnecting':
         switch (tunnelState.details) {
