@@ -9,7 +9,7 @@ import { Layout, Container } from './Layout';
 import { NavigationBar, BackBarItem } from './NavigationBar';
 import styles from './AccountStyles';
 
-import type { AccountToken } from '../../main/daemon-rpc';
+import type { AccountToken } from '../../shared/daemon-rpc-types';
 
 type Props = {
   accountToken: AccountToken,

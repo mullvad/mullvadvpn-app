@@ -19,7 +19,7 @@ import CityRow from './CityRow';
 import RelayRow from './RelayRow';
 
 import type { RelaySettingsRedux, RelayLocationRedux } from '../redux/settings/reducers';
-import type { RelayLocation } from '../../main/daemon-rpc';
+import type { RelayLocation } from '../../shared/daemon-rpc-types';
 
 type Props = {
   relaySettings: RelaySettingsRedux,

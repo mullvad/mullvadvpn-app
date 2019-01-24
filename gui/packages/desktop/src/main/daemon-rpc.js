@@ -6,6 +6,16 @@ import JsonRpcClient, {
   SocketTransport,
 } from './jsonrpc-client';
 import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
+import type {
+  AccountData,
+  AccountToken,
+  AppVersionInfo,
+  Location,
+  RelayList,
+  RelaySettingsUpdate,
+  Settings,
+  TunnelStateTransition,
+} from '../shared/daemon-rpc-types';
 
 import {
   object,
@@ -22,18 +32,6 @@ import { validate } from 'validated/object';
 
 import type { Node as SchemaNode } from 'validated/schema';
 
-export type AccountData = { expiry: string };
-export type AccountToken = string;
-export type Ip = string;
-export type Location = {
-  ip: ?string,
-  country: string,
-  city: ?string,
-  latitude: number,
-  longitude: number,
-  mullvadExitIp: boolean,
-  hostname: ?string,
-};
 const LocationSchema = maybe(
   partialObject({
     ip: maybe(string),
@@ -45,95 +43,6 @@ const LocationSchema = maybe(
     hostname: maybe(string),
   }),
 );
-
-export type BlockReason =
-  | {
-      reason:
-        | 'ipv6_unavailable'
-        | 'set_security_policy_error'
-        | 'set_dns_error'
-        | 'start_tunnel_error'
-        | 'no_matching_relay'
-        | 'is_offline'
-        | 'tap_adapter_problem',
-    }
-  | { reason: 'auth_failed', details: ?string };
-
-export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
-
-export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
-
-export type TunnelEndpoint = {
-  address: string,
-  tunnel: TunnelEndpointData,
-};
-
-export type TunnelEndpointData = {
-  openvpn: {
-    port: number,
-    protocol: RelayProtocol,
-  },
-};
-
-export type TunnelStateTransition =
-  | { state: 'disconnected' }
-  | { state: 'connecting', details: ?TunnelEndpoint }
-  | { state: 'connected', details: TunnelEndpoint }
-  | { state: 'disconnecting', details: AfterDisconnect }
-  | { state: 'blocked', details: BlockReason };
-
-export type RelayProtocol = 'tcp' | 'udp';
-export type RelayLocation =
-  | {| hostname: [string, string, string] |}
-  | {| city: [string, string] |}
-  | {| country: string |};
-
-type OpenVpnConstraints = {
-  port: 'any' | { only: number },
-  protocol: 'any' | { only: RelayProtocol },
-};
-
-type TunnelConstraints<TOpenVpnConstraints> = {
-  openvpn: TOpenVpnConstraints,
-};
-
-type RelaySettingsNormal<TTunnelConstraints> = {
-  location:
-    | 'any'
-    | {
-        only: RelayLocation,
-      },
-  tunnel:
-    | 'any'
-    | {
-        only: TTunnelConstraints,
-      },
-};
-
-// types describing the structure of RelaySettings
-export type RelaySettingsCustom = {
-  host: string,
-  tunnel: TunnelEndpointData,
-};
-export type RelaySettings =
-  | {|
-      normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>,
-    |}
-  | {|
-      customTunnelEndpoint: RelaySettingsCustom,
-    |};
-
-// types describing the partial update of RelaySettings
-export type RelaySettingsNormalUpdate = $Shape<
-  RelaySettingsNormal<TunnelConstraints<$Shape<OpenVpnConstraints>>>,
->;
-export type RelaySettingsUpdate =
-  | {|
-      normal: RelaySettingsNormalUpdate,
-    |}
-  | {|
-      customTunnelEndpoint: RelaySettingsCustom,
-    |};
 
 const constraint = <T>(constraintValue: SchemaNode<T>) => {
   return oneOf(
@@ -185,31 +94,6 @@ const RelaySettingsSchema = oneOf(
   }),
 );
 
-export type RelayList = {
-  countries: Array<RelayListCountry>,
-};
-
-export type RelayListCountry = {
-  name: string,
-  code: string,
-  cities: Array<RelayListCity>,
-};
-
-export type RelayListCity = {
-  name: string,
-  code: string,
-  latitude: number,
-  longitude: number,
-  relays: Array<RelayListHostname>,
-};
-
-export type RelayListHostname = {
-  hostname: string,
-  ipv4AddrIn: string,
-  includeInCountry: boolean,
-  weight: number,
-};
-
 const RelayListSchema = partialObject({
   countries: arrayOf(
     partialObject({
@@ -234,31 +118,6 @@ const RelayListSchema = partialObject({
     }),
   ),
 });
-
-export type TunnelOptions = {
-  enableIpv6: boolean,
-  openvpn: {
-    mssfix: ?number,
-  },
-  proxy: ?ProxySettings,
-};
-
-export type ProxySettings = LocalProxySettings | RemoteProxySettings;
-
-export type LocalProxySettings = {
-  port: number,
-  peer: string,
-};
-
-export type RemoteProxySettings = {
-  address: string,
-  auth: ?RemoteProxyAuth,
-};
-
-export type RemoteProxyAuth = {
-  username: string,
-  password: string,
-};
 
 const OpenVpnProxySchema = maybe(
   oneOf(
@@ -331,14 +190,6 @@ const TunnelStateTransitionSchema = oneOf(
   }),
 );
 
-export type AppVersionInfo = {
-  currentIsSupported: boolean,
-  latest: {
-    latestStable: string,
-    latest: string,
-  },
-};
-
 const AppVersionInfoSchema = partialObject({
   current_is_supported: boolean,
   latest: partialObject({
@@ -383,15 +234,6 @@ export class SubscriptionListener<T> {
   }
 }
 
-export type Settings = {
-  accountToken: ?AccountToken,
-  allowLan: boolean,
-  autoConnect: boolean,
-  blockWhenDisconnected: boolean,
-  relaySettings: RelaySettings,
-  tunnelOptions: TunnelOptions,
-};
-
 const SettingsSchema = partialObject({
   account_token: maybe(string),
   allow_lan: boolean,
@@ -400,33 +242,6 @@ const SettingsSchema = partialObject({
   relay_settings: RelaySettingsSchema,
   tunnel_options: TunnelOptionsSchema,
 });
-
-export interface DaemonRpcProtocol {
-  connect({ path: string }): void;
-  disconnect(): void;
-  getAccountData(AccountToken): Promise<AccountData>;
-  getRelayLocations(): Promise<RelayList>;
-  setAccount(accountToken: ?AccountToken): Promise<void>;
-  updateRelaySettings(RelaySettingsUpdate): Promise<void>;
-  setAllowLan(boolean): Promise<void>;
-  setEnableIpv6(boolean): Promise<void>;
-  setBlockWhenDisconnected(boolean): Promise<void>;
-  setOpenVpnMssfix(?number): Promise<void>;
-  setAutoConnect(boolean): Promise<void>;
-  connectTunnel(): Promise<void>;
-  disconnectTunnel(): Promise<void>;
-  getLocation(): Promise<?Location>;
-  getState(): Promise<TunnelStateTransition>;
-  getSettings(): Promise<Settings>;
-  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void>;
-  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void>;
-  addConnectionObserver(observer: ConnectionObserver): void;
-  removeConnectionObserver(observer: ConnectionObserver): void;
-  getAccountHistory(): Promise<Array<AccountToken>>;
-  removeAccountFromHistory(accountToken: AccountToken): Promise<void>;
-  getCurrentVersion(): Promise<string>;
-  getVersionInfo(): Promise<AppVersionInfo>;
-}
 
 export class ResponseParseError extends Error {
   _validationError: ?Error;
@@ -444,7 +259,7 @@ export class ResponseParseError extends Error {
 // Timeout used for RPC calls that do networking
 const NETWORK_CALL_TIMEOUT = 10000;
 
-export class DaemonRpc implements DaemonRpcProtocol {
+export class DaemonRpc {
   _transport = new JsonRpcClient(new SocketTransport());
 
   connect(connectionParams: { path: string }) {

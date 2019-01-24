@@ -6,7 +6,7 @@ import { ConnectionInfo, SecuredLabel, SecuredDisplayStyle, ImageView } from '@m
 import * as AppButton from './AppButton';
 import { colors } from '../../config';
 
-import type { TunnelStateTransition, RelayProtocol } from '../../main/daemon-rpc';
+import type { TunnelStateTransition, RelayProtocol } from '../../shared/daemon-rpc-types';
 
 export type RelayInAddress = {
   ip: string,
