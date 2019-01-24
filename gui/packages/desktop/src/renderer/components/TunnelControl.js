@@ -137,18 +137,31 @@ export default class TunnelControl extends Component<TunnelControlProps> {
 
     let state = this.props.tunnelState.state;
 
-    if (state === 'disconnecting') {
-      switch (this.props.tunnelState.details) {
-        case 'block':
-          state = 'blocked';
-          break;
-        case 'reconnect':
-          state = 'connecting';
-          break;
-        default:
-          state = 'disconnecting';
-          break;
-      }
+    switch (state) {
+      case 'blocked':
+        switch (this.props.tunnelState.details.reason) {
+          case 'set_security_policy_error':
+            state = 'disconnected';
+            break;
+          default:
+            state = 'blocked';
+            break;
+        }
+        break;
+
+      case 'disconnecting':
+        switch (this.props.tunnelState.details) {
+          case 'block':
+            state = 'blocked';
+            break;
+          case 'reconnect':
+            state = 'connecting';
+            break;
+          default:
+            state = 'disconnecting';
+            break;
+        }
+        break;
     }
 
     switch (state) {

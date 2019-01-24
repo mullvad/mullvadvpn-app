@@ -699,7 +699,12 @@ const ApplicationMain = {
         return 'securing';
 
       case 'blocked':
-        return 'securing';
+        switch (tunnelState.details.reason) {
+          case 'set_security_policy_error':
+            return 'unsecured';
+          default:
+            return 'securing';
+        }
 
       case 'disconnecting':
         return 'securing';
