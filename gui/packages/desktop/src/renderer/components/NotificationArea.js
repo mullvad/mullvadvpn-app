@@ -28,6 +28,7 @@ type Props = {
 };
 
 type NotificationAreaPresentation =
+  | { type: 'failure-unsecured', reason: string }
   | { type: 'blocking', reason: string }
   | { type: 'inconsistent-version' }
   | { type: 'unsupported-version', upgradeVersion: string }
@@ -46,7 +47,7 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
     case 'set_security_policy_error':
-      return 'Failed to apply security policy';
+      return 'Failed to apply firewall rules. The device might currently be unsecured';
     case 'set_dns_error':
       return 'Failed to set system DNS server';
     case 'start_tunnel_error':
@@ -81,11 +82,20 @@ export default class NotificationArea extends Component<Props, State> {
         };
 
       case 'blocked':
-        return {
-          visible: true,
-          type: 'blocking',
-          reason: getBlockReasonMessage(tunnelState.details),
-        };
+        switch (tunnelState.details.reason) {
+          case 'set_security_policy_error':
+            return {
+              visible: true,
+              type: 'failure-unsecured',
+              reason: getBlockReasonMessage(tunnelState.details),
+            };
+          default:
+            return {
+              visible: true,
+              type: 'blocking',
+              reason: getBlockReasonMessage(tunnelState.details),
+            };
+        }
 
       case 'disconnecting':
         if (tunnelState.details === 'reconnect') {
@@ -155,6 +165,16 @@ export default class NotificationArea extends Component<Props, State> {
   render() {
     return (
       <NotificationBanner style={this.props.style} visible={this.state.visible}>
+        {this.state.type === 'failure-unsecured' && (
+          <React.Fragment>
+            <NotificationIndicator type={'error'} />
+            <NotificationContent>
+              <NotificationTitle>{'FAILURE - UNSECURED'}</NotificationTitle>
+              <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
+            </NotificationContent>
+          </React.Fragment>
+        )}
+
         {this.state.type === 'blocking' && (
           <React.Fragment>
             <NotificationIndicator type={'error'} />
