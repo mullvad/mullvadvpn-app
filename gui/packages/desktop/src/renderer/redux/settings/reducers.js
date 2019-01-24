@@ -1,7 +1,7 @@
 // @flow
 
 import type { ReduxAction } from '../store';
-import type { RelayProtocol, RelayLocation } from '../../../main/daemon-rpc';
+import type { RelayProtocol, RelayLocation } from '../../../shared/daemon-rpc-types';
 import type { GuiSettingsState } from '../../../shared/gui-settings-state';
 
 export type RelaySettingsRedux =

@@ -4,7 +4,7 @@ import { shell, Notification } from 'electron';
 import log from 'electron-log';
 import config from '../config';
 
-import type { TunnelStateTransition } from './daemon-rpc';
+import type { TunnelStateTransition } from '../shared/daemon-rpc-types';
 
 export default class NotificationController {
   _lastTunnelStateNotification: ?Notification;

@@ -10,7 +10,7 @@ import styles from './LoginStyles';
 import { colors } from '../../config';
 
 import type { LoginState } from '../redux/account/reducers';
-import type { AccountToken } from '../../main/daemon-rpc';
+import type { AccountToken } from '../../shared/daemon-rpc-types';
 
 type Props = {
   accountToken: ?AccountToken,

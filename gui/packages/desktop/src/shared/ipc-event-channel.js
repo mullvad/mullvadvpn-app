@@ -15,7 +15,7 @@ import type {
   RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
-} from '../main/daemon-rpc';
+} from './daemon-rpc-types';
 
 export type AppStateSnapshot = {
   isConnected: boolean,

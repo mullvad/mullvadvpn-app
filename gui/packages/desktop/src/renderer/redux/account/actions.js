@@ -1,6 +1,6 @@
 // @flow
 
-import type { AccountToken } from '../../../main/daemon-rpc';
+import type { AccountToken } from '../../../shared/daemon-rpc-types';
 
 type StartLoginAction = {
   type: 'START_LOGIN',

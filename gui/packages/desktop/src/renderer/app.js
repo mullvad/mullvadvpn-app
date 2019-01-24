@@ -36,7 +36,7 @@ import type {
   RelaySettings,
   Settings,
   TunnelStateTransition,
-} from '../main/daemon-rpc';
+} from '../shared/daemon-rpc-types';
 
 export default class AppRenderer {
   _memoryHistory = createMemoryHistory();

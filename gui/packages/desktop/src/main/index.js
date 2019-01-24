@@ -26,7 +26,7 @@ import type {
   RelaySettingsUpdate,
   Settings,
   TunnelStateTransition,
-} from './daemon-rpc';
+} from '../shared/daemon-rpc-types';
 
 import GuiSettings from './gui-settings';
 import ReconnectionBackoff from './reconnection-backoff';

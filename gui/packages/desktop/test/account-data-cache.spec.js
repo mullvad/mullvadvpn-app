@@ -1,7 +1,7 @@
 // @flow
 
 import { AccountDataCache } from '../src/renderer/app';
-import type { AccountData } from '../src/main/daemon-rpc';
+import type { AccountData } from '../src/shared/daemon-rpc-types';
 
 describe('AccountData cache', () => {
   const dummyAccountToken = '9876543210';
