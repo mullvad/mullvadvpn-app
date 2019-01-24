@@ -11,34 +11,63 @@ error_chain! {
         InvalidHost(host: String) {
             display("Invalid host: {}", host)
         }
+        Unsupported {
+            description("Tunnel type not supported")
+        }
     }
 }
 
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {
-    pub host: String,
-    pub config: ConnectionConfig,
+    host: String,
+    config: ConnectionConfig,
 }
 
 impl CustomTunnelEndpoint {
-    pub fn to_connection_config(&self) -> Result<ConnectionConfig> {
+    pub fn new(host: String, config: ConnectionConfig) -> Self {
+        Self { host, config }
+    }
+
+    pub fn to_tunnel_parameters(self, settings: &Settings) -> Result<TunnelParameters> {
         let ip = resolve_to_ip(&self.host)?;
-        let mut config = self.config.clone();
+        let tunnel_options = settings.get_tunnel_options();
+        let mut config = self.config;
         config.set_ip(ip);
 
-        Ok(config)
+        let parameters = match config {
+            ConnectionConfig::OpenVpn(config) => openvpn::TunnelParameters {
+                config,
+                options: tunnel_options.openvpn.clone(),
+                generic_options: tunnel_options.generic.clone(),
+            }
+            .into(),
+            ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
+                connection,
+                options: tunnel_options.wireguard.clone(),
+                generic_options: tunnel_options.generic.clone(),
+            }
+            .into(),
+        };
+        Ok(parameters)
     }
 }
 
 impl fmt::Display for CustomTunnelEndpoint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let tunnel_type = match &self.config {
-            ConnectionConfig::OpenVpn(_) => &"OpenVpn",
-            ConnectionConfig::Wireguard(_) => &"Wireguard",
-        };
-        write!(f, "{} over {}", self.host, tunnel_type)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.config {
+            ConnectionConfig::OpenVpn(config) => write!(
+                f,
+                "OpenVpn relay - {}:{} {}",
+                self.host,
+                config.host.port(),
+                config.protocol
+            ),
+            ConnectionConfig::Wireguard(_) => write!(f, "wireguard relay - "),
+        }
     }
 }
+
 
 /// Does a DNS lookup if the host isn't an IP.
 /// Returns the first IPv4 address if one exists, otherwise the first IPv6 address.

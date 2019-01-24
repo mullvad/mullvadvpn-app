@@ -1,17 +1,18 @@
 use crate::{new_rpc_client, Command, Result, ResultExt};
 use clap::value_t;
-use std::str::FromStr;
+use std::{
+    net::{Ipv4Addr, SocketAddr},
+    str::FromStr,
+};
 
 use mullvad_types::{
     relay_constraints::{
         Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
         RelaySettingsUpdate, TunnelConstraints,
     },
-    CustomTunnelEndpoint,
+    ConnectionConfig, CustomTunnelEndpoint,
 };
-use talpid_types::net::{
-    OpenVpnEndpointData, TransportProtocol, TunnelEndpointData, WireguardEndpointData,
-};
+use talpid_types::net::{openvpn, TransportProtocol};
 
 pub struct Relay;
 
@@ -146,17 +147,18 @@ impl Relay {
     fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
-        let tunnel = match matches.value_of("tunnel").unwrap() {
-            "openvpn" => TunnelEndpointData::OpenVpn(OpenVpnEndpointData {
-                port,
+        let config = match matches.value_of("tunnel").unwrap() {
+            "openvpn" => ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
+                host: SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), port),
                 protocol: value_t!(matches.value_of("protocol"), TransportProtocol).unwrap(),
+                username: "-".to_string(),
             }),
             // TODO: Gather all the data to build a WireguardEndpointData properly.
             // "wireguard" => TunnelEndpointData::Wireguard(WireguardEndpointData { port }),
             _ => unreachable!("Invalid tunnel protocol"),
         };
         self.update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(
-            CustomTunnelEndpoint { host, tunnel },
+            CustomTunnelEndpoint::new(host, config),
         ))
     }
 

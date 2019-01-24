@@ -343,8 +343,7 @@ impl Daemon {
             .map(|account_token| {
                 match self.settings.get_relay_settings() {
                     RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                        .to_connection_config()
-                        .map(|config| config.to_tunnel_parameters(&self.settings))
+                        .to_tunnel_parameters(&self.settings)
                         .chain_err(|| "Custom tunnel endpoint could not be resolved"),
                     RelaySettings::Normal(constraints) => self
                         .relay_selector
