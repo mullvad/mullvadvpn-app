@@ -66,11 +66,9 @@ export default class Accordion extends Component<IProps, IState> {
 
   public render() {
     const { style, children, expanded, animationDuration, ...otherProps } = this.props;
-    const containerStyles = [style];
-
-    if (this.state.applyAnimatedStyle) {
-      containerStyles.push(containerOverflowStyle, this.animatedStyle);
-    }
+    const containerStyles = this.state.applyAnimatedStyle
+      ? [style, containerOverflowStyle, this.animatedStyle]
+      : [style];
 
     return (
       <Animated.View {...otherProps} style={containerStyles} ref={this.containerRef}>

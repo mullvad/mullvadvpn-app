@@ -42,7 +42,7 @@ export class ModalAlert extends React.Component {
 }
 
 interface IModalContainerProps {
-  children?: Array<React.ReactElement<ModalContent | ModalAlert>>;
+  children?: React.ReactNode;
 }
 
 export class ModalContainer extends React.Component<IModalContainerProps> {

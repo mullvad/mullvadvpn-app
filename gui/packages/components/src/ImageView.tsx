@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
+import { Component, Types, View } from 'reactxp';
 
 interface IProps {
   source: string;
@@ -7,8 +7,9 @@ interface IProps {
   height?: number;
   tintColor?: string;
   tintHoverColor?: string;
-  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
   disabled?: boolean;
+  onPress?: (event: Types.SyntheticEvent) => void;
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
 }
 
 interface IState {
@@ -19,8 +20,8 @@ export default class ImageView extends Component<IProps, IState> {
   public state = { hovered: false };
 
   public render() {
-    const { source, width, height, style, tintColor, tintHoverColor, ...otherProps } = this.props;
-    const url = `../assets/images/${source}.svg`;
+    const { source, width, height, tintColor, tintHoverColor, ...otherProps } = this.props;
+    const url = `../../assets/images/${source}.svg`;
     let image;
 
     const activeTintColor = (this.state.hovered && tintHoverColor) || tintColor;
@@ -52,11 +53,7 @@ export default class ImageView extends Component<IProps, IState> {
     }
 
     return (
-      <View
-        {...otherProps}
-        onMouseEnter={this.onHoverStart}
-        onMouseLeave={this.onHoverEnd}
-        style={style}>
+      <View {...otherProps} onMouseEnter={this.onHoverStart} onMouseLeave={this.onHoverEnd}>
         {image}
       </View>
     );
