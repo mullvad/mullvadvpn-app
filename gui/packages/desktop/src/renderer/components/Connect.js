@@ -10,6 +10,7 @@ import TunnelControl from './TunnelControl';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../../main/errors';
+import { parseSocketAddress } from '../../shared/daemon-rpc-types';
 
 import type { RelayOutAddress, RelayInAddress } from './TunnelControl';
 import type AccountExpiry from '../lib/account-expiry';
@@ -170,10 +171,11 @@ export default class Connect extends Component<Props> {
     let relayInAddress: ?RelayInAddress = null;
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
+      const socketAddr = parseSocketAddress(details.address);
       relayInAddress = {
-        ip: details.address,
-        port: details.tunnel.openvpn.port,
-        protocol: details.tunnel.openvpn.protocol,
+        ip: socketAddr.host,
+        port: socketAddr.port,
+        protocol: details.protocol,
       };
     }
 
