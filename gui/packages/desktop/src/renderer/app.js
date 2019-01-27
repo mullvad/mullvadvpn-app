@@ -279,7 +279,7 @@ export default class AppRenderer {
       const config: ConnectionConfig = customTunnelEndpoint.config;
 
       let port = 0;
-      let protocol = "udp";
+      let protocol = 'udp';
       if (config.openvpn) {
         port = config.openvpn.endpoint.port;
         protocol = config.openvpn.endpoint.protocol;
