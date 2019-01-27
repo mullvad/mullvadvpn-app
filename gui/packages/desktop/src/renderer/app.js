@@ -30,6 +30,7 @@ import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 import type {
   AccountToken,
   AccountData,
+  ConnectionConfig,
   Location,
   RelayList,
   RelaySettingsUpdate,
@@ -274,12 +275,15 @@ export default class AppRenderer {
       });
     } else if (relaySettings.customTunnelEndpoint) {
       const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
-      const {
-        host,
-        tunnel: {
-          openvpn: { port, protocol },
-        },
-      } = customTunnelEndpoint;
+      const host = customTunnelEndpoint.host;
+      const config: ConnectionConfig = customTunnelEndpoint.config;
+
+      let port = 0;
+      let protocol = "udp";
+      if (config.openvpn) {
+        port = config.openvpn.endpoint.port;
+        protocol = config.openvpn.endpoint.protocol;
+      }
 
       actions.settings.updateRelay({
         customTunnelEndpoint: {

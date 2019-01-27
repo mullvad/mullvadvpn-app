@@ -84,6 +84,10 @@ const ApplicationMain = {
         mssfix: null,
         proxy: null,
       },
+      wireguard: {
+        mtu: null,
+        fwmark: null,
+      },
     },
   }: Settings),
   _guiSettings: new GuiSettings(),
