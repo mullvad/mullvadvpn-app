@@ -76,17 +76,17 @@ type RelaySettingsNormal<TTunnelConstraints> = {
 };
 
 export type ConnectionConfig  =
-  | { openvpn: {
+  | {| openvpn: {
     endpoint: {
       ip: string,
       port: number,
       protocol: RelayProtocol,
     },
     username: string,
-  } }
-  | { wireguard: {
-
-  } };
+  } |}
+  | {| wireguard: {
+    // TODO: Add wireguard fields
+  } |};
 
 // types describing the structure of RelaySettings
 export type RelaySettingsCustom = {

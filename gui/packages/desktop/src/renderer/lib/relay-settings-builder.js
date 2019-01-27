@@ -151,10 +151,14 @@ type CustomTunnelBuilder<Self> = {
 class CustomRelaySettingsBuilder {
   _payload: RelaySettingsCustom = {
     host: '',
-    tunnel: {
+    config: {
       openvpn: {
-        port: 0,
-        protocol: 'udp',
+        endpoint: {
+          ip: "127.0.0.1",
+          port: 0,
+          protocol: 'udp',
+        },
+        username: "",
       },
     },
   };
@@ -172,10 +176,9 @@ class CustomRelaySettingsBuilder {
 
   get tunnel(): CustomTunnelBuilder<CustomRelaySettingsBuilder> {
     const updateOpenvpn = (next) => {
-      const tunnel = this._payload.tunnel || {};
-      const prev = tunnel.openvpn || {};
-      this._payload.tunnel = {
-        openvpn: { ...prev, ...next },
+      const tunnel = this._payload.config.openvpn || {};
+      this._payload.config = {
+        openvpn: { ...tunnel, ...next },
       };
     };
 
