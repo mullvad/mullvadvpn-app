@@ -6,9 +6,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use talpid_types::net::{
-    openvpn as openvpn_types, wireguard as wireguard_types, GenericTunnelOptions, TunnelParameters,
-};
+#[cfg(unix)]
+use talpid_types::net::wireguard as wireguard_types;
+use talpid_types::net::{openvpn as openvpn_types, GenericTunnelOptions, TunnelParameters};
 
 /// A module for all OpenVPN related tunnel management.
 pub mod openvpn;
@@ -135,7 +135,7 @@ impl TunnelMonitor {
                 Self::start_wireguard_tunnel(&config, log, on_event)
             }
             #[cfg(windows)]
-            TunnelEndpointData::Wireguard(_) => bail!(ErrorKind::UnsupportedPlatform),
+            TunnelParameters::Wireguard(_) => bail!(ErrorKind::UnsupportedPlatform),
         }
     }
 
