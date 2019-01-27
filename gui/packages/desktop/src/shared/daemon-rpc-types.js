@@ -75,18 +75,22 @@ type RelaySettingsNormal<TTunnelConstraints> = {
       },
 };
 
-export type ConnectionConfig  =
-  | {| openvpn: {
-    endpoint: {
-      ip: string,
-      port: number,
-      protocol: RelayProtocol,
-    },
-    username: string,
-  } |}
-  | {| wireguard: {
-    // TODO: Add wireguard fields
-  } |};
+export type ConnectionConfig =
+  | {|
+      openvpn: {
+        endpoint: {
+          ip: string,
+          port: number,
+          protocol: RelayProtocol,
+        },
+        username: string,
+      },
+    |}
+  | {|
+      wireguard: {
+        // TODO: Add wireguard fields
+      },
+    |};
 
 // types describing the structure of RelaySettings
 export type RelaySettingsCustom = {
@@ -150,7 +154,7 @@ export type TunnelOptions = {
   },
   generic: {
     enableIpv6: boolean,
-  }
+  },
 };
 
 export type ProxySettings = LocalProxySettings | RemoteProxySettings;

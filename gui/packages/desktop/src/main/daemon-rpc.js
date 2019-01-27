@@ -153,7 +153,7 @@ const TunnelOptionsSchema = partialObject({
   }),
   generic: partialObject({
     enable_ipv6: boolean,
-  })
+  }),
 });
 
 const AccountDataSchema = partialObject({
