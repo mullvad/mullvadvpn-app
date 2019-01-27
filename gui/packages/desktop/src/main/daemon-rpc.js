@@ -53,12 +53,32 @@ const constraint = <T>(constraintValue: SchemaNode<T>) => {
   );
 };
 
-const TunnelEndpointDataSchema = partialObject({
-  openvpn: partialObject({
-    port: number,
-    protocol: enumeration('udp', 'tcp'),
+const CustomTunnelEndpoint = oneOf(
+  object({
+    openvpn: object({
+      endpoint: object({
+        address: string,
+        protocol: enumeration('udp', 'tcp'),
+      }),
+      username: string,
+      password: string,
+    }),
   }),
-});
+  object({
+    wireguard: object({
+      tunnel: object({
+        private_key: string,
+        addresses: arrayOf(string),
+      }),
+      peer: object({
+        public_key: string,
+        allowed_ips: arrayOf(string),
+        endpoint: string,
+      }),
+      gateway: string,
+    }),
+  }),
+);
 
 const RelaySettingsSchema = oneOf(
   object({
@@ -89,7 +109,7 @@ const RelaySettingsSchema = oneOf(
   object({
     custom_tunnel_endpoint: partialObject({
       host: string,
-      tunnel: TunnelEndpointDataSchema,
+      config: CustomTunnelEndpoint,
     }),
   }),
 );
@@ -142,10 +162,17 @@ const OpenVpnProxySchema = maybe(
 );
 
 const TunnelOptionsSchema = partialObject({
-  enable_ipv6: boolean,
   openvpn: partialObject({
     mssfix: maybe(number),
     proxy: OpenVpnProxySchema,
+  }),
+  wireguard: partialObject({
+    mtu: maybe(number),
+    // only relevant on linux
+    fmwark: maybe(number),
+  }),
+  generic: partialObject({
+    enable_ipv6: boolean,
   }),
 });
 
@@ -162,7 +189,8 @@ const TunnelStateTransitionSchema = oneOf(
     state: enumeration('connecting', 'connected'),
     details: partialObject({
       address: string,
-      tunnel: TunnelEndpointDataSchema,
+      protocol: enumeration('tcp', 'udp'),
+      tunnel_type: enumeration('wireguard', 'openvpn'),
     }),
   }),
   object({

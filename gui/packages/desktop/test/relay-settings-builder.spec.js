@@ -122,25 +122,4 @@ describe('Relay settings builder', () => {
       },
     });
   });
-
-  it('should set custom endpoint settings', () => {
-    expect(
-      RelaySettingsBuilder.custom()
-        .host('se2.mullvad.net')
-        .tunnel.openvpn((openvpn) => {
-          openvpn.port(80).protocol('tcp');
-        })
-        .build(),
-    ).to.deep.equal({
-      customTunnelEndpoint: {
-        host: 'se2.mullvad.net',
-        tunnel: {
-          openvpn: {
-            port: 80,
-            protocol: 'tcp',
-          },
-        },
-      },
-    });
-  });
 });

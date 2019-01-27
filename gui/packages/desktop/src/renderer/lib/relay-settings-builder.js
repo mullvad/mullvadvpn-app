@@ -5,7 +5,6 @@ import type {
   RelayProtocol,
   RelaySettingsUpdate,
   RelaySettingsNormalUpdate,
-  RelaySettingsCustom,
 } from '../../shared/daemon-rpc-types';
 
 type LocationBuilder<Self> = {
@@ -139,65 +138,6 @@ class NormalRelaySettingsBuilder {
   }
 }
 
-type CustomOpenVPNConfigurator<Self> = {
-  port: (port: number) => Self,
-  protocol: (protocol: RelayProtocol) => Self,
-};
-
-type CustomTunnelBuilder<Self> = {
-  openvpn: (configurator: (CustomOpenVPNConfigurator<*>) => void) => Self,
-};
-
-class CustomRelaySettingsBuilder {
-  _payload: RelaySettingsCustom = {
-    host: '',
-    tunnel: {
-      openvpn: {
-        port: 0,
-        protocol: 'udp',
-      },
-    },
-  };
-
-  build(): RelaySettingsUpdate {
-    return {
-      customTunnelEndpoint: this._payload,
-    };
-  }
-
-  host(value: string) {
-    this._payload.host = value;
-    return this;
-  }
-
-  get tunnel(): CustomTunnelBuilder<CustomRelaySettingsBuilder> {
-    const updateOpenvpn = (next) => {
-      const tunnel = this._payload.tunnel || {};
-      const prev = tunnel.openvpn || {};
-      this._payload.tunnel = {
-        openvpn: { ...prev, ...next },
-      };
-    };
-
-    return {
-      openvpn: (configurator) => {
-        configurator({
-          port: function(port: number) {
-            updateOpenvpn({ port });
-            return this;
-          },
-          protocol: function(protocol: RelayProtocol) {
-            updateOpenvpn({ protocol });
-            return this;
-          },
-        });
-        return this;
-      },
-    };
-  }
-}
-
 export default {
   normal: () => new NormalRelaySettingsBuilder(),
-  custom: () => new CustomRelaySettingsBuilder(),
 };
