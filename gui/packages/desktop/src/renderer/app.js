@@ -449,7 +449,7 @@ export default class AppRenderer {
     const reduxAccount = this._reduxActions.account;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
-    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.enableIpv6);
+    reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
 

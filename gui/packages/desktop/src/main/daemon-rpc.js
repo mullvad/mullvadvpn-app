@@ -5,6 +5,7 @@ import JsonRpcClient, {
   TimeOutError as JsonRpcTimeOutError,
   SocketTransport,
 } from './jsonrpc-client';
+import log from 'electron-log';
 import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
 import type {
   AccountData,
@@ -142,11 +143,18 @@ const OpenVpnProxySchema = maybe(
 );
 
 const TunnelOptionsSchema = partialObject({
-  enable_ipv6: boolean,
   openvpn: partialObject({
     mssfix: maybe(number),
     proxy: OpenVpnProxySchema,
   }),
+  wireguard: partialObject({
+    mtu: maybe(number),
+    // only relevant on linux
+    fmwark: maybe(number),
+  }),
+  generic: partialObject({
+    enable_ipv6: boolean,
+  })
 });
 
 const AccountDataSchema = partialObject({
@@ -161,8 +169,10 @@ const TunnelStateTransitionSchema = oneOf(
   object({
     state: enumeration('connecting', 'connected'),
     details: partialObject({
-      address: string,
-      tunnel: TunnelEndpointDataSchema,
+      ip: string,
+      port: number,
+      protocol: enumeration('tcp', 'udp'),
+      tunnel_type: enumeration('WireGuard', 'OpenVpn'),
     }),
   }),
   object({
@@ -375,6 +385,7 @@ export class DaemonRpc {
     try {
       return camelCaseObjectKeys(validate(SettingsSchema, response));
     } catch (error) {
+      log.debug(`Thing is, you were wrong from the start - ${error} `);
       throw new ResponseParseError('Invalid response from get_settings', error);
     }
   }
@@ -385,6 +396,9 @@ export class DaemonRpc {
         const newState = camelCaseObjectKeys(validate(TunnelStateTransitionSchema, payload));
         listener._onEvent(newState);
       } catch (error) {
+        log.debug(`this shit's broken yo ${error}`);
+        log.debug(`got payload - ${JSON.stringify(payload)}`);
+
         listener._onError(new ResponseParseError('Invalid payload from new_state', error));
       }
     });

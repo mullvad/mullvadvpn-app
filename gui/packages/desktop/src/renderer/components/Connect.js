@@ -171,9 +171,9 @@ export default class Connect extends Component<Props> {
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
       relayInAddress = {
-        ip: details.address,
-        port: details.tunnel.openvpn.port,
-        protocol: details.tunnel.openvpn.protocol,
+        ip: details.ip,
+        port: details.port,
+        protocol: details.protocol,
       };
     }
 
