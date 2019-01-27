@@ -1,10 +1,11 @@
 use crate::location::{CityCode, CountryCode, Location};
+use ipnetwork::IpNetwork;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
 };
-use talpid_types::net::{openvpn, wireguard, Endpoint, TransportProtocol};
+use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -67,24 +68,29 @@ impl RelayTunnels {
     }
 }
 
-/// Represents one tunnel endpoint. Address, plus extra parameters specific to tunnel protocol.
+/// Contains server data needed to conenct to a single mullvad endpoint
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub struct TunnelEndpoint {
-    pub address: IpAddr,
-    pub tunnel: TunnelEndpointData,
+pub enum MullvadEndpoint {
+    OpenVpn(Endpoint),
+    Wireguard {
+        peer: wireguard::PeerConfig,
+        gateway: IpAddr,
+    },
 }
 
-impl TunnelEndpoint {
+impl MullvadEndpoint {
     /// Returns this tunnel endpoint as an `Endpoint`.
     pub fn to_endpoint(&self) -> Endpoint {
-        Endpoint::new(
-            self.address,
-            self.tunnel.port(),
-            self.tunnel.transport_protocol(),
-        )
+        match self {
+            MullvadEndpoint::OpenVpn(endpoint) => *endpoint,
+            MullvadEndpoint::Wireguard { peer, gateway: _ } => Endpoint::new(
+                peer.endpoint.ip(),
+                peer.endpoint.port(),
+                TransportProtocol::Udp,
+            ),
+        }
     }
 }
-
 /// TunnelEndpointData contains data required to connect to a given tunnel endpoint.
 /// Different endpoint types can require different types of data.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
@@ -125,6 +131,24 @@ impl fmt::Display for TunnelEndpointData {
 }
 
 impl TunnelEndpointData {
+    pub fn to_mullvad_endpoint(self, host: IpAddr) -> MullvadEndpoint {
+        match self {
+            TunnelEndpointData::OpenVpn(metadata) => {
+                MullvadEndpoint::OpenVpn(Endpoint::new(host, metadata.port, metadata.protocol))
+            }
+            TunnelEndpointData::Wireguard(metadata) => {
+                let peer_config = wireguard::PeerConfig {
+                    public_key: metadata.peer_public_key,
+                    endpoint: SocketAddr::new(host, metadata.port),
+                    allowed_ips: all_of_the_internet(),
+                };
+                MullvadEndpoint::Wireguard {
+                    peer: peer_config,
+                    gateway: metadata.gateway,
+                }
+            }
+        }
+    }
     pub fn port(&self) -> u16 {
         match self {
             TunnelEndpointData::OpenVpn(metadata) => metadata.port,
@@ -140,6 +164,13 @@ impl TunnelEndpointData {
     }
 }
 
+fn all_of_the_internet() -> Vec<IpNetwork> {
+    vec![
+        "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
+        "::0/0".parse().expect("Failed to parse ipv6 network"),
+    ]
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct OpenVpnEndpointData {
     pub port: u16,
@@ -151,16 +182,6 @@ impl fmt::Display for OpenVpnEndpointData {
         write!(f, "{} port {}", self.protocol, self.port)
     }
 }
-
-impl From<&openvpn::ConnectionConfig> for OpenVpnEndpointData {
-    fn from(config: &openvpn::ConnectionConfig) -> OpenVpnEndpointData {
-        OpenVpnEndpointData {
-            port: config.host.port(),
-            protocol: config.protocol,
-        }
-    }
-}
-
 
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct WireguardEndpointData {
@@ -189,15 +210,5 @@ impl fmt::Display for WireguardEndpointData {
             "gateway {} port {} peer_public_key {}",
             self.gateway, self.port, self.peer_public_key,
         )
-    }
-}
-
-impl From<&wireguard::ConnectionConfig> for WireguardEndpointData {
-    fn from(config: &wireguard::ConnectionConfig) -> WireguardEndpointData {
-        WireguardEndpointData {
-            port: config.peer.endpoint.port(),
-            gateway: config.gateway,
-            peer_public_key: config.peer.public_key.clone(),
-        }
     }
 }

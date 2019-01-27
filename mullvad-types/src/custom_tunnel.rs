@@ -59,9 +59,7 @@ impl fmt::Display for CustomTunnelEndpoint {
             ConnectionConfig::OpenVpn(config) => write!(
                 f,
                 "OpenVpn relay - {}:{} {}",
-                self.host,
-                config.host.port(),
-                config.protocol
+                self.host, config.endpoint.port, config.endpoint.protocol
             ),
             ConnectionConfig::Wireguard(_) => write!(f, "wireguard relay - "),
         }
@@ -89,6 +87,8 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "tunnel_type", content = "config")]
 pub enum ConnectionConfig {
     OpenVpn(openvpn::ConnectionConfig),
     Wireguard(wireguard::ConnectionConfig),
@@ -98,7 +98,7 @@ impl ConnectionConfig {
     fn set_ip(&mut self, ip: IpAddr) {
         match self {
             ConnectionConfig::OpenVpn(config) => {
-                config.host = SocketAddr::new(ip, config.host.port())
+                config.endpoint.ip = ip;
             }
             ConnectionConfig::Wireguard(config) => {
                 config.peer.endpoint = SocketAddr::new(ip, config.peer.endpoint.port())

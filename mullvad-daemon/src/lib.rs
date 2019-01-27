@@ -34,12 +34,12 @@ use mullvad_types::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         TunnelConstraints,
     },
-    relay_list::{Relay, RelayList, TunnelEndpoint, TunnelEndpointData},
+    relay_list::{MullvadEndpoint, Relay, RelayList},
     settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
-use std::{mem, net::SocketAddr, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
@@ -370,23 +370,21 @@ impl Daemon {
 
     fn create_tunnel_parameters(
         &self,
-        endpoint: TunnelEndpoint,
+        endpoint: MullvadEndpoint,
         account_token: String,
     ) -> Result<TunnelParameters> {
-        let ip = endpoint.address;
         let tunnel_options = self.settings.get_tunnel_options().clone();
-        match endpoint.tunnel {
-            TunnelEndpointData::OpenVpn(metadata) => Ok(openvpn::TunnelParameters {
-                config: openvpn::ConnectionConfig::new(
-                    SocketAddr::new(ip, metadata.port),
-                    metadata.protocol,
-                    account_token,
-                ),
+        match endpoint {
+            MullvadEndpoint::OpenVpn(endpoint) => Ok(openvpn::TunnelParameters {
+                config: openvpn::ConnectionConfig::new(endpoint, account_token),
                 options: tunnel_options.openvpn,
                 generic_options: tunnel_options.generic,
             }
             .into()),
-            TunnelEndpointData::Wireguard(_) => Err(ErrorKind::UnsupportedTunnel.into()),
+            MullvadEndpoint::Wireguard {
+                peer: _,
+                gateway: _,
+            } => Err(ErrorKind::UnsupportedTunnel.into()),
         }
     }
 

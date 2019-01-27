@@ -4,7 +4,7 @@ use futures::{
     Async, Future, Stream,
 };
 use talpid_types::{
-    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters},
+    net::{Endpoint, TunnelParameters},
     tunnel::BlockReason,
 };
 
@@ -64,17 +64,10 @@ impl ConnectedState {
     fn get_endpoint_from_params(&self) -> Endpoint {
         match self.tunnel_parameters {
             TunnelParameters::OpenVpn(ref config) => match config.options.proxy {
-                Some(openvpn::ProxySettings::Local(ref local_proxy)) => Endpoint {
-                    address: local_proxy.peer,
-                    protocol: TransportProtocol::Tcp,
-                },
-                Some(openvpn::ProxySettings::Remote(ref remote_proxy)) => Endpoint {
-                    address: remote_proxy.address,
-                    protocol: TransportProtocol::Tcp,
-                },
-                _ => self.tunnel_parameters.get_endpoint(),
+                Some(ref proxy_settings) => proxy_settings.get_endpoint(),
+                _ => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
             },
-            _ => self.tunnel_parameters.get_endpoint(),
+            _ => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
         }
     }
 
@@ -200,7 +193,7 @@ impl TunnelState for ConnectedState {
         bootstrap: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let connected_state = ConnectedState::from(bootstrap);
-        let parameters = connected_state.tunnel_parameters.clone();
+        let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
         if let Err(error) = connected_state.set_security_policy(shared_values) {
             log::error!("{}", error.display_chain());
@@ -225,7 +218,7 @@ impl TunnelState for ConnectedState {
         } else {
             (
                 TunnelStateWrapper::from(connected_state),
-                TunnelStateTransition::Connected(parameters),
+                TunnelStateTransition::Connected(tunnel_endpoint),
             )
         }
     }

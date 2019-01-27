@@ -18,20 +18,10 @@ pub enum TunnelParameters {
 
 
 impl TunnelParameters {
-    pub fn host(&self) -> SocketAddr {
+    pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
         match self {
-            TunnelParameters::OpenVpn(params) => params.config.host,
-            TunnelParameters::Wireguard(params) => params.connection.peer.endpoint,
-        }
-    }
-
-    pub fn get_endpoint(&self) -> Endpoint {
-        Endpoint {
-            address: self.host(),
-            protocol: match &self {
-                TunnelParameters::OpenVpn(params) => params.config.protocol,
-                TunnelParameters::Wireguard(_params) => TransportProtocol::Udp,
-            },
+            TunnelParameters::OpenVpn(params) => params.config.get_tunnel_endpoint(),
+            TunnelParameters::Wireguard(params) => params.connection.get_tunnel_endpoint(),
         }
     }
 
@@ -55,12 +45,47 @@ impl From<openvpn::TunnelParameters> for TunnelParameters {
     }
 }
 
+/// Type of the tunnel
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename = "tunnel_type")]
+pub enum TunnelType {
+    OpenVpn,
+    Wireguard,
+}
+
+impl fmt::Display for TunnelType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        let tunnel = match self {
+            TunnelType::OpenVpn => "OpenVPN",
+            TunnelType::Wireguard => "WireGuard",
+        };
+        write!(f, "{}", tunnel)
+    }
+}
+
+/// Represents a tunnel connection endpoint.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TunnelEndpoint {
+    #[serde(flatten)]
+    pub endpoint: Endpoint,
+    /// Type of the tunnel
+    pub tunnel_type: TunnelType,
+}
+
+impl fmt::Display for TunnelEndpoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "{} - {}", self.tunnel_type, self.endpoint,)
+    }
+}
+
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Endpoint {
-    /// The address part of this endpoint, contains the IP and port.
-    pub address: SocketAddr,
+    /// The IP address for the endpoint
+    pub ip: IpAddr,
+    /// The port for this endpoin
+    pub port: u16,
     /// The protocol part of this endpoint.
     pub protocol: TransportProtocol,
 }
@@ -69,15 +94,20 @@ impl Endpoint {
     /// Constructs a new `Endpoint` from the given parameters.
     pub fn new(address: impl Into<IpAddr>, port: u16, protocol: TransportProtocol) -> Self {
         Endpoint {
-            address: SocketAddr::new(address.into(), port),
+            ip: address.into(),
+            port,
             protocol,
         }
+    }
+
+    pub fn sock_addr(&self) -> SocketAddr {
+        SocketAddr::new(self.ip, self.port)
     }
 }
 
 impl fmt::Display for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}:{}", self.address, self.protocol)
+        write!(f, "{}:{} over {}", self.ip, self.port, self.protocol)
     }
 }
 

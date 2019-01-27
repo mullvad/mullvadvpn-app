@@ -1,3 +1,4 @@
+use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
@@ -5,32 +6,23 @@ use std::net::SocketAddr;
 pub struct TunnelParameters {
     pub config: ConnectionConfig,
     pub options: TunnelOptions,
-    pub generic_options: super::GenericTunnelOptions,
+    pub generic_options: GenericTunnelOptions,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ConnectionConfig {
-    pub host: SocketAddr,
-    pub protocol: super::TransportProtocol,
+    pub endpoint: Endpoint,
     pub username: String,
 }
 
 impl ConnectionConfig {
-    pub fn new(
-        address: SocketAddr,
-        protocol: super::TransportProtocol,
-        username: String,
-    ) -> ConnectionConfig {
-        Self {
-            host: address,
-            protocol,
-            username,
-        }
+    pub fn new(endpoint: Endpoint, username: String) -> ConnectionConfig {
+        Self { endpoint, username }
     }
-    pub fn get_endpoint(&self) -> super::Endpoint {
-        super::Endpoint {
-            address: self.host,
-            protocol: self.protocol,
+    pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
+        TunnelEndpoint {
+            tunnel_type: TunnelType::OpenVpn,
+            endpoint: self.endpoint,
         }
     }
 }
@@ -55,16 +47,45 @@ pub enum ProxySettings {
     Remote(RemoteProxySettings),
 }
 
+impl ProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        match self {
+            ProxySettings::Local(settings) => settings.get_endpoint(),
+            ProxySettings::Remote(settings) => settings.get_endpoint(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct LocalProxySettings {
     pub port: u16,
     pub peer: SocketAddr,
 }
 
+impl LocalProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            ip: self.peer.ip(),
+            port: self.peer.port(),
+            protocol: TransportProtocol::Tcp,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct RemoteProxySettings {
     pub address: SocketAddr,
     pub auth: Option<ProxyAuth>,
+}
+
+impl RemoteProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            ip: self.address.ip(),
+            port: self.address.port(),
+            protocol: TransportProtocol::Tcp,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]

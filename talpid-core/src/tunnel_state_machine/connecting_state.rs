@@ -12,7 +12,7 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use talpid_types::{
-    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters},
+    net::{openvpn, Endpoint, TunnelParameters},
     tunnel::BlockReason,
 };
 
@@ -67,14 +67,7 @@ impl ConnectingState {
     ) -> Result<()> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = match proxy {
-            Some(openvpn::ProxySettings::Local(ref local_proxy)) => Endpoint {
-                address: local_proxy.peer,
-                protocol: TransportProtocol::Tcp,
-            },
-            Some(openvpn::ProxySettings::Remote(ref remote_proxy)) => Endpoint {
-                address: remote_proxy.address,
-                protocol: TransportProtocol::Tcp,
-            },
+            Some(proxy_settings) => proxy_settings.get_endpoint(),
             _ => endpoint,
         };
 
@@ -227,7 +220,7 @@ impl ConnectingState {
                 match Self::set_security_policy(
                     shared_values,
                     &get_openvpn_proxy_settings(&self.tunnel_parameters),
-                    self.tunnel_parameters.get_endpoint(),
+                    self.tunnel_parameters.get_tunnel_endpoint().endpoint,
                 ) {
                     Ok(()) => SameState(self),
                     Err(error) => {
@@ -375,7 +368,7 @@ impl TunnelState for ConnectingState {
         {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
-                let endpoint = tunnel_parameters.get_endpoint();
+                let endpoint = tunnel_parameters.get_tunnel_endpoint().endpoint;
                 if let Err(error) = Self::set_security_policy(
                     shared_values,
                     &get_openvpn_proxy_settings(&tunnel_parameters),
@@ -394,7 +387,7 @@ impl TunnelState for ConnectingState {
                             let params = connecting_state.tunnel_parameters.clone();
                             (
                                 TunnelStateWrapper::from(connecting_state),
-                                TunnelStateTransition::Connecting(params),
+                                TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
                             )
                         }
                         Err(error) => {

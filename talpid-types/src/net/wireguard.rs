@@ -1,3 +1,4 @@
+use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType};
 use ipnetwork::IpNetwork;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -10,7 +11,7 @@ use std::{
 /// Wireguard tunnel parameters
 pub struct TunnelParameters {
     pub connection: ConnectionConfig,
-    pub generic_options: super::GenericTunnelOptions,
+    pub generic_options: GenericTunnelOptions,
     pub options: TunnelOptions,
 }
 
@@ -32,7 +33,21 @@ pub struct ConnectionConfig {
     pub gateway: IpAddr,
 }
 
-#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
+impl ConnectionConfig {
+    pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
+        let host = self.peer.endpoint;
+        TunnelEndpoint {
+            tunnel_type: TunnelType::Wireguard,
+            endpoint: Endpoint {
+                ip: host.ip(),
+                port: host.port(),
+                protocol: TransportProtocol::Udp,
+            },
+        }
+    }
+}
+
+#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug, Hash)]
 pub struct PeerConfig {
     pub public_key: PublicKey,
     pub allowed_ips: Vec<IpNetwork>,
@@ -65,11 +80,6 @@ impl PrivateKey {
     /// Get private key as bytes
     pub fn as_bytes(&self) -> &[u8; 32] {
         &self.0
-    }
-
-    /// Get public key from private key
-    pub fn public_key(&self) -> PublicKey {
-        PublicKey(x25519_dalek::generate_public(self.as_bytes()).to_bytes())
     }
 }
 

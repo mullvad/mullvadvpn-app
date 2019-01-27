@@ -352,7 +352,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
                 .compat()
                 .chain_err(|| ErrorKind::IpRouteNotFound)?,
         );
-        cmd.remote(params.config.get_endpoint())
+        cmd.remote(params.config.get_tunnel_endpoint().endpoint)
             .user_pass(user_pass_file)
             .tunnel_options(&params.options)
             .enable_ipv6(params.generic_options.enable_ipv6)
