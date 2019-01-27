@@ -142,11 +142,18 @@ const OpenVpnProxySchema = maybe(
 );
 
 const TunnelOptionsSchema = partialObject({
-  enable_ipv6: boolean,
   openvpn: partialObject({
     mssfix: maybe(number),
     proxy: OpenVpnProxySchema,
   }),
+  wireguard: partialObject({
+    mtu: maybe(number),
+    // only relevant on linux
+    fmwark: maybe(number),
+  }),
+  generic: partialObject({
+    enable_ipv6: boolean,
+  })
 });
 
 const AccountDataSchema = partialObject({
@@ -161,8 +168,10 @@ const TunnelStateTransitionSchema = oneOf(
   object({
     state: enumeration('connecting', 'connected'),
     details: partialObject({
-      address: string,
-      tunnel: TunnelEndpointDataSchema,
+      ip: string,
+      port: number,
+      protocol: enumeration('tcp', 'udp'),
+      tunnel_type: enumeration('WireGuard', 'OpenVpn'),
     }),
   }),
   object({

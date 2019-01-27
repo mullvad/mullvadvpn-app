@@ -30,16 +30,15 @@ export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
-export type TunnelEndpoint = {
-  address: string,
-  tunnel: TunnelEndpointData,
-};
+export type TunnelType = 'openvpn' | 'wireguard';
 
-export type TunnelEndpointData = {
-  openvpn: {
-    port: number,
-    protocol: RelayProtocol,
-  },
+export type RelayProtocol = 'tcp' | 'udp';
+
+export type TunnelEndpoint = {
+  ip: string,
+  port: number,
+  protocol: RelayProtocol,
+  tunnel: TunnelType,
 };
 
 export type TunnelStateTransition =
@@ -49,7 +48,6 @@ export type TunnelStateTransition =
   | { state: 'disconnecting', details: AfterDisconnect }
   | { state: 'blocked', details: BlockReason };
 
-export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation =
   | {| hostname: [string, string, string] |}
   | {| city: [string, string] |}
@@ -77,10 +75,23 @@ type RelaySettingsNormal<TTunnelConstraints> = {
       },
 };
 
+export type ConnectionConfig  =
+  | { openvpn: {
+    endpoint: {
+      ip: string,
+      port: number,
+      protocol: RelayProtocol,
+    },
+    username: string,
+  } }
+  | { wireguard: {
+
+  } };
+
 // types describing the structure of RelaySettings
 export type RelaySettingsCustom = {
   host: string,
-  tunnel: TunnelEndpointData,
+  config: ConnectionConfig,
 };
 export type RelaySettings =
   | {|
@@ -128,11 +139,18 @@ export type RelayListHostname = {
 };
 
 export type TunnelOptions = {
-  enableIpv6: boolean,
   openvpn: {
     mssfix: ?number,
+    proxy: ?ProxySettings,
   },
-  proxy: ?ProxySettings,
+  wireguard: {
+    mtu: ?number,
+    // Only relevant on Linux
+    fwmark: ?number,
+  },
+  generic: {
+    enableIpv6: boolean,
+  }
 };
 
 export type ProxySettings = LocalProxySettings | RemoteProxySettings;

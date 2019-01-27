@@ -77,11 +77,13 @@ const ApplicationMain = {
       },
     },
     tunnelOptions: {
-      enableIpv6: false,
+      generic: {
+        enableIpv6: false,
+      },
       openvpn: {
         mssfix: null,
+        proxy: null,
       },
-      proxy: null,
     },
   }: Settings),
   _guiSettings: new GuiSettings(),
