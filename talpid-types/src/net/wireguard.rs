@@ -40,8 +40,7 @@ impl ConnectionConfig {
         TunnelEndpoint {
             tunnel_type: TunnelType::Wireguard,
             endpoint: Endpoint {
-                ip: host.ip(),
-                port: host.port(),
+                address: host,
                 protocol: TransportProtocol::Udp,
             },
         }

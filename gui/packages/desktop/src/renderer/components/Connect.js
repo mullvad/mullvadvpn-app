@@ -171,8 +171,8 @@ export default class Connect extends Component<Props> {
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
       relayInAddress = {
-        ip: details.ip,
-        port: details.port,
+        ip: parseHostFromSocketAddr(details.address),
+        port: parsePortFromSocketAddr(details.address),
         protocol: details.protocol,
       };
     }
@@ -263,4 +263,23 @@ export default class Connect extends Component<Props> {
 
     return null;
   }
+}
+
+function parsePortFromSocketAddr(socketaddr: string): number {
+  const port_re = new RegExp(/:(\d+)$/);
+  const matches = socketaddr.match(port_re);
+
+  if (!matches || matches.length < 2) {
+    throw new Error(`Failed to parse port from address string '${socketaddr}'`);
+  }
+  return Number(matches[1]);
+}
+
+function parseHostFromSocketAddr(socketaddr: string): string {
+  const ip_re = new RegExp(/(.+):\d+$/);
+  const matches = socketaddr.match(ip_re);
+  if (!matches || matches.length < 2) {
+    throw new Error(`Failed to parse ip address from address string '${socketaddr}'`);
+  }
+  return matches[1];
 }

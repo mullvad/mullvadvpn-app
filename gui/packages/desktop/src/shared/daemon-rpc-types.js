@@ -1,5 +1,4 @@
 // @flow
-
 export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
@@ -35,11 +34,29 @@ export type TunnelType = 'openvpn' | 'wireguard';
 export type RelayProtocol = 'tcp' | 'udp';
 
 export type TunnelEndpoint = {
-  ip: string,
-  port: number,
+  address: string,
   protocol: RelayProtocol,
   tunnel: TunnelType,
 };
+
+export function endpointPort(endpoint: TunnelEndpoint): number {
+  const port_re = new RegExp(/:(\d+)$/);
+  const matches = endpoint.address.match(port_re);
+
+  if (!matches || matches.length < 2) {
+    throw new Error(`Failed to parse port from address string '${this.address}'`);
+  }
+  return Number(matches[1]);
+}
+
+export function endpointIp(endpoint: TunnelEndpoint): string {
+  const ip_re = new RegExp(/(.+):\d+$/);
+  const matches = endpoint.address.match(ip_re);
+  if (!matches || matches.length < 2) {
+    throw new Error(`Failed to parse ip address from address string '${this.address}'`);
+  }
+  return matches[1];
+}
 
 export type TunnelStateTransition =
   | { state: 'disconnected' }

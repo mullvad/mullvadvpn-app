@@ -122,12 +122,12 @@ impl NetworkSecurity {
         winfw_settings: &WinFwSettings,
     ) -> Result<()> {
         trace!("Applying 'connecting' firewall policy");
-        let ip_str = Self::widestring_ip(&endpoint.ip);
+        let ip_str = Self::widestring_ip(&endpoint.address.ip());
 
         // ip_str has to outlive winfw_relay
         let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
-            port: endpoint.port,
+            port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
@@ -146,7 +146,7 @@ impl NetworkSecurity {
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
-        let ip_str = Self::widestring_ip(&endpoint.ip);
+        let ip_str = Self::widestring_ip(&endpoint.address.ip());
         let gateway_str = Self::widestring_ip(&tunnel_metadata.gateway.into());
 
         let tunnel_alias =
@@ -155,7 +155,7 @@ impl NetworkSecurity {
         // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
         let winfw_relay = WinFwRelay {
             ip: ip_str.as_wide_c_str().as_ptr(),
-            port: endpoint.port,
+            port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
 

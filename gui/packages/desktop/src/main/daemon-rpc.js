@@ -168,8 +168,7 @@ const TunnelStateTransitionSchema = oneOf(
   object({
     state: enumeration('connecting', 'connected'),
     details: partialObject({
-      ip: string,
-      port: number,
+      address: string,
       protocol: enumeration('tcp', 'udp'),
       tunnel_type: enumeration('WireGuard', 'OpenVpn'),
     }),

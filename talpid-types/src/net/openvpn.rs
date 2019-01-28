@@ -65,8 +65,7 @@ pub struct LocalProxySettings {
 impl LocalProxySettings {
     pub fn get_endpoint(&self) -> Endpoint {
         Endpoint {
-            ip: self.peer.ip(),
-            port: self.peer.port(),
+            address: self.peer,
             protocol: TransportProtocol::Tcp,
         }
     }
@@ -81,8 +80,7 @@ pub struct RemoteProxySettings {
 impl RemoteProxySettings {
     pub fn get_endpoint(&self) -> Endpoint {
         Endpoint {
-            ip: self.address.ip(),
-            port: self.address.port(),
+            address: self.address,
             protocol: TransportProtocol::Tcp,
         }
     }

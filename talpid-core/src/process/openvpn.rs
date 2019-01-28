@@ -257,8 +257,8 @@ impl OpenVpnCommand {
                 net::TransportProtocol::Tcp => "tcp-client".to_owned(),
             });
             args.push("--remote".to_owned());
-            args.push(endpoint.ip.to_string());
-            args.push(endpoint.port.to_string());
+            args.push(endpoint.address.ip().to_string());
+            args.push(endpoint.address.port().to_string());
         }
         args
     }

@@ -463,8 +463,8 @@ fn check_net(rule: &mut Rule, end: End, net: IpNetwork) -> Result<()> {
 }
 
 fn check_endpoint(rule: &mut Rule, end: End, endpoint: &Endpoint) -> Result<()> {
-    check_ip(rule, end, endpoint.ip)?;
-    check_port(rule, endpoint.protocol, end, endpoint.port)?;
+    check_ip(rule, end, endpoint.address.ip())?;
+    check_port(rule, endpoint.protocol, end, endpoint.address.port())?;
     Ok(())
 }
 

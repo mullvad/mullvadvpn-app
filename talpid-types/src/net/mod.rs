@@ -85,10 +85,8 @@ impl fmt::Display for TunnelEndpoint {
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Endpoint {
-    /// The IP address for the endpoint
-    pub ip: IpAddr,
-    /// The port for this endpoin
-    pub port: u16,
+    /// The socket address for the endpoint
+    pub address: SocketAddr,
     /// The protocol part of this endpoint.
     pub protocol: TransportProtocol,
 }
@@ -97,20 +95,15 @@ impl Endpoint {
     /// Constructs a new `Endpoint` from the given parameters.
     pub fn new(address: impl Into<IpAddr>, port: u16, protocol: TransportProtocol) -> Self {
         Endpoint {
-            ip: address.into(),
-            port,
+            address: SocketAddr::new(address.into(), port),
             protocol,
         }
-    }
-
-    pub fn sock_addr(&self) -> SocketAddr {
-        SocketAddr::new(self.ip, self.port)
     }
 }
 
 impl fmt::Display for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}:{} over {}", self.ip, self.port, self.protocol)
+        write!(f, "{} over {}", self.address, self.protocol)
     }
 }
 
