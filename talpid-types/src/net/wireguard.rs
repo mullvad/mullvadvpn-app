@@ -26,6 +26,7 @@ pub struct TunnelOptions {
     pub fwmark: i32,
 }
 
+
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,

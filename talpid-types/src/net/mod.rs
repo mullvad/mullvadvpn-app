@@ -10,6 +10,8 @@ pub mod openvpn;
 pub mod wireguard;
 
 
+/// TunnelParameters are used to encapsulate all the data needed to start a tunnel. This type is
+/// used to start a tunnel.
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub enum TunnelParameters {
     OpenVpn(openvpn::TunnelParameters),
@@ -63,7 +65,8 @@ impl fmt::Display for TunnelType {
     }
 }
 
-/// Represents a tunnel connection endpoint.
+/// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
+/// machine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TunnelEndpoint {
     #[serde(flatten)]
