@@ -51,7 +51,9 @@ impl From<openvpn::TunnelParameters> for TunnelParameters {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "tunnel_type")]
 pub enum TunnelType {
+    #[serde(rename = "openvpn")]
     OpenVpn,
+    #[serde(rename = "wireguard")]
     Wireguard,
 }
 
