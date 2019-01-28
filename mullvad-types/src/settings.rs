@@ -5,7 +5,7 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs::File, io, path::PathBuf};
-use talpid_types::net::{openvpn, TunnelOptions};
+use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 error_chain! {
     errors {
@@ -227,5 +227,27 @@ impl Settings {
 
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
+    }
+}
+
+/// TunnelOptions holds configuration data that applies to all kinds of tunnels.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TunnelOptions {
+    /// openvpn holds OpenVPN specific tunnel options.
+    pub openvpn: openvpn::TunnelOptions,
+    /// Contains wireguard tunnel options.
+    pub wireguard: wireguard::TunnelOptions,
+    /// Contains generic tunnel options that may apply to more than a single tunnel type.
+    pub generic: GenericTunnelOptions,
+}
+
+impl Default for TunnelOptions {
+    fn default() -> Self {
+        TunnelOptions {
+            openvpn: openvpn::TunnelOptions::default(),
+            wireguard: wireguard::TunnelOptions::default(),
+            generic: GenericTunnelOptions::default(),
+        }
     }
 }

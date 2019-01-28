@@ -59,7 +59,9 @@ impl fmt::Display for CustomTunnelEndpoint {
             ConnectionConfig::OpenVpn(config) => write!(
                 f,
                 "OpenVpn relay - {}:{} {}",
-                self.host, config.endpoint.address.port(), config.endpoint.protocol
+                self.host,
+                config.endpoint.address.port(),
+                config.endpoint.protocol
             ),
             ConnectionConfig::Wireguard(_) => write!(f, "wireguard relay - "),
         }

@@ -153,30 +153,6 @@ impl Error for TransportProtocolParseError {
     }
 }
 
-/// TunnelOptions holds optional settings for tunnels, that are to be applied to any tunnel of the
-/// appropriate type.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct TunnelOptions {
-    /// openvpn holds OpenVPN specific tunnel options.
-    pub openvpn: openvpn::TunnelOptions,
-    /// Contains wireguard tunnel options.
-    pub wireguard: wireguard::TunnelOptions,
-    /// Contains generic tunnel options that may apply to more than a single tunnel type.
-    pub generic: GenericTunnelOptions,
-}
-
-impl Default for TunnelOptions {
-    fn default() -> Self {
-        TunnelOptions {
-            openvpn: openvpn::TunnelOptions::default(),
-            wireguard: wireguard::TunnelOptions::default(),
-            generic: GenericTunnelOptions::default(),
-        }
-    }
-}
-
-
 /// Holds optional settings that can apply to different kinds of tunnels
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(default)]

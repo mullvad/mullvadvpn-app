@@ -1,7 +1,8 @@
 use crate::{new_rpc_client, Command, Result};
 use clap::value_t;
 
-use talpid_types::net::{openvpn, TunnelOptions};
+use mullvad_types::settings::TunnelOptions;
+use talpid_types::net::openvpn;
 
 use std::net::{IpAddr, SocketAddr};
 
