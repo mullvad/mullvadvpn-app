@@ -29,7 +29,7 @@ export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
-export type TunnelType = 'openvpn' | 'wireguard';
+export type TunnelType = 'wireguard' | 'openvpn';
 
 export type RelayProtocol = 'tcp' | 'udp';
 

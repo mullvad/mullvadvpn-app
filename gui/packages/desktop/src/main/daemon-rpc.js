@@ -170,7 +170,7 @@ const TunnelStateTransitionSchema = oneOf(
     details: partialObject({
       address: string,
       protocol: enumeration('tcp', 'udp'),
-      tunnel_type: enumeration('WireGuard', 'OpenVpn'),
+      tunnel_type: enumeration('wireguard', 'openvpn'),
     }),
   }),
   object({
