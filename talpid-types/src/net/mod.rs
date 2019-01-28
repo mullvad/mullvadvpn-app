@@ -157,15 +157,8 @@ impl Error for TransportProtocolParseError {
 
 /// Holds optional settings that can apply to different kinds of tunnels
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-#[serde(default)]
 pub struct GenericTunnelOptions {
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
-    /// forwarded through the tunnel. By default, this is set to `false`.
+    /// forwarded through the tunnel.
     pub enable_ipv6: bool,
-}
-
-impl Default for GenericTunnelOptions {
-    fn default() -> Self {
-        Self { enable_ipv6: false }
-    }
 }

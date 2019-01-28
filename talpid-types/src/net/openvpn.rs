@@ -31,7 +31,6 @@ impl ConnectionConfig {
 /// irrespective of the relay parameters - i.e. have nothing to do with the particular
 /// OpenVPN server, but do affect the connection.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
-#[serde(default)]
 pub struct TunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
