@@ -11,21 +11,9 @@ use std::{
 /// Wireguard tunnel parameters
 pub struct TunnelParameters {
     pub connection: ConnectionConfig,
-    pub generic_options: GenericTunnelOptions,
     pub options: TunnelOptions,
+    pub generic_options: GenericTunnelOptions,
 }
-
-/// Wireguard tunnel options
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct TunnelOptions {
-    /// MTU for the wireguard tunnel
-    pub mtu: Option<u16>,
-    /// firewall mark
-    #[cfg(target_os = "linux")]
-    pub fwmark: i32,
-}
-
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ConnectionConfig {
@@ -60,6 +48,16 @@ pub struct TunnelConfig {
     pub addresses: Vec<IpAddr>,
 }
 
+/// Wireguard tunnel options
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TunnelOptions {
+    /// MTU for the wireguard tunnel
+    pub mtu: Option<u16>,
+    /// firewall mark
+    #[cfg(target_os = "linux")]
+    pub fwmark: i32,
+}
 
 impl Default for TunnelOptions {
     fn default() -> TunnelOptions {
