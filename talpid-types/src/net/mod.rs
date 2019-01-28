@@ -160,7 +160,7 @@ impl Error for TransportProtocolParseError {
 #[serde(default)]
 pub struct GenericTunnelOptions {
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
-    /// forwarded through the tunnel. By default, this is set to `true`.
+    /// forwarded through the tunnel. By default, this is set to `false`.
     pub enable_ipv6: bool,
 }
 
