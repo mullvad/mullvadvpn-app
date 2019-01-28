@@ -246,8 +246,12 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
-            wireguard: wireguard::TunnelOptions::default(),
-            generic: GenericTunnelOptions::default(),
+            wireguard: wireguard::TunnelOptions {
+                mtu: None,
+                #[cfg(target_os = "linux")]
+                fwmark: 78_78_78,
+            },
+            generic: GenericTunnelOptions { enable_ipv6: false },
         }
     }
 }
