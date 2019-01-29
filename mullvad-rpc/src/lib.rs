@@ -122,7 +122,7 @@ jsonrpc_client!(pub struct ProblemReportProxy {
 });
 
 jsonrpc_client!(pub struct RelayListProxy {
-    pub fn relay_list(&mut self) -> RpcRequest<RelayList>;
+    pub fn relay_list_v2(&mut self) -> RpcRequest<RelayList>;
 });
 
 jsonrpc_client!(pub struct AppVersionProxy {

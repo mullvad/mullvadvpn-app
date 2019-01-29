@@ -498,7 +498,7 @@ impl RelayListUpdater {
 
         let download_future = self
             .rpc_client
-            .relay_list()
+            .relay_list_v2()
             .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
         let relay_list = Timer::default()
             .timeout(download_future, DOWNLOAD_TIMEOUT)
