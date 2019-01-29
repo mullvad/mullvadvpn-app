@@ -376,7 +376,7 @@ impl Daemon {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => Ok(openvpn::TunnelParameters {
-                config: openvpn::ConnectionConfig::new(endpoint, account_token),
+                config: openvpn::ConnectionConfig::new(endpoint, account_token, "-".to_string()),
                 options: tunnel_options.openvpn,
                 generic_options: tunnel_options.generic,
             }

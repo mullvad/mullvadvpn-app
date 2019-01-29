@@ -115,8 +115,9 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let user_pass_file = Self::create_credentials_file(&params.config.username, "-")
-            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+        let user_pass_file =
+            Self::create_credentials_file(&params.config.username, &params.config.password)
+                .chain_err(|| ErrorKind::CredentialsWriteError)?;
 
         let proxy_auth_file = Self::create_proxy_auth_file(&params.options.proxy)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;

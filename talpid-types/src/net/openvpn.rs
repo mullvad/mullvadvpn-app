@@ -13,11 +13,16 @@ pub struct TunnelParameters {
 pub struct ConnectionConfig {
     pub endpoint: Endpoint,
     pub username: String,
+    pub password: String,
 }
 
 impl ConnectionConfig {
-    pub fn new(endpoint: Endpoint, username: String) -> ConnectionConfig {
-        Self { endpoint, username }
+    pub fn new(endpoint: Endpoint, username: String, password: String) -> ConnectionConfig {
+        Self {
+            endpoint,
+            username,
+            password,
+        }
     }
     pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
         TunnelEndpoint {

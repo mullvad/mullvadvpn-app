@@ -141,39 +141,21 @@ impl Relay {
         }
     }
 
-    fn get_username(&self, matches: &clap::ArgMatches) -> String {
-        match value_t!(matches.value_of("username"), String) {
-            Ok(username) => username,
-            Err(_) => {
-                let username = new_rpc_client()
-                    .and_then(|mut rpc| rpc.get_settings().map_err(|e| e.into()))
-                    .map(|settings| settings.get_account_token());
-                match username {
-                    Ok(Some(username)) => username,
-                    Ok(None) => {
-                        eprintln!("No account token set, please specify the username");
-                        ::std::process::exit(1)
-                    }
-                    Err(e) => {
-                        eprint!("Failed to get settings from the daemon: {}", e);
-                        ::std::process::exit(1)
-                    }
-                }
-            }
-        }
-    }
-
     fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let config = match matches.value_of("tunnel").unwrap() {
             "openvpn" => {
-                let username = self.get_username(matches);
+                let username =
+                    value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
+                let password =
+                    value_t!(matches.value_of("password"), String).unwrap_or_else(|e| e.exit());
                 let protocol = value_t!(matches.value_of("protocol"), TransportProtocol)
                     .unwrap_or_else(|e| e.exit());
                 ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                     endpoint: Endpoint::new(Ipv4Addr::UNSPECIFIED, port, protocol),
                     username,
+                    password,
                 })
             }
             // TODO: Gather all the data to build a WireguardEndpointData properly.

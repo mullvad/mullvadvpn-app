@@ -100,11 +100,13 @@ fn create_openvpn_proxy_subcommand() -> clap::App<'static, 'static> {
                         .arg(
                             clap::Arg::with_name("username")
                                 .help("Specifies the username for remote authentication")
+                                .required(true)
                                 .index(3),
                         )
                         .arg(
                             clap::Arg::with_name("password")
                                 .help("Specifies the password for remote authentication")
+                                .required(true)
                                 .index(4),
                         ),
                 ),
