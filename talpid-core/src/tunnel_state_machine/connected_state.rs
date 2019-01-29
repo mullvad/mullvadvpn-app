@@ -65,7 +65,7 @@ impl ConnectedState {
         match self.tunnel_parameters {
             TunnelParameters::OpenVpn(ref config) => match config.options.proxy {
                 Some(ref proxy_settings) => proxy_settings.get_endpoint(),
-                _ => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
+                None => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
             },
             _ => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
         }

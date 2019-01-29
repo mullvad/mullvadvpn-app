@@ -68,7 +68,7 @@ impl ConnectingState {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = match proxy {
             Some(proxy_settings) => proxy_settings.get_endpoint(),
-            _ => endpoint,
+            None => endpoint,
         };
 
         let policy = SecurityPolicy::Connecting {
