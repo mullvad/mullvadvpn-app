@@ -15,6 +15,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./gui/packages/desktop/package.json').version" | sed -Ee 's/\.0//g')
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
 
 source env.sh
 
@@ -116,18 +117,40 @@ MULLVAD_ADD_MANIFEST="1" cargo +stable build --release
 # Other work to prepare the release.
 ################################################################################
 
-# Only strip binaries on platforms other than Windows.
-if [[ "$(uname -s)" != "MINGW"* ]]; then
+if [[ ("$(uname -s)" == "Darwin") ]]; then
     binaries=(
-        ./target/release/mullvad-daemon
-        ./target/release/mullvad
-        ./target/release/problem-report
+        mullvad-daemon
+        mullvad
+        problem-report
+        libtalpid_openvpn_plugin.dylib
     )
-    for binary in ${binaries[*]}; do
-        echo "Stripping debugging symbols from $binary"
-        strip $binary
-    done
+elif [[ ("$(uname -s)" == "Linux") ]]; then
+    binaries=(
+        mullvad-daemon
+        mullvad
+        problem-report
+        libtalpid_openvpn_plugin.so
+    )
+elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
+    binaries=(
+        mullvad-daemon.exe
+        mullvad.exe
+        problem-report.exe
+        talpid_openvpn_plugin.dll
+    )
 fi
+for binary in ${binaries[*]}; do
+    SRC="$CARGO_TARGET_DIR/release/$binary"
+    DST="$SCRIPT_DIR/dist-assets/$binary"
+    if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
+        echo "Copying $SRC => $DST"
+        cp "$SRC" "$DST"
+    else
+        echo "Stripping $SRC => $DST"
+        strip "$SRC" -o "$DST"
+    fi
+done
+
 
 echo "Updating relay list..."
 set +e
