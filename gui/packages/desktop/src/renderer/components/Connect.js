@@ -10,6 +10,7 @@ import TunnelControl from './TunnelControl';
 import Map from './Map';
 import styles from './ConnectStyles';
 import { NoCreditError, NoInternetError } from '../../main/errors';
+import { parseSocketAddress } from '../../shared/daemon-rpc-types';
 
 import type { RelayOutAddress, RelayInAddress } from './TunnelControl';
 import type AccountExpiry from '../lib/account-expiry';
@@ -170,9 +171,10 @@ export default class Connect extends Component<Props> {
     let relayInAddress: ?RelayInAddress = null;
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
+      const socketAddr = parseSocketAddress(details.address);
       relayInAddress = {
-        ip: parseHostFromSocketAddr(details.address),
-        port: parsePortFromSocketAddr(details.address),
+        ip: socketAddr.host,
+        port: socketAddr.port,
         protocol: details.protocol,
       };
     }
@@ -263,23 +265,4 @@ export default class Connect extends Component<Props> {
 
     return null;
   }
-}
-
-function parsePortFromSocketAddr(socketaddr: string): number {
-  const port_re = new RegExp(/:(\d+)$/);
-  const matches = socketaddr.match(port_re);
-
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse port from address string '${socketaddr}'`);
-  }
-  return Number(matches[1]);
-}
-
-function parseHostFromSocketAddr(socketaddr: string): string {
-  const ip_re = new RegExp(/(.+):\d+$/);
-  const matches = socketaddr.match(ip_re);
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse ip address from address string '${socketaddr}'`);
-  }
-  return matches[1];
 }

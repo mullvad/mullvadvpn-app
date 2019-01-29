@@ -39,25 +39,6 @@ export type TunnelEndpoint = {
   tunnel: TunnelType,
 };
 
-export function endpointPort(endpoint: TunnelEndpoint): number {
-  const port_re = new RegExp(/:(\d+)$/);
-  const matches = endpoint.address.match(port_re);
-
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse port from address string '${this.address}'`);
-  }
-  return Number(matches[1]);
-}
-
-export function endpointIp(endpoint: TunnelEndpoint): string {
-  const ip_re = new RegExp(/(.+):\d+$/);
-  const matches = endpoint.address.match(ip_re);
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse ip address from address string '${this.address}'`);
-  }
-  return matches[1];
-}
-
 export type TunnelStateTransition =
   | { state: 'disconnected' }
   | { state: 'connecting', details: ?TunnelEndpoint }
@@ -207,3 +188,19 @@ export type Settings = {
   relaySettings: RelaySettings,
   tunnelOptions: TunnelOptions,
 };
+
+export type SocketAddress = { host: string, port: number };
+
+export function parseSocketAddress(socketAddrStr: string): SocketAddress {
+  const re = new RegExp(/(.+):(\d+)$/);
+  const matches = socketAddrStr.match(re);
+
+  if (!matches || matches.length < 3) {
+    throw new Error(`Failed to parse socket address from address string '${socketAddrStr}'`);
+  }
+  const socketAddress: SocketAddress = {
+    host: matches[1],
+    port: Number(matches[2]),
+  };
+  return socketAddress;
+}
