@@ -170,9 +170,10 @@ export default class Connect extends Component<Props> {
     let relayInAddress: ?RelayInAddress = null;
 
     if ((tunnelState === 'connecting' || tunnelState === 'connected') && details) {
+      const socketAddr = parseSocketAddress(details.address);
       relayInAddress = {
-        ip: parseHostFromSocketAddr(details.address),
-        port: parsePortFromSocketAddr(details.address),
+        ip: socketAddr.host,
+        port: socketAddr.port,
         protocol: details.protocol,
       };
     }
@@ -265,21 +266,18 @@ export default class Connect extends Component<Props> {
   }
 }
 
-function parsePortFromSocketAddr(socketaddr: string): number {
-  const port_re = new RegExp(/:(\d+)$/);
-  const matches = socketaddr.match(port_re);
+type SocketAddress = { host: string, port: number };
 
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse port from address string '${socketaddr}'`);
-  }
-  return Number(matches[1]);
-}
+function parseSocketAddress(socketAddrStr: string): SocketAddress {
+  const re = new RegExp(/(.+):(\d+)$/);
+  const matches = socketAddrStr.match(re);
 
-function parseHostFromSocketAddr(socketaddr: string): string {
-  const ip_re = new RegExp(/(.+):\d+$/);
-  const matches = socketaddr.match(ip_re);
-  if (!matches || matches.length < 2) {
-    throw new Error(`Failed to parse ip address from address string '${socketaddr}'`);
+  if (!matches || matches.length < 3) {
+    throw new Error(`Failed to parse port from address string '${socketAddrStr}'`);
   }
-  return matches[1];
+  const socketAddress: SocketAddress = {
+    host: matches[1],
+    port: Number(matches[2]),
+  };
+  return socketAddress;
 }
