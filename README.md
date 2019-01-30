@@ -62,7 +62,7 @@ The host has to have the following installed:
 # For building the daemon
 sudo apt install gcc libdbus-1-dev
 # For running the frontend app
-sudo apt install libappindicator1 gconf2
+sudo apt install gconf2
 # For building the installer
 sudo apt install rpm
 ```

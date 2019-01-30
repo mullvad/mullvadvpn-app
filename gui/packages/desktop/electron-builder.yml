@@ -136,7 +136,6 @@ rpm:
   afterRemove: ../../../dist-assets/linux/after-remove.sh
   depends:
       - libXScrnSaver
-      - libappindicator
       - libnotify
       - libnsl
       - dbus-libs
