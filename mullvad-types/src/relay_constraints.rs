@@ -1,10 +1,11 @@
 use crate::{
     location::{CityCode, CountryCode, Hostname},
+    relay_list::{OpenVpnEndpointData, WireguardEndpointData},
     CustomTunnelEndpoint,
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use talpid_types::net::{OpenVpnEndpointData, TransportProtocol, WireguardEndpointData};
+use talpid_types::net::TransportProtocol;
 
 
 pub trait Match<T> {

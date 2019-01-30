@@ -1,14 +1,18 @@
+use crate::settings::TunnelOptions;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    net::{IpAddr, ToSocketAddrs},
+    net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{TunnelEndpoint, TunnelEndpointData};
+use talpid_types::net::{openvpn, wireguard, TunnelParameters};
 
 error_chain! {
     errors {
         InvalidHost(host: String) {
             display("Invalid host: {}", host)
+        }
+        Unsupported {
+            description("Tunnel type not supported")
         }
     }
 }
@@ -16,24 +20,57 @@ error_chain! {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {
-    pub host: String,
-    pub tunnel: TunnelEndpointData,
+    host: String,
+    config: ConnectionConfig,
 }
 
 impl CustomTunnelEndpoint {
-    pub fn to_tunnel_endpoint(&self) -> Result<TunnelEndpoint> {
-        Ok(TunnelEndpoint {
-            address: resolve_to_ip(&self.host)?,
-            tunnel: self.tunnel.clone(),
-        })
+    pub fn new(host: String, config: ConnectionConfig) -> Self {
+        Self { host, config }
+    }
+
+    pub fn to_tunnel_parameters(&self, tunnel_options: TunnelOptions) -> Result<TunnelParameters> {
+        let ip = resolve_to_ip(&self.host)?;
+        let mut config = self.config.clone();
+        config.set_ip(ip);
+
+        let parameters = match config {
+            ConnectionConfig::OpenVpn(config) => openvpn::TunnelParameters {
+                config,
+                options: tunnel_options.openvpn.clone(),
+                generic_options: tunnel_options.generic.clone(),
+            }
+            .into(),
+            ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
+                connection,
+                options: tunnel_options.wireguard.clone(),
+                generic_options: tunnel_options.generic.clone(),
+            }
+            .into(),
+        };
+        Ok(parameters)
     }
 }
 
 impl fmt::Display for CustomTunnelEndpoint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} over {}", self.host, self.tunnel)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.config {
+            ConnectionConfig::OpenVpn(config) => write!(
+                f,
+                "OpenVPN relay - {}:{} {}",
+                self.host,
+                config.endpoint.address.port(),
+                config.endpoint.protocol
+            ),
+            ConnectionConfig::Wireguard(connection) => write!(
+                f,
+                "WireGuard relay - {} with public key {}",
+                connection.peer.endpoint, connection.peer.public_key
+            ),
+        }
     }
 }
+
 
 /// Does a DNS lookup if the host isn't an IP.
 /// Returns the first IPv4 address if one exists, otherwise the first IPv6 address.
@@ -52,4 +89,26 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
             ipv6.pop()
         })
         .ok_or_else(|| ErrorKind::InvalidHost(host.to_owned()).into())
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename = "connection_config")]
+pub enum ConnectionConfig {
+    #[serde(rename = "openvpn")]
+    OpenVpn(openvpn::ConnectionConfig),
+    #[serde(rename = "wireguard")]
+    Wireguard(wireguard::ConnectionConfig),
+}
+
+impl ConnectionConfig {
+    fn set_ip(&mut self, ip: IpAddr) {
+        match self {
+            ConnectionConfig::OpenVpn(config) => {
+                config.endpoint.address = SocketAddr::new(ip, config.endpoint.address.port());
+            }
+            ConnectionConfig::Wireguard(config) => {
+                config.peer.endpoint = SocketAddr::new(ip, config.peer.endpoint.port())
+            }
+        }
+    }
 }

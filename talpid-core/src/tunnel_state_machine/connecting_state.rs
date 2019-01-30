@@ -12,14 +12,14 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use talpid_types::{
-    net::{Endpoint, OpenVpnProxySettings, TransportProtocol, TunnelEndpoint, TunnelEndpointData},
+    net::{openvpn, Endpoint, TunnelParameters},
     tunnel::BlockReason,
 };
 
 use super::{
     AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
-    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelParameters, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
+    TunnelStateWrapper,
 };
 use crate::{
     logging,
@@ -62,20 +62,13 @@ pub struct ConnectingState {
 impl ConnectingState {
     fn set_security_policy(
         shared_values: &mut SharedTunnelStateValues,
-        proxy: &Option<OpenVpnProxySettings>,
-        endpoint: TunnelEndpoint,
+        proxy: &Option<openvpn::ProxySettings>,
+        endpoint: Endpoint,
     ) -> Result<()> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = match proxy {
-            Some(OpenVpnProxySettings::Local(ref local_proxy)) => Endpoint {
-                address: local_proxy.peer,
-                protocol: TransportProtocol::Tcp,
-            },
-            Some(OpenVpnProxySettings::Remote(ref remote_proxy)) => Endpoint {
-                address: remote_proxy.address,
-                protocol: TransportProtocol::Tcp,
-            },
-            _ => endpoint.to_endpoint(),
+            Some(proxy_settings) => proxy_settings.get_endpoint(),
+            None => endpoint,
         };
 
         let policy = SecurityPolicy::Connecting {
@@ -120,10 +113,8 @@ impl ConnectingState {
         let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
 
         Ok(TunnelMonitor::start(
-            parameters.endpoint.clone(),
-            &parameters.options,
+            &parameters,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
-            &parameters.username,
             log_file.clone(),
             resource_dir,
             on_tunnel_event,
@@ -135,9 +126,9 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
     ) -> Result<Option<PathBuf>> {
         if let Some(ref log_dir) = log_dir {
-            let filename = match parameters.endpoint.tunnel {
-                TunnelEndpointData::OpenVpn(_) => OPENVPN_LOG_FILENAME,
-                TunnelEndpointData::Wireguard(_) => WIREGUARD_LOG_FILENAME,
+            let filename = match parameters {
+                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
+                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
             };
             let tunnel_log = log_dir.join(filename);
             logging::rotate_log(&tunnel_log).chain_err(|| ErrorKind::RotateLogError)?;
@@ -228,8 +219,8 @@ impl ConnectingState {
                 shared_values.allow_lan = allow_lan;
                 match Self::set_security_policy(
                     shared_values,
-                    &self.tunnel_parameters.options.openvpn.proxy,
-                    self.tunnel_parameters.endpoint.clone(),
+                    &get_openvpn_proxy_settings(&self.tunnel_parameters),
+                    self.tunnel_parameters.get_tunnel_endpoint().endpoint,
                 ) {
                     Ok(()) => SameState(self),
                     Err(error) => {
@@ -292,6 +283,7 @@ impl ConnectingState {
         }
     }
 
+
     fn handle_tunnel_events(
         mut self,
         shared_values: &mut SharedTunnelStateValues,
@@ -351,6 +343,15 @@ impl ConnectingState {
     }
 }
 
+fn get_openvpn_proxy_settings(
+    tunnel_parameters: &TunnelParameters,
+) -> &Option<openvpn::ProxySettings> {
+    match tunnel_parameters {
+        TunnelParameters::OpenVpn(ref config) => &config.options.proxy,
+        _ => &None,
+    }
+}
+
 impl TunnelState for ConnectingState {
     type Bootstrap = u32;
 
@@ -367,11 +368,11 @@ impl TunnelState for ConnectingState {
         {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
-                let tunnel_endpoint = tunnel_parameters.endpoint.clone();
+                let endpoint = tunnel_parameters.get_tunnel_endpoint().endpoint;
                 if let Err(error) = Self::set_security_policy(
                     shared_values,
-                    &tunnel_parameters.options.openvpn.proxy,
-                    tunnel_endpoint.clone(),
+                    &get_openvpn_proxy_settings(&tunnel_parameters),
+                    endpoint,
                 ) {
                     error!("{}", error.display_chain());
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
@@ -382,10 +383,13 @@ impl TunnelState for ConnectingState {
                         &shared_values.resource_dir,
                         retry_attempt,
                     ) {
-                        Ok(connecting_state) => (
-                            TunnelStateWrapper::from(connecting_state),
-                            TunnelStateTransition::Connecting(tunnel_endpoint),
-                        ),
+                        Ok(connecting_state) => {
+                            let params = connecting_state.tunnel_parameters.clone();
+                            (
+                                TunnelStateWrapper::from(connecting_state),
+                                TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
+                            )
+                        }
                         Err(error) => {
                             let block_reason = match *error.kind() {
                                 ErrorKind::TunnelMonitorError(

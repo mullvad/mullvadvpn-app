@@ -11,6 +11,7 @@ extern crate error_chain;
 
 pub mod account;
 pub mod auth_failed;
+pub mod endpoint;
 pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;

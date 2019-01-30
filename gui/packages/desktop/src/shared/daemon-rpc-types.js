@@ -1,5 +1,4 @@
 // @flow
-
 export type AccountData = { expiry: string };
 export type AccountToken = string;
 export type Ip = string;
@@ -30,16 +29,14 @@ export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
+export type TunnelType = 'wireguard' | 'openvpn';
+
+export type RelayProtocol = 'tcp' | 'udp';
+
 export type TunnelEndpoint = {
   address: string,
-  tunnel: TunnelEndpointData,
-};
-
-export type TunnelEndpointData = {
-  openvpn: {
-    port: number,
-    protocol: RelayProtocol,
-  },
+  protocol: RelayProtocol,
+  tunnel: TunnelType,
 };
 
 export type TunnelStateTransition =
@@ -49,7 +46,6 @@ export type TunnelStateTransition =
   | { state: 'disconnecting', details: AfterDisconnect }
   | { state: 'blocked', details: BlockReason };
 
-export type RelayProtocol = 'tcp' | 'udp';
 export type RelayLocation =
   | {| hostname: [string, string, string] |}
   | {| city: [string, string] |}
@@ -77,10 +73,36 @@ type RelaySettingsNormal<TTunnelConstraints> = {
       },
 };
 
+export type ConnectionConfig =
+  | {|
+      openvpn: {
+        endpoint: {
+          ip: string,
+          port: number,
+          protocol: RelayProtocol,
+        },
+        username: string,
+      },
+    |}
+  | {|
+      wireguard: {
+        tunnel: {
+          private_key: string,
+          addresses: Array<string>,
+        },
+        peer: {
+          public_key: string,
+          addresses: Array<string>,
+          endpoint: string,
+        },
+        gateway: string,
+      },
+    |};
+
 // types describing the structure of RelaySettings
 export type RelaySettingsCustom = {
   host: string,
-  tunnel: TunnelEndpointData,
+  config: ConnectionConfig,
 };
 export type RelaySettings =
   | {|
@@ -128,11 +150,18 @@ export type RelayListHostname = {
 };
 
 export type TunnelOptions = {
-  enableIpv6: boolean,
   openvpn: {
     mssfix: ?number,
+    proxy: ?ProxySettings,
   },
-  proxy: ?ProxySettings,
+  wireguard: {
+    mtu: ?number,
+    // Only relevant on Linux
+    fwmark: ?number,
+  },
+  generic: {
+    enableIpv6: boolean,
+  },
 };
 
 export type ProxySettings = LocalProxySettings | RemoteProxySettings;
@@ -168,3 +197,19 @@ export type Settings = {
   relaySettings: RelaySettings,
   tunnelOptions: TunnelOptions,
 };
+
+export type SocketAddress = { host: string, port: number };
+
+export function parseSocketAddress(socketAddrStr: string): SocketAddress {
+  const re = new RegExp(/(.+):(\d+)$/);
+  const matches = socketAddrStr.match(re);
+
+  if (!matches || matches.length < 3) {
+    throw new Error(`Failed to parse socket address from address string '${socketAddrStr}'`);
+  }
+  const socketAddress: SocketAddress = {
+    host: matches[1],
+    port: Number(matches[2]),
+  };
+  return socketAddress;
+}

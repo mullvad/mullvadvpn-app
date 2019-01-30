@@ -61,7 +61,7 @@ pub struct OpenVpnCommand {
     iproute_bin: Option<OsString>,
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
-    tunnel_options: net::OpenVpnTunnelOptions,
+    tunnel_options: net::openvpn::TunnelOptions,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
 }
@@ -81,7 +81,7 @@ impl OpenVpnCommand {
             iproute_bin: None,
             plugin: None,
             log: None,
-            tunnel_options: net::OpenVpnTunnelOptions::default(),
+            tunnel_options: net::openvpn::TunnelOptions::default(),
             tunnel_alias: None,
             enable_ipv6: true,
         }
@@ -150,7 +150,7 @@ impl OpenVpnCommand {
     }
 
     /// Sets extra options
-    pub fn tunnel_options(&mut self, tunnel_options: &net::OpenVpnTunnelOptions) -> &mut Self {
+    pub fn tunnel_options(&mut self, tunnel_options: &net::openvpn::TunnelOptions) -> &mut Self {
         self.tunnel_options = tunnel_options.clone();
         self
     }
@@ -275,7 +275,7 @@ impl OpenVpnCommand {
     fn proxy_arguments(&self) -> Vec<String> {
         let mut args = vec![];
         match self.tunnel_options.proxy {
-            Some(net::OpenVpnProxySettings::Local(ref local_proxy)) => {
+            Some(net::openvpn::ProxySettings::Local(ref local_proxy)) => {
                 args.push("--socks-proxy".to_owned());
                 args.push("127.0.0.1".to_owned());
                 args.push(local_proxy.port.to_string());
@@ -284,7 +284,7 @@ impl OpenVpnCommand {
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }
-            Some(net::OpenVpnProxySettings::Remote(ref remote_proxy)) => {
+            Some(net::openvpn::ProxySettings::Remote(ref remote_proxy)) => {
                 args.push("--socks-proxy".to_owned());
                 args.push(remote_proxy.address.ip().to_string());
                 args.push(remote_proxy.address.port().to_string());
