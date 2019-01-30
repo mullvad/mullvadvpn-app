@@ -403,7 +403,6 @@ export class DaemonRpc {
     try {
       return camelCaseObjectKeys(validate(SettingsSchema, response));
     } catch (error) {
-      console.log(`err - ${error}`);
       throw new ResponseParseError('Invalid response from get_settings', error);
     }
   }

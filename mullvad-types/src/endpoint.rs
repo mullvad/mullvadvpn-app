@@ -9,7 +9,7 @@ use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
 use crate::relay_list::{OpenVpnEndpointData, WireguardEndpointData};
 
 /// Contains server data needed to conenct to a single mullvad endpoint
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub enum MullvadEndpoint {
     OpenVpn(Endpoint),
     Wireguard {
