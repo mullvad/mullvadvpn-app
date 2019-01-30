@@ -29,12 +29,13 @@ use log::{debug, error, info, warn};
 use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
 use mullvad_types::{
     account::{AccountData, AccountToken},
+    endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         TunnelConstraints,
     },
-    relay_list::{MullvadEndpoint, Relay, RelayList},
+    relay_list::{Relay, RelayList},
     settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},

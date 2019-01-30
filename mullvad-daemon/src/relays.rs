@@ -4,12 +4,13 @@ use futures::Future;
 
 use mullvad_rpc::{HttpHandle, RelayListProxy};
 use mullvad_types::{
+    endpoint::{MullvadEndpoint, TunnelEndpointData},
     location::Location,
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
         TunnelConstraints,
     },
-    relay_list::{MullvadEndpoint, Relay, RelayList, RelayTunnels, TunnelEndpointData},
+    relay_list::{Relay, RelayList, RelayTunnels},
 };
 
 use serde_json;
