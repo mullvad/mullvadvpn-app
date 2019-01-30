@@ -50,25 +50,12 @@ pub struct TunnelConfig {
 
 /// Wireguard tunnel options
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
     pub mtu: Option<u16>,
     /// firewall mark
     #[cfg(target_os = "linux")]
     pub fwmark: i32,
-}
-
-impl Default for TunnelOptions {
-    fn default() -> TunnelOptions {
-        Self {
-            mtu: None,
-            // Magic value that should be different for different end user applications, used as
-            // a firewall marker on Linux.
-            #[cfg(target_os = "linux")]
-            fwmark: 78_78_78,
-        }
-    }
 }
 
 /// Wireguard x25519 private key
