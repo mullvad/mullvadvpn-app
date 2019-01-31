@@ -14,7 +14,6 @@ error-chain = "0.12"
 log = "0.4"
 regex = "1"
 lazy_static = "1.1.0"
-ipnetwork = "0.14"
 
 talpid-types = { path = "../talpid-types" }
 mullvad-paths = { path = "../mullvad-paths" }
