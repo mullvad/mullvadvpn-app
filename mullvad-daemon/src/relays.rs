@@ -4,7 +4,7 @@ use futures::Future;
 
 use mullvad_rpc::{HttpHandle, RelayListProxy};
 use mullvad_types::{
-    endpoint::{MullvadEndpoint, TunnelEndpointData},
+    endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
@@ -278,12 +278,8 @@ impl RelaySelector {
                     "Selected relay {} at {}",
                     selected_relay.hostname, selected_relay.ipv4_addr_in
                 );
-                self.get_random_tunnel(&selected_relay.tunnels)
-                    .map(|tunnel_parameters| {
-                        let endpoint = tunnel_parameters
-                            .to_mullvad_endpoint(selected_relay.ipv4_addr_in.into());
-                        (selected_relay.clone(), endpoint)
-                    })
+                self.get_random_tunnel(&selected_relay, &constraints.tunnel)
+                    .map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
 
@@ -319,14 +315,24 @@ impl RelaySelector {
             Constraint::Any => relay.clone(),
             Constraint::Only(ref tunnel_constraints) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_tunnels(&relay.tunnels, tunnel_constraints);
+                relay.tunnels = Self::matching_tunnels(&mut relay.tunnels, tunnel_constraints);
                 relay
             }
         };
-        if relay.tunnels.openvpn.is_empty() {
-            None
-        } else {
+        let relay_matches = match constraints.tunnel {
+            Constraint::Any => {
+                !relay.tunnels.openvpn.is_empty() || !relay.tunnels.wireguard.is_empty()
+            }
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) => !relay.tunnels.openvpn.is_empty(),
+            Constraint::Only(TunnelConstraints::Wireguard(_)) => {
+                !relay.tunnels.wireguard.is_empty()
+            }
+        };
+
+        if relay_matches {
             Some(relay)
+        } else {
+            None
         }
     }
 
@@ -379,11 +385,29 @@ impl RelaySelector {
         }
     }
 
-    fn get_random_tunnel(&mut self, tunnels: &RelayTunnels) -> Option<TunnelEndpointData> {
-        self.rng
-            .choose(&tunnels.openvpn)
-            .cloned()
-            .map(TunnelEndpointData::OpenVpn)
+    fn get_random_tunnel(
+        &mut self,
+        relay: &Relay,
+        constraints: &Constraint<TunnelConstraints>,
+    ) -> Option<MullvadEndpoint> {
+        match constraints {
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => self
+                .rng
+                .choose(&relay.tunnels.openvpn)
+                .cloned()
+                .map(|endpoint| endpoint.to_mullvad_endpoint(relay.ipv4_addr_in.into())),
+            Constraint::Only(TunnelConstraints::Wireguard(wireguard)) => self
+                .rng
+                .choose(&relay.tunnels.wireguard)
+                .cloned()
+                .and_then(|wg_tunnel| {
+                    wg_tunnel.to_mullvad_endpoint(
+                        relay.ipv4_addr_in.into(),
+                        wireguard,
+                        &mut self.rng,
+                    )
+                }),
+        }
     }
 
     /// Try to read the relays, first from cache and if that fails from the resources.

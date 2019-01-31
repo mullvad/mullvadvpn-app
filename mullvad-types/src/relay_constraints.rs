@@ -228,9 +228,21 @@ impl fmt::Display for WireguardConstraints {
     }
 }
 
+impl Match<WireguardEndpointData> for Constraint<u16> {
+    fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
+        match self {
+            Constraint::Any => true,
+            Constraint::Only(port) => endpoint
+                .port_ranges
+                .iter()
+                .any(|range| (range[0] <= *port && *port <= range[1])),
+        }
+    }
+}
+
 impl Match<WireguardEndpointData> for WireguardConstraints {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
-        self.port.matches(&endpoint.port)
+        self.port.matches(endpoint)
     }
 }
 
