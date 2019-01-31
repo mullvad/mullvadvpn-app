@@ -4,22 +4,23 @@ use futures::Future;
 
 use mullvad_rpc::{HttpHandle, RelayListProxy};
 use mullvad_types::{
-    endpoint::{MullvadEndpoint, TunnelEndpointData},
+    endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, RelayConstraints,
-        TunnelConstraints,
+        TunnelConstraints, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList, RelayTunnels},
+    relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
 
 use serde_json;
 
-use talpid_types::net::TransportProtocol;
+use talpid_types::net::{all_of_the_internet, wireguard, TransportProtocol};
 
 use std::{
     fs::File,
     io,
+    net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
     sync::{mpsc, Arc, Mutex, MutexGuard},
     thread,
@@ -278,12 +279,8 @@ impl RelaySelector {
                     "Selected relay {} at {}",
                     selected_relay.hostname, selected_relay.ipv4_addr_in
                 );
-                self.get_random_tunnel(&selected_relay.tunnels)
-                    .map(|tunnel_parameters| {
-                        let endpoint = tunnel_parameters
-                            .to_mullvad_endpoint(selected_relay.ipv4_addr_in.into());
-                        (selected_relay.clone(), endpoint)
-                    })
+                self.get_random_tunnel(&selected_relay, &constraints.tunnel)
+                    .map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
 
@@ -319,14 +316,24 @@ impl RelaySelector {
             Constraint::Any => relay.clone(),
             Constraint::Only(ref tunnel_constraints) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_tunnels(&relay.tunnels, tunnel_constraints);
+                relay.tunnels = Self::matching_tunnels(&mut relay.tunnels, tunnel_constraints);
                 relay
             }
         };
-        if relay.tunnels.openvpn.is_empty() {
-            None
-        } else {
+        let relay_matches = match constraints.tunnel {
+            Constraint::Any => {
+                !relay.tunnels.openvpn.is_empty() || !relay.tunnels.wireguard.is_empty()
+            }
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) => !relay.tunnels.openvpn.is_empty(),
+            Constraint::Only(TunnelConstraints::Wireguard(_)) => {
+                !relay.tunnels.wireguard.is_empty()
+            }
+        };
+
+        if relay_matches {
             Some(relay)
+        } else {
+            None
         }
     }
 
@@ -379,11 +386,85 @@ impl RelaySelector {
         }
     }
 
-    fn get_random_tunnel(&mut self, tunnels: &RelayTunnels) -> Option<TunnelEndpointData> {
-        self.rng
-            .choose(&tunnels.openvpn)
-            .cloned()
-            .map(TunnelEndpointData::OpenVpn)
+    fn get_random_tunnel(
+        &mut self,
+        relay: &Relay,
+        constraints: &Constraint<TunnelConstraints>,
+    ) -> Option<MullvadEndpoint> {
+        match constraints {
+            // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
+            // tunnels once wireguard is mature enough
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => self
+                .rng
+                .choose(&relay.tunnels.openvpn)
+                .cloned()
+                .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
+            Constraint::Only(TunnelConstraints::Wireguard(wg_constraints)) => self
+                .rng
+                .choose(&relay.tunnels.wireguard)
+                .cloned()
+                .and_then(|wg_tunnel| {
+                    self.wg_data_to_endpoint(relay.ipv4_addr_in.into(), wg_tunnel, wg_constraints)
+                }),
+        }
+    }
+
+    fn wg_data_to_endpoint(
+        &mut self,
+        host: IpAddr,
+        data: WireguardEndpointData,
+        constraints: &WireguardConstraints,
+    ) -> Option<MullvadEndpoint> {
+        let port = self.get_port_for_wireguard_relay(&data, constraints)?;
+        let peer_config = wireguard::PeerConfig {
+            public_key: data.public_key,
+            endpoint: SocketAddr::new(host, port),
+            allowed_ips: all_of_the_internet(),
+        };
+        Some(MullvadEndpoint::Wireguard {
+            peer: peer_config,
+            gateway: data.ipv4_gateway.into(),
+        })
+    }
+
+    fn get_port_for_wireguard_relay(
+        &mut self,
+        data: &WireguardEndpointData,
+        constraints: &WireguardConstraints,
+    ) -> Option<u16> {
+        match constraints.port {
+            Constraint::Any => {
+                let get_port_amount =
+                    |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
+                let port_amount: u64 = data.port_ranges.iter().map(get_port_amount).sum();
+
+                if port_amount < 1 {
+                    return None;
+                }
+
+                let mut port_index = self.rng.gen_range(0, port_amount);
+
+                for range in data.port_ranges.iter() {
+                    let ports_in_range = get_port_amount(range);
+                    if port_index < ports_in_range {
+                        return Some(port_index as u16 + range.0);
+                    }
+                    port_index = port_index - ports_in_range;
+                }
+                panic!("Port selection algorithm is broken")
+            }
+            Constraint::Only(port) => {
+                if data
+                    .port_ranges
+                    .iter()
+                    .any(|range| (range.0 <= port && port <= range.1))
+                {
+                    Some(port)
+                } else {
+                    None
+                }
+            }
+        }
     }
 
     /// Try to read the relays, first from cache and if that fails from the resources.

@@ -1,12 +1,9 @@
-use ipnetwork::IpNetwork;
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    net::{IpAddr, SocketAddr},
-};
+use std::{fmt, net::IpAddr};
 use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
 
 use crate::relay_list::{OpenVpnEndpointData, WireguardEndpointData};
+
 
 /// Contains server data needed to conenct to a single mullvad endpoint
 #[derive(Debug, Clone)]
@@ -67,45 +64,4 @@ impl fmt::Display for TunnelEndpointData {
             }
         }
     }
-}
-
-impl TunnelEndpointData {
-    pub fn to_mullvad_endpoint(self, host: IpAddr) -> MullvadEndpoint {
-        match self {
-            TunnelEndpointData::OpenVpn(metadata) => {
-                MullvadEndpoint::OpenVpn(Endpoint::new(host, metadata.port, metadata.protocol))
-            }
-            TunnelEndpointData::Wireguard(metadata) => {
-                let peer_config = wireguard::PeerConfig {
-                    public_key: metadata.peer_public_key,
-                    endpoint: SocketAddr::new(host, metadata.port),
-                    allowed_ips: all_of_the_internet(),
-                };
-                MullvadEndpoint::Wireguard {
-                    peer: peer_config,
-                    gateway: metadata.gateway,
-                }
-            }
-        }
-    }
-    pub fn port(&self) -> u16 {
-        match self {
-            TunnelEndpointData::OpenVpn(metadata) => metadata.port,
-            TunnelEndpointData::Wireguard(metadata) => metadata.port,
-        }
-    }
-
-    pub fn transport_protocol(&self) -> TransportProtocol {
-        match self {
-            TunnelEndpointData::OpenVpn(metadata) => metadata.protocol,
-            TunnelEndpointData::Wireguard(_) => TransportProtocol::Udp,
-        }
-    }
-}
-
-pub fn all_of_the_internet() -> Vec<IpNetwork> {
-    vec![
-        "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
-        "::0/0".parse().expect("Failed to parse ipv6 network"),
-    ]
 }

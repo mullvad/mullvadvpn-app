@@ -1,10 +1,14 @@
-use crate::location::{CityCode, CountryCode, Location};
+use crate::{
+    endpoint::MullvadEndpoint,
+    location::{CityCode, CountryCode, Location},
+};
+
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{wireguard, TransportProtocol};
+use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -52,7 +56,6 @@ pub struct Relay {
 #[serde(default)]
 pub struct RelayTunnels {
     pub openvpn: Vec<OpenVpnEndpointData>,
-    #[serde(skip)]
     pub wireguard: Vec<WireguardEndpointData>,
 }
 
@@ -73,38 +76,42 @@ pub struct OpenVpnEndpointData {
     pub protocol: TransportProtocol,
 }
 
+impl OpenVpnEndpointData {
+    pub fn into_mullvad_endpoint(self, host: IpAddr) -> MullvadEndpoint {
+        MullvadEndpoint::OpenVpn(Endpoint::new(host, self.port, self.protocol))
+    }
+}
+
 impl fmt::Display for OpenVpnEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{} port {}", self.protocol, self.port)
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 pub struct WireguardEndpointData {
     /// Port to connect to
-    pub port: u16,
-    /// Peer's IP address
-    pub gateway: IpAddr,
+    pub port_ranges: Vec<(u16, u16)>,
+    /// Gateways to be used with the tunnel
+    pub ipv4_gateway: Ipv4Addr,
+    pub ipv6_gateway: Ipv6Addr,
     /// The peer's public key
-    pub peer_public_key: wireguard::PublicKey,
-}
-
-impl fmt::Debug for WireguardEndpointData {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        f.debug_struct(&"WireguardEndpointData")
-            .field("port", &self.port)
-            .field("gateway", &self.gateway)
-            .field("peer_public_key", &self.peer_public_key)
-            .finish()
-    }
+    pub public_key: wireguard::PublicKey,
 }
 
 impl fmt::Display for WireguardEndpointData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(
             f,
-            "gateway {} port {} peer_public_key {}",
-            self.gateway, self.port, self.peer_public_key,
+            "gateways {} - {} port_ranges {{ {} }} public_key {}",
+            self.ipv4_gateway,
+            self.ipv6_gateway,
+            self.port_ranges
+                .iter()
+                .map(|range| format!("[{} - {}]", range.0, range.1))
+                .collect::<Vec<_>>()
+                .join(","),
+            self.public_key,
         )
     }
 }
