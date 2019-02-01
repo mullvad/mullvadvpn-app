@@ -1,9 +1,6 @@
 use super::{FirewallPolicy, FirewallT};
 use pfctl::FilterRuleAction;
-use std::{
-    env,
-    net::{Ipv4Addr, SocketAddr},
-};
+use std::{env, net::Ipv4Addr};
 use talpid_types::net;
 
 pub use pfctl::Error;
