@@ -46,7 +46,7 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
     }
     case 'ipv6_unavailable':
       return 'Could not configure IPv6, please enable it on your system or disable it in the app';
-    case 'set_security_policy_error':
+    case 'set_firewall_policy_error':
       return 'Failed to apply firewall rules. The device might currently be unsecured';
     case 'set_dns_error':
       return 'Failed to set system DNS server';
@@ -83,7 +83,7 @@ export default class NotificationArea extends Component<Props, State> {
 
       case 'blocked':
         switch (tunnelState.details.reason) {
-          case 'set_security_policy_error':
+          case 'set_firewall_policy_error':
             return {
               visible: true,
               type: 'failure-unsecured',

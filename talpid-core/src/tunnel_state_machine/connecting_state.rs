@@ -60,7 +60,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    fn set_security_policy(
+    fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         proxy: &Option<openvpn::ProxySettings>,
         endpoint: Endpoint,
@@ -76,7 +76,7 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
         };
         shared_values
-            .security
+            .firewall
             .apply_policy(policy)
             .chain_err(|| "Failed to apply firewall policy for connecting state")
     }
@@ -217,7 +217,7 @@ impl ConnectingState {
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 shared_values.allow_lan = allow_lan;
-                match Self::set_security_policy(
+                match Self::set_firewall_policy(
                     shared_values,
                     &get_openvpn_proxy_settings(&self.tunnel_parameters),
                     self.tunnel_parameters.get_tunnel_endpoint().endpoint,
@@ -369,7 +369,7 @@ impl TunnelState for ConnectingState {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
                 let endpoint = tunnel_parameters.get_tunnel_endpoint().endpoint;
-                if let Err(error) = Self::set_security_policy(
+                if let Err(error) = Self::set_firewall_policy(
                     shared_values,
                     &get_openvpn_proxy_settings(&tunnel_parameters),
                     endpoint,

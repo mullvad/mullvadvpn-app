@@ -46,7 +46,7 @@ impl ConnectedState {
         }
     }
 
-    fn set_security_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+    fn set_firewall_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = self.get_endpoint_from_params();
 
@@ -56,7 +56,7 @@ impl ConnectedState {
             allow_lan: shared_values.allow_lan,
         };
         shared_values
-            .security
+            .firewall
             .apply_policy(policy)
             .chain_err(|| "Failed to apply firewall policy for connected state")
     }
@@ -111,7 +111,7 @@ impl ConnectedState {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 shared_values.allow_lan = allow_lan;
 
-                match self.set_security_policy(shared_values) {
+                match self.set_firewall_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
                         log::error!("{}", error.display_chain());
@@ -195,7 +195,7 @@ impl TunnelState for ConnectedState {
         let connected_state = ConnectedState::from(bootstrap);
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
-        if let Err(error) = connected_state.set_security_policy(shared_values) {
+        if let Err(error) = connected_state.set_firewall_policy(shared_values) {
             log::error!("{}", error.display_chain());
             DisconnectingState::enter(
                 shared_values,

@@ -181,10 +181,10 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
-        let security = Firewall::new().chain_err(|| ErrorKind::FirewallError)?;
+        let firewall = Firewall::new().chain_err(|| ErrorKind::FirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
-            security,
+            firewall,
             dns_monitor,
             allow_lan,
             block_when_disconnected,
@@ -262,7 +262,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
-    security: Firewall,
+    firewall: Firewall,
     dns_monitor: DnsMonitor,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
