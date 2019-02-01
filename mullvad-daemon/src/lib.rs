@@ -429,6 +429,9 @@ impl Daemon {
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
+            #[cfg(target_os = "linux")]
+            SetWireguardFwmark(tx, fwmark) => self.on_set_wireguard_fwmark(tx, fwmark),
+            SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             GetSettings(tx) => self.on_get_settings(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -716,6 +719,39 @@ impl Daemon {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    fn on_set_wireguard_fwmark(&mut self, tx: oneshot::Sender<()>, fwmark: i32) {
+        let save_result = self.settings.set_wireguard_fwmark(fwmark);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_wireguard_fwmark response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                    info!("Initiating tunnel restart because the WireGuard fwmark setting changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_set_wireguard_mtu(&mut self, tx: oneshot::Sender<()>, mtu: Option<u16>) {
+        let save_result = self.settings.set_wireguard_mtu(mtu);
+        match save_result.chain_err(|| "Unable to save settings") {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_wireguard_mtu response");
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(&self.settings);
+                    info!("Initiating tunnel restart because the WireGuard MTU setting changed");
                     self.reconnect_tunnel();
                 }
             }
