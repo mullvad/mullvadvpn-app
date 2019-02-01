@@ -226,8 +226,6 @@ impl Relay {
         let _ = io::stdin().lock().read_line(&mut private_key_str);
         if private_key_str.trim().len() == 0 {
             eprintln!("Expected to read private key from standard input");
-
-
         }
         let private_key = Self::validate_wireguard_key(&private_key_str).into();
         let peer_public_key = Self::validate_wireguard_key(&peer_key_str).into();
