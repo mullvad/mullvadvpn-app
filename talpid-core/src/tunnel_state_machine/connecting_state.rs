@@ -78,7 +78,7 @@ impl ConnectingState {
         shared_values
             .security
             .apply_policy(policy)
-            .chain_err(|| "Failed to apply security policy for connecting state")
+            .chain_err(|| "Failed to apply firewall policy for connecting state")
     }
 
     fn start_tunnel(

@@ -31,7 +31,7 @@ error_chain! {
 
         /// Failure to apply firewall _blocked_ policy
         ApplyingBlockedPolicy {
-            description("Failed to apply blocked security policy")
+            description("Failed to apply blocked firewall policy")
         }
 
         /// Failure to reset firewall policies

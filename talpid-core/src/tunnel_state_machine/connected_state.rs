@@ -58,7 +58,7 @@ impl ConnectedState {
         shared_values
             .security
             .apply_policy(policy)
-            .chain_err(|| "Failed to apply security policy for connected state")
+            .chain_err(|| "Failed to apply firewall policy for connected state")
     }
 
     fn get_endpoint_from_params(&self) -> Endpoint {

@@ -18,12 +18,12 @@ impl DisconnectedState {
             shared_values
                 .security
                 .apply_policy(policy)
-                .chain_err(|| "Failed to apply blocking security policy for disconnected state")
+                .chain_err(|| "Failed to apply blocking firewall policy for disconnected state")
         } else {
             shared_values
                 .security
                 .reset_policy()
-                .chain_err(|| "Failed to reset security policy")
+                .chain_err(|| "Failed to reset firewall policy")
         };
         if let Err(error) = result {
             log::error!("{}", error.display_chain());

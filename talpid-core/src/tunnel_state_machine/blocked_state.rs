@@ -22,7 +22,7 @@ impl BlockedState {
         match shared_values
             .security
             .apply_policy(policy)
-            .chain_err(|| "Failed to apply security policy for blocked state")
+            .chain_err(|| "Failed to apply firewall policy for blocked state")
         {
             Ok(()) => None,
             Err(error) => {

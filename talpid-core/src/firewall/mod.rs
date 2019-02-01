@@ -111,7 +111,7 @@ impl fmt::Display for FirewallPolicy {
     }
 }
 
-/// Manages network security of the computer/device. Can apply and enforce security policies
+/// Manages network security of the computer/device. Can apply and enforce firewall policies
 /// by manipulating the OS firewall and DNS settings.
 pub struct Firewall {
     inner: imp::Firewall,
@@ -128,14 +128,14 @@ impl Firewall {
     /// Applies and starts enforcing the given `FirewallPolicy` Makes sure it is being kept in place
     /// until this method is called again with another policy, or until `reset_policy` is called.
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
-        log::info!("Applying security policy: {}", policy);
+        log::info!("Applying firewall policy: {}", policy);
         self.inner.apply_policy(policy)
     }
 
     /// Resets/removes any currently enforced `FirewallPolicy`. Returns the system to the same state
     /// it had before any policy was applied through this `Firewall` instance.
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        log::info!("Resetting security policy");
+        log::info!("Resetting firewall policy");
         self.inner.reset_policy()
     }
 }
@@ -151,7 +151,7 @@ trait FirewallT: Sized {
     /// Enable the given FirewallPolicy
     fn apply_policy(&mut self, policy: FirewallPolicy) -> ::std::result::Result<(), Self::Error>;
 
-    /// Revert the system network security state to what it was before this instance started
+    /// Revert the system firewall state to what it was before this instance started
     /// modifying the system.
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
 }
