@@ -225,6 +225,25 @@ impl Settings {
         }
     }
 
+    #[cfg(target_os = "linux")]
+    pub fn set_wireguard_fwmark(&mut self, fwmark: i32) -> Result<bool> {
+        if self.tunnel_options.wireguard.fwmark != fwmark {
+            self.tunnel_options.wireguard.fwmark = fwmark;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool> {
+        if self.tunnel_options.wireguard.mtu != mtu {
+            self.tunnel_options.wireguard.mtu = mtu;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
     }
