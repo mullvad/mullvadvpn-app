@@ -7,11 +7,6 @@ use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
 
-#[macro_use]
-mod ffi;
-
-mod system_state;
-
 error_chain! {
     errors {
         /// Failure to initialize windows firewall module

@@ -3,8 +3,8 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
 #[cfg(unix)]
-use std::net::{Ipv4Addr, Ipv6Addr};
-use std::{fmt, net::IpAddr};
+use std::net::{Ipv4Addr, Ipv6Addr, IpAddr};
+use std::fmt;
 use talpid_types::net::Endpoint;
 
 
@@ -17,7 +17,7 @@ mod imp;
 mod imp;
 
 #[cfg(windows)]
-#[path = "windows/mod.rs"]
+#[path = "windows.rs"]
 mod imp;
 
 pub use self::imp::Error;

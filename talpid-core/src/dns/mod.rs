@@ -9,7 +9,7 @@ mod imp;
 mod imp;
 
 #[cfg(windows)]
-#[path = "windows.rs"]
+#[path = "windows/mod.rs"]
 mod imp;
 
 pub use self::imp::Error;

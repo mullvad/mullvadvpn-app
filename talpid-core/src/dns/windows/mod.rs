@@ -7,10 +7,12 @@ use std::{
     ptr, slice,
 };
 
+mod system_state;
+use self::system_state::SystemStateWriter;
+
 use error_chain::ChainedError;
 use widestring::WideCString;
 
-use super::system_state::SystemStateWriter;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 

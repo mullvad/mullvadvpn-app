@@ -13,6 +13,11 @@
 #[macro_use]
 extern crate error_chain;
 
+/// Misc FFI utilities.
+#[cfg(windows)]
+#[macro_use]
+mod ffi;
+
 #[cfg(windows)]
 mod winnet;
 
