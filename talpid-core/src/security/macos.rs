@@ -6,9 +6,6 @@ use std::{
 };
 use talpid_types::net;
 
-mod dns;
-pub use self::dns::{DnsMonitor, Error as DnsError};
-
 pub use pfctl::Error;
 
 type Result<T> = ::std::result::Result<T, Error>;

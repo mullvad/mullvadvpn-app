@@ -10,9 +10,6 @@ use widestring::WideCString;
 #[macro_use]
 mod ffi;
 
-mod dns;
-pub use self::dns::{DnsMonitor, Error as DnsError};
-
 mod system_state;
 
 error_chain! {

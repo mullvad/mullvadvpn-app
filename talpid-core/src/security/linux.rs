@@ -16,10 +16,6 @@ use std::{
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
 
-
-mod dns;
-pub use self::dns::{DnsMonitor, Error as DnsError};
-
 error_chain! {
     errors {
         /// Unable to open netlink socket to netfilter

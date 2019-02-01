@@ -9,18 +9,16 @@ use talpid_types::net::Endpoint;
 
 
 #[cfg(target_os = "macos")]
-#[path = "macos/mod.rs"]
+#[path = "macos.rs"]
 mod imp;
 
 #[cfg(target_os = "linux")]
-#[path = "linux/mod.rs"]
+#[path = "linux.rs"]
 mod imp;
 
 #[cfg(windows)]
 #[path = "windows/mod.rs"]
 mod imp;
-
-pub use self::imp::{DnsError, Error};
 
 
 #[cfg(unix)]
