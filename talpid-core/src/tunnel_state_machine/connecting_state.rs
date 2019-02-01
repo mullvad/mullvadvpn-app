@@ -23,7 +23,7 @@ use super::{
 };
 use crate::{
     logging,
-    security::SecurityPolicy,
+    firewall::FirewallPolicy,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
 };
 
@@ -71,7 +71,7 @@ impl ConnectingState {
             None => endpoint,
         };
 
-        let policy = SecurityPolicy::Connecting {
+        let policy = FirewallPolicy::Connecting {
             peer_endpoint,
             allow_lan: shared_values.allow_lan,
         };
@@ -231,7 +231,7 @@ impl ConnectingState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                                AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
                             ),
                         ))
                     }

@@ -47,7 +47,7 @@ pub enum BlockReason {
     /// Failed to configure IPv6 because it's disabled in the platform.
     Ipv6Unavailable,
     /// Failed to set security policy.
-    SetSecurityPolicyError,
+    SetFirewallPolicyError,
     /// Failed to set system DNS server.
     SetDnsError,
     /// Failed to start connection to remote server.
@@ -75,7 +75,7 @@ impl fmt::Display for BlockReason {
                 );
             }
             Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
-            SetSecurityPolicyError => "Failed to set security policy",
+            SetFirewallPolicyError => "Failed to set security policy",
             SetDnsError => "Failed to set system DNS server",
             StartTunnelError => "Failed to start connection to remote server",
             NoMatchingRelay => "No relay server matches the current settings",

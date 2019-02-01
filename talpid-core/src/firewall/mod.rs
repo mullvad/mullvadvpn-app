@@ -46,7 +46,7 @@ lazy_static! {
 
 /// A enum that describes network security strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum SecurityPolicy {
+pub enum FirewallPolicy {
     /// Allow traffic only to server
     Connecting {
         /// The peer endpoint that should be allowed.
@@ -72,10 +72,10 @@ pub enum SecurityPolicy {
     },
 }
 
-impl fmt::Display for SecurityPolicy {
+impl fmt::Display for FirewallPolicy {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
-            SecurityPolicy::Connecting {
+            FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
             } => write!(
@@ -84,7 +84,7 @@ impl fmt::Display for SecurityPolicy {
                 peer_endpoint,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
-            SecurityPolicy::Connected {
+            FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
@@ -102,7 +102,7 @@ impl fmt::Display for SecurityPolicy {
                 tunnel.gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
-            SecurityPolicy::Blocked { allow_lan } => write!(
+            FirewallPolicy::Blocked { allow_lan } => write!(
                 f,
                 "Blocked, {} LAN",
                 if *allow_lan { "Allowing" } else { "Blocking" }
@@ -113,27 +113,27 @@ impl fmt::Display for SecurityPolicy {
 
 /// Manages network security of the computer/device. Can apply and enforce security policies
 /// by manipulating the OS firewall and DNS settings.
-pub struct NetworkSecurity {
-    inner: imp::NetworkSecurity,
+pub struct Firewall {
+    inner: imp::Firewall,
 }
 
-impl NetworkSecurity {
-    /// Returns a new `NetworkSecurity`, ready to apply policies.
+impl Firewall {
+    /// Returns a new `Firewall`, ready to apply policies.
     pub fn new() -> Result<Self, Error> {
-        Ok(NetworkSecurity {
-            inner: imp::NetworkSecurity::new()?,
+        Ok(Firewall {
+            inner: imp::Firewall::new()?,
         })
     }
 
-    /// Applies and starts enforcing the given `SecurityPolicy` Makes sure it is being kept in place
+    /// Applies and starts enforcing the given `FirewallPolicy` Makes sure it is being kept in place
     /// until this method is called again with another policy, or until `reset_policy` is called.
-    pub fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<(), Error> {
+    pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
         log::info!("Applying security policy: {}", policy);
         self.inner.apply_policy(policy)
     }
 
-    /// Resets/removes any currently enforced `SecurityPolicy`. Returns the system to the same state
-    /// it had before any policy was applied through this `NetworkSecurity` instance.
+    /// Resets/removes any currently enforced `FirewallPolicy`. Returns the system to the same state
+    /// it had before any policy was applied through this `Firewall` instance.
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         log::info!("Resetting security policy");
         self.inner.reset_policy()
@@ -141,15 +141,15 @@ impl NetworkSecurity {
 }
 
 /// Abstract firewall interaction trait. Used by the OS specific implementations.
-trait NetworkSecurityT: Sized {
+trait FirewallT: Sized {
     /// The error type thrown by the implementer of this trait
     type Error: ::std::error::Error;
 
     /// Create new instance
     fn new() -> ::std::result::Result<Self, Self::Error>;
 
-    /// Enable the given SecurityPolicy
-    fn apply_policy(&mut self, policy: SecurityPolicy) -> ::std::result::Result<(), Self::Error>;
+    /// Enable the given FirewallPolicy
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> ::std::result::Result<(), Self::Error>;
 
     /// Revert the system network security state to what it was before this instance started
     /// modifying the system.

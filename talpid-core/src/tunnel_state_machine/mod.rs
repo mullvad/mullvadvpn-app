@@ -29,13 +29,13 @@ use self::{
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
 };
-use crate::{dns::DnsMonitor, mpsc::IntoSender, offline, security::NetworkSecurity};
+use crate::{dns::DnsMonitor, mpsc::IntoSender, offline, firewall::Firewall};
 
 error_chain! {
     errors {
         /// An error occurred while setting up the network security.
-        NetworkSecurityError {
-            description("Network security error")
+        FirewallError {
+            description("Firewall error")
         }
         /// Unable to start the DNS settings monitor and enforcer.
         DnsMonitorError {
@@ -181,7 +181,7 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
-        let security = NetworkSecurity::new().chain_err(|| ErrorKind::NetworkSecurityError)?;
+        let security = Firewall::new().chain_err(|| ErrorKind::FirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             security,
@@ -262,7 +262,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
-    security: NetworkSecurity,
+    security: Firewall,
     dns_monitor: DnsMonitor,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,

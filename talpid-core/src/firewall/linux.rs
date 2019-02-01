@@ -1,4 +1,4 @@
-use super::{NetworkSecurityT, SecurityPolicy};
+use super::{FirewallT, FirewallPolicy};
 use crate::tunnel;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
@@ -64,20 +64,20 @@ enum End {
 }
 
 /// The Linux implementation for the firewall and DNS.
-pub struct NetworkSecurity {
+pub struct Firewall {
     table_name: CString,
 }
 
-impl NetworkSecurityT for NetworkSecurity {
+impl FirewallT for Firewall {
     type Error = Error;
 
     fn new() -> Result<Self> {
-        Ok(NetworkSecurity {
+        Ok(Firewall {
             table_name: TABLE_NAME.clone(),
         })
     }
 
-    fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let table = Table::new(&self.table_name, ProtoFamily::Inet)?;
         let batch = PolicyBatch::new(&table)?.finalize(&policy)?;
         self.send_and_process(&batch)?;
@@ -100,7 +100,7 @@ impl NetworkSecurityT for NetworkSecurity {
     }
 }
 
-impl NetworkSecurity {
+impl Firewall {
     fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
         let socket =
             mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;
@@ -206,7 +206,7 @@ impl<'a> PolicyBatch<'a> {
 
     /// Finalize the nftnl message batch by adding every firewall rule needed to satisfy the given
     /// policy.
-    pub fn finalize(mut self, policy: &SecurityPolicy) -> Result<FinalizedBatch> {
+    pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
         self.add_dhcp_rules()?;
         self.add_policy_specific_rules(policy)?;
@@ -269,16 +269,16 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_policy_specific_rules(&mut self, policy: &SecurityPolicy) -> Result<()> {
+    fn add_policy_specific_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
         let allow_lan = match policy {
-            SecurityPolicy::Connecting {
+            FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
             } => {
                 self.add_allow_endpoint_rules(peer_endpoint)?;
                 *allow_lan
             }
-            SecurityPolicy::Connected {
+            FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
@@ -289,7 +289,7 @@ impl<'a> PolicyBatch<'a> {
                 self.add_allow_tunnel_rules(tunnel)?;
                 *allow_lan
             }
-            SecurityPolicy::Blocked { allow_lan } => *allow_lan,
+            FirewallPolicy::Blocked { allow_lan } => *allow_lan,
         };
 
         if allow_lan {

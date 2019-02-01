@@ -37,8 +37,8 @@ pub mod logging;
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
 
-/// Abstractions over operating system network security settings.
-pub mod security;
+/// Abstractions over operating system firewalls.
+pub mod firewall;
 
 /// Abstractions over operating system DNS settings.
 pub mod dns;

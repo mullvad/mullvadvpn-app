@@ -14,7 +14,7 @@ use super::{
     TunnelStateWrapper,
 };
 use crate::{
-    security::SecurityPolicy,
+    firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 
@@ -50,7 +50,7 @@ impl ConnectedState {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = self.get_endpoint_from_params();
 
-        let policy = SecurityPolicy::Connected {
+        let policy = FirewallPolicy::Connected {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
@@ -117,7 +117,7 @@ impl ConnectedState {
                         log::error!("{}", error.display_chain());
                         self.disconnect(
                             shared_values,
-                            AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                            AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
                         )
                     }
                 }
@@ -202,7 +202,7 @@ impl TunnelState for ConnectedState {
                 (
                     connected_state.close_handle,
                     connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(BlockReason::SetSecurityPolicyError),
+                    AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {

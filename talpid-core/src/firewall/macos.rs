@@ -1,4 +1,4 @@
-use super::{NetworkSecurityT, SecurityPolicy};
+use super::{FirewallT, FirewallPolicy};
 use pfctl::FilterRuleAction;
 use std::{
     env,
@@ -15,13 +15,13 @@ type Result<T> = ::std::result::Result<T, Error>;
 const ANCHOR_NAME: &'static str = "mullvad";
 
 /// The macOS firewall and DNS implementation.
-pub struct NetworkSecurity {
+pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
 }
 
-impl NetworkSecurityT for NetworkSecurity {
+impl FirewallT for Firewall {
     type Error = Error;
 
     fn new() -> Result<Self> {
@@ -36,14 +36,14 @@ impl NetworkSecurityT for NetworkSecurity {
         };
         log::trace!("Firewall debug log policy: {:?}", rule_logging);
 
-        Ok(NetworkSecurity {
+        Ok(Firewall {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             rule_logging,
         })
     }
 
-    fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
         self.set_rules(policy)
@@ -61,8 +61,8 @@ impl NetworkSecurityT for NetworkSecurity {
     }
 }
 
-impl NetworkSecurity {
-    fn set_rules(&mut self, policy: SecurityPolicy) -> Result<()> {
+impl Firewall {
+    fn set_rules(&mut self, policy: FirewallPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
@@ -82,10 +82,10 @@ impl NetworkSecurity {
 
     fn get_policy_specific_rules(
         &mut self,
-        policy: SecurityPolicy,
+        policy: FirewallPolicy,
     ) -> Result<Vec<pfctl::FilterRule>> {
         match policy {
-            SecurityPolicy::Connecting {
+            FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
             } => {
@@ -95,7 +95,7 @@ impl NetworkSecurity {
                 }
                 Ok(rules)
             }
-            SecurityPolicy::Connected {
+            FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
@@ -145,7 +145,7 @@ impl NetworkSecurity {
                 }
                 Ok(rules)
             }
-            SecurityPolicy::Blocked { allow_lan } => {
+            FirewallPolicy::Blocked { allow_lan } => {
                 let mut rules = Vec::new();
                 if allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);

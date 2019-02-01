@@ -2,7 +2,7 @@ use super::{
     BlockedState, ConnectingState, EventConsequence, ResultExt, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::security::SecurityPolicy;
+use crate::firewall::FirewallPolicy;
 use error_chain::ChainedError;
 use futures::{sync::mpsc, Stream};
 
@@ -12,7 +12,7 @@ pub struct DisconnectedState;
 impl DisconnectedState {
     fn set_security_policy(shared_values: &mut SharedTunnelStateValues) {
         let result = if shared_values.block_when_disconnected {
-            let policy = SecurityPolicy::Blocked {
+            let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
             };
             shared_values

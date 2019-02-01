@@ -6,7 +6,7 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::security::SecurityPolicy;
+use crate::firewall::FirewallPolicy;
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState {
@@ -15,7 +15,7 @@ pub struct BlockedState {
 
 impl BlockedState {
     fn set_security_policy(shared_values: &mut SharedTunnelStateValues) -> Option<BlockReason> {
-        let policy = SecurityPolicy::Blocked {
+        let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
         };
 
@@ -27,7 +27,7 @@ impl BlockedState {
             Ok(()) => None,
             Err(error) => {
                 log::error!("{}", error.display_chain());
-                Some(BlockReason::SetSecurityPolicyError)
+                Some(BlockReason::SetFirewallPolicyError)
             }
         }
     }
