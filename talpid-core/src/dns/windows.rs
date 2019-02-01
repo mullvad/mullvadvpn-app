@@ -47,7 +47,7 @@ pub struct DnsMonitor {
     backup_writer: SystemStateWriter,
 }
 
-impl super::super::DnsMonitorT for DnsMonitor {
+impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {

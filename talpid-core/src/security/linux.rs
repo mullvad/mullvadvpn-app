@@ -11,7 +11,6 @@ use nftnl::{
 use std::{
     env,
     ffi::{CStr, CString},
-    io,
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
@@ -29,14 +28,12 @@ error_chain! {
         /// Failed to verify that our tables are set. Probably means that
         /// it's the host does not support nftables properly.
         NetfilterTableNotSetError{ description("Failed to set firewall rules") }
-        /// The name is not a valid Linux network interface name
-        InvalidInterfaceName(name: String) {
-            description("Invalid network interface name")
-            display("Invalid network interface name: {}", name)
-        }
     }
     links {
         Nftnl(nftnl::Error, nftnl::ErrorKind) #[doc = "Error in nftnl"];
+    }
+    foreign_links {
+        IfaceIndexLookupError(crate::linux::IfaceIndexLookupError);
     }
 }
 
@@ -416,25 +413,13 @@ fn allow_interface_rule<'a>(
 }
 
 fn check_iface(rule: &mut Rule, direction: Direction, iface: &str) -> Result<()> {
-    let iface_index = iface_index(iface)?;
+    let iface_index = crate::linux::iface_index(iface)?;
     rule.add_expr(&match direction {
         Direction::In => nft_expr!(meta iif),
         Direction::Out => nft_expr!(meta oif),
     })?;
     rule.add_expr(&nft_expr!(cmp == iface_index))?;
     Ok(())
-}
-
-fn iface_index(name: &str) -> Result<libc::c_uint> {
-    let c_name =
-        CString::new(name).chain_err(|| ErrorKind::InvalidInterfaceName(name.to_owned()))?;
-    let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
-    if index == 0 {
-        let error = io::Error::last_os_error();
-        Err(error).chain_err(|| ErrorKind::InvalidInterfaceName(name.to_owned()))
-    } else {
-        Ok(index)
-    }
 }
 
 fn check_net(rule: &mut Rule, end: End, net: IpNetwork) -> Result<()> {

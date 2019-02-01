@@ -126,7 +126,7 @@ pub struct DnsMonitor {
     state: Arc<Mutex<Option<State>>>,
 }
 
-impl super::super::DnsMonitorT for DnsMonitor {
+impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     /// Creates and returns a new `DnsMonitor`. This spawns a background thread that will monitor
