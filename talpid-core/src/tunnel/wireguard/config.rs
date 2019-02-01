@@ -50,7 +50,7 @@ impl Config {
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
     ) -> Result<Config> {
-        ensure!(peers.is_empty(), ErrorKind::NoPeersSuppliedError);
+        ensure!(!peers.is_empty(), ErrorKind::NoPeersSuppliedError);
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
         let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
 
@@ -61,7 +61,7 @@ impl Config {
                 .cloned()
                 .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
                 .collect();
-            ensure!(peer.allowed_ips.is_empty(), ErrorKind::InvalidPeerIpError);
+            ensure!(!peer.allowed_ips.is_empty(), ErrorKind::InvalidPeerIpError);
         }
 
         tunnel.addresses = tunnel
@@ -69,7 +69,10 @@ impl Config {
             .into_iter()
             .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
             .collect();
-        ensure!(tunnel.addresses.is_empty(), ErrorKind::InvalidTunnelIpError);
+        ensure!(
+            !tunnel.addresses.is_empty(),
+            ErrorKind::InvalidTunnelIpError
+        );
 
         Ok(Config {
             tunnel,
