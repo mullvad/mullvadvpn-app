@@ -1,4 +1,4 @@
-use super::{FirewallT, FirewallPolicy};
+use super::{FirewallPolicy, FirewallT};
 use crate::tunnel;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;

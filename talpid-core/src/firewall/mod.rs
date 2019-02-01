@@ -2,9 +2,9 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
-#[cfg(unix)]
-use std::net::{Ipv4Addr, Ipv6Addr, IpAddr};
 use std::fmt;
+#[cfg(unix)]
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use talpid_types::net::Endpoint;
 
 

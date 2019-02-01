@@ -1,4 +1,4 @@
-use super::{FirewallT, FirewallPolicy};
+use super::{FirewallPolicy, FirewallT};
 use pfctl::FilterRuleAction;
 use std::{
     env,

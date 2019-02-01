@@ -22,8 +22,8 @@ use super::{
     TunnelStateWrapper,
 };
 use crate::{
-    logging,
     firewall::FirewallPolicy,
+    logging,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
 };
 

@@ -29,7 +29,7 @@ use self::{
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
 };
-use crate::{dns::DnsMonitor, mpsc::IntoSender, offline, firewall::Firewall};
+use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline};
 
 error_chain! {
     errors {

@@ -1,7 +1,7 @@
 use std::{net::IpAddr, ptr};
 
 use self::winfw::*;
-use super::{FirewallT, FirewallPolicy};
+use super::{FirewallPolicy, FirewallT};
 use crate::winnet;
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
