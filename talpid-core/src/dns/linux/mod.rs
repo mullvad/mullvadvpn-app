@@ -31,7 +31,7 @@ pub struct DnsMonitor {
     inner: Option<DnsMonitorHolder>,
 }
 
-impl super::super::DnsMonitorT for DnsMonitor {
+impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {

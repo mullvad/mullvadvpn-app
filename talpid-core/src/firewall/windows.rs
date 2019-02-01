@@ -1,19 +1,11 @@
 use std::{net::IpAddr, ptr};
 
 use self::winfw::*;
-use super::{NetworkSecurityT, SecurityPolicy};
+use super::{FirewallPolicy, FirewallT};
 use crate::winnet;
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
-
-#[macro_use]
-mod ffi;
-
-mod dns;
-pub use self::dns::{DnsMonitor, Error as DnsError};
-
-mod system_state;
 
 error_chain! {
     errors {
@@ -39,7 +31,7 @@ error_chain! {
 
         /// Failure to apply firewall _blocked_ policy
         ApplyingBlockedPolicy {
-            description("Failed to apply blocked security policy")
+            description("Failed to apply blocked firewall policy")
         }
 
         /// Failure to reset firewall policies
@@ -57,9 +49,9 @@ error_chain! {
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the firewall and DNS.
-pub struct NetworkSecurity(());
+pub struct Firewall(());
 
-impl NetworkSecurityT for NetworkSecurity {
+impl FirewallT for Firewall {
     type Error = Error;
 
     fn new() -> Result<Self> {
@@ -72,19 +64,19 @@ impl NetworkSecurityT for NetworkSecurity {
             .into_result()?
         };
         trace!("Successfully initialized windows firewall module");
-        Ok(NetworkSecurity(()))
+        Ok(Firewall(()))
     }
 
-    fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<()> {
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         match policy {
-            SecurityPolicy::Connecting {
+            FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connecting_state(&peer_endpoint, &cfg)
             }
-            SecurityPolicy::Connected {
+            FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
@@ -92,7 +84,7 @@ impl NetworkSecurityT for NetworkSecurity {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connected_state(&peer_endpoint, &cfg, &tunnel)
             }
-            SecurityPolicy::Blocked { allow_lan } => {
+            FirewallPolicy::Blocked { allow_lan } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_blocked_state(&cfg)
             }
@@ -105,7 +97,7 @@ impl NetworkSecurityT for NetworkSecurity {
     }
 }
 
-impl Drop for NetworkSecurity {
+impl Drop for Firewall {
     fn drop(&mut self) {
         if unsafe { WinFw_Deinitialize().into_result().is_ok() } {
             trace!("Successfully deinitialized windows firewall module");
@@ -115,7 +107,7 @@ impl Drop for NetworkSecurity {
     }
 }
 
-impl NetworkSecurity {
+impl Firewall {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,

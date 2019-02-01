@@ -16,7 +16,7 @@ export type BlockReason =
   | {
       reason:
         | 'ipv6_unavailable'
-        | 'set_security_policy_error'
+        | 'set_firewall_policy_error'
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'no_matching_relay'

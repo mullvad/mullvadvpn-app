@@ -140,7 +140,7 @@ export default class TunnelControl extends Component<TunnelControlProps> {
     switch (state) {
       case 'blocked':
         switch (this.props.tunnelState.details.reason) {
-          case 'set_security_policy_error':
+          case 'set_firewall_policy_error':
             state = 'disconnected';
             break;
           default:

@@ -61,7 +61,7 @@ export default function(
       return {
         ...state,
         status: { state: 'blocked', details: action.reason },
-        isBlocked: action.reason.reason !== 'set_security_policy_error',
+        isBlocked: action.reason.reason !== 'set_firewall_policy_error',
       };
 
     case 'ONLINE':

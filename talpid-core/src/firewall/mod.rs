@@ -2,25 +2,25 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
+use std::fmt;
 #[cfg(unix)]
-use std::net::{Ipv4Addr, Ipv6Addr};
-use std::{fmt, net::IpAddr, path::Path};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use talpid_types::net::Endpoint;
 
 
 #[cfg(target_os = "macos")]
-#[path = "macos/mod.rs"]
+#[path = "macos.rs"]
 mod imp;
 
 #[cfg(target_os = "linux")]
-#[path = "linux/mod.rs"]
+#[path = "linux.rs"]
 mod imp;
 
 #[cfg(windows)]
-#[path = "windows/mod.rs"]
+#[path = "windows.rs"]
 mod imp;
 
-pub use self::imp::{DnsError, Error};
+pub use self::imp::Error;
 
 
 #[cfg(unix)]
@@ -46,7 +46,7 @@ lazy_static! {
 
 /// A enum that describes network security strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum SecurityPolicy {
+pub enum FirewallPolicy {
     /// Allow traffic only to server
     Connecting {
         /// The peer endpoint that should be allowed.
@@ -72,10 +72,10 @@ pub enum SecurityPolicy {
     },
 }
 
-impl fmt::Display for SecurityPolicy {
+impl fmt::Display for FirewallPolicy {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
-            SecurityPolicy::Connecting {
+            FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
             } => write!(
@@ -84,7 +84,7 @@ impl fmt::Display for SecurityPolicy {
                 peer_endpoint,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
-            SecurityPolicy::Connected {
+            FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
@@ -102,7 +102,7 @@ impl fmt::Display for SecurityPolicy {
                 tunnel.gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
-            SecurityPolicy::Blocked { allow_lan } => write!(
+            FirewallPolicy::Blocked { allow_lan } => write!(
                 f,
                 "Blocked, {} LAN",
                 if *allow_lan { "Allowing" } else { "Blocking" }
@@ -111,91 +111,47 @@ impl fmt::Display for SecurityPolicy {
     }
 }
 
-/// Manages network security of the computer/device. Can apply and enforce security policies
+/// Manages network security of the computer/device. Can apply and enforce firewall policies
 /// by manipulating the OS firewall and DNS settings.
-pub struct NetworkSecurity {
-    inner: imp::NetworkSecurity,
+pub struct Firewall {
+    inner: imp::Firewall,
 }
 
-impl NetworkSecurity {
-    /// Returns a new `NetworkSecurity`, ready to apply policies.
+impl Firewall {
+    /// Returns a new `Firewall`, ready to apply policies.
     pub fn new() -> Result<Self, Error> {
-        Ok(NetworkSecurity {
-            inner: imp::NetworkSecurity::new()?,
+        Ok(Firewall {
+            inner: imp::Firewall::new()?,
         })
     }
 
-    /// Applies and starts enforcing the given `SecurityPolicy` Makes sure it is being kept in place
+    /// Applies and starts enforcing the given `FirewallPolicy` Makes sure it is being kept in place
     /// until this method is called again with another policy, or until `reset_policy` is called.
-    pub fn apply_policy(&mut self, policy: SecurityPolicy) -> Result<(), Error> {
-        log::info!("Applying security policy: {}", policy);
+    pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
+        log::info!("Applying firewall policy: {}", policy);
         self.inner.apply_policy(policy)
     }
 
-    /// Resets/removes any currently enforced `SecurityPolicy`. Returns the system to the same state
-    /// it had before any policy was applied through this `NetworkSecurity` instance.
+    /// Resets/removes any currently enforced `FirewallPolicy`. Returns the system to the same state
+    /// it had before any policy was applied through this `Firewall` instance.
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        log::info!("Resetting security policy");
+        log::info!("Resetting firewall policy");
         self.inner.reset_policy()
     }
 }
 
-/// Sets and monitors system DNS settings. Makes sure the desired DNS servers are being used.
-pub struct DnsMonitor {
-    inner: imp::DnsMonitor,
-}
-
-impl DnsMonitor {
-    /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
-    pub fn new(cache_dir: impl AsRef<Path>) -> Result<Self, DnsError> {
-        Ok(DnsMonitor {
-            inner: imp::DnsMonitor::new(cache_dir)?,
-        })
-    }
-
-    /// Set DNS to the given servers. And start monitoring the system for changes.
-    pub fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), DnsError> {
-        log::info!(
-            "Setting DNS servers to {}",
-            servers
-                .iter()
-                .map(|ip| ip.to_string())
-                .collect::<Vec<String>>()
-                .join(", ")
-        );
-        self.inner.set(interface, servers)
-    }
-
-    /// Reset system DNS settings to what it was before being set by this instance.
-    pub fn reset(&mut self) -> Result<(), DnsError> {
-        log::info!("Resetting DNS");
-        self.inner.reset()
-    }
-}
-
-
 /// Abstract firewall interaction trait. Used by the OS specific implementations.
-trait NetworkSecurityT: Sized {
+trait FirewallT: Sized {
     /// The error type thrown by the implementer of this trait
     type Error: ::std::error::Error;
 
     /// Create new instance
     fn new() -> ::std::result::Result<Self, Self::Error>;
 
-    /// Enable the given SecurityPolicy
-    fn apply_policy(&mut self, policy: SecurityPolicy) -> ::std::result::Result<(), Self::Error>;
+    /// Enable the given FirewallPolicy
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> ::std::result::Result<(), Self::Error>;
 
-    /// Revert the system network security state to what it was before this instance started
+    /// Revert the system firewall state to what it was before this instance started
     /// modifying the system.
     fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
-}
-
-trait DnsMonitorT: Sized {
-    type Error: ::std::error::Error;
-
-    fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Self::Error>;
-
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
-
-    fn reset(&mut self) -> Result<(), Self::Error>;
 }

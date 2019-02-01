@@ -1,4 +1,5 @@
-use super::{super::iface_index, RESOLV_CONF_PATH};
+use super::RESOLV_CONF_PATH;
+use crate::linux::iface_index;
 use dbus::{
     arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
     Signature,

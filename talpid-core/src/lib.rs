@@ -13,6 +13,11 @@
 #[macro_use]
 extern crate error_chain;
 
+/// Misc FFI utilities.
+#[cfg(windows)]
+#[macro_use]
+mod ffi;
+
 #[cfg(windows)]
 mod winnet;
 
@@ -37,10 +42,17 @@ pub mod logging;
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
 
-/// Abstractions over operating system network security settings.
-pub mod security;
+/// Abstractions over operating system firewalls.
+pub mod firewall;
+
+/// Abstractions over operating system DNS settings.
+pub mod dns;
 
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
 mod mktemp;
+
+/// Misc utilities for the Linux platform.
+#[cfg(target_os = "linux")]
+mod linux;

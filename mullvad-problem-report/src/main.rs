@@ -525,7 +525,7 @@ mod tests {
 
     #[test]
     fn doesnt_redact_not_ipv6() {
-        assert_does_not_redact("[talpid_core::security]");
+        assert_does_not_redact("[talpid_core::firewall]");
     }
 
     fn assert_redacts_ipv6(input: &str) {

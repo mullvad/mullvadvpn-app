@@ -7,10 +7,12 @@ use std::{
     ptr, slice,
 };
 
+mod system_state;
+use self::system_state::SystemStateWriter;
+
 use error_chain::ChainedError;
 use widestring::WideCString;
 
-use super::system_state::SystemStateWriter;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
@@ -47,7 +49,7 @@ pub struct DnsMonitor {
     backup_writer: SystemStateWriter,
 }
 
-impl super::super::DnsMonitorT for DnsMonitor {
+impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {

@@ -127,7 +127,7 @@ export default class Connect extends Component<Props> {
         return 'secure';
       case 'blocked':
         switch (status.details.reason) {
-          case 'set_security_policy_error':
+          case 'set_firewall_policy_error':
             return 'unsecure';
           default:
             return 'secure';
@@ -232,7 +232,7 @@ export default class Connect extends Component<Props> {
         return HeaderBarStyle.success;
       case 'blocked':
         switch (status.details.reason) {
-          case 'set_security_policy_error':
+          case 'set_firewall_policy_error':
             return HeaderBarStyle.error;
           default:
             return HeaderBarStyle.success;

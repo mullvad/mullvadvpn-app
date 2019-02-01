@@ -8,7 +8,7 @@ use std::{
 };
 
 /// This struct is responsible for saving a binary blob to disk. The binary blob is intended to
-/// store system state that should be resotred when the security policy is reset.
+/// store system DNS settings that should be restored when the DNS settings are reset.
 pub struct SystemStateWriter {
     /// Full path to the system state backup file
     pub backup_path: Box<Path>,
@@ -16,15 +16,15 @@ pub struct SystemStateWriter {
 
 impl SystemStateWriter {
     /// Creates a new SystemStateWriter which will use a file in the cache directory to store system
-    /// state that has to be restored.
+    /// DNS state that has to be restored.
     pub fn new<P: AsRef<Path>>(backup_path: P) -> Self {
         Self {
             backup_path: backup_path.as_ref().to_owned().into_boxed_path(),
         }
     }
 
-    /// Writes a binary blob representing the system state to the backup location before any
-    /// security policies are applied.
+    /// Writes a binary blob representing the system DNS settings to the backup location before any
+    /// DNS changes are applied.
     pub fn write_backup(&self, data: &[u8]) -> io::Result<()> {
         let mut backup_file = File::create(&self.backup_path)?;
         backup_file.write_all(data)?;
@@ -40,7 +40,6 @@ impl SystemStateWriter {
             },
         }
     }
-
 
     /// Removes a previously created state backup if it exists.
     pub fn remove_backup(&self) -> io::Result<()> {
