@@ -23,14 +23,13 @@ impl Command for Tunnel {
     }
 
     fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(openvpn_matches) = matches.subcommand_matches("openvpn") {
-            Self::handle_openvpn_cmd(openvpn_matches)
-        } else if let Some(wg_matches) = matches.subcommand_matches("wireguard") {
-            Self::handle_wg_cmd(wg_matches)
-        } else if let Some(ipv6_matches) = matches.subcommand_matches("ipv6") {
-            Self::handle_ipv6_cmd(ipv6_matches)
-        } else {
-            unreachable!("unhandled command");
+        match matches.subcommand() {
+            ("openvpn", Some(openvpn_matches)) => Self::handle_openvpn_cmd(openvpn_matches),
+            ("wireguard", Some(wg_matches)) => Self::handle_wg_cmd(wg_matches),
+            ("ipv6", Some(ipv6_matches)) => Self::handle_ipv6_cmd(ipv6_matches),
+            _ => {
+                unreachable!("unhandled comand");
+            }
         }
     }
 }
@@ -165,61 +164,48 @@ fn create_ipv6_subcommand() -> clap::App<'static, 'static> {
 
 impl Tunnel {
     fn handle_openvpn_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(m) = matches.subcommand_matches("mssfix") {
-            Self::handle_openvpn_mssfix_cmd(m)
-        } else if let Some(m) = matches.subcommand_matches("proxy") {
-            Self::handle_openvpn_proxy_cmd(m)
-        } else {
-            unreachable!("unhandled command");
+        match matches.subcommand() {
+            ("mssfix", Some(mssfix_matches)) => Self::handle_openvpn_mssfix_cmd(mssfix_matches),
+            ("proxy", Some(proxy_matches)) => Self::handle_openvpn_proxy_cmd(proxy_matches),
+            _ => unreachable!("unhandled command"),
         }
     }
 
     fn handle_openvpn_mssfix_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if matches.subcommand_matches("get").is_some() {
-            Self::process_openvpn_mssfix_get()
-        } else if matches.subcommand_matches("unset").is_some() {
-            Self::process_openvpn_mssfix_unset()
-        } else if let Some(m) = matches.subcommand_matches("set") {
-            Self::process_openvpn_mssfix_set(m)
-        } else {
-            unreachable!("unhandled command");
+        match matches.subcommand() {
+            ("get", Some(_)) => Self::process_openvpn_mssfix_get(),
+            ("unset", Some(_)) => Self::process_openvpn_mssfix_unset(),
+            ("set", Some(set_matches)) => Self::process_openvpn_mssfix_set(set_matches),
+            _ => unreachable!("unhandled command"),
         }
     }
 
     fn handle_openvpn_proxy_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        if matches.subcommand_matches("get").is_some() {
-            Self::process_openvpn_proxy_get()
-        } else if matches.subcommand_matches("unset").is_some() {
-            Self::process_openvpn_proxy_unset()
-        } else if let Some(m) = matches.subcommand_matches("set") {
-            Self::process_openvpn_proxy_set(m)
-        } else {
-            unreachable!("unhandled command");
+        match matches.subcommand() {
+            ("get", Some(_)) => Self::process_openvpn_proxy_get(),
+            ("unset", Some(_)) => Self::process_openvpn_proxy_unset(),
+            ("set", Some(set_matches)) => Self::process_openvpn_proxy_set(set_matches),
+            _ => unreachable!("unhandled command"),
         }
     }
 
     fn handle_wg_cmd(matches: &clap::ArgMatches) -> Result<()> {
-        return if let Some(m) = matches.subcommand_matches("fwmark") {
-            if m.subcommand_matches("get").is_some() {
-                Self::process_wireguard_fwmark_get()
-            } else if let Some(m) = m.subcommand_matches("set") {
-                Self::process_wireguard_fwmark_set(m)
-            } else {
-                unreachable!("unhandled command")
-            }
-        } else if let Some(m) = matches.subcommand_matches("mtu") {
-            if m.subcommand_matches("get").is_some() {
-                Self::process_wireguard_mtu_get()
-            } else if let Some(m) = m.subcommand_matches("set") {
-                Self::process_wireguard_mtu_set(m)
-            } else if m.subcommand_matches("unset").is_some() {
-                Self::process_wireguard_mtu_unset()
-            } else {
-                unreachable!("unhandled command")
-            }
-        } else {
-            unreachable!("unhandled command")
-        };
+        match matches.subcommand() {
+            ("mtu", Some(matches)) => match matches.subcommand() {
+                ("get", _) => Self::process_wireguard_mtu_get(),
+                ("set", Some(matches)) => Self::process_wireguard_mtu_set(matches),
+                ("unset", _) => Self::process_wireguard_mtu_unset(),
+                _ => unreachable!("unhandled command"),
+            },
+
+            #[cfg(target_os = "linux")]
+            ("fwmark", Some(matches)) => match matches.subcommand() {
+                ("get", _) => Self::process_wireguard_fwmark_get(),
+                ("set", Some(fwmark_matches)) => Self::process_wireguard_fwmark_set(fwmark_matches),
+                _ => unreachable!("unhandled command"),
+            },
+            _ => unreachable!("unhandled command"),
+        }
     }
 
     fn process_wireguard_mtu_get() -> Result<()> {
@@ -250,15 +236,14 @@ impl Tunnel {
         Ok(())
     }
 
+    #[cfg(target_os = "linux")]
     fn process_wireguard_fwmark_get() -> Result<()> {
-        #[cfg(target_os = "linux")]
-        {
-            let tunnel_options = Self::get_tunnel_options()?;
-            println!("fwmark: {}", tunnel_options.wireguard.fwmark);
-        }
+        let tunnel_options = Self::get_tunnel_options()?;
+        println!("fwmark: {}", tunnel_options.wireguard.fwmark);
         Ok(())
     }
 
+    #[cfg(target_os = "linux")]
     fn process_wireguard_fwmark_set(matches: &clap::ArgMatches) -> Result<()> {
         let fwmark = value_t!(matches.value_of("fwmark"), i32).unwrap_or_else(|e| e.exit());
         let mut rpc = new_rpc_client()?;
