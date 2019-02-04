@@ -51,9 +51,6 @@ export class AuthFailure {
         return TOO_MANY_CONNECTIONS_MSG;
       case 'UNKNOWN':
         return this._message;
-
-      default:
-        throw new Error(`Invalid reason ID: ${this._reasonId}`);
     }
   }
 }
