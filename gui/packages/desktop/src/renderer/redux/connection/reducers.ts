@@ -1,7 +1,7 @@
+import { Ip, TunnelStateTransition } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
-import { TunnelStateTransition, Ip } from '../../../shared/daemon-rpc-types';
 
-export type ConnectionReduxState = {
+export interface IConnectionReduxState {
   status: TunnelStateTransition;
   isOnline: boolean;
   isBlocked: boolean;
@@ -11,9 +11,9 @@ export type ConnectionReduxState = {
   longitude?: number;
   country?: string;
   city?: string;
-};
+}
 
-const initialState: ConnectionReduxState = {
+const initialState: IConnectionReduxState = {
   status: { state: 'disconnected' },
   isOnline: true,
   isBlocked: false,
@@ -26,9 +26,9 @@ const initialState: ConnectionReduxState = {
 };
 
 export default function(
-  state: ConnectionReduxState = initialState,
+  state: IConnectionReduxState = initialState,
   action: ReduxAction,
-): ConnectionReduxState {
+): IConnectionReduxState {
   switch (action.type) {
     case 'NEW_LOCATION':
       const { hostname, latitude, longitude, city, country } = action.newLocation;

@@ -1,19 +1,19 @@
+import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { goBack } from 'connected-react-router';
+import { RelayLocation } from '../../shared/daemon-rpc-types';
 import SelectLocation from '../components/SelectLocation';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
-import { RelayLocation } from '../../shared/daemon-rpc-types';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   relaySettings: state.settings.relaySettings,
   relayLocations: state.settings.relayLocations,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onClose: () => history.goBack(),

@@ -1,21 +1,21 @@
 import moment from 'moment';
 
 export default class AccountExpiry {
-  _expiry: moment.Moment;
+  private expiry: moment.Moment;
 
   constructor(expiry: string) {
-    this._expiry = moment(expiry);
+    this.expiry = moment(expiry);
   }
 
-  hasExpired(): boolean {
+  public hasExpired(): boolean {
     return this.willHaveExpiredIn(moment());
   }
 
-  willHaveExpiredIn(time: moment.Moment): boolean {
-    return this._expiry.isSameOrBefore(time);
+  public willHaveExpiredIn(time: moment.Moment): boolean {
+    return this.expiry.isSameOrBefore(time);
   }
 
-  remainingTime(): string {
-    return this._expiry.fromNow(true) + ' left';
+  public remainingTime(): string {
+    return this.expiry.fromNow(true) + ' left';
   }
 }

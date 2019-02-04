@@ -1,27 +1,27 @@
+import { ImageView } from '@mullvad/components';
 import * as React from 'react';
 import { Button, Component, Text, Types } from 'reactxp';
-import { ImageView } from '@mullvad/components';
-import styles from './AppButtonStyles';
 import { colors } from '../../config.json';
+import styles from './AppButtonStyles';
 
-type LabelProps = {
+interface ILabelProps {
   children?: React.ReactText;
-};
+}
 
-export class Label extends Component<LabelProps> {
-  render() {
+export class Label extends Component<ILabelProps> {
+  public render() {
     return <Text style={styles.label}>{this.props.children}</Text>;
   }
 }
 
-type IconProps = {
+interface IIconProps {
   source: string;
   width?: number;
   height?: number;
-};
+}
 
-export class Icon extends Component<IconProps> {
-  render() {
+export class Icon extends Component<IIconProps> {
+  public render() {
     return (
       <ImageView
         source={this.props.source}
@@ -34,27 +34,27 @@ export class Icon extends Component<IconProps> {
   }
 }
 
-type Props = {
+interface IProps {
   children?: React.ReactNode;
   style?: Types.ButtonStyleRuleSet;
   disabled?: boolean;
   onPress?: () => void;
-};
+}
 
-type State = {
+interface IState {
   hovered: boolean;
-};
+}
 
-class BaseButton extends Component<Props, State> {
-  state: State = { hovered: false };
+class BaseButton extends Component<IProps, IState> {
+  public state: IState = { hovered: false };
 
-  backgroundStyle = (): Types.ButtonStyleRuleSet => {
+  public backgroundStyle = (): Types.ButtonStyleRuleSet => {
     throw new Error('Implement backgroundStyle in subclasses.');
   };
-  onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
-  onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
+  public onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
+  public onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
 
-  render() {
+  public render() {
     const { children, style, ...otherProps } = this.props;
 
     return (
@@ -72,21 +72,23 @@ class BaseButton extends Component<Props, State> {
 }
 
 export class RedButton extends BaseButton {
-  backgroundStyle = () => (this.state.hovered ? styles.redHover : styles.red);
+  public backgroundStyle = () => (this.state.hovered ? styles.redHover : styles.red);
 }
 
 export class GreenButton extends BaseButton {
-  backgroundStyle = () => (this.state.hovered ? styles.greenHover : styles.green);
+  public backgroundStyle = () => (this.state.hovered ? styles.greenHover : styles.green);
 }
 
 export class BlueButton extends BaseButton {
-  backgroundStyle = () => (this.state.hovered ? styles.blueHover : styles.blue);
+  public backgroundStyle = () => (this.state.hovered ? styles.blueHover : styles.blue);
 }
 
 export class TransparentButton extends BaseButton {
-  backgroundStyle = () => (this.state.hovered ? styles.transparentHover : styles.transparent);
+  public backgroundStyle = () =>
+    this.state.hovered ? styles.transparentHover : styles.transparent;
 }
 
 export class RedTransparentButton extends BaseButton {
-  backgroundStyle = () => (this.state.hovered ? styles.redTransparentHover : styles.redTransparent);
+  public backgroundStyle = () =>
+    this.state.hovered ? styles.redTransparentHover : styles.redTransparent;
 }

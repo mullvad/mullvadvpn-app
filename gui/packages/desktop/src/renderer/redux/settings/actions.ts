@@ -1,87 +1,85 @@
-import { RelaySettingsRedux, RelayLocationRedux } from './reducers';
-import { GuiSettingsState } from '../../../shared/gui-settings-state';
+import { IGuiSettingsState } from '../../../shared/gui-settings-state';
+import { IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
-export type UpdateGuiSettingsAction = {
+export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
-  guiSettings: GuiSettingsState;
-};
+  guiSettings: IGuiSettingsState;
+}
 
-export type UpdateRelayAction = {
+export interface IUpdateRelayAction {
   type: 'UPDATE_RELAY';
   relay: RelaySettingsRedux;
-};
+}
 
-export type UpdateRelayLocationsAction = {
+export interface IUpdateRelayLocationsAction {
   type: 'UPDATE_RELAY_LOCATIONS';
-  relayLocations: Array<RelayLocationRedux>;
-};
+  relayLocations: IRelayLocationRedux[];
+}
 
-export type UpdateAllowLanAction = {
+export interface IUpdateAllowLanAction {
   type: 'UPDATE_ALLOW_LAN';
   allowLan: boolean;
-};
+}
 
-export type UpdateEnableIpv6Action = {
+export interface IUpdateEnableIpv6Action {
   type: 'UPDATE_ENABLE_IPV6';
   enableIpv6: boolean;
-};
+}
 
-export type UpdateBlockWhenDisconnectedAction = {
+export interface IUpdateBlockWhenDisconnectedAction {
   type: 'UPDATE_BLOCK_WHEN_DISCONNECTED';
   blockWhenDisconnected: boolean;
-};
+}
 
-export type UpdateOpenVpnMssfixAction = {
+export interface IUpdateOpenVpnMssfixAction {
   type: 'UPDATE_OPENVPN_MSSFIX';
   mssfix?: number;
-};
+}
 
-export type UpdateAutoStartAction = {
+export interface IUpdateAutoStartAction {
   type: 'UPDATE_AUTO_START';
   autoStart: boolean;
-};
+}
 
 export type SettingsAction =
-  | UpdateGuiSettingsAction
-  | UpdateRelayAction
-  | UpdateRelayLocationsAction
-  | UpdateAllowLanAction
-  | UpdateEnableIpv6Action
-  | UpdateBlockWhenDisconnectedAction
-  | UpdateOpenVpnMssfixAction
-  | UpdateAutoStartAction;
+  | IUpdateGuiSettingsAction
+  | IUpdateRelayAction
+  | IUpdateRelayLocationsAction
+  | IUpdateAllowLanAction
+  | IUpdateEnableIpv6Action
+  | IUpdateBlockWhenDisconnectedAction
+  | IUpdateOpenVpnMssfixAction
+  | IUpdateAutoStartAction;
 
-function updateGuiSettings(guiSettings: GuiSettingsState): UpdateGuiSettingsAction {
+function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
     type: 'UPDATE_GUI_SETTINGS',
     guiSettings,
   };
 }
 
-function updateRelay(relay: RelaySettingsRedux): UpdateRelayAction {
+function updateRelay(relay: RelaySettingsRedux): IUpdateRelayAction {
   return {
     type: 'UPDATE_RELAY',
-    relay: relay,
+    relay,
   };
 }
 
-function updateRelayLocations(
-  relayLocations: Array<RelayLocationRedux>,
-): UpdateRelayLocationsAction {
+function updateRelayLocations(relayLocations: IRelayLocationRedux[]): IUpdateRelayLocationsAction {
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
-    relayLocations: relayLocations,
+    relayLocations,
   };
 }
 
-function updateAllowLan(allowLan: boolean): UpdateAllowLanAction {
+function updateAllowLan(allowLan: boolean): IUpdateAllowLanAction {
   return {
     type: 'UPDATE_ALLOW_LAN',
     allowLan,
   };
 }
 
-function updateEnableIpv6(enableIpv6: boolean): UpdateEnableIpv6Action {
+function updateEnableIpv6(enableIpv6: boolean): IUpdateEnableIpv6Action {
   return {
     type: 'UPDATE_ENABLE_IPV6',
     enableIpv6,
@@ -90,21 +88,21 @@ function updateEnableIpv6(enableIpv6: boolean): UpdateEnableIpv6Action {
 
 function updateBlockWhenDisconnected(
   blockWhenDisconnected: boolean,
-): UpdateBlockWhenDisconnectedAction {
+): IUpdateBlockWhenDisconnectedAction {
   return {
     type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
     blockWhenDisconnected,
   };
 }
 
-function updateOpenVpnMssfix(mssfix?: number): UpdateOpenVpnMssfixAction {
+function updateOpenVpnMssfix(mssfix?: number): IUpdateOpenVpnMssfixAction {
   return {
     type: 'UPDATE_OPENVPN_MSSFIX',
     mssfix,
   };
 }
 
-function updateAutoStart(autoStart: boolean): UpdateAutoStartAction {
+function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   return {
     type: 'UPDATE_AUTO_START',
     autoStart,

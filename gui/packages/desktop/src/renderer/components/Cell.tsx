@@ -1,6 +1,6 @@
+import { ImageView } from '@mullvad/components';
 import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
-import { ImageView } from '@mullvad/components';
 import { colors } from '../../config.json';
 
 const styles = {
@@ -96,25 +96,27 @@ const styles = {
   }),
 };
 
-type CellButtonProps = {
+interface ICellButtonProps {
   children?: React.ReactNode;
   disabled?: boolean;
   cellHoverStyle?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
   style?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
   onPress?: () => void;
-};
+}
 
-type State = { hovered: boolean };
+interface IState {
+  hovered: boolean;
+}
 
 const CellHoverContext = React.createContext<boolean>(false);
 
-export class CellButton extends Component<CellButtonProps, State> {
-  state = { hovered: false };
+export class CellButton extends Component<ICellButtonProps, IState> {
+  public state = { hovered: false };
 
-  onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
-  onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
+  public onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
+  public onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
 
-  render() {
+  public render() {
     const { children, style, cellHoverStyle, ...otherProps } = this.props;
     const hoverStyle = cellHoverStyle || styles.cellHover;
     return (
@@ -129,22 +131,24 @@ export class CellButton extends Component<CellButtonProps, State> {
   }
 }
 
-type ContainerProps = { children: React.ReactNode };
+interface IContainerProps {
+  children: React.ReactNode;
+}
 
-export function Container({ children }: ContainerProps) {
+export function Container({ children }: IContainerProps) {
   return <View style={styles.cellContainer}>{children}</View>;
 }
 
-type LabelProps = {
+interface ILabelProps {
   containerStyle?: Types.ViewStyleRuleSet;
   textStyle?: Types.TextStyleRuleSet;
   cellHoverContainerStyle?: Types.ViewStyleRuleSet;
   cellHoverTextStyle?: Types.TextStyleRuleSet;
   onPress?: (event: Types.SyntheticEvent) => void;
   children?: React.ReactNode;
-};
+}
 
-export function Label(props: LabelProps) {
+export function Label(props: ILabelProps) {
   const {
     children,
     containerStyle,
@@ -173,10 +177,10 @@ export function Label(props: LabelProps) {
   );
 }
 
-type InputFrameProps = {
+interface InputFrameProps {
   children?: React.ReactNode;
   style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
-};
+}
 
 export function InputFrame(props: InputFrameProps) {
   const { style, children } = props;
@@ -237,7 +241,7 @@ export function Icon(props: ImageView['props']) {
   );
 }
 
-export function Footer({ children }: ContainerProps) {
+export function Footer({ children }: IContainerProps) {
   return (
     <View style={styles.footer.container}>
       <Text style={styles.footer.text}>{children}</Text>

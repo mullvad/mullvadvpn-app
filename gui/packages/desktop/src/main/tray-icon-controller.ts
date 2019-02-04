@@ -1,78 +1,77 @@
+import { nativeImage, NativeImage, Tray } from 'electron';
 import path from 'path';
 import KeyframeAnimation from './keyframe-animation';
-import { nativeImage } from 'electron';
-import { NativeImage, Tray } from 'electron';
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
 export default class TrayIconController {
-  _animation?: KeyframeAnimation;
-  _iconType: TrayIconType;
-  _iconImages: Array<NativeImage> = [];
-  _monochromaticIconImages: Array<NativeImage> = [];
-  _useMonochromaticIcon: boolean;
+  private animation?: KeyframeAnimation;
+  private iconImages: NativeImage[] = [];
+  private monochromaticIconImages: NativeImage[] = [];
 
-  constructor(tray: Tray, initialType: TrayIconType, useMonochromaticIcon: boolean) {
-    this._loadImages();
-    this._iconType = initialType;
-    this._useMonochromaticIcon = useMonochromaticIcon;
+  constructor(
+    tray: Tray,
+    private iconTypeValue: TrayIconType,
+    private useMonochromaticIconValue: boolean,
+  ) {
+    this.loadImages();
 
-    const initialFrame = this._targetFrame();
+    const initialFrame = this.targetFrame();
     const animation = new KeyframeAnimation();
     animation.speed = 100;
-    animation.onFrame = (frameNumber) => tray.setImage(this._imageForFrame(frameNumber));
+    animation.onFrame = (frameNumber) => tray.setImage(this.imageForFrame(frameNumber));
     animation.play({ start: initialFrame, end: initialFrame });
 
-    this._animation = animation;
+    this.animation = animation;
   }
 
-  dispose() {
-    if (this._animation) {
-      this._animation.stop();
-      this._animation = undefined;
+  public dispose() {
+    if (this.animation) {
+      this.animation.stop();
+      this.animation = undefined;
     }
   }
 
   get iconType(): TrayIconType {
-    return this._iconType;
+    return this.iconTypeValue;
   }
 
   set useMonochromaticIcon(useMonochromaticIcon: boolean) {
-    this._useMonochromaticIcon = useMonochromaticIcon;
+    this.useMonochromaticIconValue = useMonochromaticIcon;
 
-    if (this._animation && !this._animation.isRunning) {
-      this._animation.play({ end: this._targetFrame() });
+    if (this.animation && !this.animation.isRunning) {
+      this.animation.play({ end: this.targetFrame() });
     }
   }
 
-  animateToIcon(type: TrayIconType) {
-    if (this._iconType === type || !this._animation) {
+  public animateToIcon(type: TrayIconType) {
+    if (this.iconTypeValue === type || !this.animation) {
       return;
     }
 
-    this._iconType = type;
+    this.iconTypeValue = type;
 
-    const animation = this._animation;
-    const frame = this._targetFrame();
+    const animation = this.animation;
+    const frame = this.targetFrame();
 
     animation.play({ end: frame });
   }
 
-  _loadImages() {
+  private loadImages() {
     const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar icons'));
     const frames = Array.from({ length: 10 }, (_, i) => i + 1);
 
-    this._iconImages = frames.map((frame) =>
+    this.iconImages = frames.map((frame) =>
       nativeImage.createFromPath(path.join(basePath, `lock-${frame}.png`)),
     );
 
-    this._monochromaticIconImages = frames.map((frame) =>
+    this.monochromaticIconImages = frames.map((frame) =>
       nativeImage.createFromPath(path.join(basePath, `lock-${frame}Template.png`)),
     );
   }
 
-  _targetFrame(): number {
-    switch (this._iconType) {
+  private targetFrame(): number {
+    switch (this.iconTypeValue) {
       case 'unsecured':
         return 0;
       case 'securing':
@@ -82,9 +81,9 @@ export default class TrayIconController {
     }
   }
 
-  _imageForFrame(frame: number): NativeImage {
-    return this._useMonochromaticIcon
-      ? this._monochromaticIconImages[frame]
-      : this._iconImages[frame];
+  private imageForFrame(frame: number): NativeImage {
+    return this.useMonochromaticIconValue
+      ? this.monochromaticIconImages[frame]
+      : this.iconImages[frame];
   }
 }

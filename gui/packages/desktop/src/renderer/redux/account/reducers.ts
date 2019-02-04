@@ -1,16 +1,16 @@
-import { ReduxAction } from '../store';
 import { AccountToken } from '../../../shared/daemon-rpc-types';
+import { ReduxAction } from '../store';
 
 export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
-export type AccountReduxState = {
+export interface IAccountReduxState {
   accountToken?: AccountToken;
-  accountHistory: Array<AccountToken>;
+  accountHistory: AccountToken[];
   expiry?: string; // ISO8601
   status: LoginState;
   error?: Error;
-};
+}
 
-const initialState: AccountReduxState = {
+const initialState: IAccountReduxState = {
   accountToken: undefined,
   accountHistory: [],
   expiry: undefined,
@@ -19,9 +19,9 @@ const initialState: AccountReduxState = {
 };
 
 export default function(
-  state: AccountReduxState = initialState,
+  state: IAccountReduxState = initialState,
   action: ReduxAction,
-): AccountReduxState {
+): IAccountReduxState {
   switch (action.type) {
     case 'START_LOGIN':
       return {

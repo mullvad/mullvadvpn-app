@@ -1,15 +1,15 @@
+import { ClipboardLabel, HeaderTitle, SettingsHeader } from '@mullvad/components';
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { ClipboardLabel, SettingsHeader, HeaderTitle } from '@mullvad/components';
-import * as AppButton from './AppButton';
-import { Layout, Container } from './Layout';
-import { NavigationBar, BackBarItem } from './NavigationBar';
 import styles from './AccountStyles';
+import * as AppButton from './AppButton';
+import { Container, Layout } from './Layout';
+import { BackBarItem, NavigationBar } from './NavigationBar';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 
-type Props = {
+interface IProps {
   accountToken?: AccountToken;
   accountExpiry?: string;
   expiryLocale: string;
@@ -17,10 +17,10 @@ type Props = {
   onLogout: () => void;
   onClose: () => void;
   onBuyMore: () => void;
-};
+}
 
-export default class Account extends Component<Props> {
-  render() {
+export default class Account extends Component<IProps> {
+  public render() {
     return (
       <Layout>
         <Container>
@@ -75,7 +75,7 @@ export default class Account extends Component<Props> {
   }
 }
 
-const FormattedAccountExpiry = (props: { expiry?: string; locale: string }) => {
+function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
   if (!props.expiry) {
     return <Text style={styles.account__row_value}>{'Currently unavailable'}</Text>;
   }
@@ -99,4 +99,4 @@ const FormattedAccountExpiry = (props: { expiry?: string; locale: string }) => {
       {expiry.toDate().toLocaleString(props.locale, formatOptions)}
     </Text>
   );
-};
+}

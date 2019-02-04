@@ -1,99 +1,99 @@
 import { AccountToken } from '../../../shared/daemon-rpc-types';
 
-type StartLoginAction = {
+interface IStartLoginAction {
   type: 'START_LOGIN';
   accountToken: AccountToken;
-};
+}
 
-type LoggedInAction = {
+interface ILoggedInAction {
   type: 'LOGGED_IN';
-};
+}
 
-type LoginFailedAction = {
+interface ILoginFailedAction {
   type: 'LOGIN_FAILED';
   error: Error;
-};
+}
 
-type LoggedOutAction = {
+interface ILoggedOutAction {
   type: 'LOGGED_OUT';
-};
+}
 
-type ResetLoginErrorAction = {
+interface IResetLoginErrorAction {
   type: 'RESET_LOGIN_ERROR';
-};
+}
 
-type UpdateAccountTokenAction = {
+interface IUpdateAccountTokenAction {
   type: 'UPDATE_ACCOUNT_TOKEN';
   token: AccountToken;
-};
+}
 
-type UpdateAccountHistoryAction = {
+interface IUpdateAccountHistoryAction {
   type: 'UPDATE_ACCOUNT_HISTORY';
-  accountHistory: Array<AccountToken>;
-};
+  accountHistory: AccountToken[];
+}
 
-type UpdateAccountExpiryAction = {
+interface IUpdateAccountExpiryAction {
   type: 'UPDATE_ACCOUNT_EXPIRY';
   expiry: string;
-};
+}
 
 export type AccountAction =
-  | StartLoginAction
-  | LoggedInAction
-  | LoginFailedAction
-  | LoggedOutAction
-  | ResetLoginErrorAction
-  | UpdateAccountTokenAction
-  | UpdateAccountHistoryAction
-  | UpdateAccountExpiryAction;
+  | IStartLoginAction
+  | ILoggedInAction
+  | ILoginFailedAction
+  | ILoggedOutAction
+  | IResetLoginErrorAction
+  | IUpdateAccountTokenAction
+  | IUpdateAccountHistoryAction
+  | IUpdateAccountExpiryAction;
 
-function startLogin(accountToken: AccountToken): StartLoginAction {
+function startLogin(accountToken: AccountToken): IStartLoginAction {
   return {
     type: 'START_LOGIN',
-    accountToken: accountToken,
+    accountToken,
   };
 }
 
-function loggedIn(): LoggedInAction {
+function loggedIn(): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
   };
 }
 
-function loginFailed(error: Error): LoginFailedAction {
+function loginFailed(error: Error): ILoginFailedAction {
   return {
     type: 'LOGIN_FAILED',
     error,
   };
 }
 
-function loggedOut(): LoggedOutAction {
+function loggedOut(): ILoggedOutAction {
   return {
     type: 'LOGGED_OUT',
   };
 }
 
-function resetLoginError(): ResetLoginErrorAction {
+function resetLoginError(): IResetLoginErrorAction {
   return {
     type: 'RESET_LOGIN_ERROR',
   };
 }
 
-function updateAccountToken(token: AccountToken): UpdateAccountTokenAction {
+function updateAccountToken(token: AccountToken): IUpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
     token,
   };
 }
 
-function updateAccountHistory(accountHistory: Array<AccountToken>): UpdateAccountHistoryAction {
+function updateAccountHistory(accountHistory: AccountToken[]): IUpdateAccountHistoryAction {
   return {
     type: 'UPDATE_ACCOUNT_HISTORY',
     accountHistory,
   };
 }
 
-function updateAccountExpiry(expiry: string): UpdateAccountExpiryAction {
+function updateAccountExpiry(expiry: string): IUpdateAccountExpiryAction {
   return {
     type: 'UPDATE_ACCOUNT_EXPIRY',
     expiry,

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Animated, View, Button, Text, Component, UserInterface, Styles, Types } from 'reactxp';
 import { ImageView } from '@mullvad/components';
+import * as React from 'react';
+import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
 
 const styles = {
@@ -70,13 +70,13 @@ const styles = {
 };
 
 export class NotificationTitle extends Component {
-  render() {
+  public render() {
     return <Text style={styles.title}>{this.props.children}</Text>;
   }
 }
 
 export class NotificationSubtitle extends Component {
-  render() {
+  public render() {
     return React.Children.count(this.props.children) > 0 ? (
       <Text style={styles.subtitle}>{this.props.children}</Text>
     ) : null;
@@ -84,17 +84,17 @@ export class NotificationSubtitle extends Component {
 }
 
 export class NotificationOpenLinkAction extends Component<{ onPress: () => void }> {
-  state = {
+  public state = {
     hovered: false,
   };
 
-  render() {
+  public render() {
     return (
       <Button
         style={styles.actionButton}
         onPress={this.props.onPress}
-        onHoverStart={this._onHoverStart}
-        onHoverEnd={this._onHoverEnd}>
+        onHoverStart={this.onHoverStart}
+        onHoverEnd={this.onHoverEnd}>
         <ImageView
           height={12}
           width={12}
@@ -105,72 +105,75 @@ export class NotificationOpenLinkAction extends Component<{ onPress: () => void 
     );
   }
 
-  _onHoverStart = () => {
+  private onHoverStart = () => {
     this.setState({ hovered: true });
   };
 
-  _onHoverEnd = () => {
+  private onHoverEnd = () => {
     this.setState({ hovered: false });
   };
 }
 
 export class NotificationContent extends Component {
-  render() {
+  public render() {
     return <View style={styles.textContainer}>{this.props.children}</View>;
   }
 }
 
 export class NotificationActions extends Component {
-  render() {
+  public render() {
     return <View style={styles.actionContainer}>{this.props.children}</View>;
   }
 }
 
 export class NotificationIndicator extends Component<{ type: 'success' | 'warning' | 'error' }> {
-  render() {
+  public render() {
     return <View style={[styles.indicator.base, styles.indicator[this.props.type]]} />;
   }
 }
 
-type NotificationBannerProps = {
+interface INotificationBannerProps {
   children: React.ReactNode; // Array<NotificationContent | NotificationActions>,
   style?: Types.ViewStyleRuleSet;
   visible: boolean;
   animationDuration: number;
-};
+}
 
-type NotificationBannerState = {
+interface INotificationBannerState {
   contentPinnedToBottom: boolean;
-};
+}
 
 export class NotificationBanner extends Component<
-  NotificationBannerProps,
-  NotificationBannerState
+  INotificationBannerProps,
+  INotificationBannerState
 > {
-  static defaultProps = {
+  public static defaultProps = {
     animationDuration: 350,
   };
 
-  _containerRef = React.createRef<Animated.View>();
-  _contentHeight = 0;
-  _heightValue = Animated.createValue(0);
-  _animationStyle: Types.AnimatedViewStyleRuleSet;
-  _animation?: Types.Animated.CompositeAnimation;
-  _didFinishFirstLayoutPass = false;
-
-  state = {
+  public state = {
     contentPinnedToBottom: false,
   };
 
-  constructor(props: NotificationBannerProps) {
+  private containerRef = React.createRef<Animated.View>();
+  private contentHeight = 0;
+  private heightValue = Animated.createValue(0);
+  private animationStyle: Types.AnimatedViewStyleRuleSet;
+  private animation?: Types.Animated.CompositeAnimation;
+  private didFinishFirstLayoutPass = false;
+
+  constructor(props: INotificationBannerProps) {
     super(props);
 
-    this._animationStyle = Styles.createAnimatedViewStyle({
-      height: this._heightValue,
+    this.animationStyle = Styles.createAnimatedViewStyle({
+      height: this.heightValue,
     });
   }
 
-  shouldComponentUpdate(nextProps: NotificationBannerProps, nextState: NotificationBannerState) {
+  public shouldComponentUpdate(
+    nextProps: INotificationBannerProps,
+    nextState: INotificationBannerState,
+  ) {
     return (
       this.props.children !== nextProps.children ||
       this.props.visible !== nextProps.visible ||
@@ -178,79 +181,79 @@ export class NotificationBanner extends Component<
     );
   }
 
-  componentDidUpdate(prevProps: NotificationBannerProps) {
+  public componentDidUpdate(prevProps: INotificationBannerProps) {
     if (prevProps.visible !== this.props.visible) {
       // enable drawer-like animation when changing banner's visibility
       this.setState({ contentPinnedToBottom: true }, () => {
-        this._animateHeightChanges();
+        this.animateHeightChanges();
       });
     }
   }
 
-  componentWillUnmount() {
-    if (this._animation) {
-      this._animation.stop();
+  public componentWillUnmount() {
+    if (this.animation) {
+      this.animation.stop();
     }
   }
 
-  render() {
+  public render() {
     return (
       <Animated.View
         style={[
           styles.collapsible,
           this.state.contentPinnedToBottom ? styles.drawer : undefined,
-          this._animationStyle,
+          this.animationStyle,
           this.props.style,
         ]}
-        ref={this._containerRef}>
-        <View onLayout={this._onLayout}>
+        ref={this.containerRef}>
+        <View onLayout={this.onLayout}>
           <View style={styles.container}>{this.props.children}</View>
         </View>
       </Animated.View>
     );
   }
 
-  _onLayout = ({ height }: Types.ViewOnLayoutEvent) => {
-    const oldHeight = this._contentHeight;
-    this._contentHeight = height;
+  private onLayout = ({ height }: Types.ViewOnLayoutEvent) => {
+    const oldHeight = this.contentHeight;
+    this.contentHeight = height;
 
     // The first layout pass should not be animated because this would cause the initially visible
     // notification banner to slide down each time the component is mounted.
-    if (this._didFinishFirstLayoutPass) {
+    if (this.didFinishFirstLayoutPass) {
       if (oldHeight !== height) {
-        this._animateHeightChanges();
+        this.animateHeightChanges();
       }
     } else {
-      this._didFinishFirstLayoutPass = true;
+      this.didFinishFirstLayoutPass = true;
       if (this.props.visible) {
-        this._stopAnimation();
-        this._heightValue.setValue(height);
+        this.stopAnimation();
+        this.heightValue.setValue(height);
       }
     }
   };
 
-  async _animateHeightChanges() {
-    const containerView = this._containerRef.current;
+  private async animateHeightChanges() {
+    const containerView = this.containerRef.current;
     if (!containerView) {
       return;
     }
 
-    this._stopAnimation();
+    this.stopAnimation();
 
     // calculate the animation duration based on travel distance
     const layout = await UserInterface.measureLayoutRelativeToWindow(containerView);
-    const toValue = this.props.visible ? this._contentHeight : 0;
-    const multiplier = Math.abs(toValue - layout.height) / Math.max(1, this._contentHeight);
+    const toValue = this.props.visible ? this.contentHeight : 0;
+    const multiplier = Math.abs(toValue - layout.height) / Math.max(1, this.contentHeight);
     const duration = Math.ceil(this.props.animationDuration * multiplier);
 
-    const animation = Animated.timing(this._heightValue, {
+    const animation = Animated.timing(this.heightValue, {
       toValue,
       easing: Animated.Easing.InOut(),
       duration,
       useNativeDriver: true,
     });
 
-    this._animation = animation;
+    this.animation = animation;
 
     animation.start(({ finished }) => {
       if (finished) {
@@ -260,10 +263,10 @@ export class NotificationBanner extends Component<
     });
   }
 
-  _stopAnimation() {
-    if (this._animation) {
-      this._animation.stop();
-      this._animation = undefined;
+  private stopAnimation() {
+    if (this.animation) {
+      this.animation.stop();
+      this.animation = undefined;
     }
   }
 }
