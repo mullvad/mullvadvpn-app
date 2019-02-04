@@ -16,7 +16,7 @@ export default {
   },
   advanced_settings__content: Styles.createViewStyle({
     flexDirection: 'column',
-    flex: -1,
+    flex: 0,
     overflow: 'visible',
   }),
   advanced_settings__cell: Styles.createButtonStyle({
