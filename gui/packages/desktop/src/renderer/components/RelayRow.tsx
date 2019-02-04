@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { Component, Styles } from 'reactxp';
+import { colors } from '../../config.json';
+import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import * as Cell from './Cell';
 import RelayStatusIndicator from './RelayStatusIndicator';
-import { colors } from '../../config.json';
 
-type Props = {
+interface IProps {
+  location: RelayLocation;
   hostname: string;
   selected: boolean;
-  onSelect?: () => void;
-};
+  onSelect?: (location: RelayLocation) => void;
+}
 
 const styles = {
   base: Styles.createViewStyle({
@@ -23,19 +25,23 @@ const styles = {
   }),
 };
 
-export default class RelayRow extends Component<Props> {
-  shouldComponentUpdate(nextProps: Props) {
+export default class RelayRow extends Component<IProps> {
+  public static compareProps(oldProps: IProps, nextProps: IProps) {
+    return (
+      oldProps.hostname === nextProps.hostname &&
+      oldProps.selected === nextProps.selected &&
+      compareRelayLocation(oldProps.location, nextProps.location)
+    );
+  }
+
+  public shouldComponentUpdate(nextProps: IProps) {
     return !RelayRow.compareProps(this.props, nextProps);
   }
 
-  static compareProps(oldProps: Props, nextProps: Props) {
-    return oldProps.hostname === nextProps.hostname && oldProps.selected === nextProps.selected;
-  }
-
-  render() {
+  public render() {
     return (
       <Cell.CellButton
-        onPress={this._handlePress}
+        onPress={this.handlePress}
         cellHoverStyle={this.props.selected ? styles.selected : undefined}
         style={[styles.base, this.props.selected ? styles.selected : undefined]}>
         <RelayStatusIndicator isActive={true} isSelected={this.props.selected} />
@@ -45,9 +51,9 @@ export default class RelayRow extends Component<Props> {
     );
   }
 
-  _handlePress = () => {
+  private handlePress = () => {
     if (this.props.onSelect) {
-      this.props.onSelect();
+      this.props.onSelect(this.props.location);
     }
   };
 }

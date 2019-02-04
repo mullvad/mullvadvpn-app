@@ -31,34 +31,34 @@ interface IState {
 }
 
 export default class Map extends Component<IProps, IState> {
-  state: IState = {
+  public state: IState = {
     bounds: {
       width: 0,
       height: 0,
     },
   };
 
-  render() {
+  public render() {
     const { width, height } = this.state.bounds;
     const readyToRenderTheMap = width > 0 && height > 0;
     return (
-      <View style={this.props.style} onLayout={this._onLayout}>
+      <View style={this.props.style} onLayout={this.onLayout}>
         {readyToRenderTheMap && (
           <SvgMap
             width={width}
             height={height}
             center={this.props.center}
             offset={this.props.offset}
-            zoomLevel={this._zoomLevel(this.props.zoomLevel)}
+            zoomLevel={this.zoomLevel(this.props.zoomLevel)}
             showMarker={this.props.showMarker}
-            markerImagePath={this._markerImage(this.props.markerStyle)}
+            markerImagePath={this.markerImage(this.props.markerStyle)}
           />
         )}
       </View>
     );
   }
 
-  shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
     const oldProps = this.props;
     const oldState = this.state;
     return (
@@ -74,7 +74,7 @@ export default class Map extends Component<IProps, IState> {
     );
   }
 
-  _onLayout = (layoutInfo: Types.ViewOnLayoutEvent) => {
+  private onLayout = (layoutInfo: Types.ViewOnLayoutEvent) => {
     this.setState({
       bounds: {
         width: layoutInfo.width,
@@ -84,7 +84,7 @@ export default class Map extends Component<IProps, IState> {
   };
 
   // TODO: Remove zoom level in favor of center + coordinate span
-  _zoomLevel(variant: ZoomLevel) {
+  private zoomLevel(variant: ZoomLevel) {
     switch (variant) {
       case ZoomLevel.high:
         return 1;
@@ -95,7 +95,7 @@ export default class Map extends Component<IProps, IState> {
     }
   }
 
-  _markerImage(style: MarkerStyle): string {
+  private markerImage(style: MarkerStyle): string {
     switch (style) {
       case MarkerStyle.secure:
         return '../../assets/images/location-marker-secure.svg';

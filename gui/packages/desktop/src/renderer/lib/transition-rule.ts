@@ -1,41 +1,33 @@
-export type TransitionDescriptor = {
+export interface ITransitionDescriptor {
   name: string;
   duration: number;
-};
+}
 
-export type TransitionFork = {
-  forward: TransitionDescriptor;
-  backward: TransitionDescriptor;
-};
+export interface ITransitionFork {
+  forward: ITransitionDescriptor;
+  backward: ITransitionDescriptor;
+}
 
-export type TransitionMatch = {
+export interface ITransitionMatch {
   direction: 'forward' | 'backward';
-  descriptor: TransitionDescriptor;
-};
+  descriptor: ITransitionDescriptor;
+}
 
 export default class TransitionRule {
-  _from: string | null;
-  _to: string;
-  _fork: TransitionFork;
+  constructor(private from: string | null, private to: string, private fork: ITransitionFork) {}
 
-  constructor(from: string | null, to: string, fork: TransitionFork) {
-    this._from = from;
-    this._to = to;
-    this._fork = fork;
-  }
-
-  match(fromRoute: string | null, toRoute: string): TransitionMatch | null {
-    if ((!this._from || this._from === fromRoute) && this._to === toRoute) {
+  public match(fromRoute: string | null, toRoute: string): ITransitionMatch | null {
+    if ((!this.from || this.from === fromRoute) && this.to === toRoute) {
       return {
         direction: 'forward',
-        descriptor: this._fork['forward'],
+        descriptor: this.fork.forward,
       };
     }
 
-    if ((!this._from || this._from === toRoute) && this._to === fromRoute) {
+    if ((!this.from || this.from === toRoute) && this.to === fromRoute) {
       return {
         direction: 'backward',
-        descriptor: this._fork['backward'],
+        descriptor: this.fork.backward,
       };
     }
 

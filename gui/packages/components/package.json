@@ -36,7 +36,6 @@
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "tslint": "^5.12.1",
-    "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.4"
   },
   "dependencies": {},

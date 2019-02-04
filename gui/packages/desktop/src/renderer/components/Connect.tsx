@@ -1,24 +1,23 @@
+import { Brand, HeaderBarStyle, ImageView, SettingsBarButton } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
-import { SettingsBarButton, Brand, HeaderBarStyle, ImageView } from '@mullvad/components';
-import { Layout, Container, Header } from './Layout';
-import NotificationArea from './NotificationArea';
-import * as AppButton from './AppButton';
-import TunnelControl from './TunnelControl';
-import Map, { MarkerStyle, ZoomLevel } from './Map';
-import styles from './ConnectStyles';
-import { NoCreditError, NoInternetError } from '../../main/errors';
-import { TunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
 import { links } from '../../config.json';
+import { NoCreditError, NoInternetError } from '../../main/errors';
+import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
+import * as AppButton from './AppButton';
+import styles from './ConnectStyles';
+import { Container, Header, Layout } from './Layout';
+import Map, { MarkerStyle, ZoomLevel } from './Map';
+import NotificationArea from './NotificationArea';
+import TunnelControl, { IRelayInAddress, IRelayOutAddress } from './TunnelControl';
 
-import { RelayOutAddress, RelayInAddress } from './TunnelControl';
 import AccountExpiry from '../lib/account-expiry';
-import { ConnectionReduxState } from '../redux/connection/reducers';
-import { VersionReduxState } from '../redux/version/reducers';
+import { IConnectionReduxState } from '../redux/connection/reducers';
+import { IVersionReduxState } from '../redux/version/reducers';
 
-type Props = {
-  connection: ConnectionReduxState;
-  version: VersionReduxState;
+interface IProps {
+  connection: IConnectionReduxState;
+  version: IVersionReduxState;
   accountExpiry?: AccountExpiry;
   selectedRelayName: string;
   connectionInfoOpen: boolean;
@@ -29,12 +28,12 @@ type Props = {
   onDisconnect: () => void;
   onExternalLink: (url: string) => void;
   onToggleConnectionInfo: (value: boolean) => void;
-};
+}
 
 type MarkerOrSpinner = 'marker' | 'spinner';
 
-export default class Connect extends Component<Props> {
-  render() {
+export default class Connect extends Component<IProps> {
+  public render() {
     const error = this.checkForErrors();
     const child = error ? this.renderError(error) : this.renderMap();
 
@@ -49,7 +48,7 @@ export default class Connect extends Component<Props> {
     );
   }
 
-  renderError(error: Error) {
+  public renderError(error: Error) {
     let title = '';
     let message = '';
 
@@ -75,9 +74,7 @@ export default class Connect extends Component<Props> {
           <View style={styles.error_message}>{message}</View>
           {error instanceof NoCreditError ? (
             <View>
-              <AppButton.GreenButton
-                disabled={isBlocked}
-                onPress={() => this.props.onExternalLink(links.purchase)}>
+              <AppButton.GreenButton disabled={isBlocked} onPress={this.handleBuyMorePress}>
                 <AppButton.Label>Buy more time</AppButton.Label>
                 <AppButton.Icon source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
@@ -88,102 +85,23 @@ export default class Connect extends Component<Props> {
     );
   }
 
-  _getMapProps(): Map['props'] {
-    const {
-      longitude,
-      latitude,
-      status: { state },
-    } = this.props.connection;
-
-    // when the user location is known
-    if (typeof longitude === 'number' && typeof latitude === 'number') {
-      return {
-        center: [longitude, latitude],
-        // do not show the marker when connecting or reconnecting
-        showMarker: this._showMarkerOrSpinner() === 'marker',
-        markerStyle: this._getMarkerStyle(),
-        // zoom in when connected
-        zoomLevel: state === 'connected' ? ZoomLevel.low : ZoomLevel.medium,
-        // a magic offset to align marker with spinner
-        offset: [0, 123],
-      };
-    } else {
-      return {
-        center: [0, 0],
-        showMarker: false,
-        markerStyle: MarkerStyle.unsecure,
-        // show the world when user location is not known
-        zoomLevel: ZoomLevel.high,
-        // remove the offset since the marker is hidden
-        offset: [0, 0],
-      };
-    }
-  }
-
-  _getMarkerStyle(): MarkerStyle {
-    const { status } = this.props.connection;
-
-    switch (status.state) {
-      case 'connecting':
-      case 'connected':
-        return MarkerStyle.secure;
-      case 'blocked':
-        switch (status.details.reason) {
-          case 'set_firewall_policy_error':
-            return MarkerStyle.unsecure;
-          default:
-            return MarkerStyle.secure;
-        }
-      case 'disconnected':
-        return MarkerStyle.unsecure;
-      case 'disconnecting':
-        switch (status.details) {
-          case 'block':
-          case 'reconnect':
-            return MarkerStyle.secure;
-          case 'nothing':
-            return MarkerStyle.unsecure;
-          default:
-            throw new Error(`Invalid action after disconnection: ${status.details}`);
-        }
-    }
-  }
-
-  _showMarkerOrSpinner(): MarkerOrSpinner {
+  public renderMap() {
     const status = this.props.connection.status;
 
-    return status.state === 'connecting' ||
-      (status.state === 'disconnecting' && status.details === 'reconnect')
-      ? 'spinner'
-      : 'marker';
-  }
-
-  _tunnelEndpointToRelayInAddress(tunnelEndpoint: TunnelEndpoint): RelayInAddress {
-    const socketAddr = parseSocketAddress(tunnelEndpoint.address);
-    return {
-      ip: socketAddr.host,
-      port: socketAddr.port,
-      protocol: tunnelEndpoint.protocol,
-    };
-  }
-
-  renderMap() {
-    const status = this.props.connection.status;
-
-    const relayOutAddress: RelayOutAddress = {
+    const relayOutAddress: IRelayOutAddress = {
       ipv4: this.props.connection.ip,
     };
-    const relayInAddress: RelayInAddress | undefined =
+    const relayInAddress: IRelayInAddress | undefined =
       (status.state === 'connecting' || status.state === 'connected') && status.details
-        ? this._tunnelEndpointToRelayInAddress(status.details)
+        ? this.tunnelEndpointToRelayInAddress(status.details)
         : undefined;
 
     return (
       <View style={styles.connect}>
-        <Map style={styles.map} {...this._getMapProps()} />
+        <Map style={styles.map} {...this.getMapProps()} />
         <View style={styles.container}>
           {/* show spinner when connecting */}
-          {this._showMarkerOrSpinner() === 'spinner' ? (
+          {this.showMarkerOrSpinner() === 'spinner' ? (
             <View style={styles.status_icon}>
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
@@ -217,9 +135,11 @@ export default class Connect extends Component<Props> {
     );
   }
 
-  // Private
+  private handleBuyMorePress = () => {
+    this.props.onExternalLink(links.purchase);
+  };
 
-  headerBarStyle(): HeaderBarStyle {
+  private headerBarStyle(): HeaderBarStyle {
     const { status } = this.props.connection;
     switch (status.state) {
       case 'disconnected':
@@ -247,7 +167,7 @@ export default class Connect extends Component<Props> {
     }
   }
 
-  checkForErrors(): Error | undefined {
+  private checkForErrors(): Error | undefined {
     // Offline?
     if (!this.props.connection.isOnline) {
       return new NoInternetError();
@@ -259,5 +179,84 @@ export default class Connect extends Component<Props> {
     }
 
     return undefined;
+  }
+
+  private getMapProps(): Map['props'] {
+    const {
+      longitude,
+      latitude,
+      status: { state },
+    } = this.props.connection;
+
+    // when the user location is known
+    if (typeof longitude === 'number' && typeof latitude === 'number') {
+      return {
+        center: [longitude, latitude],
+        // do not show the marker when connecting or reconnecting
+        showMarker: this.showMarkerOrSpinner() === 'marker',
+        markerStyle: this.getMarkerStyle(),
+        // zoom in when connected
+        zoomLevel: state === 'connected' ? ZoomLevel.low : ZoomLevel.medium,
+        // a magic offset to align marker with spinner
+        offset: [0, 123],
+      };
+    } else {
+      return {
+        center: [0, 0],
+        showMarker: false,
+        markerStyle: MarkerStyle.unsecure,
+        // show the world when user location is not known
+        zoomLevel: ZoomLevel.high,
+        // remove the offset since the marker is hidden
+        offset: [0, 0],
+      };
+    }
+  }
+
+  private getMarkerStyle(): MarkerStyle {
+    const { status } = this.props.connection;
+
+    switch (status.state) {
+      case 'connecting':
+      case 'connected':
+        return MarkerStyle.secure;
+      case 'blocked':
+        switch (status.details.reason) {
+          case 'set_firewall_policy_error':
+            return MarkerStyle.unsecure;
+          default:
+            return MarkerStyle.secure;
+        }
+      case 'disconnected':
+        return MarkerStyle.unsecure;
+      case 'disconnecting':
+        switch (status.details) {
+          case 'block':
+          case 'reconnect':
+            return MarkerStyle.secure;
+          case 'nothing':
+            return MarkerStyle.unsecure;
+          default:
+            throw new Error(`Invalid action after disconnection: ${status.details}`);
+        }
+    }
+  }
+
+  private showMarkerOrSpinner(): MarkerOrSpinner {
+    const status = this.props.connection.status;
+
+    return status.state === 'connecting' ||
+      (status.state === 'disconnecting' && status.details === 'reconnect')
+      ? 'spinner'
+      : 'marker';
+  }
+
+  private tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): IRelayInAddress {
+    const socketAddr = parseSocketAddress(tunnelEndpoint.address);
+    return {
+      ip: socketAddr.host,
+      port: socketAddr.port,
+      protocol: tunnelEndpoint.protocol,
+    };
   }
 }

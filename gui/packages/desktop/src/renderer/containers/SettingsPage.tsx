@@ -1,13 +1,13 @@
+import { goBack, push } from 'connected-react-router';
 import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push, goBack } from 'connected-react-router';
 import Settings from '../components/Settings';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
   appVersion: state.version.current,
@@ -15,7 +15,7 @@ const mapStateToProps = (state: ReduxState) => ({
   upToDateVersion: state.version.upToDate,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onQuit: () => remote.app.quit(),

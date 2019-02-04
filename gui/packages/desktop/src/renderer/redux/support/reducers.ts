@@ -1,19 +1,19 @@
 import { ReduxAction } from '../store';
 
-export type SupportReduxState = {
+export interface ISupportReduxState {
   email: string;
   message: string;
-};
+}
 
-const initialState: SupportReduxState = {
+const initialState: ISupportReduxState = {
   email: '',
   message: '',
 };
 
 export default function(
-  state: SupportReduxState = initialState,
+  state: ISupportReduxState = initialState,
   action: ReduxAction,
-): SupportReduxState {
+): ISupportReduxState {
   switch (action.type) {
     case 'SAVE_REPORT_FORM':
       return {

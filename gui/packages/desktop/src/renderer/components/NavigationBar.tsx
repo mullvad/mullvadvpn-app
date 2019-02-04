@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { Animated, Button, Component, Text, Types, View, Styles, UserInterface } from 'reactxp';
 import { ImageView } from '@mullvad/components';
-import CustomScrollbars, { ScrollEvent } from './CustomScrollbars';
+import * as React from 'react';
+import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
+import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 
 const styles = {
   navigationBar: {
@@ -78,51 +78,53 @@ const styles = {
   },
 };
 
-type NavigationScrollContextValue = {
+interface INavigationScrollContextValue {
   scrollTop: number;
-  onScroll: (event: ScrollEvent) => void;
-};
+  onScroll: (event: IScrollEvent) => void;
+}
 
-const NavigationScrollContext = React.createContext<NavigationScrollContextValue>({
+const NavigationScrollContext = React.createContext<INavigationScrollContextValue>({
   scrollTop: 0,
-  onScroll: (_event: ScrollEvent) => {},
+  onScroll: (_event: IScrollEvent) => {
+    // no-op
+  },
 });
 
 export class NavigationContainer extends Component {
-  state = {
+  public state = {
     scrollTop: 0,
   };
 
-  _onScroll = (event: ScrollEvent) => {
-    this.setState({
-      scrollTop: event.scrollTop,
-    });
-  };
-
-  render() {
+  public render() {
     return (
       <NavigationScrollContext.Provider
-        value={{ scrollTop: this.state.scrollTop, onScroll: this._onScroll }}>
+        value={{ scrollTop: this.state.scrollTop, onScroll: this.onScroll }}>
         {this.props.children}
       </NavigationScrollContext.Provider>
     );
   }
+
+  private onScroll = (event: IScrollEvent) => {
+    this.setState({
+      scrollTop: event.scrollTop,
+    });
+  };
 }
 
-type NavigationScrollbarsProps = {
-  onScroll?: (value: ScrollEvent) => void;
+interface INavigationScrollbarsProps {
+  onScroll?: (value: IScrollEvent) => void;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-};
+}
 export const NavigationScrollbars = React.forwardRef(function NavigationScrollbarsT(
-  props: NavigationScrollbarsProps,
+  props: INavigationScrollbarsProps,
   ref?: React.Ref<CustomScrollbars>,
 ) {
   return (
     <NavigationScrollContext.Consumer>
       {(context) => {
         const { style, children, ...otherProps } = props;
-        const wrappedOnScroll = (scroll: ScrollEvent) => {
+        const wrappedOnScroll = (scroll: IScrollEvent) => {
           context.onScroll(scroll);
 
           if (otherProps.onScroll) {
@@ -140,14 +142,14 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   );
 });
 
-type PrivateTitleBarItemProps = {
+interface IPrivateTitleBarItemProps {
   visible: boolean;
   titleAdjustment: number;
   children?: React.ReactText;
-};
+}
 
-class PrivateTitleBarItem extends Component<PrivateTitleBarItemProps> {
-  shouldComponentUpdate(nextProps: PrivateTitleBarItemProps) {
+class PrivateTitleBarItem extends Component<IPrivateTitleBarItemProps> {
+  public shouldComponentUpdate(nextProps: IPrivateTitleBarItemProps) {
     return (
       this.props.visible !== nextProps.visible ||
       this.props.titleAdjustment !== nextProps.titleAdjustment ||
@@ -155,7 +157,7 @@ class PrivateTitleBarItem extends Component<PrivateTitleBarItemProps> {
     );
   }
 
-  render() {
+  public render() {
     const titleAdjustment = this.props.titleAdjustment;
     const titleAdjustmentStyle = Styles.createViewStyle(
       {
@@ -175,50 +177,50 @@ class PrivateTitleBarItem extends Component<PrivateTitleBarItemProps> {
   }
 }
 
-type PrivateBarItemAnimationContainerProps = {
+interface IPrivateBarItemAnimationContainerProps {
   visible: boolean;
   children?: React.ReactNode;
-};
+}
 
-class PrivateBarItemAnimationContainer extends Component<PrivateBarItemAnimationContainerProps> {
-  _opacityValue: Animated.Value;
-  _opacityStyle: Types.AnimatedViewStyleRuleSet;
-  _animation?: Types.Animated.CompositeAnimation;
+class PrivateBarItemAnimationContainer extends Component<IPrivateBarItemAnimationContainerProps> {
+  private opacityValue: Animated.Value;
+  private opacityStyle: Types.AnimatedViewStyleRuleSet;
+  private animation?: Types.Animated.CompositeAnimation;
 
-  constructor(props: PrivateBarItemAnimationContainerProps) {
+  constructor(props: IPrivateBarItemAnimationContainerProps) {
     super(props);
 
-    this._opacityValue = Animated.createValue(props.visible ? 1 : 0);
-    this._opacityStyle = Styles.createAnimatedViewStyle({
-      opacity: this._opacityValue,
+    this.opacityValue = Animated.createValue(props.visible ? 1 : 0);
+    this.opacityStyle = Styles.createAnimatedViewStyle({
+      opacity: this.opacityValue,
     });
   }
 
-  shouldComponentUpdate(nextProps: PrivateBarItemAnimationContainerProps) {
+  public shouldComponentUpdate(nextProps: IPrivateBarItemAnimationContainerProps) {
     return this.props.visible !== nextProps.visible || this.props.children !== nextProps.children;
   }
 
-  componentDidUpdate() {
-    this._animateOpacity(this.props.visible);
+  public componentDidUpdate() {
+    this.animateOpacity(this.props.visible);
   }
 
-  componentWillUnmount() {
-    if (this._animation) {
-      this._animation.stop();
+  public componentWillUnmount() {
+    if (this.animation) {
+      this.animation.stop();
     }
   }
 
-  render() {
-    return <Animated.View style={this._opacityStyle}>{this.props.children}</Animated.View>;
+  public render() {
+    return <Animated.View style={this.opacityStyle}>{this.props.children}</Animated.View>;
   }
 
-  _animateOpacity(visible: boolean) {
-    const oldAnimation = this._animation;
+  private animateOpacity(visible: boolean) {
+    const oldAnimation = this.animation;
     if (oldAnimation) {
       oldAnimation.stop();
     }
 
-    const animation = Animated.timing(this._opacityValue, {
+    const animation = Animated.timing(this.opacityValue, {
       toValue: visible ? 1 : 0,
       easing: Animated.Easing.InOut(),
       duration: 250,
@@ -226,16 +228,16 @@ class PrivateBarItemAnimationContainer extends Component<PrivateBarItemAnimation
 
     animation.start();
 
-    this._animation = animation;
+    this.animation = animation;
   }
 }
 
-type NavigationBarProps = {
+interface INavigationBarProps {
   children?: React.ReactNode;
-};
+}
 
 export const NavigationBar = React.forwardRef(function NavigationBarT(
-  props: NavigationBarProps,
+  props: INavigationBarProps,
   ref?: React.Ref<PrivateNavigationBar>,
 ) {
   return (
@@ -249,16 +251,16 @@ export const NavigationBar = React.forwardRef(function NavigationBarT(
   );
 });
 
-type PrivateNavigationBarProps = {
+interface IPrivateNavigationBarProps {
   scrollTop: number;
   children?: React.ReactNode;
-};
+}
 
-type PrivateNavigationBarState = {
+interface IPrivateNavigationBarState {
   titleAdjustment: number;
   showsBarSeparator: boolean;
   showsBarTitle: boolean;
-};
+}
 
 const PrivateTitleBarItemContext = React.createContext({
   titleAdjustment: 0,
@@ -266,22 +268,17 @@ const PrivateTitleBarItemContext = React.createContext({
   titleRef: React.createRef<PrivateTitleBarItem>(),
 });
 
-class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateNavigationBarState> {
-  static defaultProps: Partial<PrivateNavigationBarProps> = {
+class PrivateNavigationBar extends Component<
+  IPrivateNavigationBarProps,
+  IPrivateNavigationBarState
+> {
+  public static defaultProps: Partial<IPrivateNavigationBarProps> = {
     scrollTop: 0,
   };
 
-  state: PrivateNavigationBarState = {
-    titleAdjustment: 0,
-    showsBarSeparator: false,
-    showsBarTitle: false,
-  };
-
-  _titleViewRef = React.createRef<PrivateTitleBarItem>();
-
-  static getDerivedStateFromProps(
-    props: PrivateNavigationBarProps,
-    state: PrivateNavigationBarState,
+  public static getDerivedStateFromProps(
+    props: IPrivateNavigationBarProps,
+    state: IPrivateNavigationBarState,
   ) {
     // that's where SettingsHeader.HeaderTitle intersects the navigation bar
     const showsBarSeparator = props.scrollTop > 11;
@@ -296,9 +293,17 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
     };
   }
 
-  shouldComponentUpdate(
-    nextProps: PrivateNavigationBarProps,
-    nextState: PrivateNavigationBarState,
+  public state: IPrivateNavigationBarState = {
+    titleAdjustment: 0,
+    showsBarSeparator: false,
+    showsBarTitle: false,
+  };
+
+  private titleViewRef = React.createRef<PrivateTitleBarItem>();
+
+  public shouldComponentUpdate(
+    nextProps: IPrivateNavigationBarProps,
+    nextState: IPrivateNavigationBarState,
   ) {
     return (
       this.props.children !== nextProps.children ||
@@ -308,20 +313,20 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
     );
   }
 
-  render() {
+  public render() {
     return (
       <View
         style={[
           styles.navigationBar.default,
           this.state.showsBarSeparator ? styles.navigationBar.separator : undefined,
-          this._getPlatformStyle(),
+          this.getPlatformStyle(),
         ]}
-        onLayout={this._onLayout}>
+        onLayout={this.onLayout}>
         <PrivateTitleBarItemContext.Provider
           value={{
             titleAdjustment: this.state.titleAdjustment,
             visible: this.state.showsBarTitle,
-            titleRef: this._titleViewRef,
+            titleRef: this.titleViewRef,
           }}>
           {this.props.children}
         </PrivateTitleBarItemContext.Provider>
@@ -329,7 +334,7 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
     );
   }
 
-  _getPlatformStyle(): Types.ViewStyleRuleSet | undefined {
+  private getPlatformStyle(): Types.ViewStyleRuleSet | undefined {
     switch (process.platform) {
       case 'darwin':
         return styles.navigationBar.darwin;
@@ -342,8 +347,8 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
     }
   }
 
-  _onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
-    const titleView = this._titleViewRef.current;
+  private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
+    const titleView = this.titleViewRef.current;
     if (titleView) {
       // calculate the title layout frame
       const titleLayout = await UserInterface.measureLayoutRelativeToAncestor(titleView, this);
@@ -358,10 +363,10 @@ class PrivateNavigationBar extends Component<PrivateNavigationBarProps, PrivateN
   };
 }
 
-type TitleBarItemProps = {
+interface ITitleBarItemProps {
   children?: React.ReactText;
-};
-export function TitleBarItem(props: TitleBarItemProps) {
+}
+export function TitleBarItem(props: ITitleBarItemProps) {
   return (
     <PrivateTitleBarItemContext.Consumer>
       {(context) => (
@@ -376,10 +381,12 @@ export function TitleBarItem(props: TitleBarItemProps) {
   );
 }
 
-export class CloseBarItem extends Component<{
+interface ICloseBarItemProps {
   action: () => void;
-}> {
-  render() {
+}
+
+export class CloseBarItem extends Component<ICloseBarItemProps> {
+  public render() {
     return (
       <Button style={[styles.closeBarItem.default]} onPress={this.props.action}>
         <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source="icon-close" />
@@ -388,11 +395,13 @@ export class CloseBarItem extends Component<{
   }
 }
 
-export class BackBarItem extends Component<{
+interface IBackBarItemProps {
   children?: React.ReactText;
   action: () => void;
-}> {
-  render() {
+}
+
+export class BackBarItem extends Component<IBackBarItemProps> {
+  public render() {
     return (
       <Button style={styles.backBarButton.default} onPress={this.props.action}>
         <View style={styles.backBarButton.content}>

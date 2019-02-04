@@ -1,11 +1,14 @@
 import { ipcRenderer } from 'electron';
 import * as uuid from 'uuid';
 
-type ErrorResult = { success: false; error: string };
-type CollectResult = { success: true; reportPath: string } | ErrorResult;
-type SendResult = { success: true } | ErrorResult;
+interface IErrorResult {
+  success: false;
+  error: string;
+}
+type CollectResult = { success: true; reportPath: string } | IErrorResult;
+type SendResult = { success: true } | IErrorResult;
 
-const collectProblemReport = (toRedact: Array<string>): Promise<string> => {
+const collectProblemReport = (toRedact: string[]): Promise<string> => {
   return new Promise((resolve, reject) => {
     const requestId = uuid.v4();
     const responseListener = (

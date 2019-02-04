@@ -2,15 +2,15 @@ import * as React from 'react';
 
 const AUTOHIDE_TIMEOUT = 1000;
 
-type Props = {
+interface IProps {
   autoHide: boolean;
   trackPadding: { x: number; y: number };
-  onScroll?: (value: ScrollEvent) => void;
+  onScroll?: (value: IScrollEvent) => void;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-};
+}
 
-type State = {
+interface IState {
   canScroll: boolean;
   showScrollIndicators: boolean;
   showTrack: boolean;
@@ -21,24 +21,27 @@ type State = {
     y: number;
   };
   isWide: boolean;
-};
+}
 
-export type ScrollEvent = { scrollLeft: number; scrollTop: number };
+export interface IScrollEvent {
+  scrollLeft: number;
+  scrollTop: number;
+}
 export type ScrollPosition = 'top' | 'bottom' | 'middle';
 
-type ScrollbarUpdateContext = {
+interface IScrollbarUpdateContext {
   size: boolean;
   position: boolean;
-};
+}
 
-export default class CustomScrollbars extends React.Component<Props, State> {
-  static defaultProps: Props = {
+export default class CustomScrollbars extends React.Component<IProps, IState> {
+  public static defaultProps: IProps = {
     // auto-hide on macOS by default
     autoHide: process.platform === 'darwin',
     trackPadding: { x: 2, y: 2 },
   };
 
-  state = {
+  public state = {
     canScroll: false,
     showScrollIndicators: true,
     showTrack: false,
@@ -48,21 +51,21 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     isWide: false,
   };
 
-  _scrollableRef = React.createRef<HTMLDivElement>();
-  _trackRef = React.createRef<HTMLDivElement>();
-  _thumbRef = React.createRef<HTMLDivElement>();
-  _autoHideTimer?: NodeJS.Timeout;
+  private scrollableRef = React.createRef<HTMLDivElement>();
+  private trackRef = React.createRef<HTMLDivElement>();
+  private thumbRef = React.createRef<HTMLDivElement>();
+  private autoHideTimer?: NodeJS.Timeout;
 
-  scrollTo(x: number, y: number) {
-    const scrollable = this._scrollableRef.current;
+  public scrollTo(x: number, y: number) {
+    const scrollable = this.scrollableRef.current;
     if (scrollable) {
       scrollable.scrollLeft = x;
       scrollable.scrollTop = y;
     }
   }
 
-  scrollToElement(child: HTMLElement, scrollPosition: ScrollPosition) {
-    const scrollable = this._scrollableRef.current;
+  public scrollToElement(child: HTMLElement, scrollPosition: ScrollPosition) {
+    const scrollable = this.scrollableRef.current;
     if (scrollable) {
       // throw if child is not a descendant of scroll view
       if (!scrollable.contains(child)) {
@@ -71,13 +74,13 @@ export default class CustomScrollbars extends React.Component<Props, State> {
         );
       }
 
-      const scrollTop = this._computeScrollTop(scrollable, child, scrollPosition);
+      const scrollTop = this.computeScrollTop(scrollable, child, scrollPosition);
       this.scrollTo(0, scrollTop);
     }
   }
 
-  componentDidMount() {
-    this._updateScrollbarsHelper({
+  public componentDidMount() {
+    this.updateScrollbarsHelper({
       position: true,
       size: true,
     });
@@ -88,11 +91,11 @@ export default class CustomScrollbars extends React.Component<Props, State> {
 
     // show scroll indicators briefly when mounted
     if (this.props.autoHide) {
-      this._startAutoHide();
+      this.startAutoHide();
     }
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
     const prevProps = this.props;
     const prevState = this.state;
 
@@ -110,134 +113,22 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     );
   }
 
-  componentWillUnmount() {
-    this._stopAutoHide();
+  public componentWillUnmount() {
+    this.stopAutoHide();
 
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
     document.removeEventListener('mousedown', this.handleMouseDown);
   }
 
-  componentDidUpdate() {
-    this._updateScrollbarsHelper({
+  public componentDidUpdate() {
+    this.updateScrollbarsHelper({
       position: true,
       size: true,
     });
   }
 
-  handleEnterTrack = () => {
-    this._stopAutoHide();
-    this.setState({
-      isTrackHovered: true,
-      showScrollIndicators: true,
-      showTrack: true,
-      isWide: true,
-    });
-  };
-
-  handleLeaveTrack = () => {
-    this.setState({
-      isTrackHovered: false,
-    });
-
-    // do not hide the scrollbar if user is dragging a thumb but left the track area.
-    if (!this.state.isDragging) {
-      if (this.props.autoHide) {
-        this._startAutoHide();
-      } else {
-        this._startAutoShrink();
-      }
-    }
-  };
-
-  handleMouseDown = (event: MouseEvent) => {
-    const thumb = this._thumbRef.current;
-    const cursorPosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
-
-    // initiate dragging when user clicked inside of thumb
-    if (thumb && this._isPointInsideOfElement(thumb, cursorPosition)) {
-      this.setState({
-        isDragging: true,
-        dragStart: this._getPointRelativeToElement(thumb, cursorPosition),
-      });
-    }
-  };
-
-  handleMouseUp = (event: MouseEvent) => {
-    if (!this.state.isDragging) {
-      return;
-    }
-
-    this.setState({
-      isDragging: false,
-    });
-
-    const track = this._trackRef.current;
-    if (track) {
-      // Make sure to auto-hide the scrollbar if cursor ended up outside of scroll track
-      const cursorPosition = {
-        x: event.clientX,
-        y: event.clientY,
-      };
-
-      if (!this._isPointInsideOfElement(track, cursorPosition)) {
-        if (this.props.autoHide) {
-          this._startAutoHide();
-        } else {
-          this._startAutoShrink();
-        }
-      }
-    }
-  };
-
-  handleMouseMove = (event: MouseEvent) => {
-    const scrollable = this._scrollableRef.current;
-    const thumb = this._thumbRef.current;
-    const track = this._trackRef.current;
-
-    const cursorPosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
-
-    if (this.state.isDragging && scrollable && thumb) {
-      // the content height of the scroll view
-      const scrollHeight = scrollable.scrollHeight;
-
-      // the visible height of the scroll view
-      const visibleHeight = scrollable.offsetHeight;
-
-      // lowest point of scrollTop
-      const maxScrollTop = scrollHeight - visibleHeight;
-
-      // Map absolute cursor coordinate to point in scroll container
-      const pointInScrollContainer = this._getPointRelativeToElement(scrollable, cursorPosition);
-
-      // calculate the thumb boundary to make sure that the visual appearance of
-      // a thumb at the lowest point matches the bottom of scrollable view
-      const thumbBoundary = this._computeTrackLength(scrollable) - thumb.clientHeight;
-      const thumbTop =
-        pointInScrollContainer.y - this.state.dragStart.y - this.props.trackPadding.y;
-      const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
-
-      scrollable.scrollTop = newScrollTop;
-    }
-
-    if (scrollable && track) {
-      const intersectsTrack = this._isPointInsideOfElement(track, cursorPosition);
-
-      if (!this.state.isTrackHovered && intersectsTrack) {
-        this.handleEnterTrack();
-      } else if (this.state.isTrackHovered && !intersectsTrack) {
-        this.handleLeaveTrack();
-      }
-    }
-  };
-
-  render() {
+  public render() {
     const {
       autoHide: _autoHide,
       trackPadding: _trackPadding,
@@ -255,41 +146,41 @@ export default class CustomScrollbars extends React.Component<Props, State> {
 
     return (
       <div {...otherProps} className="custom-scrollbars">
-        <div className={`custom-scrollbars__track ${trackClass}`} ref={this._trackRef} />
+        <div className={`custom-scrollbars__track ${trackClass}`} ref={this.trackRef} />
         <div
           className={`custom-scrollbars__thumb ${thumbWideClass} ${thumbActiveClass} ${thumbAnimationClass}`}
           style={{ position: 'absolute', top: 0, right: 0 }}
-          ref={this._thumbRef}
+          ref={this.thumbRef}
         />
         <div
           className="custom-scrollbars__scrollable"
           style={{ overflow: 'auto' }}
-          onScroll={this._onScroll}
-          ref={this._scrollableRef}>
+          onScroll={this.onScroll}
+          ref={this.scrollableRef}>
           {children}
         </div>
       </div>
     );
   }
 
-  _onScroll = () => {
-    this._updateScrollbarsHelper({ position: true });
+  private onScroll = () => {
+    this.updateScrollbarsHelper({ position: true });
 
     if (this.props.autoHide) {
-      this._ensureScrollbarsVisible();
+      this.ensureScrollbarsVisible();
 
       // only auto-hide when scrolling with mousewheel
       if (!this.state.isDragging) {
-        this._startAutoHide();
+        this.startAutoHide();
       }
     } else {
       // only auto-shrink when scrolling with mousewheel
       if (!this.state.isDragging) {
-        this._startAutoShrink();
+        this.startAutoShrink();
       }
     }
 
-    const scrollView = this._scrollableRef.current;
+    const scrollView = this.scrollableRef.current;
     if (scrollView && this.props.onScroll) {
       this.props.onScroll({
         scrollLeft: scrollView.scrollLeft,
@@ -298,7 +189,119 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }
   };
 
-  _ensureScrollbarsVisible() {
+  private handleEnterTrack = () => {
+    this.stopAutoHide();
+    this.setState({
+      isTrackHovered: true,
+      showScrollIndicators: true,
+      showTrack: true,
+      isWide: true,
+    });
+  };
+
+  private handleLeaveTrack = () => {
+    this.setState({
+      isTrackHovered: false,
+    });
+
+    // do not hide the scrollbar if user is dragging a thumb but left the track area.
+    if (!this.state.isDragging) {
+      if (this.props.autoHide) {
+        this.startAutoHide();
+      } else {
+        this.startAutoShrink();
+      }
+    }
+  };
+
+  private handleMouseDown = (event: MouseEvent) => {
+    const thumb = this.thumbRef.current;
+    const cursorPosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    // initiate dragging when user clicked inside of thumb
+    if (thumb && this.isPointInsideOfElement(thumb, cursorPosition)) {
+      this.setState({
+        isDragging: true,
+        dragStart: this.getPointRelativeToElement(thumb, cursorPosition),
+      });
+    }
+  };
+
+  private handleMouseUp = (event: MouseEvent) => {
+    if (!this.state.isDragging) {
+      return;
+    }
+
+    this.setState({
+      isDragging: false,
+    });
+
+    const track = this.trackRef.current;
+    if (track) {
+      // Make sure to auto-hide the scrollbar if cursor ended up outside of scroll track
+      const cursorPosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      if (!this.isPointInsideOfElement(track, cursorPosition)) {
+        if (this.props.autoHide) {
+          this.startAutoHide();
+        } else {
+          this.startAutoShrink();
+        }
+      }
+    }
+  };
+
+  private handleMouseMove = (event: MouseEvent) => {
+    const scrollable = this.scrollableRef.current;
+    const thumb = this.thumbRef.current;
+    const track = this.trackRef.current;
+
+    const cursorPosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    if (this.state.isDragging && scrollable && thumb) {
+      // the content height of the scroll view
+      const scrollHeight = scrollable.scrollHeight;
+
+      // the visible height of the scroll view
+      const visibleHeight = scrollable.offsetHeight;
+
+      // lowest point of scrollTop
+      const maxScrollTop = scrollHeight - visibleHeight;
+
+      // Map absolute cursor coordinate to point in scroll container
+      const pointInScrollContainer = this.getPointRelativeToElement(scrollable, cursorPosition);
+
+      // calculate the thumb boundary to make sure that the visual appearance of
+      // a thumb at the lowest point matches the bottom of scrollable view
+      const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
+      const thumbTop =
+        pointInScrollContainer.y - this.state.dragStart.y - this.props.trackPadding.y;
+      const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
+
+      scrollable.scrollTop = newScrollTop;
+    }
+
+    if (scrollable && track) {
+      const intersectsTrack = this.isPointInsideOfElement(track, cursorPosition);
+
+      if (!this.state.isTrackHovered && intersectsTrack) {
+        this.handleEnterTrack();
+      } else if (this.state.isTrackHovered && !intersectsTrack) {
+        this.handleLeaveTrack();
+      }
+    }
+  };
+
+  private ensureScrollbarsVisible() {
     if (!this.state.showScrollIndicators) {
       this.setState({
         showScrollIndicators: true,
@@ -306,12 +309,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }
   }
 
-  _startAutoHide() {
-    if (this._autoHideTimer) {
-      clearTimeout(this._autoHideTimer);
+  private startAutoHide() {
+    if (this.autoHideTimer) {
+      clearTimeout(this.autoHideTimer);
     }
 
-    this._autoHideTimer = setTimeout(() => {
+    this.autoHideTimer = setTimeout(() => {
       this.setState({
         showScrollIndicators: false,
         showTrack: false,
@@ -320,12 +323,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }, AUTOHIDE_TIMEOUT);
   }
 
-  _startAutoShrink() {
-    if (this._autoHideTimer) {
-      clearTimeout(this._autoHideTimer);
+  private startAutoShrink() {
+    if (this.autoHideTimer) {
+      clearTimeout(this.autoHideTimer);
     }
 
-    this._autoHideTimer = setTimeout(() => {
+    this.autoHideTimer = setTimeout(() => {
       this.setState({
         showTrack: false,
         isWide: false,
@@ -333,21 +336,21 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }, AUTOHIDE_TIMEOUT);
   }
 
-  _stopAutoHide() {
-    if (this._autoHideTimer) {
-      clearTimeout(this._autoHideTimer);
-      this._autoHideTimer = undefined;
+  private stopAutoHide() {
+    if (this.autoHideTimer) {
+      clearTimeout(this.autoHideTimer);
+      this.autoHideTimer = undefined;
     }
   }
 
-  _isPointInsideOfElement(element: HTMLElement, point: { x: number; y: number }) {
+  private isPointInsideOfElement(element: HTMLElement, point: { x: number; y: number }) {
     const rect = element.getBoundingClientRect();
     return (
       point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom
     );
   }
 
-  _getPointRelativeToElement(element: HTMLElement, point: { x: number; y: number }) {
+  private getPointRelativeToElement(element: HTMLElement, point: { x: number; y: number }) {
     const rect = element.getBoundingClientRect();
     return {
       x: point.x - rect.left,
@@ -355,12 +358,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     };
   }
 
-  _computeTrackLength(scrollable: HTMLElement) {
+  private computeTrackLength(scrollable: HTMLElement) {
     return scrollable.offsetHeight - this.props.trackPadding.y * 2;
   }
 
   // Computes the position of child element within scrollable container
-  _computeOffsetTop(scrollable: HTMLElement, child: HTMLElement) {
+  private computeOffsetTop(scrollable: HTMLElement, child: HTMLElement) {
     let offsetTop = 0;
     let node = child;
 
@@ -376,8 +379,12 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     return offsetTop;
   }
 
-  _computeScrollTop(scrollable: HTMLElement, child: HTMLElement, scrollPosition: ScrollPosition) {
-    const offsetTop = this._computeOffsetTop(scrollable, child);
+  private computeScrollTop(
+    scrollable: HTMLElement,
+    child: HTMLElement,
+    scrollPosition: ScrollPosition,
+  ) {
+    const offsetTop = this.computeOffsetTop(scrollable, child);
 
     switch (scrollPosition) {
       case 'top':
@@ -391,7 +398,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     }
   }
 
-  _computeThumbPosition(scrollable: HTMLElement, thumb: HTMLElement) {
+  private computeThumbPosition(scrollable: HTMLElement, thumb: HTMLElement) {
     // the content height of the scroll view
     const scrollHeight = scrollable.scrollHeight;
 
@@ -409,7 +416,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
 
     // calculate the thumb boundary to make sure that the visual appearance of
     // a thumb at the lowest point matches the bottom of scrollable view
-    const thumbBoundary = this._computeTrackLength(scrollable) - thumb.clientHeight;
+    const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
 
     // calculate thumb position based on scroll progress and thumb boundary
     // adding vertical inset to adjust the thumb's appearance
@@ -421,7 +428,7 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     };
   }
 
-  _computeThumbHeight(scrollable: HTMLElement) {
+  private computeThumbHeight(scrollable: HTMLElement) {
     const scrollHeight = scrollable.scrollHeight;
     const visibleHeight = scrollable.offsetHeight;
 
@@ -431,21 +438,21 @@ export default class CustomScrollbars extends React.Component<Props, State> {
     return Math.max(thumbHeight, 8);
   }
 
-  _updateScrollbarsHelper(updateFlags: Partial<ScrollbarUpdateContext>) {
-    const scrollable = this._scrollableRef.current;
-    const thumb = this._thumbRef.current;
+  private updateScrollbarsHelper(updateFlags: Partial<IScrollbarUpdateContext>) {
+    const scrollable = this.scrollableRef.current;
+    const thumb = this.thumbRef.current;
     if (scrollable && thumb) {
-      this._updateScrollbars(scrollable, thumb, updateFlags);
+      this.updateScrollbars(scrollable, thumb, updateFlags);
     }
   }
 
-  _updateScrollbars(
+  private updateScrollbars(
     scrollable: HTMLElement,
     thumb: HTMLElement,
-    context: Partial<ScrollbarUpdateContext>,
+    context: Partial<IScrollbarUpdateContext>,
   ) {
     if (context.size) {
-      const thumbHeight = this._computeThumbHeight(scrollable);
+      const thumbHeight = this.computeThumbHeight(scrollable);
       thumb.style.setProperty('height', thumbHeight + 'px');
 
       // hide thumb when there is nothing to scroll
@@ -455,14 +462,14 @@ export default class CustomScrollbars extends React.Component<Props, State> {
 
         // flash the scroll indicators when the view becomes scrollable
         if (this.props.autoHide && canScroll) {
-          this._startAutoHide();
-          this._ensureScrollbarsVisible();
+          this.startAutoHide();
+          this.ensureScrollbarsVisible();
         }
       }
     }
 
     if (context.position) {
-      const { x, y } = this._computeThumbPosition(scrollable, thumb);
+      const { x, y } = this.computeThumbPosition(scrollable, thumb);
       thumb.style.setProperty('transform', `translate(${x}px, ${y}px)`);
     }
   }

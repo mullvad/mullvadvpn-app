@@ -1,23 +1,26 @@
+/* tslint:disable:jsx-no-lambda */
+// TODO: Refactor this file to fix the jsx-no-lambda warnings
+
+import { HeaderTitle, ImageView, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Button, Component, Text, View } from 'reactxp';
-import { ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
+import { colors } from '../../config.json';
+import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
-import { Layout, Container } from './Layout';
+import { Container, Layout } from './Layout';
 import {
+  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationScrollbars,
-  BackBarItem,
   TitleBarItem,
 } from './NavigationBar';
 import Switch from './Switch';
-import styles from './AdvancedSettingsStyles';
-import { colors } from '../../config.json';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
 
-type Props = {
+interface IProps {
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
   protocol: string;
@@ -28,16 +31,16 @@ type Props = {
   setOpenVpnMssfix: (value: number | undefined) => void;
   onUpdate: (protocol: string, port: string | number) => void;
   onClose: () => void;
-};
+}
 
-type State = {
+interface IState {
   persistedMssfix?: number;
   editedMssfix?: number;
   focusOnMssfix: boolean;
-};
+}
 
-export class AdvancedSettings extends Component<Props, State> {
-  constructor(props: Props) {
+export class AdvancedSettings extends Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -47,7 +50,7 @@ export class AdvancedSettings extends Component<Props, State> {
     };
   }
 
-  componentDidUpdate(_oldProps: Props, _oldState: State) {
+  public componentDidUpdate(_oldProps: IProps, _oldState: IState) {
     if (this.props.mssfix !== this.state.persistedMssfix) {
       this.setState((state, props) => ({
         ...state,
@@ -57,22 +60,19 @@ export class AdvancedSettings extends Component<Props, State> {
     }
   }
 
-  render() {
+  public render() {
     let portSelector = null;
     let protocol = this.props.protocol.toUpperCase();
 
     if (protocol === 'AUTOMATIC') {
       protocol = 'Automatic';
     } else {
-      portSelector = this._createPortSelector();
+      portSelector = this.createPortSelector();
     }
 
-    let mssfixStyle;
-    if (this._mssfixIsValid()) {
-      mssfixStyle = styles.advanced_settings__mssfix_valid_value;
-    } else {
-      mssfixStyle = styles.advanced_settings__mssfix_invalid_value;
-    }
+    const mssfixStyle = this.mssfixIsValid()
+      ? styles.advanced_settings__mssfix_valid_value
+      : styles.advanced_settings__mssfix_invalid_value;
 
     const mssfixValue = this.state.editedMssfix;
 
@@ -118,8 +118,8 @@ export class AdvancedSettings extends Component<Props, State> {
                       title={'Network protocols'}
                       values={['Automatic', 'UDP', 'TCP']}
                       value={protocol}
-                      onSelect={(protocol) => {
-                        this.props.onUpdate(protocol, 'Automatic');
+                      onSelect={(selectedProtocol) => {
+                        this.props.onUpdate(selectedProtocol, 'Automatic');
                       }}
                     />
 
@@ -137,9 +137,9 @@ export class AdvancedSettings extends Component<Props, State> {
                         placeholder={'Default'}
                         value={mssfixValue ? mssfixValue.toString() : ''}
                         style={mssfixStyle}
-                        onChangeText={this._onMssfixChange}
-                        onFocus={this._onMssfixFocus}
-                        onBlur={this._onMssfixBlur}
+                        onChangeText={this.onMssfixChange}
+                        onFocus={this.onMssfixFocus}
+                        onBlur={this.onMssfixBlur}
                       />
                     </Cell.InputFrame>
                   </Cell.Container>
@@ -155,7 +155,7 @@ export class AdvancedSettings extends Component<Props, State> {
     );
   }
 
-  _createPortSelector() {
+  private createPortSelector() {
     const protocol = this.props.protocol.toUpperCase();
     const ports =
       protocol === 'TCP'
@@ -174,7 +174,7 @@ export class AdvancedSettings extends Component<Props, State> {
     );
   }
 
-  _onMssfixChange = (mssfixString: string) => {
+  private onMssfixChange = (mssfixString: string) => {
     const mssfix = mssfixString.replace(/[^0-9]/g, '');
 
     if (mssfix === '') {
@@ -184,64 +184,64 @@ export class AdvancedSettings extends Component<Props, State> {
     }
   };
 
-  _onMssfixFocus = () => {
+  private onMssfixFocus = () => {
     this.setState({ focusOnMssfix: true });
   };
 
-  _onMssfixBlur = () => {
+  private onMssfixBlur = () => {
     this.setState({ focusOnMssfix: false });
 
-    if (this._mssfixIsValid()) {
+    if (this.mssfixIsValid()) {
       this.props.setOpenVpnMssfix(this.state.editedMssfix);
       this.setState((state, _props) => ({ persistedMssfix: state.editedMssfix }));
     }
   };
 
-  _mssfixIsValid(): boolean {
+  private mssfixIsValid(): boolean {
     const mssfix = this.state.editedMssfix;
 
     return mssfix === undefined || (mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE);
   }
 }
 
-type SelectorProps<T> = {
+interface ISelectorProps<T> {
   title: string;
-  values: Array<T>;
+  values: T[];
   value: T;
   onSelect: (value: T) => void;
-};
+}
 
-type SelectorState<T> = {
+interface ISelectorState<T> {
   hoveredButtonValue?: T;
-};
+}
 
-class Selector<T> extends Component<SelectorProps<T>, SelectorState<T>> {
-  state = { hoveredButtonValue: undefined };
+class Selector<T> extends Component<ISelectorProps<T>, ISelectorState<T>> {
+  public state: ISelectorState<T> = {};
 
-  handleButtonHover = (value?: T) => {
-    this.setState({ hoveredButtonValue: value });
-  };
-
-  render() {
+  public render() {
     return (
       <View>
         <View style={styles.advanced_settings__section_title}>{this.props.title}</View>
 
-        {this.props.values.map((value) => this._renderCell(value))}
+        {this.props.values.map((value) => this.renderCell(value))}
       </View>
     );
   }
 
-  _renderCell(value: T) {
+  private handleButtonHover = (value?: T) => {
+    this.setState({ hoveredButtonValue: value });
+  };
+
+  private renderCell(value: T) {
     const selected = value === this.props.value;
     if (selected) {
-      return this._renderSelectedCell(value);
+      return this.renderSelectedCell(value);
     } else {
-      return this._renderUnselectedCell(value);
+      return this.renderUnselectedCell(value);
     }
   }
 
-  _renderSelectedCell(value: T) {
+  private renderSelectedCell(value: T) {
     return (
       <Button
         style={[
@@ -264,7 +264,7 @@ class Selector<T> extends Component<SelectorProps<T>, SelectorState<T>> {
     );
   }
 
-  _renderUnselectedCell(value: T) {
+  private renderUnselectedCell(value: T) {
     return (
       <Button
         style={[

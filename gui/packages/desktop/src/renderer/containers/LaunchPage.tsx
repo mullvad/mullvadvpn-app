@@ -1,13 +1,13 @@
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import Launch from '../components/Launch';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (_state: ReduxState) => ({});
-const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
+const mapStateToProps = (_state: IReduxState) => ({});
+const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) => {
   const history = bindActionCreators({ push }, dispatch);
   return {
     openSettings: () => {

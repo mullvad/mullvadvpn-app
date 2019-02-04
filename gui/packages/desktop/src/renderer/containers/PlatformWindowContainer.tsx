@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 import PlatformWindow from '../components/PlatformWindow';
 
-import { ReduxState } from '../redux/store';
+import { IReduxState } from '../redux/store';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   arrowPosition: state.userInterface.arrowPosition,
 });
 

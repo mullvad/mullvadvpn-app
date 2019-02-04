@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { Component, Styles, View, Text } from 'reactxp';
 import { ImageView, SettingsBarButton } from '@mullvad/components';
-import { Layout, Container, Header } from './Layout';
+import * as React from 'react';
+import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
+import { Container, Header, Layout } from './Layout';
 
 const styles = {
   container: Styles.createViewStyle({
@@ -32,12 +32,12 @@ const styles = {
   }),
 };
 
-type Props = {
+interface IProps {
   openSettings: () => void;
-};
+}
 
-export default class Launch extends Component<Props> {
-  render() {
+export default class Launch extends Component<IProps> {
+  public render() {
     return (
       <Layout>
         <Header>

@@ -1,129 +1,130 @@
 export type OnFrameFn = (frame: number) => void;
 export type OnFinishFn = () => void;
-export type KeyframeAnimationOptions = {
+
+export interface IKeyframeAnimationOptions {
   start?: number;
   end: number;
-};
+}
 export type KeyframeAnimationRange = [number, number];
 
 export default class KeyframeAnimation {
-  _speed: number = 200; // ms
+  private speedValue: number = 200; // ms
 
-  _onFrame?: OnFrameFn;
-  _onFinish?: OnFinishFn;
+  private onFrameValue?: OnFrameFn;
+  private onFinishValue?: OnFinishFn;
 
-  _currentFrame: number = 0;
-  _targetFrame: number = 0;
+  private currentFrame: number = 0;
+  private targetFrame: number = 0;
 
-  _isRunning: boolean = false;
-  _isFinished: boolean = false;
+  private isRunningValue: boolean = false;
+  private isFinishedValue: boolean = false;
 
-  _timeout?: NodeJS.Timeout;
+  private timeout?: NodeJS.Timeout;
 
   set onFrame(newValue: OnFrameFn | undefined) {
-    this._onFrame = newValue;
+    this.onFrameValue = newValue;
   }
   get onFrame(): OnFrameFn | undefined {
-    return this._onFrame;
+    return this.onFrameValue;
   }
 
   // called when animation finished
   set onFinish(newValue: OnFinishFn | undefined) {
-    this._onFinish = newValue;
+    this.onFinishValue = newValue;
   }
   get onFinish(): OnFinishFn | undefined {
-    return this._onFinish;
+    return this.onFinishValue;
   }
 
   // pace per frame in ms
   set speed(newValue: number) {
-    this._speed = newValue;
+    this.speedValue = newValue;
   }
   get speed(): number {
-    return this._speed;
+    return this.speedValue;
   }
 
   get isRunning(): boolean {
-    return this._isRunning;
+    return this.isRunningValue;
   }
 
   get isFinished(): boolean {
-    return this._isFinished;
+    return this.isFinishedValue;
   }
 
-  play(options: KeyframeAnimationOptions) {
+  public play(options: IKeyframeAnimationOptions) {
     const { start, end } = options;
 
     if (start !== undefined) {
-      this._currentFrame = start;
+      this.currentFrame = start;
     }
 
-    this._targetFrame = end;
+    this.targetFrame = end;
 
-    this._isRunning = true;
-    this._isFinished = false;
+    this.isRunningValue = true;
+    this.isFinishedValue = false;
 
-    this._unscheduleUpdate();
+    this.unscheduleUpdate();
 
-    this._render();
-    this._scheduleUpdate();
+    this.render();
+    this.scheduleUpdate();
   }
 
-  stop() {
-    this._isRunning = false;
-    this._unscheduleUpdate();
+  public stop() {
+    this.isRunningValue = false;
+    this.unscheduleUpdate();
   }
 
-  _unscheduleUpdate() {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-      this._timeout = undefined;
-    }
-  }
-
-  _scheduleUpdate() {
-    this._timeout = setTimeout(() => this._onUpdateFrame(), this._speed);
-  }
-
-  _render() {
-    if (this._onFrame) {
-      this._onFrame(this._currentFrame);
+  private unscheduleUpdate() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = undefined;
     }
   }
 
-  _didFinish() {
-    this._isFinished = true;
-    this._isRunning = false;
+  private scheduleUpdate() {
+    this.timeout = setTimeout(() => this.onUpdateFrame(), this.speedValue);
+  }
 
-    if (this._onFinish) {
-      this._onFinish();
+  private render() {
+    if (this.onFrameValue) {
+      this.onFrameValue(this.currentFrame);
     }
   }
 
-  _onUpdateFrame() {
-    this._advanceFrame();
+  private didFinish() {
+    this.isFinishedValue = true;
+    this.isRunningValue = false;
 
-    if (!this._isFinished) {
-      this._render();
+    if (this.onFinishValue) {
+      this.onFinishValue();
+    }
+  }
+
+  private onUpdateFrame() {
+    this.advanceFrame();
+
+    if (!this.isFinishedValue) {
+      this.render();
 
       // check once again since onFrame() may stop animation
-      if (this._isRunning) {
-        this._scheduleUpdate();
+      if (this.isRunningValue) {
+        this.scheduleUpdate();
       }
     }
   }
 
-  _advanceFrame() {
-    if (this._isFinished) {
+  private advanceFrame() {
+    if (this.isFinishedValue) {
       return;
     }
 
-    if (this._currentFrame === this._targetFrame) {
-      this._didFinish();
-    } else if (this._currentFrame < this._targetFrame) {
-      this._currentFrame += 1;
+    if (this.currentFrame === this.targetFrame) {
+      this.didFinish();
+    } else if (this.currentFrame < this.targetFrame) {
+      this.currentFrame += 1;
     } else {
-      this._currentFrame -= 1;
+      this.currentFrame -= 1;
     }
   }
 }

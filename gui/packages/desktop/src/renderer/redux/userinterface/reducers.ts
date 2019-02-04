@@ -1,18 +1,18 @@
 import { ReduxAction } from '../store';
 
-export type UserInterfaceReduxState = {
+export interface IUserInterfaceReduxState {
   arrowPosition?: number;
   connectionInfoOpen: boolean;
-};
+}
 
-const initialState: UserInterfaceReduxState = {
+const initialState: IUserInterfaceReduxState = {
   connectionInfoOpen: false,
 };
 
 export default function(
-  state: UserInterfaceReduxState = initialState,
+  state: IUserInterfaceReduxState = initialState,
   action: ReduxAction,
-): UserInterfaceReduxState {
+): IUserInterfaceReduxState {
   switch (action.type) {
     case 'UPDATE_WINDOW_ARROW_POSITION':
       return { ...state, arrowPosition: action.arrowPosition };

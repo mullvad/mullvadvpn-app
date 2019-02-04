@@ -1,34 +1,34 @@
-import { shell, Notification } from 'electron';
+import { Notification, shell } from 'electron';
 import config from '../config.json';
 
 import { TunnelStateTransition } from '../shared/daemon-rpc-types';
 
 export default class NotificationController {
-  _lastTunnelStateAnnouncement?: { body: string; notification: Notification };
-  _reconnecting = false;
-  _presentedNotifications: { [key: string]: boolean } = {};
-  _pendingNotifications: Array<Notification> = [];
+  private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
+  private reconnecting = false;
+  private presentedNotifications: { [key: string]: boolean } = {};
+  private pendingNotifications: Notification[] = [];
 
-  notifyTunnelState(tunnelState: TunnelStateTransition) {
+  public notifyTunnelState(tunnelState: TunnelStateTransition) {
     switch (tunnelState.state) {
       case 'connecting':
-        if (!this._reconnecting) {
-          this._showTunnelStateNotification('Connecting');
+        if (!this.reconnecting) {
+          this.showTunnelStateNotification('Connecting');
         }
         break;
       case 'connected':
-        this._showTunnelStateNotification('Secured');
+        this.showTunnelStateNotification('Secured');
         break;
       case 'disconnected':
-        this._showTunnelStateNotification('Unsecured');
+        this.showTunnelStateNotification('Unsecured');
         break;
       case 'blocked':
         switch (tunnelState.details.reason) {
           case 'set_firewall_policy_error':
-            this._showTunnelStateNotification('Critical failure - Unsecured');
+            this.showTunnelStateNotification('Critical failure - Unsecured');
             break;
           default:
-            this._showTunnelStateNotification('Blocked all connections');
+            this.showTunnelStateNotification('Blocked all connections');
             break;
         }
         break;
@@ -39,29 +39,29 @@ export default class NotificationController {
             // no-op
             break;
           case 'reconnect':
-            this._showTunnelStateNotification('Reconnecting');
-            this._reconnecting = true;
+            this.showTunnelStateNotification('Reconnecting');
+            this.reconnecting = true;
             return;
         }
         break;
     }
 
-    this._reconnecting = false;
+    this.reconnecting = false;
   }
 
-  notifyInconsistentVersion() {
-    this._presentNotificationOnce('inconsistent-version', () => {
+  public notifyInconsistentVersion() {
+    this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
         title: '',
         body: 'Inconsistent internal version information, please restart the app',
         silent: true,
       });
-      this._scheduleNotification(notification);
+      this.scheduleNotification(notification);
     });
   }
 
-  notifyUnsupportedVersion(upgradeVersion: string) {
-    this._presentNotificationOnce('unsupported-version', () => {
+  public notifyUnsupportedVersion(upgradeVersion: string) {
+    this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
         title: '',
         body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
@@ -72,18 +72,18 @@ export default class NotificationController {
         shell.openExternal(config.links.download);
       });
 
-      this._scheduleNotification(notification);
+      this.scheduleNotification(notification);
     });
   }
 
-  cancelPendingNotifications() {
-    for (const notification of this._pendingNotifications) {
+  public cancelPendingNotifications() {
+    for (const notification of this.pendingNotifications) {
       notification.close();
     }
   }
 
-  _showTunnelStateNotification(message: string) {
-    const lastAnnouncement = this._lastTunnelStateAnnouncement;
+  private showTunnelStateNotification(message: string) {
+    const lastAnnouncement = this.lastTunnelStateAnnouncement;
     const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
 
     if (sameAsLastNotification) {
@@ -100,42 +100,42 @@ export default class NotificationController {
       lastAnnouncement.notification.close();
     }
 
-    this._lastTunnelStateAnnouncement = {
+    this.lastTunnelStateAnnouncement = {
       body: message,
       notification: newNotification,
     };
 
-    this._scheduleNotification(newNotification);
+    this.scheduleNotification(newNotification);
   }
 
-  _presentNotificationOnce(notificationName: string, presentNotification: () => void) {
-    const presented = this._presentedNotifications;
+  private presentNotificationOnce(notificationName: string, presentNotification: () => void) {
+    const presented = this.presentedNotifications;
     if (!presented[notificationName]) {
       presented[notificationName] = true;
       presentNotification();
     }
   }
 
-  _scheduleNotification(notification: Notification) {
-    this._addPendingNotification(notification);
+  private scheduleNotification(notification: Notification) {
+    this.addPendingNotification(notification);
 
     notification.show();
 
     setTimeout(() => notification.close(), 4000);
   }
 
-  _addPendingNotification(notification: Notification) {
+  private addPendingNotification(notification: Notification) {
     notification.on('close', () => {
-      this._removePendingNotification(notification);
+      this.removePendingNotification(notification);
     });
 
-    this._pendingNotifications.push(notification);
+    this.pendingNotifications.push(notification);
   }
 
-  _removePendingNotification(notification: Notification) {
-    const index = this._pendingNotifications.indexOf(notification);
+  private removePendingNotification(notification: Notification) {
+    const index = this.pendingNotifications.indexOf(notification);
     if (index !== -1) {
-      this._pendingNotifications.splice(index, 1);
+      this.pendingNotifications.splice(index, 1);
     }
   }
 }

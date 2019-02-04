@@ -1,31 +1,31 @@
-import { AppVersionInfo } from '../../../shared/daemon-rpc-types';
+import { IAppVersionInfo } from '../../../shared/daemon-rpc-types';
 
-type UpdateLatestActionPayload = {
+interface IUpdateLatestActionPayload extends IAppVersionInfo {
   upToDate: boolean;
   nextUpgrade?: string;
-} & AppVersionInfo;
+}
 
-export type UpdateLatestAction = {
+export interface IUpdateLatestAction {
   type: 'UPDATE_LATEST';
-  latestInfo: UpdateLatestActionPayload;
-};
+  latestInfo: IUpdateLatestActionPayload;
+}
 
-export type UpdateVersionAction = {
+export interface IUpdateVersionAction {
   type: 'UPDATE_VERSION';
   version: string;
   consistent: boolean;
-};
+}
 
-export type VersionAction = UpdateLatestAction | UpdateVersionAction;
+export type VersionAction = IUpdateLatestAction | IUpdateVersionAction;
 
-function updateLatest(latestInfo: UpdateLatestActionPayload): UpdateLatestAction {
+function updateLatest(latestInfo: IUpdateLatestActionPayload): IUpdateLatestAction {
   return {
     type: 'UPDATE_LATEST',
     latestInfo,
   };
 }
 
-function updateVersion(version: string, consistent: boolean): UpdateVersionAction {
+function updateVersion(version: string, consistent: boolean): IUpdateVersionAction {
   return {
     type: 'UPDATE_VERSION',
     version,

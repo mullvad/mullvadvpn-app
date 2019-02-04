@@ -1,20 +1,20 @@
+import { push } from 'connected-react-router';
 import { shell } from 'electron';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
 import userInterfaceActions from '../redux/userinterface/actions';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-import { RelaySettingsRedux, RelayLocationRedux } from '../redux/settings/reducers';
+import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 
 function getRelayName(
   relaySettings: RelaySettingsRedux,
-  relayLocations: Array<RelayLocationRedux>,
+  relayLocations: IRelayLocationRedux[],
 ): string {
   if ('normal' in relaySettings) {
     const location = relaySettings.normal.location;
@@ -54,7 +54,7 @@ function getRelayName(
   }
 }
 
-const mapStateToProps = (state: ReduxState) => {
+const mapStateToProps = (state: IReduxState) => {
   return {
     accountExpiry: state.account.expiry ? new AccountExpiry(state.account.expiry) : undefined,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
@@ -65,7 +65,7 @@ const mapStateToProps = (state: ReduxState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const userInterface = bindActionCreators(userInterfaceActions, dispatch);
   const history = bindActionCreators({ push }, dispatch);
 
