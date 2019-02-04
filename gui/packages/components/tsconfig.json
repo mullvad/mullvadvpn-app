@@ -1,19 +1,16 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
-    "target": "es2017",
-    "module": "commonjs",
+    "declaration": true,
     "jsx": "react",
-    "strict": true,
-    "skipLibCheck": true,
-    "types": ["node"]
+    "outDir": "build",
+    "typeRoots": [
+      "../../types",
+      "node_modules/@types"
+    ]
   },
+  "extends": "@mullvad/config/tsconfig.json",
   "include": [
-    "./src/*.ts",
-    "./src/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "test"
+    "src/*.ts",
+    "src/*.tsx"
   ]
 }

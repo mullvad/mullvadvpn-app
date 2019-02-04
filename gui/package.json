@@ -5,8 +5,6 @@
   ],
   "scripts": {
     "postinstall": "node unpatch-yarn.js",
-    "flow": "flow",
-    "lint": "eslint \"packages/**/*.js\"",
     "format": "yarn run private:format --write",
     "check-format": "yarn run private:format --list-different",
     "private:format": "prettier \"packages/**/*.{js,css,ts,tsx}\"",
@@ -15,14 +13,6 @@
     "pack:linux": "yarn workspace desktop pack:linux"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.8.0",
-    "eslint-config-prettier": "^3.1.0",
-    "eslint-plugin-flowtype": "^3.2.0",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-react": "^7.10.0",
-    "flow-bin": "0.82",
-    "flow-typed": "^2.5.1",
     "prettier": "1.15.3"
   }
 }

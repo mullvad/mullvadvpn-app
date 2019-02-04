@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "build",
+    "rootDirs": [
+      "src",
+      "assets"
+    ],
+    "typeRoots": [
+      "../../types",
+      "node_modules/@types"
+    ]
+  },
+  "extends": "@mullvad/config/tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}
