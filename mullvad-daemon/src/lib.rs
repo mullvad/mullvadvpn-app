@@ -343,9 +343,12 @@ impl Daemon {
             .ok_or_else(|| Error::from("No account token configured"))
             .map(|account_token| {
                 match self.settings.get_relay_settings() {
-                    RelaySettings::CustomTunnelEndpoint(custom_relay) => custom_relay
-                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
-                        .chain_err(|| "Custom tunnel endpoint could not be resolved"),
+                    RelaySettings::CustomTunnelEndpoint(custom_relay) => {
+                        self.last_generated_relay = None;
+                        custom_relay
+                            .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
+                            .chain_err(|| "Custom tunnel endpoint could not be resolved")
+                    }
                     RelaySettings::Normal(constraints) => self
                         .relay_selector
                         .get_tunnel_endpoint(&constraints, retry_attempt)
