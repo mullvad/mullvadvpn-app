@@ -11,10 +11,7 @@
       "node_modules/@types"
     ]
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "extends": "../../tsconfig.json",
+  "extends": "@mullvad/config/tsconfig.json",
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"

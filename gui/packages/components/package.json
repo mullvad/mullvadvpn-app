@@ -15,6 +15,7 @@
     "private:build:watch": "tsc -w"
   },
   "devDependencies": {
+    "@mullvad/config": "0.1.0",
     "@types/chai": "^4.1.7",
     "@types/enzyme": "^3.1.15",
     "@types/enzyme-adapter-react-16": "^1.0.3",

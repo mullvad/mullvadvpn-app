@@ -9,9 +9,9 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2017",
-    "typeRoots": [
-      "./types"
-    ]
-  }
+    "target": "es2017"
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }
