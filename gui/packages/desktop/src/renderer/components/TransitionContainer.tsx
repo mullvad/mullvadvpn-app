@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { Styles, Component, Animated, View, Types, UserInterface } from 'reactxp';
-import { TransitionGroupProps } from '../transitions';
+import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
+import { ITransitionGroupProps } from '../transitions';
 
-type Props = {
+interface IProps extends ITransitionGroupProps {
   children: React.ReactNode;
-} & TransitionGroupProps;
+}
 
-type State = {
+interface IState {
   previousChildren?: React.ReactNode;
   childrenAnimation?: Types.AnimatedViewStyleRuleSet;
   previousChildrenAnimation?: Types.AnimatedViewStyleRuleSet;
   dimensions: Types.Dimensions;
-};
+}
 
 const dimensions = UserInterface.measureWindow();
 const styles = {
@@ -31,16 +31,12 @@ const styles = {
   }),
 };
 
-export default class TransitionContainer extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+export default class TransitionContainer extends Component<IProps, IState> {
+  public state: IState = {
+    dimensions: UserInterface.measureWindow(),
+  };
 
-    this.state = {
-      dimensions: UserInterface.measureWindow(),
-    };
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
+  public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
     switch (nextProps.name) {
       case 'slide-up':
         this.slideUpTransition(nextProps);
@@ -59,14 +55,14 @@ export default class TransitionContainer extends Component<Props, State> {
     }
   }
 
-  onFinishedAnimation() {
+  public onFinishedAnimation() {
     this.setState({
       childrenAnimation: styles.allowPointerEventsStyle,
       previousChildren: null,
     });
   }
 
-  slideUpTransition(nextProps: Props) {
+  public slideUpTransition(nextProps: IProps) {
     const currentTranslationValue = Animated.createValue(this.state.dimensions.height);
     this.setState(
       {
@@ -94,7 +90,7 @@ export default class TransitionContainer extends Component<Props, State> {
     );
   }
 
-  slideDownTransition(nextProps: Props) {
+  public slideDownTransition(nextProps: IProps) {
     const previousTranslationValue = Animated.createValue(0);
     this.setState(
       {
@@ -122,7 +118,7 @@ export default class TransitionContainer extends Component<Props, State> {
     );
   }
 
-  pushTransition(nextProps: Props) {
+  public pushTransition(nextProps: IProps) {
     const currentTranslationValue = Animated.createValue(this.state.dimensions.width);
     const previousTranslationValue = Animated.createValue(0);
     this.setState(
@@ -159,7 +155,7 @@ export default class TransitionContainer extends Component<Props, State> {
     );
   }
 
-  popTransition(nextProps: Props) {
+  public popTransition(nextProps: IProps) {
     const currentTranslationValue = Animated.createValue(-this.state.dimensions.width / 2);
     const previousTranslationValue = Animated.createValue(0);
     this.setState(
@@ -196,7 +192,7 @@ export default class TransitionContainer extends Component<Props, State> {
     );
   }
 
-  render() {
+  public render() {
     const { children } = this.props;
     const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
 

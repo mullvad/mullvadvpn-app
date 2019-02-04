@@ -3,34 +3,34 @@ import * as React from 'react';
 const CLICK_TIMEOUT = 1000;
 const MOVE_THRESHOLD = 10;
 
-export type SwitchProps = {
+interface IProps {
   className?: string;
   isOn: boolean;
   onChange?: (isOn: boolean) => void;
-};
+}
 
-type State = {
+interface IState {
   ignoreChange: boolean;
   initialPos: { x: number; y: number };
   startTime?: number;
-};
+}
 
-export default class Switch extends React.Component<SwitchProps, State> {
-  static defaultProps: SwitchProps = {
+export default class Switch extends React.Component<IProps, IState> {
+  public static defaultProps: Partial<IProps> = {
     isOn: false,
     onChange: undefined,
   };
 
-  state = {
+  public state: IState = {
     ignoreChange: false,
     initialPos: { x: 0, y: 0 },
     startTime: undefined,
   };
 
-  isCapturingMouseEvents = false;
-  ref = React.createRef<HTMLInputElement>();
+  public isCapturingMouseEvents = false;
+  public ref = React.createRef<HTMLInputElement>();
 
-  handleMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
+  public handleMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
     const { clientX: x, clientY: y } = e;
     this.startCapturingMouseEvents();
     this.setState({
@@ -39,7 +39,7 @@ export default class Switch extends React.Component<SwitchProps, State> {
     });
   };
 
-  handleMouseMove = (e: MouseEvent) => {
+  public handleMouseMove = (e: MouseEvent) => {
     const inputElement = this.ref.current;
     const { x: x0 } = this.state.initialPos;
     const { clientX: x, clientY: y } = e;
@@ -72,11 +72,11 @@ export default class Switch extends React.Component<SwitchProps, State> {
     }
   };
 
-  handleMouseUp = () => {
+  public handleMouseUp = () => {
     this.stopCapturingMouseEvents();
   };
 
-  handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  public handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const startTime = this.state.startTime;
     const eventTarget = e.target;
 
@@ -96,14 +96,14 @@ export default class Switch extends React.Component<SwitchProps, State> {
     }
   };
 
-  notify(isOn: boolean) {
+  public notify(isOn: boolean) {
     const onChange = this.props.onChange;
     if (onChange) {
       onChange(isOn);
     }
   }
 
-  startCapturingMouseEvents() {
+  public startCapturingMouseEvents() {
     if (this.isCapturingMouseEvents) {
       throw new Error('startCapturingMouseEvents() is called out of order.');
     }
@@ -112,7 +112,7 @@ export default class Switch extends React.Component<SwitchProps, State> {
     this.isCapturingMouseEvents = true;
   }
 
-  stopCapturingMouseEvents() {
+  public stopCapturingMouseEvents() {
     if (!this.isCapturingMouseEvents) {
       throw new Error('stopCapturingMouseEvents() is called out of order.');
     }
@@ -121,14 +121,14 @@ export default class Switch extends React.Component<SwitchProps, State> {
     this.isCapturingMouseEvents = false;
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     // guard from abrupt programmatic unmount
     if (this.isCapturingMouseEvents) {
       this.stopCapturingMouseEvents();
     }
   }
 
-  render() {
+  public render() {
     const { isOn, onChange, ...otherProps } = this.props;
     const className = ('switch ' + (otherProps.className || '')).trim();
     return (

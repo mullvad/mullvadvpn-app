@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { View, Component } from 'reactxp';
 import { HeaderBar } from '@mullvad/components';
+import * as React from 'react';
+import { Component, View } from 'reactxp';
 import styles from './LayoutStyles';
 
 export class Header extends Component<HeaderBar['props']> {
-  static defaultProps = HeaderBar.defaultProps;
+  public static defaultProps = HeaderBar.defaultProps;
 
-  render() {
+  public render() {
     return (
       <View style={[styles.header, this.props.style]}>
         <HeaderBar barStyle={this.props.barStyle}>{this.props.children}</HeaderBar>
@@ -15,20 +15,20 @@ export class Header extends Component<HeaderBar['props']> {
   }
 }
 
-type ContainerProps = {
+interface IContainerProps {
   children: React.ReactNode;
-};
-export class Container extends Component<ContainerProps> {
-  render() {
+}
+export class Container extends Component<IContainerProps> {
+  public render() {
     return <View style={styles.container}>{this.props.children}</View>;
   }
 }
 
-type LayoutProps = {
-  children: Array<React.ReactNode> | React.ReactNode;
-};
-export class Layout extends Component<LayoutProps> {
-  render() {
+interface ILayoutProps {
+  children: React.ReactNode;
+}
+export class Layout extends Component<ILayoutProps> {
+  public render() {
     return <View style={styles.layout}>{this.props.children}</View>;
   }
 }

@@ -1,19 +1,18 @@
-import TransitionRule from './lib/transition-rule';
-import { TransitionFork, TransitionDescriptor } from './lib/transition-rule';
+import TransitionRule, { ITransitionDescriptor, ITransitionFork } from './lib/transition-rule';
 
-export type TransitionGroupProps = {
+export interface ITransitionGroupProps {
   name: string;
   duration: number;
-};
+}
 
-type TransitionMap = {
-  [name: string]: TransitionFork;
-};
+interface ITransitionMap {
+  [name: string]: ITransitionFork;
+}
 
 /**
  * Transition descriptors
  */
-const transitions: TransitionMap = {
+const transitions: ITransitionMap = {
   slide: {
     forward: {
       name: 'slide-up',
@@ -58,7 +57,7 @@ const transitionRules = [
 export function getTransitionProps(
   fromRoute: string | null,
   toRoute: string,
-): TransitionGroupProps {
+): ITransitionGroupProps {
   // ignore initial transition and transition between the same routes
   if (!fromRoute || fromRoute === toRoute) {
     return noTransitionProps();
@@ -75,21 +74,21 @@ export function getTransitionProps(
 }
 
 /**
- * Integrate TransitionDescriptor into TransitionGroupProps
- * @param {TransitionDescriptor} descriptor
+ * Integrate ITransitionDescriptor into ITransitionGroupProps
+ * @param {ITransitionDescriptor} descriptor
  */
-function toTransitionGroupProps(descriptor: TransitionDescriptor): TransitionGroupProps {
+function toTransitionGroupProps(descriptor: ITransitionDescriptor): ITransitionGroupProps {
   const { name, duration } = descriptor;
   return {
-    name: name,
-    duration: duration,
+    name,
+    duration,
   };
 }
 
 /**
  * Returns default props with no animation
  */
-function noTransitionProps(): TransitionGroupProps {
+function noTransitionProps(): ITransitionGroupProps {
   return {
     name: '',
     duration: 0,
@@ -99,6 +98,6 @@ function noTransitionProps(): TransitionGroupProps {
 /**
  * Shortcut to create TransitionRule
  */
-function r(from: string | null, to: string, fork: TransitionFork): TransitionRule {
+function r(from: string | null, to: string, fork: ITransitionFork): TransitionRule {
   return new TransitionRule(from, to, fork);
 }

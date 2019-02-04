@@ -1,19 +1,21 @@
-import { screen } from 'electron';
-import { BrowserWindow, Tray, Display, WebContents } from 'electron';
+import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 
-type Position = { x: number; y: number };
-
-export type WindowShapeParameters = {
-  arrowPosition?: number;
-};
-
-interface WindowPositioning {
-  getPosition(window: BrowserWindow): Position;
-  getWindowShapeParameters(window: BrowserWindow): WindowShapeParameters;
+interface IPosition {
+  x: number;
+  y: number;
 }
 
-class StandaloneWindowPositioning implements WindowPositioning {
-  getPosition(window: BrowserWindow): Position {
+export interface IWindowShapeParameters {
+  arrowPosition?: number;
+}
+
+interface IWindowPositioning {
+  getPosition(window: BrowserWindow): IPosition;
+  getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters;
+}
+
+class StandaloneWindowPositioning implements IWindowPositioning {
+  public getPosition(window: BrowserWindow): IPosition {
     const windowBounds = window.getBounds();
 
     const primaryDisplay = screen.getPrimaryDisplay();
@@ -27,33 +29,34 @@ class StandaloneWindowPositioning implements WindowPositioning {
     return { x, y };
   }
 
-  getWindowShapeParameters(_window: BrowserWindow): WindowShapeParameters {
+  public getWindowShapeParameters(_window: BrowserWindow): IWindowShapeParameters {
     return {};
   }
 }
 
-class AttachedToTrayWindowPositioning implements WindowPositioning {
-  _tray: Tray;
+class AttachedToTrayWindowPositioning implements IWindowPositioning {
+  private tray: Tray;
 
   constructor(tray: Tray) {
-    this._tray = tray;
+    this.tray = tray;
   }
 
-  getPosition(window: BrowserWindow): Position {
+  public getPosition(window: BrowserWindow): IPosition {
     const windowBounds = window.getBounds();
-    const trayBounds = this._tray.getBounds();
+    const trayBounds = this.tray.getBounds();
 
     const activeDisplay = screen.getDisplayNearestPoint({
       x: trayBounds.x,
       y: trayBounds.y,
     });
     const workArea = activeDisplay.workArea;
-    const placement = this._getTrayPlacement();
+    const placement = this.getTrayPlacement();
     const maxX = workArea.x + workArea.width - windowBounds.width;
     const maxY = workArea.y + workArea.height - windowBounds.height;
 
-    let x = 0,
-      y = 0;
+    let x = 0;
+    let y = 0;
+
     switch (placement) {
       case 'top':
         x = trayBounds.x + (trayBounds.width - windowBounds.width) * 0.5;
@@ -90,8 +93,8 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
     };
   }
 
-  getWindowShapeParameters(window: BrowserWindow): WindowShapeParameters {
-    const trayBounds = this._tray.getBounds();
+  public getWindowShapeParameters(window: BrowserWindow): IWindowShapeParameters {
+    const trayBounds = this.tray.getBounds();
     const windowBounds = window.getBounds();
     const arrowPosition = trayBounds.x - windowBounds.x + trayBounds.width * 0.5;
     return {
@@ -99,7 +102,7 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
     };
   }
 
-  _getTrayPlacement() {
+  private getTrayPlacement() {
     switch (process.platform) {
       case 'darwin':
         // macOS has menubar always placed at the top
@@ -127,122 +130,118 @@ class AttachedToTrayWindowPositioning implements WindowPositioning {
 }
 
 export default class WindowController {
-  _window: BrowserWindow;
-  _width: number;
-  _height: number;
-  _windowPositioning: WindowPositioning;
-  _isWindowReady = false;
+  private width: number;
+  private height: number;
+  private windowPositioning: IWindowPositioning;
+  private isWindowReady = false;
 
   get window(): BrowserWindow {
-    return this._window;
+    return this.windowValue;
   }
 
   get webContents(): WebContents {
-    return this._window.webContents;
+    return this.windowValue.webContents;
   }
 
-  constructor(window: BrowserWindow, tray: Tray) {
-    this._window = window;
-    const [width, height] = window.getSize();
-    this._width = width;
-    this._height = height;
+  constructor(private windowValue: BrowserWindow, tray: Tray) {
+    const [width, height] = windowValue.getSize();
+    this.width = width;
+    this.height = height;
+    this.windowPositioning =
+      process.platform === 'linux'
+        ? new StandaloneWindowPositioning()
+        : new AttachedToTrayWindowPositioning(tray);
 
-    if (process.platform === 'linux') {
-      this._windowPositioning = new StandaloneWindowPositioning();
-    } else {
-      this._windowPositioning = new AttachedToTrayWindowPositioning(tray);
-    }
-
-    this._installDisplayMetricsHandler();
-    this._installWindowReadyHandlers();
+    this.installDisplayMetricsHandler();
+    this.installWindowReadyHandlers();
   }
 
-  show(whenReady: boolean = true) {
+  public show(whenReady: boolean = true) {
     if (whenReady) {
-      this._executeWhenWindowIsReady(() => this._showImmediately());
+      this.executeWhenWindowIsReady(() => this.showImmediately());
     } else {
-      this._showImmediately();
+      this.showImmediately();
     }
   }
 
-  hide() {
-    this._window.hide();
+  public hide() {
+    this.windowValue.hide();
   }
 
-  toggle() {
-    if (this._window.isVisible()) {
+  public toggle() {
+    if (this.windowValue.isVisible()) {
       this.hide();
     } else {
       this.show();
     }
   }
 
-  isVisible(): boolean {
-    return this._window.isVisible();
+  public isVisible(): boolean {
+    return this.windowValue.isVisible();
   }
 
-  send(event: string, ...data: any[]): void {
-    this._window.webContents.send(event, ...data);
+  public send(event: string, ...data: any[]): void {
+    this.windowValue.webContents.send(event, ...data);
   }
 
-  _showImmediately() {
-    const window = this._window;
+  private showImmediately() {
+    const window = this.windowValue;
 
-    this._updatePosition();
-    this._notifyUpdateWindowShape();
+    this.updatePosition();
+    this.notifyUpdateWindowShape();
 
     window.show();
     window.focus();
   }
 
-  _updatePosition() {
-    const { x, y } = this._windowPositioning.getPosition(this._window);
-    this._window.setPosition(x, y, false);
+  private updatePosition() {
+    const { x, y } = this.windowPositioning.getPosition(this.windowValue);
+    this.windowValue.setPosition(x, y, false);
   }
 
-  _notifyUpdateWindowShape() {
-    const shapeParameters = this._windowPositioning.getWindowShapeParameters(this._window);
-    this._window.webContents.send('update-window-shape', shapeParameters);
+  private notifyUpdateWindowShape() {
+    const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.windowValue);
+    this.windowValue.webContents.send('update-window-shape', shapeParameters);
   }
 
   // Installs display event handlers to update the window position on any changes in the display or
   // workarea dimensions.
-  _installDisplayMetricsHandler() {
-    screen.addListener('display-metrics-changed', this._onDisplayMetricsChanged);
-    this._window.once('closed', () => {
-      screen.removeListener('display-metrics-changed', this._onDisplayMetricsChanged);
+  private installDisplayMetricsHandler() {
+    screen.addListener('display-metrics-changed', this.onDisplayMetricsChanged);
+    this.windowValue.once('closed', () => {
+      screen.removeListener('display-metrics-changed', this.onDisplayMetricsChanged);
     });
   }
 
-  _onDisplayMetricsChanged = (_event: any, _display: Display, changedMetrics: Array<string>) => {
-    if (changedMetrics.includes('workArea') && this._window.isVisible()) {
-      this._updatePosition();
-      this._notifyUpdateWindowShape();
+  private onDisplayMetricsChanged = (_event: any, _display: Display, changedMetrics: string[]) => {
+    if (changedMetrics.includes('workArea') && this.windowValue.isVisible()) {
+      this.updatePosition();
+      this.notifyUpdateWindowShape();
     }
 
     // On linux, the window won't be properly rescaled back to it's original
     // size if the DPI scaling factor is changed.
     // https://github.com/electron/electron/issues/11050
     if (process.platform === 'linux' && changedMetrics.includes('scaleFactor')) {
-      this._forceResizeWindow();
+      this.forceResizeWindow();
     }
   };
 
-  _forceResizeWindow() {
-    this._window.setSize(this._width, this._height);
+  private forceResizeWindow() {
+    this.windowValue.setSize(this.width, this.height);
   }
 
-  _installWindowReadyHandlers() {
-    this._window.once('ready-to-show', () => {
-      this._isWindowReady = true;
+  private installWindowReadyHandlers() {
+    this.windowValue.once('ready-to-show', () => {
+      this.isWindowReady = true;
     });
   }
 
-  _executeWhenWindowIsReady(closure: () => any) {
-    if (this._isWindowReady) {
+  private executeWhenWindowIsReady(closure: () => any) {
+    if (this.isWindowReady) {
       closure();
     } else {
-      this._window.once('ready-to-show', () => {
+      this.windowValue.once('ready-to-show', () => {
         closure();
       });
     }

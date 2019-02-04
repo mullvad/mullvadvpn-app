@@ -1,14 +1,14 @@
+import { push } from 'connected-react-router';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
 import Login from '../components/Login';
 import accountActions from '../redux/account/actions';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => {
+const mapStateToProps = (state: IReduxState) => {
   const { accountToken, accountHistory, error, status } = state.account;
   return {
     accountToken,
@@ -17,7 +17,7 @@ const mapStateToProps = (state: ReduxState) => {
     loginState: status,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ push }, dispatch);
   const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {
@@ -31,7 +31,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
       resetLoginError();
     },
     openExternalLink: (url: string) => shell.openExternal(url),
-    updateAccountToken: updateAccountToken,
+    updateAccountToken,
     removeAccountTokenFromHistory: (token: string) => props.app.removeAccountFromHistory(token),
   };
 };

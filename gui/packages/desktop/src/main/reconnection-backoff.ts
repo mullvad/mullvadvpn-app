@@ -3,20 +3,20 @@
  * It uses a linear backoff function that goes from 500ms to 3000ms.
  */
 export default class ReconnectionBackoff {
-  _attempt = 0;
+  private attemptValue = 0;
 
-  attempt(handler: () => void) {
-    setTimeout(handler, this._getIncreasedBackoff());
+  public attempt(handler: () => void) {
+    setTimeout(handler, this.getIncreasedBackoff());
   }
 
-  reset() {
-    this._attempt = 0;
+  public reset() {
+    this.attemptValue = 0;
   }
 
-  _getIncreasedBackoff() {
-    if (this._attempt < 6) {
-      this._attempt++;
+  private getIncreasedBackoff() {
+    if (this.attemptValue < 6) {
+      this.attemptValue++;
     }
-    return this._attempt * 500;
+    return this.attemptValue * 500;
   }
 }

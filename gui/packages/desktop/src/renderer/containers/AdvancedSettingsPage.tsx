@@ -1,16 +1,16 @@
+import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
-import { goBack } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
+import { RelayProtocol } from '../../shared/daemon-rpc-types';
 import { AdvancedSettings } from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
-import { RelayProtocol } from '../../shared/daemon-rpc-types';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => {
+const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
 
   return {
@@ -36,7 +36,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   }
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onClose: () => {

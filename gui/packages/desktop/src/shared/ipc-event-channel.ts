@@ -1,54 +1,54 @@
 import { ipcMain, ipcRenderer, WebContents } from 'electron';
 import * as uuid from 'uuid';
 
-import { GuiSettingsState } from './gui-settings-state';
+import { IGuiSettingsState } from './gui-settings-state';
 
-import { AppUpgradeInfo, CurrentAppVersionInfo } from '../main/index';
+import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main/index';
 import {
   AccountToken,
-  AccountData,
-  Location,
-  RelayList,
+  IAccountData,
+  ILocation,
+  IRelayList,
+  ISettings,
   RelaySettingsUpdate,
-  Settings,
   TunnelStateTransition,
 } from './daemon-rpc-types';
 
-export type AppStateSnapshot = {
+export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
   tunnelState: TunnelStateTransition;
-  settings: Settings;
-  location?: Location;
-  relays: RelayList;
-  currentVersion: CurrentAppVersionInfo;
-  upgradeVersion: AppUpgradeInfo;
-  guiSettings: GuiSettingsState;
-};
+  settings: ISettings;
+  location?: ILocation;
+  relays: IRelayList;
+  currentVersion: ICurrentAppVersionInfo;
+  upgradeVersion: IAppUpgradeInfo;
+  guiSettings: IGuiSettingsState;
+}
 
-interface Sender<T> {
+interface ISender<T> {
   notify(webContents: WebContents, value: T): void;
 }
 
-interface SenderVoid {
+interface ISenderVoid {
   notify(webContents: WebContents): void;
 }
 
-interface Receiver<T> {
+interface IReceiver<T> {
   listen(fn: (value: T) => void): void;
 }
 
-interface TunnelMethods {
+interface ITunnelMethods {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
 
-interface TunnelHandlers {
+interface ITunnelHandlers {
   handleConnect(fn: () => Promise<void>): void;
   handleDisconnect(fn: () => Promise<void>): void;
 }
 
-interface SettingsMethods {
+interface ISettingsMethods {
   setAllowLan(allowLan: boolean): Promise<void>;
   setEnableIpv6(enableIpv6: boolean): Promise<void>;
   setBlockWhenDisconnected(block: boolean): Promise<void>;
@@ -56,7 +56,7 @@ interface SettingsMethods {
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
 }
 
-interface SettingsHandlers {
+interface ISettingsHandlers {
   handleAllowLan(fn: (allowLan: boolean) => Promise<void>): void;
   handleEnableIpv6(fn: (enableIpv6: boolean) => Promise<void>): void;
   handleBlockWhenDisconnected(fn: (block: boolean) => Promise<void>): void;
@@ -64,45 +64,45 @@ interface SettingsHandlers {
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
 }
 
-interface GuiSettingsMethods {
+interface IGuiSettingsMethods {
   setAutoConnect(autoConnect: boolean): void;
   setStartMinimized(startMinimized: boolean): void;
   setMonochromaticIcon(monochromaticIcon: boolean): void;
 }
 
-interface GuiSettingsHandlers {
+interface IGuiSettingsHandlers {
   handleAutoConnect(fn: (autoConnect: boolean) => void): void;
   handleStartMinimized(fn: (startMinimized: boolean) => void): void;
   handleMonochromaticIcon(fn: (monochromaticIcon: boolean) => void): void;
 }
 
-interface AccountHandlers {
+interface IAccountHandlers {
   handleSet(fn: (token: AccountToken) => Promise<void>): void;
   handleUnset(fn: () => Promise<void>): void;
-  handleGetData(fn: (token: AccountToken) => Promise<AccountData>): void;
+  handleGetData(fn: (token: AccountToken) => Promise<IAccountData>): void;
 }
 
-interface AccountMethods {
+interface IAccountMethods {
   set(token: AccountToken): Promise<void>;
   unset(): Promise<void>;
-  getData(token: AccountToken): Promise<AccountData>;
+  getData(token: AccountToken): Promise<IAccountData>;
 }
 
-interface AccountHistoryHandlers {
-  handleGet(fn: () => Promise<Array<AccountToken>>): void;
+interface IAccountHistoryHandlers {
+  handleGet(fn: () => Promise<AccountToken[]>): void;
   handleRemoveItem(fn: (token: AccountToken) => Promise<void>): void;
 }
 
-interface AccountHistoryMethods {
-  get(): Promise<Array<AccountToken>>;
+interface IAccountHistoryMethods {
+  get(): Promise<AccountToken[]>;
   removeItem(token: AccountToken): Promise<void>;
 }
 
-interface AutoStartMethods {
+interface IAutoStartMethods {
   set(autoStart: boolean): Promise<void>;
 }
 
-interface AutoStartHandlers {
+interface IAutoStartHandlers {
   handleSet(fn: (value: boolean) => Promise<void>): void;
 }
 
@@ -150,28 +150,28 @@ const SET_AUTO_START = 'set-auto-start';
 /// instance methods are meant to be used from a main process.
 ///
 export class IpcRendererEventChannel {
-  static state = {
+  public static state = {
     /// Synchronously sends the IPC request and returns the app state snapshot
-    get(): AppStateSnapshot {
+    get(): IAppStateSnapshot {
       return ipcRenderer.sendSync(GET_APP_STATE);
     },
   };
 
-  static daemonConnected: Receiver<void> = {
+  public static daemonConnected: IReceiver<void> = {
     listen: listen(DAEMON_CONNECTED),
   };
 
-  static daemonDisconnected: Receiver<string | undefined> = {
+  public static daemonDisconnected: IReceiver<string | undefined> = {
     listen: listen(DAEMON_DISCONNECTED),
   };
 
-  static tunnel: Receiver<TunnelStateTransition> & TunnelMethods = {
+  public static tunnel: IReceiver<TunnelStateTransition> & ITunnelMethods = {
     listen: listen(TUNNEL_STATE_CHANGED),
     connect: requestSender(CONNECT_TUNNEL),
     disconnect: requestSender(DISCONNECT_TUNNEL),
   };
 
-  static settings: Receiver<Settings> & SettingsMethods = {
+  public static settings: IReceiver<ISettings> & ISettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
     setAllowLan: requestSender(SET_ALLOW_LAN),
     setEnableIpv6: requestSender(SET_ENABLE_IPV6),
@@ -180,74 +180,74 @@ export class IpcRendererEventChannel {
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
   };
 
-  static location: Receiver<Location> = {
-    listen: listen<Location>(LOCATION_CHANGED),
+  public static location: IReceiver<ILocation> = {
+    listen: listen(LOCATION_CHANGED),
   };
 
-  static relays: Receiver<RelayList> = {
+  public static relays: IReceiver<IRelayList> = {
     listen: listen(RELAYS_CHANGED),
   };
 
-  static currentVersion: Receiver<CurrentAppVersionInfo> = {
+  public static currentVersion: IReceiver<ICurrentAppVersionInfo> = {
     listen: listen(CURRENT_VERSION_CHANGED),
   };
 
-  static upgradeVersion: Receiver<AppUpgradeInfo> = {
+  public static upgradeVersion: IReceiver<IAppUpgradeInfo> = {
     listen: listen(UPGRADE_VERSION_CHANGED),
   };
 
-  static guiSettings: Receiver<GuiSettingsState> & GuiSettingsMethods = {
+  public static guiSettings: IReceiver<IGuiSettingsState> & IGuiSettingsMethods = {
     listen: listen(GUI_SETTINGS_CHANGED),
     setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
   };
 
-  static autoStart: Receiver<boolean> & AutoStartMethods = {
+  public static autoStart: IReceiver<boolean> & IAutoStartMethods = {
     listen: listen(AUTO_START_CHANGED),
     set: requestSender(SET_AUTO_START),
   };
 
-  static account: AccountMethods = {
+  public static account: IAccountMethods = {
     set: requestSender(SET_ACCOUNT),
     unset: requestSender(UNSET_ACCOUNT),
     getData: requestSender(GET_ACCOUNT_DATA),
   };
 
-  static accountHistory: AccountHistoryMethods = {
+  public static accountHistory: IAccountHistoryMethods = {
     get: requestSender(GET_ACCOUNT_HISTORY),
     removeItem: requestSender(REMOVE_ACCOUNT_HISTORY_ITEM),
   };
 }
 
 export class IpcMainEventChannel {
-  static state = {
-    handleGet(fn: () => AppStateSnapshot) {
-      ipcMain.on(GET_APP_STATE, (event: any) => {
+  public static state = {
+    handleGet(fn: () => IAppStateSnapshot) {
+      ipcMain.on(GET_APP_STATE, (event: Electron.Event) => {
         event.returnValue = fn();
       });
     },
   };
 
-  static daemonConnected: SenderVoid = {
+  public static daemonConnected: ISenderVoid = {
     notify: senderVoid(DAEMON_CONNECTED),
   };
 
-  static daemonDisconnected: Sender<string | undefined> = {
+  public static daemonDisconnected: ISender<string | undefined> = {
     notify: sender(DAEMON_DISCONNECTED),
   };
 
-  static tunnel: Sender<TunnelStateTransition> & TunnelHandlers = {
+  public static tunnel: ISender<TunnelStateTransition> & ITunnelHandlers = {
     notify: sender(TUNNEL_STATE_CHANGED),
     handleConnect: requestHandler(CONNECT_TUNNEL),
     handleDisconnect: requestHandler(DISCONNECT_TUNNEL),
   };
 
-  static location: Sender<Location> = {
+  public static location: ISender<ILocation> = {
     notify: sender(LOCATION_CHANGED),
   };
 
-  static settings: Sender<Settings> & SettingsHandlers = {
+  public static settings: ISender<ISettings> & ISettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
     handleAllowLan: requestHandler(SET_ALLOW_LAN),
     handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
@@ -256,50 +256,50 @@ export class IpcMainEventChannel {
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
   };
 
-  static relays: Sender<RelayList> = {
+  public static relays: ISender<IRelayList> = {
     notify: sender(RELAYS_CHANGED),
   };
 
-  static currentVersion: Sender<CurrentAppVersionInfo> = {
+  public static currentVersion: ISender<ICurrentAppVersionInfo> = {
     notify: sender(CURRENT_VERSION_CHANGED),
   };
 
-  static upgradeVersion: Sender<AppUpgradeInfo> = {
+  public static upgradeVersion: ISender<IAppUpgradeInfo> = {
     notify: sender(UPGRADE_VERSION_CHANGED),
   };
 
-  static guiSettings: Sender<GuiSettingsState> & GuiSettingsHandlers = {
+  public static guiSettings: ISender<IGuiSettingsState> & IGuiSettingsHandlers = {
     notify: sender(GUI_SETTINGS_CHANGED),
     handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
   };
 
-  static autoStart: Sender<boolean> & AutoStartHandlers = {
+  public static autoStart: ISender<boolean> & IAutoStartHandlers = {
     notify: sender<boolean>(AUTO_START_CHANGED),
     handleSet: requestHandler(SET_AUTO_START),
   };
 
-  static account: AccountHandlers = {
+  public static account: IAccountHandlers = {
     handleSet: requestHandler(SET_ACCOUNT),
     handleUnset: requestHandler(UNSET_ACCOUNT),
     handleGetData: requestHandler(GET_ACCOUNT_DATA),
   };
 
-  static accountHistory: AccountHistoryHandlers = {
+  public static accountHistory: IAccountHistoryHandlers = {
     handleGet: requestHandler(GET_ACCOUNT_HISTORY),
     handleRemoveItem: requestHandler(REMOVE_ACCOUNT_HISTORY_ITEM),
   };
 }
 
 function listen<T>(event: string): (fn: (value: T) => void) => void {
-  return function(fn: (value: T) => void) {
-    ipcRenderer.on(event, (_event: any, newState: T) => fn(newState));
+  return (fn: (value: T) => void) => {
+    ipcRenderer.on(event, (_event: Electron.Event, newState: T) => fn(newState));
   };
 }
 
 function set<T>(event: string): (value: T) => void {
-  return function(newValue: T) {
+  return (newValue: T) => {
     ipcRenderer.send(event, newValue);
   };
 }
@@ -311,14 +311,14 @@ function sender<T>(event: string): (webContents: WebContents, value: T) => void 
 }
 
 function senderVoid(event: string): (webContents: WebContents) => void {
-  return function(webContents: WebContents) {
+  return (webContents: WebContents) => {
     webContents.send(event);
   };
 }
 
 function handler<T>(event: string): (handlerFn: (value: T) => void) => void {
-  return function(handlerFn: (value: T) => void) {
-    ipcMain.on(event, (_: any, newValue: T) => {
+  return (handlerFn: (value: T) => void) => {
+    ipcMain.on(event, (_event: Electron.Event, newValue: T) => {
       handlerFn(newValue);
     });
   };
@@ -326,31 +326,30 @@ function handler<T>(event: string): (handlerFn: (value: T) => void) => void {
 
 type RequestResult<T> = { type: 'success'; value: T } | { type: 'error'; message: string };
 
-function requestHandler<T>(event: string): (fn: (...args: Array<any>) => Promise<T>) => void {
-  return function(fn: (...args: Array<any>) => Promise<T>) {
-    ipcMain.on(event, async (ipcEvent: any, requestId: string, ...args: Array<any>) => {
-      const sender = ipcEvent.sender;
+function requestHandler<T>(event: string): (fn: (...args: any[]) => Promise<T>) => void {
+  return (fn: (...args: any[]) => Promise<T>) => {
+    ipcMain.on(event, async (ipcEvent: Electron.Event, requestId: string, ...args: any[]) => {
       const responseEvent = `${event}-${requestId}`;
       try {
         const result: RequestResult<T> = { type: 'success', value: await fn(...args) };
 
-        sender.send(responseEvent, result);
+        ipcEvent.sender.send(responseEvent, result);
       } catch (error) {
         const result: RequestResult<T> = { type: 'error', message: error.message || '' };
 
-        sender.send(responseEvent, result);
+        ipcEvent.sender.send(responseEvent, result);
       }
     });
   };
 }
 
-function requestSender<T>(event: string): (...args: Array<any>) => Promise<T> {
-  return function(...args: Array<any>): Promise<T> {
+function requestSender<T>(event: string): (...args: any[]) => Promise<T> {
+  return (...args: any[]): Promise<T> => {
     return new Promise((resolve: (result: T) => void, reject: (error: Error) => void) => {
       const requestId = uuid.v4();
       const responseEvent = `${event}-${requestId}`;
 
-      ipcRenderer.once(responseEvent, (_ipcEvent: any, result: RequestResult<T>) => {
+      ipcRenderer.once(responseEvent, (_ipcEvent: Electron.Event, result: RequestResult<T>) => {
         switch (result.type) {
           case 'error':
             reject(new Error(result.message));

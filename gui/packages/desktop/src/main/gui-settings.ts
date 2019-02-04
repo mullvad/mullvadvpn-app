@@ -1,79 +1,79 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { app } from 'electron';
 import log from 'electron-log';
+import * as fs from 'fs';
+import * as path from 'path';
 
-import { GuiSettingsState } from '../shared/gui-settings-state';
+import { IGuiSettingsState } from '../shared/gui-settings-state';
 
 export default class GuiSettings {
-  _state: GuiSettingsState = {
+  get state(): IGuiSettingsState {
+    return this.stateValue;
+  }
+
+  set autoConnect(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, autoConnect: newValue });
+  }
+
+  get autoConnect(): boolean {
+    return this.stateValue.autoConnect;
+  }
+
+  set monochromaticIcon(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, monochromaticIcon: newValue });
+  }
+
+  get monochromaticIcon(): boolean {
+    return this.stateValue.monochromaticIcon;
+  }
+
+  set startMinimized(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, startMinimized: newValue });
+  }
+
+  get startMinimized(): boolean {
+    return this.stateValue.startMinimized;
+  }
+
+  public onChange?: (newState: IGuiSettingsState, oldState: IGuiSettingsState) => void;
+
+  private stateValue: IGuiSettingsState = {
     autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
   };
 
-  onChange?: (newState: GuiSettingsState, oldState: GuiSettingsState) => void;
-
-  load() {
+  public load() {
     try {
-      const settingsFile = this._filePath();
+      const settingsFile = this.filePath();
       const contents = fs.readFileSync(settingsFile, 'utf8');
       const settings = JSON.parse(contents);
 
-      this._state.autoConnect =
+      this.stateValue.autoConnect =
         typeof settings.autoConnect === 'boolean' ? settings.autoConnect : true;
-      this._state.monochromaticIcon = settings.monochromaticIcon || false;
-      this._state.startMinimized = settings.startMinimized || false;
+      this.stateValue.monochromaticIcon = settings.monochromaticIcon || false;
+      this.stateValue.startMinimized = settings.startMinimized || false;
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
     }
   }
 
-  store() {
+  public store() {
     try {
-      const settingsFile = this._filePath();
+      const settingsFile = this.filePath();
 
-      fs.writeFileSync(settingsFile, JSON.stringify(this._state));
+      fs.writeFileSync(settingsFile, JSON.stringify(this.stateValue));
     } catch (error) {
       log.error(`Failed to write GUI settings file: ${error}`);
     }
   }
 
-  get state(): GuiSettingsState {
-    return this._state;
-  }
-
-  set autoConnect(newValue: boolean) {
-    this._changeStateAndNotify({ ...this._state, autoConnect: newValue });
-  }
-
-  get autoConnect(): boolean {
-    return this._state.autoConnect;
-  }
-
-  set monochromaticIcon(newValue: boolean) {
-    this._changeStateAndNotify({ ...this._state, monochromaticIcon: newValue });
-  }
-
-  get monochromaticIcon(): boolean {
-    return this._state.monochromaticIcon;
-  }
-
-  set startMinimized(newValue: boolean) {
-    this._changeStateAndNotify({ ...this._state, startMinimized: newValue });
-  }
-
-  get startMinimized(): boolean {
-    return this._state.startMinimized;
-  }
-
-  _filePath() {
+  private filePath() {
     return path.join(app.getPath('userData'), 'gui_settings.json');
   }
 
-  _changeStateAndNotify(newState: GuiSettingsState) {
-    const oldState = this._state;
-    this._state = newState;
+  private changeStateAndNotify(newState: IGuiSettingsState) {
+    const oldState = this.stateValue;
+    this.stateValue = newState;
 
     this.store();
 

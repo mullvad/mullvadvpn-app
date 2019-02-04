@@ -1,27 +1,27 @@
+import { geoTimes } from 'd3-geo-projection';
+import rbush from 'rbush';
 import * as React from 'react';
 import {
   ComposableMap,
-  ZoomableGroup,
   Geographies,
   Geography,
-  Markers,
   Marker,
+  Markers,
+  ZoomableGroup,
 } from 'react-simple-maps';
-import rbush from 'rbush';
-import { geoTimes } from 'd3-geo-projection';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
 
-import countryTreeData from '../../../assets/geo/countries.rbush.json';
 import cityTreeData from '../../../assets/geo/cities.rbush.json';
+import countryTreeData from '../../../assets/geo/countries.rbush.json';
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
 
 // Infer the GeoProjection type from the `geoTimes()` return value
 type GeoProjection = ReturnType<typeof geoTimes>;
 
-interface CountryLeaf extends rbush.BBox {
+interface ICountryLeaf extends rbush.BBox {
   id: string;
   properties: {
     name: string;
@@ -32,7 +32,7 @@ interface CountryLeaf extends rbush.BBox {
   };
 }
 
-interface CityLeaf extends rbush.BBox {
+interface ICityLeaf extends rbush.BBox {
   id: string;
   properties: {
     scalerank: number;
@@ -46,24 +46,24 @@ interface CityLeaf extends rbush.BBox {
   };
 }
 
-interface GeometryLeaf extends rbush.BBox {
+interface IGeometryLeaf extends rbush.BBox {
   id: string;
 }
 
-interface ProvinceAndStateLineLeaf extends rbush.BBox {
+interface IProvinceAndStateLineLeaf extends rbush.BBox {
   id: string;
 }
 
-const countryTree = rbush<CountryLeaf>().fromJSON(countryTreeData);
-const cityTree = rbush<CityLeaf>().fromJSON(cityTreeData);
-const geometryTree = rbush<GeometryLeaf>().fromJSON(geometryTreeData);
-const provincesStatesLinesTree = rbush<ProvinceAndStateLineLeaf>().fromJSON(
+const countryTree = rbush<ICountryLeaf>().fromJSON(countryTreeData);
+const cityTree = rbush<ICityLeaf>().fromJSON(cityTreeData);
+const geometryTree = rbush<IGeometryLeaf>().fromJSON(geometryTreeData);
+const provincesStatesLinesTree = rbush<IProvinceAndStateLineLeaf>().fromJSON(
   statesProvincesLinesTreeData,
 );
 
 type BBox = [number, number, number, number];
 
-export type Props = {
+export interface IProps {
   width: number;
   height: number;
   center: [number, number]; // longitude, latitude
@@ -71,23 +71,23 @@ export type Props = {
   zoomLevel: number;
   showMarker: boolean;
   markerImagePath: string;
-};
+}
 
-type State = {
+interface IState {
   zoomCenter: [number, number];
   zoomLevel: number;
-  visibleCities: CityLeaf[];
-  visibleCountries: CountryLeaf[];
-  visibleGeometry: GeometryLeaf[];
-  visibleStatesProvincesLines: ProvinceAndStateLineLeaf[];
+  visibleCities: ICityLeaf[];
+  visibleCountries: ICountryLeaf[];
+  visibleGeometry: IGeometryLeaf[];
+  visibleStatesProvincesLines: IProvinceAndStateLineLeaf[];
   viewportBbox: BBox;
-};
+}
 
 const MOVE_SPEED = 2000;
 
 // @TODO: Calculate zoom level based on (center + span) (aka MKCoordinateSpan)
-export default class SvgMap extends React.Component<Props, State> {
-  state: State = {
+export default class SvgMap extends React.Component<IProps, IState> {
+  public state: IState = {
     zoomCenter: [0, 0],
     zoomLevel: 1,
     visibleCities: [],
@@ -97,23 +97,23 @@ export default class SvgMap extends React.Component<Props, State> {
     viewportBbox: [0, 0, 0, 0],
   };
 
-  _projectionConfig = {
+  private projectionConfig = {
     scale: 160,
   };
 
-  constructor(props: Props) {
+  constructor(props: IProps) {
     super(props);
 
-    this.state = this._getNextState(null, props);
+    this.state = this.getNextState(null, props);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (this._shouldInvalidateState(nextProps)) {
-      this.setState((prevState) => this._getNextState(prevState, nextProps));
+  public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
+    if (this.shouldInvalidateState(nextProps)) {
+      this.setState((prevState) => this.getNextState(prevState, nextProps));
     }
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
     return (
       this.props.width !== nextProps.width ||
       this.props.height !== nextProps.height ||
@@ -129,7 +129,7 @@ export default class SvgMap extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  public render() {
     const mapStyle = {
       width: '100%',
       height: '100%',
@@ -140,7 +140,7 @@ export default class SvgMap extends React.Component<Props, State> {
       transition: `transform ${MOVE_SPEED}ms ease-in-out`,
     };
 
-    const geographyStyle = this._mergeRsmStyle({
+    const geographyStyle = this.mergeRsmStyle({
       default: {
         fill: '#294d73',
         stroke: '#192e45',
@@ -148,7 +148,7 @@ export default class SvgMap extends React.Component<Props, State> {
       },
     });
 
-    const stateProvinceLineStyle = this._mergeRsmStyle({
+    const stateProvinceLineStyle = this.mergeRsmStyle({
       default: {
         fill: 'transparent',
         stroke: '#192e45',
@@ -156,7 +156,7 @@ export default class SvgMap extends React.Component<Props, State> {
       },
     });
 
-    const markerStyle = this._mergeRsmStyle({
+    const markerStyle = this.mergeRsmStyle({
       default: {
         transition: `transform ${MOVE_SPEED}ms ease-in-out`,
       },
@@ -201,8 +201,8 @@ export default class SvgMap extends React.Component<Props, State> {
         width={this.props.width}
         height={this.props.height}
         style={mapStyle}
-        projection={this._getProjection}
-        projectionConfig={this._projectionConfig}>
+        projection={this.getProjection}
+        projectionConfig={this.projectionConfig}>
         <ZoomableGroup
           center={this.state.zoomCenter}
           zoom={this.state.zoomLevel}
@@ -213,7 +213,7 @@ export default class SvgMap extends React.Component<Props, State> {
               return this.state.visibleGeometry.map(({ id }) => (
                 <Geography
                   key={id}
-                  geography={geographies[parseInt(id)]}
+                  geography={geographies[parseInt(id, 10)]}
                   projection={projection}
                   style={geographyStyle}
                 />
@@ -225,7 +225,7 @@ export default class SvgMap extends React.Component<Props, State> {
               return this.state.visibleStatesProvincesLines.map(({ id }) => (
                 <Geography
                   key={id}
-                  geography={geographies[parseInt(id)]}
+                  geography={geographies[parseInt(id, 10)]}
                   projection={projection}
                   style={stateProvinceLineStyle}
                 />
@@ -238,7 +238,7 @@ export default class SvgMap extends React.Component<Props, State> {
     );
   }
 
-  _mergeRsmStyle(style: { [key: string]: any }) {
+  private mergeRsmStyle(style: { [key: string]: any }) {
     const defaultStyle = style.default || {};
     return {
       default: defaultStyle,
@@ -247,7 +247,7 @@ export default class SvgMap extends React.Component<Props, State> {
     };
   }
 
-  _getProjection(
+  private getProjection(
     width: number,
     height: number,
     config: {
@@ -271,7 +271,7 @@ export default class SvgMap extends React.Component<Props, State> {
       .precision(precision);
   }
 
-  _getZoomCenter(
+  private getZoomCenter(
     center: [number, number],
     offset: [number, number],
     projection: GeoProjection,
@@ -281,7 +281,7 @@ export default class SvgMap extends React.Component<Props, State> {
     return projection.invert!([pos[0] + offset[0] / zoom, pos[1] + offset[1] / zoom])!;
   }
 
-  _getViewportGeoBoundingBox(
+  private getViewportGeoBoundingBox(
     centerCoordinate: [number, number],
     width: number,
     height: number,
@@ -304,7 +304,7 @@ export default class SvgMap extends React.Component<Props, State> {
     ];
   }
 
-  _shouldInvalidateState(nextProps: Props) {
+  private shouldInvalidateState(nextProps: IProps) {
     const oldProps = this.props;
     return (
       oldProps.width !== nextProps.width ||
@@ -317,12 +317,12 @@ export default class SvgMap extends React.Component<Props, State> {
     );
   }
 
-  _getNextState(prevState: State | null, nextProps: Props): State {
+  private getNextState(prevState: IState | null, nextProps: IProps): IState {
     const { width, height, center, offset, zoomLevel } = nextProps;
 
-    const projection = this._getProjection(width, height, this._projectionConfig);
-    const zoomCenter = this._getZoomCenter(center, offset, projection, zoomLevel);
-    const viewportBbox = this._getViewportGeoBoundingBox(
+    const projection = this.getProjection(width, height, this.projectionConfig);
+    const zoomCenter = this.getZoomCenter(center, offset, projection, zoomLevel);
+    const viewportBbox = this.getViewportGeoBoundingBox(
       zoomCenter,
       width,
       height,

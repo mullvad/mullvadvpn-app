@@ -1,7 +1,9 @@
-export type AccountData = { expiry: string };
+export interface IAccountData {
+  expiry: string;
+}
 export type AccountToken = string;
 export type Ip = string;
-export type Location = {
+export interface ILocation {
   ip?: string;
   country: string;
   city?: string;
@@ -9,7 +11,7 @@ export type Location = {
   longitude: number;
   mullvadExitIp: boolean;
   hostname?: string;
-};
+}
 
 export type BlockReason =
   | {
@@ -32,16 +34,16 @@ export type TunnelType = 'wireguard' | 'openvpn';
 
 export type RelayProtocol = 'tcp' | 'udp';
 
-export type TunnelEndpoint = {
+export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   tunnel: TunnelType;
-};
+}
 
 export type TunnelStateTransition =
   | { state: 'disconnected' }
-  | { state: 'connecting'; details?: TunnelEndpoint }
-  | { state: 'connected'; details: TunnelEndpoint }
+  | { state: 'connecting'; details?: ITunnelEndpoint }
+  | { state: 'connected'; details: ITunnelEndpoint }
   | { state: 'disconnecting'; details: AfterDisconnect }
   | { state: 'blocked'; details: BlockReason };
 
@@ -50,16 +52,16 @@ export type RelayLocation =
   | { city: [string, string] }
   | { country: string };
 
-export type OpenVpnConstraints = {
+export interface IOpenVpnConstraints {
   port: 'any' | { only: number };
   protocol: 'any' | { only: RelayProtocol };
-};
+}
 
-type TunnelConstraints<TOpenVpnConstraints> = {
+interface ITunnelConstraints<TOpenVpnConstraints> {
   openvpn: TOpenVpnConstraints;
-};
+}
 
-type RelaySettingsNormal<TTunnelConstraints> = {
+interface IRelaySettingsNormal<TTunnelConstraints> {
   location:
     | 'any'
     | {
@@ -70,7 +72,7 @@ type RelaySettingsNormal<TTunnelConstraints> = {
     | {
         only: TTunnelConstraints;
       };
-};
+}
 
 export type ConnectionConfig =
   | {
@@ -87,11 +89,11 @@ export type ConnectionConfig =
       wireguard: {
         tunnel: {
           private_key: string;
-          addresses: Array<string>;
+          addresses: string[];
         };
         peer: {
           public_key: string;
-          addresses: Array<string>;
+          addresses: string[];
           endpoint: string;
         };
         gateway: string;
@@ -99,56 +101,56 @@ export type ConnectionConfig =
     };
 
 // types describing the structure of RelaySettings
-export type RelaySettingsCustom = {
+export interface IRelaySettingsCustom {
   host: string;
   config: ConnectionConfig;
-};
+}
 export type RelaySettings =
   | {
-      normal: RelaySettingsNormal<TunnelConstraints<OpenVpnConstraints>>;
+      normal: IRelaySettingsNormal<ITunnelConstraints<IOpenVpnConstraints>>;
     }
   | {
-      customTunnelEndpoint: RelaySettingsCustom;
+      customTunnelEndpoint: IRelaySettingsCustom;
     };
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = Partial<
-  RelaySettingsNormal<TunnelConstraints<Partial<OpenVpnConstraints>>>
+  IRelaySettingsNormal<ITunnelConstraints<Partial<IOpenVpnConstraints>>>
 >;
 export type RelaySettingsUpdate =
   | {
       normal: RelaySettingsNormalUpdate;
     }
   | {
-      customTunnelEndpoint: RelaySettingsCustom;
+      customTunnelEndpoint: IRelaySettingsCustom;
     };
 
-export type RelayList = {
-  countries: Array<RelayListCountry>;
-};
+export interface IRelayList {
+  countries: IRelayListCountry[];
+}
 
-export type RelayListCountry = {
+export interface IRelayListCountry {
   name: string;
   code: string;
-  cities: Array<RelayListCity>;
-};
+  cities: IRelayListCity[];
+}
 
-export type RelayListCity = {
+export interface IRelayListCity {
   name: string;
   code: string;
   latitude: number;
   longitude: number;
-  relays: Array<RelayListHostname>;
-};
+  relays: IRelayListHostname[];
+}
 
-export type RelayListHostname = {
+export interface IRelayListHostname {
   hostname: string;
   ipv4AddrIn: string;
   includeInCountry: boolean;
   weight: number;
-};
+}
 
-export type TunnelOptions = {
+export interface ITunnelOptions {
   openvpn: {
     mssfix?: number;
     proxy?: ProxySettings;
@@ -161,54 +163,81 @@ export type TunnelOptions = {
   generic: {
     enableIpv6: boolean;
   };
-};
+}
 
-export type ProxySettings = LocalProxySettings | RemoteProxySettings;
+export type ProxySettings = ILocalProxySettings | IRemoteProxySettings;
 
-export type LocalProxySettings = {
+export interface ILocalProxySettings {
   port: number;
   peer: string;
-};
+}
 
-export type RemoteProxySettings = {
+export interface IRemoteProxySettings {
   address: string;
-  auth?: RemoteProxyAuth;
-};
+  auth?: IRemoteProxyAuth;
+}
 
-export type RemoteProxyAuth = {
+export interface IRemoteProxyAuth {
   username: string;
   password: string;
-};
+}
 
-export type AppVersionInfo = {
+export interface IAppVersionInfo {
   currentIsSupported: boolean;
   latest: {
     latestStable: string;
     latest: string;
   };
-};
+}
 
-export type Settings = {
+export interface ISettings {
   accountToken?: AccountToken;
   allowLan: boolean;
   autoConnect: boolean;
   blockWhenDisconnected: boolean;
   relaySettings: RelaySettings;
-  tunnelOptions: TunnelOptions;
-};
+  tunnelOptions: ITunnelOptions;
+}
 
-export type SocketAddress = { host: string; port: number };
+export interface ISocketAddress {
+  host: string;
+  port: number;
+}
 
-export function parseSocketAddress(socketAddrStr: string): SocketAddress {
+export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);
   const matches = socketAddrStr.match(re);
 
   if (!matches || matches.length < 3) {
     throw new Error(`Failed to parse socket address from address string '${socketAddrStr}'`);
   }
-  const socketAddress: SocketAddress = {
+  const socketAddress: ISocketAddress = {
     host: matches[1],
     port: Number(matches[2]),
   };
   return socketAddress;
+}
+
+export function compareRelayLocation(lhs: RelayLocation, rhs: RelayLocation) {
+  if ('country' in lhs && 'country' in rhs && lhs.country && rhs.country) {
+    return lhs.country === rhs.country;
+  } else if ('city' in lhs && 'city' in rhs && lhs.city && rhs.city) {
+    return lhs.city[0] === rhs.city[0] && lhs.city[1] === rhs.city[1];
+  } else if ('hostname' in lhs && 'hostname' in rhs && lhs.hostname && rhs.hostname) {
+    return (
+      lhs.hostname[0] === rhs.hostname[0] &&
+      lhs.hostname[1] === rhs.hostname[1] &&
+      lhs.hostname[2] === rhs.hostname[2]
+    );
+  } else {
+    return false;
+  }
+}
+
+export function compareRelayLocationLoose(lhs?: RelayLocation, rhs?: RelayLocation) {
+  if (lhs && rhs) {
+    return compareRelayLocation(lhs, rhs);
+  } else {
+    return lhs === rhs;
+  }
 }

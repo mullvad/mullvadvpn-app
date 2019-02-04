@@ -1,36 +1,35 @@
-import JsonRpcClient, {
-  RemoteError as JsonRpcRemoteError,
-  TimeOutError as JsonRpcTimeOutError,
-  SocketTransport,
-} from './jsonrpc-client';
-import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
 import {
-  AccountData,
   AccountToken,
-  AppVersionInfo,
-  Location,
-  RelayList,
+  IAccountData,
+  IAppVersionInfo,
+  ILocation,
+  IRelayList,
+  ISettings,
   RelaySettingsUpdate,
-  Settings,
   TunnelStateTransition,
 } from '../shared/daemon-rpc-types';
+import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
+import JsonRpcClient, {
+  RemoteError as JsonRpcRemoteError,
+  SocketTransport,
+  TimeOutError as JsonRpcTimeOutError,
+} from './jsonrpc-client';
 
+import { validate } from 'validated/object';
 import {
-  object,
-  partialObject,
-  maybe,
-  string,
-  number,
+  arrayOf,
   boolean,
   enumeration,
-  arrayOf,
+  maybe,
+  Node as SchemaNode,
+  number,
+  object,
   oneOf,
+  partialObject,
+  string,
 } from 'validated/schema';
-import { validate } from 'validated/object';
 
-import { Node as SchemaNode } from 'validated/schema';
-
-const LocationSchema = maybe(
+const locationSchema = maybe(
   partialObject({
     ip: maybe(string),
     country: string,
@@ -51,7 +50,7 @@ const constraint = <T>(constraintValue: SchemaNode<T>) => {
   );
 };
 
-const CustomTunnelEndpoint = oneOf(
+const customTunnelEndpointSchema = oneOf(
   object({
     openvpn: object({
       endpoint: object({
@@ -78,7 +77,7 @@ const CustomTunnelEndpoint = oneOf(
   }),
 );
 
-const RelaySettingsSchema = oneOf(
+const relaySettingsSchema = oneOf(
   object({
     normal: partialObject({
       location: constraint(
@@ -107,12 +106,12 @@ const RelaySettingsSchema = oneOf(
   object({
     custom_tunnel_endpoint: partialObject({
       host: string,
-      config: CustomTunnelEndpoint,
+      config: customTunnelEndpointSchema,
     }),
   }),
 );
 
-const RelayListSchema = partialObject({
+const relayListSchema = partialObject({
   countries: arrayOf(
     partialObject({
       name: string,
@@ -137,7 +136,7 @@ const RelayListSchema = partialObject({
   ),
 });
 
-const OpenVpnProxySchema = maybe(
+const openVpnProxySchema = maybe(
   oneOf(
     object({
       local: partialObject({
@@ -159,10 +158,10 @@ const OpenVpnProxySchema = maybe(
   ),
 );
 
-const TunnelOptionsSchema = partialObject({
+const tunnelOptionsSchema = partialObject({
   openvpn: partialObject({
     mssfix: maybe(number),
-    proxy: OpenVpnProxySchema,
+    proxy: openVpnProxySchema,
   }),
   wireguard: partialObject({
     mtu: maybe(number),
@@ -174,11 +173,11 @@ const TunnelOptionsSchema = partialObject({
   }),
 });
 
-const AccountDataSchema = partialObject({
+const accountDataSchema = partialObject({
   expiry: string,
 });
 
-const TunnelStateTransitionSchema = oneOf(
+const tunnelStateTransitionSchema = oneOf(
   object({
     state: enumeration('disconnecting'),
     details: enumeration('nothing', 'block', 'reconnect'),
@@ -216,7 +215,7 @@ const TunnelStateTransitionSchema = oneOf(
   }),
 );
 
-const AppVersionInfoSchema = partialObject({
+const appVersionInfoSchema = partialObject({
   current_is_supported: boolean,
   latest: partialObject({
     latest_stable: string,
@@ -225,60 +224,56 @@ const AppVersionInfoSchema = partialObject({
 });
 
 export class ConnectionObserver {
-  _openHandler: () => void;
-  _closeHandler: (error?: Error) => void;
+  constructor(private openHandler: () => void, private closeHandler: (error?: Error) => void) {}
 
-  constructor(openHandler: () => void, closeHandler: (error?: Error) => void) {
-    this._openHandler = openHandler;
-    this._closeHandler = closeHandler;
-  }
-
-  _onOpen = () => {
-    this._openHandler();
+  // Only meant to be called by DaemonRpc
+  // @internal
+  public onOpen = () => {
+    this.openHandler();
   };
 
-  _onClose = (error?: Error) => {
-    this._closeHandler(error);
+  // Only meant to be called by DaemonRpc
+  // @internal
+  public onClose = (error?: Error) => {
+    this.closeHandler(error);
   };
 }
 
 export class SubscriptionListener<T> {
-  _eventHandler: (payload: T) => void;
-  _errorHandler: (error: Error) => void;
+  constructor(
+    private eventHandler: (payload: T) => void,
+    private errorHandler: (error: Error) => void,
+  ) {}
 
-  constructor(eventHandler: (payload: T) => void, errorHandler: (error: Error) => void) {
-    this._eventHandler = eventHandler;
-    this._errorHandler = errorHandler;
+  // Only meant to be called by DaemonRpc
+  // @internal
+  public onEvent(payload: T) {
+    this.eventHandler(payload);
   }
 
-  _onEvent(payload: T) {
-    this._eventHandler(payload);
-  }
-
-  _onError(error: Error) {
-    this._errorHandler(error);
+  // Only meant to be called by DaemonRpc
+  // @internal
+  public onError(error: Error) {
+    this.errorHandler(error);
   }
 }
 
-const SettingsSchema = partialObject({
+const settingsSchema = partialObject({
   account_token: maybe(string),
   allow_lan: boolean,
   auto_connect: boolean,
   block_when_disconnected: boolean,
-  relay_settings: RelaySettingsSchema,
-  tunnel_options: TunnelOptionsSchema,
+  relay_settings: relaySettingsSchema,
+  tunnel_options: tunnelOptionsSchema,
 });
 
 export class ResponseParseError extends Error {
-  _validationError?: Error;
-
-  constructor(message: string, validationError?: Error) {
+  constructor(message: string, private validationErrorValue?: Error) {
     super(message);
-    this._validationError = validationError;
   }
 
   get validationError(): Error | undefined {
-    return this._validationError;
+    return this.validationErrorValue;
   }
 }
 
@@ -286,28 +281,28 @@ export class ResponseParseError extends Error {
 const NETWORK_CALL_TIMEOUT = 10000;
 
 export class DaemonRpc {
-  _transport = new JsonRpcClient(new SocketTransport());
+  private transport = new JsonRpcClient(new SocketTransport());
 
-  connect(connectionParams: { path: string }) {
-    this._transport.connect(connectionParams);
+  public connect(connectionParams: { path: string }) {
+    this.transport.connect(connectionParams);
   }
 
-  disconnect() {
-    this._transport.disconnect();
+  public disconnect() {
+    this.transport.disconnect();
   }
 
-  addConnectionObserver(observer: ConnectionObserver) {
-    this._transport.on('open', observer._onOpen).on('close', observer._onClose);
+  public addConnectionObserver(observer: ConnectionObserver) {
+    this.transport.on('open', observer.onOpen).on('close', observer.onClose);
   }
 
-  removeConnectionObserver(observer: ConnectionObserver) {
-    this._transport.off('open', observer._onOpen).off('close', observer._onClose);
+  public removeConnectionObserver(observer: ConnectionObserver) {
+    this.transport.off('open', observer.onOpen).off('close', observer.onClose);
   }
 
-  async getAccountData(accountToken: AccountToken): Promise<AccountData> {
+  public async getAccountData(accountToken: AccountToken): Promise<IAccountData> {
     let response;
     try {
-      response = await this._transport.send('get_account_data', accountToken, NETWORK_CALL_TIMEOUT);
+      response = await this.transport.send('get_account_data', accountToken, NETWORK_CALL_TIMEOUT);
     } catch (error) {
       if (error instanceof JsonRpcRemoteError) {
         switch (error.code) {
@@ -324,112 +319,114 @@ export class DaemonRpc {
     }
 
     try {
-      return validate(AccountDataSchema, response);
+      return validate(accountDataSchema, response);
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_account_data', error);
     }
   }
 
-  async getRelayLocations(): Promise<RelayList> {
-    const response = await this._transport.send('get_relay_locations');
+  public async getRelayLocations(): Promise<IRelayList> {
+    const response = await this.transport.send('get_relay_locations');
     try {
-      return camelCaseObjectKeys(validate(RelayListSchema, response)) as RelayList;
+      return camelCaseObjectKeys(validate(relayListSchema, response)) as IRelayList;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_relay_locations', error);
     }
   }
 
-  async setAccount(accountToken?: AccountToken): Promise<void> {
-    await this._transport.send('set_account', [accountToken]);
+  public async setAccount(accountToken?: AccountToken): Promise<void> {
+    await this.transport.send('set_account', [accountToken]);
   }
 
-  async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    await this._transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
+  public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    await this.transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
   }
 
-  async setAllowLan(allowLan: boolean): Promise<void> {
-    await this._transport.send('set_allow_lan', [allowLan]);
+  public async setAllowLan(allowLan: boolean): Promise<void> {
+    await this.transport.send('set_allow_lan', [allowLan]);
   }
 
-  async setEnableIpv6(enableIpv6: boolean): Promise<void> {
-    await this._transport.send('set_enable_ipv6', [enableIpv6]);
+  public async setEnableIpv6(enableIpv6: boolean): Promise<void> {
+    await this.transport.send('set_enable_ipv6', [enableIpv6]);
   }
 
-  async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
-    await this._transport.send('set_block_when_disconnected', [blockWhenDisconnected]);
+  public async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
+    await this.transport.send('set_block_when_disconnected', [blockWhenDisconnected]);
   }
 
-  async setOpenVpnMssfix(mssfix?: number): Promise<void> {
-    await this._transport.send('set_openvpn_mssfix', [mssfix]);
+  public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
+    await this.transport.send('set_openvpn_mssfix', [mssfix]);
   }
 
-  async setAutoConnect(autoConnect: boolean): Promise<void> {
-    await this._transport.send('set_auto_connect', [autoConnect]);
+  public async setAutoConnect(autoConnect: boolean): Promise<void> {
+    await this.transport.send('set_auto_connect', [autoConnect]);
   }
 
-  async connectTunnel(): Promise<void> {
-    await this._transport.send('connect');
+  public async connectTunnel(): Promise<void> {
+    await this.transport.send('connect');
   }
 
-  async disconnectTunnel(): Promise<void> {
-    await this._transport.send('disconnect');
+  public async disconnectTunnel(): Promise<void> {
+    await this.transport.send('disconnect');
   }
 
-  async getLocation(): Promise<Location | undefined> {
-    const response = await this._transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
+  public async getLocation(): Promise<ILocation | undefined> {
+    const response = await this.transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(LocationSchema, response)) as Location;
+      return camelCaseObjectKeys(validate(locationSchema, response)) as ILocation;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_location', error);
     }
   }
 
-  async getState(): Promise<TunnelStateTransition> {
-    const response = await this._transport.send('get_state');
+  public async getState(): Promise<TunnelStateTransition> {
+    const response = await this.transport.send('get_state');
     try {
       return camelCaseObjectKeys(
-        validate(TunnelStateTransitionSchema, response),
+        validate(tunnelStateTransitionSchema, response),
       ) as TunnelStateTransition;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
   }
 
-  async getSettings(): Promise<Settings> {
-    const response = await this._transport.send('get_settings');
+  public async getSettings(): Promise<ISettings> {
+    const response = await this.transport.send('get_settings');
     try {
-      return camelCaseObjectKeys(validate(SettingsSchema, response)) as Settings;
+      return camelCaseObjectKeys(validate(settingsSchema, response)) as ISettings;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_settings', error);
     }
   }
 
-  subscribeStateListener(listener: SubscriptionListener<TunnelStateTransition>): Promise<void> {
-    return this._transport.subscribe('new_state', (payload) => {
+  public subscribeStateListener(
+    listener: SubscriptionListener<TunnelStateTransition>,
+  ): Promise<void> {
+    return this.transport.subscribe('new_state', (payload) => {
       try {
         const newState = camelCaseObjectKeys(
-          validate(TunnelStateTransitionSchema, payload),
+          validate(tunnelStateTransitionSchema, payload),
         ) as TunnelStateTransition;
-        listener._onEvent(newState);
+        listener.onEvent(newState);
       } catch (error) {
-        listener._onError(new ResponseParseError('Invalid payload from new_state', error));
+        listener.onError(new ResponseParseError('Invalid payload from new_state', error));
       }
     });
   }
 
-  subscribeSettingsListener(listener: SubscriptionListener<Settings>): Promise<void> {
-    return this._transport.subscribe('settings', (payload) => {
+  public subscribeSettingsListener(listener: SubscriptionListener<ISettings>): Promise<void> {
+    return this.transport.subscribe('settings', (payload) => {
       try {
-        const newSettings = camelCaseObjectKeys(validate(SettingsSchema, payload)) as Settings;
-        listener._onEvent(newSettings);
+        const newSettings = camelCaseObjectKeys(validate(settingsSchema, payload)) as ISettings;
+        listener.onEvent(newSettings);
       } catch (error) {
-        listener._onError(new ResponseParseError('Invalid payload from settings', error));
+        listener.onError(new ResponseParseError('Invalid payload from settings', error));
       }
     });
   }
 
-  async getAccountHistory(): Promise<Array<AccountToken>> {
-    const response = await this._transport.send('get_account_history');
+  public async getAccountHistory(): Promise<AccountToken[]> {
+    const response = await this.transport.send('get_account_history');
     try {
       return validate(arrayOf(string), response);
     } catch (error) {
@@ -437,12 +434,12 @@ export class DaemonRpc {
     }
   }
 
-  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await this._transport.send('remove_account_from_history', accountToken);
+  public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    await this.transport.send('remove_account_from_history', accountToken);
   }
 
-  async getCurrentVersion(): Promise<string> {
-    const response = await this._transport.send('get_current_version');
+  public async getCurrentVersion(): Promise<string> {
+    const response = await this.transport.send('get_current_version');
     try {
       return validate(string, response);
     } catch (error) {
@@ -450,10 +447,10 @@ export class DaemonRpc {
     }
   }
 
-  async getVersionInfo(): Promise<AppVersionInfo> {
-    const response = await this._transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
+  public async getVersionInfo(): Promise<IAppVersionInfo> {
+    const response = await this.transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(AppVersionInfoSchema, response)) as AppVersionInfo;
+      return camelCaseObjectKeys(validate(appVersionInfoSchema, response)) as IAppVersionInfo;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_version_info');
     }
@@ -470,30 +467,30 @@ function camelCaseToUnderscore(str: string): string {
     .toLowerCase();
 }
 
-function camelCaseObjectKeys(object: { [key: string]: any }) {
-  return transformObjectKeys(object, underscoreToCamelCase);
+function camelCaseObjectKeys(anObject: { [key: string]: any }) {
+  return transformObjectKeys(anObject, underscoreToCamelCase);
 }
 
-function underscoreObjectKeys(object: { [key: string]: any }) {
-  return transformObjectKeys(object, camelCaseToUnderscore);
+function underscoreObjectKeys(anObject: { [key: string]: any }) {
+  return transformObjectKeys(anObject, camelCaseToUnderscore);
 }
 
 function transformObjectKeys(
-  object: { [key: string]: any },
+  anObject: { [key: string]: any },
   keyTransformer: (key: string) => string,
 ) {
-  for (const sourceKey of Object.keys(object)) {
+  for (const sourceKey of Object.keys(anObject)) {
     const targetKey = keyTransformer(sourceKey);
-    const sourceValue = object[sourceKey];
+    const sourceValue = anObject[sourceKey];
 
-    object[targetKey] =
+    anObject[targetKey] =
       sourceValue !== null && typeof sourceValue === 'object'
         ? transformObjectKeys(sourceValue, keyTransformer)
         : sourceValue;
 
     if (sourceKey !== targetKey) {
-      delete object[sourceKey];
+      delete anObject[sourceKey];
     }
   }
-  return object;
+  return anObject;
 }

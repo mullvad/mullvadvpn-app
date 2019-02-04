@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Component, Styles, Types } from 'reactxp';
-import * as Cell from './Cell';
 import { colors } from '../../config.json';
+import * as Cell from './Cell';
 
-type Props = {
+interface IProps {
   up: boolean;
   onPress?: (event: Types.SyntheticEvent) => void;
   style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
-};
+}
 
 const style = Styles.createViewStyle({
   flex: 0,
@@ -17,8 +17,8 @@ const style = Styles.createViewStyle({
   paddingLeft: 16,
 });
 
-export default class ChevronButton extends Component<Props> {
-  render() {
+export default class ChevronButton extends Component<IProps> {
+  public render() {
     return (
       <Cell.Icon
         style={[style, this.props.style]}
