@@ -16,14 +16,14 @@ const TOO_MANY_CONNECTIONS_MSG =
   'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.';
 
 export class AuthFailure {
-  _reasonId: AuthFailureKind;
-  _message: string;
+  private reasonId: AuthFailureKind;
+  private message: string;
 
   constructor(reason?: string) {
     if (!reason) {
       log.error('Received invalid auth_failed reason: ', reason);
-      this._reasonId = 'UNKNOWN';
-      this._message = GENERIC_FAILURE_MSG;
+      this.reasonId = 'UNKNOWN';
+      this.message = GENERIC_FAILURE_MSG;
       return;
     }
 
@@ -31,18 +31,18 @@ export class AuthFailure {
 
     if (!results || results.length < 3) {
       log.error(`Received invalid auth_failed message - "${reason}"`);
-      this._reasonId = 'UNKNOWN';
-      this._message = reason;
+      this.reasonId = 'UNKNOWN';
+      this.message = reason;
       return;
     }
 
-    const id_string = results[1];
-    this._reasonId = strToFailureKind(id_string);
-    this._message = results[2] || GENERIC_FAILURE_MSG;
+    const idString = results[1];
+    this.reasonId = strToFailureKind(idString);
+    this.message = results[2] || GENERIC_FAILURE_MSG;
   }
 
-  show(): string {
-    switch (this._reasonId) {
+  public show(): string {
+    switch (this.reasonId) {
       case 'INVALID_ACCOUNT':
         return INVALID_ACCOUNT_MSG;
       case 'EXPIRED_ACCOUNT':
@@ -50,7 +50,7 @@ export class AuthFailure {
       case 'TOO_MANY_CONNECTIONS':
         return TOO_MANY_CONNECTIONS_MSG;
       case 'UNKNOWN':
-        return this._message;
+        return this.message;
     }
   }
 }

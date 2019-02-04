@@ -1,22 +1,22 @@
+import { goBack } from 'connected-react-router';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { goBack } from 'connected-react-router';
 import Support from '../components/Support';
 import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
 import supportActions from '../redux/support/actions';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   defaultEmail: state.support.email,
   defaultMessage: state.support.message,
   accountHistory: state.account.accountHistory,
   isOffline: state.connection.isBlocked,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, _props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) => {
   const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
   const history = bindActionCreators({ goBack }, dispatch);
 

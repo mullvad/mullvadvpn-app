@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Component, View, Styles } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 
-type Props = {
+interface IProps {
   arrowPosition?: number;
-};
+}
 
-export default class PlatformWindow extends Component<Props> {
-  render() {
-    let style = undefined;
+export default class PlatformWindow extends Component<IProps> {
+  public render() {
+    let style;
 
     if (process.platform === 'darwin') {
       const arrowPosition = this.props.arrowPosition;

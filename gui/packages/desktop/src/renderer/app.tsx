@@ -1,67 +1,67 @@
-import log from 'electron-log';
-import { webFrame, ipcRenderer } from 'electron';
-import * as React from 'react';
-import { bindActionCreators } from 'redux';
-import { Provider } from 'react-redux';
 import {
   ConnectedRouter,
   push as pushHistory,
   replace as replaceHistory,
 } from 'connected-react-router';
+import { ipcRenderer, webFrame } from 'electron';
+import log from 'electron-log';
 import { createMemoryHistory } from 'history';
+import * as React from 'react';
+import { Provider } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import { InvalidAccountError } from '../main/errors';
 import makeRoutes from './routes';
 
-import configureStore from './redux/store';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
-import versionActions from './redux/version/actions';
+import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
+import versionActions from './redux/version/actions';
 
-import { WindowShapeParameters } from '../main/window-controller';
-import { CurrentAppVersionInfo, AppUpgradeInfo } from '../main';
-import { GuiSettingsState } from '../shared/gui-settings-state';
+import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
+import { IWindowShapeParameters } from '../main/window-controller';
+import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 
 import {
   AccountToken,
-  AccountData,
   ConnectionConfig,
-  Location,
-  RelayList,
-  RelaySettingsUpdate,
+  IAccountData,
+  ILocation,
+  IRelayList,
+  ISettings,
   RelaySettings,
-  Settings,
+  RelaySettingsUpdate,
   TunnelStateTransition,
 } from '../shared/daemon-rpc-types';
 
 export default class AppRenderer {
-  _memoryHistory = createMemoryHistory();
-  _reduxStore = configureStore(null, this._memoryHistory);
-  _reduxActions: { [key: string]: any };
-  _accountDataCache = new AccountDataCache(
+  private memoryHistory = createMemoryHistory();
+  private reduxStore = configureStore(this.memoryHistory);
+  private reduxActions: { [key: string]: any };
+  private accountDataCache = new AccountDataCache(
     (accountToken) => {
       return IpcRendererEventChannel.account.getData(accountToken);
     },
     (accountData) => {
       const expiry = accountData ? accountData.expiry : null;
-      this._reduxActions.account.updateAccountExpiry(expiry);
+      this.reduxActions.account.updateAccountExpiry(expiry);
     },
   );
 
-  _tunnelState: TunnelStateTransition;
-  _settings: Settings;
-  _guiSettings: GuiSettingsState;
-  _connectedToDaemon = false;
-  _autoConnected = false;
-  _doingLogin = false;
-  _loginTimer?: NodeJS.Timeout;
+  private tunnelState: TunnelStateTransition;
+  private settings: ISettings;
+  private guiSettings: IGuiSettingsState;
+  private connectedToDaemon = false;
+  private autoConnected = false;
+  private doingLogin = false;
+  private loginTimer?: NodeJS.Timeout;
 
   constructor() {
-    const dispatch = this._reduxStore.dispatch;
-    this._reduxActions = {
+    const dispatch = this.reduxStore.dispatch;
+    this.reduxActions = {
       account: bindActionCreators(accountActions, dispatch),
       connection: bindActionCreators(connectionActions, dispatch),
       settings: bindActionCreators(settingsActions, dispatch),
@@ -78,105 +78,105 @@ export default class AppRenderer {
 
     ipcRenderer.on(
       'update-window-shape',
-      (_event: Electron.Event, shapeParams: WindowShapeParameters) => {
+      (_event: Electron.Event, shapeParams: IWindowShapeParameters) => {
         if (typeof shapeParams.arrowPosition === 'number') {
-          this._reduxActions.userInterface.updateWindowArrowPosition(shapeParams.arrowPosition);
+          this.reduxActions.userInterface.updateWindowArrowPosition(shapeParams.arrowPosition);
         }
       },
     );
 
     ipcRenderer.on('window-shown', () => {
-      if (this._connectedToDaemon) {
+      if (this.connectedToDaemon) {
         this.updateAccountExpiry();
       }
     });
 
     IpcRendererEventChannel.daemonConnected.listen(() => {
-      this._onDaemonConnected();
+      this.onDaemonConnected();
     });
 
     IpcRendererEventChannel.daemonDisconnected.listen((errorMessage?: string) => {
-      this._onDaemonDisconnected(errorMessage ? new Error(errorMessage) : undefined);
+      this.onDaemonDisconnected(errorMessage ? new Error(errorMessage) : undefined);
     });
 
     IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
-      this._setTunnelState(newState);
+      this.setTunnelState(newState);
     });
 
-    IpcRendererEventChannel.settings.listen((newSettings: Settings) => {
-      const oldSettings = this._settings;
+    IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
+      const oldSettings = this.settings;
 
-      this._setSettings(newSettings);
-      this._handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
+      this.setSettings(newSettings);
+      this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
     });
 
-    IpcRendererEventChannel.location.listen((newLocation: Location) => {
-      this._setLocation(newLocation);
+    IpcRendererEventChannel.location.listen((newLocation: ILocation) => {
+      this.setLocation(newLocation);
     });
 
-    IpcRendererEventChannel.relays.listen((newRelays: RelayList) => {
-      this._setRelays(newRelays);
+    IpcRendererEventChannel.relays.listen((newRelays: IRelayList) => {
+      this.setRelays(newRelays);
     });
 
-    IpcRendererEventChannel.currentVersion.listen((currentVersion: CurrentAppVersionInfo) => {
-      this._setCurrentVersion(currentVersion);
+    IpcRendererEventChannel.currentVersion.listen((currentVersion: ICurrentAppVersionInfo) => {
+      this.setCurrentVersion(currentVersion);
     });
 
-    IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: AppUpgradeInfo) => {
-      this._setUpgradeVersion(upgradeVersion);
+    IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppUpgradeInfo) => {
+      this.setUpgradeVersion(upgradeVersion);
     });
 
-    IpcRendererEventChannel.guiSettings.listen((guiSettings: GuiSettingsState) => {
-      this._setGuiSettings(guiSettings);
+    IpcRendererEventChannel.guiSettings.listen((guiSettings: IGuiSettingsState) => {
+      this.setGuiSettings(guiSettings);
     });
 
     IpcRendererEventChannel.autoStart.listen((autoStart: boolean) => {
-      this._setAutoStart(autoStart);
+      this.storeAutoStart(autoStart);
     });
 
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
-    this._tunnelState = initialState.tunnelState;
-    this._settings = initialState.settings;
-    this._guiSettings = initialState.guiSettings;
+    this.tunnelState = initialState.tunnelState;
+    this.settings = initialState.settings;
+    this.guiSettings = initialState.guiSettings;
 
-    this._setTunnelState(initialState.tunnelState);
-    this._setSettings(initialState.settings);
+    this.setTunnelState(initialState.tunnelState);
+    this.setSettings(initialState.settings);
 
     if (initialState.location) {
-      this._setLocation(initialState.location);
+      this.setLocation(initialState.location);
     }
 
-    this._setRelays(initialState.relays);
-    this._setCurrentVersion(initialState.currentVersion);
-    this._setUpgradeVersion(initialState.upgradeVersion);
-    this._setGuiSettings(initialState.guiSettings);
-    this._setAutoStart(initialState.autoStart);
+    this.setRelays(initialState.relays);
+    this.setCurrentVersion(initialState.currentVersion);
+    this.setUpgradeVersion(initialState.upgradeVersion);
+    this.setGuiSettings(initialState.guiSettings);
+    this.storeAutoStart(initialState.autoStart);
 
     if (initialState.isConnected) {
-      this._onDaemonConnected();
+      this.onDaemonConnected();
     }
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
   }
 
-  renderView() {
+  public renderView() {
     return (
-      <Provider store={this._reduxStore}>
-        <ConnectedRouter history={this._memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
+      <Provider store={this.reduxStore}>
+        <ConnectedRouter history={this.memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
       </Provider>
     );
   }
 
-  async login(accountToken: AccountToken) {
-    const actions = this._reduxActions;
+  public async login(accountToken: AccountToken) {
+    const actions = this.reduxActions;
     actions.account.startLogin(accountToken);
 
     log.info('Logging in');
 
-    this._doingLogin = true;
+    this.doingLogin = true;
 
     try {
       const verification = await this.verifyAccount(accountToken);
@@ -188,8 +188,8 @@ export default class AppRenderer {
       await IpcRendererEventChannel.account.set(accountToken);
 
       // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-      this._loginTimer = setTimeout(async () => {
-        this._memoryHistory.replace('/connect');
+      this.loginTimer = setTimeout(async () => {
+        this.memoryHistory.replace('/connect');
 
         try {
           log.info('Auto-connecting the tunnel');
@@ -205,10 +205,10 @@ export default class AppRenderer {
     }
   }
 
-  verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
+  public verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
     return new Promise((resolve, reject) => {
-      this._accountDataCache.invalidate();
-      this._accountDataCache.fetch(accountToken, {
+      this.accountDataCache.invalidate();
+      this.accountDataCache.fetch(accountToken, {
         onFinish: () => resolve({ status: 'verified' }),
         onError: (error): AccountFetchRetryAction => {
           if (error instanceof InvalidAccountError) {
@@ -223,7 +223,7 @@ export default class AppRenderer {
     });
   }
 
-  async logout() {
+  public async logout() {
     try {
       await IpcRendererEventChannel.account.unset();
     } catch (e) {
@@ -231,28 +231,81 @@ export default class AppRenderer {
     }
   }
 
-  async connectTunnel(): Promise<void> {
-    const state = this._tunnelState.state;
+  public async connectTunnel(): Promise<void> {
+    const state = this.tunnelState.state;
 
     // connect only if tunnel is disconnected or blocked.
     if (state === 'disconnecting' || state === 'disconnected' || state === 'blocked') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      this._reduxActions.connection.connecting(null);
+      this.reduxActions.connection.connecting(null);
 
       return IpcRendererEventChannel.tunnel.connect();
     }
   }
 
-  disconnectTunnel(): Promise<void> {
+  public disconnectTunnel(): Promise<void> {
     return IpcRendererEventChannel.tunnel.disconnect();
   }
 
-  updateRelaySettings(relaySettings: RelaySettingsUpdate) {
+  public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   }
 
-  _setRelaySettings(relaySettings: RelaySettings) {
-    const actions = this._reduxActions;
+  public updateAccountExpiry() {
+    if (this.settings.accountToken) {
+      this.accountDataCache.fetch(this.settings.accountToken);
+    }
+  }
+
+  public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+    await IpcRendererEventChannel.accountHistory.removeItem(accountToken);
+    await this.fetchAccountHistory();
+  }
+
+  public async setAllowLan(allowLan: boolean) {
+    const actions = this.reduxActions;
+    await IpcRendererEventChannel.settings.setAllowLan(allowLan);
+    actions.settings.updateAllowLan(allowLan);
+  }
+
+  public async setEnableIpv6(enableIpv6: boolean) {
+    const actions = this.reduxActions;
+    await IpcRendererEventChannel.settings.setEnableIpv6(enableIpv6);
+    actions.settings.updateEnableIpv6(enableIpv6);
+  }
+
+  public async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {
+    const actions = this.reduxActions;
+    await IpcRendererEventChannel.settings.setBlockWhenDisconnected(blockWhenDisconnected);
+    actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
+  }
+
+  public async setOpenVpnMssfix(mssfix?: number) {
+    const actions = this.reduxActions;
+    actions.settings.updateOpenVpnMssfix(mssfix);
+    await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
+  }
+
+  public async setAutoConnect(autoConnect: boolean) {
+    return IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
+  }
+
+  public async setAutoStart(autoStart: boolean): Promise<void> {
+    this.storeAutoStart(autoStart);
+
+    return IpcRendererEventChannel.autoStart.set(autoStart);
+  }
+
+  public setStartMinimized(startMinimized: boolean) {
+    IpcRendererEventChannel.guiSettings.setStartMinimized(startMinimized);
+  }
+
+  public setMonochromaticIcon(monochromaticIcon: boolean) {
+    IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
+  }
+
+  private setRelaySettings(relaySettings: RelaySettings) {
+    const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
       const payload: { [key: string]: any } = {};
@@ -260,11 +313,7 @@ export default class AppRenderer {
       const tunnel = normal.tunnel;
       const location = normal.location;
 
-      if (location === 'any') {
-        payload.location = 'any';
-      } else {
-        payload.location = location.only;
-      }
+      payload.location = location === 'any' ? 'any' : location.only;
 
       if (tunnel === 'any') {
         payload.port = 'any';
@@ -304,110 +353,57 @@ export default class AppRenderer {
     }
   }
 
-  updateAccountExpiry() {
-    if (this._settings.accountToken) {
-      this._accountDataCache.fetch(this._settings.accountToken);
-    }
-  }
-
-  async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await IpcRendererEventChannel.accountHistory.removeItem(accountToken);
-    await this._fetchAccountHistory();
-  }
-
-  async _fetchAccountHistory(): Promise<void> {
+  private async fetchAccountHistory(): Promise<void> {
     const accountHistory = await IpcRendererEventChannel.accountHistory.get();
 
-    this._reduxActions.account.updateAccountHistory(accountHistory);
+    this.reduxActions.account.updateAccountHistory(accountHistory);
   }
 
-  async setAllowLan(allowLan: boolean) {
-    const actions = this._reduxActions;
-    await IpcRendererEventChannel.settings.setAllowLan(allowLan);
-    actions.settings.updateAllowLan(allowLan);
-  }
-
-  async setEnableIpv6(enableIpv6: boolean) {
-    const actions = this._reduxActions;
-    await IpcRendererEventChannel.settings.setEnableIpv6(enableIpv6);
-    actions.settings.updateEnableIpv6(enableIpv6);
-  }
-
-  async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {
-    const actions = this._reduxActions;
-    await IpcRendererEventChannel.settings.setBlockWhenDisconnected(blockWhenDisconnected);
-    actions.settings.updateBlockWhenDisconnected(blockWhenDisconnected);
-  }
-
-  async setOpenVpnMssfix(mssfix?: number) {
-    const actions = this._reduxActions;
-    actions.settings.updateOpenVpnMssfix(mssfix);
-    await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
-  }
-
-  async setAutoConnect(autoConnect: boolean) {
-    return IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
-  }
-
-  async setAutoStart(autoStart: boolean): Promise<void> {
-    this._setAutoStart(autoStart);
-
-    return IpcRendererEventChannel.autoStart.set(autoStart);
-  }
-
-  setStartMinimized(startMinimized: boolean) {
-    IpcRendererEventChannel.guiSettings.setStartMinimized(startMinimized);
-  }
-
-  setMonochromaticIcon(monochromaticIcon: boolean) {
-    IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
-  }
-
-  async _onDaemonConnected() {
-    this._connectedToDaemon = true;
+  private async onDaemonConnected() {
+    this.connectedToDaemon = true;
 
     try {
-      await this._fetchAccountHistory();
+      await this.fetchAccountHistory();
     } catch (error) {
       log.error(`Cannot fetch the account history: ${error.message}`);
     }
 
-    if (this._settings.accountToken) {
-      this._memoryHistory.replace('/connect');
+    if (this.settings.accountToken) {
+      this.memoryHistory.replace('/connect');
 
       // try to autoconnect the tunnel
-      await this._autoConnect();
+      await this.autoConnect();
     } else {
-      this._memoryHistory.replace('/login');
+      this.memoryHistory.replace('/login');
 
       // show window when account is not set
       ipcRenderer.send('show-window');
     }
   }
 
-  _onDaemonDisconnected(error?: Error) {
-    const wasConnected = this._connectedToDaemon;
+  private onDaemonDisconnected(error?: Error) {
+    const wasConnected = this.connectedToDaemon;
 
-    this._connectedToDaemon = false;
+    this.connectedToDaemon = false;
 
     if (error && wasConnected) {
-      this._memoryHistory.replace('/');
+      this.memoryHistory.replace('/');
     }
   }
 
-  async _autoConnect() {
+  private async autoConnect() {
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
-    } else if (this._autoConnected) {
+    } else if (this.autoConnected) {
       log.info('Skip autoconnect because it was done before');
-    } else if (this._settings.accountToken) {
-      if (this._guiSettings.autoConnect) {
+    } else if (this.settings.accountToken) {
+      if (this.guiSettings.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
 
           await this.connectTunnel();
 
-          this._autoConnected = true;
+          this.autoConnected = true;
         } catch (error) {
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
@@ -419,12 +415,12 @@ export default class AppRenderer {
     }
   }
 
-  _setTunnelState(tunnelState: TunnelStateTransition) {
-    const actions = this._reduxActions;
+  private setTunnelState(tunnelState: TunnelStateTransition) {
+    const actions = this.reduxActions;
 
     log.debug(`Tunnel state: ${tunnelState.state}`);
 
-    this._tunnelState = tunnelState;
+    this.tunnelState = tunnelState;
 
     switch (tunnelState.state) {
       case 'connecting':
@@ -449,18 +445,18 @@ export default class AppRenderer {
     }
   }
 
-  _setSettings(newSettings: Settings) {
-    this._settings = newSettings;
+  private setSettings(newSettings: ISettings) {
+    this.settings = newSettings;
 
-    const reduxSettings = this._reduxActions.settings;
-    const reduxAccount = this._reduxActions.account;
+    const reduxSettings = this.reduxActions.settings;
+    const reduxAccount = this.reduxActions.account;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
 
-    this._setRelaySettings(newSettings.relaySettings);
+    this.setRelaySettings(newSettings.relaySettings);
 
     if (newSettings.accountToken) {
       reduxAccount.updateAccountToken(newSettings.accountToken);
@@ -470,33 +466,33 @@ export default class AppRenderer {
     }
   }
 
-  _handleAccountChange(oldAccount?: string, newAccount?: string) {
+  private handleAccountChange(oldAccount?: string, newAccount?: string) {
     if (oldAccount && !newAccount) {
-      this._accountDataCache.invalidate();
+      this.accountDataCache.invalidate();
 
-      if (this._loginTimer) {
-        clearTimeout(this._loginTimer);
+      if (this.loginTimer) {
+        clearTimeout(this.loginTimer);
       }
 
-      this._memoryHistory.replace('/login');
+      this.memoryHistory.replace('/login');
     } else if (!oldAccount && newAccount) {
-      this._accountDataCache.fetch(newAccount);
+      this.accountDataCache.fetch(newAccount);
 
-      if (!this._doingLogin) {
-        this._memoryHistory.replace('/connect');
+      if (!this.doingLogin) {
+        this.memoryHistory.replace('/connect');
       }
     } else if (oldAccount && newAccount && oldAccount !== newAccount) {
-      this._accountDataCache.fetch(newAccount);
+      this.accountDataCache.fetch(newAccount);
     }
 
-    this._doingLogin = false;
+    this.doingLogin = false;
   }
 
-  _setLocation(location: Location) {
-    this._reduxActions.connection.newLocation(location);
+  private setLocation(location: ILocation) {
+    this.reduxActions.connection.newLocation(location);
   }
 
-  _setRelays(relayList: RelayList) {
+  private setRelays(relayList: IRelayList) {
     const locations = relayList.countries.map((country) => ({
       name: country.name,
       code: country.code,
@@ -511,143 +507,137 @@ export default class AppRenderer {
       })),
     }));
 
-    this._reduxActions.settings.updateRelayLocations(locations);
+    this.reduxActions.settings.updateRelayLocations(locations);
   }
 
-  _setCurrentVersion(versionInfo: CurrentAppVersionInfo) {
-    this._reduxActions.version.updateVersion(versionInfo.gui, versionInfo.isConsistent);
+  private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {
+    this.reduxActions.version.updateVersion(versionInfo.gui, versionInfo.isConsistent);
   }
 
-  _setUpgradeVersion(upgradeVersion: AppUpgradeInfo) {
-    this._reduxActions.version.updateLatest(upgradeVersion);
+  private setUpgradeVersion(upgradeVersion: IAppUpgradeInfo) {
+    this.reduxActions.version.updateLatest(upgradeVersion);
   }
 
-  _setGuiSettings(guiSettings: GuiSettingsState) {
-    this._guiSettings = guiSettings;
-    this._reduxActions.settings.updateGuiSettings(guiSettings);
+  private setGuiSettings(guiSettings: IGuiSettingsState) {
+    this.guiSettings = guiSettings;
+    this.reduxActions.settings.updateGuiSettings(guiSettings);
   }
 
-  _setAutoStart(autoStart: boolean) {
-    this._reduxActions.settings.updateAutoStart(autoStart);
+  private storeAutoStart(autoStart: boolean) {
+    this.reduxActions.settings.updateAutoStart(autoStart);
   }
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 type AccountFetchRetryAction = 'stop' | 'retry';
-type AccountFetchWatcher = {
+interface IAccountFetchWatcher {
   onFinish: () => void;
   onError: (error: Error) => AccountFetchRetryAction;
-};
+}
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 export class AccountDataCache {
-  _currentAccount?: AccountToken;
-  _expiresAt?: Date;
-  _fetchAttempt: number;
-  _fetchRetryTimeout?: NodeJS.Timeout;
-  _fetch: (token: AccountToken) => Promise<AccountData>;
-  _update: (data?: AccountData) => void;
-  _watchers: Array<AccountFetchWatcher>;
+  private currentAccount?: AccountToken;
+  private expiresAt?: Date;
+  private fetchAttempt = 0;
+  private fetchRetryTimeout?: NodeJS.Timeout;
+  private watchers: IAccountFetchWatcher[] = [];
 
   constructor(
-    fetch: (token: AccountToken) => Promise<AccountData>,
-    update: (data?: AccountData) => void,
-  ) {
-    this._fetch = fetch;
-    this._update = update;
-    this._watchers = [];
-    this._fetchAttempt = 0;
-  }
+    private fetchHandler: (token: AccountToken) => Promise<IAccountData>,
+    private updateHandler: (data?: IAccountData) => void,
+  ) {}
 
-  fetch(accountToken: AccountToken, watcher?: AccountFetchWatcher) {
+  public fetch(accountToken: AccountToken, watcher?: IAccountFetchWatcher) {
     // invalidate cache if account token has changed
-    if (accountToken !== this._currentAccount) {
+    if (accountToken !== this.currentAccount) {
       this.invalidate();
-      this._currentAccount = accountToken;
+      this.currentAccount = accountToken;
     }
 
     // Only fetch is value has expired
-    if (this._isExpired()) {
+    if (this.isExpired()) {
       if (watcher) {
-        this._watchers.push(watcher);
+        this.watchers.push(watcher);
       }
 
-      this._performFetch(accountToken);
+      this.performFetch(accountToken);
     } else if (watcher) {
       watcher.onFinish();
     }
   }
 
-  invalidate() {
-    if (this._fetchRetryTimeout) {
-      clearTimeout(this._fetchRetryTimeout);
-      this._fetchRetryTimeout = undefined;
-      this._fetchAttempt = 0;
+  public invalidate() {
+    if (this.fetchRetryTimeout) {
+      clearTimeout(this.fetchRetryTimeout);
+      this.fetchRetryTimeout = undefined;
+      this.fetchAttempt = 0;
     }
 
-    this._expiresAt = undefined;
-    this._update();
-    this._notifyWatchers((watcher) => {
+    this.expiresAt = undefined;
+    this.updateHandler();
+    this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
     });
   }
 
-  _setValue(value: AccountData) {
-    this._expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
-    this._update(value);
-    this._notifyWatchers((watcher) => watcher.onFinish());
+  private setValue(value: IAccountData) {
+    this.expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+    this.updateHandler(value);
+    this.notifyWatchers((watcher) => watcher.onFinish());
   }
 
-  _isExpired() {
-    return !this._expiresAt || this._expiresAt < new Date();
+  private isExpired() {
+    return !this.expiresAt || this.expiresAt < new Date();
   }
 
-  async _performFetch(accountToken: AccountToken) {
+  private async performFetch(accountToken: AccountToken) {
     try {
       // it's possible for invalidate() to be called or for a fetch for a different account token
       // to start before this fetch completes, so checking if the current account token is the one
       // used is necessary below.
-      const accountData = await this._fetch(accountToken);
+      const accountData = await this.fetchHandler(accountToken);
 
-      if (this._currentAccount === accountToken) {
-        this._setValue(accountData);
+      if (this.currentAccount === accountToken) {
+        this.setValue(accountData);
       }
     } catch (error) {
-      if (this._currentAccount === accountToken) {
-        this._handleFetchError(accountToken, error);
+      if (this.currentAccount === accountToken) {
+        this.handleFetchError(accountToken, error);
       }
     }
   }
 
-  _handleFetchError(accountToken: AccountToken, error: any) {
+  private handleFetchError(accountToken: AccountToken, error: any) {
     let shouldRetry = true;
 
-    this._notifyWatchers((watcher) => {
+    this.notifyWatchers((watcher) => {
       if (watcher.onError(error) === 'stop') {
         shouldRetry = false;
       }
     });
 
     if (shouldRetry) {
-      this._scheduleRetry(accountToken);
+      this.scheduleRetry(accountToken);
     }
   }
 
-  _scheduleRetry(accountToken: AccountToken) {
-    this._fetchAttempt += 1;
+  private scheduleRetry(accountToken: AccountToken) {
+    this.fetchAttempt += 1;
 
-    const delay = Math.min(2048, 1 << (this._fetchAttempt + 2)) * 1000;
+    // tslint:disable-next-line
+    const delay = Math.min(2048, 1 << (this.fetchAttempt + 2)) * 1000;
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
-    this._fetchRetryTimeout = setTimeout(() => {
-      this._fetchRetryTimeout = undefined;
-      this._performFetch(accountToken);
+    this.fetchRetryTimeout = setTimeout(() => {
+      this.fetchRetryTimeout = undefined;
+      this.performFetch(accountToken);
     }, delay);
   }
 
-  _notifyWatchers(notify: (watcher: AccountFetchWatcher) => void) {
-    this._watchers.splice(0).forEach(notify);
+  private notifyWatchers(notify: (watcher: IAccountFetchWatcher) => void) {
+    this.watchers.splice(0).forEach(notify);
   }
 }

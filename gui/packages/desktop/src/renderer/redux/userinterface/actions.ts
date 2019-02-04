@@ -1,23 +1,25 @@
-export type UpdateWindowArrowPositionAction = {
+export interface IUpdateWindowArrowPositionAction {
   type: 'UPDATE_WINDOW_ARROW_POSITION';
   arrowPosition: number;
-};
+}
 
-export type UpdateConnectionInfoOpenAction = {
+export interface IUpdateConnectionInfoOpenAction {
   type: 'UPDATE_CONNECTION_INFO_OPEN';
   isOpen: boolean;
-};
+}
 
-export type UserInterfaceAction = UpdateWindowArrowPositionAction | UpdateConnectionInfoOpenAction;
+export type UserInterfaceAction =
+  | IUpdateWindowArrowPositionAction
+  | IUpdateConnectionInfoOpenAction;
 
-function updateWindowArrowPosition(arrowPosition: number): UpdateWindowArrowPositionAction {
+function updateWindowArrowPosition(arrowPosition: number): IUpdateWindowArrowPositionAction {
   return {
     type: 'UPDATE_WINDOW_ARROW_POSITION',
     arrowPosition,
   };
 }
 
-function updateConnectionInfoOpen(isOpen: boolean): UpdateConnectionInfoOpenAction {
+function updateConnectionInfoOpen(isOpen: boolean): IUpdateConnectionInfoOpenAction {
   return {
     type: 'UPDATE_CONNECTION_INFO_OPEN',
     isOpen,

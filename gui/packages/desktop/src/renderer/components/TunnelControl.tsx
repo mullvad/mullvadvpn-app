@@ -1,36 +1,36 @@
+import { ConnectionInfo, SecuredDisplayStyle, SecuredLabel } from '@mullvad/components';
 import * as React from 'react';
-import { Component, Text, View, Styles, Types } from 'reactxp';
-import { ConnectionInfo, SecuredLabel, SecuredDisplayStyle } from '@mullvad/components';
-import * as AppButton from './AppButton';
+import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
+import * as AppButton from './AppButton';
 
-import { TunnelStateTransition, RelayProtocol } from '../../shared/daemon-rpc-types';
+import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
 
-export type RelayInAddress = {
+export interface IRelayInAddress {
   ip: string;
   port: number;
   protocol: RelayProtocol;
-};
+}
 
-export type RelayOutAddress = {
+export interface IRelayOutAddress {
   ipv4?: string;
   ipv6?: string;
-};
+}
 
-type TunnelControlProps = {
+interface ITunnelControlProps {
   tunnelState: TunnelStateTransition;
   selectedRelayName: string;
   city?: string;
   country?: string;
   hostname?: string;
   defaultConnectionInfoOpen?: boolean;
-  relayInAddress?: RelayInAddress;
-  relayOutAddress?: RelayOutAddress;
+  relayInAddress?: IRelayInAddress;
+  relayOutAddress?: IRelayOutAddress;
   onConnect: () => void;
   onDisconnect: () => void;
   onSelectLocation: () => void;
   onToggleConnectionInfo: (value: boolean) => void;
-};
+}
 
 const styles = {
   body: Styles.createViewStyle({
@@ -75,8 +75,8 @@ const styles = {
   }),
 };
 
-export default class TunnelControl extends Component<TunnelControlProps> {
-  render() {
+export default class TunnelControl extends Component<ITunnelControlProps> {
+  public render() {
     const Location = ({ children }: { children?: React.ReactNode }) => (
       <View style={styles.status_location}>{children}</View>
     );
@@ -253,18 +253,18 @@ export default class TunnelControl extends Component<TunnelControlProps> {
   }
 }
 
-type ContainerProps = {
+interface IContainerProps {
   children?: Types.ReactNode;
-};
+}
 
-class Wrapper extends Component<ContainerProps> {
-  render() {
+class Wrapper extends Component<IContainerProps> {
+  public render() {
     return <View style={styles.wrapper}>{this.props.children}</View>;
   }
 }
 
-class Body extends Component<ContainerProps> {
-  render() {
+class Body extends Component<IContainerProps> {
+  public render() {
     return <View style={styles.body}>{this.props.children}</View>;
   }
 }

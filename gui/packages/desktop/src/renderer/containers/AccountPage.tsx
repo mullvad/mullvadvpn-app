@@ -1,20 +1,20 @@
+import { goBack } from 'connected-react-router';
 import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { goBack } from 'connected-react-router';
-import Account from '../components/Account';
 import { links } from '../../config.json';
+import Account from '../components/Account';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
   expiryLocale: remote.app.getLocale(),
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onLogout: () => {
@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) =>
     onClose: () => {
       history.goBack();
     },
-    onBuyMore: () => shell.openExternal(links['purchase']),
+    onBuyMore: () => shell.openExternal(links.purchase),
   };
 };
 
