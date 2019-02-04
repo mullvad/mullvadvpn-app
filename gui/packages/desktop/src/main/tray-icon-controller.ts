@@ -79,8 +79,6 @@ export default class TrayIconController {
         return 9;
       case 'secured':
         return 8;
-      default:
-        throw new Error(`Unknown tray icon type: ${this._iconType}`);
     }
   }
 
