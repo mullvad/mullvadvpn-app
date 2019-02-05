@@ -51,6 +51,9 @@ pub mod dns;
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
+/// Internal code for managing bundled proxy software.
+mod proxy;
+
 mod mktemp;
 
 /// Misc utilities for the Linux platform.
