@@ -103,7 +103,7 @@ impl TunnelEndpointData {
     }
 }
 
-fn all_of_the_internet() -> Vec<IpNetwork> {
+pub fn all_of_the_internet() -> Vec<IpNetwork> {
     vec![
         "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
         "::0/0".parse().expect("Failed to parse ipv6 network"),

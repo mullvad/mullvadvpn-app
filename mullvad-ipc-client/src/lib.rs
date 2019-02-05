@@ -189,6 +189,14 @@ impl DaemonRpcClient {
         self.call("set_enable_ipv6", &[enabled])
     }
 
+    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<()> {
+        self.call("set_wireguard_mtu", &[mtu])
+    }
+
+    pub fn set_wireguard_fwmark(&mut self, fwmark: i32) -> Result<()> {
+        self.call("set_wireguard_fwmark", &[fwmark])
+    }
+
     pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
         self.call("set_openvpn_mssfix", &[mssfix])
     }

@@ -1,15 +1,20 @@
 use crate::{new_rpc_client, Command, Result, ResultExt};
-use clap::value_t;
-use std::{net::Ipv4Addr, str::FromStr};
+use clap::{value_t, values_t};
+use std::{
+    io::{self, BufRead},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    str::FromStr,
+};
 
 use mullvad_types::{
+    endpoint::all_of_the_internet,
     relay_constraints::{
         Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
         RelaySettingsUpdate, TunnelConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
-use talpid_types::net::{openvpn, Endpoint, TransportProtocol};
+use talpid_types::net::{openvpn, wireguard, Endpoint, TransportProtocol};
 
 pub struct Relay;
 
@@ -31,41 +36,72 @@ impl Command for Relay {
                     .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a custom VPN relay")
-                            .arg(
-                                clap::Arg::with_name("tunnel")
-                                    .required(true)
-                                    .index(1)
-                                    .possible_values(&["openvpn", "wireguard"]),
+                            .subcommand(clap::SubCommand::with_name("wireguard")
+                                .arg(
+                                    clap::Arg::with_name("host")
+                                        .help("Hostname or IP")
+                                        .required(true)
+                                        .index(1),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("port")
+                                        .help("Remote network port")
+                                        .required(true)
+                                        .index(2),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("peer-key")
+                                        .help("Base64 encoded peer public key")
+                                        .index(3)
+                                        .required(false),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("gateway")
+                                        .help("Gateway address")
+                                        .long("gateway")
+                                        .index(4)
+                                        .required(false),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("addr")
+                                        .help("Local address of wireguard tunnel")
+                                        .long("addr")
+                                        .takes_value(true)
+                                        .multiple(true)
+                                        .required(false),
+                                ),
                             )
-                            .arg(
-                                clap::Arg::with_name("host")
-                                    .help("Hostname or IP")
-                                    .required(true)
-                                    .index(2),
+                            .subcommand(clap::SubCommand::with_name("openvpn")
+                                .arg(
+                                    clap::Arg::with_name("host")
+                                        .help("Hostname or IP")
+                                        .required(true)
+                                        .index(1),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("port")
+                                        .help("Remote network port")
+                                        .required(true)
+                                        .index(2),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("protocol")
+                                        .help("Transport protocol. For Wireguard this is ignored.")
+                                        .index(3)
+                                        .default_value("udp")
+                                        .possible_values(&["udp", "tcp"]),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("username")
+                                        .help("Username to be used with the OpenVpn relay")
+                                        .index(4),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("password")
+                                        .help("Password to be used with the OpenVpn relay")
+                                        .index(5),
+                                )
                             )
-                            .arg(
-                                clap::Arg::with_name("port")
-                                    .help("Remote network port")
-                                    .required(true)
-                                    .index(3),
-                            )
-                            .arg(
-                                clap::Arg::with_name("protocol")
-                                    .help("Transport protocol. For Wireguard this is ignored.")
-                                    .index(4)
-                                    .default_value("udp")
-                                    .possible_values(&["udp", "tcp"]),
-                            )
-                            .arg(
-                                clap::Arg::with_name("username")
-                                    .help("Username to be used with the OpenVpn relay")
-                                    .index(5),
-                            )
-                            .arg(
-                                clap::Arg::with_name("password")
-                                    .help("Password to be used with the OpenVpn relay")
-                                    .index(6),
-                            ),
                     )
                     .subcommand(
                         clap::SubCommand::with_name("location")
@@ -152,29 +188,83 @@ impl Relay {
     }
 
     fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
+        let custom_endpoint = match matches.subcommand() {
+            ("openvpn", Some(openvpn_matches)) => Self::read_custom_openvpn_relay(openvpn_matches),
+            ("wireguard", Some(wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
+            (_unknown_tunnel, _) => unreachable!("No set relay command given"),
+        };
+        self.update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(custom_endpoint))
+    }
+
+    fn read_custom_openvpn_relay(matches: &clap::ArgMatches) -> CustomTunnelEndpoint {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
-        let config = match matches.value_of("tunnel").unwrap() {
-            "openvpn" => {
-                let username =
-                    value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
-                let password =
-                    value_t!(matches.value_of("password"), String).unwrap_or_else(|e| e.exit());
-                let protocol = value_t!(matches.value_of("protocol"), TransportProtocol)
-                    .unwrap_or_else(|e| e.exit());
-                ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
-                    endpoint: Endpoint::new(Ipv4Addr::UNSPECIFIED, port, protocol),
-                    username,
-                    password,
-                })
-            }
-            // TODO: Gather all the data to build a WireguardEndpointData properly.
-            // "wireguard" => TunnelEndpointData::Wireguard(WireguardEndpointData { port }),
-            _ => unreachable!("Invalid tunnel protocol"),
-        };
-        self.update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(
-            CustomTunnelEndpoint::new(host, config),
-        ))
+        let username = value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
+        let password = value_t!(matches.value_of("password"), String).unwrap_or_else(|e| e.exit());
+        let protocol =
+            value_t!(matches.value_of("protocol"), TransportProtocol).unwrap_or_else(|e| e.exit());
+        CustomTunnelEndpoint::new(
+            host,
+            ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
+                endpoint: Endpoint::new(Ipv4Addr::UNSPECIFIED, port, protocol),
+                username,
+                password,
+            }),
+        )
+    }
+
+    fn read_custom_wireguard_relay(matches: &clap::ArgMatches) -> CustomTunnelEndpoint {
+        let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
+        let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
+        let addresses = values_t!(matches.values_of("addr"), IpAddr).unwrap_or_else(|e| e.exit());
+        println!("addresses - {:?}", addresses);
+        let peer_key_str =
+            value_t!(matches.value_of("peer-key"), String).unwrap_or_else(|e| e.exit());
+        let gateway = value_t!(matches.value_of("gateway"), IpAddr).unwrap_or_else(|e| e.exit());
+        let mut private_key_str = String::new();
+        println!("Reading private key from standard input");
+        let _ = io::stdin().lock().read_line(&mut private_key_str);
+        if private_key_str.trim().len() == 0 {
+            eprintln!("Expected to read private key from standard input");
+        }
+        let private_key = Self::validate_wireguard_key(&private_key_str).into();
+        let peer_public_key = Self::validate_wireguard_key(&peer_key_str).into();
+
+
+        CustomTunnelEndpoint::new(
+            host,
+            ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+                tunnel: wireguard::TunnelConfig {
+                    private_key,
+                    addresses,
+                },
+                peer: wireguard::PeerConfig {
+                    public_key: peer_public_key,
+                    allowed_ips: all_of_the_internet(),
+                    endpoint: SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), port),
+                },
+                gateway,
+            }),
+        )
+    }
+
+    fn validate_wireguard_key(key_str: &str) -> [u8; 32] {
+        let key_bytes = base64::decode(key_str.trim()).unwrap_or_else(|e| {
+            eprintln!("Failed to decode wireguard key: {}", e);
+            ::std::process::exit(1);
+        });
+
+        let mut key = [0u8; 32];
+        if key_bytes.len() != 32 {
+            eprintln!(
+                "Expected key length to be 32 bytes, got {}",
+                key_bytes.len()
+            );
+            ::std::process::exit(1);
+        }
+
+        key.copy_from_slice(&key_bytes);
+        key
     }
 
     fn set_location(&self, matches: &clap::ArgMatches) -> Result<()> {
