@@ -47,8 +47,12 @@ pub struct TunnelOptions {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ProxySettings {
+    /// Generic proxy running independently on localhost.
     Local(LocalProxySettings),
+    /// Generic proxy running on remote host.
     Remote(RemoteProxySettings),
+    /// Bundled Shadowsocks proxy.
+    Shadowsocks(ShadowsocksProxySettings),
 }
 
 impl ProxySettings {
@@ -56,6 +60,7 @@ impl ProxySettings {
         match self {
             ProxySettings::Local(settings) => settings.get_endpoint(),
             ProxySettings::Remote(settings) => settings.get_endpoint(),
+            ProxySettings::Shadowsocks(settings) => settings.get_endpoint(),
         }
     }
 }
@@ -96,6 +101,47 @@ pub struct ProxyAuth {
     pub password: String,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct ShadowsocksProxySettings {
+    pub peer: SocketAddr,
+    /// Password on peer.
+    pub password: String,
+    pub cipher: String,
+}
+
+pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
+    // Stream ciphers.
+    "aes-128-cfb",
+    "aes-128-cfb1",
+    "aes-128-cfb8",
+    "aes-128-cfb128",
+    "aes-256-cfb",
+    "aes-256-cfb1",
+    "aes-256-cfb8",
+    "aes-256-cfb128",
+    "rc4",
+    "rc4-md5",
+    "chacha20",
+    "salsa20",
+    "chacha20-ietf",
+    // AEAD ciphers.
+    "aes-128-gcm",
+    "aes-256-gcm",
+    "chacha20-ietf-poly1305",
+    "xchacha20-ietf-poly1305",
+    "aes-128-pmac-siv",
+    "aes-256-pmac-siv",
+];
+
+impl ShadowsocksProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            address: self.peer,
+            protocol: TransportProtocol::Tcp,
+        }
+    }
+}
+
 pub struct ProxySettingsValidation;
 
 impl ProxySettingsValidation {
@@ -120,6 +166,19 @@ impl ProxySettingsValidation {
                 }
                 if remote.address.ip().is_loopback() {
                     return Err(String::from("localhost is not a valid remote server"));
+                }
+            }
+            ProxySettings::Shadowsocks(ss) => {
+                if ss.peer.ip().is_loopback() {
+                    return Err(String::from(
+                        "localhost is not a valid peer in this context",
+                    ));
+                }
+                if ss.peer.port() == 0 {
+                    return Err(String::from("Invalid remote port number"));
+                }
+                if !SHADOWSOCKS_CIPHERS.contains(&ss.cipher.as_str()) {
+                    return Err(String::from("Invalid cipher"));
                 }
             }
         };

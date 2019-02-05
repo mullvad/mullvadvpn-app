@@ -302,6 +302,7 @@ impl OpenVpnCommand {
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }
+            Some(net::openvpn::ProxySettings::Shadowsocks(ref _ss)) => {} // TODO: fix
             None => {}
         };
         args
