@@ -2,7 +2,7 @@ use crate::{new_rpc_client, Command, Result};
 use clap::value_t;
 
 use mullvad_types::settings::TunnelOptions;
-use talpid_types::net::openvpn;
+use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
 use std::net::{IpAddr, SocketAddr};
 
@@ -142,6 +142,35 @@ fn create_openvpn_proxy_subcommand() -> clap::App<'static, 'static> {
                             clap::Arg::with_name("password")
                                 .help("Specifies the password for remote authentication")
                                 .required(true)
+                                .index(4),
+                        ),
+                )
+                .subcommand(
+                    clap::SubCommand::with_name("shadowsocks")
+                        .about("Configure bundled Shadowsocks proxy")
+                        .arg(
+                            clap::Arg::with_name("remote-ip")
+                                .help("Specifies the IP of the remote Shadowsocks server")
+                                .required(true)
+                                .index(1),
+                        )
+                        .arg(
+                            clap::Arg::with_name("remote-port")
+                                .help("Specifies the port of the remote Shadowsocks server")
+                                .default_value("443")
+                                .index(2),
+                        )
+                        .arg(
+                            clap::Arg::with_name("password")
+                                .help("Specifies the password on the remote Shadowsocks server")
+                                .default_value("23#dfsbbb")
+                                .index(3),
+                        )
+                        .arg(
+                            clap::Arg::with_name("cipher")
+                                .help("Specifies the cipher to use")
+                                .default_value("chacha20")
+                                .possible_values(SHADOWSOCKS_CIPHERS)
                                 .index(4),
                         ),
                 ),
@@ -301,6 +330,8 @@ impl Tunnel {
                 Self::print_local_proxy(&local_proxy)
             } else if let openvpn::ProxySettings::Remote(remote_proxy) = proxy {
                 Self::print_remote_proxy(&remote_proxy)
+            } else if let openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) = proxy {
+                Self::print_shadowsocks_proxy(&shadowsocks_proxy)
             } else {
                 unreachable!("unhandled proxy type");
             }
@@ -328,6 +359,14 @@ impl Tunnel {
         } else {
             println!("  auth: none");
         }
+    }
+
+    fn print_shadowsocks_proxy(proxy: &openvpn::ShadowsocksProxySettings) {
+        println!("proxy: Shadowsocks");
+        println!("  peer IP: {}", proxy.peer.ip());
+        println!("  peer port: {}", proxy.peer.port());
+        println!("  password: {}", proxy.password);
+        println!("  cipher: {}", proxy.cipher);
     }
 
     fn process_openvpn_proxy_unset() -> Result<()> {
@@ -381,6 +420,28 @@ impl Tunnel {
             };
 
             let packed_proxy = openvpn::ProxySettings::Remote(proxy);
+
+            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
+                panic!(error);
+            }
+
+            let mut rpc = new_rpc_client()?;
+            rpc.set_openvpn_proxy(Some(packed_proxy))?;
+        } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
+            let remote_ip =
+                value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
+            let remote_port =
+                value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
+            let password = args.value_of("password").unwrap().to_string();
+            let cipher = args.value_of("cipher").unwrap().to_string();
+
+            let proxy = openvpn::ShadowsocksProxySettings {
+                peer: SocketAddr::new(remote_ip, remote_port),
+                password,
+                cipher,
+            };
+
+            let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
 
             if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
                 panic!(error);
