@@ -216,6 +216,8 @@ interface ISelectorState<T> {
 }
 
 class Selector<T> extends Component<ISelectorProps<T>, ISelectorState<T>> {
+  state: ISelectorState<T> = {};
+
   public render() {
     return (
       <View>
