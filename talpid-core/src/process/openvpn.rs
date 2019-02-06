@@ -64,6 +64,7 @@ pub struct OpenVpnCommand {
     tunnel_options: net::openvpn::TunnelOptions,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
+    proxy_port: Option<u16>,
 }
 
 impl OpenVpnCommand {
@@ -84,6 +85,7 @@ impl OpenVpnCommand {
             tunnel_options: net::openvpn::TunnelOptions::default(),
             tunnel_alias: None,
             enable_ipv6: true,
+            proxy_port: None,
         }
     }
 
@@ -159,6 +161,13 @@ impl OpenVpnCommand {
     /// Configures if IPv6 should be allowed in the tunnel.
     pub fn enable_ipv6(&mut self, enable_ipv6: bool) -> &mut Self {
         self.enable_ipv6 = enable_ipv6;
+        self
+    }
+
+    /// Sets the local proxy port bound to.
+    /// In case of dynamic port selection, this will only be known after the proxy has been started.
+    pub fn proxy_port(&mut self, proxy_port: u16) -> &mut Self {
+        self.proxy_port = Some(proxy_port);
         self
     }
 
@@ -302,7 +311,21 @@ impl OpenVpnCommand {
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }
-            Some(net::openvpn::ProxySettings::Shadowsocks(ref _ss)) => {} // TODO: fix
+            Some(net::openvpn::ProxySettings::Shadowsocks(ref ss)) => {
+                args.push("--socks-proxy".to_owned());
+                args.push("127.0.0.1".to_owned());
+
+                if let Some(ref proxy_port) = self.proxy_port {
+                    args.push(proxy_port.to_string());
+                } else {
+                    panic!("Dynamic proxy port was not registered with OpenVpnCommand");
+                }
+
+                args.push("--route".to_owned());
+                args.push(ss.peer.ip().to_string());
+                args.push("255.255.255.255".to_owned());
+                args.push("net_gateway".to_owned());
+            }
             None => {}
         };
         args
