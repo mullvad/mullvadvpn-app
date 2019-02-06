@@ -908,16 +908,14 @@ class ApplicationMain {
   }
 
   private async installDevTools() {
-    if (process.env.NODE_ENV === 'development') {
-      const installer = require('electron-devtools-installer');
-      const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-      const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-      for (const name of extensions) {
-        try {
-          await installer.default(installer[name], forceDownload);
-        } catch (e) {
-          log.info(`Error installing ${name} extension: ${e.message}`);
-        }
+    const installer = require('electron-devtools-installer');
+    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+    for (const name of extensions) {
+      try {
+        await installer.default(installer[name], forceDownload);
+      } catch (e) {
+        log.info(`Error installing ${name} extension: ${e.message}`);
       }
     }
   }

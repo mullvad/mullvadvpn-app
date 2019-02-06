@@ -74,7 +74,7 @@ export function getTransitionProps(
 }
 
 /**
- * Integrate TransitionDescriptor into ITransitionGroupProps
+ * Integrate ITransitionDescriptor into ITransitionGroupProps
  * @param {ITransitionDescriptor} descriptor
  */
 function toTransitionGroupProps(descriptor: ITransitionDescriptor): ITransitionGroupProps {
