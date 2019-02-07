@@ -17,8 +17,8 @@ jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "mul
 tokio = "0.1"
 futures = "0.1"
 
-jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "e9dbdc80" }
-jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "e9dbdc80" }
+jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
+jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 
 [dev-dependencies]
 assert_matches = "1.0"

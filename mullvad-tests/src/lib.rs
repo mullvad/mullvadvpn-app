@@ -300,7 +300,7 @@ impl DaemonRunner {
         wait_for_file(&self.rpc_socket_path);
         let socket_path: String = self.rpc_socket_path.to_string_lossy().to_string();
         mullvad_ipc_client::new_standalone_transport(socket_path, |path| {
-            IpcTransport::new(&path, &Handle::current())
+            IpcTransport::new(&path, &Handle::default())
                 .chain_err(|| mullvad_ipc_client::ErrorKind::TransportError)
         })
         .map_err(|e| format!("Failed to construct an RPC client - {}", e))
@@ -357,7 +357,7 @@ impl MockOpenVpnPluginRpcClient {
     fn spawn_event_loop(address: String) -> Result<jsonrpc_client_core::ClientHandle> {
         let (tx, rx) = oneshot::channel();
         thread::spawn(move || {
-            let result = IpcTransport::new(&address, &Handle::current())
+            let result = IpcTransport::new(&address, &Handle::default())
                 .map_err(|error| {
                     format!("Failed to create Mock OpenVPN plugin RPC client: {}", error)
                 })

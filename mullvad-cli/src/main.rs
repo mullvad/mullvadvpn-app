@@ -26,6 +26,9 @@ error_chain! {
             description("Failed to connect to daemon")
             display("Failed to connect to daemon: {}Is the daemon running?", err.display_chain())
         }
+        CantSubscribe {
+            description("Can't subscribe to daemon states")
+        }
     }
 
     foreign_links {
