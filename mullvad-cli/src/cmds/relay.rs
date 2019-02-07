@@ -10,7 +10,7 @@ use mullvad_types::{
     endpoint::all_of_the_internet,
     relay_constraints::{
         Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
-        RelaySettingsUpdate, TunnelConstraints,
+        RelaySettingsUpdate, TunnelConstraints, WireguardConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
@@ -133,13 +133,20 @@ impl Command for Relay {
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set tunnel constraints")
-                            .arg(clap::Arg::with_name("port").required(true).index(1))
                             .arg(
-                                clap::Arg::with_name("protocol")
+                                clap::Arg::with_name("vpn protocol")
                                     .required(true)
-                                    .index(2)
+                                    .index(1)
+                                    .possible_values(&["wireguard", "openvpn"]),
+                            )
+                            .arg(clap::Arg::with_name("port").required(true).index(2))
+                            .arg(
+                                clap::Arg::with_name("ip protocol")
+                                    .required(false)
+                                    .index(3)
                                     .possible_values(&["any", "udp", "tcp"]),
                             ),
+
                     ),
             )
             .subcommand(clap::SubCommand::with_name("get"))
@@ -307,15 +314,34 @@ impl Relay {
     }
 
     fn set_tunnel(&self, matches: &clap::ArgMatches) -> Result<()> {
+        let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
-        let protocol = parse_protocol_constraint(matches.value_of("protocol").unwrap());
 
-        self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: None,
-            tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
-                OpenVpnConstraints { port, protocol },
-            ))),
-        }))
+        match vpn_protocol {
+            "wireguard" => {
+                self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                    location: None,
+                    tunnel: Some(Constraint::Only(TunnelConstraints::Wireguard(
+                        WireguardConstraints { port },
+                    ))),
+                }))
+            }
+            "openvpn" => {
+                let protocol = parse_protocol_constraint(
+                    matches.value_of("ip protocol").unwrap_or_else(|| {
+                        eprintln!("Please specify the IP protocol");
+                        ::std::process::exit(1);
+                    }),
+                );
+                self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                    location: None,
+                    tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
+                        OpenVpnConstraints { port, protocol },
+                    ))),
+                }))
+            }
+            _ => unreachable!(),
+        }
     }
 
     fn get(&self) -> Result<()> {
