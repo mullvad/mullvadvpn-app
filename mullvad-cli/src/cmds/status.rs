@@ -1,4 +1,5 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Error, ErrorKind, Result, ResultExt};
+use futures::{Future, Stream};
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::auth_failed::AuthFailed;
 use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
@@ -25,7 +26,12 @@ impl Command for Status {
         print_state(&state);
         print_location(&mut rpc)?;
         if matches.subcommand_matches("listen").is_some() {
-            for new_state in rpc.new_state_subscribe()? {
+            let subscription = rpc
+                .new_state_subscribe()
+                .wait()
+                .map_err(|_err| Error::from(ErrorKind::CantSubscribe))?;
+            for new_state in subscription.wait() {
+                let new_state = new_state.chain_err(|| "Subscription failed")?;
                 print_state(&new_state);
 
                 use self::TunnelStateTransition::*;

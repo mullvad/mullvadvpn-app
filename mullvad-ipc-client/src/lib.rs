@@ -1,10 +1,7 @@
 #[macro_use]
 extern crate error_chain;
 
-use futures::{
-    stream::{self, Stream},
-    sync::oneshot,
-};
+use futures::sync::oneshot;
 use jsonrpc_client_core::{Client, ClientHandle, Future};
 use jsonrpc_client_ipc::IpcTransport;
 use mullvad_types::{
@@ -16,7 +13,7 @@ use mullvad_types::{
     version::AppVersionInfo,
 };
 use serde::{Deserialize, Serialize};
-use std::{path::Path, sync::mpsc, thread, time::Duration};
+use std::{path::Path, thread};
 use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
 
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
@@ -59,14 +56,14 @@ pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcCli
     let path = path.as_ref().to_string_lossy().to_string();
 
     new_standalone_transport(path, |path| {
-        IpcTransport::new(&path, &tokio::reactor::Handle::current())
+        IpcTransport::new(&path, &tokio::reactor::Handle::default())
             .chain_err(|| ErrorKind::TransportError)
     })
 }
 
 pub fn new_standalone_transport<
     F: Send + 'static + FnOnce(String) -> Result<T>,
-    T: jsonrpc_client_core::Transport,
+    T: jsonrpc_client_core::DuplexTransport + 'static,
 >(
     rpc_path: String,
     transport_func: F,
@@ -76,39 +73,55 @@ pub fn new_standalone_transport<
         Err(e) => tx
             .send(Err(e))
             .expect("Failed to send error back to caller"),
-        Ok((client, client_handle)) => {
-            tx.send(Ok(client_handle))
+        Ok((client, server_handle, client_handle)) => {
+            let mut rt = tokio::runtime::current_thread::Runtime::new()
+                .expect("Failed to start a standalone tokio runtime for mullvad ipc");
+            let handle = rt.handle();
+            tx.send(Ok((client_handle, server_handle, handle)))
                 .expect("Failed to send client handle");
 
-            if let Err(e) = client.wait() {
+            if let Err(e) = rt.block_on(client) {
                 log::error!("JSON-RPC client failed: {}", e.description());
             }
         }
     });
 
-    rx.wait()
-        .chain_err(|| ErrorKind::TransportError)?
-        .map(DaemonRpcClient::new)
+    rx.wait().chain_err(|| ErrorKind::TransportError)?.map(
+        |(rpc_client, server_handle, executor)| {
+            let subscriber =
+                jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
+            DaemonRpcClient {
+                rpc_client,
+                subscriber,
+            }
+        },
+    )
 }
 
-fn spawn_transport<F: Send + FnOnce(String) -> Result<T>, T: jsonrpc_client_core::Transport>(
+fn spawn_transport<
+    F: Send + FnOnce(String) -> Result<T>,
+    T: jsonrpc_client_core::DuplexTransport + 'static,
+>(
     address: String,
     transport_func: F,
-) -> Result<(Client<T>, ClientHandle)> {
-    let (client, client_handle) = transport_func(address)?.into_client();
-    Ok((client, client_handle))
+) -> Result<(
+    Client<T, jsonrpc_client_core::server::Server>,
+    jsonrpc_client_core::server::ServerHandle,
+    ClientHandle,
+)> {
+    let (server, server_handle) = jsonrpc_client_core::server::Server::new();
+    let transport = transport_func(address)?;
+    let (client, client_handle) = jsonrpc_client_core::Client::with_server(transport, server);
+    Ok((client, server_handle, client_handle))
 }
 
 pub struct DaemonRpcClient {
     rpc_client: jsonrpc_client_core::ClientHandle,
+    subscriber: jsonrpc_client_pubsub::Subscriber<tokio::runtime::current_thread::Handle>,
 }
 
 
 impl DaemonRpcClient {
-    pub fn new(rpc_client: ClientHandle) -> Self {
-        DaemonRpcClient { rpc_client }
-    }
-
     pub fn connect(&mut self) -> Result<()> {
         self.call("connect", &NO_ARGS)
     }
@@ -224,33 +237,18 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
 
-    pub fn new_state_subscribe(&mut self) -> Result<mpsc::Receiver<TunnelStateTransition>> {
-        let client = self.rpc_client.clone();
-        let mut current_state = self.get_state()?;
-        let first_message = stream::once(Ok(current_state.clone()));
-
-        let (tx, rx) = mpsc::channel();
-
-        let polled = tokio_timer::wheel()
-            .build()
-            .interval(Duration::from_secs(1))
-            .then(move |_| client.call_method("get_state", &NO_ARGS));
-
-        thread::spawn(move || {
-            let _ = first_message
-                .chain(polled)
-                .for_each(move |state| {
-                    if state != current_state {
-                        current_state = state.clone();
-                        if tx.send(state).is_err() {
-                            log::trace!("can't send new state to subscriber");
-                            return Err(jsonrpc_client_core::ErrorKind::Shutdown.into());
-                        };
-                    }
-                    Ok(())
-                })
-                .wait();
-        });
-        Ok(rx)
+    pub fn new_state_subscribe(
+        &mut self,
+    ) -> impl Future<
+        Item = jsonrpc_client_pubsub::Subscription<TunnelStateTransition>,
+        Error = jsonrpc_client_pubsub::Error,
+    > {
+        self.subscriber.subscribe(
+            "new_state_subscribe".to_string(),
+            "new_state_unsubscribe".to_string(),
+            "new_state".to_string(),
+            0,
+            &NO_ARGS,
+        )
     }
 }
