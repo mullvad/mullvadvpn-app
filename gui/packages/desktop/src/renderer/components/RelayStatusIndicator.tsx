@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
-import * as Cell from './Cell';
 import { colors } from '../../config.json';
+import * as Cell from './Cell';
 
 const styles = {
   relay_status: Styles.createViewStyle({
@@ -23,13 +23,13 @@ const styles = {
   }),
 };
 
-type Props = {
+interface IProps {
   isActive: boolean;
   isSelected: boolean;
-};
+}
 
-export default class RelayStatusIndicator extends Component<Props> {
-  render() {
+export default class RelayStatusIndicator extends Component<IProps> {
+  public render() {
     return this.props.isSelected ? (
       <Cell.Icon
         style={styles.tick_icon}

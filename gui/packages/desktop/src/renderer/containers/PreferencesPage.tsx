@@ -1,13 +1,13 @@
+import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { goBack } from 'connected-react-router';
 import Preferences from '../components/Preferences';
 
-import { ReduxState, ReduxDispatch } from '../redux/store';
-import { SharedRouteProps } from '../routes';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: ReduxState) => ({
+const mapStateToProps = (state: IReduxState) => ({
   autoStart: state.settings.autoStart,
   autoConnect: state.settings.guiSettings.autoConnect,
   allowLan: state.settings.allowLan,
@@ -15,7 +15,7 @@ const mapStateToProps = (state: ReduxState) => ({
   startMinimized: state.settings.guiSettings.startMinimized,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: SharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onClose: () => {

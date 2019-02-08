@@ -1,42 +1,29 @@
-import { createStore, applyMiddleware, combineReducers, compose, Dispatch, Store } from 'redux';
-import { routerMiddleware, connectRouter, push, replace } from 'connected-react-router';
+import { connectRouter, push, replace, routerMiddleware } from 'connected-react-router';
+import { applyMiddleware, combineReducers, compose, createStore, Dispatch, Store } from 'redux';
 
-import accountReducer from './account/reducers';
-import accountActions from './account/actions';
-import connectionReducer from './connection/reducers';
-import connectionActions from './connection/actions';
-import settingsReducer from './settings/reducers';
-import settingsActions from './settings/actions';
-import supportReducer from './support/reducers';
-import supportActions from './support/actions';
-import versionReducer from './version/reducers';
-import versionActions from './version/actions';
-import userInterfaceReducer from './userinterface/reducers';
-import userInterfaceActions from './userinterface/actions';
+import accountActions, { AccountAction } from './account/actions';
+import accountReducer, { IAccountReduxState } from './account/reducers';
+import connectionActions, { ConnectionAction } from './connection/actions';
+import connectionReducer, { IConnectionReduxState } from './connection/reducers';
+import settingsActions, { SettingsAction } from './settings/actions';
+import settingsReducer, { ISettingsReduxState } from './settings/reducers';
+import supportActions, { SupportAction } from './support/actions';
+import supportReducer, { ISupportReduxState } from './support/reducers';
+import userInterfaceActions, { UserInterfaceAction } from './userinterface/actions';
+import userInterfaceReducer, { IUserInterfaceReduxState } from './userinterface/reducers';
+import versionActions, { VersionAction } from './version/actions';
+import versionReducer, { IVersionReduxState } from './version/reducers';
 
 import { History } from 'history';
-import { AccountReduxState } from './account/reducers';
-import { ConnectionReduxState } from './connection/reducers';
-import { SettingsReduxState } from './settings/reducers';
-import { SupportReduxState } from './support/reducers';
-import { VersionReduxState } from './version/reducers';
-import { UserInterfaceReduxState } from './userinterface/reducers';
 
-import { AccountAction } from './account/actions';
-import { ConnectionAction } from './connection/actions';
-import { SettingsAction } from './settings/actions';
-import { SupportAction } from './support/actions';
-import { VersionAction } from './version/actions';
-import { UserInterfaceAction } from './userinterface/actions';
-
-export type ReduxState = {
-  account: AccountReduxState;
-  connection: ConnectionReduxState;
-  settings: SettingsReduxState;
-  support: SupportReduxState;
-  version: VersionReduxState;
-  userInterface: UserInterfaceReduxState;
-};
+export interface IReduxState {
+  account: IAccountReduxState;
+  connection: IConnectionReduxState;
+  settings: ISettingsReduxState;
+  support: ISupportReduxState;
+  version: IVersionReduxState;
+  userInterface: IUserInterfaceReduxState;
+}
 
 export type ReduxAction =
   | AccountAction
@@ -45,14 +32,14 @@ export type ReduxAction =
   | SupportAction
   | VersionAction
   | UserInterfaceAction;
-export type ReduxStore = Store<ReduxState, ReduxAction>;
+export type ReduxStore = Store<IReduxState, ReduxAction>;
 export type ReduxDispatch = Dispatch<ReduxAction>;
 
 export default function configureStore(
-  initialState: ReduxState | null,
   routerHistory: History,
+  initialState?: IReduxState,
 ): ReduxStore {
-  const actionCreators: { [key: string]: Function } = {
+  const actionCreators = {
     ...accountActions,
     ...connectionActions,
     ...settingsActions,

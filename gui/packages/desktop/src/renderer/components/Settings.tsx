@@ -1,19 +1,19 @@
+import { HeaderTitle, ImageView, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { ImageView, SettingsHeader, HeaderTitle } from '@mullvad/components';
+import { colors, links } from '../../config.json';
+import AccountExpiry from '../lib/account-expiry';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import { Layout, Container } from './Layout';
+import { Container, Layout } from './Layout';
 import {
+  CloseBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationScrollbars,
-  CloseBarItem,
   TitleBarItem,
 } from './NavigationBar';
 import styles from './SettingsStyles';
-import AccountExpiry from '../lib/account-expiry';
-import { colors, links } from '../../config.json';
 
 import { LoginState } from '../redux/account/reducers';
 
@@ -52,11 +52,11 @@ export default class Settings extends Component<IProps> {
                       <HeaderTitle>Settings</HeaderTitle>
                     </SettingsHeader>
                     <View>
-                      {this._renderTopButtons()}
-                      {this._renderMiddleButtons()}
-                      {this._renderBottomButtons()}
+                      {this.renderTopButtons()}
+                      {this.renderMiddleButtons()}
+                      {this.renderBottomButtons()}
                     </View>
-                    {this._renderQuitButton()}
+                    {this.renderQuitButton()}
                   </View>
                 </NavigationScrollbars>
               </View>
@@ -67,7 +67,15 @@ export default class Settings extends Component<IProps> {
     );
   }
 
-  private _renderTopButtons() {
+  private renderQuitButton() {
+    return (
+      <View style={styles.settings__footer}>
+        <AppButton.RedButton onPress={this.props.onQuit}>{'Quit app'}</AppButton.RedButton>
+      </View>
+    );
+  }
+
+  private renderTopButtons() {
     const isLoggedIn = this.props.loginState === 'ok';
     if (!isLoggedIn) {
       return null;
@@ -111,7 +119,7 @@ export default class Settings extends Component<IProps> {
     );
   }
 
-  private _renderMiddleButtons() {
+  private renderMiddleButtons() {
     let icon;
     let footer;
     if (!this.props.consistentVersion || !this.props.upToDateVersion) {
@@ -137,7 +145,7 @@ export default class Settings extends Component<IProps> {
 
     return (
       <View>
-        <Cell.CellButton disabled={this.props.isOffline} onPress={this._openDownloadLink}>
+        <Cell.CellButton disabled={this.props.isOffline} onPress={this.openDownloadLink}>
           {icon}
           <Cell.Label>App version</Cell.Label>
           <Cell.SubText>{this.props.appVersion}</Cell.SubText>
@@ -148,10 +156,10 @@ export default class Settings extends Component<IProps> {
     );
   }
 
-  private _openDownloadLink = () => this.props.onExternalLink(links.download);
-  private _openFaqLink = () => this.props.onExternalLink(links.faq);
+  private openDownloadLink = () => this.props.onExternalLink(links.download);
+  private openFaqLink = () => this.props.onExternalLink(links.faq);
 
-  private _renderBottomButtons() {
+  private renderBottomButtons() {
     return (
       <View>
         <Cell.CellButton onPress={this.props.onViewSupport}>
@@ -159,18 +167,10 @@ export default class Settings extends Component<IProps> {
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
-        <Cell.CellButton disabled={this.props.isOffline} onPress={this._openFaqLink}>
+        <Cell.CellButton disabled={this.props.isOffline} onPress={this.openFaqLink}>
           <Cell.Label>{'FAQs & Guides'}</Cell.Label>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
-      </View>
-    );
-  }
-
-  _renderQuitButton() {
-    return (
-      <View style={styles.settings__footer}>
-        <AppButton.RedButton onPress={this.props.onQuit}>{'Quit app'}</AppButton.RedButton>
       </View>
     );
   }

@@ -1,30 +1,30 @@
-import { AfterDisconnect, BlockReason, TunnelEndpoint } from '../../../shared/daemon-rpc-types';
+import { AfterDisconnect, BlockReason, ITunnelEndpoint } from '../../../shared/daemon-rpc-types';
 
-type ConnectingAction = {
+interface IConnectingAction {
   type: 'CONNECTING';
-  tunnelEndpoint?: TunnelEndpoint;
-};
+  tunnelEndpoint?: ITunnelEndpoint;
+}
 
-type ConnectedAction = {
+interface IConnectedAction {
   type: 'CONNECTED';
-  tunnelEndpoint: TunnelEndpoint;
-};
+  tunnelEndpoint: ITunnelEndpoint;
+}
 
-type DisconnectedAction = {
+interface IDisconnectedAction {
   type: 'DISCONNECTED';
-};
+}
 
-type DisconnectingAction = {
+interface IDisconnectingAction {
   type: 'DISCONNECTING';
   afterDisconnect: AfterDisconnect;
-};
+}
 
-type BlockedAction = {
+interface IBlockedAction {
   type: 'BLOCKED';
   reason: BlockReason;
-};
+}
 
-type NewLocationAction = {
+interface INewLocationAction {
   type: 'NEW_LOCATION';
   newLocation: {
     country: string;
@@ -34,74 +34,74 @@ type NewLocationAction = {
     mullvadExitIp: boolean;
     hostname?: string;
   };
-};
+}
 
-type OnlineAction = {
+interface IOnlineAction {
   type: 'ONLINE';
-};
+}
 
-type OfflineAction = {
+interface IOfflineAction {
   type: 'OFFLINE';
-};
+}
 
 export type ConnectionAction =
-  | NewLocationAction
-  | ConnectingAction
-  | ConnectedAction
-  | DisconnectedAction
-  | DisconnectingAction
-  | BlockedAction
-  | OnlineAction
-  | OfflineAction;
+  | INewLocationAction
+  | IConnectingAction
+  | IConnectedAction
+  | IDisconnectedAction
+  | IDisconnectingAction
+  | IBlockedAction
+  | IOnlineAction
+  | IOfflineAction;
 
-function connecting(tunnelEndpoint?: TunnelEndpoint): ConnectingAction {
+function connecting(tunnelEndpoint?: ITunnelEndpoint): IConnectingAction {
   return {
     type: 'CONNECTING',
     tunnelEndpoint,
   };
 }
 
-function connected(tunnelEndpoint: TunnelEndpoint): ConnectedAction {
+function connected(tunnelEndpoint: ITunnelEndpoint): IConnectedAction {
   return {
     type: 'CONNECTED',
     tunnelEndpoint,
   };
 }
 
-function disconnected(): DisconnectedAction {
+function disconnected(): IDisconnectedAction {
   return {
     type: 'DISCONNECTED',
   };
 }
 
-function disconnecting(afterDisconnect: AfterDisconnect): DisconnectingAction {
+function disconnecting(afterDisconnect: AfterDisconnect): IDisconnectingAction {
   return {
     type: 'DISCONNECTING',
     afterDisconnect,
   };
 }
 
-function blocked(reason: BlockReason): BlockedAction {
+function blocked(reason: BlockReason): IBlockedAction {
   return {
     type: 'BLOCKED',
     reason,
   };
 }
 
-function newLocation(newLocation: NewLocationAction['newLocation']): NewLocationAction {
+function newLocation(location: INewLocationAction['newLocation']): INewLocationAction {
   return {
     type: 'NEW_LOCATION',
-    newLocation,
+    newLocation: location,
   };
 }
 
-function online(): OnlineAction {
+function online(): IOnlineAction {
   return {
     type: 'ONLINE',
   };
 }
 
-function offline(): OfflineAction {
+function offline(): IOfflineAction {
   return {
     type: 'OFFLINE',
   };

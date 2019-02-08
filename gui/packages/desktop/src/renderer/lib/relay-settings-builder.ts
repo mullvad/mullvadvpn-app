@@ -1,64 +1,64 @@
 import {
+  IOpenVpnConstraints,
   RelayLocation,
   RelayProtocol,
-  RelaySettingsUpdate,
   RelaySettingsNormalUpdate,
-  OpenVpnConstraints,
+  RelaySettingsUpdate,
 } from '../../shared/daemon-rpc-types';
 
-type LocationBuilder<Self> = {
+interface ILocationBuilder<Self> {
   country: (country: string) => Self;
   city: (country: string, city: string) => Self;
   hostname: (country: string, city: string, hostname: string) => Self;
   any: () => Self;
   fromRaw: (location: 'any' | RelayLocation) => Self;
-};
+}
 
-interface ExactOrAny<T, Self> {
+interface IExactOrAny<T, Self> {
   exact(value: T): Self;
   any(): Self;
 }
 
-interface OpenVPNConfigurator {
-  port: ExactOrAny<number, OpenVPNConfigurator>;
-  protocol: ExactOrAny<RelayProtocol, OpenVPNConfigurator>;
+interface IOpenVPNConfigurator {
+  port: IExactOrAny<number, IOpenVPNConfigurator>;
+  protocol: IExactOrAny<RelayProtocol, IOpenVPNConfigurator>;
 }
 
-interface TunnelBuilder {
+interface ITunnelBuilder {
   openvpn(
-    configurator: (openVpnConfigurator: OpenVPNConfigurator) => void,
+    configurator: (openVpnConfigurator: IOpenVPNConfigurator) => void,
   ): NormalRelaySettingsBuilder;
   any(): NormalRelaySettingsBuilder;
 }
 
 class NormalRelaySettingsBuilder {
-  _payload: RelaySettingsNormalUpdate = {};
+  private payload: RelaySettingsNormalUpdate = {};
 
-  build(): RelaySettingsUpdate {
+  public build(): RelaySettingsUpdate {
     return {
-      normal: this._payload,
+      normal: this.payload,
     };
   }
 
-  get location(): LocationBuilder<NormalRelaySettingsBuilder> {
+  get location(): ILocationBuilder<NormalRelaySettingsBuilder> {
     return {
       country: (country: string) => {
-        this._payload.location = { only: { country } };
+        this.payload.location = { only: { country } };
         return this;
       },
       city: (country: string, city: string) => {
-        this._payload.location = { only: { city: [country, city] } };
+        this.payload.location = { only: { city: [country, city] } };
         return this;
       },
       hostname: (country: string, city: string, hostname: string) => {
-        this._payload.location = { only: { hostname: [country, city, hostname] } };
+        this.payload.location = { only: { hostname: [country, city, hostname] } };
         return this;
       },
       any: () => {
-        this._payload.location = 'any';
+        this.payload.location = 'any';
         return this;
       },
-      fromRaw: function(location: 'any' | RelayLocation) {
+      fromRaw(location: 'any' | RelayLocation) {
         if (location === 'any') {
           return this.any();
         } else if ('hostname' in location) {
@@ -78,18 +78,18 @@ class NormalRelaySettingsBuilder {
     };
   }
 
-  get tunnel(): TunnelBuilder {
-    const updateOpenvpn = (next: Partial<OpenVpnConstraints>) => {
-      const tunnel = this._payload.tunnel;
+  get tunnel(): ITunnelBuilder {
+    const updateOpenvpn = (next: Partial<IOpenVpnConstraints>) => {
+      const tunnel = this.payload.tunnel;
       if (typeof tunnel === 'string' || typeof tunnel === 'undefined') {
-        this._payload.tunnel = {
+        this.payload.tunnel = {
           only: {
             openvpn: next,
           },
         };
       } else if (typeof tunnel === 'object') {
         const prev = (tunnel.only && tunnel.only.openvpn) || {};
-        this._payload.tunnel = {
+        this.payload.tunnel = {
           only: {
             openvpn: { ...prev, ...next },
           },
@@ -98,8 +98,8 @@ class NormalRelaySettingsBuilder {
     };
 
     return {
-      openvpn: (configurator: (configurator: OpenVPNConfigurator) => void) => {
-        const openvpnBuilder: OpenVPNConfigurator = {
+      openvpn: (configurator: (configurator: IOpenVPNConfigurator) => void) => {
+        const openvpnBuilder: IOpenVPNConfigurator = {
           get port() {
             const apply = (port: 'any' | { only: number }) => {
               updateOpenvpn({ port });
@@ -127,7 +127,7 @@ class NormalRelaySettingsBuilder {
         return this;
       },
       any: () => {
-        this._payload.tunnel = 'any';
+        this.payload.tunnel = 'any';
         return this;
       },
     };

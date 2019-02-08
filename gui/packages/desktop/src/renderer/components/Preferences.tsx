@@ -1,19 +1,19 @@
+import { HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
-import { SettingsHeader, HeaderTitle } from '@mullvad/components';
 import * as Cell from './Cell';
-import { Layout, Container } from './Layout';
+import { Container, Layout } from './Layout';
 import {
+  BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationScrollbars,
-  BackBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import Switch from './Switch';
 import styles from './PreferencesStyles';
+import Switch from './Switch';
 
-export type PreferencesProps = {
+export interface IPreferencesProps {
   autoStart: boolean;
   autoConnect: boolean;
   allowLan: boolean;
@@ -27,10 +27,10 @@ export type PreferencesProps = {
   setStartMinimized: (startMinimized: boolean) => void;
   setMonochromaticIcon: (monochromaticIcon: boolean) => void;
   onClose: () => void;
-};
+}
 
-export default class Preferences extends Component<PreferencesProps> {
-  render() {
+export default class Preferences extends Component<IPreferencesProps> {
+  public render() {
     return (
       <Layout>
         <Container>
@@ -50,7 +50,7 @@ export default class Preferences extends Component<PreferencesProps> {
                   <View style={styles.preferences__content}>
                     <Cell.Container>
                       <Cell.Label>Launch app on start-up</Cell.Label>
-                      <Switch isOn={this.props.autoStart} onChange={this._onChangeAutoStart} />
+                      <Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
@@ -91,19 +91,19 @@ export default class Preferences extends Component<PreferencesProps> {
     );
   }
 
-  _onChangeAutoStart = (autoStart: boolean) => {
+  private onChangeAutoStart = (autoStart: boolean) => {
     this.props.setAutoStart(autoStart);
   };
 }
 
-type MonochromaticIconProps = {
+interface IMonochromaticIconProps {
   enable: boolean;
   monochromaticIcon: boolean;
   onChange: (value: boolean) => void;
-};
+}
 
-class MonochromaticIconToggle extends Component<MonochromaticIconProps> {
-  render() {
+class MonochromaticIconToggle extends Component<IMonochromaticIconProps> {
+  public render() {
     if (this.props.enable) {
       return (
         <View>
@@ -120,14 +120,14 @@ class MonochromaticIconToggle extends Component<MonochromaticIconProps> {
   }
 }
 
-type StartMinimizedProps = {
+interface IStartMinimizedProps {
   enable: boolean;
   startMinimized: boolean;
   onChange: (value: boolean) => void;
-};
+}
 
-class StartMinimizedToggle extends Component<StartMinimizedProps> {
-  render() {
+class StartMinimizedToggle extends Component<IStartMinimizedProps> {
+  public render() {
     if (this.props.enable) {
       return (
         <View>

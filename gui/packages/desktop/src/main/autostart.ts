@@ -1,8 +1,8 @@
+import { app } from 'electron';
+import log from 'electron-log';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { app } from 'electron';
-import log from 'electron-log';
 
 const DESKTOP_FILE_NAME = 'mullvad-vpn.desktop';
 

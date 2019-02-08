@@ -1,3 +1,14 @@
 {
-  "extends": "@mullvad/config/tslint.json"
+  "extends": "@mullvad/config/tslint.json",
+  "rules": {
+    "no-implicit-dependencies": [
+      true,
+      "optional",
+      [
+        "electron",
+        "electron-devtools-installer"
+      ]
+    ],
+    "no-submodule-imports": [true, "validated"]
+  }
 }

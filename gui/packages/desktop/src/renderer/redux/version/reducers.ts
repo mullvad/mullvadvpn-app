@@ -1,6 +1,6 @@
 import { ReduxAction } from '../store';
 
-export type VersionReduxState = {
+export interface IVersionReduxState {
   current: string;
   currentIsSupported: boolean;
   latest?: string;
@@ -8,9 +8,9 @@ export type VersionReduxState = {
   nextUpgrade?: string;
   upToDate: boolean;
   consistent: boolean;
-};
+}
 
-const initialState: VersionReduxState = {
+const initialState: IVersionReduxState = {
   current: '',
   currentIsSupported: true,
   latest: undefined,
@@ -21,9 +21,9 @@ const initialState: VersionReduxState = {
 };
 
 export default function(
-  state: VersionReduxState = initialState,
+  state: IVersionReduxState = initialState,
   action: ReduxAction,
-): VersionReduxState {
+): IVersionReduxState {
   switch (action.type) {
     case 'UPDATE_LATEST': {
       const { latest, ...other } = action.latestInfo;

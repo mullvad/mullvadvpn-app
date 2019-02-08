@@ -1,27 +1,27 @@
-export type SupportReportForm = {
+export interface ISupportReportForm {
   email: string;
   message: string;
-};
+}
 
-export type KeepReportFormAction = {
+export interface IKeepReportFormAction {
   type: 'SAVE_REPORT_FORM';
-  form: SupportReportForm;
-};
+  form: ISupportReportForm;
+}
 
-export type ClearReportFormAction = {
+export interface IClearReportFormAction {
   type: 'CLEAR_REPORT_FORM';
-};
+}
 
-export type SupportAction = KeepReportFormAction | ClearReportFormAction;
+export type SupportAction = IKeepReportFormAction | IClearReportFormAction;
 
-function saveReportForm(form: SupportReportForm): KeepReportFormAction {
+function saveReportForm(form: ISupportReportForm): IKeepReportFormAction {
   return {
     type: 'SAVE_REPORT_FORM',
     form,
   };
 }
 
-function clearReportForm(): ClearReportFormAction {
+function clearReportForm(): IClearReportFormAction {
   return {
     type: 'CLEAR_REPORT_FORM',
   };

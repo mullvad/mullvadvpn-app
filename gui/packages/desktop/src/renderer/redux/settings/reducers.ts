@@ -1,6 +1,6 @@
+import { RelayLocation, RelayProtocol } from '../../../shared/daemon-rpc-types';
+import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
-import { RelayProtocol, RelayLocation } from '../../../shared/daemon-rpc-types';
-import { GuiSettingsState } from '../../../shared/gui-settings-state';
 
 export type RelaySettingsRedux =
   | {
@@ -18,44 +18,44 @@ export type RelaySettingsRedux =
       };
     };
 
-export type RelayLocationRelayRedux = {
+export interface IRelayLocationRelayRedux {
   hostname: string;
   ipv4AddrIn: string;
   ipv4AddrExit: string;
   includeInCountry: boolean;
   weight: number;
-};
+}
 
-export type RelayLocationCityRedux = {
+export interface IRelayLocationCityRedux {
   name: string;
   code: string;
   latitude: number;
   longitude: number;
   hasActiveRelays: boolean;
-  relays: RelayLocationRelayRedux[];
-};
+  relays: IRelayLocationRelayRedux[];
+}
 
-export type RelayLocationRedux = {
+export interface IRelayLocationRedux {
   name: string;
   code: string;
   hasActiveRelays: boolean;
-  cities: RelayLocationCityRedux[];
-};
+  cities: IRelayLocationCityRedux[];
+}
 
-export type SettingsReduxState = {
+export interface ISettingsReduxState {
   autoStart: boolean;
-  guiSettings: GuiSettingsState;
+  guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
-  relayLocations: RelayLocationRedux[];
+  relayLocations: IRelayLocationRedux[];
   allowLan: boolean;
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
   openVpn: {
     mssfix?: number;
   };
-};
+}
 
-const initialState: SettingsReduxState = {
+const initialState: ISettingsReduxState = {
   autoStart: false,
   guiSettings: {
     autoConnect: true,
@@ -77,9 +77,9 @@ const initialState: SettingsReduxState = {
 };
 
 export default function(
-  state: SettingsReduxState = initialState,
+  state: ISettingsReduxState = initialState,
   action: ReduxAction,
-): SettingsReduxState {
+): ISettingsReduxState {
   switch (action.type) {
     case 'UPDATE_GUI_SETTINGS':
       return {

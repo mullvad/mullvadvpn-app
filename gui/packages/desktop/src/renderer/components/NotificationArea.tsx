@@ -1,30 +1,30 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Types } from 'reactxp';
-import {
-  NotificationBanner,
-  NotificationIndicator,
-  NotificationContent,
-  NotificationActions,
-  NotificationTitle,
-  NotificationSubtitle,
-  NotificationOpenLinkAction,
-} from './NotificationBanner';
 import { links } from '../../config.json';
+import {
+  NotificationActions,
+  NotificationBanner,
+  NotificationContent,
+  NotificationIndicator,
+  NotificationOpenLinkAction,
+  NotificationSubtitle,
+  NotificationTitle,
+} from './NotificationBanner';
 
-import { AuthFailure } from '../lib/auth-failure';
-import AccountExpiry from '../lib/account-expiry';
 import { BlockReason, TunnelStateTransition } from '../../shared/daemon-rpc-types';
-import { VersionReduxState } from '../redux/version/reducers';
+import AccountExpiry from '../lib/account-expiry';
+import { AuthFailure } from '../lib/auth-failure';
+import { IVersionReduxState } from '../redux/version/reducers';
 
-type Props = {
+interface IProps {
   style?: Types.ViewStyleRuleSet;
   accountExpiry?: AccountExpiry;
   tunnelState: TunnelStateTransition;
-  version: VersionReduxState;
+  version: IVersionReduxState;
   openExternalLink: (url: string) => void;
   blockWhenDisconnected: boolean;
-};
+}
 
 type NotificationAreaPresentation =
   | { type: 'failure-unsecured'; reason: string }
@@ -60,14 +60,12 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
   }
 }
 
-export default class NotificationArea extends Component<Props, State> {
-  state: State = {
-    type: 'blocking',
-    reason: '',
-    visible: false,
-  };
+function capitalizeFirstLetter(inputString: string): string {
+  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
+}
 
-  static getDerivedStateFromProps(props: Props, state: State) {
+export default class NotificationArea extends Component<IProps, State> {
+  public static getDerivedStateFromProps(props: IProps, state: State) {
     const { accountExpiry, blockWhenDisconnected, tunnelState, version } = props;
 
     switch (tunnelState.state) {
@@ -142,7 +140,7 @@ export default class NotificationArea extends Component<Props, State> {
           return {
             visible: true,
             type: 'expires-soon',
-            timeLeft: NotificationArea._capitalizeFirstLetter(accountExpiry.remainingTime()),
+            timeLeft: capitalizeFirstLetter(accountExpiry.remainingTime()),
           };
         }
 
@@ -153,13 +151,13 @@ export default class NotificationArea extends Component<Props, State> {
     }
   }
 
-  static _capitalizeFirstLetter(initialString: string): string {
-    return initialString.length > 0
-      ? initialString.charAt(0).toUpperCase() + initialString.slice(1)
-      : '';
-  }
+  public state: State = {
+    type: 'blocking',
+    reason: '',
+    visible: false,
+  };
 
-  render() {
+  public render() {
     return (
       <NotificationBanner style={this.props.style} visible={this.state.visible}>
         {this.state.type === 'failure-unsecured' && (
@@ -204,11 +202,7 @@ export default class NotificationArea extends Component<Props, State> {
               } now to ensure your security`}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction
-                onPress={() => {
-                  this.props.openExternalLink(links.download);
-                }}
-              />
+              <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
             </NotificationActions>
           </React.Fragment>
         )}
@@ -223,11 +217,7 @@ export default class NotificationArea extends Component<Props, State> {
               }) to stay up to date`}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction
-                onPress={() => {
-                  this.props.openExternalLink(links.download);
-                }}
-              />
+              <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
             </NotificationActions>
           </React.Fragment>
         )}
@@ -240,15 +230,19 @@ export default class NotificationArea extends Component<Props, State> {
               <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction
-                onPress={() => {
-                  this.props.openExternalLink(links.purchase);
-                }}
-              />
+              <NotificationOpenLinkAction onPress={this.handleOpenBuyMoreLink} />
             </NotificationActions>
           </React.Fragment>
         )}
       </NotificationBanner>
     );
   }
+
+  private handleOpenDownloadLink = () => {
+    this.props.openExternalLink(links.download);
+  };
+
+  private handleOpenBuyMoreLink = () => {
+    this.props.openExternalLink(links.purchase);
+  };
 }
