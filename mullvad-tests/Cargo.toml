@@ -22,6 +22,7 @@ jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", re
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 jsonrpc-client-pubsub = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 tokio = "0.1"
+tokio-timer = "0.1"
 futures = "0.1.23"
 
 [target.'cfg(unix)'.dependencies]

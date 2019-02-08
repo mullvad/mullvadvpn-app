@@ -1180,6 +1180,7 @@ dependencies = [
  "talpid-types 0.1.0",
  "tempfile 3.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
