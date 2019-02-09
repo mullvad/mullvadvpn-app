@@ -4,19 +4,25 @@ import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp
 import { colors } from '../../config.json';
 
 const styles = {
-  cellButton: Styles.createButtonStyle({
-    backgroundColor: colors.blue,
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 16,
-    paddingRight: 16,
-    marginBottom: 1,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignContent: 'center',
-    cursor: 'default',
-  }),
+  cellButton: {
+    base: Styles.createButtonStyle({
+      backgroundColor: colors.blue,
+      paddingVertical: 0,
+      paddingHorizontal: 16,
+      marginBottom: 1,
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignContent: 'center',
+      cursor: 'default',
+    }),
+    section: Styles.createButtonStyle({
+      backgroundColor: colors.blue40,
+    }),
+    hover: Styles.createButtonStyle({
+      backgroundColor: colors.blue80,
+    }),
+  },
   cellContainer: Styles.createViewStyle({
     backgroundColor: colors.blue,
     flexDirection: 'row',
@@ -24,7 +30,6 @@ const styles = {
     paddingLeft: 16,
     paddingRight: 12,
   }),
-
   footer: {
     container: Styles.createViewStyle({
       paddingTop: 8,
@@ -41,7 +46,6 @@ const styles = {
       color: colors.white80,
     }),
   },
-
   label: {
     container: Styles.createViewStyle({
       marginLeft: 8,
@@ -58,7 +62,6 @@ const styles = {
       color: colors.white,
     }),
   },
-
   input: {
     frame: Styles.createViewStyle({
       flexGrow: 0,
@@ -77,14 +80,9 @@ const styles = {
       textAlign: 'right',
     }),
   },
-
-  cellHover: Styles.createButtonStyle({
-    backgroundColor: colors.blue80,
-  }),
   icon: Styles.createViewStyle({
     marginLeft: 8,
   }),
-
   subtext: Styles.createTextStyle({
     color: colors.white60,
     fontFamily: 'Open Sans',
@@ -93,6 +91,17 @@ const styles = {
     flex: -1,
     textAlign: 'right',
     marginLeft: 8,
+  }),
+  sectionTitle: Styles.createTextStyle({
+    backgroundColor: colors.blue,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    marginBottom: 1,
+    fontFamily: 'DINPro',
+    fontSize: 20,
+    fontWeight: '900',
+    lineHeight: 26,
+    color: colors.white,
   }),
 };
 
@@ -108,6 +117,7 @@ interface IState {
   hovered: boolean;
 }
 
+const CellSectionContext = React.createContext<boolean>(false);
 const CellHoverContext = React.createContext<boolean>(false);
 
 export class CellButton extends Component<ICellButtonProps, IState> {
@@ -118,15 +128,50 @@ export class CellButton extends Component<ICellButtonProps, IState> {
 
   public render() {
     const { children, style, cellHoverStyle, ...otherProps } = this.props;
-    const hoverStyle = cellHoverStyle || styles.cellHover;
+    const hoverStyle = cellHoverStyle || styles.cellButton.hover;
     return (
-      <Button
-        style={[styles.cellButton, style, this.state.hovered ? hoverStyle : undefined]}
-        onHoverStart={this.onHoverStart}
-        onHoverEnd={this.onHoverEnd}
-        {...otherProps}>
-        <CellHoverContext.Provider value={this.state.hovered}>{children}</CellHoverContext.Provider>
-      </Button>
+      <CellSectionContext.Consumer>
+        {(containedInSection) => (
+          <Button
+            style={[
+              styles.cellButton.base,
+              containedInSection ? styles.cellButton.section : undefined,
+              style,
+              this.state.hovered ? hoverStyle : undefined,
+            ]}
+            onHoverStart={this.onHoverStart}
+            onHoverEnd={this.onHoverEnd}
+            {...otherProps}>
+            <CellHoverContext.Provider value={this.state.hovered}>
+              {children}
+            </CellHoverContext.Provider>
+          </Button>
+        )}
+      </CellSectionContext.Consumer>
+    );
+  }
+}
+
+interface ISectionTitleProps {
+  children?: React.ReactText;
+}
+
+export function SectionTitle(props: ISectionTitleProps) {
+  return <Text style={styles.sectionTitle}>{props.children}</Text>;
+}
+
+interface ISectionProps {
+  children?: React.ReactNode;
+}
+
+export class Section extends Component<ISectionProps> {
+  public render() {
+    return (
+      <View>
+        <CellSectionContext.Provider value={true}>
+          {this.props.children}
+        </CellSectionContext.Provider>
+      </View>
     );
   }
 }

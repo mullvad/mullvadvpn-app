@@ -254,12 +254,14 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 - **gui/packages/**
   - **components/** - Platform agnostic shared react components
   - **desktop/** - The desktop implementation
+    - **assets/** - graphical assets and stylesheets
     - **src/**
-      - **assets/** - graphical assets and stylesheets
+      - **main/**
+        - **index.ts** - entry file for the main process
       - **renderer/**
-        - **app.js** - entry file for renderer process
-        - **routes.js** - routes configurator
-        - **transitions.js** - transition rules between views
+        - **app.ts** - entry file for the renderer process
+        - **routes.ts** - routes configurator
+        - **transitions.ts** - transition rules between views
       - **config.json** - App color definitions and URLs to external resources
     - **test/** - Electron GUI tests
 - **dist-assets/** - Icons, binaries and other files used when creating the distributables
@@ -370,7 +372,7 @@ environment variable.
 ### GUI
 
 The GUI has a specific settings file that is configured for each user. The path is set in the
-`gui/packages/desktop/main/gui-settings.js` file.
+`gui/packages/desktop/main/gui-settings.ts` file.
 
 | Platform | Path |
 |----------|------|

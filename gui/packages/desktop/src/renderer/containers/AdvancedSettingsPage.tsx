@@ -3,7 +3,7 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RelayProtocol } from '../../shared/daemon-rpc-types';
-import { AdvancedSettings } from '../components/AdvancedSettings';
+import AdvancedSettings from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 
 import { RelaySettingsRedux } from '../redux/settings/reducers';
@@ -25,8 +25,8 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   if ('normal' in relaySettings) {
     const { protocol, port } = relaySettings.normal;
     return {
-      protocol: protocol === 'any' ? 'Automatic' : protocol,
-      port: port === 'any' ? 'Automatic' : port,
+      protocol: protocol === 'any' ? undefined : protocol,
+      port: port === 'any' ? undefined : port,
     };
   } else if ('customTunnelEndpoint' in relaySettings) {
     const { protocol, port } = relaySettings.customTunnelEndpoint;
@@ -42,18 +42,19 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
     onClose: () => {
       history.goBack();
     },
-    onUpdate: async (protocol: string, port: string | number) => {
+    setRelayProtocolAndPort: async (protocol?: RelayProtocol, port?: number) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.openvpn((openvpn) => {
-          if (protocol === 'Automatic') {
-            openvpn.protocol.any();
+          if (protocol) {
+            openvpn.protocol.exact(protocol);
           } else {
-            openvpn.protocol.exact(protocol.toLowerCase() as RelayProtocol);
+            openvpn.protocol.any();
           }
-          if (typeof port === 'string' && port === 'Automatic') {
-            openvpn.port.any();
-          } else if (typeof port === 'number') {
+
+          if (port) {
             openvpn.port.exact(port);
+          } else {
+            openvpn.port.any();
           }
         })
         .build();

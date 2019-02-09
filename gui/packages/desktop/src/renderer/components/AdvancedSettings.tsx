@@ -1,10 +1,8 @@
-/* tslint:disable:jsx-no-lambda */
-// TODO: Refactor this file to fix the jsx-no-lambda warnings
-
-import { HeaderTitle, ImageView, SettingsHeader } from '@mullvad/components';
+import { HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
-import { Button, Component, Text, View } from 'reactxp';
+import { Component, View } from 'reactxp';
 import { colors } from '../../config.json';
+import { RelayProtocol } from '../../shared/daemon-rpc-types';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -19,17 +17,34 @@ import Switch from './Switch';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
+const PROTOCOLS: RelayProtocol[] = ['udp', 'tcp'];
+const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
+const TCP_PORTS = [80, 443];
+
+const PORT_ITEMS: { [key in RelayProtocol]: Array<ISelectorItem<number>> } = {
+  udp: UDP_PORTS.map(mapPortToSelectorItem),
+  tcp: TCP_PORTS.map(mapPortToSelectorItem),
+};
+
+const PROTOCOL_ITEMS: Array<ISelectorItem<RelayProtocol>> = PROTOCOLS.map((value) => ({
+  label: value.toUpperCase(),
+  value,
+}));
+
+function mapPortToSelectorItem(value: number): ISelectorItem<number> {
+  return { label: value.toString(), value };
+}
 
 interface IProps {
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
-  protocol: string;
+  protocol?: RelayProtocol;
   mssfix?: number;
-  port: string | number;
+  port?: number;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
-  onUpdate: (protocol: string, port: string | number) => void;
+  setRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
   onClose: () => void;
 }
 
@@ -39,7 +54,7 @@ interface IState {
   focusOnMssfix: boolean;
 }
 
-export class AdvancedSettings extends Component<IProps, IState> {
+export default class AdvancedSettings extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
@@ -61,19 +76,9 @@ export class AdvancedSettings extends Component<IProps, IState> {
   }
 
   public render() {
-    let portSelector = null;
-    let protocol = this.props.protocol.toUpperCase();
-
-    if (protocol === 'AUTOMATIC') {
-      protocol = 'Automatic';
-    } else {
-      portSelector = this.createPortSelector();
-    }
-
     const mssfixStyle = this.mssfixIsValid()
       ? styles.advanced_settings__mssfix_valid_value
       : styles.advanced_settings__mssfix_invalid_value;
-
     const mssfixValue = this.state.editedMssfix;
 
     return (
@@ -116,16 +121,23 @@ export class AdvancedSettings extends Component<IProps, IState> {
                   <View style={styles.advanced_settings__content}>
                     <Selector
                       title={'Network protocols'}
-                      values={['Automatic', 'UDP', 'TCP']}
-                      value={protocol}
-                      onSelect={(selectedProtocol) => {
-                        this.props.onUpdate(selectedProtocol, 'Automatic');
-                      }}
+                      values={PROTOCOL_ITEMS}
+                      value={this.props.protocol}
+                      onSelect={this.onSelectProtocol}
                     />
 
                     <View style={styles.advanced_settings__cell_spacer} />
 
-                    {portSelector}
+                    {this.props.protocol ? (
+                      <Selector
+                        title={`${this.props.protocol.toUpperCase()} port`}
+                        values={PORT_ITEMS[this.props.protocol]}
+                        value={this.props.port}
+                        onSelect={this.onSelectPort}
+                      />
+                    ) : (
+                      undefined
+                    )}
                   </View>
 
                   <Cell.Container>
@@ -155,24 +167,13 @@ export class AdvancedSettings extends Component<IProps, IState> {
     );
   }
 
-  private createPortSelector() {
-    const protocol = this.props.protocol.toUpperCase();
-    const ports =
-      protocol === 'TCP'
-        ? ['Automatic', 80, 443]
-        : ['Automatic', 1194, 1195, 1196, 1197, 1300, 1301, 1302];
+  private onSelectProtocol = (protocol?: RelayProtocol) => {
+    this.props.setRelayProtocolAndPort(protocol);
+  };
 
-    return (
-      <Selector
-        title={protocol + ' port'}
-        values={ports}
-        value={this.props.port}
-        onSelect={(port) => {
-          this.props.onUpdate(protocol, port);
-        }}
-      />
-    );
-  }
+  private onSelectPort = (port?: number) => {
+    this.props.setRelayProtocolAndPort(this.props.protocol, port);
+  };
 
   private onMssfixChange = (mssfixString: string) => {
     const mssfix = mssfixString.replace(/[^0-9]/g, '');
@@ -204,82 +205,74 @@ export class AdvancedSettings extends Component<IProps, IState> {
   }
 }
 
+interface ISelectorItem<T> {
+  label: string;
+  value: T;
+}
+
 interface ISelectorProps<T> {
   title: string;
-  values: T[];
-  value: T;
-  onSelect: (value: T) => void;
+  values: Array<ISelectorItem<T>>;
+  value?: T;
+  onSelect: (value?: T) => void;
 }
 
-interface ISelectorState<T> {
-  hoveredButtonValue?: T;
-}
-
-class Selector<T> extends Component<ISelectorProps<T>, ISelectorState<T>> {
-  public state: ISelectorState<T> = {};
-
+class Selector<T> extends Component<ISelectorProps<T>> {
   public render() {
     return (
-      <View>
-        <View style={styles.advanced_settings__section_title}>{this.props.title}</View>
-
-        {this.props.values.map((value) => this.renderCell(value))}
-      </View>
+      <Cell.Section>
+        <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
+        <SelectorCell
+          key={'auto'}
+          selected={this.props.value === undefined}
+          onSelect={this.props.onSelect}>
+          {'Automatic'}
+        </SelectorCell>
+        {this.props.values.map((item, i) => (
+          <SelectorCell
+            key={i}
+            value={item.value}
+            selected={item.value === this.props.value}
+            onSelect={this.props.onSelect}>
+            {item.label}
+          </SelectorCell>
+        ))}
+      </Cell.Section>
     );
   }
+}
 
-  private handleButtonHover = (value?: T) => {
-    this.setState({ hoveredButtonValue: value });
-  };
+interface ISelectorCell<T> {
+  value?: T;
+  selected: boolean;
+  onSelect: (value?: T) => void;
+  children?: React.ReactText;
+}
 
-  private renderCell(value: T) {
-    const selected = value === this.props.value;
-    if (selected) {
-      return this.renderSelectedCell(value);
-    } else {
-      return this.renderUnselectedCell(value);
-    }
-  }
-
-  private renderSelectedCell(value: T) {
+class SelectorCell<T> extends Component<ISelectorCell<T>> {
+  public render() {
     return (
-      <Button
-        style={[
-          styles.advanced_settings__cell,
-          value === this.state.hoveredButtonValue
-            ? [styles.advanced_settings__cell_selected_hover]
-            : undefined,
-        ]}
-        onPress={() => this.props.onSelect(value)}
-        onHoverStart={() => this.handleButtonHover(value)}
-        onHoverEnd={() => this.handleButtonHover(undefined)}
-        key={value.toString()}>
-        <ImageView
-          style={styles.advanced_settings__cell_icon}
+      <Cell.CellButton
+        style={this.props.selected ? styles.advanced_settings__cell_selected_hover : undefined}
+        cellHoverStyle={
+          this.props.selected ? styles.advanced_settings__cell_selected_hover : undefined
+        }
+        onPress={this.onPress}>
+        <Cell.Icon
+          style={this.props.selected ? undefined : styles.advanced_settings__cell_icon_invisible}
           source="icon-tick"
+          width={24}
+          height={24}
           tintColor={colors.white}
         />
-        <Text style={styles.advanced_settings__cell_label}>{value}</Text>
-      </Button>
+        <Cell.Label>{this.props.children}</Cell.Label>
+      </Cell.CellButton>
     );
   }
 
-  private renderUnselectedCell(value: T) {
-    return (
-      <Button
-        style={[
-          styles.advanced_settings__cell_dimmed,
-          value === this.state.hoveredButtonValue
-            ? styles.advanced_settings__cell_hover
-            : undefined,
-        ]}
-        onPress={() => this.props.onSelect(value)}
-        onHoverStart={() => this.handleButtonHover(value)}
-        onHoverEnd={() => this.handleButtonHover(undefined)}
-        key={value.toString()}>
-        <View style={styles.advanced_settings__cell_icon} />
-        <Text style={styles.advanced_settings__cell_label}>{value}</Text>
-      </Button>
-    );
-  }
+  private onPress = () => {
+    if (!this.props.selected) {
+      this.props.onSelect(this.props.value);
+    }
+  };
 }
