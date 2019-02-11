@@ -35,11 +35,11 @@ nix = "0.12"
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.6"
 failure = "0.1"
-iproute2 = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
-netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
+iproute2 = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
+netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
 notify = "4.0"
 resolv-conf = "0.6.1"
-rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "best-effort-nla-parsing" }
+rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
 nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "f0b1492fd2fd1f737dbffd047c9c60c300e6f7d6", features = ["nftnl-1-1-0"] }
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"

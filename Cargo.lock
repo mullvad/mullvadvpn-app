@@ -613,7 +613,7 @@ dependencies = [
 [[package]]
 name = "iproute2"
 version = "0.0.2"
-source = "git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing#132ab47bcbb32079ba4ededaa76a3d7b6257da40"
+source = "git+https://github.com/mullvad/netlink?branch=ignore-hw-address#670b33f535107497ae5c32d02c92de62c5e800ba"
 dependencies = [
  "bytes 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "eui48 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -623,8 +623,8 @@ dependencies = [
  "ipnetwork 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
- "rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
+ "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
+ "rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1148,7 +1148,7 @@ dependencies = [
 [[package]]
 name = "netlink-socket"
 version = "0.0.2"
-source = "git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing#132ab47bcbb32079ba4ededaa76a3d7b6257da40"
+source = "git+https://github.com/mullvad/netlink?branch=ignore-hw-address#670b33f535107497ae5c32d02c92de62c5e800ba"
 dependencies = [
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1545,14 +1545,14 @@ dependencies = [
 [[package]]
 name = "rtnetlink"
 version = "0.0.3"
-source = "git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing#132ab47bcbb32079ba4ededaa76a3d7b6257da40"
+source = "git+https://github.com/mullvad/netlink?branch=ignore-hw-address#670b33f535107497ae5c32d02c92de62c5e800ba"
 dependencies = [
  "byteorder 1.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
+ "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
  "tokio-io 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-reactor 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1799,14 +1799,14 @@ dependencies = [
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "iproute2 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
+ "iproute2 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)",
- "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
+ "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
  "nftnl 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=f0b1492fd2fd1f737dbffd047c9c60c300e6f7d6)",
  "nix 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1814,7 +1814,7 @@ dependencies = [
  "os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.2.1 (git+https://github.com/mullvad/pfctl-rs?rev=9f31b5ddcab941862470075eab83bb398195f3d6)",
  "resolv-conf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)",
+ "rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
  "shell-escape 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "system-configuration 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
@@ -2448,7 +2448,7 @@ dependencies = [
 "checksum iovec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dbe6e417e7d0975db6512b90796e8ce223145ac4e33c377e4a42882a0e88bb08"
 "checksum ipnetwork 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1d1d8b990621b5b0806fac3dbf71d1833a4c0a9e25702d10bd8b2c629c7ae01c"
 "checksum ipnetwork 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b3d862c86f7867f19b693ec86765e0252d82e53d4240b9b629815675a0714ad1"
-"checksum iproute2 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)" = "<none>"
+"checksum iproute2 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)" = "<none>"
 "checksum itoa 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "1306f3464951f30e30d12373d31c79fbd52d236e5e896fd92f96ec7babbbe60b"
 "checksum jsonrpc-client-core 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs?rev=e9dbdc80)" = "<none>"
 "checksum jsonrpc-client-core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f29cb249837420fb0cee7fb0fbf1d22679e121b160e71bb5e0d90b9df241c23e"
@@ -2486,7 +2486,7 @@ dependencies = [
 "checksum mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
 "checksum mnl-sys 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
-"checksum netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)" = "<none>"
+"checksum netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)" = "<none>"
 "checksum nftnl 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=f0b1492fd2fd1f737dbffd047c9c60c300e6f7d6)" = "<none>"
 "checksum nftnl-sys 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=f0b1492fd2fd1f737dbffd047c9c60c300e6f7d6)" = "<none>"
 "checksum nix 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d37e713a259ff641624b6cb20e3b12b2952313ba36b6823c0f16e6cfd9e5de17"
@@ -2528,7 +2528,7 @@ dependencies = [
 "checksum remove_dir_all 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3488ba1b9a2084d38645c4c08276a1752dcbf2c7130d74f1569681ad5d2799c5"
 "checksum resolv-conf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c62bd95a41841efdf7fca2ae9951e64a8d8eae7e5da196d8ce489a2241491a92"
 "checksum rs-release 0.1.7 (git+https://github.com/mullvad/rs-release?branch=snailquote-unescape)" = "<none>"
-"checksum rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=best-effort-nla-parsing)" = "<none>"
+"checksum rtnetlink 0.0.3 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)" = "<none>"
 "checksum rustc-demangle 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)" = "bcfe5b13211b4d78e5c2cadfebd7769197d95c639c35a50057eb4c05de811395"
 "checksum rustc-serialize 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)" = "dcf128d1287d2ea9d80910b5f1120d0b8eede3fbf1abe91c40d39ea7d51e6fda"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
