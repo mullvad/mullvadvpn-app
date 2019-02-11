@@ -88,7 +88,7 @@ impl OpenVpnCommand {
     }
 
     /// Sets what configuration file will be given to OpenVPN
-    pub fn config<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn config(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.config = Some(path.as_ref().to_path_buf());
         self
     }
@@ -101,44 +101,44 @@ impl OpenVpnCommand {
 
     /// Sets the path to the file where the username and password for user-pass authentication
     /// is stored. See the `--auth-user-pass` OpenVPN documentation for details.
-    pub fn user_pass<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn user_pass(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.user_pass_path = Some(path.as_ref().to_path_buf());
         self
     }
 
     /// Sets the path to the file where the username and password for proxy authentication
     /// is stored.
-    pub fn proxy_auth<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn proxy_auth(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.proxy_auth_path = Some(path.as_ref().to_path_buf());
         self
     }
 
     /// Sets the path to the CA certificate file.
-    pub fn ca<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn ca(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.ca = Some(path.as_ref().to_path_buf());
         self
     }
 
     /// Sets the path to the CRL (Certificate revocation list) file.
-    pub fn crl<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn crl(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.crl = Some(path.as_ref().to_path_buf());
         self
     }
 
     /// Sets the path to the ip route command.
-    pub fn iproute_bin<S: Into<OsString>>(&mut self, iproute_bin: S) -> &mut Self {
+    pub fn iproute_bin(&mut self, iproute_bin: impl Into<OsString>) -> &mut Self {
         self.iproute_bin = Some(iproute_bin.into());
         self
     }
 
     /// Sets a plugin and its arguments that OpenVPN will be started with.
-    pub fn plugin<P: AsRef<Path>>(&mut self, path: P, args: Vec<String>) -> &mut Self {
+    pub fn plugin(&mut self, path: impl AsRef<Path>, args: Vec<String>) -> &mut Self {
         self.plugin = Some((path.as_ref().to_path_buf(), args));
         self
     }
 
     /// Sets a log file path.
-    pub fn log<P: AsRef<Path>>(&mut self, path: P) -> &mut Self {
+    pub fn log(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.log = Some(path.as_ref().to_path_buf());
         self
     }
