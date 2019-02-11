@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Integrated Shadowsocks proxy support. Accessible via CLI.
 
 
 ## [2019.1] - 2019-01-29
