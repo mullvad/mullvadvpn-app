@@ -143,12 +143,6 @@ impl OpenVpnCommand {
         self
     }
 
-    /// Build a runnable expression from the current state of the command.
-    pub fn build(&self) -> duct::Expression {
-        log::debug!("Building expression: {}", &self);
-        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
-    }
-
     /// Sets extra options
     pub fn tunnel_options(&mut self, tunnel_options: &net::openvpn::TunnelOptions) -> &mut Self {
         self.tunnel_options = tunnel_options.clone();
@@ -168,8 +162,14 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Build a runnable expression from the current state of the command.
+    pub fn build(&self) -> duct::Expression {
+        log::debug!("Building expression: {}", &self);
+        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
+    }
+
     /// Returns all arguments that the subprocess would be spawned with.
-    pub fn get_arguments(&self) -> Vec<OsString> {
+    fn get_arguments(&self) -> Vec<OsString> {
         let mut args: Vec<OsString> = Self::base_arguments().iter().map(OsString::from).collect();
 
         if let Some(ref config) = self.config {
