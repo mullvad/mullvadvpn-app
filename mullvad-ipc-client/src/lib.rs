@@ -74,9 +74,10 @@ pub fn new_standalone_transport<
             .send(Err(e))
             .expect("Failed to send error back to caller"),
         Ok((client, server_handle, client_handle)) => {
-            let mut rt = tokio::runtime::Runtime::new().expect("wtf");
-            let executor = rt.executor();
-            tx.send(Ok((client_handle, server_handle, executor)))
+            let mut rt = tokio::runtime::current_thread::Runtime::new()
+                .expect("Failed to start a standalone tokio runtime for mullvad ipc");
+            let handle = rt.handle();
+            tx.send(Ok((client_handle, server_handle, handle)))
                 .expect("Failed to send client handle");
 
             if let Err(e) = rt.block_on(client) {
@@ -87,8 +88,12 @@ pub fn new_standalone_transport<
 
     rx.wait().chain_err(|| ErrorKind::TransportError)?.map(
         |(rpc_client, server_handle, executor)| {
-            let subscriber = jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
-            DaemonRpcClient::new(rpc_client, subscriber)
+            let subscriber =
+                jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
+            DaemonRpcClient {
+                rpc_client,
+                subscriber,
+            }
         },
     )
 }
@@ -112,21 +117,11 @@ fn spawn_transport<
 
 pub struct DaemonRpcClient {
     rpc_client: jsonrpc_client_core::ClientHandle,
-    subscriber: jsonrpc_client_pubsub::Subscriber<tokio::runtime::TaskExecutor>,
+    subscriber: jsonrpc_client_pubsub::Subscriber<tokio::runtime::current_thread::Handle>,
 }
 
 
 impl DaemonRpcClient {
-    pub fn new(
-        rpc_client: jsonrpc_client_core::ClientHandle,
-        subscriber: jsonrpc_client_pubsub::Subscriber<tokio::runtime::TaskExecutor>,
-    ) -> Self {
-        Self {
-            rpc_client,
-            subscriber,
-        }
-    }
-
     pub fn connect(&mut self) -> Result<()> {
         self.call("connect", &NO_ARGS)
     }

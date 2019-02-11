@@ -16,7 +16,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "285197cd" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "285197cd" }
 jsonrpc-client-pubsub = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "285197cd" }
-tokio = "0.1"
+tokio = "0.1.15"
 tokio-timer = "0.1"
 futures = "0.1"
 log = "0.4"
