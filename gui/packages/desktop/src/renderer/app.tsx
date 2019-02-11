@@ -319,9 +319,18 @@ export default class AppRenderer {
         payload.port = 'any';
         payload.protocol = 'any';
       } else {
-        const { port, protocol } = tunnel.only.openvpn;
-        payload.port = port === 'any' ? port : port.only;
-        payload.protocol = protocol === 'any' ? protocol : protocol.only;
+        const constraints = tunnel.only;
+        if ('openvpn' in constraints) {
+          const { port, protocol } = constraints.openvpn;
+          payload.port = port === 'any' ? port : port.only;
+          payload.protocol = protocol === 'any' ? protocol : protocol.only;
+        }
+
+        if ('wireguard' in constraints) {
+          const { port } = constraints.wireguard;
+          payload.port = port === 'any' ? port : port.only;
+          payload.protocol = 'udp';
+        }
       }
 
       actions.settings.updateRelay({
