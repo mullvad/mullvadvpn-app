@@ -5,6 +5,7 @@ use crate::{
         openvpn::{OpenVpnCommand, OpenVpnProcHandle},
         stoppable_process::StoppableProcess,
     },
+    proxy::{self, ProxyMonitor, ProxyResourceData},
 };
 #[cfg(target_os = "linux")]
 use failure::ResultExt as FailureResultExt;
@@ -67,6 +68,11 @@ error_chain! {
         CredentialsWriteError {
             description("Error while writing credentials to temporary file")
         }
+        /// Failures related to the proxy service.
+        ProxyError(msg: String) {
+            description("Unable to start, wait for or kill the proxy service")
+            display("Proxy error: {}", msg)
+        }
     }
 }
 
@@ -93,6 +99,7 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 #[derive(Debug)]
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
+    proxy_monitor: Option<Box<dyn ProxyMonitor>>,
     event_dispatcher: Option<talpid_ipc::IpcServer>,
     log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
@@ -122,7 +129,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let proxy_auth_file = Self::create_proxy_auth_file(&params.options.proxy)
             .chain_err(|| ErrorKind::CredentialsWriteError)?;
 
-
         let user_pass_file_path = user_pass_file.to_path_buf();
 
         let proxy_auth_file_path = match proxy_auth_file {
@@ -145,6 +151,20 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
             }
         };
+
+        let log_dir: Option<PathBuf> = if let Some(ref log_path) = log_path {
+            Some(log_path.parent().unwrap().into())
+        } else {
+            None
+        };
+
+        let proxy_resources = proxy::ProxyResourceData {
+            resource_dir: resource_dir.to_path_buf(),
+            log_dir,
+        };
+
+        let proxy_monitor = Self::start_proxy(&params.options.proxy, &proxy_resources)?;
+
         let cmd = Self::create_openvpn_cmd(
             params,
             tunnel_alias,
@@ -154,6 +174,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 _ => None,
             },
             resource_dir,
+            &proxy_monitor,
         )?;
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
@@ -165,11 +186,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             log_path,
             user_pass_file,
             proxy_auth_file,
+            proxy_monitor,
         )
     }
 }
 
-impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
+impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     fn new_internal<L>(
         mut cmd: C,
         on_event: L,
@@ -177,6 +199,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         log_path: Option<PathBuf>,
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
+        proxy_monitor: Option<Box<dyn ProxyMonitor>>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -184,16 +207,15 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         let event_dispatcher =
             event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
 
-
         let child = cmd
             .plugin(plugin_path, vec![event_dispatcher.path().to_owned()])
             .log(log_path.as_ref().map(|p| p.as_path()))
             .start()
             .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
 
-
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
+            proxy_monitor,
             event_dispatcher: Some(event_dispatcher),
             log_path,
             closed: Arc::new(AtomicBool::new(false)),
@@ -203,8 +225,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     }
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
-    /// thread
-    /// is blocked in `wait`.
+    /// thread is blocked in `wait`.
     pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
             child: self.child.clone(),
@@ -212,11 +233,68 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         }
     }
 
-    /// Consumes the monitor and blocks until OpenVPN exits or there is an error in either
-    /// waiting
-    /// for the process or in the event dispatcher.
+    /// Consumes the monitor and waits for both proxy and tunnel, as applicable.
     pub fn wait(mut self) -> Result<()> {
-        match self.wait_result() {
+        if let Some(mut proxy_monitor) = self.proxy_monitor.take() {
+            let (tx_tunnel, rx) = mpsc::channel();
+            let tx_proxy = tx_tunnel.clone();
+            let tunnel_close_handle = self.close_handle();
+            let proxy_close_handle = proxy_monitor.close_handle();
+
+            enum Stopped {
+                Tunnel(Result<()>),
+                Proxy(proxy::Result<proxy::WaitResult>),
+            }
+
+            thread::spawn(move || {
+                tx_tunnel.send(Stopped::Tunnel(self.wait_tunnel())).unwrap();
+                let _ = proxy_close_handle.close();
+            });
+
+            thread::spawn(move || {
+                tx_proxy.send(Stopped::Proxy(proxy_monitor.wait())).unwrap();
+                let _ = tunnel_close_handle.close();
+            });
+
+            let result = rx.recv().unwrap();
+            let _ = rx.recv();
+
+            match result {
+                Stopped::Tunnel(tunnel_result) => {
+                    return tunnel_result;
+                }
+                Stopped::Proxy(proxy_result) => {
+                    // The proxy should never exit before openvpn.
+                    match proxy_result {
+                        Ok(proxy::WaitResult::ProperShutdown) => {
+                            return Err(ErrorKind::ProxyError("The proxy exited unexpectedly without providing additional details".into()).into());
+                        }
+                        Ok(proxy::WaitResult::UnexpectedExit(details)) => {
+                            return Err(ErrorKind::ProxyError(format!(
+                                "The proxy exited unexpectedly providing these details: {}",
+                                details
+                            ))
+                            .into());
+                        }
+                        Err(err) => {
+                            return Err(err).chain_err(|| {
+                                ErrorKind::ProxyError(
+                                    "Failed to wait for/monitor proxy service".into(),
+                                )
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        // No proxy active, wait only for the tunnel.
+        self.wait_tunnel()
+    }
+
+    /// Supplement `inner_wait_tunnel()` with logging and error handling.
+    fn wait_tunnel(&mut self) -> Result<()> {
+        let result = self.inner_wait_tunnel();
+        match result {
             WaitResult::Child(Ok(exit_status), closed) => {
                 if exit_status.success() || closed {
                     log::debug!(
@@ -242,7 +320,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
 
     /// Waits for both the child process and the event dispatcher in parallel. After both have
     /// returned this returns the earliest result.
-    fn wait_result(&mut self) -> WaitResult {
+    fn inner_wait_tunnel(&mut self) -> WaitResult {
         let child_wait_handle = self.child.clone();
         let closed_handle = self.closed.clone();
         let child_close_handle = self.close_handle();
@@ -270,12 +348,12 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     }
 
     /// Performs a postmortem analysis to attempt to provide a more detailed error result.
-    fn postmortem(self) -> Error {
+    fn postmortem(&mut self) -> Error {
         #[cfg(windows)]
         {
             use std::fs;
 
-            if let Some(log_path) = self.log_path {
+            if let Some(log_path) = self.log_path.take() {
                 if let Ok(log) = fs::read_to_string(log_path) {
                     if log.contains("There are no TAP-Windows adapters on this system") {
                         return ErrorKind::MissingTapAdapter.into();
@@ -291,15 +369,28 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
     }
 
     fn create_proxy_auth_file(
-        proxy: &Option<openvpn::ProxySettings>,
+        proxy_settings: &Option<openvpn::ProxySettings>,
     ) -> ::std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(openvpn::ProxySettings::Remote(ref remote_proxy)) = proxy {
+        if let Some(openvpn::ProxySettings::Remote(ref remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
                     &proxy_auth.username,
                     &proxy_auth.password,
                 )?));
             }
+        }
+        Ok(None)
+    }
+
+    /// Starts a proxy service, as applicable.
+    fn start_proxy(
+        proxy_settings: &Option<openvpn::ProxySettings>,
+        proxy_resources: &ProxyResourceData,
+    ) -> Result<Option<Box<dyn ProxyMonitor>>> {
+        if let Some(ref settings) = proxy_settings {
+            let proxy_monitor = proxy::start_proxy(settings, proxy_resources)
+                .chain_err(|| ErrorKind::ProxyError("Failed to start proxy service".into()))?;
+            return Ok(Some(proxy_monitor));
         }
         Ok(None)
     }
@@ -342,6 +433,7 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
         user_pass_file: &Path,
         proxy_auth_file: Option<&Path>,
         resource_dir: &Path,
+        proxy_monitor: &Option<Box<dyn ProxyMonitor>>,
     ) -> Result<OpenVpnCommand> {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
         if let Some(config) = Self::get_config_path(resource_dir) {
@@ -361,6 +453,9 @@ impl<C: OpenVpnBuilder> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         if let Some(proxy_auth_file) = proxy_auth_file {
             cmd.proxy_auth(proxy_auth_file);
+        }
+        if let Some(proxy) = proxy_monitor {
+            cmd.proxy_port(proxy.port());
         }
 
         Ok(cmd)
@@ -587,6 +682,7 @@ mod tests {
             None,
             TempFile::new(),
             None,
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
@@ -604,6 +700,7 @@ mod tests {
             Some(PathBuf::from("./my_test_log_file")),
             TempFile::new(),
             None,
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
@@ -616,7 +713,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(0));
         let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
                 .unwrap();
         assert!(testee.wait().is_ok());
     }
@@ -626,7 +723,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
         let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
                 .unwrap();
         assert!(testee.wait().is_err());
     }
@@ -636,7 +733,7 @@ mod tests {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
         let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
                 .unwrap();
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
@@ -646,7 +743,7 @@ mod tests {
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
         let error =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None)
+            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
                 .unwrap_err();
         match error.kind() {
             ErrorKind::ChildProcessError(_) => (),
