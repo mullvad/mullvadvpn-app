@@ -59,8 +59,7 @@ export interface IOpenVpnConstraints {
 
 export interface IWireguardConstraints {
   port: 'any' | { only: number };
-};
-
+}
 
 type TunnelConstraints<OpenVpn, Wireguard> = { wireguard: Wireguard } | { openvpn: OpenVpn };
 
@@ -118,7 +117,9 @@ export type RelaySettings =
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = Partial<
-  IRelaySettingsNormal<TunnelConstraints<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>>
+  IRelaySettingsNormal<
+    TunnelConstraints<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>
+  >
 >;
 
 export type RelaySettingsUpdate =
