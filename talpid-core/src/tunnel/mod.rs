@@ -1,3 +1,5 @@
+use crate::proxy::ProxyResourceData;
+
 use std::{
     collections::HashMap,
     ffi::OsString,
@@ -120,6 +122,7 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
+        proxy_resources: ProxyResourceData,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
@@ -127,9 +130,14 @@ impl TunnelMonitor {
         Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters.get_generic_options())?;
 
         match tunnel_parameters {
-            TunnelParameters::OpenVpn(config) => {
-                Self::start_openvpn_tunnel(&config, tunnel_alias, log, resource_dir, on_event)
-            }
+            TunnelParameters::OpenVpn(config) => Self::start_openvpn_tunnel(
+                &config,
+                tunnel_alias,
+                log,
+                resource_dir,
+                on_event,
+                proxy_resources,
+            ),
             #[cfg(unix)]
             TunnelParameters::Wireguard(config) => {
                 Self::start_wireguard_tunnel(&config, log, on_event)
@@ -167,13 +175,20 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
+        proxy_resources: ProxyResourceData,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let monitor =
-            openvpn::OpenVpnMonitor::start(on_event, config, tunnel_alias, log, resource_dir)
-                .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
+        let monitor = openvpn::OpenVpnMonitor::start(
+            on_event,
+            config,
+            tunnel_alias,
+            log,
+            resource_dir,
+            proxy_resources,
+        )
+        .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
