@@ -57,9 +57,11 @@ export interface IOpenVpnConstraints {
   protocol: 'any' | { only: RelayProtocol };
 }
 
-interface ITunnelConstraints<TOpenVpnConstraints> {
-  openvpn: TOpenVpnConstraints;
+export interface IWireguardConstraints {
+  port: 'any' | { only: number };
 }
+
+type TunnelConstraints<OpenVpn, Wireguard> = { wireguard: Wireguard } | { openvpn: OpenVpn };
 
 interface IRelaySettingsNormal<TTunnelConstraints> {
   location:
@@ -107,7 +109,7 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-      normal: IRelaySettingsNormal<ITunnelConstraints<IOpenVpnConstraints>>;
+      normal: IRelaySettingsNormal<TunnelConstraints<IOpenVpnConstraints, IWireguardConstraints>>;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;
@@ -115,8 +117,11 @@ export type RelaySettings =
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = Partial<
-  IRelaySettingsNormal<ITunnelConstraints<Partial<IOpenVpnConstraints>>>
+  IRelaySettingsNormal<
+    TunnelConstraints<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>
+  >
 >;
+
 export type RelaySettingsUpdate =
   | {
       normal: RelaySettingsNormalUpdate;

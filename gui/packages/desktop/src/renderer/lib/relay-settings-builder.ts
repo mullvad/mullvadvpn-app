@@ -88,7 +88,7 @@ class NormalRelaySettingsBuilder {
           },
         };
       } else if (typeof tunnel === 'object') {
-        const prev = (tunnel.only && tunnel.only.openvpn) || {};
+        const prev = tunnel.only && 'openvpn' in tunnel.only ? tunnel.only.openvpn : {};
         this.payload.tunnel = {
           only: {
             openvpn: { ...prev, ...next },
