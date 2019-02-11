@@ -1,7 +1,7 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
-use iproute2::Link;
+use iproute2::{Connection, ConnectionHandle, Link, NetlinkIpError};
 use log::{error, warn};
 use netlink_socket::{Protocol, SocketAddr, TokioSocket};
 use rtnetlink::{LinkLayerType, NetlinkCodec, NetlinkFramed, NetlinkMessage};
@@ -65,7 +65,12 @@ fn check_if_offline() -> Result<bool> {
 }
 
 fn list_links_providing_connectivity() -> Result<impl Iterator<Item = Link>> {
-    Ok(list_links()?.into_iter().filter(link_provides_connectivity))
+    let mut connection = NetlinkConnection::new()?;
+
+    Ok(connection
+        .links()?
+        .into_iter()
+        .filter(link_provides_connectivity))
 }
 
 fn link_provides_connectivity(link: &Link) -> bool {
@@ -75,19 +80,53 @@ fn link_provides_connectivity(link: &Link) -> bool {
         && link.flags().is_running()
 }
 
-fn list_links() -> Result<Vec<Link>> {
-    let (connection, connection_handle) =
-        iproute2::new_connection().chain_err(|| ErrorKind::NetlinkConnectionError)?;
-    let links_request = connection_handle.link().get().execute();
+struct NetlinkConnection {
+    connection: Option<Connection>,
+    connection_handle: ConnectionHandle,
+}
 
-    match connection.select2(links_request).wait() {
-        Ok(Either::A(_)) => bail!(ErrorKind::NetlinkDisconnected),
-        Ok(Either::B((links, _))) => Ok(links),
-        Err(Either::A((error, _))) => Err(Error::with_chain(error, ErrorKind::NetlinkError)),
-        Err(Either::B((error, _))) => Err(Error::with_chain(
-            failure::Fail::compat(error),
-            ErrorKind::GetLinksError,
-        )),
+impl NetlinkConnection {
+    /// Open a connection on the netlink socket.
+    pub fn new() -> Result<Self> {
+        let (connection, connection_handle) =
+            iproute2::new_connection().chain_err(|| ErrorKind::NetlinkConnectionError)?;
+
+        Ok(NetlinkConnection {
+            connection: Some(connection),
+            connection_handle,
+        })
+    }
+
+    /// List all links registered on the system.
+    pub fn links(&mut self) -> Result<Vec<Link>> {
+        self.execute_request(self.connection_handle.link().get().execute())
+    }
+
+    /// Helper function to execute an asynchronous request synchronously.
+    fn execute_request<R>(&mut self, request: R) -> Result<R::Item>
+    where
+        R: Future<Error = NetlinkIpError>,
+    {
+        let connection = self
+            .connection
+            .take()
+            .ok_or(ErrorKind::NetlinkDisconnected)?;
+
+        let (result, connection) = match connection.select2(request).wait() {
+            Ok(Either::A(_)) => bail!(ErrorKind::NetlinkDisconnected),
+            Err(Either::A((error, _))) => bail!(Error::with_chain(error, ErrorKind::NetlinkError)),
+            Ok(Either::B((links, connection))) => (Ok(links), connection),
+            Err(Either::B((error, connection))) => (
+                Err(Error::with_chain(
+                    failure::Fail::compat(error),
+                    ErrorKind::GetLinksError,
+                )),
+                connection,
+            ),
+        };
+
+        self.connection = Some(connection);
+        result
     }
 }
 
