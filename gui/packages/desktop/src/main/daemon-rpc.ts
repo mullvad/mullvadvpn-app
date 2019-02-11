@@ -94,12 +94,19 @@ const relaySettingsSchema = oneOf(
         ),
       ),
       tunnel: constraint(
-        partialObject({
-          openvpn: partialObject({
-            port: constraint(number),
-            protocol: constraint(enumeration('udp', 'tcp')),
+        oneOf(
+          object({
+            openvpn: partialObject({
+              port: constraint(number),
+              protocol: constraint(enumeration('udp', 'tcp')),
+            }),
           }),
-        }),
+          object({
+            wireguard: partialObject({
+              port: constraint(number),
+            }),
+          }),
+        ),
       ),
     }),
   }),
