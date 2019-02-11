@@ -370,8 +370,8 @@ export class WebsocketTransport implements ITransport<string> {
 // domain sockets, and also TCP/UDP sockets
 export class SocketTransport implements ITransport<{ path: string }> {
   private connection?: net.Socket;
+  private jsonStream?: NodeJS.ReadWriteStream;
   private socketReady = false;
-  private shouldClose = false;
   private lastError?: Error;
   public onMessage = (_message: object) => {
     // no-op
@@ -388,16 +388,16 @@ export class SocketTransport implements ITransport<{ path: string }> {
 
     const jsonStream = JSONStream.parse(null)
       .on('data', this.onJsonStreamData)
-      .on('error', this.onJsonStreamError);
+      .once('error', this.onJsonStreamError);
 
     const connection = new net.Socket()
-      .on('ready', this.onSocketReady)
-      .on('error', this.onSocketError)
-      .on('close', this.onSocketClose);
+      .once('ready', this.onSocketReady)
+      .once('error', this.onSocketError)
+      .once('close', this.onSocketClose);
 
     this.connection = connection;
+    this.jsonStream = jsonStream;
     this.socketReady = false;
-    this.shouldClose = false;
     this.lastError = undefined;
 
     log.debug('Connect socket');
@@ -407,17 +407,30 @@ export class SocketTransport implements ITransport<{ path: string }> {
   }
 
   public close() {
-    this.shouldClose = true;
+    if (this.connection) {
+      log.debug('Close socket');
 
-    try {
-      if (this.connection) {
+      // closing socket is not synchronous, so remove all of the event handlers first
+      this.connection
+        .removeListener('ready', this.onSocketReady)
+        .removeListener('error', this.onSocketError)
+        .removeListener('close', this.onSocketClose);
+
+      this.jsonStream!.removeListener('data', this.onJsonStreamData).removeListener(
+        'error',
+        this.onJsonStreamError,
+      );
+
+      try {
         this.connection.end();
+      } catch (error) {
+        log.error('Failed to close the socket: ', error);
       }
-    } catch (error) {
-      log.error('Failed to close the socket: ', error);
-    }
 
-    this.connection = undefined;
+      this.connection = undefined;
+      this.jsonStream = undefined;
+      this.onClose();
+    }
   }
 
   public send(msg: string) {
@@ -443,12 +456,8 @@ export class SocketTransport implements ITransport<{ path: string }> {
   };
 
   private onSocketClose = (hadError: boolean) => {
-    if (this.shouldClose) {
-      log.debug(`Socket was closed deliberately`);
-
-      this.onClose();
-    } else if (hadError) {
-      log.debug(`Socket was closed due to an error`);
+    if (hadError) {
+      log.debug(`Socket was closed due to an error: `, this.lastError);
 
       this.onClose(this.lastError);
     } else {

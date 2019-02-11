@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
+  the initial state of the daemon.
+
 
 ## [2019.1] - 2019-01-29
 This release is identical to 2019.1-beta1
