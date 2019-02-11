@@ -1,4 +1,5 @@
 use std::{
+    env,
     ffi::OsString,
     path::{Path, PathBuf},
     thread,
@@ -24,6 +25,7 @@ use super::{
 use crate::{
     firewall::FirewallPolicy,
     logging,
+    proxy::ProxyResourceData,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
 };
 
@@ -112,12 +114,26 @@ impl ConnectingState {
         };
         let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
 
+        // OpenVPN requires a `ProxyResourceData` instance in the case
+        // a proxy configuration is present.
+        let proxy_log_dir = if let Some(ref log_dir) = log_dir {
+            log_dir.clone()
+        } else {
+            env::temp_dir()
+        };
+
+        let proxy_resources = ProxyResourceData {
+            binaries_dir: resource_dir.to_path_buf(),
+            logs_dir: proxy_log_dir,
+        };
+
         Ok(TunnelMonitor::start(
             &parameters,
             TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
             log_file.clone(),
             resource_dir,
             on_tunnel_event,
+            proxy_resources,
         )?)
     }
 
