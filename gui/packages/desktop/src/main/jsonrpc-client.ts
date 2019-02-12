@@ -128,7 +128,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
       const transport = this.transport;
 
       transport.onOpen = () => {
-        log.info('ITransport is connected');
+        log.info('Transport is connected');
         this.emit('open');
 
         // Resolve the Promise
