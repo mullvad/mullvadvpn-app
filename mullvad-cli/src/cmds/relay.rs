@@ -327,12 +327,11 @@ impl Relay {
                 }))
             }
             "openvpn" => {
-                let protocol = parse_protocol_constraint(
-                    matches.value_of("ip protocol").unwrap_or_else(|| {
-                        eprintln!("Please specify the IP protocol");
-                        ::std::process::exit(1);
-                    }),
-                );
+                let protocol = matches
+                    .value_of("ip protocol")
+                    .map(parse_protocol_constraint)
+                    .unwrap_or(Constraint::Any);
+
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
                     tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
@@ -390,7 +389,7 @@ fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
 /// Parses a protocol constraint string. Can be infallible because the possible values are limited
 /// with clap.
 fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol> {
-    match raw_protocol.to_lowercase().as_str() {
+    match raw_protocol {
         "any" => Constraint::Any,
         "udp" => Constraint::Only(TransportProtocol::Udp),
         "tcp" => Constraint::Only(TransportProtocol::Tcp),
