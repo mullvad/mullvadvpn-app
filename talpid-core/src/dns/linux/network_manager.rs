@@ -84,7 +84,7 @@ impl NetworkManager {
         let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
         let actual_resolv_conf = "/etc/resolv.conf";
         if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
-            log::debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not manaing DNS");
+            log::debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not managing DNS");
             bail!(ErrorKind::NmNotManagingDns);
         }
 
