@@ -235,7 +235,7 @@ impl Match<WireguardEndpointData> for Constraint<u16> {
             Constraint::Only(port) => endpoint
                 .port_ranges
                 .iter()
-                .any(|range| (range[0] <= *port && *port <= range[1])),
+                .any(|range| (*port >= range[0] && *port <= range[1])),
         }
     }
 }
