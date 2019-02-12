@@ -1,14 +1,18 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
-use iproute2::{Connection, ConnectionHandle, Link, NetlinkIpError};
+use iproute2::{Address, Connection, ConnectionHandle, Link, NetlinkIpError};
 use log::{error, trace, warn};
 use netlink_socket::{Protocol, SocketAddr, TokioSocket};
 use rtnetlink::{
-    LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed, NetlinkMessage,
+    AddressMessage, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed, NetlinkMessage,
     RtnlMessage,
 };
-use std::{collections::BTreeSet, thread};
+use std::{
+    collections::{BTreeMap, BTreeSet, HashSet},
+    net::IpAddr,
+    thread,
+};
 
 error_chain! {
     errors {
@@ -32,6 +36,8 @@ error_chain! {
 
 const RTMGRP_NOTIFY: u32 = 1;
 const RTMGRP_LINK: u32 = 2;
+const RTMGRP_IPV4_IFADDR: u32 = 0x10;
+const RTMGRP_IPV6_IFADDR: u32 = 0x100;
 
 pub struct MonitorHandle;
 
@@ -39,7 +45,10 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     let mut socket =
         TokioSocket::new(Protocol::Route).chain_err(|| ErrorKind::NetlinkConnectionError)?;
     socket
-        .bind(&SocketAddr::new(0, RTMGRP_NOTIFY | RTMGRP_LINK))
+        .bind(&SocketAddr::new(
+            0,
+            RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
+        ))
         .chain_err(|| ErrorKind::NetlinkBindError)?;
 
     let channel = NetlinkFramed::new(socket, NetlinkCodec::<NetlinkMessage>::new());
@@ -64,23 +73,17 @@ pub fn is_offline() -> bool {
 }
 
 fn check_if_offline() -> Result<bool> {
-    Ok(list_links_providing_connectivity()?.next().is_none())
-}
+    let mut connection = NetlinkConnection::new()?;
+    let interfaces = connection.running_interfaces()?;
 
-fn list_links_providing_connectivity() -> Result<impl Iterator<Item = Link>> {
-    let connection = NetlinkConnection::new()?;
-
-    Ok(connection
-        .links()?
-        .into_iter()
-        .filter(link_provides_connectivity))
-}
-
-fn link_provides_connectivity(link: &impl BasicLinkInfo) -> bool {
-    // Some tunnels have the link layer type set to None
-    link.link_layer_type() != LinkLayerType::Loopback
-        && link.link_layer_type() != LinkLayerType::None
-        && link.flags().is_running()
+    if interfaces.is_empty() {
+        Ok(true)
+    } else {
+        Ok(connection
+            .addresses()?
+            .into_iter()
+            .all(|address| !interfaces.contains(&address.index())))
+    }
 }
 
 pub struct NetlinkConnection {
@@ -99,8 +102,22 @@ impl NetlinkConnection {
         })
     }
 
+    pub fn addresses(&mut self) -> Result<Vec<Address>> {
+        self.execute_request(self.connection_handle.address().get().execute())
+    }
+
     pub fn links(&mut self) -> Result<Vec<Link>> {
         self.execute_request(self.connection_handle.link().get().execute())
+    }
+
+    pub fn running_interfaces(&mut self) -> Result<BTreeSet<u32>> {
+        let links = self.links()?;
+
+        Ok(links
+            .into_iter()
+            .filter(link_provides_connectivity)
+            .map(|link| link.index())
+            .collect())
     }
 
     fn execute_request<R>(&mut self, request: R) -> Result<R::Item>
@@ -130,6 +147,13 @@ impl NetlinkConnection {
     }
 }
 
+fn link_provides_connectivity(link: &Link) -> bool {
+    // Some tunnels have the link layer type set to None
+    link.link_layer_type() != LinkLayerType::Loopback
+        && link.link_layer_type() != LinkLayerType::None
+        && link.flags().is_running()
+}
+
 fn monitor_event_loop(
     channel: NetlinkFramed<NetlinkCodec<NetlinkMessage>>,
     mut link_monitor: LinkMonitor,
@@ -141,6 +165,12 @@ fn monitor_event_loop(
             match payload {
                 RtnlMessage::NewLink(link_message) => link_monitor.new_link(link_message),
                 RtnlMessage::DelLink(link_message) => link_monitor.del_link(link_message),
+                RtnlMessage::NewAddress(address_message) => {
+                    link_monitor.new_address(address_message)
+                }
+                RtnlMessage::DelAddress(address_message) => {
+                    link_monitor.del_address(address_message)
+                }
                 _ => trace!("Ignoring unknown link message"),
             }
 
@@ -156,41 +186,91 @@ fn monitor_event_loop(
 
 struct LinkMonitor {
     is_offline: bool,
-    running_links: BTreeSet<u32>,
+    running_interfaces: BTreeSet<u32>,
+    interface_addresses: BTreeMap<u32, HashSet<(Option<IpAddr>, Option<IpAddr>)>>,
     sender: UnboundedSender<TunnelCommand>,
 }
 
 impl LinkMonitor {
     pub fn new(sender: UnboundedSender<TunnelCommand>) -> Result<Self> {
-        let links: Vec<Link> = list_links_providing_connectivity()?.collect();
-        let is_offline = links.is_empty();
-        let running_links = links.into_iter().map(|link| link.index()).collect();
+        let mut connection = NetlinkConnection::new()?;
+        let running_interfaces = connection.running_interfaces()?;
+        let addresses = connection.addresses()?;
+        let mut interface_addresses = BTreeMap::new();
 
-        Ok(LinkMonitor {
-            is_offline,
-            running_links,
+        for address in addresses {
+            interface_addresses
+                .entry(address.index())
+                .or_insert_with(HashSet::new)
+                .insert((address.ifa_address(), address.ifa_local()));
+        }
+
+        let mut monitor = LinkMonitor {
+            is_offline: false,
+            running_interfaces,
+            interface_addresses,
             sender,
-        })
+        };
+
+        monitor.is_offline = monitor.check_if_offline();
+
+        Ok(monitor)
     }
 
     pub fn new_link(&mut self, link_message: LinkMessage) {
-        if self.is_offline && link_provides_connectivity(link_message.header()) {
-            self.set_is_offline(false);
-        }
-
         if let Ok(link) = Link::from_link_message(link_message) {
+            let interface = link.index();
+
             if link_provides_connectivity(&link) {
-                self.insert_link(link.index());
+                self.insert_interface(interface);
             } else {
-                self.remove_link(link.index());
+                self.remove_interface(interface);
             }
         }
     }
 
     pub fn del_link(&mut self, link_message: LinkMessage) {
         if let Ok(link) = Link::from_link_message(link_message) {
-            self.remove_link(link.index());
+            self.remove_interface(link.index());
         }
+    }
+
+    pub fn new_address(&mut self, address_message: AddressMessage) {
+        if let Ok(address) = Address::from_address_message(address_message) {
+            let interface = address.index();
+            let address = (address.ifa_address(), address.ifa_local());
+
+            self.interface_addresses
+                .entry(interface)
+                .or_insert_with(HashSet::new)
+                .insert(address);
+
+            if self.is_offline && self.running_interfaces.contains(&interface) {
+                self.set_is_offline(false);
+            }
+        }
+    }
+
+    pub fn del_address(&mut self, address_message: AddressMessage) {
+        if let Ok(address) = Address::from_address_message(address_message) {
+            let interface = address.index();
+            let address = (address.ifa_address(), address.ifa_local());
+
+            if let Some(addresses) = self.interface_addresses.get_mut(&interface) {
+                if !self.is_offline && addresses.is_empty() {
+                    self.set_is_offline(self.check_if_offline());
+                }
+            }
+        }
+    }
+
+    fn check_if_offline(&self) -> bool {
+        self.running_interfaces.is_empty()
+            || self
+                .interface_addresses
+                .iter()
+                .filter(|(interface, _)| self.running_interfaces.contains(interface))
+                .all(|(_, addresses)| addresses.is_empty())
     }
 
     fn set_is_offline(&mut self, is_offline: bool) {
@@ -202,40 +282,21 @@ impl LinkMonitor {
         }
     }
 
-    fn insert_link(&mut self, link_index: u32) {
-        self.running_links.insert(link_index);
-        self.set_is_offline(false);
-    }
+    fn insert_interface(&mut self, interface_index: u32) {
+        self.running_interfaces.insert(interface_index);
 
-    fn remove_link(&mut self, link_index: u32) {
-        self.running_links.remove(&link_index);
-        if self.running_links.is_empty() {
-            self.set_is_offline(true);
+        if let Some(addresses) = self.interface_addresses.get(&interface_index) {
+            if !addresses.is_empty() {
+                self.set_is_offline(false);
+            }
         }
     }
-}
 
-trait BasicLinkInfo {
-    fn flags(&self) -> LinkFlags;
-    fn link_layer_type(&self) -> LinkLayerType;
-}
+    fn remove_interface(&mut self, interface_index: u32) {
+        self.running_interfaces.remove(&interface_index);
 
-impl BasicLinkInfo for Link {
-    fn flags(&self) -> LinkFlags {
-        self.flags()
-    }
-
-    fn link_layer_type(&self) -> LinkLayerType {
-        self.link_layer_type()
-    }
-}
-
-impl BasicLinkInfo for LinkHeader {
-    fn flags(&self) -> LinkFlags {
-        self.flags()
-    }
-
-    fn link_layer_type(&self) -> LinkLayerType {
-        self.link_layer_type()
+        if self.check_if_offline() {
+            self.set_is_offline(true);
+        }
     }
 }
