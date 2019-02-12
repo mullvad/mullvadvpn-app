@@ -1,6 +1,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
-const watch = require('tsc-watch/client');
+const TscWatchClient = require('tsc-watch/client');
 const electron = require('electron');
 const browserSync = require('browser-sync');
 const browserSyncConnectUtils = require('browser-sync/dist/connect-utils');
@@ -80,9 +80,8 @@ function prepareWatchArguments(projectPath) {
   return ['--noClear', '--sourceMap', '--project', projectPath];
 }
 
-const WatchClient = watch.constructor;
-const appWatcher = new WatchClient();
-const componentsWatcher = new WatchClient();
+const appWatcher = new TscWatchClient();
+const componentsWatcher = new TscWatchClient();
 
 const appCompiledPromise = new Promise((resolve) => {
   appWatcher.on('first_success', () => {
