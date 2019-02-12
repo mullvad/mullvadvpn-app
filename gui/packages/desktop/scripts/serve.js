@@ -1,8 +1,9 @@
 const { spawn } = require('child_process');
+const path = require('path');
+const TscWatchClient = require('tsc-watch/client');
 const electron = require('electron');
 const browserSync = require('browser-sync');
 const browserSyncConnectUtils = require('browser-sync/dist/connect-utils');
-
 const bsync = browserSync.create();
 
 const getRootUrl = (options) => {
@@ -26,8 +27,7 @@ function runElectron(browserSyncUrl) {
     },
     stdio: 'inherit',
   });
-
-  child.on('close', onCloseElectron);
+  child.once('close', onCloseElectron);
 
   return child;
 }
@@ -36,37 +36,59 @@ function onCloseElectron() {
   process.exit();
 }
 
-bsync.init(
-  {
-    ui: false,
-    // Port 35829 = LiveReload's default port 35729 + 100.
-    // If the port is occupied, Browsersync uses next free port automatically.
-    port: 35829,
-    ghostMode: false,
-    open: false,
-    notify: false,
-    logSnippet: false,
-    socket: {
-      // Use the actual port here.
-      domain: getRootUrl,
+function startBrowserSync() {
+  bsync.init(
+    {
+      ui: false,
+      // Port 35829 = LiveReload's default port 35729 + 100.
+      // If the port is occupied, Browsersync uses next free port automatically.
+      port: 35829,
+      ghostMode: false,
+      open: false,
+      notify: false,
+      logSnippet: false,
+      socket: {
+        // Use the actual port here.
+        domain: getRootUrl,
+      },
     },
-  },
-  (err, bs) => {
-    if (err) return console.error(err);
+    (err, bs) => {
+      if (err) return console.error(err);
 
-    const browserSyncUrl = getClientUrl(bs.options);
+      const browserSyncUrl = getClientUrl(bs.options);
 
-    let child = runElectron(browserSyncUrl);
+      let child = runElectron(browserSyncUrl);
 
-    bsync
-      .watch(['build/src/config.json', 'build/src/main/**/*', 'build/src/shared/**/*'])
-      .on('change', () => {
-        child.removeListener('close', onCloseElectron);
-        child.kill();
+      bsync
+        .watch(['build/src/config.json', 'build/src/main/**/*', 'build/src/shared/**/*'])
+        .on('change', () => {
+          child.removeListener('close', onCloseElectron);
+          child.once('close', () => {
+            child = runElectron(browserSyncUrl);
+          });
+          child.kill();
+        });
 
-        child = runElectron(browserSyncUrl);
-      });
+      bsync
+        .watch(['build/src/renderer/**/*', path.resolve('../components/build/**')])
+        .on('change', bsync.reload);
+    },
+  );
+}
 
-    bsync.watch('build/src/renderer/**/*').on('change', bsync.reload);
-  },
-);
+function prepareWatchArguments(projectPath) {
+  return ['--noClear', '--sourceMap', '--project', projectPath];
+}
+
+const appWatcher = new TscWatchClient();
+const componentsWatcher = new TscWatchClient();
+
+componentsWatcher.on('first_success', () => {
+  appWatcher.start(...prepareWatchArguments(path.resolve(__dirname, '..')));
+});
+
+appWatcher.on('first_success', () => {
+  startBrowserSync();
+});
+
+componentsWatcher.start(...prepareWatchArguments(path.resolve(__dirname, '../../components')));

@@ -68,6 +68,7 @@
     "rimraf": "^2.5.4",
     "sinon": "^7.1.1",
     "ts-node": "^7.0.1",
+    "tsc-watch": "^2.1.1",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3"
   },
@@ -75,7 +76,7 @@
     "postinstall": "electron-builder install-app-deps",
     "build": "run-s private:clean private:copy-assets private:compile",
     "lint": "tslint -t stylish -p .",
-    "develop": "cross-env run-s private:copy-assets private:compile:dev && run-p -r private:watch private:serve",
+    "develop": "cross-env run-s private:copy-assets private:watch",
     "test": "electron-mocha --renderer -R spec --require ts-node/register --require-main ts-node/register --require-main \"test/setup/main.ts\" --preload \"test/setup/renderer.ts\" \"test/*.spec.ts\" \"test/**/*.spec.ts\" \"test/**/*.spec.tsx\" || true",
     "pack:mac": "run-s build private:build:mac private:postbuild:mac",
     "pack:win": "run-s build private:build:win",
@@ -89,10 +90,8 @@
     "private:assets:main": "cross-env mkdir -p ./build/assets && cp -R ./assets ./build",
     "private:assets:html": "cross-env mkdir -p ./build/src/renderer && cp ./src/renderer/index.html ./build/src/renderer",
     "private:assets:css": "cross-env mkdir -p ./build/src/renderer/components && cp ./src/renderer/components/*.css ./build/src/renderer/components",
-    "private:watch": "cross-env yarn run private:compile:dev --watch --preserveWatchOutput",
-    "private:serve": "cross-env node scripts/serve.js",
+    "private:watch": "cross-env node \"scripts/serve.js\"",
     "private:compile": "tsc",
-    "private:compile:dev": "tsc --sourceMap",
     "private:clean": "rimraf build"
   }
 }
