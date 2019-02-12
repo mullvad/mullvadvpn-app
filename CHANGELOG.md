@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Fixed startup failure when network device with a hardware address that's not a MAC address is
+  present.
 
 ### Fixed
 
