@@ -1,11 +1,11 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
-use iproute2::{Connection, ConnectionHandle, Link, NetlinkIpError};
+use iproute2::{Address, Connection, ConnectionHandle, Link, NetlinkIpError};
 use log::{error, warn};
 use netlink_socket::{Protocol, SocketAddr, TokioSocket};
 use rtnetlink::{LinkLayerType, NetlinkCodec, NetlinkFramed, NetlinkMessage};
-use std::thread;
+use std::{collections::BTreeSet, thread};
 
 error_chain! {
     errors {
@@ -29,6 +29,8 @@ error_chain! {
 
 const RTMGRP_NOTIFY: u32 = 1;
 const RTMGRP_LINK: u32 = 2;
+const RTMGRP_IPV4_IFADDR: u32 = 0x10;
+const RTMGRP_IPV6_IFADDR: u32 = 0x100;
 
 pub struct MonitorHandle;
 
@@ -36,7 +38,10 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     let mut socket =
         TokioSocket::new(Protocol::Route).chain_err(|| ErrorKind::NetlinkConnectionError)?;
     socket
-        .bind(&SocketAddr::new(0, RTMGRP_NOTIFY | RTMGRP_LINK))
+        .bind(&SocketAddr::new(
+            0,
+            RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
+        ))
         .chain_err(|| ErrorKind::NetlinkBindError)?;
 
     let channel = NetlinkFramed::new(socket, NetlinkCodec::<NetlinkMessage>::new());
@@ -60,24 +65,21 @@ pub fn is_offline() -> bool {
     })
 }
 
+/// Checks if there are no running links or that none of the running links have IP addresses
+/// assigned to them.
 fn check_if_offline() -> Result<bool> {
-    Ok(list_links_providing_connectivity()?.next().is_none())
-}
-
-fn list_links_providing_connectivity() -> Result<impl Iterator<Item = Link>> {
     let mut connection = NetlinkConnection::new()?;
+    let interfaces = connection.running_interfaces()?;
 
-    Ok(connection
-        .links()?
-        .into_iter()
-        .filter(link_provides_connectivity))
-}
-
-fn link_provides_connectivity(link: &Link) -> bool {
-    // Some tunnels have the link layer type set to None
-    link.link_layer_type() != LinkLayerType::Loopback
-        && link.link_layer_type() != LinkLayerType::None
-        && link.flags().is_running()
+    if interfaces.is_empty() {
+        Ok(true)
+    } else {
+        // Check if the current IP addresses are not assigned to any one of the running interfaces
+        Ok(connection
+            .addresses()?
+            .into_iter()
+            .all(|address| !interfaces.contains(&address.index())))
+    }
 }
 
 struct NetlinkConnection {
@@ -97,9 +99,25 @@ impl NetlinkConnection {
         })
     }
 
+    /// List all IP addresses assigned to all interfaces.
+    pub fn addresses(&mut self) -> Result<Vec<Address>> {
+        self.execute_request(self.connection_handle.address().get().execute())
+    }
+
     /// List all links registered on the system.
-    pub fn links(&mut self) -> Result<Vec<Link>> {
+    fn links(&mut self) -> Result<Vec<Link>> {
         self.execute_request(self.connection_handle.link().get().execute())
+    }
+
+    /// List all unique interface indices that have a running link.
+    pub fn running_interfaces(&mut self) -> Result<BTreeSet<u32>> {
+        let links = self.links()?;
+
+        Ok(links
+            .into_iter()
+            .filter(link_provides_connectivity)
+            .map(|link| link.index())
+            .collect())
     }
 
     /// Helper function to execute an asynchronous request synchronously.
@@ -128,6 +146,13 @@ impl NetlinkConnection {
         self.connection = Some(connection);
         result
     }
+}
+
+fn link_provides_connectivity(link: &Link) -> bool {
+    // Some tunnels have the link layer type set to None
+    link.link_layer_type() != LinkLayerType::Loopback
+        && link.link_layer_type() != LinkLayerType::None
+        && link.flags().is_running()
 }
 
 fn monitor_event_loop(
