@@ -2,13 +2,10 @@ use crate::tunnel_state_machine::TunnelCommand;
 use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
 use iproute2::Link;
-use log::{error, trace, warn};
+use log::{error, warn};
 use netlink_socket::{Protocol, SocketAddr, TokioSocket};
-use rtnetlink::{
-    LinkFlags, LinkHeader, LinkLayerType, LinkMessage, NetlinkCodec, NetlinkFramed, NetlinkMessage,
-    RtnlMessage,
-};
-use std::{collections::BTreeSet, thread};
+use rtnetlink::{LinkLayerType, NetlinkCodec, NetlinkFramed, NetlinkMessage};
+use std::thread;
 
 error_chain! {
     errors {
@@ -43,7 +40,7 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
         .chain_err(|| ErrorKind::NetlinkBindError)?;
 
     let channel = NetlinkFramed::new(socket, NetlinkCodec::<NetlinkMessage>::new());
-    let link_monitor = LinkMonitor::new(sender)?;
+    let link_monitor = LinkMonitor::new(sender);
 
     thread::spawn(|| {
         if let Err(error) = monitor_event_loop(channel, link_monitor) {
@@ -71,7 +68,7 @@ fn list_links_providing_connectivity() -> Result<impl Iterator<Item = Link>> {
     Ok(list_links()?.into_iter().filter(link_provides_connectivity))
 }
 
-fn link_provides_connectivity(link: &impl BasicLinkInfo) -> bool {
+fn link_provides_connectivity(link: &Link) -> bool {
     // Some tunnels have the link layer type set to None
     link.link_layer_type() != LinkLayerType::Loopback
         && link.link_layer_type() != LinkLayerType::None
@@ -99,15 +96,8 @@ fn monitor_event_loop(
     mut link_monitor: LinkMonitor,
 ) -> Result<()> {
     channel
-        .for_each(|(message, _address)| {
-            let (_header, payload) = message.into_parts();
-
-            match payload {
-                RtnlMessage::NewLink(link_message) => link_monitor.new_link(link_message),
-                RtnlMessage::DelLink(link_message) => link_monitor.del_link(link_message),
-                _ => trace!("Ignoring unknown link message"),
-            }
-
+        .for_each(|(_message, _address)| {
+            link_monitor.update();
             Ok(())
         })
         .wait()
@@ -120,41 +110,18 @@ fn monitor_event_loop(
 
 struct LinkMonitor {
     is_offline: bool,
-    running_links: BTreeSet<u32>,
     sender: UnboundedSender<TunnelCommand>,
 }
 
 impl LinkMonitor {
-    pub fn new(sender: UnboundedSender<TunnelCommand>) -> Result<Self> {
-        let links: Vec<Link> = list_links_providing_connectivity()?.collect();
-        let is_offline = links.is_empty();
-        let running_links = links.into_iter().map(|link| link.index()).collect();
+    pub fn new(sender: UnboundedSender<TunnelCommand>) -> Self {
+        let is_offline = is_offline();
 
-        Ok(LinkMonitor {
-            is_offline,
-            running_links,
-            sender,
-        })
+        LinkMonitor { is_offline, sender }
     }
 
-    pub fn new_link(&mut self, link_message: LinkMessage) {
-        if self.is_offline && link_provides_connectivity(link_message.header()) {
-            self.set_is_offline(false);
-        }
-
-        if let Ok(link) = Link::from_link_message(link_message) {
-            if link_provides_connectivity(&link) {
-                self.insert_link(link.index());
-            } else {
-                self.remove_link(link.index());
-            }
-        }
-    }
-
-    pub fn del_link(&mut self, link_message: LinkMessage) {
-        if let Ok(link) = Link::from_link_message(link_message) {
-            self.remove_link(link.index());
-        }
+    pub fn update(&mut self) {
+        self.set_is_offline(is_offline());
     }
 
     fn set_is_offline(&mut self, is_offline: bool) {
@@ -164,42 +131,5 @@ impl LinkMonitor {
                 .sender
                 .unbounded_send(TunnelCommand::IsOffline(is_offline));
         }
-    }
-
-    fn insert_link(&mut self, link_index: u32) {
-        self.running_links.insert(link_index);
-        self.set_is_offline(false);
-    }
-
-    fn remove_link(&mut self, link_index: u32) {
-        self.running_links.remove(&link_index);
-        if self.running_links.is_empty() {
-            self.set_is_offline(true);
-        }
-    }
-}
-
-trait BasicLinkInfo {
-    fn flags(&self) -> LinkFlags;
-    fn link_layer_type(&self) -> LinkLayerType;
-}
-
-impl BasicLinkInfo for Link {
-    fn flags(&self) -> LinkFlags {
-        self.flags()
-    }
-
-    fn link_layer_type(&self) -> LinkLayerType {
-        self.link_layer_type()
-    }
-}
-
-impl BasicLinkInfo for LinkHeader {
-    fn flags(&self) -> LinkFlags {
-        self.flags()
-    }
-
-    fn link_layer_type(&self) -> LinkLayerType {
-        self.link_layer_type()
     }
 }
