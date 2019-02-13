@@ -15,6 +15,7 @@
 /dist-assets/libtalpid_openvpn_plugin.so
 /dist-assets/talpid_openvpn_plugin.dll
 /dist-assets/openvpn
+/dist-assets/openvpn.exe
 /windows/**/bin/
 **/.vs/
 *.bak
