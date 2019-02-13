@@ -437,20 +437,21 @@ impl RelaySelector {
                 let get_port_amount =
                     |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
                 let port_amount: u64 = data.port_ranges.iter().map(get_port_amount).sum();
-                let mut sample = self.rng.gen_range(0, port_amount + 1);
 
-                data.port_ranges
-                    .iter()
-                    .find(|range| {
-                        let ports_in_range = get_port_amount(range);
-                        sample = sample.saturating_sub(ports_in_range.into());
-                        sample <= 0
-                    })
-                    .map(|range| {
-                        // since our upper port range is inclusive and rng.gen() panics if min >=
-                        // max, then we're padding
-                        self.rng.gen_range(range.0, range.1 + 1)
-                    })
+                if port_amount < 1 {
+                    return None;
+                }
+
+                let mut port_index = self.rng.gen_range(0, port_amount + 1);
+
+                for range in data.port_ranges.iter() {
+                    let ports_in_range = get_port_amount(range);
+                    if port_index <= ports_in_range {
+                        return Some(port_index as u16 + range.0);
+                    }
+                    port_index = port_index.saturating_sub(ports_in_range.into());
+                }
+                panic!("Port selection algorithm is broken")
             }
             Constraint::Only(port) => {
                 if data
