@@ -88,7 +88,7 @@ impl fmt::Display for OpenVpnEndpointData {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 pub struct WireguardEndpointData {
     /// Port to connect to
     pub port_ranges: Vec<(u16, u16)>,
@@ -97,17 +97,6 @@ pub struct WireguardEndpointData {
     pub ipv6_gateway: Ipv6Addr,
     /// The peer's public key
     pub public_key: wireguard::PublicKey,
-}
-
-impl fmt::Debug for WireguardEndpointData {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        f.debug_struct(&"WireguardEndpointData")
-            .field("port_ranges", &self.port_ranges)
-            .field("ipv4_gateway", &self.ipv4_gateway)
-            .field("ipv6_gateway", &self.ipv6_gateway)
-            .field("public_key", &self.public_key)
-            .finish()
-    }
 }
 
 impl fmt::Display for WireguardEndpointData {
