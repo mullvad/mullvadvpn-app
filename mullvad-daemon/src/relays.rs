@@ -435,7 +435,7 @@ impl RelaySelector {
         match constraints.port {
             Constraint::Any => {
                 let get_port_amount =
-                    |range: &(u16, u16)| -> u64 { (1 + range.0 - range.1) as u64 };
+                    |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
                 let port_amount: u64 = data.port_ranges.iter().map(get_port_amount).sum();
                 let mut sample = self.rng.gen_range(0, port_amount + 1);
 
@@ -456,7 +456,7 @@ impl RelaySelector {
                 if data
                     .port_ranges
                     .iter()
-                    .any(|range| (range.0 < port && port <= range.1))
+                    .any(|range| (range.0 <= port && port <= range.1))
                 {
                     Some(port)
                 } else {
