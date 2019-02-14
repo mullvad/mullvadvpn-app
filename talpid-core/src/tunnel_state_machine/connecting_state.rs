@@ -74,7 +74,16 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
-        let monitor = Self::spawn_tunnel_monitor(&parameters, log_dir, resource_dir, event_tx)?;
+        let on_tunnel_event = move |event| {
+            let _ = event_tx.unbounded_send(event);
+        };
+        let monitor = TunnelMonitor::start(
+            &parameters,
+            TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
+            log_dir,
+            resource_dir,
+            on_tunnel_event,
+        )?;
         let close_handle = monitor.close_handle();
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
@@ -85,24 +94,6 @@ impl ConnectingState {
             close_handle,
             retry_attempt,
         })
-    }
-
-    fn spawn_tunnel_monitor(
-        parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-        resource_dir: &Path,
-        events: mpsc::UnboundedSender<TunnelEvent>,
-    ) -> crate::tunnel::Result<TunnelMonitor> {
-        let on_tunnel_event = move |event| {
-            let _ = events.unbounded_send(event);
-        };
-        TunnelMonitor::start(
-            &parameters,
-            TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
-            log_dir,
-            resource_dir,
-            on_tunnel_event,
-        )
     }
 
     fn spawn_tunnel_monitor_wait_thread(
