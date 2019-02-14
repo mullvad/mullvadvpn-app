@@ -60,6 +60,7 @@ class ApplicationMain {
   private oldLogFilePath?: string;
   private quitStage = AppQuitStage.unready;
 
+  private accountHistory: AccountToken[] = [];
   private tunnelState: TunnelStateTransition = { state: 'disconnected' };
   private settings: ISettings = {
     accountToken: undefined,
@@ -351,6 +352,15 @@ class ApplicationMain {
       return this.recoverFromBootstrapError(error);
     }
 
+    // fetch account history
+    try {
+      this.setAccountHistory(await this.daemonRpc.getAccountHistory());
+    } catch (error) {
+      log.error(`Failed to fetch the account history: ${error.message}`);
+
+      return this.recoverFromBootstrapError(error);
+    }
+
     // fetch the tunnel state
     try {
       this.setTunnelState(await this.daemonRpc.getState());
@@ -490,6 +500,14 @@ class ApplicationMain {
     ]);
   }
 
+  private setAccountHistory(accountHistory: AccountToken[]) {
+    this.accountHistory = accountHistory;
+
+    if (this.windowController) {
+      IpcMainEventChannel.accountHistory.notify(this.windowController.webContents, accountHistory);
+    }
+  }
+
   private setTunnelState(newState: TunnelStateTransition) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
@@ -505,8 +523,14 @@ class ApplicationMain {
   }
 
   private setSettings(newSettings: ISettings) {
+    const oldSettings = this.settings;
     this.settings = newSettings;
+
     this.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
+
+    if (oldSettings.accountToken !== newSettings.accountToken) {
+      this.updateAccountHistory();
+    }
 
     if (this.windowController) {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
@@ -748,6 +772,7 @@ class ApplicationMain {
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this.connectedToDaemon,
       autoStart: getOpenAtLogin(),
+      accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
       location: this.location,
@@ -800,10 +825,10 @@ class ApplicationMain {
       this.daemonRpc.getAccountData(token),
     );
 
-    IpcMainEventChannel.accountHistory.handleGet(() => this.daemonRpc.getAccountHistory());
-    IpcMainEventChannel.accountHistory.handleRemoveItem((token: AccountToken) =>
-      this.daemonRpc.removeAccountFromHistory(token),
-    );
+    IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
+      await this.daemonRpc.removeAccountFromHistory(token);
+      this.updateAccountHistory();
+    });
 
     ipcMain.on('show-window', () => {
       const windowController = this.windowController;
@@ -881,6 +906,14 @@ class ApplicationMain {
         });
       },
     );
+  }
+
+  private async updateAccountHistory(): Promise<void> {
+    try {
+      this.setAccountHistory(await this.daemonRpc.getAccountHistory());
+    } catch (error) {
+      log.error(`Failed to fetch the account history: ${error.message}`);
+    }
   }
 
   private updateDaemonsAutoConnect() {
