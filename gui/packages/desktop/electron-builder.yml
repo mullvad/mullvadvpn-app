@@ -51,6 +51,8 @@ mac:
       to: .
     - from: ../../../dist-assets/uninstall_macos.sh
       to: ./uninstall.sh
+    - from: ../../../dist-assets/binaries/macos/sslocal
+      to: .
 
 pkg:
   allowAnywhere: false
@@ -93,6 +95,8 @@ win:
       to: .
     - from: ../../../dist-assets/binaries/windows/openvpn.exe
       to: .
+    - from: ../../../dist-assets/binaries/windows/sslocal.exe
+      to: .
 
 linux:
   target:
@@ -112,6 +116,8 @@ linux:
     - from: ../../../dist-assets/linux/mullvad-daemon.conf
       to: .
     - from: ../../../dist-assets/linux/mullvad-daemon.service
+      to: .
+    - from: ../../../dist-assets/linux/sslocal
       to: .
 
 deb:
