@@ -27,6 +27,7 @@ jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-f
 jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+ipnetwork = "0.14"
 uuid = { version = "0.6", features = ["v4"] }
 lazy_static = "1.0"
 rand = "0.5"

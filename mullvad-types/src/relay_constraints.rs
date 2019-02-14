@@ -230,7 +230,13 @@ impl fmt::Display for WireguardConstraints {
 
 impl Match<WireguardEndpointData> for WireguardConstraints {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
-        self.port.matches(&endpoint.port)
+        match self.port {
+            Constraint::Any => true,
+            Constraint::Only(port) => endpoint
+                .port_ranges
+                .iter()
+                .any(|range| (port >= range.0 && port <= range.1)),
+        }
     }
 }
 

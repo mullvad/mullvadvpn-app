@@ -7,14 +7,13 @@ use std::{
 };
 
 use mullvad_types::{
-    endpoint::all_of_the_internet,
     relay_constraints::{
         Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
-        RelaySettingsUpdate, TunnelConstraints,
+        RelaySettingsUpdate, TunnelConstraints, WireguardConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
-use talpid_types::net::{openvpn, wireguard, Endpoint, TransportProtocol};
+use talpid_types::net::{all_of_the_internet, openvpn, wireguard, Endpoint, TransportProtocol};
 
 pub struct Relay;
 
@@ -133,13 +132,21 @@ impl Command for Relay {
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set tunnel constraints")
-                            .arg(clap::Arg::with_name("port").required(true).index(1))
                             .arg(
-                                clap::Arg::with_name("protocol")
+                                clap::Arg::with_name("vpn protocol")
                                     .required(true)
-                                    .index(2)
+                                    .index(1)
+                                    .possible_values(&["wireguard", "openvpn"]),
+                            )
+                            .arg(clap::Arg::with_name("port").required(true).index(2))
+                            .arg(
+                                clap::Arg::with_name("transport protocol")
+                                    .long("protocol")
+                                    .required(false)
+                                    .default_value("any")
                                     .possible_values(&["any", "udp", "tcp"]),
                             ),
+
                     ),
             )
             .subcommand(clap::SubCommand::with_name("get"))
@@ -307,15 +314,32 @@ impl Relay {
     }
 
     fn set_tunnel(&self, matches: &clap::ArgMatches) -> Result<()> {
+        let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
-        let protocol = parse_protocol_constraint(matches.value_of("protocol").unwrap());
+        let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
 
-        self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: None,
-            tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
-                OpenVpnConstraints { port, protocol },
-            ))),
-        }))
+        match vpn_protocol {
+            "wireguard" => {
+                if let Constraint::Only(TransportProtocol::Tcp) = protocol {
+                    return Err("WireGuard does not support TCP".into());
+                }
+                self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                    location: None,
+                    tunnel: Some(Constraint::Only(TunnelConstraints::Wireguard(
+                        WireguardConstraints { port },
+                    ))),
+                }))
+            }
+            "openvpn" => {
+                self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                    location: None,
+                    tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
+                        OpenVpnConstraints { port, protocol },
+                    ))),
+                }))
+            }
+            _ => unreachable!(),
+        }
     }
 
     fn get(&self) -> Result<()> {
@@ -364,7 +388,7 @@ fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
 /// Parses a protocol constraint string. Can be infallible because the possible values are limited
 /// with clap.
 fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol> {
-    match raw_protocol.to_lowercase().as_str() {
+    match raw_protocol {
         "any" => Constraint::Any,
         "udp" => Constraint::Only(TransportProtocol::Udp),
         "tcp" => Constraint::Only(TransportProtocol::Tcp),

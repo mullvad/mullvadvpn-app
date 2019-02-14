@@ -162,3 +162,11 @@ pub struct GenericTunnelOptions {
     /// forwarded through the tunnel.
     pub enable_ipv6: bool,
 }
+
+/// Returns a vector of IP networks representing all of the internet.
+pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
+    vec![
+        "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
+        "::0/0".parse().expect("Failed to parse ipv6 network"),
+    ]
+}
