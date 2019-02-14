@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 - Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
   the initial state of the daemon.
+- The daemon will again try and rest the DNS configuration on startup.
 
 #### Linux
 - Fix startup failure when network device with a hardware address that's not a MAC address is

@@ -182,7 +182,10 @@ impl TunnelStateMachine {
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self> {
         let firewall = Firewall::new().chain_err(|| ErrorKind::FirewallError)?;
-        let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
+        let mut dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
+        if let Err(e) = dns_monitor.reset() {
+            log::error!("Failed to reset DNS on startup - {}", e.display_chain());
+        }
         let mut shared_values = SharedTunnelStateValues {
             firewall,
             dns_monitor,
