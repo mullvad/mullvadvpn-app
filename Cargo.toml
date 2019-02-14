@@ -12,3 +12,4 @@ members = [
     "talpid-core",
     "talpid-ipc",
 ]
+exclude = ["dist-assets/binaries/shadowsocks-rust"]
