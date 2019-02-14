@@ -23,32 +23,18 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    logging,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
 };
 
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
-const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
-const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
-
 #[cfg(windows)]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
 #[cfg(not(windows))]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
 
-error_chain! {
-    errors {
-        RotateLogError {
-            description("Failed to rotate tunnel log file")
-        }
-    }
-
-    links {
-        TunnelMonitorError(tunnel::Error, tunnel::ErrorKind);
-    }
-}
+error_chain! {}
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -86,9 +72,18 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         retry_attempt: u32,
-    ) -> Result<Self> {
+    ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
-        let monitor = Self::spawn_tunnel_monitor(&parameters, log_dir, resource_dir, event_tx)?;
+        let on_tunnel_event = move |event| {
+            let _ = event_tx.unbounded_send(event);
+        };
+        let monitor = TunnelMonitor::start(
+            &parameters,
+            TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
+            log_dir,
+            resource_dir,
+            on_tunnel_event,
+        )?;
         let close_handle = monitor.close_handle();
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
@@ -99,43 +94,6 @@ impl ConnectingState {
             close_handle,
             retry_attempt,
         })
-    }
-
-    fn spawn_tunnel_monitor(
-        parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-        resource_dir: &Path,
-        events: mpsc::UnboundedSender<TunnelEvent>,
-    ) -> Result<TunnelMonitor> {
-        let on_tunnel_event = move |event| {
-            let _ = events.unbounded_send(event);
-        };
-        let log_file = Self::prepare_tunnel_log_file(&parameters, log_dir)?;
-
-        Ok(TunnelMonitor::start(
-            &parameters,
-            TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
-            log_file.clone(),
-            resource_dir,
-            on_tunnel_event,
-        )?)
-    }
-
-    fn prepare_tunnel_log_file(
-        parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-    ) -> Result<Option<PathBuf>> {
-        if let Some(ref log_dir) = log_dir {
-            let filename = match parameters {
-                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
-                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
-            };
-            let tunnel_log = log_dir.join(filename);
-            logging::rotate_log(&tunnel_log).chain_err(|| ErrorKind::RotateLogError)?;
-            Ok(Some(tunnel_log))
-        } else {
-            Ok(None)
-        }
     }
 
     fn spawn_tunnel_monitor_wait_thread(
@@ -392,9 +350,7 @@ impl TunnelState for ConnectingState {
                         }
                         Err(error) => {
                             let block_reason = match *error.kind() {
-                                ErrorKind::TunnelMonitorError(
-                                    tunnel::ErrorKind::EnableIpv6Error,
-                                ) => BlockReason::Ipv6Unavailable,
+                                tunnel::ErrorKind::EnableIpv6Error => BlockReason::Ipv6Unavailable,
                                 _ => BlockReason::StartTunnelError,
                             };
 

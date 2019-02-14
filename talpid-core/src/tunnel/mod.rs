@@ -5,7 +5,7 @@ use std::{
     net::IpAddr,
     path::{Path, PathBuf},
 };
-
+use crate::logging;
 #[cfg(unix)]
 use talpid_types::net::wireguard as wireguard_types;
 use talpid_types::net::{openvpn as openvpn_types, GenericTunnelOptions, TunnelParameters};
@@ -15,6 +15,9 @@ pub mod openvpn;
 
 #[cfg(unix)]
 mod wireguard;
+
+const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
+const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 
 error_chain! {
@@ -34,6 +37,10 @@ error_chain! {
         /// Running on an operating system which is not supported yet.
         UnsupportedPlatform {
             description("Tunnel type not supported on this operating system")
+        }
+        /// Failed to rotate tunnel log file
+        RotateLogError {
+            description("Failed to rotate tunnel log file")
         }
     }
 
@@ -117,7 +124,7 @@ impl TunnelMonitor {
     pub fn start<L>(
         tunnel_parameters: &TunnelParameters,
         tunnel_alias: Option<OsString>,
-        log: Option<PathBuf>,
+        log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
     ) -> Result<Self>
@@ -125,14 +132,15 @@ impl TunnelMonitor {
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters.get_generic_options())?;
+        let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
 
         match tunnel_parameters {
             TunnelParameters::OpenVpn(config) => {
-                Self::start_openvpn_tunnel(&config, tunnel_alias, log, resource_dir, on_event)
+                Self::start_openvpn_tunnel(&config, tunnel_alias, log_file, resource_dir, on_event)
             }
             #[cfg(unix)]
             TunnelParameters::Wireguard(config) => {
-                Self::start_wireguard_tunnel(&config, log, on_event)
+                Self::start_wireguard_tunnel(&config, log_file, on_event)
             }
             #[cfg(windows)]
             TunnelParameters::Wireguard(_) => bail!(ErrorKind::UnsupportedPlatform),
@@ -184,6 +192,23 @@ impl TunnelMonitor {
             bail!(ErrorKind::EnableIpv6Error);
         } else {
             Ok(())
+        }
+    }
+
+    fn prepare_tunnel_log_file(
+        parameters: &TunnelParameters,
+        log_dir: &Option<PathBuf>,
+    ) -> Result<Option<PathBuf>> {
+        if let Some(ref log_dir) = log_dir {
+            let filename = match parameters {
+                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
+                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
+            };
+            let tunnel_log = log_dir.join(filename);
+            logging::rotate_log(&tunnel_log).chain_err(|| ErrorKind::RotateLogError)?;
+            Ok(Some(tunnel_log))
+        } else {
+            Ok(None)
         }
     }
 
