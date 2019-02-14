@@ -33,8 +33,14 @@ Line wrap the file at 100 chars.                                              Th
 - Fix startup failure when network device with a hardware address that's not a MAC address is
   present.
 
+### Changed
+#### Linux
+- Increased `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
+
+
 ## [2019.1] - 2019-01-29
 This release is identical to 2019.1-beta1
+
 
 
 ## [2019.1-beta1] - 2019-01-25

@@ -35,7 +35,7 @@ const NM_TOP_OBJECT: &str = "org.freedesktop.NetworkManager";
 const NM_DNS_MANAGER: &str = "org.freedesktop.NetworkManager.DnsManager";
 const NM_DNS_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager/DnsManager";
 const NM_OBJECT_PATH: &str = "/org/freedesktop/NetworkManager";
-const RPC_TIMEOUT_MS: i32 = 1000;
+const RPC_TIMEOUT_MS: i32 = 3000;
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
 
