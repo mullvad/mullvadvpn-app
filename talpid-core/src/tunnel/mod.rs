@@ -1,3 +1,4 @@
+use crate::logging;
 use std::{
     collections::HashMap,
     ffi::OsString,
@@ -5,7 +6,6 @@ use std::{
     net::IpAddr,
     path::{Path, PathBuf},
 };
-use crate::logging;
 #[cfg(unix)]
 use talpid_types::net::wireguard as wireguard_types;
 use talpid_types::net::{openvpn as openvpn_types, GenericTunnelOptions, TunnelParameters};
