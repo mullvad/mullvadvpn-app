@@ -22,14 +22,6 @@ const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
 error_chain! {
     errors {
-        /// Failed to monitor the tunnel
-        TunnelMonitoringError {
-            description("Failed to monitor tunnel")
-        }
-        /// There was an error whilst preparing to listen for events from the VPN tunnel.
-        TunnelMonitorSetUpError {
-            description("Error while setting up to listen for events from the VPN tunnel")
-        }
         /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
         EnableIpv6Error {
             description("Can't enable IPv6 on tunnel interface because IPv6 is disabled")
@@ -42,11 +34,19 @@ error_chain! {
         RotateLogError {
             description("Failed to rotate tunnel log file")
         }
+        /// Failure to build Wireguard configuration.
+        WireguardConfigError {
+            description("Failed to configure Wireguard with the given parameters")
+        }
     }
 
     links {
         OpenVpnTunnelMonitoringError(openvpn::Error, openvpn::ErrorKind)
         /// There was an error listening for events from the OpenVPN tunnel
+        ;
+        WirguardTunnelMonitoringError(wireguard::Error, wireguard::ErrorKind)
+        /// There was an error listening for events from the OpenVPN tunnel
+        #[cfg(unix)]
         ;
     }
 }
@@ -157,13 +157,12 @@ impl TunnelMonitor {
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         let config = wireguard::config::Config::from_parameters(&params)
-            .chain_err(|| ErrorKind::TunnelMonitoringError)?;
+            .chain_err(|| ErrorKind::WireguardConfigError)?;
         let monitor = wireguard::WireguardMonitor::start(
             &config,
             log.as_ref().map(|p| p.as_path()),
             on_event,
-        )
-        .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
+        )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
@@ -180,8 +179,7 @@ impl TunnelMonitor {
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
         let monitor =
-            openvpn::OpenVpnMonitor::start(on_event, config, tunnel_alias, log, resource_dir)
-                .chain_err(|| ErrorKind::TunnelMonitorSetUpError)?;
+            openvpn::OpenVpnMonitor::start(on_event, config, tunnel_alias, log, resource_dir)?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
@@ -267,14 +265,12 @@ impl InternalTunnelMonitor {
 
     fn wait(self) -> Result<()> {
         match self {
-            InternalTunnelMonitor::OpenVpn(tun) => {
-                tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError)
-            }
+            InternalTunnelMonitor::OpenVpn(tun) => tun.wait()?,
             #[cfg(unix)]
-            InternalTunnelMonitor::Wireguard(tun) => {
-                tun.wait().chain_err(|| ErrorKind::TunnelMonitoringError)
-            }
+            InternalTunnelMonitor::Wireguard(tun) => tun.wait()?,
         }
+
+        Ok(())
     }
 }
 

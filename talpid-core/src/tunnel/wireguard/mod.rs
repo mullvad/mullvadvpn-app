@@ -14,10 +14,6 @@ const PING_TIMEOUT: u16 = 5;
 
 error_chain! {
     errors {
-        /// Config error
-        ConfigError{
-            description("Invalid configuration")
-        }
         /// Failed to setup a tunnel device
         SetupTunnelDeviceError {
             description("Failed to create tunnel device")
@@ -41,10 +37,6 @@ error_chain! {
         /// Tunnel interface name contained null bytes
         InterfaceNameError {
             display("Tunnel interface name contains null bytes")
-        }
-        /// No private key supplied
-        NoKeyError {
-            display("Config has no keys")
         }
         /// Pinging timed out
         PingTimeoutError {
