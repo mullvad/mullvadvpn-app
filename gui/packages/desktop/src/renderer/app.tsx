@@ -99,6 +99,10 @@ export default class AppRenderer {
       this.onDaemonDisconnected(errorMessage ? new Error(errorMessage) : undefined);
     });
 
+    IpcRendererEventChannel.accountHistory.listen((newAccountHistory: AccountToken[]) => {
+      this.setAccountHistory(newAccountHistory);
+    });
+
     IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
       this.setTunnelState(newState);
     });
@@ -141,6 +145,7 @@ export default class AppRenderer {
     this.settings = initialState.settings;
     this.guiSettings = initialState.guiSettings;
 
+    this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
     this.setSettings(initialState.settings);
 
@@ -258,8 +263,7 @@ export default class AppRenderer {
   }
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await IpcRendererEventChannel.accountHistory.removeItem(accountToken);
-    await this.fetchAccountHistory();
+    return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
   }
 
   public async setAllowLan(allowLan: boolean) {
@@ -362,20 +366,8 @@ export default class AppRenderer {
     }
   }
 
-  private async fetchAccountHistory(): Promise<void> {
-    const accountHistory = await IpcRendererEventChannel.accountHistory.get();
-
-    this.reduxActions.account.updateAccountHistory(accountHistory);
-  }
-
   private async onDaemonConnected() {
     this.connectedToDaemon = true;
-
-    try {
-      await this.fetchAccountHistory();
-    } catch (error) {
-      log.error(`Cannot fetch the account history: ${error.message}`);
-    }
 
     if (this.settings.accountToken) {
       this.memoryHistory.replace('/connect');
@@ -422,6 +414,10 @@ export default class AppRenderer {
     } else {
       log.info('Skip autoconnect because account token is not set');
     }
+  }
+
+  private setAccountHistory(accountHistory: AccountToken[]) {
+    this.reduxActions.account.updateAccountHistory(accountHistory);
   }
 
   private setTunnelState(tunnelState: TunnelStateTransition) {

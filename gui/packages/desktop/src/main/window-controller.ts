@@ -213,7 +213,11 @@ export default class WindowController {
     });
   }
 
-  private onDisplayMetricsChanged = (_event: any, _display: Display, changedMetrics: string[]) => {
+  private onDisplayMetricsChanged = (
+    _event: Electron.Event,
+    _display: Display,
+    changedMetrics: string[],
+  ) => {
     if (changedMetrics.includes('workArea') && this.windowValue.isVisible()) {
       this.updatePosition();
       this.notifyUpdateWindowShape();
@@ -237,7 +241,7 @@ export default class WindowController {
     });
   }
 
-  private executeWhenWindowIsReady(closure: () => any) {
+  private executeWhenWindowIsReady(closure: () => void) {
     if (this.isWindowReady) {
       closure();
     } else {

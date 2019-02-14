@@ -17,6 +17,7 @@ import {
 export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
+  accountHistory: AccountToken[];
   tunnelState: TunnelStateTransition;
   settings: ISettings;
   location?: ILocation;
@@ -38,17 +39,17 @@ interface IReceiver<T> {
   listen(fn: (value: T) => void): void;
 }
 
-interface ITunnelMethods {
+interface ITunnelMethods extends IReceiver<TunnelStateTransition> {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
 
-interface ITunnelHandlers {
+interface ITunnelHandlers extends ISender<TunnelStateTransition> {
   handleConnect(fn: () => Promise<void>): void;
   handleDisconnect(fn: () => Promise<void>): void;
 }
 
-interface ISettingsMethods {
+interface ISettingsMethods extends IReceiver<ISettings> {
   setAllowLan(allowLan: boolean): Promise<void>;
   setEnableIpv6(enableIpv6: boolean): Promise<void>;
   setBlockWhenDisconnected(block: boolean): Promise<void>;
@@ -56,7 +57,7 @@ interface ISettingsMethods {
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
 }
 
-interface ISettingsHandlers {
+interface ISettingsHandlers extends ISender<ISettings> {
   handleAllowLan(fn: (allowLan: boolean) => Promise<void>): void;
   handleEnableIpv6(fn: (enableIpv6: boolean) => Promise<void>): void;
   handleBlockWhenDisconnected(fn: (block: boolean) => Promise<void>): void;
@@ -64,13 +65,13 @@ interface ISettingsHandlers {
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
 }
 
-interface IGuiSettingsMethods {
+interface IGuiSettingsMethods extends IReceiver<IGuiSettingsState> {
   setAutoConnect(autoConnect: boolean): void;
   setStartMinimized(startMinimized: boolean): void;
   setMonochromaticIcon(monochromaticIcon: boolean): void;
 }
 
-interface IGuiSettingsHandlers {
+interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
   handleAutoConnect(fn: (autoConnect: boolean) => void): void;
   handleStartMinimized(fn: (startMinimized: boolean) => void): void;
   handleMonochromaticIcon(fn: (monochromaticIcon: boolean) => void): void;
@@ -88,21 +89,19 @@ interface IAccountMethods {
   getData(token: AccountToken): Promise<IAccountData>;
 }
 
-interface IAccountHistoryHandlers {
-  handleGet(fn: () => Promise<AccountToken[]>): void;
+interface IAccountHistoryHandlers extends ISender<AccountToken[]> {
   handleRemoveItem(fn: (token: AccountToken) => Promise<void>): void;
 }
 
-interface IAccountHistoryMethods {
-  get(): Promise<AccountToken[]>;
+interface IAccountHistoryMethods extends IReceiver<AccountToken[]> {
   removeItem(token: AccountToken): Promise<void>;
 }
 
-interface IAutoStartMethods {
+interface IAutoStartMethods extends IReceiver<boolean> {
   set(autoStart: boolean): Promise<void>;
 }
 
-interface IAutoStartHandlers {
+interface IAutoStartHandlers extends ISender<boolean> {
   handleSet(fn: (value: boolean) => Promise<void>): void;
 }
 
@@ -134,7 +133,7 @@ const SET_START_MINIMIZED = 'set-start-minimized';
 
 const GET_APP_STATE = 'get-app-state';
 
-const GET_ACCOUNT_HISTORY = 'get-account-history';
+const ACCOUNT_HISTORY_CHANGED = 'account-history-changed';
 const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
 
 const SET_ACCOUNT = 'set-account';
@@ -165,13 +164,13 @@ export class IpcRendererEventChannel {
     listen: listen(DAEMON_DISCONNECTED),
   };
 
-  public static tunnel: IReceiver<TunnelStateTransition> & ITunnelMethods = {
+  public static tunnel: ITunnelMethods = {
     listen: listen(TUNNEL_STATE_CHANGED),
     connect: requestSender(CONNECT_TUNNEL),
     disconnect: requestSender(DISCONNECT_TUNNEL),
   };
 
-  public static settings: IReceiver<ISettings> & ISettingsMethods = {
+  public static settings: ISettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
     setAllowLan: requestSender(SET_ALLOW_LAN),
     setEnableIpv6: requestSender(SET_ENABLE_IPV6),
@@ -196,14 +195,14 @@ export class IpcRendererEventChannel {
     listen: listen(UPGRADE_VERSION_CHANGED),
   };
 
-  public static guiSettings: IReceiver<IGuiSettingsState> & IGuiSettingsMethods = {
+  public static guiSettings: IGuiSettingsMethods = {
     listen: listen(GUI_SETTINGS_CHANGED),
     setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
   };
 
-  public static autoStart: IReceiver<boolean> & IAutoStartMethods = {
+  public static autoStart: IAutoStartMethods = {
     listen: listen(AUTO_START_CHANGED),
     set: requestSender(SET_AUTO_START),
   };
@@ -215,7 +214,7 @@ export class IpcRendererEventChannel {
   };
 
   public static accountHistory: IAccountHistoryMethods = {
-    get: requestSender(GET_ACCOUNT_HISTORY),
+    listen: listen(ACCOUNT_HISTORY_CHANGED),
     removeItem: requestSender(REMOVE_ACCOUNT_HISTORY_ITEM),
   };
 }
@@ -237,7 +236,7 @@ export class IpcMainEventChannel {
     notify: sender(DAEMON_DISCONNECTED),
   };
 
-  public static tunnel: ISender<TunnelStateTransition> & ITunnelHandlers = {
+  public static tunnel: ITunnelHandlers = {
     notify: sender(TUNNEL_STATE_CHANGED),
     handleConnect: requestHandler(CONNECT_TUNNEL),
     handleDisconnect: requestHandler(DISCONNECT_TUNNEL),
@@ -247,7 +246,7 @@ export class IpcMainEventChannel {
     notify: sender(LOCATION_CHANGED),
   };
 
-  public static settings: ISender<ISettings> & ISettingsHandlers = {
+  public static settings: ISettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
     handleAllowLan: requestHandler(SET_ALLOW_LAN),
     handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
@@ -268,14 +267,14 @@ export class IpcMainEventChannel {
     notify: sender(UPGRADE_VERSION_CHANGED),
   };
 
-  public static guiSettings: ISender<IGuiSettingsState> & IGuiSettingsHandlers = {
+  public static guiSettings: IGuiSettingsHandlers = {
     notify: sender(GUI_SETTINGS_CHANGED),
     handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
   };
 
-  public static autoStart: ISender<boolean> & IAutoStartHandlers = {
+  public static autoStart: IAutoStartHandlers = {
     notify: sender<boolean>(AUTO_START_CHANGED),
     handleSet: requestHandler(SET_AUTO_START),
   };
@@ -287,7 +286,7 @@ export class IpcMainEventChannel {
   };
 
   public static accountHistory: IAccountHistoryHandlers = {
-    handleGet: requestHandler(GET_ACCOUNT_HISTORY),
+    notify: sender<AccountToken[]>(ACCOUNT_HISTORY_CHANGED),
     handleRemoveItem: requestHandler(REMOVE_ACCOUNT_HISTORY_ITEM),
   };
 }

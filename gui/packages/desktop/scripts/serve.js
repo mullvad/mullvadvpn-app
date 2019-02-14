@@ -27,13 +27,11 @@ function runElectron(browserSyncUrl) {
     },
     stdio: 'inherit',
   });
-  child.once('close', onCloseElectron);
+  child.once('close', () => {
+    process.exit();
+  });
 
   return child;
-}
-
-function onCloseElectron() {
-  process.exit();
 }
 
 function startBrowserSync() {
@@ -62,7 +60,7 @@ function startBrowserSync() {
       bsync
         .watch(['build/src/config.json', 'build/src/main/**/*', 'build/src/shared/**/*'])
         .on('change', () => {
-          child.removeListener('close', onCloseElectron);
+          child.removeAllListeners('close');
           child.once('close', () => {
             child = runElectron(browserSyncUrl);
           });
