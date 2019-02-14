@@ -53,6 +53,7 @@ export default {
   error_message: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
+    lineHeight: 20,
     fontWeight: '600',
     color: colors.white,
     marginBottom: 24,
