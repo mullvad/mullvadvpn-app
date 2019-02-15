@@ -162,6 +162,13 @@ const openVpnProxySchema = maybe(
         ),
       }),
     }),
+    object({
+      shadowsocks: partialObject({
+        peer: string,
+        password: string,
+        cipher: string,
+      }),
+    }),
   ),
 );
 
