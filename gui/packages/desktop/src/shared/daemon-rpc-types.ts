@@ -170,7 +170,7 @@ export interface ITunnelOptions {
   };
 }
 
-export type ProxySettings = ILocalProxySettings | IRemoteProxySettings;
+export type ProxySettings = ILocalProxySettings | IRemoteProxySettings | IShadowsocksProxySettings;
 
 export interface ILocalProxySettings {
   port: number;
@@ -185,6 +185,12 @@ export interface IRemoteProxySettings {
 export interface IRemoteProxyAuth {
   username: string;
   password: string;
+}
+
+export interface IShadowsocksProxySettings {
+  peer: string;
+  password: string;
+  cipher: string;
 }
 
 export interface IAppVersionInfo {
