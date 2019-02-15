@@ -24,6 +24,7 @@ uuid = { version = "0.6", features = ["v4"] }
 
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
+regex = "1.1.0"
 
 [target.'cfg(unix)'.dependencies]
 hex = "0.3"
