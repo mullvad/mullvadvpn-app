@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import { pgettext } from '../../shared/gettext';
 
 export type AuthFailureKind =
   | 'INVALID_ACCOUNT'
@@ -7,13 +8,18 @@ export type AuthFailureKind =
   | 'UNKNOWN';
 
 // These strings should match up with mullvad-types/src/auth_failed.rs
-const GENERIC_FAILURE_MSG = 'Account authentication failed';
-const INVALID_ACCOUNT_MSG =
-  "You've logged in with an account number that is not valid. Please log out and try another one.";
-const EXPIRED_ACCOUNT_MSG =
-  'You have no more VPN time left on this account. Please log in on our website to buy more credit.';
-const TOO_MANY_CONNECTIONS_MSG =
-  'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.';
+
+// TRANSLATORS: Account authentication failed
+const GENERIC_FAILURE_MSG = pgettext('auth-failure', 'generic-failure-message');
+
+// TRANSLATORS: You've logged in with an account number that is not valid. Please log out and try another one
+const INVALID_ACCOUNT_MSG = pgettext('auth-failure', 'invalid-account-message');
+
+// TRANSLATORS: You have no more VPN time left on this account. Please log in on our website to buy more credit
+const EXPIRED_ACCOUNT_MSG = pgettext('auth-failure', 'expired-account-message');
+
+// TRANSLATORS: This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.
+const TOO_MANY_CONNECTIONS_MSG = pgettext('auth-failure', 'too-many-connections-message');
 
 export class AuthFailure {
   private reasonId: AuthFailureKind;

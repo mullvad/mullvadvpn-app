@@ -4,6 +4,7 @@ import { Component, View } from 'reactxp';
 import { links } from '../../config.json';
 import { NoCreditError, NoInternetError } from '../../main/errors';
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
+import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import styles from './ConnectStyles';
 import { Container, Header, Layout } from './Layout';
@@ -53,13 +54,23 @@ export default class Connect extends Component<IProps> {
     let message = '';
 
     if (error instanceof NoCreditError) {
-      title = 'Out of time';
-      message = 'Buy more time, so you can continue using the internet securely';
+      title =
+        // TRANSLATORS: Out of time
+        pgettext('connect-view', 'account-out-of-time-title');
+
+      message =
+        // TRANSLATORS: Buy more time, so you can continue using the internet securely
+        pgettext('connect-view', 'account-out-of-time-message');
     }
 
     if (error instanceof NoInternetError) {
-      title = 'Offline';
-      message = 'Your internet connection will be secured when you get back online';
+      title =
+        // TRANSLATORS: Offline
+        pgettext('connect-view', 'device-offline-title');
+
+      message =
+        // TRANSLATORS: Your internet connection will be secured when you get back online
+        pgettext('connect-view', 'device-offline-message');
     }
 
     const { isBlocked } = this.props.connection;

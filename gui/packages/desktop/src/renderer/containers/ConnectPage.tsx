@@ -3,6 +3,8 @@ import { shell } from 'electron';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { sprintf } from 'sprintf-js';
+import { pgettext } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
 import userInterfaceActions from '../redux/userinterface/actions';
@@ -41,7 +43,14 @@ function getRelayName(
       if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
-          return `${city.name} (${hostname})`;
+          return sprintf(
+            // TRANSLATORS: %(city)s (%(hostname)s)
+            pgettext('connect-container', 'hostname-relay-display-name'),
+            {
+              city: city.name,
+              hostname,
+            },
+          );
         }
       }
     }

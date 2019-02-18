@@ -2,6 +2,7 @@ import { Accordion, Brand, ImageView, SettingsBarButton } from '@mullvad/compone
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
 import { colors, links } from '../../config.json';
+import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Header, Layout } from './Layout';
@@ -209,13 +210,17 @@ export default class Login extends Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState) {
       case 'logging in':
-        return 'Logging in...';
+        // TRANSLATORS: Logging in...
+        return pgettext('login-view', 'form-logging-in-title');
       case 'failed':
-        return 'Login failed';
+        // TRANSLATORS: Login failed
+        return pgettext('login-view', 'form-login-failed-title');
       case 'ok':
-        return 'Logged in';
+        // TRANSLATORS: Logged in
+        return pgettext('login-view', 'form-login-success-title');
       default:
-        return 'Login';
+        // TRANSLATORS: Login
+        return pgettext('login-view', 'form-login-title');
     }
   }
 
@@ -223,13 +228,20 @@ export default class Login extends Component<IProps, IState> {
     const { loginState, loginError } = this.props;
     switch (loginState) {
       case 'failed':
-        return (loginError && loginError.message) || 'Unknown error';
+        return (
+          (loginError && loginError.message) ||
+          // TRANSLATORS: Unknown error
+          pgettext('login-view', 'form-login-unknown-error-subtitle')
+        );
       case 'logging in':
-        return 'Checking account number';
+        // TRANSLATORS: Checking account number
+        return pgettext('login-view', 'form-login-logging-in-subtitle');
       case 'ok':
-        return 'Correct account number';
+        // TRANSLATORS: Correct account number
+        return pgettext('login-view', 'form-login-success-subtitle');
       default:
-        return 'Enter your account number';
+        // TRANSLATORS: Enter your account number
+        return pgettext('login-view', 'form-login-subtitle');
     }
   }
 
@@ -393,9 +405,15 @@ export default class Login extends Component<IProps, IState> {
   private createFooter() {
     return (
       <View>
-        <Text style={styles.login_footer__prompt}>{"Don't have an account number?"}</Text>
+        <Text style={styles.login_footer__prompt}>
+          {// TRANSLATORS: Don't have an account number?
+          pgettext('login-view', 'footer-title')}
+        </Text>
         <AppButton.BlueButton onPress={this.onCreateAccount}>
-          <AppButton.Label>Create account</AppButton.Label>
+          <AppButton.Label>
+            {// TRANSLATORS: Create account
+            pgettext('login-view', 'footer-create-account-button')}
+          </AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
       </View>
