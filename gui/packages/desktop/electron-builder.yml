@@ -49,10 +49,10 @@ mac:
       to: .
     - from: ../../../dist-assets/binaries/macos/openvpn
       to: .
-    - from: ../../../dist-assets/uninstall_macos.sh
-      to: ./uninstall.sh
     - from: ../../../dist-assets/binaries/macos/sslocal
       to: .
+    - from: ../../../dist-assets/uninstall_macos.sh
+      to: ./uninstall.sh
 
 pkg:
   allowAnywhere: false
@@ -113,11 +113,11 @@ linux:
       to: .
     - from: ../../../dist-assets/binaries/linux/openvpn
       to: .
+    - from: ../../../dist-assets/binaries/linux/sslocal
+      to: .
     - from: ../../../dist-assets/linux/mullvad-daemon.conf
       to: .
     - from: ../../../dist-assets/linux/mullvad-daemon.service
-      to: .
-    - from: ../../../dist-assets/linux/sslocal
       to: .
 
 deb:
