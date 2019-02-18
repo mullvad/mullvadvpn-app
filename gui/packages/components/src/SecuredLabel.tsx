@@ -33,15 +33,19 @@ export default class SecuredLabel extends Component<IProps> {
   private getText() {
     switch (this.props.displayStyle) {
       case SecuredDisplayStyle.secured:
+        // TODO: translate
         return 'SECURE CONNECTION';
 
       case SecuredDisplayStyle.blocked:
+        // TODO: translate
         return 'BLOCKED CONNECTION';
 
       case SecuredDisplayStyle.securing:
+        // TODO: translate
         return 'CREATING SECURE CONNECTION';
 
       case SecuredDisplayStyle.unsecured:
+        // TODO: translate
         return 'UNSECURED CONNECTION';
     }
   }
