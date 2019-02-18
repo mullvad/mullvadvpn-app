@@ -3,7 +3,7 @@ import {
   push as pushHistory,
   replace as replaceHistory,
 } from 'connected-react-router';
-import { ipcRenderer, webFrame } from 'electron';
+import { ipcRenderer, remote, webFrame } from 'electron';
 import log from 'electron-log';
 import { createMemoryHistory } from 'history';
 import * as React from 'react';
@@ -22,6 +22,7 @@ import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
 import { IWindowShapeParameters } from '../main/window-controller';
+import { loadTranslations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 
@@ -165,6 +166,9 @@ export default class AppRenderer {
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
+
+    // Load translations
+    loadTranslations(remote.app.getLocale());
   }
 
   public renderView() {

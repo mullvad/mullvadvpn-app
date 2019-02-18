@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { sprintf } from 'sprintf-js';
+import { pgettext } from '../../shared/gettext';
 
 export default class AccountExpiry {
   private expiry: moment.Moment;
@@ -16,6 +18,12 @@ export default class AccountExpiry {
   }
 
   public remainingTime(): string {
-    return this.expiry.fromNow(true) + ' left';
+    const duration = this.expiry.fromNow(true);
+
+    return sprintf(
+      // TRANSLATORS: %(duration)s left
+      pgettext('account-expiry', 'remaining-time'),
+      { duration },
+    );
   }
 }

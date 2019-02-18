@@ -1,5 +1,7 @@
 import { Notification, shell } from 'electron';
+import { sprintf } from 'sprintf-js';
 import config from '../config.json';
+import { pgettext } from '../shared/gettext';
 
 import { TunnelStateTransition } from '../shared/daemon-rpc-types';
 
@@ -13,22 +15,37 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          this.showTunnelStateNotification('Connecting');
+          this.showTunnelStateNotification(
+            // TRANSLATORS: Connecting
+            pgettext('notifications', 'connecting'),
+          );
         }
         break;
       case 'connected':
-        this.showTunnelStateNotification('Secured');
+        this.showTunnelStateNotification(
+          // TRANSLATORS: Secured
+          pgettext('notifications', 'secured'),
+        );
         break;
       case 'disconnected':
-        this.showTunnelStateNotification('Unsecured');
+        this.showTunnelStateNotification(
+          // TRANSLATORS: Unsecured
+          pgettext('notifications', 'unsecured'),
+        );
         break;
       case 'blocked':
         switch (tunnelState.details.reason) {
           case 'set_firewall_policy_error':
-            this.showTunnelStateNotification('Critical failure - Unsecured');
+            this.showTunnelStateNotification(
+              // TRANSLATORS: Critical failure - Unsecured
+              pgettext('notifications', 'critical-failure-unsecured'),
+            );
             break;
           default:
-            this.showTunnelStateNotification('Blocked all connections');
+            this.showTunnelStateNotification(
+              // TRANSLATORS: Blocked all connections
+              pgettext('notifications', 'blocked-all-connections'),
+            );
             break;
         }
         break;
@@ -39,7 +56,10 @@ export default class NotificationController {
             // no-op
             break;
           case 'reconnect':
-            this.showTunnelStateNotification('Reconnecting');
+            this.showTunnelStateNotification(
+              // TRANSLATORS: Reconnecting
+              pgettext('notifications', 'reconnecting'),
+            );
             this.reconnecting = true;
             return;
         }
@@ -52,9 +72,11 @@ export default class NotificationController {
   public notifyInconsistentVersion() {
     this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
-        title: '',
-        body: 'Inconsistent internal version information, please restart the app',
         silent: true,
+        title: '',
+        body:
+          // TRANSLATORS: Inconsistent internal version information, please restart the app
+          pgettext('notifications', 'inconsistent-version'),
       });
       this.scheduleNotification(notification);
     });
@@ -63,9 +85,15 @@ export default class NotificationController {
   public notifyUnsupportedVersion(upgradeVersion: string) {
     this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
-        title: '',
-        body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
         silent: true,
+        title: '',
+        body: sprintf(
+          // TRANSLATORS: You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security
+          pgettext('notifications', 'unsupported-version'),
+          {
+            version: upgradeVersion,
+          },
+        ),
       });
 
       notification.on('click', () => {
