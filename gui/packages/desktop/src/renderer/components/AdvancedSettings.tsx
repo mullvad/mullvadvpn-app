@@ -1,8 +1,10 @@
 import { HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
+import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import { RelayProtocol } from '../../shared/daemon-rpc-types';
+import { pgettext } from '../../shared/gettext';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -87,25 +89,41 @@ export default class AdvancedSettings extends Component<IProps, IState> {
           <View style={styles.advanced_settings}>
             <NavigationContainer>
               <NavigationBar>
-                <BackBarItem action={this.props.onClose}>Settings</BackBarItem>
-                <TitleBarItem>Advanced</TitleBarItem>
+                <BackBarItem action={this.props.onClose}>
+                  {// TRANSLATORS: Settings
+                  pgettext('advanced-settings-view', 'back-bar-item')}
+                </BackBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Advanced
+                  pgettext('advanced-settings-view', 'title-bar-item')}
+                </TitleBarItem>
               </NavigationBar>
 
               <View style={styles.advanced_settings__container}>
                 <NavigationScrollbars style={styles.advanced_settings__scrollview}>
                   <SettingsHeader>
-                    <HeaderTitle>Advanced</HeaderTitle>
+                    <HeaderTitle>
+                      {// TRANSLATORS: Advanced
+                      pgettext('advanced-settings-view', 'header-title')}
+                    </HeaderTitle>
                   </SettingsHeader>
 
                   <Cell.Container>
-                    <Cell.Label>Enable IPv6</Cell.Label>
+                    <Cell.Label>
+                      {// TRANSLATORS: Enable IPv6
+                      pgettext('advanced-settings-view', 'enable-ipv6-label')}
+                    </Cell.Label>
                     <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
-                  <Cell.Footer>Enable IPv6 communication through the tunnel.</Cell.Footer>
+                  <Cell.Footer>
+                    {// TRANSLATORS: Enable IPv6 communication through the tunnel.
+                    pgettext('advanced-settings-view', 'enable-ipv6-footer')}
+                  </Cell.Footer>
 
                   <Cell.Container>
                     <Cell.Label textStyle={styles.advanced_settings__block_when_disconnected_label}>
-                      Block when disconnected
+                      {// TRANSLATORS: Block when disconnected
+                      pgettext('advanced-settings-view', 'block-when-disconnected-label')}
                     </Cell.Label>
                     <Switch
                       isOn={this.props.blockWhenDisconnected}
@@ -113,14 +131,16 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     />
                   </Cell.Container>
                   <Cell.Footer>
-                    {
-                      "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-                    }
+                    {// TRANSLATORS: Unless connected, always block all network traffic, even when you've disconnected or quit the app.
+                    pgettext('advanced-settings-view', 'block-when-disconnected-footer')}
                   </Cell.Footer>
 
                   <View style={styles.advanced_settings__content}>
                     <Selector
-                      title={'Network protocols'}
+                      title={
+                        // TRANSLATORS: Network protocols
+                        pgettext('advanced-settings-view', 'network-protocols-title')
+                      }
                       values={PROTOCOL_ITEMS}
                       value={this.props.protocol}
                       onSelect={this.onSelectProtocol}
@@ -130,7 +150,13 @@ export default class AdvancedSettings extends Component<IProps, IState> {
 
                     {this.props.protocol ? (
                       <Selector
-                        title={`${this.props.protocol.toUpperCase()} port`}
+                        title={sprintf(
+                          // TRANSLATORS: %(portType)s port
+                          pgettext('advanced-settings-view', 'network-ports-title'),
+                          {
+                            portType: this.props.protocol.toUpperCase(),
+                          },
+                        )}
                         values={PORT_ITEMS[this.props.protocol]}
                         value={this.props.port}
                         onSelect={this.onSelectPort}
@@ -141,12 +167,18 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   </View>
 
                   <Cell.Container>
-                    <Cell.Label>Mssfix</Cell.Label>
+                    <Cell.Label>
+                      {// TRANSLATORS: Mssfix
+                      pgettext('advanced-settings-view', 'mssfix-cell-label')}
+                    </Cell.Label>
                     <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
                       <Cell.Input
                         keyboardType={'numeric'}
                         maxLength={4}
-                        placeholder={'Default'}
+                        placeholder={
+                          // TRANSLATORS: Default
+                          pgettext('advanced-settings-view', 'mssfix-cell-input-placeholder')
+                        }
                         value={mssfixValue ? mssfixValue.toString() : ''}
                         style={mssfixStyle}
                         onChangeText={this.onMssfixChange}
@@ -156,7 +188,14 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     </Cell.InputFrame>
                   </Cell.Container>
                   <Cell.Footer>
-                    Set OpenVPN MSS value. Valid range: {MIN_MSSFIX_VALUE} - {MAX_MSSFIX_VALUE}.
+                    {sprintf(
+                      // TRANSLATORS: Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.
+                      pgettext('advanced-settings-view', 'mssfix-cell-footer'),
+                      {
+                        min: MIN_MSSFIX_VALUE,
+                        max: MAX_MSSFIX_VALUE,
+                      },
+                    )}
                   </Cell.Footer>
                 </NavigationScrollbars>
               </View>
@@ -226,7 +265,8 @@ class Selector<T> extends Component<ISelectorProps<T>> {
           key={'auto'}
           selected={this.props.value === undefined}
           onSelect={this.props.onSelect}>
-          {'Automatic'}
+          {// TRANSLATORS: Automatic
+          pgettext('advanced-settings-view', 'selector-automatic-title')}
         </SelectorCell>
         {this.props.values.map((item, i) => (
           <SelectorCell

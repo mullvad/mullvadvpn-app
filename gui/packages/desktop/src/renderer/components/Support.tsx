@@ -9,6 +9,7 @@ import {
 } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Text, TextInput, View } from 'reactxp';
+import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import { Container, Layout } from './Layout';
 import { BackBarItem, NavigationBar } from './NavigationBar';
@@ -20,7 +21,7 @@ import { ISupportReportForm } from '../redux/support/actions';
 enum SendState {
   Initial,
   Confirm,
-  Loading,
+  Sending,
   Success,
   Failed,
 }
@@ -125,12 +126,14 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     const { sendState } = this.state;
     const header = (
       <SettingsHeader>
-        <HeaderTitle>Report a problem</HeaderTitle>
+        <HeaderTitle>
+          {// TRANSLATORS: Report a problem
+          pgettext('support-view', 'header-title')}
+        </HeaderTitle>
         {(sendState === SendState.Initial || sendState === SendState.Confirm) && (
           <HeaderSubTitle>
-            {
-              "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-            }
+            {// TRANSLATORS: To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.
+            pgettext('support-view', 'header-subtitle')}
           </HeaderSubTitle>
         )}
       </SettingsHeader>
@@ -145,7 +148,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <ModalContent>
               <View style={styles.support}>
                 <NavigationBar>
-                  <BackBarItem action={this.props.onClose}>Settings</BackBarItem>
+                  <BackBarItem action={this.props.onClose}>
+                    {// TRANSLATORS: Settings
+                    pgettext('support-view', 'back-bar-item')}
+                  </BackBarItem>
                 </NavigationBar>
                 <View style={styles.support__container}>
                   {header}
@@ -195,7 +201,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
 
   private sendReport(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.setState({ sendState: SendState.Loading }, async () => {
+      this.setState({ sendState: SendState.Sending }, async () => {
         try {
           const { email, message } = this.state;
           const reportPath = await this.collectLog();
@@ -218,8 +224,8 @@ export default class Support extends Component<ISupportProps, ISupportState> {
       case SendState.Initial:
       case SendState.Confirm:
         return this.renderForm();
-      case SendState.Loading:
-        return this.renderLoading();
+      case SendState.Sending:
+        return this.renderSending();
       case SendState.Success:
         return this.renderSent();
       case SendState.Failed:
@@ -240,7 +246,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           <View style={styles.support__form_row_email}>
             <TextInput
               style={styles.support__form_email}
-              placeholder="Your email (optional)"
+              placeholder={
+                // TRANSLATORS: Your email (optional)
+                pgettext('support-view', 'form-email-input-placeholder')
+              }
               defaultValue={this.state.email}
               onChangeText={this.onChangeEmail}
               keyboardType="email-address"
@@ -250,7 +259,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <View style={styles.support__form_message_scroll_wrap}>
               <TextInput
                 style={styles.support__form_message}
-                placeholder="Describe your problem"
+                placeholder={
+                  // TRANSLATORS: Describe your problem
+                  pgettext('support-view', 'form-message-input-placeholder')
+                }
                 defaultValue={this.state.message}
                 multiline={true}
                 onChangeText={this.onChangeDescription}
@@ -259,11 +271,15 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           </View>
           <View style={styles.support__footer}>
             <AppButton.BlueButton style={styles.view_logs_button} onPress={this.onViewLog}>
-              <AppButton.Label>View app logs</AppButton.Label>
+              <AppButton.Label>
+                {// TRANSLATORS: View app logs
+                pgettext('support-view', 'form-view-app-logs-button')}
+              </AppButton.Label>
               <AppButton.Icon source="icon-extLink" height={16} width={16} />
             </AppButton.BlueButton>
             <AppButton.GreenButton disabled={!this.validate()} onPress={this.onSend}>
-              Send
+              {// TRANSLATORS: Send
+              pgettext('support-view', 'form-send-button')}
             </AppButton.GreenButton>
           </View>
         </View>
@@ -271,7 +287,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     );
   }
 
-  private renderLoading() {
+  private renderSending() {
     return (
       <View style={styles.support__content}>
         <View style={styles.support__form}>
@@ -279,8 +295,14 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <View style={styles.support__status_icon}>
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
-            <View style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</View>
-            <Text style={styles.support__send_status}>{'Sending...'}</Text>
+            <View style={styles.support__status_security__secure}>
+              {// TRANSLATORS: SECURE CONNECTION
+              pgettext('support-view', 'form-sending-title')}
+            </View>
+            <Text style={styles.support__send_status}>
+              {// TRANSLATORS: Sending...
+              pgettext('support-view', 'form-sending-status')}
+            </Text>
           </View>
         </View>
       </View>
@@ -295,13 +317,23 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <View style={styles.support__status_icon}>
               <ImageView source="icon-success" height={60} width={60} />
             </View>
-            <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
-            <Text style={styles.support__send_status}>{'Sent'}</Text>
+            <Text style={styles.support__status_security__secure}>
+              {// TRANSLATORS: SECURE CONNECTION
+              pgettext('support-view', 'form-sent-title')}
+            </Text>
+            <Text style={styles.support__send_status}>
+              {// TRANSLATORS: Sent
+              pgettext('support-view', 'form-sent-status')}
+            </Text>
 
-            <Text style={styles.support__sent_message}>Thanks! We will look into this.</Text>
+            <Text style={styles.support__sent_message}>
+              {// TRANSLATORS: Thanks! We will look into this.
+              pgettext('support-view', 'form-sent-thanks-message')}
+            </Text>
             {this.state.email.trim().length > 0 ? (
               <Text style={styles.support__sent_message}>
-                {'If needed we will contact you on '}
+                {// TRANSLATORS: 'If needed we will contact you on '
+                pgettext('support-view', 'form-sent-reach-back-message')}
                 <Text style={styles.support__sent_email}>{this.state.email}</Text>
               </Text>
             ) : null}
@@ -319,20 +351,29 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <View style={styles.support__status_icon}>
               <ImageView source="icon-fail" height={60} width={60} />
             </View>
-            <Text style={styles.support__status_security__secure}>{'SECURE CONNECTION'}</Text>
-            <Text style={styles.support__send_status}>{'Failed to send'}</Text>
+            <Text style={styles.support__status_security__secure}>
+              {// TRANSLATORS: SECURE CONNECTION
+              pgettext('support-view', 'form-failed-title')}
+            </Text>
+            <Text style={styles.support__send_status}>
+              {// TRANSLATORS: Failed to send
+              pgettext('support-view', 'form-failed-status')}
+            </Text>
             <Text style={styles.support__sent_message}>
-              {
-                "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-              }
+              {// TRANSLATORS: You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.
+              pgettext('support-view', 'form-failed-message')}
             </Text>
           </View>
         </View>
         <View style={styles.support__footer}>
           <AppButton.BlueButton style={styles.edit_message_button} onPress={this.handleEditMessage}>
-            {'Edit message'}
+            {// TRANSLATORS: Edit message
+            pgettext('support-view', 'edit-message-button')}
           </AppButton.BlueButton>
-          <AppButton.GreenButton onPress={this.onSend}>Try again</AppButton.GreenButton>
+          <AppButton.GreenButton onPress={this.onSend}>
+            {// TRANSLATORS: Try again
+            pgettext('support-view', 'try-again-button')}
+          </AppButton.GreenButton>
         </View>
       </View>
     );
@@ -354,12 +395,17 @@ class ConfirmNoEmailDialog extends Component<IConfirmNoEmailDialogProps> {
       <View style={styles.confirm_no_email_background}>
         <View style={styles.confirm_no_email_dialog}>
           <Text style={styles.confirm_no_email_warning}>
-            You are about to send the problem report without a way for us to get back to you. If you
-            want an answer to your report you will have to enter an email address.
+            {// TRANSLATORS: You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
+
+            pgettext('support-view', 'confirm-no-email-dialog-title')}
           </Text>
-          <AppButton.GreenButton onPress={this.confirm}>{'Send anyway'}</AppButton.GreenButton>
+          <AppButton.GreenButton onPress={this.confirm}>
+            {// TRANSLATORS: Send anyway
+            pgettext('support-view', 'confirm-no-email-dialog-send-button')}
+          </AppButton.GreenButton>
           <AppButton.RedButton onPress={this.dismiss} style={styles.confirm_no_email_back_button}>
-            {'Back'}
+            {// TRANSLATORS: Back
+            pgettext('support-view', 'confirm-no-email-dialog-back-button')}
           </AppButton.RedButton>
         </View>
       </View>
