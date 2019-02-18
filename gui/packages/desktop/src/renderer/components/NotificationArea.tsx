@@ -1,7 +1,9 @@
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Types } from 'reactxp';
+import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
+import { pgettext } from '../../shared/gettext';
 import {
   NotificationActions,
   NotificationBanner,
@@ -44,19 +46,31 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return new AuthFailure(blockReason.details).show();
     }
     case 'ipv6_unavailable':
-      return 'Could not configure IPv6, please enable it on your system or disable it in the app';
+      return pgettext(
+        'in-app-notifications',
+        'Could not configure IPv6, please enable it on your system or disable it in the app',
+      );
     case 'set_firewall_policy_error':
-      return 'Failed to apply firewall rules. The device might currently be unsecured';
+      return pgettext(
+        'in-app-notifications',
+        'Failed to apply firewall rules. The device might currently be unsecured',
+      );
     case 'set_dns_error':
-      return 'Failed to set system DNS server';
+      return pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':
-      return 'Failed to start tunnel connection';
+      return pgettext('in-app-notifications', 'Failed to start tunnel connection');
     case 'no_matching_relay':
-      return 'No relay server matches the current settings';
+      return pgettext('in-app-notifications', 'No relay server matches the current settings');
     case 'is_offline':
-      return 'This device is offline, no tunnels can be established';
+      return pgettext(
+        'in-app-notifications',
+        'This device is offline, no tunnels can be established',
+      );
     case 'tap_adapter_problem':
-      return "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app";
+      return pgettext(
+        'in-app-notifications',
+        "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
+      );
   }
 }
 
@@ -164,7 +178,9 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'error'} />
             <NotificationContent>
-              <NotificationTitle>{'FAILURE - UNSECURED'}</NotificationTitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'FAILURE - UNSECURED')}
+              </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
@@ -174,7 +190,9 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'error'} />
             <NotificationContent>
-              <NotificationTitle>{'BLOCKING INTERNET'}</NotificationTitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'BLOCKING INTERNET')}
+              </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
@@ -184,9 +202,14 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'error'} />
             <NotificationContent>
-              <NotificationTitle>{'INCONSISTENT VERSION'}</NotificationTitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'INCONSISTENT VERSION')}
+              </NotificationTitle>
               <NotificationSubtitle>
-                {'Inconsistent internal version information, please restart the app'}
+                {pgettext(
+                  'in-app-notifications',
+                  'Inconsistent internal version information, please restart the app',
+                )}
               </NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
@@ -196,10 +219,21 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'error'} />
             <NotificationContent>
-              <NotificationTitle>{'UNSUPPORTED VERSION'}</NotificationTitle>
-              <NotificationSubtitle>{`You are running an unsupported app version. Please upgrade to ${
-                this.state.upgradeVersion
-              } now to ensure your security`}</NotificationSubtitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'UNSUPPORTED VERSION')}
+              </NotificationTitle>
+              <NotificationSubtitle>
+                {sprintf(
+                  // TRANSLATORS: The in-app banner displayed to the user when the running app becomes unsupported.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(version)s - the newest available version of the app
+                  pgettext(
+                    'in-app-notifications',
+                    'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
+                  ),
+                  { version: this.state.upgradeVersion },
+                )}
+              </NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
               <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
@@ -211,10 +245,21 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
-              <NotificationTitle>{`UPDATE AVAILABLE`}</NotificationTitle>
-              <NotificationSubtitle>{`Install Mullvad VPN (${
-                this.state.upgradeVersion
-              }) to stay up to date`}</NotificationSubtitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'UPDATE AVAILABLE')}
+              </NotificationTitle>
+              <NotificationSubtitle>
+                {sprintf(
+                  // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(version)s - the newest available version of the app
+                  pgettext(
+                    'in-app-notifications',
+                    'Install Mullvad VPN (%(version)s) to stay up to date',
+                  ),
+                  { version: this.state.upgradeVersion },
+                )}
+              </NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
               <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
@@ -226,7 +271,9 @@ export default class NotificationArea extends Component<IProps, State> {
           <React.Fragment>
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
-              <NotificationTitle>{'ACCOUNT CREDIT EXPIRES SOON'}</NotificationTitle>
+              <NotificationTitle>
+                {pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
+              </NotificationTitle>
               <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>

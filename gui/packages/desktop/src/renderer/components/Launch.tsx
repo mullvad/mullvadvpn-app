@@ -2,6 +2,7 @@ import { ImageView, SettingsBarButton } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
+import { pgettext } from '../../shared/gettext';
 import { Container, Header, Layout } from './Layout';
 
 const styles = {
@@ -46,8 +47,10 @@ export default class Launch extends Component<IProps> {
         <Container>
           <View style={styles.container}>
             <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
-            <Text style={styles.title}>{'MULLVAD VPN'}</Text>
-            <Text style={styles.subtitle}>{'Connecting to daemon...'}</Text>
+            <Text style={styles.title}>{pgettext('launch-view', 'MULLVAD VPN')}</Text>
+            <Text style={styles.subtitle}>
+              {pgettext('launch-view', 'Connecting to daemon...')}
+            </Text>
           </View>
         </Container>
       </Layout>

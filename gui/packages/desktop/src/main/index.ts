@@ -14,6 +14,7 @@ import {
   RelaySettingsUpdate,
   TunnelStateTransition,
 } from '../shared/daemon-rpc-types';
+import { loadTranslations } from '../shared/gettext';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
@@ -133,22 +134,10 @@ class ApplicationMain {
 
     this.guiSettings.load();
 
-    app.on('activate', () => this.onActivate());
-    app.on('ready', () => this.onReady());
+    app.on('activate', this.onActivate);
+    app.on('ready', this.onReady);
     app.on('window-all-closed', () => app.quit());
-    app.on('before-quit', (event: Event) => this.onBeforeQuit(event));
-
-    const connectionObserver = new ConnectionObserver(
-      () => {
-        this.onDaemonConnected();
-      },
-      (error) => {
-        this.onDaemonDisconnected(error);
-      },
-    );
-
-    this.daemonRpc.addConnectionObserver(connectionObserver);
-    this.connectToDaemon();
+    app.on('before-quit', this.onBeforeQuit);
   }
 
   private ensureSingleInstance() {
@@ -230,13 +219,13 @@ class ApplicationMain {
     }
   }
 
-  private onActivate() {
+  private onActivate = () => {
     if (this.windowController) {
       this.windowController.show();
     }
-  }
+  };
 
-  private async onBeforeQuit(event: Event) {
+  private onBeforeQuit = async (event: Event) => {
     switch (this.quitStage) {
       case AppQuitStage.unready:
         // postpone the app shutdown
@@ -259,7 +248,7 @@ class ApplicationMain {
         // let the app quit freely at this point
         break;
     }
-  }
+  };
 
   private async prepareToQuit() {
     if (this.connectedToDaemon) {
@@ -274,7 +263,14 @@ class ApplicationMain {
     }
   }
 
-  private async onReady() {
+  private onReady = async () => {
+    loadTranslations(app.getLocale());
+
+    this.daemonRpc.addConnectionObserver(
+      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+    );
+    this.connectToDaemon();
+
     const window = this.createWindow();
     const tray = this.createTray();
 
@@ -338,9 +334,9 @@ class ApplicationMain {
     }
 
     window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
-  }
+  };
 
-  private async onDaemonConnected() {
+  private onDaemonConnected = async () => {
     this.connectedToDaemon = true;
 
     // subscribe to events
@@ -420,9 +416,9 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.daemonConnected.notify(this.windowController.webContents);
     }
-  }
+  };
 
-  private onDaemonDisconnected(error?: Error) {
+  private onDaemonDisconnected = (error?: Error) => {
     // make sure we were connected before to distinguish between a failed attempt to reconnect and
     // connection loss.
     const wasConnected = this.connectedToDaemon;
@@ -455,7 +451,7 @@ class ApplicationMain {
     } else {
       log.info('Disconnected from the daemon');
     }
-  }
+  };
 
   private connectToDaemon() {
     this.daemonRpc.connect({ path: DAEMON_RPC_PATH });
