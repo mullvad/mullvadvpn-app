@@ -76,7 +76,7 @@ private:
 
 	void setNameServers(const std::wstring &interfaceGuid, const std::vector<std::wstring> &enforcedServers);
 
-	void startTrackingInterfaces(const std::vector<std::wstring> &interfaces);
+	bool startTrackingInterfaces(const std::vector<std::wstring> &interfaces);
 	void stopTrackingInterfaces(const std::vector<std::wstring> &interfaces);
 
 	void updateRecoveryData();

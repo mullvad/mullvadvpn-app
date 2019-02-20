@@ -18,12 +18,33 @@ DnsAgent::DnsAgent(Protocol protocol, INameServerSource *nameServerSource, IReco
 	, m_shutdownEvent(nullptr)
 {
 	constructNameServerUpdateEvent();
-	constructRootMonitor();
 
-	startTrackingInterfaces(discoverInterfaces());
-	updateRecoveryData();
+	try
+	{
+		constructRootMonitor();
 
-	constructThread();
+		if (false == startTrackingInterfaces(discoverInterfaces()))
+		{
+			throw std::runtime_error("Could not complete initial settings update on interfaces");
+		}
+
+		updateRecoveryData();
+
+		constructThread();
+	}
+	catch (...)
+	{
+		if (nullptr != m_shutdownEvent)
+		{
+			CloseHandle(m_shutdownEvent);
+		}
+
+		m_nameServerSource->unsubscribe(m_serverSourceEvent);
+		CloseHandle(m_serverSourceEvent);
+
+		throw;
+	}
+
 }
 
 DnsAgent::~DnsAgent()
@@ -381,9 +402,11 @@ void DnsAgent::setNameServers(const std::wstring &interfaceGuid, const std::vect
 	}
 }
 
-void DnsAgent::startTrackingInterfaces(const std::vector<std::wstring> &interfaces)
+bool DnsAgent::startTrackingInterfaces(const std::vector<std::wstring> &interfaces)
 {
 	const auto enforcedServers = m_nameServerSource->getNameServers(m_protocol);
+
+	bool successful = true;
 
 	for (const auto &iface : interfaces)
 	{
@@ -391,7 +414,7 @@ void DnsAgent::startTrackingInterfaces(const std::vector<std::wstring> &interfac
 
 		XTRACE(literalOperation);
 
-		ConfineOperation(common::string::ToAnsi(literalOperation).c_str(), m_logSink, [&]()
+		successful &= ConfineOperation(common::string::ToAnsi(literalOperation).c_str(), m_logSink, [&]()
 		{
 			InterfaceSnap snap(m_protocol, iface);
 
@@ -414,6 +437,8 @@ void DnsAgent::startTrackingInterfaces(const std::vector<std::wstring> &interfac
 			}
 		});
 	}
+
+	return successful;
 }
 
 void DnsAgent::stopTrackingInterfaces(const std::vector<std::wstring> &interfaces)
