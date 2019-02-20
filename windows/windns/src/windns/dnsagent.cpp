@@ -155,7 +155,10 @@ void DnsAgent::thread()
 
 		if (WAIT_FAILED == status)
 		{
-			m_logSink->error("Failed to wait on events. Restarting wait in 1 minute.");
+			const auto error = common::error::FormatWindowsErrorPlain(GetLastError());
+			const auto message = std::string("Failed to wait on events. Restarting wait in 1 minute. Error: ").append(error);
+
+			m_logSink->error(message.c_str());
 
 			if (WAIT_OBJECT_0 == WaitForSingleObject(m_shutdownEvent, 1000 * 60))
 			{
