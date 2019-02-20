@@ -452,7 +452,7 @@ impl Daemon {
         } else {
             warn!("Ignoring target state change request due to shutdown");
         }
-        Self::oneshot_send(tx, Ok(()), "targe state");
+        Self::oneshot_send(tx, Ok(()), "target state");
     }
 
     fn on_get_state(&self, tx: oneshot::Sender<TunnelStateTransition>) {
