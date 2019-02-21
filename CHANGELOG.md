@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix startup failure when network device with a hardware address that's not a MAC address is
   present.
 
+#### Windows
+- Improve error handling related to DNS management at the time of establishing the tunnel.
+
 ### Changed
 #### Linux
 - Increased `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
