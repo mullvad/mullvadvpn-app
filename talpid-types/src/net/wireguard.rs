@@ -6,6 +6,8 @@ use std::{
     net::{IpAddr, SocketAddr},
 };
 
+use rand::RngCore;
+
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 /// Wireguard tunnel parameters
@@ -67,10 +69,32 @@ impl PrivateKey {
     pub fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }
+
+    /// Normalizing a private key as per the specification - https://cr.yp.to/ecdh.html
+    fn normalize_key(bytes: &mut [u8; 32]) {
+        bytes[0] &= 248;
+        bytes[31] &= 127;
+        bytes[31] |= 64;
+    }
+
+    pub fn new_from_random() -> Result<Self, rand::Error> {
+        let mut bytes = [0u8; 32];
+        rand::rngs::OsRng::new()?.fill_bytes(&mut bytes);
+        Ok(Self::from(bytes))
+    }
+
+    /// Generate public key from private key
+    pub fn public_key(&self) -> PublicKey {
+        PublicKey::from(x25519_dalek::x25519(
+            self.0,
+            x25519_dalek::X25519_BASEPOINT_BYTES,
+        ))
+    }
 }
 
 impl From<[u8; 32]> for PrivateKey {
-    fn from(private_key: [u8; 32]) -> PrivateKey {
+    fn from(mut private_key: [u8; 32]) -> PrivateKey {
+        Self::normalize_key(&mut private_key);
         PrivateKey(private_key)
     }
 }
