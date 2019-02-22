@@ -14,7 +14,10 @@ use mullvad_types::{
 };
 use serde::{Deserialize, Serialize};
 use std::{path::Path, thread};
-use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
+use talpid_types::{
+    net::{openvpn, wireguard},
+    tunnel::TunnelStateTransition,
+};
 
 pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
 
@@ -188,6 +191,18 @@ impl DaemonRpcClient {
 
     pub fn get_settings(&mut self) -> Result<Settings> {
         self.call("get_settings", &NO_ARGS)
+    }
+
+    pub fn generate_wireguard_key(&mut self) -> Result<()> {
+        self.call("generate_wireguard_key", &NO_ARGS)
+    }
+
+    pub fn get_wireguard_key(&mut self) -> Result<Option<wireguard::PublicKey>> {
+        self.call("get_wireguard_key", &NO_ARGS)
+    }
+
+    pub fn verify_wireguard_key(&mut self) -> Result<bool> {
+        self.call("verify_wireguard_key", &NO_ARGS)
     }
 
     pub fn get_version_info(&mut self) -> Result<AppVersionInfo> {
