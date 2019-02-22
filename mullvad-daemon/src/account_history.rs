@@ -1,22 +1,18 @@
-use mullvad_types::account::AccountToken;
+use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use std::{
-    fs::File,
-    io,
-    path::{Path, PathBuf},
+    collections::VecDeque,
+    fs,
+    io::{self, Seek, Write},
+    path::Path,
 };
 
 error_chain! {
     errors {
-        ReadError(path: PathBuf) {
+        ReadError {
             description("Unable to read account history file")
-            display("Unable to read account history from {}", path.display())
         }
-        WriteError(path: PathBuf) {
+        WriteError {
             description("Unable to write account history file")
-            display("Unable to write account history to {}", path.display())
-        }
-        ParseError {
-            description("Malformed account history")
         }
     }
 }
@@ -24,84 +20,142 @@ error_chain! {
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 static ACCOUNT_HISTORY_LIMIT: usize = 3;
 
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+/// A trivial MRU cache of account data
 pub struct AccountHistory {
-    accounts: Vec<AccountToken>,
-    #[serde(skip)]
-    cache_path: PathBuf,
+    file: io::BufWriter<fs::File>,
+    accounts: VecDeque<AccountEntry>,
 }
 
+
 impl AccountHistory {
-    /// Returns a new empty `AccountHistory` ready to load from, or save to, the given cache dir.
-    pub fn new(cache_dir: &Path) -> AccountHistory {
-        AccountHistory {
-            accounts: Vec::new(),
-            cache_path: cache_dir.join(ACCOUNT_HISTORY_FILE),
+    pub fn new(cache_dir: &Path) -> Result<AccountHistory> {
+        let mut options = fs::OpenOptions::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
         }
-    }
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            // a share mode of zero ensures exclusive access to the file to *this* process
+            options.share_mode(0);
+        }
+        let path = cache_dir.join(ACCOUNT_HISTORY_FILE);
+        log::info!("Opening account history file in {}", path.display());
+        let mut reader = options
+            .write(true)
+            .read(true)
+            .create(true)
+            .open(path)
+            .map(io::BufReader::new)
+            .chain_err(|| ErrorKind::ReadError)?;
 
-    /// Loads account history from file. If no file is present this does nothing.
-    pub fn load(&mut self) -> Result<()> {
-        match File::open(&self.cache_path).map(io::BufReader::new) {
-            Ok(mut file) => {
-                log::info!(
-                    "Loading account history from {}",
-                    &self.cache_path.display()
-                );
-                self.accounts = Self::parse(&mut file)?.accounts;
-                Ok(())
+        let accounts: VecDeque<AccountEntry> = match serde_json::from_reader(&mut reader) {
+            Err(e) => {
+                log::error!("Failed to read account history - {}", e);
+                Self::try_old_format(&mut reader)?
+                    .into_iter()
+                    .map(|account| AccountEntry {
+                        account,
+                        wireguard: None,
+                    })
+                    .collect()
             }
-            Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
-                log::info!("No account history file at {}", &self.cache_path.display());
-                Ok(())
+            Ok(accounts) => accounts,
+        };
+        let file = io::BufWriter::new(reader.into_inner());
+        Ok(AccountHistory { file, accounts })
+    }
+
+    fn try_old_format(reader: &mut io::BufReader<fs::File>) -> Result<Vec<AccountToken>> {
+        reader
+            .seek(io::SeekFrom::Start(0))
+            .chain_err(|| ErrorKind::ReadError)?;
+        Ok(serde_json::from_reader(reader).unwrap_or(vec![]))
+    }
+
+    /// Gets account data for a certain account id and bumps it's entry to the top of the list if
+    /// it isn't there already. Returns None if the account entry is not available.
+    pub fn get(&mut self, account: &AccountToken) -> Result<Option<AccountEntry>> {
+        let (idx, entry) = match self
+            .accounts
+            .iter()
+            .enumerate()
+            .find(|(_idx, entry)| &entry.account == account)
+        {
+            Some((idx, entry)) => (idx, entry.clone()),
+            None => {
+                return Ok(None);
             }
-            Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(self.cache_path.clone())),
+        };
+        // this account is already on top
+        if idx == 0 {
+            return Ok(Some(entry));
         }
+        self.insert(entry.clone())?;
+        Ok(Some(entry))
     }
 
-    fn parse(file: &mut impl io::Read) -> Result<AccountHistory> {
-        serde_json::from_reader(file).chain_err(|| ErrorKind::ParseError)
-    }
-
-    pub fn get_accounts(&self) -> &[AccountToken] {
-        &self.accounts
-    }
-
-    /// Add account token to the account history removing duplicate entries
-    pub fn add_account_token(&mut self, account_token: AccountToken) -> Result<()> {
-        self.accounts
-            .retain(|existing_token| existing_token != &account_token);
-        self.accounts.push(account_token);
-
-        let num_accounts = self.accounts.len();
-        if num_accounts > ACCOUNT_HISTORY_LIMIT {
-            self.accounts = self
-                .accounts
-                .split_off(num_accounts - ACCOUNT_HISTORY_LIMIT);
+    /// Bumps history of an account token. If the account token is not in history, it will be
+    /// added.
+    pub fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
+        if let None = self.get(account)? {
+            let new_entry = AccountEntry {
+                account: account.to_string(),
+                wireguard: None,
+            };
+            self.insert(new_entry)?;
         }
-
-        self.save()
+        Ok(())
     }
 
-    /// Remove account token from the account history
-    pub fn remove_account_token(&mut self, account_token: &AccountToken) -> Result<()> {
+    /// Always inserts a new entry at the start of the list
+    pub fn insert(&mut self, new_entry: AccountEntry) -> Result<()> {
         self.accounts
-            .retain(|existing_token| existing_token != account_token);
-        self.save()
+            .retain(|entry| entry.account != new_entry.account);
+
+        self.accounts.push_front(new_entry);
+        if self.accounts.len() > ACCOUNT_HISTORY_LIMIT {
+            let _ = self.accounts.pop_back();
+        }
+        self.save_to_disk()
     }
 
-    /// Serializes the account history and saves it to the file it was loaded from.
-    fn save(&self) -> Result<()> {
-        log::debug!("Writing account history to {}", self.cache_path.display());
-        let mut file = File::create(&self.cache_path)
-            .map(io::BufWriter::new)
-            .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))?;
+    /// Retrieve account history.
+    pub fn get_account_history(&self) -> Vec<AccountToken> {
+        self.accounts
+            .iter()
+            .map(|entry| entry.account.clone())
+            .collect()
+    }
 
-        serde_json::to_writer_pretty(&mut file, self)
-            .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))?;
+    /// Remove account data
+    pub fn remove_account(&mut self, account: &str) -> Result<()> {
+        self.accounts.retain(|entry| entry.account != account);
+        self.save_to_disk()
+    }
 
-        file.get_mut()
+    fn save_to_disk(&mut self) -> Result<()> {
+        self.file
+            .get_mut()
+            .set_len(0)
+            .chain_err(|| ErrorKind::WriteError)?;
+        self.file
+            .seek(io::SeekFrom::Start(0))
+            .chain_err(|| ErrorKind::WriteError)?;
+        serde_json::to_writer_pretty(&mut self.file, &self.accounts)
+            .chain_err(|| ErrorKind::WriteError)?;
+        self.file.flush().chain_err(|| ErrorKind::WriteError)?;
+        self.file
+            .get_mut()
             .sync_all()
-            .chain_err(|| ErrorKind::WriteError(self.cache_path.clone()))
+            .chain_err(|| ErrorKind::WriteError)
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct AccountEntry {
+    pub account: AccountToken,
+    pub wireguard: Option<WireguardData>,
 }
