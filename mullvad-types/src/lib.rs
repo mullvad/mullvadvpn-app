@@ -18,6 +18,7 @@ pub mod relay_list;
 pub mod settings;
 pub mod states;
 pub mod version;
+pub mod wireguard;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;
