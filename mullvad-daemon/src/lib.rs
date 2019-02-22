@@ -26,7 +26,7 @@ use futures::{
     Future, Sink,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
+use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle, WireguardKeyProxy};
 use mullvad_types::{
     account::{AccountData, AccountToken},
     endpoint::MullvadEndpoint,
@@ -46,7 +46,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters},
+    net::{openvpn, wireguard, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -65,6 +65,9 @@ error_chain! {
         ManagementInterfaceError(msg: &'static str) {
             description("Error in the management interface")
             display("Management interface error: {}", msg)
+        }
+        NoKeyAvailable {
+            description("No wireguard private key available")
         }
     }
     links {
@@ -158,7 +161,7 @@ pub struct Daemon {
     management_interface_socket_path: String,
     settings: Settings,
     account_history: account_history::AccountHistory,
-    //wg_key_proxy: WireguardKeyProxy<HttpHandle>,
+    wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
@@ -233,7 +236,7 @@ impl Daemon {
             management_interface_socket_path: management_interface_result.1,
             settings,
             account_history,
-            // wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
+            wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -376,7 +379,7 @@ impl Daemon {
     }
 
     fn create_tunnel_parameters(
-        &self,
+        &mut self,
         endpoint: MullvadEndpoint,
         account_token: String,
     ) -> Result<TunnelParameters> {
@@ -388,10 +391,30 @@ impl Daemon {
                 generic_options: tunnel_options.generic,
             }
             .into()),
-            MullvadEndpoint::Wireguard {
-                peer: _,
-                gateway: _,
-            } => Err(ErrorKind::UnsupportedTunnel.into()),
+            MullvadEndpoint::Wireguard { peer, gateway } => {
+                let wg_data = self
+                    .account_history
+                    .get(&account_token)?
+                    .and_then(|entry| entry.wireguard)
+                    .ok_or(ErrorKind::NoKeyAvailable)?;
+                let tunnel = wireguard::TunnelConfig {
+                    private_key: wg_data.private_key,
+                    addresses: vec![
+                        wg_data.addresses.ipv4_address.ip().into(),
+                        wg_data.addresses.ipv6_address.ip().into(),
+                    ],
+                };
+                Ok(wireguard::TunnelParameters {
+                    connection: wireguard::ConnectionConfig {
+                        tunnel,
+                        peer,
+                        gateway,
+                    },
+                    options: tunnel_options.wireguard,
+                    generic_options: tunnel_options.generic,
+                }
+                .into())
+            }
         }
     }
 
@@ -446,6 +469,9 @@ impl Daemon {
             SetWireguardFwmark(tx, fwmark) => self.on_set_wireguard_fwmark(tx, fwmark),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             GetSettings(tx) => self.on_get_settings(tx),
+            GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
+            GetWireguardKey(tx) => self.on_get_wireguard_key(tx),
+            VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             Shutdown => self.handle_trigger_shutdown_event(),
@@ -792,6 +818,117 @@ impl Daemon {
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_generate_wireguard_key(
+        &mut self,
+        tx: oneshot::Sender<::std::result::Result<(), mullvad_rpc::Error>>,
+    ) {
+        let mut result = || -> ::std::result::Result<(), String> {
+            let account_token = self
+                .settings
+                .get_account_token()
+                .ok_or("No account token set".to_string())?;
+
+            let mut account_entry = self
+                .account_history
+                .get(&account_token)
+                .map_err(|e| format!("Failed to read account entry from history: {}", e))
+                .map(|data| {
+                    data.unwrap_or_else(|| {
+                        log::error!("Account token set in settings but not in account history");
+                        account_history::AccountEntry {
+                            account: account_token.clone(),
+                            wireguard: None,
+                        }
+                    })
+                })?;
+
+            let private_key = wireguard::PrivateKey::new_from_random()
+                .map_err(|e| format!("Failed to generate new key - {}", e))?;
+
+            let fut = self
+                .wg_key_proxy
+                .push_wg_key(account_token, private_key.public_key());
+
+            let mut core = tokio_core::reactor::Core::new()
+                .map_err(|e| format!("Failed to spawn future for pushing wg key - {}", e))?;
+
+            let addresses = core
+                .run(fut)
+                .map_err(|e| format!("Failed to push new wireguard key: {}", e))?;
+
+            account_entry.wireguard = Some(mullvad_types::wireguard::WireguardData {
+                private_key,
+                addresses,
+            });
+
+            self.account_history
+                .insert(account_entry)
+                .map_err(|e| format!("Failed to add new wireguard key to account data: {}", e))
+        };
+        match result() {
+            Ok(()) => {
+                Self::oneshot_send(tx, Ok(()), "generate_wireguard_key response");
+            }
+            Err(e) => {
+                log::error!("Failed to generate new wireguard key - {}", e);
+            }
+        }
+    }
+
+    fn on_get_wireguard_key(&mut self, tx: oneshot::Sender<Option<wireguard::PublicKey>>) {
+        let key = self
+            .settings
+            .get_account_token()
+            .and_then(|account| self.account_history.get(&account).ok()?)
+            .and_then(|account_entry| {
+                account_entry
+                    .wireguard
+                    .map(|wg| wg.private_key.public_key())
+            });
+
+        Self::oneshot_send(tx, key, "get_wireguard_key response");
+    }
+
+    fn on_verify_wireguard_key(&mut self, tx: oneshot::Sender<bool>) {
+        use futures::future::Executor;
+        let account = match self.settings.get_account_token() {
+            Some(account) => account,
+            None => {
+                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                return;
+            }
+        };
+
+        let key = self
+            .account_history
+            .get(&account)
+            .map(|entry| entry.and_then(|e| e.wireguard.map(|wg| wg.private_key.public_key())));
+
+        let public_key = match key {
+            Ok(Some(public_key)) => public_key,
+            Ok(None) => {
+                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                return;
+            }
+            Err(e) => {
+                log::error!("Failed to read key data: {}", e);
+                return;
+            }
+        };
+
+        let fut = self
+            .wg_key_proxy
+            .check_wg_key(account, public_key.clone())
+            .map(|is_valid| {
+                Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
+                ()
+            })
+            .map_err(|e| log::error!("Failed to verify wireguard key - {}", e));
+        if let Err(e) = self.tokio_remote.execute(fut) {
+            log::error!("Failed to spawn a future to verify wireguard key: {:?}", e);
         }
     }
 

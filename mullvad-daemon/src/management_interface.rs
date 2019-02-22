@@ -24,12 +24,14 @@ use mullvad_types::{
 use serde;
 use std::{
     collections::{hash_map::Entry, HashMap},
-    path::PathBuf,
     sync::{Arc, Mutex, RwLock},
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
+use talpid_types::{
+    net::{openvpn, wireguard},
+    tunnel::TunnelStateTransition,
+};
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -132,6 +134,18 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_settings")]
         fn get_settings(&self, Self::Metadata) -> BoxFuture<Settings, Error>;
 
+        /// Generates new wireguard key for current account
+        #[rpc(meta, name = "generate_wireguard_key")]
+        fn generate_wireguard_key(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
+        /// Retrieve a public key for current account if the account has one.
+        #[rpc(meta, name = "get_wireguard_key")]
+        fn get_wireguard_key(&self, Self::Metadata) -> BoxFuture<Option<wireguard::PublicKey>, Error>;
+
+        /// Verify if current wireguard key is still valid
+        #[rpc(meta, name = "verify_wireguard_key")]
+        fn verify_wireguard_key(&self, Self::Metadata) -> BoxFuture<bool, Error>;
+
         /// Retreive version of the app
         #[rpc(meta, name = "get_current_version")]
         fn get_current_version(&self, Self::Metadata) -> BoxFuture<String, Error>;
@@ -216,6 +230,12 @@ pub enum ManagementCommand {
     SetWireguardMtu(OneshotSender<()>, Option<u16>),
     /// Get the daemon settings
     GetSettings(OneshotSender<Settings>),
+    /// Generate new wireguard key
+    GenerateWireguardKey(OneshotSender<Result<(), mullvad_rpc::Error>>),
+    /// Return a public key of the currently set wireguard private key, if there is one
+    GetWireguardKey(OneshotSender<Option<wireguard::PublicKey>>),
+    /// Verify if the currently set wireguard key is valid.
+    VerifyWireguardKey(OneshotSender<bool>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
     /// Get current version of the app
@@ -636,6 +656,39 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetSettings(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn generate_wireguard_key(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("generate_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GenerateWireguardKey(tx))
+            .and_then(|_| {
+                rx.map_err(|_| Error::internal_error())
+                    .and_then(|res| future::result(res.map_err(|_| Error::internal_error())))
+            });
+        Box::new(future)
+    }
+
+    fn get_wireguard_key(
+        &self,
+        _: Self::Metadata,
+    ) -> BoxFuture<Option<wireguard::PublicKey>, Error> {
+        log::debug!("get_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GetWireguardKey(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn verify_wireguard_key(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
+        log::debug!("verify_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::VerifyWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
