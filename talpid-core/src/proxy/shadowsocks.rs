@@ -207,9 +207,9 @@ impl ShadowsocksProxyMonitor {
         let re = Regex::new(r"(?:TCP Listening on \d+\.\d+\.\d+\.\d+:)(\d+$)").unwrap();
 
         if let Some(captures) = re.captures(logline) {
-            return Ok(captures[1]
-                .parse()
-                .map_err(|_| Error::new(ErrorKind::Other, "Failed to parse port number string"))?);
+            return Ok(captures[1].parse().map_err(|_| {
+                Error::new(ErrorKind::Other, "Failed to parse port number string")
+            })?);
         }
 
         return Err(Error::new(ErrorKind::Other, "No port number present"));
