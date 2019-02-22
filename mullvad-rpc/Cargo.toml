@@ -20,8 +20,11 @@ hyper-openssl = "0.5"
 tokio-service = "0.1"
 tokio-openssl = "0.2"
 log = "0.4"
+reqwest = "0.9"
+ipnetwork = "0.14"
 
 mullvad-types = { path = "../mullvad-types" }
+talpid-types = { path = "../talpid-types" }
 
 [dev-dependencies]
 filetime = "0.1"
