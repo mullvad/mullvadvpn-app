@@ -21,6 +21,7 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
+use talpid_types::net::wireguard;
 use tokio_core::reactor::Handle;
 
 pub use jsonrpc_client_core::{Error, ErrorKind};
@@ -128,4 +129,17 @@ jsonrpc_client!(pub struct RelayListProxy {
 jsonrpc_client!(pub struct AppVersionProxy {
     pub fn latest_app_version(&mut self) -> RpcRequest<version::LatestReleases>;
     pub fn is_app_version_supported(&mut self, version: &version::AppVersion) -> RpcRequest<bool>;
+});
+
+jsonrpc_client!(pub struct WireguardKeyProxy {
+    pub fn push_wg_key(
+        &mut self,
+        account_token: AccountToken,
+        public_key: wireguard::PublicKey
+    ) -> RpcRequest<mullvad_types::wireguard::AssociatedAddresses>;
+    pub fn check_wg_key(
+        &mut self,
+        account_token: AccountToken,
+        public_key: wireguard::PublicKey
+    ) -> RpcRequest<bool>;
 });
