@@ -69,6 +69,7 @@ error_chain! {
     }
     links {
         TunnelError(tunnel_state_machine::Error, tunnel_state_machine::ErrorKind);
+        AccountHistory(account_history::Error, account_history::ErrorKind);
     }
 }
 
@@ -156,6 +157,8 @@ pub struct Daemon {
     #[cfg(unix)]
     management_interface_socket_path: String,
     settings: Settings,
+    account_history: account_history::AccountHistory,
+    //wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
@@ -195,6 +198,9 @@ impl Daemon {
         let relay_selector =
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
         let settings = Settings::load().chain_err(|| "Unable to read settings")?;
+        let account_history = account_history::AccountHistory::new(&cache_dir)
+            .chain_err(|| "Unable to read wireguard key cache")?;
+
 
         let (tx, rx) = mpsc::channel();
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
@@ -209,7 +215,7 @@ impl Daemon {
         )?;
 
         let target_state = TargetState::Unsecured;
-        let management_interface_result = Self::start_management_interface(tx.clone(), cache_dir)?;
+        let management_interface_result = Self::start_management_interface(tx.clone())?;
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -226,6 +232,8 @@ impl Daemon {
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
             settings,
+            account_history,
+            // wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -240,10 +248,9 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
-        cache_dir: PathBuf,
     ) -> Result<(management_interface::EventBroadcaster, String)> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx, cache_dir)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
         let socket_path = server.socket_path().to_owned();
         Self::spawn_management_interface_wait_thread(server, event_tx);
@@ -252,9 +259,8 @@ impl Daemon {
 
     fn start_management_interface_server(
         event_tx: IntoSender<ManagementCommand, DaemonEvent>,
-        cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
-        let server = ManagementInterfaceServer::start(event_tx, cache_dir)
+        let server = ManagementInterfaceServer::start(event_tx)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
@@ -423,6 +429,10 @@ impl Daemon {
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations(),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
+            GetAccountHistory(tx) => self.on_get_account_history(tx),
+            RemoveAccountFromHistory(tx, account_token) => {
+                self.on_remove_account_from_history(tx, account_token)
+            }
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
@@ -537,8 +547,7 @@ impl Daemon {
     }
 
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
-        let account_token_cleared = account_token.is_none();
-        let save_result = self.settings.set_account_token(account_token);
+        let save_result = self.settings.set_account_token(account_token.clone());
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
@@ -546,16 +555,40 @@ impl Daemon {
                 if account_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
-                    if account_token_cleared {
-                        info!("Disconnecting because account token was cleared");
-                        self.set_target_state(TargetState::Unsecured);
-                    } else {
-                        info!("Initiating tunnel restart because the account token changed");
-                        self.reconnect_tunnel();
+                    match account_token {
+                        Some(token) => {
+                            if let Err(e) = self.account_history.bump_history(&token) {
+                                log::error!("Failed to bump account history: {}", e);
+                            }
+                            info!("Initiating tunnel restart because the account token changed");
+                            self.reconnect_tunnel();
+                        }
+                        None => {
+                            info!("Disconnecting because account token was cleared");
+                            self.set_target_state(TargetState::Unsecured);
+                        }
                     }
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
+        Self::oneshot_send(
+            tx,
+            self.account_history.get_account_history(),
+            "get_account_history response",
+        );
+    }
+
+    fn on_remove_account_from_history(
+        &mut self,
+        tx: oneshot::Sender<()>,
+        account_token: AccountToken,
+    ) {
+        if let Ok(_) = self.account_history.remove_account(&account_token) {
+            Self::oneshot_send(tx, (), "remove_account_from_history response");
         }
     }
 
