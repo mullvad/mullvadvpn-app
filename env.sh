@@ -2,18 +2,39 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-case "$(uname -s)" in
-  Linux*)
+if [ -n "$1" ]; then
+    PLATFORM="$1"
+fi
+
+if [ -z "$PLATFORM" ]; then
+    case "$(uname -s)" in
+      Linux*)
+        PLATFORM="linux"
+        ;;
+      Darwin*)
+        PLATFORM="macos"
+        ;;
+      MINGW*|MSYS_NT*)
+        PLATFORM="windows"
+        ;;
+    esac
+fi
+
+case "$PLATFORM" in
+  linux)
     export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
     export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-    PLATFORM="linux"
     ;;
-  Darwin*)
+  macos)
     export MACOSX_DEPLOYMENT_TARGET="10.7"
-    PLATFORM="macos"
     ;;
-  MINGW*|MSYS_NT*)
-    PLATFORM="windows"
+  windows)
+    ;;
+  android*)
+    ;;
+  *)
+    echo "Unknown target platform \"$PLATFORM\"" >&2
+    exit 1
     ;;
 esac
 
