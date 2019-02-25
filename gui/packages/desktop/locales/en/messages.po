@@ -336,7 +336,7 @@ msgstr "Login failed"
 #: src/renderer/components/Login.tsx:238
 #. Checking account number
 msgctxt "login-view"
-msgid "form-login-logging-in-subtitle"
+msgid "form-logging-in-subtitle"
 msgstr "Checking account number"
 
 #: src/renderer/components/Login.tsx:244
