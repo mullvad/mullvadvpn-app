@@ -1,7 +1,7 @@
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-use std::{path::Path, sync::mpsc};
+use std::{net::IpAddr, path::Path, sync::mpsc};
 
 pub mod config;
 mod ping_monitor;
@@ -79,7 +79,7 @@ impl WireguardMonitor {
         monitor.tunnel_up(&config);
 
         ping_monitor::ping(
-            config.gateway,
+            config.ipv4_gateway.into(),
             PING_TIMEOUT,
             &monitor.tunnel.get_interface_name().to_string(),
         )
@@ -152,7 +152,7 @@ impl WireguardMonitor {
         let close_sender = self.close_msg_sender.clone();
 
         ping_monitor::spawn_ping_monitor(
-            config.gateway,
+            IpAddr::from(config.ipv4_gateway),
             PING_TIMEOUT,
             self.tunnel.get_interface_name().to_string(),
             move || {
@@ -166,7 +166,8 @@ impl WireguardMonitor {
         let metadata = TunnelMetadata {
             interface: interface_name.to_string(),
             ips: config.tunnel.addresses.clone(),
-            gateway: config.gateway,
+            ipv4_gateway: config.ipv4_gateway,
+            ipv6_gateway: config.ipv6_gateway,
         };
         (self.event_callback)(TunnelEvent::Up(metadata));
     }

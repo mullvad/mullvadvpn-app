@@ -372,7 +372,13 @@ impl TunnelState for ConnectingState {
 
 fn gateway_list_from_params(params: &TunnelParameters) -> Vec<IpAddr> {
     match params {
-        TunnelParameters::Wireguard(params) => vec![params.connection.gateway],
+        TunnelParameters::Wireguard(params) => {
+            let mut gateways = vec![params.connection.ipv4_gateway.into()];
+            if let Some(ipv6_gateway) = params.connection.ipv6_gateway {
+                gateways.push(ipv6_gateway.into())
+            };
+            gateways
+        }
         // No gateway list required when connecting to openvpn
         TunnelParameters::OpenVpn(_) => vec![],
     }

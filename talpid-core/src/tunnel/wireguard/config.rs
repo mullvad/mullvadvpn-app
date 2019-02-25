@@ -1,10 +1,15 @@
-use std::{borrow::Cow, ffi::CString, net::IpAddr};
+use std::{
+    borrow::Cow,
+    ffi::CString,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 use talpid_types::net::{wireguard, GenericTunnelOptions};
 
 pub struct Config {
     pub tunnel: wireguard::TunnelConfig,
     pub peers: Vec<wireguard::PeerConfig>,
-    pub gateway: IpAddr,
+    pub ipv4_gateway: Ipv4Addr,
+    pub ipv6_gateway: Option<Ipv6Addr>,
     pub mtu: u16,
     #[cfg(target_os = "linux")]
     pub fwmark: i32,
@@ -37,7 +42,7 @@ impl Config {
         Self::new(
             tunnel,
             peer,
-            params.connection.gateway,
+            &params.connection,
             &params.options,
             &params.generic_options,
         )
@@ -46,7 +51,7 @@ impl Config {
     pub fn new(
         mut tunnel: wireguard::TunnelConfig,
         mut peers: Vec<wireguard::PeerConfig>,
-        gateway: IpAddr,
+        connection_config: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
     ) -> Result<Config> {
@@ -77,7 +82,13 @@ impl Config {
         Ok(Config {
             tunnel,
             peers,
-            gateway,
+            ipv4_gateway: connection_config.ipv4_gateway,
+            // Only set the v6 gateway if setting a v6 gateway makes sense
+            ipv6_gateway: if is_ipv6_enabled {
+                connection_config.ipv6_gateway
+            } else {
+                None
+            },
             mtu,
             #[cfg(target_os = "linux")]
             fwmark: wg_options.fwmark,

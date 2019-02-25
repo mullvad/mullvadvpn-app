@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::{fmt, net::IpAddr};
+use std::{
+    fmt,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
 
 use crate::relay_list::{OpenVpnEndpointData, WireguardEndpointData};
@@ -11,7 +14,8 @@ pub enum MullvadEndpoint {
     OpenVpn(Endpoint),
     Wireguard {
         peer: wireguard::PeerConfig,
-        gateway: IpAddr,
+        ipv4_gateway: Ipv4Addr,
+        ipv6_gateway: Ipv6Addr,
     },
 }
 
@@ -20,7 +24,11 @@ impl MullvadEndpoint {
     pub fn to_endpoint(&self) -> Endpoint {
         match self {
             MullvadEndpoint::OpenVpn(endpoint) => *endpoint,
-            MullvadEndpoint::Wireguard { peer, gateway: _ } => Endpoint::new(
+            MullvadEndpoint::Wireguard {
+                peer,
+                ipv4_gateway: _,
+                ipv6_gateway: _,
+            } => Endpoint::new(
                 peer.endpoint.ip(),
                 peer.endpoint.port(),
                 TransportProtocol::Udp,

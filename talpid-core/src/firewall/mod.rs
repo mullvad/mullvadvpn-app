@@ -100,7 +100,7 @@ impl fmt::Display for FirewallPolicy {
                 allow_lan,
             } => write!(
                 f,
-                "Connected to {} over \"{}\" (ip: {}, gw: {}), {} LAN",
+                "Connected to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw; {:?}), {} LAN",
                 peer_endpoint,
                 tunnel.interface,
                 tunnel
@@ -109,7 +109,8 @@ impl fmt::Display for FirewallPolicy {
                     .map(|ip| ip.to_string())
                     .collect::<Vec<_>>()
                     .join(","),
-                tunnel.gateway,
+                tunnel.ipv4_gateway,
+                tunnel.ipv6_gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
             FirewallPolicy::Blocked { allow_lan } => write!(

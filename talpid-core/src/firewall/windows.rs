@@ -141,7 +141,7 @@ impl Firewall {
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
         let ip_str = Self::widestring_ip(&endpoint.address.ip());
-        let gateway_str = Self::widestring_ip(&tunnel_metadata.gateway.into());
+        let gateway_str = Self::widestring_ip(&tunnel_metadata.ipv4_gateway.into());
 
         let tunnel_alias =
             WideCString::new(tunnel_metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap();

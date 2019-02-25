@@ -102,22 +102,47 @@ impl Firewall {
                 tunnel,
                 allow_lan,
             } => {
+                let mut rules = vec![];
                 let allow_tcp_dns_to_relay_rule = self
                     .create_rule_builder(FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Tcp)
-                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .to(pfctl::Endpoint::new(tunnel.ipv4_gateway, 53))
                     .build()?;
+                rules.push(allow_tcp_dns_to_relay_rule);
                 let allow_udp_dns_to_relay_rule = self
                     .create_rule_builder(FilterRuleAction::Pass)
                     .direction(pfctl::Direction::Out)
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Udp)
-                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .to(pfctl::Endpoint::new(tunnel.ipv4_gateway, 53))
                     .build()?;
+                rules.push(allow_udp_dns_to_relay_rule);
+
+                if let Some(ipv6_gateway) = tunnel.ipv6_gateway {
+                    let v6_dns_rule_tcp = self
+                        .create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .interface(&tunnel.interface)
+                        .proto(pfctl::Proto::Tcp)
+                        .to(pfctl::Endpoint::new(ipv6_gateway, 53))
+                        .build()?;
+                    rules.push(v6_dns_rule_tcp);
+                    let v6_dns_rule_udp = self
+                        .create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .interface(&tunnel.interface)
+                        .proto(pfctl::Proto::Udp)
+                        .to(pfctl::Endpoint::new(ipv6_gateway, 53))
+                        .build()?;
+                    rules.push(v6_dns_rule_udp);
+                }
+
                 let block_tcp_dns_rule = self
                     .create_rule_builder(FilterRuleAction::Drop)
                     .direction(pfctl::Direction::Out)
@@ -125,6 +150,7 @@ impl Firewall {
                     .proto(pfctl::Proto::Tcp)
                     .to(pfctl::Port::from(53))
                     .build()?;
+                rules.push(block_tcp_dns_rule);
                 let block_udp_dns_rule = self
                     .create_rule_builder(FilterRuleAction::Drop)
                     .direction(pfctl::Direction::Out)
@@ -133,18 +159,14 @@ impl Firewall {
                     .to(pfctl::Port::from(53))
                     .build()?;
 
-                let mut rules = vec![
-                    allow_tcp_dns_to_relay_rule,
-                    allow_udp_dns_to_relay_rule,
-                    block_tcp_dns_rule,
-                    block_udp_dns_rule,
-                    self.get_allow_relay_rule(peer_endpoint)?,
-                    self.get_allow_tunnel_rule(tunnel.interface.as_str())?,
-                ];
+                rules.push(block_udp_dns_rule);
+                rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+                rules.push(self.get_allow_tunnel_rule(tunnel.interface.as_str())?);
 
                 if allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
+
                 Ok(rules)
             }
             FirewallPolicy::Blocked { allow_lan } => {
