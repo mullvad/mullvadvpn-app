@@ -8,6 +8,7 @@ export default class NotificationController {
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
+  private notificationTitle = process.platform === 'linux' ? 'Mullvad VPN' : '';
 
   public notifyTunnelState(tunnelState: TunnelStateTransition) {
     switch (tunnelState.state) {
@@ -52,7 +53,7 @@ export default class NotificationController {
   public notifyInconsistentVersion() {
     this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
-        title: '',
+        title: this.notificationTitle,
         body: 'Inconsistent internal version information, please restart the app',
         silent: true,
       });
@@ -63,7 +64,7 @@ export default class NotificationController {
   public notifyUnsupportedVersion(upgradeVersion: string) {
     this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
-        title: '',
+        title: this.notificationTitle,
         body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
         silent: true,
       });
@@ -91,7 +92,7 @@ export default class NotificationController {
     }
 
     const newNotification = new Notification({
-      title: '',
+      title: this.notificationTitle,
       body: message,
       silent: true,
     });
