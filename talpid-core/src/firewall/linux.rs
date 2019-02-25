@@ -330,13 +330,26 @@ impl<'a> PolicyBatch<'a> {
 
         check_iface(&mut allow_rule, Direction::Out, &tunnel.interface[..])?;
         check_port(&mut allow_rule, protocol, End::Dst, 53)?;
-        check_l3proto(&mut allow_rule, tunnel.gateway)?;
+        check_l3proto(&mut allow_rule, tunnel.ipv4_gateway.into())?;
 
         allow_rule.add_expr(&nft_expr!(payload ipv4 daddr))?;
-        allow_rule.add_expr(&nft_expr!(cmp == tunnel.gateway))?;
+        allow_rule.add_expr(&nft_expr!(cmp == tunnel.ipv4_gateway))?;
 
         add_verdict(&mut allow_rule, &Verdict::Accept)?;
         self.batch.add(&allow_rule, nftnl::MsgType::Add)?;
+
+        if let Some(ipv6_gateway) = tunnel.ipv6_gateway {
+            let mut allow_rule = Rule::new(&self.out_chain)?;
+
+            check_iface(&mut allow_rule, Direction::Out, &tunnel.interface[..])?;
+            check_port(&mut allow_rule, protocol, End::Dst, 53)?;
+            check_l3proto(&mut allow_rule, ipv6_gateway.into())?;
+
+            allow_rule.add_expr(&nft_expr!(payload ipv6 daddr))?;
+            allow_rule.add_expr(&nft_expr!(cmp == ipv6_gateway))?;
+            add_verdict(&mut allow_rule, &Verdict::Accept)?;
+            self.batch.add(&allow_rule, nftnl::MsgType::Add)?;
+        }
 
         let mut block_rule = Rule::new(&self.out_chain)?;
         check_port(&mut block_rule, protocol, End::Dst, 53)?;
