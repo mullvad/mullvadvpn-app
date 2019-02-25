@@ -476,10 +476,10 @@ msgid "monochromatic-tray-icon-label"
 msgstr "Monochromatic tray icon"
 
 #: src/renderer/components/Preferences.tsx:170
-#. Show only the tray icon when the app starts
+#. Show only the tray icon when the app starts.
 msgctxt "preferences-view"
 msgid "start-minimized-footer"
-msgstr "Show only the tray icon when the app starts"
+msgstr "Show only the tray icon when the app starts."
 
 #: src/renderer/components/Preferences.tsx:164
 #. Start minimized
