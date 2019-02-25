@@ -235,7 +235,7 @@ export default class Login extends Component<IProps, IState> {
         );
       case 'logging in':
         // TRANSLATORS: Checking account number
-        return pgettext('login-view', 'form-login-logging-in-subtitle');
+        return pgettext('login-view', 'form-logging-in-subtitle');
       case 'ok':
         // TRANSLATORS: Correct account number
         return pgettext('login-view', 'form-login-success-subtitle');
