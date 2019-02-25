@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     ffi::OsString,
     io,
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
 };
 #[cfg(unix)]
@@ -71,7 +71,9 @@ pub struct TunnelMetadata {
     /// The local IPs on the tunnel interface.
     pub ips: Vec<IpAddr>,
     /// The IP to the default gateway on the tunnel interface.
-    pub gateway: IpAddr,
+    pub ipv4_gateway: Ipv4Addr,
+    /// The IP to the IPv6 default gateway on the tunnel interface.
+    pub ipv6_gateway: Option<Ipv6Addr>,
 }
 
 impl TunnelEvent {
@@ -96,15 +98,21 @@ impl TunnelEvent {
                     .expect("No \"ifconfig_local\" in tunnel up event")
                     .parse()
                     .expect("Tunnel IP not in valid format")];
-                let gateway = env
+                let ipv4_gateway = env
                     .get("route_vpn_gateway")
                     .expect("No \"route_vpn_gateway\" in tunnel up event")
                     .parse()
                     .expect("Tunnel gateway IP not in valid format");
+                let ipv6_gateway = env.get("route_ipv6_gateway_1").map(|v6_str| {
+                    v6_str
+                        .parse()
+                        .expect("V6 Tunnel gateway IP not in valid format")
+                });
                 Some(TunnelEvent::Up(TunnelMetadata {
                     interface,
                     ips,
-                    gateway,
+                    ipv4_gateway,
+                    ipv6_gateway,
                 }))
             }
             openvpn_plugin::EventType::RoutePredown => Some(TunnelEvent::Down),

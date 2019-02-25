@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
   the initial state of the daemon.
 - Fix the bug which caused the account token history to remain stale after logout.
+- Fix DNS when using IPv6.
 
 #### Linux
 - Fix startup failure when network device with a hardware address that's not a MAC address is
