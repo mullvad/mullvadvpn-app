@@ -166,7 +166,7 @@ class StartMinimizedToggle extends Component<IStartMinimizedProps> {
             <Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
-            {// TRANSLATORS: Show only the tray icon when the app starts
+            {// TRANSLATORS: Show only the tray icon when the app starts.
             pgettext('preferences-view', 'start-minimized-footer')}
           </Cell.Footer>
         </View>
