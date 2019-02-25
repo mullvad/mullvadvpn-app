@@ -103,7 +103,7 @@ impl Firewall {
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Tcp)
-                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .to(pfctl::Endpoint::new(tunnel.v4_gateway, 53))
                     .build()?;
                 let allow_udp_dns_to_relay_rule = self
                     .create_rule_builder(FilterRuleAction::Pass)
@@ -111,7 +111,7 @@ impl Firewall {
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Udp)
-                    .to(pfctl::Endpoint::new(tunnel.gateway, 53))
+                    .to(pfctl::Endpoint::new(tunnel.v4_gateway, 53))
                     .build()?;
                 let block_tcp_dns_rule = self
                     .create_rule_builder(FilterRuleAction::Drop)
@@ -139,6 +139,26 @@ impl Firewall {
 
                 if allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
+                }
+                if let Some(v6_gateway) = tunnel.v6_gateway {
+                    let v6_dns_rule_tcp = self
+                        .create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .interface(&tunnel.interface)
+                        .proto(pfctl::Proto::Tcp)
+                        .to(pfctl::Endpoint::new(v6_gateway, 53))
+                        .build()?;
+                    rules.push(v6_dns_rule_tcp);
+                    let v6_dns_rule_udp = self
+                        .create_rule_builder(FilterRuleAction::Pass)
+                        .direction(pfctl::Direction::Out)
+                        .quick(true)
+                        .interface(&tunnel.interface)
+                        .proto(pfctl::Proto::Udp)
+                        .to(pfctl::Endpoint::new(v6_gateway, 53))
+                        .build()?;
+                    rules.push(v6_dns_rule_udp);
                 }
                 Ok(rules)
             }

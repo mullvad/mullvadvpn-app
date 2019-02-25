@@ -55,9 +55,9 @@ impl Command for Relay {
                                         .required(false),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("gateway")
+                                    clap::Arg::with_name("v4-gateway")
                                         .help("Gateway address")
-                                        .long("gateway")
+                                        .long("v4-gateway")
                                         .index(4)
                                         .required(false),
                                 )
@@ -67,6 +67,12 @@ impl Command for Relay {
                                         .long("addr")
                                         .takes_value(true)
                                         .multiple(true)
+                                        .required(false),
+                                ).arg(
+                                    clap::Arg::with_name("v6-gateway")
+                                        .help("IPv6 gateway address")
+                                        .long("v6-gateway")
+                                        .takes_value(true)
                                         .required(false),
                                 ),
                             )
@@ -224,10 +230,20 @@ impl Relay {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let addresses = values_t!(matches.values_of("addr"), IpAddr).unwrap_or_else(|e| e.exit());
-        println!("addresses - {:?}", addresses);
         let peer_key_str =
             value_t!(matches.value_of("peer-key"), String).unwrap_or_else(|e| e.exit());
-        let gateway = value_t!(matches.value_of("gateway"), IpAddr).unwrap_or_else(|e| e.exit());
+        let v4_gateway =
+            value_t!(matches.value_of("v4-gateway"), Ipv4Addr).unwrap_or_else(|e| e.exit());
+        let v6_gateway = match matches.value_of("v6-gateway") {
+            Some(gateway_str) => match gateway_str.parse() {
+                Ok(gateway) => Some(gateway),
+                Err(e) => {
+                    eprintln!("Failed to parse IPv6 gateway - {}", e);
+                    ::std::process::exit(1);
+                }
+            },
+            None => None,
+        };
         let mut private_key_str = String::new();
         println!("Reading private key from standard input");
         let _ = io::stdin().lock().read_line(&mut private_key_str);
@@ -250,7 +266,8 @@ impl Relay {
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), port),
                 },
-                gateway,
+                v4_gateway,
+                v6_gateway,
             }),
         )
     }

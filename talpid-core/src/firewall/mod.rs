@@ -99,7 +99,7 @@ impl fmt::Display for FirewallPolicy {
                     .map(|ip| ip.to_string())
                     .collect::<Vec<_>>()
                     .join(","),
-                tunnel.gateway,
+                tunnel.v4_gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
             FirewallPolicy::Blocked { allow_lan } => write!(

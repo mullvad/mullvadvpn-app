@@ -45,7 +45,7 @@ mod win {
 
 #[cfg(windows)]
 fn main() {
-    use win::*;
+    use crate::win::*;
 
     const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
     const WINDNS_DIR_VAR: &str = "WINDNS_LIB_DIR";

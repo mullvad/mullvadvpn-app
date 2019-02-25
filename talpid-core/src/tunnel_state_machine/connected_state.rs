@@ -72,9 +72,14 @@ impl ConnectedState {
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+        let mut dns_ips = vec![self.metadata.v4_gateway.into()];
+        if let Some(v6_gateway) = self.metadata.v6_gateway {
+            dns_ips.push(v6_gateway.into());
+        };
+
         shared_values
             .dns_monitor
-            .set(&self.metadata.interface, &[self.metadata.gateway.into()])
+            .set(&self.metadata.interface, &dns_ips)
             .chain_err(|| "Failed to set system DNS settings")
     }
 

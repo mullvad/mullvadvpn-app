@@ -145,7 +145,10 @@ impl WireguardMonitor {
         let close_sender = self.close_msg_sender.clone();
 
         ping_monitor::spawn_ping_monitor(
-            config.gateway,
+            config
+                .v6_gateway
+                .map(Into::into)
+                .unwrap_or(config.v4_gateway.into()),
             PING_TIMEOUT,
             self.tunnel.get_interface_name().to_string(),
             move || {
@@ -159,7 +162,8 @@ impl WireguardMonitor {
         let metadata = TunnelMetadata {
             interface: interface_name.to_string(),
             ips: config.tunnel.addresses.clone(),
-            gateway: config.gateway,
+            v4_gateway: config.v4_gateway,
+            v6_gateway: config.v6_gateway,
         };
         (self.event_callback)(TunnelEvent::Up(metadata));
     }

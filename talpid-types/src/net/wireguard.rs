@@ -3,7 +3,7 @@ use ipnetwork::IpNetwork;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     fmt,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 
@@ -19,7 +19,8 @@ pub struct TunnelParameters {
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,
     pub peer: PeerConfig,
-    pub gateway: IpAddr,
+    pub v4_gateway: Ipv4Addr,
+    pub v6_gateway: Option<Ipv6Addr>,
 }
 
 impl ConnectionConfig {
