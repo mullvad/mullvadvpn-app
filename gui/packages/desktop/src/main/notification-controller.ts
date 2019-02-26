@@ -1,4 +1,5 @@
-import { app, Notification, shell } from 'electron';
+import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
+import path from 'path';
 import config from '../config.json';
 
 import { TunnelStateTransition } from '../shared/daemon-rpc-types';
@@ -9,6 +10,16 @@ export default class NotificationController {
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
   private notificationTitle = process.platform === 'linux' ? app.getName() : '';
+  private notificationIcon?: NativeImage;
+
+  constructor() {
+    if (process.platform === 'linux') {
+      const basePath = path.resolve(path.join(__dirname, '../../assets/images'));
+      this.notificationIcon = nativeImage.createFromPath(
+        path.join(basePath, 'icon-notification.png'),
+      );
+    }
+  }
 
   public notifyTunnelState(tunnelState: TunnelStateTransition) {
     switch (tunnelState.state) {
@@ -56,6 +67,7 @@ export default class NotificationController {
         title: this.notificationTitle,
         body: 'Inconsistent internal version information, please restart the app',
         silent: true,
+        icon: this.notificationIcon,
       });
       this.scheduleNotification(notification);
     });
@@ -67,6 +79,7 @@ export default class NotificationController {
         title: this.notificationTitle,
         body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
         silent: true,
+        icon: this.notificationIcon,
       });
 
       notification.on('click', () => {
@@ -95,6 +108,7 @@ export default class NotificationController {
       title: this.notificationTitle,
       body: message,
       silent: true,
+      icon: this.notificationIcon,
     });
 
     if (lastAnnouncement) {
