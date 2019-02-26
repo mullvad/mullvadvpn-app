@@ -16,7 +16,7 @@ export function loadTranslations(currentLocale: string) {
   // In case of region bound locale like en-US, fallback to en.
   if (currentLocale.indexOf('-') !== -1) {
     const languageRegion = currentLocale.split('-');
-    if (languageRegion.length > 0 && languageRegion[0] !== '') {
+    if (languageRegion[0] !== '') {
       preferredLocales.push(languageRegion[0]);
     }
   }
