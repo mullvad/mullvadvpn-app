@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Linux
 - Increase `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
+- Add application name and icon to notifications.
 
 
 ## [2019.1] - 2019-01-29
