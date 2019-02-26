@@ -24,10 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Integrated Shadowsocks proxy support. Accessible via CLI.
+- Integrate initial Shadowsocks proxy support. Accessible via CLI.
 
 ### Fixed
-
 - Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
   the initial state of the daemon.
 - Fix the bug which caused the account token history to remain stale after logout.
@@ -41,12 +40,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 #### Linux
-- Increased `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
+- Increase `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
 
 
 ## [2019.1] - 2019-01-29
 This release is identical to 2019.1-beta1
-
 
 
 ## [2019.1-beta1] - 2019-01-25
