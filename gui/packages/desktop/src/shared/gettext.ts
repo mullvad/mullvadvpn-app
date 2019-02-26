@@ -21,9 +21,6 @@ export function loadTranslations(currentLocale: string) {
     }
   }
 
-  // Fallback to English if nothing else works
-  preferredLocales.push('en');
-
   for (const locale of preferredLocales) {
     if (parseTranslation(locale, 'messages')) {
       log.info(`Loaded translations for ${locale}`);
