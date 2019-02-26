@@ -9,16 +9,16 @@ export type AuthFailureKind =
 
 // These strings should match up with mullvad-types/src/auth_failed.rs
 
-const GENERIC_FAILURE_MSG = pgettext('auth-failure', 'Account authentication failed');
+const GENERIC_FAILURE_MSG = pgettext('auth-failure', 'Account authentication failed.');
 
 const INVALID_ACCOUNT_MSG = pgettext(
   'auth-failure',
-  "You've logged in with an account number that is not valid. Please log out and try another one",
+  "You've logged in with an account number that is not valid. Please log out and try another one.",
 );
 
 const EXPIRED_ACCOUNT_MSG = pgettext(
   'auth-failure',
-  'You have no more VPN time left on this account. Please log in on our website to buy more credit',
+  'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
 );
 
 const TOO_MANY_CONNECTIONS_MSG = pgettext(
