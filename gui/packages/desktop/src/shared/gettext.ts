@@ -4,6 +4,7 @@ import { po } from 'gettext-parser';
 import Gettext from 'node-gettext';
 import path from 'path';
 
+const SOURCE_LANGUAGE = 'en';
 const LOCALES_DIR = path.resolve(__dirname, '../../locales');
 
 const catalogue = new Gettext();
@@ -11,13 +12,18 @@ catalogue.setTextDomain('messages');
 
 export function loadTranslations(currentLocale: string) {
   // First look for exact match of the current locale
-  const preferredLocales = [currentLocale];
+  const preferredLocales = [];
+
+  if (currentLocale !== SOURCE_LANGUAGE) {
+    preferredLocales.push(currentLocale);
+  }
 
   // In case of region bound locale like en-US, fallback to en.
   if (currentLocale.indexOf('-') !== -1) {
-    const languageRegion = currentLocale.split('-');
-    if (languageRegion[0] !== '') {
-      preferredLocales.push(languageRegion[0]);
+    const [language] = currentLocale.split('-');
+
+    if (language.length > 0 && language !== SOURCE_LANGUAGE) {
+      preferredLocales.push(language);
     }
   }
 
