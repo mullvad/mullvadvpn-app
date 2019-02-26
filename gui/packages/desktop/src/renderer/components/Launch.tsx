@@ -47,13 +47,9 @@ export default class Launch extends Component<IProps> {
         <Container>
           <View style={styles.container}>
             <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
-            <Text style={styles.title}>
-              {// TRANSLATORS: MULLVAD VPN
-              pgettext('launch-view', 'brand-name')}
-            </Text>
+            <Text style={styles.title}>{pgettext('launch-view', 'MULLVAD VPN')}</Text>
             <Text style={styles.subtitle}>
-              {// TRANSLATORS: Connecting to daemon...
-              pgettext('launch-view', 'connecting-to-daemon')}
+              {pgettext('launch-view', 'Connecting to daemon...')}
             </Text>
           </View>
         </Container>

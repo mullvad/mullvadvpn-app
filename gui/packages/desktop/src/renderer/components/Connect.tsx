@@ -54,23 +54,21 @@ export default class Connect extends Component<IProps> {
     let message = '';
 
     if (error instanceof NoCreditError) {
-      title =
-        // TRANSLATORS: Out of time
-        pgettext('connect-view', 'account-out-of-time-title');
+      title = pgettext('connect-view', 'Out of time');
 
-      message =
-        // TRANSLATORS: Buy more time, so you can continue using the internet securely
-        pgettext('connect-view', 'account-out-of-time-message');
+      message = pgettext(
+        'connect-view',
+        'Buy more time, so you can continue using the internet securely',
+      );
     }
 
     if (error instanceof NoInternetError) {
-      title =
-        // TRANSLATORS: Offline
-        pgettext('connect-view', 'device-offline-title');
+      title = pgettext('connect-view', 'Offline');
 
-      message =
-        // TRANSLATORS: Your internet connection will be secured when you get back online
-        pgettext('connect-view', 'device-offline-message');
+      message = pgettext(
+        'connect-view',
+        'Your internet connection will be secured when you get back online',
+      );
     }
 
     const { isBlocked } = this.props.connection;

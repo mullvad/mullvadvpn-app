@@ -89,8 +89,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
         <AppButton.TransparentButton
           style={styles.switch_location_button}
           onPress={this.props.onSelectLocation}>
-          {// TRANSLATORS: Switch location
-          pgettext('tunnel-control', 'switch-location-button')}
+          {pgettext('tunnel-control', 'Switch location')}
         </AppButton.TransparentButton>
       );
     };
@@ -106,22 +105,19 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
 
     const Connect = () => (
       <AppButton.GreenButton onPress={this.props.onConnect}>
-        {// TRANSLATORS: Secure my connection
-        pgettext('tunnel-control', 'connect-button')}
+        {pgettext('tunnel-control', 'Secure my connection')}
       </AppButton.GreenButton>
     );
 
     const Disconnect = () => (
       <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {// TRANSLATORS: Disconnect
-        pgettext('tunnel-control', 'disconnect-button')}
+        {pgettext('tunnel-control', 'Disconnect')}
       </AppButton.RedTransparentButton>
     );
 
     const Cancel = () => (
       <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {// TRANSLATORS: Cancel
-        pgettext('tunnel-control', 'cancel-button')}
+        {pgettext('tunnel-control', 'Cancel')}
       </AppButton.RedTransparentButton>
     );
 

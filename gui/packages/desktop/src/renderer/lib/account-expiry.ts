@@ -21,8 +21,9 @@ export default class AccountExpiry {
     const duration = this.expiry.fromNow(true);
 
     return sprintf(
-      // TRANSLATORS: %(duration)s left
-      pgettext('account-expiry', 'remaining-time'),
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+      pgettext('account-expiry', '%(duration)s left'),
       { duration },
     );
   }

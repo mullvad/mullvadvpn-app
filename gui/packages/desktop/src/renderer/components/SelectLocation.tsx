@@ -113,22 +113,20 @@ export default class SelectLocation extends Component<IProps, IState> {
             <NavigationContainer>
               <NavigationBar>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {// TRANSLATORS: Select location
-                  pgettext('select-location-view', 'title-bar-item')}
-                </TitleBarItem>
+                <TitleBarItem>{pgettext('select-location-view', 'Select location')}</TitleBarItem>
               </NavigationBar>
               <View style={styles.container}>
                 <NavigationScrollbars ref={this.scrollViewRef}>
                   <View style={styles.content}>
                     <SettingsHeader style={styles.subtitle_header}>
                       <HeaderTitle>
-                        {// TRANSLATORS: Select location
-                        pgettext('select-location-view', 'header-title')}
+                        {pgettext('select-location-view', 'Select location')}
                       </HeaderTitle>
                       <HeaderSubTitle>
-                        {// TRANSLATORS: While connected, your real location is masked with a private and secure location in the selected region
-                        pgettext('select-location-view', 'header-subtitle')}
+                        {pgettext(
+                          'select-location-view',
+                          'While connected, your real location is masked with a private and secure location in the selected region',
+                        )}
                       </HeaderSubTitle>
                     </SettingsHeader>
 

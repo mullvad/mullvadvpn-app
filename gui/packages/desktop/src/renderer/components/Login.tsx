@@ -210,17 +210,13 @@ export default class Login extends Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState) {
       case 'logging in':
-        // TRANSLATORS: Logging in...
-        return pgettext('login-view', 'form-logging-in-title');
+        return pgettext('login-view', 'Logging in...');
       case 'failed':
-        // TRANSLATORS: Login failed
-        return pgettext('login-view', 'form-login-failed-title');
+        return pgettext('login-view', 'Login failed');
       case 'ok':
-        // TRANSLATORS: Logged in
-        return pgettext('login-view', 'form-login-success-title');
+        return pgettext('login-view', 'Logged in');
       default:
-        // TRANSLATORS: Login
-        return pgettext('login-view', 'form-login-title');
+        return pgettext('login-view', 'Login');
     }
   }
 
@@ -228,20 +224,13 @@ export default class Login extends Component<IProps, IState> {
     const { loginState, loginError } = this.props;
     switch (loginState) {
       case 'failed':
-        return (
-          (loginError && loginError.message) ||
-          // TRANSLATORS: Unknown error
-          pgettext('login-view', 'form-login-unknown-error-subtitle')
-        );
+        return (loginError && loginError.message) || pgettext('login-view', 'Unknown error');
       case 'logging in':
-        // TRANSLATORS: Checking account number
-        return pgettext('login-view', 'form-logging-in-subtitle');
+        return pgettext('login-view', 'Checking account number');
       case 'ok':
-        // TRANSLATORS: Correct account number
-        return pgettext('login-view', 'form-login-success-subtitle');
+        return pgettext('login-view', 'Correct account number');
       default:
-        // TRANSLATORS: Enter your account number
-        return pgettext('login-view', 'form-login-subtitle');
+        return pgettext('login-view', 'Enter your account number');
     }
   }
 
@@ -406,14 +395,10 @@ export default class Login extends Component<IProps, IState> {
     return (
       <View>
         <Text style={styles.login_footer__prompt}>
-          {// TRANSLATORS: Don't have an account number?
-          pgettext('login-view', 'footer-title')}
+          {pgettext('login-view', "Don't have an account number?")}
         </Text>
         <AppButton.BlueButton onPress={this.onCreateAccount}>
-          <AppButton.Label>
-            {// TRANSLATORS: Create account
-            pgettext('login-view', 'footer-create-account-button')}
-          </AppButton.Label>
+          <AppButton.Label>{pgettext('login-view', 'Create account')}</AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
       </View>

@@ -28,33 +28,25 @@ export default class Account extends Component<IProps> {
           <View style={styles.account}>
             <NavigationBar>
               <BackBarItem action={this.props.onClose}>
-                {// TRANSLATORS: Settings
-                pgettext('account-view', 'back-bar-item')}
+                {pgettext('account-view', 'Settings')}
               </BackBarItem>
             </NavigationBar>
 
             <View style={styles.account__container}>
               <SettingsHeader>
-                <HeaderTitle>
-                  {// TRANSLATORS: Account
-                  pgettext('account-view', 'header-title')}
-                </HeaderTitle>
+                <HeaderTitle>{pgettext('account-view', 'Account')}</HeaderTitle>
               </SettingsHeader>
 
               <View style={styles.account__content}>
                 <View style={styles.account__main}>
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>
-                      {// TRANSLATORS: Account ID
-                      pgettext('account-view', 'account-id-label')}
+                      {pgettext('account-view', 'Account ID')}
                     </Text>
                     <ClipboardLabel
                       style={styles.account__row_value}
                       value={this.props.accountToken || ''}
-                      message={
-                        // TRANSLATORS: COPIED TO CLIPBOARD!
-                        pgettext('account-view', 'copied-to-clipboard')
-                      }
+                      message={pgettext('account-view', 'COPIED TO CLIPBOARD!')}
                     />
                   </View>
 
@@ -72,14 +64,12 @@ export default class Account extends Component<IProps> {
                       disabled={this.props.isOffline}
                       onPress={this.props.onBuyMore}>
                       <AppButton.Label>
-                        {// TRANSLATORS: Buy more credit
-                        pgettext('account-view', 'buy-more')}
+                        {pgettext('account-view', 'Buy more credit')}
                       </AppButton.Label>
                       <AppButton.Icon source="icon-extLink" height={16} width={16} />
                     </AppButton.GreenButton>
                     <AppButton.RedButton onPress={this.props.onLogout}>
-                      {// TRANSLATORS: Log out
-                      pgettext('account-view', 'log-out')}
+                      {pgettext('account-view', 'Log out')}
                     </AppButton.RedButton>
                   </View>
                 </View>
@@ -96,8 +86,7 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
   if (!props.expiry) {
     return (
       <Text style={styles.account__row_value}>
-        {// TRANSLATORS: Currently unavailable
-        pgettext('account-view', 'account-expiry-unavailable')}
+        {pgettext('account-view', 'Currently unavailable')}
       </Text>
     );
   }
@@ -106,10 +95,7 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
 
   if (expiry.isSameOrBefore(moment())) {
     return (
-      <Text style={styles.account__out_of_time}>
-        {// TRANSLATORS: OUT OF TIME
-        pgettext('account-view', 'account-out-of-time')}
-      </Text>
+      <Text style={styles.account__out_of_time}>{pgettext('account-view', 'OUT OF TIME')}</Text>
     );
   }
 

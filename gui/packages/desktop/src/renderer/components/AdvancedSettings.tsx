@@ -90,40 +90,31 @@ export default class AdvancedSettings extends Component<IProps, IState> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose}>
-                  {// TRANSLATORS: Settings
-                  pgettext('advanced-settings-view', 'back-bar-item')}
+                  {pgettext('advanced-settings-view', 'Settings')}
                 </BackBarItem>
-                <TitleBarItem>
-                  {// TRANSLATORS: Advanced
-                  pgettext('advanced-settings-view', 'title-bar-item')}
-                </TitleBarItem>
+                <TitleBarItem>{pgettext('advanced-settings-view', 'Advanced')}</TitleBarItem>
               </NavigationBar>
 
               <View style={styles.advanced_settings__container}>
                 <NavigationScrollbars style={styles.advanced_settings__scrollview}>
                   <SettingsHeader>
-                    <HeaderTitle>
-                      {// TRANSLATORS: Advanced
-                      pgettext('advanced-settings-view', 'header-title')}
-                    </HeaderTitle>
+                    <HeaderTitle>{pgettext('advanced-settings-view', 'Advanced')}</HeaderTitle>
                   </SettingsHeader>
 
                   <Cell.Container>
-                    <Cell.Label>
-                      {// TRANSLATORS: Enable IPv6
-                      pgettext('advanced-settings-view', 'enable-ipv6-label')}
-                    </Cell.Label>
+                    <Cell.Label>{pgettext('advanced-settings-view', 'Enable IPv6')}</Cell.Label>
                     <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
                   <Cell.Footer>
-                    {// TRANSLATORS: Enable IPv6 communication through the tunnel.
-                    pgettext('advanced-settings-view', 'enable-ipv6-footer')}
+                    {pgettext(
+                      'advanced-settings-view',
+                      'Enable IPv6 communication through the tunnel.',
+                    )}
                   </Cell.Footer>
 
                   <Cell.Container>
                     <Cell.Label textStyle={styles.advanced_settings__block_when_disconnected_label}>
-                      {// TRANSLATORS: Block when disconnected
-                      pgettext('advanced-settings-view', 'block-when-disconnected-label')}
+                      {pgettext('advanced-settings-view', 'Block when disconnected')}
                     </Cell.Label>
                     <Switch
                       isOn={this.props.blockWhenDisconnected}
@@ -131,16 +122,15 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     />
                   </Cell.Container>
                   <Cell.Footer>
-                    {// TRANSLATORS: Unless connected, always block all network traffic, even when you've disconnected or quit the app.
-                    pgettext('advanced-settings-view', 'block-when-disconnected-footer')}
+                    {pgettext(
+                      'advanced-settings-view',
+                      "Unless connected, always block all network traffic, even when you've disconnected or quit the app.",
+                    )}
                   </Cell.Footer>
 
                   <View style={styles.advanced_settings__content}>
                     <Selector
-                      title={
-                        // TRANSLATORS: Network protocols
-                        pgettext('advanced-settings-view', 'network-protocols-title')
-                      }
+                      title={pgettext('advanced-settings-view', 'Network protocols')}
                       values={PROTOCOL_ITEMS}
                       value={this.props.protocol}
                       onSelect={this.onSelectProtocol}
@@ -151,8 +141,9 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     {this.props.protocol ? (
                       <Selector
                         title={sprintf(
-                          // TRANSLATORS: %(portType)s port
-                          pgettext('advanced-settings-view', 'network-ports-title'),
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                          pgettext('advanced-settings-view', '%(portType)s port'),
                           {
                             portType: this.props.protocol.toUpperCase(),
                           },
@@ -167,18 +158,12 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   </View>
 
                   <Cell.Container>
-                    <Cell.Label>
-                      {// TRANSLATORS: Mssfix
-                      pgettext('advanced-settings-view', 'mssfix-cell-label')}
-                    </Cell.Label>
+                    <Cell.Label>{pgettext('advanced-settings-view', 'Mssfix')}</Cell.Label>
                     <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
                       <Cell.Input
                         keyboardType={'numeric'}
                         maxLength={4}
-                        placeholder={
-                          // TRANSLATORS: Default
-                          pgettext('advanced-settings-view', 'mssfix-cell-input-placeholder')
-                        }
+                        placeholder={pgettext('advanced-settings-view', 'Default')}
                         value={mssfixValue ? mssfixValue.toString() : ''}
                         style={mssfixStyle}
                         onChangeText={this.onMssfixChange}
@@ -189,8 +174,13 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   </Cell.Container>
                   <Cell.Footer>
                     {sprintf(
-                      // TRANSLATORS: Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.
-                      pgettext('advanced-settings-view', 'mssfix-cell-footer'),
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(max)d - the maximum possible mssfix value
+                      // TRANSLATORS: %(min)d - the minimum possible mssfix value
+                      pgettext(
+                        'advanced-settings-view',
+                        'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
+                      ),
                       {
                         min: MIN_MSSFIX_VALUE,
                         max: MAX_MSSFIX_VALUE,
@@ -265,8 +255,7 @@ class Selector<T> extends Component<ISelectorProps<T>> {
           key={'auto'}
           selected={this.props.value === undefined}
           onSelect={this.props.onSelect}>
-          {// TRANSLATORS: Automatic
-          pgettext('advanced-settings-view', 'selector-automatic-title')}
+          {pgettext('advanced-settings-view', 'Automatic')}
         </SelectorCell>
         {this.props.values.map((item, i) => (
           <SelectorCell

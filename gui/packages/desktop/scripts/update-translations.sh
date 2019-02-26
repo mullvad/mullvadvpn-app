@@ -16,7 +16,7 @@ for PO_FILE_DIR in $ROOT_DIR/locales/* ; do
       msgmerge --no-fuzzy-matching --update $PO_FILE $POT_FILE
     else
       if [ -f $GITKEEP_FILE ] ; then
-        echo "Remove $GITKEEP_FILE to initialize the new translation for $PO_FILE_DIR"
+        echo "Remove $GITKEEP_FILE to initialize the new translation"
       else
         msginit --input $POT_FILE --output $PO_FILE --no-translator
       fi

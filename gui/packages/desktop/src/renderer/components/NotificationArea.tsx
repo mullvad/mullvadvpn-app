@@ -46,26 +46,31 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return new AuthFailure(blockReason.details).show();
     }
     case 'ipv6_unavailable':
-      // TRANSLATORS: Could not configure IPv6, please enable it on your system or disable it in the app
-      return pgettext('in-app-notifications', 'ipv6-unavailable');
+      return pgettext(
+        'in-app-notifications',
+        'Could not configure IPv6, please enable it on your system or disable it in the app',
+      );
     case 'set_firewall_policy_error':
-      // TRANSLATORS: Failed to apply firewall rules. The device might currently be unsecured
-      return pgettext('in-app-notifications', 'set-firewall-policy-error');
+      return pgettext(
+        'in-app-notifications',
+        'Failed to apply firewall rules. The device might currently be unsecured',
+      );
     case 'set_dns_error':
-      // TRANSLATORS: Failed to set system DNS server
-      return pgettext('in-app-notifications', 'set-dns-error');
+      return pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':
-      // TRANSLATORS: Failed to start tunnel connection
-      return pgettext('in-app-notifications', 'start-tunnel-error');
+      return pgettext('in-app-notifications', 'Failed to start tunnel connection');
     case 'no_matching_relay':
-      // TRANSLATORS: No relay server matches the current settings
-      return pgettext('in-app-notifications', 'no-matching-relay');
+      return pgettext('in-app-notifications', 'No relay server matches the current settings');
     case 'is_offline':
-      // TRANSLATORS: This device is offline, no tunnels can be established
-      return pgettext('in-app-notifications', 'is-offline');
+      return pgettext(
+        'in-app-notifications',
+        'This device is offline, no tunnels can be established',
+      );
     case 'tap_adapter_problem':
-      // TRANSLATORS: Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app
-      return pgettext('in-app-notifications', 'tap-adapter-problem');
+      return pgettext(
+        'in-app-notifications',
+        "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
+      );
   }
 }
 
@@ -174,8 +179,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: FAILURE - UNSECURED
-                pgettext('in-app-notifications', 'failure-unsecured-notification-title')}
+                {pgettext('in-app-notifications', 'FAILURE - UNSECURED')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
@@ -187,8 +191,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: BLOCKING INTERNET
-                pgettext('in-app-notifications', 'blocking-notification-title')}
+                {pgettext('in-app-notifications', 'BLOCKING INTERNET')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
@@ -200,12 +203,13 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: INCONSISTENT VERSION
-                pgettext('in-app-notifications', 'inconsistent-version-notification-title')}
+                {pgettext('in-app-notifications', 'INCONSISTENT VERSION')}
               </NotificationTitle>
               <NotificationSubtitle>
-                {// TRANSLATORS: Inconsistent internal version information, please restart the app
-                pgettext('in-app-notifications', 'inconsistent-version-notification-subtitle')}
+                {pgettext(
+                  'in-app-notifications',
+                  'Inconsistent internal version information, please restart the app',
+                )}
               </NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
@@ -216,13 +220,16 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: UNSUPPORTED VERSION
-                pgettext('in-app-notifications', 'unsupported-version-notification-title')}
+                {pgettext('in-app-notifications', 'UNSUPPORTED VERSION')}
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
-                  // TRANSLATORS: You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security
-                  pgettext('in-app-notifications', 'unsupported-version-notification-subtitle'),
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(version)s - the newest available version of the app
+                  pgettext(
+                    'in-app-notifications',
+                    'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
+                  ),
                   { version: this.state.upgradeVersion },
                 )}
               </NotificationSubtitle>
@@ -238,13 +245,16 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: UPDATE AVAILABLE
-                pgettext('in-app-notifications', 'update-available-notification-title')}
+                {pgettext('in-app-notifications', 'UPDATE AVAILABLE')}
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
-                  // TRANSLATORS: Install Mullvad VPN (%(version)s) to stay up to date
-                  pgettext('in-app-notifications', 'update-available-notification-subtitle'),
+                  // TRANSLATORS: Available placeholders:
+                  // TRANSLATORS: %(version)s - the newest available version of the app
+                  pgettext(
+                    'in-app-notifications',
+                    'Install Mullvad VPN (%(version)s) to stay up to date',
+                  ),
                   { version: this.state.upgradeVersion },
                 )}
               </NotificationSubtitle>
@@ -260,8 +270,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
               <NotificationTitle>
-                {// TRANSLATORS: ACCOUNT CREDIT EXPIRES SOON
-                pgettext('in-app-notifications', 'expires-soon-notification-title')}
+                {pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
             </NotificationContent>

@@ -126,14 +126,13 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     const { sendState } = this.state;
     const header = (
       <SettingsHeader>
-        <HeaderTitle>
-          {// TRANSLATORS: Report a problem
-          pgettext('support-view', 'header-title')}
-        </HeaderTitle>
+        <HeaderTitle>{pgettext('support-view', 'Report a problem')}</HeaderTitle>
         {(sendState === SendState.Initial || sendState === SendState.Confirm) && (
           <HeaderSubTitle>
-            {// TRANSLATORS: To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.
-            pgettext('support-view', 'header-subtitle')}
+            {pgettext(
+              'support-view',
+              "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            )}
           </HeaderSubTitle>
         )}
       </SettingsHeader>
@@ -149,8 +148,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <View style={styles.support}>
                 <NavigationBar>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Settings
-                    pgettext('support-view', 'back-bar-item')}
+                    {pgettext('support-view', 'Settings')}
                   </BackBarItem>
                 </NavigationBar>
                 <View style={styles.support__container}>
@@ -246,10 +244,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           <View style={styles.support__form_row_email}>
             <TextInput
               style={styles.support__form_email}
-              placeholder={
-                // TRANSLATORS: Your email (optional)
-                pgettext('support-view', 'form-email-input-placeholder')
-              }
+              placeholder={pgettext('support-view', 'Your email (optional)')}
               defaultValue={this.state.email}
               onChangeText={this.onChangeEmail}
               keyboardType="email-address"
@@ -259,10 +254,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <View style={styles.support__form_message_scroll_wrap}>
               <TextInput
                 style={styles.support__form_message}
-                placeholder={
-                  // TRANSLATORS: Describe your problem
-                  pgettext('support-view', 'form-message-input-placeholder')
-                }
+                placeholder={pgettext('support-view', 'Describe your problem')}
                 defaultValue={this.state.message}
                 multiline={true}
                 onChangeText={this.onChangeDescription}
@@ -271,15 +263,11 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           </View>
           <View style={styles.support__footer}>
             <AppButton.BlueButton style={styles.view_logs_button} onPress={this.onViewLog}>
-              <AppButton.Label>
-                {// TRANSLATORS: View app logs
-                pgettext('support-view', 'form-view-app-logs-button')}
-              </AppButton.Label>
+              <AppButton.Label>{pgettext('support-view', 'View app logs')}</AppButton.Label>
               <AppButton.Icon source="icon-extLink" height={16} width={16} />
             </AppButton.BlueButton>
             <AppButton.GreenButton disabled={!this.validate()} onPress={this.onSend}>
-              {// TRANSLATORS: Send
-              pgettext('support-view', 'form-send-button')}
+              {pgettext('support-view', 'Send')}
             </AppButton.GreenButton>
           </View>
         </View>
@@ -296,12 +284,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
             <View style={styles.support__status_security__secure}>
-              {// TRANSLATORS: SECURE CONNECTION
-              pgettext('support-view', 'form-sending-title')}
+              {pgettext('support-view', 'SECURE CONNECTION')}
             </View>
             <Text style={styles.support__send_status}>
-              {// TRANSLATORS: Sending...
-              pgettext('support-view', 'form-sending-status')}
+              {pgettext('support-view', 'Sending...')}
             </Text>
           </View>
         </View>
@@ -318,22 +304,16 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-success" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              {// TRANSLATORS: SECURE CONNECTION
-              pgettext('support-view', 'form-sent-title')}
+              {pgettext('support-view', 'SECURE CONNECTION')}
             </Text>
-            <Text style={styles.support__send_status}>
-              {// TRANSLATORS: Sent
-              pgettext('support-view', 'form-sent-status')}
-            </Text>
+            <Text style={styles.support__send_status}>{pgettext('support-view', 'Sent')}</Text>
 
             <Text style={styles.support__sent_message}>
-              {// TRANSLATORS: Thanks! We will look into this.
-              pgettext('support-view', 'form-sent-thanks-message')}
+              {pgettext('support-view', 'Thanks! We will look into this.')}
             </Text>
             {this.state.email.trim().length > 0 ? (
               <Text style={styles.support__sent_message}>
-                {// TRANSLATORS: 'If needed we will contact you on '
-                pgettext('support-view', 'form-sent-reach-back-message')}
+                {pgettext('support-view', 'If needed we will contact you on ')}
                 <Text style={styles.support__sent_email}>{this.state.email}</Text>
               </Text>
             ) : null}
@@ -352,27 +332,25 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-fail" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              {// TRANSLATORS: SECURE CONNECTION
-              pgettext('support-view', 'form-failed-title')}
+              {pgettext('support-view', 'SECURE CONNECTION')}
             </Text>
             <Text style={styles.support__send_status}>
-              {// TRANSLATORS: Failed to send
-              pgettext('support-view', 'form-failed-status')}
+              {pgettext('support-view', 'Failed to send')}
             </Text>
             <Text style={styles.support__sent_message}>
-              {// TRANSLATORS: You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.
-              pgettext('support-view', 'form-failed-message')}
+              {pgettext(
+                'support-view',
+                "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.",
+              )}
             </Text>
           </View>
         </View>
         <View style={styles.support__footer}>
           <AppButton.BlueButton style={styles.edit_message_button} onPress={this.handleEditMessage}>
-            {// TRANSLATORS: Edit message
-            pgettext('support-view', 'edit-message-button')}
+            {pgettext('support-view', 'Edit message')}
           </AppButton.BlueButton>
           <AppButton.GreenButton onPress={this.onSend}>
-            {// TRANSLATORS: Try again
-            pgettext('support-view', 'try-again-button')}
+            {pgettext('support-view', 'Try again')}
           </AppButton.GreenButton>
         </View>
       </View>
@@ -395,17 +373,16 @@ class ConfirmNoEmailDialog extends Component<IConfirmNoEmailDialogProps> {
       <View style={styles.confirm_no_email_background}>
         <View style={styles.confirm_no_email_dialog}>
           <Text style={styles.confirm_no_email_warning}>
-            {// TRANSLATORS: You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.
-
-            pgettext('support-view', 'confirm-no-email-dialog-title')}
+            {pgettext(
+              'support-view',
+              'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
+            )}
           </Text>
           <AppButton.GreenButton onPress={this.confirm}>
-            {// TRANSLATORS: Send anyway
-            pgettext('support-view', 'confirm-no-email-dialog-send-button')}
+            {pgettext('support-view', 'Send anyway')}
           </AppButton.GreenButton>
           <AppButton.RedButton onPress={this.dismiss} style={styles.confirm_no_email_back_button}>
-            {// TRANSLATORS: Back
-            pgettext('support-view', 'confirm-no-email-dialog-back-button')}
+            {pgettext('support-view', 'Back')}
           </AppButton.RedButton>
         </View>
       </View>

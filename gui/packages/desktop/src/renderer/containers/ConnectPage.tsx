@@ -44,8 +44,10 @@ function getRelayName(
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
           return sprintf(
-            // TRANSLATORS: %(city)s (%(hostname)s)
-            pgettext('connect-container', 'hostname-relay-display-name'),
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(city)s - a city name
+            // TRANSLATORS: %(hostname)s - a hostname
+            pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
               city: city.name,
               hostname,

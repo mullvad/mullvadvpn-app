@@ -39,56 +39,48 @@ export default class Preferences extends Component<IPreferencesProps> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose}>
-                  {// TRANSLATORS: Settings
-                  pgettext('preferences-view', 'back-bar-item')}
+                  {pgettext('preferences-view', 'Settings')}
                 </BackBarItem>
-                <TitleBarItem>
-                  {// TRANSLATORS: Preferences
-                  pgettext('preferences-view', 'title-bar-item')}
-                </TitleBarItem>
+                <TitleBarItem>{pgettext('preferences-view', 'Preferences')}</TitleBarItem>
               </NavigationBar>
 
               <View style={styles.preferences__container}>
                 <NavigationScrollbars>
                   <SettingsHeader>
-                    <HeaderTitle>
-                      {// TRANSLATORS: Preferences
-                      pgettext('preferences-view', 'header-title')}
-                    </HeaderTitle>
+                    <HeaderTitle>{pgettext('preferences-view', 'Preferences')}</HeaderTitle>
                   </SettingsHeader>
 
                   <View style={styles.preferences__content}>
                     <Cell.Container>
                       <Cell.Label>
-                        {// TRANSLATORS: Launch app on start-up
-                        pgettext('preferences-view', 'auto-start-label')}
+                        {pgettext('preferences-view', 'Launch app on start-up')}
                       </Cell.Label>
                       <Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
                     <Cell.Container>
-                      <Cell.Label>
-                        {// TRANSLATORS: Auto-connect
-                        pgettext('preferences-view', 'auto-connect-label')}
-                      </Cell.Label>
+                      <Cell.Label>{pgettext('preferences-view', 'Auto-connect')}</Cell.Label>
                       <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
                     </Cell.Container>
                     <Cell.Footer>
-                      {// TRANSLATORS: Automatically connect to a server when the app launches.
-                      pgettext('preferences-view', 'auto-connect-footer')}
+                      {pgettext(
+                        'preferences-view',
+                        'Automatically connect to a server when the app launches.',
+                      )}
                     </Cell.Footer>
 
                     <Cell.Container>
                       <Cell.Label>
-                        {// TRANSLATORS: Local network sharing
-                        pgettext('preferences-view', 'local-network-sharing-label')}
+                        {pgettext('preferences-view', 'Local network sharing')}
                       </Cell.Label>
                       <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                     </Cell.Container>
                     <Cell.Footer>
-                      {// TRANSLATORS: Allows access to other devices on the same network for sharing, printing etc.
-                      pgettext('preferences-view', 'local-network-sharing-footer')}
+                      {pgettext(
+                        'preferences-view',
+                        'Allows access to other devices on the same network for sharing, printing etc.',
+                      )}
                     </Cell.Footer>
 
                     <MonochromaticIconToggle
@@ -129,15 +121,14 @@ class MonochromaticIconToggle extends Component<IMonochromaticIconProps> {
       return (
         <View>
           <Cell.Container>
-            <Cell.Label>
-              {// TRANSLATORS: Monochromatic tray icon
-              pgettext('preferences-view', 'monochromatic-tray-icon-label')}
-            </Cell.Label>
+            <Cell.Label>{pgettext('preferences-view', 'Monochromatic tray icon')}</Cell.Label>
             <Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
-            {// TRANSLATORS: Use a monochromatic tray icon instead of a colored one.
-            pgettext('preferences-view', 'monochromatic-tray-icon-footer')}
+            {pgettext(
+              'preferences-view',
+              'Use a monochromatic tray icon instead of a colored one.',
+            )}
           </Cell.Footer>
         </View>
       );
@@ -159,15 +150,11 @@ class StartMinimizedToggle extends Component<IStartMinimizedProps> {
       return (
         <View>
           <Cell.Container>
-            <Cell.Label>
-              {// TRANSLATORS: Start minimized
-              pgettext('preferences-view', 'start-minimized-label')}
-            </Cell.Label>
+            <Cell.Label>{pgettext('preferences-view', 'Start minimized')}</Cell.Label>
             <Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
-            {// TRANSLATORS: Show only the tray icon when the app starts.
-            pgettext('preferences-view', 'start-minimized-footer')}
+            {pgettext('preferences-view', 'Show only the tray icon when the app starts.')}
           </Cell.Footer>
         </View>
       );

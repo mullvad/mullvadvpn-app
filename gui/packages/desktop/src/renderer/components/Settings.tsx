@@ -43,20 +43,14 @@ export default class Settings extends Component<IProps> {
             <NavigationContainer>
               <NavigationBar>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {// TRANSLATORS: Settings
-                  pgettext('settings-view', 'title-bar-item')}
-                </TitleBarItem>
+                <TitleBarItem>{pgettext('settings-view', 'Settings')}</TitleBarItem>
               </NavigationBar>
 
               <View style={styles.settings__container}>
                 <NavigationScrollbars style={styles.settings__scrollview}>
                   <View style={styles.settings__content}>
                     <SettingsHeader>
-                      <HeaderTitle>
-                        {// TRANSLATORS: Settings
-                        pgettext('settings-view', 'header-title')}
-                      </HeaderTitle>
+                      <HeaderTitle>{pgettext('settings-view', 'Settings')}</HeaderTitle>
                     </SettingsHeader>
                     <View>
                       {this.renderTopButtons()}
@@ -78,8 +72,7 @@ export default class Settings extends Component<IProps> {
     return (
       <View style={styles.settings__footer}>
         <AppButton.RedButton onPress={this.props.onQuit}>
-          {// TRANSLATORS: Quit app
-          pgettext('settings-view', 'quit-app-button')}
+          {pgettext('settings-view', 'Quit app')}
         </AppButton.RedButton>
       </View>
     );
@@ -95,17 +88,13 @@ export default class Settings extends Component<IProps> {
     const isOutOfTime = expiry ? expiry.hasExpired() : false;
     const formattedExpiry = expiry ? expiry.remainingTime().toUpperCase() : '';
 
-    // TRANSLATORS: OUT OF TIME
-    const outOfTimeMessage = pgettext('settings-view', 'account-cell-out-of-time-subtext');
+    const outOfTimeMessage = pgettext('settings-view', 'OUT OF TIME');
 
     return (
       <View>
         <View>
           <Cell.CellButton onPress={this.props.onViewAccount}>
-            <Cell.Label>
-              {// TRANSLATORS: Account
-              pgettext('settings-view', 'account-cell-label')}
-            </Cell.Label>
+            <Cell.Label>{pgettext('settings-view', 'Account')}</Cell.Label>
             <Cell.SubText style={styles.settings__account_paid_until_label__error}>
               {isOutOfTime ? outOfTimeMessage : formattedExpiry}
             </Cell.SubText>
@@ -114,18 +103,12 @@ export default class Settings extends Component<IProps> {
         </View>
 
         <Cell.CellButton onPress={this.props.onViewPreferences}>
-          <Cell.Label>
-            {// TRANSLATORS: Preferences
-            pgettext('settings-view', 'preferences-cell-label')}
-          </Cell.Label>
+          <Cell.Label>{pgettext('settings-view', 'Preferences')}</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewAdvancedSettings}>
-          <Cell.Label>
-            {// TRANSLATORS: Advanced
-            pgettext('settings-view', 'advanced-settings-cell-label')}
-          </Cell.Label>
+          <Cell.Label>{pgettext('settings-view', 'Advanced')}</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
         <View style={styles.settings__cell_spacer} />
@@ -137,13 +120,11 @@ export default class Settings extends Component<IProps> {
     let icon;
     let footer;
     if (!this.props.consistentVersion || !this.props.upToDateVersion) {
-      // TRANSLATORS: Inconsistent internal version information, please restart the app.
       const inconsistentVersionMessage = pgettext(
         'settings-view',
         'app-version-cell-inconsistent-version-footer',
       );
 
-      // TRANSLATORS: Update available, download to remain safe.
       const updateAvailableMessage = pgettext(
         'settings-view',
         'app-version-cell-update-available-footer',
@@ -173,10 +154,7 @@ export default class Settings extends Component<IProps> {
       <View>
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openDownloadLink}>
           {icon}
-          <Cell.Label>
-            {// TRANSLATORS: App version
-            pgettext('settings-view', 'app-version-cell-label')}
-          </Cell.Label>
+          <Cell.Label>{pgettext('settings-view', 'App version')}</Cell.Label>
           <Cell.SubText>{this.props.appVersion}</Cell.SubText>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
@@ -192,18 +170,12 @@ export default class Settings extends Component<IProps> {
     return (
       <View>
         <Cell.CellButton onPress={this.props.onViewSupport}>
-          <Cell.Label>
-            {// TRANSLATORS: Report a problem
-            pgettext('settings-view', 'report-problem-cell-label')}
-          </Cell.Label>
+          <Cell.Label>{pgettext('settings-view', 'Report a problem')}</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openFaqLink}>
-          <Cell.Label>
-            {// TRANSLATORS: FAQs & Guides
-            pgettext('settings-view', 'faq-cell-label')}
-          </Cell.Label>
+          <Cell.Label>{pgettext('settings-view', 'FAQs & Guides')}</Cell.Label>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
       </View>
