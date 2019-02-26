@@ -296,6 +296,12 @@ export default class Support extends Component<ISupportProps, ISupportState> {
   }
 
   private renderSent() {
+    // TRANSLATORS: Available placeholders
+    // TRANSLATORS: %(email)s
+    const reachBackMessage: React.ReactNodeArray = pgettext('support-view', 'If needed we will contact you on %(email)s')
+      .split('%(email)s', 2);
+    reachBackMessage.splice(1, 0, <Text key={"email"} style={styles.support__sent_email}>{this.state.email}</Text>);
+
     return (
       <View style={styles.support__content}>
         <View style={styles.support__form}>
@@ -313,8 +319,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             </Text>
             {this.state.email.trim().length > 0 ? (
               <Text style={styles.support__sent_message}>
-                {pgettext('support-view', 'If needed we will contact you on ')}
-                <Text style={styles.support__sent_email}>{this.state.email}</Text>
+                {reachBackMessage}
               </Text>
             ) : null}
           </View>
