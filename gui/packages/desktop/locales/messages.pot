@@ -9,90 +9,102 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:37
+#. Back button in navigation bar
+#: src/renderer/components/Account.tsx:33
+msgctxt "account-nav"
+msgid "Settings"
+msgstr ""
+
+#: src/renderer/components/Account.tsx:40
 msgctxt "account-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:44
+#: src/renderer/components/Account.tsx:47
 msgctxt "account-view"
 msgid "Account ID"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:67
+#: src/renderer/components/Account.tsx:70
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:49
+#: src/renderer/components/Account.tsx:52
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:89
+#: src/renderer/components/Account.tsx:92
 msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:72
+#: src/renderer/components/Account.tsx:75
 msgctxt "account-view"
 msgid "Log out"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:98
+#: src/renderer/components/Account.tsx:101
 msgctxt "account-view"
 msgid "OUT OF TIME"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:31
-msgctxt "account-view"
+#. Title label in navigation bar
+#: src/renderer/components/AdvancedSettings.tsx:99
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr ""
+
+#. Back button in navigation bar
+#: src/renderer/components/AdvancedSettings.tsx:95
+msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr ""
 
 #. Available placeholders:
 #. %(portType)s - a selected protocol (either TCP or UDP)
-#: src/renderer/components/AdvancedSettings.tsx:146
+#: src/renderer/components/AdvancedSettings.tsx:151
 msgctxt "advanced-settings-view"
 msgid "%(portType)s port"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:101
-#: src/renderer/components/AdvancedSettings.tsx:95
+#: src/renderer/components/AdvancedSettings.tsx:106
 msgctxt "advanced-settings-view"
 msgid "Advanced"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:258
+#: src/renderer/components/AdvancedSettings.tsx:263
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:117
+#: src/renderer/components/AdvancedSettings.tsx:122
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:166
+#: src/renderer/components/AdvancedSettings.tsx:171
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:105
+#: src/renderer/components/AdvancedSettings.tsx:110
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:109
+#: src/renderer/components/AdvancedSettings.tsx:114
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:161
+#: src/renderer/components/AdvancedSettings.tsx:166
 msgctxt "advanced-settings-view"
 msgid "Mssfix"
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:133
+#: src/renderer/components/AdvancedSettings.tsx:138
 msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr ""
@@ -100,17 +112,12 @@ msgstr ""
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-#: src/renderer/components/AdvancedSettings.tsx:180
+#: src/renderer/components/AdvancedSettings.tsx:185
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
-#: src/renderer/components/AdvancedSettings.tsx:93
-msgctxt "advanced-settings-view"
-msgid "Settings"
-msgstr ""
-
-#: src/renderer/components/AdvancedSettings.tsx:125
+#: src/renderer/components/AdvancedSettings.tsx:130
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
 msgstr ""
@@ -349,152 +356,174 @@ msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:80
+#. Title label in navigation bar
+#: src/renderer/components/Preferences.tsx:48
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr ""
+
+#. Back button in navigation bar
+#: src/renderer/components/Preferences.tsx:44
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr ""
+
+#: src/renderer/components/Preferences.tsx:84
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:63
+#: src/renderer/components/Preferences.tsx:67
 msgctxt "preferences-view"
 msgid "Auto-connect"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:67
+#: src/renderer/components/Preferences.tsx:71
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:56
+#: src/renderer/components/Preferences.tsx:60
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:75
+#: src/renderer/components/Preferences.tsx:79
 msgctxt "preferences-view"
 msgid "Local network sharing"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:124
+#: src/renderer/components/Preferences.tsx:128
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:44
-#: src/renderer/components/Preferences.tsx:50
+#: src/renderer/components/Preferences.tsx:54
 msgctxt "preferences-view"
 msgid "Preferences"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:42
-msgctxt "preferences-view"
-msgid "Settings"
-msgstr ""
-
-#: src/renderer/components/Preferences.tsx:157
+#: src/renderer/components/Preferences.tsx:161
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:153
+#: src/renderer/components/Preferences.tsx:157
 msgctxt "preferences-view"
 msgid "Start minimized"
 msgstr ""
 
-#: src/renderer/components/Preferences.tsx:128
+#: src/renderer/components/Preferences.tsx:132
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr ""
 
-#: src/renderer/components/SelectLocation.tsx:116
-#: src/renderer/components/SelectLocation.tsx:123
-msgctxt "select-location-view"
+#. Title label in navigation bar
+#: src/renderer/components/SelectLocation.tsx:118
+msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
 #: src/renderer/components/SelectLocation.tsx:126
 msgctxt "select-location-view"
+msgid "Select location"
+msgstr ""
+
+#: src/renderer/components/SelectLocation.tsx:129
+msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:97
+#: src/renderer/components/Settings.tsx:100
 msgctxt "settings-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:111
+#: src/renderer/components/Settings.tsx:114
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:157
+#: src/renderer/components/Settings.tsx:160
 msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:123
+#: src/renderer/components/Settings.tsx:126
 msgctxt "settings-view"
 msgid "app-version-cell-inconsistent-version-footer"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:128
+#: src/renderer/components/Settings.tsx:131
 msgctxt "settings-view"
 msgid "app-version-cell-update-available-footer"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:178
+#: src/renderer/components/Settings.tsx:181
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:91
+#: src/renderer/components/Settings.tsx:94
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:106
+#: src/renderer/components/Settings.tsx:109
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:75
+#: src/renderer/components/Settings.tsx:78
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:173
+#: src/renderer/components/Settings.tsx:176
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:46
-#: src/renderer/components/Settings.tsx:53
+#: src/renderer/components/Settings.tsx:56
 msgctxt "settings-view"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:385
+#. Title label in navigation bar
+#: src/renderer/components/Settings.tsx:48
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr ""
+
+#. Back button in navigation bar
+#: src/renderer/components/Support.tsx:153
+msgctxt "support-nav"
+msgid "Settings"
+msgstr ""
+
+#: src/renderer/components/Support.tsx:392
 msgctxt "support-view"
 msgid "Back"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:257
+#: src/renderer/components/Support.tsx:259
 msgctxt "support-view"
 msgid "Describe your problem"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:350
+#: src/renderer/components/Support.tsx:357
 msgctxt "support-view"
 msgid "Edit message"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:338
+#: src/renderer/components/Support.tsx:345
 msgctxt "support-view"
 msgid "Failed to send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:316
+#: src/renderer/components/Support.tsx:303
 msgctxt "support-view"
-msgid "If needed we will contact you on "
+msgid "If needed we will contact you on %(email)s"
 msgstr ""
 
 #: src/renderer/components/Support.tsx:129
@@ -502,39 +531,34 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:287
-#: src/renderer/components/Support.tsx:307
-#: src/renderer/components/Support.tsx:335
+#: src/renderer/components/Support.tsx:289
+#: src/renderer/components/Support.tsx:315
+#: src/renderer/components/Support.tsx:342
 msgctxt "support-view"
 msgid "SECURE CONNECTION"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:270
+#: src/renderer/components/Support.tsx:272
 msgctxt "support-view"
 msgid "Send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:382
+#: src/renderer/components/Support.tsx:389
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:290
+#: src/renderer/components/Support.tsx:292
 msgctxt "support-view"
 msgid "Sending..."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:309
+#: src/renderer/components/Support.tsx:317
 msgctxt "support-view"
 msgid "Sent"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:151
-msgctxt "support-view"
-msgid "Settings"
-msgstr ""
-
-#: src/renderer/components/Support.tsx:312
+#: src/renderer/components/Support.tsx:320
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
 msgstr ""
@@ -544,27 +568,27 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:353
+#: src/renderer/components/Support.tsx:360
 msgctxt "support-view"
 msgid "Try again"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:266
+#: src/renderer/components/Support.tsx:268
 msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:376
+#: src/renderer/components/Support.tsx:383
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:341
+#: src/renderer/components/Support.tsx:348
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:247
+#: src/renderer/components/Support.tsx:249
 msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr ""

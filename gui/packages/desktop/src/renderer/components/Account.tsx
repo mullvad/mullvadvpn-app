@@ -28,7 +28,8 @@ export default class Account extends Component<IProps> {
           <View style={styles.account}>
             <NavigationBar>
               <BackBarItem action={this.props.onClose}>
-                {pgettext('account-view', 'Settings')}
+                {// TRANSLATORS: Back button in navigation bar
+                pgettext('account-nav', 'Settings')}
               </BackBarItem>
             </NavigationBar>
 

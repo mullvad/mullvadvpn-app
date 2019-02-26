@@ -148,7 +148,8 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <View style={styles.support}>
                 <NavigationBar>
                   <BackBarItem action={this.props.onClose}>
-                    {pgettext('support-view', 'Settings')}
+                    {// TRANSLATORS: Back button in navigation bar
+                    pgettext('support-nav', 'Settings')}
                   </BackBarItem>
                 </NavigationBar>
                 <View style={styles.support__container}>
@@ -298,9 +299,17 @@ export default class Support extends Component<ISupportProps, ISupportState> {
   private renderSent() {
     // TRANSLATORS: Available placeholders
     // TRANSLATORS: %(email)s
-    const reachBackMessage: React.ReactNodeArray = pgettext('support-view', 'If needed we will contact you on %(email)s')
-      .split('%(email)s', 2);
-    reachBackMessage.splice(1, 0, <Text key={"email"} style={styles.support__sent_email}>{this.state.email}</Text>);
+    const reachBackMessage: React.ReactNodeArray = pgettext(
+      'support-view',
+      'If needed we will contact you on %(email)s',
+    ).split('%(email)s', 2);
+    reachBackMessage.splice(
+      1,
+      0,
+      <Text key={'email'} style={styles.support__sent_email}>
+        {this.state.email}
+      </Text>,
+    );
 
     return (
       <View style={styles.support__content}>
@@ -318,9 +327,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               {pgettext('support-view', 'Thanks! We will look into this.')}
             </Text>
             {this.state.email.trim().length > 0 ? (
-              <Text style={styles.support__sent_message}>
-                {reachBackMessage}
-              </Text>
+              <Text style={styles.support__sent_message}>{reachBackMessage}</Text>
             ) : null}
           </View>
         </View>

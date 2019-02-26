@@ -113,7 +113,10 @@ export default class SelectLocation extends Component<IProps, IState> {
             <NavigationContainer>
               <NavigationBar>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>{pgettext('select-location-view', 'Select location')}</TitleBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Title label in navigation bar
+                  pgettext('select-location-nav', 'Select location')}
+                </TitleBarItem>
               </NavigationBar>
               <View style={styles.container}>
                 <NavigationScrollbars ref={this.scrollViewRef}>

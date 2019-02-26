@@ -90,9 +90,13 @@ export default class AdvancedSettings extends Component<IProps, IState> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose}>
-                  {pgettext('advanced-settings-view', 'Settings')}
+                  {// TRANSLATORS: Back button in navigation bar
+                  pgettext('advanced-settings-nav', 'Settings')}
                 </BackBarItem>
-                <TitleBarItem>{pgettext('advanced-settings-view', 'Advanced')}</TitleBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Title label in navigation bar
+                  pgettext('advanced-settings-nav', 'Advanced')}
+                </TitleBarItem>
               </NavigationBar>
 
               <View style={styles.advanced_settings__container}>

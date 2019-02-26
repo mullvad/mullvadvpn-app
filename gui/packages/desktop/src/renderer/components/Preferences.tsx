@@ -39,9 +39,13 @@ export default class Preferences extends Component<IPreferencesProps> {
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose}>
-                  {pgettext('preferences-view', 'Settings')}
+                  {// TRANSLATORS: Back button in navigation bar
+                  pgettext('preferences-nav', 'Settings')}
                 </BackBarItem>
-                <TitleBarItem>{pgettext('preferences-view', 'Preferences')}</TitleBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Title label in navigation bar
+                  pgettext('preferences-nav', 'Preferences')}
+                </TitleBarItem>
               </NavigationBar>
 
               <View style={styles.preferences__container}>

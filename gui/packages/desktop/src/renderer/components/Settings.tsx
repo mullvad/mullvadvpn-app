@@ -43,7 +43,10 @@ export default class Settings extends Component<IProps> {
             <NavigationContainer>
               <NavigationBar>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>{pgettext('settings-view', 'Settings')}</TitleBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Title label in navigation bar
+                  pgettext('settings-view-nav', 'Settings')}
+                </TitleBarItem>
               </NavigationBar>
 
               <View style={styles.settings__container}>
