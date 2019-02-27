@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "name": "@mullvad/config",
-  "version": "0.1.0",
-  "devDependencies": {
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^3.6.0"
-  }
-}
