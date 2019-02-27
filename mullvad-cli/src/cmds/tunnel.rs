@@ -38,7 +38,8 @@ fn create_wireguard_subcommand() -> clap::App<'static, 'static> {
     let app = clap::SubCommand::with_name("wireguard")
         .about("Manage options for Wireguard tunnels")
         .setting(clap::AppSettings::SubcommandRequired)
-        .subcommand(create_wireguard_mtu_subcommand());
+        .subcommand(create_wireguard_mtu_subcommand())
+        .subcommand(create_wireguard_keys_subcommand());
     if cfg!(target_os = "linux") {
         app.subcommand(create_wireguard_fwmark_subcommand())
     } else {
@@ -55,6 +56,14 @@ fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
         .subcommand(
             clap::SubCommand::with_name("set").arg(clap::Arg::with_name("mtu").required(true)),
         )
+}
+
+fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
+    clap::SubCommand::with_name("key")
+        .about("Manage your wireguard keys")
+        .setting(clap::AppSettings::SubcommandRequired)
+        .subcommand(clap::SubCommand::with_name("check"))
+        .subcommand(clap::SubCommand::with_name("generate"))
 }
 
 fn create_wireguard_fwmark_subcommand() -> clap::App<'static, 'static> {
@@ -227,6 +236,12 @@ impl Tunnel {
                 _ => unreachable!("unhandled command"),
             },
 
+            ("key", Some(matches)) => match matches.subcommand() {
+                ("check", _) => Self::process_wireguard_key_check(),
+                ("generate", _) => Self::process_wireguard_key_generate(),
+                _ => unreachable!("unhandled command"),
+            },
+
             #[cfg(target_os = "linux")]
             ("fwmark", Some(matches)) => match matches.subcommand() {
                 ("get", _) => Self::process_wireguard_fwmark_get(),
@@ -263,6 +278,28 @@ impl Tunnel {
         rpc.set_wireguard_mtu(None)?;
         println!("Wireguard MTU has been unset");
         Ok(())
+    }
+
+    fn process_wireguard_key_check() -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        match rpc.get_wireguard_key()? {
+            Some(key) => {
+                println!("Current key: {}", key);
+            }
+            None => {
+                println!("No key is set");
+                return Ok(());
+            }
+        };
+
+        let is_valid = rpc.verify_wireguard_key()?;
+        println!("Key is valid for use with current account: {}", is_valid);
+        Ok(())
+    }
+
+    fn process_wireguard_key_generate() -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        rpc.generate_wireguard_key().map_err(|e| e.into())
     }
 
     #[cfg(target_os = "linux")]

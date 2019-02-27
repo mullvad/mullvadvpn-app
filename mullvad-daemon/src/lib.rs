@@ -26,7 +26,7 @@ use futures::{
     Future, Sink,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle};
+use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle, WireguardKeyProxy};
 use mullvad_types::{
     account::{AccountData, AccountToken},
     endpoint::MullvadEndpoint,
@@ -46,7 +46,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters},
+    net::{openvpn, wireguard, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
 };
 
@@ -66,9 +66,13 @@ error_chain! {
             description("Error in the management interface")
             display("Management interface error: {}", msg)
         }
+        NoKeyAvailable {
+            description("No wireguard private key available")
+        }
     }
     links {
         TunnelError(tunnel_state_machine::Error, tunnel_state_machine::ErrorKind);
+        AccountHistory(account_history::Error, account_history::ErrorKind);
     }
 }
 
@@ -156,6 +160,8 @@ pub struct Daemon {
     #[cfg(unix)]
     management_interface_socket_path: String,
     settings: Settings,
+    account_history: account_history::AccountHistory,
+    wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
@@ -195,6 +201,9 @@ impl Daemon {
         let relay_selector =
             relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
         let settings = Settings::load().chain_err(|| "Unable to read settings")?;
+        let account_history = account_history::AccountHistory::new(&cache_dir)
+            .chain_err(|| "Unable to read wireguard key cache")?;
+
 
         let (tx, rx) = mpsc::channel();
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
@@ -209,7 +218,7 @@ impl Daemon {
         )?;
 
         let target_state = TargetState::Unsecured;
-        let management_interface_result = Self::start_management_interface(tx.clone(), cache_dir)?;
+        let management_interface_result = Self::start_management_interface(tx.clone())?;
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -226,6 +235,8 @@ impl Daemon {
             #[cfg(unix)]
             management_interface_socket_path: management_interface_result.1,
             settings,
+            account_history,
+            wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
@@ -240,10 +251,9 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<DaemonEvent>,
-        cache_dir: PathBuf,
     ) -> Result<(management_interface::EventBroadcaster, String)> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx, cache_dir)?;
+        let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
         let socket_path = server.socket_path().to_owned();
         Self::spawn_management_interface_wait_thread(server, event_tx);
@@ -252,9 +262,8 @@ impl Daemon {
 
     fn start_management_interface_server(
         event_tx: IntoSender<ManagementCommand, DaemonEvent>,
-        cache_dir: PathBuf,
     ) -> Result<ManagementInterfaceServer> {
-        let server = ManagementInterfaceServer::start(event_tx, cache_dir)
+        let server = ManagementInterfaceServer::start(event_tx)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
         info!(
             "Mullvad management interface listening on {}",
@@ -370,7 +379,7 @@ impl Daemon {
     }
 
     fn create_tunnel_parameters(
-        &self,
+        &mut self,
         endpoint: MullvadEndpoint,
         account_token: String,
     ) -> Result<TunnelParameters> {
@@ -382,10 +391,30 @@ impl Daemon {
                 generic_options: tunnel_options.generic,
             }
             .into()),
-            MullvadEndpoint::Wireguard {
-                peer: _,
-                gateway: _,
-            } => Err(ErrorKind::UnsupportedTunnel.into()),
+            MullvadEndpoint::Wireguard { peer, gateway } => {
+                let wg_data = self
+                    .account_history
+                    .get(&account_token)?
+                    .and_then(|entry| entry.wireguard)
+                    .ok_or(ErrorKind::NoKeyAvailable)?;
+                let tunnel = wireguard::TunnelConfig {
+                    private_key: wg_data.private_key,
+                    addresses: vec![
+                        wg_data.addresses.ipv4_address.ip().into(),
+                        wg_data.addresses.ipv6_address.ip().into(),
+                    ],
+                };
+                Ok(wireguard::TunnelParameters {
+                    connection: wireguard::ConnectionConfig {
+                        tunnel,
+                        peer,
+                        gateway,
+                    },
+                    options: tunnel_options.wireguard,
+                    generic_options: tunnel_options.generic,
+                }
+                .into())
+            }
         }
     }
 
@@ -423,6 +452,10 @@ impl Daemon {
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations(),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
+            GetAccountHistory(tx) => self.on_get_account_history(tx),
+            RemoveAccountFromHistory(tx, account_token) => {
+                self.on_remove_account_from_history(tx, account_token)
+            }
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
@@ -436,6 +469,9 @@ impl Daemon {
             SetWireguardFwmark(tx, fwmark) => self.on_set_wireguard_fwmark(tx, fwmark),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             GetSettings(tx) => self.on_get_settings(tx),
+            GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
+            GetWireguardKey(tx) => self.on_get_wireguard_key(tx),
+            VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             Shutdown => self.handle_trigger_shutdown_event(),
@@ -537,8 +573,7 @@ impl Daemon {
     }
 
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
-        let account_token_cleared = account_token.is_none();
-        let save_result = self.settings.set_account_token(account_token);
+        let save_result = self.settings.set_account_token(account_token.clone());
 
         match save_result.chain_err(|| "Unable to save settings") {
             Ok(account_changed) => {
@@ -546,16 +581,40 @@ impl Daemon {
                 if account_changed {
                     self.management_interface_broadcaster
                         .notify_settings(&self.settings);
-                    if account_token_cleared {
-                        info!("Disconnecting because account token was cleared");
-                        self.set_target_state(TargetState::Unsecured);
-                    } else {
-                        info!("Initiating tunnel restart because the account token changed");
-                        self.reconnect_tunnel();
+                    match account_token {
+                        Some(token) => {
+                            if let Err(e) = self.account_history.bump_history(&token) {
+                                log::error!("Failed to bump account history: {}", e);
+                            }
+                            info!("Initiating tunnel restart because the account token changed");
+                            self.reconnect_tunnel();
+                        }
+                        None => {
+                            info!("Disconnecting because account token was cleared");
+                            self.set_target_state(TargetState::Unsecured);
+                        }
                     }
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
+        Self::oneshot_send(
+            tx,
+            self.account_history.get_account_history(),
+            "get_account_history response",
+        );
+    }
+
+    fn on_remove_account_from_history(
+        &mut self,
+        tx: oneshot::Sender<()>,
+        account_token: AccountToken,
+    ) {
+        if let Ok(_) = self.account_history.remove_account(&account_token) {
+            Self::oneshot_send(tx, (), "remove_account_from_history response");
         }
     }
 
@@ -759,6 +818,117 @@ impl Daemon {
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
+        }
+    }
+
+    fn on_generate_wireguard_key(
+        &mut self,
+        tx: oneshot::Sender<::std::result::Result<(), mullvad_rpc::Error>>,
+    ) {
+        let mut result = || -> ::std::result::Result<(), String> {
+            let account_token = self
+                .settings
+                .get_account_token()
+                .ok_or("No account token set".to_string())?;
+
+            let mut account_entry = self
+                .account_history
+                .get(&account_token)
+                .map_err(|e| format!("Failed to read account entry from history: {}", e))
+                .map(|data| {
+                    data.unwrap_or_else(|| {
+                        log::error!("Account token set in settings but not in account history");
+                        account_history::AccountEntry {
+                            account: account_token.clone(),
+                            wireguard: None,
+                        }
+                    })
+                })?;
+
+            let private_key = wireguard::PrivateKey::new_from_random()
+                .map_err(|e| format!("Failed to generate new key - {}", e))?;
+
+            let fut = self
+                .wg_key_proxy
+                .push_wg_key(account_token, private_key.public_key());
+
+            let mut core = tokio_core::reactor::Core::new()
+                .map_err(|e| format!("Failed to spawn future for pushing wg key - {}", e))?;
+
+            let addresses = core
+                .run(fut)
+                .map_err(|e| format!("Failed to push new wireguard key: {}", e))?;
+
+            account_entry.wireguard = Some(mullvad_types::wireguard::WireguardData {
+                private_key,
+                addresses,
+            });
+
+            self.account_history
+                .insert(account_entry)
+                .map_err(|e| format!("Failed to add new wireguard key to account data: {}", e))
+        };
+        match result() {
+            Ok(()) => {
+                Self::oneshot_send(tx, Ok(()), "generate_wireguard_key response");
+            }
+            Err(e) => {
+                log::error!("Failed to generate new wireguard key - {}", e);
+            }
+        }
+    }
+
+    fn on_get_wireguard_key(&mut self, tx: oneshot::Sender<Option<wireguard::PublicKey>>) {
+        let key = self
+            .settings
+            .get_account_token()
+            .and_then(|account| self.account_history.get(&account).ok()?)
+            .and_then(|account_entry| {
+                account_entry
+                    .wireguard
+                    .map(|wg| wg.private_key.public_key())
+            });
+
+        Self::oneshot_send(tx, key, "get_wireguard_key response");
+    }
+
+    fn on_verify_wireguard_key(&mut self, tx: oneshot::Sender<bool>) {
+        use futures::future::Executor;
+        let account = match self.settings.get_account_token() {
+            Some(account) => account,
+            None => {
+                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                return;
+            }
+        };
+
+        let key = self
+            .account_history
+            .get(&account)
+            .map(|entry| entry.and_then(|e| e.wireguard.map(|wg| wg.private_key.public_key())));
+
+        let public_key = match key {
+            Ok(Some(public_key)) => public_key,
+            Ok(None) => {
+                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                return;
+            }
+            Err(e) => {
+                log::error!("Failed to read key data: {}", e);
+                return;
+            }
+        };
+
+        let fut = self
+            .wg_key_proxy
+            .check_wg_key(account, public_key.clone())
+            .map(|is_valid| {
+                Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
+                ()
+            })
+            .map_err(|e| log::error!("Failed to verify wireguard key - {}", e));
+        if let Err(e) = self.tokio_remote.execute(fut) {
+            log::error!("Failed to spawn a future to verify wireguard key: {:?}", e);
         }
     }
 

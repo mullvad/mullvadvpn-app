@@ -1,4 +1,3 @@
-use crate::account_history::{AccountHistory, Error as AccountHistoryError};
 use error_chain::ChainedError;
 use jsonrpc_core::{
     futures::{
@@ -25,12 +24,14 @@ use mullvad_types::{
 use serde;
 use std::{
     collections::{hash_map::Entry, HashMap},
-    path::PathBuf,
     sync::{Arc, Mutex, RwLock},
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{net::openvpn, tunnel::TunnelStateTransition};
+use talpid_types::{
+    net::{openvpn, wireguard},
+    tunnel::TunnelStateTransition,
+};
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -133,6 +134,18 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_settings")]
         fn get_settings(&self, Self::Metadata) -> BoxFuture<Settings, Error>;
 
+        /// Generates new wireguard key for current account
+        #[rpc(meta, name = "generate_wireguard_key")]
+        fn generate_wireguard_key(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
+        /// Retrieve a public key for current account if the account has one.
+        #[rpc(meta, name = "get_wireguard_key")]
+        fn get_wireguard_key(&self, Self::Metadata) -> BoxFuture<Option<wireguard::PublicKey>, Error>;
+
+        /// Verify if current wireguard key is still valid
+        #[rpc(meta, name = "verify_wireguard_key")]
+        fn verify_wireguard_key(&self, Self::Metadata) -> BoxFuture<bool, Error>;
+
         /// Retreive version of the app
         #[rpc(meta, name = "get_current_version")]
         fn get_current_version(&self, Self::Metadata) -> BoxFuture<String, Error>;
@@ -182,6 +195,10 @@ pub enum ManagementCommand {
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         AccountToken,
     ),
+    /// Request account history
+    GetAccountHistory(OneshotSender<Vec<AccountToken>>),
+    /// Request account history
+    RemoveAccountFromHistory(OneshotSender<()>, AccountToken),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(OneshotSender<RelayList>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
@@ -213,6 +230,12 @@ pub enum ManagementCommand {
     SetWireguardMtu(OneshotSender<()>, Option<u16>),
     /// Get the daemon settings
     GetSettings(OneshotSender<Settings>),
+    /// Generate new wireguard key
+    GenerateWireguardKey(OneshotSender<Result<(), mullvad_rpc::Error>>),
+    /// Return a public key of the currently set wireguard private key, if there is one
+    GetWireguardKey(OneshotSender<Option<wireguard::PublicKey>>),
+    /// Verify if the currently set wireguard key is valid.
+    VerifyWireguardKey(OneshotSender<bool>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
     /// Get current version of the app
@@ -233,14 +256,11 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(
-        tunnel_tx: IntoSender<ManagementCommand, T>,
-        cache_dir: PathBuf,
-    ) -> talpid_ipc::Result<Self>
+    pub fn start<T>(tunnel_tx: IntoSender<ManagementCommand, T>) -> talpid_ipc::Result<Self>
     where
         T: From<ManagementCommand> + 'static + Send,
     {
-        let rpc = ManagementInterface::new(tunnel_tx, cache_dir);
+        let rpc = ManagementInterface::new(tunnel_tx);
         let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
@@ -309,15 +329,13 @@ impl EventBroadcaster {
 struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
     subscriptions: Arc<ActiveSubscriptions>,
     tx: Mutex<IntoSender<ManagementCommand, T>>,
-    cache_dir: PathBuf,
 }
 
 impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<ManagementCommand, T>, cache_dir: PathBuf) -> Self {
+    pub fn new(tx: IntoSender<ManagementCommand, T>) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx: Mutex::new(tx),
-            cache_dir,
         }
     }
 
@@ -381,12 +399,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
             _ => Error::internal_error(),
         }
     }
-
-    fn load_history(&self) -> Result<AccountHistory, AccountHistoryError> {
-        let mut account_history = AccountHistory::new(&self.cache_dir);
-        account_history.load()?;
-        Ok(account_history)
-    }
 }
 
 impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
@@ -440,18 +452,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let future = self
             .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token.clone()))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
-
-        if let Some(new_account_token) = account_token {
-            if let Err(e) = self.load_history().and_then(|mut account_history| {
-                account_history.add_account_token(new_account_token)
-            }) {
-                log::error!(
-                    "Unable to add an account into the account history: {}",
-                    e.display_chain()
-                );
-            }
-        }
-
         Box::new(future)
     }
 
@@ -558,14 +558,11 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
         log::debug!("get_account_history");
-        Box::new(future::result(
-            self.load_history()
-                .map(|history| history.get_accounts().to_vec())
-                .map_err(|error| {
-                    log::error!("Unable to get account history: {}", error.display_chain());
-                    Error::internal_error()
-                }),
-        ))
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GetAccountHistory(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn remove_account_from_history(
@@ -574,17 +571,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         account_token: AccountToken,
     ) -> BoxFuture<(), Error> {
         log::debug!("remove_account_from_history");
-        Box::new(future::result(
-            self.load_history()
-                .and_then(|mut history| history.remove_account_token(&account_token))
-                .map_err(|error| {
-                    log::error!(
-                        "Unable to remove account from history: {}",
-                        error.display_chain()
-                    );
-                    Error::internal_error()
-                }),
-        ))
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::RemoveAccountFromHistory(
+                tx,
+                account_token,
+            ))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
     }
 
     fn set_openvpn_mssfix(&self, _: Self::Metadata, mssfix: Option<u16>) -> BoxFuture<(), Error> {
@@ -662,6 +656,39 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetSettings(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn generate_wireguard_key(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("generate_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GenerateWireguardKey(tx))
+            .and_then(|_| {
+                rx.map_err(|_| Error::internal_error())
+                    .and_then(|res| future::result(res.map_err(|_| Error::internal_error())))
+            });
+        Box::new(future)
+    }
+
+    fn get_wireguard_key(
+        &self,
+        _: Self::Metadata,
+    ) -> BoxFuture<Option<wireguard::PublicKey>, Error> {
+        log::debug!("get_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GetWireguardKey(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn verify_wireguard_key(&self, _: Self::Metadata) -> BoxFuture<bool, Error> {
+        log::debug!("verify_wireguard_key");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::VerifyWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
