@@ -8,18 +8,18 @@ compression: maximum
 # assets bundled on all platforms
 extraResources:
   # Mullvad root CA certificate used by OpenVPN
-  - from: ../../../dist-assets/ca.crt
+  - from: ../dist-assets/ca.crt
     to: .
-  - from: ../../../dist-assets/api_root_ca.pem
+  - from: ../dist-assets/api_root_ca.pem
     to: .
-  - from: ../../../dist-assets/relays.json
+  - from: ../dist-assets/relays.json
     to: .
-  - from: ../../../CHANGELOG.md
+  - from: ../CHANGELOG.md
     to: .
 
 directories:
-  buildResources: ../../../dist-assets/
-  output: ../../../dist/
+  buildResources: ../dist-assets/
+  output: ../dist/
 
 # override package.json
 extraMetadata:
@@ -39,19 +39,19 @@ mac:
     LSUIElement: true
     NSUserNotificationAlertStyle: alert
   extraResources:
-    - from: ../../../dist-assets/mullvad
+    - from: ../dist-assets/mullvad
       to: .
-    - from: ../../../dist-assets/problem-report
+    - from: ../dist-assets/problem-report
       to: .
-    - from: ../../../dist-assets/mullvad-daemon
+    - from: ../dist-assets/mullvad-daemon
       to: .
-    - from: ../../../dist-assets/libtalpid_openvpn_plugin.dylib
+    - from: ../dist-assets/libtalpid_openvpn_plugin.dylib
       to: .
-    - from: ../../../dist-assets/binaries/macos/openvpn
+    - from: ../dist-assets/binaries/macos/openvpn
       to: .
-    - from: ../../../dist-assets/binaries/macos/sslocal
+    - from: ../dist-assets/binaries/macos/sslocal
       to: .
-    - from: ../../../dist-assets/uninstall_macos.sh
+    - from: ../dist-assets/uninstall_macos.sh
       to: ./uninstall.sh
 
 pkg:
@@ -65,8 +65,8 @@ nsis:
   perMachine: true
   allowElevation: true
   allowToChangeInstallationDirectory: false
-  include: ../../../dist-assets/windows/installer.nsh
-  installerSidebar: ../../../dist-assets/windows/installersidebar.bmp
+  include: ../dist-assets/windows/installer.nsh
+  installerSidebar: ../dist-assets/windows/installersidebar.bmp
 
 win:
   target:
@@ -79,23 +79,23 @@ win:
     - sha256
   signDlls: true
   extraResources:
-    - from: ../../../dist-assets/mullvad.exe
+    - from: ../dist-assets/mullvad.exe
       to: .
-    - from: ../../../dist-assets/problem-report.exe
+    - from: ../dist-assets/problem-report.exe
       to: .
-    - from: ../../../dist-assets/mullvad-daemon.exe
+    - from: ../dist-assets/mullvad-daemon.exe
       to: .
-    - from: ../../../dist-assets/talpid_openvpn_plugin.dll
+    - from: ../dist-assets/talpid_openvpn_plugin.dll
       to: .
-    - from: ../../../windows/winfw/bin/x64-Release/winfw.dll
+    - from: ../windows/winfw/bin/x64-Release/winfw.dll
       to: .
-    - from: ../../../windows/windns/bin/x64-Release/windns.dll
+    - from: ../windows/windns/bin/x64-Release/windns.dll
       to: .
-    - from: ../../../windows/winroute/bin/x64-Release/winroute.dll
+    - from: ../windows/winroute/bin/x64-Release/winroute.dll
       to: .
-    - from: ../../../dist-assets/binaries/windows/openvpn.exe
+    - from: ../dist-assets/binaries/windows/openvpn.exe
       to: .
-    - from: ../../../dist-assets/binaries/windows/sslocal.exe
+    - from: ../dist-assets/binaries/windows/sslocal.exe
       to: .
 
 linux:
@@ -105,41 +105,41 @@ linux:
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   category: Network
   extraResources:
-    - from: ../../../dist-assets/problem-report
+    - from: ../dist-assets/problem-report
       to: .
-    - from: ../../../dist-assets/mullvad-daemon
+    - from: ../dist-assets/mullvad-daemon
       to: .
-    - from: ../../../dist-assets/libtalpid_openvpn_plugin.so
+    - from: ../dist-assets/libtalpid_openvpn_plugin.so
       to: .
-    - from: ../../../dist-assets/binaries/linux/openvpn
+    - from: ../dist-assets/binaries/linux/openvpn
       to: .
-    - from: ../../../dist-assets/binaries/linux/sslocal
+    - from: ../dist-assets/binaries/linux/sslocal
       to: .
-    - from: ../../../dist-assets/linux/mullvad-daemon.conf
+    - from: ../dist-assets/linux/mullvad-daemon.conf
       to: .
-    - from: ../../../dist-assets/linux/mullvad-daemon.service
+    - from: ../dist-assets/linux/mullvad-daemon.service
       to: .
 
 deb:
-  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
-       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
+  fpm: ["--before-install", "../dist-assets/linux/before-install.sh",
+       "--before-remove", "../dist-assets/linux/before-remove.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
-       "../../../dist-assets/mullvad=/usr/bin/",
+       "../dist-assets/mullvad=/usr/bin/",
        ]
-  afterInstall: ../../../dist-assets/linux/after-install.sh
-  afterRemove: ../../../dist-assets/linux/after-remove.sh
+  afterInstall: ../dist-assets/linux/after-install.sh
+  afterRemove: ../dist-assets/linux/after-remove.sh
 
 rpm:
-  fpm: ["--before-install", "../../../dist-assets/linux/before-install.sh",
-       "--before-remove", "../../../dist-assets/linux/before-remove.sh",
-       "--rpm-posttrans", "../../../dist-assets/linux/post-transaction.sh",
+  fpm: ["--before-install", "../dist-assets/linux/before-install.sh",
+       "--before-remove", "../dist-assets/linux/before-remove.sh",
+       "--rpm-posttrans", "../dist-assets/linux/post-transaction.sh",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.service",
        "--config-files", "/opt/Mullvad VPN/resources/mullvad-daemon.conf",
-       "../../../dist-assets/mullvad=/usr/bin/",
+       "../dist-assets/mullvad=/usr/bin/",
        ]
-  afterInstall: ../../../dist-assets/linux/after-install.sh
-  afterRemove: ../../../dist-assets/linux/after-remove.sh
+  afterInstall: ../dist-assets/linux/after-install.sh
+  afterRemove: ../dist-assets/linux/after-remove.sh
   depends:
       - libXScrnSaver
       - libnotify

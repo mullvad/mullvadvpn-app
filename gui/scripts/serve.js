@@ -67,9 +67,7 @@ function startBrowserSync() {
           child.kill();
         });
 
-      bsync
-        .watch(['build/src/renderer/**/*', path.resolve('../components/build/**')])
-        .on('change', bsync.reload);
+      bsync.watch(['build/src/renderer/**/*']).on('change', bsync.reload);
     },
   );
 }
@@ -78,15 +76,8 @@ function prepareWatchArguments(projectPath) {
   return ['--noClear', '--sourceMap', '--project', projectPath];
 }
 
-const appWatcher = new TscWatchClient();
-const componentsWatcher = new TscWatchClient();
-
-componentsWatcher.on('first_success', () => {
-  appWatcher.start(...prepareWatchArguments(path.resolve(__dirname, '..')));
-});
-
-appWatcher.on('first_success', () => {
+const watch = new TscWatchClient();
+watch.start(...prepareWatchArguments(path.resolve(__dirname, '..')));
+watch.on('first_success', () => {
   startBrowserSync();
 });
-
-componentsWatcher.start(...prepareWatchArguments(path.resolve(__dirname, '../../components')));
