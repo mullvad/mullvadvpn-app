@@ -12,6 +12,10 @@ mod imp;
 #[path = "windows/mod.rs"]
 mod imp;
 
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
+
 pub use self::imp::Error;
 
 /// Sets and monitors system DNS settings. Makes sure the desired DNS servers are being used.
