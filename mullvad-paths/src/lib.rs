@@ -25,6 +25,8 @@ const PRODUCT_NAME: &str = "mullvad-vpn";
 #[cfg(windows)]
 const PRODUCT_NAME: &str = "Mullvad VPN";
 
+#[cfg(target_os = "android")]
+const APP_PATH: &str = "/data/data/net.mullvad.mullvadvpn";
 
 #[cfg(windows)]
 fn get_allusersprofile_dir() -> Result<PathBuf> {
