@@ -91,7 +91,7 @@
     "pack:mac": "run-s build private:pack:mac private:postbuild:mac",
     "pack:win": "run-s build private:pack:win",
     "pack:linux": "run-s build private:pack:linux",
-    "private:format": "prettier \"packages/**/*.{js,css,ts,tsx}\"",
+    "private:format": "prettier \"**/*.{js,css,ts,tsx}\"",
     "private:pack:mac": "yarn run private:pack --mac",
     "private:postbuild:mac": "rimraf ../dist/mac",
     "private:pack:win": "yarn run private:pack --win",

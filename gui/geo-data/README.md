@@ -61,12 +61,12 @@ and finally generate the R-Tree cache:
 npx babel-node prepare-rtree.js
 ```
 
-At this point all of the data should be saved in `gui/packages/desktop/geo-data/out` folder.
+At this point all of the data should be saved in `gui/geo-data/out` folder.
 
 ## App integration notes
 
 Once you've extracted all the geo data, run the integration script that will
-copy all files ignoring intermediate ones into the `gui/packages/desktop/src/assets/geo` folder:
+copy all files ignoring intermediate ones into the `gui/src/assets/geo` folder:
 
 ```
 python integrate-into-app.py
