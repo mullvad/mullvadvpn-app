@@ -1,8 +1,8 @@
-import { Accordion } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Styles, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
+import Accordion from './Accordion';
 import * as Cell from './Cell';
 import ChevronButton from './ChevronButton';
 import RelayRow from './RelayRow';

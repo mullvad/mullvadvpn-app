@@ -1,12 +1,13 @@
-import { ClipboardLabel, HeaderTitle, SettingsHeader } from '@mullvad/components';
 import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { pgettext } from '../../shared/gettext';
 import styles from './AccountStyles';
 import * as AppButton from './AppButton';
+import ClipboardLabel from './ClipboardLabel';
 import { Container, Layout } from './Layout';
 import { BackBarItem, NavigationBar } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 

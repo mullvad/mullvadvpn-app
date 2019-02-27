@@ -1,8 +1,9 @@
-import { ImageView, SettingsBarButton } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
 import { pgettext } from '../../shared/gettext';
+import { SettingsBarButton } from './HeaderBar';
+import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 
 const styles = {

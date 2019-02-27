@@ -1,10 +1,12 @@
-import { Accordion, Brand, ImageView, SettingsBarButton } from '@mullvad/components';
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
 import { colors, links } from '../../config.json';
 import { pgettext } from '../../shared/gettext';
+import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import { Brand, SettingsBarButton } from './HeaderBar';
+import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import styles from './LoginStyles';
 

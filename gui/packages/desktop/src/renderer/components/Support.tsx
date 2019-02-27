@@ -1,18 +1,12 @@
-import {
-  HeaderSubTitle,
-  HeaderTitle,
-  ImageView,
-  ModalAlert,
-  ModalContainer,
-  ModalContent,
-  SettingsHeader,
-} from '@mullvad/components';
 import * as React from 'react';
 import { Component, Text, TextInput, View } from 'reactxp';
 import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
+import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
+import { ModalAlert, ModalContainer, ModalContent } from './Modal';
 import { BackBarItem, NavigationBar } from './NavigationBar';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import styles from './SupportStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';

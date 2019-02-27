@@ -1,7 +1,7 @@
-import { ImageView } from '@mullvad/components';
 import * as React from 'react';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
 
 const styles = {
   collapsible: Styles.createViewStyle({

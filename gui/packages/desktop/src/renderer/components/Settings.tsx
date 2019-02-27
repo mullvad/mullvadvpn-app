@@ -1,4 +1,3 @@
-import { HeaderTitle, ImageView, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { colors, links } from '../../config.json';
@@ -6,6 +5,7 @@ import { pgettext } from '../../shared/gettext';
 import AccountExpiry from '../lib/account-expiry';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import {
   CloseBarItem,
@@ -14,6 +14,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';

@@ -1,6 +1,6 @@
-import { HeaderBar } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
+import HeaderBar from './HeaderBar';
 import styles from './LayoutStyles';
 
 export class Header extends Component<HeaderBar['props']> {

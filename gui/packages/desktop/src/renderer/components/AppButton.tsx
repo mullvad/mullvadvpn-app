@@ -1,8 +1,8 @@
-import { ImageView } from '@mullvad/components';
 import * as React from 'react';
 import { Button, Component, Text, Types } from 'reactxp';
 import { colors } from '../../config.json';
 import styles from './AppButtonStyles';
+import ImageView from './ImageView';
 
 interface ILabelProps {
   children?: React.ReactText;
