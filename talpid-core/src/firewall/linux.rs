@@ -273,8 +273,10 @@ impl<'a> PolicyBatch<'a> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                pingable_hosts,
                 allow_lan,
             } => {
+                self.add_allow_icmp_pingable_hosts(&pingable_hosts)?;
                 self.add_allow_endpoint_rules(peer_endpoint)?;
                 *allow_lan
             }
@@ -316,6 +318,31 @@ impl<'a> PolicyBatch<'a> {
         add_verdict(&mut out_rule, &Verdict::Accept)?;
 
         self.batch.add(&out_rule, nftnl::MsgType::Add)?;
+
+        Ok(())
+    }
+
+    fn add_allow_icmp_pingable_hosts(&mut self, pingable_hosts: &[IpAddr]) -> Result<()> {
+        for host in pingable_hosts {
+            let icmp_proto = match &host {
+                &IpAddr::V4(_) => libc::IPPROTO_ICMP as u8,
+                &IpAddr::V6(_) => libc::IPPROTO_ICMPV6 as u8,
+            };
+
+            let mut out_rule = Rule::new(&self.out_chain)?;
+            check_ip(&mut out_rule, End::Dst, *host)?;
+            out_rule.add_expr(&nft_expr!(meta l4proto))?;
+            out_rule.add_expr(&nft_expr!(cmp == icmp_proto))?;
+            add_verdict(&mut out_rule, &Verdict::Accept)?;
+            self.batch.add(&out_rule, nftnl::MsgType::Add)?;
+
+            let mut in_rule = Rule::new(&self.in_chain)?;
+            check_ip(&mut in_rule, End::Src, *host)?;
+            in_rule.add_expr(&nft_expr!(meta l4proto))?;
+            in_rule.add_expr(&nft_expr!(cmp == icmp_proto))?;
+            add_verdict(&mut in_rule, &Verdict::Accept)?;
+            self.batch.add(&in_rule, nftnl::MsgType::Add)?;
+        }
 
         Ok(())
     }

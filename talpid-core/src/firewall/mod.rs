@@ -3,6 +3,8 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
 use std::fmt;
+#[cfg(windows)]
+use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use talpid_types::net::Endpoint;
@@ -51,6 +53,8 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
+        /// Hosts that should be pingable whilst connecting.
+        pingable_hosts: Vec<IpAddr>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
     },
@@ -77,11 +81,17 @@ impl fmt::Display for FirewallPolicy {
         match self {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                pingable_hosts,
                 allow_lan,
             } => write!(
                 f,
-                "Connecting to {}, {} LAN",
+                "Connecting to {} with gateways {}, {} LAN",
                 peer_endpoint,
+                pingable_hosts
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<String>>()
+                    .join(","),
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
             FirewallPolicy::Connected {

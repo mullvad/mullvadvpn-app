@@ -1,6 +1,9 @@
 use super::{FirewallPolicy, FirewallT};
 use pfctl::FilterRuleAction;
-use std::{env, net::Ipv4Addr};
+use std::{
+    env,
+    net::{IpAddr, Ipv4Addr},
+};
 use talpid_types::net;
 
 pub use pfctl::Error;
@@ -85,8 +88,10 @@ impl Firewall {
             FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
+                pingable_hosts,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
+                rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
                 if allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
@@ -164,6 +169,40 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()?)
+    }
+
+    fn get_allow_pingable_hosts(
+        &self,
+        pingable_hosts: &[IpAddr],
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        let mut rules = vec![];
+        for host in pingable_hosts.iter() {
+            let icmp_proto = match &host {
+                IpAddr::V4(_) => pfctl::Proto::Icmp,
+                IpAddr::V6(_) => pfctl::Proto::IcmpV6,
+            };
+
+            let out_rule = self
+                .create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::Out)
+                .to(pfctl::Endpoint::new(*host, 0))
+                .proto(icmp_proto)
+                .keep_state(pfctl::StatePolicy::Keep)
+                .quick(true)
+                .build()?;
+            rules.push(out_rule);
+
+            let in_rule = self
+                .create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::In)
+                .from(pfctl::Endpoint::new(*host, 0))
+                .proto(icmp_proto)
+                .keep_state(pfctl::StatePolicy::Keep)
+                .quick(true)
+                .build()?;
+            rules.push(in_rule);
+        }
+        Ok(rules)
     }
 
     fn get_allow_tunnel_rule(&self, tunnel_interface: &str) -> Result<pfctl::FilterRule> {
