@@ -41,10 +41,6 @@ pub enum NetNode {
 pub struct RequiredRoutes {
     /// List of routes to be applied to the routing table.
     pub routes: Vec<Route>,
-    /// Optionally apply the routes to a specific table and only apply routes when a firewall mark
-    /// is not used. Currently only used on Linux.
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<String>,
 }
 
 /// Manages adding and removing routes from the routing table.
@@ -72,6 +68,7 @@ impl RouteManager {
 
     /// Retrieves the gateway for the default route.
     pub fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, imp::Error> {
+        // use routing::RoutingT;
         self.inner.get_default_route_node()
     }
 }

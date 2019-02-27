@@ -119,30 +119,25 @@ impl WireguardMonitor {
             })
             .collect();
 
-        if cfg!(target_os = "macos") {
-            // To survive network roaming on osx, we should listen for new routes and reapply them
-            // here - probably would need RouteManager be extended. Or maybe RouteManager can deal
-            // with it on it's own
-            let default_node = self
-                .router
-                .get_default_route_node()
-                .chain_err(|| ErrorKind::SetupRoutingError)?;
+        // To survive network roaming, we should listen for new routes and reapply them
+        // here - probably would need RouteManager be extended. Or maybe RouteManager can deal
+        // with it on it's own
+        let default_node = self
+            .router
+            .get_default_route_node()
+            .chain_err(|| ErrorKind::SetupRoutingError)?;
 
-            // route endpoints with specific routes
-            for peer in config.peers.iter() {
-                let default_route = routing::Route::new(
-                    peer.endpoint.ip().into(),
-                    routing::NetNode::Address(default_node),
-                );
-                routes.push(default_route);
-            }
+        // route endpoints with specific routes
+        for peer in config.peers.iter() {
+            let default_route = routing::Route::new(
+                peer.endpoint.ip().into(),
+                routing::NetNode::Address(default_node),
+            );
+            routes.push(default_route);
         }
 
-        let required_routes = routing::RequiredRoutes {
-            routes,
-            #[cfg(target_os = "linux")]
-            fwmark: Some(config.fwmark.to_string()),
-        };
+        let required_routes = routing::RequiredRoutes { routes };
+
         self.router
             .add_routes(required_routes)
             .chain_err(|| ErrorKind::SetupRoutingError)
