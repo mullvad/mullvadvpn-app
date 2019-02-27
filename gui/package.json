@@ -14,5 +14,9 @@
   },
   "devDependencies": {
     "prettier": "1.16.4"
+  },
+  "dependencies": {
+    "just-extend": "^4.0.0",
+    "merge": "^1.2.1"
   }
 }
