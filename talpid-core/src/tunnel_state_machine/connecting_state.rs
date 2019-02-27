@@ -1,5 +1,6 @@
 use std::{
     ffi::OsString,
+    net::IpAddr,
     path::{Path, PathBuf},
     thread,
     time::{Duration, Instant},
@@ -12,7 +13,7 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use talpid_types::{
-    net::{openvpn, Endpoint, TunnelParameters},
+    net::{openvpn, TunnelParameters},
     tunnel::BlockReason,
 };
 
@@ -48,10 +49,11 @@ pub struct ConnectingState {
 impl ConnectingState {
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
-        proxy: &Option<openvpn::ProxySettings>,
-        endpoint: Endpoint,
+        params: &TunnelParameters,
     ) -> Result<()> {
-        // If a proxy is specified we need to pass it on as the peer endpoint.
+        let proxy = &get_openvpn_proxy_settings(&params);
+        let endpoint = params.get_tunnel_endpoint().endpoint;
+
         let peer_endpoint = match proxy {
             Some(proxy_settings) => proxy_settings.get_endpoint(),
             None => endpoint,
@@ -59,6 +61,7 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
+            pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
         };
         shared_values
@@ -175,11 +178,7 @@ impl ConnectingState {
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 shared_values.allow_lan = allow_lan;
-                match Self::set_firewall_policy(
-                    shared_values,
-                    &get_openvpn_proxy_settings(&self.tunnel_parameters),
-                    self.tunnel_parameters.get_tunnel_endpoint().endpoint,
-                ) {
+                match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
                     Ok(()) => SameState(self),
                     Err(error) => {
                         error!("{}", error.display_chain());
@@ -326,12 +325,7 @@ impl TunnelState for ConnectingState {
         {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
-                let endpoint = tunnel_parameters.get_tunnel_endpoint().endpoint;
-                if let Err(error) = Self::set_firewall_policy(
-                    shared_values,
-                    &get_openvpn_proxy_settings(&tunnel_parameters),
-                    endpoint,
-                ) {
+                if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
                     error!("{}", error.display_chain());
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
@@ -373,5 +367,13 @@ impl TunnelState for ConnectingState {
         self.handle_commands(commands, shared_values)
             .or_else(Self::handle_tunnel_events, shared_values)
             .or_else(Self::handle_tunnel_close_event, shared_values)
+    }
+}
+
+fn gateway_list_from_params(params: &TunnelParameters) -> Vec<IpAddr> {
+    match params {
+        TunnelParameters::Wireguard(params) => vec![params.connection.gateway],
+        // No gateway list required when connecting to openvpn
+        TunnelParameters::OpenVpn(_) => vec![],
     }
 }
