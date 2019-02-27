@@ -78,6 +78,13 @@ impl WireguardMonitor {
         monitor.start_pinger(&config);
         monitor.tunnel_up(&config);
 
+        ping_monitor::ping(
+            config.gateway,
+            PING_TIMEOUT,
+            &monitor.tunnel.get_interface_name().to_string(),
+        )
+        .chain_err(|| ErrorKind::PingTimeoutError)?;
+
         Ok(monitor)
     }
 
