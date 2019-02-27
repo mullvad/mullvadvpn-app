@@ -225,7 +225,7 @@ class ApplicationMain {
     }
   };
 
-  private onBeforeQuit = async (event: Event) => {
+  private onBeforeQuit = async (event: Electron.Event) => {
     switch (this.quitStage) {
       case AppQuitStage.unready:
         // postpone the app shutdown
