@@ -125,12 +125,12 @@ export default class Settings extends Component<IProps> {
     if (!this.props.consistentVersion || !this.props.upToDateVersion) {
       const inconsistentVersionMessage = pgettext(
         'settings-view',
-        'app-version-cell-inconsistent-version-footer',
+        'Inconsistent internal version information, please restart the app.',
       );
 
       const updateAvailableMessage = pgettext(
         'settings-view',
-        'app-version-cell-update-available-footer',
+        'Update available, download to remain safe.',
       );
 
       const message = !this.props.consistentVersion

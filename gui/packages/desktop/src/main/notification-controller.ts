@@ -73,7 +73,8 @@ export default class NotificationController {
         silent: true,
         title: '',
         body: sprintf(
-          // TRANSLATORS: Available placeholder
+          // TRANSLATORS: The system notification displayed to the user when the running app becomes unsupported.
+          // TRANSLATORS: Available placeholder:
           // TRANSLATORS: %(version) - the newest available version of the app
           pgettext(
             'notifications',

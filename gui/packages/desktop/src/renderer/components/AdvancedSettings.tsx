@@ -145,6 +145,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     {this.props.protocol ? (
                       <Selector
                         title={sprintf(
+                          // TRANSLATORS: The title for the port selector section.
                           // TRANSLATORS: Available placeholders:
                           // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
                           pgettext('advanced-settings-view', '%(portType)s port'),
@@ -178,6 +179,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   </Cell.Container>
                   <Cell.Footer>
                     {sprintf(
+                      // TRANSLATORS: The hint displayed below the Mssfix input field.
                       // TRANSLATORS: Available placeholders:
                       // TRANSLATORS: %(max)d - the maximum possible mssfix value
                       // TRANSLATORS: %(min)d - the minimum possible mssfix value

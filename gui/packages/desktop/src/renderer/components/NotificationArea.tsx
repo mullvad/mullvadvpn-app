@@ -224,6 +224,7 @@ export default class NotificationArea extends Component<IProps, State> {
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
+                  // TRANSLATORS: The in-app banner displayed to the user when the running app becomes unsupported.
                   // TRANSLATORS: Available placeholders:
                   // TRANSLATORS: %(version)s - the newest available version of the app
                   pgettext(
@@ -249,6 +250,7 @@ export default class NotificationArea extends Component<IProps, State> {
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
+                  // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
                   // TRANSLATORS: Available placeholders:
                   // TRANSLATORS: %(version)s - the newest available version of the app
                   pgettext(

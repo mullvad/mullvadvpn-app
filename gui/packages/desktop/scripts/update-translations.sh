@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # This script creates or updates the existing gettext catalogues using the POT template located
 # under locales/messages.pot

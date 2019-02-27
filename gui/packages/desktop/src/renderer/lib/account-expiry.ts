@@ -21,6 +21,7 @@ export default class AccountExpiry {
     const duration = this.expiry.fromNow(true);
 
     return sprintf(
+      // TRANSLATORS: The remaining time left on the account displayed across the app.
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
       pgettext('account-expiry', '%(duration)s left'),

@@ -26,6 +26,7 @@ function getRelayName(
     } else if ('country' in location) {
       const country = relayLocations.find(({ code }) => code === location.country);
       if (country) {
+        // TODO: translate
         return country.name;
       }
     } else if ('city' in location) {
@@ -34,6 +35,7 @@ function getRelayName(
       if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
+          // TODO: translate
           return city.name;
         }
       }
@@ -44,6 +46,8 @@ function getRelayName(
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
           return sprintf(
+            // TRANSLATORS: The selected location label displayed on the main view, when a user selected a specific host to connect to.
+            // TRANSLATORS: Example: Malmö (se-mma-001)
             // TRANSLATORS: Available placeholders:
             // TRANSLATORS: %(city)s - a city name
             // TRANSLATORS: %(hostname)s - a hostname
