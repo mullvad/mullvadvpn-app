@@ -1,8 +1,9 @@
 import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
 import path from 'path';
+import { sprintf } from 'sprintf-js';
 import config from '../config.json';
-
 import { TunnelStateTransition } from '../shared/daemon-rpc-types';
+import { pgettext } from '../shared/gettext';
 
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
@@ -25,22 +26,24 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          this.showTunnelStateNotification('Connecting');
+          this.showTunnelStateNotification(pgettext('notifications', 'Connecting'));
         }
         break;
       case 'connected':
-        this.showTunnelStateNotification('Secured');
+        this.showTunnelStateNotification(pgettext('notifications', 'Secured'));
         break;
       case 'disconnected':
-        this.showTunnelStateNotification('Unsecured');
+        this.showTunnelStateNotification(pgettext('notifications', 'Unsecured'));
         break;
       case 'blocked':
         switch (tunnelState.details.reason) {
           case 'set_firewall_policy_error':
-            this.showTunnelStateNotification('Critical failure - Unsecured');
+            this.showTunnelStateNotification(
+              pgettext('notifications', 'Critical failure - Unsecured'),
+            );
             break;
           default:
-            this.showTunnelStateNotification('Blocked all connections');
+            this.showTunnelStateNotification(pgettext('notifications', 'Blocked all connections'));
             break;
         }
         break;
@@ -51,7 +54,7 @@ export default class NotificationController {
             // no-op
             break;
           case 'reconnect':
-            this.showTunnelStateNotification('Reconnecting');
+            this.showTunnelStateNotification(pgettext('notifications', 'Reconnecting'));
             this.reconnecting = true;
             return;
         }
@@ -65,7 +68,10 @@ export default class NotificationController {
     this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
         title: this.notificationTitle,
-        body: 'Inconsistent internal version information, please restart the app',
+        body: pgettext(
+          'notifications',
+          'Inconsistent internal version information, please restart the app',
+        ),
         silent: true,
         icon: this.notificationIcon,
       });
@@ -77,7 +83,18 @@ export default class NotificationController {
     this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
         title: this.notificationTitle,
-        body: `You are running an unsupported app version. Please upgrade to ${upgradeVersion} now to ensure your security`,
+        body: sprintf(
+          // TRANSLATORS: The system notification displayed to the user when the running app becomes unsupported.
+          // TRANSLATORS: Available placeholder:
+          // TRANSLATORS: %(version) - the newest available version of the app
+          pgettext(
+            'notifications',
+            'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
+          ),
+          {
+            version: upgradeVersion,
+          },
+        ),
         silent: true,
         icon: this.notificationIcon,
       });

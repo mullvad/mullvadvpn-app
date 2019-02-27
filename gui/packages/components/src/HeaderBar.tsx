@@ -100,7 +100,12 @@ export class Brand extends Component {
     return (
       <View style={brandStyles.container}>
         <ImageView width={50} height={50} source="logo-icon" />
-        <Text style={brandStyles.title}>{'MULLVAD VPN'}</Text>
+        <Text style={brandStyles.title}>
+          {
+            // TODO: perhaps translate?
+            'MULLVAD VPN'
+          }
+        </Text>
       </View>
     );
   }

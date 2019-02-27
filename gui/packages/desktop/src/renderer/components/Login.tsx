@@ -2,6 +2,7 @@ import { Accordion, Brand, ImageView, SettingsBarButton } from '@mullvad/compone
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
 import { colors, links } from '../../config.json';
+import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Header, Layout } from './Layout';
@@ -209,13 +210,13 @@ export default class Login extends Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState) {
       case 'logging in':
-        return 'Logging in...';
+        return pgettext('login-view', 'Logging in...');
       case 'failed':
-        return 'Login failed';
+        return pgettext('login-view', 'Login failed');
       case 'ok':
-        return 'Logged in';
+        return pgettext('login-view', 'Logged in');
       default:
-        return 'Login';
+        return pgettext('login-view', 'Login');
     }
   }
 
@@ -223,13 +224,13 @@ export default class Login extends Component<IProps, IState> {
     const { loginState, loginError } = this.props;
     switch (loginState) {
       case 'failed':
-        return (loginError && loginError.message) || 'Unknown error';
+        return (loginError && loginError.message) || pgettext('login-view', 'Unknown error');
       case 'logging in':
-        return 'Checking account number';
+        return pgettext('login-view', 'Checking account number');
       case 'ok':
-        return 'Correct account number';
+        return pgettext('login-view', 'Correct account number');
       default:
-        return 'Enter your account number';
+        return pgettext('login-view', 'Enter your account number');
     }
   }
 
@@ -393,9 +394,11 @@ export default class Login extends Component<IProps, IState> {
   private createFooter() {
     return (
       <View>
-        <Text style={styles.login_footer__prompt}>{"Don't have an account number?"}</Text>
+        <Text style={styles.login_footer__prompt}>
+          {pgettext('login-view', "Don't have an account number?")}
+        </Text>
         <AppButton.BlueButton onPress={this.onCreateAccount}>
-          <AppButton.Label>Create account</AppButton.Label>
+          <AppButton.Label>{pgettext('login-view', 'Create account')}</AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
       </View>

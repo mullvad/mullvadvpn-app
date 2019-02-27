@@ -2,6 +2,7 @@ import { HeaderSubTitle, HeaderTitle, SettingsHeader } from '@mullvad/components
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
+import { pgettext } from '../../shared/gettext';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import {
@@ -112,16 +113,23 @@ export default class SelectLocation extends Component<IProps, IState> {
             <NavigationContainer>
               <NavigationBar>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>{'Select location'}</TitleBarItem>
+                <TitleBarItem>
+                  {// TRANSLATORS: Title label in navigation bar
+                  pgettext('select-location-nav', 'Select location')}
+                </TitleBarItem>
               </NavigationBar>
               <View style={styles.container}>
                 <NavigationScrollbars ref={this.scrollViewRef}>
                   <View style={styles.content}>
                     <SettingsHeader style={styles.subtitle_header}>
-                      <HeaderTitle>Select location</HeaderTitle>
+                      <HeaderTitle>
+                        {pgettext('select-location-view', 'Select location')}
+                      </HeaderTitle>
                       <HeaderSubTitle>
-                        While connected, your real location is masked with a private and secure
-                        location in the selected region
+                        {pgettext(
+                          'select-location-view',
+                          'While connected, your real location is masked with a private and secure location in the selected region',
+                        )}
                       </HeaderSubTitle>
                     </SettingsHeader>
 
