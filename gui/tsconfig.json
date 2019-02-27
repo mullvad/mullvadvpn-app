@@ -16,6 +16,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2017",
+    "lib": ["es2017", "dom"],
     "typeRoots": [
       "./types",
       "node_modules/@types"
