@@ -113,6 +113,10 @@ export default class NotificationController {
     }
   }
 
+  public resetTunnelStateAnnouncements() {
+    this.lastTunnelStateAnnouncement = undefined;
+  }
+
   private showTunnelStateNotification(message: string) {
     const lastAnnouncement = this.lastTunnelStateAnnouncement;
     const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;

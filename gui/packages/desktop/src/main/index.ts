@@ -762,6 +762,11 @@ class ApplicationMain {
 
       windowController.send('window-shown');
     });
+
+    windowController.window.on('hide', () => {
+      // ensure notification guard is reset
+      this.notificationController.resetTunnelStateAnnouncements();
+    });
   }
 
   private registerIpcListeners() {
