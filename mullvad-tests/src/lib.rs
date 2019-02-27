@@ -1,3 +1,5 @@
+#![cfg(not(target_os = "android"))]
+
 use self::{mock_openvpn::MOCK_OPENVPN_ARGS_FILE, platform_specific::*};
 use futures::sync::oneshot;
 use jsonrpc_client_core::{Future, Transport};
