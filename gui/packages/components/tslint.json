@@ -1,3 +1,0 @@
-{
-  "extends": "@mullvad/config/tslint.json"
-}
