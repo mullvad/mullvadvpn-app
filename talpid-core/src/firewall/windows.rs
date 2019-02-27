@@ -71,6 +71,8 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                // TODO: Allow ICMP traffic to a list of hosts for wireguard
+                pingable_hosts: _,
                 allow_lan,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
