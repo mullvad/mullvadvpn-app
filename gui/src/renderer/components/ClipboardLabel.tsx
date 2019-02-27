@@ -22,7 +22,7 @@ export default class ClipboardLabel extends Component<IProps, IState> {
     showsMessage: false,
   };
 
-  private timer: NodeJS.Timer | null = null;
+  private timer?: NodeJS.Timeout;
 
   public componentWillUnmount() {
     if (this.timer) {
