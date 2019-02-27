@@ -17,7 +17,7 @@
     "strict": true,
     "target": "es2017",
     "typeRoots": [
-      "../../types",
+      "./types",
       "node_modules/@types"
     ]
   },

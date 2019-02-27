@@ -93,7 +93,7 @@
     "pack:linux": "run-s build private:build:linux",
     "private:format": "prettier \"packages/**/*.{js,css,ts,tsx}\"",
     "private:build:mac": "yarn run private:build --mac",
-    "private:postbuild:mac": "rimraf ../../../dist/mac",
+    "private:postbuild:mac": "rimraf ../dist/mac",
     "private:build:win": "yarn run private:build --win",
     "private:build:linux": "yarn run private:build --linux",
     "private:build": "electron-builder",
