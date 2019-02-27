@@ -1,8 +1,0 @@
-{
-  "private": true,
-  "name": "yarn-fixes",
-  "version": "0.1.0",
-  "scripts": {
-    "preinstall": "node ./patch-yarn.js"
-  }
-}
