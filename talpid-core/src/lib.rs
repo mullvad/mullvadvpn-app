@@ -57,5 +57,6 @@ mod proxy;
 mod mktemp;
 
 /// Misc utilities for the Linux platform.
+///
 #[cfg(target_os = "linux")]
 mod linux;

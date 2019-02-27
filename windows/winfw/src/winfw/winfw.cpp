@@ -117,7 +117,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *primaryDns
+	const wchar_t *v4Gateway,
+	const wchar_t *v6Gateway
 )
 {
 	if (nullptr == g_fwContext)
@@ -127,7 +128,7 @@ WinFw_ApplyPolicyConnected(
 
 	try
 	{
-		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, primaryDns);
+		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, v4Gateway, v6Gateway);
 	}
 	catch (std::exception &err)
 	{

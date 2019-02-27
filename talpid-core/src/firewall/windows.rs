@@ -116,7 +116,7 @@ impl Firewall {
         winfw_settings: &WinFwSettings,
     ) -> Result<()> {
         trace!("Applying 'connecting' firewall policy");
-        let ip_str = Self::widestring_ip(&endpoint.address.ip());
+        let ip_str = Self::widestring_ip(endpoint.address.ip());
 
         // ip_str has to outlive winfw_relay
         let winfw_relay = WinFwRelay {
@@ -128,7 +128,7 @@ impl Firewall {
         unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay).into_result() }
     }
 
-    fn widestring_ip(ip: &IpAddr) -> WideCString {
+    fn widestring_ip(ip: IpAddr) -> WideCString {
         let buf = ip.to_string().encode_utf16().collect::<Vec<_>>();
         WideCString::new(buf).unwrap()
     }
@@ -140,8 +140,11 @@ impl Firewall {
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
     ) -> Result<()> {
         trace!("Applying 'connected' firewall policy");
-        let ip_str = Self::widestring_ip(&endpoint.address.ip());
-        let gateway_str = Self::widestring_ip(&tunnel_metadata.ipv4_gateway.into());
+        let ip_str = Self::widestring_ip(endpoint.address.ip());
+        let v4_gateway = Self::widestring_ip(tunnel_metadata.ipv4_gateway.into());
+        let v6_gateway = tunnel_metadata
+            .ipv6_gateway
+            .map(|v6_ip| Self::widestring_ip(v6_ip.into()));
 
         let tunnel_alias =
             WideCString::new(tunnel_metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap();
@@ -162,12 +165,18 @@ impl Firewall {
             debug!("Network interface metrics were not changed");
         }
 
+        let v6_gateway_ptr = match &v6_gateway {
+            Some(v6_ip) => v6_ip.as_ptr(),
+            None => ptr::null(),
+        };
+
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
                 tunnel_alias.as_wide_c_str().as_ptr(),
-                gateway_str.as_wide_c_str().as_ptr(),
+                v4_gateway.as_ptr(),
+                v6_gateway_ptr,
             )
             .into_result()
         }
@@ -260,7 +269,8 @@ mod winfw {
             settings: &WinFwSettings,
             relay: &WinFwRelay,
             tunnelIfaceAlias: *const libc::wchar_t,
-            primaryDns: *const libc::wchar_t,
+            v4Gateway: *const libc::wchar_t,
+            v6Gateway: *const libc::wchar_t,
         ) -> ApplyConnectedResult;
 
         #[link_name = "WinFw_ApplyPolicyBlocked"]

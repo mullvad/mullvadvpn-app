@@ -123,7 +123,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *primaryDns
+	const wchar_t *v4Gateway,
+	const wchar_t *v6Gateway
 );
 
 //

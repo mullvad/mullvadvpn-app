@@ -14,7 +14,7 @@ public:
 	FwContext(uint32_t timeout);
 
 	bool applyPolicyConnecting(const WinFwSettings &settings, const WinFwRelay &relay);
-	bool applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *primaryDns);
+	bool applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *v4DnsHosts, const wchar_t *v6DnsHost);
 	bool applyPolicyBlocked(const WinFwSettings &settings);
 
 	bool reset();
