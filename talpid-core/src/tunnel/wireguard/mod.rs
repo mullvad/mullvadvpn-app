@@ -94,12 +94,20 @@ impl WireguardMonitor {
         }
     }
 
-    pub fn wait(self) -> Result<()> {
+    pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
             Ok(CloseMsg::PingErr) => Err(ErrorKind::PingTimeoutError.into()),
             Ok(CloseMsg::Stop) => Ok(()),
             Err(_) => Ok(()),
         };
+
+        // Clear routes manually - otherwise there will be some log spam since the tunnel device
+        // can be removed before the routes are cleared, which automatically clears some of the
+        // routes that were set.
+        if let Err(e) = self.router.delete_routes() {
+            log::error!("Failed to remove a route from the routing table - {}", e);
+        }
+
         if let Err(e) = self.tunnel.stop() {
             log::error!("Failed to stop tunnel - {}", e);
         }
