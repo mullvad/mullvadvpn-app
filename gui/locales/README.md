@@ -23,7 +23,7 @@ Please follow the downlaod instructions at https://www.gnu.org/software/gettext/
 
 ## Adding new translations
 
-Create a new sub-folder under `gui/packages/desktop/locales`, use the locale identifier for the
+Create a new sub-folder under `gui/locales`, use the locale identifier for the
 folder name.
 
 The complete list of supported locale identifiers can be found at:
@@ -36,8 +36,8 @@ procedure, described in the section below.
 
 ## Updating translations
 
-Run `yarn workspace desktop update-translations` to extract the new translations from the source
+Run `yarn update-translations` to extract the new translations from the source
 code and update all of the existing catalogues.
 
 The new translations are automatically added to empty sub-folders using the POT template at
-`gui/packages/desktop/locales/messages.pot`. Folders that contain a `.gitkeep` file are ignored.
+`gui/locales/messages.pot`. Folders that contain a `.gitkeep` file are ignored.
