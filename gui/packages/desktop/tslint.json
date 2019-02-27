@@ -1,6 +1,12 @@
 {
-  "extends": "@mullvad/config/tslint.json",
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:latest",
+    "tslint-react",
+    "tslint-config-prettier"
+  ],
   "rules": {
+    "max-classes-per-file": false,
     "no-implicit-dependencies": [
       true,
       "optional",
@@ -9,6 +15,17 @@
         "electron-devtools-installer"
       ]
     ],
-    "no-submodule-imports": [true, "validated"]
+    "no-submodule-imports": [
+      true,
+      "validated"
+    ],
+    "object-literal-sort-keys": false,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case",
+      "allow-leading-underscore"
+    ]
   }
 }
