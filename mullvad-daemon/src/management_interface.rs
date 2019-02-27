@@ -122,10 +122,6 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_enable_ipv6")]
         fn set_enable_ipv6(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
-        /// Set firewall marker for wireguard tunnels on Linux
-        #[rpc(meta, name = "set_wireguard_fwmark")]
-        fn set_wireguard_fwmark(&self, Self::Metadata, i32) -> BoxFuture<(), Error>;
-
         /// Set MTU for wireguard tunnels
         #[rpc(meta, name = "set_wireguard_mtu")]
         fn set_wireguard_mtu(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
@@ -223,9 +219,6 @@ pub enum ManagementCommand {
     ),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
-    #[cfg(target_os = "linux")]
-    /// Set wireguard firewall mark
-    SetWireguardFwmark(OneshotSender<()>, i32),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(OneshotSender<()>, Option<u16>),
     /// Get the daemon settings
@@ -621,24 +614,6 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
-    }
-
-    /// Set firewall marker for wireguard tunnels on Linux
-    fn set_wireguard_fwmark(&self, _: Self::Metadata, fwmark: i32) -> BoxFuture<(), Error> {
-        #[cfg(target_os = "linux")]
-        {
-            log::debug!("set_wireguard_fwmark({:?})", fwmark);
-            let (tx, rx) = sync::oneshot::channel();
-            let future = self
-                .send_command_to_daemon(ManagementCommand::SetWireguardFwmark(tx, fwmark))
-                .and_then(|_| rx.map_err(|_| Error::internal_error()));
-
-            Box::new(future)
-        }
-        #[cfg(any(windows, target_os = "macos"))]
-        {
-            return Box::new(future::err(Error::method_not_found()));
-        }
     }
 
     /// Set MTU for wireguard tunnels

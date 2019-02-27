@@ -35,16 +35,11 @@ impl Command for Tunnel {
 }
 
 fn create_wireguard_subcommand() -> clap::App<'static, 'static> {
-    let app = clap::SubCommand::with_name("wireguard")
+    clap::SubCommand::with_name("wireguard")
         .about("Manage options for Wireguard tunnels")
         .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(create_wireguard_mtu_subcommand())
-        .subcommand(create_wireguard_keys_subcommand());
-    if cfg!(target_os = "linux") {
-        app.subcommand(create_wireguard_fwmark_subcommand())
-    } else {
-        app
-    }
+        .subcommand(create_wireguard_keys_subcommand())
 }
 
 fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
@@ -66,15 +61,6 @@ fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
         .subcommand(clap::SubCommand::with_name("generate"))
 }
 
-fn create_wireguard_fwmark_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("fwmark")
-        .about("Configure the firewall mark used to direct traffic through Wireguard tunnel")
-        .setting(clap::AppSettings::SubcommandRequired)
-        .subcommand(clap::SubCommand::with_name("get"))
-        .subcommand(
-            clap::SubCommand::with_name("set").arg(clap::Arg::with_name("fwmark").required(true)),
-        )
-}
 
 fn create_openvpn_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("openvpn")
@@ -241,13 +227,6 @@ impl Tunnel {
                 ("generate", _) => Self::process_wireguard_key_generate(),
                 _ => unreachable!("unhandled command"),
             },
-
-            #[cfg(target_os = "linux")]
-            ("fwmark", Some(matches)) => match matches.subcommand() {
-                ("get", _) => Self::process_wireguard_fwmark_get(),
-                ("set", Some(fwmark_matches)) => Self::process_wireguard_fwmark_set(fwmark_matches),
-                _ => unreachable!("unhandled command"),
-            },
             _ => unreachable!("unhandled command"),
         }
     }
@@ -300,22 +279,6 @@ impl Tunnel {
     fn process_wireguard_key_generate() -> Result<()> {
         let mut rpc = new_rpc_client()?;
         rpc.generate_wireguard_key().map_err(|e| e.into())
-    }
-
-    #[cfg(target_os = "linux")]
-    fn process_wireguard_fwmark_get() -> Result<()> {
-        let tunnel_options = Self::get_tunnel_options()?;
-        println!("fwmark: {}", tunnel_options.wireguard.fwmark);
-        Ok(())
-    }
-
-    #[cfg(target_os = "linux")]
-    fn process_wireguard_fwmark_set(matches: &clap::ArgMatches) -> Result<()> {
-        let fwmark = value_t!(matches.value_of("fwmark"), i32).unwrap_or_else(|e| e.exit());
-        let mut rpc = new_rpc_client()?;
-        rpc.set_wireguard_fwmark(fwmark)?;
-        println!("Firewall mark parameter has been updated");
-        Ok(())
     }
 
     fn handle_ipv6_cmd(matches: &clap::ArgMatches) -> Result<()> {

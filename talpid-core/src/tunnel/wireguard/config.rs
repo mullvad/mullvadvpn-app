@@ -6,8 +6,6 @@ pub struct Config {
     pub peers: Vec<wireguard::PeerConfig>,
     pub gateway: IpAddr,
     pub mtu: u16,
-    #[cfg(target_os = "linux")]
-    pub fwmark: i32,
 }
 
 /// Smallest MTU that supports IPv6
@@ -79,8 +77,6 @@ impl Config {
             peers,
             gateway,
             mtu,
-            #[cfg(target_os = "linux")]
-            fwmark: wg_options.fwmark,
         })
     }
 
@@ -91,11 +87,6 @@ impl Config {
         wg_conf
             .add("private_key", self.tunnel.private_key.as_bytes().as_ref())
             .add("listen_port", "0");
-
-        #[cfg(target_os = "linux")]
-        {
-            wg_conf.add("fwmark", self.fwmark.to_string().as_str());
-        }
 
         wg_conf.add("replace_peers", "true");
 
