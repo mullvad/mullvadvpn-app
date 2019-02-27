@@ -1,7 +1,7 @@
-import { ImageView } from '@mullvad/components';
 import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
 
 const styles = {
   cellButton: {

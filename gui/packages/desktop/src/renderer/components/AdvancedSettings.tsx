@@ -1,4 +1,3 @@
-import { HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
@@ -15,6 +14,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
 
 const MIN_MSSFIX_VALUE = 1000;

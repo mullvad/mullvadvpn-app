@@ -1,4 +1,3 @@
-import { HeaderSubTitle, HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
@@ -13,6 +12,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import styles from './SelectLocationStyles';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 import CityRow from './CityRow';
 import CountryRow from './CountryRow';

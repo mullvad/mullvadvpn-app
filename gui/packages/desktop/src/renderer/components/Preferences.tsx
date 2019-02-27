@@ -1,4 +1,3 @@
-import { HeaderTitle, SettingsHeader } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { pgettext } from '../../shared/gettext';
@@ -12,6 +11,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import styles from './PreferencesStyles';
+import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import Switch from './Switch';
 
 export interface IPreferencesProps {

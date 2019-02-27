@@ -1,4 +1,3 @@
-import { Brand, HeaderBarStyle, ImageView, SettingsBarButton } from '@mullvad/components';
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { links } from '../../config.json';
@@ -7,6 +6,8 @@ import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-typ
 import { pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import styles from './ConnectStyles';
+import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
+import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import NotificationArea from './NotificationArea';
