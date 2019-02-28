@@ -387,7 +387,12 @@ export class DaemonRpc {
   public async getLocation(): Promise<ILocation | undefined> {
     const response = await this.transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(locationSchema, response)) as ILocation;
+      const validatedObject = validate(locationSchema, response);
+      if (validatedObject) {
+        return camelCaseObjectKeys(validatedObject) as ILocation;
+      } else {
+        return undefined;
+      }
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_location', error);
     }
