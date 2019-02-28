@@ -2,7 +2,7 @@ use crate::{new_rpc_client, Command, Result, ResultExt};
 use clap::{value_t, values_t};
 use std::{
     io::{self, BufRead},
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
 };
 
@@ -55,10 +55,16 @@ impl Command for Relay {
                                         .required(false),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("gateway")
-                                        .help("Gateway address")
-                                        .long("gateway")
+                                    clap::Arg::with_name("v4-gateway")
+                                        .help("IPv4 gateway address")
+                                        .long("v4-gateway")
                                         .index(4)
+                                        .required(false),
+                                ).arg(
+                                    clap::Arg::with_name("v6-gateway")
+                                        .help("IPv6 gateway address")
+                                        .long("v6-gateway")
+                                        .takes_value(true)
                                         .required(false),
                                 )
                                 .arg(
@@ -224,10 +230,17 @@ impl Relay {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let addresses = values_t!(matches.values_of("addr"), IpAddr).unwrap_or_else(|e| e.exit());
-        println!("addresses - {:?}", addresses);
         let peer_key_str =
             value_t!(matches.value_of("peer-key"), String).unwrap_or_else(|e| e.exit());
-        let gateway = value_t!(matches.value_of("gateway"), IpAddr).unwrap_or_else(|e| e.exit());
+        let ipv4_gateway =
+            value_t!(matches.value_of("v4-gateway"), Ipv4Addr).unwrap_or_else(|e| e.exit());
+        let ipv6_gateway = match value_t!(matches.value_of("v6-gateway"), Ipv6Addr) {
+            Ok(gateway) => Some(gateway),
+            Err(e) => match e.kind {
+                clap::ErrorKind::ArgumentNotFound => None,
+                _ => e.exit(),
+            },
+        };
         let mut private_key_str = String::new();
         println!("Reading private key from standard input");
         let _ = io::stdin().lock().read_line(&mut private_key_str);
@@ -250,7 +263,8 @@ impl Relay {
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), port),
                 },
-                gateway,
+                ipv4_gateway,
+                ipv6_gateway,
             }),
         )
     }

@@ -391,7 +391,11 @@ impl Daemon {
                 generic_options: tunnel_options.generic,
             }
             .into()),
-            MullvadEndpoint::Wireguard { peer, gateway } => {
+            MullvadEndpoint::Wireguard {
+                peer,
+                ipv4_gateway,
+                ipv6_gateway,
+            } => {
                 let wg_data = self
                     .account_history
                     .get(&account_token)?
@@ -408,7 +412,8 @@ impl Daemon {
                     connection: wireguard::ConnectionConfig {
                         tunnel,
                         peer,
-                        gateway,
+                        ipv4_gateway,
+                        ipv6_gateway: Some(ipv6_gateway),
                     },
                     options: tunnel_options.wireguard,
                     generic_options: tunnel_options.generic,

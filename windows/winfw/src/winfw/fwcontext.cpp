@@ -89,7 +89,7 @@ bool FwContext::applyPolicyConnecting(const WinFwSettings &settings, const WinFw
 	return applyRuleset(ruleset);
 }
 
-bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *primaryDns)
+bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *v4Gateway, const wchar_t *v6Gateway)
 {
 	Ruleset ruleset;
 
@@ -110,9 +110,11 @@ bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwR
 		tunnelInterfaceAlias
 	));
 
+	/// We currently expect DNS servers to only be ran on the tunnel gateway IPs
 	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
-		wfp::IpAddress(primaryDns)
+		wfp::IpAddress(v4Gateway),
+		(v6Gateway != nullptr) ? &wfp::IpAddress(v6Gateway) : nullptr
 	));
 
 	return applyRuleset(ruleset);

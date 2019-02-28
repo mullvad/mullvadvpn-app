@@ -104,8 +104,6 @@ WinDns_Set(
 	if (nullptr == g_Context
 		|| nullptr == ipv4Servers
 		|| 0 == numIpv4Servers
-		|| nullptr == ipv6Servers
-		|| 0 == numIpv6Servers
 		|| nullptr == recoverySink)
 	{
 		return false;

@@ -75,29 +75,26 @@ impl super::DnsMonitorT for DnsMonitor {
         let ipv4 = servers
             .iter()
             .filter(|ip| ip.is_ipv4())
-            .cloned()
+            .map(ip_to_widestring)
             .collect::<Vec<_>>();
         let ipv6 = servers
             .iter()
-            .map(|ip| match ip {
-                IpAddr::V4(ip) => IpAddr::V6(ip.to_ipv6_compatible()),
-                any => any.clone(),
-            })
+            .filter(|ip| ip.is_ipv6())
+            .map(ip_to_widestring)
             .collect::<Vec<_>>();
-        let ipv4_addresses = ip_to_string(ipv4.iter());
-        let ipv6_addresses = ip_to_string(ipv6.iter());
 
-        let mut ipv4_address_ptrs = ipv4_addresses
+
+        let mut ipv4_address_ptrs = ipv4
             .iter()
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
-        let mut ipv6_address_ptrs = ipv6_addresses
+        let mut ipv6_address_ptrs = ipv6
             .iter()
             .map(|ip_cstr| ip_cstr.as_ptr())
             .collect::<Vec<_>>();
 
-        trace!("ipv4 ips - {:?} - {}", ipv4_addresses, ipv4_addresses.len());
-        trace!("ipv6 ips - {:?} - {}", ipv6_addresses, ipv6_addresses.len());
+        trace!("ipv4 ips - {:?} - {}", ipv4, ipv4.len());
+        trace!("ipv6 ips - {:?} - {}", ipv6, ipv6.len());
 
         unsafe {
             WinDns_Set(
@@ -150,10 +147,8 @@ impl DnsMonitor {
     }
 }
 
-fn ip_to_string<'a>(ips: impl Iterator<Item = &'a IpAddr>) -> Vec<WideCString> {
-    ips.map(|ip| ip.to_string().encode_utf16().collect::<Vec<_>>())
-        .map(|ip| WideCString::new(ip).unwrap())
-        .collect::<Vec<_>>()
+fn ip_to_widestring(ip: &IpAddr) -> WideCString {
+    WideCString::new(ip.to_string().encode_utf16().collect::<Vec<_>>()).unwrap()
 }
 
 // typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details,

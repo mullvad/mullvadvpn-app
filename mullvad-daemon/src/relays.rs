@@ -423,7 +423,8 @@ impl RelaySelector {
         };
         Some(MullvadEndpoint::Wireguard {
             peer: peer_config,
-            gateway: data.ipv4_gateway.into(),
+            ipv4_gateway: data.ipv4_gateway,
+            ipv6_gateway: data.ipv6_gateway,
         })
     }
 
