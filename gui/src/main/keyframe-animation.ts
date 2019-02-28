@@ -83,7 +83,7 @@ export default class KeyframeAnimation {
   }
 
   private scheduleUpdate() {
-    this.timeout = setTimeout(() => this.onUpdateFrame(), this.speedValue);
+    this.timeout = global.setTimeout(() => this.onUpdateFrame(), this.speedValue);
   }
 
   private render() {

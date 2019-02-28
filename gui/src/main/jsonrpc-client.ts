@@ -192,7 +192,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
 
       const id = uuid.v4();
       const payload = this.prepareParams(data);
-      const timerId = setTimeout(() => this.onTimeout(id), timeout);
+      const timerId = global.setTimeout(() => this.onTimeout(id), timeout);
       const message = jsonrpc.request(id, action, payload);
       this.unansweredRequests.set(id, {
         resolve,

@@ -560,7 +560,7 @@ class ApplicationMain {
       }
     };
 
-    this.relaysInterval = setInterval(handler, RELAY_LIST_UPDATE_INTERVAL);
+    this.relaysInterval = global.setInterval(handler, RELAY_LIST_UPDATE_INTERVAL);
   }
 
   private stopRelaysPeriodicUpdates() {
@@ -664,7 +664,7 @@ class ApplicationMain {
     const handler = () => {
       this.fetchLatestVersion();
     };
-    this.latestVersionInterval = setInterval(handler, VERSION_UPDATE_INTERVAL);
+    this.latestVersionInterval = global.setInterval(handler, VERSION_UPDATE_INTERVAL);
   }
 
   private stopLatestVersionPeriodicUpdates() {
