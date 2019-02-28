@@ -197,7 +197,7 @@ export default class AppRenderer {
       await IpcRendererEventChannel.account.set(accountToken);
 
       // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-      this.loginTimer = setTimeout(async () => {
+      this.loginTimer = global.setTimeout(async () => {
         this.memoryHistory.replace('/connect');
 
         try {
@@ -640,7 +640,7 @@ export class AccountDataCache {
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
-    this.fetchRetryTimeout = setTimeout(() => {
+    this.fetchRetryTimeout = global.setTimeout(() => {
       this.fetchRetryTimeout = undefined;
       this.performFetch(accountToken);
     }, delay);

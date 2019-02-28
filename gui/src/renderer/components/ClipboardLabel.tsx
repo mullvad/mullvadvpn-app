@@ -43,7 +43,7 @@ export default class ClipboardLabel extends Component<IProps, IState> {
       clearTimeout(this.timer);
     }
 
-    this.timer = setTimeout(() => this.setState({ showsMessage: false }), this.props.delay);
+    this.timer = global.setTimeout(() => this.setState({ showsMessage: false }), this.props.delay);
     this.setState({ showsMessage: true });
 
     Clipboard.setText(this.props.value);

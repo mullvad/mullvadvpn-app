@@ -313,7 +313,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     if (this.autoHideTimer) {
       clearTimeout(this.autoHideTimer);
     }
-    this.autoHideTimer = setTimeout(() => {
+    this.autoHideTimer = global.setTimeout(() => {
       this.setState({
         showScrollIndicators: false,
         showTrack: false,
@@ -327,7 +327,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
       clearTimeout(this.autoHideTimer);
     }
 
-    this.autoHideTimer = setTimeout(() => {
+    this.autoHideTimer = global.setTimeout(() => {
       this.setState({
         showTrack: false,
         isWide: false,
