@@ -2,6 +2,25 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
+#: src/renderer/components/SecuredLabel.tsx:40
+msgid "BLOCKED CONNECTION"
+msgstr ""
+
+#: src/renderer/components/SecuredLabel.tsx:43
+msgid "CREATING SECURE CONNECTION"
+msgstr ""
+
+#: src/renderer/components/SecuredLabel.tsx:37
+#: src/renderer/components/Support.tsx:282
+#: src/renderer/components/Support.tsx:317
+#: src/renderer/components/Support.tsx:342
+msgid "SECURE CONNECTION"
+msgstr ""
+
+#: src/renderer/components/SecuredLabel.tsx:46
+msgid "UNSECURED CONNECTION"
+msgstr ""
+
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
 #. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
@@ -11,42 +30,42 @@ msgid "%(duration)s left"
 msgstr ""
 
 #. Back button in navigation bar
-#: src/renderer/components/Account.tsx:32
+#: src/renderer/components/Account.tsx:33
 msgctxt "account-nav"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:38
+#: src/renderer/components/Account.tsx:39
 msgctxt "account-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:45
+#: src/renderer/components/Account.tsx:46
 msgctxt "account-view"
 msgid "Account ID"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:68
+#: src/renderer/components/Account.tsx:69
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:50
+#: src/renderer/components/Account.tsx:51
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:90
+#: src/renderer/components/Account.tsx:91
 msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:73
+#: src/renderer/components/Account.tsx:74
 msgctxt "account-view"
 msgid "Log out"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:99
+#: src/renderer/components/Account.tsx:100
 msgctxt "account-view"
 msgid "OUT OF TIME"
 msgstr ""
@@ -125,22 +144,22 @@ msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
 msgstr ""
 
-#: src/renderer/lib/auth-failure.ts:12
+#: src/renderer/lib/auth-failure.ts:41
 msgctxt "auth-failure"
 msgid "Account authentication failed."
 msgstr ""
 
-#: src/renderer/lib/auth-failure.ts:24
+#: src/renderer/lib/auth-failure.ts:34
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
 msgstr ""
 
-#: src/renderer/lib/auth-failure.ts:19
+#: src/renderer/lib/auth-failure.ts:28
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
 msgstr ""
 
-#: src/renderer/lib/auth-failure.ts:14
+#: src/renderer/lib/auth-failure.ts:22
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
 msgstr ""
@@ -155,22 +174,22 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
-#: src/renderer/components/Connect.tsx:59
+#: src/renderer/components/Connect.tsx:60
 msgctxt "connect-view"
 msgid "Buy more time, so you can continue using the internet securely"
 msgstr ""
 
-#: src/renderer/components/Connect.tsx:66
+#: src/renderer/components/Connect.tsx:67
 msgctxt "connect-view"
 msgid "Offline"
 msgstr ""
 
-#: src/renderer/components/Connect.tsx:57
+#: src/renderer/components/Connect.tsx:58
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr ""
 
-#: src/renderer/components/Connect.tsx:68
+#: src/renderer/components/Connect.tsx:69
 msgctxt "connect-view"
 msgid "Your internet connection will be secured when you get back online"
 msgstr ""
@@ -261,62 +280,62 @@ msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr ""
 
-#: src/renderer/components/Launch.tsx:52
+#: src/renderer/components/Launch.tsx:53
 msgctxt "launch-view"
 msgid "Connecting to daemon..."
 msgstr ""
 
-#: src/renderer/components/Launch.tsx:50
+#: src/renderer/components/Launch.tsx:51
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:229
+#: src/renderer/components/Login.tsx:231
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:231
+#: src/renderer/components/Login.tsx:233
 msgctxt "login-view"
 msgid "Correct account number"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:401
+#: src/renderer/components/Login.tsx:403
 msgctxt "login-view"
 msgid "Create account"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:398
+#: src/renderer/components/Login.tsx:400
 msgctxt "login-view"
 msgid "Don't have an account number?"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:233
+#: src/renderer/components/Login.tsx:235
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:217
+#: src/renderer/components/Login.tsx:219
 msgctxt "login-view"
 msgid "Logged in"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:213
+#: src/renderer/components/Login.tsx:215
 msgctxt "login-view"
 msgid "Logging in..."
 msgstr ""
 
-#: src/renderer/components/Login.tsx:219
+#: src/renderer/components/Login.tsx:221
 msgctxt "login-view"
 msgid "Login"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:215
+#: src/renderer/components/Login.tsx:217
 msgctxt "login-view"
 msgid "Login failed"
 msgstr ""
 
-#: src/renderer/components/Login.tsx:227
+#: src/renderer/components/Login.tsx:229
 msgctxt "login-view"
 msgid "Unknown error"
 msgstr ""
@@ -442,181 +461,174 @@ msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:100
+#: src/renderer/components/Settings.tsx:101
 msgctxt "settings-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:114
+#: src/renderer/components/Settings.tsx:115
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:160
+#: src/renderer/components/Settings.tsx:161
 msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:181
+#: src/renderer/components/Settings.tsx:182
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:126
+#: src/renderer/components/Settings.tsx:127
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:94
+#: src/renderer/components/Settings.tsx:95
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:109
+#: src/renderer/components/Settings.tsx:110
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:78
+#: src/renderer/components/Settings.tsx:79
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:176
+#: src/renderer/components/Settings.tsx:177
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:56
+#: src/renderer/components/Settings.tsx:57
 msgctxt "settings-view"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:131
+#: src/renderer/components/Settings.tsx:132
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr ""
 
 #. Title label in navigation bar
-#: src/renderer/components/Settings.tsx:48
+#: src/renderer/components/Settings.tsx:49
 msgctxt "settings-view-nav"
 msgid "Settings"
 msgstr ""
 
 #. Back button in navigation bar
-#: src/renderer/components/Support.tsx:152
+#: src/renderer/components/Support.tsx:146
 msgctxt "support-nav"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:398
+#: src/renderer/components/Support.tsx:392
 msgctxt "support-view"
 msgid "Back"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:258
+#: src/renderer/components/Support.tsx:252
 msgctxt "support-view"
 msgid "Describe your problem"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:363
+#: src/renderer/components/Support.tsx:357
 msgctxt "support-view"
 msgid "Edit message"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:351
+#: src/renderer/components/Support.tsx:345
 msgctxt "support-view"
 msgid "Failed to send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:303
+#: src/renderer/components/Support.tsx:297
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:129
+#: src/renderer/components/Support.tsx:123
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:288
-#: src/renderer/components/Support.tsx:323
-#: src/renderer/components/Support.tsx:348
-msgctxt "support-view"
-msgid "SECURE CONNECTION"
-msgstr ""
-
-#: src/renderer/components/Support.tsx:271
+#: src/renderer/components/Support.tsx:265
 msgctxt "support-view"
 msgid "Send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:395
+#: src/renderer/components/Support.tsx:389
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:291
+#: src/renderer/components/Support.tsx:285
 msgctxt "support-view"
 msgid "Sending..."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:325
+#: src/renderer/components/Support.tsx:319
 msgctxt "support-view"
 msgid "Sent"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:328
+#: src/renderer/components/Support.tsx:322
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:132
+#: src/renderer/components/Support.tsx:126
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:366
+#: src/renderer/components/Support.tsx:360
 msgctxt "support-view"
 msgid "Try again"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:267
+#: src/renderer/components/Support.tsx:261
 msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:389
+#: src/renderer/components/Support.tsx:383
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:354
+#: src/renderer/components/Support.tsx:348
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:248
+#: src/renderer/components/Support.tsx:242
 msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr ""
 
-#: src/renderer/components/TunnelControl.tsx:120
+#: src/renderer/components/TunnelControl.tsx:121
 msgctxt "tunnel-control"
 msgid "Cancel"
 msgstr ""
 
-#: src/renderer/components/TunnelControl.tsx:114
+#: src/renderer/components/TunnelControl.tsx:115
 msgctxt "tunnel-control"
 msgid "Disconnect"
 msgstr ""
 
-#: src/renderer/components/TunnelControl.tsx:108
+#: src/renderer/components/TunnelControl.tsx:109
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr ""
 
-#: src/renderer/components/TunnelControl.tsx:92
+#: src/renderer/components/TunnelControl.tsx:93
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr ""
