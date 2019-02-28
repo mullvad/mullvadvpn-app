@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component, Text, TextInput, View } from 'reactxp';
-import { pgettext } from '../../shared/gettext';
+import { gettext, pgettext } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
@@ -279,7 +279,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
             <View style={styles.support__status_security__secure}>
-              {pgettext('support-view', 'SECURE CONNECTION')}
+              {gettext('SECURE CONNECTION')}
             </View>
             <Text style={styles.support__send_status}>
               {pgettext('support-view', 'Sending...')}
@@ -314,7 +314,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-success" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              {pgettext('support-view', 'SECURE CONNECTION')}
+              {gettext('SECURE CONNECTION')}
             </Text>
             <Text style={styles.support__send_status}>{pgettext('support-view', 'Sent')}</Text>
 
@@ -339,7 +339,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-fail" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              {pgettext('support-view', 'SECURE CONNECTION')}
+              {gettext('SECURE CONNECTION')}
             </Text>
             <Text style={styles.support__send_status}>
               {pgettext('support-view', 'Failed to send')}
