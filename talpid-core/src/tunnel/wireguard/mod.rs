@@ -94,12 +94,20 @@ impl WireguardMonitor {
         }
     }
 
-    pub fn wait(self) -> Result<()> {
+    pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
             Ok(CloseMsg::PingErr) => Err(ErrorKind::PingTimeoutError.into()),
             Ok(CloseMsg::Stop) => Ok(()),
             Err(_) => Ok(()),
         };
+
+        // Clear routes manually - otherwise there will be some log spam since the tunnel device
+        // can be removed before the routes are cleared, which automatically clears some of the
+        // routes that were set.
+        if let Err(e) = self.router.delete_routes() {
+            log::error!("Failed to remove a route from the routing table - {}", e);
+        }
+
         if let Err(e) = self.tunnel.stop() {
             log::error!("Failed to stop tunnel - {}", e);
         }
@@ -119,30 +127,25 @@ impl WireguardMonitor {
             })
             .collect();
 
-        if cfg!(target_os = "macos") {
-            // To survive network roaming on osx, we should listen for new routes and reapply them
-            // here - probably would need RouteManager be extended. Or maybe RouteManager can deal
-            // with it on it's own
-            let default_node = self
-                .router
-                .get_default_route_node()
-                .chain_err(|| ErrorKind::SetupRoutingError)?;
+        // To survive network roaming, we should listen for new routes and reapply them
+        // here - probably would need RouteManager be extended. Or maybe RouteManager can deal
+        // with it on it's own
+        let default_node = self
+            .router
+            .get_default_route_node()
+            .chain_err(|| ErrorKind::SetupRoutingError)?;
 
-            // route endpoints with specific routes
-            for peer in config.peers.iter() {
-                let default_route = routing::Route::new(
-                    peer.endpoint.ip().into(),
-                    routing::NetNode::Address(default_node),
-                );
-                routes.push(default_route);
-            }
+        // route endpoints with specific routes
+        for peer in config.peers.iter() {
+            let default_route = routing::Route::new(
+                peer.endpoint.ip().into(),
+                routing::NetNode::Address(default_node),
+            );
+            routes.push(default_route);
         }
 
-        let required_routes = routing::RequiredRoutes {
-            routes,
-            #[cfg(target_os = "linux")]
-            fwmark: Some(config.fwmark.to_string()),
-        };
+        let required_routes = routing::RequiredRoutes { routes };
+
         self.router
             .add_routes(required_routes)
             .chain_err(|| ErrorKind::SetupRoutingError)
