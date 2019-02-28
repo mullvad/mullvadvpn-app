@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, View } from 'reactxp';
 import ImageView from './ImageView';
@@ -100,12 +101,7 @@ export class Brand extends Component {
     return (
       <View style={brandStyles.container}>
         <ImageView width={50} height={50} source="logo-icon" />
-        <Text style={brandStyles.title}>
-          {
-            // TODO: perhaps translate?
-            'MULLVAD VPN'
-          }
-        </Text>
+        <Text style={brandStyles.title}>{remote.app.getName().toUpperCase()}</Text>
       </View>
     );
   }
