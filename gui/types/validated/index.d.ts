@@ -82,7 +82,7 @@ declare module 'validated/schema' {
     f: Node<F>,
     g: Node<G>,
     h: Node<H>,
-  ): Node<A | B | C | D | E | F | G, H>;
+  ): Node<A | B | C | D | E | F | G | H>;
 
   export function oneOf<A, B, C, D, E, F, G, H, I>(
     a: Node<A>,
@@ -94,7 +94,7 @@ declare module 'validated/schema' {
     g: Node<G>,
     h: Node<H>,
     i: Node<I>,
-  ): Node<A | B | C | D | E | F | G, H, I>;
+  ): Node<A | B | C | D | E | F | G | H | I>;
 }
 
 declare module 'validated/object' {
