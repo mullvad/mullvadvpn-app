@@ -8,35 +8,20 @@ before_install:
 
 matrix:
   include:
-    # GUI - components
+    # GUI - Electron
     - language: node_js
       node_js: '8'
       cache: yarn
-      env:
-        - WORKSPACE="@mullvad/components"
-      install: &nodejs_install_script
+      install:
         - cd gui
         - yarn install
-      before_script: &nodejs_before_script
+      before_script:
         - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
       script:
-        - yarn workspace $WORKSPACE lint
-        - yarn workspace $WORKSPACE build
-        - yarn workspace $WORKSPACE test
-
-    # GUI - desktop
-    - language: node_js
-      node_js: '8'
-      cache: yarn
-      env:
-        - WORKSPACE="desktop"
-      install: *nodejs_install_script
-      before_script: *nodejs_before_script
-      script:
         - yarn check-format
-        - yarn workspace $WORKSPACE lint
-        - yarn workspace $WORKSPACE build
-        - yarn workspace $WORKSPACE test
+        - yarn lint
+        - yarn build
+        - yarn test
 
 
     # Daemon - macOS

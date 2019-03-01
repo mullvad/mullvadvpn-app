@@ -1,9 +1,6 @@
 /target/
 /gui/node_modules
-/gui/packages/**/node_modules
-/gui/packages/**/build
-/gui/packages/mobile/android
-/gui/packages/mobile/ios
+/gui/build
 /dist
 .DS_Store
 *.log

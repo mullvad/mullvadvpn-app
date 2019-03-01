@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "build",
+    "resolveJsonModule": true,
+    "rootDirs": [
+      "src",
+      "assets"
+    ],
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "typeRoots": [
+      "./types",
+      "node_modules/@types"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

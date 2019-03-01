@@ -177,7 +177,7 @@ sections.
 
 1. Start the GUI in development mode by running:
     ```bash
-    yarn workspace desktop develop
+    yarn develop
     ```
 
 If you change any javascript file while the development mode is running it will automatically
@@ -242,11 +242,11 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 
 ## Command line tools for Electron GUI app development
 
-- `$ yarn workspace desktop develop` - develop app with live-reload enabled
+- `$ yarn develop` - develop app with live-reload enabled
 - `$ yarn lint` - lint code
 - `$ yarn pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
   `linux`, `mac` or `win`
-- `$ yarn workspace desktop test` - run tests
+- `$ yarn test` - run tests
 
 ## Repository structure
 
