@@ -142,6 +142,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/mocha@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.6.tgz#b8622d50557dd155e9f2f634b7d68fd38de5e94b"
+  integrity sha512-1axi39YdtBI7z957vdqXI4Ac25e7YihYQtJa+Clnxg1zTJEaIRbndt71O3sP4GAMgiAm0pY26/b9BrY4MR/PMw==
+
 "@types/node-gettext@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/node-gettext/-/node-gettext-2.0.0.tgz#b4d7fdf8311c19eb3d828051745310a4365472eb"
