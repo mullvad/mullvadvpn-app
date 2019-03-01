@@ -11,6 +11,7 @@ interface IState {
   childrenAnimation?: Types.AnimatedViewStyleRuleSet;
   previousChildrenAnimation?: Types.AnimatedViewStyleRuleSet;
   dimensions: Types.Dimensions;
+  isAnimating: boolean;
 }
 
 const dimensions = UserInterface.measureWindow();
@@ -33,6 +34,7 @@ const styles = {
 export default class TransitionContainer extends Component<IProps, IState> {
   public state: IState = {
     dimensions: UserInterface.measureWindow(),
+    isAnimating: false,
   };
 
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
@@ -54,12 +56,13 @@ export default class TransitionContainer extends Component<IProps, IState> {
     }
   }
 
-  public onFinishedAnimation() {
+  public onFinishedAnimation = (_result: Types.Animated.EndResult) => {
     this.setState({
       childrenAnimation: styles.allowPointerEventsStyle,
       previousChildren: null,
+      isAnimating: false,
     });
-  }
+  };
 
   public slideUpTransition(nextProps: IProps) {
     const currentTranslationValue = Animated.createValue(this.state.dimensions.height);
@@ -68,23 +71,22 @@ export default class TransitionContainer extends Component<IProps, IState> {
         previousChildren: this.props.children,
         childrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 1,
           transform: [{ translateY: currentTranslationValue }],
         }),
         previousChildrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 0,
           transform: [{ translateY: Animated.createValue(0) }],
         }),
+        isAnimating: true,
       },
       () => {
         Animated.timing(currentTranslationValue, {
           toValue: 0,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-        }).start(() => this.onFinishedAnimation());
+        }).start(this.onFinishedAnimation);
       },
     );
   }
@@ -96,23 +98,22 @@ export default class TransitionContainer extends Component<IProps, IState> {
         previousChildren: this.props.children,
         childrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 0,
           transform: [{ translateY: Animated.createValue(0) }],
         }),
         previousChildrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 1,
           transform: [{ translateY: previousTranslationValue }],
         }),
+        isAnimating: true,
       },
       () => {
         Animated.timing(previousTranslationValue, {
           toValue: this.state.dimensions.height,
           easing: Animated.Easing.InOut(),
           duration: nextProps.duration,
-        }).start(() => this.onFinishedAnimation());
+        }).start(this.onFinishedAnimation);
       },
     );
   }
@@ -125,16 +126,15 @@ export default class TransitionContainer extends Component<IProps, IState> {
         previousChildren: this.props.children,
         childrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 1,
           transform: [{ translateX: currentTranslationValue }],
         }),
         previousChildrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 0,
           transform: [{ translateX: previousTranslationValue }],
         }),
+        isAnimating: true,
       },
       () => {
         const compositeAnimation = Animated.parallel([
@@ -149,7 +149,7 @@ export default class TransitionContainer extends Component<IProps, IState> {
             duration: nextProps.duration,
           }),
         ]);
-        compositeAnimation.start(() => this.onFinishedAnimation());
+        compositeAnimation.start(this.onFinishedAnimation);
       },
     );
   }
@@ -162,16 +162,15 @@ export default class TransitionContainer extends Component<IProps, IState> {
         previousChildren: this.props.children,
         childrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 0,
           transform: [{ translateX: currentTranslationValue }],
         }),
         previousChildrenAnimation: Styles.createAnimatedViewStyle({
           // @ts-ignore
-          pointerEvents: 'none',
           zIndex: 1,
           transform: [{ translateX: previousTranslationValue }],
         }),
+        isAnimating: true,
       },
       () => {
         const compositeAnimation = Animated.parallel([
@@ -186,17 +185,22 @@ export default class TransitionContainer extends Component<IProps, IState> {
             duration: nextProps.duration,
           }),
         ]);
-        compositeAnimation.start(() => this.onFinishedAnimation());
+        compositeAnimation.start(this.onFinishedAnimation);
       },
     );
   }
 
   public render() {
     const { children } = this.props;
-    const { previousChildren, childrenAnimation, previousChildrenAnimation } = this.state;
+    const {
+      isAnimating,
+      previousChildren,
+      childrenAnimation,
+      previousChildrenAnimation,
+    } = this.state;
 
     return (
-      <View style={styles.transitionContainerStyle}>
+      <View style={styles.transitionContainerStyle} ignorePointerEvents={isAnimating}>
         {previousChildren && (
           <Animated.View
             key={getChildKey(previousChildren)}
