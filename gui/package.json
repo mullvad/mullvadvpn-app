@@ -1,5 +1,5 @@
 {
-  "name": "desktop",
+  "name": "mullvad-vpn",
   "version": "2019.1.0",
   "productName": "Mullvad VPN",
   "private": true,
@@ -45,6 +45,7 @@
     "@types/enzyme": "^3.1.15",
     "@types/enzyme-adapter-react-16": "^1.0.3",
     "@types/mkdirp": "^0.5.2",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.3",
     "@types/node-gettext": "^2.0.0",
     "@types/rbush": "^2.0.2",
