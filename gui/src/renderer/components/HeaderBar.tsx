@@ -28,9 +28,7 @@ const headerBarStyles = {
         paddingTop: 24,
       }),
       linux: Styles.createViewStyle({
-        // WebKitAppRegion is not standard :/
-        // @ts-ignore
-        WebkitAppRegion: 'drag',
+        appRegion: 'drag',
       }),
     },
   },
@@ -120,9 +118,7 @@ const settingsBarButtonStyles = {
     }),
     platformOverride: {
       linux: Styles.createViewStyle({
-        // WebKitAppRegion is not standard :/
-        // @ts-ignore
-        WebkitAppRegion: 'no-drag',
+        appRegion: 'no-drag',
       }),
     },
   },
