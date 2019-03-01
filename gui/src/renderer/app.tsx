@@ -222,10 +222,10 @@ export default class AppRenderer {
         onError: (error): AccountFetchRetryAction => {
           if (error instanceof InvalidAccountError) {
             reject(error);
-            return 'stop';
+            return AccountFetchRetryAction.stop;
           } else {
             resolve({ status: 'deferred', error });
-            return 'retry';
+            return AccountFetchRetryAction.retry;
           }
         },
       });
@@ -538,7 +538,10 @@ export default class AppRenderer {
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
-type AccountFetchRetryAction = 'stop' | 'retry';
+export enum AccountFetchRetryAction {
+  stop,
+  retry,
+}
 interface IAccountFetchWatcher {
   onFinish: () => void;
   onError: (error: Error) => AccountFetchRetryAction;
@@ -622,7 +625,7 @@ export class AccountDataCache {
     let shouldRetry = true;
 
     this.notifyWatchers((watcher) => {
-      if (watcher.onError(error) === 'stop') {
+      if (watcher.onError(error) === AccountFetchRetryAction.stop) {
         shouldRetry = false;
       }
     });
