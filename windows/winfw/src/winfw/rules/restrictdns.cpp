@@ -12,10 +12,10 @@ using namespace wfp::conditions;
 namespace rules
 {
 
-RestrictDns::RestrictDns(const std::wstring &tunnelInterfaceAlias, const wfp::IpAddress v4DnsHost, wfp::IpAddress *v6DnsHost)
+RestrictDns::RestrictDns(const std::wstring &tunnelInterfaceAlias, const wfp::IpAddress v4DnsHost, std::unique_ptr<wfp::IpAddress> v6DnsHost)
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_v4DnsHost(v4DnsHost)
-	, m_v6DnsHost(v6DnsHost)
+	, m_v6DnsHost(std::move(v6DnsHost))
 
 {
 }

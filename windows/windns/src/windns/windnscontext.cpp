@@ -40,6 +40,16 @@ void WinDnsContext::set(const std::vector<std::wstring> &ipv4NameServers,
 		m_recoverySink->setTarget(recoverySinkInfo);
 	}
 
+    // Clearing DNS agents if the new server lists are empty, as they aren't needed.
+    if (ipv4NameServers.empty())
+    {
+        m_ipv4Agent.reset();
+    }
+    if (ipv6NameServers.empty())
+    {
+        m_ipv6Agent.reset();
+    }
+
 	if (!m_nameServerSource)
 	{
 		m_nameServerSource = std::make_unique<NameServerSource>(ipv4NameServers, ipv6NameServers);
@@ -51,15 +61,15 @@ void WinDnsContext::set(const std::vector<std::wstring> &ipv4NameServers,
 	}
 
 	//
-	// Instantiate agents unless they're already set up.
+	// Instantiate agents unless they're already set up or the relevant server lists are empty
 	//
-
-	if (!m_ipv4Agent)
+	if (!m_ipv4Agent && !ipv4NameServers.empty())
 	{
 		m_ipv4Agent = std::make_unique<DnsAgent>(Protocol::IPv4, m_nameServerSource.get(), m_recoverySink.get(), m_logSink);
-	}
+    }
+ 
 
-	if (!m_ipv6Agent)
+	if (!m_ipv6Agent && !ipv6NameServers.empty())
 	{
 		m_ipv6Agent = std::make_unique<DnsAgent>(Protocol::IPv6, m_nameServerSource.get(), m_recoverySink.get(), m_logSink);
 	}

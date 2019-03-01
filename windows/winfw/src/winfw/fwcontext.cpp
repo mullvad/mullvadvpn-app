@@ -114,7 +114,7 @@ bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwR
 	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
 		wfp::IpAddress(v4Gateway),
-		(v6Gateway != nullptr) ? &wfp::IpAddress(v6Gateway) : nullptr
+		(v6Gateway != nullptr) ? std::make_unique<wfp::IpAddress>(v6Gateway) : nullptr
 	));
 
 	return applyRuleset(ruleset);
