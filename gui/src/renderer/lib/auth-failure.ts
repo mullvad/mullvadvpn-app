@@ -1,79 +1,92 @@
 import log from 'electron-log';
 import { pgettext } from '../../shared/gettext';
 
-export type AuthFailureKind =
-  | 'INVALID_ACCOUNT'
-  | 'EXPIRED_ACCOUNT'
-  | 'TOO_MANY_CONNECTIONS'
-  | 'UNKNOWN';
+export enum AuthFailureKind {
+  invalidAccount,
+  expiredAccount,
+  tooManyConnections,
+  unknown,
+}
 
-// These strings should match up with mullvad-types/src/auth_failed.rs
+export class AuthFailureError extends Error {
+  private kindValue: AuthFailureKind;
+  private unknownErrorMessage?: string;
 
-const GENERIC_FAILURE_MSG = pgettext('auth-failure', 'Account authentication failed.');
+  get kind(): AuthFailureKind {
+    return this.kindValue;
+  }
 
-const INVALID_ACCOUNT_MSG = pgettext(
-  'auth-failure',
-  "You've logged in with an account number that is not valid. Please log out and try another one.",
-);
+  get message(): string {
+    switch (this.kindValue) {
+      case AuthFailureKind.invalidAccount:
+        return pgettext(
+          'auth-failure',
+          "You've logged in with an account number that is not valid. Please log out and try another one.",
+        );
 
-const EXPIRED_ACCOUNT_MSG = pgettext(
-  'auth-failure',
-  'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
-);
+      case AuthFailureKind.expiredAccount:
+        return pgettext(
+          'auth-failure',
+          'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
+        );
 
-const TOO_MANY_CONNECTIONS_MSG = pgettext(
-  'auth-failure',
-  'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.',
-);
+      case AuthFailureKind.tooManyConnections:
+        return pgettext(
+          'auth-failure',
+          'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.',
+        );
 
-export class AuthFailure {
-  private reasonId: AuthFailureKind;
-  private message: string;
+      case AuthFailureKind.unknown:
+        return (
+          this.unknownErrorMessage || pgettext('auth-failure', 'Account authentication failed.')
+        );
+    }
+  }
 
   constructor(reason?: string) {
+    super();
+
     if (!reason) {
       log.error('Received invalid auth_failed reason: ', reason);
-      this.reasonId = 'UNKNOWN';
-      this.message = GENERIC_FAILURE_MSG;
+
+      this.kindValue = AuthFailureKind.unknown;
       return;
     }
 
     const results = /^\[(\w+)\]\s*(.*)$/.exec(reason);
 
-    if (!results || results.length < 3) {
+    if (results && results.length === 3) {
+      const rawReasonId = results[1];
+      const kindValue = rawReasonIdToFailureKind(rawReasonId);
+
+      if (kindValue === AuthFailureKind.unknown) {
+        log.error(`Received unknown auth_failed message id - ${rawReasonId}`);
+      }
+
+      this.kindValue = kindValue;
+      this.unknownErrorMessage = results[2];
+    } else {
       log.error(`Received invalid auth_failed message - "${reason}"`);
-      this.reasonId = 'UNKNOWN';
-      this.message = reason;
-      return;
-    }
 
-    const idString = results[1];
-    this.reasonId = strToFailureKind(idString);
-    this.message = results[2] || GENERIC_FAILURE_MSG;
-  }
-
-  public show(): string {
-    switch (this.reasonId) {
-      case 'INVALID_ACCOUNT':
-        return INVALID_ACCOUNT_MSG;
-      case 'EXPIRED_ACCOUNT':
-        return EXPIRED_ACCOUNT_MSG;
-      case 'TOO_MANY_CONNECTIONS':
-        return TOO_MANY_CONNECTIONS_MSG;
-      case 'UNKNOWN':
-        return this.message;
+      this.kindValue = AuthFailureKind.unknown;
+      this.unknownErrorMessage = reason;
     }
   }
 }
 
-export function strToFailureKind(id: string): AuthFailureKind {
+function rawReasonIdToFailureKind(id: string): AuthFailureKind {
+  // These strings should match up with mullvad-types/src/auth_failed.rs
   switch (id) {
     case 'INVALID_ACCOUNT':
+      return AuthFailureKind.invalidAccount;
+
     case 'EXPIRED_ACCOUNT':
+      return AuthFailureKind.expiredAccount;
+
     case 'TOO_MANY_CONNECTIONS':
-      return id;
+      return AuthFailureKind.tooManyConnections;
+
     default:
-      log.error(`Received unknown auth_failed message id - ${id}`);
-      return 'UNKNOWN';
+      return AuthFailureKind.unknown;
   }
 }
