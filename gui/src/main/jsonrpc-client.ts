@@ -252,6 +252,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
       message = jsonrpc.parseObject(obj);
     } catch (error) {
       log.error(`Failed to parse JSON-RPC message: ${error} for object`);
+      return;
     }
 
     if (message.type === 'notification') {
