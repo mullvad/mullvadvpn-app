@@ -16,7 +16,6 @@ interface IState {
 const dimensions = UserInterface.measureWindow();
 const styles = {
   animationDefaultStyle: Styles.createViewStyle({
-    // @ts-ignore
     position: 'absolute',
     width: dimensions.width,
     height: dimensions.height,
