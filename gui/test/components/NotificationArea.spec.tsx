@@ -19,6 +19,7 @@ describe('components/NotificationArea', () => {
     moment()
       .add(1, 'year')
       .format(),
+    'en',
   );
 
   it('handles disconnecting state', () => {
@@ -176,6 +177,7 @@ describe('components/NotificationArea', () => {
       moment()
         .add(2, 'days')
         .format(),
+      'en',
     );
     const component = shallow(
       <NotificationArea

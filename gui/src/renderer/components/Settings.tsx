@@ -22,6 +22,7 @@ import { LoginState } from '../redux/account/reducers';
 export interface IProps {
   loginState: LoginState;
   accountExpiry?: string;
+  expiryLocale: string;
   appVersion: string;
   consistentVersion: boolean;
   upToDateVersion: boolean;
@@ -88,7 +89,9 @@ export default class Settings extends Component<IProps> {
       return null;
     }
 
-    const expiry = this.props.accountExpiry ? new AccountExpiry(this.props.accountExpiry) : null;
+    const expiry = this.props.accountExpiry
+      ? new AccountExpiry(this.props.accountExpiry, this.props.expiryLocale)
+      : null;
     const isOutOfTime = expiry ? expiry.hasExpired() : false;
     const formattedExpiry = expiry ? expiry.remainingTime().toUpperCase() : '';
 

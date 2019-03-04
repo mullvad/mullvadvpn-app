@@ -150,7 +150,14 @@ export default class NotificationArea extends Component<IProps, State> {
           };
         }
 
-        if (accountExpiry && accountExpiry.willHaveExpiredIn(moment().add(3, 'days'))) {
+        if (
+          accountExpiry &&
+          accountExpiry.willHaveExpiredAt(
+            moment()
+              .add(3, 'days')
+              .toDate(),
+          )
+        ) {
           return {
             visible: true,
             type: 'expires-soon',
