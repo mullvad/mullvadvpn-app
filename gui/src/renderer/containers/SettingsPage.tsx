@@ -7,9 +7,10 @@ import Settings from '../components/Settings';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState) => ({
+const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => ({
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
+  expiryLocale: props.locale,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
   upToDateVersion: state.version.upToDate,

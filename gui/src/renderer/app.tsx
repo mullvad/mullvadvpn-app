@@ -174,7 +174,12 @@ export default class AppRenderer {
   public renderView() {
     return (
       <Provider store={this.reduxStore}>
-        <ConnectedRouter history={this.memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
+        <ConnectedRouter history={this.memoryHistory}>
+          {makeRoutes({
+            app: this,
+            locale: remote.app.getLocale(),
+          })}
+        </ConnectedRouter>
       </Provider>
     );
   }
