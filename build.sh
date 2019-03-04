@@ -14,7 +14,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 RUSTC_VERSION=`rustc +stable --version`
-PRODUCT_VERSION=$(node -p "require('./gui/packages/desktop/package.json').version" | sed -Ee 's/\.0//g')
+PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
 
 source env.sh
@@ -65,7 +65,7 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
-    mv gui/packages/desktop/package.json.bak gui/packages/desktop/package.json || true
+    mv gui/package.json.bak gui/package.json || true
     mv Cargo.lock.bak Cargo.lock || true
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
@@ -78,7 +78,7 @@ trap 'restore_metadata_backups' EXIT
 
 sed -i.bak \
     -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    gui/packages/desktop/package.json
+    gui/package.json
 
 cp Cargo.lock Cargo.lock.bak
 sed -i.bak \
