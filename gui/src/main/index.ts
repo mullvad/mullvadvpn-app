@@ -103,10 +103,8 @@ class ApplicationMain {
 
   private upgradeVersion: IAppUpgradeInfo = {
     currentIsSupported: true,
-    latest: {
-      latestStable: '',
-      latest: '',
-    },
+    latestStable: '',
+    latest: '',
     nextUpgrade: undefined,
     upToDate: true,
   };
@@ -616,8 +614,8 @@ class ApplicationMain {
     }
 
     const currentVersionInfo = this.currentVersion;
-    const latestVersion = latestVersionInfo.latest.latest;
-    const latestStableVersion = latestVersionInfo.latest.latestStable;
+    const latestVersion = latestVersionInfo.latest;
+    const latestStableVersion = latestVersionInfo.latestStable;
 
     // the reason why we rely on daemon version here is because daemon obtains the version info
     // based on its built-in version information

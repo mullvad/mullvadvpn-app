@@ -26,11 +26,10 @@ export default function(
 ): IVersionReduxState {
   switch (action.type) {
     case 'UPDATE_LATEST': {
-      const { latest, ...other } = action.latestInfo;
+      const { ...other } = action.latestInfo;
       return {
         ...state,
         ...other,
-        ...latest,
       };
     }
 
