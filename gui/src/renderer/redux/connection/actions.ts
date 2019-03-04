@@ -1,4 +1,9 @@
-import { AfterDisconnect, BlockReason, ITunnelEndpoint } from '../../../shared/daemon-rpc-types';
+import {
+  AfterDisconnect,
+  BlockReason,
+  ILocation,
+  ITunnelEndpoint,
+} from '../../../shared/daemon-rpc-types';
 
 interface IConnectingAction {
   type: 'CONNECTING';
@@ -26,14 +31,7 @@ interface IBlockedAction {
 
 interface INewLocationAction {
   type: 'NEW_LOCATION';
-  newLocation: {
-    country: string;
-    city?: string;
-    latitude: number;
-    longitude: number;
-    mullvadExitIp: boolean;
-    hostname?: string;
-  };
+  newLocation: ILocation;
 }
 
 interface IOnlineAction {
@@ -88,7 +86,7 @@ function blocked(reason: BlockReason): IBlockedAction {
   };
 }
 
-function newLocation(location: INewLocationAction['newLocation']): INewLocationAction {
+function newLocation(location: ILocation): INewLocationAction {
   return {
     type: 'NEW_LOCATION',
     newLocation: location,
