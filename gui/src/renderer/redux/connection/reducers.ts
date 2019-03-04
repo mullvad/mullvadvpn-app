@@ -31,8 +31,7 @@ export default function(
 ): IConnectionReduxState {
   switch (action.type) {
     case 'NEW_LOCATION':
-      const { hostname, latitude, longitude, city, country } = action.newLocation;
-      return { ...state, hostname, latitude, longitude, city, country };
+      return { ...state, ...action.newLocation };
 
     case 'CONNECTING':
       return {
