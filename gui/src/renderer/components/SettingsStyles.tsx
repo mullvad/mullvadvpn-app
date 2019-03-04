@@ -39,7 +39,6 @@ export default {
   settings__version_warning: Styles.createViewStyle({
     marginLeft: 8,
   }),
-
   settings__account_paid_until_label__error: Styles.createTextStyle({
     color: colors.red,
   }),
