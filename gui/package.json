@@ -20,7 +20,7 @@
     "history": "^4.6.1",
     "jsonrpc-lite": "^2.0.1",
     "mkdirp": "^0.5.1",
-    "moment": "^2.20.1",
+    "moment": "^2.24.0",
     "node-gettext": "^2.0.0",
     "rbush": "^2.0.2",
     "react": "^16.5.0",
