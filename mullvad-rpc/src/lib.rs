@@ -127,8 +127,7 @@ jsonrpc_client!(pub struct RelayListProxy {
 });
 
 jsonrpc_client!(pub struct AppVersionProxy {
-    pub fn latest_app_version(&mut self) -> RpcRequest<version::LatestReleases>;
-    pub fn is_app_version_supported(&mut self, version: &version::AppVersion) -> RpcRequest<bool>;
+    pub fn app_version_check(&mut self, version: &version::AppVersion, platform: &str) -> RpcRequest<version::AppVersionInfo>;
 });
 
 jsonrpc_client!(pub struct WireguardKeyProxy {
