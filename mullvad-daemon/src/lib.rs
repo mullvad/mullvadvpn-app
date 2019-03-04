@@ -625,14 +625,16 @@ impl Daemon {
         &mut self,
         tx: oneshot::Sender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
     ) {
+        #[cfg(target_os = "linux")]
+        const PLATFORM: &str = "linux";
+        #[cfg(target_os = "macos")]
+        const PLATFORM: &str = "macos";
+        #[cfg(target_os = "windows")]
+        const PLATFORM: &str = "windows";
+
         let fut = self
             .version_proxy
-            .latest_app_version()
-            .join(self.version_proxy.is_app_version_supported(&self.version))
-            .map(|(latest_versions, is_supported)| AppVersionInfo {
-                current_is_supported: is_supported,
-                latest: latest_versions,
-            });
+            .app_version_check(&self.version, PLATFORM);
         Self::oneshot_send(tx, Box::new(fut), "get_version_info response");
     }
 

@@ -18,9 +18,14 @@ impl Command for Version {
         println!("Current version: {}", current_version);
         let version_info = rpc.get_version_info()?;
         println!("Supported: {}", version_info.current_is_supported);
-        println!("Latest releases:");
-        println!("\tlatest stable: {}", version_info.latest.latest_stable);
-        println!("\tlatest: {}", version_info.latest.latest);
+        if version_info.latest_stable != version_info.latest {
+            println!(
+                "Latest version: {} (latest stable: {})",
+                version_info.latest, version_info.latest_stable
+            );
+        } else {
+            println!("Latest version: {}", version_info.latest_stable);
+        }
         Ok(())
     }
 }
