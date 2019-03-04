@@ -14,7 +14,7 @@
   "dependencies": {
     "JSONStream": "^1.3.5",
     "connected-react-router": "^5.0.1",
-    "d3-geo-projection": "^2.4.1",
+    "d3-geo-projection": "^2.6.0",
     "electron-log": "^2.2.8",
     "gettext-parser": "^3.1.0",
     "history": "^4.6.1",
