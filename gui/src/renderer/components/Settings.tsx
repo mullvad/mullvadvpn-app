@@ -99,7 +99,8 @@ export default class Settings extends Component<IProps> {
         <View>
           <Cell.CellButton onPress={this.props.onViewAccount}>
             <Cell.Label>{pgettext('settings-view', 'Account')}</Cell.Label>
-            <Cell.SubText style={styles.settings__account_paid_until_label__error}>
+            <Cell.SubText
+              style={isOutOfTime ? styles.settings__account_paid_until_label__error : undefined}>
               {isOutOfTime ? outOfTimeMessage : formattedExpiry}
             </Cell.SubText>
             <Cell.Icon height={12} width={7} source="icon-chevron" />
