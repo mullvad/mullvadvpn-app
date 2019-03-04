@@ -3,7 +3,6 @@ copyright: Amagicom AB
 productName: Mullvad VPN
 
 asar: true
-compression: maximum
 
 # assets bundled on all platforms
 extraResources:
