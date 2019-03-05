@@ -31,35 +31,37 @@ export default function(
     case 'NEW_LOCATION':
       return { ...state, ...action.newLocation };
 
+    case 'UPDATE_BLOCK_STATE':
+      return { ...state, isBlocked: action.isBlocked };
+
     case 'CONNECTING':
       return {
         ...state,
         status: { state: 'connecting', details: action.tunnelEndpoint },
-        isBlocked: true,
       };
 
     case 'CONNECTED':
       return {
         ...state,
         status: { state: 'connected', details: action.tunnelEndpoint },
-        isBlocked: false,
       };
 
     case 'DISCONNECTED':
-      return { ...state, status: { state: 'disconnected' }, isBlocked: false };
+      return {
+        ...state,
+        status: { state: 'disconnected' },
+      };
 
     case 'DISCONNECTING':
       return {
         ...state,
         status: { state: 'disconnecting', details: action.afterDisconnect },
-        isBlocked: true,
       };
 
     case 'BLOCKED':
       return {
         ...state,
         status: { state: 'blocked', details: action.reason },
-        isBlocked: action.reason.reason !== 'set_firewall_policy_error',
       };
 
     default:

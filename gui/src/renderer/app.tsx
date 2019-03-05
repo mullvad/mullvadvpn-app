@@ -101,6 +101,7 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
       this.setTunnelState(newState);
+      this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
@@ -108,6 +109,7 @@ export default class AppRenderer {
 
       this.setSettings(newSettings);
       this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
+      this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
     });
 
     IpcRendererEventChannel.location.listen((newLocation: ILocation) => {
@@ -142,8 +144,9 @@ export default class AppRenderer {
     this.guiSettings = initialState.guiSettings;
 
     this.setAccountHistory(initialState.accountHistory);
-    this.setTunnelState(initialState.tunnelState);
     this.setSettings(initialState.settings);
+    this.setTunnelState(initialState.tunnelState);
+    this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
 
     if (initialState.location) {
       this.setLocation(initialState.location);
@@ -475,6 +478,31 @@ export default class AppRenderer {
       reduxAccount.loggedIn();
     } else {
       reduxAccount.loggedOut();
+    }
+  }
+
+  private updateBlockedState(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+    const actions = this.reduxActions.connection;
+    switch (tunnelState.state) {
+      case 'connecting':
+        actions.updateBlockState(true);
+        break;
+
+      case 'connected':
+        actions.updateBlockState(false);
+        break;
+
+      case 'disconnected':
+        actions.updateBlockState(blockWhenDisconnected);
+        break;
+
+      case 'disconnecting':
+        actions.updateBlockState(true);
+        break;
+
+      case 'blocked':
+        actions.updateBlockState(tunnelState.details.reason !== 'set_firewall_policy_error');
+        break;
     }
   }
 
