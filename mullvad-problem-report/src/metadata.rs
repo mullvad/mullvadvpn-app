@@ -109,6 +109,13 @@ mod os {
     }
 }
 
+#[cfg(target_os = "android")]
+mod os {
+    pub fn version() -> String {
+        String::from("Android")
+    }
+}
+
 /// Helper for getting stdout of some command as a String. Ignores the exit code of the command.
 fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
     Command::new(cmd)
