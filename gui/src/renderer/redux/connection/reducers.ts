@@ -3,7 +3,6 @@ import { ReduxAction } from '../store';
 
 export interface IConnectionReduxState {
   status: TunnelStateTransition;
-  isOnline: boolean;
   isBlocked: boolean;
   ip?: Ip;
   hostname?: string;
@@ -15,7 +14,6 @@ export interface IConnectionReduxState {
 
 const initialState: IConnectionReduxState = {
   status: { state: 'disconnected' },
-  isOnline: true,
   isBlocked: false,
   ip: undefined,
   hostname: undefined,
@@ -63,12 +61,6 @@ export default function(
         status: { state: 'blocked', details: action.reason },
         isBlocked: action.reason.reason !== 'set_firewall_policy_error',
       };
-
-    case 'ONLINE':
-      return { ...state, isOnline: true };
-
-    case 'OFFLINE':
-      return { ...state, isOnline: false };
 
     default:
       return state;

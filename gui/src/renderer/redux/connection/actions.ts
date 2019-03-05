@@ -34,23 +34,13 @@ interface INewLocationAction {
   newLocation: ILocation;
 }
 
-interface IOnlineAction {
-  type: 'ONLINE';
-}
-
-interface IOfflineAction {
-  type: 'OFFLINE';
-}
-
 export type ConnectionAction =
   | INewLocationAction
   | IConnectingAction
   | IConnectedAction
   | IDisconnectedAction
   | IDisconnectingAction
-  | IBlockedAction
-  | IOnlineAction
-  | IOfflineAction;
+  | IBlockedAction;
 
 function connecting(tunnelEndpoint?: ITunnelEndpoint): IConnectingAction {
   return {
@@ -93,18 +83,6 @@ function newLocation(location: ILocation): INewLocationAction {
   };
 }
 
-function online(): IOnlineAction {
-  return {
-    type: 'ONLINE',
-  };
-}
-
-function offline(): IOfflineAction {
-  return {
-    type: 'OFFLINE',
-  };
-}
-
 export default {
   newLocation,
   connecting,
@@ -112,6 +90,4 @@ export default {
   disconnected,
   disconnecting,
   blocked,
-  online,
-  offline,
 };
