@@ -1,5 +1,5 @@
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
-use tunnel_state_machine::TunnelCommand;
 
 error_chain! {}
 
