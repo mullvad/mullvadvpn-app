@@ -109,6 +109,27 @@ mod os {
     }
 }
 
+#[cfg(target_os = "android")]
+mod os {
+    pub fn version() -> String {
+        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_else(String::new);
+        let product = get_prop("ro.product.model").unwrap_or_else(String::new);
+        let build = get_prop("ro.build.display.id").unwrap_or_else(String::new);
+        let api_level = get_prop("ro.build.version.sdk")
+            .map(|api| format!("(API level: {})", api))
+            .unwrap_or_else(String::new);
+
+        format!(
+            "Android {} {} {} {}",
+            manufacturer, product, build, api_level
+        )
+    }
+
+    fn get_prop(property: &str) -> Option<String> {
+        super::command_stdout_lossy("getprop", &[property])
+    }
+}
+
 /// Helper for getting stdout of some command as a String. Ignores the exit code of the command.
 fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
     Command::new(cmd)
