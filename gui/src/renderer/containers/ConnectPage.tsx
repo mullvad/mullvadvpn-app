@@ -103,9 +103,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         log.error(`Failed to connect the tunnel: ${error.message}`);
       }
     },
-    onDisconnect: () => {
+    onDisconnect: async () => {
       try {
-        props.app.disconnectTunnel();
+        await props.app.disconnectTunnel();
       } catch (error) {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
