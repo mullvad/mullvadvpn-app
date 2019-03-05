@@ -28,16 +28,12 @@ matrix:
     - language: rust
       rust: stable
       os: osx
-      cache: cargo
       before_script: &rust_before_script
         - source env.sh
         - env
-        - du -sh target || true
       script: &rust_script
         - cargo build --verbose
         - cargo test --verbose
-      before_cache: &rust_before_cache
-        - rm -rf target/debug/incremental/
 
     # Daemon - Linux
     - language: rust
@@ -51,7 +47,6 @@ matrix:
          packages:
           - binutils
           - libdbus-1-dev
-      cache: cargo
       before_script: *rust_before_script
       script:
         - cargo build --verbose
@@ -60,25 +55,20 @@ matrix:
         - rustup component add rustfmt-preview
         - cargo fmt --version || true
         - cargo fmt -- --check --unstable-features
-      before_cache: *rust_before_cache
 
     - language: rust
       rust: beta
       os: linux
       addons: *rust_linux_addons
-      cache: cargo
       before_script: *rust_before_script
       script: *rust_script
-      before_cache: *rust_before_cache
 
     - language: rust
       rust: stable
       os: linux
       addons: *rust_linux_addons
-      cache: cargo
       before_script: *rust_before_script
       script: *rust_script
-      before_cache: *rust_before_cache
 
 
 notifications:
