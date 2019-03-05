@@ -9,8 +9,11 @@ mod imp;
 #[path = "linux.rs"]
 mod imp;
 
-mod subprocess;
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
 
+mod subprocess;
 
 /// A single route
 #[derive(Hash, Eq, PartialEq)]
