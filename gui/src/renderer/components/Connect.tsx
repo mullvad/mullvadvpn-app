@@ -85,7 +85,7 @@ export default class Connect extends Component<IProps> {
           {error instanceof NoCreditError ? (
             <View>
               <AppButton.GreenButton disabled={isBlocked} onPress={this.handleBuyMorePress}>
-                <AppButton.Label>Buy more time</AppButton.Label>
+                <AppButton.Label>{pgettext('connect-view', 'Buy more time')}</AppButton.Label>
                 <AppButton.Icon source="icon-extLink" height={16} width={16} />
               </AppButton.GreenButton>
             </View>
