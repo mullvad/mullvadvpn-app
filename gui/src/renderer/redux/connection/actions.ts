@@ -34,13 +34,19 @@ interface INewLocationAction {
   newLocation: ILocation;
 }
 
+interface IUpdateBlockStateAction {
+  type: 'UPDATE_BLOCK_STATE';
+  isBlocked: boolean;
+}
+
 export type ConnectionAction =
   | INewLocationAction
   | IConnectingAction
   | IConnectedAction
   | IDisconnectedAction
   | IDisconnectingAction
-  | IBlockedAction;
+  | IBlockedAction
+  | IUpdateBlockStateAction;
 
 function connecting(tunnelEndpoint?: ITunnelEndpoint): IConnectingAction {
   return {
@@ -83,8 +89,16 @@ function newLocation(location: ILocation): INewLocationAction {
   };
 }
 
+function updateBlockState(isBlocked: boolean): IUpdateBlockStateAction {
+  return {
+    type: 'UPDATE_BLOCK_STATE',
+    isBlocked,
+  };
+}
+
 export default {
   newLocation,
+  updateBlockState,
   connecting,
   connected,
   disconnected,
