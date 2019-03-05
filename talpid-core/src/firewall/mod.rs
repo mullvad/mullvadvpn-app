@@ -22,8 +22,11 @@ mod imp;
 #[path = "windows.rs"]
 mod imp;
 
-pub use self::imp::Error;
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
 
+pub use self::imp::Error;
 
 #[cfg(unix)]
 lazy_static! {
