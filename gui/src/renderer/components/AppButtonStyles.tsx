@@ -32,31 +32,26 @@ export default {
   redTransparentHover: Styles.createButtonStyle({
     backgroundColor: colors.red45,
   }),
-  icon: Styles.createViewStyle({
-    position: 'absolute',
-    alignSelf: 'flex-end',
-    right: 8,
-    marginLeft: 8,
-  }),
   common: Styles.createViewStyle({
     cursor: 'default',
-    paddingTop: 9,
-    paddingLeft: 9,
-    paddingRight: 9,
-    paddingBottom: 9,
     borderRadius: 4,
+  }),
+  content: Styles.createViewStyle({
     flex: 1,
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 9,
+  }),
+  labelContainer: Styles.createViewStyle({
+    flex: 1,
   }),
   label: Styles.createTextStyle({
-    alignSelf: 'center',
     fontFamily: 'DINPro',
     fontSize: 20,
     fontWeight: '900',
     lineHeight: 26,
     flex: 1,
     color: colors.white,
+    textAlign: 'center',
   }),
 };
