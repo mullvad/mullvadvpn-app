@@ -21,7 +21,6 @@ export type RelaySettingsRedux =
 export interface IRelayLocationRelayRedux {
   hostname: string;
   ipv4AddrIn: string;
-  ipv4AddrExit: string;
   includeInCountry: boolean;
   weight: number;
 }
