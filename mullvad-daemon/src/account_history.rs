@@ -69,10 +69,16 @@ impl AccountHistory {
     }
 
     fn try_old_format(reader: &mut io::BufReader<fs::File>) -> Result<Vec<AccountToken>> {
+        #[derive(Deserialize)]
+        struct OldFormat {
+            accounts: Vec<AccountToken>,
+        }
         reader
             .seek(io::SeekFrom::Start(0))
             .chain_err(|| ErrorKind::ReadError)?;
-        Ok(serde_json::from_reader(reader).unwrap_or(vec![]))
+        Ok(serde_json::from_reader(reader)
+            .map(|old_format: OldFormat| old_format.accounts)
+            .unwrap_or(vec![]))
     }
 
     /// Gets account data for a certain account id and bumps it's entry to the top of the list if
