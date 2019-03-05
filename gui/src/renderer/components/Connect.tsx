@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { links } from '../../config.json';
-import { NoCreditError, NoInternetError } from '../../main/errors';
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
-import { pgettext } from '../../shared/gettext';
-import * as AppButton from './AppButton';
+import { AuthFailureError, AuthFailureKind } from '../lib/auth-failure';
 import styles from './ConnectStyles';
+import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
 import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -36,66 +35,43 @@ type MarkerOrSpinner = 'marker' | 'spinner';
 
 export default class Connect extends Component<IProps> {
   public render() {
-    const error = this.checkForErrors();
-    const child = error ? this.renderError(error) : this.renderMap();
-
     return (
       <Layout>
         <Header barStyle={this.headerBarStyle()}>
           <Brand />
           <SettingsBarButton onPress={this.props.onSettings} />
         </Header>
-        <Container>{child}</Container>
+        <Container>
+          {this.shouldShowExpiredAccountView() ? this.renderExpiredAccountView() : this.renderMap()}
+        </Container>
       </Layout>
     );
   }
 
-  public renderError(error: Error) {
-    let title = '';
-    let message = '';
+  private shouldShowExpiredAccountView(): boolean {
+    const tunnelState = this.props.connection.status;
 
-    if (error instanceof NoCreditError) {
-      title = pgettext('connect-view', 'Out of time');
-
-      message = pgettext(
-        'connect-view',
-        'Buy more time, so you can continue using the internet securely',
-      );
+    if (tunnelState.state === 'blocked' && tunnelState.details.reason === 'auth_failed') {
+      const authError = new AuthFailureError(tunnelState.details.details);
+      if (authError.kind === AuthFailureKind.expiredAccount) {
+        return true;
+      }
     }
 
-    if (error instanceof NoInternetError) {
-      title = pgettext('connect-view', 'Offline');
+    return this.props.accountExpiry ? this.props.accountExpiry.hasExpired() : false;
+  }
 
-      message = pgettext(
-        'connect-view',
-        'Your internet connection will be secured when you get back online',
-      );
-    }
-
-    const { isBlocked } = this.props.connection;
-
+  private renderExpiredAccountView() {
     return (
-      <View style={styles.connect}>
-        <View style={styles.status_icon}>
-          <ImageView source="icon-fail" height={60} width={60} />
-        </View>
-        <View style={styles.body}>
-          <View style={styles.error_title}>{title}</View>
-          <View style={styles.error_message}>{message}</View>
-          {error instanceof NoCreditError ? (
-            <View>
-              <AppButton.GreenButton disabled={isBlocked} onPress={this.handleBuyMorePress}>
-                <AppButton.Label>{pgettext('connect-view', 'Buy more time')}</AppButton.Label>
-                <AppButton.Icon source="icon-extLink" height={16} width={16} />
-              </AppButton.GreenButton>
-            </View>
-          ) : null}
-        </View>
-      </View>
+      <ExpiredAccountErrorView
+        blockWhenDisconnected={this.props.blockWhenDisconnected}
+        isBlocked={this.props.connection.isBlocked}
+        action={this.handleExpiredAccountRecovery}
+      />
     );
   }
 
-  public renderMap() {
+  private renderMap() {
     const status = this.props.connection.status;
 
     const relayOutAddress: IRelayOutAddress = {
@@ -145,8 +121,23 @@ export default class Connect extends Component<IProps> {
     );
   }
 
-  private handleBuyMorePress = () => {
-    this.props.onExternalLink(links.purchase);
+  private handleExpiredAccountRecovery = async (recoveryAction: RecoveryAction) => {
+    switch (recoveryAction) {
+      case RecoveryAction.disableBlockedWhenDisconnected:
+        break;
+
+      case RecoveryAction.openBrowser:
+        this.props.onExternalLink(links.purchase);
+        break;
+
+      case RecoveryAction.disconnectAndOpenBrowser:
+        try {
+          await this.props.onDisconnect();
+          this.props.onExternalLink(links.purchase);
+        } catch (error) {
+          // no-op
+        }
+    }
   };
 
   private headerBarStyle(): HeaderBarStyle {
@@ -175,20 +166,6 @@ export default class Connect extends Component<IProps> {
             throw new Error(`Invalid action after disconnection: ${status.details}`);
         }
     }
-  }
-
-  private checkForErrors(): Error | undefined {
-    // Offline?
-    if (!this.props.connection.isOnline) {
-      return new NoInternetError();
-    }
-
-    // No credit?
-    if (this.props.accountExpiry && this.props.accountExpiry.hasExpired()) {
-      return new NoCreditError();
-    }
-
-    return undefined;
   }
 
   private getMapProps(): Map['props'] {

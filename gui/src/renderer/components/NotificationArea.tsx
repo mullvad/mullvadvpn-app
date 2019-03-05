@@ -42,9 +42,8 @@ type State = NotificationAreaPresentation & {
 
 function getBlockReasonMessage(blockReason: BlockReason): string {
   switch (blockReason.reason) {
-    case 'auth_failed': {
+    case 'auth_failed':
       return new AuthFailureError(blockReason.details).message;
-    }
     case 'ipv6_unavailable':
       return pgettext(
         'in-app-notifications',
