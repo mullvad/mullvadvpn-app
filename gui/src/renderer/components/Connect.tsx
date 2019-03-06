@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { Component, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
+import AccountExpiry from '../lib/account-expiry';
 import { AuthFailureError, AuthFailureKind } from '../lib/auth-failure';
-import styles from './ConnectStyles';
+import { IConnectionReduxState } from '../redux/connection/reducers';
+import { IVersionReduxState } from '../redux/version/reducers';
 import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
 import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
@@ -11,10 +13,6 @@ import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import NotificationArea from './NotificationArea';
 import TunnelControl, { IRelayInAddress, IRelayOutAddress } from './TunnelControl';
-
-import AccountExpiry from '../lib/account-expiry';
-import { IConnectionReduxState } from '../redux/connection/reducers';
-import { IVersionReduxState } from '../redux/version/reducers';
 
 interface IProps {
   connection: IConnectionReduxState;
@@ -32,6 +30,49 @@ interface IProps {
 }
 
 type MarkerOrSpinner = 'marker' | 'spinner';
+
+const styles = {
+  connect: Styles.createViewStyle({
+    flex: 1,
+  }),
+  map: Styles.createViewStyle({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    // @ts-ignore
+    zIndex: 0,
+  }),
+  body: Styles.createViewStyle({
+    flex: 1,
+    paddingTop: 0,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 0,
+    marginTop: 186,
+  }),
+  container: Styles.createViewStyle({
+    flex: 1,
+    flexDirection: 'column',
+    position: 'relative' /* need this for z-index to work to cover the map */,
+    // @ts-ignore
+    zIndex: 1,
+  }),
+  statusIcon: Styles.createViewStyle({
+    position: 'absolute',
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    marginTop: 94,
+  }),
+  notificationArea: Styles.createViewStyle({
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+  }),
+};
 
 export default class Connect extends Component<IProps> {
   public render() {
@@ -88,7 +129,7 @@ export default class Connect extends Component<IProps> {
         <View style={styles.container}>
           {/* show spinner when connecting */}
           {this.showMarkerOrSpinner() === 'spinner' ? (
-            <View style={styles.status_icon}>
+            <View style={styles.statusIcon}>
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
           ) : null}
@@ -109,7 +150,7 @@ export default class Connect extends Component<IProps> {
           />
 
           <NotificationArea
-            style={styles.notification_area}
+            style={styles.notificationArea}
             tunnelState={this.props.connection.status}
             version={this.props.version}
             accountExpiry={this.props.accountExpiry}
