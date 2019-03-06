@@ -72,7 +72,8 @@ const customTunnelEndpointSchema = oneOf(
         allowed_ips: arrayOf(string),
         endpoint: string,
       }),
-      gateway: string,
+      ipv4_gateway: string,
+      ipv6_gateway: maybe(string),
     }),
   }),
 );
