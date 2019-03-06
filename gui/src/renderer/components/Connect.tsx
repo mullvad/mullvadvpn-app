@@ -3,7 +3,7 @@ import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
 import AccountExpiry from '../lib/account-expiry';
-import { AuthFailureError, AuthFailureKind } from '../lib/auth-failure';
+import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
 import { IVersionReduxState } from '../redux/version/reducers';
 import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
