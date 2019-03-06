@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Integrate initial Shadowsocks proxy support. Accessible via CLI.
+- Add a button to disconnect to unlock the internet, and open a web browser to buy more time, when
+  the currently used account runs out of time and the internet connection remains blocked.
 
 ### Fixed
 - Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
@@ -33,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix some notifications not appearing depending on how the window is shown and hidden while the
   tunnel state changes.
 - Fix DNS when using IPv6.
+- Fix the bug when the "Out of time" view remained visible, even when the app managed to reconnect
+  the VPN tunnel after a successful credit top-up.
 
 #### Linux
 - Fix startup failure when network device with a hardware address that's not a MAC address is
