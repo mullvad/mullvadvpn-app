@@ -98,7 +98,8 @@ export type ConnectionConfig =
           addresses: string[];
           endpoint: string;
         };
-        gateway: string;
+        ipv4_gateway: string;
+        ipv6_gateway?: string;
       };
     };
 
