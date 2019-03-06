@@ -25,6 +25,7 @@ import { IWindowShapeParameters } from '../main/window-controller';
 import { loadTranslations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
+import AccountExpiry from './lib/account-expiry';
 
 import {
   AccountToken,
@@ -59,13 +60,14 @@ export default class AppRenderer {
       return IpcRendererEventChannel.account.getData(accountToken);
     },
     (accountData) => {
-      this.reduxActions.account.updateAccountExpiry(accountData && accountData.expiry);
+      this.setAccountExpiry(accountData && accountData.expiry);
     },
   );
 
   private tunnelState: TunnelStateTransition;
   private settings: ISettings;
   private guiSettings: IGuiSettingsState;
+  private accountExpiry?: AccountExpiry;
   private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
@@ -102,6 +104,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
       this.setTunnelState(newState);
       this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
+
+      if (this.accountExpiry) {
+        this.detectStaleAccountExpiry(newState, this.accountExpiry);
+      }
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
@@ -561,6 +567,22 @@ export default class AppRenderer {
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.guiSettings = guiSettings;
     this.reduxActions.settings.updateGuiSettings(guiSettings);
+  }
+
+  private setAccountExpiry(expiry?: string) {
+    this.accountExpiry = expiry ? new AccountExpiry(expiry, remote.app.getLocale()) : undefined;
+    this.reduxActions.account.updateAccountExpiry(expiry);
+  }
+
+  private detectStaleAccountExpiry(
+    tunnelState: TunnelStateTransition,
+    accountExpiry: AccountExpiry,
+  ) {
+    // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
+    if (tunnelState.state === 'connected' && accountExpiry.hasExpired()) {
+      log.info('Detected the stale account expiry.');
+      this.accountDataCache.invalidate();
+    }
   }
 
   private storeAutoStart(autoStart: boolean) {

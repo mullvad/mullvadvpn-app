@@ -74,7 +74,23 @@ const styles = {
   }),
 };
 
-export default class Connect extends Component<IProps> {
+interface IState {
+  isAccountExpired: boolean;
+}
+
+export default class Connect extends Component<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
+
+    this.state = {
+      isAccountExpired: this.checkAccountExpired(props, false),
+    };
+  }
+
+  public componentDidUpdate() {
+    this.updateAccountExpired();
+  }
+
   public render() {
     return (
       <Layout>
@@ -83,23 +99,42 @@ export default class Connect extends Component<IProps> {
           <SettingsBarButton onPress={this.props.onSettings} />
         </Header>
         <Container>
-          {this.shouldShowExpiredAccountView() ? this.renderExpiredAccountView() : this.renderMap()}
+          {this.state.isAccountExpired ? this.renderExpiredAccountView() : this.renderMap()}
         </Container>
       </Layout>
     );
   }
 
-  private shouldShowExpiredAccountView(): boolean {
-    const tunnelState = this.props.connection.status;
+  private updateAccountExpired() {
+    const nextAccountExpired = this.checkAccountExpired(this.props, this.state.isAccountExpired);
 
-    if (tunnelState.state === 'blocked' && tunnelState.details.reason === 'auth_failed') {
-      const authError = new AuthFailureError(tunnelState.details.details);
-      if (authError.kind === AuthFailureKind.expiredAccount) {
-        return true;
-      }
+    if (nextAccountExpired !== this.state.isAccountExpired) {
+      this.setState({
+        isAccountExpired: nextAccountExpired,
+      });
+    }
+  }
+
+  private checkAccountExpired(props: IProps, prevAccountExpired: boolean): boolean {
+    const tunnelState = props.connection.status;
+
+    // Blocked with auth failure / expired account
+    if (
+      tunnelState.state === 'blocked' &&
+      tunnelState.details.reason === 'auth_failed' &&
+      parseAuthFailure(tunnelState.details.details).kind === AuthFailureKind.expiredAccount
+    ) {
+      return true;
     }
 
-    return this.props.accountExpiry ? this.props.accountExpiry.hasExpired() : false;
+    // Use the account expiry to deduce the account state
+    if (this.props.accountExpiry) {
+      return this.props.accountExpiry.hasExpired();
+    }
+
+    // Do not assume that the account hasn't expired if the expiry is not available at the moment
+    // instead return the last known state.
+    return prevAccountExpired;
   }
 
   private renderExpiredAccountView() {
