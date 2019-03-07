@@ -16,7 +16,7 @@ import {
 
 import { BlockReason, TunnelStateTransition } from '../../shared/daemon-rpc-types';
 import AccountExpiry from '../lib/account-expiry';
-import { AuthFailureError } from '../lib/auth-failure';
+import { parseAuthFailure } from '../lib/auth-failure';
 import { IVersionReduxState } from '../redux/version/reducers';
 
 interface IProps {
@@ -42,9 +42,8 @@ type State = NotificationAreaPresentation & {
 
 function getBlockReasonMessage(blockReason: BlockReason): string {
   switch (blockReason.reason) {
-    case 'auth_failed': {
-      return new AuthFailureError(blockReason.details).message;
-    }
+    case 'auth_failed':
+      return parseAuthFailure(blockReason.details).message;
     case 'ipv6_unavailable':
       return pgettext(
         'in-app-notifications',
@@ -150,7 +149,14 @@ export default class NotificationArea extends Component<IProps, State> {
           };
         }
 
-        if (accountExpiry && accountExpiry.willHaveExpiredIn(moment().add(3, 'days'))) {
+        if (
+          accountExpiry &&
+          accountExpiry.willHaveExpiredAt(
+            moment()
+              .add(3, 'days')
+              .toDate(),
+          )
+        ) {
           return {
             visible: true,
             type: 'expires-soon',

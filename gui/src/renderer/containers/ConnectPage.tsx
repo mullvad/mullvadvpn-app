@@ -69,9 +69,11 @@ function getRelayName(
   }
 }
 
-const mapStateToProps = (state: IReduxState) => {
+const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => {
   return {
-    accountExpiry: state.account.expiry ? new AccountExpiry(state.account.expiry) : undefined,
+    accountExpiry: state.account.expiry
+      ? new AccountExpiry(state.account.expiry, props.locale)
+      : undefined,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
     version: state.version,
@@ -101,9 +103,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         log.error(`Failed to connect the tunnel: ${error.message}`);
       }
     },
-    onDisconnect: () => {
+    onDisconnect: async () => {
       try {
-        props.app.disconnectTunnel();
+        await props.app.disconnectTunnel();
       } catch (error) {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }

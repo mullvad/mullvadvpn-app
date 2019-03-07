@@ -1,21 +1,18 @@
 import * as React from 'react';
-import { Component, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
-import { NoCreditError, NoInternetError } from '../../main/errors';
 import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
-import { pgettext } from '../../shared/gettext';
-import * as AppButton from './AppButton';
-import styles from './ConnectStyles';
+import AccountExpiry from '../lib/account-expiry';
+import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
+import { IConnectionReduxState } from '../redux/connection/reducers';
+import { IVersionReduxState } from '../redux/version/reducers';
+import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
 import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import NotificationArea from './NotificationArea';
 import TunnelControl, { IRelayInAddress, IRelayOutAddress } from './TunnelControl';
-
-import AccountExpiry from '../lib/account-expiry';
-import { IConnectionReduxState } from '../redux/connection/reducers';
-import { IVersionReduxState } from '../redux/version/reducers';
 
 interface IProps {
   connection: IConnectionReduxState;
@@ -34,68 +31,123 @@ interface IProps {
 
 type MarkerOrSpinner = 'marker' | 'spinner';
 
-export default class Connect extends Component<IProps> {
-  public render() {
-    const error = this.checkForErrors();
-    const child = error ? this.renderError(error) : this.renderMap();
+const styles = {
+  connect: Styles.createViewStyle({
+    flex: 1,
+  }),
+  map: Styles.createViewStyle({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    // @ts-ignore
+    zIndex: 0,
+  }),
+  body: Styles.createViewStyle({
+    flex: 1,
+    paddingTop: 0,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 0,
+    marginTop: 186,
+  }),
+  container: Styles.createViewStyle({
+    flex: 1,
+    flexDirection: 'column',
+    position: 'relative' /* need this for z-index to work to cover the map */,
+    // @ts-ignore
+    zIndex: 1,
+  }),
+  statusIcon: Styles.createViewStyle({
+    position: 'absolute',
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    marginTop: 94,
+  }),
+  notificationArea: Styles.createViewStyle({
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+  }),
+};
 
+interface IState {
+  isAccountExpired: boolean;
+}
+
+export default class Connect extends Component<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
+
+    this.state = {
+      isAccountExpired: this.checkAccountExpired(props, false),
+    };
+  }
+
+  public componentDidUpdate() {
+    this.updateAccountExpired();
+  }
+
+  public render() {
     return (
       <Layout>
         <Header barStyle={this.headerBarStyle()}>
           <Brand />
           <SettingsBarButton onPress={this.props.onSettings} />
         </Header>
-        <Container>{child}</Container>
+        <Container>
+          {this.state.isAccountExpired ? this.renderExpiredAccountView() : this.renderMap()}
+        </Container>
       </Layout>
     );
   }
 
-  public renderError(error: Error) {
-    let title = '';
-    let message = '';
+  private updateAccountExpired() {
+    const nextAccountExpired = this.checkAccountExpired(this.props, this.state.isAccountExpired);
 
-    if (error instanceof NoCreditError) {
-      title = pgettext('connect-view', 'Out of time');
+    if (nextAccountExpired !== this.state.isAccountExpired) {
+      this.setState({
+        isAccountExpired: nextAccountExpired,
+      });
+    }
+  }
 
-      message = pgettext(
-        'connect-view',
-        'Buy more time, so you can continue using the internet securely',
-      );
+  private checkAccountExpired(props: IProps, prevAccountExpired: boolean): boolean {
+    const tunnelState = props.connection.status;
+
+    // Blocked with auth failure / expired account
+    if (
+      tunnelState.state === 'blocked' &&
+      tunnelState.details.reason === 'auth_failed' &&
+      parseAuthFailure(tunnelState.details.details).kind === AuthFailureKind.expiredAccount
+    ) {
+      return true;
     }
 
-    if (error instanceof NoInternetError) {
-      title = pgettext('connect-view', 'Offline');
-
-      message = pgettext(
-        'connect-view',
-        'Your internet connection will be secured when you get back online',
-      );
+    // Use the account expiry to deduce the account state
+    if (this.props.accountExpiry) {
+      return this.props.accountExpiry.hasExpired();
     }
 
-    const { isBlocked } = this.props.connection;
+    // Do not assume that the account hasn't expired if the expiry is not available at the moment
+    // instead return the last known state.
+    return prevAccountExpired;
+  }
 
+  private renderExpiredAccountView() {
     return (
-      <View style={styles.connect}>
-        <View style={styles.status_icon}>
-          <ImageView source="icon-fail" height={60} width={60} />
-        </View>
-        <View style={styles.body}>
-          <View style={styles.error_title}>{title}</View>
-          <View style={styles.error_message}>{message}</View>
-          {error instanceof NoCreditError ? (
-            <View>
-              <AppButton.GreenButton disabled={isBlocked} onPress={this.handleBuyMorePress}>
-                <AppButton.Label>Buy more time</AppButton.Label>
-                <AppButton.Icon source="icon-extLink" height={16} width={16} />
-              </AppButton.GreenButton>
-            </View>
-          ) : null}
-        </View>
-      </View>
+      <ExpiredAccountErrorView
+        blockWhenDisconnected={this.props.blockWhenDisconnected}
+        isBlocked={this.props.connection.isBlocked}
+        action={this.handleExpiredAccountRecovery}
+      />
     );
   }
 
-  public renderMap() {
+  private renderMap() {
     const status = this.props.connection.status;
 
     const relayOutAddress: IRelayOutAddress = {
@@ -112,7 +164,7 @@ export default class Connect extends Component<IProps> {
         <View style={styles.container}>
           {/* show spinner when connecting */}
           {this.showMarkerOrSpinner() === 'spinner' ? (
-            <View style={styles.status_icon}>
+            <View style={styles.statusIcon}>
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
           ) : null}
@@ -133,7 +185,7 @@ export default class Connect extends Component<IProps> {
           />
 
           <NotificationArea
-            style={styles.notification_area}
+            style={styles.notificationArea}
             tunnelState={this.props.connection.status}
             version={this.props.version}
             accountExpiry={this.props.accountExpiry}
@@ -145,8 +197,23 @@ export default class Connect extends Component<IProps> {
     );
   }
 
-  private handleBuyMorePress = () => {
-    this.props.onExternalLink(links.purchase);
+  private handleExpiredAccountRecovery = async (recoveryAction: RecoveryAction) => {
+    switch (recoveryAction) {
+      case RecoveryAction.disableBlockedWhenDisconnected:
+        break;
+
+      case RecoveryAction.openBrowser:
+        this.props.onExternalLink(links.purchase);
+        break;
+
+      case RecoveryAction.disconnectAndOpenBrowser:
+        try {
+          await this.props.onDisconnect();
+          this.props.onExternalLink(links.purchase);
+        } catch (error) {
+          // no-op
+        }
+    }
   };
 
   private headerBarStyle(): HeaderBarStyle {
@@ -175,20 +242,6 @@ export default class Connect extends Component<IProps> {
             throw new Error(`Invalid action after disconnection: ${status.details}`);
         }
     }
-  }
-
-  private checkForErrors(): Error | undefined {
-    // Offline?
-    if (!this.props.connection.isOnline) {
-      return new NoInternetError();
-    }
-
-    // No credit?
-    if (this.props.accountExpiry && this.props.accountExpiry.hasExpired()) {
-      return new NoCreditError();
-    }
-
-    return undefined;
   }
 
   private getMapProps(): Map['props'] {

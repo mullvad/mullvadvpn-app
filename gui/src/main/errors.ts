@@ -4,12 +4,6 @@ export class NoCreditError extends Error {
   }
 }
 
-export class NoInternetError extends Error {
-  constructor() {
-    super('Internet connectivity is currently unavailable');
-  }
-}
-
 export class NoDaemonError extends Error {
   constructor() {
     super('Could not connect to Mullvad daemon');

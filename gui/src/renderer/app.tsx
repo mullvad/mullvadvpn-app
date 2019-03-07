@@ -25,10 +25,10 @@ import { IWindowShapeParameters } from '../main/window-controller';
 import { loadTranslations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
+import AccountExpiry from './lib/account-expiry';
 
 import {
   AccountToken,
-  ConnectionConfig,
   IAccountData,
   ILocation,
   IRelayList,
@@ -41,42 +41,39 @@ import {
 export default class AppRenderer {
   private memoryHistory = createMemoryHistory();
   private reduxStore = configureStore(this.memoryHistory);
-  private reduxActions: { [key: string]: any };
+  private reduxActions = {
+    account: bindActionCreators(accountActions, this.reduxStore.dispatch),
+    connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
+    settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
+    version: bindActionCreators(versionActions, this.reduxStore.dispatch),
+    userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
+    history: bindActionCreators(
+      {
+        push: pushHistory,
+        replace: replaceHistory,
+      },
+      this.reduxStore.dispatch,
+    ),
+  };
   private accountDataCache = new AccountDataCache(
     (accountToken) => {
       return IpcRendererEventChannel.account.getData(accountToken);
     },
     (accountData) => {
-      const expiry = accountData ? accountData.expiry : null;
-      this.reduxActions.account.updateAccountExpiry(expiry);
+      this.setAccountExpiry(accountData && accountData.expiry);
     },
   );
 
   private tunnelState: TunnelStateTransition;
   private settings: ISettings;
   private guiSettings: IGuiSettingsState;
+  private accountExpiry?: AccountExpiry;
   private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
   private loginTimer?: NodeJS.Timeout;
 
   constructor() {
-    const dispatch = this.reduxStore.dispatch;
-    this.reduxActions = {
-      account: bindActionCreators(accountActions, dispatch),
-      connection: bindActionCreators(connectionActions, dispatch),
-      settings: bindActionCreators(settingsActions, dispatch),
-      version: bindActionCreators(versionActions, dispatch),
-      userInterface: bindActionCreators(userInterfaceActions, dispatch),
-      history: bindActionCreators(
-        {
-          push: pushHistory,
-          replace: replaceHistory,
-        },
-        dispatch,
-      ),
-    };
-
     ipcRenderer.on(
       'update-window-shape',
       (_event: Electron.Event, shapeParams: IWindowShapeParameters) => {
@@ -106,6 +103,11 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
       this.setTunnelState(newState);
+      this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
+
+      if (this.accountExpiry) {
+        this.detectStaleAccountExpiry(newState, this.accountExpiry);
+      }
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
@@ -113,6 +115,7 @@ export default class AppRenderer {
 
       this.setSettings(newSettings);
       this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
+      this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
     });
 
     IpcRendererEventChannel.location.listen((newLocation: ILocation) => {
@@ -147,8 +150,9 @@ export default class AppRenderer {
     this.guiSettings = initialState.guiSettings;
 
     this.setAccountHistory(initialState.accountHistory);
-    this.setTunnelState(initialState.tunnelState);
     this.setSettings(initialState.settings);
+    this.setTunnelState(initialState.tunnelState);
+    this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
 
     if (initialState.location) {
       this.setLocation(initialState.location);
@@ -174,7 +178,12 @@ export default class AppRenderer {
   public renderView() {
     return (
       <Provider store={this.reduxStore}>
-        <ConnectedRouter history={this.memoryHistory}>{makeRoutes({ app: this })}</ConnectedRouter>
+        <ConnectedRouter history={this.memoryHistory}>
+          {makeRoutes({
+            app: this,
+            locale: remote.app.getLocale(),
+          })}
+        </ConnectedRouter>
       </Provider>
     );
   }
@@ -246,7 +255,7 @@ export default class AppRenderer {
     // connect only if tunnel is disconnected or blocked.
     if (state === 'disconnecting' || state === 'disconnected' || state === 'blocked') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      this.reduxActions.connection.connecting(null);
+      this.reduxActions.connection.connecting();
 
       return IpcRendererEventChannel.tunnel.connect();
     }
@@ -316,57 +325,60 @@ export default class AppRenderer {
     const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
-      const payload: { [key: string]: any } = {};
       const normal = relaySettings.normal;
       const tunnel = normal.tunnel;
       const location = normal.location;
 
-      payload.location = location === 'any' ? 'any' : location.only;
+      const relayLocation = location === 'any' ? 'any' : location.only;
 
       if (tunnel === 'any') {
-        payload.port = 'any';
-        payload.protocol = 'any';
+        actions.settings.updateRelay({
+          normal: {
+            location: relayLocation,
+            port: 'any',
+            protocol: 'any',
+          },
+        });
       } else {
         const constraints = tunnel.only;
+
         if ('openvpn' in constraints) {
           const { port, protocol } = constraints.openvpn;
-          payload.port = port === 'any' ? port : port.only;
-          payload.protocol = protocol === 'any' ? protocol : protocol.only;
-        }
 
-        if ('wireguard' in constraints) {
+          actions.settings.updateRelay({
+            normal: {
+              location: relayLocation,
+              port: port === 'any' ? port : port.only,
+              protocol: protocol === 'any' ? protocol : protocol.only,
+            },
+          });
+        } else if ('wireguard' in constraints) {
           const { port } = constraints.wireguard;
-          payload.port = port === 'any' ? port : port.only;
-          payload.protocol = 'udp';
+
+          actions.settings.updateRelay({
+            normal: {
+              location: relayLocation,
+              port: port === 'any' ? port : port.only,
+              protocol: 'udp',
+            },
+          });
         }
       }
-
-      actions.settings.updateRelay({
-        normal: payload,
-      });
     } else if ('customTunnelEndpoint' in relaySettings) {
       const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
-      const host = customTunnelEndpoint.host;
-      const config: ConnectionConfig = customTunnelEndpoint.config;
+      const config = customTunnelEndpoint.config;
 
-      let port = 0;
-      let protocol = 'udp';
       if ('openvpn' in config) {
-        port = config.openvpn.endpoint.port;
-        protocol = config.openvpn.endpoint.protocol;
-      }
-
-      if ('wireguard' in config) {
+        actions.settings.updateRelay({
+          customTunnelEndpoint: {
+            host: customTunnelEndpoint.host,
+            port: config.openvpn.endpoint.port,
+            protocol: config.openvpn.endpoint.protocol,
+          },
+        });
+      } else if ('wireguard' in config) {
         // TODO: handle wireguard
       }
-
-      actions.settings.updateRelay({
-        customTunnelEndpoint: {
-          host,
-          port,
-          protocol,
-        },
-      });
     }
   }
 
@@ -475,6 +487,31 @@ export default class AppRenderer {
     }
   }
 
+  private updateBlockedState(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+    const actions = this.reduxActions.connection;
+    switch (tunnelState.state) {
+      case 'connecting':
+        actions.updateBlockState(true);
+        break;
+
+      case 'connected':
+        actions.updateBlockState(false);
+        break;
+
+      case 'disconnected':
+        actions.updateBlockState(blockWhenDisconnected);
+        break;
+
+      case 'disconnecting':
+        actions.updateBlockState(true);
+        break;
+
+      case 'blocked':
+        actions.updateBlockState(tunnelState.details.reason !== 'set_firewall_policy_error');
+        break;
+    }
+  }
+
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
     if (oldAccount && !newAccount) {
       this.accountDataCache.invalidate();
@@ -530,6 +567,22 @@ export default class AppRenderer {
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.guiSettings = guiSettings;
     this.reduxActions.settings.updateGuiSettings(guiSettings);
+  }
+
+  private setAccountExpiry(expiry?: string) {
+    this.accountExpiry = expiry ? new AccountExpiry(expiry, remote.app.getLocale()) : undefined;
+    this.reduxActions.account.updateAccountExpiry(expiry);
+  }
+
+  private detectStaleAccountExpiry(
+    tunnelState: TunnelStateTransition,
+    accountExpiry: AccountExpiry,
+  ) {
+    // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
+    if (tunnelState.state === 'connected' && accountExpiry.hasExpired()) {
+      log.info('Detected the stale account expiry.');
+      this.accountDataCache.invalidate();
+    }
   }
 
   private storeAutoStart(autoStart: boolean) {

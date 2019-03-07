@@ -16,6 +16,7 @@ import { getTransitionProps } from './transitions';
 
 export interface ISharedRouteProps {
   app: App;
+  locale: string;
 }
 
 type CustomRouteProps = {

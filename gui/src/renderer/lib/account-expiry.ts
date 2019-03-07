@@ -5,16 +5,20 @@ import { pgettext } from '../../shared/gettext';
 export default class AccountExpiry {
   private expiry: moment.Moment;
 
-  constructor(expiry: string) {
-    this.expiry = moment(expiry);
+  constructor(isoString: string, locale: string) {
+    this.expiry = moment(isoString).locale(locale);
   }
 
   public hasExpired(): boolean {
-    return this.willHaveExpiredIn(moment());
+    return this.willHaveExpiredAt(new Date());
   }
 
-  public willHaveExpiredIn(time: moment.Moment): boolean {
-    return this.expiry.isSameOrBefore(time);
+  public willHaveExpiredAt(date: Date): boolean {
+    return this.expiry.isSameOrBefore(date);
+  }
+
+  public formattedDate(): string {
+    return this.expiry.format('L LTS');
   }
 
   public remainingTime(): string {

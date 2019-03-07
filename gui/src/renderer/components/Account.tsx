@@ -1,7 +1,7 @@
-import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { pgettext } from '../../shared/gettext';
+import AccountExpiry from '../lib/account-expiry';
 import styles from './AccountStyles';
 import * as AppButton from './AppButton';
 import ClipboardLabel from './ClipboardLabel';
@@ -85,33 +85,21 @@ export default class Account extends Component<IProps> {
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
-  if (!props.expiry) {
+  if (props.expiry) {
+    const expiry = new AccountExpiry(props.expiry, props.locale);
+
+    if (expiry.hasExpired()) {
+      return (
+        <Text style={styles.account__out_of_time}>{pgettext('account-view', 'OUT OF TIME')}</Text>
+      );
+    } else {
+      return <Text style={styles.account__row_value}>{expiry.formattedDate()}</Text>;
+    }
+  } else {
     return (
       <Text style={styles.account__row_value}>
         {pgettext('account-view', 'Currently unavailable')}
       </Text>
     );
   }
-
-  const expiry = moment(props.expiry);
-
-  if (expiry.isSameOrBefore(moment())) {
-    return (
-      <Text style={styles.account__out_of_time}>{pgettext('account-view', 'OUT OF TIME')}</Text>
-    );
-  }
-
-  const formatOptions = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  };
-
-  return (
-    <Text style={styles.account__row_value}>
-      {expiry.toDate().toLocaleString(props.locale, formatOptions)}
-    </Text>
-  );
 }

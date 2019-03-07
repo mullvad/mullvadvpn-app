@@ -1,5 +1,5 @@
 import { goBack } from 'connected-react-router';
-import { remote, shell } from 'electron';
+import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
@@ -8,10 +8,10 @@ import Account from '../components/Account';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState) => ({
+const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
-  expiryLocale: remote.app.getLocale(),
+  expiryLocale: props.locale,
   isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
