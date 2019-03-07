@@ -8,7 +8,7 @@ use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
 
 pub struct WgGoTunnel {
     interface_name: String,
-    handle: i32,
+    handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: TunnelDevice,
@@ -54,10 +54,28 @@ impl WgGoTunnel {
 
         Ok(WgGoTunnel {
             interface_name,
-            handle,
+            handle: Some(handle),
             _tunnel_device: tunnel_device,
             _log_file: log_file,
         })
+    }
+
+    fn stop_tunnel(&mut self) -> Result<()> {
+        if let Some(handle) = self.handle.take() {
+            let status = unsafe { wgTurnOff(handle) };
+            if status < 0 {
+                bail!(ErrorKind::StopWireguardError(status))
+            }
+        }
+        return Ok(());
+    }
+}
+
+impl Drop for WgGoTunnel {
+    fn drop(&mut self) {
+        if let Err(e) = self.stop_tunnel() {
+            log::error!("Failed to stop tunnel - {}", e);
+        }
     }
 }
 
@@ -76,12 +94,8 @@ impl Tunnel for WgGoTunnel {
         &self.interface_name
     }
 
-    fn stop(self: Box<Self>) -> Result<()> {
-        let status = unsafe { wgTurnOff(self.handle) };
-        if status < 0 {
-            bail!(ErrorKind::StopWireguardError(status))
-        }
-        Ok(())
+    fn stop(mut self: Box<Self>) -> Result<()> {
+        self.stop_tunnel()
     }
 }
 
