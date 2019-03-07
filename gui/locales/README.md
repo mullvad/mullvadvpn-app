@@ -34,10 +34,27 @@ In order to initialize the translations catalogue for the new locale, simple fol
 procedure, described in the section below.
 
 
-## Updating translations
+## Updating translations template
 
 Run `yarn update-translations` to extract the new translations from the source
 code and update all of the existing catalogues.
 
 The new translations are automatically added to empty sub-folders using the POT template at
 `gui/locales/messages.pot`. Folders that contain a `.gitkeep` file are ignored.
+
+## Uploading translations template to Crowdin
+
+After updating the translations template (POT) locally, make sure to upload it to Crowdin:
+
+```
+CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh upload
+```
+
+## Downloading translations from Crowdin
+
+In order to download and integrate the new translations from Crowdin into the app, use the following
+command:
+
+```
+CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh download
+```
