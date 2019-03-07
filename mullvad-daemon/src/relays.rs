@@ -99,7 +99,6 @@ impl ParsedRelays {
                         longitude,
                     });
                     relays.push(relay_with_location);
-                    relay.tunnels.clear();
                 }
             }
         }
