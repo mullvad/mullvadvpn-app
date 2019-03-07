@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 BASE_URL=https://api.crowdin.com/api/project/mullvad-app
-ROOT_DIR=$(dirname $(dirname "${BASH_SOURCE[0]}"))
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR=$( dirname $SCRIPT_DIR )
 LOCALE_DIR="$ROOT_DIR/locales"
 
 if [ $# -ne 1 ]; then
