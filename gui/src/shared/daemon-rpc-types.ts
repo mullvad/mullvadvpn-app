@@ -90,15 +90,16 @@ export type ConnectionConfig =
   | {
       wireguard: {
         tunnel: {
-          private_key: string;
+          privateKey: string;
           addresses: string[];
         };
         peer: {
-          public_key: string;
+          publicKey: string;
           addresses: string[];
           endpoint: string;
         };
-        gateway: string;
+        ipv4Gateway: string;
+        ipv6Gateway?: string;
       };
     };
 
