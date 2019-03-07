@@ -63,11 +63,8 @@ impl WgGoTunnel {
 
 fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
     match log_path {
-        Some(path) => {
-            logging::rotate_log(path).chain_err(|| ErrorKind::PrepareLogFileError)?;
-            fs::File::open(&path).chain_err(|| ErrorKind::PrepareLogFileError)
-        }
-        None => fs::File::open("/dev/null").chain_err(|| ErrorKind::PrepareLogFileError),
+        Some(path) => fs::File::create(&path).chain_err(|| ErrorKind::PrepareLogFileError),
+        None => fs::File::create("/dev/null").chain_err(|| ErrorKind::PrepareLogFileError),
     }
 }
 
