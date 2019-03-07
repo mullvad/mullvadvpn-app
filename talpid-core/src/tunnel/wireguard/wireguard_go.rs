@@ -1,8 +1,5 @@
 use super::{Config, ErrorKind, Result, ResultExt, Tunnel};
-use crate::{
-    logging,
-    network_interface::{NetworkInterface, TunnelDevice},
-};
+use crate::network_interface::{NetworkInterface, TunnelDevice};
 use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
 
 
@@ -80,13 +77,8 @@ impl Drop for WgGoTunnel {
 }
 
 fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
-    match log_path {
-        Some(path) => {
-            logging::rotate_log(path).chain_err(|| ErrorKind::PrepareLogFileError)?;
-            fs::File::open(&path).chain_err(|| ErrorKind::PrepareLogFileError)
-        }
-        None => fs::File::open("/dev/null").chain_err(|| ErrorKind::PrepareLogFileError),
-    }
+    fs::File::create(log_path.unwrap_or("/dev/null".as_ref()))
+        .chain_err(|| ErrorKind::PrepareLogFileError)
 }
 
 impl Tunnel for WgGoTunnel {
