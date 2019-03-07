@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 BASE_URL=https://api.crowdin.com/api/project/mullvad-app
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=$( dirname $SCRIPT_DIR )
