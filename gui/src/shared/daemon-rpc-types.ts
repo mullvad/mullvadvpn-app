@@ -154,6 +154,26 @@ export interface IRelayListHostname {
   ipv4AddrIn: string;
   includeInCountry: boolean;
   weight: number;
+  tunnels: IRelayTunnels;
+}
+
+export interface IRelayTunnels {
+  openvpn: IOpenVpnTunnelData[];
+  wireguard: IWireguardTunnelData[];
+}
+
+export interface IOpenVpnTunnelData {
+  port: number;
+  protocol: RelayProtocol;
+}
+
+export interface IWireguardTunnelData {
+  // Port ranges are an array of pairs, such as [[53,53], [10_000, 60_000]],
+  // which in this case translates that the specific tunnel can be connected on
+  // port 53 and ports 10'000 through 60'000.
+  portRanges: Array<[number, number]>;
+  // Public key of the tunnel.
+  publicKey: string;
 }
 
 export interface ITunnelOptions {
