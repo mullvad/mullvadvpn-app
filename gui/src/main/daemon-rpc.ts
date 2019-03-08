@@ -136,6 +136,20 @@ const relayListSchema = partialObject({
               ipv4_addr_in: string,
               include_in_country: boolean,
               weight: number,
+              tunnels: partialObject({
+                openvpn: arrayOf(
+                  partialObject({
+                    port: number,
+                    protocol: string,
+                  }),
+                ),
+                wireguard: arrayOf(
+                  partialObject({
+                    port_ranges: arrayOf(arrayOf(number)),
+                    public_key: string,
+                  }),
+                ),
+              }),
             }),
           ),
         }),
@@ -343,7 +357,7 @@ export class DaemonRpc {
     try {
       return camelCaseObjectKeys(validate(relayListSchema, response)) as IRelayList;
     } catch (error) {
-      throw new ResponseParseError('Invalid response from get_relay_locations', error);
+      throw new ResponseParseError(`Invalid response from get_relay_locations: ${error}`, error);
     }
   }
 
