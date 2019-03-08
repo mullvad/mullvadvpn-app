@@ -112,6 +112,9 @@ class ApplicationMain {
   };
   private latestVersionInterval?: NodeJS.Timeout;
 
+  // The UI locale which is set once from onReady handler
+  private locale = 'en';
+
   public run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
     if (process.platform === 'linux') {
@@ -263,8 +266,24 @@ class ApplicationMain {
     }
   }
 
+  private getLocaleWithOverride(): string {
+    const localeOverride = process.env.MULLVAD_LOCALE;
+    if (localeOverride) {
+      const trimmedLocaleOverride = localeOverride.trim();
+      if (trimmedLocaleOverride.length > 0) {
+        return trimmedLocaleOverride;
+      }
+    }
+
+    return app.getLocale();
+  }
+
   private onReady = async () => {
-    loadTranslations(app.getLocale());
+    this.locale = this.getLocaleWithOverride();
+
+    log.info(`Detected locale: ${this.locale}`);
+
+    loadTranslations(this.locale);
 
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
@@ -815,6 +834,7 @@ class ApplicationMain {
 
   private registerIpcListeners() {
     IpcMainEventChannel.state.handleGet(() => ({
+      locale: this.locale,
       isConnected: this.connectedToDaemon,
       autoStart: getOpenAtLogin(),
       accountHistory: this.accountHistory,
