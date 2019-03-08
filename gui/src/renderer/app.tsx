@@ -3,7 +3,7 @@ import {
   push as pushHistory,
   replace as replaceHistory,
 } from 'connected-react-router';
-import { ipcRenderer, remote, webFrame } from 'electron';
+import { ipcRenderer, webFrame } from 'electron';
 import log from 'electron-log';
 import { createMemoryHistory } from 'history';
 import * as React from 'react';
@@ -64,6 +64,7 @@ export default class AppRenderer {
     },
   );
 
+  private locale: string;
   private tunnelState: TunnelStateTransition;
   private settings: ISettings;
   private guiSettings: IGuiSettingsState;
@@ -145,6 +146,7 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
+    this.locale = initialState.locale;
     this.tunnelState = initialState.tunnelState;
     this.settings = initialState.settings;
     this.guiSettings = initialState.guiSettings;
@@ -172,7 +174,7 @@ export default class AppRenderer {
     webFrame.setVisualZoomLevelLimits(1, 1);
 
     // Load translations
-    loadTranslations(remote.app.getLocale());
+    loadTranslations(this.locale);
   }
 
   public renderView() {
@@ -181,7 +183,7 @@ export default class AppRenderer {
         <ConnectedRouter history={this.memoryHistory}>
           {makeRoutes({
             app: this,
-            locale: remote.app.getLocale(),
+            locale: this.locale,
           })}
         </ConnectedRouter>
       </Provider>
@@ -570,7 +572,7 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
-    this.accountExpiry = expiry ? new AccountExpiry(expiry, remote.app.getLocale()) : undefined;
+    this.accountExpiry = expiry ? new AccountExpiry(expiry, this.locale) : undefined;
     this.reduxActions.account.updateAccountExpiry(expiry);
   }
 

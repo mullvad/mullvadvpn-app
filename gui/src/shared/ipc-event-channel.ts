@@ -15,6 +15,7 @@ import {
 } from './daemon-rpc-types';
 
 export interface IAppStateSnapshot {
+  locale: string;
   isConnected: boolean;
   autoStart: boolean;
   accountHistory: AccountToken[];
