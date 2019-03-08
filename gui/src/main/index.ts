@@ -5,11 +5,13 @@ import * as fs from 'fs';
 import mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as uuid from 'uuid';
+import * as _ from 'lodash';
 import {
   AccountToken,
   IAppVersionInfo,
   ILocation,
   IRelayList,
+  IRelayListHostname,
   ISettings,
   RelaySettingsUpdate,
   TunnelStateTransition,
@@ -529,6 +531,10 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
     }
+
+    // since settings can have the relay constraints changed, the relay
+    // list should also be updated
+    this.setRelays(this.relays);
   }
 
   private setLocation(newLocation: ILocation) {
@@ -541,10 +547,44 @@ class ApplicationMain {
 
   private setRelays(newRelayList: IRelayList) {
     this.relays = newRelayList;
+    const filteredRelays = this.processRelaysForPresentation(newRelayList);
 
     if (this.windowController) {
-      IpcMainEventChannel.relays.notify(this.windowController.webContents, newRelayList);
+      IpcMainEventChannel.relays.notify(this.windowController.webContents, filteredRelays);
     }
+  }
+
+  //
+  private processRelaysForPresentation(relayList: IRelayList): IRelayList {
+    // TODO: once wireguard is stable, by default we should only filter by
+    // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
+    // relays if tunnel constraints specify wireguard tunnels.
+    const hasOpenVpnTunnels = (relay: IRelayListHostname): boolean => {
+      return relay.tunnels.openvpn.length > 0;
+    };
+    const hasWireguardTunnels = (relay: IRelayListHostname): boolean =>
+      relay.tunnels.wireguard.length > 0;
+    let fnHasWantedTunnels = hasOpenVpnTunnels;
+
+    if ('normal' in this.settings.relaySettings) {
+      const tunnelConstraints = this.settings.relaySettings.normal.tunnel;
+      if (tunnelConstraints !== 'any' && 'wireguard' in tunnelConstraints.only) {
+        fnHasWantedTunnels = hasWireguardTunnels;
+      }
+    }
+
+    const filteredRelays = _.cloneDeep(relayList);
+
+    for (let country of filteredRelays.countries) {
+      country.cities.filter((city) => {
+        city.relays = city.relays.filter((relay) => {
+          return fnHasWantedTunnels(relay);
+        });
+        return city.relays.length > 0;
+      });
+    }
+
+    return filteredRelays;
   }
 
   private startRelaysPeriodicUpdates() {
