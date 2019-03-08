@@ -10,7 +10,9 @@ import {
   IAppVersionInfo,
   ILocation,
   IRelayList,
+  IRelayListHostname,
   ISettings,
+  RelaySettings,
   RelaySettingsUpdate,
   TunnelStateTransition,
 } from '../shared/daemon-rpc-types';
@@ -375,7 +377,7 @@ class ApplicationMain {
 
     // fetch relays
     try {
-      this.setRelays(await this.daemonRpc.getRelayLocations());
+      this.setRelays(await this.daemonRpc.getRelayLocations(), this.settings.relaySettings);
     } catch (error) {
       log.error(`Failed to fetch relay locations: ${error.message}`);
 
@@ -529,6 +531,10 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
     }
+
+    // since settings can have the relay constraints changed, the relay
+    // list should also be updated
+    this.setRelays(this.relays, newSettings.relaySettings);
   }
 
   private setLocation(newLocation: ILocation) {
@@ -539,12 +545,52 @@ class ApplicationMain {
     }
   }
 
-  private setRelays(newRelayList: IRelayList) {
+  private setRelays(newRelayList: IRelayList, relaySettings: RelaySettings) {
     this.relays = newRelayList;
+    const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
 
     if (this.windowController) {
-      IpcMainEventChannel.relays.notify(this.windowController.webContents, newRelayList);
+      IpcMainEventChannel.relays.notify(this.windowController.webContents, filteredRelays);
     }
+  }
+
+  //
+  private processRelaysForPresentation(
+    relayList: IRelayList,
+    relaySettings: RelaySettings,
+  ): IRelayList {
+    // TODO: once wireguard is stable, by default we should only filter by
+    // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
+    // relays if tunnel constraints specify wireguard tunnels.
+    const hasOpenVpnTunnels = (relay: IRelayListHostname): boolean => {
+      return relay.tunnels.openvpn.length > 0;
+    };
+    const hasWireguardTunnels = (relay: IRelayListHostname): boolean =>
+      relay.tunnels.wireguard.length > 0;
+    let fnHasWantedTunnels = hasOpenVpnTunnels;
+
+    if ('normal' in relaySettings) {
+      const tunnelConstraints = relaySettings.normal.tunnel;
+      if (tunnelConstraints !== 'any' && 'wireguard' in tunnelConstraints.only) {
+        fnHasWantedTunnels = hasWireguardTunnels;
+      }
+    }
+
+    return {
+      countries: relayList.countries.map((country) => {
+        return {
+          ...country,
+          cities: country.cities
+            .map((city) => {
+              return {
+                ...city,
+                relays: city.relays.filter(fnHasWantedTunnels),
+              };
+            })
+            .filter((city) => city.relays.length > 0),
+        };
+      }),
+    };
   }
 
   private startRelaysPeriodicUpdates() {
@@ -552,7 +598,7 @@ class ApplicationMain {
 
     const handler = async () => {
       try {
-        this.setRelays(await this.daemonRpc.getRelayLocations());
+        this.setRelays(await this.daemonRpc.getRelayLocations(), this.settings.relaySettings);
       } catch (error) {
         log.error(`Failed to fetch relay locations: ${error.message}`);
       }
