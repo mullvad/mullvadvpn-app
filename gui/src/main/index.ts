@@ -841,7 +841,7 @@ class ApplicationMain {
       tunnelState: this.tunnelState,
       settings: this.settings,
       location: this.location,
-      relays: this.relays,
+      relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
