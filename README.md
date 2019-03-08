@@ -187,9 +187,15 @@ Please note that the GUI needs a running daemon to connect to in order to work. 
 [Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instruction on how
 to do that before starting the GUI.
 
-The GUI will need to resolve the path to the `problem-report` tool. In development mode this
-defaults to `<repo>/target/debug/`, but can be configured with the `MULLVAD_PATH` environment
-variable.
+### Supported environment variables
+
+1. `MULLVAD_PATH` - Allows changing the path to the folder with the `problem-report` tool when
+    running in development mode. Defaults to: `<repo>/target/debug/`.
+
+1. `MULLVAD_LOCALE` - Allows changing the UI locale, for example:
+    ```
+    MULLVAD_LOCALE=en-US ./mullvad-vpn
+    ```
 
 
 ## Making a release
