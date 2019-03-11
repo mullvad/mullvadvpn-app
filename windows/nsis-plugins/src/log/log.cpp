@@ -2,12 +2,16 @@
 #include "logger.h"
 #include <libcommon/string.h>
 #include <libcommon/filesystem.h>
+#include <libcommon/registry/registry.h>
+#include <libcommon/filesystem.h>
+#include <libcommon/error.h>
 #include <windows.h>
 #include <nsis/pluginapi.h>
 #include <string>
 #include <vector>
 #include <memory>
 #include <sstream>
+#include <iomanip>
 #include <experimental/filesystem>
 
 Logger *g_logger = nullptr;
@@ -77,6 +81,90 @@ std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)
 	return common::string::Tokenize(textBlock, L"\r\n");
 }
 
+std::wstring GetWindowsProductName()
+{
+	auto regkey = common::registry::Registry::OpenKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		false, common::registry::RegistryView::Force64);
+
+	return regkey->readString(L"ProductName");
+}
+
+std::wstring GetWindowsVersion()
+{
+	common::fs::ScopedNativeFileSystem nativeFileSystem;
+
+	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
+	const auto systemModule = std::experimental::filesystem::path(systemDir).append(L"ntoskrnl.exe");
+
+	DWORD dummy;
+
+	const auto versionSize = GetFileVersionInfoSizeW(systemModule.c_str(), &dummy);
+	THROW_GLE_IF(0, versionSize, "GetFileVersionInfoSizeW");
+
+	std::vector<uint8_t> buf(versionSize);
+
+	auto status = GetFileVersionInfoW(systemModule.c_str(), 0, static_cast<DWORD>(buf.size()), &buf[0]);
+	THROW_GLE_IF(FALSE, status, "GetFileVersionInfoW");
+
+	//
+	// Get the translation table.
+	// This is required to build the path to the value we're actually after.
+	//
+
+	struct LANGANDCODEPAGE
+	{
+		WORD wLanguage;
+		WORD wCodePage;
+	}
+	*translations = nullptr;
+
+	UINT translationsSize = 0;
+
+	status = VerQueryValueW(&buf[0], L"\\VarFileInfo\\Translation", reinterpret_cast<LPVOID *>(&translations), &translationsSize);
+	THROW_GLE_IF(FALSE, status, "VerQueryValueW");
+
+	if (translationsSize < sizeof(LANGANDCODEPAGE))
+	{
+		throw std::runtime_error("Invalid VERSION_INFO translation table");
+	}
+
+	//
+	// Use primary translation.
+	//
+
+	std::wstringstream ss;
+
+	ss << L"\\StringFileInfo\\"
+		<< std::setw(4) << std::setfill(L'0') << std::hex
+		<< translations[0].wLanguage
+		<< std::setw(4) << std::setfill(L'0') << std::hex
+		<< translations[0].wCodePage
+		<< L"\\ProductVersion";
+
+	const auto productVersionName = ss.str();
+
+	void *productVersion = nullptr;
+	UINT productVersionSize = 0;
+
+	status = VerQueryValueW(&buf[0], productVersionName.c_str(), &productVersion, &productVersionSize);
+	THROW_GLE_IF(FALSE, status, "VerQueryValueW");
+
+	// Size returned is the length in characters.
+	std::wstring version(reinterpret_cast<const wchar_t *>(productVersion), productVersionSize);
+
+	// Chop off trailing terminators.
+	while ((false == version.empty()) && (*version.rbegin() == L'\0'))
+	{
+		version.resize(version.size() - 1);
+	}
+
+	if (version.empty())
+	{
+		throw std::runtime_error("Invalid version information");
+	}
+
+	return version;
+}
 } // anonymous namespace
 
 //
@@ -199,6 +287,57 @@ void __declspec(dllexport) NSISCALL LogWithDetails
 	}
 	catch (...)
 	{
+	}
+}
+
+//
+// LogWindowsVersion
+//
+// Writes a message containing the Windows version and build, to the log file.
+//
+void __declspec(dllexport) NSISCALL LogWindowsVersion
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	if (nullptr == g_logger)
+	{
+		return;
+	}
+
+	try
+	{
+		const auto productName = GetWindowsProductName();
+		const auto version = GetWindowsVersion();
+
+		std::wstringstream ss;
+
+		ss	<< L"Windows version: "
+			<< productName
+			<< L", "
+			<< version;
+
+		g_logger->log(ss.str());
+	}
+	catch (std::exception &err)
+	{
+		const std::vector<std::wstring> details =
+		{
+			common::string::ToWide(err.what())
+		};
+
+		g_logger->log(L"Windows version: Failed to determine version", details);
+	}
+	catch (...)
+	{
+		g_logger->log(L"Windows version: Failed to determine version");
 	}
 }
 
