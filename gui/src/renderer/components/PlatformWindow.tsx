@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { Component, Styles, View } from 'reactxp';
+import { Component, Styles, Types, View } from 'reactxp';
 
 interface IProps {
   arrowPosition?: number;
 }
 
+const containerStyle = Styles.createViewStyle({ flex: 1 });
+
 export default class PlatformWindow extends Component<IProps> {
   public render() {
-    let style;
+    return <View style={[containerStyle, this.platformStyle()]}>{this.props.children}</View>;
+  }
 
+  private platformStyle(): Types.ViewStyleRuleSet {
     if (process.platform === 'darwin') {
       const arrowPosition = this.props.arrowPosition;
       let arrowPositionCss = '50%';
@@ -24,10 +28,15 @@ export default class PlatformWindow extends Component<IProps> {
         `url(../../assets/images/app-header-backdrop.svg) no-repeat`,
       ];
 
-      // @ts-ignore
-      style = Styles.createViewStyle({ WebkitMask: webkitMask.join(',') }, false);
+      return Styles.createViewStyle(
+        {
+          // @ts-ignore
+          WebkitMask: webkitMask.join(','),
+        },
+        false,
+      );
+    } else {
+      return undefined;
     }
-
-    return <View style={style}>{this.props.children}</View>;
   }
 }
