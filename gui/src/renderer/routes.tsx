@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router';
+import { Route, RouteComponentProps, RouteProps, Switch, withRouter } from 'react-router';
 import App from './app';
-import TransitionContainer from './components/TransitionContainer';
+import TransitionContainer, { TransitionView } from './components/TransitionContainer';
 import AccountPage from './containers/AccountPage';
 import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
 import ConnectPage from './containers/ConnectPage';
@@ -21,42 +21,85 @@ export interface ISharedRouteProps {
 
 type CustomRouteProps = {
   component: React.ComponentClass<ISharedRouteProps>;
-} & Route['props'];
+} & RouteProps;
 
-export default function makeRoutes(componentProps: ISharedRouteProps) {
-  // Renders a route extended with shared props
-  function CustomRoute({ component: ComponentClass, ...routeProps }: CustomRouteProps) {
-    const renderOverride = () => <ComponentClass {...componentProps} />;
+interface IAppRoutesProps extends RouteComponentProps {
+  sharedProps: ISharedRouteProps;
+}
 
-    return <Route {...routeProps} render={renderOverride} />;
+interface IAppRoutesState {
+  previousLocation?: IAppRoutesProps['location'];
+  currentLocation: IAppRoutesProps['location'];
+}
+
+class AppRoutes extends React.Component<IAppRoutesProps, IAppRoutesState> {
+  private unobserveHistory?: () => void;
+
+  constructor(props: IAppRoutesProps) {
+    super(props);
+
+    this.state = {
+      currentLocation: props.location,
+    };
   }
 
-  // store previous route
-  let sourceRoute: string | null = null;
+  public componentDidMount() {
+    // React throttles updates, so it's impossible to capture the intermediate navigation without
+    // listening to the history directly.
+    this.unobserveHistory = this.props.history.listen((location) => {
+      this.setState((state) => ({
+        previousLocation: state.currentLocation,
+        currentLocation: location,
+      }));
+    });
+  }
 
-  function renderRoute({ location }: RouteComponentProps) {
-    const destinationRoute = location.pathname;
-    const transitionProps = getTransitionProps(sourceRoute, destinationRoute);
-    sourceRoute = destinationRoute;
+  public componentWillUnmount() {
+    if (this.unobserveHistory) {
+      this.unobserveHistory();
+    }
+  }
+
+  public render() {
+    const location = this.state.currentLocation;
+    const transitionProps = getTransitionProps(
+      this.state.previousLocation ? this.state.previousLocation.pathname : null,
+      location.pathname,
+    );
+
+    // Renders a route extended with shared props
+    const CustomRoute = ({ component: ComponentClass, ...routeProps }: CustomRouteProps) => {
+      const renderOverride = () => <ComponentClass {...this.props.sharedProps} />;
+
+      return <Route {...routeProps} render={renderOverride} />;
+    };
 
     return (
       <PlatformWindowContainer>
         <TransitionContainer {...transitionProps}>
-          <Switch key={location.key} location={location}>
-            <CustomRoute exact={true} path="/" component={LaunchPage} />
-            <CustomRoute exact={true} path="/login" component={LoginPage} />
-            <CustomRoute exact={true} path="/connect" component={ConnectPage} />
-            <CustomRoute exact={true} path="/settings" component={SettingsPage} />
-            <CustomRoute exact={true} path="/settings/account" component={AccountPage} />
-            <CustomRoute exact={true} path="/settings/preferences" component={PreferencesPage} />
-            <CustomRoute exact={true} path="/settings/advanced" component={AdvancedSettingsPage} />
-            <CustomRoute exact={true} path="/settings/support" component={SupportPage} />
-            <CustomRoute exact={true} path="/select-location" component={SelectLocationPage} />
-          </Switch>
+          <TransitionView viewId={location.key || ''}>
+            <Switch key={location.key} location={location}>
+              <CustomRoute exact={true} path="/" component={LaunchPage} />
+              <CustomRoute exact={true} path="/login" component={LoginPage} />
+              <CustomRoute exact={true} path="/connect" component={ConnectPage} />
+              <CustomRoute exact={true} path="/settings" component={SettingsPage} />
+              <CustomRoute exact={true} path="/settings/account" component={AccountPage} />
+              <CustomRoute exact={true} path="/settings/preferences" component={PreferencesPage} />
+              <CustomRoute
+                exact={true}
+                path="/settings/advanced"
+                component={AdvancedSettingsPage}
+              />
+              <CustomRoute exact={true} path="/settings/support" component={SupportPage} />
+              <CustomRoute exact={true} path="/select-location" component={SelectLocationPage} />
+            </Switch>
+          </TransitionView>
         </TransitionContainer>
       </PlatformWindowContainer>
     );
   }
-
-  return <Route render={renderRoute} />;
 }
+
+const AppRoutesWithRouter = withRouter(AppRoutes);
+
+export default AppRoutesWithRouter;
