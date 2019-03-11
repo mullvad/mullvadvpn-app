@@ -41,7 +41,18 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 />
-        <TextView
+        <ProgressBar android:id="@+id/status_icon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="30dp"
+                android:indeterminate="true"
+                android:indeterminateOnly="true"
+                android:indeterminateDuration="600"
+                android:indeterminateDrawable="@drawable/icon_spinner"
+                android:visibility="invisible"
+                />
+        <TextView android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
@@ -52,7 +63,7 @@
                 android:textStyle="bold"
                 android:text="@string/login_title"
                 />
-        <TextView
+        <TextView android:id="@+id/subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
@@ -95,7 +106,7 @@
         <Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 />
     </LinearLayout>
 </LinearLayout>
