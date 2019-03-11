@@ -382,7 +382,9 @@
 	Push $R0
 
 	log::Initialize
+
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
+	log::LogWindowsVersion
 	
 	#
 	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,

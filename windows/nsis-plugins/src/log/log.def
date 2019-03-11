@@ -5,6 +5,7 @@ EXPORTS
 Initialize
 Log
 LogWithDetails
+LogWindowsVersion
 
 PluginLog
 PluginLogWithDetails
