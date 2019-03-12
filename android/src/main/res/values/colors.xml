@@ -8,6 +8,7 @@
     <color name="white60">#99FFFFFF</color>
     <color name="white20">#33FFFFFF</color>
     <color name="green">#44AD4D</color>
+    <color name="red">#D0021B</color>
 
     <color name="textInputBorder">#234161</color>
 </resources>

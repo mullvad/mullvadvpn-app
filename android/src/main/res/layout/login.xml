@@ -65,6 +65,13 @@
                     android:src="@drawable/icon_success"
                     android:visibility="gone"
                     />
+            <ImageView android:id="@+id/login_fail_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/icon_fail"
+                    android:visibility="gone"
+                    />
         </FrameLayout>
 
         <TextView android:id="@+id/title"
