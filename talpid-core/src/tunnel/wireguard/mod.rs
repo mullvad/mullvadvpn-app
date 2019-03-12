@@ -1,3 +1,4 @@
+#![allow(missing_docs)]
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;

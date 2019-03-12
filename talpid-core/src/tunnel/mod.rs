@@ -14,7 +14,7 @@ use talpid_types::net::{openvpn as openvpn_types, GenericTunnelOptions, TunnelPa
 pub mod openvpn;
 
 #[cfg(unix)]
-mod wireguard;
+pub mod wireguard;
 
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
