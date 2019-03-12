@@ -12,7 +12,7 @@ const LOCALES_DIR = path.resolve(__dirname, '../../locales');
 // the errors are handled separately in the "error" handler below
 const catalogue = new Gettext({ debug: false });
 catalogue.setTextDomain('messages');
-catalogue.on('error', (error: string) => {
+catalogue.on('error', (error) => {
   // Filter out the "no translation was found" errors for the source language
   if (SELECTED_LANGUAGE === SOURCE_LANGUAGE && error.indexOf('No translation was found') !== -1) {
     return;
