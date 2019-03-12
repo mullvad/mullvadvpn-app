@@ -11,7 +11,7 @@ pub mod wireguard_go;
 pub use self::wireguard_go::WgGoTunnel;
 
 // amount of seconds to run `ping` until it returns.
-const PING_TIMEOUT: u16 = 5;
+const PING_TIMEOUT: u16 = 7;
 
 error_chain! {
     errors {
