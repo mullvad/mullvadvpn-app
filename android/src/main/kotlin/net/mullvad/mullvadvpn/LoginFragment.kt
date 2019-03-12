@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,7 +18,8 @@ const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 class LoginFragment : Fragment() {
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
-    private lateinit var statusIcon: View
+    private lateinit var loggingInStatus: View
+    private lateinit var loggedInStatus: View
     private lateinit var accountInput: EditText
     private lateinit var loginButton: ImageButton
 
@@ -33,7 +35,8 @@ class LoginFragment : Fragment() {
 
         title = view.findViewById(R.id.title)
         subtitle = view.findViewById(R.id.subtitle)
-        statusIcon = view.findViewById(R.id.status_icon)
+        loggingInStatus = view.findViewById(R.id.logging_in_status)
+        loggedInStatus = view.findViewById(R.id.logged_in_status)
         accountInput = view.findViewById(R.id.account_input)
         loginButton = view.findViewById(R.id.login_button)
 
@@ -64,9 +67,20 @@ class LoginFragment : Fragment() {
     private fun login() {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
-        statusIcon.setVisibility(View.VISIBLE)
+        loggingInStatus.setVisibility(View.VISIBLE)
         loginButton.setVisibility(View.GONE)
         disableAccountInput()
+
+        // TODO: Actually log in
+        Handler().postDelayed(Runnable { loggedIn() }, 1000)
+    }
+
+    private fun loggedIn() {
+        title.setText(R.string.logged_in_title)
+        subtitle.setText("")
+        loggingInStatus.setVisibility(View.GONE)
+        loggedInStatus.setVisibility(View.VISIBLE)
+        accountInput.setVisibility(View.GONE)
     }
 
     private fun disableAccountInput() {
