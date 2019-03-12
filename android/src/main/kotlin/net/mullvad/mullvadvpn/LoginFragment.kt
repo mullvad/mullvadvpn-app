@@ -20,11 +20,16 @@ class LoginFragment : Fragment() {
     private lateinit var subtitle: TextView
     private lateinit var loggingInStatus: View
     private lateinit var loggedInStatus: View
+    private lateinit var loginFailStatus: View
     private lateinit var accountInput: EditText
     private lateinit var loginButton: ImageButton
 
     private var accountInputDisabledBackgroundColor: Int = 0
     private var accountInputDisabledTextColor: Int = 0
+    private var accountInputEnabledBackgroundColor: Int = 0
+    private var accountInputEnabledTextColor: Int = 0
+    private var accountInputErrorTextColor: Int = 0
+    private var accountInputError = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +42,7 @@ class LoginFragment : Fragment() {
         subtitle = view.findViewById(R.id.subtitle)
         loggingInStatus = view.findViewById(R.id.logging_in_status)
         loggedInStatus = view.findViewById(R.id.logged_in_status)
+        loginFailStatus = view.findViewById(R.id.login_fail_status)
         accountInput = view.findViewById(R.id.account_input)
         loginButton = view.findViewById(R.id.login_button)
 
@@ -52,6 +58,9 @@ class LoginFragment : Fragment() {
 
         accountInputDisabledBackgroundColor = context.getColor(R.color.white20)
         accountInputDisabledTextColor = context.getColor(R.color.white)
+        accountInputEnabledBackgroundColor = context.getColor(R.color.white)
+        accountInputEnabledTextColor = context.getColor(R.color.blue)
+        accountInputErrorTextColor = context.getColor(R.color.red)
     }
 
     private fun setLoginButtonEnabled(enabled: Boolean) {
@@ -68,11 +77,16 @@ class LoginFragment : Fragment() {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
         loggingInStatus.setVisibility(View.VISIBLE)
+        loginFailStatus.setVisibility(View.GONE)
         loginButton.setVisibility(View.GONE)
         disableAccountInput()
 
         // TODO: Actually log in
-        Handler().postDelayed(Runnable { loggedIn() }, 1000)
+        if ("1234567890".equals(accountInput.text.toString())) {
+            Handler().postDelayed(Runnable { loggedIn() }, 1000)
+        } else {
+            Handler().postDelayed(Runnable { loginFailure() }, 1000)
+        }
     }
 
     private fun loggedIn() {
@@ -81,6 +95,26 @@ class LoginFragment : Fragment() {
         loggingInStatus.setVisibility(View.GONE)
         loggedInStatus.setVisibility(View.VISIBLE)
         accountInput.setVisibility(View.GONE)
+    }
+
+    private fun loginFailure() {
+        title.setText(R.string.login_fail_title)
+        subtitle.setText(R.string.login_fail_description)
+        loggingInStatus.setVisibility(View.GONE)
+        loginFailStatus.setVisibility(View.VISIBLE)
+        loginButton.setVisibility(View.VISIBLE)
+        loginButton.setEnabled(false)
+        setAccountInputToErrorState()
+    }
+
+    private fun setAccountInputToErrorState() {
+        accountInput.apply {
+            setEnabled(true)
+            setBackgroundColor(accountInputEnabledBackgroundColor)
+            setTextColor(accountInputErrorTextColor)
+        }
+
+        accountInputError = true
     }
 
     private fun disableAccountInput() {
@@ -98,6 +132,10 @@ class LoginFragment : Fragment() {
 
         override fun afterTextChanged(text: Editable) {
             setLoginButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
+
+            if (accountInputError) {
+                accountInput.setTextColor(accountInputEnabledTextColor)
+            }
         }
     }
 }

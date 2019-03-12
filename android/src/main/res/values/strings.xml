@@ -7,4 +7,6 @@
     <string name="logging_in_title">Logging in</string>
     <string name="logging_in_description">Checking account number</string>
     <string name="logged_in_title">Login successful</string>
+    <string name="login_fail_title">Login failed</string>
+    <string name="login_fail_description">Invalid account number, try again</string>
 </resources>
