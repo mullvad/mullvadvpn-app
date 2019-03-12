@@ -58,7 +58,7 @@ void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
 FwContext::FwContext(uint32_t timeout)
 	: m_baseline(0)
 {
-	auto engine = wfp::FilterEngine::DynamicSession(timeout);
+	auto engine = wfp::FilterEngine::StandardSession(timeout);
 
 	//
 	// Pass engine ownership to "session controller"
