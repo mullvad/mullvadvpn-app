@@ -1,12 +1,16 @@
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         package="net.mullvad.mullvadvpn"
         >
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
             android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
             android:theme="@style/AppTheme"
+            android:allowBackup="false"
+            tools:ignore="GoogleAppIndexingWarning"
             >
         <activity
                 android:name=".MainActivity"
