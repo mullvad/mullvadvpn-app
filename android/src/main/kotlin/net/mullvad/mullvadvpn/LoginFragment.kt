@@ -1,19 +1,12 @@
 package net.mullvad.mullvadvpn
 
-import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
-
-const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
 class LoginFragment : Fragment() {
     private lateinit var title: TextView
@@ -21,15 +14,7 @@ class LoginFragment : Fragment() {
     private lateinit var loggingInStatus: View
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
-    private lateinit var accountInput: EditText
-    private lateinit var loginButton: ImageButton
-
-    private var accountInputDisabledBackgroundColor: Int = 0
-    private var accountInputDisabledTextColor: Int = 0
-    private var accountInputEnabledBackgroundColor: Int = 0
-    private var accountInputEnabledTextColor: Int = 0
-    private var accountInputErrorTextColor: Int = 0
-    private var accountInputError = false
+    private lateinit var accountInput: AccountInput
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,46 +28,25 @@ class LoginFragment : Fragment() {
         loggingInStatus = view.findViewById(R.id.logging_in_status)
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
-        accountInput = view.findViewById(R.id.account_input)
-        loginButton = view.findViewById(R.id.login_button)
 
-        accountInput.addTextChangedListener(AccountInputWatcher())
-        loginButton.setOnClickListener { login() }
-        setLoginButtonEnabled(false)
+        accountInput = AccountInput(view, context!!)
+        accountInput.onLogin = { accountToken -> login(accountToken) }
 
         return view
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        accountInputDisabledBackgroundColor = context.getColor(R.color.white20)
-        accountInputDisabledTextColor = context.getColor(R.color.white)
-        accountInputEnabledBackgroundColor = context.getColor(R.color.white)
-        accountInputEnabledTextColor = context.getColor(R.color.blue)
-        accountInputErrorTextColor = context.getColor(R.color.red)
-    }
-
-    private fun setLoginButtonEnabled(enabled: Boolean) {
-        loginButton.apply {
-            if (enabled != isEnabled()) {
-                setEnabled(enabled)
-                setClickable(enabled)
-                setFocusable(enabled)
-            }
-        }
-    }
-
-    private fun login() {
+    private fun login(accountToken: String) {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
-        loggingInStatus.setVisibility(View.VISIBLE)
-        loginFailStatus.setVisibility(View.GONE)
-        loginButton.setVisibility(View.GONE)
-        disableAccountInput()
+
+        loggingInStatus.visibility = View.VISIBLE
+        loginFailStatus.visibility = View.GONE
+        loggedInStatus.visibility = View.GONE
+
+        accountInput.state = LoginState.InProgress
 
         // TODO: Actually log in
-        if ("1234567890".equals(accountInput.text.toString())) {
+        if ("1234567890".equals(accountToken)) {
             Handler().postDelayed(Runnable { loggedIn() }, 1000)
         } else {
             Handler().postDelayed(Runnable { loginFailure() }, 1000)
@@ -92,50 +56,22 @@ class LoginFragment : Fragment() {
     private fun loggedIn() {
         title.setText(R.string.logged_in_title)
         subtitle.setText("")
-        loggingInStatus.setVisibility(View.GONE)
-        loggedInStatus.setVisibility(View.VISIBLE)
-        accountInput.setVisibility(View.GONE)
+
+        loggingInStatus.visibility = View.GONE
+        loginFailStatus.visibility = View.GONE
+        loggedInStatus.visibility = View.VISIBLE
+
+        accountInput.state = LoginState.Success
     }
 
     private fun loginFailure() {
         title.setText(R.string.login_fail_title)
         subtitle.setText(R.string.login_fail_description)
-        loggingInStatus.setVisibility(View.GONE)
-        loginFailStatus.setVisibility(View.VISIBLE)
-        loginButton.setVisibility(View.VISIBLE)
-        loginButton.setEnabled(false)
-        setAccountInputToErrorState()
-    }
 
-    private fun setAccountInputToErrorState() {
-        accountInput.apply {
-            setEnabled(true)
-            setBackgroundColor(accountInputEnabledBackgroundColor)
-            setTextColor(accountInputErrorTextColor)
-        }
+        loggingInStatus.visibility = View.GONE
+        loginFailStatus.visibility = View.VISIBLE
+        loggedInStatus.visibility = View.GONE
 
-        accountInputError = true
-    }
-
-    private fun disableAccountInput() {
-        accountInput.apply {
-            setEnabled(false)
-            setBackgroundColor(accountInputDisabledBackgroundColor)
-            setTextColor(accountInputDisabledTextColor)
-        }
-    }
-
-    inner class AccountInputWatcher : TextWatcher {
-        override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
-
-        override fun afterTextChanged(text: Editable) {
-            setLoginButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
-
-            if (accountInputError) {
-                accountInput.setTextColor(accountInputEnabledTextColor)
-            }
-        }
+        accountInput.state = LoginState.Failure
     }
 }
