@@ -8,9 +8,12 @@ const styles = {
   navigationBar: {
     default: Styles.createViewStyle({
       flex: 0,
-      flexDirection: 'row',
       paddingHorizontal: 12,
       paddingBottom: 12,
+    }),
+    content: Styles.createViewStyle({
+      flex: 1,
+      flexDirection: 'row',
     }),
     separator: Styles.createViewStyle({
       borderStyle: 'solid',
@@ -40,7 +43,28 @@ const styles = {
       fontWeight: '600',
       lineHeight: 22,
       color: colors.white,
-      alignSelf: 'center',
+      paddingHorizontal: 5,
+      textAlign: 'center',
+    }),
+    measuringLabel: Styles.createTextStyle({
+      position: 'absolute',
+      opacity: 0,
+    }),
+  },
+  buttonBarItem: {
+    default: Styles.createButtonStyle({
+      cursor: 'default',
+      appRegion: 'no-drag',
+    }),
+    content: Styles.createViewStyle({
+      flexDirection: 'row',
+      alignItems: 'center',
+    }),
+    label: Styles.createTextStyle({
+      fontFamily: 'Open Sans',
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.white60,
     }),
   },
   closeBarItem: {
@@ -145,6 +169,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 interface IPrivateTitleBarItemProps {
   visible: boolean;
   titleAdjustment: number;
+  measuringTextRef?: React.RefObject<Text>;
   children?: React.ReactText;
 }
 
@@ -159,19 +184,25 @@ class PrivateTitleBarItem extends Component<IPrivateTitleBarItemProps> {
 
   public render() {
     const titleAdjustment = this.props.titleAdjustment;
-    const titleAdjustmentStyle = Styles.createViewStyle(
-      {
-        paddingRight: titleAdjustment > 0 ? titleAdjustment : 0,
-        paddingLeft: titleAdjustment < 0 ? Math.abs(titleAdjustment) : 0,
-      },
-      false,
-    );
+    const titleAdjustmentStyle = Styles.createViewStyle({ marginLeft: titleAdjustment }, false);
 
     return (
-      <View style={[styles.navigationBarTitle.container, titleAdjustmentStyle]}>
+      <View style={styles.navigationBarTitle.container}>
         <PrivateBarItemAnimationContainer visible={this.props.visible}>
-          <Text style={styles.navigationBarTitle.label}>{this.props.children}</Text>
+          <Text
+            style={[styles.navigationBarTitle.label, titleAdjustmentStyle]}
+            ellipsizeMode="tail"
+            numberOfLines={1}>
+            {this.props.children}
+          </Text>
         </PrivateBarItemAnimationContainer>
+
+        <Text
+          style={[styles.navigationBarTitle.label, styles.navigationBarTitle.measuringLabel]}
+          numberOfLines={1}
+          ref={this.props.measuringTextRef}>
+          {this.props.children}
+        </Text>
       </View>
     );
   }
@@ -266,6 +297,7 @@ const PrivateTitleBarItemContext = React.createContext({
   titleAdjustment: 0,
   visible: false,
   titleRef: React.createRef<PrivateTitleBarItem>(),
+  measuringTextRef: React.createRef<Text>(),
 });
 
 class PrivateNavigationBar extends Component<
@@ -300,6 +332,7 @@ class PrivateNavigationBar extends Component<
   };
 
   private titleViewRef = React.createRef<PrivateTitleBarItem>();
+  private measuringTextRef = React.createRef<Text>();
 
   public shouldComponentUpdate(
     nextProps: IPrivateNavigationBarProps,
@@ -320,16 +353,18 @@ class PrivateNavigationBar extends Component<
           styles.navigationBar.default,
           this.state.showsBarSeparator ? styles.navigationBar.separator : undefined,
           this.getPlatformStyle(),
-        ]}
-        onLayout={this.onLayout}>
-        <PrivateTitleBarItemContext.Provider
-          value={{
-            titleAdjustment: this.state.titleAdjustment,
-            visible: this.state.showsBarTitle,
-            titleRef: this.titleViewRef,
-          }}>
-          {this.props.children}
-        </PrivateTitleBarItemContext.Provider>
+        ]}>
+        <View style={styles.navigationBar.content} onLayout={this.onLayout}>
+          <PrivateTitleBarItemContext.Provider
+            value={{
+              titleAdjustment: this.state.titleAdjustment,
+              visible: this.state.showsBarTitle,
+              titleRef: this.titleViewRef,
+              measuringTextRef: this.measuringTextRef,
+            }}>
+            {this.props.children}
+          </PrivateTitleBarItemContext.Provider>
+        </View>
       </View>
     );
   }
@@ -347,18 +382,42 @@ class PrivateNavigationBar extends Component<
     }
   }
 
-  private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
-    const titleView = this.titleViewRef.current;
-    if (titleView) {
-      // calculate the title layout frame
-      const titleLayout = await UserInterface.measureLayoutRelativeToAncestor(titleView, this);
+  private onLayout = async (navBarContentLayout: Types.ViewOnLayoutEvent) => {
+    const titleViewContainer = this.titleViewRef.current;
+    const measuringText = this.measuringTextRef.current;
 
-      // calculate the remaining space at the right hand side
-      const trailingSpace = containerLayout.width - (titleLayout.x + titleLayout.width);
+    if (titleViewContainer && measuringText) {
+      const titleLayout = await UserInterface.measureLayoutRelativeToAncestor(
+        titleViewContainer,
+        this,
+      );
+      const textLayout = await UserInterface.measureLayoutRelativeToAncestor(measuringText, this);
 
-      this.setState({
-        titleAdjustment: titleLayout.x - trailingSpace,
-      });
+      // calculate the width of the elements preceding the title view container
+      const leadingSpace = titleLayout.x - navBarContentLayout.x;
+
+      // calculate the width of the elements succeeding the title view container
+      const trailingSpace = navBarContentLayout.width - titleLayout.width - leadingSpace;
+
+      // calculate the adjustment needed to center the title view within navigation bar
+      const titleAdjustment = Math.floor(trailingSpace - leadingSpace);
+
+      // calculate the maximum possible adjustment that when applied should keep the text fully
+      // visible, unless the title container itself is smaller than the space needed to accommodate
+      // the text
+      const maxTitleAdjustment = Math.floor(Math.max(titleLayout.width - textLayout.width, 0));
+
+      // cap the adjustment to remain within the allowed bounds
+      const cappedTitleAdjustment = Math.min(
+        Math.max(-maxTitleAdjustment, titleAdjustment),
+        maxTitleAdjustment,
+      );
+
+      if (this.state.titleAdjustment !== cappedTitleAdjustment) {
+        this.setState({
+          titleAdjustment: cappedTitleAdjustment,
+        });
+      }
     }
   };
 }
@@ -373,7 +432,8 @@ export function TitleBarItem(props: ITitleBarItemProps) {
         <PrivateTitleBarItem
           titleAdjustment={context.titleAdjustment}
           visible={context.visible}
-          ref={context.titleRef}>
+          ref={context.titleRef}
+          measuringTextRef={context.measuringTextRef}>
           {props.children}
         </PrivateTitleBarItem>
       )}
