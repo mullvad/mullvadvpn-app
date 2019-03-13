@@ -11,7 +11,7 @@ pub mod wireguard_go;
 pub use self::wireguard_go::WgGoTunnel;
 
 // amount of seconds to run `ping` until it returns.
-const PING_TIMEOUT: u16 = 5;
+const PING_TIMEOUT: u16 = 7;
 
 error_chain! {
     errors {
@@ -76,15 +76,16 @@ impl WireguardMonitor {
             close_msg_receiver,
         };
         monitor.setup_routing(&config)?;
-        monitor.start_pinger(&config);
         monitor.tunnel_up(&config);
 
         ping_monitor::ping(
             config.ipv4_gateway.into(),
             PING_TIMEOUT,
             &monitor.tunnel.get_interface_name().to_string(),
+            true,
         )
         .chain_err(|| ErrorKind::PingTimeoutError)?;
+        monitor.start_pinger(&config);
 
         Ok(monitor)
     }

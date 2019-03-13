@@ -20,7 +20,7 @@ pub fn spawn_ping_monitor<F: FnOnce() + Send + 'static>(
 ) {
     thread::spawn(move || loop {
         let start = time::Instant::now();
-        if let Err(e) = ping(ip, timeout_secs, &interface) {
+        if let Err(e) = ping(ip, timeout_secs, &interface, false) {
             log::debug!("ping failed - {}", e);
             on_fail();
             return;
@@ -33,8 +33,13 @@ pub fn spawn_ping_monitor<F: FnOnce() + Send + 'static>(
     });
 }
 
-pub fn ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()> {
-    let output = ping_cmd(ip, timeout_secs, interface)
+pub fn ping(
+    ip: IpAddr,
+    timeout_secs: u16,
+    interface: &str,
+    exit_on_first_reply: bool,
+) -> Result<()> {
+    let output = ping_cmd(ip, timeout_secs, interface, exit_on_first_reply)
         .run()
         .chain_err(|| ErrorKind::PingError)?;
     if !output.status.success() {
@@ -43,7 +48,12 @@ pub fn ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()> {
     Ok(())
 }
 
-fn ping_cmd(ip: IpAddr, timeout_secs: u16, interface: &str) -> duct::Expression {
+fn ping_cmd(
+    ip: IpAddr,
+    timeout_secs: u16,
+    interface: &str,
+    exit_on_first_reply: bool,
+) -> duct::Expression {
     let interface_flag = if cfg!(target_os = "linux") {
         "-I"
     } else {
@@ -54,18 +64,25 @@ fn ping_cmd(ip: IpAddr, timeout_secs: u16, interface: &str) -> duct::Expression 
     } else {
         "-t"
     };
-    duct::cmd!(
-        "ping",
+
+    let timeout_secs = timeout_secs.to_string();
+    let ip = ip.to_string();
+
+    let mut args = vec![
         "-n",
-        "-c",
+        "-i",
         "1",
         &interface_flag,
         &interface,
         timeout_flag,
-        &timeout_secs.to_string(),
-        ip.to_string()
-    )
-    .stdin_null()
-    .stdout_null()
-    .unchecked()
+        &timeout_secs,
+        &ip,
+    ];
+    if exit_on_first_reply {
+        args.push("-o");
+    }
+    duct::cmd("ping", args)
+        .stdin_null()
+        .stdout_null()
+        .unchecked()
 }
