@@ -43,11 +43,11 @@ const styles = {
   transitionContainer: Styles.createViewStyle({
     flex: 1,
   }),
-  orderFirst: Styles.createViewStyle({
+  orderFront: Styles.createViewStyle({
     // @ts-ignore
     zIndex: 1,
   }),
-  orderLast: Styles.createViewStyle({
+  orderBack: Styles.createViewStyle({
     // @ts-ignore
     zIndex: 0,
   }),
@@ -259,8 +259,8 @@ export default class TransitionContainer extends Component<IProps, IState> {
       (state) => ({
         nextItem: state.itemQueue[0],
         itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.slideAnimationStyleA, styles.orderLast],
-        nextItemStyle: [this.slideAnimationStyleB, styles.orderFirst],
+        currentItemStyle: [this.slideAnimationStyleA, styles.orderBack],
+        nextItemStyle: [this.slideAnimationStyleB, styles.orderFront],
       }),
       () => {
         const animation = Animated.timing(this.slideValueB, {
@@ -283,8 +283,8 @@ export default class TransitionContainer extends Component<IProps, IState> {
       (state) => ({
         nextItem: state.itemQueue[0],
         itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.slideAnimationStyleA, styles.orderFirst],
-        nextItemStyle: [this.slideAnimationStyleB, styles.orderLast],
+        currentItemStyle: [this.slideAnimationStyleA, styles.orderFront],
+        nextItemStyle: [this.slideAnimationStyleB, styles.orderBack],
       }),
       () => {
         const animation = Animated.timing(this.slideValueA, {
@@ -307,8 +307,8 @@ export default class TransitionContainer extends Component<IProps, IState> {
       (state) => ({
         nextItem: state.itemQueue[0],
         itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.pushStyleA, styles.orderLast],
-        nextItemStyle: [this.pushStyleB, styles.orderFirst],
+        currentItemStyle: [this.pushStyleA, styles.orderBack],
+        nextItemStyle: [this.pushStyleB, styles.orderFront],
       }),
       () => {
         const animation = Animated.parallel([
@@ -338,8 +338,8 @@ export default class TransitionContainer extends Component<IProps, IState> {
       (state) => ({
         nextItem: state.itemQueue[0],
         itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.pushStyleB, styles.orderFirst],
-        nextItemStyle: [this.pushStyleA, styles.orderLast],
+        currentItemStyle: [this.pushStyleB, styles.orderFront],
+        nextItemStyle: [this.pushStyleA, styles.orderBack],
       }),
       () => {
         const animation = Animated.parallel([
