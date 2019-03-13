@@ -5,11 +5,10 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 
 class ConnectFragment : Fragment() {
-    private lateinit var actionButton: Button
+    private lateinit var actionButton: ConnectActionButton
     private lateinit var connectingSpinner: View
     private lateinit var headerBar: View
     private lateinit var notificationBanner: View
@@ -22,20 +21,19 @@ class ConnectFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
 
-        actionButton = view.findViewById(R.id.action_button)
         connectingSpinner = view.findViewById(R.id.connecting_spinner)
         headerBar = view.findViewById(R.id.header_bar)
         notificationBanner = view.findViewById(R.id.notification_banner)
         status = view.findViewById(R.id.connection_status)
 
-        actionButton.setOnClickListener { connect() }
+        actionButton = ConnectActionButton(view)
+        actionButton.onConnect = { connect() }
 
         return view
     }
 
     private fun connect() {
-        actionButton.setBackgroundResource(R.drawable.transparent_red_button_background)
-        actionButton.setText(R.string.cancel)
+        actionButton.state = ConnectionState.Connecting
 
         connectingSpinner.visibility = View.VISIBLE
         notificationBanner.visibility = View.VISIBLE
