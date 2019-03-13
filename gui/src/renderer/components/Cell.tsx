@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
+import { default as SwitchControl } from './Switch';
 
 const styles = {
   cellButton: {
@@ -62,6 +63,9 @@ const styles = {
       color: colors.white,
     }),
   },
+  switch: Styles.createViewStyle({
+    flex: 0,
+  }),
   input: {
     frame: Styles.createViewStyle({
       flexGrow: 0,
@@ -221,6 +225,14 @@ export function Label(props: ILabelProps) {
     </CellHoverContext.Consumer>
   );
 }
+
+export const Switch = function CellSwitch(props: SwitchControl['props']) {
+  return (
+    <View style={styles.switch}>
+      <SwitchControl {...props} />
+    </View>
+  );
+};
 
 interface InputFrameProps {
   children?: React.ReactNode;
