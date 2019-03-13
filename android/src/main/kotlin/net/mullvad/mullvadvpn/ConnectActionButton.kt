@@ -11,6 +11,7 @@ class ConnectActionButton(val parentView: View) {
             when (value) {
                 ConnectionState.Disconnected -> disconnected()
                 ConnectionState.Connecting -> connecting()
+                ConnectionState.Connected -> connected()
             }
 
             field = value
@@ -18,6 +19,7 @@ class ConnectActionButton(val parentView: View) {
 
     var onConnect: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
+    var onDisconnect: (() -> Unit)? = null
 
     init {
         button.setOnClickListener { action() }
@@ -27,6 +29,7 @@ class ConnectActionButton(val parentView: View) {
         when (state) {
             ConnectionState.Disconnected -> onConnect?.invoke()
             ConnectionState.Connecting -> onCancel?.invoke()
+            ConnectionState.Connected -> onDisconnect?.invoke()
         }
     }
 
@@ -38,5 +41,10 @@ class ConnectActionButton(val parentView: View) {
     private fun connecting() {
         button.setBackgroundResource(R.drawable.transparent_red_button_background)
         button.setText(R.string.cancel)
+    }
+
+    private fun connected() {
+        button.setBackgroundResource(R.drawable.transparent_red_button_background)
+        button.setText(R.string.disconnect)
     }
 }
