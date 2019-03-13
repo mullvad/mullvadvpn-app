@@ -6,8 +6,10 @@
     <color name="darkBlue">#192E45</color>
     <color name="white">#FFFFFF</color>
     <color name="white60">#99FFFFFF</color>
+    <color name="white40">#66FFFFFF</color>
     <color name="white20">#33FFFFFF</color>
     <color name="green">#44AD4D</color>
+    <color name="green90">#E644AD4D</color>
     <color name="red">#D0021B</color>
 
     <color name="textInputBorder">#234161</color>
