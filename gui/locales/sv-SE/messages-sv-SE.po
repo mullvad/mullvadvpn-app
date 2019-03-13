@@ -1,25 +1,35 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: sv-SE\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad <admin@mullvad.net>\n"
+"Language-Team: Swedish\n"
+"Language: sv_SE\n"
+"PO-Revision-Date: 2019-03-18 14:19\n"
 
 #: src/renderer/components/SecuredLabel.tsx:40
 msgid "BLOCKED CONNECTION"
-msgstr ""
+msgstr "ANSLUTNINGEN BLOCKERAD"
 
 #: src/renderer/components/SecuredLabel.tsx:43
 msgid "CREATING SECURE CONNECTION"
-msgstr ""
+msgstr "SKAPAR SÄKER ANSLUTNING"
 
 #: src/renderer/components/SecuredLabel.tsx:37
 #: src/renderer/components/Support.tsx:282
 #: src/renderer/components/Support.tsx:317
 #: src/renderer/components/Support.tsx:342
 msgid "SECURE CONNECTION"
-msgstr ""
+msgstr "SÄKER ANSLUTNING"
 
 #: src/renderer/components/SecuredLabel.tsx:46
 msgid "UNSECURED CONNECTION"
-msgstr ""
+msgstr "OSÄKER ANSLUTNING"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -27,60 +37,60 @@ msgstr ""
 #: src/renderer/lib/account-expiry.ts:31
 msgctxt "account-expiry"
 msgid "%(duration)s left"
-msgstr ""
+msgstr "%(duration)s kvar"
 
 #. Back button in navigation bar
 #: src/renderer/components/Account.tsx:33
 msgctxt "account-nav"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Account.tsx:39
 msgctxt "account-view"
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: src/renderer/components/Account.tsx:46
 msgctxt "account-view"
 msgid "Account ID"
-msgstr ""
+msgstr "Konto-ID"
 
 #: src/renderer/components/Account.tsx:69
 msgctxt "account-view"
 msgid "Buy more credit"
-msgstr ""
+msgstr "Köp mer kredit"
 
 #: src/renderer/components/Account.tsx:51
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
-msgstr ""
+msgstr "KOPIERAT TILL URKLIPP!"
 
 #: src/renderer/components/Account.tsx:101
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr ""
+msgstr "Inte tillgänglig för närvarande"
 
 #: src/renderer/components/Account.tsx:74
 msgctxt "account-view"
 msgid "Log out"
-msgstr ""
+msgstr "Logga ut"
 
 #: src/renderer/components/Account.tsx:93
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr ""
+msgstr "INGEN TID KVAR"
 
 #. Title label in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:97
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr ""
+msgstr "Avancerat"
 
 #. Back button in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:93
 msgctxt "advanced-settings-nav"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -88,47 +98,47 @@ msgstr ""
 #: src/renderer/components/AdvancedSettings.tsx:150
 msgctxt "advanced-settings-view"
 msgid "%(portType)s port"
-msgstr ""
+msgstr "%(portType)s port"
 
 #: src/renderer/components/AdvancedSettings.tsx:104
 msgctxt "advanced-settings-view"
 msgid "Advanced"
-msgstr ""
+msgstr "Avancerat"
 
 #: src/renderer/components/AdvancedSettings.tsx:265
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr ""
+msgstr "Automatisk"
 
 #: src/renderer/components/AdvancedSettings.tsx:120
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
-msgstr ""
+msgstr "Blockera vid frånkoppling"
 
 #: src/renderer/components/AdvancedSettings.tsx:171
 msgctxt "advanced-settings-view"
 msgid "Default"
-msgstr ""
+msgstr "Standard"
 
 #: src/renderer/components/AdvancedSettings.tsx:108
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
-msgstr ""
+msgstr "Aktivera IPv6"
 
 #: src/renderer/components/AdvancedSettings.tsx:112
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
-msgstr ""
+msgstr "Aktivera IPv6-kommunikation genom tunneln."
 
 #: src/renderer/components/AdvancedSettings.tsx:165
 msgctxt "advanced-settings-view"
 msgid "Mssfix"
-msgstr ""
+msgstr "Mssfix"
 
 #: src/renderer/components/AdvancedSettings.tsx:136
 msgctxt "advanced-settings-view"
 msgid "Network protocols"
-msgstr ""
+msgstr "Nätverksprotokoll"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -137,32 +147,32 @@ msgstr ""
 #: src/renderer/components/AdvancedSettings.tsx:187
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr ""
+msgstr "Ange värde för OpenVPN MSS. Giltigt intervall: %(min)d-%(max)d."
 
 #: src/renderer/components/AdvancedSettings.tsx:128
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr ""
+msgstr "Om du inte är ansluten bör du alltid blockera all nätverkstrafik, även när du har kopplats från eller avslutat appen."
 
 #: src/renderer/lib/auth-failure.ts:80
 msgctxt "auth-failure"
 msgid "Account authentication failed."
-msgstr ""
+msgstr "Autentiseringen av kontot misslyckades."
 
 #: src/renderer/lib/auth-failure.ts:74
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr ""
+msgstr "Detta konto har för många samtidiga anslutningar. Koppla från en annan enhet eller försök att ansluta igen inom kort."
 
 #: src/renderer/lib/auth-failure.ts:68
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr ""
+msgstr "Du har ingen VPN-tid kvar på kontot. Logga in på vår hemsida för att köpa mer kredit."
 
 #: src/renderer/lib/auth-failure.ts:62
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr ""
+msgstr "Du har loggat in med ett konto som inte är giltigt. Logga ut och försök med ett annat."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -172,83 +182,83 @@ msgstr ""
 #: src/renderer/containers/ConnectPage.tsx:54
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
-msgstr ""
+msgstr "%(city)s (%(hostname)s)"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:136
 #: src/renderer/components/ExpiredAccountErrorView.tsx:157
 msgctxt "connect-view"
 msgid "Buy more credit"
-msgstr ""
+msgstr "Köp mer kredit"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:114
 msgctxt "connect-view"
 msgid "Disconnect and buy more credit"
-msgstr ""
+msgstr "Koppla från och köp mer kredit"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:78
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr ""
+msgstr "Ingen tid kvar"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:150
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr ""
+msgstr "Du har ingen VPN-tid kvar på kontot. Innan du kan köpa mer kredit på vår hemsida måste du först stänga av alternativet ”Blockera vid frånkoppling” under appens avancerade inställningar."
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:129
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr ""
+msgstr "Du har ingen VPN-tid kvar på kontot. Logga in på vår hemsida för att köpa mer kredit."
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:106
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr ""
+msgstr "Du har ingen VPN-tid kvar på kontot. För att köpa mer kredit på vår hemsida behöver du åtkomst till internet med en osäker anslutning."
 
 #: src/renderer/components/NotificationArea.tsx:281
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr ""
+msgstr "KONTOKREDITEN GÅR SNART UT"
 
 #: src/renderer/components/NotificationArea.tsx:200
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr ""
+msgstr "BLOCKERING AV INTERNET"
 
 #: src/renderer/components/NotificationArea.tsx:48
 msgctxt "in-app-notifications"
 msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr ""
+msgstr "IPv6 kunde inte konfigureras. Aktivera det på ditt system eller stäng av det i appen"
 
 #: src/renderer/components/NotificationArea.tsx:53
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr ""
+msgstr "Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker"
 
 #: src/renderer/components/NotificationArea.tsx:58
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
-msgstr ""
+msgstr "Det gick inte att ange systemets DNS-server"
 
 #: src/renderer/components/NotificationArea.tsx:60
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr ""
+msgstr "Det gick inte att starta tunnelanslutning"
 
 #: src/renderer/components/NotificationArea.tsx:188
 msgctxt "in-app-notifications"
 msgid "FAILURE - UNSECURED"
-msgstr ""
+msgstr "MISSLYCKADES - OSKYDDAD"
 
 #: src/renderer/components/NotificationArea.tsx:215
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
+msgstr "Inkonsekvent intern versionsinformation, starta om appen"
 
 #: src/renderer/components/NotificationArea.tsx:212
 msgctxt "in-app-notifications"
 msgid "INCONSISTENT VERSION"
-msgstr ""
+msgstr "INKONSEKVENT VERSION"
 
 #. The in-app banner displayed to the user when the app update is available.
 #. Available placeholders:
@@ -256,32 +266,32 @@ msgstr ""
 #: src/renderer/components/NotificationArea.tsx:262
 msgctxt "in-app-notifications"
 msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr ""
+msgstr "Installera Mullvad VPN (%(version)s) för att hålla dig uppdaterad"
 
 #: src/renderer/components/NotificationArea.tsx:62
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings"
-msgstr ""
+msgstr "Ingen relayserver matchar de aktuella inställningarna"
 
 #: src/renderer/components/NotificationArea.tsx:64
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr ""
+msgstr "Denna enhet är frånkopplad, inga tunnlar kan fastställas"
 
 #: src/renderer/components/NotificationArea.tsx:69
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr ""
+msgstr "Det går inte att upptäcka en fungerande TAP-adapter på den här enheten. Aktivera den om den är inaktiverad. Installera om appen i annat fall"
 
 #: src/renderer/components/NotificationArea.tsx:229
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr ""
+msgstr "VERSION UTAN STÖD"
 
 #: src/renderer/components/NotificationArea.tsx:255
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr ""
+msgstr "UPPDATERING TILLGÄNGLIG"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -289,102 +299,102 @@ msgstr ""
 #: src/renderer/components/NotificationArea.tsx:236
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr ""
+msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för att garantera din säkerhet"
 
 #: src/renderer/components/Launch.tsx:53
 msgctxt "launch-view"
 msgid "Connecting to daemon..."
-msgstr ""
+msgstr "Ansluter till daemon..."
 
 #: src/renderer/components/Launch.tsx:51
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 #: src/renderer/components/Login.tsx:231
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr ""
+msgstr "Kontrollerar kontonummer"
 
 #: src/renderer/components/Login.tsx:233
 msgctxt "login-view"
 msgid "Correct account number"
-msgstr ""
+msgstr "Korrekt kontonummer"
 
 #: src/renderer/components/Login.tsx:403
 msgctxt "login-view"
 msgid "Create account"
-msgstr ""
+msgstr "Skapa konto"
 
 #: src/renderer/components/Login.tsx:400
 msgctxt "login-view"
 msgid "Don't have an account number?"
-msgstr ""
+msgstr "Har du inget kontonummer?"
 
 #: src/renderer/components/Login.tsx:235
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr ""
+msgstr "Ange ditt kontonummer"
 
 #: src/renderer/components/Login.tsx:219
 msgctxt "login-view"
 msgid "Logged in"
-msgstr ""
+msgstr "Inloggad"
 
 #: src/renderer/components/Login.tsx:215
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr ""
+msgstr "Loggar in..."
 
 #: src/renderer/components/Login.tsx:221
 msgctxt "login-view"
 msgid "Login"
-msgstr ""
+msgstr "Logga in"
 
 #: src/renderer/components/Login.tsx:217
 msgctxt "login-view"
 msgid "Login failed"
-msgstr ""
+msgstr "Inloggningen misslyckades"
 
 #: src/renderer/components/Login.tsx:229
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr ""
+msgstr "Okänt fel"
 
 #: src/main/notification-controller.ts:46
 msgctxt "notifications"
 msgid "Blocked all connections"
-msgstr ""
+msgstr "Blockera alla anslutningar"
 
 #: src/main/notification-controller.ts:29
 msgctxt "notifications"
 msgid "Connecting"
-msgstr ""
+msgstr "Ansluter"
 
 #: src/main/notification-controller.ts:42
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
-msgstr ""
+msgstr "Kritiskt fel - oskyddad"
 
 #: src/main/notification-controller.ts:71
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
+msgstr "Inkonsekvent intern versionsinformation, starta om appen"
 
 #: src/main/notification-controller.ts:57
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr ""
+msgstr "Återansluter"
 
 #: src/main/notification-controller.ts:33
 msgctxt "notifications"
 msgid "Secured"
-msgstr ""
+msgstr "Skyddad"
 
 #: src/main/notification-controller.ts:36
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr ""
+msgstr "Oskyddad"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -392,254 +402,255 @@ msgstr ""
 #: src/main/notification-controller.ts:90
 msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr ""
+msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för att garantera din säkerhet"
 
 #. Title label in navigation bar
 #: src/renderer/components/Preferences.tsx:46
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr ""
+msgstr "Inställningar"
 
 #. Back button in navigation bar
 #: src/renderer/components/Preferences.tsx:42
 msgctxt "preferences-nav"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Preferences.tsx:86
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr ""
+msgstr "Tillåter åtkomst till andra enheter i samma nätverk för delning, utskrift etc."
 
 #: src/renderer/components/Preferences.tsx:66
 msgctxt "preferences-view"
 msgid "Auto-connect"
-msgstr ""
+msgstr "Anslut automatiskt"
 
 #: src/renderer/components/Preferences.tsx:73
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr ""
+msgstr "Anslut automatiskt till en server när appen startas."
 
 #: src/renderer/components/Preferences.tsx:59
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
-msgstr ""
+msgstr "Starta appen vid uppstart"
 
 #: src/renderer/components/Preferences.tsx:81
 msgctxt "preferences-view"
 msgid "Local network sharing"
-msgstr ""
+msgstr "Lokal nätverksdelning"
 
 #: src/renderer/components/Preferences.tsx:130
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
-msgstr ""
+msgstr "Enfärgad systemfältsikon"
 
 #: src/renderer/components/Preferences.tsx:53
 msgctxt "preferences-view"
 msgid "Preferences"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Preferences.tsx:163
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
-msgstr ""
+msgstr "Visa endast systemfältsikonen när appen startas."
 
 #: src/renderer/components/Preferences.tsx:159
 msgctxt "preferences-view"
 msgid "Start minimized"
-msgstr ""
+msgstr "Starta minimerat"
 
 #: src/renderer/components/Preferences.tsx:134
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr ""
+msgstr "Använd en enfärgad systemfältsikon i stället för en flerfärgad."
 
 #. Title label in navigation bar
 #: src/renderer/components/SelectLocation.tsx:118
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr ""
+msgstr "Välj plats"
 
 #: src/renderer/components/SelectLocation.tsx:126
 msgctxt "select-location-view"
 msgid "Select location"
-msgstr ""
+msgstr "Välj plats"
 
 #: src/renderer/components/SelectLocation.tsx:129
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr ""
+msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen"
 
 #: src/renderer/components/Settings.tsx:104
 msgctxt "settings-view"
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: src/renderer/components/Settings.tsx:119
 msgctxt "settings-view"
 msgid "Advanced"
-msgstr ""
+msgstr "Avancerat"
 
 #: src/renderer/components/Settings.tsx:165
 msgctxt "settings-view"
 msgid "App version"
-msgstr ""
+msgstr "Appversion"
 
 #: src/renderer/components/Settings.tsx:186
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr ""
+msgstr "Vanliga frågor och guider"
 
 #: src/renderer/components/Settings.tsx:131
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
-msgstr ""
+msgstr "Inkonsekvent intern versionsinformation, starta om appen."
 
 #: src/renderer/components/Settings.tsx:98
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr ""
+msgstr "INGEN TID KVAR"
 
 #: src/renderer/components/Settings.tsx:114
 msgctxt "settings-view"
 msgid "Preferences"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Settings.tsx:80
 msgctxt "settings-view"
 msgid "Quit app"
-msgstr ""
+msgstr "Avsluta appen"
 
 #: src/renderer/components/Settings.tsx:181
 msgctxt "settings-view"
 msgid "Report a problem"
-msgstr ""
+msgstr "Rapportera ett problem"
 
 #: src/renderer/components/Settings.tsx:58
 msgctxt "settings-view"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Settings.tsx:136
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr ""
+msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
 
 #. Title label in navigation bar
 #: src/renderer/components/Settings.tsx:50
 msgctxt "settings-view-nav"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #. Back button in navigation bar
 #: src/renderer/components/Support.tsx:146
 msgctxt "support-nav"
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/renderer/components/Support.tsx:392
 msgctxt "support-view"
 msgid "Back"
-msgstr ""
+msgstr "Tillbaka"
 
 #: src/renderer/components/Support.tsx:252
 msgctxt "support-view"
 msgid "Describe your problem"
-msgstr ""
+msgstr "Beskriv ditt problem"
 
 #: src/renderer/components/Support.tsx:357
 msgctxt "support-view"
 msgid "Edit message"
-msgstr ""
+msgstr "Redigera meddelande"
 
 #: src/renderer/components/Support.tsx:345
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr ""
+msgstr "Det gick inte att skicka"
 
 #: src/renderer/components/Support.tsx:297
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
-msgstr ""
+msgstr "Om det behövs kontaktar vi dig på %(email)s"
 
 #: src/renderer/components/Support.tsx:123
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr ""
+msgstr "Rapportera ett problem"
 
 #: src/renderer/components/Support.tsx:265
 msgctxt "support-view"
 msgid "Send"
-msgstr ""
+msgstr "Skicka"
 
 #: src/renderer/components/Support.tsx:389
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr ""
+msgstr "Skicka ändå"
 
 #: src/renderer/components/Support.tsx:285
 msgctxt "support-view"
 msgid "Sending..."
-msgstr ""
+msgstr "Skicka..."
 
 #: src/renderer/components/Support.tsx:319
 msgctxt "support-view"
 msgid "Sent"
-msgstr ""
+msgstr "Skickat"
 
 #: src/renderer/components/Support.tsx:322
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
-msgstr ""
+msgstr "Tack! Vi kommer att undersöka detta."
 
 #: src/renderer/components/Support.tsx:126
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr ""
+msgstr "För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal."
 
 #: src/renderer/components/Support.tsx:360
 msgctxt "support-view"
 msgid "Try again"
-msgstr ""
+msgstr "Försök igen"
 
 #: src/renderer/components/Support.tsx:261
 msgctxt "support-view"
 msgid "View app logs"
-msgstr ""
+msgstr "Visa appens loggar"
 
 #: src/renderer/components/Support.tsx:383
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr ""
+msgstr "Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress."
 
 #: src/renderer/components/Support.tsx:348
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr ""
+msgstr "Du kan behöva gå tillbaka till appens huvudskärm och klicka på Koppla från innan du försöker igen. Oroa dig inte, den information du angett i formuläret kommer att bli kvar där."
 
 #: src/renderer/components/Support.tsx:242
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr ""
+msgstr "Din e-postadress (valfritt)"
 
 #: src/renderer/components/TunnelControl.tsx:121
 msgctxt "tunnel-control"
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: src/renderer/components/TunnelControl.tsx:115
 msgctxt "tunnel-control"
 msgid "Disconnect"
-msgstr ""
+msgstr "Koppla från"
 
 #: src/renderer/components/TunnelControl.tsx:109
 msgctxt "tunnel-control"
 msgid "Secure my connection"
-msgstr ""
+msgstr "Skydda min anslutning"
 
 #: src/renderer/components/TunnelControl.tsx:93
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr ""
+msgstr "Växla plats"
+
