@@ -28,6 +28,7 @@ class ConnectFragment : Fragment() {
 
         actionButton = ConnectActionButton(view)
         actionButton.onConnect = { connect() }
+        actionButton.onCancel = { cancel() }
 
         return view
     }
@@ -42,5 +43,17 @@ class ConnectFragment : Fragment() {
 
         status.setTextColor(context!!.getColor(R.color.white))
         status.setText(R.string.creating_secure_connection)
+    }
+
+    private fun cancel() {
+        actionButton.state = ConnectionState.Disconnected
+
+        connectingSpinner.visibility = View.INVISIBLE
+        notificationBanner.visibility = View.GONE
+
+        headerBar.setBackgroundColor(context!!.getColor(R.color.red))
+
+        status.setTextColor(context!!.getColor(R.color.red))
+        status.setText(R.string.unsecured_connection)
     }
 }
