@@ -5,7 +5,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-    <LinearLayout
+    <LinearLayout android:id="@+id/header_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -31,10 +31,50 @@
                 />
     </LinearLayout>
 
+    <LinearLayout android:id="@+id/notification_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="8dp"
+            android:background="@color/darkBlue"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="gone"
+            >
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:layout_marginLeft="19dp"
+                android:src="@drawable/icon_notification_error"
+                />
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="7dp"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="@string/blocking_internet"
+                android:textAllCaps="true"
+                />
+    </LinearLayout>
+
     <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="4"
+            android:layout_weight="1"
+            />
+
+    <ProgressBar android:id="@+id/connecting_spinner"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="14dp"
+            android:indeterminate="true"
+            android:indeterminateOnly="true"
+            android:indeterminateDuration="600"
+            android:indeterminateDrawable="@drawable/icon_spinner"
+            android:visibility="invisible"
             />
 
     <LinearLayout
@@ -45,7 +85,7 @@
             android:padding="24dp"
             android:gravity="start"
             >
-        <TextView
+        <TextView android:id="@+id/connection_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
@@ -85,8 +125,8 @@
 
     <Space
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="32dp"
+            android:layout_weight="0"
             />
 
     <LinearLayout
@@ -103,7 +143,7 @@
                 android:paddingRight="8dp"
                 style="@style/White20Button"
                 />
-        <Button
+        <Button android:id="@+id/action_button"
                 android:text="@string/connect"
                 style="@style/GreenButton"
                 />
