@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Mullvad VPN</string>
+
+    <string name="login_title">Login</string>
+    <string name="login_description">Enter your account number</string>
+    <string name="login_hint">0000 0000 0000 0000</string>
+    <string name="logging_in_title">Logging in</string>
+    <string name="logging_in_description">Checking account number</string>
+    <string name="logged_in_title">Login successful</string>
+    <string name="login_fail_title">Login failed</string>
+    <string name="login_fail_description">Invalid account number, try again</string>
 </resources>
