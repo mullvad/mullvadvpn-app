@@ -43,9 +43,11 @@
     <ClCompile Include="winfw.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guidhash.h" />
     <ClInclude Include="iobjectinstaller.h" />
     <ClInclude Include="mullvadguids.h" />
     <ClInclude Include="mullvadobjects.h" />
+    <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\blockall.h" />
     <ClInclude Include="rules\ifirewallrule.h" />
     <ClInclude Include="rules\permitdhcp.h" />

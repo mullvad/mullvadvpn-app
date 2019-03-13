@@ -77,6 +77,8 @@
     <ClInclude Include="rules\permitvpntunnelservice.h">
       <Filter>rules</Filter>
     </ClInclude>
+    <ClInclude Include="wfpobjecttype.h" />
+    <ClInclude Include="guidhash.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">

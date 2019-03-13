@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "sessioncontroller.h"
+#include "wfpobjecttype.h"
 #include "libwfp/objectinstaller.h"
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"
@@ -95,7 +96,7 @@ bool SessionController::addProvider(wfp::ProviderBuilder &providerBuilder)
 
 	if (status)
 	{
-		m_transactionRecords.emplace_back(SessionRecord(key, SessionRecord::ObjectType::Provider));
+		m_transactionRecords.emplace_back(SessionRecord(key, WfpObjectType::Provider));
 	}
 
 	return status;
@@ -114,7 +115,7 @@ bool SessionController::addSublayer(wfp::SublayerBuilder &sublayerBuilder)
 
 	if (status)
 	{
-		m_transactionRecords.emplace_back(SessionRecord(key, SessionRecord::ObjectType::Sublayer));
+		m_transactionRecords.emplace_back(SessionRecord(key, WfpObjectType::Sublayer));
 	}
 
 	return status;

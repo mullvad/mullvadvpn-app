@@ -1,9 +1,23 @@
 #pragma once
+
+#include "wfpobjecttype.h"
+#include "guidhash.h"
 #include <guiddef.h>
+#include <unordered_set>
+#include <map>
+
+using WfpObjectRegistry = std::unordered_set<GUID>;
+using DetailedWfpObjectRegistry = std::multimap<WfpObjectType, GUID>;
 
 class MullvadGuids
 {
+	static WfpObjectRegistry BuildRegistry();
+	static DetailedWfpObjectRegistry BuildDetailedRegistry();
+
 public:
+
+	static const WfpObjectRegistry &Registry();
+	static const DetailedWfpObjectRegistry &DetailedRegistry();
 
 	MullvadGuids() = delete;
 

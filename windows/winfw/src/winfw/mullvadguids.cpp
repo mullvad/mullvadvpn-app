@@ -1,5 +1,82 @@
 #include "stdafx.h"
 #include "mullvadguids.h"
+#include <algorithm>
+#include <iterator>
+
+//static
+WfpObjectRegistry MullvadGuids::BuildRegistry()
+{
+	const auto detailedRegistry = DetailedRegistry();
+	using ValueType = decltype(detailedRegistry)::const_reference;
+
+	std::unordered_set<GUID> registry;
+
+	std::transform(detailedRegistry.begin(), detailedRegistry.end(), std::inserter(registry, registry.end()), [](ValueType value)
+	{
+		return value.second;
+	});
+
+	return registry;
+}
+
+//static
+DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
+{
+	std::multimap<WfpObjectType, GUID> registry;
+
+	registry.insert(std::make_pair(WfpObjectType::Provider, Provider()));
+	registry.insert(std::make_pair(WfpObjectType::Sublayer, SublayerWhitelist()));
+	registry.insert(std::make_pair(WfpObjectType::Sublayer, SublayerBlacklist()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterBlockAll_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterBlockAll_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterBlockAll_Inbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterBlockAll_Inbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_10_8()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_172_16_12()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_192_168_16()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_169_254_16()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_Multicast()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_Ipv6_fe80_10()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLan_Ipv6_Multicast()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLanService_10_8()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLanService_172_16_12()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLanService_192_168_16()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLanService_169_254_16()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLanService_Ipv6_fe80_10()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLoopback_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLoopback_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLoopback_Inbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitLoopback_Inbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitDhcpV4_Outbound_Request()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitDhcpV6_Outbound_Request()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitDhcpV4_Inbound_Response()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitDhcpV6_Inbound_Response()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnRelay()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnel_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnel_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv6()));
+
+	return registry;
+}
+
+//static
+const WfpObjectRegistry &MullvadGuids::Registry()
+{
+	static auto registry = BuildRegistry();	// TODO: Thread safety.
+	return registry;
+}
+
+//static
+const DetailedWfpObjectRegistry &MullvadGuids::DetailedRegistry()
+{
+	static auto registry = BuildDetailedRegistry();	// TODO: Thread safety.
+	return registry;
+}
 
 //static
 const GUID &MullvadGuids::Provider()

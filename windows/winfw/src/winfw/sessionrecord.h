@@ -1,6 +1,7 @@
 #pragma once
 
 #include "libwfp/filterengine.h"
+#include "wfpobjecttype.h"
 #include <guiddef.h>
 #include <windows.h>
 
@@ -8,14 +9,7 @@ class SessionRecord
 {
 public:
 
-	enum class ObjectType
-	{
-		Provider,
-		Sublayer,
-		Filter
-	};
-
-	SessionRecord(const GUID &id, ObjectType type);
+	SessionRecord(const GUID &id, WfpObjectType type);
 	SessionRecord(UINT64 id);
 
 	SessionRecord(const SessionRecord &) = default;
@@ -28,7 +22,7 @@ public:
 
 private:
 
-	ObjectType m_type;
+	WfpObjectType m_type;
 
 	GUID m_id;
 	UINT64 m_filterId;
