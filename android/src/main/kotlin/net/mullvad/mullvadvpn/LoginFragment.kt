@@ -62,6 +62,15 @@ class LoginFragment : Fragment() {
         loggedInStatus.visibility = View.VISIBLE
 
         accountInput.state = LoginState.Success
+
+        Handler().postDelayed(Runnable { openConnectScreen() }, 1000)
+    }
+
+    private fun openConnectScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, ConnectFragment())
+            commit()
+        }
     }
 
     private fun loginFailure() {
