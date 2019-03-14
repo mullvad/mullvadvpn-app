@@ -19,4 +19,10 @@
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
     <string name="switch_location">Switch location</string>
+
+    <string name="select_location">Select location</string>
+    <string name="select_location_description">
+        While connected, your real location is masked with a private and secure location in the
+        selected region
+    </string>
 </resources>

@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
@@ -38,6 +39,10 @@ class ConnectFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
 
+        view.findViewById<Button>(R.id.switch_location).setOnClickListener {
+            openSwitchLocationScreen()
+        }
+
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
@@ -66,5 +71,13 @@ class ConnectFragment : Fragment() {
 
     private fun connected() {
         state = ConnectionState.Connected
+    }
+
+    private fun openSwitchLocationScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, SelectLocationFragment())
+            addToBackStack(null)
+            commit()
+        }
     }
 }
