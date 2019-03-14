@@ -37,7 +37,8 @@ class ConnectFragment : Fragment() {
 
         actionButton = ConnectActionButton(view)
         actionButton.onConnect = { connect() }
-        actionButton.onCancel = { cancel() }
+        actionButton.onCancel = { disconnect() }
+        actionButton.onDisconnect = { disconnect() }
 
         return view
     }
@@ -56,7 +57,7 @@ class ConnectFragment : Fragment() {
         connectHandler.postDelayed(Runnable { connected() }, 1000)
     }
 
-    private fun cancel() {
+    private fun disconnect() {
         actionButton.state = ConnectionState.Disconnected
 
         connectingSpinner.visibility = View.INVISIBLE
