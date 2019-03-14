@@ -11,11 +11,18 @@ import android.widget.TextView
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var connectingSpinner: View
-    private lateinit var headerBar: View
+    private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: View
     private lateinit var status: TextView
 
     private lateinit var connectHandler: Handler
+
+    private var state = ConnectionState.Disconnected
+        set(value) {
+            actionButton.state = value
+            headerBar.state = value
+            field = value
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +37,8 @@ class ConnectFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
 
+        headerBar = HeaderBar(view, context!!)
         connectingSpinner = view.findViewById(R.id.connecting_spinner)
-        headerBar = view.findViewById(R.id.header_bar)
         notificationBanner = view.findViewById(R.id.notification_banner)
         status = view.findViewById(R.id.connection_status)
 
@@ -44,12 +51,10 @@ class ConnectFragment : Fragment() {
     }
 
     private fun connect() {
-        actionButton.state = ConnectionState.Connecting
+        state = ConnectionState.Connecting
 
         connectingSpinner.visibility = View.VISIBLE
         notificationBanner.visibility = View.VISIBLE
-
-        headerBar.setBackgroundColor(context!!.getColor(R.color.green))
 
         status.setTextColor(context!!.getColor(R.color.white))
         status.setText(R.string.creating_secure_connection)
@@ -58,12 +63,10 @@ class ConnectFragment : Fragment() {
     }
 
     private fun disconnect() {
-        actionButton.state = ConnectionState.Disconnected
+        state = ConnectionState.Disconnected
 
         connectingSpinner.visibility = View.INVISIBLE
         notificationBanner.visibility = View.GONE
-
-        headerBar.setBackgroundColor(context!!.getColor(R.color.red))
 
         status.setTextColor(context!!.getColor(R.color.red))
         status.setText(R.string.unsecured_connection)
@@ -72,12 +75,10 @@ class ConnectFragment : Fragment() {
     }
 
     private fun connected() {
-        actionButton.state = ConnectionState.Connected
+        state = ConnectionState.Connected
 
         connectingSpinner.visibility = View.INVISIBLE
         notificationBanner.visibility = View.GONE
-
-        headerBar.setBackgroundColor(context!!.getColor(R.color.green))
 
         status.setTextColor(context!!.getColor(R.color.green))
         status.setText(R.string.secure_connection)
