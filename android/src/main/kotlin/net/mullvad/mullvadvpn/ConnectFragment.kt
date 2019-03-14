@@ -43,9 +43,11 @@ class ConnectFragment : Fragment() {
         status = view.findViewById(R.id.connection_status)
 
         actionButton = ConnectActionButton(view)
-        actionButton.onConnect = { connect() }
-        actionButton.onCancel = { disconnect() }
-        actionButton.onDisconnect = { disconnect() }
+        actionButton.apply {
+            onConnect = { connect() }
+            onCancel = { disconnect() }
+            onDisconnect = { disconnect() }
+        }
 
         return view
     }
