@@ -163,7 +163,7 @@ export default class Settings extends Component<IProps> {
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openDownloadLink}>
           {icon}
           <Cell.Label>{pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText>{this.props.appVersion}</Cell.SubText>
+          <Cell.SubText style={styles.settings__appversion}>{this.props.appVersion}</Cell.SubText>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         {footer}
