@@ -3,6 +3,7 @@
 #include "iobjectinstaller.h"
 #include "sessionrecord.h"
 #include "libwfp/filterengine.h"
+#include "libwfp/iidentifiable.h"
 #include <atomic>
 #include <memory>
 #include <vector>
