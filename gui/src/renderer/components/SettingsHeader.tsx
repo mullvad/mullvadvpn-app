@@ -15,11 +15,11 @@ const styles = {
     fontFamily: 'DINPro',
     fontSize: 32,
     fontWeight: '900',
-    lineHeight: 40,
+    lineHeight: 32,
     color: 'rgb(255, 255, 255)',
   }),
   subtitle: Styles.createTextStyle({
-    marginTop: 4,
+    marginTop: 8,
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '600',
