@@ -10,7 +10,7 @@ import android.view.ViewGroup
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var headerBar: HeaderBar
-    private lateinit var notificationBanner: View
+    private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
 
     private lateinit var connectHandler: Handler
@@ -19,7 +19,9 @@ class ConnectFragment : Fragment() {
         set(value) {
             actionButton.state = value
             headerBar.state = value
+            notificationBanner.state = value
             status.state = value
+
             field = value
         }
 
@@ -36,9 +38,8 @@ class ConnectFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
 
-        notificationBanner = view.findViewById(R.id.notification_banner)
-
         headerBar = HeaderBar(view, context!!)
+        notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
 
         actionButton = ConnectActionButton(view)
@@ -54,22 +55,16 @@ class ConnectFragment : Fragment() {
     private fun connect() {
         state = ConnectionState.Connecting
 
-        notificationBanner.visibility = View.VISIBLE
-
         connectHandler.postDelayed(Runnable { connected() }, 1000)
     }
 
     private fun disconnect() {
         state = ConnectionState.Disconnected
 
-        notificationBanner.visibility = View.GONE
-
         connectHandler.removeCallbacksAndMessages(null)
     }
 
     private fun connected() {
         state = ConnectionState.Connected
-
-        notificationBanner.visibility = View.GONE
     }
 }
