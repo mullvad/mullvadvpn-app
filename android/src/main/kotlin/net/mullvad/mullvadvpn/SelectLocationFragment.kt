@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 
 class SelectLocationFragment : Fragment() {
     override fun onCreateView(
@@ -12,6 +13,12 @@ class SelectLocationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.select_location, container, false)
+        val view = inflater.inflate(R.layout.select_location, container, false)
+
+        view.findViewById<ImageButton>(R.id.close).setOnClickListener {
+            activity?.onBackPressed()
+        }
+
+        return view
     }
 }
