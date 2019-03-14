@@ -12,7 +12,6 @@ import {
 } from './NavigationBar';
 import styles from './PreferencesStyles';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import Switch from './Switch';
 
 export interface IPreferencesProps {
   autoStart: boolean;
@@ -59,13 +58,16 @@ export default class Preferences extends Component<IPreferencesProps> {
                       <Cell.Label>
                         {pgettext('preferences-view', 'Launch app on start-up')}
                       </Cell.Label>
-                      <Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
+                      <Cell.Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
                     <Cell.Container>
                       <Cell.Label>{pgettext('preferences-view', 'Auto-connect')}</Cell.Label>
-                      <Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
+                      <Cell.Switch
+                        isOn={this.props.autoConnect}
+                        onChange={this.props.setAutoConnect}
+                      />
                     </Cell.Container>
                     <Cell.Footer>
                       {pgettext(
@@ -78,7 +80,7 @@ export default class Preferences extends Component<IPreferencesProps> {
                       <Cell.Label>
                         {pgettext('preferences-view', 'Local network sharing')}
                       </Cell.Label>
-                      <Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                      <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                     </Cell.Container>
                     <Cell.Footer>
                       {pgettext(
@@ -126,7 +128,7 @@ class MonochromaticIconToggle extends Component<IMonochromaticIconProps> {
         <View>
           <Cell.Container>
             <Cell.Label>{pgettext('preferences-view', 'Monochromatic tray icon')}</Cell.Label>
-            <Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
+            <Cell.Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
             {pgettext(
@@ -155,7 +157,7 @@ class StartMinimizedToggle extends Component<IStartMinimizedProps> {
         <View>
           <Cell.Container>
             <Cell.Label>{pgettext('preferences-view', 'Start minimized')}</Cell.Label>
-            <Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
+            <Cell.Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
             {pgettext('preferences-view', 'Show only the tray icon when the app starts.')}

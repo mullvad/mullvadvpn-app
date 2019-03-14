@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
+import { default as SwitchControl } from './Switch';
 
 const styles = {
   cellButton: {
@@ -62,6 +63,9 @@ const styles = {
       color: colors.white,
     }),
   },
+  switch: Styles.createViewStyle({
+    flex: 0,
+  }),
   input: {
     frame: Styles.createViewStyle({
       flexGrow: 0,
@@ -156,15 +160,15 @@ interface ISectionTitleProps {
   children?: React.ReactText;
 }
 
-export function SectionTitle(props: ISectionTitleProps) {
+export const SectionTitle = function CellSectionTitle(props: ISectionTitleProps) {
   return <Text style={styles.sectionTitle}>{props.children}</Text>;
-}
+};
 
 interface ISectionProps {
   children?: React.ReactNode;
 }
 
-export class Section extends Component<ISectionProps> {
+export const Section = class CellSection extends Component<ISectionProps> {
   public render() {
     return (
       <View>
@@ -174,15 +178,15 @@ export class Section extends Component<ISectionProps> {
       </View>
     );
   }
-}
+};
 
 interface IContainerProps {
   children: React.ReactNode;
 }
 
-export function Container({ children }: IContainerProps) {
+export const Container = function CellContainer({ children }: IContainerProps) {
   return <View style={styles.cellContainer}>{children}</View>;
-}
+};
 
 interface ILabelProps {
   containerStyle?: Types.ViewStyleRuleSet;
@@ -193,7 +197,7 @@ interface ILabelProps {
   children?: React.ReactNode;
 }
 
-export function Label(props: ILabelProps) {
+export const Label = function CellLabel(props: ILabelProps) {
   const {
     children,
     containerStyle,
@@ -220,20 +224,28 @@ export function Label(props: ILabelProps) {
       )}
     </CellHoverContext.Consumer>
   );
-}
+};
+
+export const Switch = function CellSwitch(props: SwitchControl['props']) {
+  return (
+    <View style={styles.switch}>
+      <SwitchControl {...props} />
+    </View>
+  );
+};
 
 interface InputFrameProps {
   children?: React.ReactNode;
   style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
 }
 
-export function InputFrame(props: InputFrameProps) {
+export const InputFrame = function CellInputFrame(props: InputFrameProps) {
   const { style, children } = props;
 
   return <View style={[styles.input.frame, style]}>{children}</View>;
-}
+};
 
-export const Input = React.forwardRef(function InputT(
+export const Input = React.forwardRef(function CellInput(
   props: Types.TextInputProps,
   ref?: React.Ref<TextInput>,
 ) {
@@ -256,7 +268,7 @@ type SubTextProps = Types.TextProps & {
   cellHoverStyle?: Types.ViewStyle;
 };
 
-export function SubText(props: SubTextProps) {
+export const SubText = function CellSubText(props: SubTextProps) {
   const { children, ref: _, style, cellHoverStyle, ...otherProps } = props;
 
   return (
@@ -268,9 +280,9 @@ export function SubText(props: SubTextProps) {
       )}
     </CellHoverContext.Consumer>
   );
-}
+};
 
-export function Icon(props: ImageView['props']) {
+export const Icon = function CellIcon(props: ImageView['props']) {
   const { children: _children, style, tintColor, tintHoverColor, ...otherProps } = props;
 
   return (
@@ -284,12 +296,12 @@ export function Icon(props: ImageView['props']) {
       )}
     </CellHoverContext.Consumer>
   );
-}
+};
 
-export function Footer({ children }: IContainerProps) {
+export const Footer = function CellFooter({ children }: IContainerProps) {
   return (
     <View style={styles.footer.container}>
       <Text style={styles.footer.text}>{children}</Text>
     </View>
   );
-}
+};

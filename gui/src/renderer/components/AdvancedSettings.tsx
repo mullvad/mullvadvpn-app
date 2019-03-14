@@ -15,7 +15,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import Switch from './Switch';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -107,7 +106,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
 
                   <Cell.Container>
                     <Cell.Label>{pgettext('advanced-settings-view', 'Enable IPv6')}</Cell.Label>
-                    <Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                    <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
                   <Cell.Footer>
                     {pgettext(
@@ -120,7 +119,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Cell.Label textStyle={styles.advanced_settings__block_when_disconnected_label}>
                       {pgettext('advanced-settings-view', 'Block when disconnected')}
                     </Cell.Label>
-                    <Switch
+                    <Cell.Switch
                       isOn={this.props.blockWhenDisconnected}
                       onChange={this.props.setBlockWhenDisconnected}
                     />
