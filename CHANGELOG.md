@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Integrate initial Shadowsocks proxy support. Accessible via CLI.
 - Improve "Out of time" view button leading to the account website by unlocking internet access
   before opening the browser
+- Add translations for German, Spanish, French, Swedish, Chinese languages
 
 ### Fixed
 - Fix the potential reconnect loop in GUI, triggered by the timeout when receiving
