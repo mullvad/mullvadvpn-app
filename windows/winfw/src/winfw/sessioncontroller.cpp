@@ -227,6 +227,16 @@ uint32_t SessionController::checkpoint()
 	return m_records.back().key();
 }
 
+uint32_t SessionController::peekCheckpoint()
+{
+	if (m_transactionRecords.empty())
+	{
+		return 0;
+	}
+
+	return m_transactionRecords.back().key();
+}
+
 void SessionController::revert(uint32_t key)
 {
 	if (false == m_activeTransaction)

@@ -32,6 +32,11 @@ public:
 	uint32_t checkpoint();
 
 	//
+	// Hack. Read checkpoint while currently inside a transaction.
+	//
+	uint32_t peekCheckpoint();
+
+	//
 	// Purge objects in the stack and return to an earlier state
 	// Use only inside active transaction
 	//

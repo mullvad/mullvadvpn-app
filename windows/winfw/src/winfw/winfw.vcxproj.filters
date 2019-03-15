@@ -36,6 +36,7 @@
     <ClCompile Include="rules\permitvpntunnelservice.cpp">
       <Filter>rules</Filter>
     </ClCompile>
+    <ClCompile Include="objectpurger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -79,6 +80,7 @@
     </ClInclude>
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="guidhash.h" />
+    <ClInclude Include="objectpurger.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">

@@ -22,6 +22,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="mullvadguids.cpp" />
     <ClCompile Include="mullvadobjects.cpp" />
+    <ClCompile Include="objectpurger.cpp" />
     <ClCompile Include="rules\blockall.cpp" />
     <ClCompile Include="rules\permitdhcp.cpp" />
     <ClCompile Include="rules\permitlan.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="iobjectinstaller.h" />
     <ClInclude Include="mullvadguids.h" />
     <ClInclude Include="mullvadobjects.h" />
+    <ClInclude Include="objectpurger.h" />
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\blockall.h" />
     <ClInclude Include="rules\ifirewallrule.h" />
